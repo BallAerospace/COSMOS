@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Tue, 02 Jul 2019 17:04:25 -0600</pubDate>
-    <lastBuildDate>Tue, 02 Jul 2019 17:04:25 -0600</lastBuildDate>
+    <pubDate>Tue, 02 Jul 2019 17:08:46 -0600</pubDate>
+    <lastBuildDate>Tue, 02 Jul 2019 17:08:46 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.7.4</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,101 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 4.4.0 Released</title>
+      <link>http://cosmosrb.com/news/2019/06/28/cosmos-4-4-0-released/</link>
+      <pubDate>Fri, 28 Jun 2019 07:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2019/06/28/cosmos-4-4-0-released/</guid>
+      <description>&lt;p&gt;Here’s COSMOS 4.4.0!   52 tickets have been incorporated including 18 new features, 19 bug fixes and 15 general maintenance changes.&lt;/p&gt;
+
+&lt;p&gt;Overall this is just a stability bug fix release, but there are a few interesting changes.   For one, max packet reception speed has been greatly increased due to ticket #911.  CmdExtractor can now output in a CSV format. ScriptRunner has a recently opened file menu section, and the show_backtrace feature is now a menu option as well.  There is much better support for giving absolute paths to config files on the command line.  There is also a new LED type widget to display boolean telemetry.&lt;/p&gt;
+
+&lt;p&gt;Enjoy and see below for the full list of changes.&lt;/p&gt;
+
+&lt;h3 id=&quot;breaking-changes&quot;&gt;Breaking Changes:&lt;/h3&gt;
+
+&lt;p&gt;The faster identification in ticket #911 does come with a potentially breaking change.  The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type).   This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target.  If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.&lt;/p&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/822&quot;&gt;#822&lt;/a&gt; CmdExtractor CSV Output Option&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/854&quot;&gt;#854&lt;/a&gt; ScriptRunner open multiple files from File-&amp;gt;Open&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/877&quot;&gt;#877&lt;/a&gt; Graph in PktViewer during Replay should open TlmGrapher in Replay&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/878&quot;&gt;#878&lt;/a&gt; Debugger enhancements&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/886&quot;&gt;#886&lt;/a&gt; Add show_backtrace menu option to ScriptRunner/TestRunner&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/891&quot;&gt;#891&lt;/a&gt; Ability for protocol write methods to write send commands to the interface that owns it&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/893&quot;&gt;#893&lt;/a&gt; Canvas image ease of use&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/895&quot;&gt;#895&lt;/a&gt; prompt should take color and font options&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/911&quot;&gt;#911&lt;/a&gt; Fast Identification&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/918&quot;&gt;#918&lt;/a&gt; Limits bar widget display specified range&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/934&quot;&gt;#934&lt;/a&gt; Recent Files list in Script Runner File menu&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/938&quot;&gt;#938&lt;/a&gt; Test Runner disable start buttons&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/956&quot;&gt;#956&lt;/a&gt; Templated Protocol Limited to One Target per Interface&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/964&quot;&gt;#964&lt;/a&gt; Improve error message when accessing packets during initialization&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/986&quot;&gt;#986&lt;/a&gt; Script Runner should note Disconnect mode in log&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/987&quot;&gt;#987&lt;/a&gt; Tools should support absolute paths on the command line&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/990&quot;&gt;#990&lt;/a&gt; Add Boolean Telemetry Widget&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1017&quot;&gt;#1017&lt;/a&gt; Data Viewer component for colored text items&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/880&quot;&gt;#880&lt;/a&gt; tmp output not capitalizing targets&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/884&quot;&gt;#884&lt;/a&gt; Documentation updates&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/913&quot;&gt;#913&lt;/a&gt; Workaround Travis accept failures&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/914&quot;&gt;#914&lt;/a&gt; Increase json_drb start timeout&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/925&quot;&gt;#925&lt;/a&gt; Script syntax highlighting improvements&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/930&quot;&gt;#930&lt;/a&gt; Update COSMOS Travis builds&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/940&quot;&gt;#940&lt;/a&gt; Update keyword documentation&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/953&quot;&gt;#953&lt;/a&gt; Simplify Launcher.bat files&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/955&quot;&gt;#955&lt;/a&gt; Document tool command line options&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/995&quot;&gt;#995&lt;/a&gt; Test Runner should use LOAD_UTILITY to better match scripting&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/998&quot;&gt;#998&lt;/a&gt; Enable raw logging when LOG_RAW used&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1000&quot;&gt;#1000&lt;/a&gt; Add IgnorePacketProtocol to defaults&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1005&quot;&gt;#1005&lt;/a&gt; Celsius is misspelled&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1008&quot;&gt;#1008&lt;/a&gt; Move handbook assets out of outputs&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1010&quot;&gt;#1010&lt;/a&gt; Widget documentation and cleanup&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/870&quot;&gt;#870&lt;/a&gt; TlmViewer Block Widget exhibits weird scrolling issue&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/874&quot;&gt;#874&lt;/a&gt; Demo commanding screen can’t run scripts&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/882&quot;&gt;#882&lt;/a&gt; Demo background task unable to be restarted&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/889&quot;&gt;#889&lt;/a&gt; FixedProtocol does not identify packets when leading bytes discarded&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/908&quot;&gt;#908&lt;/a&gt; Bad Hex String Conversion in Command Sender&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/909&quot;&gt;#909&lt;/a&gt; Replay doesn’t work with TlmGrapher when loading saved_config&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/916&quot;&gt;#916&lt;/a&gt; Allow FORMAT_STRING before STATES&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/919&quot;&gt;#919&lt;/a&gt; Limits Checking Enabled Status on Properties Dialog not accurate&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/920&quot;&gt;#920&lt;/a&gt; Gemfile may be too strict in ruby-termios version requirement&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/927&quot;&gt;#927&lt;/a&gt; Error if DECLARE_TARGET with no SYSTEM target folder&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/945&quot;&gt;#945&lt;/a&gt; Screenshotting on Macs may not work&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/948&quot;&gt;#948&lt;/a&gt; Unable to connect limits monitor to replay server&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/966&quot;&gt;#966&lt;/a&gt; OpenGL Builder is Expecting “EarthMap1024x512.gif”, but Packaged GIF is “Earthmap1024x512.gif”&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/975&quot;&gt;#975&lt;/a&gt; Multiple Errors in a chain of ScriptRunner Methods&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/978&quot;&gt;#978&lt;/a&gt; ScriptRunner breakpoints don’t get set on the correct line&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/980&quot;&gt;#980&lt;/a&gt; Include target REQUIRE files in marshal&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/983&quot;&gt;#983&lt;/a&gt; Line number discrepancy in TestRunner Report/ScriptRunner output&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/992&quot;&gt;#992&lt;/a&gt; missing method in xtce_converter; process_xtce&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1022&quot;&gt;#1022&lt;/a&gt; Table Manager TABLEFILE doesn’t support subdirectories&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-430&quot;&gt;Migration Notes from COSMOS 4.3.0:&lt;/h3&gt;
+
+&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
+
+&lt;p&gt;See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Protocols</title>
@@ -259,101 +354,6 @@ The COSMOS log file format and predentified protocol formats have changed to sup
 &lt;/ul&gt;
 
 &lt;h3 id=&quot;migration-notes-from-cosmos-42x&quot;&gt;Migration Notes from COSMOS 4.2.x:&lt;/h3&gt;
-&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
-
-&lt;p&gt;See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Ball Aerospace COSMOS 4.4.0 Released</title>
-      <link>http://cosmosrb.com/news/2018/06/28/cosmos-4-4-0-released/</link>
-      <pubDate>Thu, 28 Jun 2018 07:00:00 -0600</pubDate>
-      <dc:creator>ryanmelt</dc:creator>
-      
-      
-      <category>release</category>
-      
-      <guid isPermaLink="true">http://cosmosrb.com/news/2018/06/28/cosmos-4-4-0-released/</guid>
-      <description>&lt;p&gt;Here’s COSMOS 4.4.0!   52 tickets have been incorporated including 18 new features, 19 bug fixes and 15 general maintenance changes.&lt;/p&gt;
-
-&lt;p&gt;Overall this is just a stability bug fix release, but there are a few interesting changes.   For one, max packet reception speed has been greatly increased due to ticket #911.  CmdExtractor can now output in a CSV format. ScriptRunner has a recently opened file menu section, and the show_backtrace feature is now a menu option as well.  There is much better support for giving absolute paths to config files on the command line.  There is also a new LED type widget to display boolean telemetry.&lt;/p&gt;
-
-&lt;p&gt;Enjoy and see below for the full list of changes.&lt;/p&gt;
-
-&lt;h3 id=&quot;breaking-changes&quot;&gt;Breaking Changes:&lt;/h3&gt;
-
-&lt;p&gt;The faster identification in ticket #911 does come with a potentially breaking change.  The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type).   This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target.  If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.&lt;/p&gt;
-
-&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/822&quot;&gt;#822&lt;/a&gt; CmdExtractor CSV Output Option&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/854&quot;&gt;#854&lt;/a&gt; ScriptRunner open multiple files from File-&amp;gt;Open&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/877&quot;&gt;#877&lt;/a&gt; Graph in PktViewer during Replay should open TlmGrapher in Replay&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/878&quot;&gt;#878&lt;/a&gt; Debugger enhancements&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/886&quot;&gt;#886&lt;/a&gt; Add show_backtrace menu option to ScriptRunner/TestRunner&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/891&quot;&gt;#891&lt;/a&gt; Ability for protocol write methods to write send commands to the interface that owns it&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/893&quot;&gt;#893&lt;/a&gt; Canvas image ease of use&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/895&quot;&gt;#895&lt;/a&gt; prompt should take color and font options&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/911&quot;&gt;#911&lt;/a&gt; Fast Identification&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/918&quot;&gt;#918&lt;/a&gt; Limits bar widget display specified range&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/934&quot;&gt;#934&lt;/a&gt; Recent Files list in Script Runner File menu&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/938&quot;&gt;#938&lt;/a&gt; Test Runner disable start buttons&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/956&quot;&gt;#956&lt;/a&gt; Templated Protocol Limited to One Target per Interface&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/964&quot;&gt;#964&lt;/a&gt; Improve error message when accessing packets during initialization&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/986&quot;&gt;#986&lt;/a&gt; Script Runner should note Disconnect mode in log&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/987&quot;&gt;#987&lt;/a&gt; Tools should support absolute paths on the command line&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/990&quot;&gt;#990&lt;/a&gt; Add Boolean Telemetry Widget&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1017&quot;&gt;#1017&lt;/a&gt; Data Viewer component for colored text items&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/880&quot;&gt;#880&lt;/a&gt; tmp output not capitalizing targets&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/884&quot;&gt;#884&lt;/a&gt; Documentation updates&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/913&quot;&gt;#913&lt;/a&gt; Workaround Travis accept failures&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/914&quot;&gt;#914&lt;/a&gt; Increase json_drb start timeout&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/925&quot;&gt;#925&lt;/a&gt; Script syntax highlighting improvements&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/930&quot;&gt;#930&lt;/a&gt; Update COSMOS Travis builds&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/940&quot;&gt;#940&lt;/a&gt; Update keyword documentation&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/953&quot;&gt;#953&lt;/a&gt; Simplify Launcher.bat files&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/955&quot;&gt;#955&lt;/a&gt; Document tool command line options&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/995&quot;&gt;#995&lt;/a&gt; Test Runner should use LOAD_UTILITY to better match scripting&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/998&quot;&gt;#998&lt;/a&gt; Enable raw logging when LOG_RAW used&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1000&quot;&gt;#1000&lt;/a&gt; Add IgnorePacketProtocol to defaults&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1005&quot;&gt;#1005&lt;/a&gt; Celsius is misspelled&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1008&quot;&gt;#1008&lt;/a&gt; Move handbook assets out of outputs&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1010&quot;&gt;#1010&lt;/a&gt; Widget documentation and cleanup&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/870&quot;&gt;#870&lt;/a&gt; TlmViewer Block Widget exhibits weird scrolling issue&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/874&quot;&gt;#874&lt;/a&gt; Demo commanding screen can’t run scripts&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/882&quot;&gt;#882&lt;/a&gt; Demo background task unable to be restarted&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/889&quot;&gt;#889&lt;/a&gt; FixedProtocol does not identify packets when leading bytes discarded&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/908&quot;&gt;#908&lt;/a&gt; Bad Hex String Conversion in Command Sender&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/909&quot;&gt;#909&lt;/a&gt; Replay doesn’t work with TlmGrapher when loading saved_config&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/916&quot;&gt;#916&lt;/a&gt; Allow FORMAT_STRING before STATES&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/919&quot;&gt;#919&lt;/a&gt; Limits Checking Enabled Status on Properties Dialog not accurate&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/920&quot;&gt;#920&lt;/a&gt; Gemfile may be too strict in ruby-termios version requirement&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/927&quot;&gt;#927&lt;/a&gt; Error if DECLARE_TARGET with no SYSTEM target folder&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/945&quot;&gt;#945&lt;/a&gt; Screenshotting on Macs may not work&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/948&quot;&gt;#948&lt;/a&gt; Unable to connect limits monitor to replay server&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/966&quot;&gt;#966&lt;/a&gt; OpenGL Builder is Expecting “EarthMap1024x512.gif”, but Packaged GIF is “Earthmap1024x512.gif”&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/975&quot;&gt;#975&lt;/a&gt; Multiple Errors in a chain of ScriptRunner Methods&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/978&quot;&gt;#978&lt;/a&gt; ScriptRunner breakpoints don’t get set on the correct line&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/980&quot;&gt;#980&lt;/a&gt; Include target REQUIRE files in marshal&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/983&quot;&gt;#983&lt;/a&gt; Line number discrepancy in TestRunner Report/ScriptRunner output&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/992&quot;&gt;#992&lt;/a&gt; missing method in xtce_converter; process_xtce&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1022&quot;&gt;#1022&lt;/a&gt; Table Manager TABLEFILE doesn’t support subdirectories&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;migration-notes-from-cosmos-430&quot;&gt;Migration Notes from COSMOS 4.3.0:&lt;/h3&gt;
-
 &lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
 
 &lt;p&gt;See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/&lt;/p&gt;
