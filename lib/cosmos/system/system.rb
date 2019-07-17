@@ -207,7 +207,7 @@ module Cosmos
         # First pass - Everything except targets
         parser.parse_file(filename) do |keyword, parameters|
           case keyword
-          when 'AUTO_DECLARE_TARGETS', 'DECLARE_TARGET', 'DECLARE_GEM_TARGET'
+          when 'AUTO_DECLARE_TARGETS', 'DECLARE_TARGET', 'DECLARE_GEM_TARGET', 'DECLARE_GEM_MULTI_TARGET'
             # Will be handled by second pass
 
           when 'PORT'
@@ -458,6 +458,19 @@ module Cosmos
           target = Target.new(target_name, substitute_name, configuration_directory, ConfigParser.handle_nil(parameters[2]), gem_dir)
           @targets[target.name] = target
 
+        when 'DECLARE_GEM_MULTI_TARGET'
+          usage = "#{keyword} <GEM NAME> <TARGET NAME> <SUBSTITUTE TARGET NAME (Optional)> <TARGET FILENAME (Optional - defaults to target.txt)>"
+          parser.verify_num_parameters(2, 4, usage)
+
+          target_name = parameters[1].to_s.upcase
+          substitute_name = nil
+          substitute_name = ConfigParser.handle_nil(parameters[2])
+          substitute_name.to_s.upcase if substitute_name
+          gem_dir = Gem::Specification.find_by_name(parameters[0]).gem_dir
+          File.join(gem_dir, target_name)
+          target = Target.new(target_name, substitute_name, configuration_directory, ConfigParser.handle_nil(parameters[3]), gem_dir)
+          @targets[target.name] = target
+
         end # case keyword
       end # parser.parse_file
 
@@ -689,11 +702,31 @@ module Cosmos
       Bundler.load.specs.each do |spec|
         spec_name_split = spec.name.split('-')
         if spec_name_split.length > 1 && (spec_name_split[0] == 'cosmos')
-          # Filter to just targets and not tools and other extensions
-          if File.exist?(File.join(spec.gem_dir, 'cmd_tlm'))
-            target_name = spec_name_split[1..-1].join('-').to_s.upcase
-            target = Target.new(target_name, nil, nil, nil, spec.gem_dir)
-            @targets[target.name] = target
+          # search for multiple targets packaged in a single gem
+          dirs = []
+          Dir.foreach(spec.gem_dir) { |dir_filename| dirs << dir_filename }
+          dirs.sort!
+          dirs.each do |dir_filename|
+            if dir_filename == "."
+              # check the base directory
+              curr_dir = spec.gem_dir
+              target_name = spec_name_split[1..-1].join('-').to_s.upcase
+            else
+              #check for targets in other directories 1 level deep
+              next if dir_filename[0] == '.'               #skip dot directories and ".."
+              next if dir_filename != dir_filename.upcase  #skip non uppercase directories
+              curr_dir = File.join(spec.gem_dir, dir_filename)
+              target_name = dir_filename
+            end
+            # check for the cmd_tlm directory - if it has it, then we have found a target
+            if File.directory?(File.join(curr_dir,'cmd_tlm'))
+              # If any of the targets original directory name matches the
+              # current directory then it must have been already processed by
+              # DECLARE_TARGET so we skip it.
+              next if @targets.select {|name, target| target.original_name == target_name }.length > 0
+              target = Target.new(target_name,nil, nil, nil, spec.gem_dir)
+              @targets[target.name] = target
+           end
           end
         end
       end
