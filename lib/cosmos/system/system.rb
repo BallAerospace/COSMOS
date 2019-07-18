@@ -467,7 +467,7 @@ module Cosmos
           substitute_name = ConfigParser.handle_nil(parameters[2])
           substitute_name.to_s.upcase if substitute_name
           gem_dir = Gem::Specification.find_by_name(parameters[0]).gem_dir
-          File.join(gem_dir, target_name)
+          gem_dir = File.join(gem_dir, target_name)
           target = Target.new(target_name, substitute_name, configuration_directory, ConfigParser.handle_nil(parameters[3]), gem_dir)
           @targets[target.name] = target
 
