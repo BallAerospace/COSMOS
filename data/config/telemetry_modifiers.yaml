@@ -79,7 +79,7 @@ ARRAY_ITEM:
 APPEND_ARRAY_ITEM:
   modifiers:
     <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
-  summary: Defines a telemetry item in the current telemetry packedt that is an array
+  summary: Defines a telemetry item in the current telemetry packet that is an array
   example: APPEND_ARRAY_ITEM ARRAY 32 FLOAT 320 "Array of 10 floats"
   parameters:
     - name: Name
