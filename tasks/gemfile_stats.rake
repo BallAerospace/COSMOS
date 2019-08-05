@@ -15,18 +15,25 @@ task :gemfile_stats do
 
   def get_latest_gem_data
     gem_data = []
+    # This is the only API call to Rubygems
     versions = Gems.versions 'cosmos'
     versions.each do |version|
       version_no = version['number']
+      next if version_no.split('.')[0] < '3' # anything before 3 is another gem
       month = version['built_at'].split('-')[0..1].join('-')
-      gem_data << [month, version_no, Gems.total_downloads("cosmos",version_no)[:version_downloads]] if version_no.split('.')[0] >= '3' # anything before 3 is another gem
+      downloads = version['downloads_count'].to_i
+      if gem_data.length > 0 && gem_data[-1][1] == version_no
+        gem_data[-1][2] += downloads
+      else
+        gem_data << [month, version_no, downloads]
+      end
     end
     gem_data
   end
 
   # This is useful for testing to prevent server round trips
   # Simply comment out this line when working on the formatting below (after first running once)
-  File.open("gemdata.marshall", 'w') {|file| file.write(Marshal.dump(get_latest_gem_data)) }
+  File.open("gemdata.marshall", 'w') {|file| file.write(Marshal.dump(get_latest_gem_data())) }
   gem_data = Marshal.load(File.read("gemdata.marshall"))
 
   # Convert all the date text into Ruby Dates
@@ -68,26 +75,28 @@ task :gemfile_stats do
     end
   end
 
-  # Force the date row to be text
-  sheet.Rows(1).NumberFormat = "\@"
+  # Put dates in rows as there are more dates than there are releases
+  # Force the date column to be text
+  sheet.Columns(1).NumberFormat = "\@"
   labels.values.each_with_index do |val, x|
-    sheet.Cells(1, (x+2)).Value = val
+    sheet.Cells((x+2), 1).Value = val
   end
 
-  row = 2
+  col = 2
   dataset.each do |version, data|
-    # Set the version (e.g. 3.0) in column 1
-    sheet.Cells(row, 1).Value = version
+    # Set the version (e.g. 3.0) in the top row
+    sheet.Cells(1, col).Value = version
+    # The download values by date appear below the version in the same column
     data.each_with_index do |val, x|
-      sheet.Cells(row, (x+2)).Value = val
+      sheet.Cells((x+2), col).Value = val
     end
-    row += 1
+    col += 1
   end
-  # Excel column name lookup
-  letters = ('A'..'Z').to_a.concat(('AA'..'AZ').to_a)
+  # Excel column name lookup, 4 sets of alphabets gives us 104 versions to work with
+  letters = ('A'..'Z').to_a.concat(('AA'..'AZ').to_a).concat(('BA'..'BZ').to_a).concat(('CA'..'CZ').to_a)
   chart = book.Charts.Add
   chart.Name = "COSMOS Downloads"
-  chart.SetSourceData(sheet.Range("A1:#{letters[labels.length]}#{dataset.length}"))
+  chart.SetSourceData(sheet.Range("A1:#{letters[dataset.length]}#{labels.length+1}"))
   chart.HasTitle = true
   chart.ChartTitle.Characters.Text = "COSMOS Downloads"
   chart.ChartType = 76 # AreaStacked
