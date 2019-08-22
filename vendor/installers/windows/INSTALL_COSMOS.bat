@@ -22,15 +22,14 @@ set PROTOCOL=https
 set ARCHITECTURE=%PROCESSOR_ARCHITECTURE%
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=2.0
+set INSTALLER_VERSION=2.1
 
 :: Paths and versions for COSMOS dependencies
-set RUBY_INSTALLER_32=rubyinstaller-devkit-2.5.3.1-x86.exe
-set RUBY_INSTALLER_64=rubyinstaller-devkit-2.5.3-1-x64.exe
+set RUBY_INSTALLER=rubyinstaller-devkit-2.5.3-1-x64.exe
 set RUBY_INSTALLER_PATH=//github.com/oneclick/rubyinstaller2/releases/download/rubyinstaller-2.5.3-1/
 set RUBY_ABI_VERSION=2.5.0
-set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
-set WKHTMLPATHWITHPROTOCOL=https://downloads.wkhtmltopdf.org/obsolete/windows/
+set WKHTMLTOPDF=wkhtmltox-0.12.5-1.msvc2015-win64.exe
+set WKHTMLPATHWITHPROTOCOL=https://downloads.wkhtmltopdf.org/0.12/0.12.5/
 set QTBINDINGS_QT_VERSION=4.8.6.4
 set WINDOWS_INSTALL_ZIP=//github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip
 
@@ -132,8 +131,7 @@ if errorlevel 1 (
 @echo COSMOS_VERSION=!COSMOS_VERSION! >> !COSMOS_INSTALL!\INSTALL.log
 @echo PATH=!START_PATH! >> !COSMOS_INSTALL!\INSTALL.log
 @echo PROTOCOL=!PROTOCOL! >> !COSMOS_INSTALL!\INSTALL.log
-@echo RUBY_INSTALLER_32=!RUBY_INSTALLER_32! >> !COSMOS_INSTALL!\INSTALL.log
-@echo RUBY_INSTALLER_64=!RUBY_INSTALLER_64! >> !COSMOS_INSTALL!\INSTALL.log
+@echo RUBY_INSTALLER=!RUBY_INSTALLER! >> !COSMOS_INSTALL!\INSTALL.log
 @echo RUBY_INSTALLER_PATH=!RUBY_INSTALLER_PATH! >> !COSMOS_INSTALL!\INSTALL.log
 @echo RUBY_ABI_VERSION=!RUBY_ABI_VERSION! >> !COSMOS_INSTALL!\INSTALL.log
 @echo WKHTMLTOPDF=!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
@@ -166,45 +164,25 @@ SET "UNZIP_TMP=!COSMOS_INSTALL!\tmp\unzip.vbs"
 ::::::::::::::::::::::::
 
 if !ARCHITECTURE!==x86 (
-  echo Downloading 32-bit Ruby
-  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32!')"
-  if errorlevel 1 (
-    echo ERROR: Problem downloading 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!
-    echo INSTALL FAILED
-    @echo ERROR: Problem downloading 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32! >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully downloaded 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32! >> !COSMOS_INSTALL!\INSTALL.log
-  )
-
-  echo Installing 32-bit Ruby
-  !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32! /silent /tasks="nomodpath,noassocfiles" /dir="!COSMOS_INSTALL!\Vendor\Ruby"
-  if errorlevel 1 (
-    echo ERROR: Problem installing 32-bit Ruby
-    echo INSTALL FAILED
-    @echo ERROR: Problem installing 32-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully installed 32-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
-  )
-  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1 2 3
+  echo ERROR: INSTALL_COSMOS.bat no longer supports 32-bit Windows"
+  echo INSTALL FAILED
+  pause
+  exit /b 1
 ) else (
   echo Downloading 64-bit Ruby
-  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64!')"
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER!')"
   if errorlevel 1 (
-    echo ERROR: Problem downloading 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!
+    echo ERROR: Problem downloading 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER!
     echo INSTALL FAILED
-    @echo ERROR: Problem downloading 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64! >> !COSMOS_INSTALL!\INSTALL.log
+    @echo ERROR: Problem downloading 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER! >> !COSMOS_INSTALL!\INSTALL.log
     pause
     exit /b 1
   ) else (
-    @echo Successfully downloaded 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64! >> !COSMOS_INSTALL!\INSTALL.log
+    @echo Successfully downloaded 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER! >> !COSMOS_INSTALL!\INSTALL.log
   )
 
   echo Installing 64-bit Ruby
-  !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64! /silent /tasks="nomodpath,noassocfiles" /dir="!COSMOS_INSTALL!\Vendor\Ruby"
+  !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER! /silent /tasks="nomodpath,noassocfiles" /dir="!COSMOS_INSTALL!\Vendor\Ruby"
   if errorlevel 1 (
     echo ERROR: Problem installing 64-bit Ruby
     echo INSTALL FAILED
@@ -293,14 +271,7 @@ if errorlevel 1 (
   exit /b 1
 )
 SET "GEMRC=!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc"
-@echo --- > !GEMRC!
-@echo :backtrace: false >> !GEMRC!
-@echo :benchmark: false >> !GEMRC!
-@echo :bulk_threshold: 1000 >> !GEMRC!
-@echo :sources: >> !GEMRC!
-@echo - !PROTOCOL!://rubygems.org/ >> !GEMRC!
-@echo :update_sources: true >> !GEMRC!
-@echo :verbose: true >> !GEMRC!
+@echo install: --no-document >> !GEMRC!
 
 ::::::::::::::::::::::::::::
 :: Install Gems
@@ -318,14 +289,15 @@ SET "PATH=!COSMOS_INSTALL!\Vendor\Ruby\bin;%RI_DEVKIT%bin;%RI_DEVKIT%mingw\bin;%
 SET RUBYOPT=
 SET RUBYLIB=
 
-# call gem install --force rdoc -v 5.1.0
+:: Update to latest version of gem
+call gem update --system
 
 :: install COSMOS gem and dependencies
 echo Installing COSMOS gem !COSMOS_VERSION!...
 if !COSMOS_VERSION!=="LATEST" (
-  call gem install cosmos --no-rdoc --no-ri
+  call gem install cosmos
 ) else (
-  call gem install cosmos -v !COSMOS_VERSION! --no-rdoc --no-ri
+  call gem install cosmos -v !COSMOS_VERSION!
 )
 if errorlevel 1 (
   echo ERROR: Problem installing cosmos gem
