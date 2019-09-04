@@ -596,6 +596,34 @@ module Cosmos
       end
     end
 
+    describe "all_item_strings" do
+      it "returns hidden TGT,PKT,ITEMs in the system" do
+        @tlm.packet("TGT1","PKT1").hidden = true
+        @tlm.packet("TGT1","PKT2").disabled = true
+        default = @tlm.all_item_strings() # Return only those not hidden or disabled
+        strings = @tlm.all_item_strings(true) # Return everything, even hidden & disabled
+        expect(default).to_not eq strings
+        # Spot check the default
+        expect(default).to include("TGT2 PKT1 ITEM1")
+        expect(default).to include("TGT2 PKT1 ITEM2")
+        expect(default).to_not include("TGT1 PKT1 ITEM1") # hidden
+        expect(default).to_not include("TGT1 PKT2 ITEM1") # disabled
+
+        items = {}
+        # Built from the before(:each) section
+        items['TGT1 PKT1'] = %w(ITEM1 ITEM2 ITEM3 ITEM4)
+        items['TGT1 PKT2'] = %w(ITEM1 ITEM2)
+        items['TGT2 PKT1'] = %w(ITEM1 ITEM2)
+        items.each do |tgt_pkt, items|
+          Packet::RESERVED_ITEM_NAMES.each do |item|
+            expect(strings).to include("#{tgt_pkt} #{item}")
+          end
+          items.each do |item|
+            expect(strings).to include("#{tgt_pkt} #{item}")
+          end
+        end
+      end
+    end
+
   end
 end
-

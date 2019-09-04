@@ -437,7 +437,13 @@ module Cosmos
           splash.progress = index / total
         end
 
-        ignored_items = System.targets[target_name].ignored_items
+        # Note: System only has declared target structures but telemetry may have more
+        system_target = System.targets[target_name]
+        if system_target
+          ignored_items = system_target.ignored_items
+        else
+          ignored_items = []
+        end
 
         packets(target_name).each do |packet_name, packet|
           # We don't audit against hidden or disabled packets
