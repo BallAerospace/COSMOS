@@ -259,10 +259,10 @@ module Cosmos
         error_code = nil
         response_data = nil
 
-        if (@method_whitelist and @method_whitelist.include?(request.method)) or
-           (!@method_whitelist and !JsonRpcRequest::DANGEROUS_METHODS.include?(request.method))
+        if (@method_whitelist and @method_whitelist.include?(request.method.downcase())) or
+           (!@method_whitelist and !JsonRpcRequest::DANGEROUS_METHODS.include?(request.method.downcase()))
           begin
-            result = @object.send(request.method.intern, *request.params)
+            result = @object.send(request.method.downcase().intern, *request.params)
             if request.id
               response = JsonRpcSuccessResponse.new(result, request.id)
             end
