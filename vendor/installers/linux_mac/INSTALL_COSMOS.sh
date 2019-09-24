@@ -28,9 +28,9 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 
   # Install Ruby
   echo "Installing Ruby"
-  CC=clang CONFIGURE_OPTS="--with-gcc=clang --enable-shared" rbenv install 2.4.2
+  CC=clang CONFIGURE_OPTS="--with-gcc=clang --enable-shared" rbenv install 2.5.6
   rbenv rehash
-  rbenv global 2.4.2
+  rbenv global 2.5.6
   echo 'gem: --no-ri --no-rdoc' >> ~/.gemrc
 
   # Install COSMOS
@@ -110,9 +110,9 @@ fi
     export PATH="$HOME/.rbenv/bin:$PATH"
     echo 'eval "$(rbenv init -)"' >> ~/.bashrc
     eval "$(rbenv init -)"
-    CONFIGURE_OPTS="--enable-shared" rbenv install 2.4.2
+    CONFIGURE_OPTS="--enable-shared" rbenv install 2.5.6
     rbenv rehash
-    rbenv global 2.4.2
+    rbenv global 2.5.6
     echo 'gem: --no-ri --no-rdoc' >> ~/.gemrc
   fi
 
