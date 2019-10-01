@@ -15,7 +15,8 @@ collections:
   docs:
     output: true
 
-cosmos_meta_path: ../COSMOS/data/config
-cosmos_tool_path: ../COSMOS/demo/tools
+cosmos_root: ../COSMOS
+cosmos_meta_path: data/config
+cosmos_tool_path: install/tools
 
 exclude: [Gemfile, Rakefile]

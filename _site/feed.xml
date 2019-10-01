@@ -11,10 +11,10 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Fri, 23 Aug 2019 15:51:43 -0600</pubDate>
-    <lastBuildDate>Fri, 23 Aug 2019 15:51:43 -0600</lastBuildDate>
+    <pubDate>Tue, 01 Oct 2019 09:38:00 -0600</pubDate>
+    <lastBuildDate>Tue, 01 Oct 2019 09:38:00 -0600</lastBuildDate>
     <language>en-US</language>
-    <generator>Jekyll v3.7.4</generator>
+    <generator>Jekyll v3.8.5</generator>
     <description>The User Interface for Embedded Systems</description>
     <image>
       <description>The User Interface for Embedded Systems</description>

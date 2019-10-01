@@ -8,12 +8,13 @@ module Jekyll
     end
 
     def render(context)
-      path = File.expand_path(context.registers[:site].config['cosmos_tool_path'].to_s.clone).strip
-      page = ''
+      root = File.expand_path(context.registers[:site].config['cosmos_root']).strip
+      path = context.registers[:site].config['cosmos_tool_path'].strip
       output = ''
+      page = ''
       Bundler.with_clean_env do
-        Dir.chdir(path) do
-          output = `bundle exec ruby #{@command} --help`
+        Dir.chdir(root) do
+          output = `bundle exec ruby #{File.join(path, @command)} --help`
         end
       end
       build_page(output, page)

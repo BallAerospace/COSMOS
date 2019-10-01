@@ -5,7 +5,7 @@
   <title>Chaining CmdTlmServers</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.7.4">
+  <meta name="generator" content="Jekyll v3.8.5">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -5088,11 +5088,11 @@ INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIF
 
 <h2 id="connect-master-cmdtlmserver-to-client">Connect Master CmdTlmServer to Client</h2>
 
-<p>Connecting a master CmdTlmServer to a client CmdTlmServer is used when a client machine needs to interface directly to a target but the master CmdTlmServer also wants to view that target. For example, a machine is physically located next to a target which requires a serial interface (thus a serial cord connection) but the master CmdTlmServer is across the room. This technique connects the local machine to the target and then connects the master CmdTlmServer to the client. The client doesn’t need to define the full configuration of the server and only has to configure the local target it is interfacing with.</p>
+<p>Connecting a master CmdTlmServer to a client CmdTlmServer is used when a client machine needs to interface directly to a target but the master CmdTlmServer also wants to view that target. For example, a machine is physically located next to a target which requires a serial interface (thus a serial cord connection) but the master CmdTlmServer is across the room. This technique connects the local machine to the target and then connects the master CmdTlmServer to the client. The client doesn’t need to define the full configuration of the server and only has to configure the local target it is interfacing with. This technique can also be used to create multiple CmdTlmServers on the same machine. This is useful if you’re experimenting with a target or background task and doing things that make the CmdTlmServer unstable.</p>
 
 <h3 id="child-cmdtlmserver-configuration-1">Child CmdTlmServer Configuration</h3>
 
-<p>The child COSMOS configuration should be configured as a totally stand alone COSMOS system. Follow the rest of the COSMOS documentation to set up the command and telemetry definitions and the interface definition in the target’s cmd_tlm_server.txt file. When this is complete, you will have a config/targets/&lt;TARGET&gt; folder with your target’s definition.</p>
+<p>The child COSMOS configuration should be configured as a totally stand alone COSMOS system. Follow the rest of the COSMOS documentation to set up the command and telemetry definitions and the interface definition in the target’s cmd_tlm_server.txt file. When this is complete, you will have a config/targets/&lt;TARGET&gt; folder with your target’s definition. Note that if you’re creating a client CmdTlmServer on the same machine you’ll need to adjust all the standard COSMOS ports in system.txt.</p>
 
 <p>The client CmdTlmServer defines a default router called the PREIDENTIFIED_ROUTER that is listening on port 7779 by default. This will be used by the master CmdTlmServer to connect. Ensure that the firewall is either disabled or that access to port 7779 is permitted.</p>
 
@@ -5103,7 +5103,8 @@ INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIF
 <ol>
   <li>Modify the example cmd_tlm_server.txt file below
     <ul>
-      <li>Change localhost to the IP address of your client CmdTlmServer</li>
+      <li>Change localhost to the IP address of your client CmdTlmServer if the client is another machine</li>
+      <li>Change the port numbers if the client is running on the same machine</li>
       <li>Update &lt;TARGET&gt; to match the target name from the client</li>
     </ul>
   </li>

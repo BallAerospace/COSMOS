@@ -49,11 +49,11 @@ INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIF
 
 ## Connect Master CmdTlmServer to Client
 
-Connecting a master CmdTlmServer to a client CmdTlmServer is used when a client machine needs to interface directly to a target but the master CmdTlmServer also wants to view that target. For example, a machine is physically located next to a target which requires a serial interface (thus a serial cord connection) but the master CmdTlmServer is across the room. This technique connects the local machine to the target and then connects the master CmdTlmServer to the client. The client doesn't need to define the full configuration of the server and only has to configure the local target it is interfacing with.
+Connecting a master CmdTlmServer to a client CmdTlmServer is used when a client machine needs to interface directly to a target but the master CmdTlmServer also wants to view that target. For example, a machine is physically located next to a target which requires a serial interface (thus a serial cord connection) but the master CmdTlmServer is across the room. This technique connects the local machine to the target and then connects the master CmdTlmServer to the client. The client doesn't need to define the full configuration of the server and only has to configure the local target it is interfacing with. This technique can also be used to create multiple CmdTlmServers on the same machine. This is useful if you're experimenting with a target or background task and doing things that make the CmdTlmServer unstable.
 
 ### Child CmdTlmServer Configuration
 
-The child COSMOS configuration should be configured as a totally stand alone COSMOS system. Follow the rest of the COSMOS documentation to set up the command and telemetry definitions and the interface definition in the target's cmd_tlm_server.txt file. When this is complete, you will have a config/targets/\<TARGET\> folder with your target's definition.
+The child COSMOS configuration should be configured as a totally stand alone COSMOS system. Follow the rest of the COSMOS documentation to set up the command and telemetry definitions and the interface definition in the target's cmd_tlm_server.txt file. When this is complete, you will have a config/targets/\<TARGET\> folder with your target's definition. Note that if you're creating a client CmdTlmServer on the same machine you'll need to adjust all the standard COSMOS ports in system.txt.
 
 The client CmdTlmServer defines a default router called the PREIDENTIFIED_ROUTER that is listening on port 7779 by default. This will be used by the master CmdTlmServer to connect. Ensure that the firewall is either disabled or that access to port 7779 is permitted.
 
@@ -62,7 +62,8 @@ The client CmdTlmServer defines a default router called the PREIDENTIFIED_ROUTER
 The master config/tools/cmd_tlm_server/cmd_tlm_server.txt file is where you define the interface to connect to the child CmdTlmServer.
 
 1. Modify the example cmd_tlm_server.txt file below
-    * Change localhost to the IP address of your client CmdTlmServer
+    * Change localhost to the IP address of your client CmdTlmServer if the client is another machine
+    * Change the port numbers if the client is running on the same machine
     * Update \<TARGET\> to match the target name from the client
 2. Ensure your system.txt file has either AUTO_DECLARE_TARGETS or explictly declares the target via DECLARE_TARGET \<TARGET\>
 3. Ensure your config/targets/\<TARGET\> folder matches the target definition on the client

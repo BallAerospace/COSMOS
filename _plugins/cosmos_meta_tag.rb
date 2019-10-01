@@ -60,7 +60,9 @@ module Jekyll
     end
 
     def render(context)
-      path = File.expand_path(context.registers[:site].config['cosmos_meta_path'].to_s.clone).strip
+      root = File.expand_path(context.registers[:site].config['cosmos_root']).strip
+      path = File.join(root, context.registers[:site].config['cosmos_meta_path'].strip)
+
       page = ''
       meta = MetaConfigParser.load(File.join(path, @yaml_file.to_s.strip))
       build_page(meta, page)
