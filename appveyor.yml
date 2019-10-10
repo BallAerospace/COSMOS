@@ -1,8 +1,8 @@
 environment:
   matrix:
-    - ruby_version: 24-x64
-    - ruby_version: 25-x64
-    - ruby_version: 26-x64
+    #- ruby_version: 24-x64
+    #- ruby_version: 25-x64
+    - ruby_version: 26-x64 this needs qtbindings support
 
 cache:
   # If one of the files after the right arrow changes, cache will be invalidated
@@ -14,16 +14,12 @@ install:
   - SET RAKEOPT=-rdevkit
   - bundle config --local path vendor/bundle
   - bundle install
-
-build: off
-
-before_test:
   - ruby -v
   - gem -v
   - bundle -v
-
-test_script:
   - bundle exec rake build spec
+
+build: off
 
 branches:
   only:
