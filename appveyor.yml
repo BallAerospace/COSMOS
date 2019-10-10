@@ -2,21 +2,28 @@ install:
   - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
   - SET PATH=C:\MinGW\bin;%PATH%
   - SET RAKEOPT=-rdevkit
+  - bundle install --path vendor\bundle --without development
+
+test_script:
   - ruby --version
   - gem --version
-  - bundle install
+  - bundler --version
   - bundle exec rake build spec
 
 build: off
 
 environment:
   matrix:
-    - ruby_version: "24-x64"
-    - ruby_version: "25-x64"
-    # - ruby_version: "26-x64" Ruby 2.6 not yet supported on 1/15/2019
+    - ruby_version: 24-x64
+    - ruby_version: 25-x64
+    # - ruby_version: 26-x64 Ruby 2.6 not yet supported on 1/15/2019
 
 branches:
   only:
     - master
   except:
     - website
+
+cache:
+  # If one of the files after the right arrow changes, cache will be invalidated
+  - vendor\bundle -> appveyor.yml, Gemfile, cosmos.gemspec
