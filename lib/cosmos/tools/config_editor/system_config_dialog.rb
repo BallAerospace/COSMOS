@@ -74,15 +74,86 @@ module Cosmos
     end
 
     def build_system_config
-      new_system = File.join(Cosmos::USERPATH, 'config', 'system', "system_#{@system_name.text.downcase.gsub(' ','_')}.txt")
-      if File.exist?(new_system)
-        Qt::MessageBox.warning(self, "System config file exists!", "#{new_system} already exists!")
-        return
+      new_suffix = @system_name.text.downcase.gsub(' ','_')
+      existing_system = @system_combo.text
+      # Look for system_xxx.txt where we find the 'xxx' as the existing suffix
+      if existing = existing_system.scan(/.*?_(.*)\.txt/)[0]
+        existing_suffix = existing[0]
+      else
+        existing_suffix = nil
       end
+
+      # First determine all the new files and make sure they don't already exist
+      new_system = File.join(Cosmos::USERPATH, 'config', 'system', "system_#{new_suffix}.txt")
+      return if file_exist?(new_system)
+      cmd_tlm_server_path = File.join('config', 'tools', 'cmd_tlm_server')
+      new_cmd_tlm_server = File.join(Cosmos::USERPATH, cmd_tlm_server_path, "cmd_tlm_server_#{new_suffix}.txt")
+      return if file_exist?(new_cmd_tlm_server)
+      launcher_path = File.join('config', 'tools', 'launcher')
+      new_launcher = File.join(Cosmos::USERPATH, launcher_path, "launcher_#{new_suffix}.txt")
+      return if file_exist?(new_launcher)
+      new_batch = File.join(Cosmos::USERPATH, "Launcher#{@system_name.text.gsub(' ','')}.bat")
+      return if file_exist?(new_batch)
+
+      # Create the new system.txt. We know the existing exists so simply copy it.
       File.open(new_system, 'w') do |file|
-        file.puts File.read(File.join(::Cosmos::USERPATH, 'config', 'system', @system_combo.text))
+        file.puts File.read(File.join(::Cosmos::USERPATH, 'config', 'system', existing_system))
       end
+
+      # Create the new cmd_tlm_server config and update the TITLE
+      data = get_config_contents(existing_suffix, cmd_tlm_server_path, 'cmd_tlm_server')
+      data.sub!(/\s*TITLE.*/, "TITLE 'COSMOS Command and Telemetry Server - #{@system_name.text} Configuration'")
+      File.open(new_cmd_tlm_server, 'w') {|file| file.puts data }
+
+      # Create the new launcher config and update the TITLE and Server LAUNCH commands
+      data = get_config_contents(existing_suffix, launcher_path, 'launcher')
+      data.sub!(/\s*TITLE.*/, "TITLE 'Launcher - #{@system_name.text} Configuration'")
+      data.gsub!(/LAUNCH\s+(\w+)/, "LAUNCH \\1 --system system_#{new_suffix}.txt")
+      # Convert all --config to -c to make it easier to replace in the next step
+      data.gsub!(/(.*LAUNCH\s+CmdTlmServer.*)(--config)(.*)/, "\\1-c\\3")
+      data.gsub!(/(.*LAUNCH\s+CmdTlmServer.*)-c\s+(\w+)(.*)/, "\\1-c cmd_tlm_server_#{new_suffix}\\3")
+      File.open(new_launcher, 'w') {|file| file.puts data }
+      
+      File.open(new_batch, 'w') do |file|
+        file.puts "call tools\\Launcher.bat --config launcher_#{new_suffix}.txt --system system_#{new_suffix}.txt"
+      end
+
+      @parent.file_open(new_batch)
+      @parent.file_open(new_launcher)
+      @parent.file_open(new_cmd_tlm_server)
       @parent.file_open(new_system)
+      Qt::MessageBox.information(self, "System Config Creation Success",
+        "The new system configuration was successfully created.\n\n"\
+        "The newly created files have been opened for further customization.")
+      end
+
+    def file_exist?(path)
+      if File.exist?(path)
+        Qt::MessageBox.warning(self, "Config file exists!", "#{path} already exists!")
+        return true
+      else
+        return false
+      end
+    end
+
+    def get_config_contents(existing_suffix, base_path, file_name)
+      contents = ''
+      if existing_suffix
+        existing_file = File.join(Cosmos::USERPATH, base_path, "#{file_name}_#{existing_suffix}.txt")
+        if File.exist?(existing_file)
+          contents = File.read(existing_file)
+        end
+      else
+        # Otherwise see if there is a basic one we can copy
+        basic_config = File.join(Cosmos::USERPATH, base_path, "#{file_name}.txt")
+        if File.exist?(basic_config)
+          contents = File.read(basic_config)
+        else
+          # Otherwise use the install config
+          contents = File.read(File.join(Cosmos::PATH, 'install', base_path, "#{file_name}.txt"))
+        end
+      end
+      return contents
     end
   end
 end

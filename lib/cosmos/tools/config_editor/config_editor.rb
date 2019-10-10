@@ -299,8 +299,8 @@ module Cosmos
 
       # Actions Menu
       actions_menu = menuBar.addMenu('&Actions')
-      actions_menu.addAction(@create_target)
       actions_menu.addAction(@create_system_config)
+      actions_menu.addAction(@create_target)
 
       # Help Menu
       @about_string = "Config Editor allows the user to edit COSMOS configuration "\
