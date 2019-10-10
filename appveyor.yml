@@ -12,6 +12,7 @@ install:
   - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
   - SET PATH=C:\MinGW\bin;%PATH%
   - SET RAKEOPT=-rdevkit
+  - gem install ruby-prof # For some reason this must be explicitly installed
   - bundle install --path vendor\bundle
 
 build: off
