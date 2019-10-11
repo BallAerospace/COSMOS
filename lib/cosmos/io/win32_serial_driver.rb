@@ -80,8 +80,29 @@ module Cosmos
       end
       Win32.set_comm_state(@handle, dcb)
 
-      # Configure Timeouts
-      Win32.set_comm_timeouts(@handle, 4294967295, 0, 0, 0, 0)
+      # Configure Timeouts, the WinAPI structure is COMMTIMEOUTS:
+      #   DWORD ReadIntervalTimeout;
+      #   DWORD ReadTotalTimeoutMultiplier;
+      #   DWORD ReadTotalTimeoutConstant;
+      #   DWORD WriteTotalTimeoutMultiplier;
+      #   DWORD WriteTotalTimeoutConstant;
+      # 0xFFFFFFFF, 0, 0 specifies that the read operation is to return immediately
+      # with the bytes that have already been received, even if no bytes have been received.
+      # The WriteTotalTimeoutMultiplier is multiplied by the number of bytes to be written
+      # and the WriteTotalTimeoutConstant is added to that total (both are in milliseconds).
+      bits_per_symbol = data_bits + 1 # 1 start bit
+      case stop_bits
+      when Win32::ONESTOPBIT
+        bits_per_symbol += 1
+      when Win32::TWOSTOPBITS
+        bits_per_symbol += 2
+      end
+      case parity
+      when Win32::ODDPARITY, Win32::EVENPARITY
+        bits_per_symbol += 1
+      end
+      delay = (1000.0 / (baud_rate / bits_per_symbol.to_f)).ceil
+      Win32.set_comm_timeouts(@handle, 0xFFFFFFFF, 0, 0, delay, 1000)
     end
 
     # (see SerialDriver#close)

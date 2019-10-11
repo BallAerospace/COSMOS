@@ -50,6 +50,22 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
           expect { Win32SerialDriver.new('COM1',9600,:NONE,1,10,nil,0.01,1000,:NONE,8) }.to_not raise_error
           expect { Win32SerialDriver.new('COM1',9600,:NONE,1,10,nil,0.01,1000,:NONE,9) }.to raise_error(ArgumentError, "Invalid data bits: 9")
         end
+
+        it "calculates the correct timeouts" do
+          Win32::BAUD_RATES.each do |baud|
+            (5..8).each do |data_bits|
+              (1..2).each do |stop_bits|
+                [:EVEN, :ODD, :NONE].each do |parity|
+                  # data_bits + 1 start bit + stop bits + potentially a parity bit
+                  symbols = data_bits + 1 + stop_bits + (parity == :NONE ? 0 : 1)
+                  delay = 1000.0 / (baud.to_f / symbols)
+                  expect(Win32).to receive(:set_comm_timeouts).with(anything, 0xFFFFFFFF,0,0,delay.ceil,1000)
+                  Win32SerialDriver.new('COM1',baud,parity,stop_bits,10,nil,0.01,1000,:NONE,data_bits)
+                end
+              end
+            end
+          end
+        end
       end
 
       describe "close, closed?" do
@@ -92,8 +108,6 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
           expect { driver.read }.to raise_error(Timeout::Error)
         end
       end
-
     end
   end
-
 end
