@@ -90,7 +90,7 @@ module Cosmos
       # with the bytes that have already been received, even if no bytes have been received.
       # The WriteTotalTimeoutMultiplier is multiplied by the number of bytes to be written
       # and the WriteTotalTimeoutConstant is added to that total (both are in milliseconds).
-      bits_per_symbol = data_bits
+      bits_per_symbol = data_bits + 1 # 1 start bit
       case stop_bits
       when Win32::ONESTOPBIT
         bits_per_symbol += 1

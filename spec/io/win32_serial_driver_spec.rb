@@ -56,7 +56,8 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
             (5..8).each do |data_bits|
               (1..2).each do |stop_bits|
                 [:EVEN, :ODD, :NONE].each do |parity|
-                  symbols = data_bits + stop_bits + (parity == :NONE ? 0 : 1)
+                  # data_bits + 1 start bit + stop bits + potentially a parity bit
+                  symbols = data_bits + 1 + stop_bits + (parity == :NONE ? 0 : 1)
                   delay = 1000.0 / (baud.to_f / symbols)
                   expect(Win32).to receive(:set_comm_timeouts).with(anything, 0xFFFFFFFF,0,0,delay.ceil,1000)
                   Win32SerialDriver.new('COM1',baud,parity,stop_bits,10,nil,0.01,1000,:NONE,data_bits)
