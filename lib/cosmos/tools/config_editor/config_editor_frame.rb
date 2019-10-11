@@ -28,6 +28,10 @@ module Cosmos
     def focusInEvent(event)
       emit focus_in
     end
+
+    def wheelEvent(event)
+      event.ignore()
+    end
   end
 
   class ConfigEditorFrame < Qt::Widget
@@ -565,7 +569,8 @@ module Cosmos
             if attribute_value.is_a? Hash
               # If the value is a Hash then we have parameter specific
               # parameters embedded in this parameter we have to parse
-              value_widget = Qt::ComboBox.new()
+              value_widget = FocusComboBox.new()
+              value_widget.setFocusPolicy(Qt::StrongFocus)
               value_widget.addItem(current_value) unless attribute_value.keys.include?(current_value)
               value_widget.addItems(attribute_value.keys)
               value_widget.setCurrentText(current_value)
@@ -581,6 +586,7 @@ module Cosmos
               end
             elsif attribute_value.is_a? Array # Just a bunch of strings
               value_widget = FocusComboBox.new()
+              value_widget.setFocusPolicy(Qt::StrongFocus)
               value_widget.addItems(attribute_value)
               if required && current_value.nil?
                 value_widget.setStyleSheet("border: 1px solid red")
