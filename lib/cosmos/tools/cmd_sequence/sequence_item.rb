@@ -26,32 +26,14 @@ module Cosmos
     signals 'modified()'
     MANUALLY = "MANUALLY ENTERED"
 
-    # Parse a time and command string into a SequenceItem which is returned
-    # @param time [String] Time (absolute or relative delay). Supports a single
-    #   float value (relative delay) or a absolute time specified as
-    #   "YYYY/MM/DD HH:MM:SS.MS"
-    # @param command [String] Command String which should not be
-    #   quoted and is everything inside the quotes of a command.
-    #   For example: TGT PKT with STRING 'HI', VALUE 12. Parse errors are
-    #   raised as execptions which must be handled by higher level code.
-    # @return [SequenceItem] SequenceItem which the line represents
-    def self.parse(time, command)
-      tgt_name, pkt_name, cmd_params = extract_fields_from_cmd_text(command)
-      packet = System.commands.packet(tgt_name, pkt_name).dup
-      packet.restore_defaults
-      cmd_params.each do |param_name, param_value|
-        packet.write(param_name, param_value)
-      end
-      SequenceItem.new(packet, time)
-    end
-
     # Create a new SequenceItem based on the given command with the given delay
     # @param command [Packet] Command packet
     # @param time [String] Absolute time in YYYY/MM/DD HH:MM:SS format or a
     #   single float value representing the delta delay time
-    def initialize(command, time = nil)
+    def initialize(target, packet, params = nil, time = nil)
       super()
-      @command = command
+      @command = System.commands.packet(target, packet).dup
+      @command.restore_defaults
       @table = nil
       @param_widgets = []
       @show_ignored = false
@@ -68,7 +50,7 @@ module Cosmos
       setLayout(top_layout)
       top_layout.addLayout(create_cmd_layout(command, time))
       top_layout.addWidget(create_parameters())
-      update_cmd_params()
+      update_cmd_params(existing: params)
       set_cmd_name_info()
     end
 
@@ -82,7 +64,7 @@ module Cosmos
     # @param bool [Boolean] Whether to show ignored command items
     def show_ignored(bool)
       @show_ignored = bool
-      update_cmd_params(bool)
+      update_cmd_params(ignored_toggle: bool)
     end
 
     # Display state values in hex (or decimal)
@@ -266,7 +248,7 @@ module Cosmos
     # Update the command parameters table for the given command
     # @param ignored_toggle [Boolean] Whether to display the ignored
     #   parameters. Pass nil (the default) to keep the existing setting.
-    def update_cmd_params(ignored_toggle = nil)
+    def update_cmd_params(existing: nil, ignored_toggle: nil)
       old_params = {}
       if !ignored_toggle.nil?
         # Save parameter values
@@ -277,6 +259,13 @@ module Cosmos
           else
             old_params[packet_item.name] = text
           end
+        end
+      end
+
+      # If they passed in existing values override them here
+      if existing
+        existing.each do |param_name, param_value|
+          old_params[param_name] = param_value.to_s
         end
       end
 

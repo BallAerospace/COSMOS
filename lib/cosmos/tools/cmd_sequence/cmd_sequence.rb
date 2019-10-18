@@ -278,9 +278,7 @@ module Cosmos
     end
 
     def add_command
-      command = System.commands.packet(@target_select.text, @cmd_select.text).dup
-      command.restore_defaults
-      item = @sequence_list.add(command)
+      item = @sequence_list.add(@target_select.text, @cmd_select.text)
       item.show_ignored(@show_ignored.isChecked())
       item.states_in_hex(@states_in_hex.isChecked())
     end

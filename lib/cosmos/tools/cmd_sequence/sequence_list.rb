@@ -45,7 +45,8 @@ module Cosmos
           usage = "#{keyword} <Delay Time> <Command>"
           parser.verify_num_parameters(2, 2, usage)
           begin
-            item = SequenceItem.parse(params[0], params[1])
+            tgt_name, pkt_name, cmd_params = extract_fields_from_cmd_text(params[1])
+            item = SequenceItem.new(tgt_name, pkt_name, cmd_params, params[0])
             # Connect the SequenceItems modified signal to propagate it
             # forward by emitting our own modified signal
             item.connect(SIGNAL("modified()")) do
@@ -63,12 +64,13 @@ module Cosmos
       @modified = false # Initially we're not modified
     end
 
-    # Add a new SequenceItem to the list.
-    # @param command [Packet] Command packet to base the SequenceItem on
+    # Add a new SequenceItem to the list based on the given target and packet
+    # @param target [String] target name containing the command
+    # @param packet [String] packet name containing the command
     # @return [SequenceItem] The item added
-    def add(command)
+    def add(target, packet)
       @modified = true
-      item = SequenceItem.new(command)
+      item = SequenceItem.new(target, packet)
       # Connect the SequenceItems modified signal to propagate it
       # forward by emitting our own modified signal
       item.connect(SIGNAL("modified()")) do
