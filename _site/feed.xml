@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Tue, 01 Oct 2019 09:38:00 -0600</pubDate>
-    <lastBuildDate>Tue, 01 Oct 2019 09:38:00 -0600</lastBuildDate>
+    <pubDate>Mon, 21 Oct 2019 09:02:09 -0600</pubDate>
+    <lastBuildDate>Mon, 21 Oct 2019 09:02:09 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.8.5</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,27 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>AMOS 2019</title>
+      <link>http://cosmosrb.com/news/2019/10/21/cosmos-amos/</link>
+      <pubDate>Mon, 21 Oct 2019 01:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2019/10/21/cosmos-amos/</guid>
+      <description>&lt;p&gt;Ryan recently attended the Advanced Maui Optical and Space Surveillance Technologies Conference (&lt;a href=&quot;https://amostech.com/&quot;&gt;AMOS&lt;/a&gt;) in September. He was selected for a poster presentation based on the paper entitled “An open source long term archiving and trending solution for SSA” (link coming soon). It was based on the COSMOS &lt;a href=&quot;/docs/dart_overview/&quot;&gt;DART&lt;/a&gt; tool which supports long term storage and trending of command and telemetry data. If you look at the official &lt;a href=&quot;/assets/RPT_2019_AMOS_SUMMARY.pdf&quot;&gt;AMOS Summary&lt;/a&gt; you might also spot him (hint: Thursday)!&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/2019_10_21_ryan_amos.jpg&quot; alt=&quot;Ryan at AMOS&quot; /&gt;&lt;br /&gt;
+&lt;em&gt;Ryan at the Poster Session, AMOS 2019&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Jason atteneded the conference back in 2017 and was able to present a talk about COSMOS based on another paper entitled &lt;a href=&quot;/assets/2017_AMOS_Paper.pdf&quot;&gt;“A Cloud-based, Open-Source, Command-and-Control Software Paradigm for Space Situational Awareness (SSA)”&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;If you have a question, find a bug, or want a feature please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Ball Aerospace COSMOS 4.4.0 Released</title>
@@ -130,8 +151,7 @@
       <category>post</category>
       
       <guid isPermaLink="true">http://cosmosrb.com/news/2019/06/05/protocols/</guid>
-      <description>&lt;h2 id=&quot;protocols&quot;&gt;Protocols&lt;/h2&gt;
-&lt;p&gt;Protocols were introduced into COSMOS in version 4.0.0. Protocols consist of the code that make sense of the incoming byte stream before it is turned into packets. They work hand in hand with the COSMOS interface that connects to the target, whether it is TCP/IP, UDP, or serial. The new COSMOS protocol system makes it possible to add and layer protocols into a COSMOS interface.&lt;/p&gt;
+      <description>&lt;p&gt;Protocols were introduced into COSMOS in version 4.0.0. Protocols consist of the code that make sense of the incoming byte stream before it is turned into packets. They work hand in hand with the COSMOS interface that connects to the target, whether it is TCP/IP, UDP, or serial. The new COSMOS protocol system makes it possible to add and layer protocols into a COSMOS interface.&lt;/p&gt;
 
 &lt;h3 id=&quot;built-in-protocols&quot;&gt;Built-in Protocols&lt;/h3&gt;
 &lt;p&gt;COSMOS comes with a number of built-in protocols that are used directly with the COSMOS provided interfaces. In fact, when you declare your interface you’re required to specify a protocol. For example, the following code declares a TCP/IP client with a LENGTH protocol.&lt;/p&gt;

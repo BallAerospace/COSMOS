@@ -5,7 +5,6 @@ date: 2019-06-05 08:00:00 -0700
 author: jmthomas
 categories: [post]
 ---
-## Protocols
 Protocols were introduced into COSMOS in version 4.0.0. Protocols consist of the code that make sense of the incoming byte stream before it is turned into packets. They work hand in hand with the COSMOS interface that connects to the target, whether it is TCP/IP, UDP, or serial. The new COSMOS protocol system makes it possible to add and layer protocols into a COSMOS interface.
 
 ### Built-in Protocols
