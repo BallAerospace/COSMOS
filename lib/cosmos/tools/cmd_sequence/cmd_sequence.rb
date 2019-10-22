@@ -226,9 +226,7 @@ module Cosmos
 
       @target_select = Qt::ComboBox.new
       @target_select.setMaxVisibleItems(6)
-      @target_select.connect(SIGNAL('activated(const QString&)')) do |target|
-        target_changed()
-      end
+      @target_select.connect(SIGNAL('activated(const QString&)')) {|target| target_changed() }
       target_label = Qt::Label.new("&Target:")
       target_label.setBuddy(@target_select)
 
@@ -253,7 +251,7 @@ module Cosmos
       splitter = Qt::Splitter.new(Qt::Vertical, self)
       central_layout.addWidget(splitter)
 
-      @sequence_list = SequenceList.new
+      @sequence_list = SequenceList.new(self)
       @sequence_list.connect(SIGNAL("modified()")) { update_title }
 
       @scroll = Qt::ScrollArea.new()
@@ -275,6 +273,10 @@ module Cosmos
       splitter.addWidget(bottom_frame)
       splitter.setStretchFactor(0,1)
       splitter.setStretchFactor(1,0)
+    end
+
+    def get_target_packet_names
+      [@target_select.text, @cmd_select.text]
     end
 
     def add_command

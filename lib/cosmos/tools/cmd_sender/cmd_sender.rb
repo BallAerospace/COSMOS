@@ -17,6 +17,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/cmd_details_dialog'
   require 'cosmos/gui/widgets/full_text_search_line_edit'
   require 'cosmos/tools/cmd_sender/cmd_sender_text_edit'
+  require 'cosmos/tools/cmd_sender/cmd_params'
   require 'cosmos/tools/cmd_sender/cmd_param_table_item_delegate'
   require 'cosmos/config/config_parser'
   require 'cosmos/script'
@@ -41,15 +42,6 @@ module Cosmos
   # command is sent it is added to the command history window which allows the
   # user to resend the command or copy it for use in a script.
   class CmdSender < QtTool
-    slots 'file_send_raw()'
-    slots 'update_cmd_params(bool)'
-    slots 'menu_states_in_hex(bool)'
-    slots 'target_changed(const QString&)'
-    slots 'cmd_changed(const QString&)'
-    slots 'send_button()'
-    slots 'context_menu(const QPoint&)'
-    slots 'click_callback(QTableWidgetItem*)'
-
     MANUALLY = CmdParamTableItemDelegate::MANUALLY
 
     # @return [Integer] Number of commands sent
@@ -60,20 +52,6 @@ module Cosmos
     # @param val [Integer] Number of commands sent
     def self.send_count=(val)
       @@send_count = val
-    end
-
-    # @return [Array<PacketItem, Qt::TableWidgetItem, Qt::TableWidgetItem>]
-    #   Array of the packet item, the table widget item representing the value,
-    #   and the table widget item representing states if the packet item has
-    #   states.
-    def self.param_widgets
-      @@param_widgets
-    end
-
-    # @return [Qt::TableWidget] Table holding the command parameters. Each
-    #   parameter is a separate row in the table.
-    def self.table
-      @@table
     end
 
     # Create the application by building the GUI and loading an initial target
@@ -90,8 +68,7 @@ module Cosmos
       @production = options.production
       @send_raw_dir = nil
       @@send_count = 0
-      @@param_widgets = []
-      @@table = nil
+      @cmd_params = CmdParams.new(self)
 
       initialize_actions()
       initialize_menus()
@@ -146,7 +123,7 @@ module Cosmos
         @send_raw_action.setEnabled(false)
       end
       @send_raw_action.statusTip = tip
-      connect(@send_raw_action, SIGNAL('triggered()'), self, SLOT('file_send_raw()'))
+      @send_raw_action.connect(SIGNAL('triggered()')) { file_send_raw }
 
       # Mode menu actions
       @ignore_range = Qt::Action.new('&Ignore Range Checks', self)
@@ -162,14 +139,18 @@ module Cosmos
       @states_in_hex = Qt::Action.new('&Display State Values in Hex', self)
       @states_in_hex.statusTip = 'Display states values in hex instead of decimal'
       @states_in_hex.setCheckable(true)
-      @states_in_hex.setChecked(false)
-      connect(@states_in_hex, SIGNAL('toggled(bool)'), self, SLOT('menu_states_in_hex(bool)'))
+      @states_in_hex.setChecked(@cmd_params.states_in_hex)
+      @states_in_hex.connect(SIGNAL('toggled(bool)')) do |checked|
+        @cmd_params.set_states_in_hex(checked)
+      end
 
       @show_ignored = Qt::Action.new('&Show Ignored Parameters', self)
       @show_ignored.statusTip = 'Show ignored parameters which are normally hidden'
       @show_ignored.setCheckable(true)
-      @show_ignored.setChecked(false)
-      connect(@show_ignored, SIGNAL('toggled(bool)'), self, SLOT('update_cmd_params(bool)'))
+      @show_ignored.setChecked(@cmd_params.show_ignored)
+      @show_ignored.connect(SIGNAL('toggled(bool)')) do |checked|
+        update_cmd_params(checked)
+      end
 
       @cmd_raw = Qt::Action.new('Disable &Parameter Conversions', self)
       tip = 'Send the command without running write or state conversions'
@@ -243,20 +224,23 @@ module Cosmos
       # Set the target combobox selection
       @target_select = Qt::ComboBox.new
       @target_select.setMaxVisibleItems(6)
-      connect(@target_select, SIGNAL('activated(const QString&)'), self, SLOT('target_changed(const QString&)'))
+      @target_select.connect(SIGNAL('activated(const QString&)')) do |target|
+        update_commands()
+        update_cmd_params()
+      end
       target_label = Qt::Label.new("&Target:")
       target_label.setBuddy(@target_select)
 
       # Set the comamnd combobox selection
       @cmd_select = Qt::ComboBox.new
       @cmd_select.setMaxVisibleItems(20)
-      connect(@cmd_select, SIGNAL('activated(const QString&)'), self, SLOT('cmd_changed(const QString&)'))
+      @cmd_select.connect(SIGNAL('activated(const QString&)')) {|command| update_cmd_params }
       cmd_label = Qt::Label.new("&Command:")
       cmd_label.setBuddy(@cmd_select)
 
       # Button to send command
       send = Qt::PushButton.new("Send")
-      connect(send, SIGNAL('clicked()'), self, SLOT('send_button()'))
+      send.connect(SIGNAL('clicked()')) { send_button }
 
       # Layout the top level selection
       select_layout = Qt::HBoxLayout.new
@@ -326,32 +310,6 @@ module Cosmos
       history
     end
 
-    # Changes the display of items with states to hex if checked is true.
-    # Otherwise state values are displayed as decimal.
-    # @param checked [Boolean] Whether to display state values in hex
-    def menu_states_in_hex(checked)
-      @@param_widgets.each do |_, _, state_value_item|
-        next unless state_value_item
-        text = state_value_item.text
-        quotes_removed = text.remove_quotes
-        if text == quotes_removed
-          if checked
-            if text.is_int?
-              @@table.blockSignals(true)
-              state_value_item.text = sprintf("0x%X", text.to_i)
-              @@table.blockSignals(false)
-            end
-          else
-            if text.is_hex?
-              @@table.blockSignals(true)
-              state_value_item.text = Integer(text).to_s
-              @@table.blockSignals(false)
-            end
-          end
-        end
-      end
-    end
-
     # Opens a dialog which allows the user to select a file to read and send
     # directly over the interface.
     def file_send_raw
@@ -417,17 +375,6 @@ module Cosmos
       super(event)
     end
 
-    # Updates the commands combobox and command parameters table
-    def target_changed(_)
-      update_commands()
-      update_cmd_params()
-    end
-
-    # Updates the command parameters table
-    def cmd_changed(_)
-      update_cmd_params()
-    end
-
     # Sends the current command and parameters to the target
     def send_button
       target_name = @target_select.text
@@ -470,26 +417,8 @@ module Cosmos
 
     # @return [String, Hash] Command as it would appear in a ScriptRunner script
     def view_as_script
-      params = {}
-
-      @@param_widgets.each do |packet_item, value_item, state_value_item|
-        text = value_item.text
-
-        text = state_value_item.text if state_value_item && (text == MANUALLY or @cmd_raw.checked?)
-        quotes_removed = text.remove_quotes
-        if text == quotes_removed
-          if (packet_item.data_type == :STRING or packet_item.data_type == :BLOCK) and text.upcase.start_with?("0X")
-            params[packet_item.name] = text.hex_to_byte_string
-          else
-            params[packet_item.name] = text.convert_to_value
-          end
-        else
-          params[packet_item.name] = quotes_removed
-        end
-        raise "#{packet_item.name} is required." if quotes_removed == '' && packet_item.required
-      end
       statusBar.clearMessage()
-
+      params = @cmd_params.params_text(@cmd_raw.checked?)
       output_string = System.commands.build_cmd_output_string(@target_select.text, @cmd_select.text, params, @cmd_raw.checked?)
       if output_string =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
         output_string = output_string.inspect.remove_quotes
@@ -552,22 +481,9 @@ module Cosmos
 
     # Updates the command parameters table based on the selected target and
     # packet comboboxes
-    # @param ignored_toggle [Boolean] Whether to display the ignored
-    #   parameters. Pass nil (the default) to keep the existing setting.
-    def update_cmd_params(ignored_toggle = nil)
-      old_params = {}
-      if !ignored_toggle.nil?
-        # Save parameter values
-        @@param_widgets.each do |packet_item, value_item, state_value_item|
-          text = value_item.text
-          if state_value_item
-            old_params[packet_item.name] = [text, state_value_item.text]
-          else
-            old_params[packet_item.name] = text
-          end
-        end
-      end
-
+    # @param checked [Boolean] Whether the show ignored parameters option
+    #   is checked. Pass nil (the default) to keep the existing setting.
+    def update_cmd_params(checked = nil)
       # Clear Status Bar
       statusBar.showMessage("")
 
@@ -576,220 +492,13 @@ module Cosmos
       packet_name = @cmd_select.text
       if target_name && packet_name
         packet = System.commands.packet(target_name, packet_name)
-        packet_items = packet.sorted_items
-        shown_packet_items = []
-        packet_items.each do |packet_item|
-          next if target && target.ignored_parameters.include?(packet_item.name) && !@show_ignored.checked?
-          shown_packet_items << packet_item
-        end
-
-        # Update Command Description
-        @description.text = packet.description.to_s
-
-        # Destroy the old table widget
-        @@table.dispose if @@table
-        @@table = nil
-
-        # Update Parameters
-        @@param_widgets = []
-        drawn_header = false
-
-        row = 0
-        shown_packet_items.each do |packet_item|
-          next if target && target.ignored_parameters.include?(packet_item.name) && !@show_ignored.checked?
-          value_item = nil
-          state_value_item = nil
-
-          unless drawn_header
-            @@table = Qt::TableWidget.new()
-            @@table.setSizePolicy(Qt::SizePolicy::Expanding, Qt::SizePolicy::Expanding)
-            @@table.setWordWrap(true)
-            @@table.setRowCount(shown_packet_items.length)
-            @@table.setColumnCount(5)
-            @@table.setHorizontalHeaderLabels(['Name', '         Value or State         ', '         ', 'Units', 'Description'])
-            @@table.horizontalHeader.setStretchLastSection(true)
-            @@table.verticalHeader.setVisible(false)
-            @@table.setItemDelegate(CmdParamTableItemDelegate.new(@@table, @@param_widgets, @production))
-            @@table.setContextMenuPolicy(Qt::CustomContextMenu)
-            @@table.verticalHeader.setResizeMode(Qt::HeaderView::ResizeToContents)
-            @@table.setEditTriggers(Qt::AbstractItemView::DoubleClicked | Qt::AbstractItemView::SelectedClicked | Qt::AbstractItemView::AnyKeyPressed)
-            @@table.setSelectionMode(Qt::AbstractItemView::NoSelection)
-            connect(@@table, SIGNAL('customContextMenuRequested(const QPoint&)'), self, SLOT('context_menu(const QPoint&)'))
-            connect(@@table, SIGNAL('itemClicked(QTableWidgetItem*)'), self, SLOT('click_callback(QTableWidgetItem*)'))
-            drawn_header = true
-          end
-
-          # Parameter Name
-          item = Qt::TableWidgetItem.new("#{packet_item.name}:")
-          item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
-          item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled)
-          @@table.setItem(row, 0, item)
-
-          if packet_item.states
-            default_state = packet_item.states.key(packet_item.default)
-            if old_params[packet_item.name]
-              value_item = Qt::TableWidgetItem.new(old_params[packet_item.name][0])
-            else
-              if default_state
-                value_item = Qt::TableWidgetItem.new(default_state.to_s)
-              elsif @production
-                value_item = Qt::TableWidgetItem.new(packet_item.states.keys[0])
-              else
-                value_item = Qt::TableWidgetItem.new(MANUALLY)
-              end
-            end
-            value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
-            value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
-            @@table.setItem(row, 1, value_item)
-
-            if old_params[packet_item.name]
-              state_value_item = Qt::TableWidgetItem.new(old_params[packet_item.name][1])
-            else
-              if @states_in_hex.checked? && packet_item.default.kind_of?(Integer)
-                state_value_item = Qt::TableWidgetItem.new(sprintf("0x%X", packet_item.default))
-              else
-                default_str = packet_item.default.to_s
-                if default_str.is_printable?
-                  state_value_item = Qt::TableWidgetItem.new(default_str)
-                else
-                  state_value_item = Qt::TableWidgetItem.new("0x" + default_str.simple_formatted)
-                end
-              end
-            end
-            state_value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
-            if @production
-              state_value_item.setFlags(Qt::NoItemFlags)
-            else
-              state_value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
-            end
-            @@table.setItem(row, 2, state_value_item)
-
-            # If the parameter is required clear the combobox and
-            # clear the value field so they have to choose something
-            if packet_item.required && !old_params[packet_item.name]
-              value_item.setText('')
-              state_value_item.setText('')
-            end
-          else
-            # Parameter Value
-            if old_params[packet_item.name]
-              value_item = Qt::TableWidgetItem.new(old_params[packet_item.name])
-            else
-              if packet_item.required
-                value_text = ''
-              else
-                if packet_item.format_string
-                  begin
-                    value_text = sprintf(packet_item.format_string, packet_item.default)
-                  rescue
-                    # Oh well - Don't use the format string
-                    value_text = packet_item.default.to_s
-                  end
-                else
-                  value_text = packet_item.default.to_s
-                end
-                if !value_text.is_printable?
-                  value_text = "0x" + value_text.simple_formatted
-                # Add quotes around STRING or BLOCK defaults so CmdSender interprets them correctly
-                elsif (packet_item.data_type == :STRING or packet_item.data_type == :BLOCK)
-                  value_text = "'#{packet_item.default}'"
-                end
-              end
-              value_item = Qt::TableWidgetItem.new(value_text)
-            end
-            value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
-            value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
-            @@table.setItem(row, 1, value_item)
-            @@table.setSpan(row, 1, 1, 2)
-          end
-
-          # Units
-          item = Qt::TableWidgetItem.new(packet_item.units.to_s)
-          item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
-          item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled)
-          @@table.setItem(row, 3, item)
-
-          # Description
-          item = Qt::TableWidgetItem.new(packet_item.description.to_s)
-          item.setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter)
-          item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled)
-          @@table.setItem(row, 4, item)
-
-          @@param_widgets << [packet_item, value_item, state_value_item]
-          row += 1
-        end
-
-        if @@table
-          @@table.connect(SIGNAL('itemChanged(QTableWidgetItem*)')) do |item|
-            packet_item, value_item, state_value_item = @@param_widgets[item.row]
-            if item.column == 1
-              if packet_item.states
-                value = packet_item.states[value_item.text]
-                @@table.blockSignals(true)
-                if @states_in_hex.checked? && value.kind_of?(Integer)
-                  state_value_item.setText(sprintf("0x%X", value))
-                else
-                  state_value_item.setText(value.to_s)
-                end
-                @@table.blockSignals(false)
-              end
-            elsif item.column == 2
-              @@table.blockSignals(true)
-              @@table.item(item.row, 1).setText(MANUALLY)
-              @@table.blockSignals(false)
-            end
-          end
-          @table_layout.addWidget(@@table, 500)
-          @@table.resizeColumnsToContents()
-          @@table.resizeRowsToContents()
-        end
-      end # if target_name && packet_name
-    end
-
-    # If the user right clicks over a table item, this method displays a context
-    # menu with various options.
-    # @param point [Qt::Point] Point to display the context menu
-    def context_menu(point)
-      target_name = @target_select.text
-      packet_name = @cmd_select.text
-      item = @@table.itemAt(point)
-      if item
-        item_name = @@table.item(item.row, 0).text[0..-2] # Remove :
-        if target_name.length > 0 && packet_name.length > 0 && item_name.length > 0
-          menu = Qt::Menu.new()
-
-          details_action = Qt::Action.new("Details #{target_name} #{packet_name} #{item_name}", self)
-          details_action.statusTip = "Popup details about #{target_name} #{packet_name} #{item_name}"
-          details_action.connect(SIGNAL('triggered()')) do
-            CmdDetailsDialog.new(nil, target_name, packet_name, item_name)
-          end
-          menu.addAction(details_action)
-
-          file_chooser_action = Qt::Action.new("Insert Filename", self)
-          file_chooser_action.statusTip = "Select a file and place its name into this parameter"
-          file_chooser_action.connect(SIGNAL('triggered()')) do
-            filename = Qt::FileDialog::getOpenFileName(self, "Insert Filename:", @file_dir, "All Files (*)")
-            if filename && !filename.empty?
-              @file_dir = File.dirname(filename)
-              _, value_item, state_value_item = @@param_widgets[item.row]
-              if state_value_item
-                state_value_item.setText(filename)
-              elsif value_item
-                value_item.setText(filename)
-              end
-            end
-          end
-          menu.addAction(file_chooser_action)
-
-          menu.exec(@@table.mapToGlobal(point))
-          menu.dispose
-        end
+        table = @cmd_params.update_cmd_params(packet, show_ignored: checked)
+        @table_layout.addWidget(table, 500) if table
       end
     end
 
-    # @param item [Qt::TableWidgetItem] Item which was left clicked
-    def click_callback(item)
-      @@table.editItem(item) if (item.flags & Qt::ItemIsEditable) != 0
+    def get_target_packet_names
+      [@target_select.text, @cmd_select.text]
     end
 
     # (see QtTool.run)
