@@ -63,12 +63,11 @@ module Cosmos
       super(options)
       Cosmos.load_cosmos_icon("cmd_sender.png")
 
-      @file_dir = System.paths['LOGS']
       @message_log = MessageLog.new('cmdsender')
       @production = options.production
       @send_raw_dir = nil
       @@send_count = 0
-      @cmd_params = CmdParams.new(self)
+      @cmd_params = CmdParams.new
 
       initialize_actions()
       initialize_menus()
@@ -139,15 +138,15 @@ module Cosmos
       @states_in_hex = Qt::Action.new('&Display State Values in Hex', self)
       @states_in_hex.statusTip = 'Display states values in hex instead of decimal'
       @states_in_hex.setCheckable(true)
-      @states_in_hex.setChecked(@cmd_params.states_in_hex)
+      @states_in_hex.setChecked(CmdParams.states_in_hex)
       @states_in_hex.connect(SIGNAL('toggled(bool)')) do |checked|
-        @cmd_params.set_states_in_hex(checked)
+        @cmd_params.states_in_hex(checked)
       end
 
       @show_ignored = Qt::Action.new('&Show Ignored Parameters', self)
       @show_ignored.statusTip = 'Show ignored parameters which are normally hidden'
       @show_ignored.setCheckable(true)
-      @show_ignored.setChecked(@cmd_params.show_ignored)
+      @show_ignored.setChecked(CmdParams.show_ignored)
       @show_ignored.connect(SIGNAL('toggled(bool)')) do |checked|
         update_cmd_params(checked)
       end
@@ -495,10 +494,6 @@ module Cosmos
         table = @cmd_params.update_cmd_params(packet, show_ignored: checked)
         @table_layout.addWidget(table, 500) if table
       end
-    end
-
-    def get_target_packet_names
-      [@target_select.text, @cmd_select.text]
     end
 
     # (see QtTool.run)

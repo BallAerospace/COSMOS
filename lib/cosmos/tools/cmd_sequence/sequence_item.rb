@@ -31,7 +31,7 @@ module Cosmos
     #   single float value representing the delta delay time
     def initialize(parent, target_name, packet_name, params = nil, time = nil)
       super()
-      @cmd_params = CmdParams.new(parent)
+      @cmd_params = CmdParams.new
       # Propagate the modified signal up
       @cmd_params.connect(SIGNAL('modified()')) do
         set_cmd_name_info()
@@ -50,8 +50,7 @@ module Cosmos
       setLayout(top_layout)
       top_layout.addLayout(create_cmd_layout(target_name, packet_name, time))
       top_layout.addWidget(create_parameters())
-      table = @cmd_params.update_cmd_params(@command, existing: params)
-      add_table(table)
+      add_table(@cmd_params.update_cmd_params(@command, existing: params))
       set_cmd_name_info()
     end
 
@@ -66,12 +65,11 @@ module Cosmos
     end
       
     def states_in_hex(checked)
-      @cmd_params.set_states_in_hex(checked)
+      @cmd_params.states_in_hex(checked)
     end
 
     def show_ignored(checked)
-      table = @cmd_params.update_cmd_params(@command, show_ignored: checked)
-      add_table(table)
+      add_table(@cmd_params.update_cmd_params(@command, show_ignored: checked))
       set_cmd_name_info()
     end
 
@@ -207,16 +205,18 @@ module Cosmos
     # Sets the @cmd_name label to the command that will be sent. Also udpates
     # the @cmd_info with whether this command is hazardous or not.
     def set_cmd_name_info
-      @cmd_name.text = command_string
-      hazardous, _ = System.commands.cmd_hazardous?(@command.target_name, @command.packet_name, @cmd_params.params_text)
-      if hazardous
-        @cmd_info.text = "(Hazardous)"
-      else
-        @cmd_info.text = ""
+      Qt.execute_in_main_thread do
+        @cmd_name.text = command_string
+        hazardous, _ = System.commands.cmd_hazardous?(@command.target_name, @command.packet_name, @cmd_params.params_text)
+        if hazardous
+          @cmd_info.text = "(Hazardous)"
+        else
+          @cmd_info.text = ""
+        end
       end
     rescue => error
       @cmd_info.text = "(Error)"
-      Qt::MessageBox.warning(self, 'Error', error.message)
+      Qt::MessageBox.warning(self, 'Error', "Error parsing #{@command.target_name} #{@command.packet_name} due to #{error.message}")
     end
   end
 end
