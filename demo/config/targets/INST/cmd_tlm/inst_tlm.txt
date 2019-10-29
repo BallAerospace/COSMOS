@@ -148,6 +148,7 @@ TELEMETRY INST IMAGE BIG_ENDIAN "Packet with image data"
 
 TELEMETRY INST MECH BIG_ENDIAN "Mechanism status"
   <%= render "_ccsds_tlm.txt", locals: {apid: 5} %>
+  APPEND_ITEM EXTRA         32 FLOAT    "Extra item to be deleted"
   APPEND_ITEM SLRPNL1       32 FLOAT    "Solar panel 1 angle"
     UNITS DEGREES DEG
   APPEND_ITEM SLRPNL2       32 FLOAT    "Solar panel 2 angle"
