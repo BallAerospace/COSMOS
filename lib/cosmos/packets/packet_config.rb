@@ -198,11 +198,11 @@ module Cosmos
           #######################################################################
           # All the following keywords must have a current packet defined
           #######################################################################
-          when 'SELECT_ITEM', 'SELECT_PARAMETER', 'DELETE_ITEM', 'ITEM', 'PARAMETER', 'ID_ITEM',\
-              'ID_PARAMETER', 'ARRAY_ITEM', 'ARRAY_PARAMETER', 'APPEND_ITEM', 'APPEND_PARAMETER',\
-              'APPEND_ID_ITEM', 'APPEND_ID_PARAMETER', 'APPEND_ARRAY_ITEM', 'APPEND_ARRAY_PARAMETER',\
-              'MACRO_APPEND_START', 'MACRO_APPEND_END', 'ALLOW_SHORT', 'HAZARDOUS', 'PROCESSOR',\
-              'META', 'DISABLE_MESSAGES', 'HIDDEN', 'DISABLED'
+          when 'SELECT_ITEM', 'SELECT_PARAMETER', 'DELETE_ITEM', 'DELETE_PARAMETER', 'ITEM',\
+              'PARAMETER', 'ID_ITEM', 'ID_PARAMETER', 'ARRAY_ITEM', 'ARRAY_PARAMETER', 'APPEND_ITEM',\
+              'APPEND_PARAMETER', 'APPEND_ID_ITEM', 'APPEND_ID_PARAMETER', 'APPEND_ARRAY_ITEM',\
+              'APPEND_ARRAY_PARAMETER', 'MACRO_APPEND_START', 'MACRO_APPEND_END', 'ALLOW_SHORT',\
+              'HAZARDOUS', 'PROCESSOR', 'META', 'DISABLE_MESSAGES', 'HIDDEN', 'DISABLED'
             raise parser.error("No current packet for #{keyword}") unless @current_packet
             process_current_packet(parser, keyword, params)
 
@@ -338,10 +338,10 @@ module Cosmos
       # Select or delete an item in the current packet
       when 'SELECT_PARAMETER', 'SELECT_ITEM', 'DELETE_PARAMETER', 'DELETE_ITEM'
         if (@current_cmd_or_tlm == COMMAND) && (keyword.split('_')[1] == 'ITEM')
-          raise parser.error("SELECT_ITEM only applies to telemetry packets")
+          raise parser.error("#{keyword} only applies to telemetry packets")
         end
         if (@current_cmd_or_tlm == TELEMETRY) && (keyword.split('_')[1] == 'PARAMETER')
-          raise parser.error("SELECT_PARAMETER only applies to command packets")
+          raise parser.error("#{keyword} only applies to command packets")
         end
         usage = "#{keyword} <#{keyword.split('_')[1]} NAME>"
         finish_item()

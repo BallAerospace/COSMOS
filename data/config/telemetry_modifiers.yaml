@@ -99,6 +99,17 @@ SELECT_ITEM:
       required: true
       description: Name of the item to select for modification
       values: .+
+DELETE_ITEM:
+  summary: Delete an existing telemetry item from the packet definition
+  example: |
+    SELECT_TELEMETRY SYSTEM LIMITS_CHANGE
+      DELETE_ITEM ITEM
+  since: 4.4.1
+  parameters:
+    - name: Item
+      required: true
+      description: Name of the item to delete
+      values: .+
 META:
   summary: Stores metadata for the current telemetry packet
   description: Meta data is user specific data that can be used by custom tools

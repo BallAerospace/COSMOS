@@ -109,6 +109,17 @@ SELECT_PARAMETER:
       required: true
       description: Name of the parameter to select for modification
       values: .+
+DELETE_PARAMETER:
+  summary: Deletes an existing command parameter from the packet definition
+  example: |
+    SELECT_COMMAND SYSTEM STARTLOGGING
+      DELETE_PARAMETER LABEL
+  since: 4.4.1
+  parameters:
+    - name: Parameter
+      required: true
+      description: Name of the parameter to delete
+      values: .+
 HIDDEN:
   summary: Hides this command from all COSMOS tools such as Command Sender and Handbook Creator
   description: Hidden commands do not appear in the Script Runner popup helper when writing scripts.
