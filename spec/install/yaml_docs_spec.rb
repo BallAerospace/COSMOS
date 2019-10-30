@@ -15,6 +15,25 @@ module Cosmos
     OPENGL = %w(STL_FILE TEXTURE_MAPPED_SPHERE TIP_TEXT POSITION ROTATION_X ROTATION_Y ROTATION_Z)
     OPENGL.concat(%w(ZOOM ORIENTATION CENTER BOUNDS))
 
+    def process_line(line)
+      line.split(',').each do |item|
+        item.strip!
+        if (item[0] == "'" || item[0] == '"') && (item[-1] == "'" || item[-1] == '"')
+          @src_keywords << item[1..-2]
+        end
+      end
+    end
+
+    def process_continuation(line)
+      if line[-1] == "\\"
+        continuation = true
+        line = line[0..-2] # remove the continuation character
+      else
+        continuation = false
+      end
+      return continuation
+    end
+
     def get_src_keywords
       @src_keywords = []
       path = File.expand_path(File.join(File.dirname(__FILE__), "../../lib/**/*.rb"))
@@ -27,15 +46,16 @@ module Cosmos
           part = data.split('handle_keyword(parser, keyword, parameters)')[1..-1].join
         end
         if part
+          continuation = false
           part.split("\n").each do |line|
+            if continuation
+              continuation = process_continuation(line)
+              process_line(line)
+            end
             if match = line.match(/when (.*)/)
               line = match.captures[0]
-              line.split(',').each do |item|
-                item.strip!
-                if (item[0] == "'" || item[0] == '"') && (item[-1] == "'" || item[-1] == '"')
-                  @src_keywords << item[1..-2]
-                end
-              end
+              continuation = process_continuation(line)
+              process_line(line)
             end
           end
         end
