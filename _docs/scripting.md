@@ -1125,7 +1125,7 @@ The get_tlm_list method returns an array of the telemetry packets and their desc
 
 Syntax:
 ```ruby
-packet_names_and_descriptions = get_tlm_pkt_list("<Target Name>")
+packet_names_and_descriptions = get_tlm_list("<Target Name>")
 ```
 
 | Parameter | Description |
