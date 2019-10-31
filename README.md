@@ -61,6 +61,8 @@ COSMOS is built and maintained by Ryan Melton (ryanatball/ryanmelt) and Jason Th
 
 ## Getting Started
 
+### Installing on a local machine
+
 1. Install COSMOS at the command prompt if you haven't yet:
 
         gem install cosmos
@@ -83,6 +85,16 @@ COSMOS is built and maintained by Ryan Melton (ryanatball/ryanmelt) and Jason Th
 4. Click on the various tools to start experimenting with COSMOS!
 
 5. Follow the [Documentation](http://cosmosrb.com) to start developing your configuration.
+
+### Running in Docker (for Linux hosts)
+
+1. Build the image:
+
+        docker build -t cosmos .
+
+2. Run it:
+
+        docker run --rm --net=host --env DISPLAY --env QT_X11_NO_MITSHM=1 --volume="$HOME/.Xauthority:/root/.Xauthority:rw" cosmosxxx sh -c 'bash -ic "ruby /root/cosmosdemo/Launcher"'
 
 ## Contributing
 
