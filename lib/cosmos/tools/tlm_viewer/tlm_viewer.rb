@@ -53,6 +53,10 @@ module Cosmos
     @@instance = nil
 
     def self.instance
+      unless @@instance
+        _, options = create_default_options()
+        TlmViewer.new(options)
+      end
       @@instance
     end
 
