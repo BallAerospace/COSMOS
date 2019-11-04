@@ -43,10 +43,9 @@ class DartDecomQuery
   #     meta_ids => Optional IDs related to the meta data you want to filter by. This requires
   #       making a separate request for the particular meta data in question and recording
   #       the returned meta_ids for use in a subsequent request.
-  #     limit => Maximum number of data items to return, must be less than 10000
-  #     offset => Offset into the data stream. Since the maximum number of values allowed
-  #       is 10000, you can set the offset to 10000, then 20000, etc to get additional values.
-  #       By default the offset is 0.
+  #     limit => Maximum number of data items to return, must be less than DartCommon::MAX_DECOM_RESULTS
+  #     offset => Offset into the data stream. Use this to get more than the DartCommon::MAX_DECOM_RESULTS
+  #       by making multipe requests with multiples of the DartCommon::MAX_DECOM_RESULTS value.
   #     cmd_tlm => Whether the item is a command or telemetry. Default is telemetry.
   # @return [Array<Array<String, Integer, Integer, Integer, Integer>>] Array of arrays containing
   #   the item name, item seconds, item microseconds, samples (always 1 for NONE reduction, varies
@@ -143,7 +142,7 @@ class DartDecomQuery
       end
 
       limit = request['limit'].to_i
-      limit = 10000 if limit <= 0 or limit > 10000
+      limit = MAX_DECOM_RESULTS if limit <= 0 or limit > MAX_DECOM_RESULTS
 
       offset = request['offset'].to_i
       offset = 0 if offset < 0
