@@ -168,7 +168,7 @@ class DartDecomQuery
   # @param is_tlm true or false
   # @return [Array<String>] Array of item names
   def item_names(target_name, packet_name, is_tlm = true)
-    Cosmos::Logger.info("#{time.formatted}: item_names")
+    Cosmos::Logger.info("#{Time.now.formatted}: item_names")
 
     target = Target.where("name = ?", target_name).first
     raise "Target #{target_name} not found" unless target
