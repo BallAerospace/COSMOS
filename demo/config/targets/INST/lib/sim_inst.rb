@@ -304,8 +304,8 @@ module Cosmos
           # Create an Array the size of the packet and then initialize
           # using a sample of all possible hex values (0..15)
           # finally pack it into binary using the Character 'C' specifier
-          data = Array.new(packet.length) { Array(0..15).sample }.pack("C*")
-          packet.buffer = data
+          data = Array.new(packet.image.length) { Array(0..15).sample }.pack("C*")
+          packet.image = data
           packet.ccsdsseqcnt += 1
 
         when 'MECH'

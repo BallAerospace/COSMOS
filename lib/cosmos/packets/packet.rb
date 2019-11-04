@@ -341,7 +341,7 @@ module Cosmos
       previous_item = nil
       warnings = []
       @sorted_items.each do |item|
-        if expected_next_offset and item.bit_offset < expected_next_offset
+        if expected_next_offset && item.bit_offset < expected_next_offset && !item.overlap
           msg = "Bit definition overlap at bit offset #{item.bit_offset} for packet #{@target_name} #{@packet_name} items #{item.name} and #{previous_item.name}"
           Logger.instance.warn(msg)
           warnings << msg

@@ -11,7 +11,6 @@
 require 'cosmos/ext/packet' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
-
   # Maintains knowledge of an item in a Structure. Multiple StructureItems
   # compose a Structure.
   class StructureItem
@@ -59,6 +58,9 @@ module Cosmos
     # @return [Symbol] {BinaryAccessor::OVERFLOW_TYPES}
     attr_reader :overflow
 
+    # @return [Boolean] Whether this structure item can overlap another item in the same packet
+    attr_accessor :overlap
+
     # A large buffer size in bits (1 Megabyte)
     LARGE_BUFFER_SIZE_BITS = 1024 * 1024 * 8
 
@@ -73,6 +75,7 @@ module Cosmos
     # @param endianness [Symbol] {BinaryAccessor::ENDIANNESS}
     # @param array_size [Integer, nil] Size of the array item in bits. For
     #   example, if the bit_size is 8, an array_size of 16 holds two values.
+    # @param overflow [Symbol] {BinaryAccessor::OVERFLOW_TYPES}
     def initialize(name, bit_offset, bit_size, data_type, endianness, array_size = nil, overflow = :ERROR)
       @structure_item_constructed = false
       # Assignment order matters due to verifications!
@@ -83,6 +86,7 @@ module Cosmos
       self.bit_size = bit_size
       self.array_size = array_size
       self.overflow = overflow
+      self.overlap = false
       @create_index = @@create_index
       @@create_index += 1
       @structure_item_constructed = true
