@@ -652,7 +652,7 @@ module Cosmos
       ScriptRunnerFrame.instance = @script_runner_frame
       build = false
       @utilities.each do |utility|
-        if require_utility(utility)
+        if load_utility(utility)
           build = true
         end
       end
@@ -999,7 +999,7 @@ module Cosmos
         when 'LOAD_UTILITY', 'REQUIRE_UTILITY'
           parser.verify_num_parameters(1, 1, "LOAD_UTILITY <filename>")
           begin
-            require_utility params[0]
+            load_utility params[0]
             @utilities << params[0]
           rescue Exception => err
             require_errors << "<b>#{params[0]}</b>:\n#{err.formatted}\n"

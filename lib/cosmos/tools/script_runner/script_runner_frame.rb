@@ -520,6 +520,8 @@ module Cosmos
       if filename and !filename.empty?
         @@file_cache[filename] = text.clone
       end
+      # Check for ruby syntax errors and bubble up the exception
+      eval("lambda { #{text} }") # lambda prevents it from executing
 
       ruby_lex_utils = RubyLexUtils.new
       instrumented_text = ''
