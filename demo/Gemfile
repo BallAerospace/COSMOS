@@ -10,4 +10,4 @@ else
 end
 
 # Uncomment this line to add DART dependencies to your main Gemfile
-# instance_eval File.read(File.join(__dir__, 'config/dart/Gemfile'))
+instance_eval File.read(File.join(__dir__, 'config/dart/Gemfile'))

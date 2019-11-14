@@ -195,6 +195,7 @@ module Cosmos
       @targets = {}
       # Set config to nil so things will lazy load later
       @config = nil
+      @meta_init_filename = nil
       @use_utc = false
       acl_list = []
       all_allowed = false
@@ -501,6 +502,7 @@ module Cosmos
           # If they want the initial configuration we can just swap out the
           # current configuration without doing any file processing
           if name == @initial_config.name
+            Logger.info "Switching to initial configuration: #{name}"
             update_config(@initial_config)
           else
             # Look for the requested configuration in the saved configurations
@@ -513,16 +515,22 @@ module Cosmos
                   # Zip file configuration so unzip and reset configuration path
                   configuration = unzip(configuration)
                 end
+                
+                Logger.info "Switching to configuration: #{name}"
                 process_file(File.join(configuration, 'system.txt'), configuration)
                 load_packets(name)
               rescue Exception => error
                 # Failed to load - Restore initial
+                Logger.error "Problem loading configuration from #{configuration}: #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n"
+                Logger.info "Switching to initial configuration: #{@initial_config.name}"
                 update_config(@initial_config)
                 return @config.name, error
               end
             else
               # We couldn't find the configuration request. Reload the
               # initial configuration
+              Logger.error "Unable to find configuration: #{name}"
+              Logger.info "Switching to initial configuration: #{@initial_config.name}"
               update_config(@initial_config)
             end
           end
@@ -543,7 +551,6 @@ module Cosmos
     # @param filename [String] Path to system.txt config file to process. Defaults to config/system/system.txt
     def reset_variables(filename = nil)
       @targets = {}
-      @targets['UNKNOWN'] = Target.new('UNKNOWN')
       @config = nil
       @commands = nil
       @telemetry = nil

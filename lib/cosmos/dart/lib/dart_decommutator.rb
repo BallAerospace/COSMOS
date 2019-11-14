@@ -43,6 +43,12 @@ class DartDecommutator
     @status = DartDecommutatorStatus.new
   end
 
+  def timeit(message, &block)
+    time_start = Time.now
+    yield
+    Cosmos::Logger.info("#{Time.now - time_start}s #{message}")
+  end
+
   # Run forever looking for data to decommutate
   def run
     status_time = Time.now + 60.seconds
@@ -238,51 +244,45 @@ class DartDecommutator
   end
 
   def decom_packet(ple, packet, packet_config)
-    # Update packet config times
-    if !packet_config.start_time or (packet.packet_time < packet_config.start_time)
-      packet_config.start_time = packet.packet_time
-      packet_config.save!
-    end
-    if !packet_config.end_time or (packet.packet_time > packet_config.end_time)
-      packet_config.end_time = packet.packet_time
-      packet_config.save!
-    end
-
-    # Mark the log entry IN_PROGRESS as we decommutate the data
-    ple.decom_state = PacketLogEntry::IN_PROGRESS
-    ple.save!
-    values = get_values(packet)
-
-    table_index = 0
-    rows = []
-    # Create rows in the decommutation table model
-    values.each_slice(MAX_COLUMNS_PER_TABLE) do |table_values|
-      model = get_decom_table_model(packet_config.id, table_index)
-      row = model.new
-      row.time = ple.time
-      row.ple_id = ple.id
-      row.packet_log_id = ple.packet_log_id
-      row.meta_id = ple.meta_id
-      row.reduced_state = INITIALIZING
-      table_values.each_with_index do |value, index|
-        item_index = (table_index * MAX_COLUMNS_PER_TABLE) + index
-        row.write_attribute("i#{item_index}", value)
+    ActiveRecord::Base.transaction do
+      # Update packet config times
+      if !packet_config.start_time or (packet.packet_time < packet_config.start_time)
+        packet_config.start_time = packet.packet_time
+        packet_config.save!
       end
-      row.save!
-      rows << row
-      table_index += 1
-    end
-    # Mark ready to reduce
-    rows.each do |row|
-      row.reduced_state = READY_TO_REDUCE
-      row.save!
-    end
+      if !packet_config.end_time or (packet.packet_time > packet_config.end_time)
+        packet_config.end_time = packet.packet_time
+        packet_config.save!
+      end
 
-    # The log entry has been decommutated, mark COMPLETE
-    ple.decom_state = PacketLogEntry::COMPLETE
-    ple.save!
-    @status.count += 1
-    Cosmos::Logger.debug("PLE:#{ple.id}:#{ple.decom_state_string}")
+      values = get_values(packet)
+
+      table_index = 0
+      rows = []
+      # Create rows in the decommutation table model
+      values.each_slice(MAX_COLUMNS_PER_TABLE) do |table_values|
+        model = get_decom_table_model(packet_config.id, table_index)
+        row = model.new
+        row.time = ple.time
+        row.ple_id = ple.id
+        row.packet_log_id = ple.packet_log_id
+        row.meta_id = ple.meta_id
+        row.reduced_state = READY_TO_REDUCE
+        table_values.each_with_index do |value, index|
+          item_index = (table_index * MAX_COLUMNS_PER_TABLE) + index
+          row.write_attribute("i#{item_index}", value)
+        end
+        row.save!
+        rows << row
+        table_index += 1
+      end
+
+      # The log entry has been decommutated, mark COMPLETE
+      ple.decom_state = PacketLogEntry::COMPLETE
+      ple.save!
+      @status.count += 1
+      Cosmos::Logger.debug("PLE:#{ple.id}:#{ple.decom_state_string}")
+    end
   end
 
   def handle_error(message)

@@ -184,7 +184,7 @@ module DartCommon
           end
         end
         t.index :time
-        t.index :reduced_state, :where => "reduced_state < 2"
+        t.index :reduced_state, :where => "reduced_state < #{REDUCED}"
       end
       create_reduction_table("t#{packet_config.id}_#{table_index}_h", table_data_types, table_index) # hour
       create_reduction_table("t#{packet_config.id}_#{table_index}_m", table_data_types, table_index) # month
@@ -687,7 +687,7 @@ module DartCommon
         end
       end
       t.index :start_time
-      t.index :reduced_state, :where => "reduced_state < 2"
+      t.index :reduced_state, :where => "reduced_state < #{REDUCED}"
     end
   end
 

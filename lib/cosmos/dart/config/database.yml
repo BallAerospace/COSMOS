@@ -1,6 +1,8 @@
 default: &default
   template: template0
   encoding: SQL_ASCII
+  collation: C 
+  ctype: C 
   adapter: postgresql
   pool: 50
   timeout: 5000

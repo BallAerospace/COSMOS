@@ -14,6 +14,8 @@ ItemToDecomTableMapping
 
 # Thread which performs data reduction in the DART database.
 class DartReducerWorkerThread
+  MAX_SAMPLES_PER_REDUCTION = 61 * 1000 * 2 # Supports a max of 1Khz sample rate
+  
   # Create a new thread and start it
   #
   # @param master_queue [Queue] Queue which the new thread will be added to
@@ -62,144 +64,33 @@ class DartReducerWorkerThread
       time_delta, base_model_time_column, time_method = job_attributes(job_type)
       rows = []
       # Find all the rows in the decommutation table which are ready to reduce
-      base_model.where("reduced_state = #{DartCommon::READY_TO_REDUCE}").order("meta_id ASC, #{base_model_time_column} ASC").find_each do |row|
-        rows << row
-        first_row_time = rows[0].send(base_model_time_column)
-        last_row_time = rows[-1].send(base_model_time_column)
-        # Ensure we have conditions to process the reduction data
-        next unless (last_row_time - first_row_time) > time_delta || # Enough samples or
-            # The time attribute (min, hour, day) has changed or
-            first_row_time.send(time_method) != last_row_time.send(time_method) ||
-            rows[0].meta_id != rows[-1].meta_id # New meta data
-
-        # Sample from the start to the second to last row because the last row
-        # is where we detected a change. The last row will be part of a new sample set.
-        sample_rows = rows[0..-2]
-        new_row = reduction_model.new
-        new_row.start_time = first_row_time
-        new_row.num_samples = sample_rows.length
-        new_row.meta_id = sample_rows[0].meta_id
-        new_row.packet_log_id = sample_rows[0].packet_log_id
-        # Process each of the ItemToDecomTableMapping to get the item to be reduced
-        mappings.each do |mapping|
-          item_name = "i#{mapping.item_index}"
-          min_item_name = "i#{mapping.item_index}min"
-          max_item_name = "i#{mapping.item_index}max"
-          avg_item_name = "i#{mapping.item_index}avg"
-          stddev_item_name = "i#{mapping.item_index}stddev"
-          min_value = nil
-          max_value = nil
-          total_samples = 0 # s0
-          avg_value = 0.0 # s1
-          s2 = 0.0
-          stddev_value = 0.0
-          min_nan_found = false
-          max_nan_found = false
-          avg_nan_found = false
-          stddev_nan_found = false
-          # Process each of the rows in the base model which is the decommutation table
-          # or a lesser reduction table (the minute or hour table).
-          sample_rows.each do |row_to_reduce|
-            # If we processing minute data we're reading from the base decommutation table
-            # thus there is only raw values to read
-            if job_type == :MINUTE
-              value = row_to_reduce.read_attribute(item_name)
-              min_sample = value
-              max_sample = value
-              avg_sample = value
-              if value.nil?
-                handle_error("#{item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
-                next
-              end
-            else # :HOUR or :DAY
-              # We're processing hour or day data so we're reducing previously reduced data
-              # thus there are min, max, and average values to read
-              min_sample = row_to_reduce.read_attribute(min_item_name)
-              max_sample = row_to_reduce.read_attribute(max_item_name)
-              avg_sample = row_to_reduce.read_attribute(avg_item_name)
-              stddev_sample = row_to_reduce.read_attribute(stddev_item_name)
-              if min_sample.nil?
-                handle_error("#{min_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
-                next
-              end
-              if max_sample.nil?
-                handle_error("#{max_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
-                next
-              end
-              if avg_sample.nil?
-                handle_error("#{avg_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
-                next
-              end
-              if stddev_sample.nil?
-                handle_error("#{stddev_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
-                next
-              end
-            end
-
-            if nan_value?(min_sample)
-              min_nan_found = true
-            else
-              if !min_value or min_sample < min_value
-                min_value = min_sample
-              end
-            end
-
-            if nan_value?(max_sample)
-              max_nan_found = true
-            else
-              if !max_value or max_sample > max_value
-                max_value = max_sample
-              end
-            end
-
-            if nan_value?(avg_sample)
-              avg_nan_found = true
-            else
-              # MINUTE data is reducing the decommutated values
-              if job_type == :MINUTE
-                total_samples += 1 # s0
-                avg_value += avg_sample # s1
-                s2 += (avg_sample * avg_sample)
-              else # :HOUR or :DAY
-                # Aggregated Stddev
-                # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
-                total_samples += row_to_reduce.num_samples # s0
-                avg_value += (avg_sample * row_to_reduce.num_samples) # s1
-                s2 += row_to_reduce.num_samples * (avg_sample * avg_sample + stddev_sample * stddev_sample)
-              end
-            end
+      query_rows = base_model.where("reduced_state = #{DartCommon::READY_TO_REDUCE}").order("meta_id ASC, #{base_model_time_column} ASC").limit(MAX_SAMPLES_PER_REDUCTION)
+      if query_rows.length > 0
+        first_query_row_time = query_rows[0].send(base_model_time_column)
+        last_query_row_time = query_rows[-1].send(base_model_time_column)
+        # Require at least a 2 minute spread to ensure a full minute of context is available
+        if (last_query_row_time - first_query_row_time) > 2.minutes 
+          query_rows.each do |row|
+            rows << row
+            first_row_time = rows[0].send(base_model_time_column)
+            last_row_time = rows[-1].send(base_model_time_column)
+            
+            # Break if we are near the end of a minute
+            break if (last_query_row_time - last_row_time) < 1.minute
+            
+            # Ensure we have conditions to process the reduction data
+            next unless (last_row_time - first_row_time) > time_delta || # Enough samples or
+                # The time attribute (min, hour, day) has changed or
+                first_row_time.send(time_method) != last_row_time.send(time_method) ||
+                rows[0].meta_id != rows[-1].meta_id # New meta data
+            
+            # Sample from the start to the second to last row because the last row
+            # is where we detected a change. The last row will be part of a new sample set.
+            sample_rows = rows[0..-2]
+            create_reduced_row(sample_rows, base_model, reduction_model, base_model_time_column, mappings, job_type)
+            rows = rows[-1..-1] # Start a new sample with the last item in the previous sample
           end
-          if total_samples != 0
-            # Aggregated Stddev
-            # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
-            avg_value = avg_value.to_f / total_samples
-            # Note: For very large numbers with very small deviations this sqrt can fail.  If so then just set the stddev to 0.
-            begin
-              stddev_value = sqrt((s2 / total_samples) - (avg_value * avg_value))
-            rescue Exception
-              stddev_value = 0.0
-            end
-          end
-          min_value = Float::NAN if min_nan_found and !min_value
-          max_value = Float::NAN if max_nan_found and !max_value
-          if avg_nan_found and total_samples == 0
-            avg_value = Float::NAN
-            stddev_value = Float::NAN
-          end
-          new_row.write_attribute(min_item_name, min_value)
-          new_row.write_attribute(max_item_name, max_value)
-          new_row.write_attribute(avg_item_name, avg_value)
-          new_row.write_attribute(stddev_item_name, stddev_value)
         end
-        base_model.where(id: sample_rows.map(&:id)).update_all(:reduced_state => DartCommon::REDUCED)
-        new_row.save! # Create the reduced data row in the database
-        base_model.where(id: sample_rows.map(&:id)).update_all(:reduced_id => new_row.id)
-        new_row.reduced_state = DartCommon::READY_TO_REDUCE
-        new_row.save!
-        @status.count += 1
-
-        rows = rows[-1..-1] # Start a new sample with the last item in the previous sample
-        Cosmos::Logger.debug("Created #{new_row.class}:#{new_row.id} with #{mappings.length} items from #{new_row.num_samples} samples")
       end
       complete_job(job_type, packet_config_id, table_index)
     end # while @running
@@ -208,6 +99,133 @@ class DartReducerWorkerThread
     handle_error("Reducer Thread Unexpectedly Died: #{error.formatted}")
   end
 
+  def create_reduced_row(sample_rows, base_model, reduction_model, base_model_time_column, mappings, job_type)
+    new_row = reduction_model.new
+    new_row.start_time = sample_rows[0].send(base_model_time_column)
+    new_row.num_samples = sample_rows.length
+    new_row.meta_id = sample_rows[0].meta_id
+    new_row.packet_log_id = sample_rows[0].packet_log_id
+    # Process each of the ItemToDecomTableMapping to get the item to be reduced
+    mappings.each do |mapping|
+      item_name = "i#{mapping.item_index}"
+      min_item_name = "i#{mapping.item_index}min"
+      max_item_name = "i#{mapping.item_index}max"
+      avg_item_name = "i#{mapping.item_index}avg"
+      stddev_item_name = "i#{mapping.item_index}stddev"
+      min_value = nil
+      max_value = nil
+      total_samples = 0 # s0
+      avg_value = 0.0 # s1
+      s2 = 0.0
+      stddev_value = 0.0
+      min_nan_found = false
+      max_nan_found = false
+      avg_nan_found = false
+      stddev_nan_found = false
+      # Process each of the rows in the base model which is the decommutation table
+      # or a lesser reduction table (the minute or hour table).
+      sample_rows.each do |row_to_reduce|
+        # If we processing minute data we're reading from the base decommutation table
+        # thus there is only raw values to read
+        if job_type == :MINUTE
+          value = row_to_reduce.read_attribute(item_name)
+          min_sample = value
+          max_sample = value
+          avg_sample = value
+          if value.nil?
+            handle_error("#{item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
+            next
+          end
+        else # :HOUR or :DAY
+          # We're processing hour or day data so we're reducing previously reduced data
+          # thus there are min, max, and average values to read
+          min_sample = row_to_reduce.read_attribute(min_item_name)
+          max_sample = row_to_reduce.read_attribute(max_item_name)
+          avg_sample = row_to_reduce.read_attribute(avg_item_name)
+          stddev_sample = row_to_reduce.read_attribute(stddev_item_name)
+          if min_sample.nil?
+            handle_error("#{min_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
+            next
+          end
+          if max_sample.nil?
+            handle_error("#{max_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
+            next
+          end
+          if avg_sample.nil?
+            handle_error("#{avg_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
+            next
+          end
+          if stddev_sample.nil?
+            handle_error("#{stddev_item_name} is nil in #{row_to_reduce.class}:#{row_to_reduce.id}")
+            next
+          end
+        end
+
+        if nan_value?(min_sample)
+          min_nan_found = true
+        else
+          if !min_value or min_sample < min_value
+            min_value = min_sample
+          end
+        end
+
+        if nan_value?(max_sample)
+          max_nan_found = true
+        else
+          if !max_value or max_sample > max_value
+            max_value = max_sample
+          end
+        end
+
+        if nan_value?(avg_sample)
+          avg_nan_found = true
+        else
+          # MINUTE data is reducing the decommutated values
+          if job_type == :MINUTE
+            total_samples += 1 # s0
+            avg_value += avg_sample # s1
+            s2 += (avg_sample * avg_sample)
+          else # :HOUR or :DAY
+            # Aggregated Stddev
+            # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
+            total_samples += row_to_reduce.num_samples # s0
+            avg_value += (avg_sample * row_to_reduce.num_samples) # s1
+            s2 += row_to_reduce.num_samples * (avg_sample * avg_sample + stddev_sample * stddev_sample)
+          end
+        end
+      end
+      if total_samples != 0
+        # Aggregated Stddev
+        # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
+        avg_value = avg_value.to_f / total_samples
+        # Note: For very large numbers with very small deviations this sqrt can fail.  If so then just set the stddev to 0.
+        begin
+          stddev_value = sqrt((s2 / total_samples) - (avg_value * avg_value))
+        rescue Exception
+          stddev_value = 0.0
+        end
+      end
+      min_value = Float::NAN if min_nan_found and !min_value
+      max_value = Float::NAN if max_nan_found and !max_value
+      if avg_nan_found and total_samples == 0
+        avg_value = Float::NAN
+        stddev_value = Float::NAN
+      end
+      new_row.write_attribute(min_item_name, min_value)
+      new_row.write_attribute(max_item_name, max_value)
+      new_row.write_attribute(avg_item_name, avg_value)
+      new_row.write_attribute(stddev_item_name, stddev_value)
+    end
+    base_model.where(id: sample_rows.map(&:id)).update_all(:reduced_state => DartCommon::REDUCED)
+    new_row.save! # Create the reduced data row in the database
+    base_model.where(id: sample_rows.map(&:id)).update_all(:reduced_id => new_row.id)
+    new_row.reduced_state = DartCommon::READY_TO_REDUCE
+    new_row.save!
+    @status.count += 1
+
+    Cosmos::Logger.debug("Created #{new_row.class}:#{new_row.id} with #{mappings.length} items from #{new_row.num_samples} samples")    
+  end
+  
   # Shutdown the worker thread
   def shutdown
     @running = false
