@@ -999,7 +999,7 @@ module Cosmos
         when 'LOAD_UTILITY', 'REQUIRE_UTILITY'
           parser.verify_num_parameters(1, 1, "LOAD_UTILITY <filename>")
           begin
-            load_utility params[0]
+            load_utility(params[0])
             @utilities << params[0]
           rescue Exception => err
             require_errors << "<b>#{params[0]}</b>:\n#{err.formatted}\n"
