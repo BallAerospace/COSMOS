@@ -67,7 +67,6 @@ module Cosmos
       self.show()
       self.raise()
       if self.exec() == Qt::Dialog::Accepted
-        STDOUT.puts "system:#{@system_name.text}"
         build_system_config()
       end
       self.dispose()
