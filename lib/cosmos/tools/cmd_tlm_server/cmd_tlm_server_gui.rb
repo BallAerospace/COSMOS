@@ -195,6 +195,7 @@ module Cosmos
 
       # File actions
       @file_reload = Qt::Action.new('&Reload Configuration', self)
+      @file_reload.shortcut = Qt::KeySequence.new('Ctrl+Shift+R')
       @file_reload.statusTip = 'Reload configuraton and reset'
       @file_reload.connect(SIGNAL('triggered()')) do
         CmdTlmServer.instance.reload()
