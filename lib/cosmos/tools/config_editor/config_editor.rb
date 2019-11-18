@@ -14,6 +14,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/progress_dialog'
   require 'cosmos/gui/dialogs/scroll_text_dialog'
   require 'cosmos/tools/config_editor/config_editor_frame'
+  require 'cosmos/tools/config_editor/system_config_dialog'
 end
 
 module Cosmos
@@ -252,9 +253,13 @@ module Cosmos
         update_cursor()
       end
 
-      @create_target = Qt::Action.new('&Create Target', self)
+      @create_target = Qt::Action.new('Create &Target', self)
       @create_target.statusTip = 'Create a new COSMOS target'
       @create_target.connect(SIGNAL('triggered()')) { create_target() }
+
+      @create_system_config = Qt::Action.new('Create New &System Config', self)
+      @create_system_config.statusTip = 'Create a new system configuration'
+      @create_system_config.connect(SIGNAL('triggered()')) { SystemConfigDialog.new(self) }
     end
 
     def initialize_menus
@@ -319,6 +324,7 @@ module Cosmos
 
       # Actions Menu
       actions_menu = menuBar.addMenu('&Actions')
+      actions_menu.addAction(@create_system_config)
       actions_menu.addAction(@create_target)
 
       # Help Menu
