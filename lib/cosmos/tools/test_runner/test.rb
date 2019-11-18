@@ -393,12 +393,14 @@ module Cosmos
           if result
             results << result
             yield result if block_given?
+            raise StopScript if (result.exceptions and test_class.abort_on_exception) or result.stopped
           end
         when :TEST_TEARDOWN
           result = run_test_teardown(test_class, true)
           if result
             results << result
             yield result if block_given?
+            raise StopScript if (result.exceptions and test_class.abort_on_exception) or result.stopped
           end
         end
       end
