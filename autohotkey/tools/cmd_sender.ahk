@@ -151,7 +151,8 @@ Click 215 475 ; Select File
 WinWaitActive Insert
 Sleep 500
 Send cmd.bin{Enter}
-WinWaitActive Command Sender
+Sleep 500
+WinActivate Command Sender
 Sleep 500
 Click 70 70 ; Search box
 Send I

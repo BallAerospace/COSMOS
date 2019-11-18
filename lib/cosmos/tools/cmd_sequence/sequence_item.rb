@@ -107,6 +107,10 @@ module Cosmos
       time
     end
 
+    def command
+      System.commands.build_cmd(@command.target_name, @command.packet_name, @cmd_params.params_text, false)
+    end
+
     # @return [String] Time and command string
     def save
       "COMMAND \"#{time}\" \"#{command_string}\""

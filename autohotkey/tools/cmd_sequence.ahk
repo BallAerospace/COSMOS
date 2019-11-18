@@ -32,6 +32,14 @@ Sleep 500
 Send y ; Just in case test_sequence.txt already exists we say 'y' to overwrites
 WinWaitActive Command Sequence
 
+Send ^e ; Export
+Sleep 500
+WinWaitActive Export
+Send sequence.bin{Enter}
+Sleep 500
+Send y ; Just in case sequence.bin already exists we say 'y' to overwrites
+WinWaitActive Command Sequence
+
 Send !a ; Actions menu
 Sleep 500
 Send e ; Expand All
