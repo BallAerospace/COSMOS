@@ -10,11 +10,11 @@
 
 require 'cosmos'
 require 'cosmos/tools/tlm_extractor/tlm_extractor_config'
+require 'cosmos/dart/lib/dart_constants'
 
 module Cosmos
-
+  # Process the settings selected in the TlmExtractor to ultimately produce the output file
   class TlmExtractorProcessor
-
     attr_accessor :packet_log_reader
 
     def initialize
@@ -31,7 +31,7 @@ module Cosmos
         configs[-1].output_filename = File.join(output_dir, batch_name.tr(' ', '_') + '_' + filename_no_extension.tr(' ', '_') + output_extension)
       end
       process(input_filenames, configs, time_start, time_end, &block)
-    end # def process_batch
+    end
 
     def process(input_filenames, configs, time_start = nil, time_end = nil)
       Cosmos.set_working_dir do
@@ -50,10 +50,10 @@ module Cosmos
           end
           yield input_file_index, packet_count, 1.0 if block_given?
         end
-      end # Cosmos.set_working_dir
+      end
     ensure
       configs.each { |config| config.close_output_file }
-    end # def process
+    end
 
     def process_dart_batch(batch_name, output_dir, output_extension, config_filenames, time_start = nil, time_end = nil, meta_filters = [], &block)
       configs = []
@@ -96,17 +96,23 @@ module Cosmos
               request['reduction'] = dart_reduction.to_s
               request['cmd_tlm'] = 'TLM'
               request['offset'] = 0
-              request['limit'] = 10000
+              request['limit'] = DartConstants::MAX_DECOM_RESULTS
               if dart_reduction == :NONE
                 request['value_type'] = value_type.to_s
               else
                 request['value_type'] = value_type.to_s + "_#{dart_reduced_type}"
               end
               request['meta_filters'] = meta_filters if meta_filters.length > 0
-              result = server.query(request)
-              results[query_string] = result
+              results[query_string] = []
+              while true
+                result = server.query(request)
+                results[query_string].concat(result)
+                break if result.length < DartConstants::MAX_DECOM_RESULTS
+                yield(index.to_f / items.length, "  Total results: #{results[query_string].length}") if block_given?
+                request['offset'] += DartConstants::MAX_DECOM_RESULTS
+              end
               index += 1
-              yield(index.to_f / items.length, "  Received #{result.length} values") if block_given?
+              yield(index.to_f / items.length, "  Total results: #{results[query_string].length}") if block_given?
             rescue Exception => error
               yield(index.to_f / items.length, "Error querying #{query_string} : #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n") if block_given?
               return # Bail out because something bad happened
@@ -121,7 +127,5 @@ module Cosmos
     ensure
       configs.each { |config| config.close_output_file }
     end
-
-  end # class TlmExtractorProcessor
-
-end # module Cosmos
+  end
+end
