@@ -594,12 +594,12 @@ module Cosmos
             "ScriptRunnerFrame.instance.pre_line_instrumentation('#{filename}', #{line_no}); "
 
           # Add the actual line
-          instrumented_line << "__return_val = "
+          instrumented_line << "__return_val = begin; "
           instrumented_line << segment
           instrumented_line.chomp!
 
           # Add postline instrumentation
-          instrumented_line << "; ScriptRunnerFrame.instance.post_line_instrumentation('#{filename}', #{line_no}); "
+          instrumented_line << " end; ScriptRunnerFrame.instance.post_line_instrumentation('#{filename}', #{line_no}); "
 
           # Complete begin block to catch exceptions
           unless inside_begin
