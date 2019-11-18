@@ -294,17 +294,10 @@ module Cosmos
       end
       emit file_type_changed # Tell ConfigEditor about the file type
       load_meta_data()
-      display_keyword_help()
     end
 
     def load_meta_data
-      begin
-        type = ConfigEditor::CONFIGURATION_FILES[@file_type][0]
-        @file_meta = MetaConfigParser.load("#{type}.yaml")
-      rescue => error
-        Kernel.raise $! if error.is_a? Psych::SyntaxError
-        @file_meta = nil
-      end
+      @file_meta = ConfigEditor.meta[@file_type]
       display_keyword_help()
     end
 
