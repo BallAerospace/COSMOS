@@ -126,7 +126,7 @@ module Cosmos
       if result
         results << result
         yield result if block_given?
-        raise StopScript if result.stopped
+        raise StopScript if (results[-1].exceptions and @@abort_on_exception) or results[-1].stopped
       end
 
       # Run each test case
@@ -141,7 +141,7 @@ module Cosmos
       if result
         results << result
         yield result if block_given?
-        raise StopScript if result.stopped
+        raise StopScript if (results[-1].exceptions and @@abort_on_exception) or results[-1].stopped
       end
 
       results
