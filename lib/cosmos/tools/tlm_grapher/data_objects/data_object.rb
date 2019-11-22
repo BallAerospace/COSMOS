@@ -118,7 +118,6 @@ module Cosmos
 
     # Handles calling process_values with the given data from DART
     def process_dart(dart_results)
-      STDOUT.puts dart_results.inspect(100)
       sample = []
       min_length = nil
       dart_results.each do |dr|
@@ -129,7 +128,6 @@ module Cosmos
         dart_results.length.times do |drindex|
           sample << dart_results[drindex][sample_index][0]
         end
-        STDOUT.puts sample.inspect
         process_values(*sample)
       end
     end

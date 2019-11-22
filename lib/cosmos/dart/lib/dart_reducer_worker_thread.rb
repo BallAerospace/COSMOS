@@ -63,32 +63,42 @@ class DartReducerWorkerThread
 
       time_delta, base_model_time_column, time_method = job_attributes(job_type)
       rows = []
+      done = false
       # Find all the rows in the decommutation table which are ready to reduce
-      query_rows = base_model.where("reduced_state = #{DartCommon::READY_TO_REDUCE}").order("meta_id ASC, #{base_model_time_column} ASC").limit(MAX_SAMPLES_PER_REDUCTION)
-      if query_rows.length > 0
-        first_query_row_time = query_rows[0].send(base_model_time_column)
-        last_query_row_time = query_rows[-1].send(base_model_time_column)
+      row_ids = base_model.where("reduced_state = #{DartCommon::READY_TO_REDUCE}").order("meta_id ASC, #{base_model_time_column} ASC").pluck(:id)
+      if row_ids.length > 0
+        first_row = base_model.find(row_ids[0])
+        last_row = base_model.find(row_ids[-1])
+        first_query_row_time = first_row.send(base_model_time_column)
+        last_query_row_time = last_row.send(base_model_time_column)
         # Require at least a 2 minute spread to ensure a full minute of context is available
         if (last_query_row_time - first_query_row_time) > 2.minutes 
-          query_rows.each do |row|
-            rows << row
-            first_row_time = rows[0].send(base_model_time_column)
-            last_row_time = rows[-1].send(base_model_time_column)
-            
-            # Break if we are near the end of a minute
-            break if (last_query_row_time - last_row_time) < 1.minute
-            
-            # Ensure we have conditions to process the reduction data
-            next unless (last_row_time - first_row_time) > time_delta || # Enough samples or
-                # The time attribute (min, hour, day) has changed or
-                first_row_time.send(time_method) != last_row_time.send(time_method) ||
-                rows[0].meta_id != rows[-1].meta_id # New meta data
-            
-            # Sample from the start to the second to last row because the last row
-            # is where we detected a change. The last row will be part of a new sample set.
-            sample_rows = rows[0..-2]
-            create_reduced_row(sample_rows, base_model, reduction_model, base_model_time_column, mappings, job_type)
-            rows = rows[-1..-1] # Start a new sample with the last item in the previous sample
+          row_ids.in_groups_of(1000, false).each do |group_row_ids|
+            break if done
+            query_rows = base_model.order("meta_id ASC, #{base_model_time_column} ASC").where(id: group_row_ids)
+            query_rows.each do |row|
+              rows << row
+              first_row_time = rows[0].send(base_model_time_column)
+              last_row_time = rows[-1].send(base_model_time_column)
+              
+              # Break if we are near the end of a minute
+              if (last_query_row_time - last_row_time) < 1.minute
+                done = true
+                break
+              end
+              
+              # Ensure we have conditions to process the reduction data
+              next unless (last_row_time - first_row_time) > time_delta || # Enough samples or
+                  # The time attribute (min, hour, day) has changed or
+                  first_row_time.send(time_method) != last_row_time.send(time_method) ||
+                  rows[0].meta_id != rows[-1].meta_id # New meta data
+              
+              # Sample from the start to the second to last row because the last row
+              # is where we detected a change. The last row will be part of a new sample set.
+              sample_rows = rows[0..-2]
+              create_reduced_row(sample_rows, base_model, reduction_model, base_model_time_column, mappings, job_type)
+              rows = rows[-1..-1] # Start a new sample with the last item in the previous sample
+            end
           end
         end
       end

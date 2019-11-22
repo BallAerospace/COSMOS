@@ -30,7 +30,8 @@ class Dart
   #      streamed from the packet log binary file
   # 4. Decom Server - JSON DRB server which handles requests for decommutated
   #      or reduced data from the database
-  # 5..n Worker - Decommutates data from the packet log binary file into the DB
+  # 5. Master - Hands out packets to be decommutated by workers
+  # 6..n Worker - Decommutates data from the packet log binary file into the DB
   def run
     Cosmos::Logger.level = Cosmos::Logger::INFO
     dart_logging = DartLogging.new('dart')
@@ -53,7 +54,8 @@ class Dart
       [ruby_process_name, File.join(__dir__, 'dart_ingester.rb')],
       [ruby_process_name, File.join(__dir__, 'dart_reducer.rb')],
       [ruby_process_name, File.join(__dir__, 'dart_stream_server.rb')],
-      [ruby_process_name, File.join(__dir__, 'dart_decom_server.rb')]
+      [ruby_process_name, File.join(__dir__, 'dart_decom_server.rb')],
+      [ruby_process_name, File.join(__dir__, 'dart_master.rb')]
     ]
 
     num_workers.times do |index|

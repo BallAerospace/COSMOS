@@ -77,9 +77,9 @@ module Cosmos
     instance_attr_reader :hashing_algorithm
 
     # Known COSMOS ports
-    KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM']
+    KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM', 'DART_MASTER']
     # Known COSMOS hosts
-    KNOWN_HOSTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM']
+    KNOWN_HOSTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM', 'DART_MASTER']
     # Known COSMOS paths
     KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES', 'SEQUENCES', 'DART_DATA', 'DART_LOGS']
     # Supported hashing algorithms
@@ -495,6 +495,12 @@ module Cosmos
         System.commands
       end
 
+      if @config_blacklist[name]
+        Logger.warn "Ignoring failed config #{name}"
+        update_config(@initial_config)
+        return @config.name, RuntimeError.new("Ignoring failed config #{name}")
+      end
+
       if name && @config
         # Make sure they're requesting something other than the current
         # configuration.
@@ -521,6 +527,7 @@ module Cosmos
                 load_packets(name)
               rescue Exception => error
                 # Failed to load - Restore initial
+                @config_blacklist[name] = true # Prevent wasting time trying to load the bad configuration again
                 Logger.error "Problem loading configuration from #{configuration}: #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n"
                 Logger.info "Switching to initial configuration: #{@initial_config.name}"
                 update_config(@initial_config)
@@ -532,10 +539,12 @@ module Cosmos
               Logger.error "Unable to find configuration: #{name}"
               Logger.info "Switching to initial configuration: #{@initial_config.name}"
               update_config(@initial_config)
+              return @config.name, RuntimeError.new("Unable to find configuration: #{name}")
             end
           end
         end
       else
+        Logger.info "Switching to initial configuration: #{@initial_config.name}"
         update_config(@initial_config)
       end
       return @config.name, nil
@@ -579,6 +588,7 @@ module Cosmos
       @ports['REPLAY_CMD_ROUTER'] = 7880
       @ports['DART_DECOM'] = 8777
       @ports['DART_STREAM'] = 8779
+      @ports['DART_MASTER'] = 8780
 
       @listen_hosts = {}
       @listen_hosts['CTS_API'] = '127.0.0.1'
@@ -592,6 +602,7 @@ module Cosmos
       @listen_hosts['REPLAY_CMD_ROUTER'] = '0.0.0.0'
       @listen_hosts['DART_STREAM'] = '0.0.0.0'
       @listen_hosts['DART_DECOM'] = '0.0.0.0'
+      @listen_hosts['DART_MASTER'] = '0.0.0.0'
 
       @connect_hosts = {}
       @connect_hosts['CTS_API'] = '127.0.0.1'
@@ -603,6 +614,7 @@ module Cosmos
       @connect_hosts['REPLAY_CMD_ROUTER'] = '127.0.0.1'
       @connect_hosts['DART_STREAM'] = '127.0.0.1'
       @connect_hosts['DART_DECOM'] = '127.0.0.1'
+      @connect_hosts['DART_MASTER'] = '127.0.0.1'
 
       @paths = {}
       @paths['LOGS'] = File.join(USERPATH, 'outputs', 'logs')
@@ -631,6 +643,7 @@ module Cosmos
 
       @initial_filename = filename
       @initial_config = nil
+      @config_blacklist = {}
     end
 
     # Reset variables and load packets

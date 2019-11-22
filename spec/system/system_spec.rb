@@ -349,7 +349,7 @@ module Cosmos
           # Try loading something that doesn't exist
           # It should fail and reload the original configuration
           name, err = System.load_configuration("BLAH")
-          expect(err).to eql nil
+          expect(err.message).to eql "Unable to find configuration: BLAH"
           expect(name).to eql original_config_name
 
           # Now load the second configuration. It shouldn't have the most

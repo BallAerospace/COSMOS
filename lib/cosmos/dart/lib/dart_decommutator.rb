@@ -11,6 +11,7 @@
 require 'dart_common'
 require 'dart_logging'
 require 'packet_log_entry'
+require 'cosmos/io/json_drb_object'
 
 class DartDecommutatorStatus
   attr_accessor :count
@@ -41,6 +42,7 @@ class DartDecommutator
     @worker_id = worker_id
     @num_workers = num_workers
     @status = DartDecommutatorStatus.new
+    @master = Cosmos::JsonDRbObject.new(Cosmos::System.connect_hosts['DART_MASTER'], Cosmos::System.ports['DART_MASTER'])
   end
 
   def timeit(message, &block)
@@ -53,13 +55,20 @@ class DartDecommutator
   def run
     status_time = Time.now + 60.seconds
     while true
-      time_start = Time.now # Remember start time so we can throttle
-      # Get all entries that are ready and decommutation hasn't started
-      PacketLogEntry.where("decom_state = #{PacketLogEntry::NOT_STARTED} and ready = true").
-                     # Mod the ID to allow distribution of effort, in_batches processes 1000 at a time
-                     where("id % #{@num_workers} = #{@worker_id}").in_batches do |group|
-        group.each do |ple|
+      ple_id = nil
+      start_time = nil
+      end_time = nil
+      begin
+        #start_time = Time.now
+        ple_ids = @master.get_decom_ple_ids()
+      rescue DRb::DRbConnError
+        sleep(1)
+        next
+      end
+      if ple_ids and ple_ids.length > 0
+        ple_ids.each do |ple_id|
           begin
+            ple = PacketLogEntry.find(ple_id)
             meta_ple = get_meta_ple(ple)
             next unless meta_ple
             system_meta = get_system_meta(ple, meta_ple)
@@ -73,6 +82,8 @@ class DartDecommutator
             # If we timeout this code will simply exit the application
             wait_for_ready_packet_config(packet_config)
             decom_packet(ple, packet, packet_config)
+            #end_time = Time.now
+            #Cosmos::Logger.info("PLE:#{ple.id} decom in #{end_time - start_time} s\n")
 
             # Update status
             if Time.now > status_time
@@ -92,15 +103,14 @@ class DartDecommutator
           rescue => err
             handle_error("PLE:#{ple.id}:ERROR\n#{err.formatted}")
           end
-        end # each ple
-      end # batches
-
-      # Throttle to no faster than 1 Hz
-      delta = Time.now - time_start
-      sleep(1 - delta) if delta < 1 && delta > 0
+        end
+      else
+        sleep(1)
+      end
     end
   rescue Interrupt
     Cosmos::Logger.info("Dart Worker Closing From Signal...")
+    @master.shutdown
   end
 
   protected
