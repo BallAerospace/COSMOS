@@ -5062,6 +5062,7 @@
 <li class="toc-entry toc-h4"><a href="#units">UNITS</a></li>
 <li class="toc-entry toc-h4"><a href="#description">DESCRIPTION</a></li>
 <li class="toc-entry toc-h4"><a href="#meta-1">META</a></li>
+<li class="toc-entry toc-h4"><a href="#overlap">OVERLAP</a></li>
 <li class="toc-entry toc-h4"><a href="#state">STATE</a></li>
 <li class="toc-entry toc-h4"><a href="#read_conversion">READ_CONVERSION</a></li>
 <li class="toc-entry toc-h4"><a href="#poly_read_conversion">POLY_READ_CONVERSION</a></li>
@@ -5755,6 +5756,13 @@ UNITS Kilometers KM
 
 <p>Example Usage:</p>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">META TEST "This parameter is for test purposes only"</code></pre></figure>
+
+<h4 id="overlap">
+<a class="anchor" href="#overlap" aria-hidden="true"><span class="octicon octicon-link"></span></a>OVERLAP</h4>
+<div class="right">(Since 4.4.1)</div>
+<p><strong>This item is allowed to overlap other items in the packet</strong></p>
+
+<p>If an item’s bit offset overlaps another item, COSMOS issues a warning. This keyword explicitly allows an item to overlap another and supresses the warning message.</p>
 
 <h4 id="state">
 <a class="anchor" href="#state" aria-hidden="true"><span class="octicon octicon-link"></span></a>STATE</h4>

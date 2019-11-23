@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Thu, 31 Oct 2019 07:41:35 -0600</pubDate>
-    <lastBuildDate>Thu, 31 Oct 2019 07:41:35 -0600</lastBuildDate>
+    <pubDate>Sat, 23 Nov 2019 09:06:27 -0700</pubDate>
+    <lastBuildDate>Sat, 23 Nov 2019 09:06:27 -0700</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.8.5</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -35,7 +35,7 @@
       <category>post</category>
       
       <guid isPermaLink="true">http://cosmosrb.com/news/2019/10/21/cosmos-amos/</guid>
-      <description>&lt;p&gt;Ryan recently attended the Advanced Maui Optical and Space Surveillance Technologies Conference (&lt;a href=&quot;https://amostech.com/&quot;&gt;AMOS&lt;/a&gt;) in September. He was selected for a poster presentation based on the paper entitled “An open source long term archiving and trending solution for SSA” (link coming soon). It was based on the COSMOS &lt;a href=&quot;/docs/dart_overview/&quot;&gt;DART&lt;/a&gt; tool which supports long term storage and trending of command and telemetry data. If you look at the official &lt;a href=&quot;/assets/RPT_2019_AMOS_SUMMARY.pdf&quot;&gt;AMOS Summary&lt;/a&gt; you might also spot him (hint: Thursday)!&lt;/p&gt;
+      <description>&lt;p&gt;Ryan recently attended the Advanced Maui Optical and Space Surveillance Technologies Conference (&lt;a href=&quot;https://amostech.com/&quot;&gt;AMOS&lt;/a&gt;) in September. He was selected for a poster presentation based on the paper entitled &lt;a href=&quot;/assets/2017_AMOS_Paper.pdf&quot;&gt;“An open source long term archiving and trending solution for SSA”&lt;/a&gt;. It was based on the COSMOS &lt;a href=&quot;/docs/dart_overview/&quot;&gt;DART&lt;/a&gt; tool which supports long term storage and trending of command and telemetry data. If you look at the official &lt;a href=&quot;/assets/RPT_2019_AMOS_SUMMARY.pdf&quot;&gt;AMOS Summary&lt;/a&gt; you might also spot him (hint: Thursday)!&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/img/2019_10_21_ryan_amos.jpg&quot; alt=&quot;Ryan at AMOS&quot; /&gt;&lt;br /&gt;
 &lt;em&gt;Ryan at the Poster Session, AMOS 2019&lt;/em&gt;&lt;/p&gt;

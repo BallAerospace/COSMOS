@@ -5061,6 +5061,7 @@
 <li class="toc-entry toc-h4"><a href="#units">UNITS</a></li>
 <li class="toc-entry toc-h4"><a href="#description">DESCRIPTION</a></li>
 <li class="toc-entry toc-h4"><a href="#meta-1">META</a></li>
+<li class="toc-entry toc-h4"><a href="#overlap">OVERLAP</a></li>
 <li class="toc-entry toc-h4"><a href="#required">REQUIRED</a></li>
 <li class="toc-entry toc-h4"><a href="#minimum_value">MINIMUM_VALUE</a></li>
 <li class="toc-entry toc-h4"><a href="#maximum_value">MAXIMUM_VALUE</a></li>
@@ -5273,7 +5274,7 @@
 PARAMETER DATA 32 32 INT MIN MAX 0 "Data value"
 PARAMETER VALUE 64 32 FLOAT 0 10.5 2.5
 PARAMETER LABEL 96 96 STRING "COSMOS" "The label to apply"
-PARAMETER BLOCK 192 0 BLOCK '' "Block of binary data"
+PARAMETER BLOCK 192 0 BLOCK 0x0 "Block of binary data"
 </code></pre></figure>
 
 <h3 id="append_parameter">
@@ -5874,6 +5875,13 @@ UNITS Kilometers KM
 
 <p>Example Usage:</p>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">META TEST "This parameter is for test purposes only"</code></pre></figure>
+
+<h4 id="overlap">
+<a class="anchor" href="#overlap" aria-hidden="true"><span class="octicon octicon-link"></span></a>OVERLAP</h4>
+<div class="right">(Since 4.4.1)</div>
+<p><strong>This item is allowed to overlap other items in the packet</strong></p>
+
+<p>If an item’s bit offset overlaps another item, COSMOS issues a warning. This keyword explicitly allows an item to overlap another and supresses the warning message.</p>
 
 <h4 id="required">
 <a class="anchor" href="#required" aria-hidden="true"><span class="octicon octicon-link"></span></a>REQUIRED</h4>
