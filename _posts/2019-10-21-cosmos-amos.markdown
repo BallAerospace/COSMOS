@@ -6,7 +6,7 @@ author: jmthomas
 categories: [post]
 ---
 
-Ryan recently attended the Advanced Maui Optical and Space Surveillance Technologies Conference ([AMOS](https://amostech.com/)) in September. He was selected for a poster presentation based on the paper entitled "An open source long term archiving and trending solution for SSA" (link coming soon). It was based on the COSMOS [DART](/docs/dart_overview/) tool which supports long term storage and trending of command and telemetry data. If you look at the official [AMOS Summary](/assets/RPT_2019_AMOS_SUMMARY.pdf) you might also spot him (hint: Thursday)!
+Ryan recently attended the Advanced Maui Optical and Space Surveillance Technologies Conference ([AMOS](https://amostech.com/)) in September. He was selected for a poster presentation based on the paper entitled ["An open source long term archiving and trending solution for SSA"](/assets/2017_AMOS_Paper.pdf). It was based on the COSMOS [DART](/docs/dart_overview/) tool which supports long term storage and trending of command and telemetry data. If you look at the official [AMOS Summary](/assets/RPT_2019_AMOS_SUMMARY.pdf) you might also spot him (hint: Thursday)!
 
 ![Ryan at AMOS](/img/2019_10_21_ryan_amos.jpg)<br/>
 *Ryan at the Poster Session, AMOS 2019*
