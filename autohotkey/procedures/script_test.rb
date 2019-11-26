@@ -1,4 +1,4 @@
-require_utility 'clear_util'
+load_utility 'clear_util'
 
 display("INST ADCS")
 wait 2

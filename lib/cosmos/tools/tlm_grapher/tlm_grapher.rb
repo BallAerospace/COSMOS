@@ -73,17 +73,24 @@ module Cosmos
         target_name.upcase!
         packet_name.upcase!
         item_name.upcase!
-        # Check to see if the item name is followed by an array index,
-        # notated by square brackets around an integer; i.e. ARRAY_ITEM[1]
-        if (item_name =~ /\[\d+\]$/)
-          # We found an array index.
-          # The $` special variable is the string before the regex match, i.e. ARRAY_ITEM
-          item_name = $`
-          # The $& special variable is the string matched by the regex, i.e. [1].
-          # Strip off the brackets and then convert the array index to an integer.
-          item_array_index = $&.gsub(/[\[\]]/, "").to_i
-        else
-          item_array_index = nil
+
+        item_array_index = nil
+        begin
+          # See if we can access the item
+          _, item = System.telemetry.packet_and_item(target_name, packet_name, item_name)
+        rescue => error
+          # Check to see if the item name is followed by an array index,
+          # notated by square brackets around an integer; i.e. ARRAY_ITEM[1]
+          if (item_name =~ /\[\d+\]$/)
+            # The $` special variable is the string before the regex match, i.e. ARRAY_ITEM
+            item_name = $`
+            # The $& special variable is the string matched by the regex, i.e. [1].
+            # Strip off the brackets and then convert the array index to an integer.
+            item_array_index = $&.gsub(/[\[\]]/, "").to_i
+          else
+            # If we couldn't access the item and it's not bracket notation then it's an error
+            raise error
+          end
         end
         # Default configuration has one plot so don't add plot for first item
         data_object = HousekeepingDataObject.new

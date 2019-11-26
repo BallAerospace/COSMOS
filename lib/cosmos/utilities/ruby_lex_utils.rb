@@ -45,41 +45,45 @@ class RubyLex
     @exception_on_syntax_error = true
     @prompt                    = nil
   end
+  
+  # Monkey patch to keep this from looping forever if the string never is closed with a right brace
+  def identify_string_dvar
+    begin
+      getc
 
-  # Monkey patch to fix performance issue caused by call to reverse
-  def get_readed
-    if idx = @readed.rindex("\n")
-      @base_char_no = @readed.size - (idx + 1)
-    else
-      @base_char_no += @readed.size
-    end
+      reserve_continue = @continue
+      reserve_ltype = @ltype
+      reserve_indent = @indent
+      reserve_indent_stack = @indent_stack
+      reserve_state = @lex_state
+      reserve_quoted = @quoted
 
-    readed = @readed.join("")
-    @readed = []
-    readed
-  end
+      @ltype = nil
+      @quoted = nil
+      @indent = 0
+      @indent_stack = []
+      @lex_state = EXPR_BEG
 
-  # Monkey patch to fix performance issue caused by call to reverse
-  def ungetc(c = nil)
-    if @here_readed.empty?
-      c2 = @readed.pop
-    else
-      c2 = @here_readed.pop
-    end
-    c = c2 unless c
-    @rests.unshift c #c =
-    @seek -= 1
-    if c == "\n"
-      @line_no -= 1
-      if idx = @readed.rindex("\n")
-        @char_no = idx + 1
-      else
-        @char_no = @base_char_no + @readed.size
+      loop do
+        @continue = false
+        prompt
+        tk = token
+        break if tk.nil? # This is the patch
+        if @ltype or @continue or @indent >= 0
+          next
+        end
+        break if tk.kind_of?(TkRBRACE)
       end
-    else
-      @char_no -= 1
+    ensure
+      @continue = reserve_continue
+      @ltype = reserve_ltype
+      @indent = reserve_indent
+      @indent_stack = reserve_indent_stack
+      @lex_state = reserve_state
+      @quoted = reserve_quoted
     end
-  end
+  end  
+  
 end
 $VERBOSE = old_verbose
 

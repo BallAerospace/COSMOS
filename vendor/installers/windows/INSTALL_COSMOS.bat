@@ -22,7 +22,7 @@ set PROTOCOL=https
 set ARCHITECTURE=%PROCESSOR_ARCHITECTURE%
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=2.3
+set INSTALLER_VERSION=2.4
 
 :: Paths and versions for COSMOS dependencies
 set RUBY_INSTALLER=rubyinstaller-devkit-2.5.6-1-x64.exe
@@ -193,6 +193,9 @@ if !ARCHITECTURE!==x86 (
     @echo Successfully installed 64-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
   )
   call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1 2 3
+
+:: Temporary fix until new puma available - Newer mingw64 breaks puma
+  call !COSMOS_INSTALL!\Vendor\Ruby\msys64\usr\bin\pacman.exe --noconfirm -U http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-headers-git-7.0.0.5524.2346384e-1-any.pkg.tar.xz
 )
 
 ::::::::::::::::::::::::

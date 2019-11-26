@@ -59,7 +59,7 @@ module Cosmos
       cflags |= Termios::CLOCAL # Ignore Modem Control Lines
       cflags |= Termios::CSTOPB if stop_bits == 2
       cflags |= Termios::PARENB if parity
-      cflags |= Termios::PADODD if parity == :ODD
+      cflags |= Termios::PARODD if parity == :ODD
       cflags |= Termios::CRTSCTS if flow_control == :RTSCTS
       tio.iflag = iflags
       tio.oflag = 0

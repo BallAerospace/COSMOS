@@ -8,7 +8,7 @@ PARAMETER:
     PARAMETER DATA 32 32 INT MIN MAX 0 "Data value"
     PARAMETER VALUE 64 32 FLOAT 0 10.5 2.5
     PARAMETER LABEL 96 96 STRING "COSMOS" "The label to apply"
-    PARAMETER BLOCK 192 0 BLOCK '' "Block of binary data"
+    PARAMETER BLOCK 192 0 BLOCK 0x0 "Block of binary data"
   parameters:
     - name: Name
       required: true

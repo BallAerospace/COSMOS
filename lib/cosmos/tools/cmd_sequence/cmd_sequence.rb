@@ -135,17 +135,21 @@ module Cosmos
       @show_ignored = Qt::Action.new('&Show Ignored Parameters', self)
       @show_ignored.statusTip = 'Show ignored parameters which are normally hidden'
       @show_ignored.setCheckable(true)
-      @show_ignored.setChecked(false)
-      @show_ignored.connect(SIGNAL('toggled(bool)')) do |bool|
-        @sequence_list.map {|item| item.show_ignored(bool) }
+      @show_ignored.setChecked(CmdParams.show_ignored)
+      @show_ignored.connect(SIGNAL('toggled(bool)')) do |checked|
+        # In case there aren't any sequences open, make sure to store the current value
+        CmdParams.show_ignored = checked
+        @sequence_list.map {|item| item.show_ignored(checked) }
       end
 
       @states_in_hex = Qt::Action.new('&Display State Values in Hex', self)
       @states_in_hex.statusTip = 'Display states values in hex instead of decimal'
       @states_in_hex.setCheckable(true)
-      @states_in_hex.setChecked(false)
-      @states_in_hex.connect(SIGNAL('toggled(bool)')) do |bool|
-        @sequence_list.map {|item| item.states_in_hex(bool) }
+      @states_in_hex.setChecked(CmdParams.states_in_hex)
+      @states_in_hex.connect(SIGNAL('toggled(bool)')) do |checked|
+        # In case there aren't any sequences open, make sure to store the current value
+        CmdParams.states_in_hex = checked
+        @sequence_list.map {|item| item.states_in_hex(checked) }
       end
 
       @expand_action = Qt::Action.new('&Expand All', self)
@@ -226,9 +230,7 @@ module Cosmos
 
       @target_select = Qt::ComboBox.new
       @target_select.setMaxVisibleItems(6)
-      @target_select.connect(SIGNAL('activated(const QString&)')) do |target|
-        target_changed()
-      end
+      @target_select.connect(SIGNAL('activated(const QString&)')) {|target| target_changed() }
       target_label = Qt::Label.new("&Target:")
       target_label.setBuddy(@target_select)
 
@@ -253,7 +255,7 @@ module Cosmos
       splitter = Qt::Splitter.new(Qt::Vertical, self)
       central_layout.addWidget(splitter)
 
-      @sequence_list = SequenceList.new
+      @sequence_list = SequenceList.new(self)
       @sequence_list.connect(SIGNAL("modified()")) { update_title }
 
       @scroll = Qt::ScrollArea.new()
@@ -278,11 +280,7 @@ module Cosmos
     end
 
     def add_command
-      command = System.commands.packet(@target_select.text, @cmd_select.text).dup
-      command.restore_defaults
-      item = @sequence_list.add(command)
-      item.show_ignored(@show_ignored.isChecked())
-      item.states_in_hex(@states_in_hex.isChecked())
+      item = @sequence_list.add(@target_select.text.strip, @cmd_select.text.strip)
     end
 
     # Export the sequence list into a custom binary format
@@ -300,6 +298,7 @@ module Cosmos
       return unless prompt_for_save_if_needed()
       @sequence_list.clear
       @filename = "Untitled"
+      update_title()
     end
 
     # Opens a sequence list file and populates the GUI
@@ -314,8 +313,6 @@ module Cosmos
       if !filename.nil? && File.exist?(filename) && !File.directory?(filename)
         # Try to open and load the file. Errors are handled here.
         @sequence_list.open(filename)
-        @sequence_list.map {|item| item.show_ignored(@show_ignored.isChecked()) }
-        @sequence_list.map {|item| item.states_in_hex(@states_in_hex.isChecked()) }
         @filename = filename
         @sequence_dir = File.dirname(filename)
         @sequence_dir << '/' if @sequence_dir[-1..-1] != '/' and @sequence_dir[-1..-1] != '\\'

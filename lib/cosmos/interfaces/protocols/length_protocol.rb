@@ -135,6 +135,11 @@ module Cosmos
                                    @length_endianness)
       raise "Length value received larger than max_length: #{length} > #{@max_length}" if @max_length and length > @max_length
       packet_length = (length * @length_bytes_per_count) + @length_value_offset
+      # Ensure the calculated packet length is long enough to support the location of the length field
+      # without overlap into the next packet
+      if (packet_length * 8) < (@length_bit_offset + @length_bit_size)
+        raise "Calculated packet length of #{packet_length * 8} bits < (offset:#{@length_bit_offset} + size:#{@length_bit_size})"
+      end
 
       # Make sure we have enough data for the packet
       return :STOP if @data.length < packet_length

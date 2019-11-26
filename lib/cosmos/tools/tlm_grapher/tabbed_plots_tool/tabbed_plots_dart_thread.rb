@@ -11,9 +11,9 @@
 require 'cosmos'
 require 'cosmos/gui/qt'
 require 'cosmos/io/json_drb_object'
+require 'cosmos/dart/lib/dart_constants'
 
 module Cosmos
-
   # Thread used to gather telemetry from DART and process it using a TabbedPlotsDefinition
   class TabbedPlotsDartThread
     # Array of exceptions that occurred
@@ -67,23 +67,29 @@ module Cosmos
               request['reduction'] = dart_reduction.to_s
               request['cmd_tlm'] = 'TLM'
               request['offset'] = 0
-              request['limit'] = 10000
+              request['limit'] = DartConstants::MAX_DECOM_RESULTS
               if dart_reduction == :NONE
                 request['value_type'] = value_type.to_s
               else
                 request['value_type'] = value_type.to_s + "_#{dart_reduced_type}"
               end
               request['meta_filters'] = meta_filters unless meta_filters.empty?
-              query_result = server.query(request)
-              result = query_result
-              if array_index
-                result = []
-                query_result.each do |qr|
-                  result << [qr[0][array_index], qr[1], qr[2], qr[3], qr[4]]
+              results[query_string] = []
+              while true
+                query_result = server.query(request)
+                result = query_result
+                if array_index
+                  result = []
+                  query_result.each do |qr|
+                    result << [qr[0][array_index], qr[1], qr[2], qr[3], qr[4]]
+                  end
                 end
+                results[query_string].concat(result)
+                break if query_result.length < DartConstants::MAX_DECOM_RESULTS
+                progress_dialog.append_text("  Total results: #{results[query_string].length}") if progress_dialog
+                request['offset'] += DartConstants::MAX_DECOM_RESULTS
               end
-              results[query_string] = result
-              progress_dialog.append_text("  Received #{result.length} values") if progress_dialog
+              progress_dialog.append_text("  Total results: #{results[query_string].length}") if progress_dialog
               progress_dialog.set_step_progress((index + 1).to_f / required_queries.length) if progress_dialog
             rescue Exception => error
               @errors << error
@@ -134,7 +140,7 @@ module Cosmos
           @done = true
         end
       end
-    end # def initialize
+    end
 
     # Indicates if processing is complete
     def done?
@@ -149,12 +155,10 @@ module Cosmos
       @thread = nil
       @done = true
       return true, false
-    end # def kill
+    end
 
     def graceful_kill
       # Just to remove warnings
     end
-
-  end # class TabbedPlotsLogfileThread
-
-end # module Cosmos
+  end
+end
