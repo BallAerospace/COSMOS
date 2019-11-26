@@ -36,7 +36,10 @@ class DartDecommutator
 
   # Wait 60s before giving up on the PacketConfig becoming ready
   PACKET_CONFIG_READY_TIMEOUT = 60
-
+  
+  # Delay between updating the DART status packet.   Simply throttles this rarely viewed status
+  STATUS_UPDATE_PERIOD_SECONDS = 60.seconds
+  
   def initialize(worker_id = 0, num_workers = 1)
     sync_targets_and_packets()
     @worker_id = worker_id
@@ -53,13 +56,12 @@ class DartDecommutator
 
   # Run forever looking for data to decommutate
   def run
-    status_time = Time.now + 60.seconds
+    status_time = Time.now + STATUS_UPDATE_PERIOD_SECONDS
     while true
       ple_id = nil
       start_time = nil
       end_time = nil
       begin
-        #start_time = Time.now
         ple_ids = @master.get_decom_ple_ids()
       rescue DRb::DRbConnError
         sleep(1)
@@ -82,9 +84,7 @@ class DartDecommutator
             # If we timeout this code will simply exit the application
             wait_for_ready_packet_config(packet_config)
             decom_packet(ple, packet, packet_config)
-            #end_time = Time.now
-            #Cosmos::Logger.info("PLE:#{ple.id} decom in #{end_time - start_time} s\n")
-
+            
             # Update status
             if Time.now > status_time
               status_time = Time.now + 60.seconds

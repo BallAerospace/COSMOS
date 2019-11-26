@@ -14,7 +14,10 @@ ItemToDecomTableMapping
 
 # Thread which performs data reduction in the DART database.
 class DartReducerWorkerThread
-  MAX_SAMPLES_PER_REDUCTION = 61 * 1000 * 2 # Supports a max of 1Khz sample rate
+  # This constant controls how much spread there must be in the data before doing a reduction.   Since our minimum
+  # reduction is 1 minute, we will wait until we have at least two minutes of spread.  Not as important for higher order 
+  # reductions but also ensures that there is a spread in the data points.
+  HOLD_OFF_TIME = 2.minutes
   
   # Create a new thread and start it
   #
@@ -72,7 +75,7 @@ class DartReducerWorkerThread
         first_query_row_time = first_row.send(base_model_time_column)
         last_query_row_time = last_row.send(base_model_time_column)
         # Require at least a 2 minute spread to ensure a full minute of context is available
-        if (last_query_row_time - first_query_row_time) > 2.minutes 
+        if (last_query_row_time - first_query_row_time) > HOLD_OFF_TIME
           row_ids.in_groups_of(1000, false).each do |group_row_ids|
             break if done
             query_rows = base_model.order("meta_id ASC, #{base_model_time_column} ASC").where(id: group_row_ids)
