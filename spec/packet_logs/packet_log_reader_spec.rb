@@ -121,7 +121,7 @@ module Cosmos
           file.write [pkt.buffer.length].pack('N')
           file.write pkt.buffer
         end
-        expect(@plr.open(filename)).to eql [false, nil]
+        expect(@plr.open(filename)[0]).to eql false
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql 'TGT1'
         expect(pkt1.packet_name).to eql 'PKT1'
@@ -149,7 +149,7 @@ module Cosmos
           file.write [pkt.buffer.length].pack('N')
           file.write pkt.buffer
         end
-        expect(@plr.open(filename)).to eql [false, nil]
+        expect(@plr.open(filename)[0]).to eql false
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql 'TGT1'
         expect(pkt1.packet_name).to eql 'PKT1'
