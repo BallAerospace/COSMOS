@@ -28,11 +28,23 @@ Sleep 500
 Send a ; Save As
 WinWaitActive Save
 Send test_sequence.txt{Enter}
+Sleep 500
+Send y ; Just in case test_sequence.txt already exists we say 'y' to overwrites
+WinWaitActive Command Sequence
+
+Send ^e ; Export
+Sleep 500
+WinWaitActive Export
+Send sequence.bin{Enter}
+Sleep 500
+Send y ; Just in case sequence.bin already exists we say 'y' to overwrites
 WinWaitActive Command Sequence
 
 Send !a ; Actions menu
 Sleep 500
 Send e ; Expand All
+Sleep 1000
+Click 190 180 ; Click on sequence item to collapse it
 Sleep 1000
 Send !a ; Actions menu
 Sleep 500
@@ -57,7 +69,7 @@ Sleep 500
 Send s ; Show ignored items
 Sleep 500
 
-Click right 170 355 ; Right click collect type
+Click right 170 335 ; Right click collect type
 Sleep 500
 Send {Tab}{Enter}
 WinWaitActive INST
@@ -65,20 +77,21 @@ Sleep 500
 Send {Enter}
 WinWaitActive Command Sequence
 
-Click right 170 355 ; Right click collect type
+Click right 170 335 ; Right click collect type
 Sleep 500
 Send {Tab 2}{Enter} ; Insert filename
 WinWaitActive Insert
 Sleep 500
 Send {Esc}
-WinWaitActive Command Sequence
+Sleep 500
+WinActivate Command Sequence ; Not sure why but we have to explicitly activate here
 
-Click 260 355 2 ; Double click the collect type manual entry
+Click 260 335 2 ; Double click the collect type manual entry
 Sleep 500
 Send 9{Enter}
 Sleep 500
 
-Click 170 355 2 ; Double click the collect Type
+Click 170 335 2 ; Double click the collect Type
 Sleep 500
 Click ; Click again to activate the drop down
 Sleep 500
@@ -129,11 +142,11 @@ Click 610 124 ; Add Abort command
 Sleep 500
 Click 610 124 ; Add Abort command
 Sleep 500
-Click 450 124 ; Click the command dropdown
+Click 100 100 ; Click the search box
 Sleep 500
-Send {Down 2}{Enter} ; ASCIICMD
+Send ASCIICMD
 Sleep 500
-Click 610 124 ; Add ASCIICMD
+Send {Enter} ; Add ASCICMD
 Sleep 500
 Click 300 234 ; Click on the ASCIICMD to expand it
 Sleep 500

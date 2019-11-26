@@ -14,6 +14,7 @@ Cosmos.catch_fatal_exception do
   require 'cosmos/gui/dialogs/progress_dialog'
   require 'cosmos/gui/dialogs/scroll_text_dialog'
   require 'cosmos/tools/config_editor/config_editor_frame'
+  require 'cosmos/tools/config_editor/system_config_dialog'
 end
 
 module Cosmos
@@ -72,6 +73,12 @@ module Cosmos
         ["tlm_viewer", "/config/tools/tlm_viewer/tlm_viewer.txt"],
     }
 
+    # Class instance variable to store all the parsed metadata
+    @meta = {}
+    class << self
+      attr_reader :meta
+    end
+
     def initialize(options)
       # All code before super is executed twice in RubyQt Based classes
       super(options) # MUST BE FIRST
@@ -86,8 +93,27 @@ module Cosmos
       initialize_central_widget()
       complete_initialize()
 
+      # Process all the configuration yaml files up front
+      # If they passed in a filename we need to wait for all meta files to be processed
+      wait = options.filename ? true : false
+      Splash.execute(self, wait) do |splash|
+        count = 1.0
+        CONFIGURATION_FILES.each do |key, vals|
+          type = vals[0]
+          next unless type
+          splash.message = "Processing #{type}.yaml"
+          splash.progress = count / CONFIGURATION_FILES.length
+          begin
+            ConfigEditor.meta[key] = @file_meta = MetaConfigParser.load("#{type}.yaml")
+          rescue => error
+            Kernel.raise $! if error.is_a? Psych::SyntaxError
+          end
+          count += 1.0
+        end
+      end
+
       if options.filename
-        file_open(options.filename)
+        file_open(File.expand_path(options.filename))
       else
         create_tab()
       end
@@ -227,9 +253,13 @@ module Cosmos
         update_cursor()
       end
 
-      @create_target = Qt::Action.new('&Create Target', self)
+      @create_target = Qt::Action.new('Create &Target', self)
       @create_target.statusTip = 'Create a new COSMOS target'
       @create_target.connect(SIGNAL('triggered()')) { create_target() }
+
+      @create_system_config = Qt::Action.new('Create New &System Config', self)
+      @create_system_config.statusTip = 'Create a new system configuration'
+      @create_system_config.connect(SIGNAL('triggered()')) { SystemConfigDialog.new(self) }
     end
 
     def initialize_menus
@@ -294,6 +324,7 @@ module Cosmos
 
       # Actions Menu
       actions_menu = menuBar.addMenu('&Actions')
+      actions_menu.addAction(@create_system_config)
       actions_menu.addAction(@create_target)
 
       # Help Menu

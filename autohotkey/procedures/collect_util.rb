@@ -1,4 +1,4 @@
-require_utility 'clear_util.rb'
+load_utility 'clear_util.rb'
 
 def collect (type, duration, call_clear = false)
   # Get the current collects telemetry point

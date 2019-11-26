@@ -586,8 +586,9 @@ module Cosmos
       @ports['REPLAY_API'] = 7877
       @ports['REPLAY_PREIDENTIFIED'] = 7879
       @ports['REPLAY_CMD_ROUTER'] = 7880
-      @ports['DART_DECOM'] = 8777
-      @ports['DART_STREAM'] = 8779
+
+      @ports['DART_STREAM'] = 8777
+      @ports['DART_DECOM'] = 8779
       @ports['DART_MASTER'] = 8780
 
       @listen_hosts = {}

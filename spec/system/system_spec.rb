@@ -45,7 +45,7 @@ module Cosmos
     describe "instance" do
       it "creates default ports" do
         # Don't check the actual port numbers but just that they exist
-        expect(System.ports.keys).to eql %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED CTS_CMD_ROUTER REPLAY_API REPLAY_PREIDENTIFIED REPLAY_CMD_ROUTER DART_DECOM DART_STREAM DART_MASTER)
+        expect(System.ports.keys).to eql %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED CTS_CMD_ROUTER REPLAY_API REPLAY_PREIDENTIFIED REPLAY_CMD_ROUTER DART_STREAM DART_DECOM DART_MASTER)
       end
 
       it "creates default paths" do

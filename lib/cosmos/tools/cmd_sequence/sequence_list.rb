@@ -19,8 +19,9 @@ module Cosmos
     signals 'modified()'
 
     # Create the SequenceList
-    def initialize
+    def initialize(parent)
       super()
+      @parent = parent
       @modified = false
       layout = Qt::VBoxLayout.new()
       layout.setContentsMargins(0, 0, 0, 0)
@@ -45,7 +46,8 @@ module Cosmos
           usage = "#{keyword} <Delay Time> <Command>"
           parser.verify_num_parameters(2, 2, usage)
           begin
-            item = SequenceItem.parse(params[0], params[1])
+            tgt_name, pkt_name, cmd_params = extract_fields_from_cmd_text(params[1])
+            item = SequenceItem.new(@parent, tgt_name, pkt_name, cmd_params, params[0])
             # Connect the SequenceItems modified signal to propagate it
             # forward by emitting our own modified signal
             item.connect(SIGNAL("modified()")) do
@@ -63,12 +65,13 @@ module Cosmos
       @modified = false # Initially we're not modified
     end
 
-    # Add a new SequenceItem to the list.
-    # @param command [Packet] Command packet to base the SequenceItem on
+    # Add a new SequenceItem to the list based on the given target and packet
+    # @param target_name [String] target name containing the command
+    # @param packet_name [String] packet name containing the command
     # @return [SequenceItem] The item added
-    def add(command)
+    def add(target_name, packet_name)
       @modified = true
-      item = SequenceItem.new(command)
+      item = SequenceItem.new(@parent, target_name, packet_name)
       # Connect the SequenceItems modified signal to propagate it
       # forward by emitting our own modified signal
       item.connect(SIGNAL("modified()")) do
@@ -118,11 +121,13 @@ module Cosmos
     # application.
     # @param filename [String] Filename to open and write the sequence
     def save(filename)
-      @modified = false
-      File.open(filename, "w") do |file|
-        # Each SequenceItem's save method returns the save string
-        file.write(collect {|item| item.save }.join("\n"))
-        file.write("\n") # final newline
+      begin
+        sequence = collect {|item| item.save }.join("\n") + "\n"
+        @modified = false
+        File.open(filename, "w") {|file| file.write(sequence) }
+      rescue Exception => err
+        message = "Error saving due to #{err}"
+        Qt::MessageBox.critical(self, 'Error', message)
       end
     end
 

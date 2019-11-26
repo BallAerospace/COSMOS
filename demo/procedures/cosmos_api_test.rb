@@ -184,14 +184,14 @@ get_cmd_param_list("INST", "BOB")
 get_cmd_param_list("INST", "COLLECT", "DURATION")
 
 # get_cmd_hazardous
-hazardous, hazardous_description = get_cmd_hazardous("INST", "COLLECT", "TYPE" => "SPECIAL")
-puts "#{hazardous}:#{hazardous_description}"
-hazardous, hazardous_description = get_cmd_hazardous("INST", "COLLECT", "TYPE" => "NORMAL")
-puts "#{hazardous}:#{hazardous_description}"
-hazardous, hazardous_description = get_cmd_hazardous("INST", "ABORT")
-puts "#{hazardous}:#{hazardous_description}"
-hazardous, hazardous_description = get_cmd_hazardous("INST", "CLEAR")
-puts "#{hazardous}:#{hazardous_description}"
+hazardous = get_cmd_hazardous("INST", "COLLECT", "TYPE" => "SPECIAL")
+puts hazardous
+hazardous = get_cmd_hazardous("INST", "COLLECT", "TYPE" => "NORMAL")
+puts hazardous
+hazardous = get_cmd_hazardous("INST", "ABORT")
+puts hazardous
+hazardous = get_cmd_hazardous("INST", "CLEAR")
+puts hazardous
 
 # get_cmd_hazardous should fail
 get_cmd_hazardous()

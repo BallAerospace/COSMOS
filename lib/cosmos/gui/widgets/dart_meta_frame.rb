@@ -16,6 +16,13 @@ module Cosmos
   class DartMetaFrame < Qt::Widget
     @@meta_filters = []
 
+    class LabelPopup < Qt::Label
+      attr_accessor :text
+      def mousePressEvent(event)
+        Qt::MessageBox.critical(self.parent, 'Error', @text)
+      end
+    end
+
     def initialize(parent)
       super(parent)
 
@@ -27,6 +34,7 @@ module Cosmos
       @groupbox = Qt::GroupBox.new("Meta Filter Selection")
       @vbox = Qt::VBoxLayout.new(@groupbox)
       @hbox1 = Qt::HBoxLayout.new
+
       @label = Qt::Label.new("Meta Filters: ")
       @hbox1.addWidget(@label)
       @meta_filters_text = Qt::LineEdit.new
@@ -43,6 +51,10 @@ module Cosmos
       @vbox.addLayout(@hbox1)
 
       @hbox2 = Qt::HBoxLayout.new
+      @error = LabelPopup.new
+      @error.setPixmap(Qt::Application.style.standardIcon(Qt::Style::SP_MessageBoxCritical).pixmap(20, 20))
+      @error.hide
+      @hbox2.addWidget(@error)
       @meta_item_name = Qt::ComboBox.new
       @meta_item_name.setMinimumWidth(200)
       @meta_item_name.setMaxVisibleItems(6)
@@ -113,8 +125,15 @@ module Cosmos
               end
             end
             @got_meta_item_names = true
-          rescue Exception
-            # We tried...
+            Qt.execute_in_main_thread { @error.hide }
+          rescue Exception => e
+            case e.message
+            when /execution expired/
+              @error.text = "Could not connect to the DART Decom Server. Is it running?"
+            else
+              @error.text = e.message
+            end
+            Qt.execute_in_main_thread { @error.show }
           ensure
             @update_thread = nil
             server.disconnect if defined? server
