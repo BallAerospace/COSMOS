@@ -185,6 +185,8 @@ module Cosmos
         expect(@s.defined_length).to eql 1
         si = StructureItem.new("test1",0,16,:INT,:BIG_ENDIAN)
         @s.define(si)
+        expect(@s.items.length).to eql 1
+        expect(@s.sorted_items.length).to eql 1
         expect(@s.sorted_items[0].name).to eql "TEST1"
         expect(@s.items["TEST1"].bit_size).to eql 16
         expect(@s.items["TEST1"].data_type).to eql :INT
@@ -287,6 +289,56 @@ module Cosmos
         item = @s.get_item("test1")
         item.name = "TEST2"
         expect { @s.set_item(item) }.to raise_error(ArgumentError, "Unknown item: TEST2 - Ensure item name is uppercase")
+      end
+    end
+
+    describe "delete_item" do
+      before(:each) do
+        @s = Structure.new(:BIG_ENDIAN)
+        @s.define_item("test1", 0, 8, :UINT)
+      end
+
+      it "removes the item and leaves a hole" do
+        @s.append_item("test2", 16, :UINT)
+        expect(@s.defined_length).to eql 3
+        @s.delete_item("test1")
+        expect { @s.get_item("test1") }.to raise_error(ArgumentError, "Unknown item: test1")
+        expect(@s.defined_length).to eql 3
+        expect(@s.items["TEST1"]).to be_nil
+        expect(@s.items["TEST2"]).not_to be_nil
+        expect(@s.sorted_items.length).to eql 1
+        expect(@s.sorted_items[0]).to eql(@s.get_item("test2"))
+        buffer = "\x01\x02\x03"
+        expect(@s.read("test2", :RAW, buffer)).to eql 0x0203
+      end
+
+      it "allows new items to be defined in place" do
+        @s.append_item("test2", 16, :UINT)
+        @s.append_item("test3", 8, :UINT)
+        expect(@s.defined_length).to eql 4
+        # Delete the first 2 items, note a 3 byte hole now exists
+        @s.delete_item("test1")
+        @s.delete_item("test2")
+        expect(@s.defined_length).to eql 4
+        expect(@s.items.length).to eql 1
+        expect(@s.sorted_items.length).to eql 1
+        # Fill the hole and overlap the last byte
+        @s.define_item("test4", 0, 16, :UINT)
+        @s.define_item("test5", 16, 16, :UINT)
+        @s.define_item("test6", 32, 32, :UINT)
+        buffer = "\x01\x02\x03\x04\x05\x06\x07\x08"
+        expect(@s.read("test4", :RAW, buffer)).to eql 0x0102
+        expect(@s.read("test5", :RAW, buffer)).to eql 0x0304
+        expect(@s.read("test6", :RAW, buffer)).to eql 0x05060708
+        # test3 is still defined
+        expect(@s.read("test3", :RAW, buffer)).to eql 0x04
+        expect(@s.items.length).to eql 4
+        expect(@s.sorted_items.length).to eql 4
+        # Check that everything is sorted correctly
+        expect(@s.sorted_items[0].name).to eql "TEST4"
+        expect(@s.sorted_items[1].name).to eql "TEST5"
+        expect(@s.sorted_items[2].name).to eql "TEST3"
+        expect(@s.sorted_items[3].name).to eql "TEST6"
       end
     end
 
@@ -601,7 +653,5 @@ module Cosmos
         expect { s.test1 }.to raise_error(ArgumentError, "Unknown item: test1")
       end
     end
-
   end # describe Structure
-
 end

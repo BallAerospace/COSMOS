@@ -304,7 +304,6 @@ module Cosmos
     end
 
     # @param name [String] Name of the item to delete in the items Hash
-    # @return [StructureItem] StructureItem or one of its subclasses
     def delete_item(name)
       item = @items[name.upcase]
       raise ArgumentError, "Unknown item: #{name}" unless item
@@ -318,17 +317,7 @@ module Cosmos
         end
       end
       @sorted_items.delete_at(item_index)
-      # Make a deep copy of all the remaining items so we can re-create them
-      saved = Marshal.load(Marshal.dump(@sorted_items))
-      @items = {}
-      @sorted_items = []
-      @defined_length = 0
-      @defined_length_bits = 0
-      @pos_bit_size = 0
-      @neg_bit_size = 0
-      @fixed_size = true
-      @buffer = '' if @buffer
-      saved.each {|item| append(item) }
+      @items.delete(name.upcase)
     end
 
     # Write a value to the buffer based on the item definition
