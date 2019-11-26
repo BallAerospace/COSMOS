@@ -101,6 +101,10 @@ SELECT_ITEM:
       values: .+
 DELETE_ITEM:
   summary: Delete an existing telemetry item from the packet definition
+  description: Deleting an item from the packet definition does not remove the
+    defined space for that item. Thus unless you redefine a new item, there
+    will be a "hole" in the packet where the data is not accessible. You can
+    use SELECT_TELEMETRY and then ITEM to define a new item.
   example: |
     SELECT_TELEMETRY SYSTEM LIMITS_CHANGE
       DELETE_ITEM ITEM

@@ -111,6 +111,10 @@ SELECT_PARAMETER:
       values: .+
 DELETE_PARAMETER:
   summary: Deletes an existing command parameter from the packet definition
+  description: Deleting a parameter from the command definition does not remove the
+    defined space for that parameter. Thus unless you redefine a new parameter, there
+    will be a "hole" in the packet where the data is not accessible. You can
+    use SELECT_COMMAND and then PARAMETER to define a new parameter.
   example: |
     SELECT_COMMAND SYSTEM STARTLOGGING
       DELETE_PARAMETER LABEL
