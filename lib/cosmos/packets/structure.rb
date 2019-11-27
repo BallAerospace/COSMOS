@@ -303,6 +303,23 @@ module Cosmos
       end
     end
 
+    # @param name [String] Name of the item to delete in the items Hash
+    def delete_item(name)
+      item = @items[name.upcase]
+      raise ArgumentError, "Unknown item: #{name}" unless item
+
+      # Find the item to delete in the sorted_items array
+      item_index = nil
+      @sorted_items.each_with_index do |sorted_item, index|
+        if sorted_item.name == item.name
+          item_index = index
+          break
+        end
+      end
+      @sorted_items.delete_at(item_index)
+      @items.delete(name.upcase)
+    end
+
     # Write a value to the buffer based on the item definition
     #
     # @param item [StructureItem] Instance of StructureItem or one of its subclasses

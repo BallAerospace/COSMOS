@@ -198,14 +198,22 @@ module Cosmos
           #######################################################################
           # All the following keywords must have a current packet defined
           #######################################################################
-          when 'SELECT_ITEM', 'SELECT_PARAMETER', 'ITEM', 'PARAMETER', 'ID_ITEM', 'ID_PARAMETER', 'ARRAY_ITEM', 'ARRAY_PARAMETER', 'APPEND_ITEM', 'APPEND_PARAMETER', 'APPEND_ID_ITEM', 'APPEND_ID_PARAMETER', 'APPEND_ARRAY_ITEM', 'APPEND_ARRAY_PARAMETER', 'MACRO_APPEND_START', 'MACRO_APPEND_END', 'ALLOW_SHORT', 'HAZARDOUS', 'PROCESSOR', 'META', 'DISABLE_MESSAGES', 'HIDDEN', 'DISABLED'
+          when 'SELECT_ITEM', 'SELECT_PARAMETER', 'DELETE_ITEM', 'DELETE_PARAMETER', 'ITEM',\
+              'PARAMETER', 'ID_ITEM', 'ID_PARAMETER', 'ARRAY_ITEM', 'ARRAY_PARAMETER', 'APPEND_ITEM',\
+              'APPEND_PARAMETER', 'APPEND_ID_ITEM', 'APPEND_ID_PARAMETER', 'APPEND_ARRAY_ITEM',\
+              'APPEND_ARRAY_PARAMETER', 'MACRO_APPEND_START', 'MACRO_APPEND_END', 'ALLOW_SHORT',\
+              'HAZARDOUS', 'PROCESSOR', 'META', 'DISABLE_MESSAGES', 'HIDDEN', 'DISABLED'
             raise parser.error("No current packet for #{keyword}") unless @current_packet
             process_current_packet(parser, keyword, params)
 
           #######################################################################
           # All the following keywords must have a current item defined
           #######################################################################
-          when 'STATE', 'READ_CONVERSION', 'WRITE_CONVERSION', 'POLY_READ_CONVERSION', 'POLY_WRITE_CONVERSION', 'SEG_POLY_READ_CONVERSION', 'SEG_POLY_WRITE_CONVERSION', 'GENERIC_READ_CONVERSION_START', 'GENERIC_WRITE_CONVERSION_START', 'REQUIRED', 'LIMITS', 'LIMITS_RESPONSE', 'UNITS', 'FORMAT_STRING', 'DESCRIPTION', 'MINIMUM_VALUE', 'MAXIMUM_VALUE', 'DEFAULT_VALUE', 'OVERFLOW', 'OVERLAP'
+          when 'STATE', 'READ_CONVERSION', 'WRITE_CONVERSION', 'POLY_READ_CONVERSION',\
+              'POLY_WRITE_CONVERSION', 'SEG_POLY_READ_CONVERSION', 'SEG_POLY_WRITE_CONVERSION',\
+              'GENERIC_READ_CONVERSION_START', 'GENERIC_WRITE_CONVERSION_START', 'REQUIRED',\
+              'LIMITS', 'LIMITS_RESPONSE', 'UNITS', 'FORMAT_STRING', 'DESCRIPTION',\
+              'MINIMUM_VALUE', 'MAXIMUM_VALUE', 'DEFAULT_VALUE', 'OVERFLOW', 'OVERLAP'
             raise parser.error("No current item for #{keyword}") unless @current_item
             process_current_item(parser, keyword, params)
 
@@ -327,25 +335,31 @@ module Cosmos
     def process_current_packet(parser, keyword, params)
       case keyword
 
-      # Select an item in the current telemetry packet for editing
-      when 'SELECT_PARAMETER', 'SELECT_ITEM'
+      # Select or delete an item in the current packet
+      when 'SELECT_PARAMETER', 'SELECT_ITEM', 'DELETE_PARAMETER', 'DELETE_ITEM'
         if (@current_cmd_or_tlm == COMMAND) && (keyword.split('_')[1] == 'ITEM')
-          raise parser.error("SELECT_ITEM only applies to telemetry packets")
+          raise parser.error("#{keyword} only applies to telemetry packets")
         end
         if (@current_cmd_or_tlm == TELEMETRY) && (keyword.split('_')[1] == 'PARAMETER')
-          raise parser.error("SELECT_PARAMETER only applies to command packets")
+          raise parser.error("#{keyword} only applies to command packets")
         end
         usage = "#{keyword} <#{keyword.split('_')[1]} NAME>"
         finish_item()
         parser.verify_num_parameters(1, 1, usage)
         begin
-          @current_item = @current_packet.get_item(params[0])
+          if keyword.include?("SELECT")
+            @current_item = @current_packet.get_item(params[0])
+          else # DELETE
+            @current_packet.delete_item(params[0])
+          end
         rescue # Rescue the default execption to provide a nicer error message
           raise parser.error("#{params[0]} not found in #{@current_cmd_or_tlm.downcase} packet #{@current_packet.target_name} #{@current_packet.packet_name}", usage)
         end
 
       # Start a new telemetry item in the current packet
-      when 'ITEM', 'PARAMETER', 'ID_ITEM', 'ID_PARAMETER', 'ARRAY_ITEM', 'ARRAY_PARAMETER', 'APPEND_ITEM', 'APPEND_PARAMETER', 'APPEND_ID_ITEM', 'APPEND_ID_PARAMETER', 'APPEND_ARRAY_ITEM', 'APPEND_ARRAY_PARAMETER'
+      when 'ITEM', 'PARAMETER', 'ID_ITEM', 'ID_PARAMETER', 'ARRAY_ITEM', 'ARRAY_PARAMETER',\
+          'APPEND_ITEM', 'APPEND_PARAMETER', 'APPEND_ID_ITEM', 'APPEND_ID_PARAMETER',\
+          'APPEND_ARRAY_ITEM', 'APPEND_ARRAY_PARAMETER'
         start_item(parser)
 
       # Start the creation of a macro-expanded list of items
