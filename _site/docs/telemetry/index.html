@@ -5052,6 +5052,7 @@
 <li class="toc-entry toc-h3"><a href="#array_item">ARRAY_ITEM</a></li>
 <li class="toc-entry toc-h3"><a href="#append_array_item">APPEND_ARRAY_ITEM</a></li>
 <li class="toc-entry toc-h3"><a href="#select_item">SELECT_ITEM</a></li>
+<li class="toc-entry toc-h3"><a href="#delete_item">DELETE_ITEM</a></li>
 <li class="toc-entry toc-h3"><a href="#meta">META</a></li>
 <li class="toc-entry toc-h3"><a href="#processor">PROCESSOR</a></li>
 <li class="toc-entry toc-h3"><a href="#allow_short">ALLOW_SHORT</a></li>
@@ -5567,6 +5568,35 @@ ITEM DATA 0 0 DERIVED "Derived data"
 <p>Example Usage:</p>
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_TELEMETRY SYSTEM LIMITS_CHANGE
   SELECT_ITEM ITEM
+</code></pre></figure>
+
+<h3 id="delete_item">
+<a class="anchor" href="#delete_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>DELETE_ITEM</h3>
+<div class="right">(Since 4.4.1)</div>
+<p><strong>Delete an existing telemetry item from the packet definition</strong></p>
+
+<p>Deleting an item from the packet definition does not remove the defined space for that item. Thus unless you redefine a new item, there will be a “hole” in the packet where the data is not accessible. You can use SELECT_TELEMETRY and then ITEM to define a new item.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Item</td>
+      <td>Name of the item to delete</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_TELEMETRY SYSTEM LIMITS_CHANGE
+  DELETE_ITEM ITEM
 </code></pre></figure>
 
 <h3 id="meta">
