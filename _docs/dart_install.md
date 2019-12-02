@@ -41,13 +41,15 @@ toc: true
     ```
     bundle install
     ```
-1. In postgres, create a 'dart' user and password (with CREATEDB permissions), and both a 'dart' and 'darttest' database.  The databases should be created with template0, LC_COLLATE 'C', LC_CTYPE 'C', and ENCODING 'SQL_ASCII'
+1. In postgres, create a 'dart' user and password (with CREATEDB permissions), and both a 'dart' and 'darttest' database (owned by the dart user).  The databases should be created with template0, LC_COLLATE 'C', LC_CTYPE 'C', and ENCODING 'SQL_ASCII'
     1. On windows use pgadmin
     2. Otherwise use the psql command line:
         ```
         psql postgres
         CREATE ROLE dart WITH LOGIN PASSWORD 'dart';
         ALTER ROLE dart CREATEDB;
+        \q
+        psql -U dart
         CREATE DATABASE dart TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
         CREATE DATABASE darttest TEMPLATE template0 LC_COLLATE 'C' LC_CTYPE 'C' ENCODING 'SQL_ASCII';
         \q
