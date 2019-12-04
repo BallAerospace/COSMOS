@@ -8,6 +8,12 @@ permalink: /docs/installation/
 
 The following sections describe howto get COSMOS installed on various operating systems.
 
+## Installing COSMOS using Docker
+
+COSMOS is now available as Docker images. See our Docker documentation here:
+[COSMOS Docker Directions](https://github.com/BallAerospace/cosmos-docker)
+
+## Installing COSMOS on Host Machines
 
 ## Windows 7+
 Run the COSMOS Installation bat file:
