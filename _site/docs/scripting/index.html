@@ -5098,6 +5098,7 @@
 <li class="toc-entry toc-h3"><a href="#cmd_raw_no_checks">cmd_raw_no_checks</a></li>
 <li class="toc-entry toc-h3"><a href="#send_raw">send_raw</a></li>
 <li class="toc-entry toc-h3"><a href="#send_raw_file">send_raw_file</a></li>
+<li class="toc-entry toc-h3"><a href="#get_cmd_buffer">get_cmd_buffer</a></li>
 <li class="toc-entry toc-h3"><a href="#get_cmd_list">get_cmd_list</a></li>
 <li class="toc-entry toc-h3"><a href="#get_cmd_param_list">get_cmd_param_list</a></li>
 <li class="toc-entry toc-h3"><a href="#get_cmd_hazardous">get_cmd_hazardous</a></li>
@@ -5122,6 +5123,7 @@
 <li class="toc-entry toc-h3"><a href="#tlm_formatted">tlm_formatted</a></li>
 <li class="toc-entry toc-h3"><a href="#tlm_with_units">tlm_with_units</a></li>
 <li class="toc-entry toc-h3"><a href="#tlm_variable">tlm_variable</a></li>
+<li class="toc-entry toc-h3"><a href="#get_tlm_buffer">get_tlm_buffer</a></li>
 <li class="toc-entry toc-h3"><a href="#get_tlm_packet">get_tlm_packet</a></li>
 <li class="toc-entry toc-h3"><a href="#get_tlm_values">get_tlm_values</a></li>
 <li class="toc-entry toc-h3"><a href="#get_tlm_list">get_tlm_list</a></li>
@@ -6296,6 +6298,39 @@
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">send_raw_file</span><span class="p">(</span><span class="s2">"INST1INT"</span><span class="p">,</span> <span class="s2">"/home/user/data_to_send.bin"</span><span class="p">)</span>
 </code></pre></div></div>
 
+<h3 id="get_cmd_buffer">
+<a class="anchor" href="#get_cmd_buffer" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_cmd_buffer</h3>
+
+<p>The get_cmd_buffer method returns the raw packet buffer as a Ruby string.</p>
+
+<p>Syntax:</p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">buffer</span> <span class="o">=</span> <span class="n">get_cmd_buffer</span><span class="p">(</span><span class="s2">"&lt;Target Name&gt;"</span><span class="p">,</span> <span class="s2">"&lt;Packet Name&gt;"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target.</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Name of the packet.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">buffer</span> <span class="o">=</span> <span class="n">get_cmd_buffer</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"COLLECT"</span><span class="p">)</span>
+<span class="n">buffer</span><span class="p">.</span><span class="nf">unpack</span><span class="p">(</span><span class="s1">'C*'</span><span class="p">)</span> <span class="c1"># See the Ruby documentation for class String method unpack</span>
+</code></pre></div></div>
+
 <h3 id="get_cmd_list">
 <a class="anchor" href="#get_cmd_list" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_cmd_list</h3>
 
@@ -7016,6 +7051,39 @@
 
 <p>Example:</p>
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">value</span> <span class="o">=</span> <span class="n">tlm_variable</span><span class="p">(</span><span class="s2">"INST HEALTH_STATUS COLLECTS"</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="get_tlm_buffer">
+<a class="anchor" href="#get_tlm_buffer" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_tlm_buffer</h3>
+
+<p>The get_tlm_buffer method returns the raw packet buffer as a Ruby string.</p>
+
+<p>Syntax:</p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">buffer</span> <span class="o">=</span> <span class="n">get_tlm_buffer</span><span class="p">(</span><span class="s2">"&lt;Target Name&gt;"</span><span class="p">,</span> <span class="s2">"&lt;Packet Name&gt;"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the target.</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Name of the packet.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Example:</p>
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">buffer</span> <span class="o">=</span> <span class="n">get_tlm_packet</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">)</span>
+<span class="n">buffer</span><span class="p">.</span><span class="nf">unpack</span><span class="p">(</span><span class="s1">'C*'</span><span class="p">)</span> <span class="c1"># See the Ruby documentation for class String method unpack</span>
 </code></pre></div></div>
 
 <h3 id="get_tlm_packet">

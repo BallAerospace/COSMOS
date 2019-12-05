@@ -5051,7 +5051,7 @@
 
 <p>The DART Decommutation API implements a relaxed version of the <a href="http://www.jsonrpc.org/specification">JSON-RPC 2.0 Specification</a>. Requests with an “id” of NULL are not supported. Numbers can contain special non-string literal’s such as NaN, and +/-inf. Request params must be specified by-position, by-name is not supported. Section 6 of the spec, Batch Operations, is not supported.</p>
 
-<p>DART creates a HTTP Server at port 8777 by default to respond to request for decommutated data. Note that this can be changed by overriding the DART_DECOM port in the system.txt file. The server expects to receive JSON RPC formatted request to the “query” method with a since hash parameter with the following fields.</p>
+<p>DART creates a HTTP Server at port 8779 by default to respond to request for decommutated data. Note that this can be changed by overriding the DART_DECOM port in the system.txt file. The server expects to receive JSON RPC formatted request to the “query” method with a since hash parameter with the following fields.</p>
 
 <table>
   <thead>
@@ -5147,7 +5147,7 @@
 
 <h2 id="dart-stream-server">
 <a class="anchor" href="#dart-stream-server" aria-hidden="true"><span class="octicon octicon-link"></span></a>DART Stream Server</h2>
-<p>DART creates a TCP/IP Server at port 8779 by default to respond to requests for a stream of raw COSMOS packet data. Note that this can be changed by overriding the DART_STREAM port in the system.txt file. The server expects to receive JSON formatted requests with the following fields.</p>
+<p>DART creates a TCP/IP Server at port 8777 by default to respond to requests for a stream of raw COSMOS packet data. Note that this can be changed by overriding the DART_STREAM port in the system.txt file. The server expects to receive JSON formatted requests with the following fields.</p>
 
 <table>
   <thead>

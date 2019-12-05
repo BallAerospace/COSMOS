@@ -668,6 +668,26 @@ Example:
 send_raw_file("INST1INT", "/home/user/data_to_send.bin")
 ```
 
+### get_cmd_buffer
+
+The get_cmd_buffer method returns the raw packet buffer as a Ruby string. 
+
+Syntax:
+```ruby
+buffer = get_cmd_buffer("<Target Name>", "<Packet Name>")
+```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target Name | Name of the target. |
+| Packet Name | Name of the packet. |
+
+Example:
+```ruby
+buffer = get_cmd_buffer("INST", "COLLECT")
+buffer.unpack('C*') # See the Ruby documentation for class String method unpack
+```
+
 ### get_cmd_list
 
 The get_cmd_list method returns an array of the commands that are available for a particular target.  The returned array is an array of array swhere each subarray contains the command name and description.
@@ -1078,6 +1098,26 @@ tlm_variable("<Target Name> <Packet Name> <Item Name>", <Value Type>)
 Example:
 ```ruby
 value = tlm_variable("INST HEALTH_STATUS COLLECTS", :RAW)
+```
+
+### get_tlm_buffer
+
+The get_tlm_buffer method returns the raw packet buffer as a Ruby string. 
+
+Syntax:
+```ruby
+buffer = get_tlm_buffer("<Target Name>", "<Packet Name>")
+```
+
+| Parameter | Description |
+| -------- | --------------------------------- |
+| Target Name | Name of the target. |
+| Packet Name | Name of the packet. |
+
+Example:
+```ruby
+buffer = get_tlm_packet("INST", "HEALTH_STATUS")
+buffer.unpack('C*') # See the Ruby documentation for class String method unpack
 ```
 
 ### get_tlm_packet
