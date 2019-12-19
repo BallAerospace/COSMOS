@@ -195,7 +195,7 @@ if !ARCHITECTURE!==x86 (
   call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1 2 3
 
 :: Temporary fix until new puma available - Newer mingw64 breaks puma
-  call !COSMOS_INSTALL!\Vendor\Ruby\msys64\usr\bin\pacman.exe --noconfirm -U http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-headers-git-7.0.0.5524.2346384e-1-any.pkg.tar.xz
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk exec pacman --noconfirm -U http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-headers-git-7.0.0.5524.2346384e-1-any.pkg.tar.xz
 )
 
 ::::::::::::::::::::::::
