@@ -313,11 +313,7 @@ if errorlevel 1 (
 )
 
 :: move qt dlls to the ruby/bin folder - prevents conflicts with other versions of qt on the system
-if !ARCHITECTURE!==x86 (
-  move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x86-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
-) else (
-  move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x64-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
-)
+move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x64-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
 if errorlevel 1 (
   echo ERROR: Problem moving qt dlls
   @echo ERROR: Problem moving qt dlls >> !COSMOS_INSTALL!\INSTALL.log
