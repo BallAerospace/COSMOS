@@ -20,6 +20,7 @@ require 'drb/acl'
 require 'zip'
 require 'zip/filesystem'
 require 'bundler'
+require 'thread'
 
 module Cosmos
   # System is the primary entry point into the COSMOS framework. It captures
@@ -490,64 +491,65 @@ module Cosmos
     #   configuration. Pass nil to load the default configuration.
     # @return [String, Exception/nil] The actual configuration loaded
     def load_configuration(name = nil)
-      unless @config
-        # Ensure packets have been lazy loaded
-        System.commands
-      end
+      # Ensure packets have been lazy loaded
+      load_packets() unless @config
 
-      if @config_blacklist[name]
-        Logger.warn "Ignoring failed config #{name}"
-        update_config(@initial_config)
-        return @config.name, RuntimeError.new("Ignoring failed config #{name}")
-      end
+      @@instance_mutex.synchronize do
+        if @config_blacklist[name]
+          Logger.warn "Ignoring failed config #{name}"
+          update_config(@initial_config)
+          return @config.name, RuntimeError.new("Ignoring failed config #{name}")
+        end
 
-      if name && @config
-        # Make sure they're requesting something other than the current
-        # configuration.
-        if name != @config.name
-          # If they want the initial configuration we can just swap out the
-          # current configuration without doing any file processing
-          if name == @initial_config.name
-            Logger.info "Switching to initial configuration: #{name}"
-            update_config(@initial_config)
-          else
-            # Look for the requested configuration in the saved configurations
-            configuration = find_configuration(name)
-            if configuration
-              # We found the configuration requested. Reprocess the system.txt
-              # and reload the packets
-              begin
-                unless File.directory?(configuration)
-                  # Zip file configuration so unzip and reset configuration path
-                  configuration = unzip(configuration)
+        if name && @config
+          # Make sure they're requesting something other than the current
+          # configuration.
+          if name != @config.name
+            # If they want the initial configuration we can just swap out the
+            # current configuration without doing any file processing
+            if name == @initial_config.name
+              Logger.info "Switching to initial configuration: #{name}"
+              update_config(@initial_config)
+            else
+              # Look for the requested configuration in the saved configurations
+              configuration = find_configuration(name)
+              if configuration
+                # We found the configuration requested. Reprocess the system.txt
+                # and reload the packets
+                begin
+                  unless File.directory?(configuration)
+                    # Zip file configuration so unzip and reset configuration path
+                    configuration = unzip(configuration)
+                  end
+                  
+                  Logger.info "Switching to configuration: #{name}"
+                  process_file(File.join(configuration, 'system.txt'), configuration)
+                  load_packets(name, false)
+                rescue Exception => error
+                  # Failed to load - Restore initial
+                  @config_blacklist[name] = true # Prevent wasting time trying to load the bad configuration again
+                  Logger.error "Problem loading configuration from #{configuration}: #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n"
+                  Logger.info "Switching to initial configuration: #{@initial_config.name}"
+                  update_config(@initial_config)
+                  return @config.name, error
                 end
-                
-                Logger.info "Switching to configuration: #{name}"
-                process_file(File.join(configuration, 'system.txt'), configuration)
-                load_packets(name)
-              rescue Exception => error
-                # Failed to load - Restore initial
-                @config_blacklist[name] = true # Prevent wasting time trying to load the bad configuration again
-                Logger.error "Problem loading configuration from #{configuration}: #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n"
+              else
+                # We couldn't find the configuration request. Reload the
+                # initial configuration
+                Logger.error "Unable to find configuration: #{name}"
                 Logger.info "Switching to initial configuration: #{@initial_config.name}"
                 update_config(@initial_config)
-                return @config.name, error
+                return @config.name, RuntimeError.new("Unable to find configuration: #{name}")
               end
-            else
-              # We couldn't find the configuration request. Reload the
-              # initial configuration
-              Logger.error "Unable to find configuration: #{name}"
-              Logger.info "Switching to initial configuration: #{@initial_config.name}"
-              update_config(@initial_config)
-              return @config.name, RuntimeError.new("Unable to find configuration: #{name}")
             end
           end
+        else
+          Logger.info "Switching to initial configuration: #{@initial_config.name}"
+          update_config(@initial_config)
         end
-      else
-        Logger.info "Switching to initial configuration: #{@initial_config.name}"
-        update_config(@initial_config)
+        
+        return @config.name, nil
       end
-      return @config.name, nil
     end
 
     # (see #load_configuration)
@@ -776,9 +778,10 @@ module Cosmos
         configuration = find_configuration(@config.name)
         configuration = File.join(@paths['SAVED_CONFIG'], File.build_timestamped_filename([@config.name], '.zip')) unless configuration
         unless File.exist?(configuration)
+          configuration_tmp = File.join(@paths['SAVED_CONFIG'], File.build_timestamped_filename(['tmp_' + @config.name], '.zip.tmp'))
           begin
             Zip.continue_on_exists_proc = true
-            Zip::File.open(configuration, Zip::File::CREATE) do |zipfile|
+            Zip::File.open(configuration_tmp, Zip::File::CREATE) do |zipfile|
               zip_file_path = File.basename(configuration, ".zip")
               zipfile.mkdir zip_file_path
 
@@ -810,6 +813,7 @@ module Cosmos
                 end
               end
             end
+            File.rename(configuration_tmp, configuration)
             File.chmod(0444, configuration) # Mark readonly
           rescue Exception => error
             Logger.error "Problem saving configuration to #{configuration}: #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n"
@@ -818,7 +822,7 @@ module Cosmos
       end
     end
 
-    def load_packets(configuration_name = nil)
+    def load_packets_internal(configuration_name = nil)
       # Determine hashing over all targets cmd_tlm files
       cmd_tlm_files = []
       additional_data = ''
@@ -838,7 +842,6 @@ module Cosmos
       hash_string = hashing_result.hexdigest
       # Only use at most, 32 characters of the hex
       hash_string = hash_string[-32..-1] if hash_string.length >= 32
-
 
       # Build filename for marshal file
       marshal_filename = File.join(@paths['TMP'], 'marshal_' << hash_string << '.bin')
@@ -883,6 +886,16 @@ module Cosmos
 
       @initial_config = @config unless @initial_config
       save_configuration()
+    end
+
+    def load_packets(configuration_name = nil, take_mutex = true)
+      if take_mutex
+        @@instance_mutex.synchronize do
+          load_packets_internal(configuration_name)
+        end
+      else
+        load_packets_internal(configuration_name)
+      end
     end
 
     def setup_system_meta

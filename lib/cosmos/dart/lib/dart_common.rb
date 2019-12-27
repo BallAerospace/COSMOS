@@ -291,7 +291,11 @@ module DartCommon
         reader.open(packet_log.filename)
         @plr_cache[packet_log.id] = reader
       end
-      return reader.read_at_offset(ple.data_offset)
+      packet = reader.read_at_offset(ple.data_offset) 
+      unless packet
+        Cosmos::Logger.error("Failed to read at offset #{ple.data_offset} (file offset: #{reader.bytes_read}) with file size #{reader.size}")
+      end
+      return packet 
     rescue Exception => error
       Cosmos::Logger.error("Error Reading Packet Log Entry:\n#{error.formatted}")
       return nil
