@@ -55,6 +55,8 @@ module Cosmos
     def self.instance
       unless @@instance
         _, options = create_default_options()
+        options.listen = false
+        options.show_main = false
         TlmViewer.new(options)
       end
       @@instance
@@ -122,12 +124,14 @@ module Cosmos
 
       Splash.execute(self) do |splash|
         ConfigParser.splash = splash
-        splash.message = "Displaying requested screens"
+        if options.show_main
+          splash.message = "Displaying requested screens"
 
-        # Startup desired screens once we're running
-        @tlm_viewer_config.screen_infos.each do |screen_full_name, screen_info|
-          if screen_info.show_on_startup
-            display(screen_full_name, screen_info.x_pos, screen_info.y_pos)
+          # Startup desired screens once we're running
+          @tlm_viewer_config.screen_infos.each do |screen_full_name, screen_info|
+            if screen_info.show_on_startup
+              display(screen_full_name, screen_info.x_pos, screen_info.y_pos)
+            end
           end
         end
 
@@ -167,6 +171,8 @@ module Cosmos
 
         ConfigParser.splash = nil
       end
+      
+      hide() unless options.show_main
     end
 
     def initialize_actions
@@ -555,6 +561,7 @@ module Cosmos
           options.title = 'Telemetry Viewer'
           options.screen = nil
           options.listen = true
+          options.show_main = true
           options.restore_size = false
           options.production = false
           options.replay = false
