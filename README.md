@@ -84,6 +84,11 @@ COSMOS is built and maintained by Ryan Melton (ryanatball/ryanmelt) and Jason Th
 
 5. Follow the [Documentation](http://cosmosrb.com) to start developing your configuration.
 
+## Docker
+
+See our Docker documentation here:
+[COSMOS Docker Directions](https://github.com/BallAerospace/cosmos-docker)
+
 ## Contributing
 
 We encourage you to contribute to COSMOS!

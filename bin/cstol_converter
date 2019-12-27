@@ -731,7 +731,7 @@ def parse_line(full_line, loc_out_file, wait_check_flag=false)
     # Process procedures with arguments as functions
     else
       # Add the statement to require the function
-      str = str + "require_utility(\"" + words[1].downcase + ".rb\")\n"
+      str = str + "load_utility(\"" + words[1].downcase + ".rb\")\n"
       numSpaces.times {str = str + " "}
 
       # Split the list of arguments on commas

@@ -25,8 +25,8 @@ set ARCHITECTURE=%PROCESSOR_ARCHITECTURE%
 set INSTALLER_VERSION=2.4
 
 :: Paths and versions for COSMOS dependencies
-set RUBY_INSTALLER=rubyinstaller-devkit-2.5.6-1-x64.exe
-set RUBY_INSTALLER_PATH=//github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-2.5.6-1/
+set RUBY_INSTALLER=rubyinstaller-devkit-2.5.7-1-x64.exe
+set RUBY_INSTALLER_PATH=//github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-2.5.7-1/
 set RUBY_ABI_VERSION=2.5.0
 set WKHTMLTOPDF=wkhtmltox-0.12.5-1.msvc2015-win64.exe
 set WKHTMLPATHWITHPROTOCOL=https://downloads.wkhtmltopdf.org/0.12/0.12.5/
@@ -195,7 +195,7 @@ if !ARCHITECTURE!==x86 (
   call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1 2 3
 
 :: Temporary fix until new puma available - Newer mingw64 breaks puma
-  call !COSMOS_INSTALL!\Vendor\Ruby\msys64\usr\bin\pacman.exe --noconfirm -U http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-headers-git-7.0.0.5524.2346384e-1-any.pkg.tar.xz
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk exec pacman --noconfirm -U http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-headers-git-7.0.0.5524.2346384e-1-any.pkg.tar.xz
 )
 
 ::::::::::::::::::::::::
@@ -313,11 +313,7 @@ if errorlevel 1 (
 )
 
 :: move qt dlls to the ruby/bin folder - prevents conflicts with other versions of qt on the system
-if !ARCHITECTURE!==x86 (
-  move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x86-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
-) else (
-  move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x64-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
-)
+move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x64-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
 if errorlevel 1 (
   echo ERROR: Problem moving qt dlls
   @echo ERROR: Problem moving qt dlls >> !COSMOS_INSTALL!\INSTALL.log

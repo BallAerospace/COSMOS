@@ -152,7 +152,7 @@ module Cosmos
 
       # Read Packet Data
       packet_data = @file.read_length_bytes(4, @max_read_size)
-      return nil unless packet_data and packet_data.length > 0
+      return nil unless packet_data and packet_data.length >= 0
 
       if identify_and_define
         packet = identify_and_define_packet_data(target_name, packet_name, received_time, packet_data)
@@ -275,7 +275,7 @@ module Cosmos
           end
           packet.buffer = packet_data
           packet.set_received_time_fast(received_time)
-        rescue
+        rescue Exception => error
           # Could not find a definition for this packet
           Logger.instance.error "Unknown packet #{target_name} #{packet_name}"
           packet = Packet.new(target_name, packet_name, :BIG_ENDIAN, nil, packet_data)

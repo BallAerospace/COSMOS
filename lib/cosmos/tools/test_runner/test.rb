@@ -126,7 +126,7 @@ module Cosmos
       if result
         results << result
         yield result if block_given?
-        raise StopScript if result.stopped
+        raise StopScript if (results[-1].exceptions and @@abort_on_exception) or results[-1].stopped
       end
 
       # Run each test case
@@ -141,7 +141,7 @@ module Cosmos
       if result
         results << result
         yield result if block_given?
-        raise StopScript if result.stopped
+        raise StopScript if (results[-1].exceptions and @@abort_on_exception) or results[-1].stopped
       end
 
       results
@@ -387,17 +387,20 @@ module Cosmos
           result = run_test_case(test_class, test_case, true)
           results << result
           yield result if block_given?
+          raise StopScript if (result.exceptions and test_class.abort_on_exception) or result.stopped
         when :TEST_SETUP
           result = run_test_setup(test_class, true)
           if result
             results << result
             yield result if block_given?
+            raise StopScript if (result.exceptions and test_class.abort_on_exception) or result.stopped
           end
         when :TEST_TEARDOWN
           result = run_test_teardown(test_class, true)
           if result
             results << result
             yield result if block_given?
+            raise StopScript if (result.exceptions and test_class.abort_on_exception) or result.stopped
           end
         end
       end

@@ -10,6 +10,7 @@
 
 require 'cosmos/script'
 require 'optparse'
+require 'dart_constants'
 
 # Autoload models here to remove problems loading within Cosmos namespace
 Target
@@ -20,6 +21,8 @@ PacketLogEntry
 # Implement methods common to DART (Data Archival Retrieval and Trending).
 # Most of these methods handle accessing the DART database.
 module DartCommon
+  include DartConstants
+
   # @return [Integer] Maximimum byte size of strings in the database
   MAX_STRING_BYTE_SIZE = 191 # Works well with mysql utf8mb4 if we want to support mysql in the future
   # @return [Integer] Maximimum bit size of strings in the database
@@ -184,7 +187,7 @@ module DartCommon
           end
         end
         t.index :time
-        t.index :reduced_state, :where => "reduced_state < 2"
+        t.index :reduced_state, :where => "reduced_state < #{REDUCED}"
       end
       create_reduction_table("t#{packet_config.id}_#{table_index}_h", table_data_types, table_index) # hour
       create_reduction_table("t#{packet_config.id}_#{table_index}_m", table_data_types, table_index) # month
@@ -319,7 +322,7 @@ module DartCommon
     reduction,
     reduction_modifier,
     item_name_modifier,
-    limit = 10000,
+    limit = MAX_DECOM_RESULTS,
     offset = 0,
     meta_ids = [])
 
@@ -687,7 +690,7 @@ module DartCommon
         end
       end
       t.index :start_time
-      t.index :reduced_state, :where => "reduced_state < 2"
+      t.index :reduced_state, :where => "reduced_state < #{REDUCED}"
     end
   end
 

@@ -160,6 +160,45 @@ module Cosmos
         expect(packet.buffer.length).to eql 5
       end
 
+      it "raises an error with a packet length of 0" do
+        @interface.instance_variable_set(:@stream, LengthStream.new)
+        @interface.add_protocol(LengthProtocol, [
+          16, # bit offset
+          16, # bit size
+          0,  # length offset
+          1, # bytes per count
+          'BIG_ENDIAN'], :READ_WRITE)
+        $buffer = "\x00\x01\x00\x00\x03\x04\x05\x06\x07\x08\x09"
+        expect { @interface.read }.to raise_error(RuntimeError, /Calculated packet length of 0 bits/)
+      end
+
+      it "raises an error if packet length not enough to support offset and size" do
+        @interface.instance_variable_set(:@stream, LengthStream.new)
+        @interface.add_protocol(LengthProtocol, [
+          16, # bit offset
+          16, # bit size
+          3,  # length offset of 3 not enough to support 2 byte length field at offset 2 bytes
+          1, # bytes per count
+          'BIG_ENDIAN'], :READ_WRITE)
+        $buffer = "\x00\x01\x00\x00\x03\x04\x05\x06\x07\x08\x09"
+        expect { @interface.read }.to raise_error(RuntimeError, /Calculated packet length of 24 bits/)
+      end
+
+      it "processes a 0 length with a non-zero length offset" do
+        @interface.instance_variable_set(:@stream, LengthStream.new)
+        @interface.add_protocol(LengthProtocol, [
+          0, # bit offset
+          16, # bit size
+          4,  # length offset
+          1, # bytes per count
+          'BIG_ENDIAN'], :READ_WRITE)
+        $buffer = "\x00\x00\x01\x02\x00\x00\x03\x04"
+        packet = @interface.read
+        expect(packet.buffer).to eql "\x00\x00\x01\x02"
+        packet = @interface.read
+        expect(packet.buffer).to eql "\x00\x00\x03\x04"
+      end
+
       it "validates length against the maximum length" do
         @interface.instance_variable_set(:@stream, LengthStream.new)
         @interface.add_protocol(LengthProtocol, [
