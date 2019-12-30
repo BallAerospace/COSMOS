@@ -1,4 +1,5 @@
 .coveralls.yml
+.dockerignore
 .gitattributes
 .github/ISSUE_TEMPLATE/bug_report.md
 .github/ISSUE_TEMPLATE/feature_request.md
@@ -8,6 +9,7 @@
 .travis.yml
 .yardopts
 CONTRIBUTING.txt
+Dockerfile
 Gemfile
 Guardfile
 LICENSE.txt
@@ -59,6 +61,7 @@ autohotkey/config/targets/SYSTEM/screens/limits_change.txt
 autohotkey/config/targets/SYSTEM/screens/meta.txt
 autohotkey/config/targets/SYSTEM/target.txt
 autohotkey/config/tools/cmd_sender/cmd_sender.txt
+autohotkey/config/tools/cmd_sequence/cmd_sequence.txt
 autohotkey/config/tools/cmd_tlm_server/cmd_tlm_server.txt
 autohotkey/config/tools/data_viewer/data_viewer.txt
 autohotkey/config/tools/handbook_creator/assets/css/bootstrap-theme.css
@@ -110,6 +113,7 @@ autohotkey/config/tools/tlm_grapher/test2.txt
 autohotkey/config/tools/tlm_viewer/tlm_viewer.txt
 autohotkey/config/tools/tlm_viewer/tlm_viewer2.txt
 autohotkey/config/tools/tlm_viewer/tlm_viewer3.txt
+autohotkey/lib/cmd_sequence_exporter.rb
 autohotkey/lib/example_background_task.rb
 autohotkey/lib/user_version.rb
 autohotkey/outputs/handbooks/README.txt
@@ -132,6 +136,7 @@ autohotkey/procedures/syntax_error.rb
 autohotkey/tools/CmdExtractorAHK
 autohotkey/tools/CmdSender
 autohotkey/tools/CmdSenderAHK
+autohotkey/tools/CmdSenderAHK2
 autohotkey/tools/CmdSequence
 autohotkey/tools/CmdSequenceAHK
 autohotkey/tools/CmdSequenceAHK2
@@ -184,6 +189,7 @@ autohotkey/tools/TlmViewerAHK5
 autohotkey/tools/autohotkey.rb
 autohotkey/tools/cmd_extractor.ahk
 autohotkey/tools/cmd_sender.ahk
+autohotkey/tools/cmd_sender2.ahk
 autohotkey/tools/cmd_sequence.ahk
 autohotkey/tools/cmd_sequence2.ahk
 autohotkey/tools/cmd_tlm_server.ahk
@@ -391,6 +397,7 @@ demo/config/targets/INST/cmd_tlm/_ccsds_cmd.txt
 demo/config/targets/INST/cmd_tlm/_ccsds_tlm.txt
 demo/config/targets/INST/cmd_tlm/inst_cmds.txt
 demo/config/targets/INST/cmd_tlm/inst_tlm.txt
+demo/config/targets/INST/cmd_tlm/inst_tlm_override.txt
 demo/config/targets/INST/cmd_tlm_server.txt
 demo/config/targets/INST/cmd_tlm_server2.txt
 demo/config/targets/INST/doc/README.txt
@@ -511,7 +518,6 @@ demo/lib/example_target.rb
 demo/lib/scpi_target.rb
 demo/lib/user_version.rb
 demo/outputs/dart/data/README.txt
-demo/outputs/dart/logs/README.txt
 demo/outputs/handbooks/README.txt
 demo/outputs/logs/README.txt
 demo/outputs/saved_config/README.txt
@@ -917,7 +923,6 @@ lib/cosmos/core_ext/string.rb
 lib/cosmos/core_ext/stringio.rb
 lib/cosmos/core_ext/time.rb
 lib/cosmos/dart/.rspec
-lib/cosmos/dart/Gemfile
 lib/cosmos/dart/Rakefile
 lib/cosmos/dart/app/assets/config/manifest.js
 lib/cosmos/dart/app/assets/images/.keep
@@ -1004,11 +1009,13 @@ lib/cosmos/dart/db/seeds.rb
 lib/cosmos/dart/examples/dart_decom_client.rb
 lib/cosmos/dart/examples/dart_stream_client.rb
 lib/cosmos/dart/lib/dart_common.rb
+lib/cosmos/dart/lib/dart_constants.rb
 lib/cosmos/dart/lib/dart_database_cleaner.rb
 lib/cosmos/dart/lib/dart_decom_query.rb
 lib/cosmos/dart/lib/dart_decommutator.rb
 lib/cosmos/dart/lib/dart_importer.rb
 lib/cosmos/dart/lib/dart_logging.rb
+lib/cosmos/dart/lib/dart_master_query.rb
 lib/cosmos/dart/lib/dart_packet_log_writer.rb
 lib/cosmos/dart/lib/dart_reducer_manager.rb
 lib/cosmos/dart/lib/dart_reducer_worker_thread.rb
@@ -1017,6 +1024,7 @@ lib/cosmos/dart/processes/dart.rb
 lib/cosmos/dart/processes/dart_decom_server.rb
 lib/cosmos/dart/processes/dart_import.rb
 lib/cosmos/dart/processes/dart_ingester.rb
+lib/cosmos/dart/processes/dart_master.rb
 lib/cosmos/dart/processes/dart_reducer.rb
 lib/cosmos/dart/processes/dart_stream_server.rb
 lib/cosmos/dart/processes/dart_util.rb
@@ -1184,6 +1192,7 @@ lib/cosmos/system/system.rb
 lib/cosmos/system/target.rb
 lib/cosmos/tools/cmd_extractor/cmd_extractor.rb
 lib/cosmos/tools/cmd_sender/cmd_param_table_item_delegate.rb
+lib/cosmos/tools/cmd_sender/cmd_params.rb
 lib/cosmos/tools/cmd_sender/cmd_sender.rb
 lib/cosmos/tools/cmd_sender/cmd_sender_text_edit.rb
 lib/cosmos/tools/cmd_sequence/cmd_sequence.rb
@@ -1212,6 +1221,7 @@ lib/cosmos/tools/cmd_tlm_server/router_thread.rb
 lib/cosmos/tools/cmd_tlm_server/routers.rb
 lib/cosmos/tools/config_editor/config_editor.rb
 lib/cosmos/tools/config_editor/config_editor_frame.rb
+lib/cosmos/tools/config_editor/system_config_dialog.rb
 lib/cosmos/tools/data_viewer/data_viewer.rb
 lib/cosmos/tools/data_viewer/data_viewer_component.rb
 lib/cosmos/tools/data_viewer/dump_component.rb
