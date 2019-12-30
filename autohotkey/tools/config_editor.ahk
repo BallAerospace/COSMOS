@@ -1,5 +1,5 @@
 WinWaitActive, Config Editor
-Sleep 1000
+Sleep 20000
 
 Click right 288 62 ; Right click on the tab
 Sleep 500
@@ -14,7 +14,7 @@ Send ^w ; Close
 Send !t ; alt T
 sleep 500
 Send {ENTER} ; Change file type
-
+sleep 1000
 Send ^s ; File Save
 WinWaitActive Save As
 Send {Esc}
@@ -149,13 +149,13 @@ Sleep 1000
 
 Send !a ; alt A
 sleep 500
-Send c ; Create target
+Send t ; Create target
 WinWaitActive Target
 Send {Esc}
 
 Send !a ; alt A
 sleep 500
-Send c ; Create target
+Send t ; Create target
 WinWaitActive Target
 Send AHK_TEST{ENTER}
 Sleep 2000
