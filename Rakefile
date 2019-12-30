@@ -10,6 +10,20 @@
 
 require 'open3'
 
+# Cross-platform way of finding an executable in the $PATH.
+#
+#   which('ruby') #=> /usr/bin/ruby
+def which(cmd)
+  exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
+  ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
+    exts.each { |ext|
+      exe = File.join(path, "#{cmd}#{ext}")
+      return exe if File.executable?(exe) && !File.directory?(exe)
+    }
+  end
+  return nil
+end
+
 # Pure Ruby CRC class to avoid circular dependency with c_cosmos
 class RakeCrc32
   attr_reader :crc32_poly
@@ -285,3 +299,40 @@ end
 
 task :release => [:require_version, :git_checkout_master, :build, :spec, :manifest, :version, :install_crc, :gem]
 task :commit_release => [:commit_release_ticket, :tag_release]
+
+task :docker_build do
+  _, platform, *_ = RUBY_PLATFORM.split("-")
+  if (platform == 'mswin32' or platform == 'mingw32') and which('winpty')
+    system('winpty docker build --tag cosmos-dev .')
+  else
+    system('docker build --tag cosmos-dev .')
+  end
+end
+
+task :docker_run do
+  STDOUT.puts "Note, this is not automated on purpose to ensure each step is successful (with user entry of credentials for github/rubygems.org)"
+  STDOUT.puts "Steps to perform a COSMOS release:"
+  STDOUT.puts "1. git config --global user.name \"First Last\""
+  STDOUT.puts "2. git config --global user.email \"me@ball.com\""
+  STDOUT.puts "3. export VERSION=X.X.X"
+  STDOUT.puts "4. rake release"
+  STDOUT.puts "5. rake commit_release"
+  STDOUT.puts "6. export PATH=/opt/jruby/bin:$PATH"
+  STDOUT.puts "7. rake gem"
+  STDOUT.puts "8. gem push cosmos-X.X.X.gem"
+  STDOUT.puts "9. gem push cosmos-X.X.X-java.gem"
+  STDOUT.puts "10. cd /devel/cosmos-docker"
+  STDOUT.puts "11. Update COSMOS_VERSION in all Dockerfiles"
+  STDOUT.puts "12. git commit -a -m \"Release COSMOS vX.X.X\""
+  STDOUT.puts "13. git push"
+  STDOUT.puts "14. git checkout -b vX.X.X"
+  STDOUT.puts "15. git push --set-upstream origin vX.X.X"
+  STDOUT.puts "16. Update release notes on github.com and cosmosrb.com"
+  
+  _, platform, *_ = RUBY_PLATFORM.split("-")
+  if (platform == 'mswin32' or platform == 'mingw32') and which('winpty')
+    system('winpty docker run -it --rm cosmos-dev')
+  else
+    system('docker run -it --rm cosmos-dev')
+  end  
+end
