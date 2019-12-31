@@ -84,6 +84,8 @@
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
       
+      <option value="/news/2019/12/30/cosmos-4-4-1-released/">Ball Aerospace COSMOS 4.4.1 Released</option>
+      
       <option value="/news/2019/10/21/cosmos-amos/">AMOS 2019</option>
       
       <option value="/news/2019/06/28/cosmos-4-4-0-released/">Ball Aerospace COSMOS 4.4.0 Released</option>
@@ -223,6 +225,87 @@
 
       <div class="unit four-fifths">
         
+  <article>
+  <h2>
+    <a href="/news/2019/12/30/cosmos-4-4-1-released/">
+      Ball Aerospace COSMOS 4.4.1 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      30 Dec 2019
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>Onward to COSMOS 4.4.1!   27 tickets have been incorporated including 6 new features, 13 bug fixes and 8 general maintenance changes.</p>
+
+<p>Mainly a stability bug fix release, but there are a few cool changes.  There is an new keyword for marking that bit overlaps are intentional in packet definition files.  This can get rid of those annoying warnings when you do this intentionally.  There is also a new DELETE_ITEM keyword to get rid of items potentially added by auto generation.   Tlm Extractor and Tlm Grapher can now pull more than 10,000 data points from DART.   Also, there is now the ability to package multiple targets into one gem.</p>
+
+<p>Enjoy and see below for the full list of changes.</p>
+
+<h3 id="new-features">New Features:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/817">#817</a> Allow for intentional bit overlaps in definition</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/821">#821</a> Support DART queries larger than 10000 samples in TlmExtractor / TlmGrapher</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/922">#922</a> DELETE_ITEM</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1028">#1028</a> Support Multiple Targets Packaged into Single Gem</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1040">#1040</a> Config Editor new system config wizard</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1104">#1104</a> Create releases from Docker</li>
+</ul>
+
+<h3 id="maintenance">Maintenance:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1016">#1016</a> Make JSON RPC API Command Methods Case Insensitive</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1030">#1030</a> Scrolling in config editor can cause issues</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1039">#1039</a> Config Editor performance enhancements</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1056">#1056</a> AppVeyer broken</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1074">#1074</a> For BLOCK parameters, suggest 0x0 as default value</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1080">#1080</a> DART stream server docs</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1090">#1090</a> DART Reduction unreliable with file imported data</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1101">#1101</a> Windows 10 Install Error?</li>
+</ul>
+
+<h3 id="bug-fixes">Bug Fixes:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/883">#883</a> DART meta filter not populating</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/944">#944</a> DART data retrievals not per packet_time</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1012">#1012</a> Screens can’t call display when launched with –screen</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1031">#1031</a> Graphing a telemetry member whose name includes brackets fails</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1036">#1036</a> TestRunner: ABORT_TESTING_AFTER_ERROR ignored for test cases added indivually to testsuite</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1037">#1037</a> telemetry#all_item_strings support undeclared target names</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1051">#1051</a> Windows serial port hangs on write</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1061">#1061</a> Excel can’t open a blank worksheet</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1063">#1063</a> Length Protocol does not handle 0 length</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1064">#1064</a> Command Sequence Repeating Write_Conversion</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1081">#1081</a> Ruby Syntax Error Checker Hangs Test Runner</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1087">#1087</a> COSMOS Installation failure in building puma_http11</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1092">#1092</a> Typo in Odd Parity</li>
+</ul>
+
+<h3 id="migration-notes-from-cosmos-430">Migration Notes from COSMOS 4.3.0:</h3>
+
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+
+<p>The faster identification in ticket #911 does come with a potentially breaking change.  The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type).   This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target.  If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.</p>
+
+<p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
+
+  </div>
+</article>
+
+
   <article>
   <h2>
     <a href="/news/2019/10/21/cosmos-amos/">
@@ -4794,6 +4877,10 @@ change the whole playing field of Operations, Integration, and Test”.</p>
     <ul>
       
       <li class="">
+        <a href="/news/2019/12/30/cosmos-4-4-1-released/">Version 4.4.1</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2019/06/28/cosmos-4-4-0-released/">Version 4.4.0</a>
       </li>
       
@@ -4809,16 +4896,14 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <a href="/news/2018/04/17/cosmos-4-2-3-released/">Version 4.2.3</a>
       </li>
       
-      <li class="">
-        <a href="/news/2018/04/11/cosmos-4-2-2-released/">Version 4.2.2</a>
-      </li>
-      
       <li>
         <a href="/docs/history/">History »</a>
       </li>
     </ul>
     <h4>Other News</h4>
     <ul>
+        
+        
         
         
         <li class="">
