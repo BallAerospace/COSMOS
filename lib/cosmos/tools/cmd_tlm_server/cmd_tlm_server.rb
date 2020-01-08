@@ -170,8 +170,8 @@ module Cosmos
       @stop_callback = nil
       @reload_callback = nil
 
-      # Set Threads to kill CTS if they throw an exception
-      Thread.abort_on_exception = true
+      # Set Threads to report if they throw an exception
+      Thread.report_on_exception = true # true is the default option since Ruby 2.5
 
       # Don't start the DRb service or the telemetry monitoring thread
       # if we started the server in disconnect mode
