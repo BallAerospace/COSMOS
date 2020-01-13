@@ -5038,7 +5038,8 @@
           
           <div class="toc">
             <ul class="section-nav">
-<li class="toc-entry toc-h5"><a href="#note-on-naming">Note on Naming</a></li>
+<li class="toc-entry toc-h5"><a href="#threads">Threads</a></li>
+<li class="toc-entry toc-h5"><a href="#naming-conventions">Naming Conventions</a></li>
 <li class="toc-entry toc-h2"><a href="#provided-interfaces">Provided Interfaces</a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#tcpip-client-interface">TCPIP Client Interface</a></li>
@@ -5092,7 +5093,13 @@
 
 <div class="note warning">
   <h5>
-<a class="anchor" href="#note-on-naming" aria-hidden="true"><span class="octicon octicon-link"></span></a>Note on Naming</h5>
+<a class="anchor" href="#threads" aria-hidden="true"><span class="octicon octicon-link"></span></a>Threads</h5>
+  <p>If you create your own interface be very careful with creating Ruby Threads. The COSMOS server has Thread.abort_on_exception = true which means that if any thread in the Server (including interface threads) crash it will crash the entire server. The internal COSMOS implementation of interface threads wraps the various interface methods with begin / rescue blocks to handle potential exceptions. Custom interfaces should do the same.</p>
+</div>
+
+<div class="note warning">
+  <h5>
+<a class="anchor" href="#naming-conventions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Naming Conventions</h5>
   <p>When creating your own interfaces, in most cases they will be subclasses of one of the built-in interfaces described below. It is important to know that both the filename and class name of the interface files must match with correct capitalization or you will receive "class not found" errors when trying to load your new interface. For example, an interface file called labview_interface.rb must contain the class LabviewInterface. If the class was named, LabVIEWInterface, for example, COSMOS would not be able to find the class because of the unexpected capitalization.</p>
 </div>
 
@@ -8482,7 +8489,7 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2019 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2020 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

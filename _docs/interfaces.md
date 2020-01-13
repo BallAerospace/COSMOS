@@ -26,7 +26,12 @@ Interfaces also have the following methods that exist and have default implement
 1. **write_raw** - Send a raw binary string of data to the target. COSMOS implements this method by basically calling write_interface with the raw data.
 
 <div class="note warning">
-  <h5>Note on Naming</h5>
+  <h5>Threads</h5>
+  <p>If you create your own interface be very careful with creating Ruby Threads. The COSMOS server has Thread.abort_on_exception = true which means that if any thread in the Server (including interface threads) crash it will crash the entire server. The internal COSMOS implementation of interface threads wraps the various interface methods with begin / rescue blocks to handle potential exceptions. Custom interfaces should do the same.</p>
+</div>
+
+<div class="note warning">
+  <h5>Naming Conventions</h5>
   <p>When creating your own interfaces, in most cases they will be subclasses of one of the built-in interfaces described below. It is important to know that both the filename and class name of the interface files must match with correct capitalization or you will receive "class not found" errors when trying to load your new interface. For example, an interface file called labview_interface.rb must contain the class LabviewInterface. If the class was named, LabVIEWInterface, for example, COSMOS would not be able to find the class because of the unexpected capitalization.</p>
 </div>
 
