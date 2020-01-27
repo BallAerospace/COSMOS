@@ -505,22 +505,6 @@ VERTICAL 3 FALSE
 END
 {% endhighlight %}
 
-### STRETCH
-The STRETCH widget inserts stretch into a layout. Stretch expands to the end of the layout to help align other widgets in the layout.
-
-| Parameter | Description | Required |
-|-----------|-------------|----------|
-| Stretch Factor | Multiple stretch items can expand at different rates. By default stretch is added with value 1 but stretch is allocated according to the stretch factor.  | Yes |
-
-Example Usage:
-{% highlight bash %}
-VERTICAL 3 FALSE
-  LABEL "Stretch below"
-  STRETCH
-  LABEL "Stretch above"
-END
-{% endhighlight %}
-
 ## Telemetry widgets
 Telemetry widgets are used to display telemetry values. The first parameters to each of these widgets is a telemetry mnemonic. Depending on the type and purpose of the telemetry item, the screen designer may select from a wide selection of widgets to display the value in the most useful format. They are listed here in alphabetical order.
 

@@ -5090,7 +5090,6 @@
 <li class="toc-entry toc-h3"><a href="#sectionheader">SECTIONHEADER</a></li>
 <li class="toc-entry toc-h3"><a href="#title">TITLE</a></li>
 <li class="toc-entry toc-h3"><a href="#spacer">SPACER</a></li>
-<li class="toc-entry toc-h3"><a href="#stretch">STRETCH</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#telemetry-widgets">Telemetry widgets</a>
@@ -6132,35 +6131,6 @@ LABEL <span class="s2">"Label"</span></code></pre></figure>
   LABEL <span class="s2">"Spacer below"</span>
   SPACER 0 100 MINIMUM EXPANDING
   LABEL <span class="s2">"Spacer above"</span>
-END</code></pre></figure>
-
-<h3 id="stretch">
-<a class="anchor" href="#stretch" aria-hidden="true"><span class="octicon octicon-link"></span></a>STRETCH</h3>
-<p>The STRETCH widget inserts stretch into a layout. Stretch expands to the end of the layout to help align other widgets in the layout.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Stretch Factor</td>
-      <td>Multiple stretch items can expand at different rates. By default stretch is added with value 1 but stretch is allocated according to the stretch factor.</td>
-      <td>Yes</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">VERTICAL 3 FALSE
-  LABEL <span class="s2">"Stretch below"</span>
-  STRETCH
-  LABEL <span class="s2">"Stretch above"</span>
 END</code></pre></figure>
 
 <h2 id="telemetry-widgets">
