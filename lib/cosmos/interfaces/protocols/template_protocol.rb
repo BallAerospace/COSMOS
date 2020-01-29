@@ -146,13 +146,13 @@ module Cosmos
         # Write the packet value with each of the values received
         response_values = response_string.scan(response_regexp)[0]
         if !response_values || (response_values.length != response_item_names.length)
-          handle_error("#{@interface.name}: Unexpected response: #{response_string}")
+          handle_error("#{@interface ? @interface.name : ""}: Unexpected response: #{response_string}")
         else
           response_values.each_with_index do |value, i|
             begin
               result_packet.write(response_item_names[i], value)
             rescue => error
-              handle_error("#{@interface.name}: Could not write value #{value} due to #{error.message}")
+              handle_error("#{@interface ? @interface.name : ""}: Could not write value #{value} due to #{error.message}")
               break
             end
           end
@@ -234,7 +234,7 @@ module Cosmos
           sleep(@response_polling_period)
           retry if !response_timeout_time
           retry if response_timeout_time and Time.now < response_timeout_time
-          handle_error("#{@interface.name}: Timeout waiting for response")
+          handle_error("#{@interface ? @interface.name : ""}: Timeout waiting for response")
         end
 
         @response_template = nil
