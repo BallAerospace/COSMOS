@@ -140,7 +140,7 @@ module Cosmos
       crc = BinaryAccessor.read(@bit_offset, @bit_size, :UINT, data, @endianness)
       calculated_crc = @crc.calc(data[0...(@bit_offset / 8)])
       if calculated_crc != crc
-        Logger.error "Invalid CRC detected! Calculated 0x#{calculated_crc.to_s(16).upcase} vs found 0x#{crc.to_s(16).upcase}."
+        Logger.error "#{@interface ? @interface.name : ""}: Invalid CRC detected! Calculated 0x#{calculated_crc.to_s(16).upcase} vs found 0x#{crc.to_s(16).upcase}."
         if @bad_strategy == DISCONNECT
           return :DISCONNECT
         end

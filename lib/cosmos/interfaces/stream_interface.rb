@@ -49,7 +49,7 @@ module Cosmos
       begin
         data = @stream.read
       rescue Timeout::Error
-        Logger.instance.error "Timeout waiting for data to be read"
+        Logger.instance.error "#{@name}: Timeout waiting for data to be read"
         data = nil
       end
       return nil if data.nil? or data.length <= 0

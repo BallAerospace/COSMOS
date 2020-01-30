@@ -179,7 +179,7 @@ module Cosmos
         it "warns if an error code is set" do
           allow_any_instance_of(TcpipClientStream).to receive(:read).and_return @handshake.buffer(false)
           expect(Logger).to receive(:warn) do |msg|
-            expect(msg).to eql "Warning sending command (12345): BAD"
+            expect(msg).to eql "LincInterface: Warning sending command (12345): BAD"
           end
           t = Thread.new do
             sleep 0.1
