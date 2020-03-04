@@ -156,7 +156,7 @@ module Cosmos
             msg << "PDF Handbooks created successfully"
             progress_dialog.append_text(msg)
           else
-            progress_dialog.append_text("\nPDF Handbooks could not be created.\n\nIs wkhtmltopdf in your PATH and are all existing pdfs closed?\n\nUsing version 0.11.0_rc1 of wkhtmltox is recommended which can be found at: http://download.gna.org/wkhtmltopdf/obsolete/\n\nVersion 0.12.x has shown issues with Handbook Creator's default templates.")
+            progress_dialog.append_text("\nPDF Handbooks could not be created.\n\nIs wkhtmltopdf in your PATH and are all existing pdfs closed?\n\nwkhtmltopdf can be found at: https://wkhtmltopdf.org/downloads.html.")
           end
         rescue => error
           progress_dialog.append_text("\n\nError processing:\n#{error.formatted}")
