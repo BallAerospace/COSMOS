@@ -23,7 +23,9 @@ module Cosmos
       plw = PacketLogWriter.new(:CMD,nil,true,nil,10000000,nil,false)
       @cmd_packets = []
       pkt = System.commands.packet("SYSTEM","STARTLOGGING").clone
-      @time = Time.now
+      # Avoid precision errors by rounding to nearest second and then add 1 to ensure
+      # the time is AFTER the initial META packet with the current time
+      @time = Time.now.round + 1
       pkt.received_time = @time
       pkt.write('label','PKT1')
       plw.write(pkt)
