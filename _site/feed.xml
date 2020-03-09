@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Mon, 09 Mar 2020 13:33:25 -0600</pubDate>
-    <lastBuildDate>Mon, 09 Mar 2020 13:33:25 -0600</lastBuildDate>
+    <pubDate>Mon, 09 Mar 2020 13:39:11 -0600</pubDate>
+    <lastBuildDate>Mon, 09 Mar 2020 13:39:11 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.8.5</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,46 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 4.4.2 Released</title>
+      <link>http://cosmosrb.com/news/2020/03/09/cosmos-4-4-2-released/</link>
+      <pubDate>Mon, 09 Mar 2020 07:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2020/03/09/cosmos-4-4-2-released/</guid>
+      <description>&lt;p&gt;COSMOS 4.4.2!   A minor bug fix release.&lt;/p&gt;
+
+&lt;p&gt;Enjoy and see below for the full list of changes.&lt;/p&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;p&gt;None&lt;/p&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1117&quot;&gt;#1117&lt;/a&gt; Include name in TcpipServerInteface log messages&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1128&quot;&gt;#1128&lt;/a&gt; wkhtmltopdf has old comment&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1126&quot;&gt;#1126&lt;/a&gt; Packets with identically named items fail checks&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-430&quot;&gt;Migration Notes from COSMOS 4.3.0:&lt;/h3&gt;
+
+&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
+
+&lt;p&gt;The faster identification in ticket #911 does come with a potentially breaking change.  The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type).   This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target.  If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.&lt;/p&gt;
+
+&lt;p&gt;See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Ball Aerospace COSMOS 4.4.1 Released</title>
@@ -270,46 +310,6 @@ end
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;If you have a question, find a bug, or want a feature please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Ball Aerospace COSMOS 4.4.2 Released</title>
-      <link>http://cosmosrb.com/news/2019/03/09/cosmos-4-4-2-released/</link>
-      <pubDate>Sat, 09 Mar 2019 06:00:00 -0700</pubDate>
-      <dc:creator>ryanmelt</dc:creator>
-      
-      
-      <category>release</category>
-      
-      <guid isPermaLink="true">http://cosmosrb.com/news/2019/03/09/cosmos-4-4-2-released/</guid>
-      <description>&lt;p&gt;COSMOS 4.4.2!   A minor bug fix release.&lt;/p&gt;
-
-&lt;p&gt;Enjoy and see below for the full list of changes.&lt;/p&gt;
-
-&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
-
-&lt;p&gt;None&lt;/p&gt;
-
-&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1117&quot;&gt;#1117&lt;/a&gt; Include name in TcpipServerInteface log messages&lt;/li&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1128&quot;&gt;#1128&lt;/a&gt; wkhtmltopdf has old comment&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1126&quot;&gt;#1126&lt;/a&gt; Packets with identically named items fail checks&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&quot;migration-notes-from-cosmos-430&quot;&gt;Migration Notes from COSMOS 4.3.0:&lt;/h3&gt;
-
-&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
-
-&lt;p&gt;The faster identification in ticket #911 does come with a potentially breaking change.  The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type).   This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target.  If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.&lt;/p&gt;
-
-&lt;p&gt;See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/&lt;/p&gt;
 </description>
     </item>
     
