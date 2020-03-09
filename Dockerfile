@@ -49,16 +49,20 @@ RUN cd /opt \
   && tar xvf jruby.tar.gz \
   && mv jruby-9.2.9.0 jruby
 
+ARG COSMOS_REPO=https://github.com/BallAerospace/COSMOS.git
+
 # Download and setup COSMOS devel area
 RUN gem install bundler --no-document
 RUN cd /devel \
-  && git clone https://github.com/BallAerospace/COSMOS.git \
+  && git clone ${COSMOS_REPO} COSMOS \
   && cd /devel/COSMOS \
   && bundle install
 
+ARG COSMOS_DOCKER_REPO=https://github.com/BallAerospace/cosmos-docker.git
+
 # Download COSMOS docker files to support docker release
 RUN cd /devel \
-  && git clone https://github.com/BallAerospace/cosmos-docker.git
+  && git clone ${COSMOS_DOCKER_REPO}
   
 ENV COSMOS_DEVEL /devel/COSMOS
 WORKDIR /devel/COSMOS

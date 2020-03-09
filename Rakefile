@@ -312,7 +312,7 @@ end
 task :docker_run do
   STDOUT.puts "Note, this is not automated on purpose to ensure each step is successful (with user entry of credentials for github/rubygems.org)"
   STDOUT.puts "Steps to perform a COSMOS release:"
-  STDOUT.puts "1. git config --global user.name \"First Last\""
+  STDOUT.puts "1. git config --global user.name \"Last, First\""
   STDOUT.puts "2. git config --global user.email \"me@ball.com\""
   STDOUT.puts "3. git pull"
   STDOUT.puts "4. export VERSION=X.X.X"
@@ -324,17 +324,12 @@ task :docker_run do
   STDOUT.puts "10. /usr/bin/gem push cosmos-X.X.X-java.gem"
   STDOUT.puts "11. cd /devel/cosmos-docker"
   STDOUT.puts "12. git pull"
-  STDOUT.puts "13. Update COSMOS_VERSION in all Dockerfiles"
+  STDOUT.puts "13. Update COSMOS_VERSION in all Dockerfiles. Also update README.md"
   STDOUT.puts "14. git commit -a -m \"Release COSMOS vX.X.X\""
   STDOUT.puts "15. git push"
   STDOUT.puts "16. git checkout -b vX.X.X"
   STDOUT.puts "17. git push --set-upstream origin vX.X.X"
   STDOUT.puts "18. Update release notes on github.com and cosmosrb.com"
   
-  _, platform, *_ = RUBY_PLATFORM.split("-")
-  if (platform == 'mswin32' or platform == 'mingw32') and which('winpty')
-    system('winpty docker run -it --rm cosmos-dev')
-  else
-    system('docker run -it --rm cosmos-dev')
-  end  
+  system('docker run -it --rm cosmos-dev')
 end
