@@ -1,7 +1,7 @@
 ---
 layout: news_item
 title: 'Ball Aerospace COSMOS 4.4.2 Released'
-date: 2019-03-09 6:00:00 -0700
+date: 2020-03-09 6:00:00 -0700
 author: ryanmelt
 version: 4.4.2
 categories: [release]
