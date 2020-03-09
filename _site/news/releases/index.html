@@ -92,6 +92,8 @@
       
       <option value="/news/2019/06/05/protocols/">Protocols</option>
       
+      <option value="/news/2019/03/09/cosmos-4-4-2-released/">Ball Aerospace COSMOS 4.4.2 Released</option>
+      
       <option value="/news/2018/12/24/little-endian/">Little Endian Packet Data</option>
       
       <option value="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</option>
@@ -407,6 +409,59 @@
 <h3 id="migration-notes-from-cosmos-430">Migration Notes from COSMOS 4.3.0:</h3>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+
+<p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
+
+  </div>
+</article>
+
+
+  <article>
+  <h2>
+    <a href="/news/2019/03/09/cosmos-4-4-2-released/">
+      Ball Aerospace COSMOS 4.4.2 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      09 Mar 2019
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>COSMOS 4.4.2!   A minor bug fix release.</p>
+
+<p>Enjoy and see below for the full list of changes.</p>
+
+<h3 id="new-features">New Features:</h3>
+
+<p>None</p>
+
+<h3 id="maintenance">Maintenance:</h3>
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1117">#1117</a> Include name in TcpipServerInteface log messages</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1128">#1128</a> wkhtmltopdf has old comment</li>
+</ul>
+
+<h3 id="bug-fixes">Bug Fixes:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1126">#1126</a> Packets with identically named items fail checks</li>
+</ul>
+
+<h3 id="migration-notes-from-cosmos-430">Migration Notes from COSMOS 4.3.0:</h3>
+
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+
+<p>The faster identification in ticket #911 does come with a potentially breaking change.  The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type).   This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target.  If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.</p>
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
 
@@ -2411,15 +2466,15 @@ change the whole playing field of Operations, Integration, and Test”.</p>
       </li>
       
       <li class="">
+        <a href="/news/2019/03/09/cosmos-4-4-2-released/">Version 4.4.2</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2018/08/30/cosmos-4-3-0-released/">Version 4.3.0</a>
       </li>
       
       <li class="">
         <a href="/news/2018/05/16/cosmos-4-2-4-released/">Version 4.2.4</a>
-      </li>
-      
-      <li class="">
-        <a href="/news/2018/04/17/cosmos-4-2-3-released/">Version 4.2.3</a>
       </li>
       
       <li>
@@ -2443,6 +2498,8 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <li class="">
           <a href="/news/2019/06/05/protocols/">Protocols</a>
         </li>
+        
+        
         
         
         
