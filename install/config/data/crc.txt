@@ -4,7 +4,7 @@
 "config/tools/launcher/launcher.txt" 0x6A3047DB
 "config/tools/tlm_extractor/README.txt" 0x93B2C07E
 "config/tools/tlm_viewer/tlm_viewer.txt" 0xD9071527
-"config/tools/handbook_creator/default_toc.xsl" 0x4122A040
+"config/tools/handbook_creator/default_toc.xsl" 0x00FD130E
 "config/tools/handbook_creator/templates/command_toc.html.erb" 0x9159BCF9
 "config/tools/handbook_creator/templates/title.html.erb" 0xBC66E2BC
 "config/tools/handbook_creator/templates/footer.html.erb" 0x0E1F9800
