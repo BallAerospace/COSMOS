@@ -4,7 +4,7 @@ title: Release History
 permalink: "/docs/history/"
 ---
 
-## 4.4.2 / 2019-03-09
+## 4.4.2 / 2020-03-09
 {: #v4-4-2}
 
 COSMOS 4.4.2!   A minor bug fix release.
