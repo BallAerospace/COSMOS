@@ -20,6 +20,7 @@ require 'drb/acl'
 require 'zip'
 require 'zip/filesystem'
 require 'bundler'
+require 'thread'
 
 module Cosmos
   # System is the primary entry point into the COSMOS framework. It captures
@@ -29,7 +30,7 @@ module Cosmos
   # #targets variable provides access to all the targets defined by the system.
   # Its primary responsibily is to load the system configuration file and
   # create all the Target instances. It also saves and restores configurations
-  # using a MD5 checksum over the entire configuration to detect changes.
+  # using a hashing checksum over the entire configuration to detect changes.
   class System
     # @return [Hash<String,Fixnum>] Hash of all the known ports and their values
     instance_attr_reader :ports
@@ -67,19 +68,23 @@ module Cosmos
     instance_attr_reader :limits_set
     # @return [Boolean] Whether to use UTC or local times
     instance_attr_reader :use_utc
-    # @return [Array<String>] List of files that are to be included in the MD5
+    # @return [Array<String>] List of files that are to be included in the hashing
     #   calculation in addition to the cmd/tlm definition files that are
     #   automatically included
-    instance_attr_reader :additional_md5_files
+    instance_attr_reader :additional_hashing_files
     # @return [Hash<String,String>] Hash of the text/color to use for the classificaiton banner
     instance_attr_reader :classificiation_banner
+    # @return [String] Which hashing algorithm is in use
+    instance_attr_reader :hashing_algorithm
 
     # Known COSMOS ports
-    KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM']
+    KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM', 'DART_MASTER']
     # Known COSMOS hosts
-    KNOWN_HOSTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM']
+    KNOWN_HOSTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM', 'DART_MASTER']
     # Known COSMOS paths
     KNOWN_PATHS = ['LOGS', 'TMP', 'SAVED_CONFIG', 'TABLES', 'HANDBOOKS', 'PROCEDURES', 'SEQUENCES', 'DART_DATA', 'DART_LOGS']
+    # Supported hashing algorithms
+    SUPPORTED_HASHING_ALGORITHMS = ['MD5', 'RMD160', 'SHA1', 'SHA256', 'SHA384', 'SHA512']
 
     @@instance = nil
     @@instance_mutex = Mutex.new
@@ -191,11 +196,12 @@ module Cosmos
       @targets = {}
       # Set config to nil so things will lazy load later
       @config = nil
+      @meta_init_filename = nil
       @use_utc = false
       acl_list = []
       all_allowed = false
       first_procedures_path = true
-      @additional_md5_files = []
+      @additional_hashing_files = []
 
       Cosmos.set_working_dir do
         parser = ConfigParser.new("http://cosmosrb.com/docs/system")
@@ -203,7 +209,7 @@ module Cosmos
         # First pass - Everything except targets
         parser.parse_file(filename) do |keyword, parameters|
           case keyword
-          when 'AUTO_DECLARE_TARGETS', 'DECLARE_TARGET', 'DECLARE_GEM_TARGET'
+          when 'AUTO_DECLARE_TARGETS', 'DECLARE_TARGET', 'DECLARE_GEM_TARGET', 'DECLARE_GEM_MULTI_TARGET'
             # Will be handled by second pass
 
           when 'PORT'
@@ -329,14 +335,23 @@ module Cosmos
             parser.verify_num_parameters(0, 0, "#{keyword}")
             @use_utc = true
 
-          when 'ADD_MD5_FILE'
+          when 'ADD_HASH_FILE', 'ADD_MD5_FILE' # MD5 is here for backwards compatibility
             parser.verify_num_parameters(1, 1, "#{keyword} <Filename>")
             if File.file?(parameters[0])
-              @additional_md5_files << File.expand_path(parameters[0])
+              @additional_hashing_files << File.expand_path(parameters[0])
             elsif File.file?(File.join(Cosmos::USERPATH, parameters[0]))
-              @additional_md5_files << File.expand_path(File.join(Cosmos::USERPATH, parameters[0]))
+              @additional_hashing_files << File.expand_path(File.join(Cosmos::USERPATH, parameters[0]))
             else
               raise "Missing expected file: #{parameters[0]}"
+            end
+
+          when 'HASHING_ALGORITHM'
+            parser.verify_num_parameters(1, 1, "#{keyword} <Hashing Algorithm>")
+            if SUPPORTED_HASHING_ALGORITHMS.include? parameters[0]
+              @hashing_algorithm = parameters[0]
+            else
+              Logger.error "Unrecognized hashing algorithm: #{parameters[0]}, using default algorithm MD5"
+              @hashing_algorithm = 'MD5'
             end
 
           when 'CLASSIFICATION'
@@ -413,12 +428,7 @@ module Cosmos
               end
             end
           end
-
           auto_detect_gem_based_targets()
-
-          # Make sure SYSTEM target is always present and added last
-          target = Target.new('SYSTEM')
-          @targets[target.name] = target
 
         when 'DECLARE_TARGET'
           usage = "#{keyword} <TARGET NAME> <SUBSTITUTE TARGET NAME (Optional)> <TARGET FILENAME (Optional - defaults to target.txt)>"
@@ -450,60 +460,96 @@ module Cosmos
           target = Target.new(target_name, substitute_name, configuration_directory, ConfigParser.handle_nil(parameters[2]), gem_dir)
           @targets[target.name] = target
 
+        when 'DECLARE_GEM_MULTI_TARGET'
+          usage = "#{keyword} <GEM NAME> <TARGET NAME> <SUBSTITUTE TARGET NAME (Optional)> <TARGET FILENAME (Optional - defaults to target.txt)>"
+          parser.verify_num_parameters(2, 4, usage)
+
+          target_name = parameters[1].to_s.upcase
+          substitute_name = nil
+          substitute_name = ConfigParser.handle_nil(parameters[2])
+          substitute_name.to_s.upcase if substitute_name
+          gem_dir = Gem::Specification.find_by_name(parameters[0]).gem_dir
+          gem_dir = File.join(gem_dir, target_name)
+          target = Target.new(target_name, substitute_name, configuration_directory, ConfigParser.handle_nil(parameters[3]), gem_dir)
+          @targets[target.name] = target
+
         end # case keyword
       end # parser.parse_file
+
+      # Make sure SYSTEM target is always present and added last
+      unless @targets.key?('SYSTEM')
+        target = Target.new('SYSTEM')
+        @targets[target.name] = target
+      end
     end
 
     # Load the specified configuration by iterating through the SAVED_CONFIG
-    # directory looking for a matching MD5 sum. Updates the internal state so
+    # directory looking for a matching hashing sum. Updates the internal state so
     # subsequent commands and telemetry methods return the new configuration.
     #
-    # @param name [String] MD5 string which identifies the
+    # @param name [String] hash string which identifies the
     #   configuration. Pass nil to load the default configuration.
     # @return [String, Exception/nil] The actual configuration loaded
     def load_configuration(name = nil)
-      unless @config
-        # Ensure packets have been lazy loaded
-        System.commands
-      end
+      # Ensure packets have been lazy loaded
+      load_packets() unless @config
 
-      if name && @config
-        # Make sure they're requesting something other than the current
-        # configuration.
-        if name != @config.name
-          # If they want the initial configuration we can just swap out the
-          # current configuration without doing any file processing
-          if name == @initial_config.name
-            update_config(@initial_config)
-          else
-            # Look for the requested configuration in the saved configurations
-            configuration = find_configuration(name)
-            if configuration
-              # We found the configuration requested. Reprocess the system.txt
-              # and reload the packets
-              begin
-                unless File.directory?(configuration)
-                  # Zip file configuration so unzip and reset configuration path
-                  configuration = unzip(configuration)
-                end
-                process_file(File.join(configuration, 'system.txt'), configuration)
-                load_packets(name)
-              rescue Exception => error
-                # Failed to load - Restore initial
-                update_config(@initial_config)
-                return @config.name, error
-              end
-            else
-              # We couldn't find the configuration request. Reload the
-              # initial configuration
+      @@instance_mutex.synchronize do
+        if @config_blacklist[name]
+          Logger.warn "Ignoring failed config #{name}"
+          update_config(@initial_config)
+          return @config.name, RuntimeError.new("Ignoring failed config #{name}")
+        end
+
+        if name && @config
+          # Make sure they're requesting something other than the current
+          # configuration.
+          if name != @config.name
+            # If they want the initial configuration we can just swap out the
+            # current configuration without doing any file processing
+            if name == @initial_config.name
+              Logger.info "Switching to initial configuration: #{name}"
               update_config(@initial_config)
+            else
+              # Look for the requested configuration in the saved configurations
+              configuration = find_configuration(name)
+              if configuration
+                # We found the configuration requested. Reprocess the system.txt
+                # and reload the packets
+                begin
+                  unless File.directory?(configuration)
+                    # Zip file configuration so unzip and reset configuration path
+                    configuration = unzip(configuration)
+                  end
+                  
+                  Logger.info "Switching to configuration: #{name}"
+                  process_file(File.join(configuration, 'system.txt'), configuration)
+                  load_packets(name, false)
+                rescue Exception => error
+                  # Failed to load - Restore initial
+                  @config_blacklist[name] = true # Prevent wasting time trying to load the bad configuration again
+                  Logger.error "Problem loading configuration from #{configuration}: #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n"
+                  Logger.info "Switching to initial configuration: #{@initial_config.name}"
+                  update_config(@initial_config)
+                  return @config.name, error
+                end
+              else
+                # We couldn't find the configuration request. Reload the
+                # initial configuration
+                Logger.error "Unable to find configuration: #{name}"
+                Logger.info "Switching to initial configuration: #{@initial_config.name}"
+                update_config(@initial_config)
+                return @config.name, RuntimeError.new("Unable to find configuration: #{name}")
+              end
             end
           end
+        else
+          Logger.info "Switching to initial configuration: #{@initial_config.name}"
+          update_config(@initial_config)
         end
-      else
-        update_config(@initial_config)
+        
+        return @config.name, nil
       end
-      return @config.name, nil
     end
 
     # (see #load_configuration)
@@ -516,7 +562,6 @@ module Cosmos
     # @param filename [String] Path to system.txt config file to process. Defaults to config/system/system.txt
     def reset_variables(filename = nil)
       @targets = {}
-      @targets['UNKNOWN'] = Target.new('UNKNOWN')
       @config = nil
       @commands = nil
       @telemetry = nil
@@ -531,8 +576,9 @@ module Cosmos
       @staleness_seconds = 30
       @limits_set = :DEFAULT
       @use_utc = false
-      @additional_md5_files = []
+      @additional_hashing_files = []
       @meta_init_filename = nil
+      @hashing_algorithm = 'MD5'
 
       @ports = {}
       @ports['CTS_API'] = 7777
@@ -542,8 +588,10 @@ module Cosmos
       @ports['REPLAY_API'] = 7877
       @ports['REPLAY_PREIDENTIFIED'] = 7879
       @ports['REPLAY_CMD_ROUTER'] = 7880
-      @ports['DART_DECOM'] = 8777
-      @ports['DART_STREAM'] = 8779
+
+      @ports['DART_STREAM'] = 8777
+      @ports['DART_DECOM'] = 8779
+      @ports['DART_MASTER'] = 8780
 
       @listen_hosts = {}
       @listen_hosts['CTS_API'] = '127.0.0.1'
@@ -557,6 +605,7 @@ module Cosmos
       @listen_hosts['REPLAY_CMD_ROUTER'] = '0.0.0.0'
       @listen_hosts['DART_STREAM'] = '0.0.0.0'
       @listen_hosts['DART_DECOM'] = '0.0.0.0'
+      @listen_hosts['DART_MASTER'] = '0.0.0.0'
 
       @connect_hosts = {}
       @connect_hosts['CTS_API'] = '127.0.0.1'
@@ -568,6 +617,7 @@ module Cosmos
       @connect_hosts['REPLAY_CMD_ROUTER'] = '127.0.0.1'
       @connect_hosts['DART_STREAM'] = '127.0.0.1'
       @connect_hosts['DART_DECOM'] = '127.0.0.1'
+      @connect_hosts['DART_MASTER'] = '127.0.0.1'
 
       @paths = {}
       @paths['LOGS'] = File.join(USERPATH, 'outputs', 'logs')
@@ -596,6 +646,7 @@ module Cosmos
 
       @initial_filename = filename
       @initial_config = nil
+      @config_blacklist = {}
     end
 
     # Reset variables and load packets
@@ -674,11 +725,31 @@ module Cosmos
       Bundler.load.specs.each do |spec|
         spec_name_split = spec.name.split('-')
         if spec_name_split.length > 1 && (spec_name_split[0] == 'cosmos')
-          # Filter to just targets and not tools and other extensions
-          if File.exist?(File.join(spec.gem_dir, 'cmd_tlm'))
-            target_name = spec_name_split[1..-1].join('-').to_s.upcase
-            target = Target.new(target_name, nil, nil, nil, spec.gem_dir)
-            @targets[target.name] = target
+          # search for multiple targets packaged in a single gem
+          dirs = []
+          Dir.foreach(spec.gem_dir) { |dir_filename| dirs << dir_filename }
+          dirs.sort!
+          dirs.each do |dir_filename|
+            if dir_filename == "."
+              # check the base directory
+              curr_dir = spec.gem_dir
+              target_name = spec_name_split[1..-1].join('-').to_s.upcase
+            else
+              #check for targets in other directories 1 level deep
+              next if dir_filename[0] == '.'               #skip dot directories and ".."
+              next if dir_filename != dir_filename.upcase  #skip non uppercase directories
+              curr_dir = File.join(spec.gem_dir, dir_filename)
+              target_name = dir_filename
+            end
+            # check for the cmd_tlm directory - if it has it, then we have found a target
+            if File.directory?(File.join(curr_dir,'cmd_tlm'))
+              # If any of the targets original directory name matches the
+              # current directory then it must have been already processed by
+              # DECLARE_TARGET so we skip it.
+              next if @targets.select {|name, target| target.original_name == target_name }.length > 0
+              target = Target.new(target_name,nil, nil, nil, spec.gem_dir)
+              @targets[target.name] = target
+           end
           end
         end
       end
@@ -707,9 +778,10 @@ module Cosmos
         configuration = find_configuration(@config.name)
         configuration = File.join(@paths['SAVED_CONFIG'], File.build_timestamped_filename([@config.name], '.zip')) unless configuration
         unless File.exist?(configuration)
+          configuration_tmp = File.join(@paths['SAVED_CONFIG'], File.build_timestamped_filename(['tmp_' + @config.name], '.zip.tmp'))
           begin
             Zip.continue_on_exists_proc = true
-            Zip::File.open(configuration, Zip::File::CREATE) do |zipfile|
+            Zip::File.open(configuration_tmp, Zip::File::CREATE) do |zipfile|
               zip_file_path = File.basename(configuration, ".zip")
               zipfile.mkdir zip_file_path
 
@@ -741,6 +813,7 @@ module Cosmos
                 end
               end
             end
+            File.rename(configuration_tmp, configuration)
             File.chmod(0444, configuration) # Mark readonly
           rescue Exception => error
             Logger.error "Problem saving configuration to #{configuration}: #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n"
@@ -749,12 +822,13 @@ module Cosmos
       end
     end
 
-    def load_packets(configuration_name = nil)
-      # Determine MD5 over all targets cmd_tlm files
+    def load_packets_internal(configuration_name = nil)
+      # Determine hashing over all targets cmd_tlm files
       cmd_tlm_files = []
       additional_data = ''
       @targets.each do |target_name, target|
         cmd_tlm_files << target.filename if File.exist?(target.filename)
+        cmd_tlm_files.concat(target.requires)
         cmd_tlm_files.concat(target.cmd_tlm_files)
         if target.substitute
           additional_data << target.original_name
@@ -764,11 +838,13 @@ module Cosmos
         end
       end
 
-      md5 = Cosmos.md5_files(cmd_tlm_files + @additional_md5_files, additional_data)
-      md5_string = md5.hexdigest
+      hashing_result = Cosmos.hash_files(cmd_tlm_files + @additional_hashing_files, additional_data, @hashing_algorithm)
+      hash_string = hashing_result.hexdigest
+      # Only use at most, 32 characters of the hex
+      hash_string = hash_string[-32..-1] if hash_string.length >= 32
 
       # Build filename for marshal file
-      marshal_filename = File.join(@paths['TMP'], 'marshal_' << md5_string << '.bin')
+      marshal_filename = File.join(@paths['TMP'], 'marshal_' << hash_string << '.bin')
 
       # Attempt to load marshal file
       config = Cosmos.marshal_load(marshal_filename)
@@ -801,7 +877,7 @@ module Cosmos
         if configuration_name
           @config.name = configuration_name
         else
-          @config.name = md5_string
+          @config.name = hash_string
         end
 
         Cosmos.marshal_dump(marshal_filename, @config)
@@ -810,6 +886,16 @@ module Cosmos
 
       @initial_config = @config unless @initial_config
       save_configuration()
+    end
+
+    def load_packets(configuration_name = nil, take_mutex = true)
+      if take_mutex
+        @@instance_mutex.synchronize do
+          load_packets_internal(configuration_name)
+        end
+      else
+        load_packets_internal(configuration_name)
+      end
     end
 
     def setup_system_meta

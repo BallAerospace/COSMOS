@@ -12,7 +12,7 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/layout_widget'
 
 module Cosmos
-
+  # Layout widget used within the TABBOOK widget to create tabs
   class TabitemWidget < Qt::VBoxLayout
     include Widget
     include LayoutWidget
@@ -24,5 +24,4 @@ module Cosmos
       parent_layout.addTab(w, text.to_s) if parent_layout
     end
   end
-
-end # module Cosmos
+end

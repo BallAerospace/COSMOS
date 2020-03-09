@@ -1,15 +1,10 @@
 ---
 <%= MetaConfigParser.load('script_runner.yaml').to_meta_config_yaml(0) %>
-REQUIRE_UTILITY:
-  summary: Specify a test procedure to run
+LOAD_UTILITY:
+  summary: Specify a test procedure to load into Test Runner
   description: Procedures will be found automatically in the procedures directory
     or can be given by a path relative to the COSMOS install directory or by an
-    absolute path. This keyword is used to load the script and execute it line
-    by line by showing the current execution point. Sometimes you want to load
-    utility code that is NOT executed line by line but is executed in the background.
-    For example, a CRC routine or other long running calculation. The Ruby keyword
-    'load' can be used for this purpose, e.g. 'load utility.rb'. This code will
-    be loaded but not shown when executing.
+    absolute path.
   parameters:
     - name: Filename
       required: true
@@ -114,3 +109,11 @@ AUTO_CYCLE_LOGS:
     beginning and end of each test. Typically used in combination with CREATE_DATA_PACKAGE.
 COLLECT_METADATA:
   summary: Prompt for Meta Data before starting tests
+DISABLE_TEST_SUITE_START:
+  summary: Disable the Test Suite Start button to prevent all tests in the Suite from running.
+    This is a useful option if you're simply using Suites and Groups to organize test cases but
+    do not want a user to accidentally run them all.
+DISABLE_TEST_GROUP_START:
+  summary: Disable the Test Group Start button to prevent all tests in the Group from running.
+    This is a useful option if you're simply using Suites and Groups to organize test cases but
+    do not want a user to accidentally run them all.

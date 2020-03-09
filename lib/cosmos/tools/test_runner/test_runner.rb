@@ -652,7 +652,7 @@ module Cosmos
       ScriptRunnerFrame.instance = @script_runner_frame
       build = false
       @utilities.each do |utility|
-        if require_utility(utility)
+        if load_utility(utility)
           build = true
         end
       end
@@ -995,10 +995,11 @@ module Cosmos
       parser = ConfigParser.new("http://cosmosrb.com/docs/tools/#test-runner-configuration")
       parser.parse_file(filename) do |keyword, params|
         case keyword
-        when 'REQUIRE_UTILITY'
-          parser.verify_num_parameters(1, 1, "REQUIRE_UTILITY <filename>")
+        # REQUIRE_UTILITY was deprecated > 4.3.0 but left for compatibility purposes
+        when 'LOAD_UTILITY', 'REQUIRE_UTILITY'
+          parser.verify_num_parameters(1, 1, "LOAD_UTILITY <filename>")
           begin
-            require_utility params[0]
+            load_utility(params[0])
             @utilities << params[0]
           rescue Exception => err
             require_errors << "<b>#{params[0]}</b>:\n#{err.formatted}\n"
@@ -1095,6 +1096,14 @@ module Cosmos
         when 'COLLECT_METADATA'
           parser.verify_num_parameters(0, 0, "#{keyword}")
           @@results_writer.metadata = true
+
+        when 'DISABLE_TEST_SUITE_START'
+          parser.verify_num_parameters(0, 0, "#{keyword}")
+          Qt.execute_in_main_thread { @test_runner_chooser.test_suite_start_disabled = true }
+
+        when 'DISABLE_TEST_GROUP_START'
+          parser.verify_num_parameters(0, 0, "#{keyword}")
+          Qt.execute_in_main_thread { @test_runner_chooser.test_group_start_disabled = true }
 
         else
           raise "Unhandled keyword: #{keyword}" if keyword
@@ -1261,12 +1270,9 @@ module Cosmos
           options.height = 700
           options.title = "Test Runner"
           options.auto_size = false
-          options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'test_runner', 'test_runner.txt')
           options.server_config_file = CmdTlmServer::DEFAULT_CONFIG_FILE
+          options.config_file = true # config_file is required
           option_parser.separator "Test Runner Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'test_runner', arg)
-          end
           option_parser.on("-s", "--server FILE", "Use the specified server configuration file for disconnect mode") do |arg|
             options.server_config_file = arg
           end
@@ -1292,6 +1298,5 @@ module Cosmos
         super(option_parser, options)
       end
     end
-  end # class TestRunner
-
-end # module Cosmos
+  end
+end

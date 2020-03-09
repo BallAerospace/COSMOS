@@ -707,7 +707,7 @@ module Cosmos
     end
 
     describe "formatted" do
-      it "prints out all the items and CONVERTED values" do
+      it "prints out all the items" do
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT, 16)
         p.write("test1", [1,2])
@@ -727,6 +727,25 @@ module Cosmos
         expect(p.formatted).to include("TEST2: TRUE")
         expect(p.formatted).to include("TEST3: #{0x02030405}")
         expect(p.formatted).to include("TEST4: Test")
+        # Test the data_type parameter
+        expect(p.formatted(:RAW)).to include("TEST1: [1, 2]")
+        expect(p.formatted(:RAW)).to include("TEST2: #{0x0304}")
+        expect(p.formatted(:RAW)).to include("TEST3: #{0x0406080A}")
+        expect(p.formatted(:RAW)).to include("00000000: 54 65 73 74") # Raw TEST4 block
+        # Test the indent parameter
+        expect(p.formatted(:CONVERTED, 4)).to include("    TEST1: [1, 2]")
+        # Test the buffer parameter
+        buffer = "\x02\x03\x04\x05\x00\x00\x00\x02\x44\x45\x41\x44"
+        expect(p.formatted(:CONVERTED, 0, buffer)).to include("TEST1: [2, 3]")
+        expect(p.formatted(:CONVERTED, 0, buffer)).to include("TEST2: #{0x0405}")
+        expect(p.formatted(:CONVERTED, 0, buffer)).to include("TEST3: 1")
+        expect(p.formatted(:CONVERTED, 0, buffer)).to include("TEST4: DEAD")
+        # Test the ignored parameter
+        string = p.formatted(:CONVERTED, 0, p.buffer, %w(TEST1 TEST4))
+        expect(string).not_to include("TEST1")
+        expect(string).to include("TEST2: TRUE")
+        expect(string).to include("TEST3: #{0x02030405}")
+        expect(string).not_to include("TEST4")
       end
     end
 
@@ -828,12 +847,26 @@ module Cosmos
       it "returns an array of the identifying items" do
         p = Packet.new("tgt","pkt")
         p.define_item("item1",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,nil)
-        p.define_item("item2",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,5)
-        p.define_item("item3",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,nil)
-        p.define_item("item4",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,6)
+        p.define_item("item2",64,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,5)
+        p.define_item("item3",96,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,nil)
+        p.define_item("item4",32,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,6)        
         expect(p.id_items).to be_a Array
-        expect(p.id_items[0].name).to eq "ITEM2"
-        expect(p.id_items[1].name).to eq "ITEM4"
+        expect(p.id_items[0].name).to eq "ITEM4"
+        expect(p.id_items[1].name).to eq "ITEM2"
+      end
+    end
+
+    describe "read_id_values" do
+      it "to read the right values" do
+        buffer = "\x00\x00\x00\x04\x00\x00\x00\x03\x00\x00\x00\x02\x00\x00\x00\x01"
+        p = Packet.new("tgt","pkt")
+        p.define_item("item1",0,32,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,nil)
+        p.define_item("item2",64,32,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,5)
+        p.define_item("item3",96,32,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,nil)
+        p.define_item("item4",32,32,:UINT,nil,:BIG_ENDIAN,:ERROR,nil,nil,nil,6)
+        values = p.read_id_values(buffer)
+        expect(values[0]).to eq 3
+        expect(values[1]).to eq 2
       end
     end
 

@@ -11,7 +11,6 @@
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
-
   # The MultiWidget module must be included after the Widget module by all widget
   # classes that consist of multiple other COSMOS widgets. It overrides methods
   # in the Widget module to support setting all the subwidgets that comprise
@@ -112,5 +111,4 @@ module Cosmos
       end
     end
   end
-
-end # module Cosmos
+end

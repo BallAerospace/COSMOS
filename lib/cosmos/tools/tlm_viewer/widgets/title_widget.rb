@@ -8,20 +8,14 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/tools/tlm_viewer/widgets/widget'
+require 'cosmos/tools/tlm_viewer/widgets/label_widget'
 
 module Cosmos
-
-  class TitleWidget < Qt::Label
-    include Widget
-
-    def initialize(parent_layout, text)
-      super()
-      self.text = text.to_s.remove_quotes
-      setFont(Cosmos.getFont("helvetica", 14, Qt::Font::Bold))
+  # Creates a centered label with the specified font
+  class TitleWidget < LabelWidget
+    def initialize(parent_layout, text, font_name = "Helvetica", point_size = 14, bold = "BOLD", italic = false)
+      super(parent_layout, text, font_name, point_size, bold, italic)
       setAlignment(Qt::AlignCenter)
-      parent_layout.addWidget(self) if parent_layout
     end
   end
-
-end # module Cosmos
+end

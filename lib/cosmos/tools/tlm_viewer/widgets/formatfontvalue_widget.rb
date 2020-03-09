@@ -12,7 +12,7 @@ require 'cosmos'
 require 'cosmos/tools/tlm_viewer/widgets/formatvalue_widget'
 
 module Cosmos
-  # This class implements a value with configurable font values.  The font
+  # This class implements a value with configurable font values. The font
   # can also be updated after it is created.
   # It inherits from the FormatvalueWidget class.
   class FormatfontvalueWidget < FormatvalueWidget

@@ -148,6 +148,10 @@ module Cosmos
         expect(extract_fields_from_check_text("TARGET PACKET ITEM < 5")).to eql(['TARGET', 'PACKET', 'ITEM', '< 5'])
       end
 
+      it "should support target packet items named the same" do
+        expect(extract_fields_from_check_text("TEST TEST TEST == 5")).to eql(['TEST', 'TEST', 'TEST', '== 5'])
+      end
+
       it "should complain about trying to do an = comparison" do
         expect { extract_fields_from_check_text("TARGET PACKET ITEM = 5") }.to raise_error(/ERROR: Use/)
       end
@@ -160,4 +164,3 @@ module Cosmos
 
   end
 end
-

@@ -17,19 +17,16 @@ require 'cosmos'
 require 'cosmos/tools/tlm_viewer/widgets/value_widget'
 
 module Cosmos
-
+  # Displays a formatted telemetry item done by sprintf using the format_string
   class FormatvalueWidget < ValueWidget
-
-    def initialize (parent_layout, target_name, packet_name, item_name, format_string, value_type = :CONVERTED, characters = 12)
+    def initialize(parent_layout, target_name, packet_name, item_name, format_string, value_type = :CONVERTED, characters = 12)
       super(parent_layout, target_name, packet_name, item_name, value_type, characters)
       @format_string = format_string
     end
 
-    def value= (data)
+    def value=(data)
       formatted_data = sprintf(@format_string, data)
       super(formatted_data)
     end
-
   end
-
-end # module Cosmos
+end

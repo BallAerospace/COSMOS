@@ -70,9 +70,12 @@ module Cosmos
         log = MessageLog.new('TEST')
         log.start
         log.stop
-        Cosmos.set_working_dir do
-          expect(File.stat(log.filename).writable?).to be false
-          File.delete log.filename
+        if Kernel.is_windows? or Process.uid != 0
+          # writable? is always true for root, so skip this check
+          Cosmos.set_working_dir do
+            expect(File.stat(log.filename).writable?).to be false
+            File.delete log.filename
+          end
         end
       end
     end

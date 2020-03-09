@@ -4,29 +4,29 @@ TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the <%= @target_
   APPEND_ITEM TEMP1            16 UINT     "Temperature #1"
     POLY_READ_CONVERSION  -100.0 0.00305
     POLY_WRITE_CONVERSION 32768.885246 327.86885
-    UNITS CELCIUS C
+    UNITS CELSIUS C
     FORMAT_STRING "%0.3f"
     LIMITS DEFAULT 1 ENABLED -80.0 -70.0 60.0 80.0 -20.0 20.0
-    LIMITS TVAC 1     ENABLED -80.0 -30.0 30.0 80.0
+    LIMITS TVAC 1 ENABLED -80.0 -30.0 30.0 80.0
     LIMITS_RESPONSE example_limits_response.rb
   APPEND_ITEM TEMP2            32 FLOAT    "Temperature #2"
     POLY_READ_CONVERSION -100.0 0.00305
     POLY_WRITE_CONVERSION 32768.885246 327.86885
-    UNITS CELCIUS C
+    UNITS CELSIUS C
     FORMAT_STRING "%0.3f"
     LIMITS DEFAULT 1 ENABLED -60.0 -55.0 30.0 35.0
     LIMITS TVAC 1 ENABLED -60.0 20.0 30.0 35.0
   APPEND_ITEM TEMP3            16 UINT     "Temperature #3"
     POLY_READ_CONVERSION -100.0 0.00305
     POLY_WRITE_CONVERSION 32768.885246 327.86885
-    UNITS CELCIUS C
+    UNITS CELSIUS C
     FORMAT_STRING "%0.3f"
     LIMITS DEFAULT 1 ENABLED -25.0 -10.0 50.0 55.0
     LIMITS TVAC 1 ENABLED -15.0 -10.0 20.0 30.0
   APPEND_ITEM TEMP4            16 UINT     "Temperature #4"
     POLY_READ_CONVERSION -100.0 0.00305
     POLY_WRITE_CONVERSION 32768.885246 327.86885
-    UNITS CELCIUS C
+    UNITS CELSIUS C
     FORMAT_STRING "%0.3f"
     LIMITS DEFAULT 1 ENABLED -80.0 -70.0 60.0 80.0
   APPEND_ARRAY_ITEM ARY         8 UINT 80 "Array data"
@@ -37,7 +37,7 @@ TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the <%= @target_
     STATE SPECIAL 1
     STATE ERROR ANY
   APPEND_ARRAY_ITEM ARY2       64 FLOAT 640 "Double array"
-    UNITS CELCIUS C
+    UNITS CELSIUS C
   APPEND_ITEM ASCIICMD 2048 STRING "Most recent ASCIICMD string"
     STATE "NOOP" "NOOP"
     STATE "FIRE LASER" "FIRE LASER"
@@ -139,7 +139,10 @@ TELEMETRY INST PARAMS BIG_ENDIAN "Params set by SETPARAMS command"
 
 TELEMETRY INST IMAGE BIG_ENDIAN "Packet with image data"
   <%= render "_ccsds_tlm.txt", locals: {apid: 4} %>
+  ITEM BYTES 128 32 UINT "First bytes"
+    FORMAT_STRING '0x%08x'
   ITEM IMAGE 128 131072 BLOCK   "10x10 Image Data"
+    OVERLAP # Notify COSMOS that this is intentionally overlapping the BYTES field
   ITEM TIMESECONDS 0 0 DERIVED "Derived floating-point time since epoch in seconds"
     READ_CONVERSION unix_time_seconds_conversion.rb TIMESEC TIMEUS
     FORMAT_STRING '%0.6f'
@@ -148,6 +151,7 @@ TELEMETRY INST IMAGE BIG_ENDIAN "Packet with image data"
 
 TELEMETRY INST MECH BIG_ENDIAN "Mechanism status"
   <%= render "_ccsds_tlm.txt", locals: {apid: 5} %>
+  APPEND_ITEM EXTRA         32 FLOAT    "Extra item to be deleted"
   APPEND_ITEM SLRPNL1       32 FLOAT    "Solar panel 1 angle"
     UNITS DEGREES DEG
   APPEND_ITEM SLRPNL2       32 FLOAT    "Solar panel 2 angle"

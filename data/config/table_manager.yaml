@@ -74,3 +74,10 @@ TABLE:
               description: Description of the table in quotes. The description is
                 used in mouseover popups and status line information.
               values: "['\"].*['\"]"
+SELECT_TABLE:
+  summary: Select an existing table for editing, typically done to override an existing definition
+  parameters:
+    - name: Table
+      required: true
+      description: The name of the existin table
+      values: .*

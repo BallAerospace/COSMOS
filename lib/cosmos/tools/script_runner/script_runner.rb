@@ -26,6 +26,7 @@ module Cosmos
     slots 'undo_available(bool)'
 
     UNTITLED_TAB_TEXT = '  Untitled  '
+    MAX_RECENT_FILES = 20
 
     def initialize(options)
       # All code before super is executed twice in RubyQt Based classes
@@ -50,7 +51,9 @@ module Cosmos
       @no_icon = Qt::Icon.new
 
       begin
-        ScriptRunnerConfig.new(options.config_file)
+        # Always create the ScriptRunnerConfig but note that it's optional to pass a config file
+        # If the user doesn't have one it will be created automatically if the default config is changed
+        @config = ScriptRunnerConfig.new(options.config_file)
       rescue => error
         ExceptionDialog.new(self, error, "Error parsing #{options.config_file}")
       end
@@ -95,13 +98,17 @@ module Cosmos
       @file_new.statusTip = 'Start a new script'
       @file_new.connect(SIGNAL('triggered()')) { file_new() }
 
+      @clear_file_open_recent = Qt::Action.new('&Clear Recent', self)
+      @clear_file_open_recent.statusTip = 'Clear the recently opened file list'
+      @clear_file_open_recent.connect(SIGNAL('triggered()')) { clear_file_open_recent() }
+
       @file_close = Qt::Action.new('&Close', self)
       @file_close_keyseq = Qt::KeySequence.new('Ctrl+W')
       @file_close.shortcut  = @file_close_keyseq
       @file_close.statusTip = 'Close the script'
       @file_close.connect(SIGNAL('triggered()')) { file_close() }
 
-      @file_reload = Qt::Action.new('&Reload', self)
+      @file_reload = Qt::Action.new('Re&load', self)
       @file_reload_keyseq = Qt::KeySequence.new('Ctrl+R')
       @file_reload.shortcut  = @file_reload_keyseq
       @file_reload.statusTip = 'Reload a script'
@@ -257,6 +264,13 @@ module Cosmos
       @script_call_stack.connect(SIGNAL('triggered()')) { script_call_stack() }
       @script_call_stack.setEnabled(false)
 
+      @script_error_backtrace = Qt::Action.new('Show Error Backtrace', self)
+      @script_error_backtrace.statusTip = 'Show Error Backtrace from the last encountered exception'
+      @script_error_backtrace.connect(SIGNAL('triggered()')) do
+        ScriptRunnerFrame.show_backtrace = @script_error_backtrace.checked?
+      end
+      @script_error_backtrace.setCheckable(true)
+
       @script_debug = Qt::Action.new(Cosmos.get_icon('bug.png'), 'Toggle &Debug', self)
       @script_debug_keyseq = Qt::KeySequence.new('Ctrl+D')
       @script_debug.shortcut  = @script_debug_keyseq
@@ -283,6 +297,20 @@ module Cosmos
       @file_open = @file_menu.addMenu('&Open')
       @file_open.setIcon(Cosmos.get_icon('open.png'))
       target_dirs_action(@file_open, System.paths['PROCEDURES'], 'procedures', method(:file_open))
+
+      @file_open_recent = @file_menu.addMenu('Open &Recent')
+      @file_open_recent.setIcon(Cosmos.get_icon('open.png'))
+      settings = Qt::Settings.new('Ball Aerospace', self.class.to_s)
+      if settings.contains('recent_files')
+        recent = settings.value('recent_files').toStringList()
+        recent.each do |filename|
+          action = Qt::Action.new(filename, self)
+          action.connect(SIGNAL('triggered()')) { open_filename(filename) }
+          @file_open_recent.addAction(action)
+        end
+      end
+      @file_open_recent.addSeparator()
+      @file_open_recent.addAction(@clear_file_open_recent)
 
       @file_menu.addAction(@file_close)
       @file_menu.addAction(@file_reload)
@@ -334,6 +362,7 @@ module Cosmos
       view_menu.addSeparator()
       view_menu.addAction(@script_log_message)
       view_menu.addAction(@script_call_stack)
+      view_menu.addAction(@script_error_backtrace)
       view_menu.addAction(@script_debug)
       view_menu.addAction(@script_disconnect)
 
@@ -415,7 +444,29 @@ module Cosmos
       end
       filenames.compact!
       return if filenames.nil? || filenames.empty?
-      filenames.each {|filename| open_filename(filename) }
+      filenames.each do |filename|
+        open_filename(filename)
+
+        found = false
+        @file_open_recent.actions.each do |action|
+          found = true if action.text == filename
+        end
+        next if found
+        action = Qt::Action.new(filename, self)
+        action.connect(SIGNAL('triggered()')) { open_filename(filename) }
+        @file_open_recent.insertAction(@file_open_recent.actions[0], action)
+        # Add 2 for the separator and Clear Recent action
+        if @file_open_recent.actions.length > (MAX_RECENT_FILES + 2)
+          @file_open_recent.removeAction(@file_open_recent.actions[-3]) # ignore last 2
+        end
+      end
+    end
+
+    def clear_file_open_recent
+      # Subtract 2 for the separator and Clear Recent action
+      (@file_open_recent.actions.length - 2).times do
+        @file_open_recent.removeAction(@file_open_recent.actions[0])
+      end
     end
 
     def open_filename(filename)
@@ -571,6 +622,7 @@ module Cosmos
         ScriptRunnerFrame.pause_on_error = (pause_on_error.checkState == Qt::Checked)
         ScriptRunnerFrame.monitor_limits = (monitor.checkState == Qt::Checked)
         ScriptRunnerFrame.pause_on_red = (pause_on_red.checkState == Qt::Checked)
+        @config.write_config
         dialog.accept
       end
       cancel = Qt::PushButton.new('Cancel')
@@ -675,6 +727,10 @@ module Cosmos
     def closeEvent(event)
       if active_script_runner_frame().prompt_if_running_on_close()
         if prompt_for_save_if_needed_on_close()
+          settings = Qt::Settings.new('Ball Aerospace', self.class.to_s)
+          recent_files = @file_open_recent.actions.collect {|action| action.text }
+          # Ignore the last 2 because of the separator and Clear Recent action
+          settings.setValue('recent_files', Qt::Variant.new(recent_files[0..-3]))
           shutdown_cmd_tlm()
           @tab_book.tabs.each_with_index do |tab, index|
             tab.stop_message_log
@@ -992,9 +1048,6 @@ module Cosmos
           options.disconnect_mode = false
 
           option_parser.separator "Script Runner Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = arg
-          end
           option_parser.on("-s", "--server FILE", "Use the specified server configuration file for disconnect mode") do |arg|
             options.server_config_file = arg
           end
@@ -1009,6 +1062,5 @@ module Cosmos
         super(option_parser, options)
       end
     end
-  end # class ScriptRunner
-
-end # module Cosmos
+  end
+end

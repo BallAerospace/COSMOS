@@ -256,7 +256,7 @@ module Cosmos
       # Handle handshake warnings and errors
       if status == "OK" and code != 0
         unless @ignored_error_codes[handshake_cmd.handshake.handshake.target_name].include? code
-          Logger.warn "Warning sending command (#{code}): #{source}"
+          Logger.warn "#{@name}: Warning sending command (#{code}): #{source}"
         end
       elsif status == "ERROR"
         unless @ignored_error_codes[handshake_cmd.handshake.handshake.target_name].include? code
@@ -295,7 +295,7 @@ module Cosmos
       command.received_count += 1
 
       # Put a log of the command onto the server for the user to see
-      Logger.info("External Command: " + System.commands.format(linc_handshake.identified_command, System.targets[linc_handshake.identified_command.target_name].ignored_parameters))
+      Logger.info("#{@name}: External Command: " + System.commands.format(linc_handshake.identified_command, System.targets[linc_handshake.identified_command.target_name].ignored_parameters))
 
       # Log the command to the command log(s)
       @packet_log_writer_pairs.each do |packet_log_writer_pair|
@@ -361,7 +361,7 @@ module Cosmos
       if @handshake
         timed_out = false
       else
-        Logger.warn "No handshake - must be timeout."
+        Logger.warn "#{@name}: No handshake - must be timeout."
         timed_out = true
       end
 

@@ -11,6 +11,7 @@
 require 'cosmos/tools/tlm_viewer/widgets/widget'
 
 module Cosmos
+  # Display a circle on the canvas of specified color and width
   class CanvasdotWidget
     include Widget
 
@@ -29,8 +30,6 @@ module Cosmos
       end
 
       @point = Qt::Point.new(0, 0)
-      update_point
-
       @width = width.to_i
       @color = Cosmos::getColor(color)
       parent_layout.add_repaint(self)

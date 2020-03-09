@@ -170,7 +170,7 @@ expected_list = [["CCSDSVER", 0, nil, "CCSDS primary header version number", nil
   ["TYPE", 0, {"NORMAL"=>0, "SPECIAL"=>1}, "Collect type", nil, nil, true, "UINT"],
   ["DURATION", 1.0, nil, "Collect duration", nil, nil, false, "FLOAT"],
   ["OPCODE", "0xAB", nil, "Collect opcode", nil, nil, false, "UINT"],
-  ["TEMP", 0.0, nil, "Collect temperature", "Celcius", "C", false, "FLOAT"]]
+  ["TEMP", 0.0, nil, "Collect temperature", "Celsius", "C", false, "FLOAT"]]
 list = get_cmd_param_list("INST", "COLLECT")
 puts list.inspect(100)
 if list != expected_list
@@ -184,14 +184,14 @@ get_cmd_param_list("INST", "BOB")
 get_cmd_param_list("INST", "COLLECT", "DURATION")
 
 # get_cmd_hazardous
-hazardous, hazardous_description = get_cmd_hazardous("INST", "COLLECT", "TYPE" => "SPECIAL")
-puts "#{hazardous}:#{hazardous_description}"
-hazardous, hazardous_description = get_cmd_hazardous("INST", "COLLECT", "TYPE" => "NORMAL")
-puts "#{hazardous}:#{hazardous_description}"
-hazardous, hazardous_description = get_cmd_hazardous("INST", "ABORT")
-puts "#{hazardous}:#{hazardous_description}"
-hazardous, hazardous_description = get_cmd_hazardous("INST", "CLEAR")
-puts "#{hazardous}:#{hazardous_description}"
+hazardous = get_cmd_hazardous("INST", "COLLECT", "TYPE" => "SPECIAL")
+puts hazardous
+hazardous = get_cmd_hazardous("INST", "COLLECT", "TYPE" => "NORMAL")
+puts hazardous
+hazardous = get_cmd_hazardous("INST", "ABORT")
+puts hazardous
+hazardous = get_cmd_hazardous("INST", "CLEAR")
+puts hazardous
 
 # get_cmd_hazardous should fail
 get_cmd_hazardous()

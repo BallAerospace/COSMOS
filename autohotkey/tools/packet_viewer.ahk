@@ -192,7 +192,7 @@ Sleep 2000
 Run ruby.exe %A_ScriptDir%/ScriptRunner -w 600 -t 600
 Sleep 2000
 WinActivate Script Runner
-Sleep 1000
+Sleep 2000
 Send set_limits("INST","HEALTH_STATUS","TEMP1",-110,-105,105,110,-100,100){ENTER}
 Send set_limits_set("CUSTOM"){ENTER}
 Sleep 1000

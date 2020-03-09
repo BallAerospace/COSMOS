@@ -44,14 +44,19 @@ module Puma
 end
 
 module Cosmos
-
   # JsonDRb implements the JSON-RPC 2.0 Specification to provide an interface
   # for both internal and external tools to access the COSMOS server. It
   # provides methods to install an access control list to control access to the
   # API. It also limits the available methods to a known list of allowable API
   # methods.
   class JsonDRb
+    # Minimum amount of time in seconds to receive the JSON request,
+    # process it, and send the response. Requests for less than this amount
+    # will be set to the minimum
     MINIMUM_REQUEST_TIME = 0.0001
+    STOP_SERVICE_TIMEOUT = 10.0 # seconds to wait when stopping the service
+    PUMA_THREAD_TIMEOUT  = 10.0 # seconds to wait for the puma threads to die
+    SERVER_START_TIMEOUT = 15.0 # seconds to wait for the server to start
 
     @@debug = false
 
@@ -94,9 +99,9 @@ module Cosmos
 
     # Stops the DRb service by closing the socket and the processing thread
     def stop_service
-      # Kill the server thread; it can take a while, so use
-      # graceful_timeout = 5, timeout_interval = 0.1, hard_timeout = 5
-      Cosmos.kill_thread(self, @thread, 5, 0.1, 5)
+      # Kill the server thread
+      # parameters are owner, thread, graceful_timeout, timeout_interval, hard_timeout
+      Cosmos.kill_thread(self, @thread, STOP_SERVICE_TIMEOUT, 0.1, STOP_SERVICE_TIMEOUT)
       @thread = nil
       @server_mutex.synchronize do
         @server = nil
@@ -155,7 +160,7 @@ module Cosmos
               puma_threads = false
               Thread.list.each {|thread| puma_threads = true if thread.inspect.match(/puma/)}
               break if !puma_threads
-              break if (Time.now - start_time) > 10.0
+              break if (Time.now - start_time) > PUMA_THREAD_TIMEOUT
               sleep 0.25
             end
 
@@ -184,7 +189,7 @@ module Cosmos
 
         # Wait for the server to be started in the thread before returning.
         start_time = Time.now
-        while ((Time.now - start_time) < 5.0) and !server_started
+        while ((Time.now - start_time) < SERVER_START_TIMEOUT) and !server_started
           sleep(0.1)
           @server_mutex.synchronize do
             server_started = true if @server and @server.running
@@ -254,10 +259,10 @@ module Cosmos
         error_code = nil
         response_data = nil
 
-        if (@method_whitelist and @method_whitelist.include?(request.method)) or
-           (!@method_whitelist and !JsonRpcRequest::DANGEROUS_METHODS.include?(request.method))
+        if (@method_whitelist and @method_whitelist.include?(request.method.downcase())) or
+           (!@method_whitelist and !JsonRpcRequest::DANGEROUS_METHODS.include?(request.method.downcase()))
           begin
-            result = @object.send(request.method.intern, *request.params)
+            result = @object.send(request.method.downcase().intern, *request.params)
             if request.id
               response = JsonRpcSuccessResponse.new(result, request.id)
             end
@@ -308,4 +313,3 @@ module Cosmos
 
   end
 end
-

@@ -13,10 +13,7 @@ require 'cosmos/tools/tlm_viewer/widgets/linegraph_widget'
 require 'cosmos/script'
 
 module Cosmos
-
-  # TimegraphWidget class
-  #
-  # This class creates a graph of the supplied data value versus time.
+  # This class creates a graph of the supplied data value versus time
   class TimegraphWidget < LinegraphWidget
 
     def initialize(parent_layout, target_name, packet_name, item_name, num_samples = 100, width = 300, height = 200, point_size = 5, time_item_name = 'PACKET_TIMESECONDS', value_type = :CONVERTED)
@@ -85,7 +82,5 @@ module Cosmos
         self.graph
       end
     end
-
   end
-
-end # module Cosmos
+end

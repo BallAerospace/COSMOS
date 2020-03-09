@@ -20,7 +20,6 @@ require 'cosmos/tools/cmd_tlm_server/routers'
 require 'cosmos/tools/cmd_tlm_server/replay_backend'
 
 module Cosmos
-
   # Provides the interface for all applications to get the latest telemetry and
   # to send commands.
   class CmdTlmServer
@@ -126,6 +125,9 @@ module Cosmos
     #   receive data. This is useful for testing scripts when actual hardware
     #   is not available.
     # @param mode [Symbol] :CMD_TLM_SERVER or :REPLAY - Defines overall mode
+    # @param replay_routers [Boolean] Whether to keep existing routers when starting
+    #   the server in REPLAY mode. Default is false which means to clear all
+    #   existing routers and simply create the preidentified routers.
     def initialize(
       config_file = DEFAULT_CONFIG_FILE,
       production = false,
@@ -218,16 +220,40 @@ module Cosmos
           @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['CTS_PREIDENTIFIED'])
           @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['CTS_CMD_ROUTER'])
         else
+          # Create dummy interface for Replay so we can attach the preidentified routers to it.
+          # This is needed because interfaces are not mapped to targets when loading a saved_config.
+          # Since interfaces are used to access the routers, nothing is send out the preidentified
+          # interface port and TlmGrapher (most notably) does not work.
+          @replay_interface = Interface.new
+          @replay_interface.name = "REPLAY"
           @routers.all.clear unless replay_routers
-          @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['REPLAY_PREIDENTIFIED'])
-          @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['REPLAY_CMD_ROUTER'])
+          @replay_interface.routers << @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['REPLAY_PREIDENTIFIED'])
+          @replay_interface.cmd_routers << @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['REPLAY_CMD_ROUTER'])
         end
         System.telemetry.limits_change_callback = method(:limits_change_callback)
         @routers.start
 
         start(production)
       end
-    end # end def initialize
+    end
+
+    # Map any targets without interfaces to the dummy replay interface.
+    # Targets will only have an interface already mapped if the replay_routers
+    # flag was passed to the server.
+    def replay_map_targets_to_interfaces
+      # Try to map existing interfaces to targets
+      if @interfaces
+        @interfaces.all.each do |name, interface|
+          interface.target_names.each do |target|
+            System.targets[target].interface = interface
+          end
+        end
+      end
+      # If any remaing targets don't have an interface map to the @replay_interface
+      System.targets.each do |name, target|
+        target.interface = @replay_interface unless target.interface
+      end
+    end
 
     # Properly shuts down the command and telemetry server by stoping the
     # JSON-RPC server, background tasks, routers, and interfaces. Also kills

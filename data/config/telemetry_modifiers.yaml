@@ -79,7 +79,7 @@ ARRAY_ITEM:
 APPEND_ARRAY_ITEM:
   modifiers:
     <%= MetaConfigParser.load('item_modifiers.yaml').to_meta_config_yaml(4) %>
-  summary: Defines a telemetry item in the current telemetry packedt that is an array
+  summary: Defines a telemetry item in the current telemetry packet that is an array
   example: APPEND_ARRAY_ITEM ARRAY 32 FLOAT 320 "Array of 10 floats"
   parameters:
     - name: Name
@@ -98,6 +98,21 @@ SELECT_ITEM:
     - name: Item
       required: true
       description: Name of the item to select for modification
+      values: .+
+DELETE_ITEM:
+  summary: Delete an existing telemetry item from the packet definition
+  description: Deleting an item from the packet definition does not remove the
+    defined space for that item. Thus unless you redefine a new item, there
+    will be a "hole" in the packet where the data is not accessible. You can
+    use SELECT_TELEMETRY and then ITEM to define a new item.
+  example: |
+    SELECT_TELEMETRY SYSTEM LIMITS_CHANGE
+      DELETE_ITEM ITEM
+  since: 4.4.1
+  parameters:
+    - name: Item
+      required: true
+      description: Name of the item to delete
       values: .+
 META:
   summary: Stores metadata for the current telemetry packet

@@ -45,7 +45,7 @@ module Cosmos
     describe "instance" do
       it "creates default ports" do
         # Don't check the actual port numbers but just that they exist
-        expect(System.ports.keys).to eql %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED CTS_CMD_ROUTER REPLAY_API REPLAY_PREIDENTIFIED REPLAY_CMD_ROUTER DART_DECOM DART_STREAM)
+        expect(System.ports.keys).to eql %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED CTS_CMD_ROUTER REPLAY_API REPLAY_PREIDENTIFIED REPLAY_CMD_ROUTER DART_STREAM DART_DECOM DART_MASTER)
       end
 
       it "creates default paths" do
@@ -263,7 +263,7 @@ module Cosmos
       end
 
       describe "packets and System.packets" do
-        it "calculates MD5s across all the target files" do
+        it "calculates hash strings across all the target files" do
           capture_io do |stdout|
             # This line actually does the work of reading the configuration
             expect(System.telemetry.target_names).to eql ['INST', 'SYSTEM']
@@ -349,7 +349,7 @@ module Cosmos
           # Try loading something that doesn't exist
           # It should fail and reload the original configuration
           name, err = System.load_configuration("BLAH")
-          expect(err).to eql nil
+          expect(err.message).to eql "Unable to find configuration: BLAH"
           expect(name).to eql original_config_name
 
           # Now load the second configuration. It shouldn't have the most
@@ -488,6 +488,8 @@ module Cosmos
           tf.close
           FileUtils.mkdir_p(File.join(@config_targets, 'TGT'))
           System.instance.process_file(tf.path)
+          expect(System.targets.key?('TGT')).to be true
+          expect(System.targets.key?('SYSTEM')).to be true
           tf.unlink
         end
 
@@ -870,9 +872,82 @@ module Cosmos
           tf.puts("ADD_MD5_FILE #{File.expand_path(md5f.path)}")
           tf.close
           System.instance.process_file(tf.path)
-          expect(System.additional_md5_files.include?(File.expand_path(md5f.path))).to be true
+          expect(System.additional_hashing_files.include?(File.expand_path(md5f.path))).to be true
           md5f.close
           md5f.unlink
+          tf.unlink
+        end
+      end
+
+      context "with ADD_HASH_FILE" do
+        it "takes 1 parameter" do
+          tf = Tempfile.new('unittest')
+          tf.puts("ADD_HASH_FILE")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for ADD_HASH_FILE./)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts("ADD_HASH_FILE 1 2")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for ADD_HASH_FILE./)
+          tf.unlink
+        end
+
+        it "complains about missing files" do
+          tf = Tempfile.new('unittest')
+          tf.puts("ADD_HASH_FILE missing_file")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(/Missing expected file: missing_file/)
+          tf.unlink
+        end
+
+        it "adds a file to the hashing sum calculation" do
+          hashf = Tempfile.new('hash_file')
+          tf = Tempfile.new('unittest')
+          tf.puts("ADD_HASH_FILE #{File.expand_path(hashf.path)}")
+          tf.close
+          System.instance.process_file(tf.path)
+          expect(System.additional_hashing_files.include?(File.expand_path(hashf.path))).to be true
+          hashf.close
+          hashf.unlink
+          tf.unlink
+        end
+      end
+
+      context "with HASHING_ALGORITHM" do
+        it "takes 1 parameter" do
+          tf = Tempfile.new('unittest')
+          tf.puts("HASHING_ALGORITHM")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for HASHING_ALGORITHM./)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts("HASHING_ALGORITHM 1 2")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for HASHING_ALGORITHM./)
+          tf.unlink
+        end
+
+        it "complains about invalid algorithms" do
+          tf = Tempfile.new('unittest')
+          tf.puts("HASHING_ALGORITHM BAD")
+          tf.close
+          expect(Logger).to receive(:error) do |msg|
+            expect(msg).to eql "Unrecognized hashing algorithm: BAD, using default algorithm MD5"
+          end
+          System.instance.process_file(tf.path)
+          expect(System.hashing_algorithm).to eql 'MD5'
+          tf.unlink
+        end
+
+        it "sets the hashing algorithm" do
+          tf = Tempfile.new('unittest')
+          tf.puts("HASHING_ALGORITHM SHA256")
+          tf.close
+          System.instance.process_file(tf.path)
+          expect(System.hashing_algorithm).to eql 'SHA256'
           tf.unlink
         end
       end

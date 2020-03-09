@@ -185,6 +185,8 @@ module Cosmos
         expect(@s.defined_length).to eql 1
         si = StructureItem.new("test1",0,16,:INT,:BIG_ENDIAN)
         @s.define(si)
+        expect(@s.items.length).to eql 1
+        expect(@s.sorted_items.length).to eql 1
         expect(@s.sorted_items[0].name).to eql "TEST1"
         expect(@s.items["TEST1"].bit_size).to eql 16
         expect(@s.items["TEST1"].data_type).to eql :INT
@@ -290,6 +292,56 @@ module Cosmos
       end
     end
 
+    describe "delete_item" do
+      before(:each) do
+        @s = Structure.new(:BIG_ENDIAN)
+        @s.define_item("test1", 0, 8, :UINT)
+      end
+
+      it "removes the item and leaves a hole" do
+        @s.append_item("test2", 16, :UINT)
+        expect(@s.defined_length).to eql 3
+        @s.delete_item("test1")
+        expect { @s.get_item("test1") }.to raise_error(ArgumentError, "Unknown item: test1")
+        expect(@s.defined_length).to eql 3
+        expect(@s.items["TEST1"]).to be_nil
+        expect(@s.items["TEST2"]).not_to be_nil
+        expect(@s.sorted_items.length).to eql 1
+        expect(@s.sorted_items[0]).to eql(@s.get_item("test2"))
+        buffer = "\x01\x02\x03"
+        expect(@s.read("test2", :RAW, buffer)).to eql 0x0203
+      end
+
+      it "allows new items to be defined in place" do
+        @s.append_item("test2", 16, :UINT)
+        @s.append_item("test3", 8, :UINT)
+        expect(@s.defined_length).to eql 4
+        # Delete the first 2 items, note a 3 byte hole now exists
+        @s.delete_item("test1")
+        @s.delete_item("test2")
+        expect(@s.defined_length).to eql 4
+        expect(@s.items.length).to eql 1
+        expect(@s.sorted_items.length).to eql 1
+        # Fill the hole and overlap the last byte
+        @s.define_item("test4", 0, 16, :UINT)
+        @s.define_item("test5", 16, 16, :UINT)
+        @s.define_item("test6", 32, 32, :UINT)
+        buffer = "\x01\x02\x03\x04\x05\x06\x07\x08"
+        expect(@s.read("test4", :RAW, buffer)).to eql 0x0102
+        expect(@s.read("test5", :RAW, buffer)).to eql 0x0304
+        expect(@s.read("test6", :RAW, buffer)).to eql 0x05060708
+        # test3 is still defined
+        expect(@s.read("test3", :RAW, buffer)).to eql 0x04
+        expect(@s.items.length).to eql 4
+        expect(@s.sorted_items.length).to eql 4
+        # Check that everything is sorted correctly
+        expect(@s.sorted_items[0].name).to eql "TEST4"
+        expect(@s.sorted_items[1].name).to eql "TEST5"
+        expect(@s.sorted_items[2].name).to eql "TEST3"
+        expect(@s.sorted_items[3].name).to eql "TEST6"
+      end
+    end
+
     describe "read_item" do
       it "complains if no buffer given" do
         s = Structure.new
@@ -346,6 +398,20 @@ module Cosmos
         s.define_item("test1", 0, 8, :UINT)
         buffer = "\x01"
         expect(s.read("test1", :RAW, buffer)).to eql 1
+      end
+
+      it "reads until null byte for STRING items" do
+        s = Structure.new
+        s.define_item("test1", 0, 80, :STRING)
+        buffer = "\x4E\x4F\x4F\x50\x00\x4E\x4F\x4F\x50\x0A" # NOOP<NULL>NOOP\n
+        expect(s.read("test1", :CONVERTED, buffer)).to eql "NOOP"
+      end
+
+      it "reads the entire buffer for BLOCK items" do
+        s = Structure.new
+        s.define_item("test1", 0, 80, :BLOCK)
+        buffer = "\x4E\x4F\x4F\x50\x00\x4E\x4F\x4F\x50\x0A" # NOOP<NULL>NOOP\n
+        expect(s.read("test1", :CONVERTED, buffer)).to eql "NOOP\x00NOOP\n"
       end
 
       it "reads array data from the buffer" do
@@ -441,6 +507,33 @@ module Cosmos
         expect(s.formatted(:CONVERTED, 4)).to include("    TEST2: 3456")
         expect(s.formatted(:CONVERTED, 4)).to include("    TEST3")
         expect(s.formatted(:CONVERTED, 4)).to include("    00000000: 07 08 09 0A")
+      end
+
+      it "processes uses a different buffer" do
+        s = Structure.new(:BIG_ENDIAN)
+        s.append_item("test1", 8, :UINT, 16)
+        s.write("test1", [1,2])
+        s.append_item("test2", 16, :UINT)
+        s.write("test2", 3456)
+        s.append_item("test3", 32, :BLOCK)
+        s.write("test3", "\x07\x08\x09\x0A")
+        buffer = "\x0A\x0B\x0C\x0D\xDE\xAD\xBE\xEF"
+        expect(s.formatted(:CONVERTED, 0, buffer)).to include("TEST1: [10, 11]")
+        expect(s.formatted(:CONVERTED, 0, buffer)).to include("TEST2: #{0x0C0D}")
+        expect(s.formatted(:CONVERTED, 0, buffer)).to include("TEST3")
+        expect(s.formatted(:CONVERTED, 0, buffer)).to include("00000000: DE AD BE EF")
+      end
+
+      it "ignores items" do
+        s = Structure.new(:BIG_ENDIAN)
+        s.append_item("test1", 8, :UINT, 16)
+        s.write("test1", [1,2])
+        s.append_item("test2", 16, :UINT)
+        s.write("test2", 3456)
+        s.append_item("test3", 32, :BLOCK)
+        s.write("test3", "\x07\x08\x09\x0A")
+        expect(s.formatted(:CONVERTED, 0, s.buffer, %w(TEST1 TEST3))).to eq("TEST2: 3456\n")
+        expect(s.formatted(:CONVERTED, 0, s.buffer, %w(TEST1 TEST2 TEST3))).to eq("")
       end
     end
 
@@ -560,7 +653,5 @@ module Cosmos
         expect { s.test1 }.to raise_error(ArgumentError, "Unknown item: test1")
       end
     end
-
   end # describe Structure
-
 end

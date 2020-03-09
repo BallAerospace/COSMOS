@@ -21,7 +21,6 @@ module Cosmos
     #   appended with any warnings found when parsing the limits
     def self.parse(parser, packet, cmd_or_tlm, item, warnings)
       raise parser.error("Items with LIMITS can't define STATE") if item.limits.values
-      raise parser.error("Items with FORMAT_STRING can't define STATE") if item.format_string
       raise parser.error("Items with UNITS can't define STATE") if item.units
       @parser = StateParser.new(parser)
       @parser.verify_parameters(cmd_or_tlm)

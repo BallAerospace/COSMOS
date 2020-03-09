@@ -167,7 +167,7 @@ expected_list = [["CCSDSVER", 0, nil, "CCSDS primary header version number", nil
   ["TYPE", 0, {"NORMAL"=>0, "SPECIAL"=>1}, "Collect type", nil, nil, true],
   ["DURATION", 1.0, nil, "Collect duration", nil, nil, false],
   ["OPCODE", "0xAB", nil, "Collect opcode", nil, nil, false],
-  ["TEMP", 0.0, nil, "Collect temperature", "Celcius", "C", false]]
+  ["TEMP", 0.0, nil, "Collect temperature", "Celsius", "C", false]]
 list = get_cmd_param_list("INST", "COLLECT")
 if list != expected_list
   raise "Fail"

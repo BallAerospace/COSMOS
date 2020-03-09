@@ -67,6 +67,15 @@ module Cosmos
       @analyze_log.connect(SIGNAL('triggered()')) { analyze_log_files() }
 
       # Mode Menu Actions
+      @csv_output = Qt::Action.new('&CSV Output', self)
+      @csv_output.statusTip = 'Output as CSV based on Packet Time'
+      @csv_output.setCheckable(true)
+      @csv_output.connect(SIGNAL('triggered()')) { change_callback(:INPUT_FILES) }
+
+      @skip_ignored = Qt::Action.new('&Skip Ignored Items', self)
+      @skip_ignored.statusTip = "Skip ignored items in the command when building output"
+      @skip_ignored.setCheckable(true)
+
       @include_raw = Qt::Action.new('Include &Raw Data', self)
       @include_raw_keyseq = Qt::KeySequence.new('Ctrl+R')
       @include_raw.shortcut = @include_raw_keyseq
@@ -81,6 +90,8 @@ module Cosmos
       @file_menu.addSeparator()
       @file_menu.addAction(@exit_action)
       @mode_menu = menuBar.addMenu('&Mode')
+      @mode_menu.addAction(@csv_output)
+      @mode_menu.addAction(@skip_ignored)
       @mode_menu.addAction(@include_raw)
       @about_string = "Command Extractor extracts commands from a binary command log file into a human readable text file."
       initialize_help_menu()
@@ -144,6 +155,14 @@ module Cosmos
       @open_button.connect(SIGNAL('clicked()')) { open_button() }
       @open_button.setEnabled(false)
       @button_layout.addWidget(@open_button)
+
+      if Kernel.is_windows?
+        @open_excel_button = Qt::PushButton.new('&Open in Excel')
+        @open_excel_button.connect(SIGNAL('clicked()')) { open_excel_button() }
+        @open_excel_button.setEnabled(false)
+        @button_layout.addWidget(@open_excel_button)
+      end
+
       @top_layout.addLayout(@button_layout)
     end
 
@@ -182,8 +201,10 @@ module Cosmos
       @meta_filters = @dart_meta_frame.meta_filters
 
       return unless pre_process_tests()
-
+      csv_output = @csv_output.isChecked
+      skip_ignored = @skip_ignored.isChecked
       include_raw = @include_raw.isChecked
+
       if @log_file_radio.isChecked
         begin
           ProgressDialog.execute(self, # parent
@@ -196,13 +217,14 @@ module Cosmos
             begin
               Cosmos.set_working_dir do
                 File.open(@output_filename, 'w') do |output_file|
-                  process_files(output_file, include_raw, progress_dialog)
+                  process_files(output_file, progress_dialog, csv_output, skip_ignored, include_raw)
                 end
               end
             ensure
               progress_dialog.complete
               Qt.execute_in_main_thread(true) do
                 @open_button.setEnabled(true)
+                @open_excel_button.setEnabled(true) if Kernel.is_windows?
               end
             end
           end
@@ -246,6 +268,8 @@ module Cosmos
                   @interface.write(request_packet)
                   progress_dialog.append_text("Receiving Packets...")
 
+                  write_output_file_DART_header(output_file, request, csv_output)
+
                   first = true
                   while true
                     break if @cancel
@@ -271,17 +295,7 @@ module Cosmos
                     defined_packet = System.commands.packet(packet.target_name, packet.packet_name)
                     defined_packet.buffer = packet.buffer
                     defined_packet.received_time = packet.received_time
-
-                    output_file.puts "#{defined_packet.target_name} #{defined_packet.packet_name}"
-                    output_file.puts "  PACKET_TIMEFORMATTED: #{defined_packet.packet_time.formatted}"
-                    output_file.puts "  RECEIVED_TIMEFORMATTED: #{defined_packet.received_time.formatted}"
-                    output_file.puts defined_packet.formatted(:WITH_UNITS, 2)
-                    if include_raw or !defined_packet.identified? or !defined_packet.defined?
-                      output_file.puts "  RAW PACKET DATA (#{defined_packet.length} bytes):"
-                      output_file.puts defined_packet.buffer.formatted(1, 16, ' ', 4)
-                    end
-                    output_file.puts
-
+                    write_output_file_packet(output_file, defined_packet, csv_output, skip_ignored, include_raw)
                     progress = ((@time_delta - (@time_end - defined_packet.packet_time)).to_f / @time_delta.to_f)
                     progress_dialog.set_overall_progress(progress) if !@cancel
                   end
@@ -294,6 +308,7 @@ module Cosmos
               progress_dialog.complete
               Qt.execute_in_main_thread(true) do
                 @open_button.setEnabled(true)
+                @open_excel_button.setEnabled(true) if Kernel.is_windows?
               end
             end
           end
@@ -309,11 +324,15 @@ module Cosmos
       Cosmos.open_in_text_editor(@output_filename)
     end
 
+    def open_excel_button
+      system("start Excel.exe \"#{@output_filename}\"")
+    end
+
     ###############################################################################
     # Helper Methods
     ###############################################################################
 
-    def process_files(output_file, include_raw, progress_dialog)
+    def process_files(output_file, progress_dialog, csv_output, skip_ignored, include_raw)
       log_file_count = 1
       @input_filenames.each do |log_file|
         break if @cancel
@@ -322,10 +341,7 @@ module Cosmos
           file_size = File.size(log_file).to_f
           progress_dialog.append_text("Processing File #{log_file_count}/#{@input_filenames.length}: #{log_file}")
           progress_dialog.set_step_progress(0.0)
-          output_file.puts '-' * (log_file.length * 1.4).to_i
-          output_file.puts log_file
-          output_file.puts '-' * (log_file.length * 1.4).to_i
-          output_file.puts
+          write_output_file_header(output_file, log_file, csv_output)
           @packet_log_reader.each(
             log_file, # log filename
             true,     # identify and define packet
@@ -334,17 +350,7 @@ module Cosmos
 
             break if @cancel
             progress_dialog.set_step_progress(@packet_log_reader.bytes_read / file_size)
-            output_file.puts "#{packet.target_name} #{packet.packet_name}"
-            if packet.received_time
-              output_file.puts "  PACKET_TIMEFORMATTED: #{packet.packet_time.formatted}"
-              output_file.puts "  RECEIVED_TIMEFORMATTED: #{packet.received_time.formatted}"
-            end
-            output_file.puts packet.formatted(:WITH_UNITS, 2)
-            if include_raw or !packet.identified? or !packet.defined?
-              output_file.puts "  RAW PACKET DATA (#{packet.length} bytes):"
-              output_file.puts packet.buffer.formatted(1, 16, ' ', 4)
-            end
-            output_file.puts
+            write_output_file_packet(output_file, packet, csv_output, skip_ignored, include_raw)
           end
           progress_dialog.set_step_progress(1.0) if !@cancel
           progress_dialog.set_overall_progress(log_file_count.to_f / @input_filenames.length.to_f) if !@cancel
@@ -359,6 +365,57 @@ module Cosmos
     # Helper Methods
     ###############################################################################
 
+    def write_output_file_header(output_file, log_file, csv_output)
+      if csv_output
+        output_file.puts "Filename,#{log_file}"
+        output_file.puts "PACKET_TIMEFORMATTED,Target,Packet,Parameters"
+      else
+        output_file.puts '-' * (log_file.length * 1.4).to_i
+        output_file.puts log_file
+        output_file.puts '-' * (log_file.length * 1.4).to_i
+        output_file.puts
+      end
+    end
+
+    def write_output_file_DART_header(output_file, request, csv_output)
+      if csv_output
+        output_file.puts "DART Request"
+        output_file.puts "start secs,#{request['start_time_sec']},start usec,#{request['start_time_usec']}"
+        output_file.puts "end secs,#{request['end_time_sec']},end usec,#{request['end_time_usec']}"
+        output_file.puts "meta_filter,#{request['meta_filters']}" unless @meta_filters.empty?
+      else
+        output_file.puts "DART Request"
+        output_file.puts "start secs:#{request['start_time_sec']} start usec:#{request['start_time_usec']}"
+        output_file.puts "end secs:#{request['end_time_sec']} end usec:#{request['end_time_usec']}"
+        output_file.puts "meta_filter:#{request['meta_filters']}" unless @meta_filters.empty?
+      end
+    end
+
+    def write_output_file_packet(output_file, packet, csv_output, skip_ignored, include_raw)
+      if csv_output
+        items_string = ""
+        packet.read_all.each do |name, value|
+          next if skip_ignored && System.targets[packet.target_name].ignored_items.include?(name)
+          items_string << "#{name},#{value},"
+        end
+        output_file.puts "#{packet.packet_time.formatted},#{packet.target_name},#{packet.packet_name},#{items_string}"
+        output_file.puts "#{packet.buffer.formatted}" if include_raw
+      else
+        output_file.puts "#{packet.target_name} #{packet.packet_name}"
+        if packet.received_time
+          output_file.puts "  PACKET_TIMEFORMATTED: #{packet.packet_time.formatted}"
+          output_file.puts "  RECEIVED_TIMEFORMATTED: #{packet.received_time.formatted}"
+        end
+        ignored = skip_ignored ? System.targets[packet.target_name].ignored_items : nil
+        output_file.puts packet.formatted(:WITH_UNITS, 2, packet.buffer, ignored)
+        if include_raw or !packet.identified? or !packet.defined?
+          output_file.puts "  RAW PACKET DATA (#{packet.length} bytes):"
+          output_file.puts packet.buffer.formatted(1, 16, ' ', 4)
+        end
+        output_file.puts
+      end
+    end
+
     def pre_process_tests
       if @log_file_radio.isChecked
         unless @input_filenames and @input_filenames[0]
@@ -372,7 +429,7 @@ module Cosmos
           Qt::MessageBox.critical(self, 'Error', 'No Output File Selected')
           return false
         else
-          @packet_log_frame.output_filename = File.join(System.paths['LOGS'], File.build_timestamped_filename(['cmd_extractor', 'dart']))
+          @packet_log_frame.output_filename = File.join(System.paths['LOGS'], File.build_timestamped_filename(['cmd_extractor', 'dart'], get_output_file_extension()))
           @output_filename = @packet_log_frame.output_filename
         end
       end
@@ -383,6 +440,10 @@ module Cosmos
       end
 
       true
+    end
+
+    def get_output_file_extension
+      @csv_output.isChecked ? '.csv' : '.txt'
     end
 
     ###############################################################################
@@ -400,12 +461,10 @@ module Cosmos
         if filename
           extension = File.extname(filename)
           filename_no_extension = filename[0..-(extension.length + 1)]
-          filename = filename_no_extension << '.txt'
-          @packet_log_frame.output_filename = filename
+          @packet_log_frame.output_filename = "#{filename_no_extension}#{get_output_file_extension}"
         end
       end
     end
 
-  end # class CmdExtractor
-
-end # module Cosmos
+  end
+end

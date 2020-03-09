@@ -10,6 +10,7 @@
 
 require 'cosmos/script'
 require 'optparse'
+require 'dart_constants'
 
 # Autoload models here to remove problems loading within Cosmos namespace
 Target
@@ -20,6 +21,8 @@ PacketLogEntry
 # Implement methods common to DART (Data Archival Retrieval and Trending).
 # Most of these methods handle accessing the DART database.
 module DartCommon
+  include DartConstants
+
   # @return [Integer] Maximimum byte size of strings in the database
   MAX_STRING_BYTE_SIZE = 191 # Works well with mysql utf8mb4 if we want to support mysql in the future
   # @return [Integer] Maximimum bit size of strings in the database
@@ -184,7 +187,7 @@ module DartCommon
           end
         end
         t.index :time
-        t.index :reduced_state, :where => "reduced_state < 2"
+        t.index :reduced_state, :where => "reduced_state < #{REDUCED}"
       end
       create_reduction_table("t#{packet_config.id}_#{table_index}_h", table_data_types, table_index) # hour
       create_reduction_table("t#{packet_config.id}_#{table_index}_m", table_data_types, table_index) # month
@@ -202,7 +205,7 @@ module DartCommon
   # can't be loaded locally, it is requested from the server and copied
   # locally before proceeding.
   #
-  # @param system_config_name [String] System configuration name (MD5) to load
+  # @param system_config_name [String] System configuration name (hashing sum) to load
   def switch_and_get_system_config(system_config_name)
     # Switch to this new system configuration
     current_config, error = Cosmos::System.load_configuration(system_config_name)
@@ -288,7 +291,11 @@ module DartCommon
         reader.open(packet_log.filename)
         @plr_cache[packet_log.id] = reader
       end
-      return reader.read_at_offset(ple.data_offset)
+      packet = reader.read_at_offset(ple.data_offset) 
+      unless packet
+        Cosmos::Logger.error("Failed to read at offset #{ple.data_offset} (file offset: #{reader.bytes_read}) with file size #{reader.size}")
+      end
+      return packet 
     rescue Exception => error
       Cosmos::Logger.error("Error Reading Packet Log Entry:\n#{error.formatted}")
       return nil
@@ -319,7 +326,7 @@ module DartCommon
     reduction,
     reduction_modifier,
     item_name_modifier,
-    limit = 10000,
+    limit = MAX_DECOM_RESULTS,
     offset = 0,
     meta_ids = [])
 
@@ -687,7 +694,7 @@ module DartCommon
         end
       end
       t.index :start_time
-      t.index :reduced_state, :where => "reduced_state < 2"
+      t.index :reduced_state, :where => "reduced_state < #{REDUCED}"
     end
   end
 

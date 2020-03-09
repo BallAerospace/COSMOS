@@ -14,7 +14,7 @@ require 'cosmos/tools/tlm_viewer/widgets/labelvalue_widget'
 require 'cosmos/tools/tlm_viewer/widgets/limitsbar_widget'
 
 module Cosmos
-
+  # Vertically stacks a LabelWidget, LimitscolumnWidget, and ValueWidget
   class LabelvaluelimitscolumnWidget < Qt::Widget
     include Widget
     include MultiWidget
@@ -34,5 +34,4 @@ module Cosmos
       return true
     end
   end
-
-end # module Cosmos
+end

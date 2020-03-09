@@ -62,6 +62,7 @@ module Cosmos
         allow_empty_data)
       @response_template = nil
       @response_packet = nil
+      @response_target_name = nil
       @response_packets = []
       @write_block_queue = Queue.new
       @ignore_lines = ignore_lines.to_i
@@ -124,7 +125,7 @@ module Cosmos
         end
 
         # Grab the response packet specified in the command
-        result_packet = System.telemetry.packet(@interface.target_names[0], @response_packet).clone
+        result_packet = System.telemetry.packet(@response_target_name, @response_packet).clone
         result_packet.received_time = nil
         result_packet.id_items.each do |item|
           result_packet.write_item(item, item.id_value, :RAW)
@@ -145,13 +146,13 @@ module Cosmos
         # Write the packet value with each of the values received
         response_values = response_string.scan(response_regexp)[0]
         if !response_values || (response_values.length != response_item_names.length)
-          handle_error("#{@interface.name}: Unexpected response: #{response_string}")
+          handle_error("#{@interface ? @interface.name : ""}: Unexpected response: #{response_string}")
         else
           response_values.each_with_index do |value, i|
             begin
               result_packet.write(response_item_names[i], value)
             rescue => error
-              handle_error("#{@interface.name}: Could not write value #{value} due to #{error.message}")
+              handle_error("#{@interface ? @interface.name : ""}: Could not write value #{value} due to #{error.message}")
               break
             end
           end
@@ -181,17 +182,20 @@ module Cosmos
       begin
         @response_template = packet.read("RSP_TEMPLATE").strip
         @response_packet = packet.read("RSP_PACKET").strip
+        @response_target_name = packet.target_name
         # If the template or packet are empty set them to nil. This allows for
         # the user to remove the RSP_TEMPLATE and RSP_PACKET values and avoid
         # any response timeouts
         if @response_template.empty? || @response_packet.empty?
           @response_template = nil
           @response_packet = nil
+          @response_target_name = nil
         end
       rescue
         # If there is no response template we set to nil
         @response_template = nil
         @response_packet = nil
+        @response_target_name = nil
       end
 
       # Grab the command template because that is all we eventually send
@@ -230,11 +234,12 @@ module Cosmos
           sleep(@response_polling_period)
           retry if !response_timeout_time
           retry if response_timeout_time and Time.now < response_timeout_time
-          handle_error("#{@interface.name}: Timeout waiting for response")
+          handle_error("#{@interface ? @interface.name : ""}: Timeout waiting for response")
         end
 
         @response_template = nil
         @response_packet = nil
+        @response_target_name = nil
         @response_packets.clear
       end
       return super(packet, data)

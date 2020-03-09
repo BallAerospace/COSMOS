@@ -8,7 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'digest/md5'
+require 'digest'
 require 'cosmos/packets/structure'
 require 'cosmos/packets/packet_item'
 require 'cosmos/ext/packet' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
@@ -186,36 +186,58 @@ module Cosmos
         @read_conversion_cache.clear if @read_conversion_cache
         @received_count
       end
+      
+    end # if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']      
+      
+    # Tries to identify if a buffer represents the currently defined packet. It
+    # does this by iterating over all the packet items that were created with
+    # an ID value and checking whether that ID value is present at the correct
+    # location in the buffer.
+    #
+    # Incorrectly sized buffers will still positively identify if there is
+    # enough data to match the ID values. This is to allow incorrectly sized
+    # packets to still be processed as well as possible given the incorrectly
+    # sized data.
+    #
+    # @param buffer [String] Raw buffer of binary data
+    # @return [Boolean] Whether or not the buffer of data is this packet
+    def identify?(buffer)
+      return false unless buffer
+      return true unless @id_items
 
-      # Tries to identify if a buffer represents the currently defined packet. It
-      # does this by iterating over all the packet items that were created with
-      # an ID value and checking whether that ID value is present at the correct
-      # location in the buffer.
-      #
-      # Incorrectly sized buffers will still positively identify if there is
-      # enough data to match the ID values. This is to allow incorrectly sized
-      # packets to still be processed as well as possible given the incorrectly
-      # sized data.
-      #
-      # @param buffer [String] Raw buffer of binary data
-      # @return [Boolean] Whether or not the buffer of data is this packet
-      def identify?(buffer)
-        return false unless buffer
-        return true unless @id_items
-
-        @id_items.each do |item|
-          begin
-            value = read_item(item, :RAW, buffer)
-          rescue Exception
-            value = nil
-          end
-          return false if item.id_value != value
+      @id_items.each do |item|
+        begin
+          value = read_item(item, :RAW, buffer)
+        rescue Exception
+          value = nil
         end
-
-        true
+        return false if item.id_value != value
       end
-    end # if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
 
+      true
+    end
+    
+    # Reads the values from a buffer at the position of each id_item defined
+    # in the packet.
+    #
+    # @param buffer [String] Raw buffer of binary data
+    # @return [Array] Array of read id values in order
+    def read_id_values(buffer)
+      return [] unless buffer
+      return [] unless @id_items
+      values = []
+      
+      @id_items.each do |item|
+        begin
+          values << read_item(item, :RAW, buffer)
+        rescue Exception
+          values << nil
+        end
+      end
+      
+      values
+    end
+    
     # Returns @received_time unless a packet item called PACKET_TIME exists that returns
     # a Ruby Time object that represents a different timestamp for the packet
     def packet_time
@@ -227,7 +249,7 @@ module Cosmos
       end
     end
 
-    # Calculates a unique MD5Sum that changes if the parts of the packet configuration change that could affect
+    # Calculates a unique hashing sum that changes if the parts of the packet configuration change that could affect
     # the "shape" of the packet.  This value is cached and that packet should not be changed if this method is being used
     def config_name
       return @config_name if @config_name
@@ -235,7 +257,9 @@ module Cosmos
       @sorted_items.each do |item|
         string << " ITEM #{item.name} #{item.bit_offset} #{item.bit_size} #{item.data_type} #{item.array_size} #{item.endianness} #{item.overflow} #{item.states} #{item.read_conversion ? item.read_conversion.class : 'NO_CONVERSION'}"
       end
-      digest = Digest::MD5.new
+
+      # Use the hashing algorithm established by Cosmos::System
+      digest = Digest.const_get(System.hashing_algorithm).send('new')
       digest << string
       @config_name = digest.hexdigest
       @config_name
@@ -317,7 +341,7 @@ module Cosmos
       previous_item = nil
       warnings = []
       @sorted_items.each do |item|
-        if expected_next_offset and item.bit_offset < expected_next_offset
+        if expected_next_offset and (item.bit_offset < expected_next_offset) and !item.overlap
           msg = "Bit definition overlap at bit offset #{item.bit_offset} for packet #{@target_name} #{@packet_name} items #{item.name} and #{previous_item.name}"
           Logger.instance.warn(msg)
           warnings << msg
@@ -676,9 +700,10 @@ module Cosmos
     # @param value_type (see #read_item)
     # @param indent (see Structure#formatted)
     # @param buffer (see Structure#formatted)
+    # @param ignored (see Structure#ignored)
     # @return (see Structure#formatted)
-    def formatted(value_type = :CONVERTED, indent = 0, buffer = @buffer)
-      return super(value_type, indent, buffer)
+    def formatted(value_type = :CONVERTED, indent = 0, buffer = @buffer, ignored = nil)
+      return super(value_type, indent, buffer, ignored)
     end
 
     # Restore all items in the packet to their default value
@@ -852,7 +877,19 @@ module Cosmos
     def update_id_items(item)
       if item.id_value
         @id_items ||= []
-        @id_items << item
+        # Add to Id Items
+        unless @id_items.empty?
+          last_item = @id_items[-1]
+          @id_items << item
+          # If the current item or last item have a negative offset then we have
+          # to re-sort. We also re-sort if the current item is less than the last
+          # item because we are inserting.
+          if last_item.bit_offset <= 0 or item.bit_offset <= 0 or item.bit_offset < last_item.bit_offset
+            @id_items = @id_items.sort
+          end
+        else
+          @id_items << item
+        end
       end
       item
     end

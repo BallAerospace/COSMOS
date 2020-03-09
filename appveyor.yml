@@ -1,18 +1,29 @@
+environment:
+  matrix:
+    - ruby_version: 24-x64
+    - ruby_version: 25-x64
+    #- ruby_version: 26-x64 this needs qtbindings support
+
+cache:
+  # If one of the files after the right arrow changes, cache will be invalidated
+  - vendor\bundle -> appveyor.yml, Gemfile, cosmos.gemspec
+
 install:
   - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
   - SET PATH=C:\MinGW\bin;%PATH%
   - SET RAKEOPT=-rdevkit
-  - ruby --version
-  - gem --version
+  - bundle config --local path vendor/bundle
   - bundle install
-  - bundle exec rake build spec
 
 build: off
 
-environment:
-  matrix:
-    - ruby_version: "24"
-    - ruby_version: "24-x64"
+before_test:
+  - ruby -v
+  - gem -v
+  - bundle -v
+
+test_script:
+  - bundle exec rake build spec
 
 branches:
   only:

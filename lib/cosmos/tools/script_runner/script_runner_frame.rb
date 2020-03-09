@@ -89,6 +89,9 @@ module Cosmos
     SET_TLM_KEYWORDS = %w(set_tlm set_tlm_raw override_tlm_raw normalize_tlm_raw)
     CHECK_KEYWORDS   = %w(check check_raw wait wait_raw wait_check wait_check_raw)
 
+    INSTANCE_VARS = %w(__return_val close_on_complete error eval_error filename instrumented_script \
+      line_number line_offset saved_instance saved_run_thread text text_binding uncaught_exception)
+
     attr_accessor :use_instrumentation
     attr_accessor :change_callback
     attr_accessor :run_callback
@@ -569,10 +572,14 @@ module Cosmos
         return nil if @cancel_instrumentation
         instrumented_line = ''
         if instrumentable
-          # Skip the segment if it's empty. Note that the segment could have
-          # originally had comments but they were stripped in
+          # Add a newline if it's empty to ensure the instrumented code has
+          # the same number of lines as the original script. Note that the
+          # segment could have originally had comments but they were stripped in
           # ruby_lex_utils.remove_comments
-          next if segment.strip.empty?
+          if segment.strip.empty?
+            instrumented_text << "\n"
+            next
+          end
 
           # Create a variable to hold the segment's return value
           instrumented_line << "__return_val = nil; "
@@ -587,12 +594,12 @@ module Cosmos
             "ScriptRunnerFrame.instance.pre_line_instrumentation('#{filename}', #{line_no}); "
 
           # Add the actual line
-          instrumented_line << "__return_val = "
+          instrumented_line << "__return_val = begin; "
           instrumented_line << segment
           instrumented_line.chomp!
 
           # Add postline instrumentation
-          instrumented_line << "; ScriptRunnerFrame.instance.post_line_instrumentation('#{filename}', #{line_no}); "
+          instrumented_line << " end; ScriptRunnerFrame.instance.post_line_instrumentation('#{filename}', #{line_no}); "
 
           # Complete begin block to catch exceptions
           unless inside_begin
@@ -671,7 +678,7 @@ module Cosmos
     def exception_instrumentation(error, filename, line_number)
       if error.class == StopScript || error.class == SkipTestCase || !@use_instrumentation
         Kernel.raise error
-      else
+      elsif !error.eql?(@@error)
         line_number = line_number + @line_offset if @active_script.object_id == @script.object_id
         handle_exception(error, false, filename, line_number)
       end
@@ -962,6 +969,10 @@ module Cosmos
               end
 
               if @script_binding
+                # Check for accessing an instance variable or local
+                if debug_text =~ /^@\S+$/ || @script_binding.local_variables.include?(debug_text.to_sym)
+                  debug_text = "puts #{debug_text}" # Automatically add puts to print it
+                end
                 eval(debug_text, @script_binding, 'debug', 1)
               else
                 Object.class_eval(debug_text, 'debug', 1)
@@ -999,8 +1010,20 @@ module Cosmos
             @debug_text.setPlainText("")
           end
         end
-
         @debug_frame.addWidget(@debug_text)
+
+        @locals_button = Qt::PushButton.new('Locals')
+        @locals_button.connect(SIGNAL('clicked(bool)')) do
+          next unless @script_binding
+          @locals_button.setEnabled(false)
+          vars = @script_binding.local_variables.map(&:to_s)
+          puts "Locals: #{vars.reject {|x| INSTANCE_VARS.include?(x)}.sort.join(', ')}"
+          while @output_io.string[-1..-1] == "\n"
+            Qt::CoreApplication.processEvents()
+          end
+          @locals_button.setEnabled(true)
+        end
+        @debug_frame.addWidget(@locals_button)
 
         @bottom_frame.layout.addLayout(@debug_frame)
       end
@@ -1375,7 +1398,13 @@ module Cosmos
           $stdout.add_stream(@output_io)
           $stderr.add_stream(@output_io)
 
-          scriptrunner_puts "Starting script: #{File.basename(@filename)}" unless close_on_complete
+          unless close_on_complete
+            scriptrunner_puts("Starting script: #{File.basename(@filename)}")
+            targets = get_disconnected_targets()
+            if targets
+              scriptrunner_puts("DISCONNECTED targets: #{targets.join(',')}")
+            end
+          end
           handle_output_io()
 
           # Start Limits Monitoring
@@ -1685,7 +1714,12 @@ module Cosmos
       if cached
         @active_script.setPlainText(cached.gsub("\r", ''))
       else
-        @active_script.setPlainText(File.read(filename).gsub("\r", ''))
+        if File.exist?(filename)
+          data = File.read(filename).gsub("\r", '')
+        else
+          data = ""
+        end
+        @active_script.setPlainText(data)
       end
       mark_breakpoints(filename)
 

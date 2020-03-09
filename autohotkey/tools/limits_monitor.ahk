@@ -15,7 +15,7 @@ Send {Enter}
 Run ruby.exe %A_ScriptDir%/ScriptRunner -w 800 -t 200
 Sleep 2000
 WinActivate, Script Runner
-Sleep 500
+Sleep 2000
 Send set_limits("INST", "HEALTH_STATUS", "TEMP1", -100, -80, 80, 100, -60, 60, :DEFAULT){Enter}
 Send set_limits("INST", "HEALTH_STATUS", "TEMP3", -100, -80, 80, 100, -60, 60, :DEFAULT)
 Sleep 1000

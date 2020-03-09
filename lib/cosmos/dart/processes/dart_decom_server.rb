@@ -26,8 +26,8 @@ Cosmos.catch_fatal_exception do
     begin
       json_drb.start_service(Cosmos::System.listen_hosts['DART_DECOM'],
         Cosmos::System.ports['DART_DECOM'], DartDecomQuery.new)
-    rescue Exception
-      raise Cosmos::FatalError.new("Error starting JsonDRb on port #{Cosmos::System.ports['DART_DECOM']}.\nPerhaps another DART Decom Server is already running?")
+    rescue Exception => error
+      raise Cosmos::FatalError.new("Error starting JsonDRb on port #{Cosmos::System.ports['DART_DECOM']}.\nPerhaps another DART Decom Server is already running?\n#{error.formatted}")
     end
     ["TERM", "INT"].each {|sig| Signal.trap(sig) {exit}}
     Cosmos::Logger.info("Dart Decom Server Started...")

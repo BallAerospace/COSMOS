@@ -52,6 +52,37 @@ DECLARE_GEM_TARGET:
       description: The name of the file in the target directory which contains the
         configuration information for the target. By default this is 'target.txt'
         but if you want to rename this you need to set this parameter.
+DECLARE_GEM_MULTI_TARGET:
+  summary: Declare a COSMOS target which resides in a Ruby gem with multiple targets
+  description: COSMOS targets can be distributed in gem form in which case they
+    must be named 'cosmos-<gem-name>' where <gem-name> is the descriptive name of
+    the gem. Multiple Targets can be packaged into a single gem. This directive
+    will tell COSMOS where to look for a target inside the first directory level
+    of the gem.  The sub-directory name must be all uppercase and must contain a
+    sub-directory named 'cmd_tlm'. See the COSMOS documentation at cosmosrb.com
+    for for information on creating a COSMOS gem target.
+  parameters:
+    - name: Gem Name
+      required: true
+      description: The COSMOS gem name which must be cosmos-<gem-name> where <gem-name>
+        is the descriptive gem name. In the above example, the target will be named
+        'GEM-NAME' (note the cosmos- prefix is stripped off).
+      values: .+
+    - name: Target Name
+      required: true
+      description: The directory name which contains the target information.
+        This must match a directory under the first level of the gem base directory.
+      values: .+
+    - name: Substitute Target Name
+      required: false
+      description: The target name in the COSMOS system. This is how the target
+        will be referred to in scripts. If this is not given (or given as nil)
+        the target name will be the gem name as described above.
+    - name: Target Filename
+      required: false
+      description: The name of the file in the target directory which contains the
+        configuration information for the target. By default this is 'target.txt'
+        but if you want to rename this you need to set this parameter.
 PORT:
   summary: Set a Server Port
   description: Port is used to set the default ports used by the Command and Telemetry Server.
@@ -227,21 +258,57 @@ TIME_ZONE_UTC:
     affects packet receive times, timestamped log filenames, message logs,
     Cmd/Tlm extractor time ranges, etc.
   since: 3.10.0
-ADD_MD5_FILE:
-  summary: Add a file to the MD5 sum calculation
-  description: Adds a file to the set of files used in marshal file MD5 sum calculation.
-    Upon startup, COSMOS calculates an MD5 sum over the command/telemetry definition files
+ADD_HASH_FILE:
+  summary: Add a file to the hashing sum calculation
+  description: Adds a file to the set of files used in marshal file hashing sum calculation.
+    Upon startup, COSMOS calculates a hashing sum over the command/telemetry definition files
     for all targets. After the definitions have been processed, COSMOS saves the resulting
-    objects as marshal files in a folder with the MD5 sum as part of the name.
-    The next time COSMOS runs, if the MD5 checksum of the cmd/tlm definition files
+    objects as marshal files in a folder with the hashing sum as part of the name.
+    The next time COSMOS runs, if the hashing sum of the cmd/tlm definition files
     has not changed, COSMOS can load the marshal files instead of re-processing the definitions.
-    If a file is specified with the ADD_MD5_FILE keyword, COSMOS will include it in the
-    MD5 sum calculation. This means that a change in the file will cause COSMOS to
+    If a file is specified with the ADD_HASH_FILE keyword, COSMOS will include it in the
+    hashing sum calculation. This means that a change in the file will cause COSMOS to
     re-process the cmd/tlm defintions and create a new set of marshal files.
-  since: 4.0.0
-  example: ADD_MD5_FILE lib/user_version.rb
+    The default hashing algorithm is MD5, but other Ruby Digest algorithms are also supported,
+    like SHA1 and SHA256
+  since: 4.4.0
+  example: ADD_HASH_FILE lib/user_version.rb
   parameters:
     - name: Filename
       required: true
       description: Filename, either fully qualified, or relative to Cosmos::USERPATH
       values: '.+\.rb'
+CLASSIFICATION:
+  summary: Add a classification banner to the top of all the COSMOS tools
+  since: 4.3.0
+  example: |
+    CLASSIFICATION Unclassified green
+    CLASSIFICATION Secret 255 114 0
+  parameters:
+    - name: Display Text
+      required: true
+      description: The text to display in the classification banner
+      values: '.*'
+    - name: Color Name | Red Hex
+      required: true
+      description: The color name or the red value of a RGB triplet
+      values: '.*'
+    - name: Green Hex
+      required: false
+      description: The green value of a RGB triplet
+      values: '\d+'
+    - name: Blue Hex
+      required: false
+      description: The blue value of a RGB triplet
+      values: '\d+'
+HASHING_ALGORITHM:
+  summary: Specify which Ruby Digest hashing algorithm to use
+  description: Set the hashing algorithm used for config hashing, tlm_viewer hashing, and
+    script hashing. COSMOS will truncate the resulting hash string down to 32 characters
+  since: 4.4.0
+  example: HASHING_ALGORITHM SHA256
+  parameters:
+    - name: Algorithm
+      required: true
+      description: Digest algorithm, one of MD5, RMD160, SHA1, SHA256, SHA384, SHA512
+      values: .+

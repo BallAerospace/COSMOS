@@ -156,7 +156,7 @@ module Cosmos
     end
 
     def log_discard(length, found)
-      Logger.error("Sync #{'not ' unless found}found. Discarding #{length} bytes of data.")
+      Logger.error("#{@interface ? @interface.name : ""}: Sync #{'not ' unless found}found. Discarding #{length} bytes of data.")
       if @data.length >= 0
         Logger.error(sprintf("Starting: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
           @data.length >= 1 ? @data.getbyte(0) : 0,

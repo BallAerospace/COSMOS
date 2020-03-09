@@ -28,6 +28,10 @@ module Cosmos
     def focusInEvent(event)
       emit focus_in
     end
+
+    def wheelEvent(event)
+      event.ignore()
+    end
   end
 
   class ConfigEditorFrame < Qt::Widget
@@ -249,6 +253,8 @@ module Cosmos
         elsif @filename.include?('/config/tools/')
           if @filename.include?('cmd_tlm_server')
             @file_type = "Server Configuration"
+          elsif @filename.include?('cmd_sequence')
+            @file_type = "Command Sequence Configuration"
           elsif @filename.include?('data_viewer')
             @file_type = "Data Viewer Configuration"
           elsif @filename.include?('handbook_creator')
@@ -288,17 +294,10 @@ module Cosmos
       end
       emit file_type_changed # Tell ConfigEditor about the file type
       load_meta_data()
-      display_keyword_help()
     end
 
     def load_meta_data
-      begin
-        type = ConfigEditor::CONFIGURATION_FILES[@file_type][0]
-        @file_meta = MetaConfigParser.load("#{type}.yaml")
-      rescue => error
-        Kernel.raise $! if error.is_a? Psych::SyntaxError
-        @file_meta = nil
-      end
+      @file_meta = ConfigEditor.meta[@file_type]
       display_keyword_help()
     end
 
@@ -563,7 +562,8 @@ module Cosmos
             if attribute_value.is_a? Hash
               # If the value is a Hash then we have parameter specific
               # parameters embedded in this parameter we have to parse
-              value_widget = Qt::ComboBox.new()
+              value_widget = FocusComboBox.new()
+              value_widget.setFocusPolicy(Qt::StrongFocus)
               value_widget.addItem(current_value) unless attribute_value.keys.include?(current_value)
               value_widget.addItems(attribute_value.keys)
               value_widget.setCurrentText(current_value)
@@ -579,6 +579,7 @@ module Cosmos
               end
             elsif attribute_value.is_a? Array # Just a bunch of strings
               value_widget = FocusComboBox.new()
+              value_widget.setFocusPolicy(Qt::StrongFocus)
               value_widget.addItems(attribute_value)
               if required && current_value.nil?
                 value_widget.setStyleSheet("border: 1px solid red")

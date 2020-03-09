@@ -8,7 +8,7 @@ PARAMETER:
     PARAMETER DATA 32 32 INT MIN MAX 0 "Data value"
     PARAMETER VALUE 64 32 FLOAT 0 10.5 2.5
     PARAMETER LABEL 96 96 STRING "COSMOS" "The label to apply"
-    PARAMETER BLOCK 192 0 BLOCK '' "Block of binary data"
+    PARAMETER BLOCK 192 0 BLOCK 0x0 "Block of binary data"
   parameters:
     - name: Name
       required: true
@@ -108,6 +108,21 @@ SELECT_PARAMETER:
     - name: Parameter
       required: true
       description: Name of the parameter to select for modification
+      values: .+
+DELETE_PARAMETER:
+  summary: Deletes an existing command parameter from the packet definition
+  description: Deleting a parameter from the command definition does not remove the
+    defined space for that parameter. Thus unless you redefine a new parameter, there
+    will be a "hole" in the packet where the data is not accessible. You can
+    use SELECT_COMMAND and then PARAMETER to define a new parameter.
+  example: |
+    SELECT_COMMAND SYSTEM STARTLOGGING
+      DELETE_PARAMETER LABEL
+  since: 4.4.1
+  parameters:
+    - name: Parameter
+      required: true
+      description: Name of the parameter to delete
       values: .+
 HIDDEN:
   summary: Hides this command from all COSMOS tools such as Command Sender and Handbook Creator

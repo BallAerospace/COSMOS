@@ -31,8 +31,10 @@ module Cosmos
 
         # Build a lookup table based on the first column
         @lkup = {}
-        @data.each do |row|
-          @lkup[row[0]] = row[1..-1]
+        if @data
+          @data.each do |row|
+            @lkup[row[0]] = row[1..-1]
+          end
         end
       end
 
@@ -70,23 +72,27 @@ module Cosmos
         File.chmod(0444, archive) # Mark read-only
       end
 
-      excel = WIN32OLE.new('excel.application')
-      excel.visible = false
-      wb = excel.workbooks.open(filename)
+      begin
+        excel = WIN32OLE.new('excel.application')
+        excel.visible = false
+        wb = excel.workbooks.open(filename)
 
-      @worksheets = []
-      @lkup = {}
-      count = wb.worksheets.count
-      count.times do |index|
-        ws = wb.worksheets(index + 1)
-        @worksheets << ExcelWorksheet.new(ws)
-        @lkup[ws.name] = @worksheets[-1]
+        @worksheets = []
+        @lkup = {}
+        count = wb.worksheets.count
+        count.times do |index|
+          ws = wb.worksheets(index + 1)
+          @worksheets << ExcelWorksheet.new(ws)
+          @lkup[ws.name] = @worksheets[-1]
+        end
+      ensure
+        if excel
+          excel.DisplayAlerts = false
+          excel.quit
+        end
+        excel = nil
+        GC.start
       end
-
-      excel.DisplayAlerts = false
-      excel.quit
-      excel = nil
-      GC.start
     end
 
     # @return [Array<String>] Array of all the worksheet names

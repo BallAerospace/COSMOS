@@ -101,6 +101,18 @@ Sleep 500
 Send ^+{Tab}
 Sleep 500
 
+Send !f ; File
+Sleep 500
+Send r ; Open Recent
+Sleep 500
+Send {ENTER}
+Sleep 1000
+Send !f ; File
+Sleep 500
+Send r ; Open Recent
+Sleep 500
+Send {Down}{ENTER}
+
 Click right 220 60
 Sleep 500
 Click 240 75 ; Close
@@ -143,9 +155,9 @@ WinWaitActive Script Runner
 
 Send ^s ; File Save SR-1
 Sleep 500
-Click 25 40 ; File
+Send !f ; File
 Sleep 500
-Click 20 185 ; Save As
+Send a ; Save as
 WinWaitActive Save As
 Send autohotkey.rb{Enter}
 WinWaitActive Script Runner
@@ -391,11 +403,11 @@ WinWaitActive Message
 Sleep 500
 Send {Enter}
 WinWaitActive Script Runner
-WinWaitActive COSMOS
+WinWaitActive Prompt
 Sleep 500
 Send {Enter}
 WinWaitActive Script Runner
-WinWaitActive COSMOS
+WinWaitActive Prompt
 Sleep 500
 Send {Enter}
 WinWaitActive Script Runner

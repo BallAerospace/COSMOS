@@ -56,9 +56,6 @@ else
         option_parser.on("--system FILE", "Use an alternative system.txt file") do |arg|
           System.instance(File.join(USERPATH, 'config', 'system', arg))
         end
-        option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-          options.config_file = arg
-        end
       end
 
       return parser, options
@@ -75,7 +72,6 @@ else
 end
 
 module Cosmos
-
   # Implements the GUI functions of the Command and Telemetry Server. All the
   # QT calls are implemented here. The non-GUI functionality is contained in
   # the CmdTlmServer class.
@@ -195,6 +191,7 @@ module Cosmos
 
       # File actions
       @file_reload = Qt::Action.new('&Reload Configuration', self)
+      @file_reload.shortcut = Qt::KeySequence.new('Ctrl+Shift+R')
       @file_reload.statusTip = 'Reload configuraton and reset'
       @file_reload.connect(SIGNAL('triggered()')) do
         CmdTlmServer.instance.reload()
@@ -271,6 +268,7 @@ module Cosmos
     end
 
     def config_change_callback
+      CmdTlmServer.instance.replay_map_targets_to_interfaces
       start(nil)
     end
 
@@ -546,6 +544,8 @@ module Cosmos
     def self.post_options_parsed_hook(options)
       @options = options
       if options.no_gui
+        normalize_config_options(options)
+        
         ["TERM", "INT"].each {|sig| Signal.trap(sig) {exit}}
 
         begin
@@ -613,16 +613,15 @@ module Cosmos
           # Set the default title which can be overridden in the config file
           options.title = TOOL_NAME
           options.auto_size = false
-          options.config_file = CmdTlmServer::DEFAULT_CONFIG_FILE
           options.production = false
           options.no_prompt = false
           options.no_gui = false
           options.replay_routers = false
+          options.config_file = true # config_file is required
+          # Set config_dir because by default it would be config/tools/cmd_tlm_server_gui
+          options.config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', 'cmd_tlm_server')
 
           option_parser.separator "CTS Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = arg
-          end
           option_parser.on("-p", "--production", "Run the server in production mode which disables the ability to stop logging.") do |arg|
             options.production = true
           end
@@ -647,6 +646,5 @@ module Cosmos
         super(option_parser, options)
       end
     end
-
-  end # class CmdTlmServerGui
-end # module Cosmos
+  end
+end

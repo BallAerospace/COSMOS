@@ -11,12 +11,12 @@ FORMAT_STRING:
 UNITS:
   summary: Add displayed units
   example: |
-    UNITS Celcius C
+    UNITS Celsius C
     UNITS Kilometers KM
   parameters:
     - name: Full Name
       required: true
-      description: Full name of the units type, e.g. Celcius
+      description: Full name of the units type, e.g. Celsius
       values: .*
     - name: Abbreviated
       required: true
@@ -44,3 +44,8 @@ META:
       required: false
       description: One or more values to be stored for this Meta Name
       values: .*
+OVERLAP:
+  summary: This item is allowed to overlap other items in the packet
+  description: If an item's bit offset overlaps another item, COSMOS issues a warning. This keyword explicitly
+    allows an item to overlap another and supresses the warning message.
+  since: 4.4.1

@@ -22,19 +22,16 @@ set PROTOCOL=https
 set ARCHITECTURE=%PROCESSOR_ARCHITECTURE%
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=1.9
+set INSTALLER_VERSION=2.4
 
 :: Paths and versions for COSMOS dependencies
-set RUBY_INSTALLER_32=rubyinstaller-2.4.4-1-x86.exe
-set RUBY_INSTALLER_64=rubyinstaller-2.4.4-1-x64.exe
-set RUBY_INSTALLER_PATH=//github.com/oneclick/rubyinstaller2/releases/download/rubyinstaller-2.4.4-1/
-set RUBY_ABI_VERSION=2.4.0
-set WKHTMLTOPDF=wkhtmltox-0.11.0_rc1-installer.exe
-set WKHTMLPATHWITHPROTOCOL=https://downloads.wkhtmltopdf.org/obsolete/windows/
+set RUBY_INSTALLER=rubyinstaller-devkit-2.5.7-1-x64.exe
+set RUBY_INSTALLER_PATH=//github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-2.5.7-1/
+set RUBY_ABI_VERSION=2.5.0
+set WKHTMLTOPDF=wkhtmltox-0.12.5-1.msvc2015-win64.exe
+set WKHTMLPATHWITHPROTOCOL=https://downloads.wkhtmltopdf.org/0.12/0.12.5/
 set QTBINDINGS_QT_VERSION=4.8.6.4
 set WINDOWS_INSTALL_ZIP=//github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip
-set MSYS2_32=http://repo.msys2.org/distrib/i686/msys2-i686-20161025.exe
-set MSYS2_64=http://repo.msys2.org/distrib/x86_64/msys2-x86_64-20161025.exe
 
 :: Detect Ball
 if "%USERDNSDOMAIN%"=="AERO.BALL.COM" (
@@ -134,8 +131,7 @@ if errorlevel 1 (
 @echo COSMOS_VERSION=!COSMOS_VERSION! >> !COSMOS_INSTALL!\INSTALL.log
 @echo PATH=!START_PATH! >> !COSMOS_INSTALL!\INSTALL.log
 @echo PROTOCOL=!PROTOCOL! >> !COSMOS_INSTALL!\INSTALL.log
-@echo RUBY_INSTALLER_32=!RUBY_INSTALLER_32! >> !COSMOS_INSTALL!\INSTALL.log
-@echo RUBY_INSTALLER_64=!RUBY_INSTALLER_64! >> !COSMOS_INSTALL!\INSTALL.log
+@echo RUBY_INSTALLER=!RUBY_INSTALLER! >> !COSMOS_INSTALL!\INSTALL.log
 @echo RUBY_INSTALLER_PATH=!RUBY_INSTALLER_PATH! >> !COSMOS_INSTALL!\INSTALL.log
 @echo RUBY_ABI_VERSION=!RUBY_ABI_VERSION! >> !COSMOS_INSTALL!\INSTALL.log
 @echo WKHTMLTOPDF=!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
@@ -168,70 +164,25 @@ SET "UNZIP_TMP=!COSMOS_INSTALL!\tmp\unzip.vbs"
 ::::::::::::::::::::::::
 
 if !ARCHITECTURE!==x86 (
-  echo Downloading 32-bit Ruby
-  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32!')"
-  if errorlevel 1 (
-    echo ERROR: Problem downloading 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32!
-    echo INSTALL FAILED
-    @echo ERROR: Problem downloading 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32! >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully downloaded 32-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_32! >> !COSMOS_INSTALL!\INSTALL.log
-  )
-  echo Downloading 32-bit msys2
-  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!MSYS2_32!', '!COSMOS_INSTALL!\tmp\msys2.exe')"
-  if errorlevel 1 (
-    echo ERROR: Problem downloading 32-bit msys2 from: !MSYS2_32!
-    echo INSTALL FAILED
-    @echo ERROR: Problem downloading 32-bit Ruby from: !MSYS2_32! >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully downloaded 32-bit msys2 from: !MSYS2_32! >> !COSMOS_INSTALL!\INSTALL.log
-  )
-
-  echo Installing 32-bit Ruby
-  !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_32! /silent /nomodpath /noassocfiles /dir="!COSMOS_INSTALL!\Vendor\Ruby"
-  if errorlevel 1 (
-    echo ERROR: Problem installing 32-bit Ruby
-    echo INSTALL FAILED
-    @echo ERROR: Problem installing 32-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully installed 32-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
-  )
-  !COSMOS_INSTALL!\tmp\msys2.exe
-  call C:\msys64\usr\bin\pacman --noconfirm -R catgets
-  call C:\msys64\usr\bin\pacman --noconfirm -R libcatgets
-  call C:\msys64\usr\bin\pacman --noconfirm -S autoconf autoconf2.13 autogen automake-wrapper automake1.10 automake1.11 automake1.12 automake1.13 automake1.14 automake1.15 automake1.6 automake1.7 automake1.8 automake1.9 diffutils file gawk grep libtool m4 make patch pkg-config sed texinfo texinfo-tex wget mingw-w64-i686-binutils mingw-w64-i686-crt-git mingw-w64-i686-gcc mingw-w64-i686-gcc-libs mingw-w64-i686-headers-git mingw-w64-i686-libmangle-git mingw-w64-i686-libwinpthread-git mingw-w64-i686-make mingw-w64-i686-pkg-config mingw-w64-i686-tools-git mingw-w64-i686-winpthreads-git mingw-w64-i686-gettext
+  echo ERROR: INSTALL_COSMOS.bat no longer supports 32-bit Windows"
+  echo INSTALL FAILED
+  pause
+  exit /b 1
 ) else (
   echo Downloading 64-bit Ruby
-  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64!')"
+  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER!', '!COSMOS_INSTALL!\tmp\!RUBY_INSTALLER!')"
   if errorlevel 1 (
-    echo ERROR: Problem downloading 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64!
+    echo ERROR: Problem downloading 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER!
     echo INSTALL FAILED
-    @echo ERROR: Problem downloading 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64! >> !COSMOS_INSTALL!\INSTALL.log
+    @echo ERROR: Problem downloading 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER! >> !COSMOS_INSTALL!\INSTALL.log
     pause
     exit /b 1
   ) else (
-    @echo Successfully downloaded 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER_64! >> !COSMOS_INSTALL!\INSTALL.log
-  )
-  echo Downloading 64-bit msys2
-  powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('!MSYS2_64!', '!COSMOS_INSTALL!\tmp\msys2.exe')"
-  if errorlevel 1 (
-    echo ERROR: Problem downloading 64-bit msys2 from: !MSYS2_64!
-    echo INSTALL FAILED
-    @echo ERROR: Problem downloading 64-bit Ruby from: !MSYS2_64! >> !COSMOS_INSTALL!\INSTALL.log
-    pause
-    exit /b 1
-  ) else (
-    @echo Successfully downloaded 64-bit msys2 from: !MSYS2_64! >> !COSMOS_INSTALL!\INSTALL.log
+    @echo Successfully downloaded 64-bit Ruby from: !PROTOCOL!:!RUBY_INSTALLER_PATH!!RUBY_INSTALLER! >> !COSMOS_INSTALL!\INSTALL.log
   )
 
   echo Installing 64-bit Ruby
-  !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER_64! /silent /nomodpath /noassocfiles /dir="!COSMOS_INSTALL!\Vendor\Ruby"
+  !COSMOS_INSTALL!\tmp\!RUBY_INSTALLER! /silent /tasks="nomodpath,noassocfiles" /dir="!COSMOS_INSTALL!\Vendor\Ruby"
   if errorlevel 1 (
     echo ERROR: Problem installing 64-bit Ruby
     echo INSTALL FAILED
@@ -241,10 +192,10 @@ if !ARCHITECTURE!==x86 (
   ) else (
     @echo Successfully installed 64-bit Ruby >> !COSMOS_INSTALL!\INSTALL.log
   )
-!COSMOS_INSTALL!\tmp\msys2.exe
-  call C:\msys64\usr\bin\pacman --noconfirm -R catgets
-  call C:\msys64\usr\bin\pacman --noconfirm -R libcatgets
-  call C:\msys64\usr\bin\pacman --noconfirm -S autoconf autoconf2.13 autogen automake-wrapper automake1.10 automake1.11 automake1.12 automake1.13 automake1.14 automake1.15 automake1.6 automake1.7 automake1.8 automake1.9 diffutils file gawk grep libtool m4 make patch pkg-config sed texinfo texinfo-tex wget mingw-w64-x86_64-binutils mingw-w64-x86_64-crt-git mingw-w64-x86_64-gcc mingw-w64-x86_64-gcc-libs mingw-w64-x86_64-headers-git mingw-w64-x86_64-libmangle-git mingw-w64-x86_64-libwinpthread-git mingw-w64-x86_64-make mingw-w64-x86_64-pkg-config mingw-w64-x86_64-tools-git mingw-w64-x86_64-winpthreads-git mingw-w64-x86_64-gettext
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk install 1 2 3
+
+:: Temporary fix until new puma available - Newer mingw64 breaks puma
+  call !COSMOS_INSTALL!\Vendor\Ruby\bin\ridk exec pacman --noconfirm -U http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-headers-git-7.0.0.5524.2346384e-1-any.pkg.tar.xz
 )
 
 ::::::::::::::::::::::::
@@ -323,14 +274,7 @@ if errorlevel 1 (
   exit /b 1
 )
 SET "GEMRC=!COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\etc\gemrc"
-@echo --- > !GEMRC!
-@echo :backtrace: false >> !GEMRC!
-@echo :benchmark: false >> !GEMRC!
-@echo :bulk_threshold: 1000 >> !GEMRC!
-@echo :sources: >> !GEMRC!
-@echo - !PROTOCOL!://rubygems.org/ >> !GEMRC!
-@echo :update_sources: true >> !GEMRC!
-@echo :verbose: true >> !GEMRC!
+@echo install: --no-document >> !GEMRC!
 
 ::::::::::::::::::::::::::::
 :: Install Gems
@@ -348,14 +292,15 @@ SET "PATH=!COSMOS_INSTALL!\Vendor\Ruby\bin;%RI_DEVKIT%bin;%RI_DEVKIT%mingw\bin;%
 SET RUBYOPT=
 SET RUBYLIB=
 
-call gem install --force rdoc -v 5.1.0
+:: Update to latest version of gem
+call gem update --system
 
 :: install COSMOS gem and dependencies
 echo Installing COSMOS gem !COSMOS_VERSION!...
 if !COSMOS_VERSION!=="LATEST" (
-  call gem install cosmos --no-rdoc --no-ri
+  call gem install cosmos
 ) else (
-  call gem install cosmos -v !COSMOS_VERSION! --no-rdoc --no-ri
+  call gem install cosmos -v !COSMOS_VERSION!
 )
 if errorlevel 1 (
   echo ERROR: Problem installing cosmos gem
@@ -368,11 +313,7 @@ if errorlevel 1 (
 )
 
 :: move qt dlls to the ruby/bin folder - prevents conflicts with other versions of qt on the system
-if !ARCHITECTURE!==x86 (
-  move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x86-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
-) else (
-  move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x64-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
-)
+move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x64-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
 if errorlevel 1 (
   echo ERROR: Problem moving qt dlls
   @echo ERROR: Problem moving qt dlls >> !COSMOS_INSTALL!\INSTALL.log

@@ -23,7 +23,10 @@ module Cosmos
       plw = PacketLogWriter.new(:CMD,nil,true,nil,10000000,nil,false)
       @cmd_packets = []
       pkt = System.commands.packet("SYSTEM","STARTLOGGING").clone
-      pkt.received_time = Time.new(2020,1,31,12,30,15)
+      # Avoid precision errors by rounding to nearest second and then add 1 to ensure
+      # the time is AFTER the initial META packet with the current time
+      @time = Time.now.round + 1
+      pkt.received_time = @time
       pkt.write('label','PKT1')
       plw.write(pkt)
       @cmd_packet_length = pkt.length
@@ -43,7 +46,7 @@ module Cosmos
       plw = PacketLogWriter.new(:TLM,nil,true,nil,10000000,nil,false)
       @tlm_packets = []
       pkt = System.telemetry.packet("SYSTEM","LIMITS_CHANGE").clone
-      pkt.received_time = Time.new(2020,2,1,12,30,15)
+      pkt.received_time = @time
       pkt.write('PACKET','PKT1')
       plw.write(pkt)
       @tlm_packet_length = pkt.length
@@ -121,7 +124,7 @@ module Cosmos
           file.write [pkt.buffer.length].pack('N')
           file.write pkt.buffer
         end
-        expect(@plr.open(filename)).to eql [false, nil]
+        expect(@plr.open(filename)[0]).to eql false
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql 'TGT1'
         expect(pkt1.packet_name).to eql 'PKT1'
@@ -149,7 +152,7 @@ module Cosmos
           file.write [pkt.buffer.length].pack('N')
           file.write pkt.buffer
         end
-        expect(@plr.open(filename)).to eql [false, nil]
+        expect(@plr.open(filename)[0]).to eql false
         pkt1 = @plr.read
         expect(pkt1.target_name).to eql 'TGT1'
         expect(pkt1.packet_name).to eql 'PKT1'
@@ -239,10 +242,11 @@ module Cosmos
         expect(packet_offsets).to eql [PacketLogReader::COSMOS4_HEADER_LENGTH, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length + header_length + @cmd_packet_length, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length + (header_length + @cmd_packet_length) * 2]
 
         expect(@plr.open(Dir[File.join(@log_path,"*cmd.bin")][0])).to eql [true, nil]
-        pkt = @plr.read_at_offset(packet_offsets[2])
+        pkt = @plr.read_at_offset(packet_offsets[2]) # Grab the second STARTLOGGING (META is 0)
         expect(pkt.target_name).to eql "SYSTEM"
         expect(pkt.packet_name).to eql "STARTLOGGING"
-        expect(pkt.received_time).to eql Time.new(2020,1,31,12,30,16)
+        expect(pkt.read('LABEL')).to eql "PKT2"
+        expect(pkt.received_time).to eql @time + 1
         @plr.close
       end
 
@@ -257,10 +261,11 @@ module Cosmos
         expect(packet_offsets).to eql [PacketLogReader::COSMOS4_HEADER_LENGTH, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length + header_length + @tlm_packet_length, PacketLogReader::COSMOS4_HEADER_LENGTH + meta_header_length + meta_length + (header_length + @tlm_packet_length) * 2]
 
         expect(@plr.open(Dir[File.join(@log_path,"*tlm.bin")][0])).to eql [true, nil]
-        pkt = @plr.read_at_offset(packet_offsets[2])
+        pkt = @plr.read_at_offset(packet_offsets[2]) # Grab the second LIMITS_CHANGE (META is 0)
         expect(pkt.target_name).to eql "SYSTEM"
         expect(pkt.packet_name).to eql "LIMITS_CHANGE"
-        expect(pkt.received_time).to eql Time.new(2020,2,1,12,30,16)
+        expect(pkt.read('PACKET')).to eql "PKT2"
+        expect(pkt.received_time).to eql @time + 1
         @plr.close
       end
     end
@@ -415,9 +420,8 @@ module Cosmos
       end
 
       it "returns all packets if the start time is before all" do
-        time = Time.new(2000,1,31,12,30,16)
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, time) do |packet|
+        @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, @time) do |packet|
           next if packet.packet_name == 'META'
           expect(packet.target_name).to eql @cmd_packets[index].target_name
           expect(packet.packet_name).to eql @cmd_packets[index].packet_name
@@ -429,51 +433,48 @@ module Cosmos
       end
 
       it "returns no packets if the start time is after all" do
-        time = Time.new(2030,2,1,12,30,16)
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, time) do |packet|
+        @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, @time + 100) do |packet|
           index += 1
         end
         expect(index).to eql 0
       end
 
       it "returns all packets after a start time" do
-        time = Time.new(2020,1,31,12,30,16)
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, time) do |packet|
-          expect(packet.target_name).to eql @cmd_packets[index+1].target_name
-          expect(packet.packet_name).to eql @cmd_packets[index+1].packet_name
-          expect(packet.received_time).to eql @cmd_packets[index+1].received_time
-          expect(packet.read('LABEL')).to eql @cmd_packets[index+1].read('LABEL')
+        @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, @time) do |packet|
+          next if packet.packet_name == 'META'
+          expect(packet.target_name).to eql @cmd_packets[index].target_name
+          expect(packet.packet_name).to eql @cmd_packets[index].packet_name
+          expect(packet.received_time).to eql @cmd_packets[index].received_time
+          expect(packet.read('LABEL')).to eql @cmd_packets[index].read('LABEL')
           index += 1
         end
-        expect(index).to eql 2
+        expect(index).to eql 3
 
-        time = Time.new(2020,2,1,12,30,16)
-        index = 0
-        @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, time) do |packet|
-          expect(packet.target_name).to eql @tlm_packets[index+1].target_name
-          expect(packet.packet_name).to eql @tlm_packets[index+1].packet_name
-          expect(packet.received_time).to eql @tlm_packets[index+1].received_time
-          expect(packet.read('PACKET')).to eql @tlm_packets[index+1].read('PACKET')
+        index = 1 # @time + 1
+        @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, @time + 1) do |packet|
+          next if packet.packet_name == 'META'
+          expect(packet.target_name).to eql @tlm_packets[index].target_name
+          expect(packet.packet_name).to eql @tlm_packets[index].packet_name
+          expect(packet.received_time).to eql @tlm_packets[index].received_time
+          expect(packet.read('PACKET')).to eql @tlm_packets[index].read('PACKET')
           index += 1
         end
-        expect(index).to eql 2
+        expect(index).to eql 3
       end
 
       it "returns no packets if the end time is before all" do
-        time = Time.new(2000,1,31,12,30,16)
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, nil, time) do |packet|
+        @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, nil, @time - 10) do |packet|
           index += 1
         end
         expect(index).to eql 0
       end
 
       it "returns all packets if the end time is after all" do
-        time = Time.new(2030,2,1,12,30,16)
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, nil, time) do |packet|
+        @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, nil, @time + 10) do |packet|
           next if packet.packet_name == 'META'
           expect(packet.target_name).to eql @cmd_packets[index].target_name
           expect(packet.packet_name).to eql @cmd_packets[index].packet_name
@@ -485,9 +486,8 @@ module Cosmos
       end
 
       it "returns all packets before an end time" do
-        time = Time.new(2020,1,31,12,30,16)
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, nil, time) do |packet|
+        @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, nil, @time) do |packet|
           next if packet.packet_name == 'META'
           expect(packet.target_name).to eql @cmd_packets[index].target_name
           expect(packet.packet_name).to eql @cmd_packets[index].packet_name
@@ -495,11 +495,10 @@ module Cosmos
           expect(packet.read('LABEL')).to eql @cmd_packets[index].read('LABEL')
           index += 1
         end
-        expect(index).to eql 2
+        expect(index).to eql 1
 
-        time = Time.new(2020,2,1,12,30,16)
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, nil, time) do |packet|
+        @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, nil, @time + 1) do |packet|
           next if packet.packet_name == 'META'
           expect(packet.target_name).to eql @tlm_packets[index].target_name
           expect(packet.packet_name).to eql @tlm_packets[index].packet_name

@@ -60,18 +60,29 @@ module Cosmos
       @stylesheet = ''
       @stylesheet = File.read(app_style) if File.exist? app_style
 
-      # Get the source file location of the tool calling this method
-      location = self.class.instance_method(:initialize).source_location[0]
-      tool_name = location.split('/')[-2]
-      config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', tool_name)
-      if File.exist? config_dir
-        @options.config_dir = config_dir
-        @options.config_file = config_path(@options.config_file, ".txt", tool_name)
-        @options.stylesheet = config_path(@options.stylesheet, ".css", tool_name)
-      end
+      self.class.normalize_config_options(@options)
 
       # Add a banner based on system configuration
       add_classification_banner
+    end
+
+    # Normalizes config_dir, config_file, and stylesheet options
+    def self.normalize_config_options(options)
+      # Determine the tool name based on the class
+      tool_name = self.to_s.class_name_to_filename.split('.')[0] # remove .rb
+      options.config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', tool_name) unless options.config_dir
+      tool_name = options.config_dir.split('/')[-1]
+      if File.exist?(options.config_dir)
+        options.config_file = config_path(options, options.config_file, ".txt", tool_name)
+        options.stylesheet = config_path(options, options.stylesheet, ".css", tool_name)
+      elsif options.config_file == true
+        # If the config_file is required and the config_dir doesn't exist then
+        # this is a core COSMOS configuration error so just raise an error
+        raise "ERROR! config_dir #{options.config_dir} does not exist. tool_name = #{tool_name}"
+      else
+        options.config_file = nil
+        options.stylesheet = nil
+      end      
     end
 
     # Creates a path to a configuration file. If the file is given it is
@@ -79,24 +90,34 @@ module Cosmos
     # directory is prepended to the filename. If no file is given a default is
     # generated based on the application name.
     #
-    # @param filename [String] Path to a configuration file
+    # @param filename [String|Boolean|nil] Path to a configuration file which means
+    #   the file must be found. true which means that a default configuration file
+    #   is required and must be found. nil which means a default file is acceptable
+    #   but not required.
     # @param type [String] File extension, e.g. '.txt'
     # @param tool_name [String] Name of the tool calling this method
-    # @return [String|nil] Path to a configuration file. If a filename was
-    #   passed and the configuration file is not found, the original filename
-    #   is returned. If no filename was passed nil is returned.
-    def config_path(filename, type, tool_name)
-      return filename if filename && File.exist?(filename)
-      if filename
-        # Add the configuration dir onto the filename
-        new_filename = File.join(@options.config_dir, filename)
+    # @return [String|nil] Path to an existing configuration file. nil is returned
+    #   if filename is nil and the default is not found. An error is raised if
+    #   filename is a string or true and it is not found.
+    def self.config_path(options, filename, type, tool_name)
+      # First check for an absolute path
+      return filename if filename && filename != true && File.exist?(filename)
+      # Build a default filename
+      default_filename = File.join(options.config_dir, "#{tool_name}#{type}")
+      if filename == true # The config file is required but not given
+        return default_filename if File.exist?(default_filename)
+        message = "\n\nDefault configuration file #{default_filename} not found.\n"\
+          "Either create this file or pass a configuration filename using the --config option.\n"
+        raise message
+      elsif filename # Filename was given so look for it in the config dir
+        new_filename = File.join(options.config_dir, filename)
         return new_filename if File.exist?(new_filename)
-      else
-        # No file passed so default to a file named after the class
-        new_filename = File.join(@options.config_dir, "#{tool_name}#{type}")
-        return new_filename if File.exist?(new_filename)
+        # If a filename is passed in it is an error if it does not exist
+        raise "\n\nConfiguration file #{new_filename} not found.\n"
       end
-      filename
+      # If filename is nil check for the default and return it
+      return default_filename if File.exist?(default_filename)
+      nil # return nil if filename is nil and the default is not found
     end
 
     # Create the exit_action and the about_action. The exit_action is not
@@ -333,6 +354,8 @@ module Cosmos
       options.restore_size = true
       options.redirect_io = true
       options.title = "COSMOS Tool"
+      options.config_file = nil
+      options.stylesheet = nil
 
       parser = OptionParser.new do |option_parser|
         option_parser.banner = "Usage: ruby #{option_parser.program_name} [options]"

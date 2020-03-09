@@ -19,7 +19,7 @@ module Cosmos
     # @param y (see TextureMappedSphere#initialize)
     # @param z (see TextureMappedSphere#initialize)
     def initialize(x, y, z)
-      super(x, y, z, File.join(::Cosmos::PATH, 'data', 'EarthMap1024x512.gif'))
+      super(x, y, z, File.join(::Cosmos::PATH, 'data', 'Earthmap1024x512.gif'))
     end
   end
 end

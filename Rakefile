@@ -10,6 +10,20 @@
 
 require 'open3'
 
+# Cross-platform way of finding an executable in the $PATH.
+#
+#   which('ruby') #=> /usr/bin/ruby
+def which(cmd)
+  exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
+  ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
+    exts.each { |ext|
+      exe = File.join(path, "#{cmd}#{ext}")
+      return exe if File.executable?(exe) && !File.directory?(exe)
+    }
+  end
+  return nil
+end
+
 # Pure Ruby CRC class to avoid circular dependency with c_cosmos
 class RakeCrc32
   attr_reader :crc32_poly
@@ -268,6 +282,15 @@ task :stress do
   end
 end
 
+# Make all the main.sh files executable in the demo and install Mac applications
+task :mac_app_exec_bit do
+  %w(demo install).each do |root|
+    Dir["#{root}/tools/mac/**/Contents/MacOS/main.sh"].each do |main|
+      `git add --chmod=+x #{main}`
+    end
+  end
+end
+
 if RUBY_ENGINE == 'ruby'
   YARD::Rake::YardocTask.new do |t|
     t.options = ['--protected'] # See all options by typing 'yardoc --help'
@@ -276,3 +299,37 @@ end
 
 task :release => [:require_version, :git_checkout_master, :build, :spec, :manifest, :version, :install_crc, :gem]
 task :commit_release => [:commit_release_ticket, :tag_release]
+
+task :docker_build do
+  _, platform, *_ = RUBY_PLATFORM.split("-")
+  if (platform == 'mswin32' or platform == 'mingw32') and which('winpty')
+    system('winpty docker build --tag cosmos-dev .')
+  else
+    system('docker build --tag cosmos-dev .')
+  end
+end
+
+task :docker_run do
+  STDOUT.puts "Note, this is not automated on purpose to ensure each step is successful (with user entry of credentials for github/rubygems.org)"
+  STDOUT.puts "Steps to perform a COSMOS release:"
+  STDOUT.puts "1. git config --global user.name \"Last, First\""
+  STDOUT.puts "2. git config --global user.email \"me@ball.com\""
+  STDOUT.puts "3. git pull"
+  STDOUT.puts "4. export VERSION=X.X.X"
+  STDOUT.puts "5. rake release"
+  STDOUT.puts "6. rake commit_release"
+  STDOUT.puts "7. export PATH=/opt/jruby/bin:$PATH"
+  STDOUT.puts "8. rake gem"
+  STDOUT.puts "9. /usr/bin/gem push cosmos-X.X.X.gem"
+  STDOUT.puts "10. /usr/bin/gem push cosmos-X.X.X-java.gem"
+  STDOUT.puts "11. cd /devel/cosmos-docker"
+  STDOUT.puts "12. git pull"
+  STDOUT.puts "13. Update COSMOS_VERSION in all Dockerfiles. Also update README.md"
+  STDOUT.puts "14. git commit -a -m \"Release COSMOS vX.X.X\""
+  STDOUT.puts "15. git push"
+  STDOUT.puts "16. git checkout -b vX.X.X"
+  STDOUT.puts "17. git push --set-upstream origin vX.X.X"
+  STDOUT.puts "18. Update release notes on github.com and cosmosrb.com"
+  
+  system('docker run -it --rm cosmos-dev')
+end

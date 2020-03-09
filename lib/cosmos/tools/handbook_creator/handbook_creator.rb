@@ -17,12 +17,10 @@ Cosmos.catch_fatal_exception do
 end
 
 module Cosmos
-
   # Creates command and telemetry handbooks from the COSMOS definitions in
   # both HTML and PDF format.
   class HandbookCreator < QtTool
-
-    def initialize (options)
+    def initialize(options)
       super(options) # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
       Cosmos.load_cosmos_icon("handbook_creator.png")
 
@@ -40,6 +38,7 @@ module Cosmos
       end
     end
 
+    # Create the application menu actions
     def initialize_actions
       super()
       @hide_ignored_action = Qt::Action.new('&Hide Ignored Items', self)
@@ -48,44 +47,26 @@ module Cosmos
       @hide_ignored_action.statusTip = 'Do not include ignored items in command and telemetry handbooks'
       @hide_ignored_action.setCheckable(true)
       @hide_ignored_action.setChecked(false)
+
+      @copy_assets_action = Qt::Action.new('&Copy Assets to Output', self)
+      @copy_assets_action.statusTip = 'Copy the default assets to the output directory'
+      @copy_assets_action.connect(SIGNAL('triggered()')) { copy_assets(true) }
     end
 
+    # Create the application menus and add the actions to the menu
     def initialize_menus
-      # File Menu
       @file_menu = menuBar.addMenu('&File')
       @file_menu.addAction(@hide_ignored_action)
+      @file_menu.addAction(@copy_assets_action)
       @file_menu.addAction(@exit_action)
 
-      # Help Menu
       @about_string = "Handbook Creator creates Command and Telemetry Handbooks"
       initialize_help_menu()
     end
 
-    def create_pdfs(both, hide_ignored)
-      success = false
-      ProgressDialog.execute(self, 'PDF Creation Progress', 700, 600, true, false, true, true, false) do |progress_dialog|
-        begin
-          success = @config.create_pdf(hide_ignored, progress_dialog)
-          if success
-            msg = "\n\n"
-            msg << "HTML and " if both
-            msg << "PDF Handbooks created successfully"
-            progress_dialog.append_text(msg)
-          else
-            progress_dialog.append_text("\nPDF Handbooks could not be created.\n\nIs wkhtmltopdf in your PATH and are all existing pdfs closed?\n\nUsing version 0.11.0_rc1 of wkhtmltox is recommended which can be found at: http://download.gna.org/wkhtmltopdf/obsolete/\n\nVersion 0.12.x has shown issues with Handbook Creator's default templates.")
-          end
-        rescue => error
-          progress_dialog.append_text("\n\nError processing:\n#{error.formatted}")
-        ensure
-          progress_dialog.complete
-        end
-      end
-    rescue Exception => err
-      Cosmos.handle_critical_exception(err)
-    end
-
+    # Create the application with several buttons to create handbooks (HTML & PDF)
+    # and open the generated HTML output in a browser.
     def initialize_central_widget
-      # Create the central widget
       @central_widget = Qt::Widget.new
       setCentralWidget(@central_widget)
 
@@ -95,6 +76,7 @@ module Cosmos
       @html_button.setStyleSheet("text-align:left")
       @html_button.connect(SIGNAL('clicked()')) do
         begin
+          copy_assets()
           @config.create_html(@hide_ignored_action.isChecked)
           Qt::MessageBox.information(self, 'Done', 'HTML Handbooks created successfully')
         rescue Exception => err
@@ -106,6 +88,7 @@ module Cosmos
       @pdf_button = Qt::PushButton.new(Cosmos.get_icon('pdf-32.png'), 'Create PDF Handbooks')
       @pdf_button.setStyleSheet("text-align:left")
       @pdf_button.connect(SIGNAL('clicked()')) do
+        copy_assets()
         create_pdfs(false, @hide_ignored_action.isChecked)
       end
       @top_layout.addWidget(@pdf_button)
@@ -114,6 +97,7 @@ module Cosmos
       @html_pdf_button.setStyleSheet("text-align:left")
       @html_pdf_button.connect(SIGNAL('clicked()')) do
         begin
+          copy_assets()
           @config.create_html(@hide_ignored_action.isChecked)
           create_pdfs(true, @hide_ignored_action.isChecked)
         rescue Exception => err
@@ -136,21 +120,63 @@ module Cosmos
       @central_widget.setLayout(@top_layout)
     end
 
-    # Runs the application
+    # Copy the assets (css, fonts, images, javascript) from the project config directory
+    # into the outputs/handbooks directory. When called as a part of generating the output
+    # files this copy will not occur if the assets directory already exists in case it has
+    # been modified by the user. This is also called from a menu option which can copy over
+    # existing output assets if permitted by the user.
+    def copy_assets(menu_request = false)
+      source_path = File.join(::Cosmos::USERPATH,'config','tools','handbook_creator','assets')
+      output_path = File.join(System.paths['HANDBOOKS'], 'assets')
+      if menu_request
+        if File.exist?(output_path)
+          if Qt::MessageBox.warning(self, "Warning!", "#{output_path} already exists. Overwrite?",
+            Qt::MessageBox::Yes | Qt::MessageBox::No) == Qt::MessageBox::No
+            return
+          else
+            FileUtils.cp_r(source_path, System.paths['HANDBOOKS'])
+          end
+        else
+          FileUtils.cp_r(source_path, System.paths['HANDBOOKS'])
+        end
+      else
+        FileUtils.cp_r(source_path, System.paths['HANDBOOKS']) unless File.exist?(output_path)
+      end
+    end
+
+    # Create the PDFs inside a progress dialog as this action takes a significant amount of time
+    def create_pdfs(both, hide_ignored)
+      success = false
+      ProgressDialog.execute(self, 'PDF Creation Progress', 700, 600, true, false, true, true, false) do |progress_dialog|
+        begin
+          success = @config.create_pdf(hide_ignored, progress_dialog)
+          if success
+            msg = "\n\n"
+            msg << "HTML and " if both
+            msg << "PDF Handbooks created successfully"
+            progress_dialog.append_text(msg)
+          else
+            progress_dialog.append_text("\nPDF Handbooks could not be created.\n\nIs wkhtmltopdf in your PATH and are all existing pdfs closed?\n\nwkhtmltopdf can be found at: https://wkhtmltopdf.org/downloads.html.")
+          end
+        rescue => error
+          progress_dialog.append_text("\n\nError processing:\n#{error.formatted}")
+        ensure
+          progress_dialog.complete
+        end
+      end
+    rescue Exception => err
+      Cosmos.handle_critical_exception(err)
+    end
+
     def self.run(option_parser = nil, options = nil)
       Cosmos.catch_fatal_exception do
         unless option_parser and options
           option_parser, options = create_default_options()
           options.title = "Handbook Creator"
-          options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'handbook_creator', 'handbook_creator.txt')
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'handbook_creator', arg)
-          end
+          options.config_file = true # config_file is required
         end
         super(option_parser, options)
       end
     end
-
-  end # class HandbookCreator
-
-end # module Cosmos
+  end
+end

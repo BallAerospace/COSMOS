@@ -49,6 +49,7 @@ module Cosmos
         router.interfaces << interface
         interface.routers << router
       end
+      router
     end
 
     # Adds a Preidentified command router to the system with given name and port.
@@ -72,6 +73,7 @@ module Cosmos
       @config.interfaces.each do |interface_name, interface|
         interface.cmd_routers << cmd_router
       end
+      cmd_router
     end
 
     # Recreate a router with new initialization parameters

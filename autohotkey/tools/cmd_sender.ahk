@@ -1,6 +1,19 @@
 SetWinDelay 1000
 WinWaitActive Command Sender
 Sleep 500
+Click 85 100 ; Target dropdown
+Sleep 500
+Click 75 128 ; INST2
+Sleep 500
+Click 365 100 ; Command dropdown
+Sleep 500
+Click 365 140 ; ASCIICMD
+Sleep 500
+Click 600 100 ; Send
+WinWaitActive Error ; Error connecting to CTS
+Sleep 1000
+Send {Enter}
+WinWaitActive Command Sender
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
 Sleep 4000
 WinActivate Command Sender
@@ -34,6 +47,8 @@ WinWaitActive Command Sender
 Sleep 500
 Click 85 100 ; Target dropdown CMD-1
 Sleep 500
+Click 85 115 ; INST
+Sleep 500
 Click 610 100 ; Send CMD-2
 Sleep 500
 Click 365 100 ; Command dropdown CMD-1
@@ -45,6 +60,7 @@ Sleep 500
 WinWaitActive Error
 Sleep 500
 Send {Enter}
+WinWaitActive Command Sender
 Click 240 210 ; Click in the TYPE parameter CMD-5
 Sleep 500
 Send 5{Enter}
@@ -135,15 +151,27 @@ Click 215 475 ; Select File
 WinWaitActive Insert
 Sleep 500
 Send cmd.bin{Enter}
-WinWaitActive Command Sender
 Sleep 500
-Click 85 100 ; Target dropdown
+WinActivate Command Sender
 Sleep 500
-Click 75 128 ; INST2
+Click 70 70 ; Search box
+Send I
+Sleep 100
+Send N
+Sleep 100
+Send S
+Sleep 100
+Send T
+Sleep 100
+Send 2
+Sleep 100
+Send {Space}
+Sleep 100
+Send C
+Sleep 100
+Send O
 Sleep 500
-Click 365 100 ; Command dropdown
-Sleep 500
-Click 365 165 ; Collect command
+Send {Enter}
 Sleep 500
 Click 180 390 ; Click on Type
 Sleep 500

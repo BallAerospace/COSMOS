@@ -93,6 +93,7 @@ module Cosmos
 
         System.telemetry
         @search_box.completion_list = System.telemetry.all_item_strings(true, splash)
+        # Always create the TlmExtractorConfig but note that it's optional to pass a config file
         @tlm_extractor_config = TlmExtractorConfig.new(options.config_file)
         @tlm_extractor_processor = TlmExtractorProcessor.new
         Qt.execute_in_main_thread(true) do
@@ -453,6 +454,8 @@ module Cosmos
 
     def self.post_options_parsed_hook(options)
       if options.input_files or options.dart
+        normalize_config_options(options)
+        
         # Process config file
         raise "Configuration File must be specified for command line processing" unless options.config_file
 
@@ -500,9 +503,6 @@ module Cosmos
           options.title = "Telemetry Extractor"
           options.dart = false
           option_parser.separator "Telemetry Extractor Specific Options:"
-          option_parser.on("-c", "--config FILE", "Use the specified configuration file") do |arg|
-            options.config_file = File.join(Cosmos::USERPATH, 'config', 'tools', 'tlm_extractor', arg)
-          end
           option_parser.on("-i", "--input FILE", "Process the specified input file") do |arg|
             options.input_files ||= []
             if arg[0..0] != '/' and arg[1..1] != ':'

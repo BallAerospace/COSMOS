@@ -200,6 +200,20 @@ module Cosmos
         sleep(0.1)
       end
 
+      it "processes success requests with uppercase" do
+        class MyServer5
+          def my_method(param)
+          end
+        end
+
+        @json.start_service('127.0.0.1', 7777, MyServer5.new)
+        request_data = JsonRpcRequest.new('MY_METHOD', 'param', 1).to_json
+        _, error_code = @json.process_request(request_data, Time.now)
+        expect(error_code).to eq nil
+        @json.stop_service
+        sleep(0.1)
+      end
+
       it "does not allow dangerous methods" do
         @json.start_service('127.0.0.1', 7777, self)
         request_data = JsonRpcRequest.new('send', 'param', 1).to_json

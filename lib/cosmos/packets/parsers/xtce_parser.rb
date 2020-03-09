@@ -25,8 +25,8 @@ module Cosmos
     # @param warnings [Array<String>] Array of strings listing all the warnings
     #   that were created while parsing the configuration
     # @param filename [String] The name of the configuration file
-    # @param target_name [String] The target name
-    def self.process(commands, telemetry, warnings, filename, target_name)
+    # @param target_name [String] Override the target name found in the XTCE file
+    def self.process(commands, telemetry, warnings, filename, target_name = nil)
       XtceParser.new(commands, telemetry, warnings, filename, target_name)
     end
 
@@ -49,7 +49,7 @@ module Cosmos
 
     private
 
-    def initialize(commands, telemetry, warnings, filename, target_name)
+    def initialize(commands, telemetry, warnings, filename, target_name = nil)
       reset_processing_variables()
       @commands = commands
       @telemetry = telemetry
@@ -60,6 +60,7 @@ module Cosmos
 
     def parse(filename, target_name)
       doc = File.open(filename) { |f| Nokogiri::XML(f, nil, nil, Nokogiri::XML::ParseOptions::STRICT | Nokogiri::XML::ParseOptions::NOBLANKS) }
+      # Determine the @current_target_name
       xtce_process_element(doc.root)
       @current_target_name = target_name if target_name
       doc.root.children.each do |child|

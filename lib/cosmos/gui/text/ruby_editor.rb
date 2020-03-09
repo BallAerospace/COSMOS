@@ -76,67 +76,63 @@ module Cosmos
 
       RULES = []
       RUBY_KEYWORDS.each do |w|
-        RULES << ['\b'+w+'\b', 0, STYLES['ruby_keyword']]
+        RULES << ['\b'+w+'\b', STYLES['ruby_keyword']]
       end
       Script.private_instance_methods.each do |w|
-        RULES << ['\b'+w.to_s+'\b', 0, STYLES['cosmos_keyword']]
+        RULES << ['\b'+w.to_s+'\b', STYLES['cosmos_keyword']]
       end
       BRACES.each do |b|
-        RULES << ["#{b}", 0, STYLES['brace']]
+        RULES << ["#{b}", STYLES['brace']]
       end
       RULES.concat([
           # 'def' followed by an identifier
-          ['\bdef\b\s*(\w+)', 1, STYLES['method']],
+          ['\bdef\b\s*(\w+)', STYLES['method']],
           # 'class' followed by an identifier
-          ['\bclass\b\s*(\w+)', 1, STYLES['class']],
+          ['\bclass\b\s*(\w+)', STYLES['class']],
           # Ruby symbol
-          [':\b\w+', 0, STYLES['symbol']],
+          [':\b\w+', STYLES['symbol']],
           # Ruby namespace operator
-          ['\b\w+(::\b\w+)+', 0, STYLES['class']],
+          ['\b\w+(::\b\w+)+', STYLES['class']],
           # Ruby global
-          ['\\$\b\w+', 0, STYLES['string']],
+          ['\\$\b\w+', STYLES['string']],
           # Regex, possibly containing escape sequences
-          ["/.*/", 0, STYLES['string']],
+          ["/.*/", STYLES['string']],
           # Double-quoted string, possibly containing escape sequences
-          ['"([^"\\\\]|\\\\.)*"', 0, STYLES['string']],
+          ['"(?:[^"\\\\]|\\\\.)*"', STYLES['string']],
           # Match interpolated strings "blah #{code} blah"
-          ['(\#\\{)[^\\}]*\\}', 1, STYLES['brace']],
-          ['\#\\{[^\\}]*(\\})', 1, STYLES['brace']],
-          ['\#\\{([^\\}]*)\\}', 1, STYLES['normal']],
+          # This comes before single-quote and back-tick because
+          # those strings should not interpolate variables
+          ['(\#\\{)[^\\}]*\\}', STYLES['brace']],
+          ['\#\\{[^\\}]*(\\})', STYLES['brace']],
+          ['\#\\{([^\\}]*)\\}', STYLES['normal']],
           # Single-quoted string, possibly containing escape sequences
-          ["'[^'\\\\]*(\\.[^'\\\\]*)*'", 0, STYLES['string']],
+          ["'[^'\\\\]*(?:\\.[^'\\\\]*)*'", STYLES['string']],
           # Back-tick string, possibly containing escape sequences
-          ["`[^`\\\\]*(\\.[^`\\\\]*)*`", 0, STYLES['string']],
-          # A single # possibly followed by matched quotes
-          ['#(?=([^\'"]*(\'|")[^\'"]*(\'|"))*[^\'"]*$).*', 0, STYLES['comment']],
+          ["`[^`\\\\]*(\\.[^`\\\\]*)*`", STYLES['string']],
+          # Double quoted string | single quoted string | comment
+          # We don't want the first two but we want the last
+          ["\"[^\"]*\"|\'[^\']*\'|(#.*)", STYLES['comment']],
       ])
 
-      # Build a QRegExp for each pattern
+      # Build a RegExp for each pattern
       RULES_INFO = []
-      RULES.each do |pat, index, fmt|
-        RULES_INFO << [Qt::RegExp.new(pat, Qt::CaseSensitive, Qt::RegExp::RegExp2), index, fmt]
+      RULES.each do |pat, fmt|
+        RULES_INFO << [Regexp.new(pat), fmt]
       end
 
       def highlightBlock(text)
         # Do other syntax formatting
-        RULES_INFO.each do |expression, nth, format|
-          index = expression.indexIn(text, 0)
-          last_index = index
-          last_length = -1
-          while index >= 0
-            # We actually want the index of the nth match
-            index = expression.pos(nth)
-            # Bail if the index goes negative because it means
-            # we won't have a valid capture
-            break if index < 0
-            length = expression.cap(nth).length()
-            break if length <= 0
-            # Break if we're in an endless loop
-            break if (last_index == index and last_length == length)
-            last_length = length
-            last_index = index
-            self.setFormat(index, length, format)
-            index = expression.indexIn(text, index + length)
+        RULES_INFO.each do |expression, format|
+          match = text.scan(expression).flatten.compact
+          next unless match && !match.empty?
+          i = 0 # initial string match offset
+          match.each do |part|
+            # Index the match part starting at the offset
+            index = text.index(part, i)
+            self.setFormat(index, part.length, format)
+            # Increment the index so we can match the same string
+            # in two different locations in the text, e.g. "#{x} #{y}"
+            i = index + part.length
           end
         end
       end
@@ -436,9 +432,16 @@ module Cosmos
     end
 
     def line_at_point(point)
-      line = point.y / @fontMetrics.height() + 1 +
-        firstVisibleBlock().blockNumber()
-      yield line if line <= document.blockCount()
+      block_num = firstVisibleBlock().blockNumber()
+      while block_num < document.blockCount()
+        block = document.findBlockByNumber(block_num)
+        top, bottom = block_top_and_bottom(block)
+        if (top..bottom).include?(point.y)
+          yield block_num + 1
+          break
+        end
+        block_num += 1
+      end
     end
 
     def create_add_breakpoint_action(point)

@@ -161,6 +161,7 @@ module Cosmos
         @limits_labels[limits_set] = label
         @limits_layout.addRow("#{limits_set}:", label)
       end
+      update_limits_checking()
     end
 
     def determine_limits_color(limit_state)

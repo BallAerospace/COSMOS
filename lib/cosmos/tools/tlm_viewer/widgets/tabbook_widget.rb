@@ -12,7 +12,7 @@ require 'cosmos/tools/tlm_viewer/widgets/widget'
 require 'cosmos/tools/tlm_viewer/widgets/layout_widget'
 
 module Cosmos
-
+  # Layout widget which creates a Qt::TabWidget to contain TABITEM widgets
   class TabbookWidget < Qt::TabWidget
     include Widget
     include LayoutWidget
@@ -22,5 +22,4 @@ module Cosmos
       parent_layout.addWidget(self) if parent_layout
     end
   end
-
-end # module Cosmos
+end

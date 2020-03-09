@@ -257,6 +257,29 @@ module Cosmos
         expect(pkt.item3).to eql 6.0
         expect(pkt.item4).to eql 8.0
       end
+      
+      it "works in unique id mode and not" do
+        System.targets["TGT1"] = Target.new("TGT1")
+        target = System.targets["TGT1"]
+        buffer = "\x01\x02\x03\x04"
+        target.tlm_unique_id_mode = false
+        pkt = @tlm.identify!(buffer,["TGT1"])
+        pkt.enable_method_missing
+        expect(pkt.item1).to eql 1
+        expect(pkt.item2).to eql 2
+        expect(pkt.item3).to eql 6.0
+        expect(pkt.item4).to eql 8.0
+        buffer = "\x01\x02\x01\x02"
+        target.tlm_unique_id_mode = true
+        @tlm.identify!(buffer,["TGT1"])
+        pkt = @tlm.packet("TGT1","PKT1")
+        pkt.enable_method_missing
+        expect(pkt.item1).to eql 1
+        expect(pkt.item2).to eql 2
+        expect(pkt.item3).to eql 2.0
+        expect(pkt.item4).to eql 4.0        
+        target.tlm_unique_id_mode = false
+      end      
 
       it "returns nil with unknown targets given" do
         buffer = "\x01\x02\x03\x04"
@@ -573,6 +596,34 @@ module Cosmos
       end
     end
 
+    describe "all_item_strings" do
+      it "returns hidden TGT,PKT,ITEMs in the system" do
+        @tlm.packet("TGT1","PKT1").hidden = true
+        @tlm.packet("TGT1","PKT2").disabled = true
+        default = @tlm.all_item_strings() # Return only those not hidden or disabled
+        strings = @tlm.all_item_strings(true) # Return everything, even hidden & disabled
+        expect(default).to_not eq strings
+        # Spot check the default
+        expect(default).to include("TGT2 PKT1 ITEM1")
+        expect(default).to include("TGT2 PKT1 ITEM2")
+        expect(default).to_not include("TGT1 PKT1 ITEM1") # hidden
+        expect(default).to_not include("TGT1 PKT2 ITEM1") # disabled
+
+        items = {}
+        # Built from the before(:each) section
+        items['TGT1 PKT1'] = %w(ITEM1 ITEM2 ITEM3 ITEM4)
+        items['TGT1 PKT2'] = %w(ITEM1 ITEM2)
+        items['TGT2 PKT1'] = %w(ITEM1 ITEM2)
+        items.each do |tgt_pkt, items|
+          Packet::RESERVED_ITEM_NAMES.each do |item|
+            expect(strings).to include("#{tgt_pkt} #{item}")
+          end
+          items.each do |item|
+            expect(strings).to include("#{tgt_pkt} #{item}")
+          end
+        end
+      end
+    end
+
   end
 end
-

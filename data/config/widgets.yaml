@@ -280,6 +280,42 @@ FORMATVALUE:
       required: false
       description: The number of characters wide to make the value box (default = 12)
       values: .*
+LABELLED:
+  summary: Displays a Label widget followed by a LED which changes color based on telemetry values.
+    See the LED widget documentation for more information.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Width
+      required: false
+      description: Width of the LED circle (default = 15)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the LED circle (default = 15)
+      values: .*
+    - name: Justification
+      required: false
+      description: How to justify the label and LED together. The default of
+        'SPLIT' aligns the label to the left and the LED to the right with any
+        additional space going between them. 'CENTER' pushes the label and LED
+        together with any additional space to the left and right. 'LEFT' or 'RIGHT'
+        pushes them to the respective side with the space going on the opposite.
+      values: ['SPLIT','CENTER','LEFT','RIGHT']
 LABELPROGRESSBAR:
   summary: Displays a LABEL widget showing the items
     name followed by a PROGRESSBAR widget to show the items value.
@@ -348,7 +384,7 @@ LABELTRENDLIMITSBAR:
       description: Height of the limits bar (default = 25)
       values: .*
 LABELVALUE:
-  summary: Displays a LABEL widget to shows the telemetry
+  summary: Displays a LABEL widget to show the telemetry
     items name followed by a VALUE widget to display the items value.
   parameters:
     - name: Target name
@@ -380,7 +416,7 @@ LABELVALUE:
         pushes them to the respective side with the space going on the opposite.
       values: ['SPLIT','CENTER','LEFT','RIGHT']
 LABELVALUEDESC:
-  summary: Displays a LABEL widget to shows the telemetry
+  summary: Displays a LABEL widget to show the telemetry
     items description followed by a VALUE widget to display the items value.
   parameters:
     - name: Target name
@@ -408,10 +444,37 @@ LABELVALUEDESC:
       required: false
       description: The number of characters wide to make the value box (default = 12)
       values: .*
+LABELFORMATVALUE:
+  summary: Displays a LABEL widget to show the telemetry
+    items name followed by a formatted VALUE widget to display the items value.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Format String
+      required: true
+      description: Printf style format string, for example %0.6f
+      values: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
 LABELVALUELIMITSBAR:
-  summary: Displays a LABEL widget to shows the
-    telemetry item's name, followed by a VALUE widget to display the item's value,
-    followed by a LIMITSBAR widget.
+  summary: Displays a LABEL widget to show the telemetry item's name,
+    followed by a VALUE widget to display the item's value, followed by a LIMITSBAR widget.
   parameters:
     - name: Target name
       required: true
@@ -459,9 +522,8 @@ LABELVALUELIMITSCOLUMN:
       description: The number of characters wide to make the value box (default = 12)
       values: .*
 LABELVALUERANGEBAR:
-  summary: Displays a LABEL widget to shows the
-    telemetry item's name, followed by a VALUE widget to display the item's value,
-    followed by a RANGEBAR widget.
+  summary: Displays a LABEL widget to show the telemetry item's name,
+    followed by a VALUE widget to display the item's value, followed by a RANGEBAR widget.
   parameters:
     - name: Target name
       required: true
@@ -502,9 +564,8 @@ LABELVALUERANGEBAR:
       description: Height of the range bar (default = 25)
       values: .*
 LABELVALUERANGECOLUMN:
-  summary: Displays a LABEL widget to shows the
-    telemetry item's name, followed by a VALUE widget to display the item's value,
-    followed by a RANGECOLUMN widget.
+  summary: Displays a LABEL widget to show the telemetry item's name,
+    followed by a VALUE widget to display the item's value, followed by a RANGECOLUMN widget.
   parameters:
     - name: Target name
       required: true
@@ -543,6 +604,37 @@ LABELVALUERANGECOLUMN:
     - name: Height
       required: false
       description: Height of the range bar (default = 25)
+      values: .*
+LED:
+  summary: Displays a LED which changes color based on telemetry values.
+    By default TRUE is green and FALSE is red and all other values are black.
+    Additional values can be added by using the LED_COLOR setting. For example
+    LED INST PARAMS VALUE3 RAW can be followed by SETTING LED_COLOR 0 GREEN,
+    SETTING LED_COLOR 1 RED, and SETTING LED_COLOR ANY ORANGE.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: <%= System.targets.keys %>
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Width
+      required: false
+      description: Width of the LED circle (default = 15)
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the LED circle (default = 15)
       values: .*
 LIMITSBAR:
   summary: Displays a graphical representation of where an
@@ -1074,6 +1166,25 @@ BUTTON:
       required: true
       description: Ruby code to execute when the button is pressed
       values: .+
+BACKGROUNDBUTTON:
+  summary: Displays a rectangular clickable button
+  description: Upon clicking, the button executes the Ruby code assigned in a new thread
+    so the code executes in the background (not in the GUI thread). Buttons
+    can be used to send commands and perform other tasks. If you want your button
+    to use values from other widgets, define them as named widgets and read their
+    values using the get_named_widget("WIDGET_NAME").text method.
+  warning: If your button logic gets complex it's recommended to require a separate
+    script and pass the screen to the script using self,
+    e.g. require utility.rb; utility_method(self).
+  parameters:
+    - name: Button Text
+      required: true
+      description: Text displayed on the button
+      values: .+
+    - name: Button Code
+      required: true
+      description: Ruby code to execute when the button is pressed
+      values: .+
 CHECKBUTTON:
   summary: Displays a check box
   description: Note this is of limited use by itself and is primarily used in
@@ -1111,6 +1222,19 @@ TEXTFIELD:
     - name: Text
       required: false
       description: Default text to put in the text field (default is blank)
+      values: .*
+SCREENSHOTBUTTON:
+  summary: Creates a button which takes a screenshot of the screen it is on
+  description: The screenshot automatically gets placed in the outputs/logs directory
+    with the current date / time and the name of the window.
+  parameters:
+    - name: Button Text
+      required: false
+      description: The text on the button, default is 'Screenshot'.
+      values: .*
+    - name: Screenshot Directory
+      required: false
+      description: The directory to put the screenshot. Default is output/logs.
       values: .*
 CANVAS:
   summary: Layout widget for the other canvas widgets
@@ -1345,3 +1469,34 @@ CANVASDOT:
       required: false
       description: Width of the dot in pixels (default = 3)
       values: \d+
+CANVASELLIPSE:
+  summary: The CANVASELLIPSE widget draws an ellipse onto the canvas
+  parameters:
+    - name: X Center
+      required: true
+      description: X position of the center of the ellipse
+      values: \d+
+    - name: Y Center
+      required: true
+      description: Y position of the center of the ellipse
+      values: \d+
+    - name: Width
+      required: true
+      description: Width of the ellipse in pixels
+      values: \d+
+    - name: Height
+      required: true
+      description: Height of the ellipse in pixels
+      values: \d+
+    - name: Color
+      required: false
+      description: Color of the ellipse. Default is black.
+      values: .+
+    - name: Line Width
+      required: false
+      description: Width of the line. Default is 1
+      values: \d+
+    - name: Fill
+      required: false
+      description: Whether to fill the ellipse. Default is false.
+      values: .+

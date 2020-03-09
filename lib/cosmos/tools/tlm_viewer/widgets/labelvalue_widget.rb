@@ -15,7 +15,8 @@ require 'cosmos/tools/tlm_viewer/widgets/label_widget'
 require 'cosmos/tools/tlm_viewer/widgets/value_widget'
 
 module Cosmos
-
+  # Displays a LabelWidget followed by a ValueWidget. The layout of the label with
+  # respect to the value widget can be controlled by the align parameter.
   class LabelvalueWidget < Qt::Widget
     include Widget
     include MultiWidget

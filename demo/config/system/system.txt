@@ -19,6 +19,7 @@ LISTEN_HOST REPLAY_PREIDENTIFIED 0.0.0.0 # 127.0.0.1 is more secure if you don't
 LISTEN_HOST REPLAY_CMD_ROUTER 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
 LISTEN_HOST DART_STREAM 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
 LISTEN_HOST DART_DECOM 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
+LISTEN_HOST DART_MASTER 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
 
 # Connect Hosts - Ip addresses or hostnames to connect to when running the tools
 CONNECT_HOST CTS_API 127.0.0.1
@@ -30,6 +31,7 @@ CONNECT_HOST REPLAY_PREIDENTIFIED 127.0.0.1
 CONNECT_HOST REPLAY_CMD_ROUTER 127.0.0.1
 CONNECT_HOST DART_STREAM 127.0.0.1
 CONNECT_HOST DART_DECOM 127.0.0.1
+CONNECT_HOST DART_MASTER 127.0.0.1
 
 # Ethernet Ports
 PORT CTS_API 7777
@@ -41,6 +43,7 @@ PORT REPLAY_PREIDENTIFIED 7879
 PORT REPLAY_CMD_ROUTER 7880
 PORT DART_STREAM 8777
 PORT DART_DECOM 8779
+PORT DART_MASTER 8780
 
 # Default Packet Log Writer and Reader
 DEFAULT_PACKET_LOG_WRITER packet_log_writer.rb
@@ -66,7 +69,7 @@ ENABLE_SOUND
 # Initialize the metadata dialog using values from the following file:
 META_INIT config/data/meta_init.txt
 
-ADD_MD5_FILE lib/user_version.rb
+ADD_HASH_FILE lib/user_version.rb
 
 # Banner examples
 # Create a banner using an existing COSMOS color (Cosmos::GREEN in this case)

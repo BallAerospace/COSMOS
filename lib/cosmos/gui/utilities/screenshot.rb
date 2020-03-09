@@ -24,7 +24,7 @@ module Cosmos
       end
 
       # Create a Pixmap to save the screenshot into
-      pixmap = Qt::Pixmap::grabWindow(window.winId())
+      pixmap = Qt::Pixmap::grabWidget(window)
       pixmap.save(filename)
       pixmap
     end

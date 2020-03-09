@@ -9,9 +9,9 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/config/config_parser'
+require 'pathname'
 
 module Cosmos
-
   # Target encapsulates the information about a COSMOS target. Targets are
   # accessed through interfaces and have command and telemetry definition files
   # which define their access.
@@ -66,6 +66,12 @@ module Cosmos
     # @return [Integer] The number of telemetry packets received from this target
     attr_accessor :tlm_cnt
 
+    # @return [Boolean] Indicates if all command packets identify using different fields
+    attr_accessor :cmd_unique_id_mode
+
+    # @return [Boolean] Indicates if telemetry packets identify using different fields
+    attr_accessor :tlm_unique_id_mode
+
     # Creates a new target by processing the target.txt file in the directory
     # given by the path joined with the target_name. Records all the command
     # and telemetry definition files found in the targets cmd_tlm directory.
@@ -90,6 +96,8 @@ module Cosmos
       @routers = []
       @cmd_cnt = 0
       @tlm_cnt = 0
+      @cmd_unique_id_mode = false
+      @tlm_unique_id_mode = false
 
       # Determine the target name using substitution if given
       @original_name = target_name.clone.upcase.freeze
@@ -123,16 +131,18 @@ module Cosmos
         when 'REQUIRE'
           usage = "#{keyword} <FILENAME>"
           parser.verify_num_parameters(1, 1, usage)
+          filename = File.join(@dir, 'lib', parameters[0])
           begin
-            # Require absolute path to file in target lib folder.  Prevents name
+            # Require absolute path to file in target lib folder. Prevents name
             # conflicts at the require step
             Cosmos.disable_warnings do
-              Cosmos.require_file(File.join(@dir, 'lib', parameters[0]), false)
+              Cosmos.require_file(filename, false)
             end
           rescue LoadError
             begin
               # If we couldn't load at the target/lib level check everywhere
               Cosmos.disable_warnings do
+                filename = parameters[0]
                 Cosmos.require_file(parameters[0])
               end
             rescue Exception => err
@@ -141,7 +151,19 @@ module Cosmos
           rescue Exception => err
             raise parser.error(err.message)
           end
-          @requires << parameters[0]
+          
+          # This code resolves any relative paths to absolute before putting into the @requires array
+          unless Pathname.new(filename).absolute?
+            $:.each do |search_path|
+              test_filename = File.join(search_path, filename).gsub("\\", "/")
+              if File.exist?(test_filename)
+                filename = test_filename
+                break
+              end
+            end
+          end
+          
+          @requires << filename
 
         when 'IGNORE_PARAMETER', 'IGNORE_ITEM'
           usage = "#{keyword} <#{keyword.split('_')[1]} NAME>"
@@ -160,6 +182,16 @@ module Cosmos
           usage = "#{keyword}"
           parser.verify_num_parameters(0, 0, usage)
           @auto_screen_substitute = true
+
+        when 'CMD_UNIQUE_ID_MODE'
+          usage = "#{keyword}"
+          parser.verify_num_parameters(0, 0, usage)
+          @cmd_unique_id_mode = true
+
+        when 'TLM_UNIQUE_ID_MODE'
+          usage = "#{keyword}"
+          parser.verify_num_parameters(0, 0, usage)
+          @tlm_unique_id_mode = true
 
         else
           # blank lines will have a nil keyword and should not raise an exception
@@ -213,7 +245,7 @@ module Cosmos
       cmd_tlm_files.sort!
     end
 
-    # Make sure all partials are included in the cmd_tlm list for the MD5 calculation
+    # Make sure all partials are included in the cmd_tlm list for the hashing sum calculation
     def add_cmd_tlm_partials(dir)
       partial_files = []
       if Dir.exist?(File.join(dir, 'cmd_tlm'))
@@ -226,7 +258,5 @@ module Cosmos
       @cmd_tlm_files.concat(partial_files)
       @cmd_tlm_files.uniq!
     end
-
-  end # class Target
-
-end # module Cosmos
+  end
+end

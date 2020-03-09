@@ -24,15 +24,14 @@ require 'cosmos/gui/dialogs/dart_dialog'
 require 'cosmos/tools/tlm_grapher/tabbed_plots/overview_tabbed_plots'
 
 module Cosmos
-
   # Displays multiple plots that perform various analysis on data.
   class TabbedPlotsTool < QtTool
-
     MINIMUM_LEFT_PANEL_WIDTH = 200
     DEFAULT_LEFT_PANEL_WIDTH = 250
 
     def initialize(options)
       super(options) # MUST BE FIRST - All code before super is executed twice in RubyQt Based classes
+      @options = options
       @base_title = self.windowTitle
       Cosmos.load_cosmos_icon("tlm_grapher.png")
 
@@ -77,7 +76,7 @@ module Cosmos
         System.telemetry
 
         # Create tabbed plots definition
-        @config_filename = File.join(Cosmos::USERPATH, 'config', 'tools', options.config_dir, options.config_file)
+        @config_filename = options.config_file ? options.config_file : ''
         Qt.execute_in_main_thread(true) do
           load_configuration()
           toggle_replay_mode() if options.replay
@@ -591,9 +590,14 @@ module Cosmos
       @tabbed_plots.pause
 
       if prompt_for_save_if_needed()
+        if @config_filename.empty?
+          load_filename = @options.config_dir
+        else
+          load_filename = @config_filename
+        end
         filename = Qt::FileDialog.getOpenFileName(self,
                                                   "Load Configuration",
-                                                  @config_filename,
+                                                  load_filename,
                                                   "Config File (*.txt);;All Files (*)")
         if filename and not filename.empty?
           @config_filename = filename
@@ -1071,7 +1075,5 @@ module Cosmos
     def realtime_thread_fatal_exception_callback(error)
       Cosmos.handle_fatal_exception(error)
     end # def realtime_thread_fatal_exception_callback
-
-  end # class TabbedPlotsTool
-
-end # module Cosmos
+  end
+end

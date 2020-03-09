@@ -6,6 +6,11 @@ SETTING BACKCOLOR white
   SETTING BACKCOLOR white
 
   CANVAS 650 700
+    # The code inside <% %> is just ruby
+    <% 11.times do |x| %>
+      # Create a dot at various y locations. The <%= %> adds the expression to the file
+      CANVASDOT 5 <%= 50 * x + 50 %> BLUE 5
+    <% end %> # Close our block from above
     # This is an example of using TLM_AND to && together different logical values
     # Note you must use RAW for the base value and use SETTING IMAGE true / false
     # for the two values you wish to display
