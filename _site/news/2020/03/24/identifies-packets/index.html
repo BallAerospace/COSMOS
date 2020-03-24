@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Protocol Rate</title>
+  <title>Identifying Packets</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v3.8.5">
@@ -232,8 +232,8 @@
       <div class="unit four-fifths">
         <article>
   <h2>
-    Protocol Rate
-    <a href="/news/2020/03/17/protocol-rate/" class="permalink" title="Permalink">∞</a>
+    Identifying Packets
+    <a href="/news/2020/03/24/identifies-packets/" class="permalink" title="Permalink">∞</a>
   </h2>
   <span class="post-category">
     <span class="label">
@@ -242,7 +242,7 @@
   </span>
   <div class="post-meta">
     <span class="post-date">
-      17 Mar 2020
+      24 Mar 2020
     </span>
     <a href="https://github.com/jmthomas" class="post-author">
       <img src="https://github.com/jmthomas.png" class="avatar" alt="jmthomas avatar" width="24" height="24">
@@ -250,121 +250,43 @@
     </a>
   </div>
   <div class="post-content">
-    <p>Protocols were introduced into COSMOS in version 4.0.0 and were previously discussed in <a href="/news/2019/06/05/protocols/">this post</a>. We recently had a question at Ball about how to reduce the telemetry rate of a high speed target so I thought I would walk through the problem and solution.</p>
+    <p>COSMOS goes through a multi-stage process to turn raw bits into identified <a href="/docs/packet_class/">Packets</a> belonging to a target. Understanding these steps are helpful when writing your own custom <a href="/docs/interfaces/">interface</a>.</p>
 
-<h3 id="the-problem">The Problem</h3>
-<p>One COSMOS server was connected to a high speed telemetry target that was generating telemetry at 10Hz. Another COSMOS server was <a href="/docs/chaining/">chained</a> to this and did not need this high speed data. How do you reduce the data rate coming into the chained server?</p>
+<h3 id="packet-identification-process">Packet Identification Process</h3>
+<p>The <a href="/docs/tools/#command-and-telemetry-server">CmdTlmServer</a> creates a new thread for each interface that was defined by the configuration text files. It calls connect() and then continuously calls the interface’s read() method which returns a packet. Typically the packets are unidentified meaning they don’t have an assigned target or packet name. At that point the interface thread loops through all the targets assigned to the interface to identify the packet. More on that later.</p>
 
-<h3 id="the-solution">The Solution</h3>
-<p>We can first model the chaining using the COSMOS demo. The format for the cmd_tlm_server.txt file is given in the <a href="https://cosmosrb.com/docs/chaining/#example-cmdtlmserver-configuration-for-child-cmd_tlm_server_chaintxt">chaining documentation</a> and already exists in the COSMOS demo. The demo also includes a deconflicting port definition file in system_alt_ports.txt. To start the two server instances from the command line we can type:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer
-</code></pre></div></div>
+<p>The implementation of the interface’s read() method first calls read_interface() which subclasses must implement to return raw data. Once it has the raw data, read_interface() should call read_interface_base(data) which updates internal counters. The read() method then loops through all the defined <a href="/docs/protocols/">protocols</a> for that interface which can add or subtract data and/or modify the packet. Ultimately a <a href="/docs/packet_class/">Packet</a> instance is returned.</p>
 
-<p>And in another terminal start the chained server:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
-</code></pre></div></div>
+<p>The packet identification process is implemented in <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb#L252">System.telemetry.identify!()</a>. The identify!() method loops through all the given targets looking to identify the data. There are two ways to identify a packet. The new way, which was implemented in <a href="/news/2019/06/28/cosmos-4-4-0-released/">COSMOS 4.4</a>, utilizes a lookup hash which is created for each target. This requires that every packet in the target has the same ID_ITEMS (same type, size, location) defined for each packet which is generally good practice. If you have hundreds of small packets associated with a single target it’s especially important to utilize this new lookup method. The old identification method is still available if you put TLM_UNIQUE_ID_MODE in the target’s target.txt file. In this mode, each packet’s ID_ITEMS are read and individually checked for a match.</p>
 
-<p>Now we need to implement a custom protocol to slow down the telemetry rate on the chained server. Note that the built-in protocols are fully described on the <a href="/docs/protocols">Protocols</a> page and also mentioned on the <a href="/docs/interfaces/#protocols">Interfaces</a> page.</p>
+<h3 id="custom-interfaces">Custom Interfaces</h3>
+<p>The implication of this process for custom interfaces is how and when packets are identified. If your custom interface can determine the target, you would want to identify the packet before returning it to save processing time. This may also be required if you map multiple targets to a single interface and have identification collisions. Identification collisions occur if two packets in different targets with the same ID_ITEMS are mapped to the same interface. In this case a custom interface would first have to properly identify the target and then override the read() method to identify the packet before returning it.</p>
 
-<h3 id="custom-protocols">Custom Protocols</h3>
-<p>Let’s assume we want to slow down the INST ADCS packet which the demo generates at 10Hz. First create a new file called config/targets/INST/lib/drop_protocol.rb. This protocol will drop data until we get the rate we want. It looks like this:</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/protocols/protocol'
+<p>An example of a custom interface implementing this might look something like this:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/interface'
 module Cosmos
-  # Limit a specific packet by dropping packets
-  class DropProtocol &lt; Protocol
-    def initialize(target_name, packet_name, drop, allow_empty_data = nil)
-      super(allow_empty_data)
-      System.telemetry.packet(target_name, packet_name)
-      @target_name = target_name
-      @packet_name = packet_name
-      @drop = drop.to_i
-      @count = 0
+  class MyInterface &lt; Interface
+    # ... various other methods
+
+    def read_interface
+      # Implement something to get the raw data and return it
+      # ...
+      # This is probably where you determine which target the data belongs to
+      @target_name = "TARGETX"
+      read_interface_base(data)
+      return data 
     end
 
-    def read_packet(packet)
-      target_names = nil
-      target_names = @interface.target_names if @interface
-      identified_packet = System.telemetry.identify_and_define_packet(packet, target_names)
-      if identified_packet
-        if identified_packet.target_name == @target_name &amp;&amp; identified_packet.packet_name == @packet_name
-          if @count &lt; @drop
-            @count += 1
-            STDOUT.puts "DROP count:#{@count}" # Debugging statement
-            return :STOP
-          else
-            @count = 0
-            STDOUT.puts "SEND" # Debugging statement
-          end
-        end
-      end
-      return super(packet)
+    def read
+      packet = super() # Ensure the base class implementation is called
+      # Call the identify! method to identify the packet using the given target
+      return System.telemetry.identify!(packet.buffer, [@target_name])
     end
   end
 end
 </code></pre></div></div>
 
-<p>The constructor takes the target and packet names as well as the number of packets to drop. The read_packet method first identifies the incoming packet and then determines if it is the packet we’re interested in. At that point I simply increment a counter until we get to the required number of drop packets and return :STOP to let COSMOS know not to return the packet. Once we want to actually send the packet we reset the counter and and simply fall through to super(packet).</p>
-
-<p>Note I included some debugging lines to show how you can debug your own custom protocols. When you run the CmdTlmServer from the command line the STDOUT.puts will write to the terminal output.</p>
-
-<p>Now we can add this protocol to the cmd_tlm_server_chain.txt definition as follows:</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
-  TARGET INST
-  TARGET INST2
-  TARGET EXAMPLE
-  TARGET TEMPLATED
-  TARGET SYSTEM
-  TARGET DART
-  PROTOCOL READ DropProtocol INST ADCS 9 # Drop 9 ADCS packets to force 1Hz
-</code></pre></div></div>
-
-<p>Finally stop and relaunch the chained server:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
-</code></pre></div></div>
-
-<p>You should now see the following in your terminal output:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DROP count:1
-DROP count:2
-DROP count:3
-DROP count:4
-DROP count:5
-DROP count:6
-DROP count:7
-DROP count:8
-DROP count:9
-SEND
-DROP count:1
-DROP count:2
-DROP count:3
-DROP count:4
-DROP count:5
-DROP count:6
-DROP count:7
-DROP count:8
-DROP count:9
-SEND
-</code></pre></div></div>
-
-<p>And the server “Tlm Packets” tab should show the ADCS count incrementing at 1Hz.
-<img src="/img/2020_03_17_server.png" alt="Server Tlm Packets" /><br />
-<em>Chained Server Tlm Packets tab</em></p>
-
-<p>This protocol is extremely simple but it accomplishes the task at hand. Remember protocols can be layered and operate in order so keeping them simple helps with debugging and reusability.</p>
-
-<p>For example, to also reduce the rate of INST2 ADCS you’d simply add another PROTOCOL line to the cmd_tlm_server_chain.txt file:</p>
-
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
-  TARGET INST
-  TARGET INST2
-  TARGET EXAMPLE
-  TARGET TEMPLATED
-  TARGET SYSTEM
-  TARGET DART
-  PROTOCOL READ DropProtocol INST ADCS 9 # Drop 9 ADCS packets to force 1Hz
-  PROTOCOL READ DropProtocol INST2 ADCS 9 # Drop 9 ADCS packets to force 1Hz
-</code></pre></div></div>
+<p>At this point the interface thread will receive an identified packet and can quickly update the current value table with the packet data.</p>
 
 <p>If you have a question, find a bug, or want a feature please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
@@ -414,13 +336,13 @@ SEND
     <ul>
         
         
-        <li class="">
+        <li class="current">
           <a href="/news/2020/03/24/identifies-packets/">Identifying Packets</a>
         </li>
         
         
         
-        <li class="current">
+        <li class="">
           <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
         </li>
         

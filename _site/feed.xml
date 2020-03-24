@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Tue, 17 Mar 2020 14:12:05 -0600</pubDate>
-    <lastBuildDate>Tue, 17 Mar 2020 14:12:05 -0600</lastBuildDate>
+    <pubDate>Tue, 24 Mar 2020 12:15:28 -0600</pubDate>
+    <lastBuildDate>Tue, 24 Mar 2020 12:15:28 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v3.8.5</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,58 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Identifying Packets</title>
+      <link>http://cosmosrb.com/news/2020/03/24/identifies-packets/</link>
+      <pubDate>Tue, 24 Mar 2020 09:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2020/03/24/identifies-packets/</guid>
+      <description>&lt;p&gt;COSMOS goes through a multi-stage process to turn raw bits into identified &lt;a href=&quot;/docs/packet_class/&quot;&gt;Packets&lt;/a&gt; belonging to a target. Understanding these steps are helpful when writing your own custom &lt;a href=&quot;/docs/interfaces/&quot;&gt;interface&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;packet-identification-process&quot;&gt;Packet Identification Process&lt;/h3&gt;
+&lt;p&gt;The &lt;a href=&quot;/docs/tools/#command-and-telemetry-server&quot;&gt;CmdTlmServer&lt;/a&gt; creates a new thread for each interface that was defined by the configuration text files. It calls connect() and then continuously calls the interface’s read() method which returns a packet. Typically the packets are unidentified meaning they don’t have an assigned target or packet name. At that point the interface thread loops through all the targets assigned to the interface to identify the packet. More on that later.&lt;/p&gt;
+
+&lt;p&gt;The implementation of the interface’s read() method first calls read_interface() which subclasses must implement to return raw data. Once it has the raw data, read_interface() should call read_interface_base(data) which updates internal counters. The read() method then loops through all the defined &lt;a href=&quot;/docs/protocols/&quot;&gt;protocols&lt;/a&gt; for that interface which can add or subtract data and/or modify the packet. Ultimately a &lt;a href=&quot;/docs/packet_class/&quot;&gt;Packet&lt;/a&gt; instance is returned.&lt;/p&gt;
+
+&lt;p&gt;The packet identification process is implemented in &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb#L252&quot;&gt;System.telemetry.identify!()&lt;/a&gt;. The identify!() method loops through all the given targets looking to identify the data. There are two ways to identify a packet. The new way, which was implemented in &lt;a href=&quot;/news/2019/06/28/cosmos-4-4-0-released/&quot;&gt;COSMOS 4.4&lt;/a&gt;, utilizes a lookup hash which is created for each target. This requires that every packet in the target has the same ID_ITEMS (same type, size, location) defined for each packet which is generally good practice. If you have hundreds of small packets associated with a single target it’s especially important to utilize this new lookup method. The old identification method is still available if you put TLM_UNIQUE_ID_MODE in the target’s target.txt file. In this mode, each packet’s ID_ITEMS are read and individually checked for a match.&lt;/p&gt;
+
+&lt;h3 id=&quot;custom-interfaces&quot;&gt;Custom Interfaces&lt;/h3&gt;
+&lt;p&gt;The implication of this process for custom interfaces is how and when packets are identified. If your custom interface can determine the target, you would want to identify the packet before returning it to save processing time. This may also be required if you map multiple targets to a single interface and have identification collisions. Identification collisions occur if two packets in different targets with the same ID_ITEMS are mapped to the same interface. In this case a custom interface would first have to properly identify the target and then override the read() method to identify the packet before returning it.&lt;/p&gt;
+
+&lt;p&gt;An example of a custom interface implementing this might look something like this:&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;require 'cosmos/interfaces/interface'
+module Cosmos
+  class MyInterface &amp;lt; Interface
+    # ... various other methods
+
+    def read_interface
+      # Implement something to get the raw data and return it
+      # ...
+      # This is probably where you determine which target the data belongs to
+      @target_name = &quot;TARGETX&quot;
+      read_interface_base(data)
+      return data 
+    end
+
+    def read
+      packet = super() # Ensure the base class implementation is called
+      # Call the identify! method to identify the packet using the given target
+      return System.telemetry.identify!(packet.buffer, [@target_name])
+    end
+  end
+end
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;At this point the interface thread will receive an identified packet and can quickly update the current value table with the packet data.&lt;/p&gt;
+
+&lt;p&gt;If you have a question, find a bug, or want a feature please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Protocol Rate</title>
