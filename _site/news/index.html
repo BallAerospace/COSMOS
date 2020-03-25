@@ -282,7 +282,7 @@ module Cosmos
     def read
       packet = super() # Ensure the base class implementation is called
       # Call the identify! method to identify the packet using the given target
-      return System.telemetry.identify!(packet.buffer, [@target_name])
+      return System.telemetry.identify!(packet.buffer, [@target_name]).dup # Copy the identified packet before returning it
     end
   end
 end
