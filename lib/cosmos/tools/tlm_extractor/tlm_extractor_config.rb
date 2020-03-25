@@ -385,10 +385,7 @@ module Cosmos
 
       # Print column headings to output file
       @output_file.print "%" if @matlab_header
-      column_names().each do |column_name|
-        @output_file.print column_name
-        @output_file.print @delimiter
-      end
+      @output_file.print column_names.join(@delimiter)
       @output_file.puts ""
       @row_index += 1
     end
