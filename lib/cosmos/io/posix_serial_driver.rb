@@ -25,7 +25,8 @@ module Cosmos
                    write_timeout = 10.0,
                    read_timeout = nil,
                    flow_control = :NONE,
-                   data_bits = 8)
+                   data_bits = 8,
+                   struct = [])
 
       # Convert Baud Rate into Termios constant
       begin
@@ -51,20 +52,38 @@ module Cosmos
 
       # Configure the serial Port
       tio = Termios::new_termios()
-      iflags = 0
-      iflags |= Termios::IGNPAR unless parity
-      cflags = 0
-      cflags |= Termios::CREAD # Enable receiver
-      cflags |= Termios.const_get("CS#{data_bits}") # data bits
-      cflags |= Termios::CLOCAL # Ignore Modem Control Lines
-      cflags |= Termios::CSTOPB if stop_bits == 2
-      cflags |= Termios::PARENB if parity
-      cflags |= Termios::PARODD if parity == :ODD
-      cflags |= Termios::CRTSCTS if flow_control == :RTSCTS
-      tio.iflag = iflags
-      tio.oflag = 0
-      tio.cflag = cflags
-      tio.lflag = 0
+      iflag = 0
+      iflag |= Termios::IGNPAR unless parity
+      oflag = 0
+      cflag = 0
+      cflag |= Termios::CREAD # Enable receiver
+      cflag |= Termios.const_get("CS#{data_bits}") # data bits
+      cflag |= Termios::CLOCAL # Ignore Modem Control Lines
+      cflag |= Termios::CSTOPB if stop_bits == 2
+      cflag |= Termios::PARENB if parity
+      cflag |= Termios::PARODD if parity == :ODD
+      cflag |= Termios::CRTSCTS if flow_control == :RTSCTS
+      lflag = 0
+      unless struct.empty?
+        struct.each do |field, key, value|
+          case field
+          when 'iflag'
+            iflag |= Termios.const_get(key)]
+          when 'oflag'
+            oflag |= Termios.const_get(key)]
+          when 'cflag'
+            cflag |= Termios.const_get(key)]
+          when 'lflag'
+            lflag |= Termios.const_get(key)]
+          when 'cc'
+            tio.cc[Termios.const_get(key)] = value
+          end
+        end
+      end
+      tio.iflag = iflag
+      tio.oflag = oflag
+      tio.cflag = cflag
+      tio.lflag = lflag
       tio.cc[Termios::VTIME] = 0
       tio.cc[Termios::VMIN] = 1
       tio.ispeed = baud_rate

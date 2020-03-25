@@ -24,7 +24,8 @@ module Cosmos
                    read_polling_period = 0.01,
                    read_max_length = 1000,
                    flow_control = :NONE,
-                   data_bits = 8)
+                   data_bits = 8,
+                   struct = [])
 
       # Verify Parameters
       port_name = '\\\\.\\' + port_name if port_name =~ /^COM[0-9]{2,3}$/
@@ -77,6 +78,12 @@ module Cosmos
         # 0x02 - RTS_CONTROL_HANDSHAKE - Enables RTS handshaking. The driver raises the RTS line when the "type-ahead" (input) buffer is less than one-half full and lowers the RTS line when the buffer is more than three-quarters full. If handshaking is enabled, it is an error for the application to adjust the line by using the EscapeCommFunction function.
         # 0x03 - RTS_CONTROL_TOGGLE - Specifies that the RTS line will be high if bytes are available for transmission. After all buffered bytes have been sent, the RTS line will be low.
         dcb.write('fRtsControl', 0x03)
+      end
+      # Allow the end user to write arbitrary values into the Windows DCB structure
+      unless struct.empty?
+        struct.each do |key, value|
+          dcb.write(key, value.to_i)
+        end
       end
       Win32.set_comm_state(@handle, dcb)
 
