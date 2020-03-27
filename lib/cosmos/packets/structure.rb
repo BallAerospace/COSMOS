@@ -464,10 +464,17 @@ module Cosmos
 
     protected
 
+    MUTEX = Mutex.new
+
+    def mutex
+      MUTEX.synchronize do
+        @mutex ||= Mutex.new
+      end
+    end
+
     # Take the structure mutex to ensure the buffer does not change while you perform activities
-    def synchronize
-      @mutex ||= Mutex.new
-      @mutex.synchronize {|| yield}
+    def synchronize(&block)
+      mutex.synchronize(&block)
     end
 
     # Take the structure mutex to ensure the buffer does not change while you perform activities
@@ -475,10 +482,10 @@ module Cosmos
     # @param top [Boolean] If true this will take the mutex and set an allow reads flag to allow
     #      lower level calls to go forward without getting the mutex
     def synchronize_allow_reads(top = false)
+      mutex = self.mutex
       @mutex_allow_reads ||= false
-      @mutex ||= Mutex.new
       if top
-        @mutex.synchronize do
+        mutex.synchronize do
           @mutex_allow_reads = Thread.current
           begin
             yield
@@ -487,12 +494,11 @@ module Cosmos
           end
         end
       else
-        got_mutex = @mutex.try_lock
-        if got_mutex
+        if mutex.try_lock
           begin
             yield
           ensure
-            @mutex.unlock
+            mutex.unlock
           end
         elsif @mutex_allow_reads == Thread.current
           yield
