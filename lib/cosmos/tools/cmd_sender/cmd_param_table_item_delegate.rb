@@ -38,10 +38,34 @@ module Cosmos
         return super(parent, option, index)
       end
     end
+    
+    # TODO: Couldn't get this to calculate correctly
+    # def sizeHint(option, index)
+    #   if index.column == 4
+    #     if (option.rect.width() == 0 || option.rect.height() == 0)
+    #       return Qt::Size.new(0, 0)
+    #     end
+    #     option = Qt::StyleOptionViewItemV4.new(option)
+    #     initStyleOption(option, index)
+    #     option.features = Qt::StyleOptionViewItemV2::WrapText
+    #     fontMetrics = option.fontMetrics
+    #     rect = fontMetrics.boundingRect(index.data().toString())
+    #     STDOUT.puts "option w:#{option.rect.width} h:#{option.rect.height} bounding w:#{rect.width} h:#{rect.height}"
+    #     f = rect.width / option.rect.width
+    #     lines = f.to_i + 1
+    #     STDOUT.puts "f:#{f} lines:#{lines}"
+    #     Qt::Size.new(rect.width, lines * fontMetrics.height)
+    #   else
+    #     super(option, index)
+    #   end
+    # end
 
     def paint(painter, option, index)
       packet_item, _, _ = @widgets[index.row]
-      if index.column == 1 and packet_item and packet_item.states
+      if index.column == 1 && packet_item && packet_item.states
+        painter.save
+        option = Qt::StyleOptionViewItemV4.new(option)
+        initStyleOption(option, index)
         # This code simply draws the current combo box text inside a button to
         # give the user an idea that they have to click it to activate it
         opt = Qt::StyleOptionButton.new
@@ -49,6 +73,18 @@ module Cosmos
         opt.text = @table.item(index.row, index.column).text.to_s
         Qt::Application.style.drawControl(Qt::Style::CE_PushButton, opt, painter)
         opt.dispose
+        painter.restore
+      # Not sure why but once we re-implement paint() the word wrapping
+      # doesn't work when we simply call super(painter, option, index)
+      # Thus we implement this to support word wrapping on the description
+      elsif index.column == 4
+        painter.save
+        option = Qt::StyleOptionViewItemV4.new(option)
+        initStyleOption(option, index)
+        option.text = index.data().toString()
+        option.features = Qt::StyleOptionViewItemV2::WrapText
+        self.parent().style().drawControl(Qt::Style.CE_ItemViewItem, option, painter)
+        painter.restore
       else
         super(painter, option, index)
       end

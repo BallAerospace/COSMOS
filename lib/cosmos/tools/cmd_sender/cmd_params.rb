@@ -291,21 +291,12 @@ module Cosmos
         state_value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
       end
       @table.setItem(row, 2, state_value_item)
-
-      # If the parameter is required clear the combobox and
-      # clear the value field so they have to choose something
-      if packet_item.required && !old_params[packet_item.name]
-        value_item.setText('')
-        state_value_item.setText('')
-      end
       return [value_item, state_value_item]
     end
 
     def create_item(packet_item, old_params, row)
       if old_params[packet_item.name]
         value_text = old_params[packet_item.name]
-      elsif packet_item.required
-        value_text = ''
       else
         if packet_item.format_string
           begin
@@ -338,6 +329,14 @@ module Cosmos
         if item.column == 1
           if packet_item.states
             value = packet_item.states[value_item.text]
+            if packet_item.hazardous.key?(value_item.text)
+              desc = packet_item.hazardous[value]
+              # Hazardous states aren't required to have a description so use the item description
+              desc = packet_item.description unless desc
+              @table.item(item.row, 4).setText("(Hazardous) #{desc}")
+            else
+              @table.item(item.row, 4).setText(packet_item.description)
+            end
             @table.blockSignals(true)
             if CmdParams.states_in_hex && value.kind_of?(Integer)
               state_value_item.setText(sprintf("0x%X", value))
@@ -351,10 +350,31 @@ module Cosmos
           @table.item(item.row, 1).setText(MANUALLY)
           @table.blockSignals(false)
         end
+        calculate_height()
         emit modified()
       end
+      calculate_height()
+    end
+
+    def calculate_height
       @table.resizeColumnsToContents()
       @table.resizeRowsToContents()
+      height = @table.horizontalHeader.height + 2 # 2 = Header frame?
+      # @table.rowCount.times do |x|
+      #   @table.columnCount.times do |y|
+      #     if @table.item(x,y)
+      #       rect = Cosmos.getFontMetrics(@table.font).boundingRect(@table.item(x,y).text)
+      #       # HEIGHT does not reflect word wrapping ... it's always 25
+      #       STDOUT.puts "rect text:#{@table.item(x,y).text} w:#{rect.width} h:#{rect.height}"
+      #     end
+      #   end
+      # end
+      @table.rowCount.times do |i|
+        # TODO: rowHeight does not reflect word wrapping ... it's always 37
+        height += @table.rowHeight(i)
+      end
+      @table.setMaximumHeight(height)
+      @table.setMinimumHeight(height)
     end
   end
 end
