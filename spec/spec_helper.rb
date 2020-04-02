@@ -69,6 +69,11 @@ def exit(*args)
 end
 
 RSpec.configure do |config|
+  # Enforce the new expect() syntax instead of the old should syntax
+  config.expect_with :rspec do |c|
+    c.syntax = :expect
+  end
+
   # Store standard output global and CONSTANT since we will mess with them
   config.before(:all) do
     $saved_stdout_global = $stdout
@@ -245,4 +250,3 @@ RSpec.configure do |c|
 #    end
 #  end
 end
-
