@@ -67,7 +67,7 @@ module Cosmos
     # @return [Hash] Hash keyed by parameter name with String formatted value
     def params_text(raw = false)
       params = {}
-      Qt.execute_in_main_thread do 
+      Qt.execute_in_main_thread do
         @param_widgets.each do |packet_item, value_item, state_value_item|
           text = value_item.text
           text = state_value_item.text if state_value_item && (text == MANUALLY or raw)
@@ -197,7 +197,7 @@ module Cosmos
       end
     end
 
-    private 
+    private
 
     def get_params(show_ignored)
       params = {}
@@ -291,12 +291,21 @@ module Cosmos
         state_value_item.setFlags(Qt::NoItemFlags | Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable)
       end
       @table.setItem(row, 2, state_value_item)
+
+      # If the parameter is required clear the combobox and
+      # clear the value field so they have to choose something
+      if packet_item.required && !old_params[packet_item.name]
+        value_item.setText('')
+        state_value_item.setText('')
+      end
       return [value_item, state_value_item]
     end
 
     def create_item(packet_item, old_params, row)
       if old_params[packet_item.name]
         value_text = old_params[packet_item.name]
+      elsif packet_item.required
+        value_text = ''
       else
         if packet_item.format_string
           begin

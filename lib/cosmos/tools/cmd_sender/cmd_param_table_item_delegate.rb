@@ -38,7 +38,7 @@ module Cosmos
         return super(parent, option, index)
       end
     end
-    
+
     # TODO: Couldn't get this to calculate correctly
     # def sizeHint(option, index)
     #   if index.column == 4
@@ -62,7 +62,7 @@ module Cosmos
 
     def paint(painter, option, index)
       packet_item, _, _ = @widgets[index.row]
-      if index.column == 1 && packet_item && packet_item.states
+      if index.column == 1 and packet_item and packet_item.states
         painter.save
         option = Qt::StyleOptionViewItemV4.new(option)
         initStyleOption(option, index)
