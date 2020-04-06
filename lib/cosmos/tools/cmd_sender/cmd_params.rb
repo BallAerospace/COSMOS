@@ -369,18 +369,11 @@ module Cosmos
       @table.resizeColumnsToContents()
       @table.resizeRowsToContents()
       height = @table.horizontalHeader.height + 2 # 2 = Header frame?
-      # @table.rowCount.times do |x|
-      #   @table.columnCount.times do |y|
-      #     if @table.item(x,y)
-      #       rect = Cosmos.getFontMetrics(@table.font).boundingRect(@table.item(x,y).text)
-      #       # HEIGHT does not reflect word wrapping ... it's always 25
-      #       STDOUT.puts "rect text:#{@table.item(x,y).text} w:#{rect.width} h:#{rect.height}"
-      #     end
-      #   end
-      # end
       @table.rowCount.times do |i|
         # TODO: rowHeight does not reflect word wrapping ... it's always 37
         height += @table.rowHeight(i)
+        # NOTE: Checking the fontMetrics boundingRect also does not refect word wrapping
+        #   e.g. Cosmos.getFontMetrics(@table.font).boundingRect(@table.item(x,y).text).height
       end
       @table.setMaximumHeight(height)
       @table.setMinimumHeight(height)

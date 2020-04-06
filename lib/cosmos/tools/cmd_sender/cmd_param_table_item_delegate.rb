@@ -39,27 +39,6 @@ module Cosmos
       end
     end
 
-    # TODO: Couldn't get this to calculate correctly
-    # def sizeHint(option, index)
-    #   if index.column == 4
-    #     if (option.rect.width() == 0 || option.rect.height() == 0)
-    #       return Qt::Size.new(0, 0)
-    #     end
-    #     option = Qt::StyleOptionViewItemV4.new(option)
-    #     initStyleOption(option, index)
-    #     option.features = Qt::StyleOptionViewItemV2::WrapText
-    #     fontMetrics = option.fontMetrics
-    #     rect = fontMetrics.boundingRect(index.data().toString())
-    #     STDOUT.puts "option w:#{option.rect.width} h:#{option.rect.height} bounding w:#{rect.width} h:#{rect.height}"
-    #     f = rect.width / option.rect.width
-    #     lines = f.to_i + 1
-    #     STDOUT.puts "f:#{f} lines:#{lines}"
-    #     Qt::Size.new(rect.width, lines * fontMetrics.height)
-    #   else
-    #     super(option, index)
-    #   end
-    # end
-
     def paint(painter, option, index)
       packet_item, _, _ = @widgets[index.row]
       if index.column == 1 and packet_item and packet_item.states
