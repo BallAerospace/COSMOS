@@ -322,7 +322,7 @@ module Cosmos
         value_text = "0x" + value_text.simple_formatted
       # Add quotes around STRING or BLOCK defaults so they are interpreted correctly
       elsif (packet_item.data_type == :STRING or packet_item.data_type == :BLOCK)
-        value_text = "'#{packet_item.default}'"
+        value_text = "'#{value_text}'"
       end
       value_item = Qt::TableWidgetItem.new(value_text)
       value_item.setTextAlignment(Qt::AlignRight | Qt::AlignVCenter)
