@@ -25,19 +25,20 @@ module Cosmos
                    write_timeout = 10.0,
                    read_timeout = nil,
                    flow_control = :NONE,
-                   data_bits = 8)
+                   data_bits = 8,
+                   struct = [])
 
       # Convert Baud Rate into Termios constant
       begin
         baud_rate = Object.const_get("Termios::B#{baud_rate}")
       rescue NameError
-        raise(ArgumentError, "Invalid Baud Rate, Not Defined by Termios: #{baud_rate}")
+        raise(ArgumentError, "Invalid baud rate: #{baud_rate}")
       end
 
       # Verify Parameters
-      raise(ArgumentError, "Invalid Data Bits: #{data_bits}") unless [5,6,7,8].include?(data_bits)
+      raise(ArgumentError, "Invalid data bits: #{data_bits}") unless [5,6,7,8].include?(data_bits)
       raise(ArgumentError, "Invalid parity: #{parity}") if parity and !SerialDriver::VALID_PARITY.include?(parity)
-      raise(ArgumentError, "Invalid Stop Bits: #{stop_bits}") unless [1,2].include?(stop_bits)
+      raise(ArgumentError, "Invalid stop bits: #{stop_bits}") unless [1,2].include?(stop_bits)
       @write_timeout = write_timeout
       @read_timeout = read_timeout
 
@@ -51,22 +52,61 @@ module Cosmos
 
       # Configure the serial Port
       tio = Termios::new_termios()
-      iflags = 0
-      iflags |= Termios::IGNPAR unless parity
-      cflags = 0
-      cflags |= Termios::CREAD # Enable receiver
-      cflags |= Termios.const_get("CS#{data_bits}") # data bits
-      cflags |= Termios::CLOCAL # Ignore Modem Control Lines
-      cflags |= Termios::CSTOPB if stop_bits == 2
-      cflags |= Termios::PARENB if parity
-      cflags |= Termios::PARODD if parity == :ODD
-      cflags |= Termios::CRTSCTS if flow_control == :RTSCTS
-      tio.iflag = iflags
-      tio.oflag = 0
-      tio.cflag = cflags
-      tio.lflag = 0
+      iflag = 0
+      iflag |= Termios::IGNPAR unless parity
+      oflag = 0
+      cflag = 0
+      cflag |= Termios::CREAD # Enable receiver
+      cflag |= Termios.const_get("CS#{data_bits}") # data bits
+      cflag |= Termios::CLOCAL # Ignore Modem Control Lines
+      cflag |= Termios::CSTOPB if stop_bits == 2
+      cflag |= Termios::PARENB if parity
+      cflag |= Termios::PARODD if parity == :ODD
+      cflag |= Termios::CRTSCTS if flow_control == :RTSCTS
+      lflag = 0
       tio.cc[Termios::VTIME] = 0
       tio.cc[Termios::VMIN] = 1
+      unless struct.empty?
+        struct.each do |field, key, value|
+          case field
+          when 'iflag'
+            if value == "0"
+              iflag &= ~Termios.const_get(key)
+            else
+              iflag |= Termios.const_get(key)
+            end
+          when 'oflag'
+            if value == "0"
+              oflag &= ~Termios.const_get(key)
+            else
+              oflag |= Termios.const_get(key)
+            end
+          when 'cflag'
+            if value == "0"
+              cflag &= ~Termios.const_get(key)
+            else
+              cflag |= Termios.const_get(key)
+            end
+          when 'lflag'
+            if value == "0"
+              lflag &= ~Termios.const_get(key)
+            else
+              lflag |= Termios.const_get(key)
+            end
+          when 'cc'
+            begin
+              value = Integer(value) # Try to convert to int
+            rescue ArgumentError
+              # Ignore this error and use the string
+            end
+            tio.cc[Termios.const_get(key)] = value
+          end
+        end
+      end
+      tio.iflag = iflag
+      tio.oflag = oflag
+      tio.cflag = cflag
+      tio.lflag = lflag
       tio.ispeed = baud_rate
       tio.ospeed = baud_rate
       @handle.tcflush(Termios::TCIOFLUSH)
@@ -143,7 +183,5 @@ module Cosmos
 
       data
     end
-
-  end # class PosixSerialDriver
-
-end # module Cosmos
+  end
+end
