@@ -52,6 +52,7 @@ module Cosmos
       @read_allowed = false unless @read_port_name
       @flow_control = :NONE
       @data_bits = 8
+      @struct = []
     end
 
     # Creates a new {SerialStream} using the parameters passed in the constructor
@@ -65,13 +66,16 @@ module Cosmos
         @write_timeout,
         @read_timeout,
         @flow_control,
-        @data_bits
+        @data_bits,
+        @struct
       )
       super()
     end
 
     # Supported Options
     # FLOW_CONTROL - Flow control method NONE or RTSCTS. Defaults to NONE
+    # DATA_BITS - How many data bits to use
+    # STRUCT - Directly set fields in the Win32 DCB or POSIX termios structure
     def set_option(option_name, option_values)
       super(option_name, option_values)
       case option_name.upcase
@@ -79,6 +83,8 @@ module Cosmos
         @flow_control = option_values[0]
       when 'DATA_BITS'
         @data_bits = option_values[0].to_i
+      when 'STRUCT'
+        @struct << option_values
       end
     end
   end

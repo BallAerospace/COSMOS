@@ -35,8 +35,10 @@ module Cosmos
     #   complete. Pass nil to create no timeout. The {SerialDriver} will
     #   continously try to read data until it has received data or an error
     #   occurs.
-    # @param flow_control [Symbol] Currently supported :NONE and :RTSCTS (default :NONE)
+    # @param flow_control [Symbol] Currently supported :NONE, :RTSCTS (default :NONE)
     # @param data_bits [Integer] Number of data bits (default 8)
+    # @param struct [Array] Array of arrays of fields and values to set in the
+    #   Windows DCB or POSIX structure
     def initialize(write_port_name,
                    read_port_name,
                    baud_rate,
@@ -45,7 +47,8 @@ module Cosmos
                    write_timeout,
                    read_timeout,
                    flow_control = :NONE,
-                   data_bits = 8)
+                   data_bits = 8,
+                   struct = [])
       super()
 
       # The SerialDriver class will validate the parameters
@@ -69,7 +72,8 @@ module Cosmos
                                               @write_timeout,
                                               @read_timeout,
                                               @flow_control,
-                                              @data_bits)
+                                              @data_bits,
+                                              struct)
       else
         @write_serial_port = nil
       end
@@ -84,7 +88,8 @@ module Cosmos
                                                @write_timeout,
                                                @read_timeout,
                                                @flow_control,
-                                               @data_bits)
+                                               @data_bits,
+                                               struct)
         end
       else
         @read_serial_port = nil
@@ -151,5 +156,5 @@ module Cosmos
         @connected = false
       end
     end
-  end # class SerialStream
-end # module Cosmos
+  end
+end

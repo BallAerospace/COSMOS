@@ -19,7 +19,8 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
       before(:each) do
         allow(Win32).to receive(:create_file).and_return(Object.new)
         state = double("comm_state")
-        allow(state).to receive(:write)
+        @dcb_struct = {}
+        allow(state).to receive(:write) { |key, value| @dcb_struct[key] = value }
         allow(Win32).to receive(:get_comm_state).and_return(state)
         allow(Win32).to receive(:set_comm_state)
         allow(Win32).to receive(:set_comm_timeouts)
@@ -34,12 +35,14 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
           expect { Win32SerialDriver.new('COM1',9600,:EVEN) }.to_not raise_error
           expect { Win32SerialDriver.new('COM1',9600,:ODD) }.to_not raise_error
           expect { Win32SerialDriver.new('COM1',9600,:NONE) }.to_not raise_error
+          expect(@dcb_struct["Parity"]).to_not be_nil # Simply check that Parity was set
           expect { Win32SerialDriver.new('COM1',9600,:BLAH) }.to raise_error(ArgumentError, "Invalid parity: BLAH")
         end
 
         it "supports 1 or 2 stop bits" do
           expect { Win32SerialDriver.new('COM1',9600,:NONE,1) }.to_not raise_error
           expect { Win32SerialDriver.new('COM1',9600,:NONE,2) }.to_not raise_error
+          expect(@dcb_struct["StopBits"]).to_not be_nil # Simply check that StopBits was set
           expect { Win32SerialDriver.new('COM1',9600,:NONE,3) }.to raise_error(ArgumentError, "Invalid stop bits: 3")
         end
 
@@ -49,6 +52,19 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
           expect { Win32SerialDriver.new('COM1',9600,:NONE,1,10,nil,0.01,1000,:NONE,7) }.to_not raise_error
           expect { Win32SerialDriver.new('COM1',9600,:NONE,1,10,nil,0.01,1000,:NONE,8) }.to_not raise_error
           expect { Win32SerialDriver.new('COM1',9600,:NONE,1,10,nil,0.01,1000,:NONE,9) }.to raise_error(ArgumentError, "Invalid data bits: 9")
+          expect(@dcb_struct["ByteSize"]).to_not be_nil # Simply check that ByteSize was set
+        end
+
+        it "sets arbitrary Windows DCB structure elements" do
+          Win32SerialDriver.new('COM1',9600,:NONE,1,10,nil,0.01,1000,:NONE,8)
+          expect(@dcb_struct["fOutxDsrFlow"]).to be_nil # This isn't set by default
+          expect(@dcb_struct["Parity"]).to eq(0)
+          # Set a new variable in the Windows DCB struct and override the :NONE parity
+          # We pass them in as strings because that's how they're parsed
+          struct = [["fOutxDsrFlow", "1"], ["Parity", "4"]]
+          Win32SerialDriver.new('COM1',9600,:NONE,1,10,nil,0.01,1000,:NONE,8,struct)
+          expect(@dcb_struct["fOutxDsrFlow"]).to eq(1)
+          expect(@dcb_struct["Parity"]).to eq(4)
         end
 
         it "calculates the correct timeouts" do
