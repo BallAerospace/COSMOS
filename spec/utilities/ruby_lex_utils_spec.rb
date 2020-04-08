@@ -58,9 +58,33 @@ begin
 end
 DOC
         expect { |b| @lex.each_lexed_segment(text, &b) }.to yield_successive_args(
-          ["begin\n",false,0,1],  # can't instrument begin
-          ["  x = 0\n",true,0,2],
-          ["end\n",false,nil,3])  # can't instrument end
+          ["begin\n",false,true,1],  # can't instrument begin
+          ["  x = 0\n",true,true,2],
+          ["end\n",false,false,3])  # can't instrument end
+      end
+
+      it "handles multiple begins" do
+text = <<DOC
+z = 5
+begin
+  a = 0
+  begin
+    x = 0
+  rescue
+    x = 1
+  end
+end
+DOC
+        expect { |b| @lex.each_lexed_segment(text, &b) }.to yield_successive_args(
+          ["z = 5\n",true,false,1],
+          ["begin\n",false,true,2],  # can't instrument begin
+          ["  a = 0\n",true, true,3],
+          ["  begin\n",false,true,4],
+          ["    x = 0\n",true,true,5],
+          ["  rescue\n",false,true,6],
+          ["    x = 1\n",true,true,7],
+          ["  end\n",false,true,8],
+          ["end\n",false,false,9])  # can't instrument end
       end
 
       it "yields each segment" do
@@ -73,12 +97,12 @@ z
 end
 DOC
         expect { |b| @lex.each_lexed_segment(text, &b) }.to yield_successive_args(
-          ["\n",true,nil,1],
-          ["if x\n",false,nil,2], # can't instrument if
-          ["y\n",true,nil,3],
-          ["else\n",false,nil,4], # can't instrument else
-          ["z\n",true,nil,5],
-          ["end\n",false,nil,6])  # can't instrument end
+          ["\n",true,false,1],
+          ["if x\n",false,false,2], # can't instrument if
+          ["y\n",true,false,3],
+          ["else\n",false,false,4], # can't instrument else
+          ["z\n",true,false,5],
+          ["end\n",false,false,6])  # can't instrument end
       end
     end
   end
