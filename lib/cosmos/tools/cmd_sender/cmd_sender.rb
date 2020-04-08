@@ -491,6 +491,13 @@ module Cosmos
       packet_name = @cmd_select.text
       if target_name && packet_name
         packet = System.commands.packet(target_name, packet_name)
+        # Directly update packet description ... safe because always in GUI thread
+        hazardous, _ = System.commands.cmd_hazardous?(target_name, packet_name)
+        if hazardous
+          @description.text = "(Hazardous) #{packet.description}"
+        else
+          @description.text = packet.description
+        end
         table = @cmd_params.update_cmd_params(packet, show_ignored: checked)
         @table_layout.addWidget(table, 500) if table
       end

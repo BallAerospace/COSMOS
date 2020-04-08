@@ -67,7 +67,7 @@ module Cosmos
     # @return [Hash] Hash keyed by parameter name with String formatted value
     def params_text(raw = false)
       params = {}
-      Qt.execute_in_main_thread do 
+      Qt.execute_in_main_thread do
         @param_widgets.each do |packet_item, value_item, state_value_item|
           text = value_item.text
           text = state_value_item.text if state_value_item && (text == MANUALLY or raw)
@@ -197,7 +197,7 @@ module Cosmos
       end
     end
 
-    private 
+    private
 
     def get_params(show_ignored)
       params = {}
@@ -338,6 +338,14 @@ module Cosmos
         if item.column == 1
           if packet_item.states
             value = packet_item.states[value_item.text]
+            if packet_item.hazardous.key?(value_item.text)
+              desc = packet_item.hazardous[value]
+              # Hazardous states aren't required to have a description so use the item description
+              desc = packet_item.description unless desc
+              @table.item(item.row, 4).setText("(Hazardous) #{desc}")
+            else
+              @table.item(item.row, 4).setText(packet_item.description)
+            end
             @table.blockSignals(true)
             if CmdParams.states_in_hex && value.kind_of?(Integer)
               state_value_item.setText(sprintf("0x%X", value))
@@ -351,10 +359,24 @@ module Cosmos
           @table.item(item.row, 1).setText(MANUALLY)
           @table.blockSignals(false)
         end
+        calculate_height()
         emit modified()
       end
+      calculate_height()
+    end
+
+    def calculate_height
       @table.resizeColumnsToContents()
       @table.resizeRowsToContents()
+      height = @table.horizontalHeader.height + 2 # 2 = Header frame?
+      @table.rowCount.times do |i|
+        # TODO: rowHeight does not reflect word wrapping ... it's always 37
+        height += @table.rowHeight(i)
+        # NOTE: Checking the fontMetrics boundingRect also does not refect word wrapping
+        #   e.g. Cosmos.getFontMetrics(@table.font).boundingRect(@table.item(x,y).text).height
+      end
+      @table.setMaximumHeight(height)
+      @table.setMinimumHeight(height)
     end
   end
 end

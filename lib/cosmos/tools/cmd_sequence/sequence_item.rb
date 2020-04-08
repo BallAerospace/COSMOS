@@ -56,11 +56,6 @@ module Cosmos
 
     def add_table(table)
       return unless table
-      table.setSizePolicy(Qt::SizePolicy.Minimum, Qt::SizePolicy.Minimum)
-      table.setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
-      table.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
-      table.setFixedSize(table.horizontalHeader.length + table.verticalHeader.width,
-                         2 + table.verticalHeader.length + table.horizontalHeader.height)
       @table_layout.addWidget(table) 
     end
       

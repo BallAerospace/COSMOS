@@ -36,7 +36,7 @@ COMMAND INST ASCIICMD BIG_ENDIAN "Enumerated ASCII command"
   <%= render "_ccsds_cmd.txt", locals: {id: 5} %>
   APPEND_PARAMETER STRING 2048 STRING "NOOP" "Enumerated string parameter"
     STATE "NOOP" "NOOP"
-    STATE "ARM LASER" "ARM LASER" HAZARDOUS "Arming the laser poses an eye safety hazard."
+    STATE "ARM LASER" "ARM LASER" HAZARDOUS "Arming the laser poses an eye safety hazard so anyone without laser safety training needs to leave."
     STATE "FIRE LASER" "FIRE LASER" HAZARDOUS "WARNING Laser will be fired!"
   APPEND_PARAMETER BINARY 32 STRING 0xDEADBEEF "Binary string"
   APPEND_PARAMETER ASCII 80 STRING "0xDEADBEEF" "ASCII string"

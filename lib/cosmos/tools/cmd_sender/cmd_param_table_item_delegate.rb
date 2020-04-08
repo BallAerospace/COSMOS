@@ -42,6 +42,9 @@ module Cosmos
     def paint(painter, option, index)
       packet_item, _, _ = @widgets[index.row]
       if index.column == 1 and packet_item and packet_item.states
+        painter.save
+        option = Qt::StyleOptionViewItemV4.new(option)
+        initStyleOption(option, index)
         # This code simply draws the current combo box text inside a button to
         # give the user an idea that they have to click it to activate it
         opt = Qt::StyleOptionButton.new
@@ -49,6 +52,18 @@ module Cosmos
         opt.text = @table.item(index.row, index.column).text.to_s
         Qt::Application.style.drawControl(Qt::Style::CE_PushButton, opt, painter)
         opt.dispose
+        painter.restore
+      # Not sure why but once we re-implement paint() the word wrapping
+      # doesn't work when we simply call super(painter, option, index)
+      # Thus we implement this to support word wrapping on the description
+      elsif index.column == 4
+        painter.save
+        option = Qt::StyleOptionViewItemV4.new(option)
+        initStyleOption(option, index)
+        option.text = index.data().toString()
+        option.features = Qt::StyleOptionViewItemV2::WrapText
+        self.parent().style().drawControl(Qt::Style.CE_ItemViewItem, option, painter)
+        painter.restore
       else
         super(painter, option, index)
       end
