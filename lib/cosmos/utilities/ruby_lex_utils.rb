@@ -484,7 +484,7 @@ else
       while lexed = lex.lex
         line_no = lex.exp_line_no
 
-        if contains_begin?(lexed)
+        if inside_indent.nil? and contains_begin?(lexed)
           inside_indent = lex.indent - 1
           inside_begin = true
         end
