@@ -338,7 +338,7 @@ module Cosmos
         if item.column == 1
           if packet_item.states
             value = packet_item.states[value_item.text]
-            if packet_item.hazardous.key?(value_item.text)
+            if packet_item.hazardous && packet_item.hazardous.key?(value_item.text)
               desc = packet_item.hazardous[value]
               # Hazardous states aren't required to have a description so use the item description
               desc = packet_item.description unless desc
