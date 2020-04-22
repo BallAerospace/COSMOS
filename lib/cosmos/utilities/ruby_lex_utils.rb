@@ -23,6 +23,7 @@ if RUBY_VERSION >= "2.7"
     attr_accessor :code_block_open
     attr_accessor :ltype
     attr_accessor :line
+    attr_accessor :continue
 
     def reinitialize
       @line_no = 1
@@ -100,7 +101,7 @@ if RUBY_VERSION >= "2.7"
           if KEY_KEYWORDS.include?(token[2])
             return true
           end
-        elsif token[1] == :on_lbrace
+        elsif token[1] == :on_lbrace and !token[3].allbits?(Ripper::EXPR_BEG | Ripper::EXPR_LABEL)
           return true
         end
       end
@@ -170,11 +171,14 @@ if RUBY_VERSION >= "2.7"
       lex = RubyLex.new
       lex_io = StringIO.new(text)
       lex.set_input(lex_io)
+      lex.line = ''
       while lexed = lex.lex
         lex.line_no += lexed.count("\n")
+        lex.line.concat lexed
+        next if lex.ltype or lex.continue
 
         # Detect the beginning and end of begin blocks so we can not catch exceptions there
-        if indent == 0 and contains_begin?(lexed)
+        if indent == 0 and contains_begin?(lex.line)
           inside_begin = true
           indent = lex.indent
         else
@@ -189,25 +193,25 @@ if RUBY_VERSION >= "2.7"
         loop do # loop to allow restarting for nested conditions
 
           # Yield blank lines and lonely else lines before the actual line
-          while (index = lexed.index("\n"))
-            line = lexed[0..index]
+          while (index = lex.line.index("\n"))
+            line = lex.line[0..index]
             if line =~ BLANK_LINE_REGEX
               yield line, true, inside_begin, lex.exp_line_no
               lex.exp_line_no += 1
-              lexed = lexed[(index + 1)..-1]
+              lex.line = lex.line[(index + 1)..-1]
             elsif line =~ LONELY_ELSE_REGEX
               yield line, false, inside_begin, lex.exp_line_no
               lex.exp_line_no += 1
-              lexed = lexed[(index + 1)..-1]
+              lex.line = lex.line[(index + 1)..-1]
             else
               break
             end
           end
 
-          if contains_keyword?(lexed)
-            if contains_block_beginning?(lexed)
+          if contains_keyword?(lex.line)
+            if contains_block_beginning?(lex.line)
               section = ''
-              lexed.each_line do |lexed_part|
+              lex.line.each_line do |lexed_part|
                 section << lexed_part
                 if contains_block_beginning?(section)
                   yield section, false, inside_begin, lex.exp_line_no
@@ -216,20 +220,20 @@ if RUBY_VERSION >= "2.7"
                 lex.exp_line_no += 1
               end
               lex.exp_line_no += 1
-              remainder = lexed[(section.length)..-1]
-              lexed = remainder
+              remainder = lex.line[(section.length)..-1]
+              lex.line = remainder
               next unless remainder.empty?
             else
-              yield lexed, false, inside_begin, lex.exp_line_no
+              yield lex.line, false, inside_begin, lex.exp_line_no
             end
-          elsif !lexed.empty?
-            num_left_brackets  = lexed.count('{')
-            num_right_brackets = lexed.count('}')
+          elsif !lex.line.empty?
+            num_left_brackets  = lex.line.count('{')
+            num_right_brackets = lex.line.count('}')
             if num_left_brackets != num_right_brackets
               # Don't instrument lines with unequal numbers of { and } brackets
-              yield lexed, false, inside_begin, lex.exp_line_no
+              yield lex.line, false, inside_begin, lex.exp_line_no
             else
-              yield lexed, true, inside_begin, lex.exp_line_no
+              yield lex.line, true, inside_begin, lex.exp_line_no
             end
           end
           lex.line = ''

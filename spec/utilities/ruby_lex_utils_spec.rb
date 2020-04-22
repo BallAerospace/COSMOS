@@ -86,6 +86,29 @@ DOC
           ["  end\n",false,true,8],
           ["end\n",false,false,9])  # can't instrument end
       end
+        
+      it "handles multiline segments" do
+text = <<DOC
+a = [10,
+11,
+12,
+13,
+14]
+DOC
+        expect { |b| @lex.each_lexed_segment(text, &b) }.to yield_successive_args(
+          ["a = [10,\n11,\n12,\n13,\n14]\n",true,false,1])
+      end
+
+      it "handles complex hash segments" do
+text = <<DOC
+{ :X1 => 1,
+  :X2 => 2
+}.each {|x, y| puts x}
+DOC
+        expect { |b| @lex.each_lexed_segment(text, &b) }.to yield_successive_args(
+          ["{ :X1 => 1,\n  :X2 => 2\n", false,false,1],
+          ["}.each {|x, y| puts x}\n",false,false,3])  
+      end
 
       it "yields each segment" do
 text = <<DOC
