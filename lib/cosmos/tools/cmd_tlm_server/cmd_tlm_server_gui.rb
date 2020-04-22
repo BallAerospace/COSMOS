@@ -10,7 +10,7 @@
 
 require 'cosmos'
 require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server'
-if RUBY_ENGINE == 'ruby'
+if false
   require 'cosmos/tools/cmd_tlm_server/gui/interfaces_tab'
   require 'cosmos/tools/cmd_tlm_server/gui/targets_tab'
   require 'cosmos/tools/cmd_tlm_server/gui/packets_tab'
@@ -29,6 +29,60 @@ else
   class QtTool
     def self.slots(*args)
       # Do nothing
+    end
+
+    # Creates a path to a configuration file. If the file is given it is
+    # checked for an absolute path. If it is not absolute, the configuration
+    # directory is prepended to the filename. If no file is given a default is
+    # generated based on the application name.
+    #
+    # @param filename [String|Boolean|nil] Path to a configuration file which means
+    #   the file must be found. true which means that a default configuration file
+    #   is required and must be found. nil which means a default file is acceptable
+    #   but not required.
+    # @param type [String] File extension, e.g. '.txt'
+    # @param tool_name [String] Name of the tool calling this method
+    # @return [String|nil] Path to an existing configuration file. nil is returned
+    #   if filename is nil and the default is not found. An error is raised if
+    #   filename is a string or true and it is not found.
+    def self.config_path(options, filename, type, tool_name)
+      # First check for an absolute path
+      return filename if filename && filename != true && File.exist?(filename)
+      # Build a default filename
+      default_filename = File.join(options.config_dir, "#{tool_name}#{type}")
+      if filename == true # The config file is required but not given
+        return default_filename if File.exist?(default_filename)
+        message = "\n\nDefault configuration file #{default_filename} not found.\n"\
+          "Either create this file or pass a configuration filename using the --config option.\n"
+        raise message
+      elsif filename # Filename was given so look for it in the config dir
+        new_filename = File.join(options.config_dir, filename)
+        return new_filename if File.exist?(new_filename)
+        # If a filename is passed in it is an error if it does not exist
+        raise "\n\nConfiguration file #{new_filename} not found.\n"
+      end
+      # If filename is nil check for the default and return it
+      return default_filename if File.exist?(default_filename)
+      nil # return nil if filename is nil and the default is not found
+    end
+
+    # Normalizes config_dir, config_file, and stylesheet options
+    def self.normalize_config_options(options)
+      # Determine the tool name based on the class
+      tool_name = self.to_s.class_name_to_filename.split('.')[0] # remove .rb
+      options.config_dir = File.join(Cosmos::USERPATH, 'config', 'tools', tool_name) unless options.config_dir
+      tool_name = options.config_dir.split('/')[-1]
+      if File.exist?(options.config_dir)
+        options.config_file = config_path(options, options.config_file, ".txt", tool_name)
+        options.stylesheet = config_path(options, options.stylesheet, ".css", tool_name)
+      elsif options.config_file == true
+        # If the config_file is required and the config_dir doesn't exist then
+        # this is a core COSMOS configuration error so just raise an error
+        raise "ERROR! config_dir #{options.config_dir} does not exist. tool_name = #{tool_name}"
+      else
+        options.config_file = nil
+        options.stylesheet = nil
+      end      
     end
 
     def self.create_default_options
@@ -87,16 +141,16 @@ module Cosmos
 
     attr_writer :no_prompt
 
-    if RUBY_ENGINE == 'ruby'
-      # For the CTS we display all the tables as full size
-      # Thus we don't want the table to absorb the scroll wheel events but
-      # instead pass them up to the container so the entire window will scroll.
-      class Qt::TableWidget
-        def wheelEvent(event)
-          event.ignore()
-        end
-      end
-    end
+    #~ if RUBY_ENGINE == 'ruby'
+      #~ # For the CTS we display all the tables as full size
+      #~ # Thus we don't want the table to absorb the scroll wheel events but
+      #~ # instead pass them up to the container so the entire window will scroll.
+      #~ class Qt::TableWidget
+        #~ def wheelEvent(event)
+          #~ event.ignore()
+        #~ end
+      #~ end
+    #~ end
 
     def meta_callback
       Qt.execute_in_main_thread(true) do
