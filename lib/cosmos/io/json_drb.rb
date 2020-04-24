@@ -67,6 +67,8 @@ module Cosmos
     # @return [ACL] The access control list
     attr_accessor :acl
 
+    attr_accessor :object
+
     def initialize
       @thread = nil
       @acl = nil

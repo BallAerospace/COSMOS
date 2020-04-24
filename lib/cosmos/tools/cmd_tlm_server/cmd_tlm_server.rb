@@ -199,22 +199,22 @@ module Cosmos
           end
         end
         @json_drb.method_whitelist = @api_whitelist
-        begin
-          if @mode == :CMD_TLM_SERVER
-            @json_drb.start_service(System.listen_hosts['CTS_API'], System.ports['CTS_API'], self)
-          else
-            @json_drb.start_service(System.listen_hosts['REPLAY_API'], System.ports['REPLAY_API'], self)
-          end
-        rescue Exception
-          # Call packet_logging shutdown here to explicitly kill the logging
-          # threads since this CTS is not going to launch
-          @packet_logging.shutdown
-          if @mode == :CMD_TLM_SERVER
-            raise FatalError.new("Error starting JsonDRb on port #{System.ports['CTS_API']}.\nPerhaps a Command and Telemetry Server is already running?")
-          else
-            raise FatalError.new("Error starting JsonDRb on port #{System.ports['REPLAY_API']}.\nPerhaps another Replay is already running?")
-          end
-        end
+        # begin
+        #   if @mode == :CMD_TLM_SERVER
+        #     @json_drb.start_service(System.listen_hosts['CTS_API'], System.ports['CTS_API'], self)
+        #   else
+        #     @json_drb.start_service(System.listen_hosts['REPLAY_API'], System.ports['REPLAY_API'], self)
+        #   end
+        # rescue Exception
+        #   # Call packet_logging shutdown here to explicitly kill the logging
+        #   # threads since this CTS is not going to launch
+        #   @packet_logging.shutdown
+        #   if @mode == :CMD_TLM_SERVER
+        #     raise FatalError.new("Error starting JsonDRb on port #{System.ports['CTS_API']}.\nPerhaps a Command and Telemetry Server is already running?")
+        #   else
+        #     raise FatalError.new("Error starting JsonDRb on port #{System.ports['REPLAY_API']}.\nPerhaps another Replay is already running?")
+        #   end
+        # end
 
         if @mode == :CMD_TLM_SERVER
           @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['CTS_PREIDENTIFIED'])
