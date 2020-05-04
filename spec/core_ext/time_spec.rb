@@ -183,6 +183,10 @@ describe Time do
       expect(parts[1]).to eql ccsds_ms
       expect(parts[2]).to be_within(50).of(ccsds_us)
     end
+
+    it "maintains precision" do
+      expect(Time.ccsds2sec(22766, 65115943, 552).round(6)).to eql(1967047515.943552)
+    end
   end
 
   describe "Time.yds2mdy" do
