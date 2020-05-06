@@ -90,6 +90,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'puma', '~> 4.3'
   s.add_runtime_dependency 'rack', '~> 2.0'
   s.add_runtime_dependency 'httpclient', '~> 2.8'
+  s.add_runtime_dependency 'ruby-kafka', '~> 1.0'
 
   # From http://www.rubydoc.info/gems/puma#Known_Bugs :
   #   "For MRI versions 2.2.7, 2.2.8, 2.2.9, 2.2.10, 2.3.4 and 2.4.1, you may see stream closed in
