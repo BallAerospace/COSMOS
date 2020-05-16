@@ -115,6 +115,9 @@ module Cosmos
     # @return [Time] Most recent written raw data time
     attr_accessor :written_raw_data_time
 
+    # @return [Array] Config params fromt the INTERFACE config line
+    attr_accessor :config_params
+
     # Initialize default attribute values
     def initialize
       @name = self.class.to_s.split("::")[-1] # Remove namespacing if present
@@ -150,6 +153,7 @@ module Cosmos
       @written_raw_data = ''
       @read_raw_data_time = nil
       @written_raw_data_time = nil
+      @config_params = []
     end
 
     # Connects the interface to its target(s). Must be implemented by a

@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -10,19 +10,34 @@
 
 require 'cosmos/core_ext/class'
 require 'cosmos/core_ext/time'
+require 'socket'
 require 'thread'
 require 'logger'
+require 'time'
+require 'fluent-logger'
 
 module Cosmos
 
-  # Supports different levels of logging and only writes to stdout if the level
+  # Supports different levels of logging and only writes if the level
   # is exceeded.
   class Logger
 
     # @return [Integer] The logging level
     instance_attr_accessor :level
+
+    # @return [String] Additional detail to add to messages
     instance_attr_accessor :detail_string
 
+    # @return [Boolean] Whether to write to Fluentd and STDOUT
+    instance_attr_accessor :stdout
+
+    # @return [String] Fluentd tag
+    instance_attr_accessor :tag
+
+    # @return [String] Microservice name
+    instance_attr_accessor :microservice_name
+
+    @@mutex = Mutex.new
     @@instance = nil
 
     # DEBUG only prints DEBUG messages
@@ -35,21 +50,26 @@ module Cosmos
     ERROR = ::Logger::ERROR
     # FATAL prints FATAL, ERROR, WARN, INFO, DEBUG messages
     FATAL = ::Logger::FATAL
-    # UNKNOWN always prints
-    UNKNOWN = ::Logger::UNKNOWN
 
-    DEBUG_SEVERITY_STRING = ' DEBUG:'
-    INFO_SEVERITY_STRING = ' INFO:'
-    WARN_SEVERITY_STRING = ' WARN:'
-    ERROR_SEVERITY_STRING = ' ERROR:'
-    FATAL_SEVERITY_STRING = ' FATAL:'
-    UNKNOWN_SEVERITY_STRING = ''
+    DEBUG_SEVERITY_STRING = 'DEBUG'
+    INFO_SEVERITY_STRING = 'INFO'
+    WARN_SEVERITY_STRING = 'WARN'
+    ERROR_SEVERITY_STRING = 'ERROR'
+    FATAL_SEVERITY_STRING = 'FATAL'
 
     # @param level [Integer] The initial logging level
-    def initialize(level = Logger::UNKNOWN)
+    def initialize(level = Logger::INFO, stdout = false)
       @level = level
       @detail_string = nil
+      @stdout = stdout
+      @container_name = Socket.gethostname
+      @microservice_name = nil
+      @tag = @container_name + ".log"
       @mutex = Mutex.new
+      fluentd_url = ENV['COSMOS_FLUENTD_URL']
+      fluentd_url ||= "localhost:24224"
+      path = fluentd_url.split('/')[-1].split(':')
+      Fluent::Logger::FluentLogger.open(nil, { host: path[0], port: path[1] })
     end
 
     # @param message [String] The message to print if the log level is at or
@@ -81,11 +101,6 @@ module Cosmos
     end
 
     # (see #debug)
-    def unknown(message = nil, &block)
-      log_message(UNKNOWN_SEVERITY_STRING, message, &block) if @level <= UNKNOWN
-    end
-
-    # (see #debug)
     def self.debug(message = nil, &block)
       self.instance.debug(message, &block)
     end
@@ -110,24 +125,30 @@ module Cosmos
       self.instance.fatal(message, &block)
     end
 
-    # (see #debug)
-    def self.unknown(message = nil, &block)
-      self.instance.unknown(message, &block)
-    end
-
     # @return [Logger] The logger instance
     def self.instance
-      @@instance ||= self.new
+      return @@instance if @@instance
+      @@mutex.synchronize do
+        @@instance ||= self.new
+      end
+      @@instance
     end
 
     protected
 
     def log_message(severity_string, message, &block)
       @mutex.synchronize do
+        data = { '@timestamp' => Time.now.xmlschema(3), severity: severity_string }
+        data[:microservice_name] = @microservice_name if @microservice_name
+        data[:detail] = @detail_string if @detail_string
         if block_given?
-          puts "#{Time.now.sys.formatted} #{@detail_string ? "(#{@detail_string}):" : ''}#{severity_string} " << yield
-        else
-          puts "#{Time.now.sys.formatted} #{@detail_string ? "(#{@detail_string}):" : ''}#{severity_string} #{message}"
+          message = yield
+        end
+        data[:container_name] = @container_name
+        data[:log] = message
+        Fluent::Logger.post(@tag, data)
+        if @stdout
+          puts "#{Time.now.sys.formatted} #{@detail_string ? "(#{@detail_string}):" : ''} #{severity_string}: #{message}"
         end
       end
     end

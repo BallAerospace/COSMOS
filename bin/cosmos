@@ -12,13 +12,28 @@
 # This file will handle COSMOS tasks such as instantiating a new project
 
 require 'cosmos'
+require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
+require 'zip'
+require 'zip/filesystem'
 require 'fileutils'
 require 'find'
+require 'aws-sdk-s3'
+require 'json'
+require 'redis'
+
+Aws.config.update(
+  endpoint: 'http://localhost:9000',
+  access_key_id: 'minioadmin',
+  secret_access_key: 'minioadmin',
+  force_path_style: true,
+  region: 'us-east-1'
+)
 
 # Prints the usage text for the cosmos executable
 def print_usage
   puts "Usage:"
   puts "  cosmos help                   # Displays this information"
+  puts "  cosmos load                   # Loads a COSMOS user directory onto the cluster"
   puts "  cosmos install directory_name # Creates a barebones COSMOS user directory"
   puts "  cosmos demo directory_name    # Creates a demo COSMOS user directory"
   puts "  cosmos docs                   # Launches the documentation server"
@@ -264,10 +279,198 @@ def check_limits(filenames)
   end
 end
 
+# A helper method to make the zip writing recursion work
+def write_zip_entries(base_dir, entries, zip_path, io)
+  io.add(zip_path, base_dir) # Add the directory whether it has entries or not
+  entries.each do |e|
+    zip_file_path = File.join(zip_path, e)
+    disk_file_path = File.join(base_dir, e)
+    if File.directory? disk_file_path
+      recursively_deflate_directory(disk_file_path, io, zip_file_path)
+    else
+      put_into_archive(disk_file_path, io, zip_file_path)
+    end
+  end
+end
+
+def recursively_deflate_directory(disk_file_path, io, zip_file_path)
+  io.add(zip_file_path, disk_file_path)
+  write_zip_entries(disk_file_path, entries, zip_file_path, io)
+end
+
+def put_into_archive(disk_file_path, io, zip_file_path)
+  io.get_output_stream(zip_file_path) do |f|
+    data = nil
+    File.open(disk_file_path, 'rb') { |file| data = file.read }
+    f.write(data)
+  end
+end
+
+def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil)
+  system_filename ||= 'system.txt'
+  system_path = File.join(Dir.pwd, 'config', 'system', system_filename)
+  system_config = Cosmos::SystemConfig.new(system_path)
+  cmd_tlm_server_filename ||= 'cmd_tlm_server.txt'
+  cmd_tlm_server_path = File.join(Dir.pwd, 'config', 'tools', 'cmd_tlm_server', cmd_tlm_server_filename)
+  cmd_tlm_server_config = Cosmos::CmdTlmServerConfig.new(cmd_tlm_server_path, system_config)
+
+  rubys3_client = Aws::S3::Client.new
+
+  # Ensure targets bucket exists
+  begin
+    rubys3_client.head_bucket(bucket: 'targets')
+  rescue Aws::S3::Errors::NotFound
+    rubys3_client.create_bucket(bucket: 'targets')
+  end
+
+  # Hash, zip, and upload each target as necessary
+  zip_targets = {}
+  system_config.targets.each do |target_name, target|
+    # Only do each original_name once
+    hash = zip_targets[target.original_name]
+    if hash
+      target.id = hash
+      next
+    end
+
+    # Build target file list
+    target_files = []
+    Find.find(target.dir) { |file| target_files << file }
+    target_files.sort!
+    hash = Cosmos.hash_files(target_files, nil, 'SHA256').hexdigest
+    target.id = hash
+
+    # Check if target config exists in S3
+    s3_key = "#{target.original_name}/#{hash}.zip"
+    found = true
+    begin
+      rubys3_client.head_object(bucket: 'targets', key: s3_key)
+    rescue Aws::S3::Errors::NotFound
+      found = false
+    end
+
+    unless found
+      prefix = File.dirname(target.dir) + '/'
+      output_file = File.join(Dir.tmpdir, hash + '.zip')
+      File.delete(output_file) if File.exist?(output_file)
+      unless File.exist?(output_file)
+        Zip.continue_on_exists_proc = true
+        Zip::File.open(output_file, Zip::File::CREATE) do |zipfile|
+          target_files.each do |target_file|
+            zip_file_path = target_file.delete_prefix(prefix)
+            if File.directory?(target_file)
+              zipfile.mkdir(zip_file_path)
+            else
+              zipfile.add(zip_file_path, target_file)
+            end
+          end
+        end
+      end
+
+      # Write to S3 Bucket
+      File.open(output_file, 'rb') do |file|
+        rubys3_client.put_object(bucket: 'targets', key: s3_key, body: file)
+      end
+
+      puts "targets/#{s3_key} written to S3"
+    end
+
+    zip_targets[target.original_name] = hash
+  end
+
+  target_list = []
+  system_config.targets.each do |target_name, target|
+    original_name = nil
+    original_name = target.original_name if target.name != target.original_name
+    target_filename = nil
+    target_filename = File.basename(target.filename) if target.filename
+    target_list << { 'target_name' => target_name, 'original_name' => original_name, 'target_filename' => target_filename, 'target_id' => target.id }
+  end
+  target_config_dir = File.join(Dir.pwd, 'config', 'targets')
+  Cosmos::System.instance(target_list, target_config_dir)
+
+  redis = Redis.new(url: "redis://localhost:6379/0")
+
+  # Configure microservices
+  # TODO: Need to only clear out old microservices that are unneeded for the current PROGRAM
+  # For not just clear them all
+  redis.del('cosmos_microservices')
+
+  cmd_tlm_server_config.interfaces.each do |interface_name, interface|
+    # Configure InterfaceMicroservice
+    target_list = []
+    interface.target_names.each do |target_name|
+      target = system_config.targets[target_name]
+      original_name = nil
+      original_name = target.original_name if target.name != target.original_name
+      target_filename = nil
+      target_filename = File.basename(target.filename) if target.filename
+      target_list << { 'target_name' => target_name, 'original_name' => original_name, 'target_filename' => target_filename, 'target_id' => target.id }
+    end
+    config = { 'filename' => "interface_microservice.rb", 'interface_params' => interface.config_params, 'target_list' => target_list }
+    redis.hset('cosmos_microservices', "INTERFACE__#{interface_name}", JSON.generate(config))
+    puts "Configured microservice INTERFACE__#{interface_name}"
+
+    # Configure IdentifyMicroservice
+    topic_list = ["INTERFACE__#{interface_name}"]
+    next unless target_list.length > 0
+    config = { 'filename' => "identify_microservice.rb", 'target_list' => target_list, 'topics' => topic_list }
+    redis.hset('cosmos_microservices', "IDENTIFY__#{interface_name}", JSON.generate(config))
+    puts "Configured microservice IDENTIFY__#{interface_name}"
+
+    # Configure DecomMicroservice
+    packet_topic_list = []
+    interface.target_names.each do |target_name|
+      begin
+        Cosmos::System.telemetry.packets(target_name).each do |packet_name, packet|
+          packet_topic_list << "PACKET__#{target_name}__#{packet_name}"
+        end
+      rescue
+        # No telemetry packets for this target
+      end
+    end
+    next unless packet_topic_list.length > 0
+
+    config = { 'filename' => "decom_microservice.rb", 'target_list' => target_list, 'topics' => packet_topic_list }
+    redis.hset('cosmos_microservices', "DECOM__#{interface_name}", JSON.generate(config))
+    puts "Configured microservice DECOM__#{interface_name}"
+
+    # Configure CvtMicroservice
+    decom_topic_list = []
+    interface.target_names.each do |target_name|
+      begin
+        Cosmos::System.telemetry.packets(target_name).each do |packet_name, packet|
+          decom_topic_list << "DECOM__#{target_name}__#{packet_name}"
+        end
+      rescue
+        # No telemetry packets for this target
+      end
+    end
+    config = { 'filename' => "cvt_microservice.rb", 'topics' => decom_topic_list }
+    redis.hset('cosmos_microservices', "CVT__#{interface_name}", JSON.generate(config))
+    puts "Configured microservice CVT__#{interface_name}"
+
+    # Configure PacketLogMicroservice
+    config = { 'filename' => "packet_log_microservice.rb", 'topics' => packet_topic_list }
+    redis.hset('cosmos_microservices', "PACKETLOG__#{interface_name}", JSON.generate(config))
+    puts "Configured microservice PACKETLOG__#{interface_name}"
+
+    # Configure DecomLogMicroservice
+    config = { 'filename' => "decom_log_microservice.rb", 'topics' => decom_topic_list }
+    redis.hset('cosmos_microservices', "DECOMLOG__#{interface_name}", JSON.generate(config))
+    puts "Configured microservice DECOMLOG__#{interface_name}"
+  end
+end
+
 if not ARGV[0].nil? # argument(s) given
+
+  Cosmos::Logger.stdout = true
 
   # Handle each task
   case ARGV[0].downcase
+  when 'load'
+    load_cosmos(ARGV[1], ARGV[2])
+
   when 'docs'
     thread = Thread.new do
       system('yard server --gems')

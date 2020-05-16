@@ -71,63 +71,6 @@ module Cosmos
     $VERBOSE = saved_verbose
   end
 
-  # Searches for the /config/system and /config/targets directories to define
-  # the USERPATH constant
-  #
-  # @param start_dir [String] Path to start the search for the /config/system
-  #   and /config/targets directories.  The search will continue by moving up
-  #   directories until the root directory is reached.
-  def self.define_user_path(start_dir = Dir.pwd)
-    current_dir = File.expand_path(start_dir)
-    while true
-      if File.exist?(File.join(current_dir, 'config', 'system')) and
-         File.exist?(File.join(current_dir, 'config', 'targets'))
-        disable_warnings do
-          Cosmos.const_set(:USERPATH, current_dir)
-        end
-        break
-      else
-        old_current_dir = current_dir
-        current_dir = File.expand_path(File.join(current_dir, '..'))
-        if old_current_dir == current_dir
-          # Hit the root dir - give up
-          break
-        end
-      end
-    end
-  end
-
-  #############################################################################
-  # This code is executed in place when this file is required
-
-  # Initialize to nil before searching
-  USERPATH = nil
-
-  # First attempt try from the location of the executable ($0)
-  # Note this method will fail when a intermediary executable is used like rcov
-  self.define_user_path(File.dirname($0))
-  if USERPATH.nil?
-    # Second attempt try from location of the current working directory
-    self.define_user_path(Dir.pwd)
-    if USERPATH.nil?
-      # Last chance - Check environment
-      if ENV['COSMOS_USERPATH']
-        disable_warnings do
-          Cosmos.const_set(:USERPATH, ENV['COSMOS_USERPATH'].gsub("\\", "/"))
-        end
-      else
-        # Give up and assume we are in the tools directory
-        disable_warnings do
-          Cosmos.const_set(:USERPATH, File.expand_path(File.join(File.dirname($0), '..')))
-        end
-      end
-    end
-  end
-  USERPATH.freeze
-
-  #############################################################################
-
-
   # Adds a path to the global Ruby search path
   #
   # @param path [String] Directory path
@@ -147,82 +90,82 @@ module Cosmos
   # COSMOS/data directory for the given file name. Returns the absolute file
   # path or nil if the file could not be found. This allows for user configuration
   # files to override COSMOS data file defaults.
-  def self.data_path(name)
-    # Check USERPATH
-    filename = File.join(::Cosmos::USERPATH, 'config', 'data', name)
-    return filename if File.exist? filename
+  # def self.data_path(name)
+  #   # Check USERPATH
+  #   filename = File.join(::Cosmos::USERPATH, 'config', 'data', name)
+  #   return filename if File.exist? filename
 
-    # Check extensions
-    begin
-      Bundler.load.specs.each do |spec|
-        spec_name_split = spec.name.split('-')
-        if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
-          filename = File.join(spec.gem_dir, 'config', 'data', name)
-          return filename if File.exist? filename
-        end
-      end
-    rescue Bundler::GemfileNotFound
-      # No Gemfile - so no gem based extensions
-    end
+  #   # Check extensions
+  #   begin
+  #     Bundler.load.specs.each do |spec|
+  #       spec_name_split = spec.name.split('-')
+  #       if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
+  #         filename = File.join(spec.gem_dir, 'config', 'data', name)
+  #         return filename if File.exist? filename
+  #       end
+  #     end
+  #   rescue Bundler::GemfileNotFound
+  #     # No Gemfile - so no gem based extensions
+  #   end
 
-    # Check CORE
-    filename = File.join(::Cosmos::PATH, 'data', name)
-    return filename if File.exist? filename
+  #   # Check CORE
+  #   filename = File.join(::Cosmos::PATH, 'data', name)
+  #   return filename if File.exist? filename
 
-    # Check relative to executing file
-    begin # path raises so begin rescue it
-      filename = Cosmos.path($0, ['config', 'data', name])
-      return filename if File.exist? filename
-    rescue
-      # Couldn't find the file so return nil below
-    end
-    nil
-  end
+  #   # Check relative to executing file
+  #   begin # path raises so begin rescue it
+  #     filename = Cosmos.path($0, ['config', 'data', name])
+  #     return filename if File.exist? filename
+  #   rescue
+  #     # Couldn't find the file so return nil below
+  #   end
+  #   nil
+  # end
 
   # Returns a path to a cosmos file.  Prefers files in USERPATH but will look
   # relative to calling_file if not present in USERPATH
   # @param calling_file [String] Should be __FILE__ from the calling file
   # @param paths [Array<String>] Partial paths like in File.join
-  def self.path(calling_file, *paths)
-    partial_path = File.join(*paths)
+  # def self.path(calling_file, *paths)
+  #   partial_path = File.join(*paths)
 
-    # First look in the Cosmos::USERPATH
-    user_path = File.join(Cosmos::USERPATH, partial_path)
-    return user_path if File.exist?(user_path)
+  #   # First look in the Cosmos::USERPATH
+  #   user_path = File.join(Cosmos::USERPATH, partial_path)
+  #   return user_path if File.exist?(user_path)
 
-    # Check cosmos extensions
-    begin
-      Bundler.load.specs.each do |spec|
-        spec_name_split = spec.name.split('-')
-        if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
-          filename = File.join(spec.gem_dir, partial_path)
-          return filename if File.exist? filename
-        end
-      end
-    rescue Bundler::GemfileNotFound
-      # No Gemfile - so no gem based extensions
-    end
+  #   # Check cosmos extensions
+  #   begin
+  #     Bundler.load.specs.each do |spec|
+  #       spec_name_split = spec.name.split('-')
+  #       if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
+  #         filename = File.join(spec.gem_dir, partial_path)
+  #         return filename if File.exist? filename
+  #       end
+  #     end
+  #   rescue Bundler::GemfileNotFound
+  #     # No Gemfile - so no gem based extensions
+  #   end
 
-    # Then look relative to the calling file
-    if Pathname.new(calling_file).absolute?
-      current_dir = File.dirname(calling_file)
-    else
-      current_dir = File.join(BASE_PWD, calling_file)
-    end
-    loop do
-      test_path = File.join(current_dir, partial_path)
-      if File.exist?(test_path)
-        return test_path
-      else
-        old_current_dir = current_dir
-        current_dir = File.expand_path(File.join(current_dir, '..'))
-        if old_current_dir == current_dir
-          # Hit the root dir - give up
-          raise "Could not find path to #{File.join(*paths)}"
-        end
-      end
-    end
-  end
+  #   # Then look relative to the calling file
+  #   if Pathname.new(calling_file).absolute?
+  #     current_dir = File.dirname(calling_file)
+  #   else
+  #     current_dir = File.join(BASE_PWD, calling_file)
+  #   end
+  #   loop do
+  #     test_path = File.join(current_dir, partial_path)
+  #     if File.exist?(test_path)
+  #       return test_path
+  #     else
+  #       old_current_dir = current_dir
+  #       current_dir = File.expand_path(File.join(current_dir, '..'))
+  #       if old_current_dir == current_dir
+  #         # Hit the root dir - give up
+  #         raise "Could not find path to #{File.join(*paths)}"
+  #       end
+  #     end
+  #   end
+  # end
 
   # Creates a marshal file by serializing the given obj
   #
@@ -320,44 +263,16 @@ module Cosmos
       thread = Thread.new do
         output, _ = Open3.capture2e(command)
         if !output.empty?
-          # Ignore modalSession messages on Mac Mavericks and Qt Untested Windows 10
+          # Ignore modalSession messages on Mac Mavericks
           new_output = ''
           output.each_line do |line|
-            new_output << line if line !~ /modalSession/ && line !~ /Untested Windows version 10.0/
+            new_output << line if line !~ /modalSession/
           end
           output = new_output
 
           if !output.empty?
             Logger.error output
             self.write_unexpected_file(output)
-            if defined? ::Qt and $qApp
-              Qt.execute_in_main_thread(false) do
-                dialog = Qt::Dialog.new do |box|
-                  box.setWindowTitle('Unexpected text output')
-                  box.resize(600, 600)
-                  text_field = Qt::PlainTextEdit.new
-                  text_field.setReadOnly(true)
-                  orig_font = text_field.font
-                  text_field.setFont(Cosmos.getFont(orig_font.family, orig_font.point_size+2))
-                  text_field.setWordWrapMode(Qt::TextOption::NoWrap)
-                  text_field.appendPlainText(output)
-                  vframe = Qt::VBoxLayout.new
-                  vframe.addWidget(text_field)
-                  sep = Qt::Frame.new(box)
-                  sep.setFrameStyle(Qt::Frame::VLine | Qt::Frame::Sunken)
-                  vframe.addWidget(sep)
-                  ok = Qt::PushButton.new('OK')
-                  ok.setDefault(true)
-                  ok.connect(SIGNAL('clicked(bool)')) { box.accept }
-                  vframe.addWidget(ok)
-                  box.setLayout(vframe)
-                  box.show
-                  box.raise
-                end
-                dialog.exec
-                dialog.dispose
-              end
-            end
           end
         end
       end
@@ -372,15 +287,15 @@ module Cosmos
   #
   # @param tool_name [String] COSMOS tool to execute
   # @param parameters [String] Parameters string to pass to the tool
-  def self.run_cosmos_tool(tool_name, parameters = '')
-    if Kernel.is_windows?
-      Cosmos.run_process("rubyw tools/#{tool_name} #{parameters}")
-    elsif Kernel.is_mac? and File.exist?("tools/mac/#{tool_name}.app")
-      Cosmos.run_process("open tools/mac/#{tool_name}.app --args #{parameters}")
-    else
-      Cosmos.run_process("ruby tools/#{tool_name} #{parameters}")
-    end
-  end
+  # def self.run_cosmos_tool(tool_name, parameters = '')
+  #   if Kernel.is_windows?
+  #     Cosmos.run_process("rubyw tools/#{tool_name} #{parameters}")
+  #   elsif Kernel.is_mac? and File.exist?("tools/mac/#{tool_name}.app")
+  #     Cosmos.run_process("open tools/mac/#{tool_name}.app --args #{parameters}")
+  #   else
+  #     Cosmos.run_process("ruby tools/#{tool_name} #{parameters}")
+  #   end
+  # end
 
   # Runs a hash algorithm over one or more files and returns the Digest object.
   # Handles windows/unix new line differences but changes in whitespace will
@@ -401,6 +316,7 @@ module Cosmos
 
     Cosmos.set_working_dir do
       filenames.each do |filename|
+        next if File.directory?(filename)
         # Read the file's data and add to the running hashing sum
         digest << File.read(filename).gsub(/\r/,'')
       end
@@ -498,7 +414,6 @@ module Cosmos
         file.puts "Rubygems Version: #{Gem::VERSION}"
         file.puts "Cosmos Version: #{Cosmos::VERSION}"
         file.puts "Cosmos::PATH: #{Cosmos::PATH}"
-        file.puts "Cosmos::USERPATH: #{Cosmos::USERPATH}"
         file.puts ""
         file.puts "Environment:"
         file.puts "RUBYOPT: #{ENV['RUBYOPT']}"
@@ -568,14 +483,12 @@ module Cosmos
   # @param error [Exception] The exception to handle
   # @param try_gui [Boolean] Whether to try and create a GUI exception popup
   def self.handle_fatal_exception(error, try_gui = true)
-    $cosmos_fatal_exception = error
-    log_file = self.write_exception_file(error)
-    Logger.level = Logger::FATAL unless try_gui
-    Logger.fatal "Fatal Exception! Exiting..."
-    Logger.fatal error.formatted
-    if defined? ExceptionDialog and try_gui and $qApp
-      Qt.execute_in_main_thread(true) {||ExceptionDialog.new(nil, error, '', true, false, log_file)}
-    else
+    unless error.class == SystemExit or error.class == Interrupt
+      $cosmos_fatal_exception = error
+      self.write_exception_file(error)
+      Logger.level = Logger::FATAL
+      Logger.fatal "Fatal Exception! Exiting..."
+      Logger.fatal error.formatted
       if $stdout != STDOUT
         $stdout = STDOUT
         Logger.fatal "Fatal Exception! Exiting..."
@@ -583,6 +496,8 @@ module Cosmos
       end
       sleep 1 # Allow the messages to be printed and then crash
       exit 1
+    else
+      exit 0
     end
   end
 
@@ -596,12 +511,7 @@ module Cosmos
   # @param try_gui [Boolean] Whether to try and create a GUI exception popup
   def self.handle_critical_exception(error, try_gui = true)
     Logger.error "Critical Exception! #{error.formatted}"
-    if defined? ExceptionDialog and !ExceptionDialog.dialog_open? and $qApp
-      log_file = self.write_exception_file(error)
-      if try_gui
-        Qt.execute_in_main_thread(true) {|| ExceptionDialog.new(nil, error, '', false, false, log_file)}
-      end
-    end
+    self.write_exception_file(error)
   end
 
   # Creates a Ruby Thread to run the given block. Rescues any exceptions and
@@ -668,73 +578,73 @@ module Cosmos
 
   # Open a platform specific file browser at the given path
   # @param path [String] Directory path
-  def self.open_file_browser(path)
-    if Kernel.is_windows?
-      self.run_process("start #{path}")
-    elsif Kernel.is_mac?
-      self.run_process("open #{path}")
-    else
-      self.run_process("xdg-open #{path}")
-    end
-  end
+  # def self.open_file_browser(path)
+  #   if Kernel.is_windows?
+  #     self.run_process("start #{path}")
+  #   elsif Kernel.is_mac?
+  #     self.run_process("open #{path}")
+  #   else
+  #     self.run_process("xdg-open #{path}")
+  #   end
+  # end
 
   # @param filename [String] Name of the file to open in the editor
-  def self.open_in_text_editor(filename)
-    if filename
-      if ENV['COSMOS_TEXT']
-        self.run_process("#{ENV['COSMOS_TEXT']} \"#{filename}\"")
-      else
-        if Kernel.is_windows?
-          if File.extname(filename).to_s.downcase == '.csv'
-            self.run_process("cmd /c \"start wordpad \"#{filename.gsub('/','\\')}\"\"")
-          else
-            self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/','\\')}\"\"")
-          end
-        elsif Kernel.is_mac?
-          self.run_process("open -a TextEdit \"#{filename}\"")
-        else
-          which_gedit = `which gedit 2>&1`.chomp
-          if which_gedit.to_s.strip == "" or which_gedit =~ /Command not found/i or which_gedit =~ /no .* in/i
-            # No gedit
-            ['xterm', 'gnome-terminal', 'urxvt', 'rxvt'].each do |terminal|
-              which_terminal = `which #{terminal} 2>&1`.chomp
-              next if which_terminal.to_s.strip == "" or which_terminal =~ /Command not found/i or which_terminal =~ /no .* in/i
-              editor = ENV['VISUAL']
-              editor = ENV['EDITOR'] unless editor
-              editor = 'vi' unless editor
-              self.run_process("#{terminal} -e \"#{editor} '#{filename}'\"")
-              break
-            end
-          else
-            # Have gedit
-            self.run_process("gedit \"#{filename}\"")
-          end
-        end
-      end
-    end
-  end
+  # def self.open_in_text_editor(filename)
+  #   if filename
+  #     if ENV['COSMOS_TEXT']
+  #       self.run_process("#{ENV['COSMOS_TEXT']} \"#{filename}\"")
+  #     else
+  #       if Kernel.is_windows?
+  #         if File.extname(filename).to_s.downcase == '.csv'
+  #           self.run_process("cmd /c \"start wordpad \"#{filename.gsub('/','\\')}\"\"")
+  #         else
+  #           self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/','\\')}\"\"")
+  #         end
+  #       elsif Kernel.is_mac?
+  #         self.run_process("open -a TextEdit \"#{filename}\"")
+  #       else
+  #         which_gedit = `which gedit 2>&1`.chomp
+  #         if which_gedit.to_s.strip == "" or which_gedit =~ /Command not found/i or which_gedit =~ /no .* in/i
+  #           # No gedit
+  #           ['xterm', 'gnome-terminal', 'urxvt', 'rxvt'].each do |terminal|
+  #             which_terminal = `which #{terminal} 2>&1`.chomp
+  #             next if which_terminal.to_s.strip == "" or which_terminal =~ /Command not found/i or which_terminal =~ /no .* in/i
+  #             editor = ENV['VISUAL']
+  #             editor = ENV['EDITOR'] unless editor
+  #             editor = 'vi' unless editor
+  #             self.run_process("#{terminal} -e \"#{editor} '#{filename}'\"")
+  #             break
+  #           end
+  #         else
+  #           # Have gedit
+  #           self.run_process("gedit \"#{filename}\"")
+  #         end
+  #       end
+  #     end
+  #   end
+  # end
 
   # @param filename [String] Name of the file to open in the web browser
-  def self.open_in_web_browser(filename)
-    if filename
-      if Kernel.is_windows?
-        self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/','\\')}\"\"")
-      elsif Kernel.is_mac?
-        self.run_process("open -a Safari \"#{filename}\"")
-      else
-        which_firefox = `which firefox`.chomp
-        if which_firefox =~ /Command not found/i or which_firefox =~ /no .* in/i
-          raise "Firefox not found"
-        else
-          system_call = "#{which_firefox} \"#{filename}\""
-        end
-        self.run_process(system_call)
-      end
-    end
-  end
+  # def self.open_in_web_browser(filename)
+  #   if filename
+  #     if Kernel.is_windows?
+  #       self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/','\\')}\"\"")
+  #     elsif Kernel.is_mac?
+  #       self.run_process("open -a Safari \"#{filename}\"")
+  #     else
+  #       which_firefox = `which firefox`.chomp
+  #       if which_firefox =~ /Command not found/i or which_firefox =~ /no .* in/i
+  #         raise "Firefox not found"
+  #       else
+  #         system_call = "#{which_firefox} \"#{filename}\""
+  #       end
+  #       self.run_process(system_call)
+  #     end
+  #   end
+  # end
 
   # Temporarily set the working directory during a block
-  def self.set_working_dir(working_dir = Cosmos::USERPATH)
+  def self.set_working_dir(working_dir = Cosmos::PATH)
     current_dir = Dir.pwd
     Dir.chdir(working_dir)
     begin
@@ -810,16 +720,16 @@ module Cosmos
 
   # Play a wav file
   # @param wav_filename filename of the wav file
-  def self.play_wav_file(wav_filename)
-    if defined? Qt and wav_filename
-      Qt.execute_in_main_thread(true) do
-        if Qt::CoreApplication.instance and Qt::Sound.isAvailable
-          Cosmos.set_working_dir do
-            Qt::Sound.play(wav_filename.to_s)
-          end
-        end
-      end
-    end
-  end
+  # def self.play_wav_file(wav_filename)
+  #   if defined? Qt and wav_filename
+  #     Qt.execute_in_main_thread(true) do
+  #       if Qt::CoreApplication.instance and Qt::Sound.isAvailable
+  #         Cosmos.set_working_dir do
+  #           Qt::Sound.play(wav_filename.to_s)
+  #         end
+  #       end
+  #     end
+  #   end
+  # end
 
 end
