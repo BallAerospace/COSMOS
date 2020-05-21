@@ -17,9 +17,9 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   # Install necessary packages
   echo "Installing Homebrew packages"
   brew update
+  brew upgrade
   brew tap cartr/qt4
-  brew tap-pin cartr/qt4
-  brew install qt@4
+  brew install cartr/qt4/qt@4
   brew install libksba cmake rbenv ruby-build openssl libyaml libffi
 
   # Configure rbenv
@@ -28,9 +28,9 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 
   # Install Ruby
   echo "Installing Ruby"
-  CC=clang CONFIGURE_OPTS="--with-gcc=clang --enable-shared" rbenv install 2.5.7
+  rbenv install 2.5.8
   rbenv rehash
-  rbenv global 2.5.7
+  rbenv global 2.5.8
   echo 'gem: --no-ri --no-rdoc' >> ~/.gemrc
 
   # Install COSMOS
@@ -110,9 +110,9 @@ fi
     export PATH="$HOME/.rbenv/bin:$PATH"
     echo 'eval "$(rbenv init -)"' >> ~/.bashrc
     eval "$(rbenv init -)"
-    CONFIGURE_OPTS="--enable-shared" rbenv install 2.5.7
+    CONFIGURE_OPTS="--enable-shared" rbenv install 2.5.8
     rbenv rehash
-    rbenv global 2.5.7
+    rbenv global 2.5.8
     echo 'gem: --no-ri --no-rdoc' >> ~/.gemrc
   fi
 
