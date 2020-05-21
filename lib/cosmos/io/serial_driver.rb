@@ -66,6 +66,7 @@ module Cosmos
                                         write_timeout,
                                         read_timeout,
                                         flow_control,
+                                        data_bits,
                                         struct)
       else
         @driver = nil # JRuby Serial on Linux not currently supported
