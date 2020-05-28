@@ -14,17 +14,6 @@ PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil true nil 2000000000 nil false
 INTERFACE_TARGET INST cmd_tlm_server.txt # Use cmd_tlm_server.txt in targets/INST
 INTERFACE_TARGET INST2 cmd_tlm_server2.txt # Use cmd_tlm_server2.txt in targets/INST
 
-# Here is an example of declaring the interface directly
-INTERFACE SYSTEM_INT cmd_tlm_server_interface.rb
-  TARGET SYSTEM
-  DISABLE_DISCONNECT
-  # LOG SYSTEMLOG
-  # DONT_LOG
-  # DONT_CONNECT
-  # DONT_RECONNECT
-  # RECONNECT_DELAY 15.0
-  # LOG_RAW
-
 # Auto interface the rest of the targets by using their cmd_tlm_server.txt file
 AUTO_INTERFACE_TARGETS
 

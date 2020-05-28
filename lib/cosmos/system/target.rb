@@ -72,21 +72,22 @@ module Cosmos
     # @return [Boolean] Indicates if telemetry packets identify using different fields
     attr_accessor :tlm_unique_id_mode
 
+    # @return [String] Id of the target configuration
+    attr_accessor :id
+
     # Creates a new target by processing the target.txt file in the directory
     # given by the path joined with the target_name. Records all the command
     # and telemetry definition files found in the targets cmd_tlm directory.
     # System uses this list and processes them using PacketConfig.
     #
-    # @param target_name [String] The name of the target. This must match the
-    #   directory name which contains the target.
-    # @param substitute_name [String] The name COSMOS should use when refering
-    #   to the target. All accesses will ignore the original target_name.
+    # @param target_name [String] The name of the target.
+    # @param original_name [String] The original name if the the target is aliased to a new name
     # @param path [String] Path to the target directory. Passing nil sets the
     #   path to the default of <USERPATH>/config/targets.
     # @param target_filename [String] Configuration file for the target. Normally
     #   target.txt
     # @param gem_path [String] Path to the gem file or nil if there is no gem
-    def initialize(target_name, substitute_name = nil, path = nil, target_filename = nil, gem_path = nil)
+    def initialize(target_name, original_name = nil, path = nil, target_filename = nil, gem_path = nil)
       @requires = []
       @ignored_parameters = []
       @ignored_items = []
@@ -98,15 +99,16 @@ module Cosmos
       @tlm_cnt = 0
       @cmd_unique_id_mode = false
       @tlm_unique_id_mode = false
+      @id = nil
 
       # Determine the target name using substitution if given
-      @original_name = target_name.clone.upcase.freeze
-      if substitute_name
+      @name = target_name.clone.upcase.freeze
+      if original_name
         @substitute = true
-        @name = substitute_name.clone.upcase.freeze
+        @original_name = original_name.clone.upcase.freeze
       else
         @substitute = false
-        @name = @original_name
+        @original_name = @name
       end
 
       @dir = get_target_dir(path, @original_name, gem_path)
@@ -151,7 +153,7 @@ module Cosmos
           rescue Exception => err
             raise parser.error(err.message)
           end
-          
+
           # This code resolves any relative paths to absolute before putting into the @requires array
           unless Pathname.new(filename).absolute?
             $:.each do |search_path|
@@ -162,7 +164,7 @@ module Cosmos
               end
             end
           end
-          
+
           @requires << filename
 
         when 'IGNORE_PARAMETER', 'IGNORE_ITEM'
@@ -208,9 +210,9 @@ module Cosmos
       if gem_path
         dir = gem_path
       else
-        path = File.join(USERPATH,'config','targets') unless path
         dir = File.join(path, name)
       end
+      dir.gsub!("\\", '/')
       lib_dir = File.join(dir, 'lib')
       Cosmos.add_to_search_path(lib_dir, false) if File.exist?(lib_dir)
       proc_dir = File.join(dir, 'procedures')
@@ -224,6 +226,7 @@ module Cosmos
       if File.exist?(filename)
         process_file(filename)
       else
+        filename = nil
         raise "Target file #{target_filename} for target #{name} does not exist" if target_filename
       end
       filename

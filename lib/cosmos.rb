@@ -10,17 +10,6 @@
 
 # This file sets up using the COSMOS framework
 
-# Enforce Ruby version
-ruby_split = RUBY_VERSION.split('.')
-ruby_first = ruby_split[0].to_i
-ruby_second = ruby_split[1].to_i
-ruby_third = ruby_split[2].to_i
-if ruby_first == 1
-  if ruby_second <= 8 or (ruby_second == 9 and ruby_third < 3)
-    raise "Cosmos 2.x does not support Ruby versions less than 1.9.3"
-  end
-end
-
 # Set default encodings
 saved_verbose = $VERBOSE; $VERBOSE = nil;
 Encoding.default_external = Encoding::ASCII_8BIT
@@ -35,29 +24,12 @@ else
   ENV['PATH'] = File.join(File.dirname(__FILE__), '../bin') + ':' + ENV['PATH']
 end
 require 'cosmos/ext/platform' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
-
-# Remove warning about dl deprecation in Ruby 2.0 and 2.1
-saved_verbose = $VERBOSE; $VERBOSE = nil
-begin
-  require 'dl'
-rescue Exception
-end
-$VERBOSE = saved_verbose
-
 require 'cosmos/version'
 require 'cosmos/top_level'
-
-# Add the COSMOS user's libraries to the ruby search path
-# Located immediately after top_level to allow user overrides of files
-Cosmos.add_to_search_path(File.join(Cosmos::USERPATH, 'lib'))
-
 require 'cosmos/core_ext'
 require 'cosmos/utilities'
 require 'cosmos/conversions'
+require 'cosmos/interfaces'
+require 'cosmos/processors'
+require 'cosmos/packet_logs'
 require 'cosmos/system'
-
-begin
-  require 'user_version'
-rescue Exception
-  # Not defined
-end

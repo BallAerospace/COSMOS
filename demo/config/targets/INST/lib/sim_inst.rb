@@ -21,8 +21,9 @@ module Cosmos
     def initialize(target_name)
       super(target_name)
 
-      position_filename = File.join(::Cosmos::USERPATH, 'config', 'data', 'position.bin')
-      attitude_filename = File.join(::Cosmos::USERPATH, 'config', 'data', 'attitude.bin')
+      @target = System.targets[target_name]
+      position_filename = File.join(@target.dir, 'data', 'position.bin')
+      attitude_filename = File.join(@target.dir, 'data', 'attitude.bin')
       @position_file = File.open(position_filename, 'rb')
       @attitude_file = File.open(attitude_filename, 'rb')
       @position_file_size = File.size(position_filename)
@@ -196,7 +197,7 @@ module Cosmos
           if pos_data.nil? or pos_data.length == 0
             #Assume end of file - close and reopen
             @position_file.close
-            @position_file = File.open(File.join(::Cosmos::USERPATH, 'config', 'data', 'position.bin'), 'rb')
+            @position_file = File.open(File.join(@target.dir, 'data', 'position.bin'), 'rb')
             pos_data = @position_file.read(44)
             @position_file_bytes_read = 44
           end
@@ -220,7 +221,7 @@ module Cosmos
 
           if att_data.nil? or att_data.length == 0
             @attitude_file.close
-            @attitude_file = File.open(File.join(::Cosmos::USERPATH, 'config', 'data', 'attitude.bin'), 'rb')
+            @attitude_file = File.open(File.join(@target.dir, 'data', 'attitude.bin'), 'rb')
             att_data = @attitude_file.read(40)
             @attitude_file_bytes_read = 40
           end

@@ -356,12 +356,13 @@ module Cosmos
       end
       # Make a copy of the filename since we're calling slice! which modifies it directly
       copy = filename.dup
-      if copy.include?(Cosmos::USERPATH)
-        copy.slice!(Cosmos::USERPATH) # Remove the USERPATH
+      config_index = copy.index('config')
+      if config_index
+        copy = copy[config_index..-1]
       elsif copy.include?(':') # Check for Windows drive letter
         copy = copy.split(':')[1]
       end
-      parsed_filename = File.join(Cosmos::USERPATH, 'outputs', 'tmp', copy)
+      parsed_filename = File.join(Dir.tmpdir, 'cosmos', 'tmp', copy)
       FileUtils.mkdir_p(File.dirname(parsed_filename)) # Create the path
       file = File.open(parsed_filename, 'w+')
       file.puts output
