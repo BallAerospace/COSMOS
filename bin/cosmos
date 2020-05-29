@@ -379,17 +379,38 @@ def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil)
   end
 
   target_list = []
+  target_names = []
   system_config.targets.each do |target_name, target|
     original_name = nil
     original_name = target.original_name if target.name != target.original_name
     target_filename = nil
     target_filename = File.basename(target.filename) if target.filename
     target_list << { 'target_name' => target_name, 'original_name' => original_name, 'target_filename' => target_filename, 'target_id' => target.id }
+    target_names << target_name
   end
   target_config_dir = File.join(Dir.pwd, 'config', 'targets')
   Cosmos::System.instance(target_list, target_config_dir)
 
   redis = Redis.new(url: "redis://localhost:6379/0")
+
+  # Save configuration to redis
+  redis.del("cosmos_system")
+  redis.hset('cosmos_system', 'limits_set', 'DEFAULT')
+  redis.hset('cosmos_system', 'target_names', JSON.generate(target_names))
+  Cosmos::System.telemetry.all.each do |target_name, packets|
+    redis.del("cosmostlm__#{target_name}")
+    packets.each do |packet_name, packet|
+      puts "Configuring tlm packet: #{target_name} #{packet_name}"
+      redis.hset("cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+    end
+  end
+  Cosmos::System.commands.all.each do |target_name, packets|
+    redis.del("cosmoscmd__#{target_name}")
+    packets.each do |packet_name, packet|
+      puts "Configuring cmd packet: #{target_name} #{packet_name}"
+      redis.hset("cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
+    end
+  end
 
   # Configure microservices
   # TODO: Need to only clear out old microservices that are unneeded for the current PROGRAM

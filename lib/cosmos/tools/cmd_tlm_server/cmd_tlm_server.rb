@@ -14,10 +14,10 @@ require 'cosmos/tools/cmd_tlm_server/api'
 require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
 require 'cosmos/tools/cmd_tlm_server/background_tasks'
 require 'cosmos/tools/cmd_tlm_server/commanding'
-require 'cosmos/tools/cmd_tlm_server/interfaces'
+# require 'cosmos/tools/cmd_tlm_server/interfaces'
 require 'cosmos/tools/cmd_tlm_server/packet_logging'
-require 'cosmos/tools/cmd_tlm_server/routers'
-require 'cosmos/tools/cmd_tlm_server/replay_backend'
+# require 'cosmos/tools/cmd_tlm_server/routers'
+#require 'cosmos/tools/cmd_tlm_server/replay_backend'
 
 module Cosmos
   # Provides the interface for all applications to get the latest telemetry and
@@ -88,7 +88,7 @@ module Cosmos
     attr_reader :disconnect
 
     # The default configuration file name
-    DEFAULT_CONFIG_FILE = File.join(Cosmos::USERPATH, 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
+    DEFAULT_CONFIG_FILE = File.join("C:/git/COSMOS/demo", 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
     # The maximum number of limits events that are queued. Used when
     # subscribing to limits events.
     DEFAULT_LIMITS_EVENT_QUEUE_SIZE = 1000
@@ -156,13 +156,14 @@ module Cosmos
       @next_server_message_queue_id = 1
 
       # Process cmd_tlm_server.txt
-      @config = CmdTlmServerConfig.new(config_file)
+      @system_config = SystemConfig.new("C:/git/COSMOS/demo/config/system/system.txt")
+      @config = CmdTlmServerConfig.new(config_file, @system_config)
       @background_tasks = BackgroundTasks.new(@config)
       @commanding = Commanding.new(@config)
-      @interfaces = Interfaces.new(@config, method(:identified_packet_callback))
+      #@interfaces = Interfaces.new(@config, method(:identified_packet_callback))
       @packet_logging = PacketLogging.new(@config)
-      @routers = Routers.new(@config)
-      @replay_backend = ReplayBackend.new(@config)
+      #@routers = Routers.new(@config)
+      #@replay_backend = ReplayBackend.new(@config)
       @title = @config.title
       if @mode != :CMD_TLM_SERVER
         @title.gsub!("Command and Telemetry Server", "Replay")
@@ -177,13 +178,13 @@ module Cosmos
       # if we started the server in disconnect mode
       @json_drb = nil
       unless @disconnect
-        System.telemetry # Make sure definitions are loaded by starting anything
+        #System.telemetry # Make sure definitions are loaded by starting anything
 
         @@meta_callback.call() if @@meta_callback and @config.metadata
 
         # Start DRb with access control
         @json_drb = JsonDRb.new
-        @json_drb.acl = System.acl if System.acl
+        # @json_drb.acl = System.acl if System.acl
 
         # In production we start logging and don't allow the user to stop it
         # We also disallow setting telemetry and disconnecting from interfaces
@@ -191,12 +192,12 @@ module Cosmos
           @api_whitelist.delete('stop_logging')
           @api_whitelist.delete('stop_cmd_log')
           @api_whitelist.delete('stop_tlm_log')
-          @interfaces.all.each do |name, interface|
-            interface.disable_disconnect = true
-          end
-          @routers.all.each do |name, interface|
-            interface.disable_disconnect = true
-          end
+          #@interfaces.all.each do |name, interface|
+          #  interface.disable_disconnect = true
+          #end
+          #@routers.all.each do |name, interface|
+          #  interface.disable_disconnect = true
+          # end
         end
         @json_drb.method_whitelist = @api_whitelist
         # begin
@@ -217,21 +218,21 @@ module Cosmos
         # end
 
         if @mode == :CMD_TLM_SERVER
-          @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['CTS_PREIDENTIFIED'])
-          @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['CTS_CMD_ROUTER'])
+          #@routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['CTS_PREIDENTIFIED'])
+          #@routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['CTS_CMD_ROUTER'])
         else
           # Create dummy interface for Replay so we can attach the preidentified routers to it.
           # This is needed because interfaces are not mapped to targets when loading a saved_config.
           # Since interfaces are used to access the routers, nothing is send out the preidentified
           # interface port and TlmGrapher (most notably) does not work.
-          @replay_interface = Interface.new
-          @replay_interface.name = "REPLAY"
-          @routers.all.clear unless replay_routers
-          @replay_interface.routers << @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['REPLAY_PREIDENTIFIED'])
-          @replay_interface.cmd_routers << @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['REPLAY_CMD_ROUTER'])
+          #@replay_interface = Interface.new
+          #@replay_interface.name = "REPLAY"
+          #@routers.all.clear unless replay_routers
+          #@replay_interface.routers << @routers.add_preidentified('PREIDENTIFIED_ROUTER', System.ports['REPLAY_PREIDENTIFIED'])
+          #@replay_interface.cmd_routers << @routers.add_cmd_preidentified('PREIDENTIFIED_CMD_ROUTER', System.ports['REPLAY_CMD_ROUTER'])
         end
-        System.telemetry.limits_change_callback = method(:limits_change_callback)
-        @routers.start
+        #System.telemetry.limits_change_callback = method(:limits_change_callback)
+        #@routers.start
 
         start(production)
       end
@@ -245,14 +246,14 @@ module Cosmos
       if @interfaces
         @interfaces.all.each do |name, interface|
           interface.target_names.each do |target|
-            System.targets[target].interface = interface
+            #System.targets[target].interface = interface
           end
         end
       end
       # If any remaing targets don't have an interface map to the @replay_interface
-      System.targets.each do |name, target|
-        target.interface = @replay_interface unless target.interface
-      end
+      #System.targets.each do |name, target|
+      #  target.interface = @replay_interface unless target.interface
+      #end
     end
 
     # Properly shuts down the command and telemetry server by stoping the
@@ -278,20 +279,20 @@ module Cosmos
 
       # Shutdown DRb
       @json_drb.stop_service if @json_drb
-      @routers.stop
+      #@routers.stop
 
       if @mode == :CMD_TLM_SERVER
         # Shutdown staleness monitor thread
         Cosmos.kill_thread(self, @staleness_monitor_thread)
 
         @background_tasks.stop_all
-        @interfaces.stop
+        #@interfaces.stop
         @packet_logging.shutdown
       else
-        @replay_backend.shutdown
+        #@replay_backend.shutdown
       end
       @stop_callback.call if @stop_callback
-      @message_log.stop if @message_log
+      # @message_log.stop if @message_log
     end
 
     # Set a stop callback
@@ -301,11 +302,11 @@ module Cosmos
 
     # Reload the default configuration
     def reload
-      @replay_backend.shutdown if @mode != :CMD_TLM_SERVER
+      #@replay_backend.shutdown if @mode != :CMD_TLM_SERVER
       if @reload_callback
         @reload_callback.call(false)
       else
-        System.reset
+        #System.reset
       end
     end
 
@@ -536,7 +537,7 @@ module Cosmos
 
         # Get the packet to ensure it exists
         if @@instance.disconnect
-          @last_subscribed_packet = System.telemetry.packet(upcase_packets[index][0], upcase_packets[index][1])
+          #@last_subscribed_packet = System.telemetry.packet(upcase_packets[index][0], upcase_packets[index][1])
         else
           @@instance.get_tlm_packet(upcase_packets[index][0], upcase_packets[index][1])
         end
@@ -553,13 +554,13 @@ module Cosmos
         @@instance.next_packet_data_queue_id += 1
 
         # Send the current meta packet first if requested
-        if need_meta
-          packet = System.telemetry.packet('SYSTEM', 'META')
-          received_time = packet.received_time
-          received_time ||= Time.now.sys
-          @@instance.packet_data_queues[id][0] << [packet.buffer, 'SYSTEM', 'META',
-            received_time.tv_sec, received_time.tv_usec, packet.received_count, packet.stored, packet.extra]
-        end
+        #if need_meta
+        #  packet = System.telemetry.packet('SYSTEM', 'META')
+        #  received_time = packet.received_time
+        ##  received_time ||= Time.now.sys
+        #  @@instance.packet_data_queues[id][0] << [packet.buffer, 'SYSTEM', 'META',
+        #    received_time.tv_sec, received_time.tv_usec, packet.received_count, packet.stored, packet.extra]
+        #end
       end
       return id
     end
@@ -704,7 +705,7 @@ module Cosmos
     # Calls clear_counters on the System, interfaces, routers, and sets the
     # request_count on json_drb to 0.
     def self.clear_counters
-      System.clear_counters
+      #clear_counters
       self.instance.interfaces.clear_counters if self.instance.interfaces
       self.instance.routers.clear_counters
       self.instance.json_drb.request_count = 0
@@ -716,8 +717,8 @@ module Cosmos
     #
     # @param packet [Packet] Packet which has been identified by the interface
     def identified_packet_callback(packet)
-      packet.check_limits(System.limits_set)
-      post_packet(packet)
+      #packet.check_limits(System.limits_set)
+      #post_packet(packet)
     end
 
     private
@@ -732,49 +733,49 @@ module Cosmos
     # @param start_packet_logging [Boolean] Whether to start logging data or not
     def start(start_packet_logging = false)
       if @mode == :CMD_TLM_SERVER
-        @replay_backend = nil # Remove access to Replay
-        @message_log = MessageLog.new('server')
-        @packet_logging.start if start_packet_logging
-        @interfaces.start
-        @background_tasks.start_all
+        #@replay_backend = nil # Remove access to Replay
+        # @message_log = MessageLog.new('server')
+        # @packet_logging.start if start_packet_logging
+        #@interfaces.start
+        # @background_tasks.start_all
 
         # Start staleness monitor thread
         @sleeper = Sleeper.new
-        @staleness_monitor_thread = Thread.new do
-          begin
-            stale = []
-            prev_stale = []
-            while true
-              # The check_stale method drives System.telemetry to iterate through
-              # the packets and mark them stale as necessary.
-              System.telemetry.check_stale
+        # @staleness_monitor_thread = Thread.new do
+        #   begin
+        #     stale = []
+        #     prev_stale = []
+        #     while true
+        #       # The check_stale method drives System.telemetry to iterate through
+        #       # the packets and mark them stale as necessary.
+        #       #System.telemetry.check_stale
 
-              # Get all stale packets that include limits items.
-              stale_pkts = System.telemetry.stale(true)
+        #       # Get all stale packets that include limits items.
+        #       stale_pkts = System.telemetry.stale(true)
 
-              # Send :STALE_PACKET events for all newly stale packets.
-              stale = []
-              stale_pkts.each do |packet|
-                pkt_name = [packet.target_name, packet.packet_name]
-                stale << pkt_name
-                post_limits_event(:STALE_PACKET, pkt_name) unless prev_stale.include?(pkt_name)
-              end
+        #       # Send :STALE_PACKET events for all newly stale packets.
+        #       stale = []
+        #       stale_pkts.each do |packet|
+        #         pkt_name = [packet.target_name, packet.packet_name]
+        #         stale << pkt_name
+        #         post_limits_event(:STALE_PACKET, pkt_name) unless prev_stale.include?(pkt_name)
+        #       end
 
-              # Send :STALE_PACKET_RCVD events for all packets that were stale
-              # but are no longer stale.
-              prev_stale.each do |pkt_name|
-                post_limits_event(:STALE_PACKET_RCVD, pkt_name) unless stale.include?(pkt_name)
-              end
-              prev_stale = stale.dup
+        #       # Send :STALE_PACKET_RCVD events for all packets that were stale
+        #       # but are no longer stale.
+        #       prev_stale.each do |pkt_name|
+        #         post_limits_event(:STALE_PACKET_RCVD, pkt_name) unless stale.include?(pkt_name)
+        #       end
+        #       prev_stale = stale.dup
 
-              broken = @sleeper.sleep(10)
-              break if broken
-            end
-          rescue Exception => err
-            Logger.fatal "Staleness Monitor thread unexpectedly died"
-            Cosmos.handle_fatal_exception(err)
-          end
-        end # end Thread.new
+        #       broken = @sleeper.sleep(10)
+        #       break if broken
+        #     end
+        #   rescue Exception => err
+        #     Logger.fatal "Staleness Monitor thread unexpectedly died"
+        #     Cosmos.handle_fatal_exception(err)
+        #   end
+        # end # end Thread.new
       else
         # Prevent access to interfaces or packet_logging
         @interfaces = nil

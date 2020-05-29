@@ -52,6 +52,10 @@ module Cosmos
       "    #{read_or_write}_CONVERSION #{self.class.name.class_name_to_filename} #{@seconds_item_name} #{@microseconds_item_name}\n"
     end
 
+    def as_json
+      { 'class' => self.class.name.to_s, 'params' => [@seconds_item_name, @microseconds_item_name] }
+    end
+
   end # class UnixTimeConversion
 
 end # module Cosmos

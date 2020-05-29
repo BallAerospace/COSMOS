@@ -59,10 +59,10 @@ module Cosmos
       end
 
       # Get configuration for any targets from Minio/S3
-      target_list = @config["target_list"]
-      target_list ||= []
+      @target_list = @config["target_list"]
+      @target_list ||= []
       rubys3_client = Aws::S3::Client.new
-      target_list.each do |item|
+      @target_list.each do |item|
         # Retrieve bucket/targets/target_name/target_id.zip
         response_target = "#{@temp_dir}/targets/#{item["target_id"]}.zip"
         FileUtils.mkdir_p(File.dirname(response_target))
@@ -83,7 +83,7 @@ module Cosmos
       end
 
       # Build System from targets
-      System.instance(target_list, "#{@temp_dir}/targets")
+      System.instance(@target_list, "#{@temp_dir}/targets")
 
       # Setup Kafka connection
       @kafka_client = Kafka.new(["localhost:29092"], client_id: name)

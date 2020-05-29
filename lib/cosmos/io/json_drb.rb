@@ -255,7 +255,7 @@ module Cosmos
     def process_request(request_data, start_time)
       @request_count += 1
       STDOUT.puts request_data if JsonDRb.debug?
-      begin
+      #begin
         request = JsonRpcRequest.from_json(request_data)
         response = nil
         error_code = nil
@@ -263,28 +263,28 @@ module Cosmos
 
         if (@method_whitelist and @method_whitelist.include?(request.method.downcase())) or
            (!@method_whitelist and !JsonRpcRequest::DANGEROUS_METHODS.include?(request.method.downcase()))
-          begin
+          #begin
             result = @object.send(request.method.downcase().intern, *request.params)
             if request.id
               response = JsonRpcSuccessResponse.new(result, request.id)
             end
-          rescue Exception => error
-            if request.id
-              if NoMethodError === error
-                error_code = JsonRpcError::ErrorCode::METHOD_NOT_FOUND
-                response = JsonRpcErrorResponse.new(
-                  JsonRpcError.new(error_code, "Method not found", error), request.id)
-              elsif ArgumentError === error
-                error_code = JsonRpcError::ErrorCode::INVALID_PARAMS
-                response = JsonRpcErrorResponse.new(
-                  JsonRpcError.new(error_code, "Invalid params", error), request.id)
-              else
-                error_code = JsonRpcError::ErrorCode::OTHER_ERROR
-                response = JsonRpcErrorResponse.new(
-                  JsonRpcError.new(error_code, error.message, error), request.id)
-              end
-            end
-          end
+          # rescue Exception => error
+          #   if request.id
+          #     if NoMethodError === error
+          #       error_code = JsonRpcError::ErrorCode::METHOD_NOT_FOUND
+          #       response = JsonRpcErrorResponse.new(
+          #         JsonRpcError.new(error_code, "Method not found", error), request.id)
+          #     elsif ArgumentError === error
+          #       error_code = JsonRpcError::ErrorCode::INVALID_PARAMS
+          #       response = JsonRpcErrorResponse.new(
+          #         JsonRpcError.new(error_code, "Invalid params", error), request.id)
+          #     else
+          #       error_code = JsonRpcError::ErrorCode::OTHER_ERROR
+          #       response = JsonRpcErrorResponse.new(
+          #         JsonRpcError.new(error_code, error.message, error), request.id)
+          #     end
+          #   end
+          # end
         else
           if request.id
             error_code = JsonRpcError::ErrorCode::OTHER_ERROR
@@ -294,12 +294,12 @@ module Cosmos
         end
         response_data = process_response(response, start_time) if response
         return response_data, error_code
-      rescue => error
-        error_code = JsonRpcError::ErrorCode::INVALID_REQUEST
-        response = JsonRpcErrorResponse.new(JsonRpcError.new(error_code, "Invalid Request", error), nil)
-        response_data = process_response(response, start_time)
-        return response_data, error_code
-      end
+      # rescue => error
+      #   error_code = JsonRpcError::ErrorCode::INVALID_REQUEST
+      #   response = JsonRpcErrorResponse.new(JsonRpcError.new(error_code, "Invalid Request", error), nil)
+      #   response_data = process_response(response, start_time)
+      #   return response_data, error_code
+      # end
     end
 
     protected

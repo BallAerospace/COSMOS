@@ -74,6 +74,10 @@ module Cosmos
       "    POLY_#{read_or_write}_CONVERSION #{@coeffs.join(' ')}\n"
     end
 
+    def as_json
+      { 'class' => self.class.name.to_s, 'params' => @coeffs }
+    end
+
   end # class PolynomialConversion
 
 end # module Cosmos

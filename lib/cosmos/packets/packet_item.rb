@@ -11,6 +11,7 @@
 require 'cosmos/packets/structure_item'
 require 'cosmos/packets/packet_item_limits'
 require 'cosmos/conversions/conversion'
+require 'cosmos/io/json_rpc' # Includes needed as_json code
 
 module Cosmos
   # Maintains knowledge of an item in a Packet
@@ -396,6 +397,66 @@ module Cosmos
         end
       end
 
+      config
+    end
+
+    def as_json
+      config = {}
+      config['name'] = self.name
+      config['bit_offset'] = self.bit_offset
+      config['bit_size'] = self.bit_size
+      config['data_type'] = self.data_type.to_s
+      config['array_size'] = self.array_size if self.array_size
+      config['description'] = self.description
+      config['id_value'] = self.id_value.as_json if self.id_value
+      config['default'] = @default.as_json if @default
+      if self.range
+        config['minimum'] = self.range.first.as_json
+        config['maximum'] = self.range.last.as_json
+      end
+      config['endianness'] = self.endianness.to_s
+      config['required'] = true if self.required
+      config['format_string'] = self.format_string if self.format_string
+      if self.units
+        config['units'] = self.units
+        config['units_full'] = self.units_full
+      end
+      config['overflow'] = self.overflow.to_s
+      if @states
+        states = {}
+        config['states'] = states
+        @states.each do |state_name, state_value|
+          state = {}
+          states[state_name] = state
+          state['value'] = state_value.as_json
+          state['hazardous'] = @hazardous[state_name] if @hazardous and @hazardous[state_name]
+          state['color'] = @state_colors[state_name].to_s if @state_colors and @state_colors[state_name]
+        end
+      end
+
+      config['read_conversion'] = self.read_conversion.as_json if self.read_conversion
+      config['write_conversion'] = self.write_conversion.as_json if self.write_conversion
+
+      if self.limits
+        if self.limits.values
+          self.limits.values.each do |limits_set, limits_values|
+            config['limits'] ||= {}
+            limits = {}
+            config['limits'][limits_set] = limits
+            limits['persistence_setting'] = self.limits.persistence_setting
+            limits['enabled'] = true if self.limits.enabled
+            limits['red_low'] =  limits_values[0]
+            limits['yellow_low'] = limits_values[1]
+            limits['yellow_high'] = limits_values[2]
+            limits['red_high'] = limits_values[3]
+            limits['green_low'] = limits_values[4] if limits_values[4]
+            limits['green_high'] = limits_values[5] if limits_values[5]
+          end
+        end
+        config['limits_response'] = self.limits.response.as_json if self.limits.response
+      end
+
+      config['meta'] = @meta if @meta
       config
     end
 

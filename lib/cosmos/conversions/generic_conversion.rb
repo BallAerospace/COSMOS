@@ -62,6 +62,10 @@ module Cosmos
       config
     end
 
+    def as_json
+      { 'class' => self.class.name.to_s, 'params' => [@code_to_eval, @converted_type, @converted_bit_size] }
+    end
+
   end # class GenericConversion
 
 end # module Cosmos

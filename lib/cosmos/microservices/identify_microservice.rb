@@ -17,8 +17,13 @@ module Cosmos
 
     def initialize(name)
       super(name)
+      @interface_name = name.split("__")[1]
       @cancel_thread = false
       @kafka_producer = @kafka_client.async_producer(delivery_interval: 1)
+      @target_names = []
+      @target_list.each do |item|
+        @target_names << item["target_name"]
+      end
     end
 
     def run
@@ -34,7 +39,7 @@ module Cosmos
 
     def identify_packet(kafka_message)
       packet = Packet.new(nil, nil)
-      #STDOUT.puts kafka_message.headers.inspect
+      #Logger.info kafka_message.headers.inspect
       packet.target_name = kafka_message.headers["target_name"]
       packet.packet_name = kafka_message.headers["packet_name"]
       packet.stored = ConfigParser.handle_true_false(kafka_message.headers["stored"])
@@ -42,7 +47,7 @@ module Cosmos
       packet.buffer = kafka_message.value
       if packet.stored
         # Stored telemetry does not update the current value table
-        identified_packet = System.telemetry.identify_and_define_packet(packet, @interface.target_names)
+        identified_packet = System.telemetry.identify_and_define_packet(packet, @target_names)
       else
         # Identify and update packet
         if packet.identified?
@@ -58,12 +63,12 @@ module Cosmos
             packet.target_name = nil
             packet.packet_name = nil
             identified_packet = System.telemetry.identify!(packet.buffer,
-                                                           @interface.target_names)
+                                                           @target_names)
           end
         else
           # Packet needs to be identified
           identified_packet = System.telemetry.identify!(packet.buffer,
-                                                         @interface.target_names)
+                                                         @target_names)
         end
       end
 
@@ -79,7 +84,7 @@ module Cosmos
         unknown_packet.extra = packet.extra
         packet = unknown_packet
         data_length = packet.length
-        string = "#{@interface.name} - Unknown #{data_length} byte packet starting: "
+        string = "#{@interface_name} - Unknown #{data_length} byte packet starting: "
         num_bytes_to_print = [UNKNOWN_BYTES_TO_PRINT, data_length].min
         data_to_print = packet.buffer(false)[0..(num_bytes_to_print - 1)]
         data_to_print.each_byte do |byte|
@@ -98,6 +103,7 @@ module Cosmos
       headers[:packet_name] = packet.packet_name
       headers[:received_count] = packet.received_count
       @kafka_producer.produce(packet.buffer, topic: "PACKET__#{packet.target_name}__#{packet.packet_name}", :headers => headers)
+      @kafka_producer.deliver_messages
     end
   end
 end

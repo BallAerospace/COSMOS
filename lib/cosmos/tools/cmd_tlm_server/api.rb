@@ -11,6 +11,19 @@
 require 'cosmos/script/extract'
 require 'cosmos/script/api_shared'
 require 'cosmos/tools/tlm_viewer/tlm_viewer_config'
+require 'cosmos/utilities/store'
+require 'connection_pool'
+require 'redis'
+require 'kafka'
+
+$api_id = 0
+def gen_kafka_client_id
+  $api_id += 1
+  "api_#{$api_id}"
+end
+
+REDIS = ConnectionPool.new(size: 10) { Redis.new(url: "redis://localhost:6379/0") }
+KAFKA = ConnectionPool.new(size: 10) { Kafka.new(["localhost:29092"], client_id: gen_kafka_client_id()) }
 
 module Cosmos
 
@@ -274,6 +287,7 @@ module Cosmos
     # @param interface_name [String] The interface to send the raw binary
     # @param data [String] The raw binary data
     def send_raw(interface_name, data)
+      # TODO: Implement New Commanding
       CmdTlmServer.commanding.send_raw(interface_name, data)
       nil
     end
@@ -284,6 +298,7 @@ module Cosmos
     # @param command_name [String] Packet name of the command
     # @return [String] last command buffer packet
     def get_cmd_buffer(target_name, command_name)
+      # TODO: Implement New Commanding
       packet = System.commands.packet(target_name, command_name)
       return packet.buffer
     end
@@ -296,10 +311,15 @@ module Cosmos
     #   command description] for all commands in the target
     def get_cmd_list(target_name)
       list = []
-      System.commands.packets(target_name).each do |name, command|
-        list << [name, command.description]
+      packets = {}
+      REDIS.with do |redis|
+        packets = redis.hgetall("cosmoscmd__#{target_name}")
       end
-      return list.sort
+      packets.each do |packet_name, packet_json|
+        packet = JSON.parse(packet_json)
+        list << [packet_name, packet['description']]
+      end
+      list.sort
     end
 
     # Returns the list of all the parameters for the given command.
@@ -311,16 +331,24 @@ module Cosmos
     #   description, units_full, units, required] for all parameters in the
     #   command
     def get_cmd_param_list(target_name, command_name)
+      # TODO: Implement New Commanding
       list = []
-      System.commands.params(target_name, command_name).each do |parameter|
-        if parameter.format_string
-          unless parameter.default.kind_of?(Array)
-            list << [parameter.name, sprintf(parameter.format_string, parameter.default), parameter.states, parameter.description, parameter.units_full, parameter.units, parameter.required, parameter.data_type.to_s]
+      packet_json = nil
+      REDIS.with do |redis|
+        packet_json = redis.hget("cosmoscmd__#{target_name}", command_name)
+      end
+      if packet_json
+        packet = JSON.parse(packet_json)
+        packet['items'].each do |item|
+          if item['format_string']
+            unless item['default'].kind_of?(Array)
+              list << [item['name'], sprintf(item['format_string'], item['default']), item['states'], item['description'], item['units_full'], item['units'], item['required'], item['data_type']]
+            else
+              list << [item['name'], [], item['states'], item['description'], item['units_full'], item['units'], item['required'], item['data_type']]
+            end
           else
-            list << [parameter.name, "[]", parameter.states, parameter.description, parameter.units_full, parameter.units, parameter.required, parameter.data_type.to_s]
+            list << [item['name'], item['default'], item['states'], item['description'], item['units_full'], item['units'], item['required'], item['data_type']]
           end
-        else
-          list << [parameter.name, parameter.default, parameter.states, parameter.description, parameter.units_full, parameter.units, parameter.required, parameter.data_type.to_s]
         end
       end
       return list
@@ -334,8 +362,10 @@ module Cosmos
     #   parameter setting makes the command hazardous
     # @return [Boolean] Whether the command is hazardous
     def get_cmd_hazardous(target_name, command_name, params = {})
-      hazardous, _ = System.commands.cmd_hazardous?(target_name, command_name, params)
-      return hazardous
+      # TODO: Implement New Commanding
+      # hazardous, _ = System.commands.cmd_hazardous?(target_name, command_name, params)
+      # return hazardous
+      return false
     end
 
     # Returns a value from the specified command
@@ -347,6 +377,7 @@ module Cosmos
     #   one of {Packet::VALUE_TYPES}
     # @return [Varies] value
     def get_cmd_value(target_name, command_name, parameter_name, value_type = :CONVERTED)
+      # TODO: Implement New Commanding
       packet = System.commands.packet(target_name, command_name)
       # Virtually support RECEIVED_TIMEFORMATTED, RECEIVED_TIMESECONDS, RECEIVED_COUNT
       # Also PACKET_TIMEFORMATTED and PACKET_TIMESECONDS
@@ -390,6 +421,7 @@ module Cosmos
     #    then most recent time from the given target will be returned.
     # @return [Array<Target Name, Command Name, Time Seconds, Time Microseconds>]
     def get_cmd_time(target_name = nil, command_name = nil)
+      # TODO: Implement New Commanding
       last_command = nil
       if target_name
         if command_name
@@ -438,7 +470,11 @@ module Cosmos
     #   units
     def tlm(*args)
       target_name, packet_name, item_name = tlm_process_args(args, 'tlm')
-      System.telemetry.value(target_name, packet_name, item_name, :CONVERTED)
+      REDIS.with do |conn|
+        result = conn.hmget("tlm__#{target_name}__#{packet_name}", "#{item_name}__C", item_name)
+        return result[0] if result[0]
+        return result[1]
+      end
     end
 
     # Request a raw telemetry item from a packet.
@@ -454,7 +490,10 @@ module Cosmos
     #   units
     def tlm_raw(*args)
       target_name, packet_name, item_name = tlm_process_args(args, 'tlm_raw')
-      System.telemetry.value(target_name, packet_name, item_name, :RAW)
+      REDIS.with do |conn|
+        result = conn.hmget("tlm__#{target_name}__#{packet_name}", item_name)
+        return result[0]
+      end
     end
 
     # Request a formatted telemetry item from a packet.
@@ -470,7 +509,16 @@ module Cosmos
     #   without units
     def tlm_formatted(*args)
       target_name, packet_name, item_name = tlm_process_args(args, 'tlm_formatted')
-      System.telemetry.value(target_name, packet_name, item_name, :FORMATTED)
+      REDIS.with do |conn|
+        result = conn.hmget("tlm__#{target_name}__#{packet_name}",
+          "#{item_name}__F",
+          "#{item_name}__C",
+          item_name)
+        return result[0].to_s if result[0]
+        return result[1].to_s if result[1]
+        return result[2].to_s if result[2]
+        return nil
+      end
     end
 
     # Request a telemetry item with units from a packet.
@@ -485,7 +533,18 @@ module Cosmos
     # @return [String] The converted, formatted telemetry value with units
     def tlm_with_units(*args)
       target_name, packet_name, item_name = tlm_process_args(args, 'tlm_with_units')
-      System.telemetry.value(target_name, packet_name, item_name, :WITH_UNITS)
+      REDIS.with do |conn|
+        result = conn.hmget("tlm__#{target_name}__#{packet_name}",
+          "#{item_name}__U",
+          "#{item_name}__F",
+          "#{item_name}__C",
+          item_name)
+        return result[0].to_s if result[0]
+        return result[1].to_s if result[1]
+        return result[2].to_s if result[2]
+        return result[3].to_s if result[3]
+        return nil
+      end
     end
 
     # Request a telemetry item from a packet with the specified conversion
@@ -503,7 +562,16 @@ module Cosmos
     # @return [Object] The converted telemetry value
     def tlm_variable(*args)
       target_name, packet_name, item_name, value_type = tlm_variable_process_args(args, 'tlm_variable')
-      System.telemetry.value(target_name, packet_name, item_name, value_type)
+      case value_type
+      when :RAW
+        return tlm_raw(target_name, packet_name, item_name)
+      when :CONVERTED
+        return tlm(target_name, packet_name, item_name)
+      when :FORMATTED
+        return tlm_formatted(target_name, packet_name, item_name)
+      when :WITH_UNITS
+        return tlm_with_units(target_name, packet_name, item_name)
+      end
     end
 
     # Set a telemetry item in a packet to a particular value and then verifies
@@ -529,13 +597,20 @@ module Cosmos
       if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
         raise "set_tlm not allowed on #{target_name} #{packet_name} #{item_name}" if ['PKTID', 'CONFIG'].include?(item_name)
       end
-      System.telemetry.set_value(target_name, packet_name, item_name, value, :CONVERTED)
-      if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
-        tlm_packet = System.telemetry.packet('SYSTEM', 'META')
-        cmd_packet = System.commands.packet('SYSTEM', 'META')
-        cmd_packet.buffer = tlm_packet.buffer
+
+      REDIS.with do |conn|
+        conn.hmset("tlm__#{target_name}__#{packet_name}", "#{item_name}__C", value)
       end
-      System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
+
+      # TODO: Need to decide how SYSTEM META will work going forward
+      # if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
+      #   tlm_packet = System.telemetry.packet('SYSTEM', 'META')
+      #   cmd_packet = System.commands.packet('SYSTEM', 'META')
+      #   cmd_packet.buffer = tlm_packet.buffer
+      # end
+
+      # TODO: May need to somehow force limits checking microservice to recheck
+      # System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
       nil
     end
 
@@ -558,10 +633,15 @@ module Cosmos
     #   description).
     def set_tlm_raw(*args)
       target_name, packet_name, item_name, value = set_tlm_process_args(args, 'set_tlm_raw')
-      System.telemetry.set_value(target_name, packet_name, item_name, value, :RAW)
-      System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
+      REDIS.with do |conn|
+        conn.hmset("tlm__#{target_name}__#{packet_name}", item_name, value)
+      end
+      # TODO
+      #System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
       nil
     end
+
+    # TODO: Need to add new set_tlm_formatted and set_tlm_with_units
 
     # Injects a packet into the system as if it was received from an interface
     #
@@ -573,6 +653,11 @@ module Cosmos
     # @param send_packet_log_writers[Boolean] Whether or not to send to the packet log writers for the target's interface
     # @param create_new_logs[Boolean] Whether or not to create new log files before writing this packet to logs
     def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true, send_packet_log_writers = true, create_new_logs = false)
+
+      # TODO: This API will probably need to change
+      # Requires having the packet definition if injecting into IDENTIFY Kafka stream, or could just
+      # directly inject into decom stream (but not as fully featured)
+
       received_time = Time.now
       target = System.targets[target_name.upcase]
       raise "Unknown target: #{target_name}" unless target
@@ -671,6 +756,7 @@ module Cosmos
     #   three strings followed by a value (see the calling style in the
     #   description).
     def override_tlm(*args)
+      # TODO
       _override(__method__, set_tlm_process_args(args, __method__))
     end
 
@@ -689,6 +775,7 @@ module Cosmos
     #   three strings followed by a value (see the calling style in the
     #   description).
     def override_tlm_raw(*args)
+      # TODO
       _override(__method__, set_tlm_process_args(args, __method__))
     end
 
@@ -704,11 +791,13 @@ module Cosmos
     # @param args The args must either be a string or three strings
     #   (see the calling style in the description).
     def normalize_tlm(*args)
+      # TODO
       _override(__method__, tlm_process_args(args, __method__))
     end
 
     private
 
+    # TODO
     def _override(method, tgt_pkt_item)
       target = System.targets[tgt_pkt_item[0]]
       raise "Target '#{tgt_pkt_item[0]}' does not exist" unless target
@@ -738,8 +827,16 @@ module Cosmos
     # @param packet_name [String] Name of the packet
     # @return [String] last telemetry packet buffer
     def get_tlm_buffer(target_name, packet_name)
-      packet = System.telemetry.packet(target_name, packet_name)
-      return packet.buffer
+      KAFKA.with do |conn|
+        topic = "PACKET__#{target_name}__#{packet_name}"
+        offset = conn.last_offset_for(topic, 0)
+        messages = kafka.fetch_messages(topic: topic, partition: 0, offset: offset, max_wait_time: 0)
+        if messages.length > 0
+          return messages[-1].value
+        else
+          return nil
+        end
+      end
     end
 
     # Returns all the values (along with their limits state) for a packet.
@@ -750,8 +847,51 @@ module Cosmos
     #   one of {Packet::VALUE_TYPES}
     # @return (see Cosmos::Packet#read_all_with_limits_states)
     def get_tlm_packet(target_name, packet_name, value_type = :CONVERTED)
-      packet = System.telemetry.packet(target_name, packet_name)
-      return packet.read_all_with_limits_states(value_type.to_s.intern)
+      begin
+        case value_type
+        when :RAW
+          desired_item_type = ''
+        when :CONVERTED
+          desired_item_type = 'C'
+        when :FORMATTED
+          desired_item_type = 'F'
+        else
+          desired_item_type = 'U'
+        end
+        result_hash = {}
+        KAFKA.with do |kafka|
+          topic = "DECOM__#{target_name}__#{packet_name}"
+          offset = kafka.last_offset_for(topic, 0)
+          messages = kafka.fetch_messages(topic: topic, partition: 0, offset: offset, max_wait_time: 0)
+          if messages.length > 0
+            json = messages[-1].value
+            hash = JSON.parse(json)
+            # This should be ordered as desired... need to verify
+            hash.each do |key, value|
+              split_key = key.split("__")
+              item_name = split_key[0].to_s
+              item_type = split_key[1]
+              result_hash[item_name] ||= [item_name]
+              if item_type == 'L'
+                result_hash[item_name][2] = value
+              else
+                if item_type.to_s <= desired_item_type.to_s
+                  if desired_item_type == 'F' or desired_item_type == 'U'
+                    result_hash[item_name][1] = value.to_s
+                  else
+                    result_hash[item_name][1] = value
+                  end
+                end
+              end
+            end
+            return result_hash.values
+          else
+            return nil
+          end
+        end
+      rescue Exception => err
+        STDOUT.puts err.formatted
+      end
     end
 
     # Returns all the item values (along with their limits state). The items
@@ -766,6 +906,7 @@ module Cosmos
     #   optionally green low and high, and the overall limits state which is
     #   one of {Cosmos::Limits::LIMITS_STATES}.
     def get_tlm_values(item_array, value_types = :CONVERTED)
+      # TODO: Consider removing or modifying this method to not include limits ranges or set
       if !item_array.is_a?(Array) || (!item_array[0].is_a?(Array) and !item_array.empty?)
         raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
       end
@@ -780,9 +921,57 @@ module Cosmos
       if !elem.is_a?(Symbol) && !elem.is_a?(String)
         raise ArgumentError, "value_types must be a single symbol or array of symbols specifying the conversion method (:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS)"
       end
-      array = System.telemetry.values_and_limits_states(item_array, value_types)
-      array << System.limits_set
-      return array
+
+      items = []
+      states = []
+      settings = []
+      limits_set = get_limits_set()
+
+      raise(ArgumentError, "Passed #{item_array.length} items but only #{value_types.length} value types") if (Array === value_types) and item_array.length != value_types.length
+
+      value_type = value_types.intern unless Array === value_types
+      REDIS.with do |redis|
+        store = Store.new(redis)
+        # Get all the stuff we need
+        full_result = redis.pipelined do
+          item_array.length.times do |index|
+            entry = item_array[index]
+            target_name = entry[0]
+            packet_name = entry[1]
+            item_name = entry[2]
+            value_type = value_types[index].intern if Array === value_types
+            store.tlm_variable_with_limits_state_gather(target_name, packet_name, item_name, value_type)
+          end
+        end
+        Logger.info full_result.inspect(10000)
+        item_array.length.times do |index|
+          value_type = value_types[index].intern if Array === value_types
+          result = full_result[index]
+          if result[0]
+            if value_type == :FORMATTED or value_type == :WITH_UNITS
+              items << result[0].to_s
+            else
+              items << result[0]
+            end
+          elsif result[1]
+            if value_type == :FORMATTED or value_type == :WITH_UNITS
+              items << result[1].to_s
+            else
+              items << result[0]
+            end
+          elsif result[2]
+            items << result[2].to_s
+          elsif result[3]
+            items << result[3].to_s
+          else
+            items << nil
+          end
+          states << result[-1].to_s
+          settings << nil # TODO: Modify API to not include this or limits_set
+        end
+      end
+
+      return [items, states, settings, limits_set]
     end
 
     # Returns the sorted packet names and their descriptions for a particular
@@ -793,9 +982,13 @@ module Cosmos
     #   description] sorted by packet name
     def get_tlm_list(target_name)
       list = []
-      packets = System.telemetry.packets(target_name)
-      packets.each do |packet_name, packet|
-        list << [packet_name, packet.description]
+      packets = {}
+      REDIS.with do |redis|
+        packets = redis.hgetall("cosmostlm__#{target_name}")
+      end
+      packets.each do |packet_name, packet_json|
+        packet = JSON.parse(packet_json)
+        list << [packet_name, packet['description']]
       end
       list.sort
     end
@@ -952,14 +1145,18 @@ module Cosmos
     #
     # @param limits_set [String] The name of the limits set
     def set_limits_set(limits_set)
-      System.limits_set = limits_set if System.limits_set != limits_set.to_s.upcase.intern
+      REDIS.with do |redis|
+        redis.hset('cosmos_system', 'limits_set', limits_set)
+      end
     end
 
     # Returns the active limits set that applies to all telemetry
     #
     # @return [String] The current limits set
     def get_limits_set
-      return System.limits_set.to_s
+      REDIS.with do |redis|
+        return redis.hget('cosmos_system', 'limits_set')
+      end
     end
 
     #
@@ -970,9 +1167,12 @@ module Cosmos
     #
     # @return [Array<String>] All target names
     def get_target_list
-      list = []
-      System.targets.each_key {|target_name| list << target_name }
-      return list.sort
+      #list = []
+      #System.targets.each_key {|target_name| list << target_name }
+      #return list.sort
+      REDIS.with do |redis|
+        return JSON.parse(redis.hget('cosmos_system', 'target_names'))
+      end
     end
 
     # @see CmdTlmServer.subscribe_limits_events
@@ -1151,9 +1351,11 @@ module Cosmos
     # @param target_name [String] Target name
     # @return [Array<String>] All of the ignored command parameters for a target.
     def get_target_ignored_parameters(target_name)
-      target = System.targets[target_name.upcase]
-      raise "Unknown target: #{target_name}" unless target
-      return target.ignored_parameters
+      # TODO:
+      return []
+      #target = System.targets[target_name.upcase]
+      #raise "Unknown target: #{target_name}" unless target
+      #return target.ignored_parameters
     end
 
     # Get the list of ignored telemetry items for a target
@@ -1613,29 +1815,14 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{method_name}()"
       end
 
-      # Build the command
-      begin
-        command = System.commands.build_cmd(target_name, cmd_name, cmd_params, range_check, raw)
-      rescue => e
-        Logger.error e.message
-        raise e
-      end
-
-      if hazardous_check
-        hazardous, hazardous_description = System.commands.cmd_pkt_hazardous?(command)
-        if hazardous
-          error = HazardousError.new
-          error.target_name = target_name
-          error.cmd_name = cmd_name
-          error.cmd_params = cmd_params
-          error.hazardous_description = hazardous_description
-          raise error
-        end
-      end
-
       # Send the command
       @disconnect = false unless defined? @disconnect
-      CmdTlmServer.commanding.send_command_to_target(target_name, command) unless @disconnect
+      unless @disconnect
+        REDIS.with do |redis|
+          store = Store.new(redis)
+          store.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw)
+        end
+      end
 
       [target_name, cmd_name, cmd_params]
     end

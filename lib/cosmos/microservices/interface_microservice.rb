@@ -9,12 +9,72 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/microservices/microservice'
+require 'cosmos/utilities/store'
 
 module Cosmos
+  class InterfaceCmdHandlerThread
+    def initialize(interface)
+      @interface = interface
+    end
+
+    def start
+      @thread = Thread.new do
+        begin
+          run()
+        rescue Exception => err
+          Logger.error "InterfaceCmdHandleThread died unexpectedly: #{err.formatted}"
+        end
+      end
+    end
+
+    def run
+      store = Store.new
+      store.receive_commands(@interface) do |target_name, cmd_name, cmd_params, range_check, hazardous_check, raw|
+        begin
+          # Build the command
+          begin
+            command = System.commands.build_cmd(target_name, cmd_name, cmd_params, range_check, raw)
+          rescue => e
+            Logger.error e.formatted
+            # raise e
+            # TODO: Need to ack with error
+            next
+          end
+
+          if hazardous_check
+            hazardous, hazardous_description = System.commands.cmd_pkt_hazardous?(command)
+            if hazardous
+              error = HazardousError.new
+              error.target_name = target_name
+              error.cmd_name = cmd_name
+              error.cmd_params = cmd_params
+              error.hazardous_description = hazardous_description
+              # raise error
+              # TODO: Need to ack with hazardous error
+              next
+            end
+          end
+
+          begin
+            @interface.write(command)
+          rescue => e
+            Logger.error e.formatted
+            # TODO: Need to ack with error
+          end
+        rescue => e
+          # TODO: Need to ack with error
+          Logger.error e.formatted
+        end
+      end
+    end
+  end
+
   class InterfaceMicroservice < Microservice
     def initialize(name)
       super(name)
+      interface_name = name.split("__")[1]
       @interface = Cosmos.require_class(@config['interface_params'][0]).new(*@config['interface_params'][1..-1])
+      @interface.name = interface_name
       @config["target_list"].each do |item|
         @interface.target_names << item["target_name"]
       end
@@ -25,6 +85,8 @@ module Cosmos
       @connection_lost_messages = []
       @mutex = Mutex.new
       @kafka_producer = @kafka_client.async_producer(delivery_interval: 1)
+      @cmd_thread = InterfaceCmdHandlerThread.new(@interface)
+      @cmd_thread.start
     end
 
     def run
@@ -82,7 +144,7 @@ module Cosmos
           end
         end  # loop
       rescue Exception => error
-        Logger.error "Packet reading thread unexpectedly died for #{@interface.name}"
+        Logger.error "Packet reading thread unexpectedly died for #{@interface.name}\n#{error.formatted}"
         Cosmos.handle_fatal_exception(error)
       end
       Logger.info "Stopped packet reading for #{@interface.name}"
@@ -93,6 +155,8 @@ module Cosmos
       headers[:target_name] = packet.target_name if packet.target_name
       headers[:packet_name] = packet.packet_name if packet.packet_name
       @kafka_producer.produce(packet.buffer, topic: "INTERFACE__#{@interface.name}", :headers => headers)
+      @kafka_producer.deliver_messages
+      #Logger.info "Produce to INTERFACE__#{@interface.name}"
     end
 
     def handle_connection_failed(connect_error)

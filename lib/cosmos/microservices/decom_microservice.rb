@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/microservices/microservice'
+require 'cosmos/io/json_rpc'
 
 module Cosmos
   class DecomMicroservice < Microservice
@@ -33,11 +34,12 @@ module Cosmos
       target_name = kafka_message.headers["target_name"]
       packet_name = kafka_message.headers["packet_name"]
 
-      packet = System.telemetry.packet(target_name, packet_name).dup
+      packet = System.telemetry.packet(target_name, packet_name)
       packet.stored = ConfigParser.handle_true_false(kafka_message.headers["stored"])
       packet.received_time = Time.parse(kafka_message.headers["time"])
       packet.received_count = kafka_message.headers["received_count"].to_i
       packet.buffer = kafka_message.value
+      packet.check_limits
 
       # Need to build a JSON hash of the decommutated data
       # Support "downward typing"
@@ -52,6 +54,8 @@ module Cosmos
         json_hash[item.name + "__C"] = packet.read_item(item, :CONVERTED) if item.read_conversion or item.states
         json_hash[item.name + "__F"] = packet.read_item(item, :FORMATTED) if item.format_string
         json_hash[item.name + "__U"] = packet.read_item(item, :WITH_UNITS) if item.units
+        limits_state = item.limits.state
+        json_hash[item.name + "__L"] = limits_state if limits_state
       end
 
       # Write to Kafka
@@ -59,7 +63,8 @@ module Cosmos
       headers[:target_name] = packet.target_name
       headers[:packet_name] = packet.packet_name
       headers[:received_count] = packet.received_count
-      @kafka_decom_producer.produce(json_hash.to_json, topic: "DECOM__#{target_name}__#{packet_name}", :headers => headers)
+      @kafka_producer.produce(JSON.generate(json_hash.as_json), topic: "DECOM__#{target_name}__#{packet_name}", :headers => headers)
+      @kafka_producer.deliver_messages
     end
   end
 end

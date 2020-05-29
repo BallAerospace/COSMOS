@@ -116,6 +116,7 @@ module Cosmos
       @get_count = 0
       @bad_temp2 = false
       @last_temp2 = 0
+      @need_unknown = true
     end
 
     def set_rates
@@ -321,9 +322,12 @@ module Cosmos
         end
       end
 
-      # Every 10s throw an unknown packet at the server just to demo that
+      # At 10s throw an unknown packet at the server just to demo that
       data = Array.new(10) { rand(0..255) }.pack("C*")
-      pending_packets << Packet.new(nil, nil, :BIG_ENDIAN, nil, data) if @get_count % 1000 == 0
+      if @need_unknown and @get_count % 1000 == 999
+        pending_packets << Packet.new(nil, nil, :BIG_ENDIAN, nil, data)
+        @need_unknown = false
+      end
 
       @get_count += 1
       pending_packets

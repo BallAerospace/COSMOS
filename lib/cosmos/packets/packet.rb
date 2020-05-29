@@ -186,9 +186,9 @@ module Cosmos
         @read_conversion_cache.clear if @read_conversion_cache
         @received_count
       end
-      
-    end # if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']      
-      
+
+    end # if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+
     # Tries to identify if a buffer represents the currently defined packet. It
     # does this by iterating over all the packet items that were created with
     # an ID value and checking whether that ID value is present at the correct
@@ -216,7 +216,7 @@ module Cosmos
 
       true
     end
-    
+
     # Reads the values from a buffer at the position of each id_item defined
     # in the packet.
     #
@@ -226,7 +226,7 @@ module Cosmos
       return [] unless buffer
       return [] unless @id_items
       values = []
-      
+
       @id_items.each do |item|
         begin
           values << read_item(item, :RAW, buffer)
@@ -234,10 +234,10 @@ module Cosmos
           values << nil
         end
       end
-      
+
       values
     end
-    
+
     # Returns @received_time unless a packet item called PACKET_TIME exists that returns
     # a Ruby Time object that represents a different timestamp for the packet
     def packet_time
@@ -933,6 +933,47 @@ module Cosmos
         if item.data_type == :DERIVED
           unless RESERVED_ITEM_NAMES.include?(item.name)
             config << item.to_config(cmd_or_tlm, @default_endianness)
+          end
+        end
+      end
+
+      config
+    end
+
+    def as_json
+      config = {}
+      config['target_name'] = self.target_name.to_s
+      config['packet_name'] = self.packet_name.to_s
+      config['endianness'] = @default_endianness.to_s
+      config['description'] = self.description
+      config['short_buffer_allowed'] = true if self.short_buffer_allowed
+      config['hazardous_description'] = self.hazardous_description.to_s if self.hazardous
+      config['messages_disabled'] = true if self.messages_disabled
+      config['disabled'] = true if self.disabled
+      config['hidden'] = true if self.hidden
+
+      if @processors
+        processors = []
+        config['processors'] = processors
+        @processors.each do |processor_name, processor|
+          processors << processor.as_json
+        end
+      end
+
+      config['meta'] = @meta if @meta
+
+      items = []
+      config['items'] = items
+      # Items with derived items last
+      self.sorted_items.each do |item|
+        if item.data_type != :DERIVED
+          items << item.as_json
+        end
+      end
+      self.sorted_items.each do |item|
+        if item.data_type == :DERIVED
+          unless RESERVED_ITEM_NAMES.include?(item.name)
+            items << item.as_json
           end
         end
       end

@@ -48,5 +48,9 @@ module Cosmos
     def to_config(read_or_write)
       "    #{read_or_write}_CONVERSION #{self.class.name.class_name_to_filename}\n"
     end
+
+    def as_json
+      { 'class' => self.class.name.to_s }
+    end
   end
 end

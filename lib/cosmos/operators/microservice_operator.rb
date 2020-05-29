@@ -11,6 +11,7 @@
 require 'cosmos'
 require 'cosmos/operators/operator'
 require 'redis'
+require 'open3'
 
 module Cosmos
 
@@ -28,7 +29,13 @@ module Cosmos
         filename = microservice_config_parsed["filename"]
         relative_filename = File.join(__dir__, "../microservices/#{filename}")
         if File.exist?(relative_filename)
-          @process_definitions << [@ruby_process_name, relative_filename, microservice_name]
+          # Run ruby syntax so we can log those
+          syntax_check, _ = Open3.capture2e("ruby -c #{relative_filename}")
+          if syntax_check =~ /Syntax OK/
+            @process_definitions << [@ruby_process_name, relative_filename, microservice_name]
+          else
+            Logger.error("Microservice #{relative_filename} failed syntax check\n#{syntax_check}")
+          end
         else
           Logger.error("Microservice #{relative_filename} does not exist")
         end

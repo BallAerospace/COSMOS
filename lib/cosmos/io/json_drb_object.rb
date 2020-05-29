@@ -53,7 +53,7 @@ module Cosmos
       @response_data = ""
       @hostname = hostname
       @port = port
-      @uri = URI("http://#{@hostname}:#{@port}")
+      @uri = URI("http://#{@hostname}:#{@port}/api")
       @http = nil
       @mutex = Mutex.new
       @id = 0

@@ -24,13 +24,10 @@ module Cosmos
     end
 
     def cvt_data(kafka_message)
+      target_name = kafka_message.headers["target_name"]
+      packet_name = kafka_message.headers["packet_name"]
       json_hash = JSON.parse(kafka_message.value)
-      cvt_hash = {}
-      json_hash.each do |key, value|
-        cvt_hash["#{target_name}__#{packet_name}__#{key}"] = value
-      end
-
-      @redis.mapped_mset(cvt_hash)
+      @redis.mapped_hmset("tlm__#{target_name}__#{packet_name}", json_hash)
     end
   end
 end

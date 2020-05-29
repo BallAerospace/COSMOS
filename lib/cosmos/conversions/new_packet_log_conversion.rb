@@ -47,6 +47,10 @@ module Cosmos
       "    #{read_or_write}_CONVERSION #{self.class.name.class_name_to_filename} #{@packet_log_write_name}\n"
     end
 
+    def as_json
+      { 'class' => self.class.name.to_s, 'params' => [@packet_log_write_name] }
+    end
+
   end # class NewPacketLogConversion
 
 end # module Cosmos

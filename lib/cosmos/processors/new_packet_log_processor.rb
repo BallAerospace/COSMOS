@@ -34,6 +34,10 @@ module Cosmos
       "  PROCESSOR #{@name} #{self.class.name.to_s.class_name_to_filename} #{@packet_log_writer_name}\n"
     end
 
+    def as_json
+      {'name' => @name, 'class' => self.class.name, 'params' => [@packet_log_writer_name]}
+    end
+
   end # class NewPacketLogProcessor
 
 end # module Cosmos

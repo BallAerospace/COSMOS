@@ -134,6 +134,14 @@ module Cosmos
       config
     end
 
+    def as_json
+      params = []
+      @segments.each do |segment|
+        params << [segment.lower_bound, segment.coeffs]
+      end
+      { 'class' => self.class.name.to_s, 'params' => params }
+    end
+
   end # class SegmentedPolynomialConversion
 
 end # module Cosmos
