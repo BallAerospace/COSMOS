@@ -88,7 +88,7 @@ module Cosmos
     attr_reader :disconnect
 
     # The default configuration file name
-    DEFAULT_CONFIG_FILE = File.join(File.join(ENV['COSMOS_DEVEL'], "demo"), 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
+    DEFAULT_CONFIG_FILE = File.join(File.join(ENV['COSMOS_DEVEL'], "demo", 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
     # The maximum number of limits events that are queued. Used when
     # subscribing to limits events.
     DEFAULT_LIMITS_EVENT_QUEUE_SIZE = 1000
@@ -156,7 +156,7 @@ module Cosmos
       @next_server_message_queue_id = 1
 
       # Process cmd_tlm_server.txt
-      @system_config = SystemConfig.new(File.join(ENV['COSMOS_DEVEL'], "demo"), "config/system/system.txt")
+      @system_config = SystemConfig.new(File.join(ENV['COSMOS_DEVEL'], "demo", "config/system/system.txt"))
       @config = CmdTlmServerConfig.new(config_file, @system_config)
       @background_tasks = BackgroundTasks.new(@config)
       @commanding = Commanding.new(@config)
