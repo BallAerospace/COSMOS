@@ -105,6 +105,7 @@ module Cosmos
         'get_target_info',
         'get_target_ignored_parameters',
         'get_target_ignored_items',
+        'get_packet_derived_items',
         'get_interface_info',
         'get_all_interface_info',
         'get_router_info',
@@ -1366,6 +1367,23 @@ module Cosmos
       target = System.targets[target_name.upcase]
       raise "Unknown target: #{target_name}" unless target
       return target.ignored_items
+    end
+
+    # Get the list of derived telemetry items for a packet
+    #
+    # @param target_name [String] Target name
+    # @param packet_name [String] Packet name
+    # @return [Array<String>] All of the ignored telemetry items for a packet.
+    def get_packet_derived_items(target_name, packet_name)
+      packet = System.telemetry.packet(target_name, packet_name)
+      raise "Unknown target or packet: #{target_name} #{packet_name}" unless packet
+      derived = []
+      packet.items.each do |name, item|
+        if item.data_type == :DERIVED
+          derived << name
+        end
+      end
+      return derived
     end
 
     # Get information about an interface

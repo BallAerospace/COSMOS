@@ -69,6 +69,10 @@ module Cosmos
       return $cmd_tlm_server.get_target_ignored_items(target_name)
     end
 
+    def get_packet_derived_items(target_name, packet_name)
+      return $cmd_tlm_server.get_packet_derived_items(target_name, packet_name)
+    end
+
     def get_interface_info(interface_name)
       return $cmd_tlm_server.get_interface_info(interface_name)
     end
@@ -207,7 +211,7 @@ module Cosmos
 
     def get_output_logs_filenames(filter = '*tlm.bin')
       return $cmd_tlm_server.get_output_logs_filenames(filter)
-    end    
+    end
 
     def get_saved_config(configuration_name = nil)
       return $cmd_tlm_server.get_saved_config(configuration_name)
