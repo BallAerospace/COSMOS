@@ -20,6 +20,10 @@ module Cosmos
       @redis ||= Redis.new(url: "redis://localhost:6379/0")
     end
 
+    def update_interface(interface)
+      @redis.hset("cosmos_interfaces", interface.name, JSON.generate(interface.to_info_hash))
+    end
+
     def cmd_interface(interface_name, target_name, cmd_name, cmd_params, range_check, hazardous_check, raw)
       @redis.xadd("CMDINTERFACE__#{interface_name}", { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
     end

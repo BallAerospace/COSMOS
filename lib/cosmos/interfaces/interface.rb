@@ -298,6 +298,18 @@ module Cosmos
       raise err
     end
 
+    def to_info_hash
+      if connected?
+        state = 'CONNECTED'
+      elsif @thread
+        state = 'ATTEMPTING'
+      else
+        state = 'DISCONNECTED'
+      end
+      return { state: state, clients: @num_clients, txsize: @write_queue_size, rxsize: @read_queue_size,
+               txbytes: @bytes_written, rxbytes: @bytes_read, cmdcnt: @write_count, tlmcnt: @read_count }
+    end
+
     # @return [Boolean] Whether reading is allowed
     def read_allowed?
       @read_allowed

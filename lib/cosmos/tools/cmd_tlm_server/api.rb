@@ -1394,7 +1394,14 @@ module Cosmos
     #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
     #   Telemetry count] for the interface
     def get_interface_info(interface_name)
-      CmdTlmServer.interfaces.get_info(interface_name)
+      info = []
+      REDIS.with do |redis|
+        json = redis.hget('cosmos_interfaces', interface_name)
+        int = JSON.parse(json)
+        info = [int['state'], int['clients'], int['txsize'], int['rxsize'],\
+                int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
+      end
+      info
     end
 
     # Get information about all interfaces
@@ -1405,8 +1412,13 @@ module Cosmos
     #   Telemetry count] for all interfaces
     def get_all_interface_info
       info = []
-      CmdTlmServer.interfaces.names.sort.each do |interface_name|
-        info << [interface_name].concat(CmdTlmServer.interfaces.get_info(interface_name))
+      REDIS.with do |redis|
+        interfaces = redis.hgetall('cosmos_interfaces')
+        interfaces.each do |name, json|
+          int = JSON.parse(json)
+          info << [name, int['state'], int['clients'], int['txsize'], int['rxsize'],\
+                   int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
+        end
       end
       info
     end
