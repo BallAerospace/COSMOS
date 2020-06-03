@@ -473,8 +473,9 @@ module Cosmos
       target_name, packet_name, item_name = tlm_process_args(args, 'tlm')
       REDIS.with do |conn|
         result = conn.hmget("tlm__#{target_name}__#{packet_name}", "#{item_name}__C", item_name)
-        return result[0] if result[0]
-        return result[1]
+        return JSON.parse(result[0]) if result[0]
+        return JSON.parse(result[1]) if result[1]
+        return nil
       end
     end
 
@@ -493,7 +494,8 @@ module Cosmos
       target_name, packet_name, item_name = tlm_process_args(args, 'tlm_raw')
       REDIS.with do |conn|
         result = conn.hmget("tlm__#{target_name}__#{packet_name}", item_name)
-        return result[0]
+        return JSON.parse(result[0]) if result[0]
+        return nil
       end
     end
 
@@ -515,9 +517,9 @@ module Cosmos
           "#{item_name}__F",
           "#{item_name}__C",
           item_name)
-        return result[0].to_s if result[0]
-        return result[1].to_s if result[1]
-        return result[2].to_s if result[2]
+        return JSON.parse(result[0].to_s) if result[0]
+        return JSON.parse(result[1].to_s) if result[1]
+        return JSON.parse(result[2].to_s) if result[2]
         return nil
       end
     end
@@ -540,10 +542,10 @@ module Cosmos
           "#{item_name}__F",
           "#{item_name}__C",
           item_name)
-        return result[0].to_s if result[0]
-        return result[1].to_s if result[1]
-        return result[2].to_s if result[2]
-        return result[3].to_s if result[3]
+        return JSON.parse(result[0].to_s) if result[0]
+        return JSON.parse(result[1].to_s) if result[1]
+        return JSON.parse(result[2].to_s) if result[2]
+        return JSON.parse(result[3].to_s) if result[3]
         return nil
       end
     end
@@ -950,24 +952,28 @@ module Cosmos
           result = full_result[index]
           if result[0]
             if value_type == :FORMATTED or value_type == :WITH_UNITS
-              items << result[0].to_s
+              items << JSON.parse(result[0]).to_s
             else
-              items << result[0]
+              items << JSON.parse(result[0])
             end
           elsif result[1]
             if value_type == :FORMATTED or value_type == :WITH_UNITS
-              items << result[1].to_s
+              items << JSON.parse(result[1]).to_s
             else
-              items << result[0]
+              items << JSON.parse(result[1])
             end
           elsif result[2]
-            items << result[2].to_s
+            items << JSON.parse(result[2]).to_s
           elsif result[3]
-            items << result[3].to_s
+            items << JSON.parse(result[3]).to_s
           else
             items << nil
           end
-          states << result[-1].to_s
+          if result[-1]
+            states << JSON.parse(result[-1]).to_s
+          else
+            states << nil
+          end
           settings << nil # TODO: Modify API to not include this or limits_set
         end
       end

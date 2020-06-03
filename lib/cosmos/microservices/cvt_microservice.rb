@@ -27,7 +27,12 @@ module Cosmos
       target_name = kafka_message.headers["target_name"]
       packet_name = kafka_message.headers["packet_name"]
       json_hash = JSON.parse(kafka_message.value)
-      @redis.mapped_hmset("tlm__#{target_name}__#{packet_name}", json_hash)
+      # JSON encode each value to keep data types
+      updated_json_hash = {}
+      json_hash.each do |key, value|
+        updated_json_hash[key] = JSON.generate(value.as_json)
+      end
+      @redis.mapped_hmset("tlm__#{target_name}__#{packet_name}", updated_json_hash)
     end
   end
 end
