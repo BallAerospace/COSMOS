@@ -484,6 +484,30 @@ def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil)
   end
 end
 
+def get_redis_keys
+  redis = Redis.new(url: "redis://localhost:6379/0")
+  puts "\n--- COSMOS Redis database keys ---"
+  cursor = 0
+  keys = []
+  loop do
+    cursor, result = redis.scan(cursor)
+    keys.concat(result)
+    cursor = cursor.to_i # cursor is returned as a string
+    break if cursor == 0
+  end
+  keys.uniq!
+  keys.sort!
+  keys.select {|item| !item[/^tlm__/] }.each do |key|
+    begin
+      puts "#{key}\n  #{redis.hkeys(key)}"
+    rescue Redis::CommandError
+      # CommandError is raised if you try to hkeys on a stream
+      puts "Stream: #{key}\n  #{redis.xinfo(:stream, key)}"
+    end
+  end
+  puts "Packets Defs: #{keys.select{|item| item[/^tlm__/]}}"
+end
+
 if not ARGV[0].nil? # argument(s) given
 
   Cosmos::Logger.stdout = true
@@ -517,6 +541,15 @@ if not ARGV[0].nil? # argument(s) given
 
   when 'help'
     print_usage()
+
+  when 'redis'
+    # case(ARGV[1])
+    # when 'keys'
+    get_redis_keys()
+    # else
+    #   puts "Unknown redis task: #{ARGV[1]}\n"
+    #   puts "Valid redis tasks: keys"
+    # end
 
   else # Unknown task
     puts "Unknown task: #{ARGV[0]}\n"
