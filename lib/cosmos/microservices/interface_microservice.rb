@@ -13,8 +13,9 @@ require 'cosmos/utilities/store'
 
 module Cosmos
   class InterfaceCmdHandlerThread
-    def initialize(interface)
+    def initialize(interface, store)
       @interface = interface
+      @store = store
     end
 
     def start
@@ -28,8 +29,7 @@ module Cosmos
     end
 
     def run
-      store = Store.new
-      store.receive_commands(@interface) do |target_name, cmd_name, cmd_params, range_check, hazardous_check, raw|
+      @store.receive_commands(@interface) do |target_name, cmd_name, cmd_params, range_check, hazardous_check, raw|
         begin
           # Build the command
           begin
@@ -57,6 +57,7 @@ module Cosmos
 
           begin
             @interface.write(command)
+            @store.update_interface(@interface)
           rescue => e
             Logger.error e.formatted
             # TODO: Need to ack with error
@@ -75,6 +76,8 @@ module Cosmos
       interface_name = name.split("__")[1]
       @interface = Cosmos.require_class(@config['interface_params'][0]).new(*@config['interface_params'][1..-1])
       @interface.name = interface_name
+      @store = Store.new
+      @store.update_interface(@interface)
       @config["target_list"].each do |item|
         @interface.target_names << item["target_name"]
       end
@@ -85,7 +88,7 @@ module Cosmos
       @connection_lost_messages = []
       @mutex = Mutex.new
       @kafka_producer = @kafka_client.async_producer(delivery_interval: 1)
-      @cmd_thread = InterfaceCmdHandlerThread.new(@interface)
+      @cmd_thread = InterfaceCmdHandlerThread.new(@interface, @store)
       @cmd_thread.start
     end
 
@@ -147,16 +150,17 @@ module Cosmos
         Logger.error "Packet reading thread unexpectedly died for #{@interface.name}\n#{error.formatted}"
         Cosmos.handle_fatal_exception(error)
       end
+      @store.update_interface(@interface)
       Logger.info "Stopped packet reading for #{@interface.name}"
     end
 
     def handle_packet(packet)
+      @store.update_interface(@interface)
       headers = {time: packet.received_time, stored: packet.stored}
       headers[:target_name] = packet.target_name if packet.target_name
       headers[:packet_name] = packet.packet_name if packet.packet_name
       @kafka_producer.produce(packet.buffer, topic: "INTERFACE__#{@interface.name}", :headers => headers)
       @kafka_producer.deliver_messages
-      #Logger.info "Produce to INTERFACE__#{@interface.name}"
     end
 
     def handle_connection_failed(connect_error)
@@ -206,11 +210,13 @@ module Cosmos
     def connect
       Logger.info "Connecting to #{@interface.name}..."
       @interface.connect
+      @store.update_interface(@interface)
       Logger.info "#{@interface.name} Connection Success"
     end
 
     def disconnect
       @interface.disconnect
+      @store.update_interface(@interface)
 
       # If the interface is set to auto_reconnect then delay so the thread
       # can come back around and allow the interface a chance to reconnect.

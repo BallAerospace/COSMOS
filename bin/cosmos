@@ -414,7 +414,7 @@ def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil)
 
   # Configure microservices
   # TODO: Need to only clear out old microservices that are unneeded for the current PROGRAM
-  # For not just clear them all
+  # For now just clear them all
   redis.del('cosmos_microservices')
 
   cmd_tlm_server_config.interfaces.each do |interface_name, interface|
