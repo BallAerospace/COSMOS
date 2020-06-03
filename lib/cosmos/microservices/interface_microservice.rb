@@ -13,9 +13,8 @@ require 'cosmos/utilities/store'
 
 module Cosmos
   class InterfaceCmdHandlerThread
-    def initialize(interface, store)
+    def initialize(interface)
       @interface = interface
-      @store = store
     end
 
     def start
@@ -29,7 +28,8 @@ module Cosmos
     end
 
     def run
-      @store.receive_commands(@interface) do |target_name, cmd_name, cmd_params, range_check, hazardous_check, raw|
+      store = Store.new
+      store.receive_commands(@interface) do |target_name, cmd_name, cmd_params, range_check, hazardous_check, raw|
         begin
           # Build the command
           begin
@@ -57,7 +57,7 @@ module Cosmos
 
           begin
             @interface.write(command)
-            @store.update_interface(@interface)
+            store.update_interface(@interface)
           rescue => e
             Logger.error e.formatted
             # TODO: Need to ack with error
@@ -87,8 +87,8 @@ module Cosmos
       @connection_failed_messages = []
       @connection_lost_messages = []
       @mutex = Mutex.new
-      @kafka_producer = @kafka_client.async_producer(delivery_interval: 1)
-      @cmd_thread = InterfaceCmdHandlerThread.new(@interface, @store)
+      # @kafka_producer = @kafka_client.async_producer(delivery_interval: 1)
+      @cmd_thread = InterfaceCmdHandlerThread.new(@interface)
       @cmd_thread.start
     end
 
@@ -159,8 +159,8 @@ module Cosmos
       headers = {time: packet.received_time, stored: packet.stored}
       headers[:target_name] = packet.target_name if packet.target_name
       headers[:packet_name] = packet.packet_name if packet.packet_name
-      @kafka_producer.produce(packet.buffer, topic: "INTERFACE__#{@interface.name}", :headers => headers)
-      @kafka_producer.deliver_messages
+      # @kafka_producer.produce(packet.buffer, topic: "INTERFACE__#{@interface.name}", :headers => headers)
+      # @kafka_producer.deliver_messages
     end
 
     def handle_connection_failed(connect_error)
@@ -243,9 +243,9 @@ module Cosmos
       Cosmos.kill_thread(self, @interface_thread) if @interface_thread and @interface_thread != Thread.current
       #Cosmos.kill_thread(self, @identify_thread) if @identify_thread and @identify_thread != Thread.current
       #Cosmos.kill_thread(self, @decom_thread) if @decom_thread and @decom_thread != Thread.current
-      @kafka_producer.shutdown if @kafka_producer
-      #@kafka_identify_producer.shutdown if @kafka_identify_producer
-      #@kafka_decom_producer.shutdown if @kafka_decom_producer
+      # @kafka_producer.shutdown if @kafka_producer
+      # @kafka_identify_producer.shutdown if @kafka_identify_producer
+      # @kafka_decom_producer.shutdown if @kafka_decom_producer
     end
 
     def shutdown(sig = nil)

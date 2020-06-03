@@ -395,7 +395,8 @@ def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil)
 
   # Save configuration to redis
   redis.del("cosmos_system")
-  redis.hset('cosmos_system', 'limits_set', 'DEFAULT')
+  redis.hset('cosmos_system', 'limits_set', 'DEFAULT') # Current
+  redis.hset('cosmos_system', 'limits_sets', JSON.generate(['DEFAULT'])) # Array of possible sets
   redis.hset('cosmos_system', 'target_names', JSON.generate(target_names))
   Cosmos::System.telemetry.all.each do |target_name, packets|
     redis.del("cosmostlm__#{target_name}")

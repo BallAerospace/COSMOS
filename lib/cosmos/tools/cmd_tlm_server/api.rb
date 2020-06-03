@@ -1139,7 +1139,9 @@ module Cosmos
     #
     # @return [Array<Symbol>] All defined limits sets
     def get_limits_sets
-      return System.limits.sets
+      REDIS.with do |redis|
+        return JSON.parse(redis.hget('cosmos_system', 'limits_sets'))
+      end
     end
 
     # Changes the active limits set that applies to all telemetry
@@ -1168,9 +1170,6 @@ module Cosmos
     #
     # @return [Array<String>] All target names
     def get_target_list
-      #list = []
-      #System.targets.each_key {|target_name| list << target_name }
-      #return list.sort
       REDIS.with do |redis|
         return JSON.parse(redis.hget('cosmos_system', 'target_names'))
       end
@@ -1330,9 +1329,11 @@ module Cosmos
     # @param target_name [String] Target name
     # @return [Array<Numeric, Numeric>] Array of \[cmd_cnt, tlm_cnt]
     def get_target_info(target_name)
-      target = System.targets[target_name.upcase]
-      raise "Unknown target: #{target_name}" unless target
-      return [target.cmd_cnt, target.tlm_cnt]
+      REDIS.with do |redis|
+        int_info = JSON.parse(redis.hget('cosmos_interfaces', name))
+      end
+      raise "Unknown target: #{target_name}" unless int_info
+      return [int_info['cmd_cnt'], target['tlm_cnt']]
     end
 
     # Get information about all targets
@@ -1340,9 +1341,17 @@ module Cosmos
     # @return [Array<Array<String, Numeric, Numeric>] Array of Arrays \[name, cmd_cnt, tlm_cnt]
     def get_all_target_info
       info = []
-      System.targets.sort.each do |target_name, target|
-        interface_name = target.interface ? target.interface.name : ''
-        info << [target_name, interface_name, target.cmd_cnt, target.tlm_cnt]
+      REDIS.with do |redis|
+        config = redis.hgetall('cosmos_microservices')
+        config.each do |key, json|
+          next unless key.include?('INTERFACE__')
+          config = JSON.parse(json)
+          name = key.split('__')[1]
+          int_info = JSON.parse(redis.hget('cosmos_interfaces', name))
+          config['target_list'].each do |target|
+            info << [target['target_name'], name, int_info['cmdcnt'], int_info['tlmcnt'] ]
+          end
+        end
       end
       info
     end
@@ -1473,9 +1482,12 @@ module Cosmos
     # @return [Numeric] Transmit count for the command
     def get_all_cmd_info
       info = []
-      System.commands.all.sort.each do |target_name, packets|
-        packets.sort.each do |packet_name, packet|
-          info << [target_name, packet_name, packet.received_count]
+      REDIS.with do |redis|
+        targets = JSON.parse(redis.hget('cosmos_system', 'target_names'))
+        targets.each do |target|
+          redis.hgetall("cosmoscmd__#{target}").each do |packet, json|
+            info << [target, packet, 0] # TODO how to get cmd count
+          end
         end
       end
       info
@@ -1486,9 +1498,12 @@ module Cosmos
     # @return [Numeric] Receive count for the telemetry packet
     def get_all_tlm_info
       info = []
-      System.telemetry.all.sort.each do |target_name, packets|
-        packets.sort.each do |packet_name, packet|
-          info << [target_name, packet_name, packet.received_count]
+      REDIS.with do |redis|
+        targets = JSON.parse(redis.hget('cosmos_system', 'target_names'))
+        targets.each do |target|
+          redis.hgetall("cosmostlm__#{target}").each do |packet, json|
+            info << [target, packet, 0] # TODO how to get tlm count
+          end
         end
       end
       info
@@ -1542,15 +1557,15 @@ module Cosmos
     #   the background task name, thread status, and task status
     def get_background_tasks
       result = []
-      CmdTlmServer.background_tasks.all.each do |task|
-        if task.thread
-          thread_status = task.thread.status
-          thread_status = 'complete' if thread_status == false
-        else
-          thread_status = 'no thread'
-        end
-        result << [task.name, thread_status, task.status]
-      end
+      # CmdTlmServer.background_tasks.all.each do |task|
+      #   if task.thread
+      #     thread_status = task.thread.status
+      #     thread_status = 'complete' if thread_status == false
+      #   else
+      #     thread_status = 'no thread'
+      #   end
+      #   result << [task.name, thread_status, task.status]
+      # end
       result
     end
 
@@ -1581,11 +1596,17 @@ module Cosmos
     #   JSON DRB request count, JSON DRB average request time, and the total
     #   number of Ruby threads in the server/
     def get_server_status
-      [ System.limits_set.to_s,
-        CmdTlmServer.mode == :CMD_TLM_SERVER ? System.ports['CTS_API'] : System.ports['REPLAY_API'],
-        CmdTlmServer.json_drb.num_clients,
-        CmdTlmServer.json_drb.request_count,
-        CmdTlmServer.json_drb.average_request_time,
+      set = ''
+      REDIS.with do |redis|
+        set = redis.hget('cosmos_system', 'limits_set')
+        STDOUT.puts "set:#{set}"
+      end
+      [ set, 0, 0, 0, 0,
+        # TODO: What do we want to expose here?
+        # CmdTlmServer.mode == :CMD_TLM_SERVER ? System.ports['CTS_API'] : System.ports['REPLAY_API'],
+        # CmdTlmServer.json_drb.num_clients,
+        # CmdTlmServer.json_drb.request_count,
+        # CmdTlmServer.json_drb.average_request_time,
         Thread.list.length
       ]
     end
