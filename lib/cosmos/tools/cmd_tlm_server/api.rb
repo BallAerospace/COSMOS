@@ -927,11 +927,8 @@ module Cosmos
     # @return [Array<String, Hash, String>] Array of \[item name, item states,
     #   item description]
     def get_tlm_item_list(target_name, packet_name)
-      list = []
-      System.telemetry.items(target_name, packet_name).each do |item|
-        list << [item.name, item.states, item.description]
-      end
-      list
+      packet = Store.instance.get_packet(target_name, packet_name)
+      return packet['items'].map {|item| [item['name'], item['states'], item['description']] }
     end
 
     # Returns an array of Hashes with all the attributes of the item.
@@ -1035,7 +1032,14 @@ module Cosmos
     #
     # @return [Hash{String => Array<Number, Number, Number, Number, Number, Number>}]
     def get_limits(target_name, packet_name, item_name)
-      Store.instance.get_limits(target_name, packet_name, item_name)
+      limits = {}
+      packet = Store.instance.get_packet(target_name, packet_name)
+      item = packet['items'].find {|item| item['name'] == item_name }
+      item['limits'].each do |key, vals|
+        limits[key] = [vals['red_low'], vals['yellow_low'], vals['yellow_high'], vals['red_high']]
+        limits[key].concat([vals['green_low'], vals['green_high']]) if vals['green_low']
+      end
+      return limits
     end
 
     def set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true)
