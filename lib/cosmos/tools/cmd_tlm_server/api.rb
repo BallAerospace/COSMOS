@@ -14,16 +14,8 @@ require 'cosmos/tools/tlm_viewer/tlm_viewer_config'
 require 'cosmos/utilities/store'
 require 'connection_pool'
 require 'redis'
-require 'kafka'
-
-$api_id = 0
-def gen_kafka_client_id
-  $api_id += 1
-  "api_#{$api_id}"
-end
 
 REDIS = ConnectionPool.new(size: 10) { Redis.new(url: "redis://localhost:6379/0") }
-KAFKA = ConnectionPool.new(size: 10) { Kafka.new(["localhost:29092"], client_id: gen_kafka_client_id()) }
 
 module Cosmos
 
@@ -658,7 +650,7 @@ module Cosmos
     def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true, send_packet_log_writers = true, create_new_logs = false)
 
       # TODO: This API will probably need to change
-      # Requires having the packet definition if injecting into IDENTIFY Kafka stream, or could just
+      # Requires having the packet definition if injecting into IDENTIFY stream, or could just
       # directly inject into decom stream (but not as fully featured)
 
       received_time = Time.now
@@ -830,15 +822,12 @@ module Cosmos
     # @param packet_name [String] Name of the packet
     # @return [String] last telemetry packet buffer
     def get_tlm_buffer(target_name, packet_name)
-      KAFKA.with do |conn|
-        topic = "PACKET__#{target_name}__#{packet_name}"
-        offset = conn.last_offset_for(topic, 0)
-        messages = kafka.fetch_messages(topic: topic, partition: 0, offset: offset, max_wait_time: 0)
-        if messages.length > 0
-          return messages[-1].value
-        else
-          return nil
-        end
+      topic = "PACKET__#{target_name}__#{packet_name}"
+      msg_id, msg_hash = Store.instance.read_topic_last(topic)
+      if msg_id
+        return msg_hash['buffer']
+      else
+        return nil
       end
     end
 
@@ -862,35 +851,32 @@ module Cosmos
           desired_item_type = 'U'
         end
         result_hash = {}
-        KAFKA.with do |kafka|
-          topic = "DECOM__#{target_name}__#{packet_name}"
-          offset = kafka.last_offset_for(topic, 0)
-          messages = kafka.fetch_messages(topic: topic, partition: 0, offset: offset, max_wait_time: 0)
-          if messages.length > 0
-            json = messages[-1].value
-            hash = JSON.parse(json)
-            # This should be ordered as desired... need to verify
-            hash.each do |key, value|
-              split_key = key.split("__")
-              item_name = split_key[0].to_s
-              item_type = split_key[1]
-              result_hash[item_name] ||= [item_name]
-              if item_type == 'L'
-                result_hash[item_name][2] = value
-              else
-                if item_type.to_s <= desired_item_type.to_s
-                  if desired_item_type == 'F' or desired_item_type == 'U'
-                    result_hash[item_name][1] = value.to_s
-                  else
-                    result_hash[item_name][1] = value
-                  end
+        topic = "DECOM__#{target_name}__#{packet_name}"
+        msg_id, msg_hash = Store.instance.read_topic_last(topic)
+        if msg_id
+          json = msg_hash['json_data']
+          hash = JSON.parse(json)
+          # This should be ordered as desired... need to verify
+          hash.each do |key, value|
+            split_key = key.split("__")
+            item_name = split_key[0].to_s
+            item_type = split_key[1]
+            result_hash[item_name] ||= [item_name]
+            if item_type == 'L'
+              result_hash[item_name][2] = value
+            else
+              if item_type.to_s <= desired_item_type.to_s
+                if desired_item_type == 'F' or desired_item_type == 'U'
+                  result_hash[item_name][1] = value.to_s
+                else
+                  result_hash[item_name][1] = value
                 end
               end
             end
-            return result_hash.values
-          else
-            return nil
           end
+          return result_hash.values
+        else
+          return nil
         end
       rescue Exception => err
         STDOUT.puts err.formatted
@@ -909,75 +895,8 @@ module Cosmos
     #   optionally green low and high, and the overall limits state which is
     #   one of {Cosmos::Limits::LIMITS_STATES}.
     def get_tlm_values(item_array, value_types = :CONVERTED)
-      # TODO: Consider removing or modifying this method to not include limits ranges or set
-      if !item_array.is_a?(Array) || (!item_array[0].is_a?(Array) and !item_array.empty?)
-        raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
-      end
-      return [[], [], [], System.limits_set] if item_array.empty?
-      if value_types.is_a?(Array)
-        elem = value_types[0]
-      else
-        elem = value_types
-      end
-      # Due to JSON round tripping from scripts, value_types can be a String
-      # so we must check for both Symbol and String
-      if !elem.is_a?(Symbol) && !elem.is_a?(String)
-        raise ArgumentError, "value_types must be a single symbol or array of symbols specifying the conversion method (:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS)"
-      end
-
-      items = []
-      states = []
-      settings = []
+      items, states, settings = Store.instance.get_tlm_values(item_array, value_types)
       limits_set = get_limits_set()
-
-      raise(ArgumentError, "Passed #{item_array.length} items but only #{value_types.length} value types") if (Array === value_types) and item_array.length != value_types.length
-
-      value_type = value_types.intern unless Array === value_types
-      REDIS.with do |redis|
-        store = Store.new(redis)
-        # Get all the stuff we need
-        full_result = redis.pipelined do
-          item_array.length.times do |index|
-            entry = item_array[index]
-            target_name = entry[0]
-            packet_name = entry[1]
-            item_name = entry[2]
-            value_type = value_types[index].intern if Array === value_types
-            store.tlm_variable_with_limits_state_gather(target_name, packet_name, item_name, value_type)
-          end
-        end
-        Logger.info full_result.inspect(10000)
-        item_array.length.times do |index|
-          value_type = value_types[index].intern if Array === value_types
-          result = full_result[index]
-          if result[0]
-            if value_type == :FORMATTED or value_type == :WITH_UNITS
-              items << JSON.parse(result[0]).to_s
-            else
-              items << JSON.parse(result[0])
-            end
-          elsif result[1]
-            if value_type == :FORMATTED or value_type == :WITH_UNITS
-              items << JSON.parse(result[1]).to_s
-            else
-              items << JSON.parse(result[1])
-            end
-          elsif result[2]
-            items << JSON.parse(result[2]).to_s
-          elsif result[3]
-            items << JSON.parse(result[3]).to_s
-          else
-            items << nil
-          end
-          if result[-1]
-            states << JSON.parse(result[-1]).to_s
-          else
-            states << nil
-          end
-          settings << nil # TODO: Modify API to not include this or limits_set
-        end
-      end
-
       return [items, states, settings, limits_set]
     end
 
@@ -1875,10 +1794,7 @@ module Cosmos
       # Send the command
       @disconnect = false unless defined? @disconnect
       unless @disconnect
-        REDIS.with do |redis|
-          store = Store.new(redis)
-          store.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw)
-        end
+        store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw)
       end
 
       [target_name, cmd_name, cmd_params]

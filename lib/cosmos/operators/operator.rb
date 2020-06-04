@@ -42,29 +42,25 @@ module Cosmos
         @processes[-1].start
       end
 
-      # Setup signal handlers to shutdown cleanly
-      ["TERM", "INT"].each do |sig|
-        Signal.trap(sig) do
-          @shutdown = true
-          Thread.new do
-            @mutex.synchronize do
-              Logger.info("Shutting down processes...")
-              @processes.each_with_index do |p, index|
-                Thread.new do
-                  Logger.info("Soft Shutting down process: #{@process_definitions[index].join(' ')}")
-                  Process.kill("SIGINT", p.pid)
-                end
-              end
-              sleep(2)
-              @processes.each_with_index do |p, index|
-                unless p.exited?
-                  Logger.info("Hard Shutting down process: #{@process_definitions[index].join(' ')}")
-                  p.stop
-                end
-              end
-              @shutdown_complete = true
+      # Use at_exit to shutdown cleanly
+      at_exit do
+        @shutdown = true
+        @mutex.synchronize do
+          Logger.info("Shutting down processes...")
+          @processes.each_with_index do |p, index|
+            Thread.new do
+              Logger.info("Soft Shutting down process: #{@process_definitions[index].join(' ')}")
+              Process.kill("SIGINT", p.pid)
             end
           end
+          sleep(2)
+          @processes.each_with_index do |p, index|
+            unless p.exited?
+              Logger.info("Hard Shutting down process: #{@process_definitions[index].join(' ')}")
+              p.stop
+            end
+          end
+          @shutdown_complete = true
         end
       end
 

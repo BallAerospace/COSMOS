@@ -9,36 +9,34 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/microservices/microservice'
-require 'cosmos/io/json_rpc'
 
 module Cosmos
   class DecomMicroservice < Microservice
-    def initialize(name)
-      super(name)
-      @kafka_producer = @kafka_client.async_producer(delivery_interval: 1)
-    end
 
     def run
-      kafka_consumer_loop do |message|
+      while true
+        break if @cancel_thread
         begin
-          decom_packet(message)
-          break if @cancel_thread
+          Store.instance.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
+            break if @cancel_thread
+            decom_packet(topic, msg_id, msg_hash, redis)
+          end
         rescue => err
           Logger.error("Decom error: #{err.formatted}")
         end
       end
     end
 
-    def decom_packet(kafka_message)
+    def decom_packet(topic, msg_id, msg_hash, redis)
       # TODO: Could also pull this by splitting the topic name?
-      target_name = kafka_message.headers["target_name"]
-      packet_name = kafka_message.headers["packet_name"]
+      target_name = msg_hash["target_name"]
+      packet_name = msg_hash["packet_name"]
 
       packet = System.telemetry.packet(target_name, packet_name)
-      packet.stored = ConfigParser.handle_true_false(kafka_message.headers["stored"])
-      packet.received_time = Time.parse(kafka_message.headers["time"])
-      packet.received_count = kafka_message.headers["received_count"].to_i
-      packet.buffer = kafka_message.value
+      packet.stored = ConfigParser.handle_true_false(msg_hash["stored"])
+      packet.received_time = Time.parse(msg_hash["time"])
+      packet.received_count = msg_hash["received_count"].to_i
+      packet.buffer = msg_hash["buffer"]
       packet.check_limits
 
       # Need to build a JSON hash of the decommutated data
@@ -58,13 +56,10 @@ module Cosmos
         json_hash[item.name + "__L"] = limits_state if limits_state
       end
 
-      # Write to Kafka
-      headers = {time: packet.received_time, stored: packet.stored}
-      headers[:target_name] = packet.target_name
-      headers[:packet_name] = packet.packet_name
-      headers[:received_count] = packet.received_count
-      @kafka_producer.produce(JSON.generate(json_hash.as_json), topic: "DECOM__#{target_name}__#{packet_name}", :headers => headers)
-      @kafka_producer.deliver_messages
+      # Write to stream
+      msg_hash.delete("buffer")
+      msg_hash['json_data'] = JSON.generate(json_hash.as_json)
+      Store.instance.write_topic("DECOM__#{target_name}__#{packet_name}", msg_hash)
     end
   end
 end

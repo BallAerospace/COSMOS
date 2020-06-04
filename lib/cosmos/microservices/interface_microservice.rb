@@ -9,7 +9,6 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/microservices/microservice'
-require 'cosmos/utilities/store'
 
 module Cosmos
   class InterfaceCmdHandlerThread
@@ -28,8 +27,7 @@ module Cosmos
     end
 
     def run
-      store = Store.new
-      store.receive_commands(@interface) do |target_name, cmd_name, cmd_params, range_check, hazardous_check, raw|
+      Store.instance.receive_commands(@interface) do |target_name, cmd_name, cmd_params, range_check, hazardous_check, raw|
         begin
           # Build the command
           begin
@@ -71,13 +69,14 @@ module Cosmos
   end
 
   class InterfaceMicroservice < Microservice
+    UNKNOWN_BYTES_TO_PRINT = 16
+
     def initialize(name)
       super(name)
       interface_name = name.split("__")[1]
       @interface = Cosmos.require_class(@config['interface_params'][0]).new(*@config['interface_params'][1..-1])
       @interface.name = interface_name
-      @store = Store.new
-      @store.update_interface(@interface)
+      Store.instance.update_interface(@interface)
       @config["target_list"].each do |item|
         @interface.target_names << item["target_name"]
       end
@@ -87,7 +86,6 @@ module Cosmos
       @connection_failed_messages = []
       @connection_lost_messages = []
       @mutex = Mutex.new
-      # @kafka_producer = @kafka_client.async_producer(delivery_interval: 1)
       @cmd_thread = InterfaceCmdHandlerThread.new(@interface)
       @cmd_thread.start
     end
@@ -155,12 +153,67 @@ module Cosmos
     end
 
     def handle_packet(packet)
-      @store.update_interface(@interface)
-      headers = {time: packet.received_time, stored: packet.stored}
-      headers[:target_name] = packet.target_name if packet.target_name
-      headers[:packet_name] = packet.packet_name if packet.packet_name
-      # @kafka_producer.produce(packet.buffer, topic: "INTERFACE__#{@interface.name}", :headers => headers)
-      # @kafka_producer.deliver_messages
+      Store.instance.update_interface(@interface)
+
+      if packet.stored
+        # Stored telemetry does not update the current value table
+        identified_packet = System.telemetry.identify_and_define_packet(packet, @target_names)
+      else
+        # Identify and update packet
+        if packet.identified?
+          begin
+            # Preidentifed packet - place it into the current value table
+            identified_packet = System.telemetry.update!(packet.target_name,
+                                                          packet.packet_name,
+                                                          packet.buffer)
+          rescue RuntimeError
+            # Packet identified but we don't know about it
+            # Clear packet_name and target_name and try to identify
+            Logger.warn "Received unknown identified telemetry: #{packet.target_name} #{packet.packet_name}"
+            packet.target_name = nil
+            packet.packet_name = nil
+            identified_packet = System.telemetry.identify!(packet.buffer,
+                                                            @target_names)
+          end
+        else
+          # Packet needs to be identified
+          identified_packet = System.telemetry.identify!(packet.buffer,
+                                                          @target_names)
+        end
+      end
+
+      if identified_packet
+        identified_packet.received_time = packet.received_time
+        identified_packet.stored = packet.stored
+        identified_packet.extra = packet.extra
+          packet = identified_packet
+      else
+        unknown_packet = System.telemetry.update!('UNKNOWN', 'UNKNOWN', packet.buffer)
+        unknown_packet.received_time = packet.received_time
+        unknown_packet.stored = packet.stored
+        unknown_packet.extra = packet.extra
+        packet = unknown_packet
+        data_length = packet.length
+        string = "#{@interface_name} - Unknown #{data_length} byte packet starting: "
+        num_bytes_to_print = [UNKNOWN_BYTES_TO_PRINT, data_length].min
+        data_to_print = packet.buffer(false)[0..(num_bytes_to_print - 1)]
+        data_to_print.each_byte do |byte|
+          string << sprintf("%02X", byte)
+        end
+        Logger.error string
+      end
+
+      target = System.targets[packet.target_name]
+      target.tlm_cnt += 1 if target
+      packet.received_count += 1
+
+      # Write to stream
+      msg_hash = { time: packet.received_time, stored: packet.stored }
+      msg_hash[:target_name] = packet.target_name
+      msg_hash[:packet_name] = packet.packet_name
+      msg_hash[:received_count] = packet.received_count
+      msg_hash[:buffer] = packet.buffer(false)
+      Store.instance.write_topic("PACKET__#{packet.target_name}__#{packet.packet_name}", msg_hash)
     end
 
     def handle_connection_failed(connect_error)
@@ -210,13 +263,13 @@ module Cosmos
     def connect
       Logger.info "Connecting to #{@interface.name}..."
       @interface.connect
-      @store.update_interface(@interface)
+      Store.instance.update_interface(@interface)
       Logger.info "#{@interface.name} Connection Success"
     end
 
     def disconnect
       @interface.disconnect
-      @store.update_interface(@interface)
+      Store.instance.update_interface(@interface)
 
       # If the interface is set to auto_reconnect then delay so the thread
       # can come back around and allow the interface a chance to reconnect.
@@ -235,17 +288,10 @@ module Cosmos
         # Need to make sure that @cancel_thread is set and the interface disconnected within
         # mutex to ensure that connect() is not called when we want to stop()
         @cancel_thread = true
-        #@identify_consumer.stop if @identify_consumer
-        #@decom_consumer.stop if @decom_consumer
         @interface_thread_sleeper.cancel
         @interface.disconnect
       end
       Cosmos.kill_thread(self, @interface_thread) if @interface_thread and @interface_thread != Thread.current
-      #Cosmos.kill_thread(self, @identify_thread) if @identify_thread and @identify_thread != Thread.current
-      #Cosmos.kill_thread(self, @decom_thread) if @decom_thread and @decom_thread != Thread.current
-      # @kafka_producer.shutdown if @kafka_producer
-      # @kafka_identify_producer.shutdown if @kafka_identify_producer
-      # @kafka_decom_producer.shutdown if @kafka_decom_producer
     end
 
     def shutdown(sig = nil)

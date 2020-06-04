@@ -8,14 +8,15 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'kafka'
-require 'json'
-require 'redis'
-require 'fileutils'
-require 'aws-sdk-s3'
-require 'zip'
-require 'zip/filesystem'
 require 'cosmos'
+Cosmos.require_file 'json'
+Cosmos.require_file 'redis'
+Cosmos.require_file 'fileutils'
+Cosmos.require_file 'aws-sdk-s3'
+Cosmos.require_file 'zip'
+Cosmos.require_file 'zip/filesystem'
+Cosmos.require_file 'cosmos/io/json_rpc'
+Cosmos.require_file 'cosmos/utilities/store'
 
 Aws.config.update(
   endpoint: 'http://localhost:9000',
@@ -54,9 +55,11 @@ module Cosmos
       @config = @redis.hget('cosmos_microservices', name)
       if @config
         @config = JSON.parse(@config)
+        @topics = @config['topics']
       else
         @config = {}
       end
+      @topics ||= []
 
       # Get configuration for any targets from Minio/S3
       @target_list = @config["target_list"]
@@ -85,32 +88,10 @@ module Cosmos
       # Build System from targets
       System.instance(@target_list, "#{@temp_dir}/targets")
 
-      # Setup Kafka connection
-      @kafka_client = Kafka.new(["localhost:29092"], client_id: name)
-
       # Use at_exit to shutdown cleanly no matter how we are die
       at_exit do
         shutdown()
       end
-    end
-
-    def kafka_consumer_loop
-      begin
-        Logger.info "Starting Kafka subscription processing for #{@name}"
-
-        @consumer = @kafka_client.consumer(group_id: @name)
-        @config["topics"].each do |topic_name|
-          Logger.info("Microservice #{@name} subscribing to topic #{topic_name}")
-          @consumer.subscribe(topic_name)
-        end
-        @consumer.each_message do |message|
-          yield message
-        end
-      rescue Exception => error
-        Logger.error "Kafka subscription thread unexpectedly died for #{@name}"
-        Cosmos.handle_fatal_exception(error)
-      end
-      Logger.info "Stopped Kafka subscription processing for #{@name}"
     end
 
     def shutdown

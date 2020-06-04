@@ -433,13 +433,6 @@ def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil)
     redis.hset('cosmos_microservices', "INTERFACE__#{interface_name}", JSON.generate(config))
     puts "Configured microservice INTERFACE__#{interface_name}"
 
-    # Configure IdentifyMicroservice
-    topic_list = ["INTERFACE__#{interface_name}"]
-    next unless target_list.length > 0
-    config = { 'filename' => "identify_microservice.rb", 'target_list' => target_list, 'topics' => topic_list }
-    redis.hset('cosmos_microservices', "IDENTIFY__#{interface_name}", JSON.generate(config))
-    puts "Configured microservice IDENTIFY__#{interface_name}"
-
     # Configure DecomMicroservice
     packet_topic_list = []
     interface.target_names.each do |target_name|

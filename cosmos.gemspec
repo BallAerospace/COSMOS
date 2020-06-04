@@ -88,7 +88,6 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'puma', '~> 4.3'
   s.add_runtime_dependency 'rack', '~> 2.0'
   s.add_runtime_dependency 'httpclient', '~> 2.8'
-  s.add_runtime_dependency 'ruby-kafka', '~> 1.0'
   s.add_runtime_dependency 'fluent-logger', '~> 0.8'
   s.add_runtime_dependency 'redis', '~> 4.1'
   s.add_runtime_dependency 'childprocess', '~> 3.0'
