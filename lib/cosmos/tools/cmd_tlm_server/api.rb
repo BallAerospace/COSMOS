@@ -1025,12 +1025,19 @@ module Cosmos
       stale
     end
 
-    # (see Cosmos::Limits#get)
-    def get_limits(target_name, packet_name, item_name, limits_set = nil)
-      System.limits.get(target_name, packet_name, item_name, limits_set)
+    # Get a Hash of all the limits sets defined for an item. Hash keys are the limit
+    # set name in uppercase (note there is always a DEFAULT) and the value is an array
+    # of limit values: red low, yellow low, yellow high, red high, <green low, green high>.
+    # Green low and green high are optional.
+    #
+    # For example: {'DEFAULT' => [-80, -70, 60, 80, -20, 20],
+    #               'TVAC' => [-25, -10, 50, 55] }
+    #
+    # @return [Hash{String => Array<Number, Number, Number, Number, Number, Number>}]
+    def get_limits(target_name, packet_name, item_name)
+      Store.instance.get_limits(target_name, packet_name, item_name)
     end
 
-    # (see Cosmos::Limits#set)
     def set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true)
       result = System.limits.set(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low, green_high, limits_set, persistence, enabled)
       if result[0] != nil

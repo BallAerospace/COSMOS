@@ -150,6 +150,19 @@ module Cosmos
       return items, states, settings
     end
 
+    def get_limits(target_name, packet_name, item_name)
+      limits = {}
+      @redis_pool.with do |redis|
+        packet = JSON.parse(redis.hget("cosmostlm__#{target_name}", packet_name))
+        item = packet['items'].find {|item| item['name'] == item_name }
+        item['limits'].each do |key, vals|
+          limits[key] = [vals['red_low'], vals['yellow_low'], vals['yellow_high'], vals['red_high']]
+          limits[key].concat([vals['green_low'], vals['green_high']]) if vals['green_low']
+        end
+      end
+      return limits
+    end
+
     def tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type)
       key = "tlm__#{target_name}__#{packet_name}"
       case value_type

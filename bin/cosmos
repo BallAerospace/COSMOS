@@ -398,6 +398,10 @@ def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil)
   redis.hset('cosmos_system', 'limits_set', 'DEFAULT') # Current
   redis.hset('cosmos_system', 'limits_sets', JSON.generate(['DEFAULT'])) # Array of possible sets
   redis.hset('cosmos_system', 'target_names', JSON.generate(target_names))
+  Cosmos::System.targets.each do |target_name, target|
+    redis.hset('cosmos_targets', target_name, JSON.generate(target.as_json))
+  end
+
   Cosmos::System.telemetry.all.each do |target_name, packets|
     redis.del("cosmostlm__#{target_name}")
     packets.each do |packet_name, packet|
@@ -536,13 +540,16 @@ if not ARGV[0].nil? # argument(s) given
     print_usage()
 
   when 'redis'
-    # case(ARGV[1])
-    # when 'keys'
-    get_redis_keys()
-    # else
-    #   puts "Unknown redis task: #{ARGV[1]}\n"
-    #   puts "Valid redis tasks: keys"
-    # end
+    case(ARGV[1])
+    when 'keys'
+      get_redis_keys()
+    when 'hget'
+      redis = Redis.new(url: "redis://localhost:6379/0")
+      puts JSON.parse(redis.hget(ARGV[2], ARGV[3]))
+    else
+      puts "Unknown redis task: #{ARGV[1]}\n"
+      puts "Valid redis tasks: keys, hget"
+    end
 
   else # Unknown task
     puts "Unknown task: #{ARGV[0]}\n"

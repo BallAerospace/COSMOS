@@ -55,7 +55,7 @@ module Cosmos
 
           begin
             @interface.write(command)
-            store.update_interface(@interface)
+            Store.instance.update_interface(@interface)
           rescue => e
             Logger.error e.formatted
             # TODO: Need to ack with error
@@ -148,7 +148,7 @@ module Cosmos
         Logger.error "Packet reading thread unexpectedly died for #{@interface.name}\n#{error.formatted}"
         Cosmos.handle_fatal_exception(error)
       end
-      @store.update_interface(@interface)
+      Store.instance.update_interface(@interface)
       Logger.info "Stopped packet reading for #{@interface.name}"
     end
 

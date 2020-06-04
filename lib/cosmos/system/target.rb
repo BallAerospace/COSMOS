@@ -202,6 +202,26 @@ module Cosmos
       end
     end
 
+    def as_json
+      config = {}
+      config['name'] = @name
+      config['original_name'] = @original_name
+      config['substitute'] = true if @substitute
+      config['requires'] = @requires
+      config['ignored_parameters'] = @ignored_parameters
+      config['ignored_items'] = @ignored_items
+      config['auto_screen_substitute'] = true if @auto_screen_substitute
+      config['cmd_tlm_files'] = @cmd_tlm_files
+      config['filename'] = @filename
+      config['dir'] = @dir
+      config['cmd_cnt'] = @cmd_cnt
+      config['tlm_cnt'] = @tlm_cnt
+      config['cmd_unique_id_mode'] = true if @cmd_unique_id_mode
+      config['tlm_unique_id_mode'] = true if @tlm_unique_id_mode
+      config['id'] = @id
+      config
+    end
+
     protected
 
     # Get the target directory and add the target's lib folder to the
