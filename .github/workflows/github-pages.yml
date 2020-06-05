@@ -29,6 +29,10 @@ jobs:
       #   env:
       #     JEKYLL_PAT: ${{ secrets.JEKYLL_PAT }}
 
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+
       - uses: limjh16/jekyll-action-ts@v2
         with:
           enable_cache: true
