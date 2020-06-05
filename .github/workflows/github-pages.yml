@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          path: site
+          path: jekyll_site
 
       - uses: actions/checkout@v2
         with:
@@ -28,3 +28,5 @@ jobs:
       - uses: helaili/jekyll-action@2.0.3
         env:
           JEKYLL_PAT: ${{ secrets.JEKYLL_PAT }}
+        with:
+          jekyll_src: jekyll_site
