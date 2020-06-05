@@ -5,7 +5,7 @@
   <title>COSMOS Cmd/Tlm Naming</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -252,13 +252,13 @@
   <div class="post-content">
     <p>Recently a user asked if they could add exclamation points and question marks to their command and telemetry items. Absolutely!  COSMOS provides great flexibility in command and telemetry naming conventions. (See <a href="http://cosmosrb.com/docs/command">Command</a>). For example, adding an exclamation point to a command to denote a more severe version of the same command:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND TGT ABORT BIG_ENDIAN "Tries to abort a collect on the instrument"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND TGT ABORT BIG_ENDIAN "Tries to abort a collect on the instrument"
 COMMAND TGT ABORT! BIG_ENDIAN "Force aborts a collect on the instrument"
 </code></pre></div></div>
 
 <p>While it doesn’t make sense to define a command with a question mark, it works well with telemetry points. For example, there is a telemetry point which indicates whether a mechanism is deployed or not. It is an analog value that indicates deployed if the value is above zero. To view both the raw value and the deployed status, define a derived telemetry point which indicates a TRUE or FALSE status:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>APPEND_ITEM DEPLOYED 16 UINT "Deployed raw value"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>APPEND_ITEM DEPLOYED 16 UINT "Deployed raw value"
 ITEM DEPLOYED? 0 0 DERIVED "Deployed status"
   STATE FALSE 0
   STATE TRUE 1

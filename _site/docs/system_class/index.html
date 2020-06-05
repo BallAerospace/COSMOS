@@ -5,7 +5,7 @@
   <title>System Class</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -5055,26 +5055,26 @@
 <p><a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/commands.rb">System.commands</a> provides access to all the command definitions in the COSMOS system. The primary developer access methods are:</p>
 
 <ol>
-  <li><code class="highlighter-rouge">System.commands.target_names</code> - Returns an array of strings containing the target names</li>
-  <li><code class="highlighter-rouge">System.commands.all</code> - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.commands.packets(“TARGET”).</li>
-  <li><code class="highlighter-rouge">System.commands.packets("TARGET")</code> - Returns a Hash keyed by the packet name with the Packet instance as the value</li>
-  <li><code class="highlighter-rouge">System.commands.packet("TARGET", "PACKET")</code> - Returns the given Packet instance</li>
-  <li><code class="highlighter-rouge">System.commands.identify(data)</code> - Identify a raw buffer of data as a Packet and return the Packet instance.</li>
+  <li><code class="language-plaintext highlighter-rouge">System.commands.target_names</code> - Returns an array of strings containing the target names</li>
+  <li><code class="language-plaintext highlighter-rouge">System.commands.all</code> - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.commands.packets(“TARGET”).</li>
+  <li><code class="language-plaintext highlighter-rouge">System.commands.packets("TARGET")</code> - Returns a Hash keyed by the packet name with the Packet instance as the value</li>
+  <li><code class="language-plaintext highlighter-rouge">System.commands.packet("TARGET", "PACKET")</code> - Returns the given Packet instance</li>
+  <li><code class="language-plaintext highlighter-rouge">System.commands.identify(data)</code> - Identify a raw buffer of data as a Packet and return the Packet instance.</li>
 </ol>
 
 <p>Additional methods are available which are not as commonly used:</p>
 <ol>
-  <li><code class="highlighter-rouge">System.commands.build_cmd("TARGET", "PACKET", params)</code> - Creates a Packet instance initialized with the values in the params hash.</li>
-  <li><code class="highlighter-rouge">System.commands.format(packet)</code> - Returns a string which represents how to send this command in Script Runner. For example: Given a COSMOS start logging command instance it returns “cmd(‘COSMOS STARTLOGGING’)”</li>
-  <li><code class="highlighter-rouge">System.commands.cmd_pkt_hazardous?(command)</code> - Returns an array where the first boolean value indicates whether the given command is hazardous or not. If the first value is true (hazardous), the second value is a string with information about the hazard.</li>
-  <li><code class="highlighter-rouge">System.commands.cmd_hazardous?("TARGET", "PACKET", params)</code> - Returns the same data as cmd_pkt_hazardous? above.</li>
+  <li><code class="language-plaintext highlighter-rouge">System.commands.build_cmd("TARGET", "PACKET", params)</code> - Creates a Packet instance initialized with the values in the params hash.</li>
+  <li><code class="language-plaintext highlighter-rouge">System.commands.format(packet)</code> - Returns a string which represents how to send this command in Script Runner. For example: Given a COSMOS start logging command instance it returns “cmd(‘COSMOS STARTLOGGING’)”</li>
+  <li><code class="language-plaintext highlighter-rouge">System.commands.cmd_pkt_hazardous?(command)</code> - Returns an array where the first boolean value indicates whether the given command is hazardous or not. If the first value is true (hazardous), the second value is a string with information about the hazard.</li>
+  <li><code class="language-plaintext highlighter-rouge">System.commands.cmd_hazardous?("TARGET", "PACKET", params)</code> - Returns the same data as cmd_pkt_hazardous? above.</li>
 </ol>
 
 <p>Other methods are available but generally should not be used by developers.</p>
 
 <h4 id="command-sender-example">Command Sender Example</h4>
 
-<p>COSMOS uses System.commands in many of its own applications. Let’s see how it’s used in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_sender/cmd_sender.rb">Command Sender</a>. In the <code class="highlighter-rouge">update_targets</code> method it uses System.commands.target_names to populate the target drop down selection.</p>
+<p>COSMOS uses System.commands in many of its own applications. Let’s see how it’s used in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_sender/cmd_sender.rb">Command Sender</a>. In the <code class="language-plaintext highlighter-rouge">update_targets</code> method it uses System.commands.target_names to populate the target drop down selection.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_targets</span>
   <span class="vi">@target_select</span><span class="p">.</span><span class="nf">clearItems</span><span class="p">()</span>
@@ -5086,7 +5086,7 @@
 <span class="k">end</span>
 </code></pre></div></div>
 
-<p>Once it checks for hidden commands it adds all the target names to the drop down selection in the tool. In the same way the <code class="highlighter-rouge">update_commands</code> method accesses System.commands.packets to update the packet drop down selection.</p>
+<p>Once it checks for hidden commands it adds all the target names to the drop down selection in the tool. In the same way the <code class="language-plaintext highlighter-rouge">update_commands</code> method accesses System.commands.packets to update the packet drop down selection.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_commands</span>
   <span class="vi">@cmd_select</span><span class="p">.</span><span class="nf">clearItems</span><span class="p">()</span>
@@ -5105,7 +5105,7 @@
 <span class="k">end</span>
 </code></pre></div></div>
 
-<p>Later in the <code class="highlighter-rouge">update_cmd_params</code> method we access the individual command to grab the command parameters:</p>
+<p>Later in the <code class="language-plaintext highlighter-rouge">update_cmd_params</code> method we access the individual command to grab the command parameters:</p>
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_cmd_params</span><span class="p">(</span><span class="n">ignored_toggle</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
   <span class="o">...</span>
   <span class="n">target_name</span> <span class="o">=</span> <span class="vi">@target_select</span><span class="p">.</span><span class="nf">text</span>
@@ -5157,30 +5157,30 @@
 <p><a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb">System.telemetry</a> provides access to all the telemetry definitions in the COSMOS system. The primary developer access methods are:</p>
 
 <ol>
-  <li><code class="highlighter-rouge">System.telemetry.target_names</code> - Returns an array of strings containing the target names</li>
-  <li><code class="highlighter-rouge">System.telemetry.all</code> - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.telemetry.packets(“TARGET”).</li>
-  <li><code class="highlighter-rouge">System.telemetry.packets("TARGET")</code> - Returns a Hash keyed by the packet name with the Packet instance as the value</li>
-  <li><code class="highlighter-rouge">System.telemetry.packet("TARGET", "PACKET")</code> - Returns the given Packet instance</li>
-  <li><code class="highlighter-rouge">System.telemetry.items("TARGET", "PACKET")</code> - Returns an array of PacketItem instances for the given target and packet</li>
-  <li><code class="highlighter-rouge">System.telemetry.value("TARGET", "PACKET", "ITEM")</code> - Returns the telemetry value. Note this can take a fourth parameter indicating how to format the value.</li>
-  <li><code class="highlighter-rouge">System.telemetry.identify!(data)</code> - Identify a raw buffer of data as a Packet and return the Packet instance.</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.target_names</code> - Returns an array of strings containing the target names</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.all</code> - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.telemetry.packets(“TARGET”).</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.packets("TARGET")</code> - Returns a Hash keyed by the packet name with the Packet instance as the value</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.packet("TARGET", "PACKET")</code> - Returns the given Packet instance</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.items("TARGET", "PACKET")</code> - Returns an array of PacketItem instances for the given target and packet</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.value("TARGET", "PACKET", "ITEM")</code> - Returns the telemetry value. Note this can take a fourth parameter indicating how to format the value.</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.identify!(data)</code> - Identify a raw buffer of data as a Packet and return the Packet instance.</li>
 </ol>
 
 <p>Additional methods are available which are not as commonly used:</p>
 <ol>
-  <li><code class="highlighter-rouge">System.telemetry.item_names("TARGET", "PACKET")</code> - Returns an array of item name strings for the given target and packet</li>
-  <li><code class="highlighter-rouge">System.telemetry.packet_and_item("TARGET", "PACKET", "ITEM")</code> - Returns an array where the first item is the Packet instance and second item is the PacketItem instance</li>
-  <li><code class="highlighter-rouge">System.telemetry.set_value("TARGET", "PACKET", "ITEM", value)</code> - Sets a telemetry value in a packet. Note that as soon as a new packet is received from the target this value will be overwritten.</li>
-  <li><code class="highlighter-rouge">System.telemetry.latest_packets("TARGET", "ITEM")</code> - Returns an array of Packet instances with the specified target and item</li>
-  <li><code class="highlighter-rouge">System.telemetry.values_and_limits_states([["TARGET", "PACKET", "ITEM"], ... ])</code> - Returns an array of three arrays: The first contains the item(s) value, the second the item(s) limits state, and the third the item(s) limits settings.</li>
-  <li><code class="highlighter-rouge">System.telemetry.stale</code> - Returns an array of all stale Packet instances. Packets are defined as stale if they haven’t been received for System.staleness_seconds.</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.item_names("TARGET", "PACKET")</code> - Returns an array of item name strings for the given target and packet</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.packet_and_item("TARGET", "PACKET", "ITEM")</code> - Returns an array where the first item is the Packet instance and second item is the PacketItem instance</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.set_value("TARGET", "PACKET", "ITEM", value)</code> - Sets a telemetry value in a packet. Note that as soon as a new packet is received from the target this value will be overwritten.</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.latest_packets("TARGET", "ITEM")</code> - Returns an array of Packet instances with the specified target and item</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.values_and_limits_states([["TARGET", "PACKET", "ITEM"], ... ])</code> - Returns an array of three arrays: The first contains the item(s) value, the second the item(s) limits state, and the third the item(s) limits settings.</li>
+  <li><code class="language-plaintext highlighter-rouge">System.telemetry.stale</code> - Returns an array of all stale Packet instances. Packets are defined as stale if they haven’t been received for System.staleness_seconds.</li>
 </ol>
 
 <p>Other methods are available but generally are not used by developers.</p>
 
 <h4 id="packet-viewer-example">Packet Viewer Example</h4>
 
-<p>COSMOS uses System.telemetry in many of its own applications. Let’s see how it’s used in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/packet_viewer/packet_viewer.rb">Packet Viewer</a>. In the <code class="highlighter-rouge">update_targets</code> method it uses System.telemetry.target_names and System.telemetry.packets.</p>
+<p>COSMOS uses System.telemetry in many of its own applications. Let’s see how it’s used in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/packet_viewer/packet_viewer.rb">Packet Viewer</a>. In the <code class="language-plaintext highlighter-rouge">update_targets</code> method it uses System.telemetry.target_names and System.telemetry.packets.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_targets</span>
   <span class="vi">@target_select</span><span class="p">.</span><span class="nf">clearItems</span>
@@ -5198,9 +5198,9 @@
 <span class="k">end</span>
 </code></pre></div></div>
 
-<p>First we grab all the target names and then grab all the packets for each target. This is done to filter out targets in which all packets are hidden. Once it checks for hidden packets it adds all the target names to the drop down selection in the tool. In the same way the <code class="highlighter-rouge">update_packets</code> method access System.telemetry.packets to update the packet drop down selection.</p>
+<p>First we grab all the target names and then grab all the packets for each target. This is done to filter out targets in which all packets are hidden. Once it checks for hidden packets it adds all the target names to the drop down selection in the tool. In the same way the <code class="language-plaintext highlighter-rouge">update_packets</code> method access System.telemetry.packets to update the packet drop down selection.</p>
 
-<p>Later in the <code class="highlighter-rouge">update_tlm_items</code> method we call System.telemetry.items to get the individual packet items.</p>
+<p>Later in the <code class="language-plaintext highlighter-rouge">update_tlm_items</code> method we call System.telemetry.items to get the individual packet items.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_tlm_items</span><span class="p">(</span><span class="n">featured_item_name</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
   <span class="n">target_name</span> <span class="o">=</span> <span class="vi">@target_select</span><span class="p">.</span><span class="nf">text</span>
@@ -5282,20 +5282,20 @@
 <p><a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/limits.rb">System.limits</a> provides access to all the limits definitions in the COSMOS system. The primary developer access methods are:</p>
 
 <ol>
-  <li><code class="highlighter-rouge">System.limits.sets</code> - Returns an array of symbols defining the system limits sets</li>
-  <li><code class="highlighter-rouge">System.limits.out_of_limits</code> - Returns an array indicating all items that are out of limits. The array values are arrays formatted as [“TARGET”, “PACKET”, “ITEM”, :LIMIT_STATE]. The last item is a symbol indicating the current limit state.</li>
-  <li><code class="highlighter-rouge">System.limits.overall_limits_state</code> - Returns a symbol indicating the current overall limits state.</li>
-  <li><code class="highlighter-rouge">System.limits.groups</code> - Returns a hash whose keys are the string limit group name and values are an array. Each item in the array is formatted as [“TARGET”, “PACKET”, “ITEM”] and thus identifies all the items in that particular limits group.</li>
-  <li><code class="highlighter-rouge">System.limits.enable_group("GROUP")</code> - Enable a limits group</li>
-  <li><code class="highlighter-rouge">System.limits.disable_group("GROUP")</code> - Disable a limits group</li>
+  <li><code class="language-plaintext highlighter-rouge">System.limits.sets</code> - Returns an array of symbols defining the system limits sets</li>
+  <li><code class="language-plaintext highlighter-rouge">System.limits.out_of_limits</code> - Returns an array indicating all items that are out of limits. The array values are arrays formatted as [“TARGET”, “PACKET”, “ITEM”, :LIMIT_STATE]. The last item is a symbol indicating the current limit state.</li>
+  <li><code class="language-plaintext highlighter-rouge">System.limits.overall_limits_state</code> - Returns a symbol indicating the current overall limits state.</li>
+  <li><code class="language-plaintext highlighter-rouge">System.limits.groups</code> - Returns a hash whose keys are the string limit group name and values are an array. Each item in the array is formatted as [“TARGET”, “PACKET”, “ITEM”] and thus identifies all the items in that particular limits group.</li>
+  <li><code class="language-plaintext highlighter-rouge">System.limits.enable_group("GROUP")</code> - Enable a limits group</li>
+  <li><code class="language-plaintext highlighter-rouge">System.limits.disable_group("GROUP")</code> - Disable a limits group</li>
 </ol>
 
 <p>Additional methods are available which are not as commonly used:</p>
 <ol>
-  <li><code class="highlighter-rouge">System.limits.enabled?("TARGET", "PACKET", "ITEM")</code> - Returns whether limits are enabled for the given item</li>
-  <li><code class="highlighter-rouge">System.limits.enable("TARGET", "PACKET", "ITEM")</code> - Enable limit checking for the given item</li>
-  <li><code class="highlighter-rouge">System.limits.disable("TARGET", "PACKET", "ITEM")</code> - Disable limit checking for the given item</li>
-  <li><code class="highlighter-rouge">System.limits.get("TARGET", "PACKET", "ITEM")</code> - Return information about an items limits. The values are returned in an array as [limits_set, persistence, enabled, red_low, yellow_low, red_high, yellow_high, green_low (optional), green_high (optional)]</li>
+  <li><code class="language-plaintext highlighter-rouge">System.limits.enabled?("TARGET", "PACKET", "ITEM")</code> - Returns whether limits are enabled for the given item</li>
+  <li><code class="language-plaintext highlighter-rouge">System.limits.enable("TARGET", "PACKET", "ITEM")</code> - Enable limit checking for the given item</li>
+  <li><code class="language-plaintext highlighter-rouge">System.limits.disable("TARGET", "PACKET", "ITEM")</code> - Disable limit checking for the given item</li>
+  <li><code class="language-plaintext highlighter-rouge">System.limits.get("TARGET", "PACKET", "ITEM")</code> - Return information about an items limits. The values are returned in an array as [limits_set, persistence, enabled, red_low, yellow_low, red_high, yellow_high, green_low (optional), green_high (optional)]</li>
 </ol>
 
 <p>Other methods are available but generally are not used by developers.</p>

@@ -5,7 +5,7 @@
   <title>Deploying COSMOS to the Cloud</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -283,19 +283,19 @@
 <img src="/img/2017_08_23_aws_red_hat_connect.png" alt="Connect Dialog" /></p>
 
 <p>SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo yum groupinstall 'Server with GUI'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo yum groupinstall 'Server with GUI'
 </code></pre></div></div>
 
 <p>Install COSMOS using the installation bash file:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 </code></pre></div></div>
 
 <p>Chose the sudo option when asked how to install. To enable X forwarding edit the SSH config file:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo vim /etc/ssh/sshd_config
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo vim /etc/ssh/sshd_config
 </code></pre></div></div>
 
 <p>Enable the following settings:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>X11Forwarding yes
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>X11Forwarding yes
 X11DisplayOffset 10
 X11UseLocalhost no
 </code></pre></div></div>
@@ -317,39 +317,39 @@ X11UseLocalhost no
 <img src="/img/2017_08_23_aws_security_group.png" alt="Security Group" /></p>
 
 <p>SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt-get update
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt-get update
 sudo apt install xfce4 xfce4-goodies tightvncserver
 </code></pre></div></div>
 
 <p>Run the following commands to setup the VNC server:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver
 vncserver -kill :1
 vim ~/.vnc/xstartup
 </code></pre></div></div>
 
 <p>Ensure your xstartup file matches the following:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/sh
 
-<span class="c"># Uncomment the following two lines for normal desktop:</span>
-<span class="nb">unset </span>SESSION_MANAGER
-<span class="c"># exec /etc/X11/xinit/xinitrc</span>
-<span class="nb">unset </span>DBUS_SESSION_BUS_ADDRESS
+# Uncomment the following two lines for normal desktop:
+unset SESSION_MANAGER
+# exec /etc/X11/xinit/xinitrc
+unset DBUS_SESSION_BUS_ADDRESS
 startxfce4 &amp;
 
-<span class="o">[</span> <span class="nt">-x</span> /etc/vnc/xstartup <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">exec</span> /etc/vnc/xstartup
-<span class="o">[</span> <span class="nt">-r</span> <span class="nv">$HOME</span>/.Xresources <span class="o">]</span> <span class="o">&amp;&amp;</span> xrdb <span class="nv">$HOME</span>/.Xresources
-xsetroot <span class="nt">-solid</span> grey
-vncconfig <span class="nt">-iconic</span> &amp;
-<span class="c">#x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &amp;</span>
-<span class="c">#x-window-manager &amp;</span>
+[ -x /etc/vnc/xstartup ] &amp;&amp; exec /etc/vnc/xstartup
+[ -r $HOME/.Xresources ] &amp;&amp; xrdb $HOME/.Xresources
+xsetroot -solid grey
+vncconfig -iconic &amp;
+#x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &amp;
+#x-window-manager &amp;
 </code></pre></div></div>
 
 <p>Restart VNC:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver
 </code></pre></div></div>
 
 <p>Install COSMOS using the installation bash file:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 </code></pre></div></div>
 
 <p>Chose the sudo option when asked how to install. On your local machine install a VNC viewer such as TightVNC and connect by entering the Public DNS address of your AWS instance in the Remote Host as well as the Port number of 5901. Typically this is added by appending it to the Remote Host address with a colon. Here is a screenshot of it running while I connected via TightVNC:

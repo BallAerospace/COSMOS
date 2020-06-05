@@ -5,7 +5,7 @@
   <title>Protocol Rate</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -257,11 +257,11 @@
 
 <h3 id="the-solution">The Solution</h3>
 <p>We can first model the chaining using the COSMOS demo. The format for the cmd_tlm_server.txt file is given in the <a href="https://cosmosrb.com/docs/chaining/#example-cmdtlmserver-configuration-for-child-cmd_tlm_server_chaintxt">chaining documentation</a> and already exists in the COSMOS demo. The demo also includes a deconflicting port definition file in system_alt_ports.txt. To start the two server instances from the command line we can type:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer
 </code></pre></div></div>
 
 <p>And in another terminal start the chained server:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
 </code></pre></div></div>
 
 <p>Now we need to implement a custom protocol to slow down the telemetry rate on the chained server. Note that the built-in protocols are fully described on the <a href="/docs/protocols">Protocols</a> page and also mentioned on the <a href="/docs/interfaces/#protocols">Interfaces</a> page.</p>
@@ -269,7 +269,7 @@
 <h3 id="custom-protocols">Custom Protocols</h3>
 <p>Let’s assume we want to slow down the INST ADCS packet which the demo generates at 10Hz. First create a new file called config/targets/INST/lib/drop_protocol.rb. This protocol will drop data until we get the rate we want. It looks like this:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/protocols/protocol'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/protocols/protocol'
 module Cosmos
   # Limit a specific packet by dropping packets
   class DropProtocol &lt; Protocol
@@ -310,7 +310,7 @@ end
 
 <p>Now we can add this protocol to the cmd_tlm_server_chain.txt definition as follows:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
   TARGET INST
   TARGET INST2
   TARGET EXAMPLE
@@ -321,11 +321,11 @@ end
 </code></pre></div></div>
 
 <p>Finally stop and relaunch the chained server:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
 </code></pre></div></div>
 
 <p>You should now see the following in your terminal output:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DROP count:1
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DROP count:1
 DROP count:2
 DROP count:3
 DROP count:4
@@ -355,7 +355,7 @@ SEND
 
 <p>For example, to also reduce the rate of INST2 ADCS you’d simply add another PROTOCOL line to the cmd_tlm_server_chain.txt file:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
   TARGET INST
   TARGET INST2
   TARGET EXAMPLE

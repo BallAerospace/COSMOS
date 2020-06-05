@@ -5,7 +5,7 @@
   <title>Scripting Guide</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -5338,19 +5338,19 @@
   <li>Use two spaces for indentation and do NOT use tabs</li>
   <li>Constants should be all caps with underscores
     <ul>
-      <li><code class="highlighter-rouge">SPEED_OF_LIGHT = 299792458 # meters per s</code></li>
+      <li><code class="language-plaintext highlighter-rouge">SPEED_OF_LIGHT = 299792458 # meters per s</code></li>
     </ul>
   </li>
   <li>Variable names and method names should be in lowercase with underscores
     <ul>
-      <li><code class="highlighter-rouge">last_name = "Smith"</code></li>
-      <li><code class="highlighter-rouge">perform_setup_operation()</code></li>
+      <li><code class="language-plaintext highlighter-rouge">last_name = "Smith"</code></li>
+      <li><code class="language-plaintext highlighter-rouge">perform_setup_operation()</code></li>
     </ul>
   </li>
   <li>Class names (when used) should be camel case and the files which contain them should match but be lowercase with underscores
     <ul>
-      <li><code class="highlighter-rouge">class DataUploader # in 'data_uploader.rb'</code></li>
-      <li><code class="highlighter-rouge">class CcsdsUtility # in 'ccsds_utility.rb'</code></li>
+      <li><code class="language-plaintext highlighter-rouge">class DataUploader # in 'data_uploader.rb'</code></li>
+      <li><code class="language-plaintext highlighter-rouge">class CcsdsUtility # in 'ccsds_utility.rb'</code></li>
     </ul>
   </li>
   <li>Don’t add useless comments but instead describe intent</li>
@@ -6806,13 +6806,13 @@
 
 <p>Remember that everything inside the check_expression string will be evaluated directly by the Ruby interpreter and thus must be valid syntax. A common mistake is to check a variable like so:</p>
 
-<p><code class="highlighter-rouge">check_expression("#{answer} == 'yes'") # where answer contains 'yes'</code></p>
+<p><code class="language-plaintext highlighter-rouge">check_expression("#{answer} == 'yes'") # where answer contains 'yes'</code></p>
 
-<p>This evaluates to <code class="highlighter-rouge">yes == 'yes'</code> which is not valid syntax because the variable yes is not defined (usually). The correct way to write this expression is as follows:</p>
+<p>This evaluates to <code class="language-plaintext highlighter-rouge">yes == 'yes'</code> which is not valid syntax because the variable yes is not defined (usually). The correct way to write this expression is as follows:</p>
 
-<p><code class="highlighter-rouge">check_expression("'#{answer}' == 'yes'") # where answer contains 'yes'</code></p>
+<p><code class="language-plaintext highlighter-rouge">check_expression("'#{answer}' == 'yes'") # where answer contains 'yes'</code></p>
 
-<p>Now this evaluates to <code class="highlighter-rouge">'yes' == 'yes'</code> which is true so the check passes.</p>
+<p>Now this evaluates to <code class="language-plaintext highlighter-rouge">'yes' == 'yes'</code> which is true so the check passes.</p>
 
 <p>Syntax:</p>
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">check_expression</span><span class="p">(</span><span class="s2">"&lt;Expression&gt;"</span><span class="p">)</span>
@@ -8802,7 +8802,7 @@ Example:
 <p>The get_target_info method returns information about a target.  The information includes the number of commands sent to the target and the number of telemetry packets received from the target.</p>
 
 <p>Syntax:
-<code class="highlighter-rouge">get_target_info("&lt;Target Name&gt;")</code></p>
+<code class="language-plaintext highlighter-rouge">get_target_info("&lt;Target Name&gt;")</code></p>
 
 <table>
   <thead>
@@ -8841,7 +8841,7 @@ Example:
 <p>The get_target_ignored_parameters method returns a list of ignored command parameters for the specified target.  Ignored command parameters are those specified by the IGNORE_PARAMETER keyword in the target configuration.</p>
 
 <p>Syntax:
-<code class="highlighter-rouge">get_target_ignored_parameters("&lt;Target Name&gt;")</code></p>
+<code class="language-plaintext highlighter-rouge">get_target_ignored_parameters("&lt;Target Name&gt;")</code></p>
 
 <table>
   <thead>
@@ -8868,7 +8868,7 @@ Example:
 <p>The get_target_ignored_items method returns a list of ignored telemetry items for the specified target.  Ignored telemetry items are those specified by the IGNORE_ITEM keyword in the target configuration.</p>
 
 <p>Syntax:
-<code class="highlighter-rouge">get_target_ignored_items("&lt;Target Name&gt;")</code></p>
+<code class="language-plaintext highlighter-rouge">get_target_ignored_items("&lt;Target Name&gt;")</code></p>
 
 <table>
   <thead>
@@ -9057,7 +9057,7 @@ Example:
 <p>The get_interface_info method returns information about an interface.  The information includes the connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, command count, and telemetry count.</p>
 
 <p>Syntax:
-<code class="highlighter-rouge">get_interface_info("&lt;Interface Name&gt;")</code></p>
+<code class="language-plaintext highlighter-rouge">get_interface_info("&lt;Interface Name&gt;")</code></p>
 
 <table>
   <thead>
@@ -9200,7 +9200,7 @@ Example:
 <p>The get_router_info method returns information about a router.  The information includes the connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, packets received, and packets sent.</p>
 
 <p>Syntax:
-<code class="highlighter-rouge">get_router_info("&lt;Router Name&gt;")</code></p>
+<code class="language-plaintext highlighter-rouge">get_router_info("&lt;Router Name&gt;")</code></p>
 
 <table>
   <thead>
@@ -9621,7 +9621,7 @@ Example:
 <p>The get_packet_logger_info method returns information about a packet logger.   The information includes the interfaces associated with the logger, command log enable flag, command queue size, command filename, command file size, telemetry log enable flag, telemetry queue size, telemetry filename, and telemetry file size.</p>
 
 <p>Syntax:
-<code class="highlighter-rouge">get_packet_logger_info("&lt;Packet logger name&gt;")</code></p>
+<code class="language-plaintext highlighter-rouge">get_packet_logger_info("&lt;Packet logger name&gt;")</code></p>
 
 <table>
   <thead>

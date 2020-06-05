@@ -5,7 +5,7 @@
   <title>Custom Widgets</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -260,16 +260,16 @@
 
 <p><img src="/img/2016_08_22_inst_array.png" alt="COSMOS Inst Array" /></p>
 
-<p>This screen is already using the Array widget to display this data in a text box. We will add our new widget to the top of the screen which will display the data in a table. Let’s add the line to the screen which will call our new widget. Edit <code class="highlighter-rouge">demo/config/targets/INST/screens/array.txt</code> and add the following line in the middle:</p>
+<p>This screen is already using the Array widget to display this data in a text box. We will add our new widget to the top of the screen which will display the data in a table. Let’s add the line to the screen which will call our new widget. Edit <code class="language-plaintext highlighter-rouge">demo/config/targets/INST/screens/array.txt</code> and add the following line in the middle:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
 TITLE "Instrument Array Data"
 DEMOTABLE INST HEALTH_STATUS ARY
 ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 ...
 </code></pre></div></div>
 
-<p>Now we need to create the DemotableWidget which will implement the actual display. Create a new file called <code class="highlighter-rouge">demotable_widget.rb</code> in <code class="highlighter-rouge">demo/config/targets/INST/lib</code>. Note that the name of the line in the config file, DEMOTABLE, must be all lowercase followed by an underscore and ‘widget’. The class name in the file must be one word with the first letter and Widget capitalized. This is how it should start:</p>
+<p>Now we need to create the DemotableWidget which will implement the actual display. Create a new file called <code class="language-plaintext highlighter-rouge">demotable_widget.rb</code> in <code class="language-plaintext highlighter-rouge">demo/config/targets/INST/lib</code>. Note that the name of the line in the config file, DEMOTABLE, must be all lowercase followed by an underscore and ‘widget’. The class name in the file must be one word with the first letter and Widget capitalized. This is how it should start:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/tools/tlm_viewer/widgets/widget'</span>
 
@@ -285,7 +285,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 <p>We’re extending the closest widget that Qt offers to what we’re trying to achieve. In this case it’s pretty obvious but you can get documentation on <a href="http://doc.qt.io/qt-4.8/classes.html">all the Qt classes</a>. In many cases it might be easier to extend an existing <a href="https://github.com/BallAerospace/COSMOS/tree/master/lib/cosmos/tools/tlm_viewer/widgets">COSMOS widget</a>.</p>
 
-<p>Note that our initialize method takes the parent_layout as the first value. All COSMOS widgets make the first parameter the parent_layout so they can be added. The next four paramaters are typically the target_name, packet_name, item_name and value_type. Additional parameters can follow the value_type parameter. The first thing we do in the initialize method is call super which calls the Widget initialize method. If you run this code you should see that the screen displays but doesn’t look any different. That’s because we haven’t actually added our new widget to the parent_layout. Before adding widgets to the layout you typically want to configure them. For our table, we need to set the number of rows and columns. First I grab the telemetry value from the server using the <code class="highlighter-rouge">System.telemetry.value</code> method defined in <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb">telemetry.rb</a>. Since this is an array value I call <code class="highlighter-rouge">length</code> to determine how many rows to display in the table. I then use the Qt methods <code class="highlighter-rouge">setRowCount</code> and <code class="highlighter-rouge">setColumnCount</code> to initialize the table. You can find these methods in the <a href="http://doc.qt.io/qt-4.8/qtablewidget.html">Qt::TableWidget</a> documentation. Finally I call the addWidget method which is a part of all the <a href="http://doc.qt.io/qt-4.8/qlayout.html">Qt::Layout</a> classes.</p>
+<p>Note that our initialize method takes the parent_layout as the first value. All COSMOS widgets make the first parameter the parent_layout so they can be added. The next four paramaters are typically the target_name, packet_name, item_name and value_type. Additional parameters can follow the value_type parameter. The first thing we do in the initialize method is call super which calls the Widget initialize method. If you run this code you should see that the screen displays but doesn’t look any different. That’s because we haven’t actually added our new widget to the parent_layout. Before adding widgets to the layout you typically want to configure them. For our table, we need to set the number of rows and columns. First I grab the telemetry value from the server using the <code class="language-plaintext highlighter-rouge">System.telemetry.value</code> method defined in <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb">telemetry.rb</a>. Since this is an array value I call <code class="language-plaintext highlighter-rouge">length</code> to determine how many rows to display in the table. I then use the Qt methods <code class="language-plaintext highlighter-rouge">setRowCount</code> and <code class="language-plaintext highlighter-rouge">setColumnCount</code> to initialize the table. You can find these methods in the <a href="http://doc.qt.io/qt-4.8/qtablewidget.html">Qt::TableWidget</a> documentation. Finally I call the addWidget method which is a part of all the <a href="http://doc.qt.io/qt-4.8/qlayout.html">Qt::Layout</a> classes.</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">parent_layout</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span> <span class="o">=</span> <span class="ss">:WITH_UNITS</span><span class="p">)</span>
       <span class="k">super</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span><span class="p">)</span>
@@ -300,7 +300,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 <p><img src="/img/2016_08_22_inst_array2.png" alt="COSMOS Inst Array" /></p>
 
-<p>To actually populate it with data we must follow the Cosmos Widget conventions. First of all by including Widget you include all the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/widget.rb">Widget</a> code which creates two key class methods: <code class="highlighter-rouge">layout_manager?</code> and <code class="highlighter-rouge">takes_value?</code>. These must be overridden to return true if your widget is either a layout or takes a value respectively. Since our widget will be taking the array data as a value we must override <code class="highlighter-rouge">takes_value?</code>:</p>
+<p>To actually populate it with data we must follow the Cosmos Widget conventions. First of all by including Widget you include all the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/widget.rb">Widget</a> code which creates two key class methods: <code class="language-plaintext highlighter-rouge">layout_manager?</code> and <code class="language-plaintext highlighter-rouge">takes_value?</code>. These must be overridden to return true if your widget is either a layout or takes a value respectively. Since our widget will be taking the array data as a value we must override <code class="language-plaintext highlighter-rouge">takes_value?</code>:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/tools/tlm_viewer/widgets/widget'</span>
 
@@ -312,7 +312,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
       <span class="k">return</span> <span class="kp">true</span>
     <span class="k">end</span></code></pre></figure>
 
-<p>Typically class methods are defined at the top of the source file and begin with self. You can also type out the class name but this is less robust as changing the class name requires changing the method name. Implementing this class method allows Telemetry Viewer to call the <code class="highlighter-rouge">value=(data)</code> method with new telemetry data. The value method implementation should look like this:</p>
+<p>Typically class methods are defined at the top of the source file and begin with self. You can also type out the class name but this is less robust as changing the class name requires changing the method name. Implementing this class method allows Telemetry Viewer to call the <code class="language-plaintext highlighter-rouge">value=(data)</code> method with new telemetry data. The value method implementation should look like this:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">value</span><span class="o">=</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
       <span class="p">(</span><span class="mi">0</span><span class="o">...</span><span class="vi">@rows</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span> <span class="c1"># Note the extra 'dot' which means up to but not including</span>
@@ -320,7 +320,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
       <span class="k">end</span>
     <span class="k">end</span></code></pre></figure>
 
-<p>The data value passed to the method is the same target, packet, and item used in the screen definition. In our value= method we are using our stored instance variable <code class="highlighter-rouge">@rows</code> to index into the array data and create new <a href="http://doc.qt.io/qt-4.8/qtablewidgetitem.html">Qt::TableWidgetItem</a> instances to store the data. TableWidgetItems expect Strings to be passed so I call to_s on the data item to ensure it is a String. If you now re-launch Telemetry Viewer you should see the values populated in the table:</p>
+<p>The data value passed to the method is the same target, packet, and item used in the screen definition. In our value= method we are using our stored instance variable <code class="language-plaintext highlighter-rouge">@rows</code> to index into the array data and create new <a href="http://doc.qt.io/qt-4.8/qtablewidgetitem.html">Qt::TableWidgetItem</a> instances to store the data. TableWidgetItems expect Strings to be passed so I call to_s on the data item to ensure it is a String. If you now re-launch Telemetry Viewer you should see the values populated in the table:</p>
 
 <p><img src="/img/2016_08_22_inst_array3.png" alt="COSMOS Inst Array" /></p>
 
@@ -351,7 +351,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
   <span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
-<p>Note that we were able to remove the class method <code class="highlighter-rouge">self.takes_value?</code> because AgingWidget already implements it. This is all required to setup aging but we must still modify the value= method to do the work. First in value= we call super to call the AgingWidget’s value= method. This method returns a string representation of the data with the correct foreground color and text character indicating the color, e.g. G=Green, Y=Yellow, R=Red. This is important for values with limits settings but since our array value doesn’t have limits I’m going to igore the return value and simply allow the aging routine to age the data. Interally this updates the <code class="highlighter-rouge">@background</code> instance variable with the current ‘aged’ background color. I then set the TableWidgetItem’s background color to this color before adding it to the table:</p>
+<p>Note that we were able to remove the class method <code class="language-plaintext highlighter-rouge">self.takes_value?</code> because AgingWidget already implements it. This is all required to setup aging but we must still modify the value= method to do the work. First in value= we call super to call the AgingWidget’s value= method. This method returns a string representation of the data with the correct foreground color and text character indicating the color, e.g. G=Green, Y=Yellow, R=Red. This is important for values with limits settings but since our array value doesn’t have limits I’m going to igore the return value and simply allow the aging routine to age the data. Interally this updates the <code class="language-plaintext highlighter-rouge">@background</code> instance variable with the current ‘aged’ background color. I then set the TableWidgetItem’s background color to this color before adding it to the table:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">value</span><span class="o">=</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
       <span class="k">super</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -366,7 +366,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 <p><img src="/img/2016_08_22_inst_array4.png" alt="COSMOS Inst Array" /></p>
 
-<p>Note that if you have a widget that implements aging and limits you’ll want to keep the value returned by super and use it in your widget. If you don’t want the aging routine to directly use your data value you can pass a string as the second parameter, e.g. super(data, text). This text string will be modified with the color blind settings. Basically that means that whatever the calculated <code class="highlighter-rouge">@foreground</code> color string is, a corresponding text character is added (R=Red, G=Green, etc) to aid people who can’t distinguish colors. See <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb">aging_widget.rb</a> for more details.</p>
+<p>Note that if you have a widget that implements aging and limits you’ll want to keep the value returned by super and use it in your widget. If you don’t want the aging routine to directly use your data value you can pass a string as the second parameter, e.g. super(data, text). This text string will be modified with the color blind settings. Basically that means that whatever the calculated <code class="language-plaintext highlighter-rouge">@foreground</code> color string is, a corresponding text character is added (R=Red, G=Green, etc) to aid people who can’t distinguish colors. See <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb">aging_widget.rb</a> for more details.</p>
 
 <p>If you have a question which would benefit the community or find a possible bug please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 

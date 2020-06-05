@@ -5,7 +5,7 @@
   <title>Telemetry Screens</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -5483,7 +5483,7 @@ BUTTON <span class="s2">"Push"</span> <span class="s1">'puts get_named_widget("h
 <h2 id="example-file">
 <a class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
 
-<p>Example File: <:userpath>/config/targets/<target>/myscreen.txt</target></:userpath></p>
+<p>Example File: &lt;Cosmos::USERPATH&gt;/config/targets/<target>/myscreen.txt</target></p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SCREEN AUTO AUTO 0.5
 GLOBAL_SETTING LABELVALUELIMITSBAR COLORBLIND TRUE
@@ -5744,7 +5744,7 @@ ADD_SHOW_ON_STARTUP INST ADCS</code></pre></figure>
 
 <h2 id="example-file-1">
 <a class="anchor" href="#example-file-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
-<p>Example File: <:userpath>/config/tools/tlm_viewer/tlm_viewer.txt</:userpath></p>
+<p>Example File: &lt;Cosmos::USERPATH&gt;/config/tools/tlm_viewer/tlm_viewer.txt</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TARGET INST
   SCREEN <span class="s2">"adcs.txt"</span>
@@ -7770,7 +7770,7 @@ VALUE INST HEALTH_STATUS TEMP1</code></pre></figure>
 <a class="anchor" href="#button" aria-hidden="true"><span class="octicon octicon-link"></span></a>BUTTON</h3>
 <p>The BUTTON widget displays a rectangular button that is clickable by the mouse. Upon clicking, the button executes the Ruby code assigned. Buttons can be used to send commands and perform other tasks.</p>
 
-<p>If you want your button to use values from other widgets, define them as named widgets and read their values using the <code class="highlighter-rouge">get_named_widget("WIDGET_NAME").text</code> method. See the example in CHECKBUTTON. If your button logic gets complex it’s recommended to <code class="highlighter-rouge">require</code> a separate script and pass the screen to the script using self such as <code class="highlighter-rouge">require utility.rb; utility_method(self)</code>.</p>
+<p>If you want your button to use values from other widgets, define them as named widgets and read their values using the <code class="language-plaintext highlighter-rouge">get_named_widget("WIDGET_NAME").text</code> method. See the example in CHECKBUTTON. If your button logic gets complex it’s recommended to <code class="language-plaintext highlighter-rouge">require</code> a separate script and pass the screen to the script using self such as <code class="language-plaintext highlighter-rouge">require utility.rb; utility_method(self)</code>.</p>
 
 <table>
   <thead>
@@ -8125,8 +8125,7 @@ END</code></pre></figure>
   <tbody>
     <tr>
       <td>Image Name</td>
-      <td>Name of a image file. The file must be located in the <:userpath>/data directory.</:userpath>
-</td>
+      <td>Name of a image file. The file must be located in the &lt;Cosmos::USERPATH&gt;/data directory.</td>
       <td>Yes</td>
     </tr>
     <tr>

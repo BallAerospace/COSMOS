@@ -5,7 +5,7 @@
   <title>Template Protocol</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -254,7 +254,7 @@
 
 <p>For this example we’ll assume we’re trying to talk to a SCPI enabled power supply such as the Keysight N6700. We start by creating a directory under our config/targets called POWER. The supply has a TCP/IP interface so we’ll use the <a href="/docs/interfaces/#tcpip-client-interface">TCP/IP Client Interface</a> to connect to it. Thus we create our POWER/cmd_tlm_server.txt file as follows:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE POWER_INT tcpip_client_interface.rb 127.0.0.1 5025 5025 10.0 nil TEMPLATE 0x0A 0x0A
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE POWER_INT tcpip_client_interface.rb 127.0.0.1 5025 5025 10.0 nil TEMPLATE 0x0A 0x0A
   TARGET POWER
 </code></pre></div></div>
 
@@ -262,7 +262,7 @@
 
 <p>Now you can define your target’s command and telemetry definitions. We’ll create example commands which get and set the voltage setting in our power supply. Create a POWER/cmd_tlm/cmd.txt file which has the following:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND POWER GET_VOLTAGE BIG_ENDIAN "Get voltage"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND POWER GET_VOLTAGE BIG_ENDIAN "Get voltage"
   APPEND_ID_PARAMETER CMD_ID 8 UINT 1 1 1 "Command Id" # Unique command ID
   APPEND_PARAMETER CHANNEL 8 UINT 1 4 1 "Channel"
   APPEND_PARAMETER CMD_TEMPLATE 512 STRING "MEAS:VOLT? (@&lt;CHANNEL&gt;)"
@@ -282,7 +282,7 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN "Set voltage"
 
 <p>Create a POWER/cmd_tlm/tlm.txt file to define the response telemetry:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY POWER TLM BIG_ENDIAN "Power Supply Telemetry"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY POWER TLM BIG_ENDIAN "Power Supply Telemetry"
   APPEND_ID_ITEM TLM_ID 32 INT 1 "Packet Identifier" # Unique telemetry ID
   APPEND_ITEM VOLTAGE 32 FLOAT "PS Measured Voltage"
     FORMAT_STRING "%0.3f"
@@ -296,7 +296,7 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN "Set voltage"
 
 <p>With Keysight supplies you can string together a bunch of SCIP commands in one CMD_TEMPLATE if you delimit them with semicolons. Then in the RSP_TEMPLATE you can break the response apart and set a bunch of telemetry items at once. For example:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND POWER GET_STATUS BIG_ENDIAN "Get status"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND POWER GET_STATUS BIG_ENDIAN "Get status"
   APPEND_ID_PARAMETER CMD_ID 8 UINT 3 3 3 "Command Id" # Unique command ID
   APPEND_PARAMETER CHANNEL 8 UINT 1 4 1 "Channel"
   APPEND_PARAMETER CMD_TEMPLATE 512 STRING "MEAS:VOLT (@&lt;CHANNEL&gt;);CURR (@&lt;CHANNEL&gt;);POW (@&lt;CHANNEL&gt;)"

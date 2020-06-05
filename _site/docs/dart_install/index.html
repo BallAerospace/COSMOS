@@ -5,7 +5,7 @@
   <title>DART Installation</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -5047,7 +5047,7 @@
           <h1>DART Installation</h1>
           <ol>
   <li>DART requires at least COSMOS version 4.3.0 although you should always install the latest to get important bug fixes and feature updates. Install the latest COSMOS by running:
-    <div class="highlighter-rouge">
+    <div class="language-plaintext highlighter-rouge">
 <div class="highlight"><pre class="highlight"><code> bundle update cosmos
 </code></pre></div>    </div>
   </li>
@@ -5055,14 +5055,14 @@
   <li>If you are upgrading an existing COSMOS project perform the following steps.
     <ol>
       <li>Somewhere else on your computer create a new COSMOS demo project:
-        <div class="highlighter-rouge">
+        <div class="language-plaintext highlighter-rouge">
 <div class="highlight"><pre class="highlight"><code> cosmos demo demo
 </code></pre></div>        </div>
       </li>
       <li>Copy config/dart/Gemfile from the demo project to your COSMOS project</li>
       <li>Copy config/targets/DART from the demo project to your COSMOS project</li>
       <li>Add these lines to your config/system/system.txt file:
-        <div class="highlighter-rouge">
+        <div class="language-plaintext highlighter-rouge">
 <div class="highlight"><pre class="highlight"><code> DECLARE_TARGET DART
  LISTEN_HOST DART_STREAM 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
  LISTEN_HOST DART_DECOM 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
@@ -5075,20 +5075,20 @@
 </code></pre></div>        </div>
       </li>
       <li>Add the following line to config/tools/launcher.txt:
-        <div class="highlighter-rouge">
+        <div class="language-plaintext highlighter-rouge">
 <div class="highlight"><pre class="highlight"><code> TOOL "DART" "LAUNCH_TERMINAL Dart" "dart.png"
 </code></pre></div>        </div>
       </li>
     </ol>
   </li>
   <li>Ensure the following line is in your project’s Gemfile:
-    <div class="highlighter-rouge">
+    <div class="language-plaintext highlighter-rouge">
 <div class="highlight"><pre class="highlight"><code> # Uncomment this line to add DART dependencies to your main Gemfile
  instance_eval File.read(File.join(__dir__, 'config/dart/Gemfile'))
 </code></pre></div>    </div>
   </li>
   <li>Run the following command from your COSMOS project configuration directory (not C:/COSMOS which contains Demo &amp; Vendor as that is the installation directory) to install all the ruby dependencies for DART.
-    <div class="highlighter-rouge">
+    <div class="language-plaintext highlighter-rouge">
 <div class="highlight"><pre class="highlight"><code> bundle install
 </code></pre></div>    </div>
   </li>
@@ -5096,7 +5096,7 @@
     <ol>
       <li>On windows use pgadmin</li>
       <li>Otherwise use the psql command line:
-        <div class="highlighter-rouge">
+        <div class="language-plaintext highlighter-rouge">
 <div class="highlight"><pre class="highlight"><code> psql postgres
  CREATE ROLE dart WITH LOGIN PASSWORD 'dart';
  ALTER ROLE dart CREATEDB;
@@ -5114,7 +5114,7 @@
   <li>Create an environment variable on your system named DART_DB and set it to ‘dart’. Note: You can use whatever name you want</li>
   <li>Create an environment variable on your system named DART_TEST_DB and set it to ‘darttest’. Note: You can use whatever name you want</li>
   <li>Open a new shell (to get the newly created environment variables) and run the following command from your COSMOS project configuration directory (not C:/COSMOS which contains Demo &amp; Vendor as that is the installation directory)
-    <div class="highlighter-rouge">
+    <div class="language-plaintext highlighter-rouge">
 <div class="highlight"><pre class="highlight"><code> bundle exec rake db:schema:load
  bundle exec rake db:seed
 </code></pre></div>    </div>
@@ -5128,11 +5128,11 @@
 </div>
 
 <p>At this point the DART database is configured and ready to import COSMOS telemetry. When you start the COSMOS Demo you should see the new DART button in the Utilities section. If you’re upgrading from an older version of COSMOS simply add this line to your config/tools/launcher/launcher.txt file:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "DART" "LAUNCH_TERMINAL Dart" "dart.png"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "DART" "LAUNCH_TERMINAL Dart" "dart.png"
 </code></pre></div></div>
 
 <p>Once you click the DART button you should see a new terminal open with the following:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2018/04/03 16:00:30.269  INFO: Starting database cleanup...
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2018/04/03 16:00:30.269  INFO: Starting database cleanup...
 2018/04/03 16:00:30.269  INFO: Cleaning up SystemConfig...
 2018/04/03 16:00:30.373  INFO: Marshal load success: C:/git/COSMOS/demo/outputs/tmp/marshal_fee3ac209980cc7440182adbd1ce7eda.bin
 2018/04/03 16:00:30.377  INFO: Cleaning up PacketLog...

@@ -5,7 +5,7 @@
   <title>Derived Items</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -255,7 +255,7 @@
 
 <p>COSMOS derived items are defined very similarly to real items except they use the special DERIVED telemetry type. Here is how the default COSMOS derived items might look in a telemetry definition.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM PACKET_TIMESECONDS 0 0 DERIVED "COSMOS Received Time (UTC, Floating point, Unix epoch)"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM PACKET_TIMESECONDS 0 0 DERIVED "COSMOS Received Time (UTC, Floating point, Unix epoch)"
   READ_CONVERSION packet_time_seconds_conversion.rb
   FORMAT_STRING '%0.6f'
 ITEM PACKET_TIMEFORMATTED 0 0 DERIVED "COSMOS Received Time (Local time zone, Formatted string)"
@@ -274,7 +274,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 <h3 id="creating-a-derived-average">Creating a Derived Average</h3>
 <p>A common usecase is to create a derived item which averages other telemetry points. Let’s explore how to do this within the COSMOS Demo. The COSMOS Demo already declares 4 fake temperatures named TEMP1, TEMP2, TEMP3, and TEMP4. Let’s create a new derived item called TEMP_AVERAGE that averages them.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
   GENERIC_READ_CONVERSION_START FLOAT 32
     (packet.read("TEMP1") + packet.read("TEMP2") + packet.read("TEMP3") + packet.read("TEMP4")) / 4.0
   GENERIC_READ_CONVERSION_END
@@ -287,7 +287,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 <h3 id="using-a-conversion-class">Using a Conversion Class</h3>
 <p>While it is easy to create a simple conversion using GENERIC_READ_CONVERSION there are multiple reasons to prefer a Conversion class. Creating a separate conversion class is easier to test, easier to reuse and has better performance. Let’s create a conversion which performs averging and rewrite the previous example. First the telemetry definition will now look like this.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
   READ_CONVERSION average_conversion.rb TEMP1 TEMP2 TEMP3 TEMP4
 </code></pre></div></div>
 
@@ -317,7 +317,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 
 <p>We’re not yet done though as we need to edit the INST/target.txt file to require this new conversion.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>REQUIRE average_conversion.rb
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>REQUIRE average_conversion.rb
 </code></pre></div></div>
 
 <p>Running this in the Demo with Telemetry Grapher shows our new average value pretty clearly.</p>

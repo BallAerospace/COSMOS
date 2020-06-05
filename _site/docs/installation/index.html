@@ -5,7 +5,7 @@
   <title>Installation</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -5098,7 +5098,7 @@ You will need to create new ones with the names above and set their value to the
 
 <p>Run the following command in a terminal running the <strong>bash</strong> shell:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 </code></pre></div></div>
 
 <div class="note warning">
@@ -5112,7 +5112,7 @@ You will need to create new ones with the names above and set their value to the
 
 <p>If installing in an environment where SSL Certificates are not setup correctly.  The following commands will let COSMOS install in an insecure fashion:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo "insecure" &gt;&gt; ~/.curlrc
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>echo "insecure" &gt;&gt; ~/.curlrc
 export RUBY_BUILD_CURL_OPTS="-k"
 git config --global http.sslVerify false
 bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
@@ -5126,12 +5126,12 @@ bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/mast
 
 <p>In your .bash_profile add this line (point to your actual COSMOS configuration folder):</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>export COSMOS_USERPATH=/Users/username/demo
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>export COSMOS_USERPATH=/Users/username/demo
 </code></pre></div></div>
 
 <p>Alternative Install directions using Mac Ports:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo port install qt4-mac
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo port install qt4-mac
 sudo port install ruby24
 sudo port select --set ruby ruby24
 sudo gem install ruby-termios
@@ -5143,7 +5143,7 @@ a sample COSMOS directory structure where you can
 configure and run cosmos. To create a test area do
 this:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cosmos demo test
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cosmos demo test
 cd test
 ruby Launcher
 </code></pre></div></div>
@@ -5157,7 +5157,7 @@ ruby Launcher
     <p>The bash shell is required on Linux and Mac</p>
   </li>
   <li>
-    <p>ruby-termios is a dependency of COSMOS on non-windows platforms but is not listed in the gem dependencies because it is not a dependency on Windows.  An extension attempts to install it when gem install cosmos is run.  This should work as long as you are online. If attempting an offline installation of cosmos you will need to first manually install ruby-termios: <code class="highlighter-rouge">gem install ruby-termios</code></p>
+    <p>ruby-termios is a dependency of COSMOS on non-windows platforms but is not listed in the gem dependencies because it is not a dependency on Windows.  An extension attempts to install it when gem install cosmos is run.  This should work as long as you are online. If attempting an offline installation of cosmos you will need to first manually install ruby-termios: <code class="language-plaintext highlighter-rouge">gem install ruby-termios</code></p>
   </li>
   <li>
     <p>The http_proxy environment variable can cause problems.   Make sure you also have a no_proxy variable for localhost, something like no_proxy=”127.0.0.1, localhost”.</p>

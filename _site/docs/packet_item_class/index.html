@@ -5,7 +5,7 @@
   <title>PacketItem Class</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -5048,26 +5048,26 @@
 
 <h2 id="programming-packetitem">Programming PacketItem</h2>
 
-<p>Custom COSMOS code may need to interact with PacketItem as it provides access to the individual item defined by your command and telemetry definitions. PacketItem inherits from StructureItem which it uses to provide some of the lower level functionality associated with defining an item. Typically you’re directly using the PacketItem class. PacketItem instances can be either command items or telemetry items and there is no way to directly know whether an instance is from a command or telemetry packet. However, since you’re typically getting packet instances through <code class="highlighter-rouge">System.commands</code> or <code class="highlighter-rouge">System.telemetry</code> this is rarely an issue in practice.</p>
+<p>Custom COSMOS code may need to interact with PacketItem as it provides access to the individual item defined by your command and telemetry definitions. PacketItem inherits from StructureItem which it uses to provide some of the lower level functionality associated with defining an item. Typically you’re directly using the PacketItem class. PacketItem instances can be either command items or telemetry items and there is no way to directly know whether an instance is from a command or telemetry packet. However, since you’re typically getting packet instances through <code class="language-plaintext highlighter-rouge">System.commands</code> or <code class="language-plaintext highlighter-rouge">System.telemetry</code> this is rarely an issue in practice.</p>
 
 <h3 id="packetitem-instance-variables">PacketItem Instance Variables</h3>
 <p>PacketItem defines a large number of instance variables that provide information about the packet. The most commonly used are as follows:</p>
 
 <ol>
-  <li><code class="highlighter-rouge">name</code> - Item name as a string</li>
-  <li><code class="highlighter-rouge">description</code> - Description of the item</li>
-  <li><code class="highlighter-rouge">bit_offset</code> - Where in the binary buffer the item exists</li>
-  <li><code class="highlighter-rouge">bit_size</code> - The number of bites which represent the item in the buffer</li>
-  <li><code class="highlighter-rouge">data_type</code> - Data type which can be :INT, :UINT, :FLOAT, :STRING, :BLOCK, or :DERIVED. See <a href="/docs/command">Command</a> or <a href="/docs/telemetry">Telemetry</a> for a description of the types.</li>
-  <li><code class="highlighter-rouge">endianness</code> - Endianness of the item which is either :BIG_ENDIAN or :LITTLE_ENDIAN.</li>
-  <li><code class="highlighter-rouge">read_conversion</code> - Conversion applied when reading the item (typically applied to telemetry items)</li>
-  <li><code class="highlighter-rouge">write_conversion</code> - Conversion applied when writing the item (typically applied to command items)</li>
-  <li><code class="highlighter-rouge">states</code> - States used to convert a numeric value to a string</li>
-  <li><code class="highlighter-rouge">units</code> - Abbreviated units of the item, e.g. “V”</li>
-  <li><code class="highlighter-rouge">range</code> - Valid range of values (nil for :STRING or :BLOCK types, only applies to command items)</li>
-  <li><code class="highlighter-rouge">id_value</code> - Value used to identify a packet</li>
-  <li><code class="highlighter-rouge">default</code> - Default value for the item (only applies to command items)</li>
-  <li><code class="highlighter-rouge">limits</code> - Limits for the item (only applies to telemetry items)</li>
+  <li><code class="language-plaintext highlighter-rouge">name</code> - Item name as a string</li>
+  <li><code class="language-plaintext highlighter-rouge">description</code> - Description of the item</li>
+  <li><code class="language-plaintext highlighter-rouge">bit_offset</code> - Where in the binary buffer the item exists</li>
+  <li><code class="language-plaintext highlighter-rouge">bit_size</code> - The number of bites which represent the item in the buffer</li>
+  <li><code class="language-plaintext highlighter-rouge">data_type</code> - Data type which can be :INT, :UINT, :FLOAT, :STRING, :BLOCK, or :DERIVED. See <a href="/docs/command">Command</a> or <a href="/docs/telemetry">Telemetry</a> for a description of the types.</li>
+  <li><code class="language-plaintext highlighter-rouge">endianness</code> - Endianness of the item which is either :BIG_ENDIAN or :LITTLE_ENDIAN.</li>
+  <li><code class="language-plaintext highlighter-rouge">read_conversion</code> - Conversion applied when reading the item (typically applied to telemetry items)</li>
+  <li><code class="language-plaintext highlighter-rouge">write_conversion</code> - Conversion applied when writing the item (typically applied to command items)</li>
+  <li><code class="language-plaintext highlighter-rouge">states</code> - States used to convert a numeric value to a string</li>
+  <li><code class="language-plaintext highlighter-rouge">units</code> - Abbreviated units of the item, e.g. “V”</li>
+  <li><code class="language-plaintext highlighter-rouge">range</code> - Valid range of values (nil for :STRING or :BLOCK types, only applies to command items)</li>
+  <li><code class="language-plaintext highlighter-rouge">id_value</code> - Value used to identify a packet</li>
+  <li><code class="language-plaintext highlighter-rouge">default</code> - Default value for the item (only applies to command items)</li>
+  <li><code class="language-plaintext highlighter-rouge">limits</code> - Limits for the item (only applies to telemetry items)</li>
 </ol>
 
 <h3 id="packetitem-methods">PacketItem Methods</h3>

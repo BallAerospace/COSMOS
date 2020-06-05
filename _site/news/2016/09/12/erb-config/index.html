@@ -5,7 +5,7 @@
   <title>ERB Config Files</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -250,11 +250,11 @@
     </a>
   </div>
   <div class="post-content">
-    <p>COSMOS configuration files support ERB (Embedded RuBy) which is used heavily by <a href="http://rubyonrails.org/">Ruby on Rails</a>. I found a pretty good description of ERB <a href="http://www.stuartellis.eu/articles/erb/">here</a>. ERB allows you to put executable Ruby code in your configuration files. The trick is to surround the Ruby code with the special markers: <code class="highlighter-rouge">&lt;% &lt;code&gt; %&gt;</code>. If you want the result of your Ruby code to be placed in the configuration file you need to add the equal sign to the first marker: <code class="highlighter-rouge">&lt;%= &lt;code&gt; %&gt;</code></p>
+    <p>COSMOS configuration files support ERB (Embedded RuBy) which is used heavily by <a href="http://rubyonrails.org/">Ruby on Rails</a>. I found a pretty good description of ERB <a href="http://www.stuartellis.eu/articles/erb/">here</a>. ERB allows you to put executable Ruby code in your configuration files. The trick is to surround the Ruby code with the special markers: <code class="language-plaintext highlighter-rouge">&lt;% &lt;code&gt; %&gt;</code>. If you want the result of your Ruby code to be placed in the configuration file you need to add the equal sign to the first marker: <code class="language-plaintext highlighter-rouge">&lt;%= &lt;code&gt; %&gt;</code></p>
 
 <p>A COSMOS user recently asked if he could include environment variables in his COSMOS configuration. This is very easy using the ERB syntax. For example, you have an environment variable named “LOG_DIR” in your system which points to the path you want to store your COSMOS logs. To use this value you would modify your system.txt file as follows:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
 # Paths
 PATH LOGS &lt;%= ENV["LOG_DIR"] %&gt;
 ...
@@ -270,7 +270,7 @@ PATH LOGS &lt;%= ENV["LOG_DIR"] %&gt;
 
 <p>Now in system.txt we can use that ‘log_path’ routine after we first require ‘utilities’.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;% require 'utilities' %&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;% require 'utilities' %&gt;
 ...
 # Paths
 PATH LOGS &lt;%= log_path() %&gt;
@@ -280,7 +280,7 @@ PATH LOGS &lt;%= log_path() %&gt;
 
 <p>ERB templates are particularly useful in command and telemetry definitions as they allow you to reuse sections. We’ve added our own routine called ‘render’ (similar to Ruby on Rails) which can render a command or telemetry template. The best example of this is in the COSMOS Demo INST target. If you open the inst_cmds.txt file you’ll see this:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND INST COLLECT BIG_ENDIAN "Starts a collect on the instrument"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND INST COLLECT BIG_ENDIAN "Starts a collect on the instrument"
   &lt;%= render "_ccsds_cmd.txt", locals: {id: 1} %&gt;
   PARAMETER    TYPE           64  16  UINT MIN MAX 0 "Collect type"
     REQUIRED
@@ -298,9 +298,9 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
 ...
 </code></pre></div></div>
 
-<p>Notice the call to <code class="highlighter-rouge">&lt;%= render "_ccsds_cmd.txt", locals: {id: 1} %&gt;</code>. Opening the ‘_ccsds_cmd.txt’ file reveals this command template:</p>
+<p>Notice the call to <code class="language-plaintext highlighter-rouge">&lt;%= render "_ccsds_cmd.txt", locals: {id: 1} %&gt;</code>. Opening the ‘_ccsds_cmd.txt’ file reveals this command template:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  PARAMETER    CCSDSVER        0   3  UINT  0     0   0 "CCSDS primary header version number"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  PARAMETER    CCSDSVER        0   3  UINT  0     0   0 "CCSDS primary header version number"
   PARAMETER    CCSDSTYPE       3   1  UINT  1     1   1 "CCSDS primary header packet type"
   PARAMETER    CCSDSSHF        4   1  UINT  0     0   0 "CCSDS primary header secondary header flag"
   ID_PARAMETER CCSDSAPID       5  11  UINT  0  2047 999 "CCSDS primary header application id"

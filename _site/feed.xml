@@ -11,10 +11,10 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Tue, 24 Mar 2020 18:21:14 -0600</pubDate>
-    <lastBuildDate>Tue, 24 Mar 2020 18:21:14 -0600</lastBuildDate>
+    <pubDate>Fri, 05 Jun 2020 14:48:00 -0600</pubDate>
+    <lastBuildDate>Fri, 05 Jun 2020 14:48:00 -0600</lastBuildDate>
     <language>en-US</language>
-    <generator>Jekyll v3.8.5</generator>
+    <generator>Jekyll v4.1.0</generator>
     <description>The User Interface for Embedded Systems</description>
     <image>
       <description>The User Interface for Embedded Systems</description>
@@ -48,7 +48,7 @@
 &lt;p&gt;The implication of this process for custom interfaces is how and when packets are identified. If your custom interface can determine the target, you would want to identify the packet before returning it to save processing time. This may also be required if you map multiple targets to a single interface and have identification collisions. Identification collisions occur if two packets in different targets with the same ID_ITEMS are mapped to the same interface. In this case a custom interface would first have to properly identify the target and then override the read() method to identify the packet before returning it.&lt;/p&gt;
 
 &lt;p&gt;An example of a custom interface implementing this might look something like this:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;require 'cosmos/interfaces/interface'
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;require 'cosmos/interfaces/interface'
 module Cosmos
   class MyInterface &amp;lt; Interface
     # ... various other methods
@@ -94,11 +94,11 @@ end
 
 &lt;h3 id=&quot;the-solution&quot;&gt;The Solution&lt;/h3&gt;
 &lt;p&gt;We can first model the chaining using the COSMOS demo. The format for the cmd_tlm_server.txt file is given in the &lt;a href=&quot;https://cosmosrb.com/docs/chaining/#example-cmdtlmserver-configuration-for-child-cmd_tlm_server_chaintxt&quot;&gt;chaining documentation&lt;/a&gt; and already exists in the COSMOS demo. The demo also includes a deconflicting port definition file in system_alt_ports.txt. To start the two server instances from the command line we can type:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ruby demo\tools\CmdTlmServer
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ruby demo\tools\CmdTlmServer
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;And in another terminal start the chained server:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Now we need to implement a custom protocol to slow down the telemetry rate on the chained server. Note that the built-in protocols are fully described on the &lt;a href=&quot;/docs/protocols&quot;&gt;Protocols&lt;/a&gt; page and also mentioned on the &lt;a href=&quot;/docs/interfaces/#protocols&quot;&gt;Interfaces&lt;/a&gt; page.&lt;/p&gt;
@@ -106,7 +106,7 @@ end
 &lt;h3 id=&quot;custom-protocols&quot;&gt;Custom Protocols&lt;/h3&gt;
 &lt;p&gt;Let’s assume we want to slow down the INST ADCS packet which the demo generates at 10Hz. First create a new file called config/targets/INST/lib/drop_protocol.rb. This protocol will drop data until we get the rate we want. It looks like this:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;require 'cosmos/interfaces/protocols/protocol'
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;require 'cosmos/interfaces/protocols/protocol'
 module Cosmos
   # Limit a specific packet by dropping packets
   class DropProtocol &amp;lt; Protocol
@@ -147,7 +147,7 @@ end
 
 &lt;p&gt;Now we can add this protocol to the cmd_tlm_server_chain.txt definition as follows:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
   TARGET INST
   TARGET INST2
   TARGET EXAMPLE
@@ -158,11 +158,11 @@ end
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Finally stop and relaunch the chained server:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;You should now see the following in your terminal output:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;DROP count:1
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;DROP count:1
 DROP count:2
 DROP count:3
 DROP count:4
@@ -192,7 +192,7 @@ SEND
 
 &lt;p&gt;For example, to also reduce the rate of INST2 ADCS you’d simply add another PROTOCOL line to the cmd_tlm_server_chain.txt file:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
   TARGET INST
   TARGET INST2
   TARGET EXAMPLE
@@ -446,7 +446,7 @@ SEND
 &lt;h3 id=&quot;built-in-protocols&quot;&gt;Built-in Protocols&lt;/h3&gt;
 &lt;p&gt;COSMOS comes with a number of built-in protocols that are used directly with the COSMOS provided interfaces. In fact, when you declare your interface you’re required to specify a protocol. For example, the following code declares a TCP/IP client with a LENGTH protocol.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 0xBA5EBA11
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 0xBA5EBA11
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;The built-in protocols are fully described on the &lt;a href=&quot;/docs/protocols&quot;&gt;Protocols&lt;/a&gt; page and also mentioned on the &lt;a href=&quot;/docs/interfaces/#protocols&quot;&gt;Interfaces&lt;/a&gt; page.&lt;/p&gt;
@@ -459,7 +459,7 @@ SEND
 
 &lt;p&gt;In the target’s lib directory the strip_etx_protocol.rb file was created. Since the protocol had to simply strip off a single byte, it overrides the read_data(data) method.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;require 'cosmos/interfaces/protocols/protocol'
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;require 'cosmos/interfaces/protocols/protocol'
 class StripEtxProtocol &amp;lt; Protocol
   def read_data(data)
     if data[-1] == &quot;\x03&quot;
@@ -473,7 +473,7 @@ end
 
 &lt;p&gt;Ruby can index from the back of the array with -1, -2, etc. Thus if the last byte (-1) is a binary 0x03, the protocol returns the data from 0 up to and including the second to last byte (-2). This was added to the interface by declaring it as a READ protocol since it is only modifying the incoming telemetry data.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE DEV_INT &amp;lt;interface params&amp;gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE DEV_INT &amp;lt;interface params&amp;gt;
   PROTOCOL READ StripEtxProtocol
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -482,7 +482,7 @@ end
 
 &lt;p&gt;In the target’s lib directory create a file called framing_protocol.rb. Since the protocol is adding data to the outgoing stream, we override the write_data(data) method.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;require 'cosmos/interfaces/protocols/protocol'
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;require 'cosmos/interfaces/protocols/protocol'
 class FramingProtocol &amp;lt; Protocol
   HEADER = &quot;\xDE\xAD\xBE\xEF&quot; # Binary header data
   def write_data(data)
@@ -526,7 +526,7 @@ end
   &lt;/li&gt;
 &lt;/ol&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;struct {
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;struct {
   unsigned short a:4;
   unsigned short b:8;
   unsigned short c:4;
@@ -556,7 +556,7 @@ ITEM C 8 4 UINT &quot;struct item c&quot;
 
 &lt;p&gt;By default, all COSMOS tools use the config/system/system.txt file. However, all tools can take a custom system configuration file by passing the “–system &lt;filename&gt;&quot; option to the tool when it starts. This is typically done in the Launcher script as shown in the COSMOS demo. Here's an excerpt which shows how we're passing system2.txt using the --system option.&lt;/filename&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Command and Telemetry Server&quot; &quot;LAUNCH CmdTlmServer --system system2.txt&quot; &quot;cts.png&quot; --config cmd_tlm_server2.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Command and Telemetry Server&quot; &quot;LAUNCH CmdTlmServer --system system2.txt&quot; &quot;cts.png&quot; --config cmd_tlm_server2.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;h3 id=&quot;using-multiple-systemtxt-files&quot;&gt;Using Multiple system.txt Files&lt;/h3&gt;
@@ -565,7 +565,7 @@ ITEM C 8 4 UINT &quot;struct item c&quot;
 &lt;h2 id=&quot;targettxt&quot;&gt;target.txt&lt;/h2&gt;
 &lt;p&gt;The parsing of a COSMOS target is controlled by the target.txt file found at the root of the target directory. The COMMANDS and TELEMETRY keywords tell COSMOS which &lt;a href=&quot;/docs/command&quot;&gt;Command&lt;/a&gt; and &lt;a href=&quot;/docs/telemetry&quot;&gt;Telemetry&lt;/a&gt; files to parse. For example from the COSMOS demo INST &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/INST/target.txt&quot;&gt;target.txt&lt;/a&gt;&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMANDS inst_cmds.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMANDS inst_cmds.txt
 TELEMETRY inst_tlm.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -577,41 +577,41 @@ TELEMETRY inst_tlm.txt
 &lt;p&gt;This example is losely based on the COSMOS demo. First create two separate system.txt files called system1.txt and system2.txt:&lt;/p&gt;
 
 &lt;p&gt;Partial system1.txt:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;DECLARE_TARGET INST nil target1.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;DECLARE_TARGET INST nil target1.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Partial system2.txt&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;DECLARE_TARGET INST nil target2.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;DECLARE_TARGET INST nil target2.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;The target1.txt file in the INST target calls out one set of cmd/tlm files:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMANDS inst1_cmds.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMANDS inst1_cmds.txt
 TELEMETRY inst1_tlm.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;The target2.txt file in the INST target calls out another set:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMANDS inst2_cmds.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMANDS inst2_cmds.txt
 TELEMETRY inst2_tlm.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;You also have to ensure your Launcher scripts specify the correct system.txt file when launching the tools:&lt;/p&gt;
 
 &lt;p&gt;Partial launcher1.txt:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Command and Telemetry Server&quot; &quot;LAUNCH CmdTlmServer --system system1.txt&quot; &quot;cts.png&quot; --config cmd_tlm_server.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Command and Telemetry Server&quot; &quot;LAUNCH CmdTlmServer --system system1.txt&quot; &quot;cts.png&quot; --config cmd_tlm_server.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Partial launcher2.txt:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Command and Telemetry Server&quot; &quot;LAUNCH CmdTlmServer --system system2.txt&quot; &quot;cts.png&quot; --config cmd_tlm_server.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Command and Telemetry Server&quot; &quot;LAUNCH CmdTlmServer --system system2.txt&quot; &quot;cts.png&quot; --config cmd_tlm_server.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Once you have your launcher configurations in place you can create a simple Batch file or shell script to launch COSMOS.&lt;/p&gt;
 
 &lt;p&gt;Launcher1.bat:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;call tools\Launcher.bat --config launcher1.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;call tools\Launcher.bat --config launcher1.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Launcher2.bat:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;call tools\Launcher.bat --config launcher2.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;call tools\Launcher.bat --config launcher2.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;With correct usage of system.txt and target.txt you can consolidate your COSMOS configurations and avoid copying and pasting. This makes your COSMOS configuration easier to test and maintain.&lt;/p&gt;
@@ -622,14 +622,14 @@ TELEMETRY inst2_tlm.txt
 
 &lt;p&gt;Create a file in the target’s cmd_tlm folder named after the original file but with an extension like _override.txt. For example, you have the following telemetry definition file named inst_tlm.txt:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TELEMETRY INST HEALTH_STATUS BIG_ENDIAN &quot;Health and status from the target&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TELEMETRY INST HEALTH_STATUS BIG_ENDIAN &quot;Health and status from the target&quot;
   APPEND_ITEM COLLECTS         16 UINT     &quot;Number of collects&quot;
   APPEND_ITEM TEMP1            16 UINT     &quot;Temperature #1&quot;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Create another file called inst_tlm_override.txt and start overriding telemetry using the &lt;a href=&quot;/docs/telemetry/#select_telemetry&quot;&gt;SELECT_TELEMETRY&lt;/a&gt; and &lt;a href=&quot;/docs/telemetry/#select_item&quot;&gt;SELECT_ITEM&lt;/a&gt; keywords. Note that the filename is important because by default COSMOS processes cmd/tlm definition files in alphabetical order. For example, if you have a telemetry file named “telemetry.txt” and created a file called “override.txt”, you would get an error because the telemetry file will not be processed before the override.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SELECT_TELEMETRY INST HEALTH_STATUS
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;SELECT_TELEMETRY INST HEALTH_STATUS
   SELECT_ITEM COLLECTS
     FORMAT_STRING &quot;0x%0X&quot;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -761,7 +761,7 @@ The COSMOS log file format and predentified protocol formats have changed to sup
 &lt;p&gt;If you already setup DART for your program please follow the following additional steps:
 In a terminal in your COSMOS project folder run:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;rake db:migrate
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;rake db:migrate
 rake db:seed
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -898,7 +898,7 @@ rake db:seed
 
 &lt;p&gt;COSMOS derived items are defined very similarly to real items except they use the special DERIVED telemetry type. Here is how the default COSMOS derived items might look in a telemetry definition.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ITEM PACKET_TIMESECONDS 0 0 DERIVED &quot;COSMOS Received Time (UTC, Floating point, Unix epoch)&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ITEM PACKET_TIMESECONDS 0 0 DERIVED &quot;COSMOS Received Time (UTC, Floating point, Unix epoch)&quot;
   READ_CONVERSION packet_time_seconds_conversion.rb
   FORMAT_STRING '%0.6f'
 ITEM PACKET_TIMEFORMATTED 0 0 DERIVED &quot;COSMOS Received Time (Local time zone, Formatted string)&quot;
@@ -917,7 +917,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED &quot;COSMOS packet received count&quot;
 &lt;h3 id=&quot;creating-a-derived-average&quot;&gt;Creating a Derived Average&lt;/h3&gt;
 &lt;p&gt;A common usecase is to create a derived item which averages other telemetry points. Let’s explore how to do this within the COSMOS Demo. The COSMOS Demo already declares 4 fake temperatures named TEMP1, TEMP2, TEMP3, and TEMP4. Let’s create a new derived item called TEMP_AVERAGE that averages them.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ITEM TEMP_AVERAGE 0 0 DERIVED &quot;Average of TEMP1, TEMP2, TEMP3, TEMP4&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ITEM TEMP_AVERAGE 0 0 DERIVED &quot;Average of TEMP1, TEMP2, TEMP3, TEMP4&quot;
   GENERIC_READ_CONVERSION_START FLOAT 32
     (packet.read(&quot;TEMP1&quot;) + packet.read(&quot;TEMP2&quot;) + packet.read(&quot;TEMP3&quot;) + packet.read(&quot;TEMP4&quot;)) / 4.0
   GENERIC_READ_CONVERSION_END
@@ -930,7 +930,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED &quot;COSMOS packet received count&quot;
 &lt;h3 id=&quot;using-a-conversion-class&quot;&gt;Using a Conversion Class&lt;/h3&gt;
 &lt;p&gt;While it is easy to create a simple conversion using GENERIC_READ_CONVERSION there are multiple reasons to prefer a Conversion class. Creating a separate conversion class is easier to test, easier to reuse and has better performance. Let’s create a conversion which performs averging and rewrite the previous example. First the telemetry definition will now look like this.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ITEM TEMP_AVERAGE 0 0 DERIVED &quot;Average of TEMP1, TEMP2, TEMP3, TEMP4&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ITEM TEMP_AVERAGE 0 0 DERIVED &quot;Average of TEMP1, TEMP2, TEMP3, TEMP4&quot;
   READ_CONVERSION average_conversion.rb TEMP1 TEMP2 TEMP3 TEMP4
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -960,7 +960,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED &quot;COSMOS packet received count&quot;
 
 &lt;p&gt;We’re not yet done though as we need to edit the INST/target.txt file to require this new conversion.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;REQUIRE average_conversion.rb
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;REQUIRE average_conversion.rb
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Running this in the Demo with Telemetry Grapher shows our new average value pretty clearly.&lt;/p&gt;
@@ -1042,7 +1042,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED &quot;COSMOS packet received count&quot;
 
 &lt;p&gt;Items are assigned to a group using the &lt;a href=&quot;/docs/telemetry/#limits_group_item&quot;&gt;LIMITS_GROUP_ITEM&lt;/a&gt; keyword. Here is the definition in the COSMOS demo.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;LIMITS_GROUP INST2_TEMP2
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;LIMITS_GROUP INST2_TEMP2
   LIMITS_GROUP_ITEM INST2 HEALTH_STATUS TEMP2
 
 LIMITS_GROUP INST2_GROUND
@@ -1093,11 +1093,11 @@ LIMITS_GROUP INST2_GROUND
 
 &lt;p&gt;The method name is very important. It must begin with ‘check_’ and end with the name of a Limits Group defined by the LIMITS_GROUP keyword. In the demo, LIMITS_GROUP(s) are defined in config/targets/SYSTEM/cmd_tlm/limits_groups.txt. Since there is a LIMITS_GROUP INST2_TEMP2 we have a match (the method name should be lower case while the LIMITS_GROUP is typically defined to be uppercase).&lt;/p&gt;
 
-&lt;p&gt;Inside the method you must call process_group. The first parameter is the number of seconds to delay before enabling the group when the telemetry check is true. So in this example we are waiting zero seconds to enable the group. Note that when the telemetry check is false the group is instantly disabled. The next two parameters are Proc objects which are called when the group is enabled and disabled respectively. Remember that we defined our Proc objects in the constructor to enable and disable the INST2_GROUND group. These parameters are entirely optional so you can also simply call &lt;code class=&quot;highlighter-rouge&quot;&gt;process_group(0)&lt;/code&gt; with just the delay.&lt;/p&gt;
+&lt;p&gt;Inside the method you must call process_group. The first parameter is the number of seconds to delay before enabling the group when the telemetry check is true. So in this example we are waiting zero seconds to enable the group. Note that when the telemetry check is false the group is instantly disabled. The next two parameters are Proc objects which are called when the group is enabled and disabled respectively. Remember that we defined our Proc objects in the constructor to enable and disable the INST2_GROUND group. These parameters are entirely optional so you can also simply call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;process_group(0)&lt;/code&gt; with just the delay.&lt;/p&gt;
 
 &lt;p&gt;The code inside the process_group block (the lines after ‘do’ and before ‘end’) must return a boolean. True will enable the group and false will disable the group. In this example, the group is enabled when the value is not NaN (Not a Number) and not Infinite. If the value is NaN or Infinite the group is disabled. You can watch this happening in the demo by watching the bottom log portion of the Command and Telemetry Server.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;2018/02/12 09:12:58.118  ERROR: INST HEALTH_STATUS TEMP2 = NaN is RED_LOW
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;2018/02/12 09:12:58.118  ERROR: INST HEALTH_STATUS TEMP2 = NaN is RED_LOW
 2018/02/12 09:12:58.121  ERROR: INST2 HEALTH_STATUS TEMP2 = NaN is RED_LOW
 2018/02/12 09:12:58.220  INFO: Disabling Limits Group: INST2_TEMP2
 2018/02/12 09:12:58.220  INFO: Disabling Limits Group: INST2_GROUND
@@ -1108,14 +1108,14 @@ LIMITS_GROUP INST2_GROUND
 &lt;h2 id=&quot;other-limits-apis&quot;&gt;Other Limits APIs&lt;/h2&gt;
 &lt;p&gt;There are a few other APIs which are provided to work with COSMOS limits.&lt;/p&gt;
 
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;get_stale&lt;/code&gt; returns all the stale packets in the system. Stale packets are those which have not been received by the Command and Telemetry Server for the &lt;a href=&quot;/docs/system/#staleness_seconds&quot;&gt;STALENESS_SECONDS&lt;/a&gt; setting (by default 30s).&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get_stale&lt;/code&gt; returns all the stale packets in the system. Stale packets are those which have not been received by the Command and Telemetry Server for the &lt;a href=&quot;/docs/system/#staleness_seconds&quot;&gt;STALENESS_SECONDS&lt;/a&gt; setting (by default 30s).&lt;/p&gt;
 
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;get_limits(tgt, pkt, item)&lt;/code&gt; returns the limits settings for a particular telemetry item. It returns an array of the group name, persistence setting, enable setting, red low, yellow low, yellow high, red high, blue low, and blue high limits values. If no blue operational limits were set those values are nil.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get_limits(tgt, pkt, item)&lt;/code&gt; returns the limits settings for a particular telemetry item. It returns an array of the group name, persistence setting, enable setting, red low, yellow low, yellow high, red high, blue low, and blue high limits values. If no blue operational limits were set those values are nil.&lt;/p&gt;
 
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;set_limits(tgt, pkt, item, red_low, yellow_low, yellow_high, red_high,&lt;/code&gt;
-&lt;code class=&quot;highlighter-rouge&quot;&gt;blue_low = nil, blue_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true)&lt;/code&gt; allows the user to set new values for the limits settings. Some values have defaults and some do not. Thus you must provide at least the first 7 parameters for this call to be successful. Note the order of parameters: red low, yellow low, yellow high, red high, and then blue low, blue high. By default the limits_set is :CUSTOM which is probably not a limits set you already have defined. Thus is you don’t set the limits_set parameter it may appear as if nothing has happened. To enable the new limits you have to manually change to the CUSTOM limits set: &lt;code class=&quot;highlighter-rouge&quot;&gt;set_limits_set(&quot;CUSTOM&quot;)&lt;/code&gt;. Alternatively, you can specify :DEFAULT for the limits_set parameter and you will typically immediately see the change (assuming DEFAULT is the active set). If you only want to change one particular value you can call &lt;code class=&quot;highlighter-rouge&quot;&gt;get_limits&lt;/code&gt; first to get the current settings and only change the value you want.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;set_limits(tgt, pkt, item, red_low, yellow_low, yellow_high, red_high,&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;blue_low = nil, blue_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true)&lt;/code&gt; allows the user to set new values for the limits settings. Some values have defaults and some do not. Thus you must provide at least the first 7 parameters for this call to be successful. Note the order of parameters: red low, yellow low, yellow high, red high, and then blue low, blue high. By default the limits_set is :CUSTOM which is probably not a limits set you already have defined. Thus is you don’t set the limits_set parameter it may appear as if nothing has happened. To enable the new limits you have to manually change to the CUSTOM limits set: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;set_limits_set(&quot;CUSTOM&quot;)&lt;/code&gt;. Alternatively, you can specify :DEFAULT for the limits_set parameter and you will typically immediately see the change (assuming DEFAULT is the active set). If you only want to change one particular value you can call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get_limits&lt;/code&gt; first to get the current settings and only change the value you want.&lt;/p&gt;
 
-&lt;p&gt;You can also use API methods to subscribe to limits events. This allows you to process all limits events in the same way the Limits Monitor application does. To start you must subscribe to limits events using &lt;code class=&quot;highlighter-rouge&quot;&gt;subscribe_limits_events(queue_size = 1000)&lt;/code&gt; which returns an ID. You can then call &lt;code class=&quot;highlighter-rouge&quot;&gt;get_limits_event(id)&lt;/code&gt; and pass in the ID to get limits event type and data from the server. There are three different limits event types: LIMITS_CHANGE, LIMITS_SET, and LIMITS_SETTING. LIMITS_CHANGE is when a particular item goes out of limits. This is by far the most common and probably the one you’re most interested in. LIMITS_SET events happen when the overall limits set changes. LIMITS_SETTING events are generated when the set_limits method is called to change the limits on an individual item. The &lt;code class=&quot;highlighter-rouge&quot;&gt;get_limits_event&lt;/code&gt; method takes a boolean second parameter to determine whether or not to block when waiting for an event. The default is false which means it blocks waiting for an event. You can also pass true which means to not block waiting for events. However if no event is present &lt;code class=&quot;highlighter-rouge&quot;&gt;get_limits_event&lt;/code&gt; will raise a ThreadError. Thus you must catch the error to allow your code to continue. Finally you call &lt;code class=&quot;highlighter-rouge&quot;&gt;unsubscribe_limits_events(id)&lt;/code&gt; when shutting down.&lt;/p&gt;
+&lt;p&gt;You can also use API methods to subscribe to limits events. This allows you to process all limits events in the same way the Limits Monitor application does. To start you must subscribe to limits events using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;subscribe_limits_events(queue_size = 1000)&lt;/code&gt; which returns an ID. You can then call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get_limits_event(id)&lt;/code&gt; and pass in the ID to get limits event type and data from the server. There are three different limits event types: LIMITS_CHANGE, LIMITS_SET, and LIMITS_SETTING. LIMITS_CHANGE is when a particular item goes out of limits. This is by far the most common and probably the one you’re most interested in. LIMITS_SET events happen when the overall limits set changes. LIMITS_SETTING events are generated when the set_limits method is called to change the limits on an individual item. The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get_limits_event&lt;/code&gt; method takes a boolean second parameter to determine whether or not to block when waiting for an event. The default is false which means it blocks waiting for an event. You can also pass true which means to not block waiting for events. However if no event is present &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get_limits_event&lt;/code&gt; will raise a ThreadError. Thus you must catch the error to allow your code to continue. Finally you call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;unsubscribe_limits_events(id)&lt;/code&gt; when shutting down.&lt;/p&gt;
 
 &lt;div class=&quot;note warning&quot;&gt;
   &lt;p&gt;&lt;b&gt;Overflown Queues Are Deleted&lt;/b&gt;&lt;/p&gt;
@@ -1167,30 +1167,30 @@ LIMITS_GROUP INST2_GROUND
 
 &lt;p&gt;In versions of COSMOS prior to 4.0.0, metadata could be defined in any target / packet combination. In the COSMOS demo we defined metadata in the META target and DATA packet. You would then explicitly tell COSMOS where this metadata was defined by passing the target and packet name to the tools. Here is a example of an old (pre 4.0.0) cmd_tlm_server.txt configuration file:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;PACKET_LOG_WRITER DEFAULT meta_packet_log_writer.rb META DATA config/data/meta_init.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;PACKET_LOG_WRITER DEFAULT meta_packet_log_writer.rb META DATA config/data/meta_init.txt
 COLLECT_METADATA META DATA
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Here is an example of a current (post 4.0.0) cmd_tlm_server.txt configuration file:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil true nil 2000000000 nil false
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil true nil 2000000000 nil false
 COLLECT_METADATA
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;The PACKET_LOG_WRITER and COLLECT_METADATA keywords no longer have to specify where the metadata is stored because COSMOS 4.0.0 standardized the metadata definition in the SYSTEM target and META packet. You’ll notice the old cmd_tlm_server.txt file specified the location of a meta_init.txt file. This file contains the default values to use when initializing the metadata dialog. In post COSMOS 4.0.0 this file is defined in system.txt using the META_INIT keyword like so:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;META_INIT config/data/meta_init.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;META_INIT config/data/meta_init.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Note that you do not have to define all the items in your metadata in your meta_init file. Any items not found in meta_init will simply be blank in the dialog. If you try to set any of the COSMOS reserved items (defined below) they will simply be overriden with the COSMOS defined values.&lt;/p&gt;
 
 &lt;p&gt;If you do not define any metadata in your system (you don’t declare the SYSTEM META packet), COSMOS will automatically define the following items:&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SYSTEM META PKTID&lt;/code&gt; - Always 1 and used to identify the packet&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SYSTEM META CONFIG&lt;/code&gt; - Configuration name (MD5 checksum)&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SYSTEM META COSMOS_VERSION&lt;/code&gt; - COSMOS Version (e.g. 4.1.1)&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SYSTEM META USER_VERSION&lt;/code&gt; - Defined by the USER_VERSION constant. Typically set in &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/demo/lib/user_version.rb&quot;&gt;lib/user_version.rb&lt;/a&gt; in your configuration.&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;SYSTEM META RUBY_VERSION&lt;/code&gt; - Ruby Version (e.g. 2.4.2p198)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SYSTEM META PKTID&lt;/code&gt; - Always 1 and used to identify the packet&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SYSTEM META CONFIG&lt;/code&gt; - Configuration name (MD5 checksum)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SYSTEM META COSMOS_VERSION&lt;/code&gt; - COSMOS Version (e.g. 4.1.1)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SYSTEM META USER_VERSION&lt;/code&gt; - Defined by the USER_VERSION constant. Typically set in &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/demo/lib/user_version.rb&quot;&gt;lib/user_version.rb&lt;/a&gt; in your configuration.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SYSTEM META RUBY_VERSION&lt;/code&gt; - Ruby Version (e.g. 2.4.2p198)&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;These items help identify the telemetry being collected by the currently running instance of the COSMOS Server. In fact, every time COSMOS starts a new log file it adds the SYSTEM META packet to the beginning. This behavior was possible prior to COSMOS 4.0.0 but required using the special meta_packet_log_writer in the cmd_tlm_server.txt definition as shown in the first cmd_tlm_server.txt example.&lt;/p&gt;
@@ -1199,7 +1199,7 @@ COLLECT_METADATA
 
 &lt;p&gt;If you want to add your own fields to the COSMOS metadata you must define the standard COSMOS metadata items and then append your new values. For example, the COSMOS demo defines the following in &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/SYSTEM/cmd_tlm/meta_tlm.txt&quot;&gt;targets/SYSTEM/cmd_tlm/meta_tlm.txt&lt;/a&gt;:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TELEMETRY SYSTEM META BIG_ENDIAN &quot;System Meta Data Telemetry Packet&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TELEMETRY SYSTEM META BIG_ENDIAN &quot;System Meta Data Telemetry Packet&quot;
   APPEND_ID_ITEM PKTID 8 UINT 1 &quot;Packet Id&quot;
   APPEND_ITEM CONFIG 256 STRING &quot;Configuration Name&quot;
   APPEND_ITEM COSMOS_VERSION 240 STRING &quot;COSMOS Version&quot;
@@ -1219,7 +1219,7 @@ COLLECT_METADATA
 
 &lt;p&gt;Also note that you can declare metadata items with STATES and they will be displayed as dropdowns in the metadata dialog. For example if you add the following to the SYSTEM META packet:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;APPEND_ITEM UUT 32 UINT &quot;Unit under test&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;APPEND_ITEM UUT 32 UINT &quot;Unit under test&quot;
   STATE ARTICLE_0 0
   STATE ARTICLE_1 1
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -1423,7 +1423,7 @@ COLLECT_METADATA
 
 &lt;p&gt;The Ruby programming language defines the keywords ‘require’ and ‘load’. These are actually methods on the Kernel class and you can find the full documention on &lt;a href=&quot;https://ruby-doc.org/&quot;&gt;ruby-doc.org&lt;/a&gt; for both &lt;a href=&quot;https://ruby-doc.org/core-2.4.2/Kernel.html#method-i-require&quot;&gt;require&lt;/a&gt; and &lt;a href=&quot;https://ruby-doc.org/core-2.4.2/Kernel.html#method-i-load&quot;&gt;load&lt;/a&gt;. They basically include additional Ruby source files into the current execution environment so they can be used by your code. The key difference is that require will only include a file once. If you try to require a file a second time the require method actually returns false indicating that the file has already been required. You can easily test this by opening an IRB session and requiring something twice.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;irb(main):001:0&amp;gt; require 'cosmos'
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;irb(main):001:0&amp;gt; require 'cosmos'
 =&amp;gt; true
 irb(main):002:0&amp;gt; require 'cosmos'
 =&amp;gt; false
@@ -1433,7 +1433,7 @@ irb(main):002:0&amp;gt; require 'cosmos'
 
 &lt;p&gt;The load keyword loads the specified file everytime and thus reparses any changes that may have been made to the file in question. This is almost always what you want to use when writing scripts for COSMOS as it allows you to edit files and be assured that you will be running the latest. Note the difference when using load in this IRB session.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;irb(main):001:0&amp;gt; load 'cosmos.rb'
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;irb(main):001:0&amp;gt; load 'cosmos.rb'
 =&amp;gt; true
 irb(main):002:0&amp;gt; load 'cosmos.rb'
 =&amp;gt; true
@@ -1458,7 +1458,7 @@ irb(main):004:0&amp;gt; require 'cosmos.rb'
 
 &lt;p&gt;After talking aobut require and load I think this is a good place to talk a little about the Ruby Load Path since it directly affects whether a require or load will succeed. The overall Ruby load path can be found by typing $LOAD_PATH. Doing this in my IRB session running Ruby 2.3.3 results in the following.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;irb(main):004:0&amp;gt; puts $LOAD_PATH
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;irb(main):004:0&amp;gt; puts $LOAD_PATH
 C:\git\cosmos\lib
 C:/Ruby233p222-x64/lib/ruby/gems/2.3.0/gems/did_you_mean-1.0.0/lib
 C:/Ruby233p222-x64/lib/ruby/site_ruby/2.3.0
@@ -1476,7 +1476,7 @@ C:/Ruby233p222-x64/lib/ruby/2.3.0/x64-mingw32
 
 &lt;p&gt;When you start requiring other libraries they typically add things to your LOAD_PATH. Watch what happens when I require ‘cosmos’.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;irb(main):001:0&amp;gt; require 'cosmos'
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;irb(main):001:0&amp;gt; require 'cosmos'
 =&amp;gt; true
 irb(main):002:0&amp;gt; puts $LOAD_PATH
 C:/Ruby233p222-x64/lib/ruby/gems/2.3.0/gems/uuidtools-2.1.5/lib
@@ -1507,7 +1507,7 @@ C:/Ruby233p222-x64/lib/ruby/2.3.0/x64-mingw32
 
 &lt;p&gt;You can display your $LOAD_PATH from Script Runner by simply running “puts $LOAD_PATH” from Script Runner. When I do this I get the following in my Script Output:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;2017/11/13 10:58:21.815 (SCRIPTRUNNER): Starting script:
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;2017/11/13 10:58:21.815 (SCRIPTRUNNER): Starting script:
 2017/11/13 10:58:22.076 (:1): C:/git/COSMOS/demo/procedures
 2017/11/13 10:58:22.076 (:1): C:/Ruby233p222-x64/lib/ruby/gems/2.3.0/gems/uuidtools-2.1.5/lib
 2017/11/13 10:58:22.076 (:1): C:/git/COSMOS/demo/lib
@@ -1609,17 +1609,17 @@ C:/Ruby233p222-x64/lib/ruby/2.3.0/x64-mingw32
 
 &lt;p&gt;Wow, that is a lot of gems! COSMOS requires a lot of libraries to support how it operates including many used for development purposes like rspec and simplecov. An important thing to note is at the top of the list the following paths are listed.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;C:/git/COSMOS/demo/procedures
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;C:/git/COSMOS/demo/procedures
 C:/git/COSMOS/demo/lib
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;The first path is due to the following line in the COSMOS Demo configuration’s system.txt configuration file: &lt;code class=&quot;highlighter-rouge&quot;&gt;PATH PROCEDURES ./procedures&lt;/code&gt;. This adds the procedures directory in the current COSMOS configuration (C:/git/COSMOS/demo on my machine) to the path.&lt;/p&gt;
+&lt;p&gt;The first path is due to the following line in the COSMOS Demo configuration’s system.txt configuration file: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PATH PROCEDURES ./procedures&lt;/code&gt;. This adds the procedures directory in the current COSMOS configuration (C:/git/COSMOS/demo on my machine) to the path.&lt;/p&gt;
 
 &lt;p&gt;The second path is added to every COSMOS configuration. The lib directory in the current COSMOS configuration (C:/git/COSMOS/demo on my machine).&lt;/p&gt;
 
 &lt;p&gt;You should also note the last few lines of the $LOAD_PATH.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;C:/git/COSMOS/demo/config/targets/INST/lib
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;C:/git/COSMOS/demo/config/targets/INST/lib
 C:/git/COSMOS/demo/config/targets/INST/procedures
 C:/git/COSMOS/demo/config/targets/EXAMPLE/lib
 C:/git/COSMOS/demo/config/targets/TEMPLATED/lib
@@ -1679,13 +1679,13 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 &lt;ol&gt;
   &lt;li&gt;Edit config/tools/launcher/launcher.txt&lt;/li&gt;
   &lt;li&gt;Add the following line (typically after Utilities LABEL)
-    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Config Editor&quot; &quot;LAUNCH ConfigEditor&quot; &quot;config_editor.png&quot;
+    &lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Config Editor&quot; &quot;LAUNCH ConfigEditor&quot; &quot;config_editor.png&quot;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
   &lt;/li&gt;
 &lt;/ol&gt;
 
 &lt;p&gt;Restart your Launcher and you should see this new tool to help you configure COSMOS. Note that if you don’t have the Configuration Editor button then you probably also don’t have a button for the new Command Sequence tool. Add the following line after the Command Sender line to access this tool:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Command Sequence&quot; &quot;LAUNCH CmdSequence&quot; &quot;cmd_sequence.png&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TOOL &quot;Command Sequence&quot; &quot;LAUNCH CmdSequence&quot; &quot;cmd_sequence.png&quot;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Enjoy these new COSMOS 4.0 tools!&lt;/p&gt;
@@ -1829,19 +1829,19 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 &lt;img src=&quot;/img/2017_08_23_aws_red_hat_connect.png&quot; alt=&quot;Connect Dialog&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo yum groupinstall 'Server with GUI'
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo yum groupinstall 'Server with GUI'
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Install COSMOS using the installation bash file:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash &amp;lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash &amp;lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Chose the sudo option when asked how to install. To enable X forwarding edit the SSH config file:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo vim /etc/ssh/sshd_config
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo vim /etc/ssh/sshd_config
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Enable the following settings:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;X11Forwarding yes
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;X11Forwarding yes
 X11DisplayOffset 10
 X11UseLocalhost no
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -1863,39 +1863,39 @@ X11UseLocalhost no
 &lt;img src=&quot;/img/2017_08_23_aws_security_group.png&quot; alt=&quot;Security Group&quot; /&gt;&lt;/p&gt;
 
 &lt;p&gt;SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get update
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo apt-get update
 sudo apt install xfce4 xfce4-goodies tightvncserver
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Run the following commands to setup the VNC server:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vncserver
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vncserver
 vncserver -kill :1
 vim ~/.vnc/xstartup
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Ensure your xstartup file matches the following:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;c&quot;&gt;#!/bin/sh&lt;/span&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;#!/bin/sh
 
-&lt;span class=&quot;c&quot;&gt;# Uncomment the following two lines for normal desktop:&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;unset &lt;/span&gt;SESSION_MANAGER
-&lt;span class=&quot;c&quot;&gt;# exec /etc/X11/xinit/xinitrc&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;unset &lt;/span&gt;DBUS_SESSION_BUS_ADDRESS
+# Uncomment the following two lines for normal desktop:
+unset SESSION_MANAGER
+# exec /etc/X11/xinit/xinitrc
+unset DBUS_SESSION_BUS_ADDRESS
 startxfce4 &amp;amp;
 
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-x&lt;/span&gt; /etc/vnc/xstartup &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;exec&lt;/span&gt; /etc/vnc/xstartup
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-r&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$HOME&lt;/span&gt;/.Xresources &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; xrdb &lt;span class=&quot;nv&quot;&gt;$HOME&lt;/span&gt;/.Xresources
-xsetroot &lt;span class=&quot;nt&quot;&gt;-solid&lt;/span&gt; grey
-vncconfig &lt;span class=&quot;nt&quot;&gt;-iconic&lt;/span&gt; &amp;amp;
-&lt;span class=&quot;c&quot;&gt;#x-terminal-emulator -geometry 80x24+10+10 -ls -title &quot;$VNCDESKTOP Desktop&quot; &amp;amp;&lt;/span&gt;
-&lt;span class=&quot;c&quot;&gt;#x-window-manager &amp;amp;&lt;/span&gt;
+[ -x /etc/vnc/xstartup ] &amp;amp;&amp;amp; exec /etc/vnc/xstartup
+[ -r $HOME/.Xresources ] &amp;amp;&amp;amp; xrdb $HOME/.Xresources
+xsetroot -solid grey
+vncconfig -iconic &amp;amp;
+#x-terminal-emulator -geometry 80x24+10+10 -ls -title &quot;$VNCDESKTOP Desktop&quot; &amp;amp;
+#x-window-manager &amp;amp;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Restart VNC:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vncserver
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;vncserver
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Install COSMOS using the installation bash file:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash &amp;lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bash &amp;lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;Chose the sudo option when asked how to install. On your local machine install a VNC viewer such as TightVNC and connect by entering the Public DNS address of your AWS instance in the Remote Host as well as the Port number of 5901. Typically this is added by appending it to the Remote Host address with a colon. Here is a screenshot of it running while I connected via TightVNC:
@@ -2093,7 +2093,7 @@ vncconfig &lt;span class=&quot;nt&quot;&gt;-iconic&lt;/span&gt; &amp;amp;
 
 &lt;p&gt;For this example we’ll assume we’re trying to talk to a SCPI enabled power supply such as the Keysight N6700. We start by creating a directory under our config/targets called POWER. The supply has a TCP/IP interface so we’ll use the &lt;a href=&quot;/docs/interfaces/#tcpip-client-interface&quot;&gt;TCP/IP Client Interface&lt;/a&gt; to connect to it. Thus we create our POWER/cmd_tlm_server.txt file as follows:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE POWER_INT tcpip_client_interface.rb 127.0.0.1 5025 5025 10.0 nil TEMPLATE 0x0A 0x0A
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE POWER_INT tcpip_client_interface.rb 127.0.0.1 5025 5025 10.0 nil TEMPLATE 0x0A 0x0A
   TARGET POWER
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -2101,7 +2101,7 @@ vncconfig &lt;span class=&quot;nt&quot;&gt;-iconic&lt;/span&gt; &amp;amp;
 
 &lt;p&gt;Now you can define your target’s command and telemetry definitions. We’ll create example commands which get and set the voltage setting in our power supply. Create a POWER/cmd_tlm/cmd.txt file which has the following:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND POWER GET_VOLTAGE BIG_ENDIAN &quot;Get voltage&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND POWER GET_VOLTAGE BIG_ENDIAN &quot;Get voltage&quot;
   APPEND_ID_PARAMETER CMD_ID 8 UINT 1 1 1 &quot;Command Id&quot; # Unique command ID
   APPEND_PARAMETER CHANNEL 8 UINT 1 4 1 &quot;Channel&quot;
   APPEND_PARAMETER CMD_TEMPLATE 512 STRING &quot;MEAS:VOLT? (@&amp;lt;CHANNEL&amp;gt;)&quot;
@@ -2121,7 +2121,7 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN &quot;Set voltage&quot;
 
 &lt;p&gt;Create a POWER/cmd_tlm/tlm.txt file to define the response telemetry:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TELEMETRY POWER TLM BIG_ENDIAN &quot;Power Supply Telemetry&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TELEMETRY POWER TLM BIG_ENDIAN &quot;Power Supply Telemetry&quot;
   APPEND_ID_ITEM TLM_ID 32 INT 1 &quot;Packet Identifier&quot; # Unique telemetry ID
   APPEND_ITEM VOLTAGE 32 FLOAT &quot;PS Measured Voltage&quot;
     FORMAT_STRING &quot;%0.3f&quot;
@@ -2135,7 +2135,7 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN &quot;Set voltage&quot;
 
 &lt;p&gt;With Keysight supplies you can string together a bunch of SCIP commands in one CMD_TEMPLATE if you delimit them with semicolons. Then in the RSP_TEMPLATE you can break the response apart and set a bunch of telemetry items at once. For example:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND POWER GET_STATUS BIG_ENDIAN &quot;Get status&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND POWER GET_STATUS BIG_ENDIAN &quot;Get status&quot;
   APPEND_ID_PARAMETER CMD_ID 8 UINT 3 3 3 &quot;Command Id&quot; # Unique command ID
   APPEND_PARAMETER CHANNEL 8 UINT 1 4 1 &quot;Channel&quot;
   APPEND_PARAMETER CMD_TEMPLATE 512 STRING &quot;MEAS:VOLT (@&amp;lt;CHANNEL&amp;gt;);CURR (@&amp;lt;CHANNEL&amp;gt;);POW (@&amp;lt;CHANNEL&amp;gt;)&quot;
@@ -2196,7 +2196,7 @@ Documentation will updated the first week of April.&lt;/p&gt;
 
 &lt;p&gt;You can migrate existing config files using:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
@@ -2225,7 +2225,7 @@ Documentation will updated the first week of April.&lt;/p&gt;
 
 &lt;p&gt;This is all controlled by the INST target’s cmd/tlm definition files. If you open the INST/cmd_tlm/inst_tlm.txt file from the demo you’ll see the following at the end of the HEALTH_STATUS packet definition:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  ITEM TEMP1HIGH 0 0 DERIVED &quot;High-water mark for TEMP1&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  ITEM TEMP1HIGH 0 0 DERIVED &quot;High-water mark for TEMP1&quot;
     READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER
   ITEM TEMP1LOW 0 0 DERIVED &quot;Low-water mark for TEMP1&quot;
     READ_CONVERSION processor_conversion.rb TEMP1WATER LOW_WATER
@@ -2289,9 +2289,9 @@ Documentation will updated the first week of April.&lt;/p&gt;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
 &lt;p&gt;The initialize method gets passed the parameters from the config file. Thus our config file of:
-&lt;code class=&quot;highlighter-rouge&quot;&gt;PROCESSOR TEMP1WATER watermark_processor.rb TEMP1&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PROCESSOR TEMP1WATER watermark_processor.rb TEMP1&lt;/code&gt;
 passes ‘TEMP1’ into ‘item_name’ of the initialize method:
-&lt;code class=&quot;highlighter-rouge&quot;&gt;def initialize(item_name, value_type = :CONVERTED)&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;def initialize(item_name, value_type = :CONVERTED)&lt;/code&gt;
 Since we only pass one value, we use the default value_type of :CONVERTED.&lt;/p&gt;
 
 &lt;p&gt;We store the item_name into a Ruby instance variable @item_name and call reset() to initialize our @results. But how did we get a @results instance variable? If you look at the class definition we are inheriting from &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/processors/processor.rb&quot;&gt;Processor&lt;/a&gt; which is the base class for all COSMOS Processors. It declares a @results instance variable and initializes @results in its initialize method which we call using super(value_type).&lt;/p&gt;
@@ -2334,9 +2334,9 @@ Since we only pass one value, we use the default value_type of :CONVERTED.&lt;/p
 &lt;p&gt;First of all note that ProcessorConversion inherits from the &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/conversions/conversion.rb&quot;&gt;Conversion&lt;/a&gt; base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let’s see how these map together in our definition.&lt;/p&gt;
 
 &lt;p&gt;Our config file looked like the following:
-&lt;code class=&quot;highlighter-rouge&quot;&gt;READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER&lt;/code&gt;
 This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into initialize:
-&lt;code class=&quot;highlighter-rouge&quot;&gt;def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)&lt;/code&gt;&lt;/p&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;We store the processor name and result name into Ruby instance variables (first turning them into upper case strings). We additionally turn the result name into a Ruby symbol by calling intern on it. This allows us to match the symbol names we used in the WatermarkProcessor code.&lt;/p&gt;
 
@@ -2381,9 +2381,9 @@ This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into ini
 &lt;p&gt;This class introduces some new Ruby syntax. Since we want to accept any number of items to average we have to accept a variable number of arguments in our initialize method. The ruby splat operator (or star operator) does this and places the arguments into a Ruby array. We store these names and then use them in our call method to perform the mean. I’m using a cool feature of Ruby’s Enumerable mixin, which is part of Array, to sum up the values (starting with 0) and then dividing by the number of values we have to get the mean. Note I’m also calling to_f to ensure the numerator is a floating point number so we do floating point math during the division. Integer division would truncate the value to an integer value.&lt;/p&gt;
 
 &lt;p&gt;First to use this new processor you need to require it in your target’s &lt;a href=&quot;/docs/system/#targettxt-keywords&quot;&gt;target.txt&lt;/a&gt; configuration file:
-&lt;code class=&quot;highlighter-rouge&quot;&gt;REQUIRE mean_processor.rb&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;REQUIRE mean_processor.rb&lt;/code&gt;
 Then delcare the processing in your configuration definition as follows:
-&lt;code class=&quot;highlighter-rouge&quot;&gt;TELEMETRY INST HEALTH_STATUS BIG_ENDIAN &quot;Health and status from the instrument&quot;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;TELEMETRY INST HEALTH_STATUS BIG_ENDIAN &quot;Health and status from the instrument&quot;
   ... # See demo configuration
   ITEM TEMPS_MEAN 0 0 DERIVED &quot;Mean of TEMP1, TEMP2, TEMP3, TEMP4&quot;
     READ_CONVERSION processor_conversion.rb TEMPMEAN MEAN
@@ -2457,7 +2457,7 @@ Documentation will updated the first week of April.&lt;/p&gt;
 
 &lt;p&gt;You can migrate existing config files using:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
@@ -2483,7 +2483,7 @@ Documentation will updated the first week of April.&lt;/p&gt;
 
 &lt;p&gt;The Preidentified Router is controlled by the system.txt configuration file:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# Ethernet Ports
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# Ethernet Ports
 PORT CTS_API 7777
 PORT TLMVIEWER_API 7778
 PORT CTS_PREIDENTIFIED 7779
@@ -2493,7 +2493,7 @@ PORT CTS_PREIDENTIFIED 7779
 
 &lt;p&gt;If you look back at the picture you’ll see in our demo configuration that we also create another Router called the INST_ROUTER. This is how that Router is configured:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
   OPTION LISTEN_ADDRESS 127.0.0.1
   ROUTE INST_INT
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
@@ -2515,7 +2515,7 @@ PORT CTS_PREIDENTIFIED 7779
 
 &lt;p&gt;Obviously we need the TCPIP Client Interface to match the port number of the TCPIP Server and we also need to match the LENGTH protocol options. Notice how we have to call the System.telemetry.identify! method to identify the raw packet stream. When I run this from a command prompt after starting the Server I see a stream of packet names similar to this:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;MECH
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;MECH
 ADCS
 MECH
 IMAGE
@@ -2633,11 +2633,11 @@ ADCS
       <category>post</category>
       
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/09/12/erb-config/</guid>
-      <description>&lt;p&gt;COSMOS configuration files support ERB (Embedded RuBy) which is used heavily by &lt;a href=&quot;http://rubyonrails.org/&quot;&gt;Ruby on Rails&lt;/a&gt;. I found a pretty good description of ERB &lt;a href=&quot;http://www.stuartellis.eu/articles/erb/&quot;&gt;here&lt;/a&gt;. ERB allows you to put executable Ruby code in your configuration files. The trick is to surround the Ruby code with the special markers: &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;% &amp;lt;code&amp;gt; %&amp;gt;&lt;/code&gt;. If you want the result of your Ruby code to be placed in the configuration file you need to add the equal sign to the first marker: &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;%= &amp;lt;code&amp;gt; %&amp;gt;&lt;/code&gt;&lt;/p&gt;
+      <description>&lt;p&gt;COSMOS configuration files support ERB (Embedded RuBy) which is used heavily by &lt;a href=&quot;http://rubyonrails.org/&quot;&gt;Ruby on Rails&lt;/a&gt;. I found a pretty good description of ERB &lt;a href=&quot;http://www.stuartellis.eu/articles/erb/&quot;&gt;here&lt;/a&gt;. ERB allows you to put executable Ruby code in your configuration files. The trick is to surround the Ruby code with the special markers: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;lt;% &amp;lt;code&amp;gt; %&amp;gt;&lt;/code&gt;. If you want the result of your Ruby code to be placed in the configuration file you need to add the equal sign to the first marker: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;lt;%= &amp;lt;code&amp;gt; %&amp;gt;&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;A COSMOS user recently asked if he could include environment variables in his COSMOS configuration. This is very easy using the ERB syntax. For example, you have an environment variable named “LOG_DIR” in your system which points to the path you want to store your COSMOS logs. To use this value you would modify your system.txt file as follows:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;...
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;...
 # Paths
 PATH LOGS &amp;lt;%= ENV[&quot;LOG_DIR&quot;] %&amp;gt;
 ...
@@ -2653,7 +2653,7 @@ PATH LOGS &amp;lt;%= ENV[&quot;LOG_DIR&quot;] %&amp;gt;
 
 &lt;p&gt;Now in system.txt we can use that ‘log_path’ routine after we first require ‘utilities’.&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;% require 'utilities' %&amp;gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;% require 'utilities' %&amp;gt;
 ...
 # Paths
 PATH LOGS &amp;lt;%= log_path() %&amp;gt;
@@ -2663,7 +2663,7 @@ PATH LOGS &amp;lt;%= log_path() %&amp;gt;
 
 &lt;p&gt;ERB templates are particularly useful in command and telemetry definitions as they allow you to reuse sections. We’ve added our own routine called ‘render’ (similar to Ruby on Rails) which can render a command or telemetry template. The best example of this is in the COSMOS Demo INST target. If you open the inst_cmds.txt file you’ll see this:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND INST COLLECT BIG_ENDIAN &quot;Starts a collect on the instrument&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND INST COLLECT BIG_ENDIAN &quot;Starts a collect on the instrument&quot;
   &amp;lt;%= render &quot;_ccsds_cmd.txt&quot;, locals: {id: 1} %&amp;gt;
   PARAMETER    TYPE           64  16  UINT MIN MAX 0 &quot;Collect type&quot;
     REQUIRED
@@ -2681,9 +2681,9 @@ COMMAND INST ABORT BIG_ENDIAN &quot;Aborts a collect on the instrument&quot;
 ...
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Notice the call to &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;%= render &quot;_ccsds_cmd.txt&quot;, locals: {id: 1} %&amp;gt;&lt;/code&gt;. Opening the ‘_ccsds_cmd.txt’ file reveals this command template:&lt;/p&gt;
+&lt;p&gt;Notice the call to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;&amp;lt;%= render &quot;_ccsds_cmd.txt&quot;, locals: {id: 1} %&amp;gt;&lt;/code&gt;. Opening the ‘_ccsds_cmd.txt’ file reveals this command template:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  PARAMETER    CCSDSVER        0   3  UINT  0     0   0 &quot;CCSDS primary header version number&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  PARAMETER    CCSDSVER        0   3  UINT  0     0   0 &quot;CCSDS primary header version number&quot;
   PARAMETER    CCSDSTYPE       3   1  UINT  1     1   1 &quot;CCSDS primary header packet type&quot;
   PARAMETER    CCSDSSHF        4   1  UINT  0     0   0 &quot;CCSDS primary header secondary header flag&quot;
   ID_PARAMETER CCSDSAPID       5  11  UINT  0  2047 999 &quot;CCSDS primary header application id&quot;
@@ -2722,16 +2722,16 @@ COMMAND INST ABORT BIG_ENDIAN &quot;Aborts a collect on the instrument&quot;
 
 &lt;p&gt;&lt;img src=&quot;/img/2016_08_22_inst_array.png&quot; alt=&quot;COSMOS Inst Array&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;This screen is already using the Array widget to display this data in a text box. We will add our new widget to the top of the screen which will display the data in a table. Let’s add the line to the screen which will call our new widget. Edit &lt;code class=&quot;highlighter-rouge&quot;&gt;demo/config/targets/INST/screens/array.txt&lt;/code&gt; and add the following line in the middle:&lt;/p&gt;
+&lt;p&gt;This screen is already using the Array widget to display this data in a text box. We will add our new widget to the top of the screen which will display the data in a table. Let’s add the line to the screen which will call our new widget. Edit &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;demo/config/targets/INST/screens/array.txt&lt;/code&gt; and add the following line in the middle:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;...
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;...
 TITLE &quot;Instrument Array Data&quot;
 DEMOTABLE INST HEALTH_STATUS ARY
 ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 ...
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Now we need to create the DemotableWidget which will implement the actual display. Create a new file called &lt;code class=&quot;highlighter-rouge&quot;&gt;demotable_widget.rb&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;demo/config/targets/INST/lib&lt;/code&gt;. Note that the name of the line in the config file, DEMOTABLE, must be all lowercase followed by an underscore and ‘widget’. The class name in the file must be one word with the first letter and Widget capitalized. This is how it should start:&lt;/p&gt;
+&lt;p&gt;Now we need to create the DemotableWidget which will implement the actual display. Create a new file called &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;demotable_widget.rb&lt;/code&gt; in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;demo/config/targets/INST/lib&lt;/code&gt;. Note that the name of the line in the config file, DEMOTABLE, must be all lowercase followed by an underscore and ‘widget’. The class name in the file must be one word with the first letter and Widget capitalized. This is how it should start:&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos/tools/tlm_viewer/widgets/widget'&lt;/span&gt;
 
@@ -2747,7 +2747,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 &lt;p&gt;We’re extending the closest widget that Qt offers to what we’re trying to achieve. In this case it’s pretty obvious but you can get documentation on &lt;a href=&quot;http://doc.qt.io/qt-4.8/classes.html&quot;&gt;all the Qt classes&lt;/a&gt;. In many cases it might be easier to extend an existing &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/tree/master/lib/cosmos/tools/tlm_viewer/widgets&quot;&gt;COSMOS widget&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Note that our initialize method takes the parent_layout as the first value. All COSMOS widgets make the first parameter the parent_layout so they can be added. The next four paramaters are typically the target_name, packet_name, item_name and value_type. Additional parameters can follow the value_type parameter. The first thing we do in the initialize method is call super which calls the Widget initialize method. If you run this code you should see that the screen displays but doesn’t look any different. That’s because we haven’t actually added our new widget to the parent_layout. Before adding widgets to the layout you typically want to configure them. For our table, we need to set the number of rows and columns. First I grab the telemetry value from the server using the &lt;code class=&quot;highlighter-rouge&quot;&gt;System.telemetry.value&lt;/code&gt; method defined in &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb&quot;&gt;telemetry.rb&lt;/a&gt;. Since this is an array value I call &lt;code class=&quot;highlighter-rouge&quot;&gt;length&lt;/code&gt; to determine how many rows to display in the table. I then use the Qt methods &lt;code class=&quot;highlighter-rouge&quot;&gt;setRowCount&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;setColumnCount&lt;/code&gt; to initialize the table. You can find these methods in the &lt;a href=&quot;http://doc.qt.io/qt-4.8/qtablewidget.html&quot;&gt;Qt::TableWidget&lt;/a&gt; documentation. Finally I call the addWidget method which is a part of all the &lt;a href=&quot;http://doc.qt.io/qt-4.8/qlayout.html&quot;&gt;Qt::Layout&lt;/a&gt; classes.&lt;/p&gt;
+&lt;p&gt;Note that our initialize method takes the parent_layout as the first value. All COSMOS widgets make the first parameter the parent_layout so they can be added. The next four paramaters are typically the target_name, packet_name, item_name and value_type. Additional parameters can follow the value_type parameter. The first thing we do in the initialize method is call super which calls the Widget initialize method. If you run this code you should see that the screen displays but doesn’t look any different. That’s because we haven’t actually added our new widget to the parent_layout. Before adding widgets to the layout you typically want to configure them. For our table, we need to set the number of rows and columns. First I grab the telemetry value from the server using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;System.telemetry.value&lt;/code&gt; method defined in &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb&quot;&gt;telemetry.rb&lt;/a&gt;. Since this is an array value I call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;length&lt;/code&gt; to determine how many rows to display in the table. I then use the Qt methods &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;setRowCount&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;setColumnCount&lt;/code&gt; to initialize the table. You can find these methods in the &lt;a href=&quot;http://doc.qt.io/qt-4.8/qtablewidget.html&quot;&gt;Qt::TableWidget&lt;/a&gt; documentation. Finally I call the addWidget method which is a part of all the &lt;a href=&quot;http://doc.qt.io/qt-4.8/qlayout.html&quot;&gt;Qt::Layout&lt;/a&gt; classes.&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parent_layout&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value_type&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;ss&quot;&gt;:WITH_UNITS&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
       &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;packet_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value_type&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
@@ -2762,7 +2762,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 &lt;p&gt;&lt;img src=&quot;/img/2016_08_22_inst_array2.png&quot; alt=&quot;COSMOS Inst Array&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;To actually populate it with data we must follow the Cosmos Widget conventions. First of all by including Widget you include all the &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/widget.rb&quot;&gt;Widget&lt;/a&gt; code which creates two key class methods: &lt;code class=&quot;highlighter-rouge&quot;&gt;layout_manager?&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;takes_value?&lt;/code&gt;. These must be overridden to return true if your widget is either a layout or takes a value respectively. Since our widget will be taking the array data as a value we must override &lt;code class=&quot;highlighter-rouge&quot;&gt;takes_value?&lt;/code&gt;:&lt;/p&gt;
+&lt;p&gt;To actually populate it with data we must follow the Cosmos Widget conventions. First of all by including Widget you include all the &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/widget.rb&quot;&gt;Widget&lt;/a&gt; code which creates two key class methods: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;layout_manager?&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;takes_value?&lt;/code&gt;. These must be overridden to return true if your widget is either a layout or takes a value respectively. Since our widget will be taking the array data as a value we must override &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;takes_value?&lt;/code&gt;:&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'cosmos/tools/tlm_viewer/widgets/widget'&lt;/span&gt;
 
@@ -2774,7 +2774,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
       &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;kp&quot;&gt;true&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;Typically class methods are defined at the top of the source file and begin with self. You can also type out the class name but this is less robust as changing the class name requires changing the method name. Implementing this class method allows Telemetry Viewer to call the &lt;code class=&quot;highlighter-rouge&quot;&gt;value=(data)&lt;/code&gt; method with new telemetry data. The value method implementation should look like this:&lt;/p&gt;
+&lt;p&gt;Typically class methods are defined at the top of the source file and begin with self. You can also type out the class name but this is less robust as changing the class name requires changing the method name. Implementing this class method allows Telemetry Viewer to call the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;value=(data)&lt;/code&gt; method with new telemetry data. The value method implementation should look like this:&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
       &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;vi&quot;&gt;@rows&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Note the extra 'dot' which means up to but not including&lt;/span&gt;
@@ -2782,7 +2782,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
       &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;The data value passed to the method is the same target, packet, and item used in the screen definition. In our value= method we are using our stored instance variable &lt;code class=&quot;highlighter-rouge&quot;&gt;@rows&lt;/code&gt; to index into the array data and create new &lt;a href=&quot;http://doc.qt.io/qt-4.8/qtablewidgetitem.html&quot;&gt;Qt::TableWidgetItem&lt;/a&gt; instances to store the data. TableWidgetItems expect Strings to be passed so I call to_s on the data item to ensure it is a String. If you now re-launch Telemetry Viewer you should see the values populated in the table:&lt;/p&gt;
+&lt;p&gt;The data value passed to the method is the same target, packet, and item used in the screen definition. In our value= method we are using our stored instance variable &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@rows&lt;/code&gt; to index into the array data and create new &lt;a href=&quot;http://doc.qt.io/qt-4.8/qtablewidgetitem.html&quot;&gt;Qt::TableWidgetItem&lt;/a&gt; instances to store the data. TableWidgetItems expect Strings to be passed so I call to_s on the data item to ensure it is a String. If you now re-launch Telemetry Viewer you should see the values populated in the table:&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/img/2016_08_22_inst_array3.png&quot; alt=&quot;COSMOS Inst Array&quot; /&gt;&lt;/p&gt;
 
@@ -2813,7 +2813,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
   &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
 
-&lt;p&gt;Note that we were able to remove the class method &lt;code class=&quot;highlighter-rouge&quot;&gt;self.takes_value?&lt;/code&gt; because AgingWidget already implements it. This is all required to setup aging but we must still modify the value= method to do the work. First in value= we call super to call the AgingWidget’s value= method. This method returns a string representation of the data with the correct foreground color and text character indicating the color, e.g. G=Green, Y=Yellow, R=Red. This is important for values with limits settings but since our array value doesn’t have limits I’m going to igore the return value and simply allow the aging routine to age the data. Interally this updates the &lt;code class=&quot;highlighter-rouge&quot;&gt;@background&lt;/code&gt; instance variable with the current ‘aged’ background color. I then set the TableWidgetItem’s background color to this color before adding it to the table:&lt;/p&gt;
+&lt;p&gt;Note that we were able to remove the class method &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;self.takes_value?&lt;/code&gt; because AgingWidget already implements it. This is all required to setup aging but we must still modify the value= method to do the work. First in value= we call super to call the AgingWidget’s value= method. This method returns a string representation of the data with the correct foreground color and text character indicating the color, e.g. G=Green, Y=Yellow, R=Red. This is important for values with limits settings but since our array value doesn’t have limits I’m going to igore the return value and simply allow the aging routine to age the data. Interally this updates the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@background&lt;/code&gt; instance variable with the current ‘aged’ background color. I then set the TableWidgetItem’s background color to this color before adding it to the table:&lt;/p&gt;
 
 &lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;    &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
       &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
@@ -2828,7 +2828,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 &lt;p&gt;&lt;img src=&quot;/img/2016_08_22_inst_array4.png&quot; alt=&quot;COSMOS Inst Array&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;Note that if you have a widget that implements aging and limits you’ll want to keep the value returned by super and use it in your widget. If you don’t want the aging routine to directly use your data value you can pass a string as the second parameter, e.g. super(data, text). This text string will be modified with the color blind settings. Basically that means that whatever the calculated &lt;code class=&quot;highlighter-rouge&quot;&gt;@foreground&lt;/code&gt; color string is, a corresponding text character is added (R=Red, G=Green, etc) to aid people who can’t distinguish colors. See &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb&quot;&gt;aging_widget.rb&lt;/a&gt; for more details.&lt;/p&gt;
+&lt;p&gt;Note that if you have a widget that implements aging and limits you’ll want to keep the value returned by super and use it in your widget. If you don’t want the aging routine to directly use your data value you can pass a string as the second parameter, e.g. super(data, text). This text string will be modified with the color blind settings. Basically that means that whatever the calculated &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@foreground&lt;/code&gt; color string is, a corresponding text character is added (R=Red, G=Green, etc) to aid people who can’t distinguish colors. See &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb&quot;&gt;aging_widget.rb&lt;/a&gt; for more details.&lt;/p&gt;
 
 &lt;p&gt;If you have a question which would benefit the community or find a possible bug please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
 </description>
@@ -2887,7 +2887,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 &lt;p&gt;What we’re doing is overriding pre_write_packet in StreamInterface to allow us to modify the data before it is written to the packet and sent over the interface. We also override post_read_data to operate on data received before it is sent back to the COSMOS server and thus the tools. Note there is also a post_read_packet(packet) method which is called after post_read_data is called and after the COSMOS Packet has been created. All Interfaces inheriting from StreamInterface includes these callback methods, including SerialInterface, TcpipServerInterface, and TcpipClientInterface. Note that UdpInterface inherits directly from Interface and thus does NOT include these callbacks.&lt;/p&gt;
 
 &lt;p&gt;Then in your cmd_tlm_server.txt file for your target you use your new interface:&lt;/p&gt;
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;#         interface name  file name                    write read baud   parity stop timeouts stream
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;#         interface name  file name                    write read baud   parity stop timeouts stream
 INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   1    nil nil  BURST
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -2911,13 +2911,13 @@ INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   
       <guid isPermaLink="true">http://cosmosrb.com/news/2016/07/06/cosmos-cmd-tlm-names/</guid>
       <description>&lt;p&gt;Recently a user asked if they could add exclamation points and question marks to their command and telemetry items. Absolutely!  COSMOS provides great flexibility in command and telemetry naming conventions. (See &lt;a href=&quot;http://cosmosrb.com/docs/command&quot;&gt;Command&lt;/a&gt;). For example, adding an exclamation point to a command to denote a more severe version of the same command:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND TGT ABORT BIG_ENDIAN &quot;Tries to abort a collect on the instrument&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND TGT ABORT BIG_ENDIAN &quot;Tries to abort a collect on the instrument&quot;
 COMMAND TGT ABORT! BIG_ENDIAN &quot;Force aborts a collect on the instrument&quot;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;While it doesn’t make sense to define a command with a question mark, it works well with telemetry points. For example, there is a telemetry point which indicates whether a mechanism is deployed or not. It is an analog value that indicates deployed if the value is above zero. To view both the raw value and the deployed status, define a derived telemetry point which indicates a TRUE or FALSE status:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;APPEND_ITEM DEPLOYED 16 UINT &quot;Deployed raw value&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;APPEND_ITEM DEPLOYED 16 UINT &quot;Deployed raw value&quot;
 ITEM DEPLOYED? 0 0 DERIVED &quot;Deployed status&quot;
   STATE FALSE 0
   STATE TRUE 1
@@ -3107,7 +3107,7 @@ ITEM DEPLOYED? 0 0 DERIVED &quot;Deployed status&quot;
 
 &lt;p&gt;First of all create a new COSMOS target directory in config/targets. I called mine INST (instrument) to match the COSMOS demo. Create the ‘cmd_tlm’ and ‘lib’ subdirectories. For my demo I created a simple ‘cmd.txt’ file which contains a single command:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND INST SET_STATUS BIG_ENDIAN &quot;Set status&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;COMMAND INST SET_STATUS BIG_ENDIAN &quot;Set status&quot;
   APPEND_PARAMETER STATUS 0 STRING &quot;STATUS&quot; &quot;Status&quot;
     STATE &quot;OK&quot; &quot;OK&quot;
     STATE &quot;ERROR&quot; &quot;ERROR&quot;
@@ -3115,7 +3115,7 @@ ITEM DEPLOYED? 0 0 DERIVED &quot;Deployed status&quot;
 
 &lt;p&gt;I created a ‘tlm.txt’ file which contains two different telemetry packets:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TELEMETRY INST STATUS BIG_ENDIAN &quot;Status from the instrument&quot;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;TELEMETRY INST STATUS BIG_ENDIAN &quot;Status from the instrument&quot;
   APPEND_ID_ITEM ID 16 UINT 1 &quot;Packet ID&quot;
   APPEND_ITEM COUNTER 16 UINT &quot;Packet counter&quot;
   APPEND_ITEM STATUS 0 STRING &quot;Most recent ASCIICMD string&quot;
@@ -3135,7 +3135,7 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 
 &lt;p&gt;The cmd_tlm_server.txt file is very simple:&lt;/p&gt;
 
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb
   TARGET INST
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
@@ -3148,7 +3148,7 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
   &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;SimInst&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;SimulatedTarget&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Next you can initialize any of your packets in the initialize method. This is entirely optional but I show how to use the &lt;code class=&quot;highlighter-rouge&quot;&gt;@tlm_packets&lt;/code&gt; hash to access all the defined packets. This hash is created automatically by the SimulatedTarget based on all the packets you have defined in your cmd_tlm/tlm.txt file. Note that there is NOT a corresponding &lt;code class=&quot;highlighter-rouge&quot;&gt;@cmd_packets&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Next you can initialize any of your packets in the initialize method. This is entirely optional but I show how to use the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@tlm_packets&lt;/code&gt; hash to access all the defined packets. This hash is created automatically by the SimulatedTarget based on all the packets you have defined in your cmd_tlm/tlm.txt file. Note that there is NOT a corresponding &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;@cmd_packets&lt;/code&gt;.&lt;/p&gt;
 
 &lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;initialize&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
   &lt;span class=&quot;k&quot;&gt;super&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;target_name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
@@ -3160,7 +3160,7 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;We then have to configure the telemetry packet rates of our target. That is, how fast do the packets get sent out. This is handled by implementing the &lt;code class=&quot;highlighter-rouge&quot;&gt;set_rates&lt;/code&gt; method and by calling &lt;code class=&quot;highlighter-rouge&quot;&gt;set_rate&lt;/code&gt; for each packet defined in your system. If you do not call &lt;code class=&quot;highlighter-rouge&quot;&gt;set_rate&lt;/code&gt; the packet will not be send out periodically (which may be desirable for event based packets).&lt;/p&gt;
+&lt;p&gt;We then have to configure the telemetry packet rates of our target. That is, how fast do the packets get sent out. This is handled by implementing the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;set_rates&lt;/code&gt; method and by calling &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;set_rate&lt;/code&gt; for each packet defined in your system. If you do not call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;set_rate&lt;/code&gt; the packet will not be send out periodically (which may be desirable for event based packets).&lt;/p&gt;
 
 &lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;set_rates&lt;/span&gt;
   &lt;span class=&quot;c1&quot;&gt;# The SimulatedTarget operates on a 101Hz clock&lt;/span&gt;
@@ -3171,7 +3171,7 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;If your target will accept command you need to implemented the &lt;code class=&quot;highlighter-rouge&quot;&gt;write(packet)&lt;/code&gt; method. My write method is simple in that I only have a single command that directly sets a value in one of my telemetry packets.&lt;/p&gt;
+&lt;p&gt;If your target will accept command you need to implemented the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;write(packet)&lt;/code&gt; method. My write method is simple in that I only have a single command that directly sets a value in one of my telemetry packets.&lt;/p&gt;
 
 &lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;write&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;packet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
   &lt;span class=&quot;c1&quot;&gt;# We directly set the telemetry value from the only command&lt;/span&gt;
@@ -3181,7 +3181,7 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
-&lt;p&gt;Your target must implement the &lt;code class=&quot;highlighter-rouge&quot;&gt;read(count_100hz, time)&lt;/code&gt; method to return telemetry packets back to COSMOS. You’ll call the &lt;code class=&quot;highlighter-rouge&quot;&gt;get_pending_packets(count_100hz)&lt;/code&gt; method implemented by SimulatedTarget and then perform whatever operations you want on the packets before returning the array of packets back to COSMOS. Note my use of the &lt;code class=&quot;highlighter-rouge&quot;&gt;cycle_tlm_item&lt;/code&gt; method to automatically cycle the telemetry item as each packet is sent out. This is used heavily in the COSMOS Demo.&lt;/p&gt;
+&lt;p&gt;Your target must implement the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;read(count_100hz, time)&lt;/code&gt; method to return telemetry packets back to COSMOS. You’ll call the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get_pending_packets(count_100hz)&lt;/code&gt; method implemented by SimulatedTarget and then perform whatever operations you want on the packets before returning the array of packets back to COSMOS. Note my use of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cycle_tlm_item&lt;/code&gt; method to automatically cycle the telemetry item as each packet is sent out. This is used heavily in the COSMOS Demo.&lt;/p&gt;
 
 &lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;count_100hz&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
   &lt;span class=&quot;c1&quot;&gt;# The SimulatedTarget implements get_pending_packets to return&lt;/span&gt;
@@ -3748,26 +3748,26 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 
 &lt;p&gt;The COSMOS framework has several &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/tree/master/ext/cosmos/ext&quot;&gt;C extensions&lt;/a&gt; created to increase performance. One critical piece that was created early on is the extension to the &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/binary_accessor.rb&quot;&gt;BinaryAccessor&lt;/a&gt; class. This allows for increased performance when reading items from binary packets which is the most common operation in the COSMOS system. I created a COSMOS &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/tree/master/test/performance&quot;&gt;performance configuration&lt;/a&gt; which spawns 30 fake targets and attempts to send commands to them as fast as possible. Sending commands exercies the write portion of BinaryAccessor and profiling showed this was now becoming a bottleneck. Therefore I set out to port the write method to the existing C extension.&lt;/p&gt;
 
-&lt;p&gt;The fact that &lt;a href=&quot;https://github.com/ryanatball&quot;&gt;Ryan&lt;/a&gt; had already implemented the read method as a C extension gave me a huge head start. I first copied all the Ruby code directly into the C extension so I could try to translate it line by line. Initially if I didn’t know how to do the translation I would just comment it out and see how much I could compile. A nice way to do this in C code is use &lt;code class=&quot;highlighter-rouge&quot;&gt;#if 0 ... #endif&lt;/code&gt;. I also copied the read method signature and locals since the methods are similar. Before I get to far into the guts I should note that this effort relied on a very comprehensive &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/spec/packets/binary_accessor_spec.rb&quot;&gt;spec&lt;/a&gt; or I would have had no idea if I was successful.&lt;/p&gt;
+&lt;p&gt;The fact that &lt;a href=&quot;https://github.com/ryanatball&quot;&gt;Ryan&lt;/a&gt; had already implemented the read method as a C extension gave me a huge head start. I first copied all the Ruby code directly into the C extension so I could try to translate it line by line. Initially if I didn’t know how to do the translation I would just comment it out and see how much I could compile. A nice way to do this in C code is use &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;#if 0 ... #endif&lt;/code&gt;. I also copied the read method signature and locals since the methods are similar. Before I get to far into the guts I should note that this effort relied on a very comprehensive &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/spec/packets/binary_accessor_spec.rb&quot;&gt;spec&lt;/a&gt; or I would have had no idea if I was successful.&lt;/p&gt;
 
-&lt;p&gt;Once I implemented the initial parameter checking I dove into the String and Block (binary string) handling portion of the write method. The write method modifies the given buffer by writing a String or Block into it. I started with Google and found &lt;a href=&quot;http://clalance.blogspot.com/2011/01/writing-ruby-extensions-in-c-part-8.html&quot;&gt;Chris Lalancette’s&lt;/a&gt; post and this excellent write-up on &lt;a href=&quot;http://silverhammermba.github.io/emberb/c&quot;&gt;The Ruby C API&lt;/a&gt;. I also cloned &lt;a href=&quot;https://github.com/ruby/ruby&quot;&gt;ruby&lt;/a&gt; itself and went directly to the &lt;a href=&quot;https://github.com/ruby/ruby/blob/trunk/string.c&quot;&gt;code&lt;/a&gt;. I found the code a little difficult to follow but the important thing to remember is if the method is NOT delcared static then you can use it in your C extension. I ended up using &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_str_concat&lt;/code&gt; to add to the buffer and &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_str_update&lt;/code&gt; to directly modify the buffer.&lt;/p&gt;
+&lt;p&gt;Once I implemented the initial parameter checking I dove into the String and Block (binary string) handling portion of the write method. The write method modifies the given buffer by writing a String or Block into it. I started with Google and found &lt;a href=&quot;http://clalance.blogspot.com/2011/01/writing-ruby-extensions-in-c-part-8.html&quot;&gt;Chris Lalancette’s&lt;/a&gt; post and this excellent write-up on &lt;a href=&quot;http://silverhammermba.github.io/emberb/c&quot;&gt;The Ruby C API&lt;/a&gt;. I also cloned &lt;a href=&quot;https://github.com/ruby/ruby&quot;&gt;ruby&lt;/a&gt; itself and went directly to the &lt;a href=&quot;https://github.com/ruby/ruby/blob/trunk/string.c&quot;&gt;code&lt;/a&gt;. I found the code a little difficult to follow but the important thing to remember is if the method is NOT delcared static then you can use it in your C extension. I ended up using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rb_str_concat&lt;/code&gt; to add to the buffer and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rb_str_update&lt;/code&gt; to directly modify the buffer.&lt;/p&gt;
 
 &lt;div class=&quot;note warning&quot;&gt;
   &lt;h5&gt;Modifying Ruby strings&lt;/h5&gt;
   &lt;p&gt;If you directly modify the Ruby string buffer in a C extension with memcpy, memmove, or memset (after getting a pointer with RSTRING_PTR), you need to tell the Ruby runtime with the rb_str_modify method. Calling Ruby's methods like rb_str_update automatically handles this for you.&lt;/p&gt;
 &lt;/div&gt;
 
-&lt;p&gt;Another issue I ran into was the existing Ruby code was calling &lt;code class=&quot;highlighter-rouge&quot;&gt;to_s&lt;/code&gt; on the input value to ensure it was a String. In the C extension you can check for a type using &lt;code class=&quot;highlighter-rouge&quot;&gt;RB_TYPE_P(value, T_STRING)&lt;/code&gt; where value is a unknown Ruby VALUE instance and T_STRING can be any number of Ruby types. If the value was not a Ruby String I used &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_funcall&lt;/code&gt; to directly call the Ruby runtime and call the &lt;code class=&quot;highlighter-rouge&quot;&gt;to_s&lt;/code&gt; method. If you are unable to find an appropriate method in the C library to do what you want, this is the way to use Ruby from within your C extension.&lt;/p&gt;
+&lt;p&gt;Another issue I ran into was the existing Ruby code was calling &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;to_s&lt;/code&gt; on the input value to ensure it was a String. In the C extension you can check for a type using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RB_TYPE_P(value, T_STRING)&lt;/code&gt; where value is a unknown Ruby VALUE instance and T_STRING can be any number of Ruby types. If the value was not a Ruby String I used &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rb_funcall&lt;/code&gt; to directly call the Ruby runtime and call the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;to_s&lt;/code&gt; method. If you are unable to find an appropriate method in the C library to do what you want, this is the way to use Ruby from within your C extension.&lt;/p&gt;
 
-&lt;p&gt;Next I started to tackle the writing of signed and unsigned integers. COSMOS supports overflow of integers by either truncating a passed in value, saturating to the high or low, or raising an error. So I implemented a &lt;code class=&quot;highlighter-rouge&quot;&gt;check_overflow&lt;/code&gt; method in C to handle this logic. This code was very difficult to get right because of the size of the values involved. Since COSMOS handles integers of any size, I had to create Ruby Bignum constants to perform the comparisons. This involved another dive into the Ruby source to understand &lt;a href=&quot;https://github.com/ruby/ruby/blob/trunk/bignum.c&quot;&gt;bignum.c&lt;/a&gt;. One of the tricks was to create Ruby Constants up front in the Initialization routine so I wasn’t constantly recalulating Bignums for comparison. COSMOS also handles bitfields so those values I generate dynamically using &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_big_pow&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_bit_minus&lt;/code&gt;. I also created a &lt;code class=&quot;highlighter-rouge&quot;&gt;TO_BIGNUM&lt;/code&gt; macro which converts Fixnum to Bignum so all the math uses Bignum methods. I could then use the &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_big_cmp&lt;/code&gt; to compare the given value with the appropriate minimum and maximum values.&lt;/p&gt;
+&lt;p&gt;Next I started to tackle the writing of signed and unsigned integers. COSMOS supports overflow of integers by either truncating a passed in value, saturating to the high or low, or raising an error. So I implemented a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;check_overflow&lt;/code&gt; method in C to handle this logic. This code was very difficult to get right because of the size of the values involved. Since COSMOS handles integers of any size, I had to create Ruby Bignum constants to perform the comparisons. This involved another dive into the Ruby source to understand &lt;a href=&quot;https://github.com/ruby/ruby/blob/trunk/bignum.c&quot;&gt;bignum.c&lt;/a&gt;. One of the tricks was to create Ruby Constants up front in the Initialization routine so I wasn’t constantly recalulating Bignums for comparison. COSMOS also handles bitfields so those values I generate dynamically using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rb_big_pow&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rb_bit_minus&lt;/code&gt;. I also created a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;TO_BIGNUM&lt;/code&gt; macro which converts Fixnum to Bignum so all the math uses Bignum methods. I could then use the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rb_big_cmp&lt;/code&gt; to compare the given value with the appropriate minimum and maximum values.&lt;/p&gt;
 
-&lt;p&gt;The bitfield logic was the most complex to convert to C. This required a lot of C printfs and Ruby puts at each step of the way to ensure all the intermediary calculations were matching up. COSMOS supports big and little endian data buffers so I had to ensure the bytes were reversed and shifted as necessary before finally writing them back to the buffer. Again the &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_str_modify&lt;/code&gt; function is called to notify the Ruby runtime that the buffer has been changed.&lt;/p&gt;
+&lt;p&gt;The bitfield logic was the most complex to convert to C. This required a lot of C printfs and Ruby puts at each step of the way to ensure all the intermediary calculations were matching up. COSMOS supports big and little endian data buffers so I had to ensure the bytes were reversed and shifted as necessary before finally writing them back to the buffer. Again the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rb_str_modify&lt;/code&gt; function is called to notify the Ruby runtime that the buffer has been changed.&lt;/p&gt;
 
-&lt;p&gt;The floating point values were probably the easiest because I simply called &lt;code class=&quot;highlighter-rouge&quot;&gt;RFLOAT_VALUE(value)&lt;/code&gt; to get the double value of the passed in Ruby value. At this point I was able to successfully run the full spec. However, once I ran the entire COSMOS spec suite I hit a failure on a simple write call in api_spec.rb. I determined the spec was trying to send an integer value where there was a floating point value defined. The old Ruby code simply converted this value inline but I was calling &lt;code class=&quot;highlighter-rouge&quot;&gt;RFLOAT_VALUE(value)&lt;/code&gt; which ASSUMES the value is a float. I updated the binary_accessor_spec.rb to capture this failure and also noted a similar issue in the integer logic. The Ruby code was calling &lt;code class=&quot;highlighter-rouge&quot;&gt;value = Integer(value)&lt;/code&gt; for integers and &lt;code class=&quot;highlighter-rouge&quot;&gt;value = Float(value)&lt;/code&gt; for floats. This not only handles the case of passing an integer value when you want to write a float, it also handles truncating a float to an integer and even handles parsing a String which contains a numeric value. When you have a tremendous amount of work being done by Ruby you are best to fall back to &lt;code class=&quot;highlighter-rouge&quot;&gt;rb_funcall&lt;/code&gt;. But how to call the &lt;code class=&quot;highlighter-rouge&quot;&gt;Integer()&lt;/code&gt; method which doesn’t appear to have a receiver. Remember that if a method doesn’t appear to have a receiver it’s probably being called on Kernel which is &lt;a href=&quot;http://www.rubydoc.info/stdlib/core/Kernel#Integer-instance_method&quot;&gt;exactly the case&lt;/a&gt;. Thus I call it with &lt;code class=&quot;highlighter-rouge&quot;&gt;value = rb_funcall(rb_mKernel, rb_intern(&quot;Float&quot;), 1, value);&lt;/code&gt;. (NOTE: I also discovered I could call the method passing ‘self’ instead of rb_mKernel but using Kernel felt more explicit).&lt;/p&gt;
+&lt;p&gt;The floating point values were probably the easiest because I simply called &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RFLOAT_VALUE(value)&lt;/code&gt; to get the double value of the passed in Ruby value. At this point I was able to successfully run the full spec. However, once I ran the entire COSMOS spec suite I hit a failure on a simple write call in api_spec.rb. I determined the spec was trying to send an integer value where there was a floating point value defined. The old Ruby code simply converted this value inline but I was calling &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;RFLOAT_VALUE(value)&lt;/code&gt; which ASSUMES the value is a float. I updated the binary_accessor_spec.rb to capture this failure and also noted a similar issue in the integer logic. The Ruby code was calling &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;value = Integer(value)&lt;/code&gt; for integers and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;value = Float(value)&lt;/code&gt; for floats. This not only handles the case of passing an integer value when you want to write a float, it also handles truncating a float to an integer and even handles parsing a String which contains a numeric value. When you have a tremendous amount of work being done by Ruby you are best to fall back to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rb_funcall&lt;/code&gt;. But how to call the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Integer()&lt;/code&gt; method which doesn’t appear to have a receiver. Remember that if a method doesn’t appear to have a receiver it’s probably being called on Kernel which is &lt;a href=&quot;http://www.rubydoc.info/stdlib/core/Kernel#Integer-instance_method&quot;&gt;exactly the case&lt;/a&gt;. Thus I call it with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;value = rb_funcall(rb_mKernel, rb_intern(&quot;Float&quot;), 1, value);&lt;/code&gt;. (NOTE: I also discovered I could call the method passing ‘self’ instead of rb_mKernel but using Kernel felt more explicit).&lt;/p&gt;
 
 &lt;p&gt;At this point I refactored to combine some of the functionality in the read method with the new write method. I probably could have done more refactoring but refactoring C code just isn’t as much fun as refactoring Ruby code. Once I completed the refactor I wanted to benchmark my new C extension to determine how much faster (or slower?) I made it. I love the &lt;a href=&quot;https://github.com/evanphx/benchmark-ips&quot;&gt;benchmark-ips&lt;/a&gt; gem as it benchmarks iterations per second and automatically determines how many times to run the code to get good data. But I didn’t want to re-write our existing specs to support using this gem so I looked into how to integrate it with RSpec. It turns out this is all that was needed in our spec_helper.rb:&lt;/p&gt;
 
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;if ENV.key?(&quot;BENCHMARK&quot;)
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;if ENV.key?(&quot;BENCHMARK&quot;)
     c.around(:each) do |example|
       Benchmark.ips do |x|
         x.report(example.metadata[:full_description]) do
@@ -3780,7 +3780,7 @@ TELEMETRY INST DATA BIG_ENDIAN &quot;Data from the instrument&quot;
 
 &lt;p&gt;Benchmark-ips works by calculating the number of runs to get interesting data and then running the code in question. Thus defining BENCHMARK in the environment makes the specs run EXTREMELY slow. I used the ability of RSpec to filter only the examples I wanted to benchmark with the -e option:&lt;/p&gt;
 
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;rspec spec/packets/binary_accesor_spec.rb -e &quot;write only&quot;&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rspec spec/packets/binary_accesor_spec.rb -e &quot;write only&quot;&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;Running this in master and then in my C-extension branch I calculated the difference in iterations and then filtered out all the “complains” (raise an exception) and “overflow” test cases to focus on just the tests which write values. The average improvement was 1.3x. Not quite as awesome as I was hoping for but an improvement in an area that is performance sensitive. I suspected I could get additional performance if I optimized the check_overflow method to not always use Bignums and to do Fixnum comparisons if possible. However, this did not yield any optimizations so I backed out the change.&lt;/p&gt;
 

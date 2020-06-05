@@ -5,7 +5,7 @@
   <title>Routers</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -259,7 +259,7 @@
 
 <p>The Preidentified Router is controlled by the system.txt configuration file:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Ethernet Ports
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Ethernet Ports
 PORT CTS_API 7777
 PORT TLMVIEWER_API 7778
 PORT CTS_PREIDENTIFIED 7779
@@ -269,7 +269,7 @@ PORT CTS_PREIDENTIFIED 7779
 
 <p>If you look back at the picture you’ll see in our demo configuration that we also create another Router called the INST_ROUTER. This is how that Router is configured:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
   OPTION LISTEN_ADDRESS 127.0.0.1
   ROUTE INST_INT
 </code></pre></div></div>
@@ -291,7 +291,7 @@ PORT CTS_PREIDENTIFIED 7779
 
 <p>Obviously we need the TCPIP Client Interface to match the port number of the TCPIP Server and we also need to match the LENGTH protocol options. Notice how we have to call the System.telemetry.identify! method to identify the raw packet stream. When I run this from a command prompt after starting the Server I see a stream of packet names similar to this:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MECH
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MECH
 ADCS
 MECH
 IMAGE

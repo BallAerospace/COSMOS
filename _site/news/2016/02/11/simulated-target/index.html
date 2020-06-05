@@ -5,7 +5,7 @@
   <title>COSMOS Simulated Target</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -256,7 +256,7 @@
 
 <p>First of all create a new COSMOS target directory in config/targets. I called mine INST (instrument) to match the COSMOS demo. Create the ‘cmd_tlm’ and ‘lib’ subdirectories. For my demo I created a simple ‘cmd.txt’ file which contains a single command:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND INST SET_STATUS BIG_ENDIAN "Set status"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND INST SET_STATUS BIG_ENDIAN "Set status"
   APPEND_PARAMETER STATUS 0 STRING "STATUS" "Status"
     STATE "OK" "OK"
     STATE "ERROR" "ERROR"
@@ -264,7 +264,7 @@
 
 <p>I created a ‘tlm.txt’ file which contains two different telemetry packets:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY INST STATUS BIG_ENDIAN "Status from the instrument"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY INST STATUS BIG_ENDIAN "Status from the instrument"
   APPEND_ID_ITEM ID 16 UINT 1 "Packet ID"
   APPEND_ITEM COUNTER 16 UINT "Packet counter"
   APPEND_ITEM STATUS 0 STRING "Most recent ASCIICMD string"
@@ -284,7 +284,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
 
 <p>The cmd_tlm_server.txt file is very simple:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb
   TARGET INST
 </code></pre></div></div>
 
@@ -297,7 +297,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
   <span class="k">class</span> <span class="nc">SimInst</span> <span class="o">&lt;</span> <span class="no">SimulatedTarget</span>
 </code></pre></div></div>
 
-<p>Next you can initialize any of your packets in the initialize method. This is entirely optional but I show how to use the <code class="highlighter-rouge">@tlm_packets</code> hash to access all the defined packets. This hash is created automatically by the SimulatedTarget based on all the packets you have defined in your cmd_tlm/tlm.txt file. Note that there is NOT a corresponding <code class="highlighter-rouge">@cmd_packets</code>.</p>
+<p>Next you can initialize any of your packets in the initialize method. This is entirely optional but I show how to use the <code class="language-plaintext highlighter-rouge">@tlm_packets</code> hash to access all the defined packets. This hash is created automatically by the SimulatedTarget based on all the packets you have defined in your cmd_tlm/tlm.txt file. Note that there is NOT a corresponding <code class="language-plaintext highlighter-rouge">@cmd_packets</code>.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span>
   <span class="k">super</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span>
@@ -309,7 +309,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
 <span class="k">end</span>
 </code></pre></div></div>
 
-<p>We then have to configure the telemetry packet rates of our target. That is, how fast do the packets get sent out. This is handled by implementing the <code class="highlighter-rouge">set_rates</code> method and by calling <code class="highlighter-rouge">set_rate</code> for each packet defined in your system. If you do not call <code class="highlighter-rouge">set_rate</code> the packet will not be send out periodically (which may be desirable for event based packets).</p>
+<p>We then have to configure the telemetry packet rates of our target. That is, how fast do the packets get sent out. This is handled by implementing the <code class="language-plaintext highlighter-rouge">set_rates</code> method and by calling <code class="language-plaintext highlighter-rouge">set_rate</code> for each packet defined in your system. If you do not call <code class="language-plaintext highlighter-rouge">set_rate</code> the packet will not be send out periodically (which may be desirable for event based packets).</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">set_rates</span>
   <span class="c1"># The SimulatedTarget operates on a 101Hz clock</span>
@@ -320,7 +320,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
 <span class="k">end</span>
 </code></pre></div></div>
 
-<p>If your target will accept command you need to implemented the <code class="highlighter-rouge">write(packet)</code> method. My write method is simple in that I only have a single command that directly sets a value in one of my telemetry packets.</p>
+<p>If your target will accept command you need to implemented the <code class="language-plaintext highlighter-rouge">write(packet)</code> method. My write method is simple in that I only have a single command that directly sets a value in one of my telemetry packets.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
   <span class="c1"># We directly set the telemetry value from the only command</span>
@@ -330,7 +330,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
 <span class="k">end</span>
 </code></pre></div></div>
 
-<p>Your target must implement the <code class="highlighter-rouge">read(count_100hz, time)</code> method to return telemetry packets back to COSMOS. You’ll call the <code class="highlighter-rouge">get_pending_packets(count_100hz)</code> method implemented by SimulatedTarget and then perform whatever operations you want on the packets before returning the array of packets back to COSMOS. Note my use of the <code class="highlighter-rouge">cycle_tlm_item</code> method to automatically cycle the telemetry item as each packet is sent out. This is used heavily in the COSMOS Demo.</p>
+<p>Your target must implement the <code class="language-plaintext highlighter-rouge">read(count_100hz, time)</code> method to return telemetry packets back to COSMOS. You’ll call the <code class="language-plaintext highlighter-rouge">get_pending_packets(count_100hz)</code> method implemented by SimulatedTarget and then perform whatever operations you want on the packets before returning the array of packets back to COSMOS. Note my use of the <code class="language-plaintext highlighter-rouge">cycle_tlm_item</code> method to automatically cycle the telemetry item as each packet is sent out. This is used heavily in the COSMOS Demo.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">count_100hz</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
   <span class="c1"># The SimulatedTarget implements get_pending_packets to return</span>

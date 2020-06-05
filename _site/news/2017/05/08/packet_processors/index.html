@@ -5,7 +5,7 @@
   <title>Packet Processors</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -262,7 +262,7 @@
 
 <p>This is all controlled by the INST target’s cmd/tlm definition files. If you open the INST/cmd_tlm/inst_tlm.txt file from the demo you’ll see the following at the end of the HEALTH_STATUS packet definition:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ITEM TEMP1HIGH 0 0 DERIVED "High-water mark for TEMP1"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ITEM TEMP1HIGH 0 0 DERIVED "High-water mark for TEMP1"
     READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER
   ITEM TEMP1LOW 0 0 DERIVED "Low-water mark for TEMP1"
     READ_CONVERSION processor_conversion.rb TEMP1WATER LOW_WATER
@@ -326,9 +326,9 @@
 <span class="k">end</span></code></pre></figure>
 
 <p>The initialize method gets passed the parameters from the config file. Thus our config file of:
-<code class="highlighter-rouge">PROCESSOR TEMP1WATER watermark_processor.rb TEMP1</code>
+<code class="language-plaintext highlighter-rouge">PROCESSOR TEMP1WATER watermark_processor.rb TEMP1</code>
 passes ‘TEMP1’ into ‘item_name’ of the initialize method:
-<code class="highlighter-rouge">def initialize(item_name, value_type = :CONVERTED)</code>
+<code class="language-plaintext highlighter-rouge">def initialize(item_name, value_type = :CONVERTED)</code>
 Since we only pass one value, we use the default value_type of :CONVERTED.</p>
 
 <p>We store the item_name into a Ruby instance variable @item_name and call reset() to initialize our @results. But how did we get a @results instance variable? If you look at the class definition we are inheriting from <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/processors/processor.rb">Processor</a> which is the base class for all COSMOS Processors. It declares a @results instance variable and initializes @results in its initialize method which we call using super(value_type).</p>
@@ -371,9 +371,9 @@ Since we only pass one value, we use the default value_type of :CONVERTED.</p>
 <p>First of all note that ProcessorConversion inherits from the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/conversions/conversion.rb">Conversion</a> base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let’s see how these map together in our definition.</p>
 
 <p>Our config file looked like the following:
-<code class="highlighter-rouge">READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER</code>
+<code class="language-plaintext highlighter-rouge">READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER</code>
 This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into initialize:
-<code class="highlighter-rouge">def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)</code></p>
+<code class="language-plaintext highlighter-rouge">def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)</code></p>
 
 <p>We store the processor name and result name into Ruby instance variables (first turning them into upper case strings). We additionally turn the result name into a Ruby symbol by calling intern on it. This allows us to match the symbol names we used in the WatermarkProcessor code.</p>
 
@@ -418,9 +418,9 @@ This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into ini
 <p>This class introduces some new Ruby syntax. Since we want to accept any number of items to average we have to accept a variable number of arguments in our initialize method. The ruby splat operator (or star operator) does this and places the arguments into a Ruby array. We store these names and then use them in our call method to perform the mean. I’m using a cool feature of Ruby’s Enumerable mixin, which is part of Array, to sum up the values (starting with 0) and then dividing by the number of values we have to get the mean. Note I’m also calling to_f to ensure the numerator is a floating point number so we do floating point math during the division. Integer division would truncate the value to an integer value.</p>
 
 <p>First to use this new processor you need to require it in your target’s <a href="/docs/system/#targettxt-keywords">target.txt</a> configuration file:
-<code class="highlighter-rouge">REQUIRE mean_processor.rb</code>
+<code class="language-plaintext highlighter-rouge">REQUIRE mean_processor.rb</code>
 Then delcare the processing in your configuration definition as follows:
-<code class="highlighter-rouge">TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
+<code class="language-plaintext highlighter-rouge">TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
   ... # See demo configuration
   ITEM TEMPS_MEAN 0 0 DERIVED "Mean of TEMP1, TEMP2, TEMP3, TEMP4"
     READ_CONVERSION processor_conversion.rb TEMPMEAN MEAN

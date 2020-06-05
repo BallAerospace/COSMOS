@@ -5,7 +5,7 @@
   <title>Identifying Packets</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -263,7 +263,7 @@
 <p>The implication of this process for custom interfaces is how and when packets are identified. If your custom interface can determine the target, you would want to identify the packet before returning it to save processing time. This may also be required if you map multiple targets to a single interface and have identification collisions. Identification collisions occur if two packets in different targets with the same ID_ITEMS are mapped to the same interface. In this case a custom interface would first have to properly identify the target and then override the read() method to identify the packet before returning it.</p>
 
 <p>An example of a custom interface implementing this might look something like this:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/interface'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/interface'
 module Cosmos
   class MyInterface &lt; Interface
     # ... various other methods

@@ -5,7 +5,7 @@
   <title>News</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v3.8.5">
+  <meta name="generator" content="Jekyll v4.1.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -265,7 +265,7 @@
 <p>The implication of this process for custom interfaces is how and when packets are identified. If your custom interface can determine the target, you would want to identify the packet before returning it to save processing time. This may also be required if you map multiple targets to a single interface and have identification collisions. Identification collisions occur if two packets in different targets with the same ID_ITEMS are mapped to the same interface. In this case a custom interface would first have to properly identify the target and then override the read() method to identify the packet before returning it.</p>
 
 <p>An example of a custom interface implementing this might look something like this:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/interface'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/interface'
 module Cosmos
   class MyInterface &lt; Interface
     # ... various other methods
@@ -324,11 +324,11 @@ end
 
 <h3 id="the-solution">The Solution</h3>
 <p>We can first model the chaining using the COSMOS demo. The format for the cmd_tlm_server.txt file is given in the <a href="https://cosmosrb.com/docs/chaining/#example-cmdtlmserver-configuration-for-child-cmd_tlm_server_chaintxt">chaining documentation</a> and already exists in the COSMOS demo. The demo also includes a deconflicting port definition file in system_alt_ports.txt. To start the two server instances from the command line we can type:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer
 </code></pre></div></div>
 
 <p>And in another terminal start the chained server:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
 </code></pre></div></div>
 
 <p>Now we need to implement a custom protocol to slow down the telemetry rate on the chained server. Note that the built-in protocols are fully described on the <a href="/docs/protocols">Protocols</a> page and also mentioned on the <a href="/docs/interfaces/#protocols">Interfaces</a> page.</p>
@@ -336,7 +336,7 @@ end
 <h3 id="custom-protocols">Custom Protocols</h3>
 <p>Let’s assume we want to slow down the INST ADCS packet which the demo generates at 10Hz. First create a new file called config/targets/INST/lib/drop_protocol.rb. This protocol will drop data until we get the rate we want. It looks like this:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/protocols/protocol'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/protocols/protocol'
 module Cosmos
   # Limit a specific packet by dropping packets
   class DropProtocol &lt; Protocol
@@ -377,7 +377,7 @@ end
 
 <p>Now we can add this protocol to the cmd_tlm_server_chain.txt definition as follows:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
   TARGET INST
   TARGET INST2
   TARGET EXAMPLE
@@ -388,11 +388,11 @@ end
 </code></pre></div></div>
 
 <p>Finally stop and relaunch the chained server:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
 </code></pre></div></div>
 
 <p>You should now see the following in your terminal output:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DROP count:1
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DROP count:1
 DROP count:2
 DROP count:3
 DROP count:4
@@ -422,7 +422,7 @@ SEND
 
 <p>For example, to also reduce the rate of INST2 ADCS you’d simply add another PROTOCOL line to the cmd_tlm_server_chain.txt file:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIFIED
   TARGET INST
   TARGET INST2
   TARGET EXAMPLE
@@ -741,7 +741,7 @@ SEND
 <h3 id="built-in-protocols">Built-in Protocols</h3>
 <p>COSMOS comes with a number of built-in protocols that are used directly with the COSMOS provided interfaces. In fact, when you declare your interface you’re required to specify a protocol. For example, the following code declares a TCP/IP client with a LENGTH protocol.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 0xBA5EBA11
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 0xBA5EBA11
 </code></pre></div></div>
 
 <p>The built-in protocols are fully described on the <a href="/docs/protocols">Protocols</a> page and also mentioned on the <a href="/docs/interfaces/#protocols">Interfaces</a> page.</p>
@@ -754,7 +754,7 @@ SEND
 
 <p>In the target’s lib directory the strip_etx_protocol.rb file was created. Since the protocol had to simply strip off a single byte, it overrides the read_data(data) method.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/protocols/protocol'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/protocols/protocol'
 class StripEtxProtocol &lt; Protocol
   def read_data(data)
     if data[-1] == "\x03"
@@ -768,7 +768,7 @@ end
 
 <p>Ruby can index from the back of the array with -1, -2, etc. Thus if the last byte (-1) is a binary 0x03, the protocol returns the data from 0 up to and including the second to last byte (-2). This was added to the interface by declaring it as a READ protocol since it is only modifying the incoming telemetry data.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE DEV_INT &lt;interface params&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE DEV_INT &lt;interface params&gt;
   PROTOCOL READ StripEtxProtocol
 </code></pre></div></div>
 
@@ -777,7 +777,7 @@ end
 
 <p>In the target’s lib directory create a file called framing_protocol.rb. Since the protocol is adding data to the outgoing stream, we override the write_data(data) method.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/protocols/protocol'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/protocols/protocol'
 class FramingProtocol &lt; Protocol
   HEADER = "\xDE\xAD\xBE\xEF" # Binary header data
   def write_data(data)
@@ -834,7 +834,7 @@ end
   </li>
 </ol>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>struct {
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>struct {
   unsigned short a:4;
   unsigned short b:8;
   unsigned short c:4;
@@ -877,7 +877,7 @@ ITEM C 8 4 UINT "struct item c"
 
 <p>By default, all COSMOS tools use the config/system/system.txt file. However, all tools can take a custom system configuration file by passing the “–system <filename>" option to the tool when it starts. This is typically done in the Launcher script as shown in the COSMOS demo. Here's an excerpt which shows how we're passing system2.txt using the --system option.</filename></p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server2.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server2.txt
 </code></pre></div></div>
 
 <h3 id="using-multiple-systemtxt-files">Using Multiple system.txt Files</h3>
@@ -886,7 +886,7 @@ ITEM C 8 4 UINT "struct item c"
 <h2 id="targettxt">target.txt</h2>
 <p>The parsing of a COSMOS target is controlled by the target.txt file found at the root of the target directory. The COMMANDS and TELEMETRY keywords tell COSMOS which <a href="/docs/command">Command</a> and <a href="/docs/telemetry">Telemetry</a> files to parse. For example from the COSMOS demo INST <a href="https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/INST/target.txt">target.txt</a></p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst_cmds.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst_cmds.txt
 TELEMETRY inst_tlm.txt
 </code></pre></div></div>
 
@@ -898,41 +898,41 @@ TELEMETRY inst_tlm.txt
 <p>This example is losely based on the COSMOS demo. First create two separate system.txt files called system1.txt and system2.txt:</p>
 
 <p>Partial system1.txt:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DECLARE_TARGET INST nil target1.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DECLARE_TARGET INST nil target1.txt
 </code></pre></div></div>
 
 <p>Partial system2.txt</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DECLARE_TARGET INST nil target2.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DECLARE_TARGET INST nil target2.txt
 </code></pre></div></div>
 
 <p>The target1.txt file in the INST target calls out one set of cmd/tlm files:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst1_cmds.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst1_cmds.txt
 TELEMETRY inst1_tlm.txt
 </code></pre></div></div>
 
 <p>The target2.txt file in the INST target calls out another set:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst2_cmds.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst2_cmds.txt
 TELEMETRY inst2_tlm.txt
 </code></pre></div></div>
 
 <p>You also have to ensure your Launcher scripts specify the correct system.txt file when launching the tools:</p>
 
 <p>Partial launcher1.txt:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system1.txt" "cts.png" --config cmd_tlm_server.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system1.txt" "cts.png" --config cmd_tlm_server.txt
 </code></pre></div></div>
 
 <p>Partial launcher2.txt:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server.txt
 </code></pre></div></div>
 
 <p>Once you have your launcher configurations in place you can create a simple Batch file or shell script to launch COSMOS.</p>
 
 <p>Launcher1.bat:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>call tools\Launcher.bat --config launcher1.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>call tools\Launcher.bat --config launcher1.txt
 </code></pre></div></div>
 
 <p>Launcher2.bat:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>call tools\Launcher.bat --config launcher2.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>call tools\Launcher.bat --config launcher2.txt
 </code></pre></div></div>
 
 <p>With correct usage of system.txt and target.txt you can consolidate your COSMOS configurations and avoid copying and pasting. This makes your COSMOS configuration easier to test and maintain.</p>
@@ -943,14 +943,14 @@ TELEMETRY inst2_tlm.txt
 
 <p>Create a file in the target’s cmd_tlm folder named after the original file but with an extension like _override.txt. For example, you have the following telemetry definition file named inst_tlm.txt:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the target"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the target"
   APPEND_ITEM COLLECTS         16 UINT     "Number of collects"
   APPEND_ITEM TEMP1            16 UINT     "Temperature #1"
 </code></pre></div></div>
 
 <p>Create another file called inst_tlm_override.txt and start overriding telemetry using the <a href="/docs/telemetry/#select_telemetry">SELECT_TELEMETRY</a> and <a href="/docs/telemetry/#select_item">SELECT_ITEM</a> keywords. Note that the filename is important because by default COSMOS processes cmd/tlm definition files in alphabetical order. For example, if you have a telemetry file named “telemetry.txt” and created a file called “override.txt”, you would get an error because the telemetry file will not be processed before the override.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SELECT_TELEMETRY INST HEALTH_STATUS
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SELECT_TELEMETRY INST HEALTH_STATUS
   SELECT_ITEM COLLECTS
     FORMAT_STRING "0x%0X"
 </code></pre></div></div>
@@ -1121,7 +1121,7 @@ The COSMOS log file format and predentified protocol formats have changed to sup
 <p>If you already setup DART for your program please follow the following additional steps:
 In a terminal in your COSMOS project folder run:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rake db:migrate
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>rake db:migrate
 rake db:seed
 </code></pre></div></div>
 
@@ -1297,7 +1297,7 @@ rake db:seed
 
 <p>COSMOS derived items are defined very similarly to real items except they use the special DERIVED telemetry type. Here is how the default COSMOS derived items might look in a telemetry definition.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM PACKET_TIMESECONDS 0 0 DERIVED "COSMOS Received Time (UTC, Floating point, Unix epoch)"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM PACKET_TIMESECONDS 0 0 DERIVED "COSMOS Received Time (UTC, Floating point, Unix epoch)"
   READ_CONVERSION packet_time_seconds_conversion.rb
   FORMAT_STRING '%0.6f'
 ITEM PACKET_TIMEFORMATTED 0 0 DERIVED "COSMOS Received Time (Local time zone, Formatted string)"
@@ -1316,7 +1316,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 <h3 id="creating-a-derived-average">Creating a Derived Average</h3>
 <p>A common usecase is to create a derived item which averages other telemetry points. Let’s explore how to do this within the COSMOS Demo. The COSMOS Demo already declares 4 fake temperatures named TEMP1, TEMP2, TEMP3, and TEMP4. Let’s create a new derived item called TEMP_AVERAGE that averages them.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
   GENERIC_READ_CONVERSION_START FLOAT 32
     (packet.read("TEMP1") + packet.read("TEMP2") + packet.read("TEMP3") + packet.read("TEMP4")) / 4.0
   GENERIC_READ_CONVERSION_END
@@ -1329,7 +1329,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 <h3 id="using-a-conversion-class">Using a Conversion Class</h3>
 <p>While it is easy to create a simple conversion using GENERIC_READ_CONVERSION there are multiple reasons to prefer a Conversion class. Creating a separate conversion class is easier to test, easier to reuse and has better performance. Let’s create a conversion which performs averging and rewrite the previous example. First the telemetry definition will now look like this.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
   READ_CONVERSION average_conversion.rb TEMP1 TEMP2 TEMP3 TEMP4
 </code></pre></div></div>
 
@@ -1359,7 +1359,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 
 <p>We’re not yet done though as we need to edit the INST/target.txt file to require this new conversion.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>REQUIRE average_conversion.rb
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>REQUIRE average_conversion.rb
 </code></pre></div></div>
 
 <p>Running this in the Demo with Telemetry Grapher shows our new average value pretty clearly.</p>
@@ -1454,7 +1454,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 
 <p>Items are assigned to a group using the <a href="/docs/telemetry/#limits_group_item">LIMITS_GROUP_ITEM</a> keyword. Here is the definition in the COSMOS demo.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LIMITS_GROUP INST2_TEMP2
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LIMITS_GROUP INST2_TEMP2
   LIMITS_GROUP_ITEM INST2 HEALTH_STATUS TEMP2
 
 LIMITS_GROUP INST2_GROUND
@@ -1505,11 +1505,11 @@ LIMITS_GROUP INST2_GROUND
 
 <p>The method name is very important. It must begin with ‘check_’ and end with the name of a Limits Group defined by the LIMITS_GROUP keyword. In the demo, LIMITS_GROUP(s) are defined in config/targets/SYSTEM/cmd_tlm/limits_groups.txt. Since there is a LIMITS_GROUP INST2_TEMP2 we have a match (the method name should be lower case while the LIMITS_GROUP is typically defined to be uppercase).</p>
 
-<p>Inside the method you must call process_group. The first parameter is the number of seconds to delay before enabling the group when the telemetry check is true. So in this example we are waiting zero seconds to enable the group. Note that when the telemetry check is false the group is instantly disabled. The next two parameters are Proc objects which are called when the group is enabled and disabled respectively. Remember that we defined our Proc objects in the constructor to enable and disable the INST2_GROUND group. These parameters are entirely optional so you can also simply call <code class="highlighter-rouge">process_group(0)</code> with just the delay.</p>
+<p>Inside the method you must call process_group. The first parameter is the number of seconds to delay before enabling the group when the telemetry check is true. So in this example we are waiting zero seconds to enable the group. Note that when the telemetry check is false the group is instantly disabled. The next two parameters are Proc objects which are called when the group is enabled and disabled respectively. Remember that we defined our Proc objects in the constructor to enable and disable the INST2_GROUND group. These parameters are entirely optional so you can also simply call <code class="language-plaintext highlighter-rouge">process_group(0)</code> with just the delay.</p>
 
 <p>The code inside the process_group block (the lines after ‘do’ and before ‘end’) must return a boolean. True will enable the group and false will disable the group. In this example, the group is enabled when the value is not NaN (Not a Number) and not Infinite. If the value is NaN or Infinite the group is disabled. You can watch this happening in the demo by watching the bottom log portion of the Command and Telemetry Server.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2018/02/12 09:12:58.118  ERROR: INST HEALTH_STATUS TEMP2 = NaN is RED_LOW
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2018/02/12 09:12:58.118  ERROR: INST HEALTH_STATUS TEMP2 = NaN is RED_LOW
 2018/02/12 09:12:58.121  ERROR: INST2 HEALTH_STATUS TEMP2 = NaN is RED_LOW
 2018/02/12 09:12:58.220  INFO: Disabling Limits Group: INST2_TEMP2
 2018/02/12 09:12:58.220  INFO: Disabling Limits Group: INST2_GROUND
@@ -1520,14 +1520,14 @@ LIMITS_GROUP INST2_GROUND
 <h2 id="other-limits-apis">Other Limits APIs</h2>
 <p>There are a few other APIs which are provided to work with COSMOS limits.</p>
 
-<p><code class="highlighter-rouge">get_stale</code> returns all the stale packets in the system. Stale packets are those which have not been received by the Command and Telemetry Server for the <a href="/docs/system/#staleness_seconds">STALENESS_SECONDS</a> setting (by default 30s).</p>
+<p><code class="language-plaintext highlighter-rouge">get_stale</code> returns all the stale packets in the system. Stale packets are those which have not been received by the Command and Telemetry Server for the <a href="/docs/system/#staleness_seconds">STALENESS_SECONDS</a> setting (by default 30s).</p>
 
-<p><code class="highlighter-rouge">get_limits(tgt, pkt, item)</code> returns the limits settings for a particular telemetry item. It returns an array of the group name, persistence setting, enable setting, red low, yellow low, yellow high, red high, blue low, and blue high limits values. If no blue operational limits were set those values are nil.</p>
+<p><code class="language-plaintext highlighter-rouge">get_limits(tgt, pkt, item)</code> returns the limits settings for a particular telemetry item. It returns an array of the group name, persistence setting, enable setting, red low, yellow low, yellow high, red high, blue low, and blue high limits values. If no blue operational limits were set those values are nil.</p>
 
-<p><code class="highlighter-rouge">set_limits(tgt, pkt, item, red_low, yellow_low, yellow_high, red_high,</code>
-<code class="highlighter-rouge">blue_low = nil, blue_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true)</code> allows the user to set new values for the limits settings. Some values have defaults and some do not. Thus you must provide at least the first 7 parameters for this call to be successful. Note the order of parameters: red low, yellow low, yellow high, red high, and then blue low, blue high. By default the limits_set is :CUSTOM which is probably not a limits set you already have defined. Thus is you don’t set the limits_set parameter it may appear as if nothing has happened. To enable the new limits you have to manually change to the CUSTOM limits set: <code class="highlighter-rouge">set_limits_set("CUSTOM")</code>. Alternatively, you can specify :DEFAULT for the limits_set parameter and you will typically immediately see the change (assuming DEFAULT is the active set). If you only want to change one particular value you can call <code class="highlighter-rouge">get_limits</code> first to get the current settings and only change the value you want.</p>
+<p><code class="language-plaintext highlighter-rouge">set_limits(tgt, pkt, item, red_low, yellow_low, yellow_high, red_high,</code>
+<code class="language-plaintext highlighter-rouge">blue_low = nil, blue_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true)</code> allows the user to set new values for the limits settings. Some values have defaults and some do not. Thus you must provide at least the first 7 parameters for this call to be successful. Note the order of parameters: red low, yellow low, yellow high, red high, and then blue low, blue high. By default the limits_set is :CUSTOM which is probably not a limits set you already have defined. Thus is you don’t set the limits_set parameter it may appear as if nothing has happened. To enable the new limits you have to manually change to the CUSTOM limits set: <code class="language-plaintext highlighter-rouge">set_limits_set("CUSTOM")</code>. Alternatively, you can specify :DEFAULT for the limits_set parameter and you will typically immediately see the change (assuming DEFAULT is the active set). If you only want to change one particular value you can call <code class="language-plaintext highlighter-rouge">get_limits</code> first to get the current settings and only change the value you want.</p>
 
-<p>You can also use API methods to subscribe to limits events. This allows you to process all limits events in the same way the Limits Monitor application does. To start you must subscribe to limits events using <code class="highlighter-rouge">subscribe_limits_events(queue_size = 1000)</code> which returns an ID. You can then call <code class="highlighter-rouge">get_limits_event(id)</code> and pass in the ID to get limits event type and data from the server. There are three different limits event types: LIMITS_CHANGE, LIMITS_SET, and LIMITS_SETTING. LIMITS_CHANGE is when a particular item goes out of limits. This is by far the most common and probably the one you’re most interested in. LIMITS_SET events happen when the overall limits set changes. LIMITS_SETTING events are generated when the set_limits method is called to change the limits on an individual item. The <code class="highlighter-rouge">get_limits_event</code> method takes a boolean second parameter to determine whether or not to block when waiting for an event. The default is false which means it blocks waiting for an event. You can also pass true which means to not block waiting for events. However if no event is present <code class="highlighter-rouge">get_limits_event</code> will raise a ThreadError. Thus you must catch the error to allow your code to continue. Finally you call <code class="highlighter-rouge">unsubscribe_limits_events(id)</code> when shutting down.</p>
+<p>You can also use API methods to subscribe to limits events. This allows you to process all limits events in the same way the Limits Monitor application does. To start you must subscribe to limits events using <code class="language-plaintext highlighter-rouge">subscribe_limits_events(queue_size = 1000)</code> which returns an ID. You can then call <code class="language-plaintext highlighter-rouge">get_limits_event(id)</code> and pass in the ID to get limits event type and data from the server. There are three different limits event types: LIMITS_CHANGE, LIMITS_SET, and LIMITS_SETTING. LIMITS_CHANGE is when a particular item goes out of limits. This is by far the most common and probably the one you’re most interested in. LIMITS_SET events happen when the overall limits set changes. LIMITS_SETTING events are generated when the set_limits method is called to change the limits on an individual item. The <code class="language-plaintext highlighter-rouge">get_limits_event</code> method takes a boolean second parameter to determine whether or not to block when waiting for an event. The default is false which means it blocks waiting for an event. You can also pass true which means to not block waiting for events. However if no event is present <code class="language-plaintext highlighter-rouge">get_limits_event</code> will raise a ThreadError. Thus you must catch the error to allow your code to continue. Finally you call <code class="language-plaintext highlighter-rouge">unsubscribe_limits_events(id)</code> when shutting down.</p>
 
 <div class="note warning">
   <p><b>Overflown Queues Are Deleted</b></p>
@@ -1592,30 +1592,30 @@ LIMITS_GROUP INST2_GROUND
 
 <p>In versions of COSMOS prior to 4.0.0, metadata could be defined in any target / packet combination. In the COSMOS demo we defined metadata in the META target and DATA packet. You would then explicitly tell COSMOS where this metadata was defined by passing the target and packet name to the tools. Here is a example of an old (pre 4.0.0) cmd_tlm_server.txt configuration file:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PACKET_LOG_WRITER DEFAULT meta_packet_log_writer.rb META DATA config/data/meta_init.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PACKET_LOG_WRITER DEFAULT meta_packet_log_writer.rb META DATA config/data/meta_init.txt
 COLLECT_METADATA META DATA
 </code></pre></div></div>
 
 <p>Here is an example of a current (post 4.0.0) cmd_tlm_server.txt configuration file:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil true nil 2000000000 nil false
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PACKET_LOG_WRITER DEFAULT packet_log_writer.rb nil true nil 2000000000 nil false
 COLLECT_METADATA
 </code></pre></div></div>
 
 <p>The PACKET_LOG_WRITER and COLLECT_METADATA keywords no longer have to specify where the metadata is stored because COSMOS 4.0.0 standardized the metadata definition in the SYSTEM target and META packet. You’ll notice the old cmd_tlm_server.txt file specified the location of a meta_init.txt file. This file contains the default values to use when initializing the metadata dialog. In post COSMOS 4.0.0 this file is defined in system.txt using the META_INIT keyword like so:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>META_INIT config/data/meta_init.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>META_INIT config/data/meta_init.txt
 </code></pre></div></div>
 
 <p>Note that you do not have to define all the items in your metadata in your meta_init file. Any items not found in meta_init will simply be blank in the dialog. If you try to set any of the COSMOS reserved items (defined below) they will simply be overriden with the COSMOS defined values.</p>
 
 <p>If you do not define any metadata in your system (you don’t declare the SYSTEM META packet), COSMOS will automatically define the following items:</p>
 <ul>
-  <li><code class="highlighter-rouge">SYSTEM META PKTID</code> - Always 1 and used to identify the packet</li>
-  <li><code class="highlighter-rouge">SYSTEM META CONFIG</code> - Configuration name (MD5 checksum)</li>
-  <li><code class="highlighter-rouge">SYSTEM META COSMOS_VERSION</code> - COSMOS Version (e.g. 4.1.1)</li>
-  <li><code class="highlighter-rouge">SYSTEM META USER_VERSION</code> - Defined by the USER_VERSION constant. Typically set in <a href="https://github.com/BallAerospace/COSMOS/blob/master/demo/lib/user_version.rb">lib/user_version.rb</a> in your configuration.</li>
-  <li><code class="highlighter-rouge">SYSTEM META RUBY_VERSION</code> - Ruby Version (e.g. 2.4.2p198)</li>
+  <li><code class="language-plaintext highlighter-rouge">SYSTEM META PKTID</code> - Always 1 and used to identify the packet</li>
+  <li><code class="language-plaintext highlighter-rouge">SYSTEM META CONFIG</code> - Configuration name (MD5 checksum)</li>
+  <li><code class="language-plaintext highlighter-rouge">SYSTEM META COSMOS_VERSION</code> - COSMOS Version (e.g. 4.1.1)</li>
+  <li><code class="language-plaintext highlighter-rouge">SYSTEM META USER_VERSION</code> - Defined by the USER_VERSION constant. Typically set in <a href="https://github.com/BallAerospace/COSMOS/blob/master/demo/lib/user_version.rb">lib/user_version.rb</a> in your configuration.</li>
+  <li><code class="language-plaintext highlighter-rouge">SYSTEM META RUBY_VERSION</code> - Ruby Version (e.g. 2.4.2p198)</li>
 </ul>
 
 <p>These items help identify the telemetry being collected by the currently running instance of the COSMOS Server. In fact, every time COSMOS starts a new log file it adds the SYSTEM META packet to the beginning. This behavior was possible prior to COSMOS 4.0.0 but required using the special meta_packet_log_writer in the cmd_tlm_server.txt definition as shown in the first cmd_tlm_server.txt example.</p>
@@ -1624,7 +1624,7 @@ COLLECT_METADATA
 
 <p>If you want to add your own fields to the COSMOS metadata you must define the standard COSMOS metadata items and then append your new values. For example, the COSMOS demo defines the following in <a href="https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/SYSTEM/cmd_tlm/meta_tlm.txt">targets/SYSTEM/cmd_tlm/meta_tlm.txt</a>:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY SYSTEM META BIG_ENDIAN "System Meta Data Telemetry Packet"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY SYSTEM META BIG_ENDIAN "System Meta Data Telemetry Packet"
   APPEND_ID_ITEM PKTID 8 UINT 1 "Packet Id"
   APPEND_ITEM CONFIG 256 STRING "Configuration Name"
   APPEND_ITEM COSMOS_VERSION 240 STRING "COSMOS Version"
@@ -1644,7 +1644,7 @@ COLLECT_METADATA
 
 <p>Also note that you can declare metadata items with STATES and they will be displayed as dropdowns in the metadata dialog. For example if you add the following to the SYSTEM META packet:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>APPEND_ITEM UUT 32 UINT "Unit under test"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>APPEND_ITEM UUT 32 UINT "Unit under test"
   STATE ARTICLE_0 0
   STATE ARTICLE_1 1
 </code></pre></div></div>
@@ -1900,7 +1900,7 @@ COLLECT_METADATA
 
 <p>The Ruby programming language defines the keywords ‘require’ and ‘load’. These are actually methods on the Kernel class and you can find the full documention on <a href="https://ruby-doc.org/">ruby-doc.org</a> for both <a href="https://ruby-doc.org/core-2.4.2/Kernel.html#method-i-require">require</a> and <a href="https://ruby-doc.org/core-2.4.2/Kernel.html#method-i-load">load</a>. They basically include additional Ruby source files into the current execution environment so they can be used by your code. The key difference is that require will only include a file once. If you try to require a file a second time the require method actually returns false indicating that the file has already been required. You can easily test this by opening an IRB session and requiring something twice.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):001:0&gt; require 'cosmos'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):001:0&gt; require 'cosmos'
 =&gt; true
 irb(main):002:0&gt; require 'cosmos'
 =&gt; false
@@ -1910,7 +1910,7 @@ irb(main):002:0&gt; require 'cosmos'
 
 <p>The load keyword loads the specified file everytime and thus reparses any changes that may have been made to the file in question. This is almost always what you want to use when writing scripts for COSMOS as it allows you to edit files and be assured that you will be running the latest. Note the difference when using load in this IRB session.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):001:0&gt; load 'cosmos.rb'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):001:0&gt; load 'cosmos.rb'
 =&gt; true
 irb(main):002:0&gt; load 'cosmos.rb'
 =&gt; true
@@ -1935,7 +1935,7 @@ irb(main):004:0&gt; require 'cosmos.rb'
 
 <p>After talking aobut require and load I think this is a good place to talk a little about the Ruby Load Path since it directly affects whether a require or load will succeed. The overall Ruby load path can be found by typing $LOAD_PATH. Doing this in my IRB session running Ruby 2.3.3 results in the following.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):004:0&gt; puts $LOAD_PATH
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):004:0&gt; puts $LOAD_PATH
 C:\git\cosmos\lib
 C:/Ruby233p222-x64/lib/ruby/gems/2.3.0/gems/did_you_mean-1.0.0/lib
 C:/Ruby233p222-x64/lib/ruby/site_ruby/2.3.0
@@ -1953,7 +1953,7 @@ C:/Ruby233p222-x64/lib/ruby/2.3.0/x64-mingw32
 
 <p>When you start requiring other libraries they typically add things to your LOAD_PATH. Watch what happens when I require ‘cosmos’.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):001:0&gt; require 'cosmos'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>irb(main):001:0&gt; require 'cosmos'
 =&gt; true
 irb(main):002:0&gt; puts $LOAD_PATH
 C:/Ruby233p222-x64/lib/ruby/gems/2.3.0/gems/uuidtools-2.1.5/lib
@@ -1984,7 +1984,7 @@ C:/Ruby233p222-x64/lib/ruby/2.3.0/x64-mingw32
 
 <p>You can display your $LOAD_PATH from Script Runner by simply running “puts $LOAD_PATH” from Script Runner. When I do this I get the following in my Script Output:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2017/11/13 10:58:21.815 (SCRIPTRUNNER): Starting script:
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>2017/11/13 10:58:21.815 (SCRIPTRUNNER): Starting script:
 2017/11/13 10:58:22.076 (:1): C:/git/COSMOS/demo/procedures
 2017/11/13 10:58:22.076 (:1): C:/Ruby233p222-x64/lib/ruby/gems/2.3.0/gems/uuidtools-2.1.5/lib
 2017/11/13 10:58:22.076 (:1): C:/git/COSMOS/demo/lib
@@ -2086,17 +2086,17 @@ C:/Ruby233p222-x64/lib/ruby/2.3.0/x64-mingw32
 
 <p>Wow, that is a lot of gems! COSMOS requires a lot of libraries to support how it operates including many used for development purposes like rspec and simplecov. An important thing to note is at the top of the list the following paths are listed.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:/git/COSMOS/demo/procedures
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:/git/COSMOS/demo/procedures
 C:/git/COSMOS/demo/lib
 </code></pre></div></div>
 
-<p>The first path is due to the following line in the COSMOS Demo configuration’s system.txt configuration file: <code class="highlighter-rouge">PATH PROCEDURES ./procedures</code>. This adds the procedures directory in the current COSMOS configuration (C:/git/COSMOS/demo on my machine) to the path.</p>
+<p>The first path is due to the following line in the COSMOS Demo configuration’s system.txt configuration file: <code class="language-plaintext highlighter-rouge">PATH PROCEDURES ./procedures</code>. This adds the procedures directory in the current COSMOS configuration (C:/git/COSMOS/demo on my machine) to the path.</p>
 
 <p>The second path is added to every COSMOS configuration. The lib directory in the current COSMOS configuration (C:/git/COSMOS/demo on my machine).</p>
 
 <p>You should also note the last few lines of the $LOAD_PATH.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:/git/COSMOS/demo/config/targets/INST/lib
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:/git/COSMOS/demo/config/targets/INST/lib
 C:/git/COSMOS/demo/config/targets/INST/procedures
 C:/git/COSMOS/demo/config/targets/EXAMPLE/lib
 C:/git/COSMOS/demo/config/targets/TEMPLATED/lib
@@ -2169,13 +2169,13 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 <ol>
   <li>Edit config/tools/launcher/launcher.txt</li>
   <li>Add the following line (typically after Utilities LABEL)
-    <div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Config Editor" "LAUNCH ConfigEditor" "config_editor.png"
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Config Editor" "LAUNCH ConfigEditor" "config_editor.png"
 </code></pre></div>    </div>
   </li>
 </ol>
 
 <p>Restart your Launcher and you should see this new tool to help you configure COSMOS. Note that if you don’t have the Configuration Editor button then you probably also don’t have a button for the new Command Sequence tool. Add the following line after the Command Sender line to access this tool:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command Sequence" "LAUNCH CmdSequence" "cmd_sequence.png"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command Sequence" "LAUNCH CmdSequence" "cmd_sequence.png"
 </code></pre></div></div>
 
 <p>Enjoy these new COSMOS 4.0 tools!</p>
@@ -2358,19 +2358,19 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 <img src="/img/2017_08_23_aws_red_hat_connect.png" alt="Connect Dialog" /></p>
 
 <p>SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo yum groupinstall 'Server with GUI'
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo yum groupinstall 'Server with GUI'
 </code></pre></div></div>
 
 <p>Install COSMOS using the installation bash file:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 </code></pre></div></div>
 
 <p>Chose the sudo option when asked how to install. To enable X forwarding edit the SSH config file:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo vim /etc/ssh/sshd_config
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo vim /etc/ssh/sshd_config
 </code></pre></div></div>
 
 <p>Enable the following settings:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>X11Forwarding yes
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>X11Forwarding yes
 X11DisplayOffset 10
 X11UseLocalhost no
 </code></pre></div></div>
@@ -2392,39 +2392,39 @@ X11UseLocalhost no
 <img src="/img/2017_08_23_aws_security_group.png" alt="Security Group" /></p>
 
 <p>SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt-get update
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt-get update
 sudo apt install xfce4 xfce4-goodies tightvncserver
 </code></pre></div></div>
 
 <p>Run the following commands to setup the VNC server:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver
 vncserver -kill :1
 vim ~/.vnc/xstartup
 </code></pre></div></div>
 
 <p>Ensure your xstartup file matches the following:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/sh
 
-<span class="c"># Uncomment the following two lines for normal desktop:</span>
-<span class="nb">unset </span>SESSION_MANAGER
-<span class="c"># exec /etc/X11/xinit/xinitrc</span>
-<span class="nb">unset </span>DBUS_SESSION_BUS_ADDRESS
+# Uncomment the following two lines for normal desktop:
+unset SESSION_MANAGER
+# exec /etc/X11/xinit/xinitrc
+unset DBUS_SESSION_BUS_ADDRESS
 startxfce4 &amp;
 
-<span class="o">[</span> <span class="nt">-x</span> /etc/vnc/xstartup <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">exec</span> /etc/vnc/xstartup
-<span class="o">[</span> <span class="nt">-r</span> <span class="nv">$HOME</span>/.Xresources <span class="o">]</span> <span class="o">&amp;&amp;</span> xrdb <span class="nv">$HOME</span>/.Xresources
-xsetroot <span class="nt">-solid</span> grey
-vncconfig <span class="nt">-iconic</span> &amp;
-<span class="c">#x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &amp;</span>
-<span class="c">#x-window-manager &amp;</span>
+[ -x /etc/vnc/xstartup ] &amp;&amp; exec /etc/vnc/xstartup
+[ -r $HOME/.Xresources ] &amp;&amp; xrdb $HOME/.Xresources
+xsetroot -solid grey
+vncconfig -iconic &amp;
+#x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &amp;
+#x-window-manager &amp;
 </code></pre></div></div>
 
 <p>Restart VNC:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver
 </code></pre></div></div>
 
 <p>Install COSMOS using the installation bash file:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 </code></pre></div></div>
 
 <p>Chose the sudo option when asked how to install. On your local machine install a VNC viewer such as TightVNC and connect by entering the Public DNS address of your AWS instance in the Remote Host as well as the Port number of 5901. Typically this is added by appending it to the Remote Host address with a colon. Here is a screenshot of it running while I connected via TightVNC:
@@ -2674,7 +2674,7 @@ vncconfig <span class="nt">-iconic</span> &amp;
 
 <p>For this example we’ll assume we’re trying to talk to a SCPI enabled power supply such as the Keysight N6700. We start by creating a directory under our config/targets called POWER. The supply has a TCP/IP interface so we’ll use the <a href="/docs/interfaces/#tcpip-client-interface">TCP/IP Client Interface</a> to connect to it. Thus we create our POWER/cmd_tlm_server.txt file as follows:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE POWER_INT tcpip_client_interface.rb 127.0.0.1 5025 5025 10.0 nil TEMPLATE 0x0A 0x0A
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE POWER_INT tcpip_client_interface.rb 127.0.0.1 5025 5025 10.0 nil TEMPLATE 0x0A 0x0A
   TARGET POWER
 </code></pre></div></div>
 
@@ -2682,7 +2682,7 @@ vncconfig <span class="nt">-iconic</span> &amp;
 
 <p>Now you can define your target’s command and telemetry definitions. We’ll create example commands which get and set the voltage setting in our power supply. Create a POWER/cmd_tlm/cmd.txt file which has the following:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND POWER GET_VOLTAGE BIG_ENDIAN "Get voltage"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND POWER GET_VOLTAGE BIG_ENDIAN "Get voltage"
   APPEND_ID_PARAMETER CMD_ID 8 UINT 1 1 1 "Command Id" # Unique command ID
   APPEND_PARAMETER CHANNEL 8 UINT 1 4 1 "Channel"
   APPEND_PARAMETER CMD_TEMPLATE 512 STRING "MEAS:VOLT? (@&lt;CHANNEL&gt;)"
@@ -2702,7 +2702,7 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN "Set voltage"
 
 <p>Create a POWER/cmd_tlm/tlm.txt file to define the response telemetry:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY POWER TLM BIG_ENDIAN "Power Supply Telemetry"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY POWER TLM BIG_ENDIAN "Power Supply Telemetry"
   APPEND_ID_ITEM TLM_ID 32 INT 1 "Packet Identifier" # Unique telemetry ID
   APPEND_ITEM VOLTAGE 32 FLOAT "PS Measured Voltage"
     FORMAT_STRING "%0.3f"
@@ -2716,7 +2716,7 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN "Set voltage"
 
 <p>With Keysight supplies you can string together a bunch of SCIP commands in one CMD_TEMPLATE if you delimit them with semicolons. Then in the RSP_TEMPLATE you can break the response apart and set a bunch of telemetry items at once. For example:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND POWER GET_STATUS BIG_ENDIAN "Get status"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND POWER GET_STATUS BIG_ENDIAN "Get status"
   APPEND_ID_PARAMETER CMD_ID 8 UINT 3 3 3 "Command Id" # Unique command ID
   APPEND_PARAMETER CHANNEL 8 UINT 1 4 1 "Channel"
   APPEND_PARAMETER CMD_TEMPLATE 512 STRING "MEAS:VOLT (@&lt;CHANNEL&gt;);CURR (@&lt;CHANNEL&gt;);POW (@&lt;CHANNEL&gt;)"
@@ -2790,7 +2790,7 @@ Documentation will updated the first week of April.</p>
 
 <p>You can migrate existing config files using:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
 </code></pre></div></div>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
@@ -2832,7 +2832,7 @@ Documentation will updated the first week of April.</p>
 
 <p>This is all controlled by the INST target’s cmd/tlm definition files. If you open the INST/cmd_tlm/inst_tlm.txt file from the demo you’ll see the following at the end of the HEALTH_STATUS packet definition:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ITEM TEMP1HIGH 0 0 DERIVED "High-water mark for TEMP1"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ITEM TEMP1HIGH 0 0 DERIVED "High-water mark for TEMP1"
     READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER
   ITEM TEMP1LOW 0 0 DERIVED "Low-water mark for TEMP1"
     READ_CONVERSION processor_conversion.rb TEMP1WATER LOW_WATER
@@ -2896,9 +2896,9 @@ Documentation will updated the first week of April.</p>
 <span class="k">end</span></code></pre></figure>
 
 <p>The initialize method gets passed the parameters from the config file. Thus our config file of:
-<code class="highlighter-rouge">PROCESSOR TEMP1WATER watermark_processor.rb TEMP1</code>
+<code class="language-plaintext highlighter-rouge">PROCESSOR TEMP1WATER watermark_processor.rb TEMP1</code>
 passes ‘TEMP1’ into ‘item_name’ of the initialize method:
-<code class="highlighter-rouge">def initialize(item_name, value_type = :CONVERTED)</code>
+<code class="language-plaintext highlighter-rouge">def initialize(item_name, value_type = :CONVERTED)</code>
 Since we only pass one value, we use the default value_type of :CONVERTED.</p>
 
 <p>We store the item_name into a Ruby instance variable @item_name and call reset() to initialize our @results. But how did we get a @results instance variable? If you look at the class definition we are inheriting from <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/processors/processor.rb">Processor</a> which is the base class for all COSMOS Processors. It declares a @results instance variable and initializes @results in its initialize method which we call using super(value_type).</p>
@@ -2941,9 +2941,9 @@ Since we only pass one value, we use the default value_type of :CONVERTED.</p>
 <p>First of all note that ProcessorConversion inherits from the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/conversions/conversion.rb">Conversion</a> base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let’s see how these map together in our definition.</p>
 
 <p>Our config file looked like the following:
-<code class="highlighter-rouge">READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER</code>
+<code class="language-plaintext highlighter-rouge">READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER</code>
 This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into initialize:
-<code class="highlighter-rouge">def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)</code></p>
+<code class="language-plaintext highlighter-rouge">def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)</code></p>
 
 <p>We store the processor name and result name into Ruby instance variables (first turning them into upper case strings). We additionally turn the result name into a Ruby symbol by calling intern on it. This allows us to match the symbol names we used in the WatermarkProcessor code.</p>
 
@@ -2988,9 +2988,9 @@ This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into ini
 <p>This class introduces some new Ruby syntax. Since we want to accept any number of items to average we have to accept a variable number of arguments in our initialize method. The ruby splat operator (or star operator) does this and places the arguments into a Ruby array. We store these names and then use them in our call method to perform the mean. I’m using a cool feature of Ruby’s Enumerable mixin, which is part of Array, to sum up the values (starting with 0) and then dividing by the number of values we have to get the mean. Note I’m also calling to_f to ensure the numerator is a floating point number so we do floating point math during the division. Integer division would truncate the value to an integer value.</p>
 
 <p>First to use this new processor you need to require it in your target’s <a href="/docs/system/#targettxt-keywords">target.txt</a> configuration file:
-<code class="highlighter-rouge">REQUIRE mean_processor.rb</code>
+<code class="language-plaintext highlighter-rouge">REQUIRE mean_processor.rb</code>
 Then delcare the processing in your configuration definition as follows:
-<code class="highlighter-rouge">TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
+<code class="language-plaintext highlighter-rouge">TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
   ... # See demo configuration
   ITEM TEMPS_MEAN 0 0 DERIVED "Mean of TEMP1, TEMP2, TEMP3, TEMP4"
     READ_CONVERSION processor_conversion.rb TEMPMEAN MEAN
@@ -3090,7 +3090,7 @@ Documentation will updated the first week of April.</p>
 
 <p>You can migrate existing config files using:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bundle exec ruby tools\TableManager --convert config\tools\table_manager\old_table_def.txt
 </code></pre></div></div>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
@@ -3129,7 +3129,7 @@ Documentation will updated the first week of April.</p>
 
 <p>The Preidentified Router is controlled by the system.txt configuration file:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Ethernet Ports
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Ethernet Ports
 PORT CTS_API 7777
 PORT TLMVIEWER_API 7778
 PORT CTS_PREIDENTIFIED 7779
@@ -3139,7 +3139,7 @@ PORT CTS_PREIDENTIFIED 7779
 
 <p>If you look back at the picture you’ll see in our demo configuration that we also create another Router called the INST_ROUTER. This is how that Router is configured:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
   OPTION LISTEN_ADDRESS 127.0.0.1
   ROUTE INST_INT
 </code></pre></div></div>
@@ -3161,7 +3161,7 @@ PORT CTS_PREIDENTIFIED 7779
 
 <p>Obviously we need the TCPIP Client Interface to match the port number of the TCPIP Server and we also need to match the LENGTH protocol options. Notice how we have to call the System.telemetry.identify! method to identify the raw packet stream. When I run this from a command prompt after starting the Server I see a stream of packet names similar to this:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MECH
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MECH
 ADCS
 MECH
 IMAGE
@@ -3318,11 +3318,11 @@ ADCS
     </a>
   </div>
   <div class="post-content">
-    <p>COSMOS configuration files support ERB (Embedded RuBy) which is used heavily by <a href="http://rubyonrails.org/">Ruby on Rails</a>. I found a pretty good description of ERB <a href="http://www.stuartellis.eu/articles/erb/">here</a>. ERB allows you to put executable Ruby code in your configuration files. The trick is to surround the Ruby code with the special markers: <code class="highlighter-rouge">&lt;% &lt;code&gt; %&gt;</code>. If you want the result of your Ruby code to be placed in the configuration file you need to add the equal sign to the first marker: <code class="highlighter-rouge">&lt;%= &lt;code&gt; %&gt;</code></p>
+    <p>COSMOS configuration files support ERB (Embedded RuBy) which is used heavily by <a href="http://rubyonrails.org/">Ruby on Rails</a>. I found a pretty good description of ERB <a href="http://www.stuartellis.eu/articles/erb/">here</a>. ERB allows you to put executable Ruby code in your configuration files. The trick is to surround the Ruby code with the special markers: <code class="language-plaintext highlighter-rouge">&lt;% &lt;code&gt; %&gt;</code>. If you want the result of your Ruby code to be placed in the configuration file you need to add the equal sign to the first marker: <code class="language-plaintext highlighter-rouge">&lt;%= &lt;code&gt; %&gt;</code></p>
 
 <p>A COSMOS user recently asked if he could include environment variables in his COSMOS configuration. This is very easy using the ERB syntax. For example, you have an environment variable named “LOG_DIR” in your system which points to the path you want to store your COSMOS logs. To use this value you would modify your system.txt file as follows:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
 # Paths
 PATH LOGS &lt;%= ENV["LOG_DIR"] %&gt;
 ...
@@ -3338,7 +3338,7 @@ PATH LOGS &lt;%= ENV["LOG_DIR"] %&gt;
 
 <p>Now in system.txt we can use that ‘log_path’ routine after we first require ‘utilities’.</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;% require 'utilities' %&gt;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;% require 'utilities' %&gt;
 ...
 # Paths
 PATH LOGS &lt;%= log_path() %&gt;
@@ -3348,7 +3348,7 @@ PATH LOGS &lt;%= log_path() %&gt;
 
 <p>ERB templates are particularly useful in command and telemetry definitions as they allow you to reuse sections. We’ve added our own routine called ‘render’ (similar to Ruby on Rails) which can render a command or telemetry template. The best example of this is in the COSMOS Demo INST target. If you open the inst_cmds.txt file you’ll see this:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND INST COLLECT BIG_ENDIAN "Starts a collect on the instrument"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND INST COLLECT BIG_ENDIAN "Starts a collect on the instrument"
   &lt;%= render "_ccsds_cmd.txt", locals: {id: 1} %&gt;
   PARAMETER    TYPE           64  16  UINT MIN MAX 0 "Collect type"
     REQUIRED
@@ -3366,9 +3366,9 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
 ...
 </code></pre></div></div>
 
-<p>Notice the call to <code class="highlighter-rouge">&lt;%= render "_ccsds_cmd.txt", locals: {id: 1} %&gt;</code>. Opening the ‘_ccsds_cmd.txt’ file reveals this command template:</p>
+<p>Notice the call to <code class="language-plaintext highlighter-rouge">&lt;%= render "_ccsds_cmd.txt", locals: {id: 1} %&gt;</code>. Opening the ‘_ccsds_cmd.txt’ file reveals this command template:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  PARAMETER    CCSDSVER        0   3  UINT  0     0   0 "CCSDS primary header version number"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  PARAMETER    CCSDSVER        0   3  UINT  0     0   0 "CCSDS primary header version number"
   PARAMETER    CCSDSTYPE       3   1  UINT  1     1   1 "CCSDS primary header packet type"
   PARAMETER    CCSDSSHF        4   1  UINT  0     0   0 "CCSDS primary header secondary header flag"
   ID_PARAMETER CCSDSAPID       5  11  UINT  0  2047 999 "CCSDS primary header application id"
@@ -3420,16 +3420,16 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
 
 <p><img src="/img/2016_08_22_inst_array.png" alt="COSMOS Inst Array" /></p>
 
-<p>This screen is already using the Array widget to display this data in a text box. We will add our new widget to the top of the screen which will display the data in a table. Let’s add the line to the screen which will call our new widget. Edit <code class="highlighter-rouge">demo/config/targets/INST/screens/array.txt</code> and add the following line in the middle:</p>
+<p>This screen is already using the Array widget to display this data in a text box. We will add our new widget to the top of the screen which will display the data in a table. Let’s add the line to the screen which will call our new widget. Edit <code class="language-plaintext highlighter-rouge">demo/config/targets/INST/screens/array.txt</code> and add the following line in the middle:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
 TITLE "Instrument Array Data"
 DEMOTABLE INST HEALTH_STATUS ARY
 ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 ...
 </code></pre></div></div>
 
-<p>Now we need to create the DemotableWidget which will implement the actual display. Create a new file called <code class="highlighter-rouge">demotable_widget.rb</code> in <code class="highlighter-rouge">demo/config/targets/INST/lib</code>. Note that the name of the line in the config file, DEMOTABLE, must be all lowercase followed by an underscore and ‘widget’. The class name in the file must be one word with the first letter and Widget capitalized. This is how it should start:</p>
+<p>Now we need to create the DemotableWidget which will implement the actual display. Create a new file called <code class="language-plaintext highlighter-rouge">demotable_widget.rb</code> in <code class="language-plaintext highlighter-rouge">demo/config/targets/INST/lib</code>. Note that the name of the line in the config file, DEMOTABLE, must be all lowercase followed by an underscore and ‘widget’. The class name in the file must be one word with the first letter and Widget capitalized. This is how it should start:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/tools/tlm_viewer/widgets/widget'</span>
 
@@ -3445,7 +3445,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 <p>We’re extending the closest widget that Qt offers to what we’re trying to achieve. In this case it’s pretty obvious but you can get documentation on <a href="http://doc.qt.io/qt-4.8/classes.html">all the Qt classes</a>. In many cases it might be easier to extend an existing <a href="https://github.com/BallAerospace/COSMOS/tree/master/lib/cosmos/tools/tlm_viewer/widgets">COSMOS widget</a>.</p>
 
-<p>Note that our initialize method takes the parent_layout as the first value. All COSMOS widgets make the first parameter the parent_layout so they can be added. The next four paramaters are typically the target_name, packet_name, item_name and value_type. Additional parameters can follow the value_type parameter. The first thing we do in the initialize method is call super which calls the Widget initialize method. If you run this code you should see that the screen displays but doesn’t look any different. That’s because we haven’t actually added our new widget to the parent_layout. Before adding widgets to the layout you typically want to configure them. For our table, we need to set the number of rows and columns. First I grab the telemetry value from the server using the <code class="highlighter-rouge">System.telemetry.value</code> method defined in <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb">telemetry.rb</a>. Since this is an array value I call <code class="highlighter-rouge">length</code> to determine how many rows to display in the table. I then use the Qt methods <code class="highlighter-rouge">setRowCount</code> and <code class="highlighter-rouge">setColumnCount</code> to initialize the table. You can find these methods in the <a href="http://doc.qt.io/qt-4.8/qtablewidget.html">Qt::TableWidget</a> documentation. Finally I call the addWidget method which is a part of all the <a href="http://doc.qt.io/qt-4.8/qlayout.html">Qt::Layout</a> classes.</p>
+<p>Note that our initialize method takes the parent_layout as the first value. All COSMOS widgets make the first parameter the parent_layout so they can be added. The next four paramaters are typically the target_name, packet_name, item_name and value_type. Additional parameters can follow the value_type parameter. The first thing we do in the initialize method is call super which calls the Widget initialize method. If you run this code you should see that the screen displays but doesn’t look any different. That’s because we haven’t actually added our new widget to the parent_layout. Before adding widgets to the layout you typically want to configure them. For our table, we need to set the number of rows and columns. First I grab the telemetry value from the server using the <code class="language-plaintext highlighter-rouge">System.telemetry.value</code> method defined in <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb">telemetry.rb</a>. Since this is an array value I call <code class="language-plaintext highlighter-rouge">length</code> to determine how many rows to display in the table. I then use the Qt methods <code class="language-plaintext highlighter-rouge">setRowCount</code> and <code class="language-plaintext highlighter-rouge">setColumnCount</code> to initialize the table. You can find these methods in the <a href="http://doc.qt.io/qt-4.8/qtablewidget.html">Qt::TableWidget</a> documentation. Finally I call the addWidget method which is a part of all the <a href="http://doc.qt.io/qt-4.8/qlayout.html">Qt::Layout</a> classes.</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">parent_layout</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span> <span class="o">=</span> <span class="ss">:WITH_UNITS</span><span class="p">)</span>
       <span class="k">super</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span><span class="p">)</span>
@@ -3460,7 +3460,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 <p><img src="/img/2016_08_22_inst_array2.png" alt="COSMOS Inst Array" /></p>
 
-<p>To actually populate it with data we must follow the Cosmos Widget conventions. First of all by including Widget you include all the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/widget.rb">Widget</a> code which creates two key class methods: <code class="highlighter-rouge">layout_manager?</code> and <code class="highlighter-rouge">takes_value?</code>. These must be overridden to return true if your widget is either a layout or takes a value respectively. Since our widget will be taking the array data as a value we must override <code class="highlighter-rouge">takes_value?</code>:</p>
+<p>To actually populate it with data we must follow the Cosmos Widget conventions. First of all by including Widget you include all the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/widget.rb">Widget</a> code which creates two key class methods: <code class="language-plaintext highlighter-rouge">layout_manager?</code> and <code class="language-plaintext highlighter-rouge">takes_value?</code>. These must be overridden to return true if your widget is either a layout or takes a value respectively. Since our widget will be taking the array data as a value we must override <code class="language-plaintext highlighter-rouge">takes_value?</code>:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/tools/tlm_viewer/widgets/widget'</span>
 
@@ -3472,7 +3472,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
       <span class="k">return</span> <span class="kp">true</span>
     <span class="k">end</span></code></pre></figure>
 
-<p>Typically class methods are defined at the top of the source file and begin with self. You can also type out the class name but this is less robust as changing the class name requires changing the method name. Implementing this class method allows Telemetry Viewer to call the <code class="highlighter-rouge">value=(data)</code> method with new telemetry data. The value method implementation should look like this:</p>
+<p>Typically class methods are defined at the top of the source file and begin with self. You can also type out the class name but this is less robust as changing the class name requires changing the method name. Implementing this class method allows Telemetry Viewer to call the <code class="language-plaintext highlighter-rouge">value=(data)</code> method with new telemetry data. The value method implementation should look like this:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">value</span><span class="o">=</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
       <span class="p">(</span><span class="mi">0</span><span class="o">...</span><span class="vi">@rows</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span> <span class="c1"># Note the extra 'dot' which means up to but not including</span>
@@ -3480,7 +3480,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
       <span class="k">end</span>
     <span class="k">end</span></code></pre></figure>
 
-<p>The data value passed to the method is the same target, packet, and item used in the screen definition. In our value= method we are using our stored instance variable <code class="highlighter-rouge">@rows</code> to index into the array data and create new <a href="http://doc.qt.io/qt-4.8/qtablewidgetitem.html">Qt::TableWidgetItem</a> instances to store the data. TableWidgetItems expect Strings to be passed so I call to_s on the data item to ensure it is a String. If you now re-launch Telemetry Viewer you should see the values populated in the table:</p>
+<p>The data value passed to the method is the same target, packet, and item used in the screen definition. In our value= method we are using our stored instance variable <code class="language-plaintext highlighter-rouge">@rows</code> to index into the array data and create new <a href="http://doc.qt.io/qt-4.8/qtablewidgetitem.html">Qt::TableWidgetItem</a> instances to store the data. TableWidgetItems expect Strings to be passed so I call to_s on the data item to ensure it is a String. If you now re-launch Telemetry Viewer you should see the values populated in the table:</p>
 
 <p><img src="/img/2016_08_22_inst_array3.png" alt="COSMOS Inst Array" /></p>
 
@@ -3511,7 +3511,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
   <span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
-<p>Note that we were able to remove the class method <code class="highlighter-rouge">self.takes_value?</code> because AgingWidget already implements it. This is all required to setup aging but we must still modify the value= method to do the work. First in value= we call super to call the AgingWidget’s value= method. This method returns a string representation of the data with the correct foreground color and text character indicating the color, e.g. G=Green, Y=Yellow, R=Red. This is important for values with limits settings but since our array value doesn’t have limits I’m going to igore the return value and simply allow the aging routine to age the data. Interally this updates the <code class="highlighter-rouge">@background</code> instance variable with the current ‘aged’ background color. I then set the TableWidgetItem’s background color to this color before adding it to the table:</p>
+<p>Note that we were able to remove the class method <code class="language-plaintext highlighter-rouge">self.takes_value?</code> because AgingWidget already implements it. This is all required to setup aging but we must still modify the value= method to do the work. First in value= we call super to call the AgingWidget’s value= method. This method returns a string representation of the data with the correct foreground color and text character indicating the color, e.g. G=Green, Y=Yellow, R=Red. This is important for values with limits settings but since our array value doesn’t have limits I’m going to igore the return value and simply allow the aging routine to age the data. Interally this updates the <code class="language-plaintext highlighter-rouge">@background</code> instance variable with the current ‘aged’ background color. I then set the TableWidgetItem’s background color to this color before adding it to the table:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">value</span><span class="o">=</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
       <span class="k">super</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -3526,7 +3526,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 <p><img src="/img/2016_08_22_inst_array4.png" alt="COSMOS Inst Array" /></p>
 
-<p>Note that if you have a widget that implements aging and limits you’ll want to keep the value returned by super and use it in your widget. If you don’t want the aging routine to directly use your data value you can pass a string as the second parameter, e.g. super(data, text). This text string will be modified with the color blind settings. Basically that means that whatever the calculated <code class="highlighter-rouge">@foreground</code> color string is, a corresponding text character is added (R=Red, G=Green, etc) to aid people who can’t distinguish colors. See <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb">aging_widget.rb</a> for more details.</p>
+<p>Note that if you have a widget that implements aging and limits you’ll want to keep the value returned by super and use it in your widget. If you don’t want the aging routine to directly use your data value you can pass a string as the second parameter, e.g. super(data, text). This text string will be modified with the color blind settings. Basically that means that whatever the calculated <code class="language-plaintext highlighter-rouge">@foreground</code> color string is, a corresponding text character is added (R=Red, G=Green, etc) to aid people who can’t distinguish colors. See <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/tlm_viewer/widgets/aging_widget.rb">aging_widget.rb</a> for more details.</p>
 
 <p>If you have a question which would benefit the community or find a possible bug please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
@@ -3598,7 +3598,7 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 <p>What we’re doing is overriding pre_write_packet in StreamInterface to allow us to modify the data before it is written to the packet and sent over the interface. We also override post_read_data to operate on data received before it is sent back to the COSMOS server and thus the tools. Note there is also a post_read_packet(packet) method which is called after post_read_data is called and after the COSMOS Packet has been created. All Interfaces inheriting from StreamInterface includes these callback methods, including SerialInterface, TcpipServerInterface, and TcpipClientInterface. Note that UdpInterface inherits directly from Interface and thus does NOT include these callbacks.</p>
 
 <p>Then in your cmd_tlm_server.txt file for your target you use your new interface:</p>
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#         interface name  file name                    write read baud   parity stop timeouts stream
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#         interface name  file name                    write read baud   parity stop timeouts stream
 INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   1    nil nil  BURST
 </code></pre></div></div>
 
@@ -3635,13 +3635,13 @@ INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   
   <div class="post-content">
     <p>Recently a user asked if they could add exclamation points and question marks to their command and telemetry items. Absolutely!  COSMOS provides great flexibility in command and telemetry naming conventions. (See <a href="http://cosmosrb.com/docs/command">Command</a>). For example, adding an exclamation point to a command to denote a more severe version of the same command:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND TGT ABORT BIG_ENDIAN "Tries to abort a collect on the instrument"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND TGT ABORT BIG_ENDIAN "Tries to abort a collect on the instrument"
 COMMAND TGT ABORT! BIG_ENDIAN "Force aborts a collect on the instrument"
 </code></pre></div></div>
 
 <p>While it doesn’t make sense to define a command with a question mark, it works well with telemetry points. For example, there is a telemetry point which indicates whether a mechanism is deployed or not. It is an analog value that indicates deployed if the value is above zero. To view both the raw value and the deployed status, define a derived telemetry point which indicates a TRUE or FALSE status:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>APPEND_ITEM DEPLOYED 16 UINT "Deployed raw value"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>APPEND_ITEM DEPLOYED 16 UINT "Deployed raw value"
 ITEM DEPLOYED? 0 0 DERIVED "Deployed status"
   STATE FALSE 0
   STATE TRUE 1
@@ -3922,7 +3922,7 @@ ITEM DEPLOYED? 0 0 DERIVED "Deployed status"
 
 <p>First of all create a new COSMOS target directory in config/targets. I called mine INST (instrument) to match the COSMOS demo. Create the ‘cmd_tlm’ and ‘lib’ subdirectories. For my demo I created a simple ‘cmd.txt’ file which contains a single command:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND INST SET_STATUS BIG_ENDIAN "Set status"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND INST SET_STATUS BIG_ENDIAN "Set status"
   APPEND_PARAMETER STATUS 0 STRING "STATUS" "Status"
     STATE "OK" "OK"
     STATE "ERROR" "ERROR"
@@ -3930,7 +3930,7 @@ ITEM DEPLOYED? 0 0 DERIVED "Deployed status"
 
 <p>I created a ‘tlm.txt’ file which contains two different telemetry packets:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY INST STATUS BIG_ENDIAN "Status from the instrument"
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TELEMETRY INST STATUS BIG_ENDIAN "Status from the instrument"
   APPEND_ID_ITEM ID 16 UINT 1 "Packet ID"
   APPEND_ITEM COUNTER 16 UINT "Packet counter"
   APPEND_ITEM STATUS 0 STRING "Most recent ASCIICMD string"
@@ -3950,7 +3950,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
 
 <p>The cmd_tlm_server.txt file is very simple:</p>
 
-<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE INST_INT simulated_target_interface.rb sim_inst.rb
   TARGET INST
 </code></pre></div></div>
 
@@ -3963,7 +3963,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
   <span class="k">class</span> <span class="nc">SimInst</span> <span class="o">&lt;</span> <span class="no">SimulatedTarget</span>
 </code></pre></div></div>
 
-<p>Next you can initialize any of your packets in the initialize method. This is entirely optional but I show how to use the <code class="highlighter-rouge">@tlm_packets</code> hash to access all the defined packets. This hash is created automatically by the SimulatedTarget based on all the packets you have defined in your cmd_tlm/tlm.txt file. Note that there is NOT a corresponding <code class="highlighter-rouge">@cmd_packets</code>.</p>
+<p>Next you can initialize any of your packets in the initialize method. This is entirely optional but I show how to use the <code class="language-plaintext highlighter-rouge">@tlm_packets</code> hash to access all the defined packets. This hash is created automatically by the SimulatedTarget based on all the packets you have defined in your cmd_tlm/tlm.txt file. Note that there is NOT a corresponding <code class="language-plaintext highlighter-rouge">@cmd_packets</code>.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span>
   <span class="k">super</span><span class="p">(</span><span class="n">target_name</span><span class="p">)</span>
@@ -3975,7 +3975,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
 <span class="k">end</span>
 </code></pre></div></div>
 
-<p>We then have to configure the telemetry packet rates of our target. That is, how fast do the packets get sent out. This is handled by implementing the <code class="highlighter-rouge">set_rates</code> method and by calling <code class="highlighter-rouge">set_rate</code> for each packet defined in your system. If you do not call <code class="highlighter-rouge">set_rate</code> the packet will not be send out periodically (which may be desirable for event based packets).</p>
+<p>We then have to configure the telemetry packet rates of our target. That is, how fast do the packets get sent out. This is handled by implementing the <code class="language-plaintext highlighter-rouge">set_rates</code> method and by calling <code class="language-plaintext highlighter-rouge">set_rate</code> for each packet defined in your system. If you do not call <code class="language-plaintext highlighter-rouge">set_rate</code> the packet will not be send out periodically (which may be desirable for event based packets).</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">set_rates</span>
   <span class="c1"># The SimulatedTarget operates on a 101Hz clock</span>
@@ -3986,7 +3986,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
 <span class="k">end</span>
 </code></pre></div></div>
 
-<p>If your target will accept command you need to implemented the <code class="highlighter-rouge">write(packet)</code> method. My write method is simple in that I only have a single command that directly sets a value in one of my telemetry packets.</p>
+<p>If your target will accept command you need to implemented the <code class="language-plaintext highlighter-rouge">write(packet)</code> method. My write method is simple in that I only have a single command that directly sets a value in one of my telemetry packets.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
   <span class="c1"># We directly set the telemetry value from the only command</span>
@@ -3996,7 +3996,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
 <span class="k">end</span>
 </code></pre></div></div>
 
-<p>Your target must implement the <code class="highlighter-rouge">read(count_100hz, time)</code> method to return telemetry packets back to COSMOS. You’ll call the <code class="highlighter-rouge">get_pending_packets(count_100hz)</code> method implemented by SimulatedTarget and then perform whatever operations you want on the packets before returning the array of packets back to COSMOS. Note my use of the <code class="highlighter-rouge">cycle_tlm_item</code> method to automatically cycle the telemetry item as each packet is sent out. This is used heavily in the COSMOS Demo.</p>
+<p>Your target must implement the <code class="language-plaintext highlighter-rouge">read(count_100hz, time)</code> method to return telemetry packets back to COSMOS. You’ll call the <code class="language-plaintext highlighter-rouge">get_pending_packets(count_100hz)</code> method implemented by SimulatedTarget and then perform whatever operations you want on the packets before returning the array of packets back to COSMOS. Note my use of the <code class="language-plaintext highlighter-rouge">cycle_tlm_item</code> method to automatically cycle the telemetry item as each packet is sent out. This is used heavily in the COSMOS Demo.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="n">count_100hz</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
   <span class="c1"># The SimulatedTarget implements get_pending_packets to return</span>
@@ -4758,26 +4758,26 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
 
 <p>The COSMOS framework has several <a href="https://github.com/BallAerospace/COSMOS/tree/master/ext/cosmos/ext">C extensions</a> created to increase performance. One critical piece that was created early on is the extension to the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/binary_accessor.rb">BinaryAccessor</a> class. This allows for increased performance when reading items from binary packets which is the most common operation in the COSMOS system. I created a COSMOS <a href="https://github.com/BallAerospace/COSMOS/tree/master/test/performance">performance configuration</a> which spawns 30 fake targets and attempts to send commands to them as fast as possible. Sending commands exercies the write portion of BinaryAccessor and profiling showed this was now becoming a bottleneck. Therefore I set out to port the write method to the existing C extension.</p>
 
-<p>The fact that <a href="https://github.com/ryanatball">Ryan</a> had already implemented the read method as a C extension gave me a huge head start. I first copied all the Ruby code directly into the C extension so I could try to translate it line by line. Initially if I didn’t know how to do the translation I would just comment it out and see how much I could compile. A nice way to do this in C code is use <code class="highlighter-rouge">#if 0 ... #endif</code>. I also copied the read method signature and locals since the methods are similar. Before I get to far into the guts I should note that this effort relied on a very comprehensive <a href="https://github.com/BallAerospace/COSMOS/blob/master/spec/packets/binary_accessor_spec.rb">spec</a> or I would have had no idea if I was successful.</p>
+<p>The fact that <a href="https://github.com/ryanatball">Ryan</a> had already implemented the read method as a C extension gave me a huge head start. I first copied all the Ruby code directly into the C extension so I could try to translate it line by line. Initially if I didn’t know how to do the translation I would just comment it out and see how much I could compile. A nice way to do this in C code is use <code class="language-plaintext highlighter-rouge">#if 0 ... #endif</code>. I also copied the read method signature and locals since the methods are similar. Before I get to far into the guts I should note that this effort relied on a very comprehensive <a href="https://github.com/BallAerospace/COSMOS/blob/master/spec/packets/binary_accessor_spec.rb">spec</a> or I would have had no idea if I was successful.</p>
 
-<p>Once I implemented the initial parameter checking I dove into the String and Block (binary string) handling portion of the write method. The write method modifies the given buffer by writing a String or Block into it. I started with Google and found <a href="http://clalance.blogspot.com/2011/01/writing-ruby-extensions-in-c-part-8.html">Chris Lalancette’s</a> post and this excellent write-up on <a href="http://silverhammermba.github.io/emberb/c">The Ruby C API</a>. I also cloned <a href="https://github.com/ruby/ruby">ruby</a> itself and went directly to the <a href="https://github.com/ruby/ruby/blob/trunk/string.c">code</a>. I found the code a little difficult to follow but the important thing to remember is if the method is NOT delcared static then you can use it in your C extension. I ended up using <code class="highlighter-rouge">rb_str_concat</code> to add to the buffer and <code class="highlighter-rouge">rb_str_update</code> to directly modify the buffer.</p>
+<p>Once I implemented the initial parameter checking I dove into the String and Block (binary string) handling portion of the write method. The write method modifies the given buffer by writing a String or Block into it. I started with Google and found <a href="http://clalance.blogspot.com/2011/01/writing-ruby-extensions-in-c-part-8.html">Chris Lalancette’s</a> post and this excellent write-up on <a href="http://silverhammermba.github.io/emberb/c">The Ruby C API</a>. I also cloned <a href="https://github.com/ruby/ruby">ruby</a> itself and went directly to the <a href="https://github.com/ruby/ruby/blob/trunk/string.c">code</a>. I found the code a little difficult to follow but the important thing to remember is if the method is NOT delcared static then you can use it in your C extension. I ended up using <code class="language-plaintext highlighter-rouge">rb_str_concat</code> to add to the buffer and <code class="language-plaintext highlighter-rouge">rb_str_update</code> to directly modify the buffer.</p>
 
 <div class="note warning">
   <h5>Modifying Ruby strings</h5>
   <p>If you directly modify the Ruby string buffer in a C extension with memcpy, memmove, or memset (after getting a pointer with RSTRING_PTR), you need to tell the Ruby runtime with the rb_str_modify method. Calling Ruby's methods like rb_str_update automatically handles this for you.</p>
 </div>
 
-<p>Another issue I ran into was the existing Ruby code was calling <code class="highlighter-rouge">to_s</code> on the input value to ensure it was a String. In the C extension you can check for a type using <code class="highlighter-rouge">RB_TYPE_P(value, T_STRING)</code> where value is a unknown Ruby VALUE instance and T_STRING can be any number of Ruby types. If the value was not a Ruby String I used <code class="highlighter-rouge">rb_funcall</code> to directly call the Ruby runtime and call the <code class="highlighter-rouge">to_s</code> method. If you are unable to find an appropriate method in the C library to do what you want, this is the way to use Ruby from within your C extension.</p>
+<p>Another issue I ran into was the existing Ruby code was calling <code class="language-plaintext highlighter-rouge">to_s</code> on the input value to ensure it was a String. In the C extension you can check for a type using <code class="language-plaintext highlighter-rouge">RB_TYPE_P(value, T_STRING)</code> where value is a unknown Ruby VALUE instance and T_STRING can be any number of Ruby types. If the value was not a Ruby String I used <code class="language-plaintext highlighter-rouge">rb_funcall</code> to directly call the Ruby runtime and call the <code class="language-plaintext highlighter-rouge">to_s</code> method. If you are unable to find an appropriate method in the C library to do what you want, this is the way to use Ruby from within your C extension.</p>
 
-<p>Next I started to tackle the writing of signed and unsigned integers. COSMOS supports overflow of integers by either truncating a passed in value, saturating to the high or low, or raising an error. So I implemented a <code class="highlighter-rouge">check_overflow</code> method in C to handle this logic. This code was very difficult to get right because of the size of the values involved. Since COSMOS handles integers of any size, I had to create Ruby Bignum constants to perform the comparisons. This involved another dive into the Ruby source to understand <a href="https://github.com/ruby/ruby/blob/trunk/bignum.c">bignum.c</a>. One of the tricks was to create Ruby Constants up front in the Initialization routine so I wasn’t constantly recalulating Bignums for comparison. COSMOS also handles bitfields so those values I generate dynamically using <code class="highlighter-rouge">rb_big_pow</code> and <code class="highlighter-rouge">rb_bit_minus</code>. I also created a <code class="highlighter-rouge">TO_BIGNUM</code> macro which converts Fixnum to Bignum so all the math uses Bignum methods. I could then use the <code class="highlighter-rouge">rb_big_cmp</code> to compare the given value with the appropriate minimum and maximum values.</p>
+<p>Next I started to tackle the writing of signed and unsigned integers. COSMOS supports overflow of integers by either truncating a passed in value, saturating to the high or low, or raising an error. So I implemented a <code class="language-plaintext highlighter-rouge">check_overflow</code> method in C to handle this logic. This code was very difficult to get right because of the size of the values involved. Since COSMOS handles integers of any size, I had to create Ruby Bignum constants to perform the comparisons. This involved another dive into the Ruby source to understand <a href="https://github.com/ruby/ruby/blob/trunk/bignum.c">bignum.c</a>. One of the tricks was to create Ruby Constants up front in the Initialization routine so I wasn’t constantly recalulating Bignums for comparison. COSMOS also handles bitfields so those values I generate dynamically using <code class="language-plaintext highlighter-rouge">rb_big_pow</code> and <code class="language-plaintext highlighter-rouge">rb_bit_minus</code>. I also created a <code class="language-plaintext highlighter-rouge">TO_BIGNUM</code> macro which converts Fixnum to Bignum so all the math uses Bignum methods. I could then use the <code class="language-plaintext highlighter-rouge">rb_big_cmp</code> to compare the given value with the appropriate minimum and maximum values.</p>
 
-<p>The bitfield logic was the most complex to convert to C. This required a lot of C printfs and Ruby puts at each step of the way to ensure all the intermediary calculations were matching up. COSMOS supports big and little endian data buffers so I had to ensure the bytes were reversed and shifted as necessary before finally writing them back to the buffer. Again the <code class="highlighter-rouge">rb_str_modify</code> function is called to notify the Ruby runtime that the buffer has been changed.</p>
+<p>The bitfield logic was the most complex to convert to C. This required a lot of C printfs and Ruby puts at each step of the way to ensure all the intermediary calculations were matching up. COSMOS supports big and little endian data buffers so I had to ensure the bytes were reversed and shifted as necessary before finally writing them back to the buffer. Again the <code class="language-plaintext highlighter-rouge">rb_str_modify</code> function is called to notify the Ruby runtime that the buffer has been changed.</p>
 
-<p>The floating point values were probably the easiest because I simply called <code class="highlighter-rouge">RFLOAT_VALUE(value)</code> to get the double value of the passed in Ruby value. At this point I was able to successfully run the full spec. However, once I ran the entire COSMOS spec suite I hit a failure on a simple write call in api_spec.rb. I determined the spec was trying to send an integer value where there was a floating point value defined. The old Ruby code simply converted this value inline but I was calling <code class="highlighter-rouge">RFLOAT_VALUE(value)</code> which ASSUMES the value is a float. I updated the binary_accessor_spec.rb to capture this failure and also noted a similar issue in the integer logic. The Ruby code was calling <code class="highlighter-rouge">value = Integer(value)</code> for integers and <code class="highlighter-rouge">value = Float(value)</code> for floats. This not only handles the case of passing an integer value when you want to write a float, it also handles truncating a float to an integer and even handles parsing a String which contains a numeric value. When you have a tremendous amount of work being done by Ruby you are best to fall back to <code class="highlighter-rouge">rb_funcall</code>. But how to call the <code class="highlighter-rouge">Integer()</code> method which doesn’t appear to have a receiver. Remember that if a method doesn’t appear to have a receiver it’s probably being called on Kernel which is <a href="http://www.rubydoc.info/stdlib/core/Kernel#Integer-instance_method">exactly the case</a>. Thus I call it with <code class="highlighter-rouge">value = rb_funcall(rb_mKernel, rb_intern("Float"), 1, value);</code>. (NOTE: I also discovered I could call the method passing ‘self’ instead of rb_mKernel but using Kernel felt more explicit).</p>
+<p>The floating point values were probably the easiest because I simply called <code class="language-plaintext highlighter-rouge">RFLOAT_VALUE(value)</code> to get the double value of the passed in Ruby value. At this point I was able to successfully run the full spec. However, once I ran the entire COSMOS spec suite I hit a failure on a simple write call in api_spec.rb. I determined the spec was trying to send an integer value where there was a floating point value defined. The old Ruby code simply converted this value inline but I was calling <code class="language-plaintext highlighter-rouge">RFLOAT_VALUE(value)</code> which ASSUMES the value is a float. I updated the binary_accessor_spec.rb to capture this failure and also noted a similar issue in the integer logic. The Ruby code was calling <code class="language-plaintext highlighter-rouge">value = Integer(value)</code> for integers and <code class="language-plaintext highlighter-rouge">value = Float(value)</code> for floats. This not only handles the case of passing an integer value when you want to write a float, it also handles truncating a float to an integer and even handles parsing a String which contains a numeric value. When you have a tremendous amount of work being done by Ruby you are best to fall back to <code class="language-plaintext highlighter-rouge">rb_funcall</code>. But how to call the <code class="language-plaintext highlighter-rouge">Integer()</code> method which doesn’t appear to have a receiver. Remember that if a method doesn’t appear to have a receiver it’s probably being called on Kernel which is <a href="http://www.rubydoc.info/stdlib/core/Kernel#Integer-instance_method">exactly the case</a>. Thus I call it with <code class="language-plaintext highlighter-rouge">value = rb_funcall(rb_mKernel, rb_intern("Float"), 1, value);</code>. (NOTE: I also discovered I could call the method passing ‘self’ instead of rb_mKernel but using Kernel felt more explicit).</p>
 
 <p>At this point I refactored to combine some of the functionality in the read method with the new write method. I probably could have done more refactoring but refactoring C code just isn’t as much fun as refactoring Ruby code. Once I completed the refactor I wanted to benchmark my new C extension to determine how much faster (or slower?) I made it. I love the <a href="https://github.com/evanphx/benchmark-ips">benchmark-ips</a> gem as it benchmarks iterations per second and automatically determines how many times to run the code to get good data. But I didn’t want to re-write our existing specs to support using this gem so I looked into how to integrate it with RSpec. It turns out this is all that was needed in our spec_helper.rb:</p>
 
-<p><code class="highlighter-rouge">if ENV.key?("BENCHMARK")
+<p><code class="language-plaintext highlighter-rouge">if ENV.key?("BENCHMARK")
     c.around(:each) do |example|
       Benchmark.ips do |x|
         x.report(example.metadata[:full_description]) do
@@ -4790,7 +4790,7 @@ TELEMETRY INST DATA BIG_ENDIAN "Data from the instrument"
 
 <p>Benchmark-ips works by calculating the number of runs to get interesting data and then running the code in question. Thus defining BENCHMARK in the environment makes the specs run EXTREMELY slow. I used the ability of RSpec to filter only the examples I wanted to benchmark with the -e option:</p>
 
-<p><code class="highlighter-rouge">rspec spec/packets/binary_accesor_spec.rb -e "write only"</code></p>
+<p><code class="language-plaintext highlighter-rouge">rspec spec/packets/binary_accesor_spec.rb -e "write only"</code></p>
 
 <p>Running this in master and then in my C-extension branch I calculated the difference in iterations and then filtered out all the “complains” (raise an exception) and “overflow” test cases to focus on just the tests which write values. The average improvement was 1.3x. Not quite as awesome as I was hoping for but an improvement in an area that is performance sensitive. I suspected I could get additional performance if I optimized the check_overflow method to not always use Bignums and to do Fixnum comparisons if possible. However, this did not yield any optimizations so I backed out the change.</p>
 
