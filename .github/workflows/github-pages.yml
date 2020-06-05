@@ -18,13 +18,24 @@ jobs:
           ref: master
           path: COSMOS
 
-      - uses: actions/cache@v1
-        with:
-          path: vendor/bundle
-          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
+      # - uses: actions/cache@v1
+      #   with:
+      #     path: vendor/bundle
+      #     key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-gems-
 
-      - uses: helaili/jekyll-action@2.0.3
-        env:
-          JEKYLL_PAT: ${{ secrets.JEKYLL_PAT }}
+      # - uses: helaili/jekyll-action@2.0.3
+      #   env:
+      #     JEKYLL_PAT: ${{ secrets.JEKYLL_PAT }}
+
+      - uses: limjh16/jekyll-action-ts@v2
+        with:
+          enable_cache: true
+          jekyll_src: jekyll_site
+          gem_src: jekyll_site
+
+      - uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.JEKYLL_PAT }}
+          publish_dir: ../jekyll_site/_site
