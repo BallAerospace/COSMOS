@@ -10,10 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          path: site
+
       - uses: actions/checkout@v2
         with:
           ref: master
           path: COSMOS
+
+      - uses: actions/cache@v1
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
+
       - uses: helaili/jekyll-action@2.0.3
         env:
           JEKYLL_PAT: ${{ secrets.JEKYLL_PAT }}
