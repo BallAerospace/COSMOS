@@ -103,28 +103,16 @@ end
 
 task :devkit do
   if RUBY_ENGINE == 'ruby'
-    if RUBY_PLATFORM[0..2] == 'x64'
-      if File.exist?("C:/msys64/mingw64")
-        ENV['RI_DEVKIT'] = "C:\\msys64"
-        ENV['MSYSTEM']="MINGW64"
-        ENV['PKG_CONFIG_PATH']="/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig"
-        ENV['ACLOCAL_PATH']="/mingw64/share/aclocal:/usr/share/aclocal"
-        ENV['MANPATH']="/mingw64/share/man"
-        ENV['MINGW_PACKAGE_PREFIX']="mingw-w64-x86_64"
-        ENV['LANG']="en_US.UTF-8"
-        ENV['PATH'] = 'C:\\msys64\\mingw64\\bin;C:\\msys64\\usr\\bin;' + ENV['PATH']
-      end
-    else
-      if File.exist?("C:/msys64/mingw32")
-        ENV['RI_DEVKIT'] = "C:\\msys64"
-        ENV['MSYSTEM']="MINGW32"
-        ENV['PKG_CONFIG_PATH']="/mingw32/lib/pkgconfig:/mingw32/share/pkgconfig"
-        ENV['ACLOCAL_PATH']="/mingw32/share/aclocal:/usr/share/aclocal"
-        ENV['MANPATH']="/mingw32/share/man"
-        ENV['MINGW_PACKAGE_PREFIX']="mingw-w64-i686"
-        ENV['LANG']="en_US.UTF-8"
-        ENV['PATH'] = 'C:\\msys64\\mingw32\\bin;C:\\msys64\\usr\\bin;' + ENV['PATH']
-      end
+    msys64_path = File.expand_path(File.join(File.dirname(`where ruby`.split("\n")[0]), '..', 'msys64'))
+    if File.exist?(msys64_path)
+      ENV['RI_DEVKIT'] = msys64_path
+      ENV['MSYSTEM']="MINGW64"
+      ENV['PKG_CONFIG_PATH']="/mingw64/lib/pkgconfig"
+      ENV['ACLOCAL_PATH']="/mingw64/share/aclocal:/usr/share/aclocal"
+      ENV['MANPATH']="/mingw64/share/man"
+      ENV['MINGW_PACKAGE_PREFIX']="mingw-w64-x86_64"
+      ENV['LANG']="en_US.UTF-8"
+      ENV['PATH'] = "#{File.join(msys64_path, "mingw64", "bin").gsub("/", "\\")};#{File.join(msys64_path, "usr", "bin").gsub("/", "\\")};" + ENV['PATH']
     end
   end
 end
@@ -138,7 +126,6 @@ task :build => [:devkit] do
 
     extensions = [
       'crc',
-      'low_fragmentation_array',
       'polynomial_conversion',
       'config_parser',
       'string',
