@@ -28,5 +28,3 @@ jobs:
       - uses: helaili/jekyll-action@2.0.3
         env:
           JEKYLL_PAT: ${{ secrets.JEKYLL_PAT }}
-        with:
-          jekyll_src: jekyll_site
