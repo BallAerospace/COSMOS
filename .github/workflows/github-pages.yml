@@ -10,8 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          path: jekyll_site
 
       - uses: actions/checkout@v2
         with:
@@ -36,10 +34,8 @@ jobs:
       - uses: limjh16/jekyll-action-ts@v2
         with:
           enable_cache: true
-          # jekyll_src: jekyll_site
-          # gem_src: jekyll_site
 
       - uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.JEKYLL_PAT }}
-          publish_dir: ../jekyll_site/_site
+          publish_dir: ./_site
