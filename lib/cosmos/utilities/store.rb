@@ -199,6 +199,9 @@ module Cosmos
       end
     end
 
+    # cur_time = (Time.now.to_f * 1000).to_i
+    # result = redis.xrevrange(topic, cur_time , cur_time, count: 1)
+
     def read_topic_last(topic)
       @redis_pool.with do |redis|
         result = redis.xrevrange(topic, '+', '-', count: 1)
