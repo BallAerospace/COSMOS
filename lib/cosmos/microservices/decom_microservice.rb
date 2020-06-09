@@ -48,7 +48,6 @@ module Cosmos
 
       json_hash = {}
       packet.sorted_items.each do |item|
-        json_hash["time"] = packet.received_time.to_i
         json_hash[item.name] = packet.read_item(item, :RAW)
         json_hash[item.name + "__C"] = packet.read_item(item, :CONVERTED) if item.read_conversion or item.states
         json_hash[item.name + "__F"] = packet.read_item(item, :FORMATTED) if item.format_string

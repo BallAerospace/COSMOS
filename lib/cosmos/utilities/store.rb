@@ -150,6 +150,12 @@ module Cosmos
       return items, states, settings
     end
 
+    def get_target(target_name)
+      @redis_pool.with do |redis|
+        return JSON.parse(redis.hget("cosmos_targets", target_name))
+      end
+    end
+
     def get_packet(target_name, packet_name)
       @redis_pool.with do |redis|
         return JSON.parse(redis.hget("cosmostlm__#{target_name}", packet_name))

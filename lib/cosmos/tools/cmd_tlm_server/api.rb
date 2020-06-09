@@ -1297,11 +1297,9 @@ module Cosmos
     # @param target_name [String] Target name
     # @return [Array<String>] All of the ignored command parameters for a target.
     def get_target_ignored_parameters(target_name)
-      # TODO:
-      return []
-      #target = System.targets[target_name.upcase]
-      #raise "Unknown target: #{target_name}" unless target
-      #return target.ignored_parameters
+      target = Store.instance.get_target(target_name)
+      raise "Unknown target: #{target_name}" unless target
+      return target['ignored_parameters']
     end
 
     # Get the list of ignored telemetry items for a target
@@ -1309,9 +1307,9 @@ module Cosmos
     # @param target_name [String] Target name
     # @return [Array<String>] All of the ignored telemetry items for a target.
     def get_target_ignored_items(target_name)
-      target = System.targets[target_name.upcase]
+      target = Store.instance.get_target(target_name)
       raise "Unknown target: #{target_name}" unless target
-      return target.ignored_items
+      return target['ignored_items']
     end
 
     # Get the list of derived telemetry items for a packet
@@ -1320,15 +1318,9 @@ module Cosmos
     # @param packet_name [String] Packet name
     # @return [Array<String>] All of the ignored telemetry items for a packet.
     def get_packet_derived_items(target_name, packet_name)
-      packet = System.telemetry.packet(target_name, packet_name)
+      packet = Store.instance.get_packet(target_name, packet_name)
       raise "Unknown target or packet: #{target_name} #{packet_name}" unless packet
-      derived = []
-      packet.items.each do |name, item|
-        if item.data_type == :DERIVED
-          derived << name
-        end
-      end
-      return derived
+      return packet['items'].select {|item| item['data_type'] == 'DERIVED' }.map {|item| item['name']}
     end
 
     # Get information about an interface
