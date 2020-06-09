@@ -36,7 +36,9 @@
     <a href="/help/">Help</a>
   </li>
   <li>
-    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
   </li>
 </ul>
 
@@ -66,7 +68,9 @@
     <a href="/help/">Help</a>
   </li>
   <li>
-    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
   </li>
 </ul>
 
@@ -75,10 +79,9 @@
 </header>
 
 
-    <section class="docs">
-    <div class="grid wider">
-
-      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <section class="docs">
+  <div class="grid wider">
+    <div class="docs-nav-mobile unit whole show-on-mobiles">
   <select onchange="if (this.value) window.location.href=this.value">
     <option value="">Navigate the docs...</option>
     
@@ -5030,14 +5033,18 @@
 </div>
 
 
-      <div class="unit four-fifths">
-        <article>
-          <div class="improve right">
-            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/command.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
-          </div>
-          
-          <div class="toc">
-            <ul class="section-nav">
+    <div class="unit four-fifths">
+      <article>
+        <div class="improve right">
+          <a
+            href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/command.md"
+            target="_blank"
+            ><i class="fa fa-pencil"></i> &nbsp;Improve this page</a
+          >
+        </div>
+        
+        <div class="toc">
+          <ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#command-definition-files">Command Definition Files</a></li>
 <li class="toc-entry toc-h2"><a href="#command">COMMAND</a></li>
 <li class="toc-entry toc-h2"><a href="#select_command">SELECT_COMMAND</a>
@@ -5088,10 +5095,10 @@
 </li>
 <li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
 </ul>
-          </div>
-          
-          <h1>Command Configuration</h1>
-          <h2 id="command-definition-files">
+        </div>
+        
+        <h1>Command Configuration</h1>
+        <h2 id="command-definition-files">
 <a class="anchor" href="#command-definition-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Definition Files</h2>
 
 <p>Command definition files define the command packets that can be sent to COSMOS targets. One large file can be used to define the command packets, or multiple files can be used at the user’s discretion. Command definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some command files that depend on others, e.g. they override or extend existing commands, they must be named last. The easist way to do this is to add an extension to an existing file name. For example, if you already have cmd.txt you can create cmd_override.txt for telemetry that depends on the definitions in tlm.txt. Also note that due to the way the <a href="http://www.asciitable.com/">ASCII Table</a> is structured, files beginning with capital letters are processed before lower case letters.</p>
@@ -6239,8 +6246,7 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
     APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <span class="s2">"Setting &lt;%= x %&gt;"</span>
   &lt;% end %&gt;</code></pre></figure>
 
-
-          
+ 
 
 
 
@@ -6288,20 +6294,21 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
     <div class="clear"></div>
     
 
-        </article>
-      </div>
+      </article>
+    </div>
 
-      <div class="unit one-fifth hide-on-mobiles">
+    <div class="unit one-fifth hide-on-mobiles">
   <aside>
+    <ul><li><a href="/docs/v4/">Version 4 Docs</a></li></ul>
     
     <h4>Getting Started</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -6350,6 +6357,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -6452,6 +6461,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -6502,6 +6513,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -6606,6 +6619,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -6690,6 +6705,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -6731,13 +6748,13 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
 
     
     <h4>System Configuration</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -6824,6 +6841,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -6844,6 +6863,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -6936,6 +6957,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -6988,6 +7011,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7058,6 +7083,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7095,13 +7122,13 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
 
     
     <h4>Tool Configuration</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -7114,6 +7141,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7128,6 +7157,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7144,6 +7175,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7162,6 +7195,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7184,6 +7219,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7218,6 +7255,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7262,6 +7301,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7318,6 +7359,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7376,6 +7419,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7442,6 +7487,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7514,6 +7561,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7592,6 +7641,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7682,6 +7733,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7776,6 +7829,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7872,6 +7927,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -7970,6 +8027,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -8070,6 +8129,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -8147,13 +8208,13 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
 
     
     <h4>DART</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8186,6 +8247,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -8216,6 +8279,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -8245,13 +8310,13 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
 
     
     <h4>User's Guides</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8332,6 +8397,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -8414,6 +8481,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -8453,13 +8522,13 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
 
     
     <h4>Tips</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8471,13 +8540,13 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
 
     
     <h4>Development</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8566,6 +8635,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -8628,6 +8699,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -8692,6 +8765,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -8746,6 +8821,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -8807,13 +8884,13 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
 
     
     <h4>Meta</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8888,6 +8965,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -8994,6 +9073,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -9020,6 +9101,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -9066,6 +9149,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
 
   
+  
+
 
   
     
@@ -9138,10 +9223,9 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
 </div>
 
 
-      <div class="clear"></div>
-
-    </div>
-  </section>
+    <div class="clear"></div>
+  </div>
+</section>
 
 
   <script>

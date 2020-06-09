@@ -36,7 +36,9 @@
     <a href="/help/">Help</a>
   </li>
   <li>
-    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
   </li>
 </ul>
 
@@ -66,7 +68,9 @@
     <a href="/help/">Help</a>
   </li>
   <li>
-    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
   </li>
 </ul>
 
@@ -75,10 +79,9 @@
 </header>
 
 
-    <section class="docs">
-    <div class="grid wider">
-
-      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <section class="docs">
+  <div class="grid wider">
+    <div class="docs-nav-mobile unit whole show-on-mobiles">
   <select onchange="if (this.value) window.location.href=this.value">
     <option value="">Navigate the docs...</option>
     
@@ -5030,14 +5033,18 @@
 </div>
 
 
-      <div class="unit four-fifths">
-        <article>
-          <div class="improve right">
-            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/protocols.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
-          </div>
-          
-          <div class="toc">
-            <ul class="section-nav">
+    <div class="unit four-fifths">
+      <article>
+        <div class="improve right">
+          <a
+            href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/protocols.md"
+            target="_blank"
+            ><i class="fa fa-pencil"></i> &nbsp;Improve this page</a
+          >
+        </div>
+        
+        <div class="toc">
+          <ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#packet-delineation-protocols">Packet Delineation Protocols</a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#burst-protocol">Burst Protocol</a></li>
@@ -5071,10 +5078,10 @@
 </li>
 <li class="toc-entry toc-h2"><a href="#examples">Examples</a></li>
 </ul>
-          </div>
-          
-          <h1>Protocol Configuration</h1>
-          <p>Protocols process data on behalf of an Interface. They can modify the data being written, data being read, or both. Protocols can also mark a packet as stored instead of real-time which means COSMOS will not update the current value table with the packet data. Protocols can be layered and will be processed in order. For example, if you have a low-level encryption layer that must be first removed before processing a higher level buffer length protocol.</p>
+        </div>
+        
+        <h1>Protocol Configuration</h1>
+        <p>Protocols process data on behalf of an Interface. They can modify the data being written, data being read, or both. Protocols can also mark a packet as stored instead of real-time which means COSMOS will not update the current value table with the packet data. Protocols can be layered and will be processed in order. For example, if you have a low-level encryption layer that must be first removed before processing a higher level buffer length protocol.</p>
 
 <p>Protocols are typically used to define the logic to delineate packets and manipulate data as it written to and read from Interfaces. COSMOS includes Interfaces for TCP/IP Client, TCP/IP Server, Udp Client / Server, and Serial connections. For 99% of use cases these Interfaces should not require any changes as they universally handle the low-level details of reading and writing from these types of connections. All unique behavior should now be defined in Protocols as of COSMOS 4.0.0. (Note in versions of COSMOS before COSMOS 4, Interfaces supported a more limited system called Stream Protocols. Interfaces only allowed one Stream Protocol and were highly coupled. This document refers to protocols in COSMOS 4+.)</p>
 
@@ -5800,8 +5807,7 @@
 <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/template_protocol.rb">lib/cosmos/interfaces/protocols/template_protocol.rb</a>
 <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/override_protocol.rb">lib/cosmos/interfaces/protocols/override_protocol.rb</a>
 <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/crc_protocol.rb">lib/cosmos/interfaces/protocols/crc_protocol.rb</a></p>
-
-          
+ 
 
 
 
@@ -5858,20 +5864,21 @@
     <div class="clear"></div>
     
 
-        </article>
-      </div>
+      </article>
+    </div>
 
-      <div class="unit one-fifth hide-on-mobiles">
+    <div class="unit one-fifth hide-on-mobiles">
   <aside>
+    <ul><li><a href="/docs/v4/">Version 4 Docs</a></li></ul>
     
     <h4>Getting Started</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -5920,6 +5927,8 @@
   
 
   
+  
+
 
   
     
@@ -6022,6 +6031,8 @@
   
 
   
+  
+
 
   
     
@@ -6072,6 +6083,8 @@
   
 
   
+  
+
 
   
     
@@ -6176,6 +6189,8 @@
   
 
   
+  
+
 
   
     
@@ -6260,6 +6275,8 @@
   
 
   
+  
+
 
   
     
@@ -6301,13 +6318,13 @@
 
     
     <h4>System Configuration</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -6394,6 +6411,8 @@
   
 
   
+  
+
 
   
     
@@ -6414,6 +6433,8 @@
   
 
   
+  
+
 
   
     
@@ -6506,6 +6527,8 @@
   
 
   
+  
+
 
   
     
@@ -6558,6 +6581,8 @@
   
 
   
+  
+
 
   
     
@@ -6628,6 +6653,8 @@
   
 
   
+  
+
 
   
     
@@ -6665,13 +6692,13 @@
 
     
     <h4>Tool Configuration</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -6684,6 +6711,8 @@
   
 
   
+  
+
 
   
     
@@ -6698,6 +6727,8 @@
   
 
   
+  
+
 
   
     
@@ -6714,6 +6745,8 @@
   
 
   
+  
+
 
   
     
@@ -6732,6 +6765,8 @@
   
 
   
+  
+
 
   
     
@@ -6754,6 +6789,8 @@
   
 
   
+  
+
 
   
     
@@ -6788,6 +6825,8 @@
   
 
   
+  
+
 
   
     
@@ -6832,6 +6871,8 @@
   
 
   
+  
+
 
   
     
@@ -6888,6 +6929,8 @@
   
 
   
+  
+
 
   
     
@@ -6946,6 +6989,8 @@
   
 
   
+  
+
 
   
     
@@ -7012,6 +7057,8 @@
   
 
   
+  
+
 
   
     
@@ -7084,6 +7131,8 @@
   
 
   
+  
+
 
   
     
@@ -7162,6 +7211,8 @@
   
 
   
+  
+
 
   
     
@@ -7252,6 +7303,8 @@
   
 
   
+  
+
 
   
     
@@ -7346,6 +7399,8 @@
   
 
   
+  
+
 
   
     
@@ -7442,6 +7497,8 @@
   
 
   
+  
+
 
   
     
@@ -7540,6 +7597,8 @@
   
 
   
+  
+
 
   
     
@@ -7640,6 +7699,8 @@
   
 
   
+  
+
 
   
     
@@ -7717,13 +7778,13 @@
 
     
     <h4>DART</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -7756,6 +7817,8 @@
   
 
   
+  
+
 
   
     
@@ -7786,6 +7849,8 @@
   
 
   
+  
+
 
   
     
@@ -7815,13 +7880,13 @@
 
     
     <h4>User's Guides</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -7902,6 +7967,8 @@
   
 
   
+  
+
 
   
     
@@ -7984,6 +8051,8 @@
   
 
   
+  
+
 
   
     
@@ -8023,13 +8092,13 @@
 
     
     <h4>Tips</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8041,13 +8110,13 @@
 
     
     <h4>Development</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8136,6 +8205,8 @@
   
 
   
+  
+
 
   
     
@@ -8198,6 +8269,8 @@
   
 
   
+  
+
 
   
     
@@ -8262,6 +8335,8 @@
   
 
   
+  
+
 
   
     
@@ -8316,6 +8391,8 @@
   
 
   
+  
+
 
   
     
@@ -8377,13 +8454,13 @@
 
     
     <h4>Meta</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8458,6 +8535,8 @@
   
 
   
+  
+
 
   
     
@@ -8564,6 +8643,8 @@
   
 
   
+  
+
 
   
     
@@ -8590,6 +8671,8 @@
   
 
   
+  
+
 
   
     
@@ -8636,6 +8719,8 @@
   
 
   
+  
+
 
   
     
@@ -8708,10 +8793,9 @@
 </div>
 
 
-      <div class="clear"></div>
-
-    </div>
-  </section>
+    <div class="clear"></div>
+  </div>
+</section>
 
 
   <script>

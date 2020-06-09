@@ -36,7 +36,9 @@
     <a href="/help/">Help</a>
   </li>
   <li>
-    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
   </li>
 </ul>
 
@@ -66,7 +68,9 @@
     <a href="/help/">Help</a>
   </li>
   <li>
-    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
   </li>
 </ul>
 
@@ -75,10 +79,9 @@
 </header>
 
 
-    <section class="docs">
-    <div class="grid wider">
-
-      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <section class="docs">
+  <div class="grid wider">
+    <div class="docs-nav-mobile unit whole show-on-mobiles">
   <select onchange="if (this.value) window.location.href=this.value">
     <option value="">Navigate the docs...</option>
     
@@ -5030,16 +5033,20 @@
 </div>
 
 
-      <div class="unit four-fifths">
-        <article>
-          <div class="improve right">
-            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/history.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
-          </div>
-          
-          <h1>Release History</h1>
-          <h2 id="v4-4-2">4.4.2 / 2020-03-09</h2>
+    <div class="unit four-fifths">
+      <article>
+        <div class="improve right">
+          <a
+            href="https://github.com/BallAerospace/COSMOS/edit/website/_docs_v4/history.md"
+            target="_blank"
+            ><i class="fa fa-pencil"></i> &nbsp;Improve this page</a
+          >
+        </div>
+        
+        <h1>Release History</h1>
+        <h2 id="442--2020-03-09">4.4.2 / 2020-03-09</h2>
 
-<p>COSMOS 4.4.2!   A minor bug fix release.</p>
+<p id="v4-4-2">COSMOS 4.4.2! A minor bug fix release.</p>
 
 <p>Enjoy and see below for the full list of changes.</p>
 
@@ -5048,6 +5055,7 @@
 <p>None</p>
 
 <h3 id="maintenance">Maintenance:</h3>
+
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/1117">#1117</a> Include name in TcpipServerInteface log messages</li>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/1128">#1128</a> wkhtmltopdf has old comment</li>
@@ -5063,15 +5071,15 @@
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
-<p>The faster identification in ticket #911 does come with a potentially breaking change.  The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type).   This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target.  If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.</p>
+<p>The faster identification in ticket #911 does come with a potentially breaking change. The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type). This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target. If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.</p>
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
 
-<h2 id="v4-4-1">4.4.1 / 2019-12-30</h2>
+<h2 id="441--2019-12-30">4.4.1 / 2019-12-30</h2>
 
-<p>Onward to COSMOS 4.4.1!   27 tickets have been incorporated including 6 new features, 13 bug fixes and 8 general maintenance changes.</p>
+<p id="v4-4-1">Onward to COSMOS 4.4.1! 27 tickets have been incorporated including 6 new features, 13 bug fixes and 8 general maintenance changes.</p>
 
-<p>Mainly a stability bug fix release, but there are a few cool changes.  There is an new keyword for marking that bit overlaps are intentional in packet definition files.  This can get rid of those annoying warnings when you do this intentionally.  There is also a new DELETE_ITEM keyword to get rid of items potentially added by auto generation.   Tlm Extractor and Tlm Grapher can now pull more than 10,000 data points from DART.   Also, there is now the ability to package multiple targets into one gem.</p>
+<p>Mainly a stability bug fix release, but there are a few cool changes. There is an new keyword for marking that bit overlaps are intentional in packet definition files. This can get rid of those annoying warnings when you do this intentionally. There is also a new DELETE_ITEM keyword to get rid of items potentially added by auto generation. Tlm Extractor and Tlm Grapher can now pull more than 10,000 data points from DART. Also, there is now the ability to package multiple targets into one gem.</p>
 
 <p>Enjoy and see below for the full list of changes.</p>
 
@@ -5121,21 +5129,21 @@
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
-<p>The faster identification in ticket #911 does come with a potentially breaking change.  The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type).   This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target.  If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.</p>
+<p>The faster identification in ticket #911 does come with a potentially breaking change. The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type). This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target. If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.</p>
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
 
-<h2 id="v4-4-0">4.4.0 / 2019-06-28</h2>
+<h2 id="440--2019-06-28">4.4.0 / 2019-06-28</h2>
 
-<p>Here’s COSMOS 4.4.0!   52 tickets have been incorporated including 18 new features, 19 bug fixes and 15 general maintenance changes.</p>
+<p id="v4-4-0">Here’s COSMOS 4.4.0! 52 tickets have been incorporated including 18 new features, 19 bug fixes and 15 general maintenance changes.</p>
 
-<p>Overall this is just a stability bug fix release, but there are a few interesting changes.   For one, max packet reception speed has been greatly increased due to ticket #911.  CmdExtractor can now output in a CSV format. ScriptRunner has a recently opened file menu section, and the show_backtrace feature is now a menu option as well.  There is much better support for giving absolute paths to config files on the command line.  There is also a new LED type widget to display boolean telemetry.</p>
+<p>Overall this is just a stability bug fix release, but there are a few interesting changes. For one, max packet reception speed has been greatly increased due to ticket #911. CmdExtractor can now output in a CSV format. ScriptRunner has a recently opened file menu section, and the show_backtrace feature is now a menu option as well. There is much better support for giving absolute paths to config files on the command line. There is also a new LED type widget to display boolean telemetry.</p>
 
 <p>Enjoy and see below for the full list of changes.</p>
 
 <h3 id="breaking-changes">Breaking Changes:</h3>
 
-<p>The faster identification in ticket #911 does come with a potentially breaking change.  The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type).   This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target.  If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.</p>
+<p>The faster identification in ticket #911 does come with a potentially breaking change. The improvement requires that all packets for a given target be identified using the same fields (bit offset, bit_size, and type). This is the typical configuration, and breaking this pattern is typically a dangerous/bad choice for interfaces anyways, but previously COSMOS did default to handling packets being potentially identified using different fields in the same target. If you have a target that still requires that functionality, you need to declare CMD_UNIQUE_ID_MODE, and/or TLM_UNIQUE_ID_MODE in the target’s target.txt file to indicate it should use the slower identification method.</p>
 
 <h3 id="new-features-2">New Features:</h3>
 
@@ -5210,16 +5218,16 @@
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
 
-<h2 id="v4-3-0">4.3.0 / 2018-08-30</h2>
+<h2 id="430--2018-08-30">4.3.0 / 2018-08-30</h2>
 
-<p>Welcome to COSMOS 4.3.0!</p>
+<p id="v4-3-0">Welcome to COSMOS 4.3.0!</p>
 
-<p>The highlight of this release is built in support for differentiating between stored telemetry and realtime telemetry.  If your system downlinks stored telemetry that you don’t want to interfere with the COSMOS realtime current value table, your interface/protocol code can set the stored flag on a packet before returning it to COSMOS to have COSMOS log the packet, but not update the current telemetry values.</p>
+<p>The highlight of this release is built in support for differentiating between stored telemetry and realtime telemetry. If your system downlinks stored telemetry that you don’t want to interfere with the COSMOS realtime current value table, your interface/protocol code can set the stored flag on a packet before returning it to COSMOS to have COSMOS log the packet, but not update the current telemetry values.</p>
 
-<p>Lots of other new features as well, and a few bug fixes including fixing running on the latest version of Mac OSX.  See below for the full list.</p>
+<p>Lots of other new features as well, and a few bug fixes including fixing running on the latest version of Mac OSX. See below for the full list.</p>
 
 <p>Breaking Changes:
-The COSMOS log file format and predentified protocol formats have changed to support stored telemetry.   COSMOS 4.3 is backwards compatible with earlier formats, but older versions of COSMOS won’t be able to read files from COSMOS 4.3+.</p>
+The COSMOS log file format and predentified protocol formats have changed to support stored telemetry. COSMOS 4.3 is backwards compatible with earlier formats, but older versions of COSMOS won’t be able to read files from COSMOS 4.3+.</p>
 
 <h3 id="new-features-3">New Features:</h3>
 
@@ -5258,15 +5266,16 @@ The COSMOS log file format and predentified protocol formats have changed to sup
 </ul>
 
 <h3 id="migration-notes-from-cosmos-42x">Migration Notes from COSMOS 4.2.x:</h3>
+
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
 
-<h2 id="v4-2-4">4.2.4 / 2018-05-16</h2>
+<h2 id="424--2018-05-16">4.2.4 / 2018-05-16</h2>
 
-<p>This is the second patch release for 4.2.  It greatly improves the ingest speed for DART (100x), improves decom speed, reduces database size, and fixes some bugs.  If you are using DART, please upgrade and follow the migration directions at the end of these release notes.</p>
+<p id="v4-2-4">This is the second patch release for 4.2. It greatly improves the ingest speed for DART (100x), improves decom speed, reduces database size, and fixes some bugs. If you are using DART, please upgrade and follow the migration directions at the end of these release notes.</p>
 
-<p>The highlight of COSMOS 4.2 is a new tool called the Data Archival and Retrieval Tool (DART).   DART is a long term trending database built on top of the PostgreSql database.  It integrates directly with TlmGrapher, TlmExtractor, CmdExtractor, DataViewer, and Replay, allowing you to do historical queries of logged telemetry (and commands) by specifying a time range.  Queries are super fast and it performs automatic data reduction at minute/hour/day granularity.  Consider setting it up for your project and start data mining today!</p>
+<p>The highlight of COSMOS 4.2 is a new tool called the Data Archival and Retrieval Tool (DART). DART is a long term trending database built on top of the PostgreSql database. It integrates directly with TlmGrapher, TlmExtractor, CmdExtractor, DataViewer, and Replay, allowing you to do historical queries of logged telemetry (and commands) by specifying a time range. Queries are super fast and it performs automatic data reduction at minute/hour/day granularity. Consider setting it up for your project and start data mining today!</p>
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
 
@@ -5305,9 +5314,9 @@ rake db:seed
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
 
-<h2 id="v4-2-3">4.2.3 / 2018-04-17</h2>
+<h2 id="423--2018-04-17">4.2.3 / 2018-04-17</h2>
 
-<p>COSMOS 4.2 is here!   This is the first true patch release for 4.2.  The highlight of COSMOS 4.2 is a new tool called the Data Archival and Retrieval Tool (DART).   DART is a long term trending database built on top of the PostgreSql database.  It integrates directly with TlmGrapher, TlmExtractor, CmdExtractor, DataViewer, and Replay, allowing you to do historical queries of logged telemetry (and commands) by specifying a time range.  Queries are super fast and it performs automatic data reduction at minute/hour/day granularity.  Consider setting it up for your project and start data mining today!</p>
+<p id="v4-2-3">COSMOS 4.2 is here! This is the first true patch release for 4.2. The highlight of COSMOS 4.2 is a new tool called the Data Archival and Retrieval Tool (DART). DART is a long term trending database built on top of the PostgreSql database. It integrates directly with TlmGrapher, TlmExtractor, CmdExtractor, DataViewer, and Replay, allowing you to do historical queries of logged telemetry (and commands) by specifying a time range. Queries are super fast and it performs automatic data reduction at minute/hour/day granularity. Consider setting it up for your project and start data mining today!</p>
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
 
@@ -5337,9 +5346,9 @@ rake db:seed
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
 
-<h2 id="v4-2-2">4.2.2 / 2018-04-11</h2>
+<h2 id="422--2018-04-11">4.2.2 / 2018-04-11</h2>
 
-<p>COSMOS 4.2 is here!   Thirty four tickets went into this release, but the highlight is a new tool called the Data Archival and Retrieval Tool (DART).   DART is a long term trending database built on top of the PostgreSql database.  It integrates directly with TlmGrapher, TlmExtractor, CmdExtractor, DataViewer, and Replay, allowing you to do historical queries of logged telemetry (and commands) by specifying a time range.  Queries are super fast and it performs automatic data reduction at minute/hour/day granularity.  Consider setting it up for your project and start data mining today!</p>
+<p id="v4-2-2">COSMOS 4.2 is here! Thirty four tickets went into this release, but the highlight is a new tool called the Data Archival and Retrieval Tool (DART). DART is a long term trending database built on top of the PostgreSql database. It integrates directly with TlmGrapher, TlmExtractor, CmdExtractor, DataViewer, and Replay, allowing you to do historical queries of logged telemetry (and commands) by specifying a time range. Queries are super fast and it performs automatic data reduction at minute/hour/day granularity. Consider setting it up for your project and start data mining today!</p>
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
 
@@ -5399,9 +5408,9 @@ rake db:seed
 
 <p>See the COSMOS documentation for directions on setting up DART: http://cosmosrb.com/docs/home/</p>
 
-<h2 id="v4-1-1">4.1.1 / 2017-12-07</h2>
+<h2 id="411--2017-12-07">4.1.1 / 2017-12-07</h2>
 
-<h3 id="new-features-7">New Features:</h3>
+<h3 id="v4-1-1">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/663">#663</a> Built-in protocols to support allow_empty_data</li>
@@ -5429,11 +5438,11 @@ rake db:seed
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
-<h2 id="v4-1-0">4.1.0 / 2017-11-17</h2>
+<h2 id="410--2017-11-17">4.1.0 / 2017-11-17</h2>
 
-<p>Welcome to COSMOS 4.1!  The COSMOS API has transitioned from a custom TCP protocol to HTTP.  This will make interfacing to COSMOS from programming languages other than Ruby much easier.  There are also many new APIs that allows the full functionality of the CmdTlmServer and Replay to be controlled remotely.  See below for the full list of changes!</p>
+<p id="v4-1-0">Welcome to COSMOS 4.1! The COSMOS API has transitioned from a custom TCP protocol to HTTP. This will make interfacing to COSMOS from programming languages other than Ruby much easier. There are also many new APIs that allows the full functionality of the CmdTlmServer and Replay to be controlled remotely. See below for the full list of changes!</p>
 
-<h3 id="new-features-8">New Features:</h3>
+<h3 id="new-features-7">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/531">#531</a> Command sequence export option</li>
@@ -5490,11 +5499,11 @@ rake db:seed
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
-<h2 id="v4-0-3">4.0.3 / 2017-10-24</h2>
+<h2 id="403--2017-10-24">4.0.3 / 2017-10-24</h2>
 
-<p><strong>Important Bug Fix:</strong> UdpInterface was only working for locahost on earlier versions of COSMOS 4.0.x. Please upgrade to COSMOS 4.0.3 if you need support for UDP.</p>
+<p id="v4-0-3"><strong>Important Bug Fix:</strong> UdpInterface was only working for locahost on earlier versions of COSMOS 4.0.x. Please upgrade to COSMOS 4.0.3 if you need support for UDP.</p>
 
-<h3 id="new-features-9">New Features:</h3>
+<h3 id="new-features-8">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/585">#585</a> Add packet level config_name</li>
@@ -5514,19 +5523,19 @@ rake db:seed
 
 <p>COSMOS 4 includes several breaking changes from the COSMOS 3.x series.</p>
 
-<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent.  This can allow external systems to also log all commands sent by COSMOS.  For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
+<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent. This can allow external systems to also log all commands sent by COSMOS. For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
 
-<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META.  This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used.  You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running.  In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS.  If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data.  If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
+<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META. This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used. You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running. In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS. If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data. If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
 
-<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols.  Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface.  Now each interface can take a set of one or more protocols.  This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS.  It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets.  It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification.  See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading.  Look for this in a week or two.</p>
+<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols. Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface. Now each interface can take a set of one or more protocols. This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS. It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets. It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification. See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading. Look for this in a week or two.</p>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
-<h2 id="v4-0-2">4.0.2 / 2017-09-29</h2>
+<h2 id="402--2017-09-29">4.0.2 / 2017-09-29</h2>
 
-<p><strong>Important Bug Fix:</strong> UdpInterface was only working for locahost on earlier versions of COSMOS 4.0.x. Please upgrade to COSMOS 4.0.2 if you need support for UDP.</p>
+<p id="v4-0-2"><strong>Important Bug Fix:</strong> UdpInterface was only working for locahost on earlier versions of COSMOS 4.0.x. Please upgrade to COSMOS 4.0.2 if you need support for UDP.</p>
 
-<h3 id="new-features-10">New Features:</h3>
+<h3 id="new-features-9">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/577">#577</a> LIMITSBAR widget shouldn’t allow RAW</li>
@@ -5554,17 +5563,17 @@ rake db:seed
 
 <p>COSMOS 4 includes several breaking changes from the COSMOS 3.x series.</p>
 
-<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent.  This can allow external systems to also log all commands sent by COSMOS.  For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
+<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent. This can allow external systems to also log all commands sent by COSMOS. For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
 
-<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META.  This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used.  You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running.  In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS.  If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data.  If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
+<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META. This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used. You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running. In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS. If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data. If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
 
-<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols.  Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface.  Now each interface can take a set of one or more protocols.  This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS.  It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets.  It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification.  See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading.  Look for this in a week or two.</p>
+<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols. Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface. Now each interface can take a set of one or more protocols. This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS. It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets. It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification. See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading. Look for this in a week or two.</p>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
-<h2 id="v4-0-1">4.0.1 / 2017-08-23</h2>
+<h2 id="401--2017-08-23">4.0.1 / 2017-08-23</h2>
 
-<h3 id="new-features-11">New Features:</h3>
+<h3 id="v4-0-1">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/527">#527</a> Editing config files should now bring up ConfigEditor</li>
@@ -5594,17 +5603,17 @@ rake db:seed
 
 <p>COSMOS 4 includes several breaking changes from the COSMOS 3.x series.</p>
 
-<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent.  This can allow external systems to also log all commands sent by COSMOS.  For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
+<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent. This can allow external systems to also log all commands sent by COSMOS. For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
 
-<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META.  This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used.  You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running.  In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS.  If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data.  If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
+<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META. This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used. You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running. In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS. If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data. If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
 
-<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols.  Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface.  Now each interface can take a set of one or more protocols.  This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS.  It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets.  It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification.  See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading.  Look for this in a week or two.</p>
+<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols. Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface. Now each interface can take a set of one or more protocols. This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS. It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets. It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification. See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading. Look for this in a week or two.</p>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
-<h2 id="v4-0-0">4.0.0 / 2017-08-04</h2>
+<h2 id="400--2017-08-04">4.0.0 / 2017-08-04</h2>
 
-<p>COSMOS 4 is here!</p>
+<p id="v4-0-0">COSMOS 4 is here!</p>
 
 <p>48 tickets have gone into this release, and it brings with it two new tools and some great under the hood improvements.</p>
 
@@ -5612,9 +5621,9 @@ rake db:seed
 
 <p>COSMOS now has a dedicated Configuration Editor and Command Sequence Builder.</p>
 
-<p>The config editor gives you contextual help when building config files, and make it super easy to define packets and configure tools without having to have the online documentation up in front of you.  It’s going to make setting up COSMOS even easier than it was before.</p>
+<p>The config editor gives you contextual help when building config files, and make it super easy to define packets and configure tools without having to have the online documentation up in front of you. It’s going to make setting up COSMOS even easier than it was before.</p>
 
-<p>Command Sequence builder allows you to define series of commands that should be sent at either absolute or relative timestamps to each other.  This is great for planning time specific commanding.  You can execute these on the ground directly from the tool, or you can convert them to your own internal format and upload to the system you are commanding.</p>
+<p>Command Sequence builder allows you to define series of commands that should be sent at either absolute or relative timestamps to each other. This is great for planning time specific commanding. You can execute these on the ground directly from the tool, or you can convert them to your own internal format and upload to the system you are commanding.</p>
 
 <p>Highlighted changes:</p>
 
@@ -5624,10 +5633,10 @@ rake db:seed
   <li>The Command and Telemetry Server can now run on JRuby in –no-gui mode (may help performance for huge projects with 50+ targets)</li>
   <li>New router provides the ability to get a copy of every command sent out from COSMOS in a stream</li>
   <li>New SYSTEM META packet output by the CmdTlmServer</li>
-  <li>Lots more!  See the full ticket list below</li>
+  <li>Lots more! See the full ticket list below</li>
 </ol>
 
-<h3 id="new-features-12">New Features:</h3>
+<h3 id="new-features-10">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/229">#229</a> Gem Based Targets should support DataViewer and other tool configurations</li>
@@ -5694,17 +5703,17 @@ rake db:seed
 
 <p>COSMOS 4 includes several breaking changes from the COSMOS 3.x series.</p>
 
-<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent.  This can allow external systems to also log all commands sent by COSMOS.  For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
+<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent. This can allow external systems to also log all commands sent by COSMOS. For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
 
-<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META.  This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used.  You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running.  In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS.  If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data.  If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
+<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META. This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used. You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running. In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS. If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data. If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
 
-<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols.  Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface.  Now each interface can take a set of one or more protocols.  This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS.  It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets.  It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification.  See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading.  Look for this in a week or two.</p>
+<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols. Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface. Now each interface can take a set of one or more protocols. This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS. It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets. It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification. See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading. Look for this in a week or two.</p>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
-<h2 id="v3-9-2">3.9.2 / 2017-05-18</h2>
+<h2 id="392--2017-05-18">3.9.2 / 2017-05-18</h2>
 
-<h3 id="new-features-13">New Features:</h3>
+<h3 id="v3-9-2">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/147">#147</a> TlmExtractor Full Column Names Mode</li>
@@ -5729,11 +5738,12 @@ rake db:seed
 <h3 id="bug-fixes-13">Bug Fixes:</h3>
 
 <ul>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/417">#417</a>  Table Manager not checking ranges</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/419">#419</a>  Support multiple arrays in string based commands</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/417">#417</a> Table Manager not checking ranges</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/419">#419</a> Support multiple arrays in string based commands</li>
 </ul>
 
 <h3 id="migration-notes-from-cosmos-38x-3">Migration Notes from COSMOS 3.8.x:</h3>
+
 <p><strong>The Table Manager configuration file format has changed.</strong>
 Documentation will updated the first week of April.</p>
 
@@ -5744,9 +5754,9 @@ Documentation will updated the first week of April.</p>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
-<h2 id="v3-9-1">3.9.1 / 2017-03-29</h2>
+<h2 id="391--2017-03-29">3.9.1 / 2017-03-29</h2>
 
-<h3 id="new-features-14">New Features:</h3>
+<h3 id="v3-9-1">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/382">#382</a> CmdTlmServer Start/Stop for background tasks</li>
@@ -5774,6 +5784,7 @@ Documentation will updated the first week of April.</p>
 </ul>
 
 <h3 id="migration-notes-from-cosmos-38x-4">Migration Notes from COSMOS 3.8.x:</h3>
+
 <p><strong>The Table Manager configuration file format has changed.</strong>
 Documentation will updated the first week of April.</p>
 
@@ -5784,9 +5795,9 @@ Documentation will updated the first week of April.</p>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
-<h2 id="v3-8-3">3.8.3 / 2016-12-06</h2>
+<h2 id="383--2016-12-06">3.8.3 / 2016-12-06</h2>
 
-<h3 id="new-features-15">New Features:</h3>
+<h3 id="v3-8-3">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/230">#230</a> Make AUTO_TARGETS ignore target folders that have already been manually referenced</li>
@@ -5803,6 +5814,7 @@ Documentation will updated the first week of April.</p>
 </ul>
 
 <h3 id="maintenance-15">Maintenance:</h3>
+
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/349">#349</a> Optimize cmd() to not build commands twice</li>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/362">#362</a> restore_defaults should take an optional parameter to exclude specified parameters</li>
@@ -5824,13 +5836,14 @@ Documentation will updated the first week of April.</p>
 </ul>
 
 <h3 id="migration-notes-from-cosmos-37x">Migration Notes from COSMOS 3.7.x:</h3>
+
 <p>None</p>
 
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
-<h2 id="v3-8-2">3.8.2 / 2016-07-05</h2>
+<h2 id="382--2016-07-05">3.8.2 / 2016-07-05</h2>
 
-<h3 id="new-features-16">New Features:</h3>
+<h3 id="v3-8-2">New Features:</h3>
 
 <h3 id="maintenance-16">Maintenance:</h3>
 
@@ -5847,11 +5860,12 @@ Documentation will updated the first week of April.</p>
 </ul>
 
 <h3 id="migration-notes-from-cosmos-37x-1">Migration Notes from COSMOS 3.7.x:</h3>
+
 <p>None</p>
 
-<h2 id="v3-8-1">3.8.1 / 2016-05-12</h2>
+<h2 id="381--2016-05-12">3.8.1 / 2016-05-12</h2>
 
-<h3 id="new-features-17">New Features:</h3>
+<h3 id="v3-8-1">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/184">#184</a> Limits Monitor show green for blue limits items</li>
@@ -5884,13 +5898,14 @@ Documentation will updated the first week of April.</p>
 </ul>
 
 <h3 id="migration-notes-from-cosmos-37x-2">Migration Notes from COSMOS 3.7.x:</h3>
+
 <p>None</p>
 
-<h2 id="v3-8-0">3.8.0 / 2016-02-26</h2>
+<h2 id="380--2016-02-26">3.8.0 / 2016-02-26</h2>
 
-<p>With this release COSMOS now has initial support for the XTCE Command and Telemetry Definition standard.</p>
+<p id="v3-8-0">With this release COSMOS now has initial support for the XTCE Command and Telemetry Definition standard.</p>
 
-<h3 id="new-features-18">New Features:</h3>
+<h3 id="new-features-11">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/251">#251</a> Create COSMOS XTCE Converter</li>
@@ -5905,11 +5920,12 @@ Documentation will updated the first week of April.</p>
 </ul>
 
 <h3 id="migration-notes-from-cosmos-37x-3">Migration Notes from COSMOS 3.7.x:</h3>
+
 <p>None</p>
 
-<h2 id="v3-7-1">3.7.1 / 2015-12-29</h2>
+<h2 id="371--2015-12-29">3.7.1 / 2015-12-29</h2>
 
-<h3 id="bug-fixes-19">Bug Fixes:</h3>
+<h3 id="v3-7-1">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/228">#228</a> Fix typo in udp_interface</li>
@@ -5928,9 +5944,9 @@ Documentation will updated the first week of April.</p>
   <li>line_graph_script has been significantly updated to support modifying plots from the script.</li>
 </ol>
 
-<h2 id="v3-7-0">3.7.0 / 2015-11-25</h2>
+<h2 id="370--2015-11-25">3.7.0 / 2015-11-25</h2>
 
-<h3 id="new-features-19">New Features:</h3>
+<h3 id="v3-7-0">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/213">#213</a> Vertical Limits Bar</li>
@@ -5945,7 +5961,7 @@ Documentation will updated the first week of April.</p>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/223">#223</a> C Extension Improvements</li>
 </ul>
 
-<h3 id="bug-fixes-20">Bug Fixes:</h3>
+<h3 id="bug-fixes-19">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/199">#199</a> Investigate TlmGrapher Formatted Time Item</li>
@@ -5961,9 +5977,9 @@ Documentation will updated the first week of April.</p>
   <li>line_graph_script has been significantly updated to support modifying plots from the script.</li>
 </ol>
 
-<h2 id="v3-6-3">3.6.3 / 2015-10-30</h2>
+<h2 id="363--2015-10-30">3.6.3 / 2015-10-30</h2>
 
-<h3 id="new-features-20">New Features:</h3>
+<h3 id="v3-6-3">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/200">#200</a> ScriptRunner Find Dialog Does Not Cross Windows</li>
@@ -5979,7 +5995,7 @@ Documentation will updated the first week of April.</p>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/205">#205</a> Add testing for array and matrix</li>
 </ul>
 
-<h3 id="bug-fixes-21">Bug Fixes:</h3>
+<h3 id="bug-fixes-20">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/191">#191</a> Installing COSMOS Issue on Windows 7</li>
@@ -5991,9 +6007,9 @@ Documentation will updated the first week of April.</p>
 
 <p>None</p>
 
-<h2 id="v3-6-2">3.6.2 / 2015-08-10</h2>
+<h2 id="362--2015-08-10">3.6.2 / 2015-08-10</h2>
 
-<h3 id="bug-fixes-22">Bug Fixes:</h3>
+<h3 id="v3-6-2">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/187">#187</a> Must require tempfile in config_parser.rb on non-windows systems</li>
@@ -6003,9 +6019,9 @@ Documentation will updated the first week of April.</p>
 
 <p>None</p>
 
-<h2 id="v3-6-1">3.6.1 / 2015-08-10</h2>
+<h2 id="361--2015-08-10">3.6.1 / 2015-08-10</h2>
 
-<h3 id="bug-fixes-23">Bug Fixes:</h3>
+<h3 id="v3-6-1">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/185">#185</a> target.txt order not being preserved</li>
@@ -6015,11 +6031,11 @@ Documentation will updated the first week of April.</p>
 
 <p>None</p>
 
-<h2 id="v3-6-0">3.6.0 / 2015-08-07</h2>
+<h2 id="360--2015-08-07">3.6.0 / 2015-08-07</h2>
 
-<p>Huge new feature in this release: All COSMOS configuration files are now interpreted with the ERB preprocessor!  This allows you to use Ruby code within the configuration files to help build them.  You can also render partials of common information such as packet headers so you only have to define them once.  See the INST target in the updated Demo project for examples.</p>
+<p id="v3-6-0">Huge new feature in this release: All COSMOS configuration files are now interpreted with the ERB preprocessor! This allows you to use Ruby code within the configuration files to help build them. You can also render partials of common information such as packet headers so you only have to define them once. See the INST target in the updated Demo project for examples.</p>
 
-<h3 id="bug-fixes-24">Bug Fixes:</h3>
+<h3 id="bug-fixes-21">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/168">#168</a> Select unreliably unblocks when closing sockets on linux</li>
@@ -6028,7 +6044,7 @@ Documentation will updated the first week of April.</p>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/182">#182</a> Overriding LOG_WRITERS in cmd_tlm_server.txt can cause issues</li>
 </ul>
 
-<h3 id="new-features-21">New Features:</h3>
+<h3 id="new-features-12">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/170">#170</a> Consider supporting a preprocessor over COSMOS config files</li>
@@ -6046,15 +6062,15 @@ Documentation will updated the first week of April.</p>
 
 <p>None</p>
 
-<h2 id="v3-5-3">3.5.3 / 2015-07-14</h2>
+<h2 id="353--2015-07-14">3.5.3 / 2015-07-14</h2>
 
-<h3 id="bug-fixes-25">Bug Fixes:</h3>
+<h3 id="v3-5-3">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/169">#169</a> Make windows bat files support running outside of the current directory</li>
 </ul>
 
-<h3 id="new-features-22">New Features:</h3>
+<h3 id="new-features-13">New Features:</h3>
 
 <ul>
   <li>N/A</li>
@@ -6072,15 +6088,15 @@ Documentation will updated the first week of April.</p>
 
 <p>COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments. If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.</p>
 
-<h2 id="v3-5-2">3.5.2 / 2015-07-14</h2>
+<h2 id="352--2015-07-14">3.5.2 / 2015-07-14</h2>
 
-<h3 id="bug-fixes-26">Bug Fixes:</h3>
+<h3 id="v3-5-2">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/167">#167</a> Use updated url for wkhtmltopdf downloads</li>
 </ul>
 
-<h3 id="new-features-23">New Features:</h3>
+<h3 id="new-features-14">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/pull/166">#166</a> Add install script for Ubuntu</li>
@@ -6098,17 +6114,17 @@ Documentation will updated the first week of April.</p>
 
 <p>COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments. If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.</p>
 
-<h2 id="v3-5-1">3.5.1 / 2015-07-08</h2>
+<h2 id="351--2015-07-08">3.5.1 / 2015-07-08</h2>
 
-<p>This release fixes a bug and completes the installation scripts for linux/mac.</p>
+<p id="v3-5-1">This release fixes a bug and completes the installation scripts for linux/mac.</p>
 
-<h3 id="bug-fixes-27">Bug Fixes:</h3>
+<h3 id="bug-fixes-22">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/pull/165">#165</a> Change launch_tool to tool_launch in Launcher</li>
 </ul>
 
-<h3 id="new-features-24">New Features:</h3>
+<h3 id="new-features-15">New Features:</h3>
 
 <ul>
   <li>N/A</li>
@@ -6126,18 +6142,18 @@ Documentation will updated the first week of April.</p>
 
 <p>COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments. If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.</p>
 
-<h2 id="v3-5-0">3.5.0 / 2015-06-22</h2>
+<h2 id="350--2015-06-22">3.5.0 / 2015-06-22</h2>
 
-<p>This release contains a lot of new functionality and a key new feature:  The ability to create new COSMOS targets and tools as reusable gems!  This will hopefully allow the open source community to create sharable configuration for a large amount of hardware and allow for community generated tools to be easily integrated.</p>
+<p id="v3-5-0">This release contains a lot of new functionality and a key new feature: The ability to create new COSMOS targets and tools as reusable gems! This will hopefully allow the open source community to create sharable configuration for a large amount of hardware and allow for community generated tools to be easily integrated.</p>
 
-<h3 id="bug-fixes-28">Bug Fixes:</h3>
+<h3 id="bug-fixes-23">Bug Fixes:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/153">#153</a> set_tlm should support settings strings with spaces using the normal syntax</li>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/155">#155</a> Default to not performing DNS lookups</li>
 </ul>
 
-<h3 id="new-features-25">New Features:</h3>
+<h3 id="new-features-16">New Features:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/25">#25</a> Warn users if reading a packet log uses the latest instead of the version specified in the file header</li>
@@ -6165,13 +6181,13 @@ Documentation will updated the first week of April.</p>
 
 <h3 id="migration-notes-from-cosmos-342-3">Migration Notes from COSMOS 3.4.2:</h3>
 
-<p>The launcher scripts and .bat files that live in the COSMOS project tools folder have been updated to be easier to maintain and to ensure that the user always sees some sort of error message if a problem occurs starting a tool.  All users should copy the new files from the tools folder in the COSMOS demo folder into their projects as part of the upgrade to COSMOS 3.5.0</p>
+<p>The launcher scripts and .bat files that live in the COSMOS project tools folder have been updated to be easier to maintain and to ensure that the user always sees some sort of error message if a problem occurs starting a tool. All users should copy the new files from the tools folder in the COSMOS demo folder into their projects as part of the upgrade to COSMOS 3.5.0</p>
 
-<p>COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments.  If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.</p>
+<p>COSMOS now disables reverse DNS lookups by default because they can take a long time in some environments. If you still want to see hostnames when someone connects to a TCP/IP server interface/router then you will need to add ENABLE_DNS to your system.txt file.</p>
 
-<h2 id="v3-4-2">3.4.2 / 2015-05-08</h2>
+<h2 id="342--2015-05-08">3.4.2 / 2015-05-08</h2>
 
-<h3 id="issues">Issues:</h3>
+<h3 id="v3-4-2">Issues:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/123">#123</a> TestRunner command line option to launch a test automatically</li>
@@ -6183,9 +6199,9 @@ Documentation will updated the first week of April.</p>
 
 <p>COSMOS 3.4.2 requires qtbindings 4.8.6.2. You must also update qtbindings when installing this release. Also note that earlier versions of COSMOS will not work with qtbindings 4.8.6.2. All users are strongly recommended to update both gems.</p>
 
-<h2 id="v3-4-1">3.4.1 / 2015-05-01</h2>
+<h2 id="341--2015-05-01">3.4.1 / 2015-05-01</h2>
 
-<h3 id="issues-1">Issues:</h3>
+<h3 id="v3-4-1">Issues:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/121">#121</a> BinaryAccessor write crashes with negative bit sizes</li>
@@ -6197,9 +6213,9 @@ Documentation will updated the first week of April.</p>
 
 <p>Note: COSMOS 3.4.0 has a serious regression when writing to variably sized packets. Please upgrade to 3.4.1 immediately if you are using 3.4.0.</p>
 
-<h2 id="v3-4-0">3.4.0 / 2015-04-27</h2>
+<h2 id="340--2015-04-27">3.4.0 / 2015-04-27</h2>
 
-<h3 id="issues-2">Issues:</h3>
+<h3 id="v3-4-0">Issues:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/23">#23</a> Handbook Creator User’s Guide Mode</li>
@@ -6217,9 +6233,9 @@ Documentation will updated the first week of April.</p>
 
 <p>None</p>
 
-<h2 id="v3-3-3">3.3.3 / 2015-03-23</h2>
+<h2 id="333--2015-03-23">3.3.3 / 2015-03-23</h2>
 
-<h3 id="issues-3">Issues:</h3>
+<h3 id="v3-3-3">Issues:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/93">#93</a> Derived items that return arrays are not formatted to strings bug</li>
@@ -6232,11 +6248,11 @@ Documentation will updated the first week of April.</p>
 
 <p>System.telemetry.target_names and System.commands.target_names no longer contain the ‘UNKNOWN’ target.</p>
 
-<h2 id="v3-3-1">3.3.1 / 2015-03-19</h2>
+<h2 id="331--2015-03-19">3.3.1 / 2015-03-19</h2>
 
-<p>COSMOS first-time startup speed is now 16 times faster - hence this release is codenamed “Startup Cheetah”. Enjoy!</p>
+<p id="v3-3-1">COSMOS first-time startup speed is now 16 times faster - hence this release is codenamed “Startup Cheetah”. Enjoy!</p>
 
-<h3 id="issues-4">Issues:</h3>
+<h3 id="issues">Issues:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/91">#91</a> Add mutex around creation of System.instance</li>
@@ -6254,9 +6270,9 @@ Documentation will updated the first week of April.</p>
 
 <p>System.telemetry.target_names and System.commands.target_names no longer contain the ‘UNKNOWN’ target.</p>
 
-<h2 id="v3-2-1">3.2.1 / 2015-02-23</h2>
+<h2 id="321--2015-02-23">3.2.1 / 2015-02-23</h2>
 
-<h3 id="issues-5">Issues:</h3>
+<h3 id="v3-2-1">Issues:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/61">#61</a> Don’t crash TestRunner if there is an error during require_utilities()</li>
@@ -6271,9 +6287,9 @@ Documentation will updated the first week of April.</p>
 
 <p>No significant updates to existing code should be needed. The primary reason for update to 3.2.x is fixing the slow shutdown present in all of 3.1.x.</p>
 
-<h2 id="v3-2-0">3.2.0 / 2015-02-17</h2>
+<h2 id="320--2015-02-17">3.2.0 / 2015-02-17</h2>
 
-<h3 id="issues-6">Issues:</h3>
+<h3 id="v3-2-0">Issues:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/34">#34</a> Refactor packet_config</li>
@@ -6291,9 +6307,9 @@ Documentation will updated the first week of April.</p>
 
 <p>No significant updates to existing code should be needed. The primary reason for update to 3.2.x is fixing the slow shutdown present in all of 3.1.x.</p>
 
-<h2 id="v3-1-2">3.1.2 / 2015-02-03</h2>
+<h2 id="312--2015-02-03">3.1.2 / 2015-02-03</h2>
 
-<h3 id="issues-7">Issues:</h3>
+<h3 id="v3-1-2">Issues:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/20">#20</a> Handbook Creator should output relative paths</li>
@@ -6311,9 +6327,9 @@ Documentation will updated the first week of April.</p>
 
 <p>The definition of limits persistence has changed. Before it only applied when changing to a bad state (yellow or red). Now persistence applies for all changes including from stale to a valid state and from bad states back to green.</p>
 
-<h2 id="v3-1-1">3.1.1 / 2015-01-28</h2>
+<h2 id="311--2015-01-28">3.1.1 / 2015-01-28</h2>
 
-<h3 id="issues-8">Issues:</h3>
+<h3 id="v3-1-1">Issues:</h3>
 
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/10">#10</a> Simulated Targets Button only works on Windows</li>
@@ -6328,11 +6344,10 @@ Documentation will updated the first week of April.</p>
 
 <p>The definition of limits persistence has changed. Before it only applied when changing to a bad state (yellow or red). Now persistence applies for all changes including from stale to a valid state and from bad states back to green.</p>
 
-<h2 id="v3-0-1">3.0.1 / 2015-01-06</h2>
+<h2 id="301--2015-01-06">3.0.1 / 2015-01-06</h2>
 
-<p>First Announced Open Source Release</p>
-
-          
+<p id="v3-0-1">First Announced Open Source Release</p>
+ 
 
 
 
@@ -6494,20 +6509,21 @@ Documentation will updated the first week of April.</p>
     <div class="clear"></div>
     
 
-        </article>
-      </div>
+      </article>
+    </div>
 
-      <div class="unit one-fifth hide-on-mobiles">
+    <div class="unit one-fifth hide-on-mobiles">
   <aside>
+    <ul><li><a href="/docs/v4/">Version 4 Docs</a></li></ul>
     
     <h4>Getting Started</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -6556,6 +6572,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -6658,6 +6676,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -6708,6 +6728,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -6812,6 +6834,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -6896,6 +6920,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -6937,13 +6963,13 @@ Documentation will updated the first week of April.</p>
 
     
     <h4>System Configuration</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -7030,6 +7056,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7050,6 +7078,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7142,6 +7172,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7194,6 +7226,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7264,6 +7298,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7301,13 +7337,13 @@ Documentation will updated the first week of April.</p>
 
     
     <h4>Tool Configuration</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -7320,6 +7356,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7334,6 +7372,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7350,6 +7390,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7368,6 +7410,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7390,6 +7434,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7424,6 +7470,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7468,6 +7516,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7524,6 +7574,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7582,6 +7634,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7648,6 +7702,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7720,6 +7776,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7798,6 +7856,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7888,6 +7948,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -7982,6 +8044,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -8078,6 +8142,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -8176,6 +8242,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -8276,6 +8344,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -8353,13 +8423,13 @@ Documentation will updated the first week of April.</p>
 
     
     <h4>DART</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8392,6 +8462,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -8422,6 +8494,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -8451,13 +8525,13 @@ Documentation will updated the first week of April.</p>
 
     
     <h4>User's Guides</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8538,6 +8612,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -8620,6 +8696,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -8659,13 +8737,13 @@ Documentation will updated the first week of April.</p>
 
     
     <h4>Tips</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8677,13 +8755,13 @@ Documentation will updated the first week of April.</p>
 
     
     <h4>Development</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8772,6 +8850,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -8834,6 +8914,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -8898,6 +8980,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -8952,6 +9036,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -9013,13 +9099,13 @@ Documentation will updated the first week of April.</p>
 
     
     <h4>Meta</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -9094,6 +9180,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -9200,6 +9288,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -9226,6 +9316,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -9272,6 +9364,8 @@ Documentation will updated the first week of April.</p>
   
 
   
+  
+
 
   
     
@@ -9344,10 +9438,9 @@ Documentation will updated the first week of April.</p>
 </div>
 
 
-      <div class="clear"></div>
-
-    </div>
-  </section>
+    <div class="clear"></div>
+  </div>
+</section>
 
 
   <script>

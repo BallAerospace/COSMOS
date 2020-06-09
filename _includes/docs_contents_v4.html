@@ -1,0 +1,9 @@
+<div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    <ul><li><a href="{{ site.url }}/docs/home/">Current Docs</a></li></ul>
+    {% for section in site.data.docs %}
+    <h4>{{ section.title }}</h4>
+    {% include docs_ul_v4.html items=section.docs %}
+    {% endfor %}
+  </aside>
+</div>

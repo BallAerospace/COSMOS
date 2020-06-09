@@ -1,6 +1,5 @@
 markdown: kramdown
 highlighter: rouge
-relative_permalinks: false
 permalink: /news/:year/:month/:day/:title/
 excerpt_separator: ""
 
@@ -14,6 +13,9 @@ plugins:
 collections:
   docs:
     output: true
+  docs_v4:
+    output: true
+    permalink: /docs/v4/:name
 
 cosmos_root: ../COSMOS
 cosmos_meta_path: data/config

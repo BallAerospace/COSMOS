@@ -1,0 +1,20 @@
+<ul>
+{% for item in include.items %}
+  {% assign item_url = item | replace: "_", "-" | prepend:"/docs/v4/" %}
+
+  {% comment %} This is "highlighting" the currently selected link {% endcomment %}
+  {% if item_url == page.url %}
+    {% assign c = "current" %}
+  {% else %}
+    {% assign c = "" %}
+  {% endif %}
+
+  {% for p in site.docs_v4 %}
+    {% if p.url == item_url %}
+      <li class="{{ c }}"><a href="{{ site.url }}{{ p.url }}">{{ p.title }}</a></li>
+      {% break %}
+    {% endif %}
+  {% endfor %}
+
+{% endfor %}
+</ul>

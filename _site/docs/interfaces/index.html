@@ -36,7 +36,9 @@
     <a href="/help/">Help</a>
   </li>
   <li>
-    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
   </li>
 </ul>
 
@@ -66,7 +68,9 @@
     <a href="/help/">Help</a>
   </li>
   <li>
-    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"><span class="hide-on-mobiles">View on </span>GitHub</a>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
   </li>
 </ul>
 
@@ -75,10 +79,9 @@
 </header>
 
 
-    <section class="docs">
-    <div class="grid wider">
-
-      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <section class="docs">
+  <div class="grid wider">
+    <div class="docs-nav-mobile unit whole show-on-mobiles">
   <select onchange="if (this.value) window.location.href=this.value">
     <option value="">Navigate the docs...</option>
     
@@ -5030,14 +5033,18 @@
 </div>
 
 
-      <div class="unit four-fifths">
-        <article>
-          <div class="improve right">
-            <a href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/interfaces.md" target="_blank"><i class="fa fa-pencil"></i> &nbsp;Improve this page</a>
-          </div>
-          
-          <div class="toc">
-            <ul class="section-nav">
+    <div class="unit four-fifths">
+      <article>
+        <div class="improve right">
+          <a
+            href="https://github.com/BallAerospace/COSMOS/edit/website/_docs/interfaces.md"
+            target="_blank"
+            ><i class="fa fa-pencil"></i> &nbsp;Improve this page</a
+          >
+        </div>
+        
+        <div class="toc">
+          <ul class="section-nav">
 <li class="toc-entry toc-h5"><a href="#threads">Threads</a></li>
 <li class="toc-entry toc-h5"><a href="#naming-conventions">Naming Conventions</a></li>
 <li class="toc-entry toc-h2"><a href="#provided-interfaces">Provided Interfaces</a>
@@ -5053,10 +5060,10 @@
 <li class="toc-entry toc-h2"><a href="#streams">Streams</a></li>
 <li class="toc-entry toc-h2"><a href="#protocols">Protocols</a></li>
 </ul>
-          </div>
-          
-          <h1>Interface Configuration</h1>
-          <p>Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customizable portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own. Note that in most cases you can extend interfaces with <a href="/docs/protocols/">Protocols</a> rather than implementing a new interface.</p>
+        </div>
+        
+        <h1>Interface Configuration</h1>
+        <p>Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customizable portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own. Note that in most cases you can extend interfaces with <a href="/docs/protocols/">Protocols</a> rather than implementing a new interface.</p>
 
 <div class="note info">
   Note that Interfaces and Routers are very similar and share the same configuration parameters. Routers are simply Interfaces which route an existing Interface's telemetry data out to the connected target and routes the connected target's commands back to the original Interface's target.
@@ -5564,8 +5571,7 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 <p>Note the first parameter after the PROTOCOL keyword is how to apply the protocol: READ, WRITE, or READ_WRITE. Read applies the protocol on incoming packets (telemetry) and write on outgoing packets (commands). The next parameter is the protocol filename or class name. All other parameters are protocol specific.</p>
 
 <p>In addition, you can define your own protocols which are declared like the COSMOS helper protocols after your interface. See the <a href="/docs/protocols#custom-protocols">Custom Protocols</a> documentation for more information.</p>
-
-          
+ 
 
 
 
@@ -5619,20 +5625,21 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
     <div class="clear"></div>
     
 
-        </article>
-      </div>
+      </article>
+    </div>
 
-      <div class="unit one-fifth hide-on-mobiles">
+    <div class="unit one-fifth hide-on-mobiles">
   <aside>
+    <ul><li><a href="/docs/v4/">Version 4 Docs</a></li></ul>
     
     <h4>Getting Started</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -5681,6 +5688,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -5783,6 +5792,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -5833,6 +5844,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -5937,6 +5950,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6021,6 +6036,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6062,13 +6079,13 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 
     
     <h4>System Configuration</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -6155,6 +6172,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6175,6 +6194,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6267,6 +6288,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6319,6 +6342,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6389,6 +6414,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6426,13 +6453,13 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 
     
     <h4>Tool Configuration</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -6445,6 +6472,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6459,6 +6488,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6475,6 +6506,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6493,6 +6526,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6515,6 +6550,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6549,6 +6586,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6593,6 +6632,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6649,6 +6690,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6707,6 +6750,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6773,6 +6818,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6845,6 +6892,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -6923,6 +6972,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -7013,6 +7064,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -7107,6 +7160,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -7203,6 +7258,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -7301,6 +7358,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -7401,6 +7460,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -7478,13 +7539,13 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 
     
     <h4>DART</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -7517,6 +7578,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -7547,6 +7610,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -7576,13 +7641,13 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 
     
     <h4>User's Guides</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -7663,6 +7728,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -7745,6 +7812,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -7784,13 +7853,13 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 
     
     <h4>Tips</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -7802,13 +7871,13 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 
     
     <h4>Development</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -7897,6 +7966,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -7959,6 +8030,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -8023,6 +8096,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -8077,6 +8152,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -8138,13 +8215,13 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 
     
     <h4>Meta</h4>
-    
-
-<ul>
+    <ul>
 
   
 
   
+  
+
 
   
     
@@ -8219,6 +8296,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -8325,6 +8404,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -8351,6 +8432,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -8397,6 +8480,8 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   
 
   
+  
+
 
   
     
@@ -8469,10 +8554,9 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 </div>
 
 
-      <div class="clear"></div>
-
-    </div>
-  </section>
+    <div class="clear"></div>
+  </div>
+</section>
 
 
   <script>
