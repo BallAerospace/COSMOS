@@ -45,6 +45,7 @@ class Time
   SEC_PER_MINUTE = 60
   MINUTES_PER_HOUR = 60
   HOURS_PER_DAY = 24
+  NSEC_PER_SECOND = 1000000000
   USEC_PER_SECOND = USEC_PER_MSEC * MSEC_PER_SECOND
   MSEC_PER_MINUTE = 60 * MSEC_PER_SECOND
   MSEC_PER_HOUR = 60 * MSEC_PER_MINUTE
@@ -477,5 +478,15 @@ class Time
     end
 
     unix_epoch_delta
+  end
+
+  def to_nsec_from_epoch
+    (self.tv_sec * NSEC_PER_SECOND) + self.tv_nsec
+  end
+
+  def self.from_nsec_from_epoch(nsec_from_epoch)
+    seconds = nsec_from_epoch / NSEC_PER_SECOND
+    nanoseconds = nsec_from_epoch % NSEC_PER_SECOND
+    Time.at(seconds, nanoseconds, :nsec)
   end
 end
