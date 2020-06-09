@@ -208,11 +208,12 @@ module Cosmos
       packet.received_count += 1
 
       # Write to stream
-      msg_hash = { time: packet.received_time, stored: packet.stored }
-      msg_hash[:target_name] = packet.target_name
-      msg_hash[:packet_name] = packet.packet_name
-      msg_hash[:received_count] = packet.received_count
-      msg_hash[:buffer] = packet.buffer(false)
+      msg_hash = { time: packet.received_time.to_nsec_from_epoch,
+                   stored: packet.stored,
+                   target_name: packet.target_name,
+                   packet_name: packet.packet_name,
+                   received_count: packet.received_count,
+                   buffer: packet.buffer(false) }
       Store.instance.write_topic("PACKET__#{packet.target_name}__#{packet.packet_name}", msg_hash)
     end
 
