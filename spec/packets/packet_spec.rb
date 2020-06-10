@@ -849,7 +849,7 @@ module Cosmos
         p.define_item("item1",0,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,nil)
         p.define_item("item2",64,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,5)
         p.define_item("item3",96,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,nil)
-        p.define_item("item4",32,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,6)        
+        p.define_item("item4",32,32,:FLOAT,nil,:BIG_ENDIAN,:ERROR,"%5.1f",nil,nil,6)
         expect(p.id_items).to be_a Array
         expect(p.id_items[0].name).to eq "ITEM4"
         expect(p.id_items[1].name).to eq "ITEM2"
@@ -1491,6 +1491,15 @@ module Cosmos
         expect(cache[i]).to be 2
         p.reset
         expect(cache).to be_empty
+      end
+    end
+
+    describe "as_json" do
+      it "creates a hash" do
+        json = Packet.new("tgt","pkt").as_json
+        expect(json['target_name']).to eql 'TGT'
+        expect(json['packet_name']).to eql 'PKT'
+        expect(json['items']).to eql []
       end
     end
 

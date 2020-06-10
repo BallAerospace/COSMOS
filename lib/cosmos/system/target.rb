@@ -82,11 +82,12 @@ module Cosmos
     #
     # @param target_name [String] The name of the target.
     # @param original_name [String] The original name if the the target is aliased to a new name
-    # @param path [String] Path to the target directory. Passing nil sets the
-    #   path to the default of <USERPATH>/config/targets.
+    # @param path [String] Path to the target directory
     # @param target_filename [String] Configuration file for the target. Normally
     #   target.txt
     # @param gem_path [String] Path to the gem file or nil if there is no gem
+    # TODO: Move path to second argument? path is now required but original_name is not
+    # TODO: Bigger question: Use keyword arguments parameters so this doesn't happen again?
     def initialize(target_name, original_name = nil, path = nil, target_filename = nil, gem_path = nil)
       @requires = []
       @ignored_parameters = []
@@ -111,6 +112,8 @@ module Cosmos
         @original_name = @name
       end
 
+      # TODO: path is required .. this is a kludge
+      path = '.' unless path
       @dir = get_target_dir(path, @original_name, gem_path)
       # Parse the target.txt file if it exists
       @filename = process_target_config_file(@dir, @name, target_filename)

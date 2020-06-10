@@ -1297,9 +1297,7 @@ module Cosmos
     # @param target_name [String] Target name
     # @return [Array<String>] All of the ignored command parameters for a target.
     def get_target_ignored_parameters(target_name)
-      target = Store.instance.get_target(target_name)
-      raise "Unknown target: #{target_name}" unless target
-      return target['ignored_parameters']
+      return Store.instance.get_target(target_name)['ignored_parameters']
     end
 
     # Get the list of ignored telemetry items for a target
@@ -1307,9 +1305,7 @@ module Cosmos
     # @param target_name [String] Target name
     # @return [Array<String>] All of the ignored telemetry items for a target.
     def get_target_ignored_items(target_name)
-      target = Store.instance.get_target(target_name)
-      raise "Unknown target: #{target_name}" unless target
-      return target['ignored_items']
+      return Store.instance.get_target(target_name)['ignored_items']
     end
 
     # Get the list of derived telemetry items for a packet

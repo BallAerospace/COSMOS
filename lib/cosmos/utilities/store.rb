@@ -16,6 +16,9 @@ require 'cosmos/config/config_parser'
 require 'cosmos/io/json_rpc'
 
 module Cosmos
+  # Class to indicate Redis errors
+  class RedisError < RuntimeError; end
+
   class Store
     # Variable that holds the singleton instance
     @@instance = nil
@@ -152,13 +155,25 @@ module Cosmos
 
     def get_target(target_name)
       @redis_pool.with do |redis|
-        return JSON.parse(redis.hget("cosmos_targets", target_name))
+        if redis.hexists("cosmos_targets", target_name)
+          return JSON.parse(redis.hget("cosmos_targets", target_name))
+        else
+          raise RedisError, "Target #{target_name} does not exist"
+        end
       end
     end
 
     def get_packet(target_name, packet_name)
       @redis_pool.with do |redis|
-        return JSON.parse(redis.hget("cosmostlm__#{target_name}", packet_name))
+        if redis.exists?("cosmostlm__#{target_name}")
+          if redis.hexists("cosmostlm__#{target_name}", packet_name)
+            return JSON.parse(redis.hget("cosmostlm__#{target_name}", packet_name))
+          else
+            raise RedisError, "Packet #{packet_name} does not exist"
+          end
+        else
+          raise RedisError, "Target #{target_name} does not exist"
+        end
       end
     end
 
@@ -229,5 +244,13 @@ module Cosmos
       end
     end
 
+    # These are low level methods that should only be used as a last resort or for testing
+
+    def hget(key, field)
+      @redis_pool.with { |redis| return redis.hget(key, field) }
+    end
+    def hset(key, field, value)
+      @redis_pool.with { |redis| redis.hset(key, field, value) }
+    end
   end
 end

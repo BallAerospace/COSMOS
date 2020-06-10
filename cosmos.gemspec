@@ -101,6 +101,7 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'roodi', '~> 5.0'
   s.add_development_dependency 'guard', '~> 2.0'
   s.add_development_dependency 'listen', '~> 3.0'
+  s.add_development_dependency 'mock_redis', '~> 0.23'
   s.add_development_dependency 'guard-bundler', '~> 2.0'
   s.add_development_dependency 'guard-rspec', '~> 4.0'
   s.add_development_dependency 'simplecov', '~> 0.15'

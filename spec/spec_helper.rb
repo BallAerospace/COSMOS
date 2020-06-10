@@ -54,6 +54,10 @@ require 'benchmark/ips'
 
 # Set the user path to our COSMOS configuration in the spec directory
 ENV['COSMOS_USERPATH'] = File.join(File.dirname(File.expand_path(__FILE__)), 'install')
+# TODO: This is a hack until we figure out COSMOS_USERPATH
+module Cosmos
+  USERPATH = ENV['COSMOS_USERPATH']
+end
 
 require 'cosmos'
 require 'cosmos/utilities/logger'
