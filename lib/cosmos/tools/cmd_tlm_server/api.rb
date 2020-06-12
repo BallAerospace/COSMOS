@@ -36,9 +36,11 @@ module Cosmos
         'cmd_raw_no_hazardous_check',
         'cmd_raw_no_checks',
         'send_raw',
+        'get_commands',
+        'get_command_parameters',
         'get_cmd_buffer',
-        'get_cmd_list',
-        'get_cmd_param_list',
+        'get_cmd_list', # DEPRECATED
+        'get_cmd_param_list', # DEPRECATED
         'get_cmd_hazardous',
         'get_cmd_value',
         'get_cmd_time',
@@ -291,11 +293,17 @@ module Cosmos
     # @param command_name [String] Packet name of the command
     # @return [String] last command buffer packet
     def get_cmd_buffer(target_name, command_name)
-      # TODO: Implement New Commanding
-      packet = System.commands.packet(target_name, command_name)
-      return packet.buffer
+      # TODO: This is the TLM implementation but the command packet buffer isn't written like this?
+      # topic = "PACKET__#{target_name}__#{packet_name}"
+      # msg_id, msg_hash = Store.instance.read_topic_last(topic)
+      # if msg_id
+      #   return msg_hash['buffer']
+      # else
+      #   return nil
+      # end
     end
 
+    # DEPRECATED: use get_commands
     # Returns the list of all the command names and their descriptions from the
     # given target.
     #
@@ -304,47 +312,64 @@ module Cosmos
     #   command description] for all commands in the target
     def get_cmd_list(target_name)
       list = []
-      packets = {}
-      REDIS.with do |redis|
-        packets = redis.hgetall("cosmoscmd__#{target_name}")
-      end
-      packets.each do |packet_name, packet_json|
-        packet = JSON.parse(packet_json)
-        list << [packet_name, packet['description']]
+      commands = Store.instance.get_commands(target_name)
+      commands.each do |command|
+        list << [command['name'], command['description']]
       end
       list.sort
     end
 
+    # Returns a hash of the given command
+    #
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
+    # @return [Hash] Command as a hash
+    def get_command(target_name, packet_name)
+      Store.instance.get_packet(target_name, packet_name, type: 'cmd')
+    end
+
+    # Returns an array of all the commands as a hash
+    #
+    # @param target_name [String] Name of the target
+    # @return [Array<Hash>] Array of all commands as a hash
+    def get_commands(target_name)
+      Store.instance.get_commands(target_name)
+    end
+
+    # DEPRECATED: use get_command_parameters
     # Returns the list of all the parameters for the given command.
     #
-    # @param target_name (see #get_cmd_list)
+    # @param target_name [String] Name of the target
     # @param command_name [String] Name of the command
     # @return [Array<Array<String, Object, nil|Array, nil|String, nil|String,
     #   nil|String, Boolean>] Array containing \[name, default, states,
     #   description, units_full, units, required] for all parameters in the
     #   command
     def get_cmd_param_list(target_name, command_name)
-      # TODO: Implement New Commanding
       list = []
       packet_json = nil
-      REDIS.with do |redis|
-        packet_json = redis.hget("cosmoscmd__#{target_name}", command_name)
-      end
-      if packet_json
-        packet = JSON.parse(packet_json)
-        packet['items'].each do |item|
-          if item['format_string']
-            unless item['default'].kind_of?(Array)
-              list << [item['name'], sprintf(item['format_string'], item['default']), item['states'], item['description'], item['units_full'], item['units'], item['required'], item['data_type']]
-            else
-              list << [item['name'], [], item['states'], item['description'], item['units_full'], item['units'], item['required'], item['data_type']]
-            end
+      packet = Store.instance.get_packet(target_name, command_name, type: 'cmd')
+      packet['items'].each do |item|
+        if item['format_string']
+          unless item['default'].kind_of?(Array)
+            list << [item['name'], sprintf(item['format_string'], item['default']), item['states'], item['description'], item['units_full'], item['units'], item['required'], item['data_type']]
           else
-            list << [item['name'], item['default'], item['states'], item['description'], item['units_full'], item['units'], item['required'], item['data_type']]
+            list << [item['name'], [], item['states'], item['description'], item['units_full'], item['units'], item['required'], item['data_type']]
           end
+        else
+          list << [item['name'], item['default'], item['states'], item['description'], item['units_full'], item['units'], item['required'], item['data_type']]
         end
       end
       return list
+    end
+
+    # Returns an array containing a hash of all the parameters for the given command
+    #
+    # @param target_name [String] Name of the target
+    # @param command_name [String] Name of the command
+    # @return [Array<Hash>] Array of all parameters as a hash
+    def get_command_parameters(target_name, command_name)
+      Store.instance.get_packet(target_name, command_name, type: 'cmd')['items']
     end
 
     # Returns whether the specified command is hazardous
@@ -355,10 +380,12 @@ module Cosmos
     #   parameter setting makes the command hazardous
     # @return [Boolean] Whether the command is hazardous
     def get_cmd_hazardous(target_name, command_name, params = {})
-      # TODO: Implement New Commanding
-      # hazardous, _ = System.commands.cmd_hazardous?(target_name, command_name, params)
-      # return hazardous
-      return false
+      packet = Store.instance.get_packet(target_name, command_name, type: 'cmd')
+      return true if packet['hazardous']
+
+      # TODO: This is the old implementation ... does it still make sense?
+      hazardous, _ = System.commands.cmd_hazardous?(target_name, command_name, params)
+      return hazardous
     end
 
     # Returns a value from the specified command
@@ -900,6 +927,11 @@ module Cosmos
       return [items, states, settings, limits_set]
     end
 
+    def get_telemetry(target_name)
+      Store.instance.get_telemetry(target_name)
+    end
+
+    # DEPRECATED: use get_telemetry
     # Returns the sorted packet names and their descriptions for a particular
     # target.
     #

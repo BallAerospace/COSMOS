@@ -947,7 +947,8 @@ module Cosmos
       config['endianness'] = @default_endianness.to_s
       config['description'] = self.description
       config['short_buffer_allowed'] = true if self.short_buffer_allowed
-      config['hazardous_description'] = self.hazardous_description.to_s if self.hazardous
+      config['hazardous'] = true if self.hazardous
+      config['hazardous_description'] = self.hazardous_description.to_s if self.hazardous_description
       config['messages_disabled'] = true if self.messages_disabled
       config['disabled'] = true if self.disabled
       config['hidden'] = true if self.hidden

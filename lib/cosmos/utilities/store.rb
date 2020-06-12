@@ -44,6 +44,7 @@ module Cosmos
       @redis_pool.with { |redis| redis.hset("cosmos_interfaces", interface.name, JSON.generate(interface.to_info_hash)) }
     end
 
+    # TODO: Is this used anywhere?
     def cmd_interface(interface_name, target_name, cmd_name, cmd_params, range_check, hazardous_check, raw)
       write_topic("CMDINTERFACE__#{interface_name}", { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
     end
@@ -158,23 +159,47 @@ module Cosmos
         if redis.hexists("cosmos_targets", target_name)
           return JSON.parse(redis.hget("cosmos_targets", target_name))
         else
-          raise RedisError, "Target #{target_name} does not exist"
+          raise RedisError, "Target '#{target_name}' does not exist"
         end
       end
     end
 
-    def get_packet(target_name, packet_name)
+    def get_packet(target_name, packet_name, type: 'tlm')
       @redis_pool.with do |redis|
-        if redis.exists?("cosmostlm__#{target_name}")
-          if redis.hexists("cosmostlm__#{target_name}", packet_name)
-            return JSON.parse(redis.hget("cosmostlm__#{target_name}", packet_name))
+        if redis.exists("cosmos#{type}__#{target_name}") != 0
+          if redis.hexists("cosmos#{type}__#{target_name}", packet_name)
+            return JSON.parse(redis.hget("cosmos#{type}__#{target_name}", packet_name))
           else
-            raise RedisError, "Packet #{packet_name} does not exist"
+            raise RedisError, "Packet '#{packet_name}' does not exist"
           end
         else
-          raise RedisError, "Target #{target_name} does not exist"
+          raise RedisError, "Target '#{target_name}' does not exist"
         end
       end
+    end
+
+    def get_commands(target_name)
+      _get_cmd_tlm(target_name, type: 'cmd')
+    end
+
+    def get_telemetry(target_name)
+      _get_cmd_tlm(target_name, type: 'tlm')
+    end
+
+    # Helper method for get_commands and get_telemetry
+    def _get_cmd_tlm(target_name, type:)
+      result = []
+      @redis_pool.with do |redis|
+        if redis.exists("cosmos#{type}__#{target_name}") != 0
+          packets = redis.hgetall("cosmos#{type}__#{target_name}")
+          packets.each do |packet_name, packet_json|
+            result << JSON.parse(packet_json)
+          end
+        else
+          raise RedisError, "Target '#{target_name}' does not exist"
+        end
+      end
+      result
     end
 
     def tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type)
