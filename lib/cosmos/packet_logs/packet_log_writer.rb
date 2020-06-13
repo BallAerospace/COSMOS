@@ -9,15 +9,21 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'thread'
-require 'socket' # For gethostname
+require 'aws-sdk-s3'
 require 'cosmos/config/config_parser'
-require 'cosmos/packet_logs/packet_log_reader'
+
+Aws.config.update(
+  endpoint: 'http://localhost:9000',
+  access_key_id: 'minioadmin',
+  secret_access_key: 'minioadmin',
+  force_path_style: true,
+  region: 'us-east-1'
+)
 
 module Cosmos
 
-  # Creates a packet log of either commands or telemetry. Can automatically
-  # cycle the log based on an elasped time period or when the log file reaches
-  # a predefined size.
+  # Creates a packet log. Can automatically cycle the log based on an elasped
+  # time period or when the log file reaches a predefined size.
   class PacketLogWriter
 
     # @return [String] The filename of the packet log
@@ -26,23 +32,11 @@ module Cosmos
     # @return [true/false] Whether logging is enabled
     attr_reader :logging_enabled
 
-    # @return [Queue] Queue for asynchronous logging
-    attr_reader :queue
-
-    # The allowable log types
-    LOG_TYPES = [:CMD, :TLM]
-
     # The cycle time interval. Cycle times are only checked at this level of
     # granularity.
     CYCLE_TIME_INTERVAL = 2
 
-    # @param log_type [Symbol] The type of packet log to create. Must be :CMD
-    #   or :TLM.
-    # @param log_name [String|nil] Identifier to put in the log file name. This
-    #   will be prepended with a date / time stamp and appended by the
-    #   log_type. Thus passing 'test' for a :CMD log will result in a filename
-    #   of 'YYYY_MM_DD_HH_MM_SS_testcmd.bin'. Pass nil to ignore this
-    #   parameter.
+    # @param remote_log_directory [String] The s3 path to store the log files.
     # @param logging_enabled [Boolean] Whether to start with logging enabled
     # @param cycle_time [Integer] The amount of time in seconds before creating
     #   a new log file. This can be combined with cycle_size but is better used
@@ -50,58 +44,53 @@ module Cosmos
     # @param cycle_size [Integer] The size in bytes before creating a new log
     #   file. This can be combined with cycle_time but is better used
     #   independently.
-    # @param log_directory [String] The directory to store the log files.
-    #   Passing nil will use the system default 'LOGS' directory.
-    # @param asynchronous [Boolean] Whether to spawn a new thread to write
-    #   packets to the log rather than writing the packets in the current
-    #   thread context.  Note that this is (alot) slower overall but may reduce
-    #   interface receive latency
     def initialize(
-      log_type,
-      log_name = nil,
+      remote_log_directory,
+      label,
       logging_enabled = true,
       cycle_time = nil,
-      cycle_size = 2000000000,
-      log_directory = nil,
-      asynchronous = false
+      cycle_size = 1000000000,
+      cycle_hour = nil,
+      cycle_minute = nil
     )
-      raise "log_type must be :CMD or :TLM" unless LOG_TYPES.include? log_type
-      @log_type = log_type
-      if ConfigParser.handle_nil(log_name)
-        @log_name = (log_name.to_s + @log_type.to_s.downcase).freeze
-      else
-        @log_name = @log_type.to_s.downcase.freeze
-      end
+      @remote_log_directory = remote_log_directory
+      @label = label
       @logging_enabled = ConfigParser.handle_true_false(logging_enabled)
       @cycle_time = ConfigParser.handle_nil(cycle_time)
       @cycle_time = Integer(@cycle_time) if @cycle_time
       @cycle_size = ConfigParser.handle_nil(cycle_size)
       @cycle_size = Integer(@cycle_size) if @cycle_size
-      if ConfigParser.handle_nil(log_directory)
-        @log_directory = log_directory
-      else
-        @log_directory = System.instance.paths['LOGS']
-      end
-      @asynchronous = ConfigParser.handle_true_false(asynchronous)
-      @queue = Queue.new
+      @cycle_hour = ConfigParser.handle_nil(cycle_hour)
+      @cycle_hour = Integer(@cycle_hour) if @cycle_hour
+      @cycle_minute = ConfigParser.handle_nil(cycle_minute)
+      @cycle_minute = Integer(@cycle_minute) if @cycle_minute
       @mutex = Mutex.new
       @file = nil
       @file_size = 0
       @filename = nil
-      @label = nil
-      @entry_header = String.new
-      @start_time = Time.now.sys
-
+      @index_file = nil
+      @index_filename = nil
+      @index_file = nil
+      @index_filename = nil
+      @start_time = Time.now.utc
+      @cmd_packet_table = {}
+      @tlm_packet_table = {}
+      @target_dec_entries = []
+      @packet_dec_entries = []
+      @first_time = nil
+      @last_time = nil
+      @next_packet_index = 0
+      @target_indexes = {}
+      @next_target_index = 0
       @cancel_threads = false
-      @logging_thread = nil
-      if @asynchronous
-        @logging_thread = Cosmos.safe_thread("Packet log") do
-          logging_thread_body()
-        end
-      end
+
+      # This is an optimization to avoid creating a new entry object
+      # each time we create an entry which we do a LOT!
+      @entry = String.new
+      @index_entry = String.new
 
       @cycle_thread = nil
-      if @cycle_time
+      if @cycle_time or @cycle_hour or @cycle_minute
         @cycle_sleeper = Sleeper.new
         @cycle_thread = Cosmos.safe_thread("Packet log cycle") do
           cycle_thread_body()
@@ -109,42 +98,30 @@ module Cosmos
       end
     end
 
-    # Write a packet to the log file. If the log file was created with
-    # asynchronous = true the packet will be put on a queue and written by the
-    # log writer thread. Otherwise the packet will be written in the caller's
-    # thread context.
+    # Write a packet to the log file.
     #
     # If no log file currently exists in the filesystem, a new file will be
     # created.
     #
     # @param packet [Packet] The packet to write to the log file
-    def write(packet)
-      if @asynchronous
-        @queue << packet.clone
-      else
-        write_packet(packet)
+    def write(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id)
+      return if !@logging_enabled
+      @mutex.synchronize do
+        # This check includes logging_enabled again because it might have changed since we acquired the mutex
+        if @logging_enabled and (!@file or (@cycle_size and (@file_size + data.length) > @cycle_size))
+          start_new_file()
+        end
+        write_entry(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id) if @file
       end
+    rescue => err
+      Logger.instance.error "Error writing #{@filename} : #{err.formatted}"
+      Cosmos.handle_critical_exception(err)
     end
 
     # Starts a new log file by closing the existing log file. New log files are
     # not created until packets are written by {#write} so this does not
     # immediately create a log file on the filesystem.
-    #
-    # @param label [String] Label to append to the logfile name. This label
-    #   will be placed after the cmd or tlm in the filename. For example, if
-    #   'test' is given to a command log file, the filename will be
-    #   'YYYY_MM_DD_HH_MM_SS_cmd_test.bin'.
-    def start(label = nil)
-      new_label = label.to_s.strip
-      if new_label.length == 0
-        @label = nil
-      elsif new_label =~ /^[a-zA-Z0-9_-]*$/
-        @label = new_label
-      else
-        # Invalid label - Clear out existing
-        @label = nil
-      end
-
+    def start
       @mutex.synchronize { close_file(false); @logging_enabled = true }
     end
 
@@ -166,61 +143,87 @@ module Cosmos
 
     def graceful_kill
       @cancel_threads = true
-      @queue << nil
     end
 
     protected
 
+    def create_unique_filename(extension)
+      # Create a filename that doesn't exist
+      attempt = nil
+      while true
+        filename = File.join(Dir.tmpdir, File.build_timestamped_filename([@label, attempt], extension))
+        if File.exist?(filename)
+          attempt ||= 0
+          attempt += 1
+        else
+          return filename
+        end
+      end
+    end
+
     # Starting a new log file is a critical operation so the entire method is
     # wrapped with a rescue and handled with handle_critical_exception
     # Assumes mutex has already been taken
-    def start_new_file(packet = nil)
+    def start_new_file
       close_file(false)
-      Cosmos.set_working_dir do
-        # Create a filename that doesn't exist
-        attempt = nil
-        while true
-          @filename = File.join(@log_directory, File.build_timestamped_filename([@log_name, @label, attempt], '.bin'))
-          if File.exist?(@filename)
-            attempt ||= 0
-            attempt += 1
-          else
-            break
-          end
-        end
 
-        @file = File.new(@filename, 'wb')
-        @file_size = 0
-      end
+      # Start main log file
+      @filename = create_unique_filename('.bin'.freeze)
+      @file = File.new(@filename, 'wb')
+      @file_size = 0
       file_header = build_file_header()
       if file_header
         @file.write(file_header)
         @file_size += file_header.length
       end
-      @start_time = Time.now.sys
+
+      # Start index log file
+      @index_filename = create_unique_filename('.idx'.freeze)
+      @index_file = File.new(@index_filename, 'wb')
+      index_file_header = build_index_file_header()
+      @index_file.write(index_file_header) if index_file_header
+
+      @start_time = Time.now.utc
+      @cmd_packet_table = {}
+      @tlm_packet_table = {}
+      @next_packet_index = 0
+      @target_indexes = {}
+      @target_dec_entries = []
+      @packet_dec_entries = []
+      @first_time = nil
+      @last_time = nil
       Logger.instance.info "Log File Opened : #{@filename}"
-      start_new_file_hook(packet)
+      Logger.instance.info "Index Log File Opened : #{@index_filename}"
     rescue => err
-      Logger.instance.error "Error opening #{@filename} : #{err.formatted}"
+      Logger.instance.error "Error opening Tempfile : #{err.formatted}"
       @logging_enabled = false
       Cosmos.handle_critical_exception(err)
     end
 
-    # Adds the meta packet at the beginning of telemetry packet logs
-    # Mutex is held during this hook
-    def start_new_file_hook(packet)
-      # If the first packet is a SYSTEM META packet, make sure the file header matches
-      if packet and packet.target_name == 'SYSTEM'.freeze and packet.packet_name == 'META'.freeze
-        file_header = build_file_header(packet.read('CONFIG'))
-        if file_header
-          @file.seek(0, IO::SEEK_SET)
-          @file.write(file_header)
-          @file_size = file_header.length
+    def move_file_to_s3(filename, s3_key)
+      Thread.new do
+        begin
+          rubys3_client = Aws::S3::Client.new
+
+          # Ensure logs bucket exists
+          begin
+            rubys3_client.head_bucket(bucket: 'logs')
+          rescue Aws::S3::Errors::NotFound
+            rubys3_client.create_bucket(bucket: 'logs')
+          end
+
+          # Write to S3 Bucket
+          File.open(filename, 'rb') do |read_file|
+            rubys3_client.put_object(bucket: 'logs', key: s3_key, body: read_file)
+          end
+
+          Logger.info "logs/#{s3_key} written to S3"
+
+          File.delete(filename)
+          Logger.info("local file #{filename} deleted")
+        rescue => err
+          Logger.error("Error saving log file to bucket: #{filename}\n#{err.formatted}")
         end
-      else
-        # Else log the first packet as the SYSTEM META packet
-        packet = System.telemetry.packet('SYSTEM', 'META')
-        write_packet(packet, false)
       end
     end
 
@@ -232,10 +235,9 @@ module Cosmos
         if @file
           begin
             @file.close unless @file.closed?
-            Cosmos.set_working_dir do
-              File.chmod(0444, @file.path) # Make file read only
-            end
-            Logger.instance.info "Log File Closed : #{@filename}"
+            Logger.info "Log File Closed : #{@filename}"
+            s3_key = File.join(@remote_log_directory, "#{@first_time}__#{@last_time}__#{@label}.bin")
+            move_file_to_s3(@filename, s3_key)
           rescue Exception => err
             Logger.instance.error "Error closing #{@filename} : #{err.formatted}"
           end
@@ -244,54 +246,22 @@ module Cosmos
           @file_size = 0
           @filename = nil
         end
-      ensure
-        @mutex.unlock if take_mutex
-      end
-    end
-
-    # Writing a log file is a critical operation so the entire method is
-    # wrapped with a rescue and handled with handle_critical_exception
-    def write_packet(packet, take_mutex = true)
-      return if !packet or !@logging_enabled
-      @mutex.lock if take_mutex
-      begin
-        # This check includes logging_enabled again because it might have changed since we acquired the mutex
-        if @logging_enabled and (!@file or (@cycle_size and (@file_size + packet.length) > @cycle_size))
-          start_new_file(packet)
-        end
-        pre_write_entry_hook(packet)
-        if @file
-          @entry_header = build_entry_header(packet) # populate @entry_header
-          if @entry_header
-            @file.write(@entry_header)
-            @file_size += @entry_header.length
+        if @index_file
+          begin
+            write_index_file_footer()
+            @index_file.close unless @index_file.closed?
+            Logger.info "Index Log File Closed : #{@index_filename}"
+            s3_key = File.join(@remote_log_directory, "#{@first_time}__#{@last_time}__#{@label}.idx")
+            move_file_to_s3(@index_filename, s3_key)
+          rescue Exception => err
+            Logger.instance.error "Error closing #{@index_filename} : #{err.formatted}"
           end
-          buffer = packet.buffer(false)
-          @file.write(buffer)
-          @file_size += buffer.length
+
+          @index_file = nil
+          @index_filename = nil
         end
       ensure
         @mutex.unlock if take_mutex
-      end
-    rescue => err
-      Logger.instance.error "Error writing #{@filename} : #{err.formatted}"
-      Cosmos.handle_critical_exception(err)
-    end
-
-    # Hook to allow access to the packet immediately before writing its entry
-    def pre_write_entry_hook(packet)
-    end
-
-    def logging_thread_body
-      while true
-        begin
-          packet = @queue.pop
-          return if @cancel_threads
-        rescue ThreadError
-          # This can happen when the thread is killed
-          return
-        end
-        write_packet(packet)
       end
     end
 
@@ -300,7 +270,18 @@ module Cosmos
         # The check against start_time needs to be mutex protected to prevent a packet coming in between the check
         # and closing the file
         @mutex.synchronize do
-          if @logging_enabled and @cycle_time and (Time.now.sys - @start_time) > @cycle_time
+          utc_now = Time.now.utc
+          if @logging_enabled and
+            (
+              # Cycle based on total time logging
+              (@cycle_time and (Time.now.utc - @start_time) > @cycle_time) or
+
+              # Cycle daily at a specific time
+              (@cycle_hour and @cycle_minute and utc_now.hour == @cycle_hour and utc_now.minute == @cycle_minute and @start_time.yday != utc_now.yday) or
+
+              # Cycle hourly at a specific time
+              (@cycle_minute and not @cycle_hour and utc_now.minute == @cycle_minute and @start_time.hour != utc_now.hour)
+            )
             close_file(false)
           end
         end
@@ -309,43 +290,136 @@ module Cosmos
       end
     end
 
-    def build_file_header(configuration_name = System.configuration_name)
-      hostname = Socket.gethostname.to_s
-      file_header = "COSMOS4_#{@log_type}_#{configuration_name.ljust(32, ' ')[0..31]}_"
-      file_header << hostname.ljust(83)
-      return file_header
+    def build_file_header
+      return "COSMOS5_".freeze
     end
 
-    def build_entry_header(packet)
-      received_time = packet.received_time
-      received_time = Time.now.sys unless received_time
-      # This is an optimization to avoid creating a new entry_header object
-      # each time we create an entry_header which we do a LOT!
-      @entry_header.clear
+    def build_index_file_header
+      return "COSIDX5_".freeze
+    end
+
+    COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK = 0x0000
+    COSMOS5_PACKET_DECLARATION_ENTRY_TYPE_MASK = 0x1000
+    COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK = 0x2000
+    COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK = 0x3000
+    COSMOS5_TLM_FLAG_MASK = 0x0000
+    COSMOS5_CMD_FLAG_MASK = 0x0800
+    COSMOS5_STORED_FLAG_MASK = 0x0400
+    COSMOS5_ID_FLAG_MASK = 0x0200
+    COSMOS5_PRIMARY_FIXED_SIZE = 6
+    COSMOS5_TARGET_DECLARATION_SECONDARY_FIXED_SIZE = 1
+    COSMOS5_PACKET_DECLARATION_SECONDARY_FIXED_SIZE = 3
+    COSMOS5_RAW_PACKET_SECONDARY_FIXED_SIZE = 14
+    COSMOS5_JSON_PACKET_SECONDARY_FIXED_SIZE = 14
+    COSMOS5_ID_FIXED_SIZE = 32
+    COSMOS5_MAX_PACKET_INDEX = 65535
+    COSMOS5_MAX_TARGET_INDEX = 65535
+
+    def get_packet_index(cmd_or_tlm, target_name, packet_name)
+      if cmd_or_tlm == :CMD
+        target_table = @cmd_packet_table[target_name]
+      else
+        target_table = @tlm_packet_table[target_name]
+      end
+      if target_table
+        packet_index = target_table[packet_name]
+        return packet_index if packet_index
+      else
+        # New packet_table entry needed
+        target_table = {}
+        if cmd_or_tlm == :CMD
+          @cmd_packet_table[target_name] = target_table
+        else
+          @tlm_packet_table[target_name] = target_table
+        end
+        id = nil
+        target = System.targets[target_name]
+        id = target.id if target
+        write_entry(:TARGET_DECLARATION, cmd_or_tlm, target_name, packet_name, nil, nil, nil, id)
+      end
+
+      # New target_table entry needed
+      packet_index = @next_packet_index
+      raise "Packet Table Overflow" if packet_index > COSMOS5_MAX_PACKET_INDEX
+      target_table[packet_name] = packet_index
+      @next_packet_index += 1
+
+      write_entry(:PACKET_DECLARATION, cmd_or_tlm, target_name, packet_name, nil, nil, nil, id)
+      return packet_index
+    end
+
+    def write_entry(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id)
+      length = COSMOS5_PRIMARY_FIXED_SIZE
       flags = 0
-      flags |= PacketLogReader::COSMOS4_STORED_FLAG_MASK if packet.stored
-      extra = packet.extra
-      if extra
-        flags |= PacketLogReader::COSMOS4_EXTRA_FLAG_MASK
-        extra = extra.to_json
+      flags |= COSMOS5_STORED_FLAG_MASK if stored
+      flags |= COSMOS5_ID_FLAG_MASK if id
+      case entry_type
+      when :TARGET_DECLARATION
+        target_index = @next_target_index
+        @target_indexes[target_name] = target_index
+        @next_target_index += 1
+        raise "Target Index Overflow" if target_index > COSMOS5_MAX_TARGET_INDEX
+        flags |= COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK
+        length += COSMOS5_TARGET_DECLARATION_SECONDARY_FIXED_SIZE + target_name.length
+        length += COSMOS5_ID_FIXED_SIZE if id
+        @entry.clear
+        @entry << [length, flags, target_name.length].pack('NnC'.freeze) << target_name
+        @entry << id if id
+        @target_dec_entries << @entry.dup
+      when :PACKET_DECLARATION
+        target_index = @target_indexes[target_name]
+        flags |= COSMOS5_PACKET_DECLARATION_ENTRY_TYPE_MASK
+        length += COSMOS5_PACKET_DECLARATION_SECONDARY_FIXED_SIZE + packet_name.length
+        length += COSMOS5_ID_FIXED_SIZE if id
+        @entry.clear
+        @entry << [length, flags, target_index, packet_name.length].pack('NnnC'.freeze) << packet_name
+        @entry << id if id
+        @packet_dec_entries << @entry.dup
+      when :RAW_PACKET, :JSON_PACKET
+        target_name = 'UNKNOWN'.freeze unless target_name
+        packet_name = 'UNKNOWN'.freeze unless packet_name
+        packet_index = get_packet_index(cmd_or_tlm, target_name, packet_name)
+        if entry_type == :RAW_PACKET
+          flags |= COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK
+        else
+          flags |= COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK
+        end
+        if cmd_or_tlm == :CMD
+          flags |= COSMOS5_CMD_FLAG_MASK
+        else
+          flags |= COSMOS5_TLM_FLAG_MASK
+        end
+        length += COSMOS5_RAW_PACKET_SECONDARY_FIXED_SIZE + data.length
+        @entry.clear
+        @index_entry.clear
+        @index_entry << [length, flags, packet_index, time_nsec_since_epoch].pack('NnnQ>'.freeze)
+        @entry << @index_entry << data
+        @index_entry << [@file_size].pack('Q>')
+        @index_file.write(@index_entry)
+        @first_time = time_nsec_since_epoch if !@first_time or time_nsec_since_epoch < @first_time
+        @last_time = time_nsec_since_epoch if !@last_time or time_nsec_since_epoch > @last_time
+      else
+        raise "Unknown entry_type: #{entry_type}"
       end
-      @entry_header << [flags].pack('C'.freeze)
-      if extra
-        @entry_header << [extra.length].pack('N'.freeze)
-        @entry_header << extra
+      @file.write(@entry)
+      @file_size += @entry.length
+    end
+
+    def write_index_file_footer
+      footer_length = 4 # Includes length of length field at end
+      @index_file.write([@target_dec_entries.length].pack('n'))
+      footer_length += 2
+      @target_dec_entries.each do |target_dec_entry|
+        @index_file.write(target_dec_entry)
+        footer_length += target_dec_entry.length
       end
-      @entry_header << [received_time.tv_sec].pack('N'.freeze)
-      @entry_header << [received_time.tv_usec].pack('N'.freeze)
-      target_name = packet.target_name
-      target_name = 'UNKNOWN'.freeze unless target_name
-      @entry_header << target_name.length
-      @entry_header << target_name
-      packet_name = packet.packet_name
-      packet_name = 'UNKNOWN'.freeze unless packet_name
-      @entry_header << packet_name.length
-      @entry_header << packet_name
-      @entry_header << [packet.length].pack('N'.freeze)
-      return @entry_header
+      @index_file.write([@packet_dec_entries.length].pack('n'))
+      footer_length += 2
+      @packet_dec_entries.each do |packet_dec_entry|
+        @index_file.write(packet_dec_entry)
+        footer_length += packet_dec_entry.length
+      end
+      @index_file.write([footer_length].pack('N'))
     end
 
   end # class PacketLogWriter
