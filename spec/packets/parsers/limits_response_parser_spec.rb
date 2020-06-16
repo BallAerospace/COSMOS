@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -15,11 +15,10 @@ require 'cosmos/packets/parsers/limits_response_parser'
 require 'tempfile'
 
 module Cosmos
-
   describe PacketConfig do
-
     describe "parse" do
       before(:each) do
+        configure_store()
         @pc = PacketConfig.new
       end
 
@@ -143,7 +142,6 @@ module Cosmos
         File.delete(filename) if File.exist?(filename)
         tf.unlink
       end
-
     end
   end
 end

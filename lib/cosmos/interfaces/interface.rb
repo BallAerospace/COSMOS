@@ -129,7 +129,8 @@ module Cosmos
       @disable_disconnect = false
       @packet_log_writer_pairs = []
       @stored_packet_log_writer_pairs = []
-      @raw_logger_pair = RawLoggerPair.new(@name)
+      # TODO: How should this get the log directory
+      @raw_logger_pair = RawLoggerPair.new(@name, 'outputs/logs')
       @routers = []
       @cmd_routers = []
       @read_count = 0

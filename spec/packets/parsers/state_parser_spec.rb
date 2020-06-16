@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -15,11 +15,10 @@ require 'cosmos/packets/parsers/state_parser'
 require 'tempfile'
 
 module Cosmos
-
   describe StateParser do
-
     describe "process_file" do
       before(:each) do
+        configure_store()
         @pc = PacketConfig.new
       end
 
@@ -241,7 +240,6 @@ module Cosmos
           tf.unlink
         end
       end
-
     end
   end
 end

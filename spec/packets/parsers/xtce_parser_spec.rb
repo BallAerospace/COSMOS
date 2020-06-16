@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -46,7 +46,6 @@ XTCE_END =<<END
 END
 
 module Cosmos
-
   describe XtceParser do
     def xml_file(target)
       tf = Tempfile.new(['unittest', '.xtce'])
@@ -130,6 +129,7 @@ module Cosmos
 
     describe "process_file" do
       before(:each) do
+        configure_store()
         @pc = PacketConfig.new
       end
 
@@ -376,20 +376,19 @@ module Cosmos
         tf.puts limits
         tf.close
         @pc.process_file(tf.path, "TGT1")
-        @pc.to_xtce(System.paths["LOGS"])
-        xml_path = File.join(System.paths["LOGS"], "TGT1", "cmd_tlm", "tgt1.xtce")
+        @pc.to_xtce(Cosmos::USERPATH)
+        xml_path = File.join(Cosmos::USERPATH, "TGT1", "cmd_tlm", "tgt1.xtce")
         expect(File.exist?(xml_path)).to be true
         @pc.process_file(xml_path, "TGT1")
-        @pc.to_config(System.paths["LOGS"])
-        cmd_config_path = File.join(System.paths["LOGS"], "TGT1", "cmd_tlm", "tgt1_cmd.txt")
+        @pc.to_config(Cosmos::USERPATH)
+        cmd_config_path = File.join(Cosmos::USERPATH, "TGT1", "cmd_tlm", "tgt1_cmd.txt")
         expect(File.read(cmd_config_path)).to include(cmd)
-        tlm_config_path = File.join(System.paths["LOGS"], "TGT1", "cmd_tlm", "tgt1_tlm.txt")
+        tlm_config_path = File.join(Cosmos::USERPATH, "TGT1", "cmd_tlm", "tgt1_tlm.txt")
         tlm = File.read(tlm_config_path)
         expect(tlm).to include(tlm1)
         expect(tlm).to include(tlm2)
         tf.unlink
       end
-
-    end # describe "process_file"
+    end
   end
 end

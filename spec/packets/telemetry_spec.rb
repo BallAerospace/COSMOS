@@ -14,9 +14,7 @@ require 'cosmos/packets/telemetry'
 require 'tempfile'
 
 module Cosmos
-
   describe Telemetry do
-
     describe "initialize" do
       it "has no warnings" do
         expect(Telemetry.new(PacketConfig.new).warnings).to be_empty
@@ -44,6 +42,7 @@ module Cosmos
       tf.puts '  APPEND_ITEM item2 8 UINT "Item2"'
       tf.close
 
+      configure_store()
       pc = PacketConfig.new
       pc.process_file(tf.path, "SYSTEM")
       @tlm = Telemetry.new(pc)
@@ -257,7 +256,7 @@ module Cosmos
         expect(pkt.item3).to eql 6.0
         expect(pkt.item4).to eql 8.0
       end
-      
+
       it "works in unique id mode and not" do
         System.targets["TGT1"] = Target.new("TGT1")
         target = System.targets["TGT1"]
@@ -277,9 +276,9 @@ module Cosmos
         expect(pkt.item1).to eql 1
         expect(pkt.item2).to eql 2
         expect(pkt.item3).to eql 2.0
-        expect(pkt.item4).to eql 4.0        
+        expect(pkt.item4).to eql 4.0
         target.tlm_unique_id_mode = false
-      end      
+      end
 
       it "returns nil with unknown targets given" do
         buffer = "\x01\x02\x03\x04"
@@ -624,6 +623,5 @@ module Cosmos
         end
       end
     end
-
   end
 end

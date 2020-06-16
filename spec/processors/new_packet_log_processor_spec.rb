@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -12,9 +12,7 @@ require 'spec_helper'
 require 'cosmos/processors/processor'
 
 module Cosmos
-
   describe NewPacketLogProcessor do
-
     describe "initialize" do
       it "takes a packet log writer name" do
         a = NewPacketLogProcessor.new('MINE')
@@ -23,7 +21,7 @@ module Cosmos
     end
 
     describe "call" do
-      it "starts logging" do
+      xit "starts logging" do
         log_name = nil
         allow(CmdTlmServer).to receive_message_chain(:instance,:start_logging) do |name|
           log_name = name
@@ -33,7 +31,5 @@ module Cosmos
         expect(log_name).to eql('ALL')
       end
     end
-
   end
 end
-
