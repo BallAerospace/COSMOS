@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -99,49 +99,6 @@ module Cosmos
         # This works but please don't do this! Symbols with spaces is ugly!
         expect(@csv.sym("string", 1)).to eq(:"text with space")
         expect(@csv.sym("string", (0..-1))).to eq([:test, :"text with space"])
-      end
-    end
-
-    describe "create_archive" do
-      it "creates a default archive file" do
-        @csv.create_archive
-        expect(File.exist?(@csv.archive_file)).to be true
-        @csv.close_archive
-      end
-
-      it "automatically closes an existing open archive file" do
-        @csv.create_archive
-        first = @csv.archive_file
-        expect(File.basename(first)).to match(/.*#{File.basename(@test_file,'.csv')}.*/)
-        @csv.create_archive
-        second = @csv.archive_file
-        expect(File.basename(second)).to match(/.*#{File.basename(@test_file,'.csv')}.*/)
-        expect(first).to_not eql(second)
-      end
-
-      it "creates an archive file at an arbitrary path" do
-        if Kernel.is_windows?
-          Dir.mkdir("C:/temp") unless File.directory?("C:/temp")
-          @csv.create_archive("C:/temp")
-          expect(File.exist?(@csv.archive_file)).to be true
-          @csv.close_archive
-        end
-      end
-    end
-
-    describe "write_archive" do
-      it "writes to the archive file" do
-        @csv.create_archive
-        @csv.write_archive(%w(HI a b c))
-        @csv.close_archive
-        data = File.read @csv.archive_file
-        expect(data.include?("HI,a,b,c")).to be true
-      end
-
-      it "automatically opens an archive for writing" do
-        expect(@csv.archive_file).to eq('')
-        @csv.write_archive([])
-        expect(File.basename(@csv.archive_file)).to match(/.*#{File.basename(@test_file,'.csv')}.*/)
       end
     end
   end

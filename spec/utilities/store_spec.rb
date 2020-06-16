@@ -9,24 +9,11 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'spec_helper'
-require 'mock_redis'
-require 'cosmos/packets/packet'
-require 'cosmos/utilities/store'
 
 module Cosmos
   describe Store do
     before(:each) do
-      # Ensure the Store instance is cleared so we get a new mock each time
-      Store.class_variable_set(:@@instance, nil)
-      redis = MockRedis.new
-      # TODO: Hack MockRedis to implement exists to return number of matches
-      redis.instance_eval do
-        def exists(key)
-          db = self.instance_variable_get(:@db)
-          db.keys.count(key)
-        end
-      end
-      allow(Redis).to receive(:new).and_return(redis)
+      initialize_store()
     end
 
     describe 'instance' do
@@ -36,67 +23,61 @@ module Cosmos
     end
 
     describe 'get_target' do
-      it 'raises if TGT does not exist' do
-        expect { Store.instance.get_target('TGT') }.to raise_error("Target 'TGT' does not exist")
+      it 'raises if target does not exist' do
+        expect { Store.instance.get_target('NOTGT') }.to raise_error("Target 'NOTGT' does not exist")
       end
 
       it 'returns a target hash' do
-        Store.instance.hset('cosmos_targets', 'TGT', JSON.generate(Target.new('TGT').as_json))
-        tgt = Store.instance.get_target('TGT')
+        tgt = Store.instance.get_target('INST')
         expect(tgt).to be_a(Hash)
-        expect(tgt['name']).to eql 'TGT'
+        expect(tgt['name']).to eql 'INST'
       end
     end
 
     describe 'get_packet' do
-      it 'raises if TGT does not exist' do
-        expect { Store.instance.get_packet('TGT', 'PKT') }.to raise_error("Target 'TGT' does not exist")
+      it 'raises if target does not exist' do
+        expect { Store.instance.get_packet('NOTGT', 'PKT') }.to raise_error("Target 'NOTGT' does not exist")
       end
 
-      it 'raises if PKT does not exist' do
-        Store.instance.hset('cosmostlm__TGT', 'X', JSON.generate(Packet.new('TGT', 'PKT').as_json))
-        expect { Store.instance.get_packet('TGT', 'PKT') }.to raise_error("Packet 'PKT' does not exist")
+      it 'raises if packet does not exist' do
+        expect { Store.instance.get_packet('INST', 'NOPKT') }.to raise_error("Packet 'NOPKT' does not exist")
       end
 
       it 'returns a packet hash' do
-        Store.instance.hset('cosmostlm__TGT', 'PKT', JSON.generate(Packet.new('TGT', 'PKT').as_json))
-        Store.instance.hset('cosmoscmd__TGT', 'PKT', JSON.generate(Packet.new('TGT1', 'PKT1').as_json))
-        pkt = Store.instance.get_packet('TGT', 'PKT', type: 'tlm')
+        pkt = Store.instance.get_packet('INST', 'HEALTH_STATUS', type: 'tlm')
         expect(pkt).to be_a(Hash)
-        expect(pkt['target_name']).to eql 'TGT'
-        expect(pkt['packet_name']).to eql 'PKT'
-        pkt = Store.instance.get_packet('TGT', 'PKT', type: 'cmd')
+        expect(pkt['target_name']).to eql 'INST'
+        expect(pkt['packet_name']).to eql 'HEALTH_STATUS'
+        pkt = Store.instance.get_packet('INST', 'COLLECT', type: 'cmd')
         expect(pkt).to be_a(Hash)
-        expect(pkt['target_name']).to eql 'TGT1'
-        expect(pkt['packet_name']).to eql 'PKT1'
+        expect(pkt['target_name']).to eql 'INST'
+        expect(pkt['packet_name']).to eql 'COLLECT'
       end
     end
 
     describe 'get_commands' do
-      it 'raises if TGT does not exist' do
-        expect { Store.instance.get_commands('TGT') }.to raise_error("Target 'TGT' does not exist")
+      it 'raises if target does not exist' do
+        expect { Store.instance.get_commands('NOTGT') }.to raise_error("Target 'NOTGT' does not exist")
       end
 
       it 'returns a command hash' do
-        Store.instance.hset('cosmoscmd__TGT', 'PKT', JSON.generate(Packet.new('TGT', 'PKT').as_json))
-        commands = Store.instance.get_commands('TGT')
+        commands = Store.instance.get_commands('INST')
         expect(commands).to be_a(Array)
-        expect(commands[0]['target_name']).to eql('TGT')
-        expect(commands[0]['packet_name']).to eql('PKT')
+        expect(commands[0]['target_name']).to eql('INST')
+        expect(commands[-1]['target_name']).to eql('INST')
       end
     end
 
     describe 'get_telemetry' do
-      it 'raises if TGT does not exist' do
-        expect { Store.instance.get_telemetry('TGT') }.to raise_error("Target 'TGT' does not exist")
+      it 'raises if target does not exist' do
+        expect { Store.instance.get_telemetry('NOTGT') }.to raise_error("Target 'NOTGT' does not exist")
       end
 
-      it 'returns a command hash' do
-        Store.instance.hset('cosmostlm__TGT', 'PKT', JSON.generate(Packet.new('TGT', 'PKT').as_json))
-        telemetry = Store.instance.get_telemetry('TGT')
+      it 'returns a telemetry hash' do
+        telemetry = Store.instance.get_telemetry('INST')
         expect(telemetry).to be_a(Array)
-        expect(telemetry[0]['target_name']).to eql('TGT')
-        expect(telemetry[0]['packet_name']).to eql('PKT')
+        expect(telemetry[0]['target_name']).to eql('INST')
+        expect(telemetry[-1]['target_name']).to eql('INST')
       end
     end
   end

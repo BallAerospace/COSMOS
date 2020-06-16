@@ -36,8 +36,8 @@ module Cosmos
         'cmd_raw_no_hazardous_check',
         'cmd_raw_no_checks',
         'send_raw',
-        'get_commands',
-        'get_command_parameters',
+        'get_all_commands', # v5.0
+        'get_command_parameters', # v5.0
         'get_cmd_buffer',
         'get_cmd_list', # DEPRECATED
         'get_cmd_param_list', # DEPRECATED
@@ -303,10 +303,10 @@ module Cosmos
       # end
     end
 
-    # DEPRECATED: use get_commands
     # Returns the list of all the command names and their descriptions from the
     # given target.
     #
+    # @deprecated Use get_all_commands
     # @param target_name [String] Name of the target
     # @return [Array<Array<String, String>>] Array containing \[command name,
     #   command description] for all commands in the target
@@ -321,6 +321,7 @@ module Cosmos
 
     # Returns a hash of the given command
     #
+    # @since 5.0.0
     # @param target_name [String] Name of the target
     # @param packet_name [String] Name of the packet
     # @return [Hash] Command as a hash
@@ -330,15 +331,17 @@ module Cosmos
 
     # Returns an array of all the commands as a hash
     #
+    # @since 5.0.0
     # @param target_name [String] Name of the target
     # @return [Array<Hash>] Array of all commands as a hash
-    def get_commands(target_name)
+    def get_all_commands(target_name)
       Store.instance.get_commands(target_name)
     end
 
     # DEPRECATED: use get_command_parameters
     # Returns the list of all the parameters for the given command.
     #
+    # @deprecated Use get_command_parameters
     # @param target_name [String] Name of the target
     # @param command_name [String] Name of the command
     # @return [Array<Array<String, Object, nil|Array, nil|String, nil|String,

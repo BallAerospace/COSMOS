@@ -36,6 +36,7 @@ module Cosmos
     end
 
     def initialize(pool_size = 10)
+      Redis.exists_returns_integer = true
       @redis_pool = ConnectionPool.new(size: pool_size) { Redis.new(url: "redis://localhost:6379/0") }
       @topic_offsets = {}
     end
@@ -276,6 +277,9 @@ module Cosmos
     end
     def hset(key, field, value)
       @redis_pool.with { |redis| redis.hset(key, field, value) }
+    end
+    def del(key)
+      @redis_pool.with { |redis| redis.del(key) }
     end
   end
 end

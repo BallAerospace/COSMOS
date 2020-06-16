@@ -154,7 +154,5 @@ module Cosmos
         end
       end
     end
-
-  end # class Logger
-
+  end
 end

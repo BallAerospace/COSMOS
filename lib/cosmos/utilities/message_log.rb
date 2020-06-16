@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -25,10 +25,9 @@ module Cosmos
     # @param tool_name [String] The name of the tool creating the message log.
     #   This will be inserted into the message log file name to help identify it.
     # @param log_dir [String] The filesystem path to store the message log file.
-    def initialize(tool_name, log_dir = nil)
+    def initialize(tool_name, log_dir)
       @tool_name = tool_name
-      @log_dir = ConfigParser.handle_nil(log_dir)
-      @log_dir = System.paths['LOGS'] unless @log_dir
+      @log_dir = log_dir
       @filename = ''
       @file = nil
       @start_time = nil
@@ -74,7 +73,5 @@ module Cosmos
       end
       @mutex.unlock if take_mutex
     end
-
-  end # class MessageLog
-
-end # module Cosmos
+  end
+end
