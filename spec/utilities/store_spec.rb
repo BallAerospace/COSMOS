@@ -13,7 +13,7 @@ require 'spec_helper'
 module Cosmos
   describe Store do
     before(:each) do
-      initialize_store()
+      configure_store()
     end
 
     describe 'instance' do

@@ -19,6 +19,7 @@ module Cosmos
       $buffer = ''
       @interface = StreamInterface.new
       allow(@interface).to receive(:connected?) { true }
+      configure_store()
     end
 
     class PreStream < Stream

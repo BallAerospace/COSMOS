@@ -20,6 +20,7 @@ module Cosmos
       @interface = StreamInterface.new
       @interface.target_names = ['SYSTEM', 'INST']
       allow(@interface).to receive(:connected?) { true }
+      configure_store()
     end
 
     class PreStream < Stream

@@ -78,7 +78,7 @@ require 'cosmos/system/system_config'
 require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
 require 'cosmos/microservices/configure_microservices'
 
-def initialize_store
+def configure_store
   Cosmos::Store.class_variable_set(:@@instance, nil)
   system_path = File.join(__dir__, 'install', 'config', 'system', 'system.txt')
   system_config = Cosmos::SystemConfig.new(system_path)

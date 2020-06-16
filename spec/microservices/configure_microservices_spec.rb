@@ -13,7 +13,7 @@ require 'spec_helper'
 module Cosmos
   describe ConfigureMicroservices do
     before(:each) do
-      @redis = initialize_store()
+      @redis = configure_store()
     end
 
     it "loads all the redis keys" do

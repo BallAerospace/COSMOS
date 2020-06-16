@@ -135,7 +135,7 @@ module Cosmos
         Cosmos.close_socket(write)
       end
 
-      it "logs the raw data" do
+      xit "logs the raw data" do
         write = UdpWriteSocket.new('localhost', 8889)
         i = UdpInterface.new('localhost','nil','8889')
         i.connect
@@ -182,7 +182,7 @@ module Cosmos
         Cosmos.close_socket(read)
       end
 
-      it "logs the raw data" do
+      xit "logs the raw data" do
         read = UdpReadSocket.new(8888, 'localhost')
         i = UdpInterface.new('localhost','8888','nil')
         i.connect
@@ -228,7 +228,7 @@ module Cosmos
         Cosmos.close_socket(read)
       end
 
-      it "logs the raw data" do
+      xit "logs the raw data" do
         read = UdpReadSocket.new(8888, 'localhost')
         i = UdpInterface.new('localhost','8888','nil')
         i.connect
