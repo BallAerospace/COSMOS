@@ -42,11 +42,11 @@ module Cosmos
         tf.write limits
         tf.close
         @pc.process_file(tf.path, "TGT1")
-        @pc.to_config(System.paths["LOGS"])
-        @pc.to_xtce(System.paths["LOGS"])
-        expect(cmd.strip).to eql File.read(File.join(System.paths["LOGS"], 'TGT1', 'cmd_tlm', 'tgt1_cmd.txt')).strip
-        expect(tlm.strip).to eql File.read(File.join(System.paths["LOGS"], 'TGT1', 'cmd_tlm', 'tgt1_tlm.txt')).strip
-        expect(limits.strip).to eql File.read(File.join(System.paths["LOGS"], 'SYSTEM', 'cmd_tlm', 'limits_groups.txt')).strip
+        @pc.to_config(Cosmos::USERPATH)
+        @pc.to_xtce(Cosmos::USERPATH)
+        expect(cmd.strip).to eql File.read(File.join(Cosmos::USERPATH, 'TGT1', 'cmd_tlm', 'tgt1_cmd.txt')).strip
+        expect(tlm.strip).to eql File.read(File.join(Cosmos::USERPATH, 'TGT1', 'cmd_tlm', 'tgt1_tlm.txt')).strip
+        expect(limits.strip).to eql File.read(File.join(Cosmos::USERPATH, 'SYSTEM', 'cmd_tlm', 'limits_groups.txt')).strip
         tf.unlink
       end
 

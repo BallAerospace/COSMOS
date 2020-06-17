@@ -301,6 +301,10 @@ module Cosmos
     end
 
     describe "get" do
+      before(:each) do
+        configure_store()
+      end
+
       it "gets the limits for an item with limits" do
         expect(@limits.get("TGT1", "PKT1", "ITEM1")).to eql [:DEFAULT, 1, true, 1.0, 2.0, 4.0, 5.0, nil, nil]
       end
@@ -319,6 +323,10 @@ module Cosmos
     end
 
     describe "set" do
+      before(:each) do
+        configure_store()
+      end
+
       it "sets limits for an item" do
         expect(@limits.set("TGT1", "PKT1", "ITEM5", 1, 2, 3, 4, nil, nil, :DEFAULT)).to eql [:DEFAULT, 1, true, 1.0, 2.0, 3.0, 4.0, nil, nil]
       end

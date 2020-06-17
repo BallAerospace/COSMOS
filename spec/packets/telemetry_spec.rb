@@ -505,6 +505,10 @@ module Cosmos
     end
 
     describe "values_and_limits_states" do
+      before(:each) do
+        configure_store()
+      end
+
       it "complains about non-existant targets" do
         expect { @tlm.values_and_limits_states([["TGTX","PKT1","ITEM1"]]) }.to raise_error(RuntimeError, "Telemetry target 'TGTX' does not exist")
       end
