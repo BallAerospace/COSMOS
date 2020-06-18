@@ -125,10 +125,8 @@ module Cosmos
     def start_new_file
       close_file()
       @mutex.synchronize do
-        Cosmos.set_working_dir do
-          @filename = File.join(@log_directory, File.build_timestamped_filename([@log_name], '.bin'))
-          @file = File.new(@filename, 'wb')
-        end
+        @filename = File.join(@log_directory, File.build_timestamped_filename([@log_name], '.bin'))
+        @file = File.new(@filename, 'wb')
         @start_time = Time.now.sys
         Logger.instance.info "Raw Log File Opened : #{@filename}"
       end
@@ -144,9 +142,7 @@ module Cosmos
         if @file
           begin
             @file.close unless @file.closed?
-            Cosmos.set_working_dir do
-              File.chmod(0444, @file.path) # Make file read only
-            end
+            File.chmod(0444, @file.path) # Make file read only
             Logger.instance.info "Raw Log File Closed : #{@filename}"
           rescue => err
             Logger.instance.error "Error closing #{@filename} : #{err.formatted}"

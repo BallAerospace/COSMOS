@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -12,10 +12,10 @@ require 'spec_helper'
 require 'cosmos/io/raw_logger'
 
 module Cosmos
-
   describe RawLogger do
     before(:each) do
-      @log_path = File.join(Cosmos::USERPATH, 'outputs', 'logs')
+      @log_path = File.expand_path(File.join(Cosmos::USERPATH, 'outputs', 'logs'))
+      FileUtils.mkdir_p(@log_path) unless File.directory?(@log_path)
     end
 
     after(:each) do
@@ -133,6 +133,5 @@ module Cosmos
         expect(File.size(file)).not_to eql 0
       end
     end
-
   end
 end

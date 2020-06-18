@@ -72,7 +72,7 @@ module Cosmos
         interface.target_names.each do |target_name|
           begin
             System.telemetry.packets(target_name).each do |packet_name, packet|
-              packet_topic_list << "PACKET__#{target_name}__#{packet_name}"
+              packet_topic_list << "TELEMETRY__#{target_name}__#{packet_name}"
             end
           rescue
             # No telemetry packets for this target

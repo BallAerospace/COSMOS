@@ -55,6 +55,13 @@ module Cosmos
 
           begin
             @interface.write(command)
+            # Write to stream
+            msg_hash = { time: command.received_time.to_nsec_from_epoch,
+                        target_name: command.target_name,
+                        packet_name: command.packet_name,
+                        received_count: command.received_count,
+                        buffer: command.buffer(false) }
+            Store.instance.write_topic("COMMAND__#{command.target_name}__#{command.packet_name}", msg_hash)
             Store.instance.update_interface(@interface)
           rescue => e
             Logger.error e.formatted
@@ -214,7 +221,7 @@ module Cosmos
                    packet_name: packet.packet_name,
                    received_count: packet.received_count,
                    buffer: packet.buffer(false) }
-      Store.instance.write_topic("PACKET__#{packet.target_name}__#{packet.packet_name}", msg_hash)
+      Store.instance.write_topic("TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
     end
 
     def handle_connection_failed(connect_error)

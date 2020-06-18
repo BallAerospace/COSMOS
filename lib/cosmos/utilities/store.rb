@@ -58,7 +58,6 @@ module Cosmos
         read_topics([ack_topic], 100) do |topic, msg_id, msg_hash, redis|
           if msg_id == cmd_id
             Logger.info "Ack Received: #{msg_id}: #{msg_hash.inspect}"
-            # yield target_name, cmd_name, cmd_params, range_check, hazardous_check, raw
             if msg_hash["result"] == "SUCCESS"
               return
             else
@@ -171,12 +170,33 @@ module Cosmos
           if redis.hexists("cosmos#{type}__#{target_name}", packet_name)
             return JSON.parse(redis.hget("cosmos#{type}__#{target_name}", packet_name))
           else
-            raise RedisError, "Packet '#{packet_name}' does not exist"
+            raise RedisError, "Packet '#{target_name} #{packet_name}' does not exist"
           end
         else
           raise RedisError, "Target '#{target_name}' does not exist"
         end
       end
+    end
+
+    def inject_packet(packet)
+      # Test to make sure this is a valid packet
+      get_packet(packet.target_name, packet.packet_name)
+
+      # Write new packet to stream
+      msg_hash = { time: packet.received_time.to_nsec_from_epoch,
+                   stored: packet.stored,
+                   target_name: packet.target_name,
+                   packet_name: packet.packet_name,
+                   received_count: packet.received_count, # TODO: Plus one?
+                   buffer: packet.buffer(false) }
+      write_topic("TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
+    end
+
+    def get_item(target_name, packet_name, item_name, type: 'tlm')
+      packet = get_packet(target_name, packet_name)
+      item = packet['items'].find {|item| item['name'] == item_name }
+      raise "Item '#{target_name} #{packet_name} #{item_name}' does not exist" unless item
+      item
     end
 
     def get_commands(target_name)
@@ -185,6 +205,45 @@ module Cosmos
 
     def get_telemetry(target_name)
       _get_cmd_tlm(target_name, type: 'tlm')
+    end
+
+    def get_tlm_item(target_name, packet_name, item_name, type: :WITH_UNITS)
+      types = []
+      case type
+      when :WITH_UNITS
+        types = ["#{item_name}__U", "#{item_name}__F", "#{item_name}__C", item_name]
+      when :FORMATTED
+        types = ["#{item_name}__F", "#{item_name}__C", item_name]
+      when :CONVERTED
+        types = ["#{item_name}__C", item_name]
+      when :RAW
+        types = [item_name]
+      end
+
+      @redis_pool.with do |redis|
+        results = redis.hmget("tlm__#{target_name}__#{packet_name}", *types)
+        results.each do |result|
+          return JSON.parse(result) if result
+        end
+        return nil
+      end
+    end
+
+    def set_tlm_item(target_name, packet_name, item_name, value, type: :CONVERTED)
+      case type
+      when :WITH_UNITS
+        field = "#{item_name}__U"
+      when :FORMATTED
+        field = "#{item_name}__F"
+      when :CONVERTED
+        field = "#{item_name}__C"
+      when :RAW
+        field = item_name
+      end
+
+      @redis_pool.with do |redis|
+        redis.hset("tlm__#{target_name}__#{packet_name}", field, value)
+      end
     end
 
     # Helper method for get_commands and get_telemetry
