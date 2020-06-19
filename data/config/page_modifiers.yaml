@@ -77,7 +77,7 @@ TARGET:
     - name: Target
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
 SECTION:
   summary: Define a page SECTION
   parameters:
@@ -89,7 +89,7 @@ SECTION:
     - name: Output
       required: true
       description: What output formats should contain this section
-      values: ['ALl', 'HTML', 'PDF']
+      values: ["ALl", "HTML", "PDF"]
     - name: Title Text
       required: false
       description: Title text which is accessable in the template
@@ -105,7 +105,7 @@ CMD_SECTION:
     - name: Output
       required: true
       description: What output formats should contain this section
-      values: ['ALl', 'HTML', 'PDF']
+      values: ["ALl", "HTML", "PDF"]
     - name: Title Text
       required: false
       description: Title text which is accessable in the template
@@ -121,7 +121,7 @@ TLM_SECTION:
     - name: Output
       required: true
       description: What output formats should contain this section
-      values: ['ALl', 'HTML', 'PDF']
+      values: ["ALl", "HTML", "PDF"]
     - name: Title Text
       required: false
       description: Title text which is accessable in the template

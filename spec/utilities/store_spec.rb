@@ -40,7 +40,7 @@ module Cosmos
       end
 
       it 'raises if packet does not exist' do
-        expect { Store.instance.get_packet('INST', 'NOPKT') }.to raise_error("Packet 'NOPKT' does not exist")
+        expect { Store.instance.get_packet('INST', 'NOPKT') }.to raise_error("Packet 'INST NOPKT' does not exist")
       end
 
       it 'returns a packet hash' do

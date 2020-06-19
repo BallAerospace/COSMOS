@@ -5,7 +5,7 @@ TARGET:
     - name: Target Name
       description: The target name
       required: true
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
 PACKET:
   summary: Specify a packet name for the ITEM keywords
   parameters:
@@ -40,11 +40,11 @@ X_VALUE_TYPE:
     - name: Item Value Type
       description: Should the value be used raw or converted
       required: true
-      values: ['RAW','CONVERTED']
+      values: ["RAW", "CONVERTED"]
 Y_VALUE_TYPE:
   summary: How the Y value should be displayed
   parameters:
     - name: Item Value Type
       description: Should the value be used raw or converted
       required: true
-      values: ['RAW','CONVERTED']
+      values: ["RAW", "CONVERTED"]

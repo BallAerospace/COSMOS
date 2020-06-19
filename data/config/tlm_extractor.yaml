@@ -24,10 +24,12 @@ MATLAB_HEADER:
   summary: Prepend the Matlab comment symbol of '%' to the header lines in the output file
 UNIQUE_ONLY:
   summary: Only output a row if one of the extracted values has changed
-  description: This keyword is useful to extract telemetry items over a large time
+  description:
+    This keyword is useful to extract telemetry items over a large time
     period by only outputting those values where items have changed
 UNIQUE_IGNORE:
-  summary: Used in conjunction with UNIQUE_ONLY to control which items should be checked
+  summary:
+    Used in conjunction with UNIQUE_ONLY to control which items should be checked
     for changing values
   description: This list of telemetry items (not target names or packet names)
     always includes the COSMOS metadata items named RECEIVED_TIMEFORMATTED and RECEIVED_SECONDS.
@@ -65,7 +67,7 @@ SHARE_COLUMN:
     - name: Item Type
       required: false
       description: Type of the telemetry item
-      values: ['CONVERTED', 'RAW', 'FORMATTED', 'WITH_UNITS']
+      values: ["CONVERTED", "RAW", "FORMATTED", "WITH_UNITS"]
 FULL_COLUMN_NAMES:
   summary: Use TARGET PACKET ITEM as the column header for each column
   description: Normally just the item name is used as the column header but this
@@ -83,7 +85,8 @@ TEXT:
       values: .+
     - name: Text
       required: true
-      description: Text to put in the output file. The special character '%' will
+      description:
+        Text to put in the output file. The special character '%' will
         be translated to the current row of the output file. This is useful for
         Excel formulas which need a reference to a cell. Remember the first two
         columns are typically the TARGET and PACKET and telemetry items start in
@@ -94,7 +97,7 @@ ITEM:
     - name: Target Name
       required: true
       description: Name of the telemetry target
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet Name
       required: true
       description: Name of the telemetry packet
@@ -106,4 +109,4 @@ ITEM:
     - name: Item Type
       required: false
       description: Type of the telemetry item
-      values: ['CONVERTED', 'RAW', 'FORMATTED', 'WITH_UNITS']
+      values: ["CONVERTED", "RAW", "FORMATTED", "WITH_UNITS"]

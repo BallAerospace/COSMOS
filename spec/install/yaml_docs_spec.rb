@@ -113,6 +113,10 @@ module Cosmos
       get_yaml_keywords()
     end
 
+    before(:each) do
+      configure_store()
+    end
+
     it "should document all source keywords" do
       undocumented = []
       @src_keywords.each do |keyword|

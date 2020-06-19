@@ -5,7 +5,7 @@ IGNORE_ITEM:
     - name: Target Name
       required: true
       description: Name of the telemetry target
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet Name
       required: true
       description: Name of the telemetry packet
@@ -20,7 +20,7 @@ IGNORE_PACKET:
     - name: Target Name
       required: true
       description: Name of the telemetry target
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet Name
       required: true
       description: Name of the telemetry packet
@@ -36,7 +36,7 @@ IGNORE_STALE:
     - name: Target Name
       required: true
       description: Name of the telemetry target
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet Name
       required: true
       description: Name of the telemetry packet

@@ -53,7 +53,7 @@ INTERFACE_TARGET:
     - name: Target Name
       required: true
       description: Name of the target
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Configuration File
       required: false
       description: Configuration file name which contains the interface configuration.

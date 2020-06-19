@@ -152,6 +152,12 @@ module Cosmos
       return items, states
     end
 
+    def get_target_names
+      @redis_pool.with do |redis|
+        return redis.hkeys("cosmos_targets")
+      end
+    end
+
     def get_target(target_name)
       @redis_pool.with do |redis|
         if redis.hexists("cosmos_targets", target_name)

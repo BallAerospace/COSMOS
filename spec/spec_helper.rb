@@ -168,6 +168,7 @@ def capture_io
   # Yield back the StringIO so they can match against it
   yield stdout
 
+  Cosmos::Logger.stdout = false
   # Restore the logger to FATAL to prevent all kinds of output
   Cosmos::Logger.level = Logger::FATAL
   # Restore the STDOUT constant
