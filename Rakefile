@@ -317,6 +317,6 @@ task :docker_run do
   STDOUT.puts "16. git checkout -b vX.X.X"
   STDOUT.puts "17. git push --set-upstream origin vX.X.X"
   STDOUT.puts "18. Update release notes on github.com and cosmosrb.com"
-  
+
   system('docker run -it --rm cosmos-dev')
 end

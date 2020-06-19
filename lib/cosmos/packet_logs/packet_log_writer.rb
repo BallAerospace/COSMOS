@@ -103,7 +103,15 @@ module Cosmos
     # If no log file currently exists in the filesystem, a new file will be
     # created.
     #
-    # @param packet [Packet] The packet to write to the log file
+    # @param entry_type [Symbol] Type of entry to write. Must be one of
+    #   :TARGET_DECLARATION, :PACKET_DECLARATION, :RAW_PACKET, :JSON_PACKET
+    # @param cmd_or_tlm [Symbol] One of :CMD or :TLM
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
+    # @param time_nsec_since_epoch [Integer] 64 bit integer nsecs since EPOCH
+    # @param stored [Boolean] Whether this data is stored telemetry
+    # @param data [String] Binary string of data
+    # @param id [Integer] Target ID
     def write(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id)
       return if !@logging_enabled
       @mutex.synchronize do

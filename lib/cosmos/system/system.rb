@@ -44,7 +44,8 @@ module Cosmos
 
     # Get the singleton instance of System
     #
-    # @param filename [String] System configuration file to parse
+    # @param target_list [Array of Hashes{target_name, substitute_name, target_filename, target_id}]
+    # @param target_config_dir Directory where target config folders are
     # @return [System] The System singleton
     def self.instance(target_list = nil, target_config_dir = nil)
       return @@instance if @@instance

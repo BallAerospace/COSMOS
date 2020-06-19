@@ -213,15 +213,15 @@ module Cosmos
 
     describe "inject_tlm" do
       it "complains about non-existant targets" do
-        expect { @api.inject_tlm("BLAH","HEALTH_STATUS") }.to raise_error(RuntimeError, "Unknown target: BLAH")
+        expect { @api.inject_tlm("BLAH","HEALTH_STATUS") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @api.inject_tlm("INST","BLAH") }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
+        expect { @api.inject_tlm("INST","BLAH") }.to raise_error(RuntimeError, "Packet 'INST BLAH' does not exist")
       end
 
       it "complains about non-existant items" do
-        expect { @api.inject_tlm("INST","HEALTH_STATUS",{BLAH: 0}) }.to raise_error(RuntimeError, "Packet item 'INST HEALTH_STATUS BLAH' does not exist")
+        expect { @api.inject_tlm("INST","HEALTH_STATUS",{BLAH: 0}) }.to raise_error(RuntimeError, "Item 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
       xit "logs errors writing routers" do
@@ -233,7 +233,7 @@ module Cosmos
         @api.inject_tlm("INST","HEALTH_STATUS")
       end
 
-      it "injects a packet into the system" do
+      xit "injects a packet into the system" do
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 10, TEMP2: 20}, :CONVERTED, true, true, false)
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to be_within(0.1).of(20.0)
@@ -242,7 +242,7 @@ module Cosmos
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql -100.0
       end
 
-      it "writes to routers and logs even if the packet has no interface" do
+      xit "writes to routers and logs even if the packet has no interface" do
         sys = System.targets["SYSTEM"]
         interface = sys.interface
         sys.interface = nil
@@ -267,28 +267,16 @@ module Cosmos
         expect { @api.override_tlm("INST","HEALTH_STATUS","BLAH",1) }.to raise_error(/does not exist/)
       end
 
-      it "complains if the target has no interface" do
-        expect { @api.override_tlm("SYSTEM META PKTID = 1") }.to raise_error(/Target 'SYSTEM' has no interface/)
-      end
-
-      it "complains if the target doesn't have OVERRIDE protocol" do
-        interface = OpenStruct.new
-        interface.name = "SYSTEM_INT"
-        System.targets["SYSTEM"].interface = interface # Set a dummy interface
-        expect { @api.override_tlm("SYSTEM META PKTID = 1") }.to raise_error(/Interface SYSTEM_INT does not have override/)
-        System.targets["SYSTEM"].interface = nil
-      end
-
       it "complains with too many parameters" do
         expect { @api.override_tlm("INST","HEALTH_STATUS","TEMP1","TEMP2",0.0) }.to raise_error(/Invalid number of arguments/)
       end
 
-      it "calls _override_tlm in the interface" do
-        int = System.targets["INST"].interface
-        expect(int).to receive("_override_tlm").with("INST","HEALTH_STATUS","TEMP1",100.0)
-        @api.override_tlm("INST HEALTH_STATUS TEMP1 = 100.0")
-        expect(int).to receive("_override_tlm").with("INST","HEALTH_STATUS","TEMP2",50.0)
-        @api.override_tlm("INST","HEALTH_STATUS","TEMP2", 50.0)
+      it "returns the new value and ignores updates" do
+        expect(@api.tlm("INST","HEALTH_STATUS","TEMP1")).to eql(-100.0)
+        @api.override_tlm("INST","HEALTH_STATUS","TEMP1", 50.0)
+        expect(@api.tlm("INST","HEALTH_STATUS","TEMP1")).to eql(50.0)
+        @api.set_tlm("INST","HEALTH_STATUS","TEMP1", 10.0)
+        expect(@api.tlm("INST","HEALTH_STATUS","TEMP1")).to eql(50.0)
       end
     end
 
@@ -302,20 +290,16 @@ module Cosmos
         expect { @api.override_tlm_raw("INST","HEALTH_STATUS","BLAH",1) }.to raise_error(/does not exist/)
       end
 
-      it "complains if the target has no interface" do
-        expect { @api.override_tlm_raw("SYSTEM META PKTID = 1") }.to raise_error(/Target 'SYSTEM' has no interface/)
-      end
-
       it "complains with too many parameters" do
         expect { @api.override_tlm_raw("INST","HEALTH_STATUS","TEMP1","TEMP2",0.0) }.to raise_error(/Invalid number of arguments/)
       end
 
-      it "calls _override_tlm_raw in the interface" do
-        int = System.targets["INST"].interface
-        expect(int).to receive("_override_tlm_raw").with("INST","HEALTH_STATUS","TEMP1",100.0)
-        @api.override_tlm_raw("INST HEALTH_STATUS TEMP1 = 100.0")
-        expect(int).to receive("_override_tlm_raw").with("INST","HEALTH_STATUS","TEMP2",50.0)
-        @api.override_tlm_raw("INST","HEALTH_STATUS","TEMP2", 50.0)
+      it "returns the new value and ignores updates" do
+        expect(@api.tlm_raw("INST","HEALTH_STATUS","TEMP1")).to eql(0)
+        @api.override_tlm_raw("INST","HEALTH_STATUS","TEMP1", 5.0)
+        expect(@api.tlm_raw("INST","HEALTH_STATUS","TEMP1")).to eql(5.0)
+        @api.set_tlm_raw("INST","HEALTH_STATUS","TEMP1", 10.0)
+        expect(@api.tlm_raw("INST","HEALTH_STATUS","TEMP1")).to eql(5.0)
       end
     end
 
@@ -329,48 +313,63 @@ module Cosmos
         expect { @api.normalize_tlm("INST","HEALTH_STATUS","BLAH") }.to raise_error(/does not exist/)
       end
 
-      it "complains if the target has no interface" do
-        expect { @api.normalize_tlm("SYSTEM META PKTID") }.to raise_error(/Target 'SYSTEM' has no interface/)
-      end
-
       it "complains with too many parameters" do
         expect { @api.normalize_tlm("INST","HEALTH_STATUS","TEMP1",0.0) }.to raise_error(/Invalid number of arguments/)
       end
 
-      it "calls _normalize_tlm in the interface" do
-        int = System.targets["INST"].interface
-        expect(int).to receive("_normalize_tlm").with("INST","HEALTH_STATUS","TEMP1")
-        @api.normalize_tlm("INST HEALTH_STATUS TEMP1")
-        expect(int).to receive("_normalize_tlm").with("INST","HEALTH_STATUS","TEMP2")
-        @api.normalize_tlm("INST","HEALTH_STATUS","TEMP2")
+      it "clears all overrides" do
+        @api.override_tlm("INST","HEALTH_STATUS","TEMP1", 50.0)
+        @api.override_tlm_raw("INST","HEALTH_STATUS","TEMP1", 5.0)
+        expect(@api.tlm("INST","HEALTH_STATUS","TEMP1")).to eql(50.0)
+        expect(@api.tlm_raw("INST","HEALTH_STATUS","TEMP1")).to eql(5.0)
+        @api.normalize_tlm("INST","HEALTH_STATUS","TEMP1")
+        expect(@api.tlm("INST","HEALTH_STATUS","TEMP1")).to eql(-100.0)
+        expect(@api.tlm_raw("INST","HEALTH_STATUS","TEMP1")).to eql(0)
       end
     end
 
     describe "get_tlm_buffer" do
-      it "returns a telemetry packet buffer" do
+      xit "returns a telemetry packet buffer" do
+        # TODO Should inject_tlm still work to set the packet? I think so ...
         @api.inject_tlm("INST","HEALTH_STATUS",{TIMESEC: 0xDEADBEEF})
         expect(@api.get_tlm_buffer("INST", "HEALTH_STATUS")[6..10].unpack("N")[0]).to eq 0xDEADBEEF
       end
     end
 
     describe "get_tlm_packet" do
+      before(:each) do
+        packet = System.telemetry.packet("INST", "HEALTH_STATUS")
+        msg_hash = {}
+        json_hash = {}
+        packet.sorted_items.each do |item|
+          json_hash[item.name] = packet.read_item(item, :RAW)
+          json_hash[item.name + "__C"] = packet.read_item(item, :CONVERTED) if item.read_conversion or item.states
+          json_hash[item.name + "__F"] = packet.read_item(item, :FORMATTED) if item.format_string
+          json_hash[item.name + "__U"] = packet.read_item(item, :WITH_UNITS) if item.units
+          limits_state = item.limits.state
+          json_hash[item.name + "__L"] = limits_state if limits_state
+        end
+        msg_hash['json_data'] = JSON.generate(json_hash.as_json)
+        Store.instance.write_topic("DECOM__INST__HEALTH_STATUS", msg_hash)
+      end
+
       it "complains about non-existant targets" do
-        expect { @api.get_tlm_packet("BLAH","HEALTH_STATUS") }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
+        expect { @api.get_tlm_packet("BLAH","HEALTH_STATUS") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @api.get_tlm_packet("INST","BLAH") }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
+        expect { @api.get_tlm_packet("INST","BLAH") }.to raise_error(RuntimeError, "Packet 'INST BLAH' does not exist")
       end
 
       it "complains using LATEST" do
-        expect { @api.get_tlm_packet("INST","LATEST") }.to raise_error(RuntimeError, "Telemetry packet 'INST LATEST' does not exist")
+        expect { @api.get_tlm_packet("INST","LATEST") }.to raise_error(RuntimeError, "Packet 'INST LATEST' does not exist")
       end
 
       it "complains about non-existant value_types" do
-        expect { @api.get_tlm_packet("INST","HEALTH_STATUS",:MINE) }.to raise_error(ArgumentError, "Unknown value type on read: MINE")
+        expect { @api.get_tlm_packet("INST","HEALTH_STATUS",:MINE) }.to raise_error(RuntimeError, "Unknown value type on read: MINE")
       end
 
-      it "reads all telemetry items with their limits states" do
+      xit "reads all telemetry items with their limits states" do
         # Call inject_tlm to ensure the limits are set
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
 
@@ -407,24 +406,35 @@ module Cosmos
     end
 
     describe "get_tlm_values" do
+      before(:each) do
+        (2..4).each do |x|
+          json_hash = {}
+          json_hash["TEMP#{x}"]    = JSON.generate(0.as_json)
+          json_hash["TEMP#{x}__C"] = JSON.generate(-100.0.as_json)
+          json_hash["TEMP#{x}__F"] = JSON.generate("-100.000".as_json)
+          json_hash["TEMP#{x}__U"] = JSON.generate("-100.000 C".as_json)
+          @redis.mapped_hmset("tlm__INST__HEALTH_STATUS", json_hash)
+        end
+      end
+
       it "handles an empty request" do
-        expect(@api.get_tlm_values([])).to eql [[], [], [], :DEFAULT]
+        expect(@api.get_tlm_values([])).to eql [[], []]
       end
 
       it "complains about non-existant targets" do
-        expect { @api.get_tlm_values([["BLAH","HEALTH_STATUS","TEMP1"]]) }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
+        expect { @api.get_tlm_values([["BLAH","HEALTH_STATUS","TEMP1"]]) }.to raise_error(RuntimeError, "Item 'BLAH HEALTH_STATUS TEMP1' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @api.get_tlm_values([["INST","BLAH","TEMP1"]]) }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
+        expect { @api.get_tlm_values([["INST","BLAH","TEMP1"]]) }.to raise_error(RuntimeError, "Item 'INST BLAH TEMP1' does not exist")
       end
 
       it "complains about non-existant items" do
-        expect { @api.get_tlm_values([["INST","LATEST","BLAH"]]) }.to raise_error(RuntimeError, "Telemetry item 'INST LATEST BLAH' does not exist")
+        expect { @api.get_tlm_values([["INST","LATEST","BLAH"]]) }.to raise_error(RuntimeError, "Item 'INST LATEST BLAH' does not exist")
       end
 
       it "complains about non-existant value_types" do
-        expect { @api.get_tlm_values([["INST","HEALTH_STATUS","TEMP1"]],:MINE) }.to raise_error(ArgumentError, "Unknown value type on read: MINE")
+        expect { @api.get_tlm_values([["INST","HEALTH_STATUS","TEMP1"]],:MINE) }.to raise_error(ArgumentError, "Unknown value type: MINE")
       end
 
       it "complains about bad arguments" do
@@ -512,7 +522,7 @@ module Cosmos
 
     describe "get_tlm_list" do
       it "complains about non-existant targets" do
-        expect { @api.get_tlm_list("BLAH") }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
+        expect { @api.get_tlm_list("BLAH") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
       end
 
       it "returns the sorted packet names for a target" do
@@ -529,11 +539,11 @@ module Cosmos
 
     describe "get_tlm_item_list" do
       it "complains about non-existant targets" do
-        expect { @api.get_tlm_item_list("BLAH","HEALTH_STATUS") }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
+        expect { @api.get_tlm_item_list("BLAH","HEALTH_STATUS") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @api.get_tlm_item_list("INST","BLAH") }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
+        expect { @api.get_tlm_item_list("INST","BLAH") }.to raise_error(RuntimeError, "Packet 'INST BLAH' does not exist")
       end
 
       it "returns all the items for a target/packet" do
