@@ -299,16 +299,25 @@ module Cosmos
       raise err
     end
 
-    def to_info_hash
+    def as_json
+      puts "interface as_json"
+      config = {}
       if connected?
-        state = 'CONNECTED'
+        config['state'] = 'CONNECTED'
       elsif @thread
-        state = 'ATTEMPTING'
+        config['state'] = 'ATTEMPTING'
       else
-        state = 'DISCONNECTED'
+        config['state'] = 'DISCONNECTED'
       end
-      return { state: state, clients: @num_clients, txsize: @write_queue_size, rxsize: @read_queue_size,
-               txbytes: @bytes_written, rxbytes: @bytes_read, cmdcnt: @write_count, tlmcnt: @read_count }
+      config['clients'] = @num_clients
+      config['txsize'] = @write_queue_size
+      config['rxsize'] = @read_queue_size
+      config['txbytes'] = @bytes_written
+      config['rxbytes'] = @bytes_read
+      config['cmdcnt'] = @write_count
+      config['tlmcnt'] = @read_count
+      config['target_names'] = @target_names
+      config
     end
 
     # @return [Boolean] Whether reading is allowed

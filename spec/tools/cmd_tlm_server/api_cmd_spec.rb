@@ -461,11 +461,13 @@ module Cosmos
       end
     end
 
-    describe 'get_command_parameters' do
-      it "returns parameter hash for the command" do
-        result = @api.get_command_parameters("INST","COLLECT")
-        expect(result).to be_a Array
-        result.each do |parameter|
+    describe 'get_command' do
+      it "returns hash for the command" do
+        result = @api.get_command("INST","COLLECT")
+        expect(result).to be_a Hash
+        expect(result['target_name']).to eql "INST"
+        expect(result['packet_name']).to eql "COLLECT"
+        result['items'].each do |parameter|
           expect(parameter).to be_a Hash
           expect(parameter.keys).to include(*%w(name bit_offset bit_size data_type description default minimum maximum endianness overflow))
         end

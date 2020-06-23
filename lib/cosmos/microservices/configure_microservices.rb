@@ -26,11 +26,12 @@ module Cosmos
       # Save configuration to redis
       Store.instance.del("cosmos_system")
       Store.instance.hset('cosmos_system', 'limits_set', 'DEFAULT') # Current
-      Store.instance.hset('cosmos_system', 'limits_sets', JSON.generate(['DEFAULT'])) # Array of possible sets
       Store.instance.hset('cosmos_system', 'target_names', JSON.generate(target_names))
       System.targets.each do |target_name, target|
         Store.instance.hset('cosmos_targets', target_name, JSON.generate(target.as_json))
       end
+      Store.instance.hset('cosmos_system', 'limits_sets', JSON.generate(System.packet_config.limits_sets))
+      Store.instance.hset('cosmos_system', 'limits_groups', JSON.generate(System.packet_config.limits_groups))
 
       System.telemetry.all.each do |target_name, packets|
         Store.instance.del("cosmostlm__#{target_name}")

@@ -23,6 +23,7 @@ module Cosmos
       json_hash['TEMP1__C'] = JSON.generate(-100.0.as_json)
       json_hash['TEMP1__F'] = JSON.generate("-100.000".as_json)
       json_hash['TEMP1__U'] = JSON.generate("-100.000 C".as_json)
+      json_hash['TEMP1__L'] = JSON.generate(:RED_LOW.as_json)
       @redis.mapped_hmset("tlm__INST__HEALTH_STATUS", json_hash)
       @api = CmdTlmServer.new
     end
@@ -413,6 +414,7 @@ module Cosmos
           json_hash["TEMP#{x}__C"] = JSON.generate(-100.0.as_json)
           json_hash["TEMP#{x}__F"] = JSON.generate("-100.000".as_json)
           json_hash["TEMP#{x}__U"] = JSON.generate("-100.000 C".as_json)
+          json_hash["TEMP#{x}__L"] = JSON.generate(:RED_LOW.as_json)
           @redis.mapped_hmset("tlm__INST__HEALTH_STATUS", json_hash)
         end
       end
@@ -459,11 +461,6 @@ module Cosmos
         expect(vals[1][1]).to eql :RED_LOW
         expect(vals[1][2]).to eql :RED_LOW
         expect(vals[1][3]).to eql :RED_LOW
-        expect(vals[2][0]).to eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
-        expect(vals[2][1]).to eql [-60.0, -55.0, 30.0, 35.0]
-        expect(vals[2][2]).to eql [-25.0, -10.0, 50.0, 55.0]
-        expect(vals[2][3]).to eql [-80.0, -70.0, 60.0, 80.0]
-        expect(vals[3]).to eql :DEFAULT
       end
 
       it "reads all the specified items with one conversion" do
@@ -481,11 +478,6 @@ module Cosmos
         expect(vals[1][1]).to eql :RED_LOW
         expect(vals[1][2]).to eql :RED_LOW
         expect(vals[1][3]).to eql :RED_LOW
-        expect(vals[2][0]).to eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
-        expect(vals[2][1]).to eql [-60.0, -55.0, 30.0, 35.0]
-        expect(vals[2][2]).to eql [-25.0, -10.0, 50.0, 55.0]
-        expect(vals[2][3]).to eql [-80.0, -70.0, 60.0, 80.0]
-        expect(vals[3]).to eql :DEFAULT
       end
 
       it "reads all the specified items with different conversions" do
@@ -503,11 +495,6 @@ module Cosmos
         expect(vals[1][1]).to eql :RED_LOW
         expect(vals[1][2]).to eql :RED_LOW
         expect(vals[1][3]).to eql :RED_LOW
-        expect(vals[2][0]).to eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
-        expect(vals[2][1]).to eql [-60.0, -55.0, 30.0, 35.0]
-        expect(vals[2][2]).to eql [-25.0, -10.0, 50.0, 55.0]
-        expect(vals[2][3]).to eql [-80.0, -70.0, 60.0, 80.0]
-        expect(vals[3]).to eql :DEFAULT
       end
 
       it "complains if items length != conversions length" do
@@ -548,18 +535,18 @@ module Cosmos
 
       it "returns all the items for a target/packet" do
         items = @api.get_tlm_item_list("INST","HEALTH_STATUS")
-        expect(items[0][0]).to eql "PACKET_TIMESECONDS"
-        expect(items[1][0]).to eql "PACKET_TIMEFORMATTED"
-        expect(items[2][0]).to eql "RECEIVED_TIMESECONDS"
-        expect(items[3][0]).to eql "RECEIVED_TIMEFORMATTED"
-        expect(items[4][0]).to eql "RECEIVED_COUNT"
+        # expect(items[0][0]).to eql "PACKET_TIMESECONDS"
+        # expect(items[1][0]).to eql "PACKET_TIMEFORMATTED"
+        # expect(items[2][0]).to eql "RECEIVED_TIMESECONDS"
+        # expect(items[3][0]).to eql "RECEIVED_TIMEFORMATTED"
+        # expect(items[4][0]).to eql "RECEIVED_COUNT"
         # Spot check a few more
-        expect(items[24][0]).to eql "TEMP1"
-        expect(items[24][1]).to be_nil
-        expect(items[24][2]).to eql "Temperature #1"
-        expect(items[30][0]).to eql "COLLECT_TYPE"
-        expect(items[30][1]).to include("NORMAL"=>0, "SPECIAL"=>1)
-        expect(items[30][2]).to eql "Most recent collect type"
+        expect(items[11][0]).to eql "TEMP1"
+        expect(items[11][1]).to be_nil
+        expect(items[11][2]).to eql "Temperature #1"
+        expect(items[17][0]).to eql "COLLECT_TYPE"
+        expect(items[17][1]).to include("NORMAL" => { "value" => 0 }, "SPECIAL" => { "value" => 1 })
+        expect(items[17][2]).to eql "Most recent collect type"
       end
     end
 

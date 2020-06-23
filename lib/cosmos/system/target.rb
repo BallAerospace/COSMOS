@@ -216,6 +216,7 @@ module Cosmos
       config['auto_screen_substitute'] = true if @auto_screen_substitute
       config['cmd_tlm_files'] = @cmd_tlm_files
       config['filename'] = @filename
+      config['interface'] = @interface.name if @interface
       config['dir'] = @dir
       config['cmd_cnt'] = @cmd_cnt
       config['tlm_cnt'] = @tlm_cnt

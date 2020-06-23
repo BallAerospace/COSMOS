@@ -13,7 +13,6 @@ require 'cosmos/script/api_shared'
 require 'cosmos/tools/tlm_viewer/tlm_viewer_config'
 require 'cosmos/utilities/store'
 require 'connection_pool'
-require 'redis'
 
 module Cosmos
   module Api
@@ -34,7 +33,8 @@ module Cosmos
         'cmd_raw_no_checks',
         'send_raw',
         'get_all_commands',
-        'get_command_parameters',
+        'get_command',
+        'get_parameter',
         'get_cmd_buffer',
         'get_cmd_list',
         'get_cmd_param_list',
@@ -60,6 +60,9 @@ module Cosmos
         'get_tlm_packet',
         'get_tlm_values',
         'get_tlm_list',
+        'get_all_telemetry',
+        'get_telemetry',
+        'get_item',
         'get_tlm_item_list',
         'get_tlm_details',
         'get_out_of_limits',
@@ -96,12 +99,14 @@ module Cosmos
         'connect_router',
         'disconnect_router',
         'router_state',
+        'get_target',
         'get_all_target_info',
         'get_target_info',
         'get_target_ignored_parameters',
         'get_target_ignored_items',
         'get_packet_derived_items',
         'get_interface_info',
+        'get_interface',
         'get_all_interface_info',
         'get_router_info',
         'get_all_router_info',
@@ -306,7 +311,7 @@ module Cosmos
     # Returns the list of all the command names and their descriptions from the
     # given target.
     #
-    # @deprecated Use get_all_commands
+    # @deprecated Use #get_all_commands
     # @param target_name [String] Name of the target
     # @return [Array<Array<String, String>>] Array containing \[command name,
     #   command description] for all commands in the target
@@ -319,6 +324,15 @@ module Cosmos
       list.sort
     end
 
+    # Returns an array of all the commands as a hash
+    #
+    # @since 5.0.0
+    # @param target_name [String] Name of the target
+    # @return [Array<Hash>] Array of all commands as a hash
+    def get_all_commands(target_name)
+      Store.instance.get_commands(target_name)
+    end
+
     # Returns a hash of the given command
     #
     # @since 5.0.0
@@ -329,19 +343,20 @@ module Cosmos
       Store.instance.get_packet(target_name, packet_name, type: 'cmd')
     end
 
-    # Returns an array of all the commands as a hash
+    # Returns a hash of the given command parameter
     #
     # @since 5.0.0
     # @param target_name [String] Name of the target
-    # @return [Array<Hash>] Array of all commands as a hash
-    def get_all_commands(target_name)
-      Store.instance.get_commands(target_name)
+    # @param packet_name [String] Name of the packet
+    # @param param_name [String] Name of the parameter
+    # @return [Hash] Command parameter as a hash
+    def get_parameter(target_name, packet_name, param_name)
+      Store.instance.get_item(target_name, packet_name, param_name, type: 'cmd')
     end
 
-    # DEPRECATED: use get_command_parameters
     # Returns the list of all the parameters for the given command.
     #
-    # @deprecated Use get_command_parameters
+    # @deprecated Use #get_command
     # @param target_name [String] Name of the target
     # @param command_name [String] Name of the command
     # @return [Array<Array<String, Object, nil|Array, nil|String, nil|String,
@@ -372,15 +387,6 @@ module Cosmos
         end
       end
       return list
-    end
-
-    # Returns an array containing a hash of all the parameters for the given command
-    #
-    # @param target_name [String] Name of the target
-    # @param command_name [String] Name of the command
-    # @return [Array<Hash>] Array of all parameters as a hash
-    def get_command_parameters(target_name, command_name)
-      Store.instance.get_packet(target_name, command_name, type: 'cmd')['items']
     end
 
     # Returns whether the specified command is hazardous
@@ -869,14 +875,35 @@ module Cosmos
     # @since 5.0.0
     # @param target_name [String] Name of the target
     # @return [Array<Hash>] Array of all telemetry packet hashes
-    def get_telemetry(target_name)
+    def get_all_telemetry(target_name)
       Store.instance.get_telemetry(target_name)
     end
 
-    # DEPRECATED: use get_telemetry
+    # Returns a telemetry packet hash
+    #
+    # @since 5.0.0
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
+    # @return [Hash] Telemetry packet hash
+    def get_telemetry(target_name, packet_name)
+      Store.instance.get_packet(target_name, packet_name)
+    end
+
+    # Returns a telemetry packet item hash
+    #
+    # @since 5.0.0
+    # @param target_name [String] Name of the target
+    # @param packet_name [String] Name of the packet
+    # @param item_name [String] Name of the packet
+    # @return [Hash] Telemetry packet item hash
+    def get_item(target_name, packet_name, item_name)
+      Store.instance.get_item(target_name, packet_name, item_name)
+    end
+
     # Returns the sorted packet names and their descriptions for a particular
     # target.
     #
+    # @deprecated Use #get_all_telemetry
     # @param target_name (see #get_tlm_packet)
     # @return [Array<String, String>] Array of \[packet name, packet
     #   description] sorted by packet name
@@ -891,6 +918,7 @@ module Cosmos
     # Returns the item names and their states and descriptions for a particular
     # packet.
     #
+    # @deprecated Use #get_telemetry
     # @param target_name (see #get_tlm_packet)
     # @param packet_name (see #get_tlm_packet)
     # @return [Array<String, Hash, String>] Array of \[item name, item states,
@@ -902,6 +930,7 @@ module Cosmos
 
     # Returns an array of Hashes with all the attributes of the item.
     #
+    # @deprecated Use #get_telemetry
     # @param (see Cosmos::Telemetry#values_and_limits_states)
     # @return [Array<Hash>] Array of hashes describing the items. All the
     #   attributes in {Cosmos::PacketItem} and {Cosmos::StructItem} are
@@ -910,6 +939,7 @@ module Cosmos
       if !item_array.is_a?(Array) || !item_array[0].is_a?(Array)
         raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
       end
+
       details = []
       item_array.each do |target_name, packet_name, item_name|
         _, item = System.telemetry.packet_and_item(target_name, packet_name, item_name)
@@ -940,7 +970,7 @@ module Cosmos
     # @return [Boolean] Whether limits are enable for the itme
     def limits_enabled?(*args)
       target_name, packet_name, item_name = tlm_process_args(args, 'limits_enabled?')
-      return System.limits.enabled?(target_name, packet_name, item_name)
+      return Store.instance.get_item(target_name, packet_name, item_name)['limits']['enabled'] ? true : false
     end
 
     # Enable limits checking for a telemetry item
@@ -954,8 +984,10 @@ module Cosmos
     # @param args [String|Array<String>] See the description for calling style
     def enable_limits(*args)
       target_name, packet_name, item_name = tlm_process_args(args, 'enable_limits')
-      System.limits.enable(target_name, packet_name, item_name)
-      nil
+      packet = Store.instance.get_packet(target_name, packet_name)
+      item = Store.instance.get_item_from_packet_hash(packet, item_name)
+      item['limits']['enabled'] = true
+      Store.instance.hset("cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
     end
 
     # Disable limit checking for a telemetry item
@@ -969,8 +1001,10 @@ module Cosmos
     # @param args [String|Array<String>] See the description for calling style
     def disable_limits(*args)
       target_name, packet_name, item_name = tlm_process_args(args, 'disable_limits')
-      System.limits.disable(target_name, packet_name, item_name)
-      nil
+      packet = Store.instance.get_packet(target_name, packet_name)
+      item = Store.instance.get_item_from_packet_hash(packet, item_name)
+      item['limits'].delete('enabled')
+      Store.instance.hset("cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
     end
 
     # Get the list of stale packets for a specific target or pass nil to list
@@ -979,14 +1013,25 @@ module Cosmos
     # @param with_limits_only [Boolean] Return only the stale packets
     #   that have limits items and thus affect the overall limits
     #   state of the system
-    # @param target [String] The target to find stale packets for or nil to list
+    # @param target_name [String] The target to find stale packets for or nil to list
     #   all stale packets in the system
     # @return [Array<Array<String, String>>] Array of arrays listing the target
     #   name and packet name
-    def get_stale(with_limits_only = false, target = nil)
+    def get_stale(with_limits_only = false, target_name = nil)
       stale = []
-      System.telemetry.stale(with_limits_only, target).each do |packet|
-        stale << [packet.target_name, packet.packet_name]
+      targets = []
+      if target_name
+        targets = [target_name]
+      else
+        targets = get_target_list()
+      end
+      targets.each do |target|
+        get_all_telemetry(target).each do |packet|
+          if packet['stale']
+            next if with_limits_only && packet['items'].find { |item| item['limits'] }.nil?
+            stale << [packet['target_name'], packet['packet_name']]
+          end
+        end
       end
       stale
     end
@@ -999,11 +1044,13 @@ module Cosmos
     # For example: {'DEFAULT' => [-80, -70, 60, 80, -20, 20],
     #               'TVAC' => [-25, -10, 50, 55] }
     #
+    # @deprecated Use #get_item
     # @return [Hash{String => Array<Number, Number, Number, Number, Number, Number>}]
     def get_limits(target_name, packet_name, item_name)
       limits = {}
       item = Store.instance.get_item(target_name, packet_name, item_name)
       item['limits'].each do |key, vals|
+        next unless vals.is_a?(Hash)
         limits[key] = [vals['red_low'], vals['yellow_low'], vals['yellow_high'], vals['red_high']]
         limits[key].concat([vals['green_low'], vals['green_high']]) if vals['green_low']
       end
@@ -1011,32 +1058,64 @@ module Cosmos
     end
 
     def set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true)
-      result = System.limits.set(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low, green_high, limits_set, persistence, enabled)
-      if result[0] != nil
-        limits_settings = [target_name, packet_name, item_name].concat(result)
-        CmdTlmServer.instance.post_limits_event(:LIMITS_SETTINGS, limits_settings)
-        Logger.info("Limits Settings Changed: #{limits_settings}")
+      packet = Store.instance.get_packet(target_name, packet_name)
+      item = Store.instance.get_item_from_packet_hash(packet, item_name)
+      item['limits']['persistence_setting'] = persistence
+      if enabled
+        item['limits']['enabled'] = true
+      else
+        item['limits'].delete('enabled')
       end
-      result
+      limits = {}
+      limits['red_low'] = red_low
+      limits['yellow_low'] = yellow_low
+      limits['yellow_high'] = yellow_high
+      limits['red_high'] = red_high
+      limits['green_low'] = green_low if green_low
+      limits['green_high'] = green_high if green_high
+      item['limits'][limits_set] = limits
+      Store.instance.hset("cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
+
+      limits_settings = [target_name, packet_name, item_name].concat(item.to_a)
+      # TODO: Notify system taht limits changed
+      # CmdTlmServer.instance.post_limits_event(:LIMITS_SETTINGS, limits_settings)
+      Logger.info("Limits Settings Changed: #{limits_settings}")
     end
 
-    # (see Cosmos::Limits#groups)
+    # Returns all limits_groups and their members
+    # @since 5.0.0 Returns hash with values
+    # @return [Hash{String => Array<Array<String, String, String>>]
     def get_limits_groups
-      return System.limits.groups.keys
+      JSON.parse(Store.instance.hget('cosmos_system', 'limits_groups'))
     end
 
-    # (see Cosmos::Limits#enable_group)
+    # Enables limits for all the items in the group
     def enable_limits_group(group_name)
-      Logger.info("Enabling Limits Group: #{group_name.upcase}")
-      System.limits.enable_group(group_name)
-      nil
+      _limits_group(group_name, action: :enable)
     end
 
-    # (see Cosmos::Limits#disable_group)
+    # Disables limits for all the items in the group
     def disable_limits_group(group_name)
-      Logger.info("Disabling Limits Group: #{group_name.upcase}")
-      System.limits.disable_group(group_name)
-      nil
+      _limits_group(group_name, action: :disable)
+    end
+
+    def _limits_group(group_name, action:)
+      group_name.upcase!
+      group = get_limits_groups()[group_name]
+      raise "LIMITS_GROUP #{group_name} undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP #{group_name}" unless group
+      Logger.info("Disabling Limits Group: #{group_name}")
+      group.each do |target_name, packet_name, item_name|
+        packet = Store.instance.get_packet(target_name, packet_name)
+        item = Store.instance.get_item_from_packet_hash(packet, item_name)
+        if action == :enable
+          item['limits']['enabled'] = true
+        elsif action == :disable
+          item['limits'].delete('enabled')
+        else
+          raise "Unknown action #{action}"
+        end
+        Store.instance.hset("cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
+      end
     end
 
     # Returns all defined limits sets
@@ -1142,9 +1221,15 @@ module Cosmos
     # Methods for scripting
     #
 
+    # @deprecated Use #get_interface
     # @return [Array<String>] All the targets mapped to the given interface
     def get_interface_targets(interface_name)
-      CmdTlmServer.interfaces.targets(interface_name)
+      interface = JSON.parse(Store.instance.hget('cosmos_microservices', "INTERFACE__#{interface_name}"))
+      targets = []
+      interface['target_list'].each do |target|
+        targets << target['target_name']
+      end
+      targets
     end
 
     # @return [Array<String>] All the interface names
@@ -1220,40 +1305,40 @@ module Cosmos
       CmdTlmServer.routers.state(router_name)
     end
 
-    # Get information about a target
+    # Get cmd and tlm counts for a target
     #
+    # @deprecated Use #get_target
     # @param target_name [String] Target name
     # @return [Array<Numeric, Numeric>] Array of \[cmd_cnt, tlm_cnt]
     def get_target_info(target_name)
-      REDIS.with do |redis|
-        int_info = JSON.parse(redis.hget('cosmos_interfaces', name))
-      end
-      raise "Unknown target: #{target_name}" unless int_info
-      return [int_info['cmd_cnt'], target['tlm_cnt']]
+      target = Store.instance.get_target(target_name)
+      return [target['cmd_cnt'], target['tlm_cnt']]
     end
 
     # Get information about all targets
     #
-    # @return [Array<Array<String, Numeric, Numeric>] Array of Arrays \[name, cmd_cnt, tlm_cnt]
+    # @return [Array<Array<String, Numeric, Numeric>] Array of Arrays \[name, interface, cmd_cnt, tlm_cnt]
     def get_all_target_info
       info = []
-      REDIS.with do |redis|
-        config = redis.hgetall('cosmos_microservices')
-        config.each do |key, json|
-          next unless key.include?('INTERFACE__')
-          config = JSON.parse(json)
-          name = key.split('__')[1]
-          int_info = JSON.parse(redis.hget('cosmos_interfaces', name))
-          config['target_list'].each do |target|
-            info << [target['target_name'], name, int_info['cmdcnt'], int_info['tlmcnt'] ]
-          end
-        end
+      get_target_list().each do |target_name|
+        target = Store.instance.get_target(target_name)
+        info << [target['name'], target['interface'], target['cmd_cnt'], target['tlm_cnt']]
       end
       info
     end
 
+    # Gets the full target hash
+    #
+    # @since 5.0.0
+    # @param target_name [String] Target name
+    # @return [Hash] Hash of all the target properties
+    def get_target(target_name)
+      return Store.instance.get_target(target_name)
+    end
+
     # Get the list of ignored command parameters for a target
     #
+    # @deprecated Use #get_target
     # @param target_name [String] Target name
     # @return [Array<String>] All of the ignored command parameters for a target.
     def get_target_ignored_parameters(target_name)
@@ -1262,6 +1347,7 @@ module Cosmos
 
     # Get the list of ignored telemetry items for a target
     #
+    # @deprecated Use get_target
     # @param target_name [String] Target name
     # @return [Array<String>] All of the ignored telemetry items for a target.
     def get_target_ignored_items(target_name)
@@ -1282,19 +1368,23 @@ module Cosmos
     # Get information about an interface
     #
     # @param interface_name [String] Interface name
+    # @return [Hash] Hash of all the interface information
+    def get_interface(interface_name)
+      Store.instance.get_interface(interface_name)
+    end
+
+    # Get information about an interface
+    #
+    # @deprecated Use #get_interface
+    # @param interface_name [String] Interface name
     # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
     #   Numeric, Numeric>] Array containing \[state, num clients,
     #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
     #   Telemetry count] for the interface
     def get_interface_info(interface_name)
-      info = []
-      REDIS.with do |redis|
-        json = redis.hget('cosmos_interfaces', interface_name)
-        int = JSON.parse(json)
-        info = [int['state'], int['clients'], int['txsize'], int['rxsize'],\
-                int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
-      end
-      info
+      int = get_interface(interface_name)
+      return [int['state'], int['clients'], int['txsize'], int['rxsize'],\
+              int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
     end
 
     # Get information about all interfaces
@@ -1480,11 +1570,7 @@ module Cosmos
     #   JSON DRB request count, JSON DRB average request time, and the total
     #   number of Ruby threads in the server/
     def get_server_status
-      set = ''
-      REDIS.with do |redis|
-        set = redis.hget('cosmos_system', 'limits_set')
-        STDOUT.puts "set:#{set}"
-      end
+      set = Store.instance.hget('cosmos_system', 'limits_set')
       [ set, 0, 0, 0, 0,
         # TODO: What do we want to expose here?
         # CmdTlmServer.mode == :CMD_TLM_SERVER ? System.ports['CTS_API'] : System.ports['REPLAY_API'],

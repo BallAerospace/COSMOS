@@ -86,13 +86,6 @@ def configure_store
   cts_config = Cosmos::CmdTlmServerConfig.new(cts_path, system_config)
 
   redis = MockRedis.new
-  # TODO: Hack MockRedis to implement exists to return number of matches
-  redis.instance_eval do
-    def exists(*keys)
-      db = self.instance_variable_get(:@db)
-      keys.count {|key| db.keys.include?(key) }
-    end
-  end
   allow(Redis).to receive(:new).and_return(redis)
   # Setup Redis with all the keys and fields
   Cosmos::ConfigureMicroservices.new(system_config, cts_config, logger: Cosmos::Logger.new)

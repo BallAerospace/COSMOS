@@ -39,8 +39,25 @@ module Cosmos
       @overrides = {}
     end
 
-    def update_interface(interface)
-      @redis_pool.with { |redis| redis.hset("cosmos_interfaces", interface.name, JSON.generate(interface.to_info_hash)) }
+    def get_interface(interface_name)
+      @redis_pool.with do |redis|
+        puts "all interfaces:#{redis.hgetall("cosmos_interfaces")}"
+        if redis.hexists("cosmos_interfaces", interface_name)
+          return JSON.parse(redis.hget("cosmos_interfaces", interface_name))
+        else
+          raise "Interface '#{interface_name}' does not exist"
+        end
+      end
+    end
+
+    def set_interface(interface, initialize: false)
+      @redis_pool.with do |redis|
+        if initialize || redis.hexists("cosmos_interfaces", interface.name)
+          return redis.hset("cosmos_interfaces", interface.name, JSON.generate(interface.as_json))
+        else
+          raise "Interface '#{interface.name}' does not exist"
+        end
+      end
     end
 
     # TODO: Is this used anywhere?
@@ -93,9 +110,9 @@ module Cosmos
       return [[], []] if item_array.empty?
       raise(ArgumentError, "Passed #{item_array.length} items but only #{value_types.length} value types") if (Array === value_types) and item_array.length != value_types.length
 
-      # Convert value_types into an Array to make thing easier
+      # Convert value_types into an Array length of item_array to make thing easier
       unless value_types.is_a?(Array)
-        value_types = [value_types.intern]
+        value_types = [value_types] * item_array.length
       end
 
       # Validate value_types. Due to JSON round tripping from scripts, value_types can be a String or Symbol
@@ -119,7 +136,7 @@ module Cosmos
           end
         end
         promises.each_with_index do |promise, index|
-          puts "promise:#{promise.value}"
+          # puts "promise:#{promise.value}"
           value_type = value_types[index]
           result = promise.value
           if result[0]
@@ -142,7 +159,7 @@ module Cosmos
             raise "Item '#{item_array[0].join(' ')}' does not exist"
           end
           if result[-1]
-            states << JSON.parse(result[-1]).to_s
+            states << JSON.parse(result[-1]).intern
           else
             states << nil
           end
@@ -168,8 +185,19 @@ module Cosmos
       end
     end
 
+    def set_target(target)
+      @redis_pool.with do |redis|
+        if redis.hexists("cosmos_targets", target.name)
+          return redis.hset("cosmos_targets", target.name, JSON.generate(target.as_json))
+        else
+          raise "Target '#{target_name}' does not exist"
+        end
+      end
+    end
+
     def get_packet(target_name, packet_name, type: 'tlm')
       @redis_pool.with do |redis|
+        # TODO: pipeline
         if redis.exists("cosmos#{type}__#{target_name}") != 0
           if redis.hexists("cosmos#{type}__#{target_name}", packet_name)
             return JSON.parse(redis.hget("cosmos#{type}__#{target_name}", packet_name))
@@ -180,6 +208,56 @@ module Cosmos
           raise "Target '#{target_name}' does not exist"
         end
       end
+    end
+
+    # TODO: Is this needed?
+    # def set_packet(packet, type: 'tlm')
+    #   @redis_pool.with do |redis|
+    #     if redis.exists("cosmos#{type}__#{packet.target_name}") != 0
+    #       if redis.hexists("cosmos#{type}__#{packet.target_name}", packet.packet_name)
+    #         return redis.hset("cosmos#{type}__#{packet.target_name}", packet.packet_name, JSON.generate(packet.as_json))
+    #       else
+    #         raise "Packet '#{packet.target_name} #{packet.packet_name}' does not exist"
+    #       end
+    #     else
+    #       raise "Target '#{packet.target_name}' does not exist"
+    #     end
+    #   end
+    # end
+
+    def get_item_from_packet_hash(packet, item_name)
+      item = packet['items'].find {|item| item['name'] == item_name }
+      raise "Item '#{packet['target_name']} #{packet['packet_name']} #{item_name}' does not exist" unless item
+      item
+    end
+
+    def get_item(target_name, packet_name, item_name, type: 'tlm')
+      packet = get_packet(target_name, packet_name, type: type)
+      get_item_from_packet_hash(packet, item_name)
+    end
+
+    def get_commands(target_name)
+      _get_cmd_tlm(target_name, type: 'cmd')
+    end
+
+    def get_telemetry(target_name)
+      _get_cmd_tlm(target_name, type: 'tlm')
+    end
+
+    # Helper method for get_commands and get_telemetry
+    def _get_cmd_tlm(target_name, type:)
+      result = []
+      @redis_pool.with do |redis|
+        if redis.exists("cosmos#{type}__#{target_name}") != 0
+          packets = redis.hgetall("cosmos#{type}__#{target_name}")
+          packets.each do |packet_name, packet_json|
+            result << JSON.parse(packet_json)
+          end
+        else
+          raise "Target '#{target_name}' does not exist"
+        end
+      end
+      result
     end
 
     # TODO: This can't take a Packet but this is how the interface_microservice works
@@ -196,26 +274,6 @@ module Cosmos
     #                buffer: packet.buffer(false) }
     #   write_topic("TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
     # end
-
-    # TODO: This might be able to be combined in get_item ... not sure it's useful in the API
-    def get_item_from_packet_hash(packet, item_name)
-      item = packet['items'].find {|item| item['name'] == item_name }
-      raise "Item '#{packet['target_name']} #{packet['packet_name']} #{item_name}' does not exist" unless item
-      item
-    end
-
-    def get_item(target_name, packet_name, item_name, type: 'tlm')
-      packet = get_packet(target_name, packet_name)
-      get_item_from_packet_hash(packet, item_name)
-    end
-
-    def get_commands(target_name)
-      _get_cmd_tlm(target_name, type: 'cmd')
-    end
-
-    def get_telemetry(target_name)
-      _get_cmd_tlm(target_name, type: 'tlm')
-    end
 
     def tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type)
       case value_type
@@ -282,22 +340,6 @@ module Cosmos
       %w(RAW CONVERTED FORMATTED WITH_UNITS).each do |type|
         @overrides.delete("#{target_name}__#{packet_name}__#{item_name}__#{type}")
       end
-    end
-
-    # Helper method for get_commands and get_telemetry
-    def _get_cmd_tlm(target_name, type:)
-      result = []
-      @redis_pool.with do |redis|
-        if redis.exists("cosmos#{type}__#{target_name}") != 0
-          packets = redis.hgetall("cosmos#{type}__#{target_name}")
-          packets.each do |packet_name, packet_json|
-            result << JSON.parse(packet_json)
-          end
-        else
-          raise "Target '#{target_name}' does not exist"
-        end
-      end
-      result
     end
 
     def read_topics(topics, timeout_ms = 1000)

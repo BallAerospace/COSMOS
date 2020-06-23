@@ -507,7 +507,6 @@ module Cosmos
       when 'LIMITS'
         @limits_sets << LimitsParser.parse(parser, @current_packet, @current_cmd_or_tlm, @current_item, @warnings)
         @limits_sets.uniq!
-        Store.instance.hset('cosmos_system', 'limits_sets', JSON.generate(@limits_sets))
 
       # Define a response class that will be called when the limits state of the
       # current item changes.

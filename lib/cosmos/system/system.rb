@@ -22,6 +22,9 @@ module Cosmos
     # @return [Hash<String,Target>] Hash of all the known targets
     instance_attr_reader :targets
 
+    # @return [PacketConfig] Access to the packet configuration
+    instance_attr_reader :packet_config
+
     # @return [Commands] Access to the command definition
     instance_attr_reader :commands
 
@@ -65,7 +68,7 @@ module Cosmos
     def initialize(target_list, target_config_dir)
       raise "Cosmos::System created twice" unless @@instance.nil?
       @targets = {}
-      @config = nil
+      @packet_config = nil
       @commands = nil
       @telemetry = nil
       @limits = nil
@@ -98,15 +101,15 @@ module Cosmos
     # Load all of the commands and telemetry into the System
     def load_packets
       # Load configuration
-      @config = PacketConfig.new
-      @commands = Commands.new(@config)
-      @telemetry = Telemetry.new(@config)
-      @limits = Limits.new(@config)
+      @packet_config = PacketConfig.new
+      @commands = Commands.new(@packet_config)
+      @telemetry = Telemetry.new(@packet_config)
+      @limits = Limits.new(@packet_config)
 
       @targets.each do |target_name, target|
         target.cmd_tlm_files.each do |cmd_tlm_file|
           begin
-            @config.process_file(cmd_tlm_file, target.name)
+            @packet_config.process_file(cmd_tlm_file, target.name)
           rescue Exception => err
             Logger.error "Problem processing #{cmd_tlm_file}."
             raise err
