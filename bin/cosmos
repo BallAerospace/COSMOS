@@ -399,8 +399,12 @@ def get_redis_keys
     begin
       puts "#{key}\n  #{redis.hkeys(key)}"
     rescue Redis::CommandError
-      # CommandError is raised if you try to hkeys on a stream
-      puts "Stream: #{key}\n  #{redis.xinfo(:stream, key)}"
+      begin
+        # CommandError is raised if you try to hkeys on a stream
+        puts "Stream: #{key}\n  #{redis.xinfo(:stream, key)}"
+      rescue
+        puts "Unknown key '#{key}'"
+      end
     end
   end
   puts "Packets Defs: #{keys.select{|item| item[/^tlm__/]}}"

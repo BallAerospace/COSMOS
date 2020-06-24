@@ -1311,8 +1311,15 @@ module Cosmos
     # @param target_name [String] Target name
     # @return [Array<Numeric, Numeric>] Array of \[cmd_cnt, tlm_cnt]
     def get_target_info(target_name)
-      target = Store.instance.get_target(target_name)
-      return [target['cmd_cnt'], target['tlm_cnt']]
+      cmd_cnt = 0
+      tlm_cnt = 0
+      Store.instance.get_commands(target_name).each do |packet|
+        cmd_cnt += get_cmd_cnt(target_name, packet["packet_name"])
+      end
+      Store.instance.get_telemetry(target_name).each do |packet|
+        tlm_cnt += get_tlm_cnt(target_name, packet["packet_name"])
+      end
+      return [cmd_cnt, tlm_cnt]
     end
 
     # Get information about all targets
@@ -1395,13 +1402,9 @@ module Cosmos
     #   Telemetry count] for all interfaces
     def get_all_interface_info
       info = []
-      REDIS.with do |redis|
-        interfaces = redis.hgetall('cosmos_interfaces')
-        interfaces.each do |name, json|
-          int = JSON.parse(json)
-          info << [name, int['state'], int['clients'], int['txsize'], int['rxsize'],\
-                   int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
-        end
+      Store.instance.get_interfaces().each do |int|
+        info << [int['name'], int['state'], int['clients'], int['txsize'], int['rxsize'],\
+                  int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
       end
       info
     end
@@ -1414,7 +1417,7 @@ module Cosmos
     #   TX queue size, RX queue size, TX bytes, RX bytes, Pkts received,
     #   Pkts sent] for the router
     def get_router_info(router_name)
-      CmdTlmServer.routers.get_info(router_name)
+      Store.instance.get_interface(router_name)
     end
 
     # Get information about all routers
@@ -1431,14 +1434,20 @@ module Cosmos
       info
     end
 
+    def _get_cnt(topic)
+      _, target_name, packet_name = topic.split('__')
+      raise "Packet '#{target_name} #{packet_name}' does not exist" unless Store.instance.exists?(topic)
+      id, packet = Store.instance.read_topic_last(topic)
+      packet ? packet["received_count"].to_i : 0
+    end
+
     # Get the transmit count for a command packet
     #
     # @param target_name [String] Target name of the command
     # @param command_name [String] Packet name of the command
     # @return [Numeric] Transmit count for the command
     def get_cmd_cnt(target_name, command_name)
-      packet = System.commands.packet(target_name, command_name)
-      packet.received_count
+      _get_cnt("COMMAND__#{target_name}__#{command_name}")
     end
 
     # Get the receive count for a telemetry packet
@@ -1447,40 +1456,45 @@ module Cosmos
     # @param packet_name [String] Name of the packet
     # @return [Numeric] Receive count for the telemetry packet
     def get_tlm_cnt(target_name, packet_name)
-      packet = System.telemetry.packet(target_name, packet_name)
-      packet.received_count
+      _get_cnt("TELEMETRY__#{target_name}__#{packet_name}")
     end
 
     # Get information on all command packets
     #
-    # @return [Numeric] Transmit count for the command
+    # @return [Array<String, String, Numeric>] Transmit count for all commands
     def get_all_cmd_info
-      info = []
-      REDIS.with do |redis|
-        targets = JSON.parse(redis.hget('cosmos_system', 'target_names'))
-        targets.each do |target|
-          redis.hgetall("cosmoscmd__#{target}").each do |packet, json|
-            info << [target, packet, 0] # TODO how to get cmd count
-          end
-        end
+      result = []
+      keys = []
+      count = 0
+      loop do
+        count, part = Store.instance.scan(0, :match => "COMMAND__*", :count => 1000)
+        keys.concat(part)
+        break if count.to_i == 0
       end
-      info
+      keys.each do |key|
+        _, target, packet = key.split('__')
+        result << [target, packet, _get_cnt(key)]
+      end
+      result
     end
 
     # Get information on all telemetry packets
     #
-    # @return [Numeric] Receive count for the telemetry packet
+    # @return [Array<String, String, Numeric>] Receive count for all telemetry
     def get_all_tlm_info
-      info = []
-      REDIS.with do |redis|
-        targets = JSON.parse(redis.hget('cosmos_system', 'target_names'))
-        targets.each do |target|
-          redis.hgetall("cosmostlm__#{target}").each do |packet, json|
-            info << [target, packet, 0] # TODO how to get tlm count
-          end
-        end
+      result = []
+      keys = []
+      count = 0
+      loop do
+        count, part = Store.instance.scan(0, :match => "TELEMETRY__*", :count => 1000)
+        keys.concat(part)
+        break if count.to_i == 0
       end
-      info
+      keys.each do |key|
+        _, target, packet = key.split('__')
+        result << [target, packet, _get_cnt(key)]
+      end
+      result
     end
 
     # Get the list of packet loggers.
@@ -1839,6 +1853,7 @@ module Cosmos
       # Build the command
       begin
         command = System.commands.build_cmd(target_name, cmd_name, cmd_params, range_check, raw)
+        command.received_count += 1
       rescue => e
         Logger.error e.message
         raise e
@@ -1860,10 +1875,10 @@ module Cosmos
       @disconnect = false unless defined? @disconnect
       unless @disconnect
         # Write to stream
-        msg_hash = { # time: command.received_time.to_nsec_from_epoch,
+        msg_hash = { time: command.received_time.to_nsec_from_epoch,
                      target_name: target_name,
                      packet_name: cmd_name,
-                     #  received_count: command.received_count,
+                     received_count: command.received_count,
                      buffer: command.buffer(false) }
         Store.instance.write_topic("COMMAND__#{target_name}__#{cmd_name}", msg_hash)
         Store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw)

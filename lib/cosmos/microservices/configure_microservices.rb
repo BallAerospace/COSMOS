@@ -69,9 +69,13 @@ module Cosmos
         logger.info "Configured microservice INTERFACE__#{interface_name}"
 
         # Configure DecomMicroservice
+        command_topic_list = []
         packet_topic_list = []
         interface.target_names.each do |target_name|
           begin
+            System.commands.packets(target_name).each do |packet_name, packet|
+              command_topic_list << "COMMAND__#{target_name}__#{packet_name}"
+            end
             System.telemetry.packets(target_name).each do |packet_name, packet|
               packet_topic_list << "TELEMETRY__#{target_name}__#{packet_name}"
             end
@@ -79,6 +83,8 @@ module Cosmos
             # No telemetry packets for this target
           end
         end
+        Store.instance.initialize_streams(command_topic_list)
+        Store.instance.initialize_streams(packet_topic_list)
         next unless packet_topic_list.length > 0
 
         config = { 'filename' => "decom_microservice.rb", 'target_list' => target_list, 'topics' => packet_topic_list }

@@ -20,6 +20,6 @@ unless ENV['JENKINS_HOME']
   #   For example: bundle config local.mock_redis C:/_Programs/oss/mock_redis
   #   Make sure the local copy is checked out to the specified branch
   group :development do
-    gem 'mock_redis', github: 'jasonatball/mock_redis', branch: 'master'
+    gem 'mock_redis', github: 'jasonatball/mock_redis', branch: 'fix_maxlen_0'
   end
 end

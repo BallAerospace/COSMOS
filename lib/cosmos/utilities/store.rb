@@ -39,9 +39,19 @@ module Cosmos
       @overrides = {}
     end
 
+    def get_interfaces()
+      result = []
+      @redis_pool.with do |redis|
+        interfaces = redis.hgetall("cosmos_interfaces")
+        interfaces.each do |interface_name, interface_json|
+          result << JSON.parse(interface_json)
+        end
+      end
+      result
+    end
+
     def get_interface(interface_name)
       @redis_pool.with do |redis|
-        puts "all interfaces:#{redis.hgetall("cosmos_interfaces")}"
         if redis.hexists("cosmos_interfaces", interface_name)
           return JSON.parse(redis.hget("cosmos_interfaces", interface_name))
         else
@@ -384,6 +394,16 @@ module Cosmos
       end
     end
 
+    def initialize_streams(topics)
+      # puts "init stream:#{topics}"
+      @redis_pool.with do |redis|
+        topics.each do |topic|
+          # Create empty stream with maxlen 0
+          redis.xadd(topic, { a: 'b' }, maxlen: 0)
+        end
+      end
+    end
+
     def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
       @redis_pool.with do |redis|
         if id
@@ -404,6 +424,12 @@ module Cosmos
     end
     def del(key)
       @redis_pool.with { |redis| redis.del(key) }
+    end
+    def exists?(*keys)
+      @redis_pool.with { |redis| redis.exists?(*keys) }
+    end
+    def scan(count, **options)
+      @redis_pool.with { |redis| redis.scan(count, **options) }
     end
   end
 end
