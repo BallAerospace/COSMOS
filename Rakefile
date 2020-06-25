@@ -84,8 +84,6 @@ class RakeCrc32
 
 end
 
-require 'yard' if RUBY_ENGINE == 'ruby'
-
 # Import the rake tasks
 import 'tasks/manifest.rake'
 import 'tasks/spec.rake'
@@ -279,6 +277,7 @@ task :mac_app_exec_bit do
 end
 
 if RUBY_ENGINE == 'ruby'
+  require 'yard'
   YARD::Rake::YardocTask.new do |t|
     t.options = ['--protected'] # See all options by typing 'yardoc --help'
   end
