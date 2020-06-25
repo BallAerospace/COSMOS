@@ -100,7 +100,7 @@ task :require_version do
 end
 
 task :devkit do
-  if RUBY_ENGINE == 'ruby'
+  if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i and RUBY_ENGINE == 'ruby'
     msys64_path = File.expand_path(File.join(File.dirname(`where ruby`.split("\n")[0]), '..', 'msys64'))
     if File.exist?(msys64_path)
       ENV['RI_DEVKIT'] = msys64_path
