@@ -485,6 +485,7 @@ class Time
   end
 
   def self.from_nsec_from_epoch(nsec_from_epoch)
+    return nil if nsec_from_epoch.nil?
     seconds = nsec_from_epoch / NSEC_PER_SECOND
     nanoseconds = nsec_from_epoch % NSEC_PER_SECOND
     Time.at(seconds, nanoseconds, :nsec)

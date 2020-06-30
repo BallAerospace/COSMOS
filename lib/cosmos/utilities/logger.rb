@@ -67,11 +67,11 @@ module Cosmos
       @tag = @container_name + ".log"
       @mutex = Mutex.new
       fluentd_url = ENV['COSMOS_FLUENTD_URL']
-      if fluentd_url
+      #if fluentd_url
         fluentd_url ||= "localhost:24224"
         path = fluentd_url.split('/')[-1].split(':')
         Fluent::Logger::FluentLogger.open(nil, { host: path[0], port: path[1] })
-      end
+      #end
     end
 
     # @param message [String] The message to print if the log level is at or
@@ -148,7 +148,7 @@ module Cosmos
         end
         data[:container_name] = @container_name
         data[:log] = message
-        Fluent::Logger.post(@tag, data) if ENV['COSMOS_FLUENTD_URL']
+        Fluent::Logger.post(@tag, data) # if ENV['COSMOS_FLUENTD_URL']
         if @stdout
           puts "#{Time.now.sys.formatted} #{@detail_string ? "(#{@detail_string}):" : ''} #{severity_string}: #{message}"
         end

@@ -54,7 +54,7 @@ module Cosmos
       ack_topic = "ACKCMDTARGET__#{target_name}"
       cmd_id = write_topic(topic, { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
       (timeout_ms / 100).times do
-        read_topics([ack_topic], 100) do |topic, msg_id, msg_hash, redis|
+        read_topics([ack_topic], nil, 100) do |topic, msg_id, msg_hash, redis|
           if msg_id == cmd_id
             Logger.info "Ack Received: #{msg_id}: #{msg_hash.inspect}"
             # yield target_name, cmd_name, cmd_params, range_check, hazardous_check, raw
@@ -217,19 +217,34 @@ module Cosmos
       result = redis.hmget(key, *secondary_keys)
     end
 
-    def read_topics(topics, timeout_ms = 1000)
+    def get_oldest_message(topic)
       @redis_pool.with do |redis|
-        offsets = []
-        topics.each do |topic|
-          last_id = @topic_offsets[topic]
-          if last_id
-            offsets << last_id
-          else
-            result = redis.xrevrange(topic, count: 1)
-            last_id = "0-0"
-            last_id = result[0][0] if result and result[0] and result[0][0]
-            offsets << last_id
-            @topic_offsets[topic] = last_id
+        result = redis.xrange(topic, count: 1)
+        return result[0]
+      end
+    end
+
+    def get_last_offset(topic)
+      @redis_pool.with do |redis|
+        result = redis.xrevrange(topic, count: 1)
+        last_id = "0-0"
+        last_id = result[0][0] if result and result[0] and result[0][0]
+        return last_id
+      end
+    end
+
+    def read_topics(topics, offsets = nil, timeout_ms = 1000)
+      @redis_pool.with do |redis|
+        unless offsets
+          offsets = []
+          topics.each do |topic|
+            last_id = @topic_offsets[topic]
+            if last_id
+              offsets << last_id
+            else
+              offsets << get_last_offset(topic)
+              @topic_offsets[topic] = offsets[-1]
+            end
           end
         end
         result = redis.xread(topics, offsets, block: timeout_ms)

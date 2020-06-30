@@ -7,15 +7,15 @@ module Cosmos
     attr_accessor :cmd_or_tlm
     attr_accessor :target_name
     attr_accessor :packet_name
-    attr_accessor :time
+    attr_accessor :packet_time
     attr_accessor :stored
     attr_accessor :json_hash
 
-    def initialize(cmd_or_tlm, target_name, packet_name, time, stored, json_data)
+    def initialize(cmd_or_tlm, target_name, packet_name, time_nsec_from_epoch, stored, json_data)
       @cmd_or_tlm = cmd_or_tlm.intern
       @target_name = target_name
       @packet_name = packet_name
-      @time = ::Time.from_nsec_from_epoch(time)
+      @packet_time = ::Time.from_nsec_from_epoch(time_nsec_from_epoch)
       @stored = ConfigParser.handle_true_false(stored)
       @json_hash = JSON.parse(json_data)
     end

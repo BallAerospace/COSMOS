@@ -85,6 +85,7 @@ module Cosmos
         end
         raise parser.error("Target folder must exist '#{folder_name}'.") unless Dir.exist?(folder_name)
         target = Target.new(target_name, original_name, target_config_dir, target_filename)
+        target.id = item['target_id']
         @targets[target.name] = target
       end
     end
