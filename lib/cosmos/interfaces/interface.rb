@@ -300,8 +300,8 @@ module Cosmos
     end
 
     def as_json
-      puts "interface as_json"
       config = {}
+      config['name'] = @name
       if connected?
         config['state'] = 'CONNECTED'
       elsif @thread

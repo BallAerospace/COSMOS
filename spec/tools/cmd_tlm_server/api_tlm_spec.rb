@@ -10,26 +10,68 @@
 
 require 'spec_helper'
 require 'cosmos'
-require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server'
 require 'cosmos/tools/cmd_tlm_server/api'
+require 'cosmos/microservices/interface_microservice'
+require 'cosmos/microservices/decom_microservice'
 
 module Cosmos
   describe Api do
-    before(:each) do
-      @redis = configure_store()
-      # Setup INST HEALTH_STATUS TEMP1 like the DECOM and CVT would do
-      json_hash = {}
-      json_hash['TEMP1']    = JSON.generate(0.as_json)
-      json_hash['TEMP1__C'] = JSON.generate(-100.0.as_json)
-      json_hash['TEMP1__F'] = JSON.generate("-100.000".as_json)
-      json_hash['TEMP1__U'] = JSON.generate("-100.000 C".as_json)
-      json_hash['TEMP1__L'] = JSON.generate(:RED_LOW.as_json)
-      @redis.mapped_hmset("tlm__INST__HEALTH_STATUS", json_hash)
-      @api = CmdTlmServer.new
+    class ApiTest
+      include Api
     end
 
-    after(:each) do
-      @api.stop
+    before(:each) do
+      @redis = configure_store()
+
+      # Create an Interface we can use in the InterfaceTlmHandlerThread
+      interface = Interface.new
+      interface.name = "INST_INT"
+      interface.target_names = %w[INST]
+      allow(interface).to receive(:connected?).and_return(true)
+      @thread = InterfaceTlmHandlerThread.new(interface)
+      Store.instance.set_interface(interface, initialize: true)
+      @cmd_thread = InterfaceCmdHandlerThread.new(interface, @thread)
+
+      # Mock out some stuff in Microservice initialize() to allow us to use DecomMicroservice
+      dbl = double("AwsS3Client").as_null_object
+      allow(Aws::S3::Client).to receive(:new).and_return(dbl)
+      allow(Zip::File).to receive(:open).and_return(true)
+      @decom = DecomMicroservice.new("DECOM__#{interface.name}")
+      @process = true
+
+      # Wrap xadd to allow us to process telemetry like the decom microservice
+      # would in the real system.
+      allow(@redis).to receive(:xadd).and_wrap_original do |m, *args|
+        puts "xadd args[0]:#{args[0]}"
+        result = m.call(*args)
+        # Run the DecomMicroservice to process the telemetry packet
+        # This will populate the individual telemetry items
+        if @process && args[0] =~ /^TELEMETRY/
+          thread = Thread.new { @decom.run }
+          # thread.report_on_exception = false
+          sleep 0.1 # Allow the thread to run
+          thread.kill
+          sleep 0.1 # Wait for the thread to be killed
+        elsif @process && args[0] =~ /^CMDINTERFACE/
+          thread = Thread.new { @cmd_thread.run }
+          # thread.report_on_exception = false
+          sleep 0.1 # Allow the thread to run
+          thread.kill
+          sleep 0.1 # Wait for the thread to be killed
+        end
+
+        result
+      end
+
+      # Setup INST HEALTH_STATUS TEMP1 like the DECOM and CVT would do
+      # json_hash = {}
+      # json_hash['TEMP1']    = JSON.generate(0.as_json)
+      # json_hash['TEMP1__C'] = JSON.generate(-100.0.as_json)
+      # json_hash['TEMP1__F'] = JSON.generate("-100.000".as_json)
+      # json_hash['TEMP1__U'] = JSON.generate("-100.000 C".as_json)
+      # json_hash['TEMP1__L'] = JSON.generate(:RED_LOW.as_json)
+      # @redis.mapped_hmset("tlm__INST__HEALTH_STATUS", json_hash)
+      @api = ApiTest.new
     end
 
     def test_tlm_unknown(method)
@@ -48,6 +90,10 @@ module Cosmos
 
       it "processes a string" do
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
+      end
+
+      xit "returns the value using LATEST" do
+        expect(@api.tlm("INST LATEST TEMP1")).to eql -100.0
       end
 
       it "processes parameters" do
@@ -234,7 +280,7 @@ module Cosmos
         @api.inject_tlm("INST","HEALTH_STATUS")
       end
 
-      xit "injects a packet into the system" do
+      it "injects a packet into the system" do
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 10, TEMP2: 20}, :CONVERTED, true, true, false)
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to be_within(0.1).of(20.0)

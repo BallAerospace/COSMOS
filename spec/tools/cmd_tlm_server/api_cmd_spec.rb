@@ -10,7 +10,6 @@
 
 require 'spec_helper'
 require 'cosmos'
-require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server'
 require 'cosmos/tools/cmd_tlm_server/api'
 require 'cosmos/microservices/interface_microservice'
 
@@ -27,21 +26,22 @@ module Cosmos
       # It has to have a valid list of target_names as that is what 'receive_commands'
       # in the Store uses to determine which topics to read
       interface = Interface.new
-      # interface.name = "INST_INT"
+      interface.name = "INST_INT"
       interface.target_names = %w[INST]
       # Stub out write to make the InterfaceCmdHandlerThread happy
       allow(interface).to receive(:write) { |data| @interface_data = data }
       # Stub out as_json to make the call to Store.instance.set_interface happy
       allow(interface).to receive(:as_json).and_return({})
-      @thread = InterfaceCmdHandlerThread.new(interface)
-
+      @thread = InterfaceCmdHandlerThread.new(interface, nil)
+      Store.instance.set_interface(interface, initialize: true)
+      @process = true # Allow the command to be processed or not
       # Wrap xadd to allow us to process commands like the interface microservices
       # would in the real system.
       allow(@redis).to receive(:xadd).and_wrap_original do |m, *args|
         result = m.call(*args)
         # Run the InterfaceCmdHandlerThread to process the command
         # This will ack the command on the ACKCMDTARGET__<TGT> channel
-        if args[0] =~ /^CMDTARGET/
+        if @process && (args[0] =~ /^CMDTARGET/ || args[0] =~ /^CMDINTERFACE/)
           thread = Thread.new { @thread.run }
           thread.report_on_exception = false
           sleep 0.1 # Allow the thread to run
@@ -50,6 +50,11 @@ module Cosmos
         end
         result
       end
+      # TODO: Initialize the offsets by reading once ... I don't think we should have to do this
+      # topics = ["CMDINTERFACE__#{interface.name}"]
+      # interface.target_names.each { |target_name| topics << "CMDTARGET__#{target_name}" }
+      # Store.instance.read_topics(topics)
+
       @api = ApiTest.new
     end
 
@@ -115,6 +120,11 @@ module Cosmos
 
       it "warns about hazardous commands" do
         expect { @api.cmd("INST CLEAR") }.to raise_error(/Hazardous/)
+      end
+
+      it "times out if the interface does not process the command" do
+        @process = false
+        expect { @api.cmd("INST","ABORT") }.to raise_error("Timeout waiting for cmd ack")
       end
     end
 
@@ -404,6 +414,14 @@ module Cosmos
     end
 
     describe "get_cmd_buffer" do
+      it "complains about unknown commands" do
+        expect { @api.get_cmd_buffer("INST", "BLAH") }.to raise_error(/does not exist/)
+      end
+
+      it "returns nil if the command has not yet been sent" do
+        expect(@api.get_cmd_buffer("INST", "ABORT")).to be_nil
+      end
+
       it "returns a command packet buffer" do
         @api.cmd("INST ABORT")
         expect(@api.get_cmd_buffer("INST", "ABORT")[6..7].unpack("n")[0]).to eq 2
@@ -412,12 +430,12 @@ module Cosmos
       end
     end
 
-    # describe "send_raw" do
-    #   it "sends raw data to an interface" do
-    #     @api.send_raw("INST", "\x00\x01\x02\x03")
-    #     expect(@interface_data).to eql "\x00\x01\x02\x03"
-    #   end
-    # end
+    describe "send_raw" do
+      it "sends raw data to an interface" do
+        @api.send_raw("INST_INT", "\x00\x01\x02\x03")
+        expect(@interface_data).to eql "\x00\x01\x02\x03"
+      end
+    end
 
     # DEPRECATED: use get_all_commands
     describe "get_cmd_list" do
@@ -539,6 +557,8 @@ module Cosmos
         expect(@api.get_cmd_value("INST", "COLLECT", "TYPE")).to eql 'NORMAL'
         expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMEFORMATTED")).to eql time.formatted
         expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to eql time.to_f
+        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMEFORMATTED")).to eql time.formatted
+        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMESECONDS")).to eql time.to_f
         expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 5
       end
 
@@ -550,6 +570,8 @@ module Cosmos
         expect(@api.get_cmd_value("INST", "COLLECT", "TYPE")).to eql 'NORMAL'
         expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMEFORMATTED")).to eql "No Packet Received Time"
         expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to eql 0.0
+        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMEFORMATTED")).to eql "No Packet Time"
+        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMESECONDS")).to eql 0.0
         expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 5
       end
     end

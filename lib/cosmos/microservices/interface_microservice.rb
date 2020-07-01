@@ -12,9 +12,9 @@ require 'cosmos/microservices/microservice'
 
 module Cosmos
   class InterfaceCmdHandlerThread
-    def initialize(interface)
+    def initialize(interface, tlm)
       @interface = interface
-      Store.instance.set_interface(@interface, initialize: true)
+      @tlm = tlm
     end
 
     def start
@@ -27,8 +27,25 @@ module Cosmos
       end
     end
 
+    def stop
+      # TODO: Is there a way to make this more graceful?
+      @thread.kill if @thread
+    end
+
     def run
-      Store.instance.receive_commands(@interface) do |target_name, cmd_name, cmd_params, range_check, hazardous_check, raw|
+      Store.instance.receive_commands(@interface) do |topic, msg_hash|
+        # Check for a raw write to the interface
+        if topic =~ /CMDINTERFACE/
+          @interface.write(msg_hash['raw']) if msg_hash['raw']
+          @tlm.inject_tlm(msg_hash) if msg_hash['inject_tlm']
+          next 'SUCCESS'
+        end
+
+        target_name = msg_hash['target_name']
+        cmd_name = msg_hash['cmd_name']
+        cmd_params = JSON.parse(msg_hash['cmd_params'])
+        range_check = ConfigParser.handle_true_false(msg_hash['range_check'])
+        raw = ConfigParser.handle_true_false(msg_hash['raw'])
         begin
           begin
             command = System.commands.build_cmd(target_name, cmd_name, cmd_params, range_check, raw)
@@ -37,16 +54,9 @@ module Cosmos
             next e.message
           end
 
-          if hazardous_check
+          if ConfigParser.handle_true_false(msg_hash['hazardous_check'])
             hazardous, hazardous_description = System.commands.cmd_pkt_hazardous?(command)
-            if hazardous
-              error = HazardousError.new
-              error.target_name = target_name
-              error.cmd_name = cmd_name
-              error.cmd_params = cmd_params
-              error.hazardous_description = hazardous_description
-              next error.message
-            end
+            next 'HazardousError' if hazardous
           end
 
           begin
@@ -58,6 +68,7 @@ module Cosmos
                         buffer: command.buffer(false) }
             Store.instance.write_topic("COMMAND__#{command.target_name}__#{command.packet_name}", msg_hash)
             Store.instance.set_interface(@interface)
+            'SUCCESS'
           rescue => e
             Logger.error e.formatted
             next e.message
@@ -66,31 +77,28 @@ module Cosmos
           Logger.error e.formatted
           next e.message
         end
-        'SUCCESS'
       end
     end
   end
 
-  class InterfaceMicroservice < Microservice
-    UNKNOWN_BYTES_TO_PRINT = 16
-
-    def initialize(name)
-      super(name)
-      interface_name = name.split("__")[1]
-      @interface = Cosmos.require_class(@config['interface_params'][0]).new(*@config['interface_params'][1..-1])
-      @interface.name = interface_name
-      Store.instance.set_interface(@interface)
-      @config["target_list"].each do |item|
-        @interface.target_names << item["target_name"]
-      end
-      # TODO: Need to set any additional interface options like protocols
+  class InterfaceTlmHandlerThread
+    def initialize(interface)
+      @interface = interface
       @interface_thread_sleeper = Sleeper.new
       @cancel_thread = false
       @connection_failed_messages = []
       @connection_lost_messages = []
       @mutex = Mutex.new
-      @cmd_thread = InterfaceCmdHandlerThread.new(@interface)
-      @cmd_thread.start
+    end
+
+    def start
+      @thread = Thread.new do
+        begin
+          run()
+        rescue Exception => err
+          Logger.error "InterfaceTlmHandlerThread died unexpectedly: #{err.formatted}"
+        end
+      end
     end
 
     def run
@@ -131,7 +139,6 @@ module Cosmos
                   next
                 end
               end
-              packet.received_time = Time.now.sys unless packet.received_time
             rescue Exception => err
               handle_connection_lost(err)
               if @cancel_thread
@@ -157,6 +164,7 @@ module Cosmos
 
     def handle_packet(packet)
       Store.instance.set_interface(@interface)
+      packet.received_time = Time.now.sys unless packet.received_time
 
       if packet.stored
         # Stored telemetry does not update the current value table
@@ -218,6 +226,16 @@ module Cosmos
                    received_count: packet.received_count,
                    buffer: packet.buffer(false) }
       Store.instance.write_topic("TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
+    end
+
+    def inject_tlm(hash)
+      packet = System.telemetry.packet(hash['target_name'], hash['packet_name']).clone
+      if hash['item_hash']
+        JSON.parse(hash['item_hash']).each do |item, value|
+          packet.write(item.to_s, value, hash['value_type'].to_sym)
+        end
+      end
+      handle_packet(packet)
     end
 
     def handle_connection_failed(connect_error)
@@ -297,13 +315,30 @@ module Cosmos
       end
       Cosmos.kill_thread(self, @interface_thread) if @interface_thread and @interface_thread != Thread.current
     end
+  end
 
-    def shutdown(sig = nil)
-      stop()
+  class InterfaceMicroservice < Microservice
+    UNKNOWN_BYTES_TO_PRINT = 16
+
+    def initialize(name)
+      super(name)
+      interface_name = name.split("__")[1]
+      @interface = Cosmos.require_class(@config['interface_params'][0]).new(*@config['interface_params'][1..-1])
+      @interface.name = interface_name
+      Store.instance.set_interface(@interface, initialize: true)
+      @config["target_list"].each do |item|
+        @interface.target_names << item["target_name"]
+      end
+      @tlm_thread = InterfaceTlmHandlerThread.new(@interface)
+      @tlm_thread.start
+      @cmd_thread = InterfaceCmdHandlerThread.new(@interface, @tlm_thread)
+      @cmd_thread.start
     end
 
-    def graceful_kill
-      # Just to avoid warning
+    def shutdown
+      super()
+      @cmd_thread.stop()
+      @tlm_thread.stop()
     end
   end
 end

@@ -978,9 +978,7 @@ module Cosmos
       end
       @sorted_items.each do |item|
         if item.data_type == :DERIVED
-          unless RESERVED_ITEM_NAMES.include?(item.name)
-            items << item.as_json
-          end
+          items << item.as_json
         end
       end
 

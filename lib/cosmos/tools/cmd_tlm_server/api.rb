@@ -288,7 +288,7 @@ module Cosmos
     # @param interface_name [String] The interface to send the raw binary
     # @param data [String] The raw binary data
     def send_raw(interface_name, data)
-      Store.instance.write_interface(interface_name, data)
+      Store.instance.write_interface(interface_name, { 'raw' => data })
       nil
     end
 
@@ -298,13 +298,11 @@ module Cosmos
     # @param command_name [String] Packet name of the command
     # @return [String] last command buffer packet
     def get_cmd_buffer(target_name, command_name)
+      Store.instance.cmd_packet_exist?(target_name, command_name)
       topic = "COMMAND__#{target_name}__#{command_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
-      if msg_id
-        return msg_hash['buffer']
-      else
-        return nil
-      end
+      return msg_hash['buffer'] if msg_id
+      nil
     end
 
     # Returns the list of all the command names and their descriptions from the
@@ -667,6 +665,22 @@ module Cosmos
           Store.instance.get_item_from_packet_hash(packet, item_name)
         end
       end
+
+      inject = {}
+      inject['inject_tlm'] = true
+      inject['target_name'] = target_name
+      inject['packet_name'] = packet_name
+      inject['item_hash'] = JSON.generate(item_hash) if item_hash
+      inject['value_type'] = value_type
+      # TODO: Handle the rest of the parameters
+      # inject['send_routers'] = true if send_routers
+
+      Store.instance.get_interfaces.each do |interface|
+        if interface['target_names'].include?(target_name)
+          Store.instance.write_interface(interface['name'], inject)
+        end
+      end
+
 
       # TODO: How do we inject the packet into the stream
 
@@ -1864,8 +1878,21 @@ module Cosmos
         # Invalid number of arguments
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
       end
-      # Determine if this item exists, it will raise appropriate errors if not
-      Store.instance.get_item(target_name, packet_name, item_name)
+      if packet_name == 'LATEST'
+        latest = 0
+        Store.instance.get_telemetry(target_name).each do |packet|
+          item = packet['items'].find { |item| item['name'] == item_name }
+          if item
+            time = Store.instance.get_tlm_item(target_name, packet['name'], 'PACKET_TIMESECONDS')
+            # time = packet['items'].find { |item| item['name'] == 'PACKET_TIMESECONDS' }
+            puts "time:#{time}"
+            puts item
+          end
+        end
+      else
+        # Determine if this item exists, it will raise appropriate errors if not
+        Store.instance.get_item(target_name, packet_name, item_name)
+      end
 
       return [target_name, packet_name, item_name]
     end

@@ -70,10 +70,10 @@ module Cosmos
       end
     end
 
-    def write_interface(interface_name, data)
+    def write_interface(interface_name, hash)
       @redis_pool.with do |redis|
-        if redis.hexists("cosmos_interfaces", interface.name)
-          write_topic("CMDINTERFACE__#{interface_name}")
+        if redis.hexists("cosmos_interfaces", interface_name)
+          write_topic("CMDINTERFACE__#{interface_name}", hash)
         else
           raise "Interface '#{interface_name}' does not exist"
         end
@@ -113,7 +113,7 @@ module Cosmos
       end
       while true
         read_topics(topics) do |topic, msg_id, msg_hash, redis|
-          result = yield msg_hash['target_name'], msg_hash['cmd_name'], JSON.parse(msg_hash['cmd_params']), ConfigParser.handle_true_false(msg_hash['range_check']), ConfigParser.handle_true_false(msg_hash['hazardous_check']), ConfigParser.handle_true_false(msg_hash['raw'])
+          result = yield topic, msg_hash
           write_topic("ACK" + topic, { 'result' => result }, msg_id)
         end
       end
@@ -266,7 +266,7 @@ module Cosmos
     # end
 
     def get_item_from_packet_hash(packet, item_name)
-      item = packet['items'].find {|item| item['name'] == item_name }
+      item = packet['items'].find {|item| item['name'] == item_name.to_s }
       raise "Item '#{packet['target_name']} #{packet['packet_name']} #{item_name}' does not exist" unless item
       item
     end
@@ -389,10 +389,12 @@ module Cosmos
       end
     end
 
-    def get_last_offset(topic)
+    def get_almost_last_offset(topic)
       @redis_pool.with do |redis|
         result = redis.xrevrange(topic, count: 1)
         if result and result[0] and result[0][0]
+          # Decrement the offset by a single sequence number
+          # to ensures we include this ID in the call to xread
           decrement_id(result[0][0])
         else
           "0-0"
@@ -401,19 +403,27 @@ module Cosmos
     end
 
     def read_topics(topics, offsets = nil, timeout_ms = 1000)
+      # puts "read_topics:#{topics}"
       @redis_pool.with do |redis|
         unless offsets
           offsets = []
           topics.each do |topic|
+            # Normally we will just be grabbing the topic offset
+            # this allows xread to get everything past this point
             last_id = @topic_offsets[topic]
             if last_id
               offsets << last_id
             else
-              offsets << get_last_offset(topic)
+              # If there is no topic offset this is the first call.
+              # Calculate an offset ID which is just prior to the last
+              # in the stream and set the topic offset. By creating and ID
+              # just prior to the last we include the last ID in the xread results.
+              offsets << get_almost_last_offset(topic)
               @topic_offsets[topic] = offsets[-1]
             end
           end
         end
+        # puts "offsets:#{offsets}"
         result = redis.xread(topics, offsets, block: timeout_ms)
         if result and result.length > 0
           result.each do |topic, messages|
@@ -423,6 +433,7 @@ module Cosmos
             end
           end
         end
+        # puts "result:#{result}"
         return result
       end
     end
@@ -451,6 +462,7 @@ module Cosmos
     end
 
     def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
+      # puts "write_topic topic:#{topic} hash:#{msg_hash}"
       @redis_pool.with do |redis|
         if id
           return redis.xadd(topic, msg_hash, id: id, maxlen: maxlen, approximate: approximate)
