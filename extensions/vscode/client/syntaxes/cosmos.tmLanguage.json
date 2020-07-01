@@ -83,17 +83,14 @@
         "rubyStatements": {
             "patterns": [
                 {
-                    "begin": "(?<=<%)",
-                    "patterns": [
+                    "begin": "<%",
+                    "end": "%>",
+                    "patterns":[
                         {
-                            "match": "\\brequire\\b",
-                            "name": "storage.type"
-                        },
-                        {
-                            "include": "source.ruby"
+                        "match": ".*",
+                        "include": "source.ruby"
                         }
-                    ],
-                    "end": "%>"
+                    ]
                 },
                 {
                     "begin": "(?<=GENERIC_READ_CONVERSION_START)",
