@@ -15,7 +15,7 @@ unless ENV['JENKINS_HOME']
   #   You also need to set "bundle config local.mock_redis <LOCAL PATH TO CHECKED OUT GEM>"
   #   For example: bundle config local.mock_redis C:/_Programs/oss/mock_redis
   #   Make sure the local copy is checked out to the specified branch
-  # group :development do
-  #   gem 'mock_redis', github: 'jasonatball/mock_redis', branch: 'fix_maxlen_0'
-  # end
+  group :development do
+    gem 'mock_redis', github: 'jasonatball/mock_redis', branch: 'xadd_block_count'
+  end
 end
