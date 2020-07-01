@@ -815,6 +815,7 @@ module Cosmos
     # @return (see Cosmos::Packet#read_all_with_limits_states)
     def get_tlm_packet(target_name, packet_name, value_type = :CONVERTED)
       Store.instance.get_packet(target_name, packet_name)
+      value_type = value_type.intern
       case value_type
       when :RAW
         desired_item_type = ''

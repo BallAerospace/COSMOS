@@ -60,9 +60,9 @@ module Cosmos
       end
     end
 
-    def set_interface(interface, initialize: false)
+    def set_interface(interface, init: false)
       @redis_pool.with do |redis|
-        if initialize || redis.hexists("cosmos_interfaces", interface.name)
+        if init || redis.hexists("cosmos_interfaces", interface.name)
           return redis.hset("cosmos_interfaces", interface.name, JSON.generate(interface.as_json))
         else
           raise "Interface '#{interface.name}' does not exist"

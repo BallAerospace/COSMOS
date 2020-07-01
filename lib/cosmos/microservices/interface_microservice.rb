@@ -83,7 +83,7 @@ module Cosmos
       interface_name = name.split("__")[1]
       @interface = Cosmos.require_class(@config['interface_params'][0]).new(*@config['interface_params'][1..-1])
       @interface.name = interface_name
-      Store.instance.set_interface(@interface)
+      Store.instance.set_interface(@interface, :init => true)
       @config["target_list"].each do |item|
         @interface.target_names << item["target_name"]
       end
