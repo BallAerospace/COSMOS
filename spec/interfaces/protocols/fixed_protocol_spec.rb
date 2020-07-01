@@ -34,6 +34,10 @@ module Cosmos
     end
 
     describe "read_data" do
+      before(:each) do
+        configure_store()
+      end
+
       $index = 0
       class FixedStream < Stream
         def connect; end
@@ -145,7 +149,7 @@ module Cosmos
         packet = @interface.read
         expect(packet.received_time.to_f).to be_within(0.01).of(Time.now.to_f)
         expect(packet.target_name).to eql 'SYSTEM'
-        expect(packet.packet_name).to eql 'STARTLOGGING'        
+        expect(packet.packet_name).to eql 'STARTLOGGING'
         expect(packet.buffer).to eql $buffer
         target.cmd_unique_id_mode = false
       end

@@ -17,10 +17,13 @@ module Cosmos
     DATA = "RyanSaysHelloToU"
 
     before(:all) do
-      @filename = File.join(System.paths['LOGS'], 'test.bin')
+      @filename = File.join(File.dirname(__FILE__), 'test.bin')
       File.open(@filename, 'wb') do |file|
         file.write DATA * (2 * BufferedFile::BUFFER_SIZE / DATA.length)
       end
+    end
+    after(:all) do
+      FileUtils.rm_f @filename
     end
 
     describe "read" do
@@ -143,4 +146,3 @@ module Cosmos
 
   end
 end
-

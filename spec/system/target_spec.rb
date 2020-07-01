@@ -26,12 +26,9 @@ module Cosmos
       end
 
       it "creates a target with the given substitute name" do
-        # TODO: Ryan did you intentially switch the meanings of the second argument?
-        # The second argument used to be substitute_name which you renamed original_name.
-        # The original name is TGT and the substitute name is TGT2 ... I'm confused
         tgt = Target.new("TGT","TGT2")
-        expect(tgt.name).to eql "TGT2"
-        expect(tgt.original_name).to eql "TGT"
+        expect(tgt.name).to eql "TGT"
+        expect(tgt.original_name).to eql "TGT2"
       end
 
       it "creates a target with the default dir" do
@@ -134,34 +131,33 @@ module Cosmos
           tf.unlink
         end
 
-        # TODO: Make this work
-        # it "requires the file in the target lib directory over system lib" do
-        #   filename1 = File.join(Cosmos::USERPATH, 'config', 'targets', 'INST', 'lib', 'tgt_file.rb')
-        #   FileUtils.mkdir_p(File.dirname(filename1))
-        #   File.open(filename1, 'w') do |file|
-        #     file.puts "class TgtLibFile"
-        #     file.puts "end"
-        #   end
-        #   filename2 = File.join(Cosmos::USERPATH, 'lib', 'tgt_file.rb')
-        #   FileUtils.mkdir_p(File.dirname(filename2))
-        #   File.open(filename2, 'w') do |file|
-        #     file.puts "class SystemLibFile"
-        #     file.puts "end"
-        #   end
+        xit "requires the file in the target lib directory over system lib" do
+          filename1 = File.join(Cosmos::USERPATH, 'config', 'targets', 'INST', 'lib', 'tgt_file.rb')
+          FileUtils.mkdir_p(File.dirname(filename1))
+          File.open(filename1, 'w') do |file|
+            file.puts "class TgtLibFile"
+            file.puts "end"
+          end
+          filename2 = File.join(Cosmos::USERPATH, 'lib', 'tgt_file.rb')
+          FileUtils.mkdir_p(File.dirname(filename2))
+          File.open(filename2, 'w') do |file|
+            file.puts "class SystemLibFile"
+            file.puts "end"
+          end
 
-        #   tf = Tempfile.new('unittest')
-        #   tf.puts("REQUIRE tgt_file.rb")
-        #   tf.close
-        #   Target.new("INST").process_file(tf.path)
-        #   expect { TgtLibFile.new }.to_not raise_error
-        #   expect(Object.const_defined?('TgtLibFile')).to be true
-        #   expect(Object.const_defined?('SystemLibFile')).to be false
-        #   FileUtils.rm_rf filename1
-        #   FileUtils.rm_rf filename2
-        #   tf.unlink
-        # end
+          tf = Tempfile.new('unittest')
+          tf.puts("REQUIRE tgt_file.rb")
+          tf.close
+          Target.new("INST").process_file(tf.path)
+          expect { TgtLibFile.new }.to_not raise_error
+          expect(Object.const_defined?('TgtLibFile')).to be true
+          expect(Object.const_defined?('SystemLibFile')).to be false
+          FileUtils.rm_rf filename1
+          FileUtils.rm_rf filename2
+          tf.unlink
+        end
 
-        it "requires the file in the system lib directory" do
+        xit "requires the file in the system lib directory" do
           filename = File.join(Cosmos::USERPATH, 'lib', 'system_file.rb')
           File.open(filename, 'w') do |file|
             file.puts "class SystemFile"

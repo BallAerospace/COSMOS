@@ -13,6 +13,7 @@
 
 require 'cosmos'
 require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
+require 'cosmos/microservices/configure_microservices'
 require 'zip'
 require 'zip/filesystem'
 require 'fileutils'
@@ -312,7 +313,7 @@ def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil)
   system_config = Cosmos::SystemConfig.new(system_path)
   cmd_tlm_server_filename ||= 'cmd_tlm_server.txt'
   cmd_tlm_server_path = File.join(Dir.pwd, 'config', 'tools', 'cmd_tlm_server', cmd_tlm_server_filename)
-  cmd_tlm_server_config = Cosmos::CmdTlmServerConfig.new(cmd_tlm_server_path, system_config)
+  cts_config = Cosmos::CmdTlmServerConfig.new(cmd_tlm_server_path, system_config)
 
   rubys3_client = Aws::S3::Client.new
 
@@ -378,107 +379,7 @@ def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil)
     zip_targets[target.original_name] = hash
   end
 
-  target_list = []
-  target_names = []
-  system_config.targets.each do |target_name, target|
-    original_name = nil
-    original_name = target.original_name if target.name != target.original_name
-    target_filename = nil
-    target_filename = File.basename(target.filename) if target.filename
-    target_list << { 'target_name' => target_name, 'original_name' => original_name, 'target_filename' => target_filename, 'target_id' => target.id }
-    target_names << target_name
-  end
-  target_config_dir = File.join(Dir.pwd, 'config', 'targets')
-  Cosmos::System.instance(target_list, target_config_dir)
-
-  redis = Redis.new(url: "redis://localhost:6379/0")
-
-  # Save configuration to redis
-  redis.del("cosmos_system")
-  redis.hset('cosmos_system', 'limits_set', 'DEFAULT') # Current
-  redis.hset('cosmos_system', 'limits_sets', JSON.generate(['DEFAULT'])) # Array of possible sets
-  redis.hset('cosmos_system', 'target_names', JSON.generate(target_names))
-  Cosmos::System.targets.each do |target_name, target|
-    redis.hset('cosmos_targets', target_name, JSON.generate(target.as_json))
-  end
-
-  Cosmos::System.telemetry.all.each do |target_name, packets|
-    redis.del("cosmostlm__#{target_name}")
-    packets.each do |packet_name, packet|
-      puts "Configuring tlm packet: #{target_name} #{packet_name}"
-      redis.hset("cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
-    end
-  end
-  Cosmos::System.commands.all.each do |target_name, packets|
-    redis.del("cosmoscmd__#{target_name}")
-    packets.each do |packet_name, packet|
-      puts "Configuring cmd packet: #{target_name} #{packet_name}"
-      redis.hset("cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
-    end
-  end
-
-  # Configure microservices
-  # TODO: Need to only clear out old microservices that are unneeded for the current PROGRAM
-  # For now just clear them all
-  redis.del('cosmos_microservices')
-
-  cmd_tlm_server_config.interfaces.each do |interface_name, interface|
-    # Configure InterfaceMicroservice
-    target_list = []
-    interface.target_names.each do |target_name|
-      target = system_config.targets[target_name]
-      original_name = nil
-      original_name = target.original_name if target.name != target.original_name
-      target_filename = nil
-      target_filename = File.basename(target.filename) if target.filename
-      target_list << { 'target_name' => target_name, 'original_name' => original_name, 'target_filename' => target_filename, 'target_id' => target.id }
-    end
-    config = { 'filename' => "interface_microservice.rb", 'interface_params' => interface.config_params, 'target_list' => target_list }
-    redis.hset('cosmos_microservices', "INTERFACE__#{interface_name}", JSON.generate(config))
-    puts "Configured microservice INTERFACE__#{interface_name}"
-
-    # Configure DecomMicroservice
-    packet_topic_list = []
-    interface.target_names.each do |target_name|
-      begin
-        Cosmos::System.telemetry.packets(target_name).each do |packet_name, packet|
-          packet_topic_list << "PACKET__#{target_name}__#{packet_name}"
-        end
-      rescue
-        # No telemetry packets for this target
-      end
-    end
-    next unless packet_topic_list.length > 0
-
-    config = { 'filename' => "decom_microservice.rb", 'target_list' => target_list, 'topics' => packet_topic_list }
-    redis.hset('cosmos_microservices', "DECOM__#{interface_name}", JSON.generate(config))
-    puts "Configured microservice DECOM__#{interface_name}"
-
-    # Configure CvtMicroservice
-    decom_topic_list = []
-    interface.target_names.each do |target_name|
-      begin
-        Cosmos::System.telemetry.packets(target_name).each do |packet_name, packet|
-          decom_topic_list << "DECOM__#{target_name}__#{packet_name}"
-        end
-      rescue
-        # No telemetry packets for this target
-      end
-    end
-    config = { 'filename' => "cvt_microservice.rb", 'topics' => decom_topic_list }
-    redis.hset('cosmos_microservices', "CVT__#{interface_name}", JSON.generate(config))
-    puts "Configured microservice CVT__#{interface_name}"
-
-    # Configure PacketLogMicroservice
-    config = { 'filename' => "packet_log_microservice.rb", 'target_list' => target_list, 'topics' => packet_topic_list }
-    redis.hset('cosmos_microservices', "PACKETLOG__#{interface_name}", JSON.generate(config))
-    puts "Configured microservice PACKETLOG__#{interface_name}"
-
-    # Configure DecomLogMicroservice
-    config = { 'filename' => "decom_log_microservice.rb", 'target_list' => target_list, 'topics' => decom_topic_list }
-    redis.hset('cosmos_microservices', "DECOMLOG__#{interface_name}", JSON.generate(config))
-    puts "Configured microservice DECOMLOG__#{interface_name}"
-  end
+  Cosmos::ConfigureMicroservices.new(system_config, cts_config)
 end
 
 def get_redis_keys
@@ -498,8 +399,12 @@ def get_redis_keys
     begin
       puts "#{key}\n  #{redis.hkeys(key)}"
     rescue Redis::CommandError
-      # CommandError is raised if you try to hkeys on a stream
-      puts "Stream: #{key}\n  #{redis.xinfo(:stream, key)}"
+      begin
+        # CommandError is raised if you try to hkeys on a stream
+        puts "Stream: #{key}\n  #{redis.xinfo(:stream, key)}"
+      rescue
+        puts "Unknown key '#{key}'"
+      end
     end
   end
   puts "Packets Defs: #{keys.select{|item| item[/^tlm__/]}}"

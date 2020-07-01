@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -26,7 +26,7 @@ require 'nokogiri'
 require 'ostruct'
 
 module Cosmos
-
+  # Reads a command or telemetry configuration file and builds a hash of packets.
   class PacketConfig
     # @return [String] The name of this configuration. To be used by higher
     #   level classes to store information about the current PacketConfig.
@@ -85,8 +85,6 @@ module Cosmos
       @warnings = []
       @cmd_id_value_hash = {}
       @tlm_id_value_hash = {}
-
-      @redis = Redis.new(url: "redis://localhost:6379/0")
 
       # Create unknown packets
       @commands['UNKNOWN'] = {}
@@ -509,7 +507,6 @@ module Cosmos
       when 'LIMITS'
         @limits_sets << LimitsParser.parse(parser, @current_packet, @current_cmd_or_tlm, @current_item, @warnings)
         @limits_sets.uniq!
-        @redis.hset('cosmos_system', 'limits_sets', JSON.generate(@limits_sets))
 
       # Define a response class that will be called when the limits state of the
       # current item changes.

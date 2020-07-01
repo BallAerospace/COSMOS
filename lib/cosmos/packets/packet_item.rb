@@ -439,18 +439,18 @@ module Cosmos
 
       if self.limits
         if self.limits.values
+          config['limits'] ||= {}
+          config['limits']['persistence_setting'] = self.limits.persistence_setting
+          config['limits']['enabled'] = true if self.limits.enabled
           self.limits.values.each do |limits_set, limits_values|
-            config['limits'] ||= {}
             limits = {}
-            config['limits'][limits_set] = limits
-            limits['persistence_setting'] = self.limits.persistence_setting
-            limits['enabled'] = true if self.limits.enabled
             limits['red_low'] =  limits_values[0]
             limits['yellow_low'] = limits_values[1]
             limits['yellow_high'] = limits_values[2]
             limits['red_high'] = limits_values[3]
             limits['green_low'] = limits_values[4] if limits_values[4]
             limits['green_high'] = limits_values[5] if limits_values[5]
+            config['limits'][limits_set] = limits
           end
         end
         config['limits_response'] = self.limits.response.as_json if self.limits.response

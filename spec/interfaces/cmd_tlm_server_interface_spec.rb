@@ -14,6 +14,8 @@ require 'cosmos/interfaces/cmd_tlm_server_interface'
 module Cosmos
 
   describe CmdTlmServerInterface do
+    skip "TODO: this may no longer be needed" do
+
     before(:all) do
       # Save cmd_tlm_server.txt
       cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
@@ -145,5 +147,6 @@ module Cosmos
       end
     end
 
+  end
   end
 end

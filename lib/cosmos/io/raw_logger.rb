@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -13,7 +13,6 @@ require 'socket' # For gethostname
 require 'cosmos/config/config_parser'
 
 module Cosmos
-
   # Creates a log file of raw data for either reads or writes. Can automatically
   # cycle the log based on when the log file reaches a predefined size.
   class RawLogger
@@ -41,28 +40,23 @@ module Cosmos
     #    name of the corresponding interface
     # @param log_type [Symbol] The type of log to create. Must be :READ
     #   or :WRITE.
+    # @param log_directory [String] The directory to store the log files.
     # @param logging_enabled [Boolean] Whether to enable raw logging
     # @param cycle_size [Integer] The size in bytes before creating a new log file.
-    # @param log_directory [String] The directory to store the log files.
-    #   Passing nil will use the system default 'LOGS' directory.
     def initialize(
       log_name,
       log_type,
+      log_directory,
       logging_enabled = false,
-      cycle_size = 2000000000,
-      log_directory = nil
+      cycle_size = 2000000000
     )
       raise "log_type must be :READ or :WRITE" unless LOG_TYPES.include? log_type
       @log_type = log_type
       @orig_name = log_name
       @log_name = (log_name.to_s.downcase + '_raw_' + @log_type.to_s.downcase + '_' + self.object_id.to_s).freeze
+      @log_directory = log_directory
       @cycle_size = ConfigParser.handle_nil(cycle_size)
       @cycle_size = Integer(@cycle_size) if @cycle_size
-      if ConfigParser.handle_nil(log_directory)
-        @log_directory = log_directory
-      else
-        @log_directory = nil
-      end
       @mutex = Mutex.new
       @file = nil
       @filename = nil
@@ -129,13 +123,10 @@ module Cosmos
     # Starting a new log file is a critical operation so the entire method is
     # wrapped with a rescue and handled with handle_critical_exception
     def start_new_file
-      @log_directory ||= System.instance.paths['LOGS']
       close_file()
       @mutex.synchronize do
-        Cosmos.set_working_dir do
-          @filename = File.join(@log_directory, File.build_timestamped_filename([@log_name], '.bin'))
-          @file = File.new(@filename, 'wb')
-        end
+        @filename = File.join(@log_directory, File.build_timestamped_filename([@log_name], '.bin'))
+        @file = File.new(@filename, 'wb')
         @start_time = Time.now.sys
         Logger.instance.info "Raw Log File Opened : #{@filename}"
       end
@@ -151,9 +142,7 @@ module Cosmos
         if @file
           begin
             @file.close unless @file.closed?
-            Cosmos.set_working_dir do
-              File.chmod(0444, @file.path) # Make file read only
-            end
+            File.chmod(0444, @file.path) # Make file read only
             Logger.instance.info "Raw Log File Closed : #{@filename}"
           rescue => err
             Logger.instance.error "Error closing #{@filename} : #{err.formatted}"
@@ -164,7 +153,5 @@ module Cosmos
         end
       end
     end
-
-  end # class RawLogger
-
-end # module Cosmos
+  end
+end

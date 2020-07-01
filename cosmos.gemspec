@@ -81,13 +81,13 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'yard', '~> 0.9.11'
   s.add_runtime_dependency 'uuidtools', '~> 2.1'
   s.add_runtime_dependency 'snmp', '~> 1.0'
-  s.add_runtime_dependency 'rubyzip', '~> 1.2'
+  s.add_runtime_dependency 'rubyzip', '~> 2.0'
   s.add_runtime_dependency 'nokogiri', '~> 1.10'
   s.add_runtime_dependency 'puma', '~> 4.3'
   s.add_runtime_dependency 'rack', '~> 2.0'
   s.add_runtime_dependency 'httpclient', '~> 2.8'
   s.add_runtime_dependency 'fluent-logger', '~> 0.8'
-  s.add_runtime_dependency 'redis', '~> 4.1'
+  s.add_runtime_dependency 'redis', '~> 4.2'
   s.add_runtime_dependency 'childprocess', '~> 3.0'
   s.add_runtime_dependency 'connection_pool', '~> 2.2'
   s.add_runtime_dependency 'aws-sdk-s3', '~> 1.67'
@@ -101,13 +101,14 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'roodi', '~> 5.0'
   s.add_development_dependency 'guard', '~> 2.0'
   s.add_development_dependency 'listen', '~> 3.0'
-  s.add_development_dependency 'mock_redis', '~> 0.23'
+  s.add_development_dependency 'mock_redis', '~> 0.25'
   s.add_development_dependency 'guard-bundler', '~> 2.0'
   s.add_development_dependency 'guard-rspec', '~> 4.0'
   s.add_development_dependency 'simplecov', '~> 0.15'
   s.add_development_dependency 'codecov', '~> 0.1'
   s.add_development_dependency 'benchmark-ips', '~> 2.0'
   s.add_development_dependency 'ruby-prof', ['~> 1.0', '< 1.3'] if RUBY_ENGINE == 'ruby' # MRI Only
+  s.add_development_dependency 'rspec_junit_formatter'
 
   s.post_install_message = "Thanks for installing Ball Aerospace COSMOS!\nStart your first project with: cosmos demo demo\n"
 end

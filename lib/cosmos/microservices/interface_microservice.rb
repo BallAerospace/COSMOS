@@ -55,7 +55,14 @@ module Cosmos
 
           begin
             @interface.write(command)
-            Store.instance.update_interface(@interface)
+            # Write to stream
+            msg_hash = { time: command.received_time.to_nsec_from_epoch,
+                        target_name: command.target_name,
+                        packet_name: command.packet_name,
+                        received_count: command.received_count,
+                        buffer: command.buffer(false) }
+            Store.instance.write_topic("COMMAND__#{command.target_name}__#{command.packet_name}", msg_hash)
+            Store.instance.set_interface(@interface)
           rescue => e
             Logger.error e.formatted
             # TODO: Need to ack with error
@@ -76,7 +83,7 @@ module Cosmos
       interface_name = name.split("__")[1]
       @interface = Cosmos.require_class(@config['interface_params'][0]).new(*@config['interface_params'][1..-1])
       @interface.name = interface_name
-      Store.instance.update_interface(@interface)
+      Store.instance.set_interface(@interface)
       @config["target_list"].each do |item|
         @interface.target_names << item["target_name"]
       end
@@ -148,12 +155,12 @@ module Cosmos
         Logger.error "Packet reading thread unexpectedly died for #{@interface.name}\n#{error.formatted}"
         Cosmos.handle_fatal_exception(error)
       end
-      Store.instance.update_interface(@interface)
+      Store.instance.set_interface(@interface)
       Logger.info "Stopped packet reading for #{@interface.name}"
     end
 
     def handle_packet(packet)
-      Store.instance.update_interface(@interface)
+      Store.instance.set_interface(@interface)
 
       if packet.stored
         # Stored telemetry does not update the current value table
@@ -214,7 +221,7 @@ module Cosmos
                    packet_name: packet.packet_name,
                    received_count: packet.received_count,
                    buffer: packet.buffer(false) }
-      Store.instance.write_topic("PACKET__#{packet.target_name}__#{packet.packet_name}", msg_hash)
+      Store.instance.write_topic("TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
     end
 
     def handle_connection_failed(connect_error)
@@ -264,13 +271,13 @@ module Cosmos
     def connect
       Logger.info "Connecting to #{@interface.name}..."
       @interface.connect
-      Store.instance.update_interface(@interface)
+      Store.instance.set_interface(@interface)
       Logger.info "#{@interface.name} Connection Success"
     end
 
     def disconnect
       @interface.disconnect
-      Store.instance.update_interface(@interface)
+      Store.instance.set_interface(@interface)
 
       # If the interface is set to auto_reconnect then delay so the thread
       # can come back around and allow the interface a chance to reconnect.

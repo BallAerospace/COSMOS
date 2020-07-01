@@ -16,9 +16,6 @@ require 'cosmos/config/config_parser'
 require 'cosmos/io/json_rpc'
 
 module Cosmos
-  # Class to indicate Redis errors
-  class RedisError < RuntimeError; end
-
   class Store
     # Variable that holds the singleton instance
     @@instance = nil
@@ -36,12 +33,41 @@ module Cosmos
     end
 
     def initialize(pool_size = 10)
+      Redis.exists_returns_integer = true
       @redis_pool = ConnectionPool.new(size: pool_size) { Redis.new(url: "redis://localhost:6379/0") }
       @topic_offsets = {}
+      @overrides = {}
     end
 
-    def update_interface(interface)
-      @redis_pool.with { |redis| redis.hset("cosmos_interfaces", interface.name, JSON.generate(interface.to_info_hash)) }
+    def get_interfaces()
+      result = []
+      @redis_pool.with do |redis|
+        interfaces = redis.hgetall("cosmos_interfaces")
+        interfaces.each do |interface_name, interface_json|
+          result << JSON.parse(interface_json)
+        end
+      end
+      result
+    end
+
+    def get_interface(interface_name)
+      @redis_pool.with do |redis|
+        if redis.hexists("cosmos_interfaces", interface_name)
+          return JSON.parse(redis.hget("cosmos_interfaces", interface_name))
+        else
+          raise "Interface '#{interface_name}' does not exist"
+        end
+      end
+    end
+
+    def set_interface(interface, initialize: false)
+      @redis_pool.with do |redis|
+        if initialize || redis.hexists("cosmos_interfaces", interface.name)
+          return redis.hset("cosmos_interfaces", interface.name, JSON.generate(interface.as_json))
+        else
+          raise "Interface '#{interface.name}' does not exist"
+        end
+      end
     end
 
     # TODO: Is this used anywhere?
@@ -57,7 +83,6 @@ module Cosmos
         read_topics([ack_topic], nil, 100) do |topic, msg_id, msg_hash, redis|
           if msg_id == cmd_id
             Logger.info "Ack Received: #{msg_id}: #{msg_hash.inspect}"
-            # yield target_name, cmd_name, cmd_params, range_check, hazardous_check, raw
             if msg_hash["result"] == "SUCCESS"
               return
             else
@@ -89,40 +114,41 @@ module Cosmos
       states = []
       settings = []
 
-      # TODO: Consider removing or modifying this method to not include limits ranges or set
       if !item_array.is_a?(Array) || (!item_array[0].is_a?(Array) and !item_array.empty?)
         raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
       end
-      return [[], [], [], System.limits_set] if item_array.empty?
-      if value_types.is_a?(Array)
-        elem = value_types[0]
-      else
-        elem = value_types
-      end
-      # Due to JSON round tripping from scripts, value_types can be a String
-      # so we must check for both Symbol and String
-      if !elem.is_a?(Symbol) && !elem.is_a?(String)
-        raise ArgumentError, "value_types must be a single symbol or array of symbols specifying the conversion method (:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS)"
-      end
-
+      return [[], []] if item_array.empty?
       raise(ArgumentError, "Passed #{item_array.length} items but only #{value_types.length} value types") if (Array === value_types) and item_array.length != value_types.length
 
-      value_type = value_types.intern unless Array === value_types
+      # Convert value_types into an Array length of item_array to make thing easier
+      unless value_types.is_a?(Array)
+        value_types = [value_types] * item_array.length
+      end
+
+      # Validate value_types. Due to JSON round tripping from scripts, value_types can be a String or Symbol
+      value_types.each do |type|
+        if !type.is_a?(Symbol) && !type.is_a?(String)
+          raise ArgumentError, "value_types must be a single symbol or array of symbols specifying the conversion method (:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS)"
+        end
+        type = type.intern
+        unless %i(RAW CONVERTED FORMATTED WITH_UNITS).include?(type)
+          raise ArgumentError, "Unknown value type: #{type}"
+        end
+      end
+
       @redis_pool.with do |redis|
-        # Get all the stuff we need
-        full_result = redis.pipelined do
+        promises = []
+        redis.pipelined do
           item_array.length.times do |index|
-            entry = item_array[index]
-            target_name = entry[0]
-            packet_name = entry[1]
-            item_name = entry[2]
-            value_type = value_types[index].intern if Array === value_types
-            tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type)
+            target_name, packet_name, item_name = item_array[index]
+            value_type = value_types[index]
+            promises[index] = tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type)
           end
         end
-        item_array.length.times do |index|
-          value_type = value_types[index].intern if Array === value_types
-          result = full_result[index]
+        promises.each_with_index do |promise, index|
+          # puts "promise:#{promise.value}"
+          value_type = value_types[index]
+          result = promise.value
           if result[0]
             if value_type == :FORMATTED or value_type == :WITH_UNITS
               items << JSON.parse(result[0]).to_s
@@ -140,18 +166,23 @@ module Cosmos
           elsif result[3]
             items << JSON.parse(result[3]).to_s
           else
-            items << nil
+            raise "Item '#{item_array[0].join(' ')}' does not exist"
           end
           if result[-1]
-            states << JSON.parse(result[-1]).to_s
+            states << JSON.parse(result[-1]).intern
           else
             states << nil
           end
-          settings << nil # TODO: Modify API to not include this or limits_set
         end
       end
 
-      return items, states, settings
+      return items, states
+    end
+
+    def get_target_names
+      @redis_pool.with do |redis|
+        return redis.hkeys("cosmos_targets")
+      end
     end
 
     def get_target(target_name)
@@ -159,23 +190,60 @@ module Cosmos
         if redis.hexists("cosmos_targets", target_name)
           return JSON.parse(redis.hget("cosmos_targets", target_name))
         else
-          raise RedisError, "Target '#{target_name}' does not exist"
+          raise "Target '#{target_name}' does not exist"
+        end
+      end
+    end
+
+    def set_target(target)
+      @redis_pool.with do |redis|
+        if redis.hexists("cosmos_targets", target.name)
+          return redis.hset("cosmos_targets", target.name, JSON.generate(target.as_json))
+        else
+          raise "Target '#{target_name}' does not exist"
         end
       end
     end
 
     def get_packet(target_name, packet_name, type: 'tlm')
       @redis_pool.with do |redis|
+        # TODO: pipeline
         if redis.exists("cosmos#{type}__#{target_name}") != 0
           if redis.hexists("cosmos#{type}__#{target_name}", packet_name)
             return JSON.parse(redis.hget("cosmos#{type}__#{target_name}", packet_name))
           else
-            raise RedisError, "Packet '#{packet_name}' does not exist"
+            raise "Packet '#{target_name} #{packet_name}' does not exist"
           end
         else
-          raise RedisError, "Target '#{target_name}' does not exist"
+          raise "Target '#{target_name}' does not exist"
         end
       end
+    end
+
+    # TODO: Is this needed?
+    # def set_packet(packet, type: 'tlm')
+    #   @redis_pool.with do |redis|
+    #     if redis.exists("cosmos#{type}__#{packet.target_name}") != 0
+    #       if redis.hexists("cosmos#{type}__#{packet.target_name}", packet.packet_name)
+    #         return redis.hset("cosmos#{type}__#{packet.target_name}", packet.packet_name, JSON.generate(packet.as_json))
+    #       else
+    #         raise "Packet '#{packet.target_name} #{packet.packet_name}' does not exist"
+    #       end
+    #     else
+    #       raise "Target '#{packet.target_name}' does not exist"
+    #     end
+    #   end
+    # end
+
+    def get_item_from_packet_hash(packet, item_name)
+      item = packet['items'].find {|item| item['name'] == item_name }
+      raise "Item '#{packet['target_name']} #{packet['packet_name']} #{item_name}' does not exist" unless item
+      item
+    end
+
+    def get_item(target_name, packet_name, item_name, type: 'tlm')
+      packet = get_packet(target_name, packet_name, type: type)
+      get_item_from_packet_hash(packet, item_name)
     end
 
     def get_commands(target_name)
@@ -196,14 +264,28 @@ module Cosmos
             result << JSON.parse(packet_json)
           end
         else
-          raise RedisError, "Target '#{target_name}' does not exist"
+          raise "Target '#{target_name}' does not exist"
         end
       end
       result
     end
 
+    # TODO: This can't take a Packet but this is how the interface_microservice works
+    # def inject_packet(packet)
+    #   # Test to make sure this is a valid packet
+    #   get_packet(packet.target_name, packet.packet_name)
+
+    #   # Write new packet to stream
+    #   msg_hash = { time: packet.received_time.to_nsec_from_epoch,
+    #                stored: packet.stored,
+    #                target_name: packet.target_name,
+    #                packet_name: packet.packet_name,
+    #                received_count: packet.received_count, # TODO: Plus one?
+    #                buffer: packet.buffer(false) }
+    #   write_topic("TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
+    # end
+
     def tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type)
-      key = "tlm__#{target_name}__#{packet_name}"
       case value_type
       when :RAW
         secondary_keys = [item_name, "#{item_name}__L"]
@@ -214,7 +296,60 @@ module Cosmos
       else
         secondary_keys = ["#{item_name}__U", "#{item_name}__F", "#{item_name}__C", item_name, "#{item_name}__L"]
       end
-      result = redis.hmget(key, *secondary_keys)
+      result = redis.hmget("tlm__#{target_name}__#{packet_name}", *secondary_keys)
+    end
+
+    def get_tlm_item(target_name, packet_name, item_name, type: :WITH_UNITS)
+      if @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"]
+        return @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"]
+      end
+
+      types = []
+      case type
+      when :WITH_UNITS
+        types = ["#{item_name}__U", "#{item_name}__F", "#{item_name}__C", item_name]
+      when :FORMATTED
+        types = ["#{item_name}__F", "#{item_name}__C", item_name]
+      when :CONVERTED
+        types = ["#{item_name}__C", item_name]
+      when :RAW
+        types = [item_name]
+      end
+
+      @redis_pool.with do |redis|
+        results = redis.hmget("tlm__#{target_name}__#{packet_name}", *types)
+        results.each do |result|
+          return JSON.parse(result) if result
+        end
+        return nil
+      end
+    end
+
+    def set_tlm_item(target_name, packet_name, item_name, value, type: :CONVERTED)
+      case type
+      when :WITH_UNITS
+        field = "#{item_name}__U"
+      when :FORMATTED
+        field = "#{item_name}__F"
+      when :CONVERTED
+        field = "#{item_name}__C"
+      when :RAW
+        field = item_name
+      end
+
+      @redis_pool.with do |redis|
+        redis.hset("tlm__#{target_name}__#{packet_name}", field, value)
+      end
+    end
+
+    def override(target_name, packet_name, item_name, value, type:)
+      @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"] = value
+    end
+
+    def normalize(target_name, packet_name, item_name)
+      %w(RAW CONVERTED FORMATTED WITH_UNITS).each do |type|
+        @overrides.delete("#{target_name}__#{packet_name}__#{item_name}__#{type}")
+      end
     end
 
     def get_oldest_message(topic)
@@ -274,6 +409,16 @@ module Cosmos
       end
     end
 
+    def initialize_streams(topics)
+      # puts "init stream:#{topics}"
+      @redis_pool.with do |redis|
+        topics.each do |topic|
+          # Create empty stream with maxlen 0
+          redis.xadd(topic, { a: 'b' }, maxlen: 0)
+        end
+      end
+    end
+
     def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
       @redis_pool.with do |redis|
         if id
@@ -291,6 +436,15 @@ module Cosmos
     end
     def hset(key, field, value)
       @redis_pool.with { |redis| redis.hset(key, field, value) }
+    end
+    def del(key)
+      @redis_pool.with { |redis| redis.del(key) }
+    end
+    def exists?(*keys)
+      @redis_pool.with { |redis| redis.exists?(*keys) }
+    end
+    def scan(count, **options)
+      @redis_pool.with { |redis| redis.scan(count, **options) }
     end
   end
 end

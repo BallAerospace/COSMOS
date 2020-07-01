@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -14,9 +14,7 @@ require 'cosmos/packets/commands'
 require 'tempfile'
 
 module Cosmos
-
   describe Commands do
-
     describe "initialize" do
       it "has no warnings" do
         expect(Commands.new(PacketConfig.new).warnings).to be_empty
@@ -53,6 +51,7 @@ module Cosmos
       tf.puts '    POLY_WRITE_CONVERSION 0 2'
       tf.close
 
+      configure_store()
       pc = PacketConfig.new
       pc.process_file(tf.path, "SYSTEM")
       @cmd = Commands.new(pc)
@@ -158,7 +157,7 @@ module Cosmos
         expect(pkt.item1).to eql 1
         expect(pkt.item2).to eql 2
         expect(pkt.item3).to eql 1
-        expect(pkt.item4).to eql 2        
+        expect(pkt.item4).to eql 2
         target.cmd_unique_id_mode = false
       end
 
@@ -395,7 +394,5 @@ module Cosmos
         expect(@cmd.all.keys).to eql %w(UNKNOWN TGT1 TGT2)
       end
     end
-
   end
 end
-

@@ -61,9 +61,9 @@ module Cosmos
       table.setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff)
       table.setFixedSize(table.horizontalHeader.length + table.verticalHeader.width,
                          2 + table.verticalHeader.length + table.horizontalHeader.height)
-      @table_layout.addWidget(table) 
+      @table_layout.addWidget(table)
     end
-      
+
     def states_in_hex(checked)
       @cmd_params.states_in_hex(checked)
     end
@@ -134,7 +134,8 @@ module Cosmos
 
     # Create the command layout which holds the command name, information,
     # and the delete button to remove the sequence item.
-    # @param command [Packet] Command packet
+    # @param target_name [String] Target name
+    # @param packet_name [String] Packet name
     # @param time [String] Execution delay in absolute or relative time
     def create_cmd_layout(target_name, packet_name, time)
       cmd_layout = Qt::HBoxLayout.new

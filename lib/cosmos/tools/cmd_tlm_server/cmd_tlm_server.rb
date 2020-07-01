@@ -292,7 +292,7 @@ module Cosmos
         #@replay_backend.shutdown
       end
       @stop_callback.call if @stop_callback
-      # @message_log.stop if @message_log
+      #@message_log.stop if @message_log
     end
 
     # Set a stop callback

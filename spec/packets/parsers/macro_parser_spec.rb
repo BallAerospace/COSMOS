@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -15,9 +15,9 @@ require 'cosmos/packets/parsers/macro_parser'
 require 'tempfile'
 
 module Cosmos
-
   describe MacroParser do
     before(:each) do
+      configure_store()
       @pc = PacketConfig.new
     end
 
@@ -214,7 +214,6 @@ module Cosmos
         expect(pkt.limits_items).to be_empty
         tf.unlink
       end
-
     end
   end
 end

@@ -26,12 +26,14 @@ end
 module Cosmos
   # Reads YAML formatted files describing a configuration file
   class MetaConfigParser
+    @basedir = ''
     def self.load(filename)
       data = nil
       if File.exist?(filename)
         path = filename
+        @basedir = File.dirname(filename)
       else
-        path = Cosmos.data_path("config/#{filename}")
+        path = File.join(@basedir, filename)
       end
       tf = Tempfile.new("temp.yaml")
       output = ERB.new(File.read(path)).result(binding)
@@ -40,7 +42,7 @@ module Cosmos
       begin
         data = Psych.load_file(tf.path)
       rescue => error
-        error_file = "ERROR_#{filename}"
+        error_file = "#{filename}.err"
         File.open(error_file, 'w') { |file| file.puts output }
         raise error.exception("#{error.message}\n\nParsed output written to #{File.expand_path(error_file)}\n")
       end

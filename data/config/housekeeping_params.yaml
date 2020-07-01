@@ -7,7 +7,7 @@ ITEM:
     - name: Target Name
       description: The target name
       required: true
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet Name
       description: The packet name
       required: true

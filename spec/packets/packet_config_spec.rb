@@ -14,11 +14,10 @@ require 'cosmos/packets/packet_config'
 require 'tempfile'
 
 module Cosmos
-
   describe PacketConfig do
-
     describe "process_file" do
       before(:each) do
+        configure_store()
         @pc = PacketConfig.new
       end
 
@@ -43,11 +42,11 @@ module Cosmos
         tf.write limits
         tf.close
         @pc.process_file(tf.path, "TGT1")
-        @pc.to_config(System.paths["LOGS"])
-        @pc.to_xtce(System.paths["LOGS"])
-        expect(cmd.strip).to eql File.read(File.join(System.paths["LOGS"], 'TGT1', 'cmd_tlm', 'tgt1_cmd.txt')).strip
-        expect(tlm.strip).to eql File.read(File.join(System.paths["LOGS"], 'TGT1', 'cmd_tlm', 'tgt1_tlm.txt')).strip
-        expect(limits.strip).to eql File.read(File.join(System.paths["LOGS"], 'SYSTEM', 'cmd_tlm', 'limits_groups.txt')).strip
+        @pc.to_config(Cosmos::USERPATH)
+        @pc.to_xtce(Cosmos::USERPATH)
+        expect(cmd.strip).to eql File.read(File.join(Cosmos::USERPATH, 'TGT1', 'cmd_tlm', 'tgt1_cmd.txt')).strip
+        expect(tlm.strip).to eql File.read(File.join(Cosmos::USERPATH, 'TGT1', 'cmd_tlm', 'tgt1_tlm.txt')).strip
+        expect(limits.strip).to eql File.read(File.join(Cosmos::USERPATH, 'SYSTEM', 'cmd_tlm', 'limits_groups.txt')).strip
         tf.unlink
       end
 
@@ -114,7 +113,7 @@ module Cosmos
             tf.unlink
           end
         end
-        
+
         it "builds the id value hash" do
           @tlm_keywords.each do |keyword|
             next if %w(PROCESSOR META).include? keyword
@@ -132,11 +131,11 @@ module Cosmos
             expected_tlm_hash["TGT1"][[13, 114]] = @pc.telemetry["TGT1"]["PKT1"]
             expected_cmd_hash = {}
             expected_cmd_hash["TGT1"] = {}
-            expected_cmd_hash["TGT1"][[12, 115]] = @pc.commands["TGT1"]["PKT1"]            
+            expected_cmd_hash["TGT1"][[12, 115]] = @pc.commands["TGT1"]["PKT1"]
             expect(@pc.tlm_id_value_hash).to eql expected_tlm_hash
             expect(@pc.cmd_id_value_hash).to eql expected_cmd_hash
             tf.unlink
-          end          
+          end
         end
 
         it "complains if there are too many parameters" do
@@ -856,7 +855,6 @@ module Cosmos
           tf.unlink
         end
       end
-
-    end # describe "process_file"
+    end
   end
 end

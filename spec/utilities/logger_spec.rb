@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -13,10 +13,13 @@ require "cosmos/utilities/logger"
 
 module Cosmos
   describe Logger do
+    before(:each) do
+      Logger.class_variable_set(:@@instance, nil)
+    end
+
     describe "initialize" do
-      it "initializes the level to UNKNOWN" do
-        expect(Logger.new.level).to eql Logger::UNKNOWN
-        Logger.level = Logger::UNKNOWN
+      it "initializes the level to INFO" do
+        expect(Logger.new.level).to eql Logger::INFO
       end
     end
 
@@ -24,13 +27,13 @@ module Cosmos
       it "gets and set the level" do
         Logger.level = Logger::DEBUG
         expect(Logger.level).to eql Logger::DEBUG
-        Logger.level = Logger::UNKNOWN
       end
     end
 
     def test_output(level, method, block = false)
       stdout = StringIO.new('', 'r+')
       $stdout = stdout
+      Logger.stdout = true
       Logger.level = level
       if block
         Logger.send(method, "Message1") { "Block1" }
@@ -50,7 +53,6 @@ module Cosmos
         expect(stdout.string).not_to match("Message2")
       end
       $stdout = STDOUT
-      Logger.level = Logger::UNKNOWN
     end
 
     describe "debug" do
@@ -99,4 +101,3 @@ module Cosmos
     end
   end
 end
-

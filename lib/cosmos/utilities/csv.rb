@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -135,56 +135,5 @@ module Cosmos
     end
     alias sym symbol
 
-    # Creates a copy of the CSV file passed into the constructor. The file will
-    # be prefixed by the current date and time to create a unique filename.
-    # By default this file is created in the COSMOS/logs directory. Subsequent
-    # calls to {#write_archive} will write to this file until {#close_archive}
-    # is called.
-    #
-    # @param path [String] Path location to create the archive file. If nil the
-    #   file will be created in COSMOS/logs.
-    def create_archive(path = nil)
-      close_archive() if @archive
-      path = System.paths['LOGS'] if path.nil?
-
-      attempt = nil
-      while true
-        name = File.build_timestamped_filename([File.basename(@filename, '.csv'), attempt], '.csv')
-        @archive_file = File.join(path, name)
-        if File.exist?(@archive_file)
-          attempt ||= 0
-          attempt += 1
-        else
-          break
-        end
-      end
-
-      @archive = File.open(@archive_file, "w")
-      @hash.each do |key, values|
-        @archive.puts "#{key},#{values.join(',')}"
-      end
-      @archive.puts "\n"
-    end
-
-    # Write the archive file created by #{CSV#create_archive}. This method will
-    # append a row to the archive file by joining writing the value.
-    #
-    # @param value [Objct|Array] Simply value to write to the end of the
-    #   archive or array of values which will be written out as CSV
-    def write_archive(value)
-      create_archive() unless @archive
-      if value.is_a? Array
-        @archive.puts value.join(',')
-      else
-        @archive.puts value
-      end
-    end
-
-    # Closes the archive file created by #{CSV#create_archive}.
-    def close_archive
-      @archive.close
-      File.chmod(0444, @archive_file)
-      @archive = nil
-    end
   end
 end

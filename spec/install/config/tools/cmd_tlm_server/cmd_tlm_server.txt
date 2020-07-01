@@ -1,4 +1,2 @@
-INTERFACE SYSTEM_INT cmd_tlm_server_interface.rb
-  TARGET SYSTEM
 INTERFACE INST_INT interface.rb
-  TARGET INST
+TARGET INST

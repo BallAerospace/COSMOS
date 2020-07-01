@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -14,16 +14,12 @@ require "cosmos/utilities/message_log"
 module Cosmos
   describe MessageLog do
     describe "initialize" do
-      it "accepts a tool name and use the default LOG path" do
-        log = MessageLog.new('TEST')
-        log.start
-        log.stop
-        Cosmos.set_working_dir do
-          expect(File.exist?(log.filename)).to be true
-          expect(log.filename).to match('TEST')
-          expect(log.filename).to match('logs')
-          File.delete log.filename
-        end
+      it "requires a tool name" do
+        expect { MessageLog.new }.to raise_error(ArgumentError)
+      end
+
+      it "requires a log directory" do
+        expect { MessageLog.new('TEST') }.to raise_error(ArgumentError)
       end
 
       it "accepts a tool name and path" do
@@ -38,19 +34,17 @@ module Cosmos
 
     describe "write" do
       it "writes a message to the log" do
-        log = MessageLog.new('TEST')
+        log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)))
         log.write("Test message")
         log.stop
-        Cosmos.set_working_dir do
-          expect(File.read(log.filename)).to eql "Test message"
-          File.delete log.filename
-        end
+        expect(File.read(log.filename)).to eql "Test message"
+        File.delete log.filename
       end
     end
 
     describe "start" do
       it "creates a new message log" do
-        log = MessageLog.new('TEST')
+        log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)))
         log.start
         filename = log.filename
         # Allow a second to tick by so we have a unique filename
@@ -58,27 +52,22 @@ module Cosmos
         log.start
         expect(log.filename).not_to eql filename
         log.stop
-        Cosmos.set_working_dir do
-          File.delete filename
-          File.delete log.filename
-        end
+        File.delete filename
+        File.delete log.filename
       end
     end
 
     describe "stop" do
       it "closes the message log and mark it read-only" do
-        log = MessageLog.new('TEST')
+        log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)))
         log.start
         log.stop
         if Kernel.is_windows? or Process.uid != 0
           # writable? is always true for root, so skip this check
-          Cosmos.set_working_dir do
-            expect(File.stat(log.filename).writable?).to be false
-            File.delete log.filename
-          end
+          expect(File.stat(log.filename).writable?).to be false
+          File.delete log.filename
         end
       end
     end
   end
 end
-

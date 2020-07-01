@@ -1,0 +1,3 @@
+class MyTestFile
+  blah
+end

@@ -9,7 +9,7 @@ TARGET_COMPONENT:
     - name: Target
       required: true
       description: Name of the target
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Filename
       required: false
       description: The Data Viewer configuration file name. Defaults to data_viewer.txt.
@@ -36,7 +36,7 @@ COMPONENT:
         - name: Target
           required: true
           description: Name of the target
-          values: <%= System.targets.keys %>
+          values: <%= Store.instance.get_target_names %>
         - name: Packet
           required: true
           description: Name of the packet

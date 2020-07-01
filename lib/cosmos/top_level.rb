@@ -75,14 +75,12 @@ module Cosmos
   #
   # @param path [String] Directory path
   def self.add_to_search_path(path, front = true)
-    Cosmos.set_working_dir do
-      path = File.expand_path(path)
-      $:.delete(path)
-      if front
-        $:.unshift(path)
-      else # Back
-        $: << path
-      end
+    path = File.expand_path(path)
+    $:.delete(path)
+    if front
+      $:.unshift(path)
+    else # Back
+      $: << path
     end
   end
 

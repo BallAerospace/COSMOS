@@ -108,10 +108,6 @@ module Cosmos
     end
 
     # Processes a packet associated with this data object
-    #
-    # @param packet [Packet] The packet to process
-    # @param count [Integer] Count which increments for each packet received by
-    #   the higher level process
     def process_values(*args)
       raise "process_values must be defined by class #{self.class}"
     end

@@ -134,7 +134,7 @@ ARRAY:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -170,7 +170,7 @@ BLOCK:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -219,7 +219,7 @@ FORMATFONTVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -259,7 +259,7 @@ FORMATVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -281,13 +281,14 @@ FORMATVALUE:
       description: The number of characters wide to make the value box (default = 12)
       values: .*
 LABELLED:
-  summary: Displays a Label widget followed by a LED which changes color based on telemetry values.
+  summary:
+    Displays a Label widget followed by a LED which changes color based on telemetry values.
     See the LED widget documentation for more information.
   parameters:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -315,7 +316,7 @@ LABELLED:
         additional space going between them. 'CENTER' pushes the label and LED
         together with any additional space to the left and right. 'LEFT' or 'RIGHT'
         pushes them to the respective side with the space going on the opposite.
-      values: ['SPLIT','CENTER','LEFT','RIGHT']
+      values: ["SPLIT", "CENTER", "LEFT", "RIGHT"]
 LABELPROGRESSBAR:
   summary: Displays a LABEL widget showing the items
     name followed by a PROGRESSBAR widget to show the items value.
@@ -323,7 +324,7 @@ LABELPROGRESSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -354,7 +355,7 @@ LABELTRENDLIMITSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -390,7 +391,7 @@ LABELVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -414,7 +415,7 @@ LABELVALUE:
         additional space going between them. 'CENTER' pushes the label and value
         together with any additional space to the left and right. 'LEFT' or 'RIGHT'
         pushes them to the respective side with the space going on the opposite.
-      values: ['SPLIT','CENTER','LEFT','RIGHT']
+      values: ["SPLIT", "CENTER", "LEFT", "RIGHT"]
 LABELVALUEDESC:
   summary: Displays a LABEL widget to show the telemetry
     items description followed by a VALUE widget to display the items value.
@@ -422,7 +423,7 @@ LABELVALUEDESC:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -433,7 +434,8 @@ LABELVALUEDESC:
       values: .+
     - name: Description
       required: false
-      description: The description to display in the label (default is to display
+      description:
+        The description to display in the label (default is to display
         the description text associated with the telemetry item)
       values: .*
     - name: Value type
@@ -451,7 +453,7 @@ LABELFORMATVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -479,7 +481,7 @@ LABELVALUELIMITSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -504,7 +506,7 @@ LABELVALUELIMITSCOLUMN:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -528,7 +530,7 @@ LABELVALUERANGEBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -570,7 +572,7 @@ LABELVALUERANGECOLUMN:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -615,7 +617,7 @@ LED:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -643,7 +645,7 @@ LIMITSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -671,7 +673,7 @@ LIMITSCOLUMN:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -699,7 +701,7 @@ LIMITSCOLOR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -728,7 +730,7 @@ VALUELIMITSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -753,7 +755,7 @@ VALUELIMITSCOLUMN:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -777,7 +779,7 @@ VALUERANGEBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -819,7 +821,7 @@ VALUERANGECOLUMN:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -861,7 +863,7 @@ LINEGRAPH:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -892,7 +894,7 @@ PROGRESSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -921,7 +923,7 @@ RANGEBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -959,7 +961,7 @@ RANGECOLUMN:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -996,7 +998,7 @@ TEXTBOX:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -1019,7 +1021,7 @@ TIMEGRAPH:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -1043,7 +1045,7 @@ TIMEGRAPH:
     - name: Show Points
       required: false
       description: Whether to show points or just draw lines between points (default = true)
-      values: ['TRUE','FALSE']
+      values: ["TRUE", "FALSE"]
     - name: Time item name
       required: false
       description: The telemetry item to use as the time on the X axis (default = TIMESECONDS)
@@ -1060,7 +1062,7 @@ TRENDBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -1093,7 +1095,7 @@ TRENDLIMITSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -1123,7 +1125,8 @@ TRENDLIMITSBAR:
       description: Height of the limits bar (default = 25)
       values: .*
 VALUE:
-  summary: The VALUE widget displays a box with a value printed inside. The white
+  summary:
+    The VALUE widget displays a box with a value printed inside. The white
     portion of the box darkens to gray while the value remains stagnant, then
     brightens to white each time the value changes. Additionally the value is
     colored based on the items limits state (Red for example if it is out of limits).
@@ -1131,7 +1134,7 @@ VALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -1150,11 +1153,13 @@ VALUE:
       values: .*
 BUTTON:
   summary: Displays a rectangular clickable button
-  description: Upon clicking, the button executes the Ruby code assigned. Buttons
+  description:
+    Upon clicking, the button executes the Ruby code assigned. Buttons
     can be used to send commands and perform other tasks. If you want your button
     to use values from other widgets, define them as named widgets and read their
     values using the get_named_widget("WIDGET_NAME").text method.
-  warning: If your button logic gets complex it's recommended to require a separate
+  warning:
+    If your button logic gets complex it's recommended to require a separate
     script and pass the screen to the script using self,
     e.g. require utility.rb; utility_method(self).
   parameters:
@@ -1168,12 +1173,14 @@ BUTTON:
       values: .+
 BACKGROUNDBUTTON:
   summary: Displays a rectangular clickable button
-  description: Upon clicking, the button executes the Ruby code assigned in a new thread
+  description:
+    Upon clicking, the button executes the Ruby code assigned in a new thread
     so the code executes in the background (not in the GUI thread). Buttons
     can be used to send commands and perform other tasks. If you want your button
     to use values from other widgets, define them as named widgets and read their
     values using the get_named_widget("WIDGET_NAME").text method.
-  warning: If your button logic gets complex it's recommended to require a separate
+  warning:
+    If your button logic gets complex it's recommended to require a separate
     script and pass the screen to the script using self,
     e.g. require utility.rb; utility_method(self).
   parameters:
@@ -1225,7 +1232,8 @@ TEXTFIELD:
       values: .*
 SCREENSHOTBUTTON:
   summary: Creates a button which takes a screenshot of the screen it is on
-  description: The screenshot automatically gets placed in the outputs/logs directory
+  description:
+    The screenshot automatically gets placed in the outputs/logs directory
     with the current date / time and the name of the window.
   parameters:
     - name: Button Text
@@ -1278,7 +1286,7 @@ CANVASLABELVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -1306,7 +1314,7 @@ CANVASLABELVALUE:
     - name: Frame
       required: false
       description: Whether to draw a frame around the value
-      values: ['FALSE', 'TRUE']
+      values: ["FALSE", "TRUE"]
     - name: Frame Width
       required: false
       description: Frame width in pixels
@@ -1337,7 +1345,7 @@ CANVASIMAGEVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -1393,7 +1401,7 @@ CANVASLINE:
       required: false
       description: Indicates whether or not to draw a circle at the endpoint of
         the line
-      values: ['NO_CONNECTOR','CONNECTOR']
+      values: ["NO_CONNECTOR", "CONNECTOR"]
 CANVASLINEVALUE:
   summary: Draws a line onto the canvas in one of two colors based on the value
     of the associated telemetry item
@@ -1401,7 +1409,7 @@ CANVASLINEVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet name
       required: true
       description: The packet name
@@ -1444,7 +1452,7 @@ CANVASLINEVALUE:
       required: false
       description: Indicates whether or not to draw a circle at the endpoint of
         the line
-      values: ['NO_CONNECTOR','CONNECTOR']
+      values: ["NO_CONNECTOR", "CONNECTOR"]
     - name: Value type
       required: false
       description: The type of the value to display. Default is RAW

@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -21,19 +21,20 @@ module Cosmos
     attr_accessor :write_logger
 
     # @param name [String] name to be added to log file names
+    # @param log_directory [String] The directory to store the log files
     # @param params [Array] raw log writer parameters or empty array
-    def initialize(name, params = [])
+    def initialize(name, log_directory, params = [])
       if params.empty?
         raw_logger_class = RawLogger
       else
         raw_logger_class = Cosmos.require_class(params[0])
       end
       if params[1]
-        @read_logger = raw_logger_class.new(name, :READ, *params[1..-1])
-        @write_logger = raw_logger_class.new(name, :WRITE, *params[1..-1])
+        @read_logger = raw_logger_class.new(name, :READ, log_directory, *params[1..-1])
+        @write_logger = raw_logger_class.new(name, :WRITE, log_directory, *params[1..-1])
       else
-        @read_logger = raw_logger_class.new(name, :READ)
-        @write_logger = raw_logger_class.new(name, :WRITE)
+        @read_logger = raw_logger_class.new(name, :READ, log_directory)
+        @write_logger = raw_logger_class.new(name, :WRITE, log_directory)
       end
     end
 
@@ -65,7 +66,5 @@ module Cosmos
       raw_logger_pair.write_logger.start if @write_logger.logging_enabled
       raw_logger_pair
     end
-
-  end # class PacketLogWriterPair
-
-end # module Cosmos
+  end
+end

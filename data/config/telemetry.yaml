@@ -8,39 +8,42 @@ TELEMETRY:
     - name: Target
       required: true
       description: Name of the target this telemetry packet is associated with
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Command
       required: true
-      description: Name of this telemetry packet. Also referred to as its mnemonic.
+      description:
+        Name of this telemetry packet. Also referred to as its mnemonic.
         Must be unique to telemetry packets in this target. Ideally will be as short and clear as possible.
       values: \D\S*
     - name: Endianness
       required: true
       description: Indicates if the data in this packet is in Big Endian or Little Endian format
-      values: ['BIG_ENDIAN', 'LITTLE_ENDIAN']
+      values: ["BIG_ENDIAN", "LITTLE_ENDIAN"]
     - name: Description
       required: false
       description: Description of this telemetry packet which must be enclosed with quotes
-      values: "['\"].*['\"]"
+      values: '[''"].*[''"]'
 SELECT_TELEMETRY:
   modifiers:
     <%= MetaConfigParser.load('telemetry_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Selects an existing telemetry packet for editing
-  description: Typically used in a separate configuration file from where the original
+  description:
+    Typically used in a separate configuration file from where the original
     telemetry is defined to override or add to the existing telemetry definition
   example: SELECT_TELEMETRY SYSTEM LIMITS_CHANGE
   parameters:
     - name: Target Name
       required: true
       description: Name of the target this telemetry packet is associated with
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Command Name
       required: true
       description: Name of the telemetry packet to select
       values: .+
 LIMITS_GROUP:
   summary: Defines a group of related limits Items
-  description: Limits groups contain telemetry items that can be enabled and disabled together.
+  description:
+    Limits groups contain telemetry items that can be enabled and disabled together.
     It can be used to group related limits as a subsystem that can be enabled or disabled
     as that particular subsystem is powered (for example). To enable a group call the
     enable_limits_group("NAME") method in Script Runner. To disable a group call the
@@ -55,7 +58,8 @@ LIMITS_GROUP:
       values: .+
 LIMITS_GROUP_ITEM:
   summary: Adds the specified telemetry item to the last defined LIMITS_GROUP
-  description: Limits group information is typically kept in a separate configuration
+  description:
+    Limits group information is typically kept in a separate configuration
     file in the config/TARGET/cmd_tlm folder named limits_groups.txt. If you want to
     configure multiple target items in a particular group you should put this information
     in the config/SYSTEM/cmd_tlm/limits_groups.txt file. The SYSTEM target is processed
@@ -69,7 +73,7 @@ LIMITS_GROUP_ITEM:
     - name: Target Name
       required: true
       description: Name of the target
-      values: <%= System.targets.keys %>
+      values: <%= Store.instance.get_target_names %>
     - name: Packet Name
       required: true
       description: Name of the packet

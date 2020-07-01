@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -31,6 +31,8 @@ module Cosmos
   # create all the Target instances. It also saves and restores configurations
   # using a hashing checksum over the entire configuration to detect changes.
   class SystemConfig
+    # @return [String] Base path of the configuration
+    attr_reader :userpath
     # @return [Boolean] Whether to use sound for alerts
     attr_reader :sound
     # @return [Boolean] Whether to use DNS to lookup IP addresses or not

@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -12,18 +12,24 @@ require 'spec_helper'
 require 'cosmos/io/raw_logger_pair'
 
 module Cosmos
-
   describe RawLoggerPair do
-
     describe "initialize" do
+      it "requires a name" do
+        expect { RawLoggerPair.new }.to raise_error(ArgumentError)
+      end
+
+      it "requires a log directory" do
+        expect { RawLoggerPair.new('MYINT') }.to raise_error(ArgumentError)
+      end
+
       it "sets the write logger and read logger" do
-        pair = RawLoggerPair.new('MYINT')
+        pair = RawLoggerPair.new('MYINT', '.')
         expect(pair.read_logger).not_to be_nil
         expect(pair.write_logger).not_to be_nil
         expect(pair.read_logger.logging_enabled).to be false
         expect(pair.write_logger.logging_enabled).to be false
 
-        pair = RawLoggerPair.new('MYINT2', ['raw_logger.rb', true, 100000, './'])
+        pair = RawLoggerPair.new('MYINT2', '.', ['raw_logger.rb', true, 100000])
         expect(pair.read_logger).not_to be_nil
         expect(pair.write_logger).not_to be_nil
         expect(pair.read_logger.logging_enabled).to be true
@@ -33,7 +39,7 @@ module Cosmos
 
     describe "start" do
       it "starts logging" do
-        pair = RawLoggerPair.new('MYINT')
+        pair = RawLoggerPair.new('MYINT', '.')
         pair.start
         expect(pair.write_logger.logging_enabled).to be true
         expect(pair.read_logger.logging_enabled).to be true
@@ -42,7 +48,7 @@ module Cosmos
 
     describe "stop" do
       it "stops logging" do
-        pair = RawLoggerPair.new('MYINT')
+        pair = RawLoggerPair.new('MYINT', '.')
         pair.start
         expect(pair.write_logger.logging_enabled).to be true
         expect(pair.read_logger.logging_enabled).to be true
@@ -54,7 +60,7 @@ module Cosmos
 
     describe "clone" do
       it "clones itself including logging state" do
-        pair = RawLoggerPair.new('MYINT')
+        pair = RawLoggerPair.new('MYINT', '.')
         expect(pair.write_logger.logging_enabled).to be false
         expect(pair.read_logger.logging_enabled).to be false
         pair_clone1 = pair.clone
@@ -70,7 +76,5 @@ module Cosmos
         expect(pair_clone2.read_logger.logging_enabled).to be true
       end
     end
-
   end
 end
-

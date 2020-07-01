@@ -84,8 +84,6 @@ class RakeCrc32
 
 end
 
-require 'yard' if RUBY_ENGINE == 'ruby'
-
 # Import the rake tasks
 import 'tasks/manifest.rake'
 import 'tasks/spec.rake'
@@ -102,7 +100,7 @@ task :require_version do
 end
 
 task :devkit do
-  if RUBY_ENGINE == 'ruby'
+  if RbConfig::CONFIG['target_os'] =~ /mswin|mingw|cygwin/i and RUBY_ENGINE == 'ruby'
     msys64_path = File.expand_path(File.join(File.dirname(`where ruby`.split("\n")[0]), '..', 'msys64'))
     if File.exist?(msys64_path)
       ENV['RI_DEVKIT'] = msys64_path
@@ -279,6 +277,7 @@ task :mac_app_exec_bit do
 end
 
 if RUBY_ENGINE == 'ruby'
+  require 'yard'
   YARD::Rake::YardocTask.new do |t|
     t.options = ['--protected'] # See all options by typing 'yardoc --help'
   end
@@ -317,6 +316,6 @@ task :docker_run do
   STDOUT.puts "16. git checkout -b vX.X.X"
   STDOUT.puts "17. git push --set-upstream origin vX.X.X"
   STDOUT.puts "18. Update release notes on github.com and cosmosrb.com"
-  
+
   system('docker run -it --rm cosmos-dev')
 end

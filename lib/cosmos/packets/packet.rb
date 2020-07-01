@@ -91,9 +91,9 @@ module Cosmos
       #   subclass of PacketItem)
       def initialize(target_name, packet_name, default_endianness = :BIG_ENDIAN, description = nil, buffer = '', item_class = PacketItem)
         super(default_endianness, buffer, item_class)
-        self.target_name = target_name
-        self.packet_name = packet_name
-        self.description = description
+        @target_name = target_name
+        @packet_name = packet_name
+        @description = description
         @received_time = nil
         @received_count = 0
         @id_items = nil
@@ -257,7 +257,7 @@ module Cosmos
     # the "shape" of the packet.  This value is cached and that packet should not be changed if this method is being used
     def config_name
       return @config_name if @config_name
-      string = "#{self.target_name} #{self.packet_name}"
+      string = "#{@target_name} #{@packet_name}"
       @sorted_items.each do |item|
         string << " ITEM #{item.name} #{item.bit_offset} #{item.bit_size} #{item.data_type} #{item.array_size} #{item.endianness} #{item.overflow} #{item.states} #{item.read_conversion ? item.read_conversion.class : 'NO_CONVERSION'}"
       end
@@ -902,16 +902,16 @@ module Cosmos
       config = ''
 
       if cmd_or_tlm == :TELEMETRY
-        config << "TELEMETRY #{self.target_name.to_s.quote_if_necessary} #{self.packet_name.to_s.quote_if_necessary} #{@default_endianness} \"#{self.description}\"\n"
+        config << "TELEMETRY #{@target_name.to_s.quote_if_necessary} #{@packet_name.to_s.quote_if_necessary} #{@default_endianness} \"#{@description}\"\n"
       else
-        config << "COMMAND #{self.target_name.to_s.quote_if_necessary} #{self.packet_name.to_s.quote_if_necessary} #{@default_endianness} \"#{self.description}\"\n"
+        config << "COMMAND #{@target_name.to_s.quote_if_necessary} #{@packet_name.to_s.quote_if_necessary} #{@default_endianness} \"#{@description}\"\n"
       end
-      config << "  ALLOW_SHORT\n" if self.short_buffer_allowed
-      config << "  HAZARDOUS #{self.hazardous_description.to_s.quote_if_necessary}\n" if self.hazardous
-      config << "  DISABLE_MESSAGES\n" if self.messages_disabled
-      if self.disabled
+      config << "  ALLOW_SHORT\n" if @short_buffer_allowed
+      config << "  HAZARDOUS #{@hazardous_description.to_s.quote_if_necessary}\n" if @hazardous
+      config << "  DISABLE_MESSAGES\n" if @messages_disabled
+      if @disabled
         config << "  DISABLED\n"
-      elsif self.hidden
+      elsif @hidden
         config << "  HIDDEN\n"
       end
 
@@ -928,12 +928,12 @@ module Cosmos
       end
 
       # Items with derived items last
-      self.sorted_items.each do |item|
+      @sorted_items.each do |item|
         if item.data_type != :DERIVED
           config << item.to_config(cmd_or_tlm, @default_endianness)
         end
       end
-      self.sorted_items.each do |item|
+      @sorted_items.each do |item|
         if item.data_type == :DERIVED
           unless RESERVED_ITEM_NAMES.include?(item.name)
             config << item.to_config(cmd_or_tlm, @default_endianness)
@@ -946,16 +946,17 @@ module Cosmos
 
     def as_json
       config = {}
-      config['target_name'] = self.target_name.to_s
-      config['packet_name'] = self.packet_name.to_s
+      config['target_name'] = @target_name.to_s
+      config['packet_name'] = @packet_name.to_s
       config['endianness'] = @default_endianness.to_s
-      config['description'] = self.description
-      config['short_buffer_allowed'] = true if self.short_buffer_allowed
-      config['hazardous'] = true if self.hazardous
-      config['hazardous_description'] = self.hazardous_description.to_s if self.hazardous_description
-      config['messages_disabled'] = true if self.messages_disabled
-      config['disabled'] = true if self.disabled
-      config['hidden'] = true if self.hidden
+      config['description'] = @description
+      config['short_buffer_allowed'] = true if @short_buffer_allowed
+      config['hazardous'] = true if @hazardous
+      config['hazardous_description'] = @hazardous_description.to_s if @hazardous_description
+      config['messages_disabled'] = true if @messages_disabled
+      config['disabled'] = true if @disabled
+      config['hidden'] = true if @hidden
+      config['stale'] = true if @stale
 
       if @processors
         processors = []
@@ -970,12 +971,12 @@ module Cosmos
       items = []
       config['items'] = items
       # Items with derived items last
-      self.sorted_items.each do |item|
+      @sorted_items.each do |item|
         if item.data_type != :DERIVED
           items << item.as_json
         end
       end
-      self.sorted_items.each do |item|
+      @sorted_items.each do |item|
         if item.data_type == :DERIVED
           unless RESERVED_ITEM_NAMES.include?(item.name)
             items << item.as_json

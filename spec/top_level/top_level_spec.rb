@@ -29,7 +29,6 @@ end
 module Cosmos
   def self.cleanup_exceptions
     # Delete the 'exception' files
-    Dir[File.join(System.paths['LOGS'], '*')].each {|file| FileUtils.rm_f file }
     Dir[File.join(File.dirname(__FILE__),"*exception.txt")].each {|file| FileUtils.rm_f file }
   end
 
@@ -58,38 +57,6 @@ module Cosmos
     end
   end
 
-  describe "self.define_user_path" do
-    after(:each) do
-      Cosmos.disable_warnings do
-        Cosmos.const_set(:USERPATH, DEFAULT_USERPATH)
-      end
-      ENV.delete('COSMOS_USERPATH')
-    end
-
-    it "is initially set" do
-      expect(Cosmos::USERPATH).not_to be_nil
-    end
-
-    context "when searching for config/system and config/targets" do
-      it "giveups if it can't be found" do
-        old = Cosmos::USERPATH
-        Cosmos.define_user_path(Dir.home)
-        expect(Cosmos::USERPATH).to eql old
-      end
-
-      it "sets the path to where config/system and config/targets are found" do
-        ENV.delete('COSMOS_USERPATH')
-        old = Cosmos::USERPATH
-        expect(old).not_to eql File.dirname(__FILE__)
-        FileUtils.mkdir_p(File.join(File.dirname(__FILE__), 'config', 'system'))
-        FileUtils.mkdir_p(File.join(File.dirname(__FILE__), 'config', 'targets'))
-        Cosmos.define_user_path(File.dirname(__FILE__))
-        expect(Cosmos::USERPATH).to eql File.dirname(__FILE__)
-        FileUtils.rm_rf(File.join(File.dirname(__FILE__), 'config'))
-      end
-    end
-  end
-
   describe "self.add_to_search_path" do
     it "adds a directory to the Ruby search path" do
       if Kernel.is_windows?
@@ -100,64 +67,18 @@ module Cosmos
     end
   end
 
-  describe "data_path" do
-    it "looks first in USERPATH/config/data" do
-      filename = Cosmos.data_path('data.txt')
-      expect(filename).to eql File.join(Cosmos::USERPATH,'config','data','data.txt')
-    end
-
-    it "looks in core/data" do
-      filename = Cosmos.data_path('about.txt')
-      expect(filename).to eql File.join(Cosmos::PATH,'data','about.txt')
-    end
-
-    it "returns nil if the file is not found" do
-      expect(Cosmos.data_path('nope.txt')).to be_nil
-    end
-  end
-
-  describe "path" do
-    it "looks first in the USERPATH" do
-      filename = Cosmos.path(__FILE__, ['config','system','system.txt'])
-      expect(filename).to eql File.join(Cosmos::USERPATH,'config','system','system.txt')
-    end
-
-    it "looks relative to the absolute path calling_file" do
-      spec = File.expand_path(File.join(File.dirname(Cosmos::USERPATH),'spec_helper.rb'))
-      filename = Cosmos.path(spec, ['top_level', 'top_level_spec.rb'])
-      expect(filename).to eql __FILE__
-    end
-
-    it "looks relative to the relative path calling_file" do
-      filename = Cosmos.path('spec/spec_helper.rb', ['top_level', 'top_level_spec.rb'])
-      expect(filename).to eql __FILE__
-    end
-
-    it "complains if the path is not found" do
-      expect { Cosmos.path(__FILE__, ['nope', 'nowhere.rb']) }.to raise_error(/Could not find path/)
-    end
-  end
-
   describe "self.marshal_dump, self.marshal_load" do
-    after(:each) do
-      Cosmos.disable_warnings do
-        Cosmos.const_set(:USERPATH, DEFAULT_USERPATH)
-      end
-      ENV.delete('COSMOS_USERPATH')
-    end
-
     it "dumps and load a Ruby object" do
       capture_io do |stdout|
         # Configure the user path to be local
-        ENV['COSMOS_USERPATH'] = File.dirname(__FILE__)
-        Cosmos.define_user_path
+        # ENV['COSMOS_USERPATH'] = File.dirname(__FILE__)
 
         array = [1,2,3,4]
         Cosmos.marshal_dump('marshal_test', array)
         array_load = Cosmos.marshal_load('marshal_test')
-        expect(File.exist?(File.join(Cosmos::USERPATH,'marshal_test'))).to be true
+        expect(File.exist?(File.join(Cosmos::PATH,'marshal_test'))).to be true
         expect(array).to eql array_load
-        File.delete(File.join(Cosmos::USERPATH,'marshal_test'))
+        File.delete(File.join(Cosmos::PATH,'marshal_test'))
       end
     end
 
@@ -189,11 +110,11 @@ module Cosmos
       expect(Cosmos.marshal_load('blah')).to be_nil
 
       # Attempt to load something that doesn't have the marshal header
-      File.open(File.join(Cosmos::USERPATH,'marshal_test'),'wb') {|f| f.puts "marshal!" }
+      File.open(File.join(Cosmos::PATH,'marshal_test'),'wb') {|f| f.puts "marshal!" }
       expect(Cosmos.marshal_load('marshal_test')).to be_nil
 
       # Attempt to load something that has a bad marshal
-      File.open(File.join(Cosmos::USERPATH,'marshal_test'),'wb') do |file|
+      File.open(File.join(Cosmos::PATH,'marshal_test'),'wb') do |file|
         file.write(Cosmos::COSMOS_MARSHAL_HEADER)
         file.write("\x00\x01")
       end
@@ -224,8 +145,6 @@ module Cosmos
   describe "run_process_check_output" do
     it "executes a command while capturing output" do
       if RUBY_ENGINE == 'ruby' and Kernel.is_windows?
-        require 'Qt'
-        allow(::Qt::Application).to receive(:instance).and_return(nil)
         output = ''
         allow(Logger).to receive(:error) {|str| output = str}
         thread = Cosmos.run_process_check_output("ping 192.0.0.234 -n 1 -w 1000")
@@ -237,23 +156,23 @@ module Cosmos
 
   describe "hash_files" do
     it "calculates a hashing sum across files in md5 mode" do
-      File.open(File.join(Cosmos::USERPATH,'test1.txt'),'w') {|f| f.puts "test1" }
-      File.open(File.join(Cosmos::USERPATH,'test2.txt'),'w') {|f| f.puts "test2" }
+      File.open(File.join(Cosmos::PATH,'test1.txt'),'w') {|f| f.puts "test1" }
+      File.open(File.join(Cosmos::PATH,'test2.txt'),'w') {|f| f.puts "test2" }
       digest = Cosmos.hash_files(["test1.txt", "test2.txt"])
       expect(digest.digest.length).to be 16
       expect(digest.hexdigest).to eql 'e51dfbea83de9c7e6b49560089d8a170'
-      File.delete(File.join(Cosmos::USERPATH, 'test1.txt'))
-      File.delete(File.join(Cosmos::USERPATH, 'test2.txt'))
+      File.delete(File.join(Cosmos::PATH, 'test1.txt'))
+      File.delete(File.join(Cosmos::PATH, 'test2.txt'))
     end
 
     it "calculates a hashing sum across files in sha256 mode" do
-      File.open(File.join(Cosmos::USERPATH,'test1.txt'),'w') {|f| f.puts "test1" }
-      File.open(File.join(Cosmos::USERPATH,'test2.txt'),'w') {|f| f.puts "test2" }
+      File.open(File.join(Cosmos::PATH,'test1.txt'),'w') {|f| f.puts "test1" }
+      File.open(File.join(Cosmos::PATH,'test2.txt'),'w') {|f| f.puts "test2" }
       digest = Cosmos.hash_files(["test1.txt", "test2.txt"], nil, 'SHA256')
       expect(digest.digest.length).to be 32
       expect(digest.hexdigest).to eql '49789e7c809eb38ea34864b00e2cfd68825e0c07cd7b7d0c6fe2642ac87a919c'
-      File.delete(File.join(Cosmos::USERPATH, 'test1.txt'))
-      File.delete(File.join(Cosmos::USERPATH, 'test2.txt'))
+      File.delete(File.join(Cosmos::PATH, 'test1.txt'))
+      File.delete(File.join(Cosmos::PATH, 'test2.txt'))
     end
   end
 
@@ -262,13 +181,6 @@ module Cosmos
     it "creates a log file in System LOGS" do
       filename1 = Cosmos.create_log_file('test')
       expect(File.exist?(filename1)).to be true
-      if File.dirname(filename1)[-1] == '/' and System.paths['LOGS'][-1] != '/'
-        expect(File.dirname(filename1)).to eq (System.paths['LOGS'] + '/')
-      elsif File.dirname(filename1)[-1] != '/' and System.paths['LOGS'][-1] == '/'
-        expect(File.dirname(filename1) + '/').to eq System.paths['LOGS']
-      else
-        expect(File.dirname(filename1)).to eq System.paths['LOGS']
-      end
       File.delete(filename1)
     end
 
@@ -283,7 +195,7 @@ module Cosmos
       File.delete(filename1)
       File.delete(filename2)
 
-      Cosmos.set_working_dir do
+      Cosmos.set_working_dir(Cosmos::USERPATH) do
         # Move the defaults output dir out of the way for this test
         begin
           FileUtils.mv('outputs', 'outputs_bak')
@@ -383,12 +295,9 @@ module Cosmos
 
   describe "require_class" do
     it "requires the class represented by the filename" do
-      filename = File.join(Cosmos::USERPATH,"lib","my_test_class.rb")
+      filename = File.join(Cosmos::PATH,"lib","my_test_class.rb")
       File.delete(filename) if File.exist? filename
 
-      # Explicitly load cosmos.rb to ensure the Cosmos::USERPATH/lib
-      # directory is in the path
-      load 'cosmos.rb'
       File.open(filename,'w') do |file|
         file.puts "class MyTestClass"
         file.puts "end"
@@ -401,12 +310,9 @@ module Cosmos
     end
 
     it "requires the class represented by the classname" do
-      filename = File.join(Cosmos::USERPATH,"lib","my_other_test_class.rb")
+      filename = File.join(Cosmos::PATH,"lib","my_other_test_class.rb")
       File.delete(filename) if File.exist? filename
 
-      # Explicitly load cosmos.rb to ensure the Cosmos::USERPATH/lib
-      # directory is in the path
-      load 'cosmos.rb'
       File.open(filename,'w') do |file|
         file.puts "class MyOtherTestClass"
         file.puts "end"
@@ -421,12 +327,9 @@ module Cosmos
 
   describe "require_file" do
     it "requires the file" do
-      filename = File.join(Cosmos::USERPATH,"lib","my_test_file.rb")
+      filename = File.join(Cosmos::PATH,"lib","my_test_file.rb")
       File.delete(filename) if File.exist? filename
 
-      # Explicitly load cosmos.rb to ensure the Cosmos::USERPATH/lib
-      # directory is in the path
-      load 'cosmos.rb'
       expect { Cosmos.require_file("my_test_file.rb") }.to raise_error(LoadError, /Unable to require my_test_file.rb/)
 
       File.open(filename,'w') do |file|
@@ -515,31 +418,6 @@ module Cosmos
       expect(@log_info).to match("")
       expect(@log_warn).to match("Failed to gracefully kill thread")
       expect(@log_error).to match("Failed to kill thread")
-    end
-  end
-
-  describe "open_file_browser" do
-    it "opens a file browser" do
-      unless ENV['TRAVIS']
-        expect(Cosmos).to receive(:system).with(/#{Dir.pwd}/)
-        Cosmos.open_file_browser(Dir.pwd)
-      end
-    end
-  end
-
-  describe "open_in_text_editor" do
-    it "opens the file in a text editor" do
-      unless ENV['TRAVIS']
-        expect(Cosmos).to receive(:system).with(/#{File.basename(__FILE__)}/)
-        Cosmos.open_in_text_editor(__FILE__)
-      end
-    end
-  end
-
-  describe "open_in_web_browser" do
-    it "opens the file in a web browser" do
-      expect(Cosmos).to receive(:system).with(/#{File.basename(__FILE__)}/)
-      Cosmos.open_in_web_browser(__FILE__)
     end
   end
 end

@@ -72,6 +72,26 @@ def exit(*args)
   $system_exit_count += 1
 end
 
+require 'mock_redis'
+require 'cosmos/utilities/store'
+require 'cosmos/system/system_config'
+require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
+require 'cosmos/microservices/configure_microservices'
+
+def configure_store
+  Cosmos::Store.class_variable_set(:@@instance, nil)
+  system_path = File.join(__dir__, 'install', 'config', 'system', 'system.txt')
+  system_config = Cosmos::SystemConfig.new(system_path)
+  cts_path = File.join(__dir__, 'install', 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
+  cts_config = Cosmos::CmdTlmServerConfig.new(cts_path, system_config)
+
+  redis = MockRedis.new
+  allow(Redis).to receive(:new).and_return(redis)
+  # Setup Redis with all the keys and fields
+  Cosmos::ConfigureMicroservices.new(system_config, cts_config, logger: Cosmos::Logger.new)
+  redis
+end
+
 RSpec.configure do |config|
   # Enforce the new expect() syntax instead of the old should syntax
   config.expect_with :rspec do |c|
@@ -126,6 +146,7 @@ end
 def capture_io
   # Set the logger level to DEBUG so we see all output
   Cosmos::Logger.instance.level = Logger::DEBUG
+  Cosmos::Logger.stdout = true
   # Create a StringIO object to capture the output
   stdout = StringIO.new('', 'r+')
   $stdout = stdout
@@ -140,6 +161,7 @@ def capture_io
   # Yield back the StringIO so they can match against it
   yield stdout
 
+  Cosmos::Logger.stdout = false
   # Restore the logger to FATAL to prevent all kinds of output
   Cosmos::Logger.level = Logger::FATAL
   # Restore the STDOUT constant
@@ -191,20 +213,7 @@ RSpec.configure do |c|
     end
     c.after(:suite) do |example|
       result = RubyProf.stop
-      ignore = [/BasicObject/]
-      # Get all the RSpec constants so we can ignore them
-      RSpec.constants.each do |constant|
-        if Object.const_get("RSpec::#{constant}").respond_to? :constants
-          Object.const_get("RSpec::#{constant}").constants.each {|sub| ignore << Regexp.new("RSpec::#{constant}::#{sub}") }
-        else
-          ignore << Regexp.new("RSpec::#{constant}")
-        end
-      end
-      # But don't ignore RSpec::Core::Runner because it's the root.
-      # Ignoring this causes "can't eliminate root method (RuntimeError)"
-      ignore.delete(Regexp.new("RSpec::Core::Runner"))
-
-      result.eliminate_methods!(ignore)
+      result.exclude_common_methods!
       printer = RubyProf::GraphHtmlPrinter.new(result)
       printer.print(File.open("profile.html", 'w+'), :min_percent => 1)
     end
