@@ -70,12 +70,23 @@ module Cosmos
       end
     end
 
-    # TODO: Is this used anywhere?
-    def cmd_interface(interface_name, target_name, cmd_name, cmd_params, range_check, hazardous_check, raw)
-      write_topic("CMDINTERFACE__#{interface_name}", { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
+    def write_interface(interface_name, data)
+      @redis_pool.with do |redis|
+        if redis.hexists("cosmos_interfaces", interface.name)
+          write_topic("CMDINTERFACE__#{interface_name}")
+        else
+          raise "Interface '#{interface_name}' does not exist"
+        end
+      end
     end
 
-    def cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, timeout_ms = 5000)
+    # TODO: Is this used anywhere?
+    # def cmd_interface(interface_name, target_name, cmd_name, cmd_params, range_check, hazardous_check, raw)
+    #   write_topic("CMDINTERFACE__#{interface_name}", { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
+    # end
+
+    def cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, timeout_ms: 5000)
+      cmd_packet_exist?(target_name, cmd_name)
       topic = "CMDTARGET__#{target_name}"
       ack_topic = "ACKCMDTARGET__#{target_name}"
       cmd_id = write_topic(topic, { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
@@ -86,8 +97,7 @@ module Cosmos
             if msg_hash["result"] == "SUCCESS"
               return
             else
-              # TODO: handle hazardous response and other errors properly
-              raise "Cmd Error"
+              raise msg_hash["result"]
             end
           end
         end
@@ -103,8 +113,8 @@ module Cosmos
       end
       while true
         read_topics(topics) do |topic, msg_id, msg_hash, redis|
-          yield msg_hash['target_name'], msg_hash['cmd_name'], JSON.parse(msg_hash['cmd_params']), ConfigParser.handle_true_false(msg_hash['range_check']), ConfigParser.handle_true_false(msg_hash['hazardous_check']), ConfigParser.handle_true_false(msg_hash['raw'])
-          write_topic("ACK" + topic, { 'result' => 'SUCCESS' }, msg_id)
+          result = yield msg_hash['target_name'], msg_hash['cmd_name'], JSON.parse(msg_hash['cmd_params']), ConfigParser.handle_true_false(msg_hash['range_check']), ConfigParser.handle_true_false(msg_hash['hazardous_check']), ConfigParser.handle_true_false(msg_hash['raw'])
+          write_topic("ACK" + topic, { 'result' => result }, msg_id)
         end
       end
     end
@@ -146,7 +156,6 @@ module Cosmos
           end
         end
         promises.each_with_index do |promise, index|
-          # puts "promise:#{promise.value}"
           value_type = value_types[index]
           result = promise.value
           if result[0]
@@ -177,6 +186,27 @@ module Cosmos
       end
 
       return items, states
+    end
+
+    def cmd_packet_exist?(target_name, packet_name)
+      _packet_exist?(target_name, packet_name, type: 'cmd')
+    end
+    def tlm_packet_exist?(target_name, packet_name)
+      _packet_exist?(target_name, packet_name, type: 'tlm')
+    end
+    def _packet_exist?(target_name, packet_name, type:)
+      @redis_pool.with do |redis|
+        # TODO: pipeline
+        if redis.exists("cosmos#{type}__#{target_name}") != 0
+          if redis.hexists("cosmos#{type}__#{target_name}", packet_name)
+            true
+          else
+            raise "Packet '#{target_name} #{packet_name}' does not exist"
+          end
+        else
+          raise "Target '#{target_name}' does not exist"
+        end
+      end
     end
 
     def get_target_names
@@ -361,8 +391,11 @@ module Cosmos
             offsets << last_id
           else
             result = redis.xrevrange(topic, count: 1)
-            last_id = "0-0"
-            last_id = result[0][0] if result and result[0] and result[0][0]
+            if result and result[0] and result[0][0]
+              last_id = decrement_id(result[0][0])
+            else
+              last_id = "0-0"
+            end
             offsets << last_id
             @topic_offsets[topic] = last_id
           end
@@ -395,7 +428,6 @@ module Cosmos
     end
 
     def initialize_streams(topics)
-      # puts "init stream:#{topics}"
       @redis_pool.with do |redis|
         topics.each do |topic|
           # Create empty stream with maxlen 0
@@ -411,6 +443,15 @@ module Cosmos
         else
           return redis.xadd(topic, msg_hash, maxlen: maxlen, approximate: approximate)
         end
+      end
+    end
+
+    def decrement_id(id)
+      time, sequence = id.split('-')
+      if sequence == '0'
+        "#{time.to_i - 1}-18446744073709551615"
+      else
+        "#{time}-#{sequence.to_i - 1}"
       end
     end
 

@@ -12,26 +12,45 @@ require 'spec_helper'
 require 'cosmos'
 require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server'
 require 'cosmos/tools/cmd_tlm_server/api'
+require 'cosmos/microservices/interface_microservice'
 
 module Cosmos
   describe Api do
-    before(:each) do
-      @redis = configure_store()
-      # Configure the store to return a matching IDs so commands don't timeout
-      # allow(Store.instance).to receive(:write_topic).and_return('1577836800000-0')
-      allow(Store.instance).to receive(:write_topic).and_wrap_original do |m, *args|
-        if args[0] =~ /COMMAND__/
-          m.call(*args)
-        else
-          '1577836800000-0'
-        end
-      end
-      allow(Store.instance).to receive(:read_topics).and_yield('topic', '1577836800000-0', {"result" => "SUCCESS"}, nil)
-      @api = CmdTlmServer.new
+    class ApiTest
+      include Api
     end
 
-    after(:each) do
-      @api.stop
+    before(:each) do
+      @redis = configure_store()
+
+      # Create an Interface we can use in the InterfaceCmdHandlerThread
+      # It has to have a valid list of target_names as that is what 'receive_commands'
+      # in the Store uses to determine which topics to read
+      interface = Interface.new
+      # interface.name = "INST_INT"
+      interface.target_names = %w[INST]
+      # Stub out write to make the InterfaceCmdHandlerThread happy
+      allow(interface).to receive(:write) { |data| @interface_data = data }
+      # Stub out as_json to make the call to Store.instance.set_interface happy
+      allow(interface).to receive(:as_json).and_return({})
+      @thread = InterfaceCmdHandlerThread.new(interface)
+
+      # Wrap xadd to allow us to process commands like the interface microservices
+      # would in the real system.
+      allow(@redis).to receive(:xadd).and_wrap_original do |m, *args|
+        result = m.call(*args)
+        # Run the InterfaceCmdHandlerThread to process the command
+        # This will ack the command on the ACKCMDTARGET__<TGT> channel
+        if args[0] =~ /^CMDTARGET/
+          thread = Thread.new { @thread.run }
+          thread.report_on_exception = false
+          sleep 0.1 # Allow the thread to run
+          thread.kill
+          sleep 0.1 # Wait for the thread to be killed
+        end
+        result
+      end
+      @api = ApiTest.new
     end
 
     def test_cmd_unknown(method)
@@ -393,6 +412,13 @@ module Cosmos
       end
     end
 
+    # describe "send_raw" do
+    #   it "sends raw data to an interface" do
+    #     @api.send_raw("INST", "\x00\x01\x02\x03")
+    #     expect(@interface_data).to eql "\x00\x01\x02\x03"
+    #   end
+    # end
+
     # DEPRECATED: use get_all_commands
     describe "get_cmd_list" do
       it "returns command names sorted" do
@@ -458,6 +484,24 @@ module Cosmos
         expect(result).to include ['ARRAY',[],nil,'Array parameter',nil,nil,false,"FLOAT"]
         # Since ARRAY2 has a format string the default is in quotes
         expect(result).to include ['ARRAY2',"[]",nil,'Array parameter',nil,nil,false,"UINT"]
+      end
+    end
+
+    describe "get_parameter" do
+      it "returns parameter hash for state parameter" do
+        result = @api.get_parameter("INST","COLLECT","TYPE")
+        expect(result['name']).to eql "TYPE"
+        expect(result['states'].keys.sort).to eql %w[NORMAL SPECIAL]
+        expect(result['states']['NORMAL']).to include("value" => 0)
+        expect(result['states']['SPECIAL']).to include("value" => 1, "hazardous" => "")
+      end
+
+      it "returns parameter hash for array parameter" do
+        result = @api.get_parameter("INST","ARYCMD","ARRAY")
+        expect(result['name']).to eql "ARRAY"
+        expect(result['bit_size']).to eql 64
+        expect(result['array_size']).to eql 640
+        expect(result['data_type']).to eql "FLOAT"
       end
     end
 

@@ -288,8 +288,7 @@ module Cosmos
     # @param interface_name [String] The interface to send the raw binary
     # @param data [String] The raw binary data
     def send_raw(interface_name, data)
-      # TODO: Implement New Commanding
-      CmdTlmServer.commanding.send_raw(interface_name, data)
+      Store.instance.write_interface(interface_name, data)
       nil
     end
 
@@ -1849,41 +1848,7 @@ module Cosmos
         # Invalid number of arguments
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{method_name}()"
       end
-
-      # Build the command
-      begin
-        command = System.commands.build_cmd(target_name, cmd_name, cmd_params, range_check, raw)
-        command.received_count += 1
-      rescue => e
-        Logger.error e.message
-        raise e
-      end
-
-      if hazardous_check
-        hazardous, hazardous_description = System.commands.cmd_pkt_hazardous?(command)
-        if hazardous
-          error = HazardousError.new
-          error.target_name = target_name
-          error.cmd_name = cmd_name
-          error.cmd_params = cmd_params
-          error.hazardous_description = hazardous_description
-          raise error
-        end
-      end
-
-      # Send the command
-      @disconnect = false unless defined? @disconnect
-      unless @disconnect
-        # Write to stream
-        msg_hash = { time: command.received_time.to_nsec_from_epoch,
-                     target_name: target_name,
-                     packet_name: cmd_name,
-                     received_count: command.received_count,
-                     buffer: command.buffer(false) }
-        Store.instance.write_topic("COMMAND__#{target_name}__#{cmd_name}", msg_hash)
-        Store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw)
-      end
-
+      Store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw)
       [target_name, cmd_name, cmd_params]
     end
 

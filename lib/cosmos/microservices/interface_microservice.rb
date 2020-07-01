@@ -14,6 +14,7 @@ module Cosmos
   class InterfaceCmdHandlerThread
     def initialize(interface)
       @interface = interface
+      Store.instance.set_interface(@interface, initialize: true)
     end
 
     def start
@@ -29,14 +30,11 @@ module Cosmos
     def run
       Store.instance.receive_commands(@interface) do |target_name, cmd_name, cmd_params, range_check, hazardous_check, raw|
         begin
-          # Build the command
           begin
             command = System.commands.build_cmd(target_name, cmd_name, cmd_params, range_check, raw)
           rescue => e
             Logger.error e.formatted
-            # raise e
-            # TODO: Need to ack with error
-            next
+            next e.message
           end
 
           if hazardous_check
@@ -47,15 +45,12 @@ module Cosmos
               error.cmd_name = cmd_name
               error.cmd_params = cmd_params
               error.hazardous_description = hazardous_description
-              # raise error
-              # TODO: Need to ack with hazardous error
-              next
+              next error.message
             end
           end
 
           begin
             @interface.write(command)
-            # Write to stream
             msg_hash = { time: command.received_time.to_nsec_from_epoch,
                         target_name: command.target_name,
                         packet_name: command.packet_name,
@@ -65,12 +60,13 @@ module Cosmos
             Store.instance.set_interface(@interface)
           rescue => e
             Logger.error e.formatted
-            # TODO: Need to ack with error
+            next e.message
           end
         rescue => e
-          # TODO: Need to ack with error
           Logger.error e.formatted
+          next e.message
         end
+        'SUCCESS'
       end
     end
   end
