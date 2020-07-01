@@ -73,6 +73,9 @@ module Cosmos
     # @return [Hash] Extra data to be logged/transferred with packet
     attr_accessor :extra
 
+    # @return [Symbol] :CMD or :TLM
+    attr_accessor :cmd_or_tlm
+
     # Valid format types
     VALUE_TYPES = [:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS]
 
@@ -109,6 +112,7 @@ module Cosmos
         @disabled = false
         @stored = false
         @extra = nil
+        @cmd_or_tlm = nil
       end
 
       # Sets the target name this packet is associated with. Unidentified packets
@@ -259,7 +263,7 @@ module Cosmos
       end
 
       # Use the hashing algorithm established by Cosmos::System
-      digest = Digest.const_get(System.hashing_algorithm).send('new')
+      digest = Digest::SHA256.new
       digest << string
       @config_name = digest.hexdigest
       @config_name

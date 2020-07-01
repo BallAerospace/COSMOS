@@ -285,10 +285,10 @@ module Cosmos
               (@cycle_time and (Time.now.utc - @start_time) > @cycle_time) or
 
               # Cycle daily at a specific time
-              (@cycle_hour and @cycle_minute and utc_now.hour == @cycle_hour and utc_now.minute == @cycle_minute and @start_time.yday != utc_now.yday) or
+              (@cycle_hour and @cycle_minute and utc_now.hour == @cycle_hour and utc_now.min == @cycle_minute and @start_time.yday != utc_now.yday) or
 
               # Cycle hourly at a specific time
-              (@cycle_minute and not @cycle_hour and utc_now.minute == @cycle_minute and @start_time.hour != utc_now.hour)
+              (@cycle_minute and not @cycle_hour and utc_now.min == @cycle_minute and @start_time.hour != utc_now.hour)
             )
             close_file(false)
           end
@@ -306,19 +306,18 @@ module Cosmos
       return "COSIDX5_".freeze
     end
 
-    COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK = 0x0000
-    COSMOS5_PACKET_DECLARATION_ENTRY_TYPE_MASK = 0x1000
-    COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK = 0x2000
-    COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK = 0x3000
-    COSMOS5_TLM_FLAG_MASK = 0x0000
+    COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK = 0x1000
+    COSMOS5_PACKET_DECLARATION_ENTRY_TYPE_MASK = 0x2000
+    COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK = 0x3000
+    COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK = 0x4000
     COSMOS5_CMD_FLAG_MASK = 0x0800
     COSMOS5_STORED_FLAG_MASK = 0x0400
     COSMOS5_ID_FLAG_MASK = 0x0200
-    COSMOS5_PRIMARY_FIXED_SIZE = 6
+    COSMOS5_PRIMARY_FIXED_SIZE = 2
     COSMOS5_TARGET_DECLARATION_SECONDARY_FIXED_SIZE = 1
     COSMOS5_PACKET_DECLARATION_SECONDARY_FIXED_SIZE = 3
-    COSMOS5_RAW_PACKET_SECONDARY_FIXED_SIZE = 14
-    COSMOS5_JSON_PACKET_SECONDARY_FIXED_SIZE = 14
+    COSMOS5_RAW_PACKET_SECONDARY_FIXED_SIZE = 10
+    COSMOS5_JSON_PACKET_SECONDARY_FIXED_SIZE = 10
     COSMOS5_ID_FIXED_SIZE = 32
     COSMOS5_MAX_PACKET_INDEX = 65535
     COSMOS5_MAX_TARGET_INDEX = 65535
@@ -352,6 +351,16 @@ module Cosmos
       target_table[packet_name] = packet_index
       @next_packet_index += 1
 
+      id = nil
+      begin
+        if cmd_or_tlm == :CMD
+          id = System.commands.packet(target_nam, packet_name).config_name
+        else
+          id = System.telemetry.packet(target_name, packet_name).config_name
+        end
+      rescue
+        # No packet def
+      end
       write_entry(:PACKET_DECLARATION, cmd_or_tlm, target_name, packet_name, nil, nil, nil, id)
       return packet_index
     end
@@ -372,7 +381,7 @@ module Cosmos
         length += COSMOS5_ID_FIXED_SIZE if id
         @entry.clear
         @entry << [length, flags, target_name.length].pack('NnC'.freeze) << target_name
-        @entry << id if id
+        @entry << [id].pack('H*') if id
         @target_dec_entries << @entry.dup
       when :PACKET_DECLARATION
         target_index = @target_indexes[target_name]
@@ -381,7 +390,7 @@ module Cosmos
         length += COSMOS5_ID_FIXED_SIZE if id
         @entry.clear
         @entry << [length, flags, target_index, packet_name.length].pack('NnnC'.freeze) << packet_name
-        @entry << id if id
+        @entry << [id].pack('H*') if id
         @packet_dec_entries << @entry.dup
       when :RAW_PACKET, :JSON_PACKET
         target_name = 'UNKNOWN'.freeze unless target_name
@@ -392,11 +401,7 @@ module Cosmos
         else
           flags |= COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK
         end
-        if cmd_or_tlm == :CMD
-          flags |= COSMOS5_CMD_FLAG_MASK
-        else
-          flags |= COSMOS5_TLM_FLAG_MASK
-        end
+        flags |= COSMOS5_CMD_FLAG_MASK if cmd_or_tlm == :CMD
         length += COSMOS5_RAW_PACKET_SECONDARY_FIXED_SIZE + data.length
         @entry.clear
         @index_entry.clear

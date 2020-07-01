@@ -107,12 +107,12 @@ module Cosmos
         logger.info "Configured microservice CVT__#{interface_name}"
 
         # Configure PacketLogMicroservice
-        config = { 'filename' => "packet_log_microservice.rb", 'topics' => packet_topic_list }
+        config = { 'filename' => "packet_log_microservice.rb", 'target_list' => target_list, 'topics' => packet_topic_list }
         Store.instance.hset('cosmos_microservices', "PACKETLOG__#{interface_name}", JSON.generate(config))
         logger.info "Configured microservice PACKETLOG__#{interface_name}"
 
         # Configure DecomLogMicroservice
-        config = { 'filename' => "decom_log_microservice.rb", 'topics' => decom_topic_list }
+        config = { 'filename' => "decom_log_microservice.rb", 'target_list' => target_list, 'topics' => decom_topic_list }
         Store.instance.hset('cosmos_microservices', "DECOMLOG__#{interface_name}", JSON.generate(config))
         logger.info "Configured microservice DECOMLOG__#{interface_name}"
       end
