@@ -27,11 +27,6 @@ module Cosmos
       end
     end
 
-    def stop
-      # TODO: Is there a way to make this more graceful?
-      @thread.kill if @thread
-    end
-
     def run
       Store.instance.receive_commands(@interface) do |topic, msg_hash|
         # Check for a raw write to the interface
@@ -81,24 +76,26 @@ module Cosmos
     end
   end
 
-  class InterfaceTlmHandlerThread
-    def initialize(interface)
-      @interface = interface
+  class InterfaceMicroservice < Microservice
+    UNKNOWN_BYTES_TO_PRINT = 16
+
+    def initialize(name)
+      super(name)
+      interface_name = name.split("__")[1]
+      @interface = Cosmos.require_class(@config['interface_params'][0]).new(*@config['interface_params'][1..-1])
+      @interface.name = interface_name
+      @config["target_list"].each do |item|
+        @interface.target_names << item["target_name"]
+      end
+      Store.instance.set_interface(@interface, initialize: true)
+      # TODO: Need to set any additional interface options like protocols
       @interface_thread_sleeper = Sleeper.new
       @cancel_thread = false
       @connection_failed_messages = []
       @connection_lost_messages = []
       @mutex = Mutex.new
-    end
-
-    def start
-      @thread = Thread.new do
-        begin
-          run()
-        rescue Exception => err
-          Logger.error "InterfaceTlmHandlerThread died unexpectedly: #{err.formatted}"
-        end
-      end
+      @cmd_thread = InterfaceCmdHandlerThread.new(@interface, self)
+      @cmd_thread.start
     end
 
     def run
@@ -315,30 +312,13 @@ module Cosmos
       end
       Cosmos.kill_thread(self, @interface_thread) if @interface_thread and @interface_thread != Thread.current
     end
-  end
 
-  class InterfaceMicroservice < Microservice
-    UNKNOWN_BYTES_TO_PRINT = 16
-
-    def initialize(name)
-      super(name)
-      interface_name = name.split("__")[1]
-      @interface = Cosmos.require_class(@config['interface_params'][0]).new(*@config['interface_params'][1..-1])
-      @interface.name = interface_name
-      Store.instance.set_interface(@interface, initialize: true)
-      @config["target_list"].each do |item|
-        @interface.target_names << item["target_name"]
-      end
-      @tlm_thread = InterfaceTlmHandlerThread.new(@interface)
-      @tlm_thread.start
-      @cmd_thread = InterfaceCmdHandlerThread.new(@interface, @tlm_thread)
-      @cmd_thread.start
+    def shutdown(sig = nil)
+      stop()
     end
 
-    def shutdown
-      super()
-      @cmd_thread.stop()
-      @tlm_thread.stop()
+    def graceful_kill
+      # Just to avoid warning
     end
   end
 end

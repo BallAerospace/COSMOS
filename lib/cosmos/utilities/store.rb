@@ -442,6 +442,7 @@ module Cosmos
     # result = redis.xrevrange(topic, cur_time , cur_time, count: 1)
 
     def read_topic_last(topic)
+      # puts "read_topic_last:#{topic}"
       @redis_pool.with do |redis|
         result = redis.xrevrange(topic, '+', '-', count: 1)
         if result and result.length > 0
@@ -462,7 +463,7 @@ module Cosmos
     end
 
     def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
-      # puts "write_topic topic:#{topic} hash:#{msg_hash}"
+      # puts "write_topic topic:#{topic} id:#{id} hash:#{msg_hash}"
       @redis_pool.with do |redis|
         if id
           return redis.xadd(topic, msg_hash, id: id, maxlen: maxlen, approximate: approximate)

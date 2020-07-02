@@ -27,7 +27,7 @@ module Cosmos
       config.each do |microservice_name, microservice_config|
         microservice_config_parsed = JSON.parse(microservice_config)
         filename = microservice_config_parsed["filename"]
-        relative_filename = File.join(__dir__, "../microservices/#{filename}")
+        relative_filename = File.expand_path(File.join(__dir__, "../microservices/#{filename}"))
         if File.exist?(relative_filename)
           # Run ruby syntax so we can log those
           syntax_check, _ = Open3.capture2e("ruby -c #{relative_filename}")

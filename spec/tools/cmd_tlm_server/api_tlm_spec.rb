@@ -13,6 +13,8 @@ require 'cosmos'
 require 'cosmos/tools/cmd_tlm_server/api'
 require 'cosmos/microservices/interface_microservice'
 require 'cosmos/microservices/decom_microservice'
+require 'cosmos/microservices/cvt_microservice'
+require 'cosmos/operators/microservice_operator'
 
 module Cosmos
   describe Api do
@@ -22,56 +24,34 @@ module Cosmos
 
     before(:each) do
       @redis = configure_store()
-
-      # Create an Interface we can use in the InterfaceTlmHandlerThread
-      interface = Interface.new
-      interface.name = "INST_INT"
-      interface.target_names = %w[INST]
-      allow(interface).to receive(:connected?).and_return(true)
-      @thread = InterfaceTlmHandlerThread.new(interface)
-      Store.instance.set_interface(interface, initialize: true)
-      @cmd_thread = InterfaceCmdHandlerThread.new(interface, @thread)
-
-      # Mock out some stuff in Microservice initialize() to allow us to use DecomMicroservice
+      # Mock out some stuff in Microservice initialize()
       dbl = double("AwsS3Client").as_null_object
       allow(Aws::S3::Client).to receive(:new).and_return(dbl)
       allow(Zip::File).to receive(:open).and_return(true)
-      @decom = DecomMicroservice.new("DECOM__#{interface.name}")
-      @process = true
+      allow_any_instance_of(Cosmos::Interface).to receive(:connected?).and_return(true)
+      allow_any_instance_of(Cosmos::Interface).to receive(:read_interface).and_return("")
 
-      # Wrap xadd to allow us to process telemetry like the decom microservice
-      # would in the real system.
-      allow(@redis).to receive(:xadd).and_wrap_original do |m, *args|
-        puts "xadd args[0]:#{args[0]}"
-        result = m.call(*args)
-        # Run the DecomMicroservice to process the telemetry packet
-        # This will populate the individual telemetry items
-        if @process && args[0] =~ /^TELEMETRY/
-          thread = Thread.new { @decom.run }
-          # thread.report_on_exception = false
-          sleep 0.1 # Allow the thread to run
-          thread.kill
-          sleep 0.1 # Wait for the thread to be killed
-        elsif @process && args[0] =~ /^CMDINTERFACE/
-          thread = Thread.new { @cmd_thread.run }
-          # thread.report_on_exception = false
-          sleep 0.1 # Allow the thread to run
-          thread.kill
-          sleep 0.1 # Wait for the thread to be killed
-        end
-
-        result
-      end
-
-      # Setup INST HEALTH_STATUS TEMP1 like the DECOM and CVT would do
-      # json_hash = {}
-      # json_hash['TEMP1']    = JSON.generate(0.as_json)
-      # json_hash['TEMP1__C'] = JSON.generate(-100.0.as_json)
-      # json_hash['TEMP1__F'] = JSON.generate("-100.000".as_json)
-      # json_hash['TEMP1__U'] = JSON.generate("-100.000 C".as_json)
-      # json_hash['TEMP1__L'] = JSON.generate(:RED_LOW.as_json)
-      # @redis.mapped_hmset("tlm__INST__HEALTH_STATUS", json_hash)
+      @im = InterfaceMicroservice.new("INTERFACE__INST_INT")
+      @im_thread = Thread.new { @im.run }
+      @dm = DecomMicroservice.new("DECOM__INST_INT")
+      @dm_thead = Thread.new { @dm.run }
+      @cm = CvtMicroservice.new("CVT__INST_INT")
+      @dm_thead = Thread.new { @cm.run }
       @api = ApiTest.new
+      sleep 0.1 # Allow the threads to run
+      @api.inject_tlm("INST", "HEALTH_STATUS") # Prime Redis
+      sleep 0.1 # Allow the inject to happen
+    end
+
+    after(:each) do
+      @im.shutdown
+      @dm.shutdown
+      @cm.shutdown
+      sleep 0.1
+      Thread.list.each do |t|
+        t.kill if t != Thread.current
+      end
+      sleep(0.3)
     end
 
     def test_tlm_unknown(method)
@@ -281,10 +261,13 @@ module Cosmos
       end
 
       it "injects a packet into the system" do
+        puts "inject_tlm"
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 10, TEMP2: 20}, :CONVERTED, true, true, false)
+        sleep 0.5
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to be_within(0.1).of(20.0)
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0}, :RAW, true, true, false)
+        sleep 0.5
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql -100.0
       end
@@ -376,30 +359,15 @@ module Cosmos
     end
 
     describe "get_tlm_buffer" do
-      xit "returns a telemetry packet buffer" do
-        # TODO Should inject_tlm still work to set the packet? I think so ...
+      it "returns a telemetry packet buffer" do
         @api.inject_tlm("INST","HEALTH_STATUS",{TIMESEC: 0xDEADBEEF})
+        # TODO: It appears that the DECOM is somehow overwriting the TELEMETRY__ topic
+        # This might be a mock_redis issue ...
         expect(@api.get_tlm_buffer("INST", "HEALTH_STATUS")[6..10].unpack("N")[0]).to eq 0xDEADBEEF
       end
     end
 
     describe "get_tlm_packet" do
-      before(:each) do
-        packet = System.telemetry.packet("INST", "HEALTH_STATUS")
-        msg_hash = {}
-        json_hash = {}
-        packet.sorted_items.each do |item|
-          json_hash[item.name] = packet.read_item(item, :RAW)
-          json_hash[item.name + "__C"] = packet.read_item(item, :CONVERTED) if item.read_conversion or item.states
-          json_hash[item.name + "__F"] = packet.read_item(item, :FORMATTED) if item.format_string
-          json_hash[item.name + "__U"] = packet.read_item(item, :WITH_UNITS) if item.units
-          limits_state = item.limits.state
-          json_hash[item.name + "__L"] = limits_state if limits_state
-        end
-        msg_hash['json_data'] = JSON.generate(json_hash.as_json)
-        Store.instance.write_topic("DECOM__INST__HEALTH_STATUS", msg_hash)
-      end
-
       it "complains about non-existant targets" do
         expect { @api.get_tlm_packet("BLAH","HEALTH_STATUS") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
       end
@@ -453,18 +421,6 @@ module Cosmos
     end
 
     describe "get_tlm_values" do
-      before(:each) do
-        (2..4).each do |x|
-          json_hash = {}
-          json_hash["TEMP#{x}"]    = JSON.generate(0.as_json)
-          json_hash["TEMP#{x}__C"] = JSON.generate(-100.0.as_json)
-          json_hash["TEMP#{x}__F"] = JSON.generate("-100.000".as_json)
-          json_hash["TEMP#{x}__U"] = JSON.generate("-100.000 C".as_json)
-          json_hash["TEMP#{x}__L"] = JSON.generate(:RED_LOW.as_json)
-          @redis.mapped_hmset("tlm__INST__HEALTH_STATUS", json_hash)
-        end
-      end
-
       it "handles an empty request" do
         expect(@api.get_tlm_values([])).to eql [[], []]
       end

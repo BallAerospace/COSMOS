@@ -680,74 +680,6 @@ module Cosmos
           Store.instance.write_interface(interface['name'], inject)
         end
       end
-
-
-      # TODO: How do we inject the packet into the stream
-
-      # # Update current value table
-      # cvt_packet.buffer = packet.buffer(false)
-      # cvt_packet.received_time = received_time
-
-      # # The interface does the following line, but I don't think inject_tlm should because it could confuse the interface
-      # target.tlm_cnt += 1
-      # packet.received_count += 1
-      # cvt_packet.received_count += 1
-      # CmdTlmServer.instance.identified_packet_callback(packet)
-
-      # # Find the interface for this target
-      # interface = target.interface
-
-      # if interface
-      #   # Write to routers
-      #   if send_routers
-      #     interface.routers.each do |router|
-      #       begin
-      #         router.write(packet) if router.write_allowed? and router.connected?
-      #       rescue => err
-      #         Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
-      #       end
-      #     end
-      #   end
-
-      #   # Write to packet log writers
-      #   if create_new_logs or send_packet_log_writers
-      #     interface.packet_log_writer_pairs.each do |packet_log_writer_pair|
-      #       # Optionally create new log files
-      #       packet_log_writer_pair.tlm_log_writer.start if create_new_logs
-
-      #       # Optionally write to packet logs - Write errors are handled by the log writer
-      #       packet_log_writer_pair.tlm_log_writer.write(packet) if send_packet_log_writers
-      #     end
-      #   end
-      # else
-      #   # Some packets don't have an interface - Can still write to standard routers and packet logs
-
-      #   # Write to routers
-      #   if send_routers
-      #     router = CmdTlmServer.instance.routers.all['PREIDENTIFIED_ROUTER']
-      #     if router
-      #       begin
-      #         router.write(packet) if router.write_allowed? and router.connected?
-      #       rescue => err
-      #         Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
-      #       end
-      #     end
-      #   end
-
-      #   if create_new_logs or send_packet_log_writers
-      #     # Handle packet logging
-      #     packet_log_writer_pair = CmdTlmServer.instance.packet_logging.all['DEFAULT']
-
-      #     if packet_log_writer_pair
-      #       # Optionally create new logs
-      #       packet_log_writer_pair.tlm_log_writer.start if create_new_logs
-
-      #       # Optionally write to packet logs - Write errors are handled by the log writer
-      #       packet_log_writer_pair.tlm_log_writer.write(packet) if send_packet_log_writers
-      #     end
-      #   end
-      # end
-
       nil
     end
 
@@ -810,13 +742,12 @@ module Cosmos
     # @param packet_name [String] Name of the packet
     # @return [String] last telemetry packet buffer
     def get_tlm_buffer(target_name, packet_name)
+      Store.instance.tlm_packet_exist?(target_name, packet_name)
       topic = "TELEMETRY__#{target_name}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
-      if msg_id
-        return msg_hash['buffer']
-      else
-        return nil
-      end
+      puts "msg:#{msg_id} hash:#{msg_hash}"
+      return msg_hash['buffer'] if msg_id
+      nil
     end
 
     # Returns all the values (along with their limits state) for a packet.

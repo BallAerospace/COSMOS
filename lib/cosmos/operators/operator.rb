@@ -14,7 +14,6 @@ require 'cosmos'
 module Cosmos
 
   class Operator
-
     def initialize
       Logger.level = Logger::INFO
 

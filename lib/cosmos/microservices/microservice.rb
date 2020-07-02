@@ -95,7 +95,7 @@ module Cosmos
     end
 
     def shutdown
-      FileUtils.remove_entry(@temp_dir)
+      FileUtils.remove_entry(@temp_dir) if File.exists?(@temp_dir)
     end
   end
 end
