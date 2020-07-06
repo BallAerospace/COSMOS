@@ -4,7 +4,8 @@
 		"noImplicitReturns": true,
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
-		"outDir": "../client/server"
+		"outDir": "../client/server",
+		"lib": ["dom", "es2015"]
 	},
 	"include": [
 		"src/*"

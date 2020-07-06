@@ -3,7 +3,7 @@
 	"description": "Language support for COSMOS configuration files",
 	"author": "Ball Aerospace",
 	"license": "BALL GPL",
-	"version": "0.0.5",
+	"version": "0.0.8",
 	"icon": "images/icon.png",
 	"repository": {
 		"type": "git",
@@ -25,8 +25,11 @@
 		"upgrade": "npm run-script upgrade:client && npm run-script upgrade:server && npm upgrade"
 	},
 	"devDependencies": {
-		"@types/mocha": "^2.2.48",
-		"@types/node": "^6.0.116",
+		"mocha": "^2.2.48",
+		"node": "^6.0.116",
 		"typescript": "^2.9.2"
+	},
+	"dependencies": {
+		"tsc": "^1.20150623.0"
 	}
 }
