@@ -131,7 +131,6 @@ task :build => [:devkit] do
       'cosmos_io',
       'tabbed_plots_config',
       'telemetry',
-      'line_graph',
       'packet',
       'platform',
       'buffered_file']

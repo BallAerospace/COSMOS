@@ -6,7 +6,7 @@ module Cosmos
     MAJOR = '5'
     MINOR = '0'
     PATCH = '0'
-    BUILD = ''
+    BUILD = '48928b6fe0b9b110ef3a6c613b7eae5e25643916'
   end
   VERSION = '5.0.0'
 end

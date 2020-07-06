@@ -31,12 +31,6 @@ if !ENV['COSMOS_NO_SIMPLECOV']
     merge_timeout 12 * 60 * 60 # merge the last 12 hours of results
     add_filter '/spec/'
     add_filter '/autohotkey/'
-
-    add_group 'Core' do |src|
-      !src.filename.include?('gui') && !src.filename.include?('tools')
-    end
-    add_group 'GUI', 'gui'
-    add_group 'Tools', 'tools'
     root = File.dirname(__FILE__)
     root.to_s
   end

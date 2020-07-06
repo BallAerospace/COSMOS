@@ -9,10 +9,6 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos'
-if ENV['DART_USERNAME']
-  require 'cosmos/dart/config/application'
-  Rails.application.load_tasks
-end
 
 def create_crc_file(official)
   count = 0

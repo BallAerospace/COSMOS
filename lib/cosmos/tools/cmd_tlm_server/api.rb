@@ -10,7 +10,6 @@
 
 require 'cosmos/script/extract'
 require 'cosmos/script/api_shared'
-require 'cosmos/tools/tlm_viewer/tlm_viewer_config'
 require 'cosmos/utilities/store'
 require 'connection_pool'
 
@@ -153,8 +152,8 @@ module Cosmos
         'get_screen_definition',
         'get_saved_config',
       ]
-      @tlm_viewer_config_filename = nil
-      @tlm_viewer_config = nil
+      # @tlm_viewer_config_filename = nil
+      # @tlm_viewer_config = nil
     end
 
     ############################################################################
@@ -1743,23 +1742,23 @@ module Cosmos
       CmdTlmServer.replay_backend.move_index(index)
     end
 
-    # Get the organized list of available telemetry screens
-    def get_screen_list(config_filename = nil, force_refresh = false)
-      if force_refresh or !@tlm_viewer_config or @tlm_viewer_config_filename != config_filename
-        @tlm_viewer_config = TlmViewerConfig.new(config_filename, true)
-        @tlm_viewer_config_filename = config_filename
-      end
-      return @tlm_viewer_config.columns
-    end
+    # # Get the organized list of available telemetry screens
+    # def get_screen_list(config_filename = nil, force_refresh = false)
+    #   if force_refresh or !@tlm_viewer_config or @tlm_viewer_config_filename != config_filename
+    #     @tlm_viewer_config = TlmViewerConfig.new(config_filename, true)
+    #     @tlm_viewer_config_filename = config_filename
+    #   end
+    #   return @tlm_viewer_config.columns
+    # end
 
-    # Get a specific screen definition
-    def get_screen_definition(screen_full_name, config_filename = nil, force_refresh = false)
-      get_screen_list(config_filename, force_refresh) if force_refresh or !@tlm_viewer_config
-      screen_info = @tlm_viewer_config.screen_infos[screen_full_name.upcase]
-      raise "Unknown screen: #{screen_full_name.upcase}" unless screen_info
-      screen_definition = File.read(screen_info.filename)
-      return screen_definition
-    end
+    # # Get a specific screen definition
+    # def get_screen_definition(screen_full_name, config_filename = nil, force_refresh = false)
+    #   get_screen_list(config_filename, force_refresh) if force_refresh or !@tlm_viewer_config
+    #   screen_info = @tlm_viewer_config.screen_infos[screen_full_name.upcase]
+    #   raise "Unknown screen: #{screen_full_name.upcase}" unless screen_info
+    #   screen_definition = File.read(screen_info.filename)
+    #   return screen_definition
+    # end
 
     # Get a saved configuration zip file
     def get_saved_config(configuration_name = nil)
