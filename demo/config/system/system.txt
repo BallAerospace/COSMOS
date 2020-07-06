@@ -75,7 +75,7 @@ ADD_HASH_FILE lib/user_version.rb
 # Create a banner using an existing COSMOS color (Cosmos::GREEN in this case)
 # CLASSIFICATION UNCLASSIFIED green
 
-# Create a banner using a Qt::Color that doesn't exist in COSMOS
+# Create a banner using a color that doesn't exist in COSMOS
 # CLASSIFICATION "Ball Aerospace COSMOS" teal
 
 # Create a banner using a RGB color values

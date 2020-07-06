@@ -19,15 +19,12 @@ RUN apt-get update -y && apt-get install -y \
   libgstreamer1.0-dev \
   libncurses5-dev \
   libreadline6-dev \
-  libsmokeqt4-dev \
   libssl-dev \
   libyaml-dev \
   net-tools \
   postgresql-server-dev-all \
-  qt4-default \
-  qt4-dev-tools \
-  ruby2.5 \
-  ruby2.5-dev \
+  ruby2.7 \
+  ruby2.7-dev \
   vim \
   xterm \
   zlib1g-dev
@@ -63,7 +60,7 @@ ARG COSMOS_DOCKER_REPO=https://github.com/BallAerospace/cosmos-docker.git
 # Download COSMOS docker files to support docker release
 RUN cd /devel \
   && git clone ${COSMOS_DOCKER_REPO}
-  
+
 ENV COSMOS_DEVEL /devel/COSMOS
 WORKDIR /devel/COSMOS
 CMD bash

@@ -1,8 +1,8 @@
 environment:
   matrix:
-    - ruby_version: 24-x64
     - ruby_version: 25-x64
-    #- ruby_version: 26-x64 this needs qtbindings support
+    - ruby_version: 26-x64
+    - ruby_version: 27-x64
 
 cache:
   # If one of the files after the right arrow changes, cache will be invalidated

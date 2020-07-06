@@ -33,8 +33,7 @@ GLOBAL_SETTING:
       required: true
       description: Widget specific setting name. COSMOS defines several settings
         which apply across many different widget types. However, you can also use
-        the 'RAW' setting which allows any stylesheet values that QT supports.
-        See the QT Stylesheet documentation for more information.
+        the 'RAW' setting which allows any stylesheet values.
       values: <%= %w(TEXTALIGN PADDING MARGIN BACKCOLOR TEXTCOLOR BORDERCOLOR WIDTH HEIGHT RAW) %>
     - name: Setting Value(s)
       required: false
@@ -67,8 +66,7 @@ GLOBAL_SUBSETTING:
       required: true
       description: Widget specific setting name. COSMOS defines several settings
         which apply across many different widget types. However, you can also use
-        the 'RAW' setting which allows any stylesheet values that QT supports.
-        See the QT Stylesheet documentation for more information.
+        the 'RAW' setting which allows any stylesheet values.
       values: <%= %w(TEXTALIGN PADDING MARGIN BACKCOLOR TEXTCOLOR BORDERCOLOR WIDTH HEIGHT RAW) %>
     - name: Setting Value(s)
       required: false
@@ -85,8 +83,7 @@ SETTING:
       required: true
       description: Widget specific setting name. COSMOS defines several settings
         which apply across many different widget types. However, you can also use
-        the 'RAW' setting which allows any stylesheet values that QT supports.
-        See the QT Stylesheet documentation for more information.
+        the 'RAW' setting which allows any stylesheet values.
       values: <%= %w(TEXTALIGN PADDING MARGIN BACKCOLOR TEXTCOLOR BORDERCOLOR WIDTH HEIGHT RAW) %>
     - name: Setting Value(s)
       required: false
@@ -114,8 +111,7 @@ SUBSETTING:
       required: true
       description: Widget specific setting name. COSMOS defines several settings
         which apply across many different widget types. However, you can also use
-        the 'RAW' setting which allows any stylesheet values that QT supports.
-        See the QT Stylesheet documentation for more information.
+        the 'RAW' setting which allows any stylesheet.
       values: <%= %w(TEXTALIGN PADDING MARGIN BACKCOLOR TEXTCOLOR BORDERCOLOR WIDTH HEIGHT RAW) %>
     - name: Setting Value(s)
       required: false

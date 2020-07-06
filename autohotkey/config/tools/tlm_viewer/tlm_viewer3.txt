@@ -1,3 +1,0 @@
-AUTO_TARGETS
-
-KEYWORD nothing

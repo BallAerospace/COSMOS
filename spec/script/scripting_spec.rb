@@ -33,18 +33,6 @@ module Cosmos
       sleep(0.1)
     end
 
-    describe "play_wav_file" do
-      it "plays a wav file if Qt is available" do
-        module Qt
-          def self.execute_in_main_thread(bool = true); yield; end
-          class CoreApplication; def self.instance; true; end; end;
-          class Sound; def self.isAvailable; true; end; end
-        end
-        expect(Qt::Sound).to receive(:play).with("sound.wav")
-        play_wav_file("sound.wav")
-      end
-    end
-
     if RUBY_ENGINE == 'ruby'
       describe "status_bar" do
         it "sets the ScriptRunner status bar" do

@@ -31,21 +31,9 @@ end
 
 # The Ball Aerospace COSMOS system is almost
 # wholly contained within the Cosmos module. COSMOS also extends some of the
-# core Ruby classes to add additional functionality as well as creates
-# additional QT GUI classes under the {Qt} module.
-#
-# The primary entry point into COSMOS is through {Cosmos::System}. The System
-# class provides two class variables {Cosmos::System#commands} and
-# {Cosmos::System#telemetry} which provide access to all the commands and
-# telemetry in Cosmos. The targets are available through the
-# {Cosmos::System#targets} hash whose keys are the target names and values are
-# {Cosmos::Target} instances.
-#
-# Creating a new COSMOS tool involves subclassing {Cosmos::QtTool}. All COSMOS
-# tools derive from {Cosmos::QtTool} and provide a good basis for creating a
-# new tool. Be sure to explore the various GUI classes
-module Cosmos
+# core Ruby classes to add additional functionality.
 
+module Cosmos
   BASE_PWD = Dir.pwd
 
   # FatalErrors cause an exit but are not as dangerous as other errors.
@@ -715,19 +703,4 @@ module Cosmos
       end
     end
   end
-
-  # Play a wav file
-  # @param wav_filename filename of the wav file
-  # def self.play_wav_file(wav_filename)
-  #   if defined? Qt and wav_filename
-  #     Qt.execute_in_main_thread(true) do
-  #       if Qt::CoreApplication.instance and Qt::Sound.isAvailable
-  #         Cosmos.set_working_dir do
-  #           Qt::Sound.play(wav_filename.to_s)
-  #         end
-  #       end
-  #     end
-  #   end
-  # end
-
 end

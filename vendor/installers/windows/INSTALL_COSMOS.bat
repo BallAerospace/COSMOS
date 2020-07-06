@@ -30,7 +30,6 @@ set RUBY_INSTALLER_PATH=//github.com/oneclick/rubyinstaller2/releases/download/R
 set RUBY_ABI_VERSION=2.5.0
 set WKHTMLTOPDF=wkhtmltox-0.12.5-1.msvc2015-win64.exe
 set WKHTMLPATHWITHPROTOCOL=https://downloads.wkhtmltopdf.org/0.12/0.12.5/
-set QTBINDINGS_QT_VERSION=4.8.6.4
 set WINDOWS_INSTALL_ZIP=//github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip
 
 :: Detect Ball
@@ -136,7 +135,6 @@ if errorlevel 1 (
 @echo RUBY_ABI_VERSION=!RUBY_ABI_VERSION! >> !COSMOS_INSTALL!\INSTALL.log
 @echo WKHTMLTOPDF=!WKHTMLTOPDF! >> !COSMOS_INSTALL!\INSTALL.log
 @echo WKHTMLPATHWITHPROTOCOL=!WKHTMLPATHWITHPROTOCOL! >> !COSMOS_INSTALL!\INSTALL.log
-@echo QTBINDINGS_QT_VERSION=!QTBINDINGS_QT_VERSION! >> !COSMOS_INSTALL!\INSTALL.log
 @echo USERDNSDOMAIN=%USERDNSDOMAIN% >> !COSMOS_INSTALL!\INSTALL.log
 @echo BALL=!BALL! >> !COSMOS_INSTALL!\INSTALL.log
 @echo SSL_CERT_FILE=%SSL_CERT_FILE% >> !COSMOS_INSTALL!\INSTALL.log
@@ -310,16 +308,6 @@ if errorlevel 1 (
   exit /b 1
 ) else (
   @echo Successfully installed cosmos gem >> !COSMOS_INSTALL!\INSTALL.log
-)
-
-:: move qt dlls to the ruby/bin folder - prevents conflicts with other versions of qt on the system
-move !COSMOS_INSTALL!\Vendor\Ruby\lib\ruby\gems\!RUBY_ABI_VERSION!\gems\qtbindings-qt-!QTBINDINGS_QT_VERSION!-x64-mingw32\qtbin\*.dll !COSMOS_INSTALL!\Vendor\Ruby\bin
-if errorlevel 1 (
-  echo ERROR: Problem moving qt dlls
-  @echo ERROR: Problem moving qt dlls >> !COSMOS_INSTALL!\INSTALL.log
-  pause
-) else (
-  @echo Successfully moved qt dlls >> !COSMOS_INSTALL!\INSTALL.log
 )
 
 :::::::::::::::::::::

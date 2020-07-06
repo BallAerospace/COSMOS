@@ -1,1 +1,0 @@
-FIELD_WIDTH 20
