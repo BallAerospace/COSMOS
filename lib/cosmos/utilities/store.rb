@@ -62,7 +62,7 @@ module Cosmos
 
     def set_interface(interface, initialize: false)
       @redis_pool.with do |redis|
-        if init || redis.hexists("cosmos_interfaces", interface.name)
+        if initialize || redis.hexists("cosmos_interfaces", interface.name)
           return redis.hset("cosmos_interfaces", interface.name, JSON.generate(interface.as_json))
         else
           raise "Interface '#{interface.name}' does not exist"
@@ -446,6 +446,7 @@ module Cosmos
       @redis_pool.with do |redis|
         result = redis.xrevrange(topic, '+', '-', count: 1)
         if result and result.length > 0
+          # puts "result:#{result}"
           return result[0]
         else
           return nil
@@ -463,7 +464,7 @@ module Cosmos
     end
 
     def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
-      # puts "write_topic topic:#{topic} id:#{id} hash:#{msg_hash}"
+      # puts "write_topic topic:#{topic} id:#{id}"#" hash:#{msg_hash}"
       @redis_pool.with do |redis|
         if id
           return redis.xadd(topic, msg_hash, id: id, maxlen: maxlen, approximate: approximate)

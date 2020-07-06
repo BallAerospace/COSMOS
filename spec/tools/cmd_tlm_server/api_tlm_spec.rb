@@ -29,18 +29,18 @@ module Cosmos
       allow(Aws::S3::Client).to receive(:new).and_return(dbl)
       allow(Zip::File).to receive(:open).and_return(true)
       allow_any_instance_of(Cosmos::Interface).to receive(:connected?).and_return(true)
-      allow_any_instance_of(Cosmos::Interface).to receive(:read_interface).and_return("")
+      allow_any_instance_of(Cosmos::Interface).to receive(:read_interface) { sleep }
 
       @im = InterfaceMicroservice.new("INTERFACE__INST_INT")
       @im_thread = Thread.new { @im.run }
       @dm = DecomMicroservice.new("DECOM__INST_INT")
       @dm_thead = Thread.new { @dm.run }
       @cm = CvtMicroservice.new("CVT__INST_INT")
-      @dm_thead = Thread.new { @cm.run }
+      @cm_thead = Thread.new { @cm.run }
       @api = ApiTest.new
-      sleep 0.1 # Allow the threads to run
+      sleep 0.2 # Allow the threads to run
       @api.inject_tlm("INST", "HEALTH_STATUS") # Prime Redis
-      sleep 0.1 # Allow the inject to happen
+      sleep 0.2 # Allow the inject to happen
     end
 
     after(:each) do
@@ -261,13 +261,12 @@ module Cosmos
       end
 
       it "injects a packet into the system" do
-        puts "inject_tlm"
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 10, TEMP2: 20}, :CONVERTED, true, true, false)
-        sleep 0.5
+        sleep 0.2
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to be_within(0.1).of(20.0)
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0}, :RAW, true, true, false)
-        sleep 0.5
+        sleep 0.2
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql -100.0
       end
@@ -361,6 +360,7 @@ module Cosmos
     describe "get_tlm_buffer" do
       it "returns a telemetry packet buffer" do
         @api.inject_tlm("INST","HEALTH_STATUS",{TIMESEC: 0xDEADBEEF})
+        sleep 0.2
         # TODO: It appears that the DECOM is somehow overwriting the TELEMETRY__ topic
         # This might be a mock_redis issue ...
         expect(@api.get_tlm_buffer("INST", "HEALTH_STATUS")[6..10].unpack("N")[0]).to eq 0xDEADBEEF
@@ -384,9 +384,10 @@ module Cosmos
         expect { @api.get_tlm_packet("INST","HEALTH_STATUS",:MINE) }.to raise_error(RuntimeError, "Unknown value type on read: MINE")
       end
 
-      xit "reads all telemetry items with their limits states" do
+      it "reads all telemetry items with their limits states" do
         # Call inject_tlm to ensure the limits are set
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
+        sleep 0.2
 
         vals = @api.get_tlm_packet("INST","HEALTH_STATUS")
         expect(vals[0][0]).to eql "PACKET_TIMESECONDS"
@@ -407,16 +408,16 @@ module Cosmos
         # Spot check a few more
         expect(vals[24][0]).to eql "TEMP1"
         expect(vals[24][1]).to eql -100.0
-        expect(vals[24][2]).to eql :RED_LOW
+        expect(vals[24][2]).to eql "RED_LOW"
         expect(vals[25][0]).to eql "TEMP2"
         expect(vals[25][1]).to eql -100.0
-        expect(vals[25][2]).to eql :RED_LOW
+        expect(vals[25][2]).to eql "RED_LOW"
         expect(vals[26][0]).to eql "TEMP3"
         expect(vals[26][1]).to eql -100.0
-        expect(vals[26][2]).to eql :RED_LOW
+        expect(vals[26][2]).to eql "RED_LOW"
         expect(vals[27][0]).to eql "TEMP4"
         expect(vals[27][1]).to eql -100.0
-        expect(vals[27][2]).to eql :RED_LOW
+        expect(vals[27][2]).to eql "RED_LOW"
       end
     end
 

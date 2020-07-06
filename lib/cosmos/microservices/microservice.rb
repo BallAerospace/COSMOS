@@ -95,6 +95,7 @@ module Cosmos
     end
 
     def shutdown
+      @cancel_thread = true
       FileUtils.remove_entry(@temp_dir) if File.exists?(@temp_dir)
     end
   end
