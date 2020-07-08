@@ -62,6 +62,17 @@ module Cosmos
                         received_count: command.received_count,
                         buffer: command.buffer(false) }
             Store.instance.write_topic("COMMAND__#{command.target_name}__#{command.packet_name}", msg_hash)
+
+            json_hash = {}
+            command.sorted_items.each do |item|
+              json_hash[item.name] = command.read_item(item, :RAW)
+              json_hash[item.name + "__C"] = command.read_item(item, :CONVERTED) if item.write_conversion or item.states
+              json_hash[item.name + "__F"] = command.read_item(item, :FORMATTED) if item.format_string
+              json_hash[item.name + "__U"] = command.read_item(item, :WITH_UNITS) if item.units
+            end
+            msg_hash.delete("buffer")
+            msg_hash['json_data'] = JSON.generate(json_hash.as_json)
+            Store.instance.write_topic("DECOMCMD__#{command.target_name}__#{command.packet_name}", msg_hash)
             Store.instance.set_interface(@interface)
             'SUCCESS'
           rescue => e
