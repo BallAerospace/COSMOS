@@ -41,6 +41,9 @@ module Cosmos
 
     def initialize(name)
       raise "Microservice must be named" unless name
+      split_name = name.split("__")
+      raise "Microservice names should be scope, type, and then name" if split_name.length != 3
+      @scope = split_name[0]
       @name = name
       @cancel_thread = false
       Logger.microservice_name = @name
@@ -52,7 +55,7 @@ module Cosmos
 
       # Get microservice configuration from Redis
       @redis = Redis.new(url: "redis://localhost:6379/0")
-      @config = @redis.hget('cosmos_microservices', name)
+      @config = @redis.hget("cosmos_microservices", name)
       if @config
         @config = JSON.parse(@config)
         @topics = @config['topics']

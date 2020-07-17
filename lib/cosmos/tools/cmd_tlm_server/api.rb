@@ -11,7 +11,6 @@
 require 'cosmos/script/extract'
 require 'cosmos/script/api_shared'
 require 'cosmos/utilities/store'
-require 'connection_pool'
 
 module Cosmos
   module Api
@@ -152,8 +151,6 @@ module Cosmos
         'get_screen_definition',
         'get_saved_config',
       ]
-      # @tlm_viewer_config_filename = nil
-      # @tlm_viewer_config = nil
     end
 
     ############################################################################
@@ -170,8 +167,8 @@ module Cosmos
     #
     # @param args [String|Array<String>] See the description for calling style
     # @return [Array<String, String, Hash>] target_name, command_name, parameters
-    def cmd(*args)
-      cmd_implementation(true, true, false, 'cmd', *args)
+    def cmd(*args, scope:)
+      cmd_implementation(true, true, false, 'cmd', *args, scope: scope)
     end
 
     # Send a command packet to a target without performing any value range
@@ -186,8 +183,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_no_range_check(*args)
-      cmd_implementation(false, true, false, 'cmd_no_range_check', *args)
+    def cmd_no_range_check(*args, scope: )
+      cmd_implementation(false, true, false, 'cmd_no_range_check', *args, scope: scope)
     end
 
     # Send a command packet to a target without performing any hazardous checks
@@ -202,8 +199,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_no_hazardous_check(*args)
-      cmd_implementation(true, false, false, 'cmd_no_hazardous_check', *args)
+    def cmd_no_hazardous_check(*args, scope:)
+      cmd_implementation(true, false, false, 'cmd_no_hazardous_check', *args, scope: scope)
     end
 
     # Send a command packet to a target without performing any value range
@@ -217,8 +214,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_no_checks(*args)
-      cmd_implementation(false, false, false, 'cmd_no_checks', *args)
+    def cmd_no_checks(*args, scope:)
+      cmd_implementation(false, false, false, 'cmd_no_checks', *args, scope: scope)
     end
 
     # Send a command packet to a target without running conversions.
@@ -231,8 +228,8 @@ module Cosmos
     #
     # @param args [String|Array<String>] See the description for calling style
     # @return [Array<String, String, Hash>] target_name, command_name, parameters
-    def cmd_raw(*args)
-      cmd_implementation(true, true, true, 'cmd_raw', *args)
+    def cmd_raw(*args, scope:)
+      cmd_implementation(true, true, true, 'cmd_raw', *args, scope: scope)
     end
 
     # Send a command packet to a target without performing any value range
@@ -247,8 +244,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_raw_no_range_check(*args)
-      cmd_implementation(false, true, true, 'cmd_raw_no_range_check', *args)
+    def cmd_raw_no_range_check(*args, scope:)
+      cmd_implementation(false, true, true, 'cmd_raw_no_range_check', *args, scope: scope)
     end
 
     # Send a command packet to a target without running conversions or performing any hazardous checks
@@ -263,8 +260,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_raw_no_hazardous_check(*args)
-      cmd_implementation(true, false, true, 'cmd_raw_no_hazardous_check', *args)
+    def cmd_raw_no_hazardous_check(*args, scope:)
+      cmd_implementation(true, false, true, 'cmd_raw_no_hazardous_check', *args, scope: scope)
     end
 
     # Send a command packet to a target without running conversions or performing any value range
@@ -278,16 +275,16 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_raw_no_checks(*args)
-      cmd_implementation(false, false, true, 'cmd_raw_no_checks', *args)
+    def cmd_raw_no_checks(*args, scope:)
+      cmd_implementation(false, false, true, 'cmd_raw_no_checks', *args, scope: scope)
     end
 
     # Send a raw binary string to the specified interface.
     #
     # @param interface_name [String] The interface to send the raw binary
     # @param data [String] The raw binary data
-    def send_raw(interface_name, data)
-      Store.instance.write_interface(interface_name, { 'raw' => data })
+    def send_raw(interface_name, data, scope:)
+      Store.instance.write_interface(interface_name, { 'raw' => data }, scope: scope)
       nil
     end
 
@@ -296,9 +293,9 @@ module Cosmos
     # @param target_name [String] Target name of the command
     # @param command_name [String] Packet name of the command
     # @return [String] last command buffer packet
-    def get_cmd_buffer(target_name, command_name)
-      Store.instance.cmd_packet_exist?(target_name, command_name)
-      topic = "COMMAND__#{target_name}__#{command_name}"
+    def get_cmd_buffer(target_name, command_name, scope:)
+      Store.instance.cmd_packet_exist?(target_name, command_name, scope: scope)
+      topic = "#{scope}__COMMAND__#{target_name}__#{command_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       return msg_hash['buffer'] if msg_id
       nil
@@ -311,9 +308,9 @@ module Cosmos
     # @param target_name [String] Name of the target
     # @return [Array<Array<String, String>>] Array containing \[command name,
     #   command description] for all commands in the target
-    def get_cmd_list(target_name)
+    def get_cmd_list(target_name, scope:)
       list = []
-      commands = Store.instance.get_commands(target_name)
+      commands = Store.instance.get_commands(target_name, scope: scope)
       commands.each do |command|
         list << [command['packet_name'], command['description']]
       end
@@ -325,8 +322,8 @@ module Cosmos
     # @since 5.0.0
     # @param target_name [String] Name of the target
     # @return [Array<Hash>] Array of all commands as a hash
-    def get_all_commands(target_name)
-      Store.instance.get_commands(target_name)
+    def get_all_commands(target_name, scope:)
+      Store.instance.get_commands(target_name, scope: scope)
     end
 
     # Returns a hash of the given command
@@ -335,8 +332,8 @@ module Cosmos
     # @param target_name [String] Name of the target
     # @param packet_name [String] Name of the packet
     # @return [Hash] Command as a hash
-    def get_command(target_name, packet_name)
-      Store.instance.get_packet(target_name, packet_name, type: 'cmd')
+    def get_command(target_name, packet_name, scope:)
+      Store.instance.get_packet(target_name, packet_name, type: 'cmd', scope: scope)
     end
 
     # Returns a hash of the given command parameter
@@ -346,8 +343,8 @@ module Cosmos
     # @param packet_name [String] Name of the packet
     # @param param_name [String] Name of the parameter
     # @return [Hash] Command parameter as a hash
-    def get_parameter(target_name, packet_name, param_name)
-      Store.instance.get_item(target_name, packet_name, param_name, type: 'cmd')
+    def get_parameter(target_name, packet_name, param_name, scope:)
+      Store.instance.get_item(target_name, packet_name, param_name, type: 'cmd', scope: scope)
     end
 
     # Returns the list of all the parameters for the given command.
@@ -359,10 +356,10 @@ module Cosmos
     #   nil|String, Boolean>] Array containing \[name, default, states,
     #   description, units_full, units, required] for all parameters in the
     #   command
-    def get_cmd_param_list(target_name, command_name)
+    def get_cmd_param_list(target_name, command_name, scope:)
       list = []
       packet_json = nil
-      packet = Store.instance.get_packet(target_name, command_name, type: 'cmd')
+      packet = Store.instance.get_packet(target_name, command_name, type: 'cmd', scope: scope)
       packet['items'].each do |item|
         states = nil
         if item['states']
@@ -392,11 +389,11 @@ module Cosmos
     # @param params [Hash] Command parameter hash to test whether a particular
     #   parameter setting makes the command hazardous
     # @return [Boolean] Whether the command is hazardous
-    def get_cmd_hazardous(target_name, command_name, params = {})
-      packet = Store.instance.get_packet(target_name, command_name, type: 'cmd')
+    def get_cmd_hazardous(target_name, command_name, params = {}, scope:)
+      packet = Store.instance.get_packet(target_name, command_name, type: 'cmd', scope: scope)
       return true if packet['hazardous']
 
-      # TODO: This is the old implementation ... does it still make sense?
+      # TODO: Can't use System in API
       hazardous, _ = System.commands.cmd_hazardous?(target_name, command_name, params)
       return hazardous
     end
@@ -409,7 +406,7 @@ module Cosmos
     # @param value_type [Symbol] How the values should be converted. Must be
     #   one of {Packet::VALUE_TYPES}
     # @return [Varies] value
-    def get_cmd_value(target_name, command_name, parameter_name, value_type = :CONVERTED)
+    def get_cmd_value(target_name, command_name, parameter_name, value_type = :CONVERTED, scope:)
       # TODO: Implement New Commanding
       packet = System.commands.packet(target_name, command_name)
       # Virtually support RECEIVED_TIMEFORMATTED, RECEIVED_TIMESECONDS, RECEIVED_COUNT
@@ -453,7 +450,7 @@ module Cosmos
     # @param command_name [String] Packet name of the command. If not given then
     #    then most recent time from the given target will be returned.
     # @return [Array<Target Name, Command Name, Time Seconds, Time Microseconds>]
-    def get_cmd_time(target_name = nil, command_name = nil)
+    def get_cmd_time(target_name = nil, command_name = nil, scope:)
       # TODO: Implement New Commanding
       last_command = nil
       if target_name
@@ -501,9 +498,9 @@ module Cosmos
     # @param args [String|Array<String>] See the description for calling style
     # @return [Numeric] The converted telemetry value without formatting or
     #   units
-    def tlm(*args)
-      target_name, packet_name, item_name = tlm_process_args(args, 'tlm')
-      Store.instance.get_tlm_item(target_name, packet_name, item_name, type: :CONVERTED)
+    def tlm(*args, scope:)
+      target_name, packet_name, item_name = tlm_process_args(args, 'tlm', scope: scope)
+      Store.instance.get_tlm_item(target_name, packet_name, item_name, type: :CONVERTED, scope: scope)
     end
 
     # Request a raw telemetry item from a packet.
@@ -517,9 +514,9 @@ module Cosmos
     # @param args (see #tlm)
     # @return [Numeric] The unconverted telemetry value without formatting or
     #   units
-    def tlm_raw(*args)
-      target_name, packet_name, item_name = tlm_process_args(args, 'tlm_raw')
-      Store.instance.get_tlm_item(target_name, packet_name, item_name, type: :RAW)
+    def tlm_raw(*args, scope:)
+      target_name, packet_name, item_name = tlm_process_args(args, 'tlm_raw', scope: scope)
+      Store.instance.get_tlm_item(target_name, packet_name, item_name, type: :RAW, scope: scope)
     end
 
     # Request a formatted telemetry item from a packet.
@@ -533,9 +530,9 @@ module Cosmos
     # @param args (see #tlm)
     # @return [String] The converted telemetry value with formatting but
     #   without units
-    def tlm_formatted(*args)
-      target_name, packet_name, item_name = tlm_process_args(args, 'tlm_formatted')
-      Store.instance.get_tlm_item(target_name, packet_name, item_name, type: :FORMATTED)
+    def tlm_formatted(*args, scope:)
+      target_name, packet_name, item_name = tlm_process_args(args, 'tlm_formatted', scope: scope)
+      Store.instance.get_tlm_item(target_name, packet_name, item_name, type: :FORMATTED, scope: scope)
     end
 
     # Request a telemetry item with units from a packet.
@@ -548,9 +545,9 @@ module Cosmos
     #
     # @param args (see #tlm)
     # @return [String] The converted, formatted telemetry value with units
-    def tlm_with_units(*args)
-      target_name, packet_name, item_name = tlm_process_args(args, 'tlm_with_units')
-      Store.instance.get_tlm_item(target_name, packet_name, item_name, type: :WITH_UNITS)
+    def tlm_with_units(*args, scope:)
+      target_name, packet_name, item_name = tlm_process_args(args, 'tlm_with_units', scope: scope)
+      Store.instance.get_tlm_item(target_name, packet_name, item_name, type: :WITH_UNITS, scope: scope)
     end
 
     # Request a telemetry item from a packet with the specified conversion
@@ -566,16 +563,16 @@ module Cosmos
     #   three strings followed by a symbol (see the calling style in the
     #   description). The symbol must be one of {Packet::VALUE_TYPES}.
     # @return [Object] The converted telemetry value
-    def tlm_variable(*args)
+    def tlm_variable(*args, scope:)
       case args[-1]
       when :RAW
-        return tlm_raw(*args[0..-2])
+        return tlm_raw(*args[0..-2], scope: scope)
       when :CONVERTED
-        return tlm(*args[0..-2])
+        return tlm(*args[0..-2], scope: scope)
       when :FORMATTED
-        return tlm_formatted(*args[0..-2])
+        return tlm_formatted(*args[0..-2], scope: scope)
       when :WITH_UNITS
-        return tlm_with_units(*args[0..-2])
+        return tlm_with_units(*args[0..-2], scope: scope)
       else
         raise "Invalid type '#{args[-1]}'. Must be :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS."
       end
@@ -599,13 +596,13 @@ module Cosmos
     # @param args The args must either be a string followed by a value or
     #   three strings followed by a value (see the calling style in the
     #   description).
-    def set_tlm(*args)
-      target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__)
+    def set_tlm(*args, scope:)
+      target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__, scope: scope)
       if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
         raise "set_tlm not allowed on #{target_name} #{packet_name} #{item_name}" if ['PKTID', 'CONFIG'].include?(item_name)
       end
 
-      Store.instance.set_tlm_item(target_name, packet_name, item_name, value)
+      Store.instance.set_tlm_item(target_name, packet_name, item_name, value, scope: scope)
 
       # TODO: Need to decide how SYSTEM META will work going forward
       # if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
@@ -636,9 +633,9 @@ module Cosmos
     # @param args The args must either be a string followed by a value or
     #   three strings followed by a value (see the calling style in the
     #   description).
-    def set_tlm_raw(*args)
-      target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__)
-      Store.instance.set_tlm_item(target_name, packet_name, item_name, value, type: :RAW)
+    def set_tlm_raw(*args, scope:)
+      target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__, scope: scope)
+      Store.instance.set_tlm_item(target_name, packet_name, item_name, value, type: :RAW, scope: scope)
       # TODO
       #System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
       nil
@@ -655,7 +652,7 @@ module Cosmos
     # @param send_routers[Boolean] Whether or not to send to routers for the target's interface
     # @param send_packet_log_writers[Boolean] Whether or not to send to the packet log writers for the target's interface
     # @param create_new_logs[Boolean] Whether or not to create new log files before writing this packet to logs
-    def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true, send_packet_log_writers = true, create_new_logs = false)
+    def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true, send_packet_log_writers = true, create_new_logs = false, scope:)
       # Get the packet hash ... this will raise errors if target_name and packet_name do not exist
       packet = Store.instance.get_packet(target_name, packet_name)
       if item_hash
@@ -695,9 +692,9 @@ module Cosmos
     # @param args The args must either be a string followed by a value or
     #   three strings followed by a value (see the calling style in the
     #   description).
-    def override_tlm(*args)
-      target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__)
-      Store.instance.override(target_name, packet_name, item_name, value, type: :CONVERTED)
+    def override_tlm(*args, scope:)
+      target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__, scope: scope)
+      Store.instance.override(target_name, packet_name, item_name, value, type: :CONVERTED, scope: scope)
     end
 
     # Override a telemetry item in a packet to a particular value such that it
@@ -714,9 +711,9 @@ module Cosmos
     # @param args The args must either be a string followed by a value or
     #   three strings followed by a value (see the calling style in the
     #   description).
-    def override_tlm_raw(*args)
-      target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__)
-      Store.instance.override(target_name, packet_name, item_name, value, type: :RAW)
+    def override_tlm_raw(*args, scope:)
+      target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__, scope: scope)
+      Store.instance.override(target_name, packet_name, item_name, value, type: :RAW, scope: scope)
     end
 
     # Normalize a telemetry item in a packet to its default behavior. Called
@@ -730,9 +727,9 @@ module Cosmos
     #
     # @param args The args must either be a string or three strings
     #   (see the calling style in the description).
-    def normalize_tlm(*args)
-      target_name, packet_name, item_name = tlm_process_args(args, __method__)
-      Store.instance.normalize(target_name, packet_name, item_name)
+    def normalize_tlm(*args, scope:)
+      target_name, packet_name, item_name = tlm_process_args(args, __method__, scope: scope)
+      Store.instance.normalize(target_name, packet_name, item_name, scope: scope)
     end
 
     # Returns the raw buffer for a telemetry packet.
@@ -740,9 +737,9 @@ module Cosmos
     # @param target_name [String] Name of the target
     # @param packet_name [String] Name of the packet
     # @return [String] last telemetry packet buffer
-    def get_tlm_buffer(target_name, packet_name)
-      Store.instance.tlm_packet_exist?(target_name, packet_name)
-      topic = "TELEMETRY__#{target_name}__#{packet_name}"
+    def get_tlm_buffer(target_name, packet_name, scope:)
+      Store.instance.tlm_packet_exist?(target_name, packet_name, scope: scope)
+      topic = "#{scope}__TELEMETRY__#{target_name}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       puts "msg:#{msg_id} hash:#{msg_hash}"
       return msg_hash['buffer'] if msg_id
@@ -756,8 +753,8 @@ module Cosmos
     # @param value_type [Symbol] How the values should be converted. Must be
     #   one of {Packet::VALUE_TYPES}
     # @return (see Cosmos::Packet#read_all_with_limits_states)
-    def get_tlm_packet(target_name, packet_name, value_type = :CONVERTED)
-      Store.instance.get_packet(target_name, packet_name)
+    def get_tlm_packet(target_name, packet_name, value_type = :CONVERTED, scope:)
+      Store.instance.get_packet(target_name, packet_name, scope: scope)
       value_type = value_type.intern
       case value_type
       when :RAW
@@ -772,7 +769,7 @@ module Cosmos
         raise "Unknown value type on read: #{value_type}"
       end
       result_hash = {}
-      topic = "DECOM__#{target_name}__#{packet_name}"
+      topic = "#{scope}__DECOM__#{target_name}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       if msg_id
         json = msg_hash['json_data']
@@ -810,8 +807,8 @@ module Cosmos
     # @return [Array<Array<Object>, Array<Symbol>>]
     #   Array consisting of an Array of item values and an Array of item limits state
     #   given as symbols such as :RED, :YELLOW, :STALE
-    def get_tlm_values(item_array, value_types = :CONVERTED)
-      Store.instance.get_tlm_values(item_array, value_types)
+    def get_tlm_values(item_array, value_types = :CONVERTED, scope:)
+      Store.instance.get_tlm_values(item_array, value_types, scope: scope)
     end
 
     # Returns an array of all the telemetry packet hashes
@@ -819,8 +816,8 @@ module Cosmos
     # @since 5.0.0
     # @param target_name [String] Name of the target
     # @return [Array<Hash>] Array of all telemetry packet hashes
-    def get_all_telemetry(target_name)
-      Store.instance.get_telemetry(target_name)
+    def get_all_telemetry(target_name, scope:)
+      Store.instance.get_telemetry(target_name, scope: scope)
     end
 
     # Returns a telemetry packet hash
@@ -829,8 +826,8 @@ module Cosmos
     # @param target_name [String] Name of the target
     # @param packet_name [String] Name of the packet
     # @return [Hash] Telemetry packet hash
-    def get_telemetry(target_name, packet_name)
-      Store.instance.get_packet(target_name, packet_name)
+    def get_telemetry(target_name, packet_name, scope:)
+      Store.instance.get_packet(target_name, packet_name, scope: scope)
     end
 
     # Returns a telemetry packet item hash
@@ -840,8 +837,8 @@ module Cosmos
     # @param packet_name [String] Name of the packet
     # @param item_name [String] Name of the packet
     # @return [Hash] Telemetry packet item hash
-    def get_item(target_name, packet_name, item_name)
-      Store.instance.get_item(target_name, packet_name, item_name)
+    def get_item(target_name, packet_name, item_name, scope:)
+      Store.instance.get_item(target_name, packet_name, item_name, scope: scope)
     end
 
     # Returns the sorted packet names and their descriptions for a particular
@@ -851,9 +848,9 @@ module Cosmos
     # @param target_name (see #get_tlm_packet)
     # @return [Array<String, String>] Array of \[packet name, packet
     #   description] sorted by packet name
-    def get_tlm_list(target_name)
+    def get_tlm_list(target_name, scope:)
       list = []
-      Store.instance.get_telemetry(target_name).each do |packet|
+      Store.instance.get_telemetry(target_name, scope: scope).each do |packet|
         list << [packet['packet_name'], packet['description']]
       end
       list.sort
@@ -867,8 +864,8 @@ module Cosmos
     # @param packet_name (see #get_tlm_packet)
     # @return [Array<String, Hash, String>] Array of \[item name, item states,
     #   item description]
-    def get_tlm_item_list(target_name, packet_name)
-      packet = Store.instance.get_packet(target_name, packet_name)
+    def get_tlm_item_list(target_name, packet_name, scope:)
+      packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
       return packet['items'].map {|item| [item['name'], item['states'], item['description']] }
     end
 
@@ -879,27 +876,27 @@ module Cosmos
     # @return [Array<Hash>] Array of hashes describing the items. All the
     #   attributes in {Cosmos::PacketItem} and {Cosmos::StructItem} are
     #   present in the Hash.
-    def get_tlm_details(item_array)
+    def get_tlm_details(item_array, scope:)
       if !item_array.is_a?(Array) || !item_array[0].is_a?(Array)
         raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
       end
 
       details = []
       item_array.each do |target_name, packet_name, item_name|
-        _, item = System.telemetry.packet_and_item(target_name, packet_name, item_name)
+        _, item = System.telemetry.packet_and_item(target_name, packet_name, item_name, scope: scope)
         details << item.to_hash
       end
       details
     end
 
     # (see Cosmos::Limits#out_of_limits)
-    def get_out_of_limits
-      return System.limits.out_of_limits
+    def get_out_of_limits(scope:)
+      return System.limits.out_of_limits(scope: scope)
     end
 
     # (see Cosmos::Limits#overall_limits_state)
-    def get_overall_limits_state(ignored_items = nil)
-      return System.limits.overall_limits_state(ignored_items)
+    def get_overall_limits_state(ignored_items = nil, scope:)
+      return System.limits.overall_limits_state(ignored_items, scope: scope)
     end
 
     # Whether the limits are enabled for the given item
@@ -912,9 +909,9 @@ module Cosmos
     #
     # @param args [String|Array<String>] See the description for calling style
     # @return [Boolean] Whether limits are enable for the itme
-    def limits_enabled?(*args)
-      target_name, packet_name, item_name = tlm_process_args(args, 'limits_enabled?')
-      return Store.instance.get_item(target_name, packet_name, item_name)['limits']['enabled'] ? true : false
+    def limits_enabled?(*args, scope:)
+      target_name, packet_name, item_name = tlm_process_args(args, 'limits_enabled?', scope: scope)
+      return Store.instance.get_item(target_name, packet_name, item_name, scope: scope)['limits']['enabled'] ? true : false
     end
 
     # Enable limits checking for a telemetry item
@@ -926,12 +923,12 @@ module Cosmos
     # Favor the first syntax where possible as it is more succinct.
     #
     # @param args [String|Array<String>] See the description for calling style
-    def enable_limits(*args)
-      target_name, packet_name, item_name = tlm_process_args(args, 'enable_limits')
-      packet = Store.instance.get_packet(target_name, packet_name)
-      item = Store.instance.get_item_from_packet_hash(packet, item_name)
+    def enable_limits(*args, scope:)
+      target_name, packet_name, item_name = tlm_process_args(args, 'enable_limits', scope: scope)
+      packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
+      item = Store.instance.get_item_from_packet_hash(packet, item_name, scope: scope)
       item['limits']['enabled'] = true
-      Store.instance.hset("cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
+      Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
     end
 
     # Disable limit checking for a telemetry item
@@ -943,12 +940,12 @@ module Cosmos
     # Favor the first syntax where possible as it is more succinct.
     #
     # @param args [String|Array<String>] See the description for calling style
-    def disable_limits(*args)
-      target_name, packet_name, item_name = tlm_process_args(args, 'disable_limits')
-      packet = Store.instance.get_packet(target_name, packet_name)
-      item = Store.instance.get_item_from_packet_hash(packet, item_name)
+    def disable_limits(*args, scope:)
+      target_name, packet_name, item_name = tlm_process_args(args, 'disable_limits', scope: scope)
+      packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
+      item = Store.instance.get_item_from_packet_hash(packet, item_name, scope: scope)
       item['limits'].delete('enabled')
-      Store.instance.hset("cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
+      Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
     end
 
     # Get the list of stale packets for a specific target or pass nil to list
@@ -961,7 +958,7 @@ module Cosmos
     #   all stale packets in the system
     # @return [Array<Array<String, String>>] Array of arrays listing the target
     #   name and packet name
-    def get_stale(with_limits_only = false, target_name = nil)
+    def get_stale(with_limits_only = false, target_name = nil, scope:)
       stale = []
       targets = []
       if target_name
@@ -970,7 +967,7 @@ module Cosmos
         targets = get_target_list()
       end
       targets.each do |target|
-        get_all_telemetry(target).each do |packet|
+        get_all_telemetry(target, scope: scope).each do |packet|
           if packet['stale']
             next if with_limits_only && packet['items'].find { |item| item['limits'] }.nil?
             stale << [packet['target_name'], packet['packet_name']]
@@ -990,9 +987,9 @@ module Cosmos
     #
     # @deprecated Use #get_item
     # @return [Hash{String => Array<Number, Number, Number, Number, Number, Number>}]
-    def get_limits(target_name, packet_name, item_name)
+    def get_limits(target_name, packet_name, item_name, scope:)
       limits = {}
-      item = Store.instance.get_item(target_name, packet_name, item_name)
+      item = Store.instance.get_item(target_name, packet_name, item_name, scope: scope)
       item['limits'].each do |key, vals|
         next unless vals.is_a?(Hash)
         limits[key] = [vals['red_low'], vals['yellow_low'], vals['yellow_high'], vals['red_high']]
@@ -1001,9 +998,9 @@ module Cosmos
       return limits
     end
 
-    def set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true)
-      packet = Store.instance.get_packet(target_name, packet_name)
-      item = Store.instance.get_item_from_packet_hash(packet, item_name)
+    def set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true, scope:)
+      packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
+      item = Store.instance.get_item_from_packet_hash(packet, item_name, scope: scope)
       item['limits']['persistence_setting'] = persistence
       if enabled
         item['limits']['enabled'] = true
@@ -1018,7 +1015,7 @@ module Cosmos
       limits['green_low'] = green_low if green_low
       limits['green_high'] = green_high if green_high
       item['limits'][limits_set] = limits
-      Store.instance.hset("cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
+      Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
 
       limits_settings = [target_name, packet_name, item_name].concat(item.to_a)
       # TODO: Notify system taht limits changed
@@ -1029,28 +1026,28 @@ module Cosmos
     # Returns all limits_groups and their members
     # @since 5.0.0 Returns hash with values
     # @return [Hash{String => Array<Array<String, String, String>>]
-    def get_limits_groups
-      JSON.parse(Store.instance.hget('cosmos_system', 'limits_groups'))
+    def get_limits_groups(scope:)
+      JSON.parse(Store.instance.hget("#{scope}__cosmos_system", 'limits_groups'))
     end
 
     # Enables limits for all the items in the group
-    def enable_limits_group(group_name)
-      _limits_group(group_name, action: :enable)
+    def enable_limits_group(group_name, scope:)
+      _limits_group(group_name, action: :enable, scope: scope)
     end
 
     # Disables limits for all the items in the group
-    def disable_limits_group(group_name)
-      _limits_group(group_name, action: :disable)
+    def disable_limits_group(group_name, scope:)
+      _limits_group(group_name, action: :disable, scope: scope)
     end
 
-    def _limits_group(group_name, action:)
+    def _limits_group(group_name, action:, scope:)
       group_name.upcase!
       group = get_limits_groups()[group_name]
       raise "LIMITS_GROUP #{group_name} undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP #{group_name}" unless group
       Logger.info("Disabling Limits Group: #{group_name}")
       group.each do |target_name, packet_name, item_name|
-        packet = Store.instance.get_packet(target_name, packet_name)
-        item = Store.instance.get_item_from_packet_hash(packet, item_name)
+        packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
+        item = Store.instance.get_item_from_packet_hash(packet, item_name, scope: scope)
         if action == :enable
           item['limits']['enabled'] = true
         elsif action == :disable
@@ -1058,29 +1055,29 @@ module Cosmos
         else
           raise "Unknown action #{action}"
         end
-        Store.instance.hset("cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
+        Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
       end
     end
 
     # Returns all defined limits sets
     #
     # @return [Array<Symbol>] All defined limits sets
-    def get_limits_sets
-      JSON.parse(Store.instance.hget('cosmos_system', 'limits_sets'))
+    def get_limits_sets(scope:)
+      JSON.parse(Store.instance.hget("#{scope}__cosmos_system", 'limits_sets'))
     end
 
     # Changes the active limits set that applies to all telemetry
     #
     # @param limits_set [String] The name of the limits set
-    def set_limits_set(limits_set)
-      Store.instance.hset('cosmos_system', 'limits_set', limits_set)
+    def set_limits_set(limits_set, scope:)
+      Store.instance.hset("#{scope}__cosmos_system", 'limits_set', limits_set)
     end
 
     # Returns the active limits set that applies to all telemetry
     #
     # @return [String] The current limits set
-    def get_limits_set
-      Store.instance.hget('cosmos_system', 'limits_set')
+    def get_limits_set(scope:)
+      Store.instance.hget("#{scope}__cosmos_system", 'limits_set')
     end
 
     #
@@ -1090,53 +1087,53 @@ module Cosmos
     # Returns the list of all target names
     #
     # @return [Array<String>] All target names
-    def get_target_list
-      JSON.parse(Store.instance.hget('cosmos_system', 'target_names'))
+    def get_target_list(scope:)
+      JSON.parse(Store.instance.hget("#{scope}__cosmos_system", 'target_names'))
     end
 
     # @see CmdTlmServer.subscribe_limits_events
-    def subscribe_limits_events(queue_size = CmdTlmServer::DEFAULT_LIMITS_EVENT_QUEUE_SIZE)
-      CmdTlmServer.subscribe_limits_events(queue_size)
+    def subscribe_limits_events(queue_size = CmdTlmServer::DEFAULT_LIMITS_EVENT_QUEUE_SIZE, scope:)
+      CmdTlmServer.subscribe_limits_events(queue_size, scope: scope)
     end
 
     # @see CmdTlmServer.unsubscribe_limits_events
-    def unsubscribe_limits_events(id)
+    def unsubscribe_limits_events(id, scope:)
       CmdTlmServer.unsubscribe_limits_events(id)
     end
 
     # @see CmdTlmServer.get_limits_event
-    def get_limits_event(id, non_block = false)
+    def get_limits_event(id, non_block = false, scope:)
       CmdTlmServer.get_limits_event(id, non_block)
     end
 
     # @see CmdTlmServer.subscribe_packet_data
     def subscribe_packet_data(packets,
-                              queue_size = CmdTlmServer::DEFAULT_PACKET_DATA_QUEUE_SIZE)
+                              queue_size = CmdTlmServer::DEFAULT_PACKET_DATA_QUEUE_SIZE, scope:)
       CmdTlmServer.subscribe_packet_data(packets, queue_size)
     end
 
     # @see CmdTlmServer.unsubscribe_packet_data
-    def unsubscribe_packet_data(id)
+    def unsubscribe_packet_data(id, scope:)
       CmdTlmServer.unsubscribe_packet_data(id)
     end
 
     # @see CmdTlmServer.get_packet_data
-    def get_packet_data(id, non_block = false)
+    def get_packet_data(id, non_block = false, scope:)
       CmdTlmServer.get_packet_data(id, non_block)
     end
 
     # @see CmdTlmServer.subscribe_server_messages
-    def subscribe_server_messages(queue_size = CmdTlmServer::DEFAULT_SERVER_MESSAGES_QUEUE_SIZE)
+    def subscribe_server_messages(queue_size = CmdTlmServer::DEFAULT_SERVER_MESSAGES_QUEUE_SIZE, scope:)
       CmdTlmServer.subscribe_server_messages(queue_size)
     end
 
     # @see CmdTlmServer.unsubscribe_server_messages
-    def unsubscribe_server_messages(id)
+    def unsubscribe_server_messages(id, scope:)
       CmdTlmServer.unsubscribe_server_messages(id)
     end
 
     # @see CmdTlmServer.get_server_message
-    def get_server_message(id, non_block = false)
+    def get_server_message(id, non_block = false, scope:)
       CmdTlmServer.get_server_message(id, non_block)
     end
 
@@ -1147,7 +1144,7 @@ module Cosmos
     # is false).
     # Usage:
     #   get_packet(id, <true or false to block>)
-    def get_packet(id, non_block = false)
+    def get_packet(id, non_block = false, scope:)
       packet = nil
       # The get_packet_data in the CmdTlmServer returns the number of seconds
       # followed by microseconds after the packet_name. This is different that the Script API.
@@ -1167,8 +1164,8 @@ module Cosmos
 
     # @deprecated Use #get_interface
     # @return [Array<String>] All the targets mapped to the given interface
-    def get_interface_targets(interface_name)
-      interface = JSON.parse(Store.instance.hget('cosmos_microservices', "INTERFACE__#{interface_name}"))
+    def get_interface_targets(interface_name, scope:)
+      interface = JSON.parse(Store.instance.hget("#{scope}__cosmos_microservices", "INTERFACE__#{interface_name}"))
       targets = []
       interface['target_list'].each do |target|
         targets << target['target_name']
@@ -1177,7 +1174,7 @@ module Cosmos
     end
 
     # @return [Array<String>] All the interface names
-    def get_interface_names
+    def get_interface_names(scope:)
       CmdTlmServer.interfaces.names
     end
 
@@ -1187,7 +1184,7 @@ module Cosmos
     #
     # @param interface_name [String] The name of the interface
     # @param params [Array] Parameters to pass to the interface.
-    def connect_interface(interface_name, *params)
+    def connect_interface(interface_name, *params, scope:)
       CmdTlmServer.interfaces.connect(interface_name, *params)
       nil
     end
@@ -1195,7 +1192,7 @@ module Cosmos
     # Disconnects from an interface and kills its telemetry gathering thread
     #
     # @param interface_name (see #connect_interface)
-    def disconnect_interface(interface_name)
+    def disconnect_interface(interface_name, scope:)
       CmdTlmServer.interfaces.disconnect(interface_name)
       nil
     end
@@ -1203,7 +1200,7 @@ module Cosmos
     # @param interface_name (see #connect_interface)
     # @return [String] The state of the interface which is one of 'CONNECTED',
     #   'ATTEMPTING' or 'DISCONNECTED'.
-    def interface_state(interface_name)
+    def interface_state(interface_name, scope:)
       CmdTlmServer.interfaces.state(interface_name)
     end
 
@@ -1213,13 +1210,13 @@ module Cosmos
     #
     # @param target_name [String] The name of the target
     # @param interface_name (see #connect_interface)
-    def map_target_to_interface(target_name, interface_name)
+    def map_target_to_interface(target_name, interface_name, scope:)
       CmdTlmServer.interfaces.map_target(target_name, interface_name)
       nil
     end
 
     # @return [Array<String>] All the router names
-    def get_router_names
+    def get_router_names(scope:)
       CmdTlmServer.routers.names
     end
 
@@ -1229,7 +1226,7 @@ module Cosmos
     #
     # @param router_name [String] The name of the router
     # @param params [Array] Parameters to pass to the router.
-    def connect_router(router_name, *params)
+    def connect_router(router_name, *params, scope:)
       CmdTlmServer.routers.connect(router_name, *params)
       nil
     end
@@ -1237,7 +1234,7 @@ module Cosmos
     # Disconnects a router and kills its command gathering thread
     #
     # @param router_name (see #connect_router)
-    def disconnect_router(router_name)
+    def disconnect_router(router_name, scope:)
       CmdTlmServer.routers.disconnect(router_name)
       nil
     end
@@ -1245,7 +1242,7 @@ module Cosmos
     # @param router_name (see #connect_router)
     # @return [String] The state of the router which is one of 'CONNECTED',
     #   'ATTEMPTING' or 'DISCONNECTED'.
-    def router_state(router_name)
+    def router_state(router_name, scope:)
       CmdTlmServer.routers.state(router_name)
     end
 
@@ -1254,13 +1251,13 @@ module Cosmos
     # @deprecated Use #get_target
     # @param target_name [String] Target name
     # @return [Array<Numeric, Numeric>] Array of \[cmd_cnt, tlm_cnt]
-    def get_target_info(target_name)
+    def get_target_info(target_name, scope:)
       cmd_cnt = 0
       tlm_cnt = 0
-      Store.instance.get_commands(target_name).each do |packet|
+      Store.instance.get_commands(target_name, scope: scope).each do |packet|
         cmd_cnt += get_cmd_cnt(target_name, packet["packet_name"])
       end
-      Store.instance.get_telemetry(target_name).each do |packet|
+      Store.instance.get_telemetry(target_name, scope: scope).each do |packet|
         tlm_cnt += get_tlm_cnt(target_name, packet["packet_name"])
       end
       return [cmd_cnt, tlm_cnt]
@@ -1269,10 +1266,10 @@ module Cosmos
     # Get information about all targets
     #
     # @return [Array<Array<String, Numeric, Numeric>] Array of Arrays \[name, interface, cmd_cnt, tlm_cnt]
-    def get_all_target_info
+    def get_all_target_info(scope:)
       info = []
       get_target_list().each do |target_name|
-        target = Store.instance.get_target(target_name)
+        target = Store.instance.get_target(target_name, scope: scope)
         info << [target['name'], target['interface'], target['cmd_cnt'], target['tlm_cnt']]
       end
       info
@@ -1283,8 +1280,8 @@ module Cosmos
     # @since 5.0.0
     # @param target_name [String] Target name
     # @return [Hash] Hash of all the target properties
-    def get_target(target_name)
-      return Store.instance.get_target(target_name)
+    def get_target(target_name, scope:)
+      return Store.instance.get_target(target_name, scope: scope)
     end
 
     # Get the list of ignored command parameters for a target
@@ -1292,8 +1289,8 @@ module Cosmos
     # @deprecated Use #get_target
     # @param target_name [String] Target name
     # @return [Array<String>] All of the ignored command parameters for a target.
-    def get_target_ignored_parameters(target_name)
-      return Store.instance.get_target(target_name)['ignored_parameters']
+    def get_target_ignored_parameters(target_name, scope:)
+      return Store.instance.get_target(target_name, scope: scope)['ignored_parameters']
     end
 
     # Get the list of ignored telemetry items for a target
@@ -1301,8 +1298,8 @@ module Cosmos
     # @deprecated Use get_target
     # @param target_name [String] Target name
     # @return [Array<String>] All of the ignored telemetry items for a target.
-    def get_target_ignored_items(target_name)
-      return Store.instance.get_target(target_name)['ignored_items']
+    def get_target_ignored_items(target_name, scope:)
+      return Store.instance.get_target(target_name, scope: scope)['ignored_items']
     end
 
     # Get the list of derived telemetry items for a packet
@@ -1310,8 +1307,8 @@ module Cosmos
     # @param target_name [String] Target name
     # @param packet_name [String] Packet name
     # @return [Array<String>] All of the ignored telemetry items for a packet.
-    def get_packet_derived_items(target_name, packet_name)
-      packet = Store.instance.get_packet(target_name, packet_name)
+    def get_packet_derived_items(target_name, packet_name, scope:)
+      packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
       raise "Unknown target or packet: #{target_name} #{packet_name}" unless packet
       return packet['items'].select {|item| item['data_type'] == 'DERIVED' }.map {|item| item['name']}
     end
@@ -1320,8 +1317,8 @@ module Cosmos
     #
     # @param interface_name [String] Interface name
     # @return [Hash] Hash of all the interface information
-    def get_interface(interface_name)
-      Store.instance.get_interface(interface_name)
+    def get_interface(interface_name, scope:)
+      Store.instance.get_interface(interface_name, scope: scope)
     end
 
     # Get information about an interface
@@ -1332,8 +1329,8 @@ module Cosmos
     #   Numeric, Numeric>] Array containing \[state, num clients,
     #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
     #   Telemetry count] for the interface
-    def get_interface_info(interface_name)
-      int = get_interface(interface_name)
+    def get_interface_info(interface_name, scope:)
+      int = get_interface(interface_name, scope: scope)
       return [int['state'], int['clients'], int['txsize'], int['rxsize'],\
               int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
     end
@@ -1344,9 +1341,9 @@ module Cosmos
     #   Numeric, Numeric>>] Array of Arrays containing \[name, state, num clients,
     #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
     #   Telemetry count] for all interfaces
-    def get_all_interface_info
+    def get_all_interface_info(scope:)
       info = []
-      Store.instance.get_interfaces().each do |int|
+      Store.instance.get_interfaces(scope: scope).each do |int|
         info << [int['name'], int['state'], int['clients'], int['txsize'], int['rxsize'],\
                   int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
       end
@@ -1360,8 +1357,8 @@ module Cosmos
     #   Numeric, Numeric>] Array containing \[state, num clients,
     #   TX queue size, RX queue size, TX bytes, RX bytes, Pkts received,
     #   Pkts sent] for the router
-    def get_router_info(router_name)
-      Store.instance.get_interface(router_name)
+    def get_router_info(router_name, scope:)
+      Store.instance.get_interface(router_name, scope: scope)
     end
 
     # Get information about all routers
@@ -1370,7 +1367,7 @@ module Cosmos
     #   Numeric, Numeric>>] Array of Arrays containing \[name, state, num clients,
     #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
     #   Telemetry count] for all routers
-    def get_all_router_info
+    def get_all_router_info(scope:)
       info = []
       CmdTlmServer.routers.names.sort.each do |router_name|
         info << [router_name].concat(CmdTlmServer.routers.get_info(router_name))
@@ -1379,7 +1376,7 @@ module Cosmos
     end
 
     def _get_cnt(topic)
-      _, target_name, packet_name = topic.split('__')
+      _, _, target_name, packet_name = topic.split('__')
       raise "Packet '#{target_name} #{packet_name}' does not exist" unless Store.instance.exists?(topic)
       id, packet = Store.instance.read_topic_last(topic)
       packet ? packet["received_count"].to_i : 0
@@ -1390,8 +1387,8 @@ module Cosmos
     # @param target_name [String] Target name of the command
     # @param command_name [String] Packet name of the command
     # @return [Numeric] Transmit count for the command
-    def get_cmd_cnt(target_name, command_name)
-      _get_cnt("COMMAND__#{target_name}__#{command_name}")
+    def get_cmd_cnt(target_name, command_name, scope:)
+      _get_cnt("#{scope}__COMMAND__#{target_name}__#{command_name}")
     end
 
     # Get the receive count for a telemetry packet
@@ -1399,19 +1396,19 @@ module Cosmos
     # @param target_name [String] Name of the target
     # @param packet_name [String] Name of the packet
     # @return [Numeric] Receive count for the telemetry packet
-    def get_tlm_cnt(target_name, packet_name)
-      _get_cnt("TELEMETRY__#{target_name}__#{packet_name}")
+    def get_tlm_cnt(target_name, packet_name, scope:)
+      _get_cnt("#{scope}__TELEMETRY__#{target_name}__#{packet_name}")
     end
 
     # Get information on all command packets
     #
     # @return [Array<String, String, Numeric>] Transmit count for all commands
-    def get_all_cmd_info
+    def get_all_cmd_info(scope:)
       result = []
       keys = []
       count = 0
       loop do
-        count, part = Store.instance.scan(0, :match => "COMMAND__*", :count => 1000)
+        count, part = Store.instance.scan(0, :match => "#{scope}__COMMAND__*", :count => 1000, scope: scope)
         keys.concat(part)
         break if count.to_i == 0
       end
@@ -1425,12 +1422,12 @@ module Cosmos
     # Get information on all telemetry packets
     #
     # @return [Array<String, String, Numeric>] Receive count for all telemetry
-    def get_all_tlm_info
+    def get_all_tlm_info(scope:)
       result = []
       keys = []
       count = 0
       loop do
-        count, part = Store.instance.scan(0, :match => "TELEMETRY__*", :count => 1000)
+        count, part = Store.instance.scan(0, :match => "#{scope}__TELEMETRY__*", :count => 1000, scope: scope)
         keys.concat(part)
         break if count.to_i == 0
       end
@@ -1444,7 +1441,7 @@ module Cosmos
     # Get the list of packet loggers.
     #
     # @return [Array<String>] Array containing the names of all packet loggers
-    def get_packet_loggers
+    def get_packet_loggers(scope:)
       return CmdTlmServer.packet_logging.all.keys
     end
 
@@ -1456,7 +1453,7 @@ module Cosmos
     #   cmd logging enabled, cmd queue size, cmd filename, cmd file size,
     #   tlm logging enabled, tlm queue size, tlm filename, tlm file size]
     #   for the packet logger
-    def get_packet_logger_info(packet_logger_name = 'DEFAULT')
+    def get_packet_logger_info(packet_logger_name = 'DEFAULT', scope:)
       logger_info = CmdTlmServer.packet_logging.get_info(packet_logger_name)
       packet_log_writer_pair = CmdTlmServer.packet_logging.all[packet_logger_name.upcase]
       interfaces = []
@@ -1468,7 +1465,7 @@ module Cosmos
       return [interfaces] + logger_info
     end
 
-    def get_all_packet_logger_info
+    def get_all_packet_logger_info(scope:)
       info = []
       CmdTlmServer.packet_logging.all.keys.sort.each do |packet_logger_name|
         packet_log_writer_pair = CmdTlmServer.packet_logging.all[packet_logger_name.upcase]
@@ -1487,7 +1484,7 @@ module Cosmos
     #
     # @return [Array<Array<String, String, String>>] Array of Arrays containing
     #   the background task name, thread status, and task status
-    def get_background_tasks
+    def get_background_tasks(scope:)
       result = []
       # CmdTlmServer.background_tasks.all.each do |task|
       #   if task.thread
@@ -1502,7 +1499,7 @@ module Cosmos
     end
 
     # Start a background task
-    def start_background_task(task_name)
+    def start_background_task(task_name, scope:)
       CmdTlmServer.background_tasks.all.each_with_index do |task, index|
         if task.name == task_name
           CmdTlmServer.background_tasks.start(index)
@@ -1512,7 +1509,7 @@ module Cosmos
     end
 
     # Stop a background task
-    def stop_background_task(task_name)
+    def stop_background_task(task_name, scope:)
       CmdTlmServer.background_tasks.all.each_with_index do |task, index|
         if task.name == task_name
           CmdTlmServer.background_tasks.stop(index)
@@ -1527,8 +1524,8 @@ module Cosmos
     #   status including Limits Set, API Port, JSON DRB num clients,
     #   JSON DRB request count, JSON DRB average request time, and the total
     #   number of Ruby threads in the server/
-    def get_server_status
-      set = Store.instance.hget('cosmos_system', 'limits_set')
+    def get_server_status(scope:)
+      set = Store.instance.hget("#{scope}__cosmos_system", 'limits_set')
       [ set, 0, 0, 0, 0,
         # TODO: What do we want to expose here?
         # CmdTlmServer.mode == :CMD_TLM_SERVER ? System.ports['CTS_API'] : System.ports['REPLAY_API'],
@@ -1542,14 +1539,14 @@ module Cosmos
     # @param packet_log_writer_name [String] The name of the packet log writer which
     #   is writing the command packet log
     # @return [String] The command packet log filename
-    def get_cmd_log_filename(packet_log_writer_name = 'DEFAULT')
+    def get_cmd_log_filename(packet_log_writer_name = 'DEFAULT', scope:)
       CmdTlmServer.packet_logging.cmd_filename(packet_log_writer_name)
     end
 
     # @param packet_log_writer_name [String] The name of the packet log writer which
     #   is writing the telemetry packet log
     # @return [String] The telemetry packet log filename
-    def get_tlm_log_filename(packet_log_writer_name = 'DEFAULT')
+    def get_tlm_log_filename(packet_log_writer_name = 'DEFAULT', scope:)
       CmdTlmServer.packet_logging.tlm_filename(packet_log_writer_name)
     end
 
@@ -1559,7 +1556,7 @@ module Cosmos
     #   is writing both the command and telemetry logs
     # @param label [String] Optional label to apply to both the command and
     #   telemetry packet log filename
-    def start_logging(packet_log_writer_name = 'ALL', label = nil)
+    def start_logging(packet_log_writer_name = 'ALL', label = nil, scope:)
       CmdTlmServer.packet_logging.start(packet_log_writer_name, label)
       nil
     end
@@ -1568,7 +1565,7 @@ module Cosmos
     #
     # @param packet_log_writer_name [String] The name of the packet log writer which
     #   is writing both the command and telemetry logs
-    def stop_logging(packet_log_writer_name = 'ALL')
+    def stop_logging(packet_log_writer_name = 'ALL', scope:)
       CmdTlmServer.packet_logging.stop(packet_log_writer_name)
       nil
     end
@@ -1579,7 +1576,7 @@ module Cosmos
     #   is writing the command logs
     # @param label [String] Optional label to apply to the command packet log
     #   filename
-    def start_cmd_log(packet_log_writer_name = 'ALL', label = nil)
+    def start_cmd_log(packet_log_writer_name = 'ALL', label = nil, scope:)
       CmdTlmServer.packet_logging.start_cmd(packet_log_writer_name, label)
       nil
     end
@@ -1590,7 +1587,7 @@ module Cosmos
     #   is writing the telemetry logs
     # @param label [String] Optional label to apply to the telemetry packet log
     #   filename
-    def start_tlm_log(packet_log_writer_name = 'ALL', label = nil)
+    def start_tlm_log(packet_log_writer_name = 'ALL', label = nil, scope:)
       CmdTlmServer.packet_logging.start_tlm(packet_log_writer_name, label)
       nil
     end
@@ -1599,7 +1596,7 @@ module Cosmos
     #
     # @param packet_log_writer_name [String] The name of the packet log writer which
     #   is writing the command log
-    def stop_cmd_log(packet_log_writer_name = 'ALL')
+    def stop_cmd_log(packet_log_writer_name = 'ALL', scope:)
       CmdTlmServer.packet_logging.stop_cmd(packet_log_writer_name)
       nil
     end
@@ -1608,7 +1605,7 @@ module Cosmos
     #
     # @param packet_log_writer_name [String] The name of the packet log writer which
     #   is writing the telemetry log
-    def stop_tlm_log(packet_log_writer_name = 'ALL')
+    def stop_tlm_log(packet_log_writer_name = 'ALL', scope:)
       CmdTlmServer.packet_logging.stop_tlm(packet_log_writer_name)
       nil
     end
@@ -1616,7 +1613,7 @@ module Cosmos
     # Starts raw logging for an interface
     #
     # @param interface_name [String] The name of the interface
-    def start_raw_logging_interface(interface_name = 'ALL')
+    def start_raw_logging_interface(interface_name = 'ALL', scope:)
       CmdTlmServer.interfaces.start_raw_logging(interface_name)
       nil
     end
@@ -1624,7 +1621,7 @@ module Cosmos
     # Stop raw logging for an interface
     #
     # @param interface_name [String] The name of the interface
-    def stop_raw_logging_interface(interface_name = 'ALL')
+    def stop_raw_logging_interface(interface_name = 'ALL', scope:)
       CmdTlmServer.interfaces.stop_raw_logging(interface_name)
       nil
     end
@@ -1632,7 +1629,7 @@ module Cosmos
     # Starts raw logging for a router
     #
     # @param router_name [String] The name of the router
-    def start_raw_logging_router(router_name = 'ALL')
+    def start_raw_logging_router(router_name = 'ALL', scope:)
       CmdTlmServer.routers.start_raw_logging(router_name)
       nil
     end
@@ -1640,13 +1637,13 @@ module Cosmos
     # Stops raw logging for a router
     #
     # @param router_name [String] The name of the router
-    def stop_raw_logging_router(router_name = 'ALL')
+    def stop_raw_logging_router(router_name = 'ALL', scope:)
       CmdTlmServer.routers.stop_raw_logging(router_name)
       nil
     end
 
     # @return [String] The server message log filename
-    def get_server_message_log_filename
+    def get_server_message_log_filename(scope:)
       if CmdTlmServer.message_log
         CmdTlmServer.message_log.filename
       else
@@ -1655,13 +1652,13 @@ module Cosmos
     end
 
     # Starts a new server message log
-    def start_new_server_message_log
+    def start_new_server_message_log(scope:)
       CmdTlmServer.message_log.start if CmdTlmServer.message_log
       nil
     end
 
     # Reload the default configuration
-    def cmd_tlm_reload
+    def cmd_tlm_reload(scope:)
       Thread.new do
         CmdTlmServer.instance.reload
       end
@@ -1669,12 +1666,12 @@ module Cosmos
     end
 
     # Clear server counters
-    def cmd_tlm_clear_counters
+    def cmd_tlm_clear_counters(scope:)
       CmdTlmServer.clear_counters
     end
 
     # Get the list of filenames in the outputs logs folder
-    def get_output_logs_filenames(filter = '*tlm.bin')
+    def get_output_logs_filenames(filter = '*tlm.bin', scope:)
       raise "Filter must not contain slashes" if filter.index('/') or filter.index('\\')
       Dir.glob(File.join(System.paths['LOGS'], '**', filter))
     end
@@ -1682,63 +1679,63 @@ module Cosmos
     # Select and start analyzing a file for replay
     #
     # filename [String] filename relative to output logs folder or absolute filename
-    def replay_select_file(filename, packet_log_reader = "DEFAULT")
+    def replay_select_file(filename, packet_log_reader = "DEFAULT", scope:)
       CmdTlmServer.replay_backend.select_file(filename, packet_log_reader)
     end
 
     # Get current replay status
     #
     # status, delay, filename, file_start, file_current, file_end, file_index, file_max_index
-    def replay_status
+    def replay_status(scope:)
       CmdTlmServer.replay_backend.status
     end
 
     # Set the replay delay
     #
     # @param delay [Float] delay between packets in seconds 0.0 to 1.0, nil = REALTIME
-    def replay_set_playback_delay(delay)
+    def replay_set_playback_delay(delay, scope:)
       CmdTlmServer.replay_backend.set_playback_delay(delay)
     end
 
     # Replay start playing forward
-    def replay_play
+    def replay_play(scope:)
       CmdTlmServer.replay_backend.play
     end
 
     # Replay start playing backward
-    def replay_reverse_play
+    def replay_reverse_play(scope:)
       CmdTlmServer.replay_backend.reverse_play
     end
 
     # Replay stop
-    def replay_stop
+    def replay_stop(scope:)
       CmdTlmServer.replay_backend.stop
     end
 
     # Replay step forward one packet
-    def replay_step_forward
+    def replay_step_forward(scope:)
       CmdTlmServer.replay_backend.step_forward
     end
 
     # Replay step backward one packet
-    def replay_step_back
+    def replay_step_back(scope:)
       CmdTlmServer.replay_backend.step_back
     end
 
     # Replay move to start of file
-    def replay_move_start
+    def replay_move_start(scope:)
       CmdTlmServer.replay_backend.move_start
     end
 
     # Replay move to end of file
-    def replay_move_end
+    def replay_move_end(scope:)
       CmdTlmServer.replay_backend.move_end
     end
 
     # Replay move to index
     #
     # @param index [Integer] packet index into file
-    def replay_move_index(index)
+    def replay_move_index(index, scope:)
       CmdTlmServer.replay_backend.move_index(index)
     end
 
@@ -1761,7 +1758,7 @@ module Cosmos
     # end
 
     # Get a saved configuration zip file
-    def get_saved_config(configuration_name = nil)
+    def get_saved_config(configuration_name = nil, scope:)
       configuration_name ||= System.initial_config.name if System.initial_config
       if configuration_name
         configuration = System.instance.find_configuration(configuration_name)
@@ -1777,7 +1774,7 @@ module Cosmos
 
     private
 
-    def cmd_implementation(range_check, hazardous_check, raw, method_name, *args)
+    def cmd_implementation(range_check, hazardous_check, raw, method_name, *args, scope:)
       case args.length
       when 1
         target_name, cmd_name, cmd_params = extract_fields_from_cmd_text(args[0])
@@ -1793,11 +1790,11 @@ module Cosmos
         # Invalid number of arguments
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{method_name}()"
       end
-      Store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw)
+      Store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, scope: scope)
       [target_name, cmd_name, cmd_params]
     end
 
-    def tlm_process_args(args, function_name)
+    def tlm_process_args(args, function_name, scope:)
       case args.length
       when 1
         target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
@@ -1814,7 +1811,7 @@ module Cosmos
         Store.instance.get_telemetry(target_name).each do |packet|
           item = packet['items'].find { |item| item['name'] == item_name }
           if item
-            time = Store.instance.get_tlm_item(target_name, packet['name'], 'PACKET_TIMESECONDS')
+            time = Store.instance.get_tlm_item(target_name, packet['name'], 'PACKET_TIMESECONDS', scope: scope)
             # time = packet['items'].find { |item| item['name'] == 'PACKET_TIMESECONDS' }
             puts "time:#{time}"
             puts item
@@ -1822,13 +1819,13 @@ module Cosmos
         end
       else
         # Determine if this item exists, it will raise appropriate errors if not
-        Store.instance.get_item(target_name, packet_name, item_name)
+        Store.instance.get_item(target_name, packet_name, item_name, scope: scope)
       end
 
       return [target_name, packet_name, item_name]
     end
 
-    def tlm_variable_process_args(args, function_name)
+    def tlm_variable_process_args(args, function_name, scope:)
       case args.length
       when 2
         target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
@@ -1843,12 +1840,12 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
       end
       # Determine if this item exists, it will raise appropriate errors if not
-      Store.instance.get_item(target_name, packet_name, item_name)
+      Store.instance.get_item(target_name, packet_name, item_name, scope: scope)
 
       return [target_name, packet_name, item_name, value_type]
     end
 
-    def set_tlm_process_args(args, function_name)
+    def set_tlm_process_args(args, function_name, scope:)
       case args.length
       when 1
         target_name, packet_name, item_name, value = extract_fields_from_set_tlm_text(args[0])
@@ -1862,7 +1859,7 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
       end
       # Determine if this item exists, it will raise appropriate errors if not
-      Store.instance.get_item(target_name, packet_name, item_name)
+      Store.instance.get_item(target_name, packet_name, item_name, scope: scope)
 
       return [target_name, packet_name, item_name, value]
     end

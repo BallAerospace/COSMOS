@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2020 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -17,14 +17,6 @@ require 'set'
 require 'cosmos/io/json_rpc'
 require 'cosmos/io/json_drb_rack'
 require 'rack/handler/puma'
-if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.2.8 2.2.9 2.2.10 2.3.4 2.4.1).include? RUBY_VERSION
-  begin
-    require 'stopgap_13632'
-  rescue Exception => err
-    msg = "Error loading stopgap. Make sure gem install stopgap_13632 succeeds: #{err.message}"
-    raise $!, msg, $!.backtrace
-  end
-end
 
 # Add methods to the Puma::Launcher and Puma::Single class so we can tell
 # if the server has been started.
@@ -255,7 +247,7 @@ module Cosmos
     def process_request(request_data, start_time)
       @request_count += 1
       STDOUT.puts request_data if JsonDRb.debug?
-      #begin
+      begin
         request = JsonRpcRequest.from_json(request_data)
         response = nil
         error_code = nil
@@ -263,28 +255,33 @@ module Cosmos
 
         if (@method_whitelist and @method_whitelist.include?(request.method.downcase())) or
            (!@method_whitelist and !JsonRpcRequest::DANGEROUS_METHODS.include?(request.method.downcase()))
-          #begin
-            result = @object.send(request.method.downcase().intern, *request.params)
+          begin
+            if request.keyword_params
+              result = @object.send(request.method.downcase().intern, *request.params, **request.keyword_params)
+            else
+              result = @object.send(request.method.downcase().intern, *request.params)
+            end
             if request.id
               response = JsonRpcSuccessResponse.new(result, request.id)
             end
-          # rescue Exception => error
-          #   if request.id
-          #     if NoMethodError === error
-          #       error_code = JsonRpcError::ErrorCode::METHOD_NOT_FOUND
-          #       response = JsonRpcErrorResponse.new(
-          #         JsonRpcError.new(error_code, "Method not found", error), request.id)
-          #     elsif ArgumentError === error
-          #       error_code = JsonRpcError::ErrorCode::INVALID_PARAMS
-          #       response = JsonRpcErrorResponse.new(
-          #         JsonRpcError.new(error_code, "Invalid params", error), request.id)
-          #     else
-          #       error_code = JsonRpcError::ErrorCode::OTHER_ERROR
-          #       response = JsonRpcErrorResponse.new(
-          #         JsonRpcError.new(error_code, error.message, error), request.id)
-          #     end
-          #   end
-          # end
+          rescue Exception => error
+            Logger.error error.formatted
+            if request.id
+              if NoMethodError === error
+                error_code = JsonRpcError::ErrorCode::METHOD_NOT_FOUND
+                response = JsonRpcErrorResponse.new(
+                  JsonRpcError.new(error_code, "Method not found", error), request.id)
+              elsif ArgumentError === error
+                error_code = JsonRpcError::ErrorCode::INVALID_PARAMS
+                response = JsonRpcErrorResponse.new(
+                  JsonRpcError.new(error_code, "Invalid params", error), request.id)
+              else
+                error_code = JsonRpcError::ErrorCode::OTHER_ERROR
+                response = JsonRpcErrorResponse.new(
+                  JsonRpcError.new(error_code, error.message, error), request.id)
+              end
+            end
+          end
         else
           if request.id
             error_code = JsonRpcError::ErrorCode::OTHER_ERROR
@@ -294,12 +291,12 @@ module Cosmos
         end
         response_data = process_response(response, start_time) if response
         return response_data, error_code
-      # rescue => error
-      #   error_code = JsonRpcError::ErrorCode::INVALID_REQUEST
-      #   response = JsonRpcErrorResponse.new(JsonRpcError.new(error_code, "Invalid Request", error), nil)
-      #   response_data = process_response(response, start_time)
-      #   return response_data, error_code
-      # end
+      rescue => error
+        error_code = JsonRpcError::ErrorCode::INVALID_REQUEST
+        response = JsonRpcErrorResponse.new(JsonRpcError.new(error_code, "Invalid Request", error), nil)
+        response_data = process_response(response, start_time)
+        return response_data, error_code
+      end
     end
 
     protected

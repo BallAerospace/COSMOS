@@ -18,8 +18,8 @@ module Cosmos
         topic_split = topic.split("__")
         target_name = topic_split[1]
         packet_name = topic_split[2]
-        remote_log_directory = "rawlogs/tlm/#{target_name}/#{packet_name}"
-        label = "#{target_name}__#{packet_name}__raw"
+        remote_log_directory = "#{@scope}/rawlogs/tlm/#{target_name}/#{packet_name}"
+        label = "#{@scope}__#{target_name}__#{packet_name}__raw"
         plws[topic] = PacketLogWriter.new(remote_log_directory, label, true, nil, 1000000, 0, 0)
       end
       while true
@@ -28,8 +28,8 @@ module Cosmos
           begin
             break if @cancel_thread
             topic_split = topic.split("__")
-            target_name = topic_split[1]
-            packet_name = topic_split[2]
+            target_name = topic_split[2]
+            packet_name = topic_split[3]
 
             plws[topic].write(:RAW_PACKET, :TLM, target_name, packet_name, msg_hash["time"].to_i, ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["buffer"], nil)
           rescue => err

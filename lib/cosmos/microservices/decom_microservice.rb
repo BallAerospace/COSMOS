@@ -60,7 +60,7 @@ module Cosmos
       msg_hash.delete("buffer")
       # TODO: msg_hash['time'] = json_hash['PACKET_TIME_NSEC']
       msg_hash['json_data'] = JSON.generate(json_hash.as_json)
-      Store.instance.write_topic("DECOM__#{target_name}__#{packet_name}", msg_hash)
+      Store.instance.write_topic("#{@scope}__DECOM__#{target_name}__#{packet_name}", msg_hash)
     end
   end
 end

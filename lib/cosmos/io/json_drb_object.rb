@@ -78,17 +78,18 @@ module Cosmos
     #
     # @param method_name [Symbol] Name of the method to call
     # @param method_params [Array] Array of parameters to pass to the method
+    # @param keyword_params [Hash<Symbol, Variable>] Hash of keyword parameters
     # @return The result of the method call. If the method raises an exception
     #   the same exception is also raised. If something goes wrong with the
     #   protocol a DRb::DRbConnError exception is raised.
-    def method_missing(method_name, *method_params)
+    def method_missing(method_name, *method_params, **keyword_params)
       @mutex.synchronize do
         first_try = true
         loop do
           raise DRb::DRbConnError, "Shutdown" if @shutdown
           connect() if !@http or @request_in_progress
 
-          response = make_request(method_name, method_params, first_try)
+          response = make_request(method_name, method_params, keyword_params, first_try)
           unless response
             disconnect()
             was_first_try = first_try
@@ -118,8 +119,8 @@ module Cosmos
       end
     end
 
-    def make_request(method_name, method_params, first_try)
-      request = JsonRpcRequest.new(method_name, method_params, @id)
+    def make_request(method_name, method_params, keyword_params, first_try)
+      request = JsonRpcRequest.new(method_name, method_params, keyword_params, @id)
       @id += 1
 
       @request_data = request.to_json(:allow_nan => true)

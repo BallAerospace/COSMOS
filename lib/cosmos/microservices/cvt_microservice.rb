@@ -35,7 +35,7 @@ module Cosmos
       json_hash.each do |key, value|
         updated_json_hash[key] = JSON.generate(value.as_json)
       end
-      @redis.mapped_hmset("tlm__#{target_name}__#{packet_name}", updated_json_hash)
+      @redis.mapped_hmset("#{@scope}__tlm__#{target_name}__#{packet_name}", updated_json_hash)
     end
   end
 end

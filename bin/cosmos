@@ -307,7 +307,7 @@ def put_into_archive(disk_file_path, io, zip_file_path)
   end
 end
 
-def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil)
+def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil, scope = nil)
   system_filename ||= 'system.txt'
   system_path = File.join(Dir.pwd, 'config', 'system', system_filename)
   system_config = Cosmos::SystemConfig.new(system_path)
@@ -379,7 +379,8 @@ def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil)
     zip_targets[target.original_name] = hash
   end
 
-  Cosmos::ConfigureMicroservices.new(system_config, cts_config)
+  scope ||= 'DEFAULT'
+  Cosmos::ConfigureMicroservices.new(system_config, cts_config, scope: scope)
 end
 
 def get_redis_keys
@@ -417,7 +418,7 @@ if not ARGV[0].nil? # argument(s) given
   # Handle each task
   case ARGV[0].downcase
   when 'load'
-    load_cosmos(ARGV[1], ARGV[2])
+    load_cosmos(ARGV[1], ARGV[2], ARGV[3])
 
   when 'docs'
     thread = Thread.new do

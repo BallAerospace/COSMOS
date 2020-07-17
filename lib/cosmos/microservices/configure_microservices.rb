@@ -10,7 +10,9 @@
 
 module Cosmos
   class ConfigureMicroservices
-    def initialize(system_config, cts_config, url: "redis://localhost:6379/0", logger: Logger.new(Logger::INFO, true))
+    def initialize(system_config, cts_config, scope:, url: "redis://localhost:6379/0", logger: Logger.new(Logger::INFO, true))
+      Store.instance.sadd("cosmos_scopes", scope)
+
       target_list = []
       target_names = []
       system_config.targets.each do |target_name, target|
@@ -24,34 +26,33 @@ module Cosmos
       System.instance(target_list, File.join(system_config.userpath, 'config', 'targets'))
 
       # Save configuration to redis
-      Store.instance.del("cosmos_system")
-      Store.instance.hset('cosmos_system', 'limits_set', 'DEFAULT') # Current
-      Store.instance.hset('cosmos_system', 'target_names', JSON.generate(target_names))
+      Store.instance.del("#{scope}__cosmos_system")
+      Store.instance.hset("#{scope}__cosmos_system", 'limits_set', 'DEFAULT') # Current
+      Store.instance.hset("#{scope}__cosmos_system", 'target_names', JSON.generate(target_names))
       System.targets.each do |target_name, target|
-        Store.instance.hset('cosmos_targets', target_name, JSON.generate(target.as_json))
+        Store.instance.hset("#{scope}__cosmos_targets", target_name, JSON.generate(target.as_json))
       end
-      Store.instance.hset('cosmos_system', 'limits_sets', JSON.generate(System.packet_config.limits_sets))
-      Store.instance.hset('cosmos_system', 'limits_groups', JSON.generate(System.packet_config.limits_groups))
+      Store.instance.hset("#{scope}__cosmos_system", 'limits_sets', JSON.generate(System.packet_config.limits_sets))
+      Store.instance.hset("#{scope}__cosmos_system", 'limits_groups', JSON.generate(System.packet_config.limits_groups))
 
       System.telemetry.all.each do |target_name, packets|
-        Store.instance.del("cosmostlm__#{target_name}")
+        Store.instance.del("#{scope}__cosmostlm__#{target_name}")
         packets.each do |packet_name, packet|
           logger.info "Configuring tlm packet: #{target_name} #{packet_name}"
-          Store.instance.hset("cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
         end
       end
       System.commands.all.each do |target_name, packets|
-        Store.instance.del("cosmoscmd__#{target_name}")
+        Store.instance.del("#{scope}__cosmoscmd__#{target_name}")
         packets.each do |packet_name, packet|
           logger.info "Configuring cmd packet: #{target_name} #{packet_name}"
-          Store.instance.hset("cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          Store.instance.hset("#{scope}__cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
         end
       end
 
       # Configure microservices
-      # TODO: Need to only clear out old microservices that are unneeded for the current PROGRAM
-      # For now just clear them all
-      Store.instance.del('cosmos_microservices')
+      # TODO - Just delete for current scope
+      Store.instance.del("cosmos_microservices")
 
       cts_config.interfaces.each do |interface_name, interface|
         # Configure InterfaceMicroservice
@@ -64,9 +65,10 @@ module Cosmos
           target_filename = File.basename(target.filename) if target.filename
           target_list << { 'target_name' => target_name, 'original_name' => original_name, 'target_filename' => target_filename, 'target_id' => target.id }
         end
-        config = { 'filename' => "interface_microservice.rb", 'interface_params' => interface.config_params, 'target_list' => target_list }
-        Store.instance.hset('cosmos_microservices', "INTERFACE__#{interface_name}", JSON.generate(config))
-        logger.info "Configured microservice INTERFACE__#{interface_name}"
+        config = { 'filename' => "interface_microservice.rb", 'interface_params' => interface.config_params, 'target_list' => target_list, 'scope' => scope }
+        name = "#{scope}__INTERFACE__#{interface_name}"
+        Store.instance.hset("cosmos_microservices", name, JSON.generate(config))
+        logger.info "Configured microservice #{name}"
 
         # Configure DecomMicroservice
         command_topic_list = []
@@ -74,10 +76,10 @@ module Cosmos
         interface.target_names.each do |target_name|
           begin
             System.commands.packets(target_name).each do |packet_name, packet|
-              command_topic_list << "COMMAND__#{target_name}__#{packet_name}"
+              command_topic_list << "#{scope}__COMMAND__#{target_name}__#{packet_name}"
             end
             System.telemetry.packets(target_name).each do |packet_name, packet|
-              packet_topic_list << "TELEMETRY__#{target_name}__#{packet_name}"
+              packet_topic_list << "#{scope}__TELEMETRY__#{target_name}__#{packet_name}"
             end
           rescue
             # No telemetry packets for this target
@@ -87,34 +89,38 @@ module Cosmos
         Store.instance.initialize_streams(packet_topic_list)
         next unless packet_topic_list.length > 0
 
-        config = { 'filename' => "decom_microservice.rb", 'target_list' => target_list, 'topics' => packet_topic_list }
-        Store.instance.hset('cosmos_microservices', "DECOM__#{interface_name}", JSON.generate(config))
-        logger.info "Configured microservice DECOM__#{interface_name}"
+        config = { 'filename' => "decom_microservice.rb", 'target_list' => target_list, 'topics' => packet_topic_list, 'scope' => scope }
+        name = "#{scope}__DECOM__#{interface_name}"
+        Store.instance.hset("cosmos_microservices", name, JSON.generate(config))
+        logger.info "Configured microservice #{name}"
 
         # Configure CvtMicroservice
         decom_topic_list = []
         interface.target_names.each do |target_name|
           begin
             System.telemetry.packets(target_name).each do |packet_name, packet|
-              decom_topic_list << "DECOM__#{target_name}__#{packet_name}"
+              decom_topic_list << "#{scope}__DECOM__#{target_name}__#{packet_name}"
             end
           rescue
             # No telemetry packets for this target
           end
         end
-        config = { 'filename' => "cvt_microservice.rb", 'topics' => decom_topic_list }
-        Store.instance.hset('cosmos_microservices', "CVT__#{interface_name}", JSON.generate(config))
-        logger.info "Configured microservice CVT__#{interface_name}"
+        config = { 'filename' => "cvt_microservice.rb", 'topics' => decom_topic_list, 'scope' => scope }
+        name = "#{scope}__CVT__#{interface_name}"
+        Store.instance.hset("cosmos_microservices", name, JSON.generate(config))
+        logger.info "Configured microservice #{name}"
 
         # Configure PacketLogMicroservice
-        config = { 'filename' => "packet_log_microservice.rb", 'target_list' => target_list, 'topics' => packet_topic_list }
-        Store.instance.hset('cosmos_microservices', "PACKETLOG__#{interface_name}", JSON.generate(config))
-        logger.info "Configured microservice PACKETLOG__#{interface_name}"
+        config = { 'filename' => "packet_log_microservice.rb", 'target_list' => target_list, 'topics' => packet_topic_list, 'scope' => scope }
+        name = "#{scope}__PACKETLOG__#{interface_name}"
+        Store.instance.hset("cosmos_microservices", name, JSON.generate(config))
+        logger.info "Configured microservice #{name}"
 
         # Configure DecomLogMicroservice
-        config = { 'filename' => "decom_log_microservice.rb", 'target_list' => target_list, 'topics' => decom_topic_list }
-        Store.instance.hset('cosmos_microservices', "DECOMLOG__#{interface_name}", JSON.generate(config))
-        logger.info "Configured microservice DECOMLOG__#{interface_name}"
+        config = { 'filename' => "decom_log_microservice.rb", 'target_list' => target_list, 'topics' => decom_topic_list, 'scope' => scope }
+        name = "#{scope}__DECOMLOG__#{interface_name}"
+        Store.instance.hset("cosmos_microservices", name, JSON.generate(config))
+        logger.info "Configured microservice #{name}"
       end
     end
   end

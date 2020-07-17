@@ -12,9 +12,10 @@ require 'cosmos/microservices/microservice'
 
 module Cosmos
   class InterfaceCmdHandlerThread
-    def initialize(interface, tlm)
+    def initialize(interface, tlm, scope:)
       @interface = interface
       @tlm = tlm
+      @scope = scope
     end
 
     def start
@@ -28,7 +29,7 @@ module Cosmos
     end
 
     def run
-      Store.instance.receive_commands(@interface) do |topic, msg_hash|
+      Store.instance.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
         # Check for a raw write to the interface
         if topic =~ /CMDINTERFACE/
           @interface.write(msg_hash['raw']) if msg_hash['raw']
@@ -61,7 +62,7 @@ module Cosmos
                         packet_name: command.packet_name,
                         received_count: command.received_count,
                         buffer: command.buffer(false) }
-            Store.instance.write_topic("COMMAND__#{command.target_name}__#{command.packet_name}", msg_hash)
+            Store.instance.write_topic("#{@scope}__COMMAND__#{command.target_name}__#{command.packet_name}", msg_hash)
 
             json_hash = {}
             command.sorted_items.each do |item|
@@ -72,8 +73,8 @@ module Cosmos
             end
             msg_hash.delete("buffer")
             msg_hash['json_data'] = JSON.generate(json_hash.as_json)
-            Store.instance.write_topic("DECOMCMD__#{command.target_name}__#{command.packet_name}", msg_hash)
-            Store.instance.set_interface(@interface)
+            Store.instance.write_topic("#{@scope}__DECOMCMD__#{command.target_name}__#{command.packet_name}", msg_hash)
+            Store.instance.set_interface(@interface, scope: @scope)
             'SUCCESS'
           rescue => e
             Logger.error e.formatted
@@ -92,20 +93,20 @@ module Cosmos
 
     def initialize(name)
       super(name)
-      interface_name = name.split("__")[1]
+      interface_name = name.split("__")[2]
       @interface = Cosmos.require_class(@config['interface_params'][0]).new(*@config['interface_params'][1..-1])
       @interface.name = interface_name
       @config["target_list"].each do |item|
         @interface.target_names << item["target_name"]
       end
-      Store.instance.set_interface(@interface, initialize: true)
+      Store.instance.set_interface(@interface, initialize: true, scope: @scope)
       # TODO: Need to set any additional interface options like protocols
       @interface_thread_sleeper = Sleeper.new
       @cancel_thread = false
       @connection_failed_messages = []
       @connection_lost_messages = []
       @mutex = Mutex.new
-      @cmd_thread = InterfaceCmdHandlerThread.new(@interface, self)
+      @cmd_thread = InterfaceCmdHandlerThread.new(@interface, self, scope: @scope)
       @cmd_thread.start
     end
 
@@ -166,12 +167,12 @@ module Cosmos
         Logger.error "Packet reading thread unexpectedly died for #{@interface.name}\n#{error.formatted}"
         Cosmos.handle_fatal_exception(error)
       end
-      Store.instance.set_interface(@interface)
+      Store.instance.set_interface(@interface, scope: @scope)
       Logger.info "Stopped packet reading for #{@interface.name}"
     end
 
     def handle_packet(packet)
-      Store.instance.set_interface(@interface)
+      Store.instance.set_interface(@interface, scope: @scope)
       packet.received_time = Time.now.sys unless packet.received_time
 
       if packet.stored
@@ -233,7 +234,7 @@ module Cosmos
                    packet_name: packet.packet_name,
                    received_count: packet.received_count,
                    buffer: packet.buffer(false) }
-      Store.instance.write_topic("TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
+      Store.instance.write_topic("#{@scope}__TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
     end
 
     def inject_tlm(hash)
@@ -293,13 +294,13 @@ module Cosmos
     def connect
       Logger.info "Connecting to #{@interface.name}..."
       @interface.connect
-      Store.instance.set_interface(@interface)
+      Store.instance.set_interface(@interface, scope: @scope)
       Logger.info "#{@interface.name} Connection Success"
     end
 
     def disconnect
       @interface.disconnect
-      Store.instance.set_interface(@interface)
+      Store.instance.set_interface(@interface, scope: @scope)
 
       # If the interface is set to auto_reconnect then delay so the thread
       # can come back around and allow the interface a chance to reconnect.

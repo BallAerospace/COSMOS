@@ -199,13 +199,21 @@ module Cosmos
     # @param method_name [String] The name of the method to call
     # @param method_params [Array<String>] Array of strings which represent the
     #   parameters to send to the method
+    # @param keyword_params [Hash<String, Variable>] Hash of key value keyword params
     # @param id [Integer] The identifier which will be matched to the response
-    def initialize(method_name, method_params, id)
+    def initialize(method_name, method_params, keyword_params, id)
       super()
       @hash['jsonrpc'.freeze] = "2.0".freeze
       @hash['method'.freeze] = method_name.to_s
       if method_params and method_params.length != 0
         @hash['params'.freeze] = method_params
+      end
+      if keyword_params and keyword_params.length != 0
+        symbolized = {}
+        keyword_params.each do |key, value|
+          symbolized[key.intern] = value
+        end
+        @hash['keyword_params'.freeze] = symbolized
       end
       @hash['id'.freeze] = id.to_i
     end
@@ -219,6 +227,12 @@ module Cosmos
     #   parameters to send to the method
     def params
       @hash['params'.freeze] || []
+    end
+
+    # @return [Hash<String, Variable>] Hash which represents the
+    #   keyword parameters to send to the method
+    def keyword_params
+      @hash['keyword_params'.freeze]
     end
 
     # @return [Integer] The request identifier
@@ -248,7 +262,7 @@ module Cosmos
     #   and id
     # @return [JsonRpcRequest]
     def self.from_hash(hash)
-      self.new(hash['method'.freeze], hash['params'.freeze], hash['id'.freeze])
+      self.new(hash['method'.freeze], hash['params'.freeze], hash['keyword_params'.freeze], hash['id'.freeze])
     end
   end
 
