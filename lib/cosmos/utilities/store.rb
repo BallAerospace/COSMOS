@@ -502,5 +502,8 @@ module Cosmos
     def sadd(key, value)
       @redis_pool.with { |redis| redis.sadd(key, value) }
     end
+    def xrevrange(*args, **kw_args)
+      @redis_pool.with { |redis| redis.xrevrange(*args, **kw_args) }
+    end
   end
 end

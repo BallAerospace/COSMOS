@@ -44,6 +44,7 @@ module Cosmos
       split_name = name.split("__")
       raise "Microservice names should be scope, type, and then name" if split_name.length != 3
       @scope = split_name[0]
+      Logger.scope = @scope
       @name = name
       @cancel_thread = false
       Logger.microservice_name = @name

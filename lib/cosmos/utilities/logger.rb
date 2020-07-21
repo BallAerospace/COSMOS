@@ -10,6 +10,7 @@
 
 require 'cosmos/core_ext/class'
 require 'cosmos/core_ext/time'
+require 'cosmos/utilities/store'
 require 'socket'
 require 'thread'
 require 'logger'
@@ -37,6 +38,9 @@ module Cosmos
     # @return [String] Microservice name
     instance_attr_accessor :microservice_name
 
+    # @return [String] Scope
+    instance_attr_accessor :scope
+
     @@mutex = Mutex.new
     @@instance = nil
 
@@ -60,6 +64,7 @@ module Cosmos
     # @param level [Integer] The initial logging level
     def initialize(level = Logger::INFO, stdout = false)
       @level = level
+      @scope = nil
       @detail_string = nil
       @stdout = stdout
       @container_name = Socket.gethostname
@@ -67,6 +72,7 @@ module Cosmos
       @tag = @container_name + ".log"
       @mutex = Mutex.new
       @no_fluentd = ENV['NO_FLUENTD']
+      @no_store = ENV['NO_STORE']
       unless @no_fluentd
         fluentd_url ||= "localhost:24224"
         path = fluentd_url.split('/')[-1].split(':')
@@ -149,6 +155,13 @@ module Cosmos
         data[:container_name] = @container_name
         data[:log] = message
         Fluent::Logger.post(@tag, data) unless @no_fluentd
+        unless @no_store
+          if @scope
+            Store.instance.write_topic("#{@scope}__cosmos_log_messages", data)
+          else
+            Store.instance.write_topic("cosmos_log_messages", data)
+          end
+        end
         if @stdout
           puts "#{Time.now.sys.formatted} #{@detail_string ? "(#{@detail_string}):" : ''} #{severity_string}: #{message}"
         end
