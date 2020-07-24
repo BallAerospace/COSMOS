@@ -23,6 +23,7 @@ $cmd_tlm_server = nil
 $disconnected_targets = nil
 $disconnect_all_targets = false
 $cmd_tlm_replay_mode = false
+$cosmos_scope = 'DEFAULT'
 
 module Cosmos
   # Error raised by the API when a check fails
@@ -69,7 +70,7 @@ module Cosmos
         @cmd_tlm_server.disconnect
       else
         if $disconnect_all_targets
-          return @disconnected.send(method_name, *method_params)
+          return @disconnected.send(method_name, *method_params, scope: $cosmos_scope)
         elsif $disconnected_targets
           name_string = nil
           if method_params[0].is_a?(String)
@@ -86,11 +87,11 @@ module Cosmos
           if name_string
             target = name_string.split(" ")[0]
             if $disconnected_targets.include?(target)
-              return @disconnected.send(method_name, *method_params)
+              return @disconnected.send(method_name, *method_params, scope: $cosmos_scope)
             end
           end
         end
-        @cmd_tlm_server.method_missing(method_name, *method_params)
+        @cmd_tlm_server.method_missing(method_name, *method_params, scope: $cosmos_scope)
       end
     end
   end

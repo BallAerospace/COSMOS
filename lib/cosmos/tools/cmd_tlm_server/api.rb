@@ -393,9 +393,10 @@ module Cosmos
       packet = Store.instance.get_packet(target_name, command_name, type: 'cmd', scope: scope)
       return true if packet['hazardous']
 
-      # TODO: Can't use System in API
-      hazardous, _ = System.commands.cmd_hazardous?(target_name, command_name, params)
-      return hazardous
+      # TODO: Can't use System in API - Need to check for state hazardous still
+      # hazardous, _ = System.commands.cmd_hazardous?(target_name, command_name, params)
+      #return hazardous
+      return false
     end
 
     # Returns a value from the specified command
