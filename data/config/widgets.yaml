@@ -346,44 +346,6 @@ LABELPROGRESSBAR:
       required: false
       description: The type of the value to display. Default is CONVERTED.
       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-LABELTRENDLIMITSBAR:
-  summary: Displays a LABEL widget to show the
-    item's name, a VALUE widget to show the telemetry items current value,
-    a VALUE widget to display the value of the item X seconds ago, and a TRENDBAR
-    widget to display the items value within its limits ranges and its trend.
-  parameters:
-    - name: Target name
-      required: true
-      description: The target name
-      values: <%= Store.instance.get_target_names %>
-    - name: Packet name
-      required: true
-      description: The packet name
-      values: .+
-    - name: Item name
-      required: true
-      description: The item name
-      values: .+
-    - name: Value type
-      required: false
-      description: The type of the value to display. Default is CONVERTED.
-      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-    - name: Trend seconds
-      required: false
-      description: The number of seconds in the past to display the trend value (default = 60)
-      values: .*
-    - name: Characters
-      required: false
-      description: The number of characters to display the telemetry value (default = 12)
-      values: .*
-    - name: Width
-      required: false
-      description: Width of the limits bar (default = 160)
-      values: .*
-    - name: Height
-      required: false
-      description: Height of the limits bar (default = 25)
-      values: .*
 LABELVALUE:
   summary: Displays a LABEL widget to show the telemetry
     items name followed by a VALUE widget to display the items value.
@@ -1229,20 +1191,6 @@ TEXTFIELD:
     - name: Text
       required: false
       description: Default text to put in the text field (default is blank)
-      values: .*
-SCREENSHOTBUTTON:
-  summary: Creates a button which takes a screenshot of the screen it is on
-  description:
-    The screenshot automatically gets placed in the outputs/logs directory
-    with the current date / time and the name of the window.
-  parameters:
-    - name: Button Text
-      required: false
-      description: The text on the button, default is 'Screenshot'.
-      values: .*
-    - name: Screenshot Directory
-      required: false
-      description: The directory to put the screenshot. Default is output/logs.
       values: .*
 CANVAS:
   summary: Layout widget for the other canvas widgets

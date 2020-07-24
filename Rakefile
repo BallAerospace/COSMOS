@@ -231,8 +231,6 @@ task :metrics do
   `flay lib > flay_report.txt`
   puts "\nRunning reek and creating reek_report.txt"
   `reek lib > reek_report.txt`
-  puts "\nRunning roodi and creating roodi_report.txt"
-  `roodi -config=roodi.yml lib > roodi_report.txt`
 end
 
 task :stress do

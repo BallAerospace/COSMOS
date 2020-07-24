@@ -363,6 +363,10 @@ def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil, scope = ni
               zipfile.mkdir(zip_file_path)
             else
               zipfile.add(zip_file_path, target_file)
+              # Write to S3 Bucket
+              File.open(target_file, 'rb') do |file|
+                rubys3_client.put_object(bucket: 'targets', key: zip_file_path, body: file)
+              end
             end
           end
         end
