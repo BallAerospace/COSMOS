@@ -114,7 +114,10 @@ module Cosmos
       while true
         read_topics(topics) do |topic, msg_id, msg_hash, redis|
           result = yield topic, msg_hash
-          write_topic("ACK" + topic, { 'result' => result }, msg_id)
+          ack_topic = topic.split("__")
+          ack_topic[1] = 'ACK' + ack_topic[1]
+          ack_topic = ack_topic.join("__")
+          write_topic(ack_topic, { 'result' => result }, msg_id)
         end
       end
     end
