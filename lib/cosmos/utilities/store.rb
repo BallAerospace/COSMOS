@@ -140,11 +140,11 @@ module Cosmos
         if !type.is_a?(Symbol) && !type.is_a?(String)
           raise ArgumentError, "value_types must be a single symbol or array of symbols specifying the conversion method (:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS)"
         end
-        type = type.intern
-        unless %i(RAW CONVERTED FORMATTED WITH_UNITS).include?(type)
+        unless %w[RAW CONVERTED FORMATTED WITH_UNITS].include?(type.to_s)
           raise ArgumentError, "Unknown value type: #{type}"
         end
       end
+      value_types.map! {|type| type.intern }
 
       @redis_pool.with do |redis|
         promises = []
@@ -323,8 +323,10 @@ module Cosmos
         secondary_keys = ["#{item_name}__C", item_name, "#{item_name}__L"]
       when :FORMATTED
         secondary_keys = ["#{item_name}__F", "#{item_name}__C", item_name, "#{item_name}__L"]
-      else
+      when :WITH_UNITS
         secondary_keys = ["#{item_name}__U", "#{item_name}__F", "#{item_name}__C", item_name, "#{item_name}__L"]
+      else
+        raise "Unknown value type #{value_type}"
       end
       result = redis.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *secondary_keys)
     end
