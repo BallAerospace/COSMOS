@@ -1,7 +1,7 @@
 SCREEN AUTO AUTO 1.0
 
 VERTICAL
-SETTING BACKCOLOR white
+# SETTING BACKCOLOR white
   TITLE "<%= @target_name %> Instrument Ground Station Status"
   SETTING BACKCOLOR white
 
@@ -20,12 +20,16 @@ SETTING BACKCOLOR white
     #  SETTING IMAGE true "ground_on.gif" 100 200
     #  SETTING IMAGE false "ground_off.gif" 100 200
     CANVASLINE 10 10 640 10 blue 3
-    CANVASIMAGE "satellite.gif" 50 150
+    CANVASIMAGE "https://images.pexels.com/photos/256152/pexels-photo-256152.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=640&w=426" 0 250 250 150
+    #CANVASIMAGE "satellite.gif" 50 150
     # We're using the converted value and specifing a default of "ground_error.gif"
     # if none of the IMAGE settings match the value
-    CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS CONVERTED "ground_error.gif" 400 100
-      SETTING IMAGE CONNECTED "ground_on.gif" 400 100
-      SETTING IMAGE UNAVAILABLE "ground_off.gif" 400 100
+    CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS CONVERTED "https://images.pexels.com/photos/356079/pexels-photo-356079.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=200&w=200" 400 80 200 200
+    # CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS CONVERTED "ground_error.gif" 400 100
+      SETTING IMAGE CONNECTED "https://images.unsplash.com/photo-1590433333434-09df2b2a35a5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80" 400 80 200 200
+      SETTING IMAGE UNAVAILABLE "https://images.unsplash.com/photo-1572224104782-91a08d296390?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80" 400 80 200 200
+      # SETTING IMAGE CONNECTED "ground_on.gif" 400 100
+      # SETTING IMAGE UNAVAILABLE "ground_off.gif" 400 100
       # If the image is clicked the "INST HS" screen will popup at 100, 100
       SETTING SCREEN "INST HS" 100 100
     CANVASLABEL 380 300 "Ground Station #1"
@@ -43,5 +47,3 @@ SETTING BACKCOLOR white
     CANVASLINE 10 584 640 584 blue 3
   END
 END
-
-
