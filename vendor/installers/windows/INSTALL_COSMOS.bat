@@ -22,14 +22,14 @@ set PROTOCOL=https
 set ARCHITECTURE=%PROCESSOR_ARCHITECTURE%
 
 :: Update this version if making any changes to this script
-set INSTALLER_VERSION=2.5
+set INSTALLER_VERSION=2.6
 
 :: Paths and versions for COSMOS dependencies
 set RUBY_INSTALLER=rubyinstaller-devkit-2.5.8-1-x64.exe
 set RUBY_INSTALLER_PATH=//github.com/oneclick/rubyinstaller2/releases/download/RubyInstaller-2.5.8-1/
 set RUBY_ABI_VERSION=2.5.0
-set WKHTMLTOPDF=wkhtmltox-0.12.5-1.msvc2015-win64.exe
-set WKHTMLPATHWITHPROTOCOL=https://downloads.wkhtmltopdf.org/0.12/0.12.5/
+set WKHTMLTOPDF=wkhtmltox-0.12.6-1.msvc2015-win64.exe
+set WKHTMLPATHWITHPROTOCOL=https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/
 set QTBINDINGS_QT_VERSION=4.8.6.4
 set WINDOWS_INSTALL_ZIP=//github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip
 
