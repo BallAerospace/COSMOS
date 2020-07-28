@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"noImplicitAny": false,
+		"noImplicitReturns": true,
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"outDir": "out",
+		"moduleResolution": "node",
+		"lib": ["dom", "es2015"]
+	},
+	"include": [
+		"src/*"
+	],
+	"exclude": [
+		"node_modules"
+	]
+}

@@ -1,0 +1,35 @@
+{
+	"name": "cosmos",
+	"description": "Language support for COSMOS configuration files",
+	"author": "Ball Aerospace",
+	"license": "BALL GPL",
+	"version": "0.0.8",
+	"icon": "images/icon.png",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/BallAerospace/COSMOS"
+	},
+	"publisher": "BallAero",
+	"scripts": {
+		"postinstall": "cd server && npm install && cd ../client && npm install && cd .. && npm run-script compile",
+		"compile": "npm run-script compile:client && npm run-script compile:server",
+		"compile:client": "cd client && tsc -p ./ && cd ..",
+		"compile:server": "cd server && npm run installServer && cd .. && tsc -p server/tsconfig.json",
+		"watch:client": "tsc -watch -p ./client/tsconfig.json",
+		"watch:server": "cd server && npm run installServer && cd .. && tsc -w -p server/tsconfig.json",
+		"distclean:client": "cd client && rm -fr node_modules && cd ..",
+		"distclean:server": "cd server && rm -fr node_modules && cd ..",
+		"distclean": "npm run-script distclean:client && npm run-script distclean:server && rm -fr node_modules",
+		"upgrade:client": "cd client && npm upgrade",
+		"upgrade:server": "cd server && npm upgrade",
+		"upgrade": "npm run-script upgrade:client && npm run-script upgrade:server && npm upgrade"
+	},
+	"devDependencies": {
+		"mocha": "^2.2.48",
+		"node": "^6.0.116",
+		"typescript": "^2.9.2"
+	},
+	"dependencies": {
+		"tsc": "^1.20150623.0"
+	}
+}
