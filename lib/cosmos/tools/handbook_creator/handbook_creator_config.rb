@@ -115,7 +115,7 @@ module Cosmos
         cover, cover_file = make_pdf_detail('cover', @pdf_cover_filename, @pdf_cover_title, target_name)
         header, header_file = make_pdf_detail('--header-spacing 3 --header-html', @pdf_header_filename, @pdf_header_title, target_name)
         footer, footer_file = make_pdf_detail('--footer-spacing 3 --footer-html', @pdf_footer_filename, @pdf_footer_title, target_name)
-        system_call = "wkhtmltopdf -L #{@pdf_side_margin} -R #{@pdf_side_margin} -T #{@pdf_top_margin} -B #{@pdf_bottom_margin} -s Letter #{header} #{footer} #{cover} #{@pdf_toc} \"#{tmp_html_file.path}\" \"#{File.dirname(filename)}/#{File.basename(filename, '.*')}.pdf\""
+        system_call = "wkhtmltopdf --enable-local-file-access -L #{@pdf_side_margin} -R #{@pdf_side_margin} -T #{@pdf_top_margin} -B #{@pdf_bottom_margin} -s Letter #{header} #{footer} #{cover} #{@pdf_toc} \"#{tmp_html_file.path}\" \"#{File.dirname(filename)}/#{File.basename(filename, '.*')}.pdf\""
         status = nil
         begin
           Cosmos.set_working_dir(System.paths['HANDBOOKS']) do
