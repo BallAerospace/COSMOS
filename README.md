@@ -105,6 +105,10 @@ Before any contributions can be incorporated we do require all contributors to s
 
 This protects both you and us and you retain full rights to any code you write.
 
+## Vulnerability Disclosure
+
+If you discover a security vulnerability in COSMOS, please do not disclose to any public forum or our Github tickets system.  Please email the vulnerability details to COSMOS@ball.com, and give us 90 days to incorporate any needed changes. Also please also let us know how how you would like to be reffered to for attribution when we post the fix. Thanks!
+
 ## Code Status
 
 * [![Travis Build Status](https://travis-ci.org/BallAerospace/COSMOS.svg?branch=master)](https://travis-ci.org/BallAerospace/COSMOS)
