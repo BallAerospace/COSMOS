@@ -39,7 +39,7 @@ module Cosmos
       @overrides = {}
     end
 
-    def get_interfaces(scope:)
+    def get_interfaces(scope: $cosmos_scope)
       result = []
       @redis_pool.with do |redis|
         interfaces = redis.hgetall("#{scope}__cosmos_interfaces")
@@ -50,7 +50,7 @@ module Cosmos
       result
     end
 
-    def get_interface(interface_name, scope:)
+    def get_interface(interface_name, scope: $cosmos_scope)
       @redis_pool.with do |redis|
         if redis.hexists("#{scope}__cosmos_interfaces", interface_name)
           return JSON.parse(redis.hget("#{scope}__cosmos_interfaces", interface_name))
@@ -60,7 +60,7 @@ module Cosmos
       end
     end
 
-    def set_interface(interface, initialize: false, scope:)
+    def set_interface(interface, initialize: false, scope: $cosmos_scope)
       @redis_pool.with do |redis|
         if initialize || redis.hexists("#{scope}__cosmos_interfaces", interface.name)
           return redis.hset("#{scope}__cosmos_interfaces", interface.name, JSON.generate(interface.as_json))
@@ -70,7 +70,7 @@ module Cosmos
       end
     end
 
-    def write_interface(interface_name, hash, scope:)
+    def write_interface(interface_name, hash, scope: $cosmos_scope)
       @redis_pool.with do |redis|
         if redis.hexists("#{scope}__cosmos_interfaces", interface_name)
           write_topic("#{scope}__CMDINTERFACE__#{interface_name}", hash)
@@ -85,7 +85,7 @@ module Cosmos
     #   write_topic("CMDINTERFACE__#{interface_name}", { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
     # end
 
-    def cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, timeout_ms: 5000, scope:)
+    def cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, timeout_ms: 5000, scope: $cosmos_scope)
       cmd_packet_exist?(target_name, cmd_name, scope: scope)
       topic = "#{scope}__CMDTARGET__#{target_name}"
       ack_topic = "#{scope}__ACKCMDTARGET__#{target_name}"
@@ -105,7 +105,7 @@ module Cosmos
       raise "Timeout waiting for cmd ack"
     end
 
-    def receive_commands(interface, scope:)
+    def receive_commands(interface, scope: $cosmos_scope)
       topics = []
       topics << "#{scope}__CMDINTERFACE__#{interface.name}"
       interface.target_names.each do |target_name|
@@ -122,7 +122,7 @@ module Cosmos
       end
     end
 
-    def get_tlm_values(item_array, value_types = :CONVERTED, scope:)
+    def get_tlm_values(item_array, value_types = :CONVERTED, scope: $cosmos_scope)
       items = []
       states = []
       settings = []
@@ -191,13 +191,13 @@ module Cosmos
       return items, states
     end
 
-    def cmd_packet_exist?(target_name, packet_name, scope:)
+    def cmd_packet_exist?(target_name, packet_name, scope: $cosmos_scope)
       _packet_exist?(target_name, packet_name, type: 'cmd', scope: scope)
     end
-    def tlm_packet_exist?(target_name, packet_name, scope:)
+    def tlm_packet_exist?(target_name, packet_name, scope: $cosmos_scope)
       _packet_exist?(target_name, packet_name, type: 'tlm', scope: scope)
     end
-    def _packet_exist?(target_name, packet_name, type:, scope:)
+    def _packet_exist?(target_name, packet_name, type:, scope: $cosmos_scope)
       @redis_pool.with do |redis|
         # TODO: pipeline
         if redis.exists("#{scope}__cosmos#{type}__#{target_name}") != 0
@@ -212,13 +212,13 @@ module Cosmos
       end
     end
 
-    def get_target_names(scope:)
+    def get_target_names(scope: $cosmos_scope)
       @redis_pool.with do |redis|
         return redis.hkeys("#{scope}__cosmos_targets")
       end
     end
 
-    def get_target(target_name, scope:)
+    def get_target(target_name, scope: $cosmos_scope)
       @redis_pool.with do |redis|
         if redis.hexists("#{scope}__cosmos_targets", target_name)
           return JSON.parse(redis.hget("#{scope}__cosmos_targets", target_name))
@@ -228,7 +228,7 @@ module Cosmos
       end
     end
 
-    def set_target(target, scope:)
+    def set_target(target, scope: $cosmos_scope)
       @redis_pool.with do |redis|
         if redis.hexists("#{scope}__cosmos_targets", target.name)
           return redis.hset("#{scope}__cosmos_targets", target.name, JSON.generate(target.as_json))
@@ -238,7 +238,7 @@ module Cosmos
       end
     end
 
-    def get_packet(target_name, packet_name, type: 'tlm', scope:)
+    def get_packet(target_name, packet_name, type: 'tlm', scope: $cosmos_scope)
       @redis_pool.with do |redis|
         # TODO: pipeline
         if redis.exists("#{scope}__cosmos#{type}__#{target_name}") != 0
@@ -274,21 +274,21 @@ module Cosmos
       item
     end
 
-    def get_item(target_name, packet_name, item_name, type: 'tlm', scope:)
+    def get_item(target_name, packet_name, item_name, type: 'tlm', scope: $cosmos_scope)
       packet = get_packet(target_name, packet_name, type: type, scope: scope)
       get_item_from_packet_hash(packet, item_name)
     end
 
-    def get_commands(target_name, scope:)
+    def get_commands(target_name, scope: $cosmos_scope)
       _get_cmd_tlm(target_name, type: 'cmd', scope: scope)
     end
 
-    def get_telemetry(target_name, scope:)
+    def get_telemetry(target_name, scope: $cosmos_scope)
       _get_cmd_tlm(target_name, type: 'tlm', scope: scope)
     end
 
     # Helper method for get_commands and get_telemetry
-    def _get_cmd_tlm(target_name, type:, scope:)
+    def _get_cmd_tlm(target_name, type:, scope: $cosmos_scope)
       result = []
       @redis_pool.with do |redis|
         if redis.exists("#{scope}__cosmos#{type}__#{target_name}") != 0
@@ -318,7 +318,7 @@ module Cosmos
     #   write_topic("TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
     # end
 
-    def tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type, scope:)
+    def tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type, scope: $cosmos_scope)
       case value_type
       when :RAW
         secondary_keys = [item_name, "#{item_name}__L"]
@@ -334,7 +334,7 @@ module Cosmos
       result = redis.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *secondary_keys)
     end
 
-    def get_tlm_item(target_name, packet_name, item_name, type: :WITH_UNITS, scope:)
+    def get_tlm_item(target_name, packet_name, item_name, type: :WITH_UNITS, scope: $cosmos_scope)
       if @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"]
         return @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"]
       end
@@ -360,7 +360,7 @@ module Cosmos
       end
     end
 
-    def set_tlm_item(target_name, packet_name, item_name, value, type: :CONVERTED, scope:)
+    def set_tlm_item(target_name, packet_name, item_name, value, type: :CONVERTED, scope: $cosmos_scope)
       case type
       when :WITH_UNITS
         field = "#{item_name}__U"
@@ -377,11 +377,11 @@ module Cosmos
       end
     end
 
-    def override(target_name, packet_name, item_name, value, type:, scope:)
+    def override(target_name, packet_name, item_name, value, type:, scope: $cosmos_scope)
       @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"] = value
     end
 
-    def normalize(target_name, packet_name, item_name, scope:)
+    def normalize(target_name, packet_name, item_name, scope: $cosmos_scope)
       %w(RAW CONVERTED FORMATTED WITH_UNITS).each do |type|
         @overrides.delete("#{target_name}__#{packet_name}__#{item_name}__#{type}")
       end

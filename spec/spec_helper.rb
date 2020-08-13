@@ -66,6 +66,8 @@ def exit(*args)
   $system_exit_count += 1
 end
 
+$cosmos_scope = 'DEFAULT'
+
 require 'mock_redis'
 require 'cosmos/utilities/store'
 require 'cosmos/system/system_config'
@@ -82,7 +84,7 @@ def configure_store
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
   # Setup Redis with all the keys and fields
-  Cosmos::ConfigureMicroservices.new(system_config, cts_config, logger: Cosmos::Logger.new)
+  Cosmos::ConfigureMicroservices.new(system_config, cts_config, logger: Cosmos::Logger.new, scope: 'DEFAULT')
   redis
 end
 
