@@ -186,7 +186,7 @@ module Cosmos
     # @param (see #cmd)
     # @return (see #cmd)
     def cmd_no_range_check(*args, scope: $cosmos_scope, token: $cosmos_token)
-      cmd_implementation(false, true, false, 'cmd_no_range_check', *args, scope: scope)
+      cmd_implementation(false, true, false, 'cmd_no_range_check', *args, scope: scope, token: token)
     end
 
     # Send a command packet to a target without performing any hazardous checks
@@ -202,7 +202,7 @@ module Cosmos
     # @param (see #cmd)
     # @return (see #cmd)
     def cmd_no_hazardous_check(*args, scope: $cosmos_scope, token: $cosmos_token)
-      cmd_implementation(true, false, false, 'cmd_no_hazardous_check', *args, scope: scope)
+      cmd_implementation(true, false, false, 'cmd_no_hazardous_check', *args, scope: scope, token: token)
     end
 
     # Send a command packet to a target without performing any value range
@@ -217,7 +217,7 @@ module Cosmos
     # @param (see #cmd)
     # @return (see #cmd)
     def cmd_no_checks(*args, scope: $cosmos_scope, token: $cosmos_token)
-      cmd_implementation(false, false, false, 'cmd_no_checks', *args, scope: scope)
+      cmd_implementation(false, false, false, 'cmd_no_checks', *args, scope: scope, token: token)
     end
 
     # Send a command packet to a target without running conversions.
@@ -231,7 +231,7 @@ module Cosmos
     # @param args [String|Array<String>] See the description for calling style
     # @return [Array<String, String, Hash>] target_name, command_name, parameters
     def cmd_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      cmd_implementation(true, true, true, 'cmd_raw', *args, scope: scope)
+      cmd_implementation(true, true, true, 'cmd_raw', *args, scope: scope, token: token)
     end
 
     # Send a command packet to a target without performing any value range
@@ -247,7 +247,7 @@ module Cosmos
     # @param (see #cmd)
     # @return (see #cmd)
     def cmd_raw_no_range_check(*args, scope: $cosmos_scope, token: $cosmos_token)
-      cmd_implementation(false, true, true, 'cmd_raw_no_range_check', *args, scope: scope)
+      cmd_implementation(false, true, true, 'cmd_raw_no_range_check', *args, scope: scope, token: token)
     end
 
     # Send a command packet to a target without running conversions or performing any hazardous checks
@@ -263,7 +263,7 @@ module Cosmos
     # @param (see #cmd)
     # @return (see #cmd)
     def cmd_raw_no_hazardous_check(*args, scope: $cosmos_scope, token: $cosmos_token)
-      cmd_implementation(true, false, true, 'cmd_raw_no_hazardous_check', *args, scope: scope)
+      cmd_implementation(true, false, true, 'cmd_raw_no_hazardous_check', *args, scope: scope, token: token)
     end
 
     # Send a command packet to a target without running conversions or performing any value range
@@ -278,7 +278,7 @@ module Cosmos
     # @param (see #cmd)
     # @return (see #cmd)
     def cmd_raw_no_checks(*args, scope: $cosmos_scope, token: $cosmos_token)
-      cmd_implementation(false, false, true, 'cmd_raw_no_checks', *args, scope: scope)
+      cmd_implementation(false, false, true, 'cmd_raw_no_checks', *args, scope: scope, token: token)
     end
 
     # Send a raw binary string to the specified interface.
@@ -403,9 +403,16 @@ module Cosmos
       packet = Store.instance.get_packet(target_name, command_name, type: 'cmd', scope: scope)
       return true if packet['hazardous']
 
-      # TODO: Can't use System in API - Need to check for state hazardous still
-      # hazardous, _ = System.commands.cmd_hazardous?(target_name, command_name, params)
-      #return hazardous
+      packet['items'].each do |item|
+        next unless params.keys.include?(item['name']) && item['states']
+          # States are an array of the name followed by a hash of 'value' and sometimes 'hazardous'
+          item['states'].each do |name, hash|
+          if hash['value'].to_i == params[item['name']].to_i && hash['hazardous']
+            return true
+          end
+        end
+      end
+
       return false
     end
 
@@ -1838,7 +1845,7 @@ module Cosmos
 
     private
 
-    def cmd_implementation(range_check, hazardous_check, raw, method_name, *args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_implementation(range_check, hazardous_check, raw, method_name, *args, scope:, token:)
       case args.length
       when 1
         target_name, cmd_name, cmd_params = extract_fields_from_cmd_text(args[0])
