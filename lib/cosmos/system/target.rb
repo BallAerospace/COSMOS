@@ -88,7 +88,7 @@ module Cosmos
     # @param gem_path [String] Path to the gem file or nil if there is no gem
     # TODO: Move path to second argument? path is now required but original_name is not
     # TODO: Bigger question: Use keyword arguments parameters so this doesn't happen again?
-    def initialize(target_name, original_name = nil, path = nil, target_filename = nil, gem_path = nil)
+    def initialize(target_name, original_name = nil, path = nil, target_filename = nil, gem_path = nil, scope: nil)
       @requires = []
       @ignored_parameters = []
       @ignored_items = []
@@ -101,6 +101,7 @@ module Cosmos
       @cmd_unique_id_mode = false
       @tlm_unique_id_mode = false
       @id = nil
+      @scope = scope
 
       # Determine the target name using substitution if given
       @name = target_name.clone.upcase.freeze
