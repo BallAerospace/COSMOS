@@ -1,6 +1,7 @@
 SCREEN AUTO AUTO 1.0
 
 VERTICAL
+# TODO: This causes an error because layout widgets don't have settings
 # SETTING BACKCOLOR white
   TITLE "<%= @target_name %> Instrument Ground Station Status"
   SETTING BACKCOLOR white

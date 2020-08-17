@@ -293,7 +293,7 @@ module Cosmos
       @redis_pool.with do |redis|
         if redis.exists("#{scope}__cosmos#{type}__#{target_name}") != 0
           packets = redis.hgetall("#{scope}__cosmos#{type}__#{target_name}")
-          packets.each do |packet_name, packet_json|
+          packets.sort.each do |packet_name, packet_json|
             result << JSON.parse(packet_json)
           end
         else
