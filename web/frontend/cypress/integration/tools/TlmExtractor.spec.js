@@ -1,0 +1,68 @@
+function getTodaysDate() {
+  let today = new Date();
+  let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+  return date
+}
+describe('TlmExtractor', () => {
+  todaysDate = getTodaysDate()
+  it('Standard CSV output', function () {
+    cy.visit('/telemetry-extractor')
+    cy.hideNav()
+
+    cy.get('[data-test=startdate]').type(todaysDate)
+    cy.focused().click()
+    cy.get('[data-test=enddate]').type(todaysDate)
+    cy.focused().click()
+    cy.get('[data-test=starttime]').type('09:00:00')
+    cy.focused().click()
+    cy.get('[data-test=endtime]').type('09:15:00')
+    cy.focused().click()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
+    cy.contains('Add Item').click()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
+    cy.contains('Add Item').click()
+    cy.contains('Process').click()
+    cy.wait(2000)
+    cy.contains('Download File').click()
+  })
+  it('Tab delimited output', function () {
+    cy.visit('/telemetry-extractor')
+    cy.hideNav()
+    cy.get('.v-toolbar')
+      .contains('File')
+      .click()
+    cy.contains(/^Tab Delimited File$/).click()
+    cy.get('[data-test=startdate]').type(todaysDate)
+    cy.focused().click()
+    cy.get('[data-test=enddate]').type(todaysDate)
+    cy.focused().click()
+    cy.get('[data-test=starttime]').type('09:00:00')
+    cy.focused().click()
+    cy.get('[data-test=endtime]').type('09:15:00')
+    cy.focused().click()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
+    cy.contains('Add Item').click()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
+    cy.contains('Add Item').click()
+    cy.contains('Process').click()
+    cy.wait(2000)
+    cy.contains('Download File').click()
+  })
+  it('Duplicate Item Triggers Warning', function () {
+    cy.visit('/telemetry-extractor')
+    cy.hideNav()
+    cy.get('[data-test=startdate]').type(todaysDate)
+    cy.focused().click()
+    cy.get('[data-test=enddate]').type(todaysDate)
+    cy.focused().click()
+    cy.get('[data-test=starttime]').type('09:00:00')
+    cy.focused().click()
+    cy.get('[data-test=endtime]').type('09:15:00')
+    cy.focused().click()
+    // Add the first item, INST/ADCS/CCSDSVER
+    cy.contains('Add Item').click()
+    cy.contains('Add Item').click()
+    cy.contains('This item has already been added').should('be.visible')
+  })
+
+})

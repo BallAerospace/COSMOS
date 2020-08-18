@@ -1,0 +1,47 @@
+/* General */
+$fontSize: 14px;
+$bodyBgColor: #edf0f5;
+$textColor: #333333;
+$textSecondaryColor: #707070;
+$borderRadius: 3px;
+$dividerColor: #e3e3e3;
+$transitionDuration: 0.2s;
+$maskBgColor: #424242;
+$focusShadowColor: #8dcdff;
+
+/* Menu Common */
+$menuitemBadgeBgColor: #007be5;
+$menuitemBadgeColor: #ffffff;
+$submenuFontSize: 13px;
+$menuitemActiveRouteColor: rgb(77, 172, 255);
+
+/* Menu Light */
+$menuBgColorFirst: #f3f4f9;
+$menuBgColorLast: #d7dbe8;
+$menuitemColor: #232428;
+$menuitemHoverColor: #0388e5;
+$menuitemActiveColor: #0388e5;
+$menuitemActiveBgColor: #ffffff;
+$menuitemBorderColor: rgba(207, 211, 224, 0.6);
+
+/* Menu Dark */
+$menuDarkBgColorFirst: rgb(0, 23, 36);
+$menuDarkBgColorLast: rgb(0, 54, 86);
+$menuitemDarkColor: #ffffff;
+$menuitemDarkHoverColor: rgb(0, 90, 143);
+$menuitemDarkActiveColor: rgb(77, 172, 255);
+$menuitemDarkActiveBgColor: rgb(0, 36, 57);
+$menuitemDarkBorderColor: rgba(52, 56, 65, 0.6);
+
+/* Topbar */
+$topbarLeftBgColor: rgb(0, 23, 36);
+$topbarRightBgColor: rgb(0, 23, 36);
+$topbarItemBadgeBgColor: #ef6262;
+$topbarItemBadgeColor: #ffffff;
+$topbarItemColor: #ffffff;
+$topbarItemHoverColor: #c3e8fb;
+$topbarSearchInputBorderBottomColor: #ffffff;
+$topbarSearchInputColor: #ffffff;
+
+/* Footer */
+$footerBgColor: rgb(24, 38, 53);

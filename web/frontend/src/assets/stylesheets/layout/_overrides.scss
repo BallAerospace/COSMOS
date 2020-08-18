@@ -1,0 +1,26 @@
+// This is for global overrides only. If it's contained to a component put it there.
+// Also use the variables created by vueify like var(--v-primary-darken2) rather
+// than something absolute so theming works. See vuetify.js for the base colors
+// and note the variations are: base, lighten[1-5], and darken[1-4]
+
+table,
+.v-dialog,
+.v-sheet,
+.v-card__title,
+.v-tab,
+.p-menubar {
+  background-color: var(--v-tertiary-darken2);
+}
+.v-main,
+.v-content {
+  background-color: var(--v-tertiary-base);
+}
+.theme--dark.v-card {
+  background-color: var(--v-tertiary-darken2) !important;
+}
+.theme--dark.v-list {
+  background-color: var(--v-primary-darken2) !important;
+}
+.theme--dark.v-list >>> .v-list-item {
+  background-color: var(--v-primary-darken2) !important;
+}
