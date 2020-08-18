@@ -5,7 +5,7 @@
       :initialTargetName="this.$route.params.target"
       :initialPacketName="this.$route.params.packet"
       @on-set="commandChanged($event)"
-      @click="sendCmd($event)"
+      @click="buildCmd($event)"
       :disabled="sendDisabled"
       buttonText="Send"
       mode="cmd"
@@ -39,7 +39,17 @@
         </template>
       </v-data-table>
     </v-card>
-    <p v-if="status != ''">Status: {{ status }}</p>
+    <div class="ma-3">Status: {{ status }}</div>
+    <div class="mt-3">Command History: (Pressing Enter on the line re-executes the command)</div>
+    <v-textarea
+      ref="history"
+      :value="history"
+      solo
+      dense
+      hide-details
+      data-test="sender-history"
+      @keydown.enter="historyEnter($event)"
+    />
 
     <v-menu v-model="contextMenuShown" :position-x="x" :position-y="y" absolute offset-y>
       <v-list>
@@ -153,6 +163,7 @@ export default {
       selectedInterface: '',
       rawCmdFile: null,
       status: '',
+      history: '',
       displaySendHazardous: false,
       displayErrorDialog: false,
       displaySendRaw: false,
@@ -173,17 +184,18 @@ export default {
         }
       ],
       menus: [
-        {
-          label: 'File',
-          items: [
-            {
-              label: 'Send Raw',
-              command: () => {
-                this.setupRawCmd()
-              }
-            }
-          ]
-        },
+        // TODO: Implement send raw
+        // {
+        //   label: 'File',
+        //   items: [
+        //     {
+        //       label: 'Send Raw',
+        //       command: () => {
+        //         this.setupRawCmd()
+        //       }
+        //     }
+        //   ]
+        // },
         {
           label: 'Mode',
           items: [
@@ -224,6 +236,24 @@ export default {
     }
   },
   methods: {
+    historyEnter(event) {
+      // Prevent the enter key from actually causing a newline
+      event.preventDefault()
+      const textarea = this.$refs.history.$refs.input
+      let pos = textarea.selectionStart
+      // Find the newline after the cursor position
+      let nextNewline = textarea.value.indexOf('\n', pos)
+      // Get everything up to the next newline and split on newlines
+      const lines = textarea.value.substr(0, nextNewline).split('\n')
+      let command = lines[lines.length - 1]
+
+      // Remove the cmd("") wrapper
+      let firstQuote = command.indexOf('"')
+      let lastQuote = command.lastIndexOf('"')
+      command = command.substr(firstQuote + 1, lastQuote - firstQuote - 1)
+      this.sendCmd(command)
+    },
+
     showContextMenu(e, row) {
       e.preventDefault()
       this.parameterName = row.item.parameter_name
@@ -234,6 +264,7 @@ export default {
         this.contextMenuShown = true
       })
     },
+
     isFloat(str) {
       // Regex to identify a string as a floating point number
       if (/^\s*[-+]?\d*\.\d+\s*$/.test(str)) {
@@ -451,85 +482,81 @@ export default {
       this.status = event.status
     },
 
-    sendCmd() {
+    createParamList() {
       let paramList = {}
       for (var i = 0; i < this.rows.length; i++) {
         paramList[this.rows[i].parameter_name] = this.convertToValue(
           this.rows[i]
         )
       }
+      return paramList
+    },
 
+    buildCmd() {
+      this.sendCmd(this.targetName, this.commandName, this.createParamList())
+    },
+
+    // Note targetName can also be the entire command to send, e.g. "INST ABORT" or
+    // "INST COLLECT with TYPE 0, DURATION 1, OPCODE 171, TEMP 10" when being
+    // sent from the history. In that case commandName and paramList are undefined
+    // and the api calls handle that.
+    sendCmd(targetName, commandName, paramList) {
       let hazardous = false
       let cmd = ''
-      this.api
-        .get_cmd_hazardous(this.targetName, this.commandName, paramList)
-        .then(
-          response => {
-            hazardous = response
+      this.api.get_cmd_hazardous(targetName, commandName, paramList).then(
+        response => {
+          hazardous = response
 
-            if (hazardous) {
-              this.displaySendHazardous = true
-            } else {
-              let obs
-              if (this.cmdRaw) {
-                if (this.ignoreRangeChecks) {
-                  cmd = 'cmd_raw_no_range_check'
-                  obs = this.api.cmd_raw_no_range_check(
-                    this.targetName,
-                    this.commandName,
-                    paramList
-                  )
-                } else {
-                  cmd = 'cmd_raw'
-                  obs = this.api.cmd_raw(
-                    this.targetName,
-                    this.commandName,
-                    paramList
-                  )
-                }
+          if (hazardous) {
+            this.displaySendHazardous = true
+          } else {
+            let obs
+            if (this.cmdRaw) {
+              if (this.ignoreRangeChecks) {
+                cmd = 'cmd_raw_no_range_check'
+                obs = this.api.cmd_raw_no_range_check(
+                  targetName,
+                  commandName,
+                  paramList
+                )
               } else {
-                if (this.ignoreRangeChecks) {
-                  cmd = 'cmd_no_range_check'
-                  obs = this.api.cmd_no_range_check(
-                    this.targetName,
-                    this.commandName,
-                    paramList
-                  )
-                } else {
-                  cmd = 'cmd'
-                  obs = this.api.cmd(
-                    this.targetName,
-                    this.commandName,
-                    paramList
-                  )
-                }
+                cmd = 'cmd_raw'
+                obs = this.api.cmd_raw(targetName, commandName, paramList)
               }
-
-              obs.then(
-                response => {
-                  this.processCmdResponse(true, cmd, response)
-                },
-                error => {
-                  console.log(error)
-                  this.processCmdResponse(false, cmd, error)
-                }
-              )
+            } else {
+              if (this.ignoreRangeChecks) {
+                cmd = 'cmd_no_range_check'
+                obs = this.api.cmd_no_range_check(
+                  targetName,
+                  commandName,
+                  paramList
+                )
+              } else {
+                cmd = 'cmd'
+                obs = this.api.cmd(targetName, commandName, paramList)
+              }
             }
-          },
-          error => {
-            this.processCmdResponse(false, cmd, error)
+
+            obs.then(
+              response => {
+                this.processCmdResponse(true, response)
+              },
+              error => {
+                console.log(error)
+                this.processCmdResponse(false, error)
+              }
+            )
           }
-        )
+        },
+        error => {
+          this.processCmdResponse(false, error)
+        }
+      )
     },
 
     sendHazardousCmd() {
       this.displaySendHazardous = false
-      var paramList = {}
-      for (var i = 0; i < this.rows.length; i++) {
-        paramList[this.rows[i].parameter_name] = this.convertToValue(
-          this.rows[i]
-        )
-      }
+      var paramList = this.createParamList()
 
       let obs = ''
       let cmd = ''
@@ -569,10 +596,10 @@ export default {
 
       obs.then(
         response => {
-          this.processCmdResponse(true, cmd, response)
+          this.processCmdResponse(true, response)
         },
         error => {
-          this.processCmdResponse(false, cmd, error)
+          this.processCmdResponse(false, error)
         }
       )
     },
@@ -582,10 +609,10 @@ export default {
       this.status = 'Hazardous command not sent'
     },
 
-    processCmdResponse(cmd_sent, cmd, response) {
+    processCmdResponse(cmd_sent, response) {
       var msg = ''
       if (cmd_sent) {
-        msg += cmd + '("' + response[0] + ' ' + response[1]
+        msg = 'cmd("' + response[0] + ' ' + response[1]
         var keys = Object.keys(response[2])
         if (keys.length > 0) {
           msg += ' with '
@@ -597,8 +624,21 @@ export default {
             }
           }
         }
-        msg += '") sent.'
-
+        msg += '")'
+        if (!this.history.includes(msg)) {
+          this.history += msg + '\n'
+        }
+        msg += ' sent.'
+        // Add the number of commands sent to the status message
+        if (this.status.includes(msg)) {
+          let parts = this.status.split('sent.')
+          if (parts[1].includes('(')) {
+            let num = parseInt(parts[1].substr(2, parts[1].indexOf(')') - 2))
+            msg = parts[0] + 'sent. (' + (num + 1) + ')'
+          } else {
+            msg += ' (2)'
+          }
+        }
         this.status = msg
       } else {
         var context = 'sending ' + this.targetName + ' ' + this.commandName

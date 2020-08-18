@@ -328,67 +328,113 @@ export class CosmosApi {
 
   // Called by CmdSenderComponent
   get_cmd_hazardous(target_name, command_name, param_list) {
-    return this._cmd('get_cmd_hazardous', target_name, command_name, param_list)
+    if (command_name === undefined) {
+      return this.exec('get_cmd_hazardous', target_name)
+    } else {
+      return this._cmd(
+        'get_cmd_hazardous',
+        target_name,
+        command_name,
+        param_list
+      )
+    }
   }
 
   // Called by CmdSenderComponent
   cmd(target_name, command_name, param_list) {
-    return this._cmd('cmd', target_name, command_name, param_list)
+    if (command_name === undefined) {
+      return this.exec('cmd', target_name)
+    } else {
+      return this._cmd('cmd', target_name, command_name, param_list)
+    }
   }
 
   // Called by CmdSenderComponent
   cmd_no_range_check(target_name, command_name, param_list) {
-    return this._cmd(
-      'cmd_no_range_check',
-      target_name,
-      command_name,
-      param_list
-    )
+    if (command_name === undefined) {
+      return this.exec('cmd_no_range_check', target_name)
+    } else {
+      return this._cmd(
+        'cmd_no_range_check',
+        target_name,
+        command_name,
+        param_list
+      )
+    }
   }
 
   // Called by CmdSenderComponent
   cmd_raw(target_name, command_name, param_list) {
-    return this._cmd('cmd_raw', target_name, command_name, param_list)
+    if (command_name === undefined) {
+      return this.exec('cmd_raw', target_name)
+    } else {
+      return this._cmd('cmd_raw', target_name, command_name, param_list)
+    }
   }
 
   // Called by CmdSenderComponent
   cmd_raw_no_range_check(target_name, command_name, param_list) {
-    return this._cmd(
-      'cmd_raw_no_range_check',
-      target_name,
-      command_name,
-      param_list
-    )
+    if (command_name === undefined) {
+      return this.exec('cmd_raw_no_range_check', target_name)
+    } else {
+      return this._cmd(
+        'cmd_raw_no_range_check',
+        target_name,
+        command_name,
+        param_list
+      )
+    }
   }
 
   // Called by CmdSenderComponent
   cmd_no_hazardous_check(target_name, command_name, param_list) {
-    return this._cmd(
-      'cmd_no_hazardous_check',
-      target_name,
-      command_name,
-      param_list
-    )
+    if (command_name === undefined) {
+      return this.exec('cmd_no_hazardous_check', target_name)
+    } else {
+      return this._cmd(
+        'cmd_no_hazardous_check',
+        target_name,
+        command_name,
+        param_list
+      )
+    }
   }
 
   // Called by CmdSenderComponent
   cmd_no_checks(target_name, command_name, param_list) {
-    return this._cmd('cmd_no_checks', target_name, command_name, param_list)
+    if (command_name === undefined) {
+      return this.exec('cmd_no_checks', target_name)
+    } else {
+      return this._cmd('cmd_no_checks', target_name, command_name, param_list)
+    }
   }
 
   // Called by CmdSenderComponent
   cmd_raw_no_hazardous_check(target_name, command_name, param_list) {
-    return this._cmd(
-      'cmd_raw_no_hazardous_check',
-      target_name,
-      command_name,
-      param_list
-    )
+    if (command_name === undefined) {
+      return this.exec('cmd_raw_no_hazardous_check', target_name)
+    } else {
+      return this._cmd(
+        'cmd_raw_no_hazardous_check',
+        target_name,
+        command_name,
+        param_list
+      )
+    }
   }
 
   // Called by CmdSenderComponent
   cmd_raw_no_checks(target_name, command_name, param_list) {
-    return this._cmd('cmd_raw_no_checks', target_name, command_name, param_list)
+    if (command_name === undefined) {
+      return this.exec('cmd_raw_no_checks', target_name)
+    } else {
+      return this._cmd(
+        'cmd_raw_no_checks',
+        target_name,
+        command_name,
+        param_list
+      )
+    }
   }
 
   // Called by CmdSenderComponent

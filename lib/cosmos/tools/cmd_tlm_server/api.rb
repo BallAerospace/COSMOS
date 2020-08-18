@@ -393,12 +393,29 @@ module Cosmos
 
     # Returns whether the specified command is hazardous
     #
-    # @param target_name (see #get_cmd_param_list)
-    # @param command_name (see #get_cmd_param_list)
-    # @param params [Hash] Command parameter hash to test whether a particular
-    #   parameter setting makes the command hazardous
+    # Accepts two different calling styles:
+    #   get_cmd_hazardous("TGT CMD with PARAM1 val, PARAM2 val")
+    #   get_cmd_hazardous('TGT','CMD','PARAM1'=>val,'PARAM2'=>val)
+    #
+    # @param args [String|Array<String>] See the description for calling style
     # @return [Boolean] Whether the command is hazardous
-    def get_cmd_hazardous(target_name, command_name, params = {}, scope: $cosmos_scope, token: $cosmos_token)
+    def get_cmd_hazardous(*args, scope: $cosmos_scope, token: $cosmos_token)
+      case args.length
+      when 1
+        target_name, command_name, params = extract_fields_from_cmd_text(args[0])
+      when 2, 3
+        target_name = args[0]
+        command_name = args[1]
+        if args.length == 2
+          params = {}
+        else
+          params = args[2]
+        end
+      else
+        # Invalid number of arguments
+        raise "ERROR: Invalid number of arguments (#{args.length}) passed to get_cmd_hazardous()"
+      end
+
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
       packet = Store.instance.get_packet(target_name, command_name, type: 'cmd', scope: scope)
       return true if packet['hazardous']
