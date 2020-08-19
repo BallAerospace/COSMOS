@@ -32,6 +32,12 @@ describe('CommandSender', () => {
           .should('eq', value)
       })
   }
+  // Helper function to check command history
+  function checkHistory(value) {
+    cy.get('[data-test=sender-history]')
+      .invoke('val')
+      .should('include', value)
+  }
 
   //
   // Test the basic functionality of the application
@@ -94,6 +100,9 @@ describe('CommandSender', () => {
     cy.contains(
       'Status: cmd("INST COLLECT with TYPE 3, DURATION 1, OPCODE 171, TEMP 0") sent'
     )
+    checkHistory(
+      'cmd("INST COLLECT with TYPE 3, DURATION 1, OPCODE 171, TEMP 0")'
+    )
   })
   it('warns for hazardous commands', () => {
     cy.visit('/command-sender/INST/CLEAR')
@@ -113,6 +122,7 @@ describe('CommandSender', () => {
       cy.contains('Yes').click()
     })
     cy.contains('("INST CLEAR") sent')
+    checkHistory('cmd("INST CLEAR")')
   })
   it('warns for required parameters', () => {
     cy.visit('/command-sender/INST/COLLECT')
@@ -148,6 +158,9 @@ describe('CommandSender', () => {
     cy.contains(
       '("INST COLLECT with TYPE 1, DURATION 1, OPCODE 171, TEMP 0") sent'
     )
+    checkHistory(
+      'cmd("INST COLLECT with TYPE 1, DURATION 1, OPCODE 171, TEMP 0")'
+    )
   })
   it('handles float values and scientific notation', () => {
     cy.visit('/command-sender/INST/FLTCMD')
@@ -159,6 +172,7 @@ describe('CommandSender', () => {
       .contains('Send')
       .click()
     cy.contains('("INST FLTCMD with FLOAT32 123.456, FLOAT64 12000") sent')
+    checkHistory('cmd("INST FLTCMD with FLOAT32 123.456, FLOAT64 12000")')
   })
   it('handles array values', () => {
     cy.visit('/command-sender/INST/ARYCMD')
@@ -177,6 +191,7 @@ describe('CommandSender', () => {
       .contains('Send')
       .click()
     cy.contains('cmd("INST ARYCMD with ARRAY [ 1, 2, 3, 4 ], CRC 0") sent')
+    checkHistory('cmd("INST ARYCMD with ARRAY [ 1, 2, 3, 4 ], CRC 0")')
   })
   // TODO: This needs work
   it.skip('handles string values', () => {
@@ -194,6 +209,66 @@ describe('CommandSender', () => {
     cy.contains('TYPE').rightclick()
     cy.contains('Details').click()
     cy.get('.v-dialog').contains('INST COLLECT TYPE')
+  })
+  it('executes commands from history', () => {
+    cy.visit('/command-sender')
+    cy.hideNav()
+    cy.selectTargetPacketItem('INST', 'CLEAR')
+    cy.get('button')
+      .contains('Send')
+      .click()
+    cy.get('.v-dialog').within(() => {
+      cy.contains('Yes').click()
+    })
+    cy.contains('cmd("INST CLEAR") sent.')
+    checkHistory('cmd("INST CLEAR")')
+    // Re-execute the command from the history
+    cy.get('[data-test=sender-history]')
+      .click()
+      .type('{uparrow}{enter}')
+    // Should still get the hazardous warning dialog
+    cy.get('.v-dialog').within(() => {
+      cy.contains('Yes').click()
+    })
+    // Now history says it was sent twice (2)
+    cy.contains('cmd("INST CLEAR") sent. (2)')
+
+    // Send a different command: INST SETPARAMS
+    cy.selectTargetPacketItem('INST', 'SETPARAMS')
+    cy.get('button')
+      .contains('Send')
+      .click()
+    cy.contains(
+      'cmd("INST SETPARAMS with VALUE1 1, VALUE2 1, VALUE3 1, VALUE4 1, VALUE5 1") sent.'
+    )
+    // History should now contain both commands
+    checkHistory('cmd("INST CLEAR")')
+    checkHistory(
+      'cmd("INST SETPARAMS with VALUE1 1, VALUE2 1, VALUE3 1, VALUE4 1, VALUE5 1")'
+    )
+    // Re-execute command
+    cy.get('[data-test=sender-history]')
+      .click()
+      .type('{uparrow}{uparrow}{downarrow}{enter}')
+    cy.contains(
+      'cmd("INST SETPARAMS with VALUE1 1, VALUE2 1, VALUE3 1, VALUE4 1, VALUE5 1") sent. (2)'
+    )
+    // Edit the existing SETPARAMS command and then send
+    cy.get('[data-test=sender-history]')
+      .click()
+      // This is somewhat fragile but not sure how else to edit
+      .type('{leftarrow}{leftarrow}{leftarrow}{leftarrow}{del}5{enter}')
+    cy.contains(
+      'cmd("INST SETPARAMS with VALUE1 1, VALUE2 1, VALUE3 1, VALUE4 1, VALUE5 5") sent.'
+    )
+    // History should now contain CLEAR and both SETPARAMS commands
+    checkHistory('cmd("INST CLEAR")')
+    checkHistory(
+      'cmd("INST SETPARAMS with VALUE1 1, VALUE2 1, VALUE3 1, VALUE4 1, VALUE5 1")'
+    )
+    checkHistory(
+      'cmd("INST SETPARAMS with VALUE1 1, VALUE2 1, VALUE3 1, VALUE4 1, VALUE5 5")'
+    )
   })
 
   //

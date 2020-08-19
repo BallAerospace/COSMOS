@@ -246,6 +246,10 @@ export default {
       // Get everything up to the next newline and split on newlines
       const lines = textarea.value.substr(0, nextNewline).split('\n')
       let command = lines[lines.length - 1]
+      // Blank commands can happen if typing return on a blank line
+      if (command === '') {
+        return
+      }
 
       // Remove the cmd("") wrapper
       let firstQuote = command.indexOf('"')
@@ -501,6 +505,7 @@ export default {
     // sent from the history. In that case commandName and paramList are undefined
     // and the api calls handle that.
     sendCmd(targetName, commandName, paramList) {
+      this.sendDisabled = true
       let hazardous = false
       let cmd = ''
       this.api.get_cmd_hazardous(targetName, commandName, paramList).then(
@@ -607,6 +612,7 @@ export default {
     cancelHazardousCmd() {
       this.displaySendHazardous = false
       this.status = 'Hazardous command not sent'
+      this.sendDisabled = false
     },
 
     processCmdResponse(cmd_sent, response) {
@@ -644,6 +650,7 @@ export default {
         var context = 'sending ' + this.targetName + ' ' + this.commandName
         this.displayError(context, response, true)
       }
+      this.sendDisabled = false
     },
 
     displayError(context, error, showDialog = false) {
