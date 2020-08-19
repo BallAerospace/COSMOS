@@ -232,6 +232,14 @@ describe('CommandSender', () => {
     })
     // Now history says it was sent twice (2)
     cy.contains('cmd("INST CLEAR") sent. (2)')
+    cy.get('[data-test=sender-history]')
+      .click()
+      .type('{uparrow}{enter}')
+    cy.get('.v-dialog').within(() => {
+      cy.contains('Yes').click()
+    })
+    // Now history says it was sent three times (3)
+    cy.contains('cmd("INST CLEAR") sent. (3)')
 
     // Send a different command: INST SETPARAMS
     cy.selectTargetPacketItem('INST', 'SETPARAMS')
