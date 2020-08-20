@@ -57,6 +57,18 @@ describe('PacketViewer', () => {
     cy.contains('Packet with image data')
     cy.contains('BYTES')
   })
+  it('gets details with right click', () => {
+    cy.visit('/packet-viewer/INST/HEALTH_STATUS')
+    cy.hideNav()
+    cy.contains('HEALTH_STATUS')
+    cy.contains(/^TEMP1$/)
+      .parent() // Go up a level to get the enclosing element
+      .children()
+      .eq(2)
+      .rightclick()
+    cy.contains('Details').click()
+    cy.get('.v-dialog').contains('INST HEALTH_STATUS TEMP1')
+  })
   it('stops posting to the api after closing', () => {
     // Override the fail handler to catch the expected fail
     Cypress.on('fail', error => {
