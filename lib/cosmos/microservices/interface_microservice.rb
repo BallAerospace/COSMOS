@@ -32,8 +32,8 @@ module Cosmos
       Store.instance.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
         # Check for a raw write to the interface
         if topic =~ /CMDINTERFACE/
-          @tlm.connect() if msg_hash['connect']
-          @tlm.disconnect(true) if msg_hash['disconnect']
+          @tlm.attempting() if msg_hash['connect']
+          @tlm.disconnect() if msg_hash['disconnect']
           @interface.write(msg_hash['raw']) if msg_hash['raw']
           @tlm.inject_tlm(msg_hash) if msg_hash['inject_tlm']
           next 'SUCCESS'
@@ -101,9 +101,13 @@ module Cosmos
       @config["target_list"].each do |item|
         @interface.target_names << item["target_name"]
       end
+      if @interface.connect_on_startup
+        @interface.state = 'ATTEMPTING'
+      else
+        @interface.state = 'DISCONNECTED'
+      end
       Store.instance.set_interface(@interface, initialize: true, scope: @scope)
       # TODO: Need to set any additional interface options like protocols
-      @idle_thread = false
       @interface_thread_sleeper = Sleeper.new
       @cancel_thread = false
       @connection_failed_messages = []
@@ -111,6 +115,13 @@ module Cosmos
       @mutex = Mutex.new
       @cmd_thread = InterfaceCmdHandlerThread.new(@interface, self, scope: @scope)
       @cmd_thread.start
+    end
+
+    # External method to be called by the InterfaceCmdHandlerThread to connect
+    # Thus we just set the state and allow the run method to handle the action
+    def attempting()
+      @interface.state = 'ATTEMPTING'
+      Store.instance.set_interface(@interface, initialize: true, scope: @scope)
     end
 
     def run
@@ -122,56 +133,23 @@ module Cosmos
         end
         while true
           break if @cancel_thread
-          if @idle_thread
+          case @interface.state
+          when 'DISCONNECTED'
+            # Just wait to see if we should connect later
             @interface_thread_sleeper.sleep(1)
-          else
-            unless @interface.connected?
-              @interface.state = 'ATTEMPTING'
-              Store.instance.set_interface(@interface, scope: @scope)
-              begin
-                @mutex.synchronize do
-                  # We need to make sure connect is not called after stop() has been called
-                  connect() unless @cancel_thread || @idle_thread
-                end
-                break if @cancel_thread
-              rescue Exception => connect_error
-                handle_connection_failed(connect_error)
-                if @cancel_thread
-                  break
-                else
-                  next
-                end
-              end
-            end
-
+          when 'ATTEMPTING'
+            attempting()
+          when 'CONNECTED'
             if @interface.read_allowed?
-              begin
-                packet = @interface.read
-                unless packet
-                  Logger.info "Clean disconnect from #{@interface.name} (returned nil)"
-                  handle_connection_lost(nil)
-                  if @cancel_thread
-                    break
-                  else
-                    next
-                  end
-                end
-              rescue Exception => err
-                handle_connection_lost(err)
-                if @cancel_thread
-                  break
-                else
-                  next
-                end
-              end
-
-              handle_packet(packet)
+              read()
             else
               @interface_thread_sleeper.sleep(1)
               handle_connection_lost(nil) if !@interface.connected?
             end
           end
-        end  # loop
+          Logger.info "Set interface #{@interface.name}"
+          Store.instance.set_interface(@interface, scope: @scope)
+        end
       rescue Exception => error
         Logger.error "Packet reading thread unexpectedly died for #{@interface.name}\n#{error.formatted}"
         Cosmos.handle_fatal_exception(error)
@@ -180,8 +158,28 @@ module Cosmos
       Logger.info "Stopped packet reading for #{@interface.name}"
     end
 
+    def attempting()
+      @mutex.synchronize do
+        # We need to make sure connect is not called after stop() has been called
+        connect() unless @cancel_thread
+      end
+    rescue Exception => connect_error
+      handle_connection_failed(connect_error)
+    end
+
+    def read()
+      packet = @interface.read
+      if packet
+        handle_packet(packet)
+      else
+        Logger.info "Clean disconnect from #{@interface.name} (returned nil)"
+        handle_connection_lost(nil)
+      end
+    rescue Exception => err
+      handle_connection_lost(err)
+    end
+
     def handle_packet(packet)
-      Store.instance.set_interface(@interface, scope: @scope)
       packet.received_time = Time.now.sys unless packet.received_time
 
       if packet.stored
@@ -275,7 +273,7 @@ module Cosmos
           end
         end
       end
-      disconnect()
+      clean_connection()
     end
 
     def handle_connection_lost(err)
@@ -297,11 +295,10 @@ module Cosmos
       else
         Logger.info "Connection Lost for #{@interface.name}"
       end
-      disconnect()
+      clean_connection()
     end
 
     def connect()
-      @idle_thread = false
       Logger.info "Connecting to #{@interface.name}..."
       @interface.connect
       @interface.state = 'CONNECTED'
@@ -309,23 +306,23 @@ module Cosmos
       Logger.info "#{@interface.name} Connection Success"
     end
 
-    def disconnect(commanded = false)
-      @mutex.synchronize do
-        if commanded || !@interface.auto_reconnect
-          @idle_thread = true
-        end
-        @interface.disconnect
-      end
+    def disconnect()
+      Logger.info "Disconnecting from #{@interface.name}..."
+      @interface.disconnect
       @interface.state = 'DISCONNECTED'
       Store.instance.set_interface(@interface, scope: @scope)
+      Logger.info "#{@interface.name} Disconnect Success"
+    end
 
+    def clean_connection
+      @interface.disconnect
       # If the interface is set to auto_reconnect then delay so the thread
       # can come back around and allow the interface a chance to reconnect.
       if @interface.auto_reconnect
         if !@cancel_thread
           @interface_thread_sleeper.sleep(@interface.reconnect_delay)
         end
-      end
+      else
     end
 
     # Disconnect from the interface and stop the thread

@@ -21,7 +21,7 @@ module Cosmos
     # @return [String] Name of the interface
     attr_reader :name
 
-    # @return [String] State of the interface: CONNECTED, ATTEMPTING, DISCONNECTED
+    # @return [String] State of the interface
     attr_accessor :state
 
     # @return [Array<String>] Array of target names associated with this interface
@@ -120,6 +120,7 @@ module Cosmos
     # Initialize default attribute values
     def initialize
       @name = self.class.to_s.split("::")[-1] # Remove namespacing if present
+      @state = 'DISCONNECTED'
       @target_names = []
       @connect_on_startup = true
       @auto_reconnect = true
