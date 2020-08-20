@@ -1363,7 +1363,7 @@ module Cosmos
     def get_all_target_info(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', scope: scope, token: token)
       info = []
-      get_target_list().each do |target_name|
+      get_target_list(scope: scope, token: token).each do |target_name|
         target = Store.instance.get_target(target_name, scope: scope)
         info << [target['name'], target['interface'], target['cmd_cnt'], target['tlm_cnt']]
       end
@@ -1515,12 +1515,12 @@ module Cosmos
       keys = []
       count = 0
       loop do
-        count, part = Store.instance.scan(0, :match => "#{scope}__COMMAND__*", :count => 1000, scope: scope)
+        count, part = Store.instance.scan(0, :match => "#{scope}__COMMAND__*", :count => 1000)
         keys.concat(part)
         break if count.to_i == 0
       end
       keys.each do |key|
-        _, target, packet = key.split('__')
+        _, _, target, packet = key.split('__')
         result << [target, packet, _get_cnt(key)]
       end
       result
@@ -1535,12 +1535,12 @@ module Cosmos
       keys = []
       count = 0
       loop do
-        count, part = Store.instance.scan(0, :match => "#{scope}__TELEMETRY__*", :count => 1000, scope: scope)
+        count, part = Store.instance.scan(0, :match => "#{scope}__TELEMETRY__*", :count => 1000)
         keys.concat(part)
         break if count.to_i == 0
       end
       keys.each do |key|
-        _, target, packet = key.split('__')
+        _, _, target, packet = key.split('__')
         result << [target, packet, _get_cnt(key)]
       end
       result

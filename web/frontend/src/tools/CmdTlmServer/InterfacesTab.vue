@@ -19,9 +19,15 @@
       disable-pagination
       hide-default-footer
       multi-sort
+      data-test="interfaces-table"
     >
       <template v-slot:item.connect="{ item }">
-        <v-btn block color="primary" @click="connectDisconnect(item)">{{ item.connect }}</v-btn>
+        <v-btn
+          block
+          color="primary"
+          :disabled="buttonsDisabled"
+          @click="connectDisconnect(item)"
+        >{{ item.connect }}</v-btn>
       </template>
       <template v-slot:item.connected="{ item }">
         <span :style="{ color: item.connected_color }">{{ item.connected }}</span>
@@ -43,6 +49,7 @@ export default {
     return {
       search: '',
       data: [],
+      buttonsDisabled: false,
       headers: [
         { text: 'Name', value: 'name' },
         {
@@ -67,10 +74,11 @@ export default {
   },
   methods: {
     connectDisconnect(item) {
-      if (item.connected === 'CONNECTED' || item.connected === 'ATTEMPTING') {
-        this.api.disconnect_interface(item.name)
-      } else if (item.connected === 'DISCONNECTED') {
+      this.buttonsDisabled = true
+      if (item.connected === 'DISCONNECTED') {
         this.api.connect_interface(item.name)
+      } else {
+        this.api.disconnect_interface(item.name)
       }
     },
     update() {
@@ -86,12 +94,12 @@ export default {
           if (int[1] == 'DISCONNECTED') {
             connect = 'Connect'
             connected_color = 'white'
-          } else if (int[1] == 'ATTEMPTING') {
-            connect = 'Cancel'
-            connected_color = 'red'
-          } else {
+          } else if (int[1] == 'CONNECTED') {
             connect = 'Disconnect'
             connected_color = 'green'
+          } else {
+            connect = 'Cancel'
+            connected_color = 'red'
           }
           this.data.push({
             name: int[0],
@@ -107,6 +115,7 @@ export default {
             tlm_pkts: int[8]
           })
         }
+        this.buttonsDisabled = false
       })
     }
   }
