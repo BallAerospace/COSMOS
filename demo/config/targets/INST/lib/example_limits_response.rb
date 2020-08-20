@@ -21,9 +21,9 @@ class ExampleLimitsResponse < Cosmos::LimitsResponse
   def call(packet, item, old_limits_state)
     case item.limits.state
     when :RED_HIGH
-      cmd('INST', 'COLLECT', 'TYPE' => 'NORMAL', 'DURATION' => 5)
+      cmd('INST', 'COLLECT', 'TYPE' => 'NORMAL', 'DURATION' => 5, scope: 'DEFAULT')
     when :RED_LOW
-      cmd_no_hazardous_check('INST', 'CLEAR')
+      cmd_no_hazardous_check('INST', 'CLEAR', scope: 'DEFAULT')
     end
   end
 

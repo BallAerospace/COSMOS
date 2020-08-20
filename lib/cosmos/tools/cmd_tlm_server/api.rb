@@ -1271,11 +1271,11 @@ module Cosmos
     # parameters.
     #
     # @param interface_name [String] The name of the interface
+    # TODO: Should we deprecate this params? No one seems to use it?
     # @param params [Array] Parameters to pass to the interface.
     def connect_interface(interface_name, *params, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
-      CmdTlmServer.interfaces.connect(interface_name, *params)
-      nil
+      Store.instance.write_interface(interface_name, {'connect' => true}, scope: scope)
     end
 
     # Disconnects from an interface and kills its telemetry gathering thread
@@ -1283,8 +1283,7 @@ module Cosmos
     # @param interface_name (see #connect_interface)
     def disconnect_interface(interface_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
-      CmdTlmServer.interfaces.disconnect(interface_name)
-      nil
+      Store.instance.write_interface(interface_name, {'disconnect' => true }, scope: scope)
     end
 
     # @param interface_name (see #connect_interface)

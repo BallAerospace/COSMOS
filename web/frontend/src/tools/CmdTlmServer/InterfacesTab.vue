@@ -21,7 +21,7 @@
       multi-sort
     >
       <template v-slot:item.connect="{ item }">
-        <v-btn block color="primary">{{ item.connect }}</v-btn>
+        <v-btn block color="primary" @click="connectDisconnect(item)">{{ item.connect }}</v-btn>
       </template>
       <template v-slot:item.connected="{ item }">
         <span :style="{ color: item.connected_color }">{{ item.connected }}</span>
@@ -66,11 +66,11 @@ export default {
     stop()
   },
   methods: {
-    interfaceConnect(name, connect) {
-      if (connect == 'Connect') {
-        this.api.connect_interface(name)
-      } else {
-        this.api.disconnect_interface(name)
+    connectDisconnect(item) {
+      if (item.connected === 'CONNECTED' || item.connected === 'ATTEMPTING') {
+        this.api.disconnect_interface(item.name)
+      } else if (item.connected === 'DISCONNECTED') {
+        this.api.connect_interface(item.name)
       }
     },
     update() {

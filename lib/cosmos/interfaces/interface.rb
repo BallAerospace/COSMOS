@@ -10,7 +10,6 @@
 
 require 'cosmos/tools/cmd_tlm_server/api'
 require 'cosmos/io/raw_logger_pair'
-require 'thread'
 
 module Cosmos
 
@@ -22,11 +21,11 @@ module Cosmos
     # @return [String] Name of the interface
     attr_reader :name
 
+    # @return [String] State of the interface: CONNECTED, ATTEMPTING, DISCONNECTED
+    attr_accessor :state
+
     # @return [Array<String>] Array of target names associated with this interface
     attr_accessor :target_names
-
-    # @return [Thread] Thread reading from the interface
-    attr_accessor :thread
 
     # @return [Boolean] Flag indicating if the interface should be connected
     #   to on startup
@@ -122,7 +121,6 @@ module Cosmos
     def initialize
       @name = self.class.to_s.split("::")[-1] # Remove namespacing if present
       @target_names = []
-      @thread = nil
       @connect_on_startup = true
       @auto_reconnect = true
       @reconnect_delay = 5.0
@@ -205,7 +203,7 @@ module Cosmos
 
         @read_protocols.each do |protocol|
           data = protocol.read_data(data)
-          return nil if data == :DISCONNECT # Disconnect handled by thread
+          return nil if data == :DISCONNECT
           break if data == :STOP
         end
         next if data == :STOP
@@ -215,7 +213,7 @@ module Cosmos
         # Potentially modify packet
         @read_protocols.each do |protocol|
           packet = protocol.read_packet(packet)
-          return nil if packet == :DISCONNECT # Disconnect handled by thread
+          return nil if packet == :DISCONNECT
           break if packet == :STOP
         end
         next if packet == :STOP
@@ -302,13 +300,7 @@ module Cosmos
     def as_json
       config = {}
       config['name'] = @name
-      if connected?
-        config['state'] = 'CONNECTED'
-      elsif @thread
-        config['state'] = 'ATTEMPTING'
-      else
-        config['state'] = 'DISCONNECTED'
-      end
+      config['state'] = @state
       config['clients'] = @num_clients
       config['txsize'] = @write_queue_size
       config['rxsize'] = @read_queue_size

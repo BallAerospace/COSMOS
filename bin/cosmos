@@ -417,7 +417,7 @@ end
 
 if not ARGV[0].nil? # argument(s) given
 
-  Cosmos::Logger.stdout = true
+  # Cosmos::Logger.stdout = true
 
   # Handle each task
   case ARGV[0].downcase
