@@ -21,7 +21,7 @@ module Cosmos
     # @return [String] Name of the interface
     attr_reader :name
 
-    # @return [String] State of the interface
+    # @return [String] State of the interface: CONNECTED, ATTEMPTING, DISCONNECTED
     attr_accessor :state
 
     # @return [Array<String>] Array of target names associated with this interface
