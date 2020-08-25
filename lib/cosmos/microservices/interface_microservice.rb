@@ -33,7 +33,7 @@ module Cosmos
         # Check for a raw write to the interface
         if topic =~ /CMDINTERFACE/
           @tlm.attempting() if msg_hash['connect']
-          @tlm.disconnect() if msg_hash['disconnect']
+          @tlm.disconnect(false) if msg_hash['disconnect']
           @interface.write(msg_hash['raw']) if msg_hash['raw']
           @tlm.inject_tlm(msg_hash) if msg_hash['inject_tlm']
           next 'SUCCESS'
@@ -293,7 +293,7 @@ module Cosmos
           end
         end
       end
-      # Connecting failed but we're still attempting so don't call disconnect() here
+      disconnect() # Ensure we do a clean disconnect
     end
 
     def handle_connection_lost(err)
@@ -326,17 +326,19 @@ module Cosmos
       Logger.info "#{@interface.name} Connection Success"
     end
 
-    def disconnect()
+    def disconnect(allow_reconnect = true)
       @interface.disconnect
-      @interface.state = 'DISCONNECTED'
-      Store.instance.set_interface(@interface, scope: @scope)
 
       # If the interface is set to auto_reconnect then delay so the thread
       # can come back around and allow the interface a chance to reconnect.
-      if @interface.auto_reconnect
+      if allow_reconnect and @interface.auto_reconnect
+        attempting()
         if !@cancel_thread
           @interface_thread_sleeper.sleep(@interface.reconnect_delay)
         end
+      else
+        @interface.state = 'DISCONNECTED'
+        Store.instance.set_interface(@interface, scope: @scope)
       end
     end
 
@@ -347,7 +349,7 @@ module Cosmos
         # mutex to ensure that connect() is not called when we want to stop()
         @cancel_thread = true
         @interface_thread_sleeper.cancel
-        @interface.disconnect
+        @interface.disconnect(false)
       end
       Cosmos.kill_thread(self, @interface_thread) if @interface_thread and @interface_thread != Thread.current
     end

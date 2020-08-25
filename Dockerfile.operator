@@ -1,0 +1,6 @@
+FROM cosmos_base
+
+ENV RUBYLIB /cosmos/lib
+
+WORKDIR /cosmos/lib/cosmos/operators
+CMD jruby microservice_operator.rb

@@ -1,5 +1,5 @@
 # build stage
-FROM ubuntu:20.04 as build-stage
+FROM cosmos_base as build-stage
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
@@ -16,15 +16,6 @@ RUN apt-get update -y && apt-get install -y \
   libxss1 \
   libasound2 \
   xvfb
-
-# We require a local certificate file so set that up.
-# You must place a valid cert.pem file in your COSMOS development folder for this work
-# Comment out these lines if this is not required in your environment
-COPY cert.pem /devel/cert.pem
-ENV SSL_CERT_FILE /devel/cert.pem
-ENV CURL_CA_BUNDLE /devel/cert.pem
-ENV REQUESTS_CA_BUNDLE /devel/cert.pem
-# RUN git config --global http.sslCAinfo /devel/cert.pem
 
 WORKDIR /app
 COPY web/frontend/package*.json ./

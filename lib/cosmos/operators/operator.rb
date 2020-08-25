@@ -112,7 +112,7 @@ module Cosmos
           break if @shutdown
           unless p.alive?
             # Respawn process
-            Logger.error("Unexpected process died... respawning! #{p.process_definitions.join(' ')}")
+            Logger.error("Unexpected process died... respawning! #{p.process_definition.join(' ')}")
             p.start
           end
         end

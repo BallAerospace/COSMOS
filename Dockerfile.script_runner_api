@@ -1,38 +1,6 @@
-FROM ubuntu:20.04
-
-RUN apt-get update -y && apt-get install -y \
-  curl \
-  default-jdk \
-  netbase
-
-# We require a local certificate file so set that up.
-# You must place a valid cert.pem file in your COSMOS development folder for this work
-# Comment out these lines if this is not required in your environment
-COPY cert.pem /devel/cert.pem
-ENV SSL_CERT_FILE /devel/cert.pem
-ENV CURL_CA_BUNDLE /devel/cert.pem
-ENV REQUESTS_CA_BUNDLE /devel/cert.pem
-# RUN git config --global http.sslCAinfo /devel/cert.pem
-
-# Download and install jruby
-RUN cd /opt \
-  && curl -G https://repo1.maven.org/maven2/org/jruby/jruby-dist/9.2.13.0/jruby-dist-9.2.13.0-bin.tar.gz > jruby.tar.gz \
-  && tar xvf jruby.tar.gz \
-  && mv jruby-9.2.13.0 jruby
+FROM cosmos_base
 
 COPY web/script_runner_api /cosmos/web/script_runner_api
-
-ENV PATH="/opt/jruby/bin:$PATH"
-
-RUN gem install bundler
-
-COPY cosmos.gemspec /cosmos/cosmos.gemspec
-COPY bin /cosmos/bin
-COPY data /cosmos/data
-COPY ext /cosmos/ext
-COPY lib /cosmos/lib
-
-ENV COSMOS_PATH="/cosmos"
 
 RUN cd /cosmos/web/script_runner_api \
   && bundle install
