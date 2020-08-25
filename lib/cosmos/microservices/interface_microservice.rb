@@ -349,7 +349,7 @@ module Cosmos
         # mutex to ensure that connect() is not called when we want to stop()
         @cancel_thread = true
         @interface_thread_sleeper.cancel
-        @interface.disconnect(false)
+        @interface.disconnect
       end
       Cosmos.kill_thread(self, @interface_thread) if @interface_thread and @interface_thread != Thread.current
     end
