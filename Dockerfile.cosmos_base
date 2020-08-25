@@ -7,7 +7,6 @@ COPY cert.pem /devel/cert.pem
 ENV SSL_CERT_FILE /devel/cert.pem
 ENV CURL_CA_BUNDLE /devel/cert.pem
 ENV REQUESTS_CA_BUNDLE /devel/cert.pem
-# RUN git config --global http.sslCAinfo /devel/cert.pem
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
@@ -38,5 +37,7 @@ COPY ext /cosmos/ext
 COPY lib /cosmos/lib
 
 ENV COSMOS_PATH="/cosmos"
+
+RUN git config --global http.sslCAinfo /devel/cert.pem
 
 RUN cd /cosmos && bundle install --without=development
