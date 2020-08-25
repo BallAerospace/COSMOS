@@ -9,7 +9,12 @@ ENV CURL_CA_BUNDLE /devel/cert.pem
 ENV REQUESTS_CA_BUNDLE /devel/cert.pem
 # RUN git config --global http.sslCAinfo /devel/cert.pem
 
+ENV DEBIAN_FRONTEND="noninteractive"
+
 RUN apt-get update -y && apt-get install -y \
+  --no-install-recommends \
+  --option "Acquire:http::No-Cache=true" \
+  --option "Acquire:http::Pipeline-Depth=0" \
   curl \
   default-jdk \
   git \
