@@ -19,8 +19,8 @@
       disable-pagination
       hide-default-footer
       multi-sort
-    >
-    </v-data-table>
+      data-test="targets-table"
+    ></v-data-table>
   </v-card>
 </template>
 

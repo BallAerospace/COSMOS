@@ -4,11 +4,15 @@
       <v-card>
         <v-card-title>{{ header }}</v-card-title>
         <v-card-text>
-          Packet Time: {{ packetTime }} <br />
-          Received Time: {{ receivedTime }} <br />
-          <v-btn color="primary" class="mt-2" @click="pause">{{
+          Packet Time: {{ packetTime }}
+          <br />
+          Received Time: {{ receivedTime }}
+          <br />
+          <v-btn color="primary" class="mt-2" @click="pause">
+            {{
             buttonLabel
-          }}</v-btn>
+            }}
+          </v-btn>
           <v-textarea class="pa-0 ma-0" v-model="rawData" auto-grow readonly />
         </v-card-text>
       </v-card>
@@ -44,8 +48,6 @@ export default {
       },
       // Reset all the data to defaults
       set: function(bool) {
-        this.targetName = ''
-        this.packetName = ''
         this.header = ''
         this.packetTime = ''
         this.receivedTime = ''

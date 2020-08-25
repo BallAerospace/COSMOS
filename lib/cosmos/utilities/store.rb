@@ -319,6 +319,31 @@ module Cosmos
     #   write_topic("TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
     # end
 
+    def get_cmd_item(target_name, packet_name, param_name, type: :WITH_UNITS, scope: $cosmos_scope)
+      msg_id, msg_hash = read_topic_last("#{scope}__DECOMCMD__#{target_name}__#{packet_name}")
+      if msg_id
+        # TODO: RECEIVED vs PACKET time
+        if param_name == 'RECEIVED_TIMESECONDS' || param_name == 'PACKET_TIMESECONDS'
+          Time.from_nsec_from_epoch(msg_hash['time'].to_i).to_f
+        elsif param_name == 'RECEIVED_TIMEFORMATTED' || param_name == 'PACKET_TIMEFORMATTED'
+          Time.from_nsec_from_epoch(msg_hash['time'].to_i).formatted
+        elsif param_name == 'RECEIVED_COUNT'
+          msg_hash['received_count'].to_i
+        else
+          json = msg_hash['json_data']
+          hash = JSON.parse(json)
+          # Start from the most complex down to the basic raw value
+          value = hash["#{param_name}__U"]
+          return value if value && type == :WITH_UNITS
+          value = hash["#{param_name}__F"]
+          return value if value && type == :WITH_UNITS || type == :FORMATTED
+          value = hash["#{param_name}__C"]
+          return value if value && type == :WITH_UNITS || type == :FORMATTED || type == :CONVERTED
+          return hash[param_name]
+        end
+      end
+    end
+
     def tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type, scope: $cosmos_scope)
       case value_type
       when :RAW

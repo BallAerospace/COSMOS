@@ -69,9 +69,6 @@ export default {
       ]
     }
   },
-  beforeDestroy() {
-    stop()
-  },
   methods: {
     connectDisconnect(item) {
       this.buttonsDisabled = true
@@ -82,10 +79,7 @@ export default {
       }
     },
     update() {
-      if (this.tabId != this.curTab) {
-        stop()
-        return
-      }
+      if (this.tabId != this.curTab) return
       this.api.get_all_interface_info().then(info => {
         this.data = [] // Clear the old data
         for (let int of info) {
