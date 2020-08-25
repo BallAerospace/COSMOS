@@ -43,7 +43,7 @@ export class CosmosApi {
         // Something happened in setting up the request and triggered an Error
         err.name = 'Unknown error'
       }
-      console.log(error)
+      //console.log(error)
       throw err
     }
   }

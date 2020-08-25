@@ -12,11 +12,7 @@
       <v-divider></v-divider>
 
       <v-list dense>
-        <v-list-item
-          v-for="item in controls"
-          :key="item.title"
-          @click="item.action"
-        >
+        <v-list-item v-for="item in controls" :key="item.title" @click="item.action">
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
@@ -50,19 +46,9 @@
       </v-list>
     </v-navigation-drawer>
     <div class="c-tlmgrapher__contents">
-      <TargetPacketItemChooser
-        @click="addItem($event)"
-        buttonText="Add Item"
-        :chooseItem="true"
-      ></TargetPacketItemChooser>
+      <TargetPacketItemChooser @click="addItem($event)" buttonText="Add Item" :chooseItem="true"></TargetPacketItemChooser>
       <div class="grid">
-        <div
-          class="item"
-          v-for="plot in plots"
-          :key="plot"
-          :id="plotId(plot)"
-          ref="gridItem"
-        >
+        <div class="item" v-for="plot in plots" :key="plot" :id="plotId(plot)" ref="gridItem">
           <div class="item-content">
             <CosmosChartuPlot
               :ref="'plot' + plot"
@@ -206,7 +192,7 @@ export default {
       return 'tlmGrapherPlot' + id
     },
     closePlot(id) {
-      console.log('close:' + id)
+      //console.log('close:' + id)
       this.grid.remove(document.getElementById(this.plotId(id)))
       pull(this.plots, id)
       this.selectedPlotId = null

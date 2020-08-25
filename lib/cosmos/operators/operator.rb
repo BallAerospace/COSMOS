@@ -13,6 +13,44 @@ require 'cosmos'
 
 module Cosmos
 
+  class OperatorProcess
+    def initialize(process_definition)
+      @process = nil
+      @process_definition = process_definition
+    end
+
+    def start
+      Logger.info("Starting: #{@process_definition.join(' ')}")
+      @process = ChildProcess.build(*@process_definition)
+      @process.leader = true
+      @process.start
+    end
+
+    def alive?
+      if @process
+        @process.alive?
+      else
+        false
+      end
+    end
+
+    def soft_stop
+      Thread.new do
+        Logger.info("Soft Shutting down process: #{@process_definition.join(' ')}")
+        Process.kill("SIGINT", @process.pid)
+      end
+    end
+
+    def hard_stop
+      unless @process.exited?
+        Logger.info("Hard Shutting down process: #{@process_definition.join(' ')}")
+        @process.stop
+      end
+      @process = nil
+    end
+
+  end
+
   class Operator
     def initialize
       Logger.level = Logger::INFO
@@ -24,41 +62,76 @@ module Cosmos
         @ruby_process_name ||= 'ruby'
       end
 
-      @process_definitions = []
-      @processes = []
+      @processes = {}
+      @new_processes = {}
+      @changed_processes = {}
+      @remove_processes = {}
       @mutex = Mutex.new
       @shutdown = false
       @shutdown_complete = false
     end
 
-    def run
-      # Start all the processes.rb
-      Logger.info("#{self.class} starting each process...")
+    def update
+      raise "Implement in subclass"
+    end
 
-      @process_definitions.each do |p|
-        Logger.info("Starting: #{p.join(' ')}")
-        @processes << ChildProcess.build(*p)
-        @processes[-1].start
+    def start_new
+      @mutex.synchronize do
+        if @new_processes.length > 0
+          # Start all the processes
+          Logger.info("#{self.class} starting each new process...")
+          @new_processes.each { |name, p| p.start }
+          @new_processes = {}
+        end
       end
+    end
 
+    def respawn_changed
+      @mutex.synchronize do
+        @changed_processes.each do |name, p|
+          break if @shutdown
+          shutdown_processes(@changed_processes)
+          @changed_processes.each { |name, p| p.start }
+          @changed_processes = {}
+        end
+      end
+    end
+
+    def remove_old
+      @mutex.synchronize do
+        if @remove_processes.length > 0
+          shutdown_processes(@remove_processes)
+          @remove_processes = {}
+        end
+      end
+    end
+
+    def respawn_dead
+      @mutex.synchronize do
+        @processes.each do |name, p|
+          break if @shutdown
+          unless p.alive?
+            # Respawn process
+            Logger.error("Unexpected process died... respawning! #{p.process_definitions.join(' ')}")
+            p.start
+          end
+        end
+      end
+    end
+
+    def shutdown_processes(processes)
+      processes.each { |name, p| p.soft_stop }
+      sleep(2)
+      processes.each { |name, p| p.hard_stop }
+    end
+
+    def run
       # Use at_exit to shutdown cleanly
       at_exit do
         @shutdown = true
         @mutex.synchronize do
           Logger.info("Shutting down processes...")
-          @processes.each_with_index do |p, index|
-            Thread.new do
-              Logger.info("Soft Shutting down process: #{@process_definitions[index].join(' ')}")
-              Process.kill("SIGINT", p.pid)
-            end
-          end
-          sleep(2)
-          @processes.each_with_index do |p, index|
-            unless p.exited?
-              Logger.info("Hard Shutting down process: #{@process_definitions[index].join(' ')}")
-              p.stop
-            end
-          end
+          shutdown_processes(@processes)
           @shutdown_complete = true
         end
       end
@@ -66,20 +139,13 @@ module Cosmos
       # Monitor processes and respawn if died
       Logger.info("#{self.class} Monitoring processes...")
       loop do
-        @mutex.synchronize do
-          @processes.each_with_index do |p, index|
-            break if @shutdown
-            unless p.alive?
-              # Respawn process
-              Logger.error("Unexpected process died... respawning! #{@process_definitions[index].join(' ')}")
-              @processes[index] = ChildProcess.build(*@process_definitions[index])
-              @processes[index].leader = true
-              @processes[index].start
-            end
-          end
-        end
+        update()
+        remove_old()
+        respawn_changed()
+        start_new()
+        respawn_dead()
         break if @shutdown
-        sleep(1)
+        sleep(2)
         break if @shutdown
       end
 
@@ -93,10 +159,8 @@ module Cosmos
     end
 
     def self.run
-      #Cosmos.catch_fatal_exception do
-        a = self.new
-        a.run
-      #end
+      a = self.new
+      a.run
     end
 
   end # class Operator

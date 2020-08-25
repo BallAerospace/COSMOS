@@ -8,7 +8,6 @@ gem 'ruby-termios', '>= 0.9' if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cy
 #  gem 'wdm', '>= 0.1.0', :platforms => [:mswin, :mingw]
 #end
 gemspec
-instance_eval File.read(File.join(__dir__, 'install/config/dart/Gemfile'))
 
 unless ENV['JENKINS_HOME']
   # Example of how to use a local branch (doesn't work on Jenkins)

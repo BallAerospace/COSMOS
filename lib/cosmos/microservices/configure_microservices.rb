@@ -8,9 +8,11 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+$redis_url = ENV['COSMOS_REDIS_URL'] || ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos_redis:6379/0'
+
 module Cosmos
   class ConfigureMicroservices
-    def initialize(system_config, cts_config, scope:, url: "redis://localhost:6379/0", logger: Logger.new(Logger::INFO, true))
+    def initialize(system_config, cts_config, scope:, url: $redis_url, logger: Logger.new(Logger::INFO, true))
       Store.instance.sadd("cosmos_scopes", scope)
 
       target_list = []

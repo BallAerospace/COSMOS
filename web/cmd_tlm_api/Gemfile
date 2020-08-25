@@ -39,15 +39,10 @@ gem 'aws-sdk-s3', '~> 1'
 gem 'ffi'
 gem 'childprocess', '~> 3'
 
-if !ENV['COSMOS_USERPATH']
-  if ENV['COSMOS_DEVEL']
-    ENV['COSMOS_USERPATH'] = File.join(ENV['COSMOS_DEVEL'], 'demo')
-  else
-    raise 'Please set COSMOS_USERPATH or COSMOS_DEVEL'
-  end
-end
 if ENV['COSMOS_DEVEL']
   gem 'cosmos', :path => ENV['COSMOS_DEVEL']
+elsif ENV['COSMOS_PATH']
+  gem 'cosmos', :path => ENV['COSMOS_PATH']  
 else
-  gem 'cosmos'
+  gem 'cosmos', '~> 5'
 end

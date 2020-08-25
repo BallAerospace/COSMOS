@@ -4,17 +4,11 @@
       <v-spacer />
       <span>{{ title }}</span>
       <v-spacer />
-      <v-icon v-if="calcFullSize" @click="collapseAll"
-        >mdi-arrow-collapse</v-icon
-      >
+      <v-icon v-if="calcFullSize" @click="collapseAll">mdi-arrow-collapse</v-icon>
       <v-icon v-else @click="expandAll">mdi-arrow-expand</v-icon>
-      <v-icon v-if="fullWidth" @click="collapseWidth"
-        >mdi-arrow-collapse-horizontal</v-icon
-      >
+      <v-icon v-if="fullWidth" @click="collapseWidth">mdi-arrow-collapse-horizontal</v-icon>
       <v-icon v-else @click="expandWidth">mdi-arrow-expand-horizontal</v-icon>
-      <v-icon v-if="fullHeight" @click="collapseHeight"
-        >mdi-arrow-collapse-vertical</v-icon
-      >
+      <v-icon v-if="fullHeight" @click="collapseHeight">mdi-arrow-collapse-vertical</v-icon>
       <v-icon v-else @click="expandHeight">mdi-arrow-expand-vertical</v-icon>
       <v-icon @click="minMaxTransition">mdi-window-minimize</v-icon>
       <v-icon @click="$emit('closePlot')">mdi-close-box</v-icon>
@@ -196,7 +190,7 @@ export default {
         ]
       }
     }
-    console.time('chart')
+    // console.time('chart')
     this.plot = new uPlot(
       chartOpts,
       this.data,
@@ -243,7 +237,7 @@ export default {
       this.data,
       document.getElementById('overview' + this.id)
     )
-    console.timeEnd('chart')
+    //console.timeEnd('chart')
 
     // Allow the charts to dynamically resize when the window resizes
     window.addEventListener(

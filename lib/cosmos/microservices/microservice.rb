@@ -19,7 +19,7 @@ Cosmos.require_file 'cosmos/io/json_rpc'
 Cosmos.require_file 'cosmos/utilities/store'
 
 Aws.config.update(
-  endpoint: 'http://localhost:9000',
+  endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos_minio:9000',
   access_key_id: 'minioadmin',
   secret_access_key: 'minioadmin',
   force_path_style: true,
@@ -55,7 +55,7 @@ module Cosmos
       FileUtils.mkdir_p("#{@temp_dir}/targets")
 
       # Get microservice configuration from Redis
-      @redis = Redis.new(url: "redis://localhost:6379/0")
+      @redis = Redis.new(url: ENV['COSMOS_REDIS_URL'] || ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos_redis:6379/0')
       @config = @redis.hget("cosmos_microservices", name)
       if @config
         @config = JSON.parse(@config)

@@ -17,10 +17,7 @@
       </div>
     </div>
     <div id="messages" class="ma-2" ref="messagesDiv">
-      <LimitsEvents
-        :eventMessages="messages"
-        @updated="scrollDown"
-      ></LimitsEvents>
+      <LimitsEvents :eventMessages="messages" @updated="scrollDown"></LimitsEvents>
     </div>
     <AskDialog
       v-if="ask.show"
@@ -128,7 +125,7 @@ export default {
       )
     },
     received(data) {
-      console.log(data)
+      // console.log(data)
       switch (data.type) {
         case 'file':
           this.editor.setValue(data.text)
@@ -180,8 +177,8 @@ export default {
           break
 
         default:
-          console.log('Unexpected ActionCable message')
-          console.log(data)
+          //console.log('Unexpected ActionCable message')
+          //console.log(data)
           break
       }
       //event.unshift(Date.now())
@@ -303,9 +300,10 @@ export default {
           this.prompt.show = true
           break
         default:
-          console.log(
+          /* console.log(
             'Unknown script method:' + data.method + ' with args:' + data.args
-          )
+          ) */
+          break
       }
     }
   }

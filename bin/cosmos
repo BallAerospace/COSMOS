@@ -22,8 +22,10 @@ require 'aws-sdk-s3'
 require 'json'
 require 'redis'
 
+$redis_url = ENV['COSMOS_REDIS_URL'] || ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos_redis:6379/0'
+
 Aws.config.update(
-  endpoint: 'http://localhost:9000',
+  endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos_minio:9000',
   access_key_id: 'minioadmin',
   secret_access_key: 'minioadmin',
   force_path_style: true,
@@ -96,7 +98,7 @@ def gen_int(target)
 # Modify this according to your actual target connection
 # Please see the COSMOS Interface Configuration documentation
 
-INTERFACE #{target}_INT tcpip_client_interface.rb localhost 8080 8081 10.0 nil BURST 4 0xDEADBEEF
+INTERFACE #{target}_INT tcpip_client_interface.rb 127.0.0.1 8080 8081 10.0 nil BURST 4 0xDEADBEEF
   TARGET #{target}
 )
 end
@@ -388,7 +390,7 @@ def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil, scope = ni
 end
 
 def get_redis_keys
-  redis = Redis.new(url: "redis://localhost:6379/0")
+  redis = Redis.new(url: $redis_url)
   puts "\n--- COSMOS Redis database keys ---"
   cursor = 0
   keys = []
@@ -429,7 +431,7 @@ if not ARGV[0].nil? # argument(s) given
       system('yard server --gems')
     end
     sleep 3
-    Cosmos.open_in_web_browser('http://localhost:8808/docs/cosmos/frames')
+    Cosmos.open_in_web_browser('http://127.0.0.1:8808/docs/cosmos/frames')
     thread.join
 
   when 'install'
@@ -454,7 +456,7 @@ if not ARGV[0].nil? # argument(s) given
     when 'keys'
       get_redis_keys()
     when 'hget'
-      redis = Redis.new(url: "redis://localhost:6379/0")
+      redis = Redis.new(url: $redis_url)
       puts JSON.parse(redis.hget(ARGV[2], ARGV[3]))
     else
       puts "Unknown redis task: #{ARGV[1]}\n"

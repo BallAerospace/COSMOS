@@ -1,2 +1,0 @@
-class SystemConfig < ApplicationRecord
-end

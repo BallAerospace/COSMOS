@@ -18,11 +18,7 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="startdate"
-                label="Start Date"
-                v-on="on"
-              ></v-text-field>
+              <v-text-field v-model="startdate" label="Start Date" v-on="on"></v-text-field>
             </template>
             <v-date-picker
               v-model="startdate"
@@ -43,11 +39,7 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="enddate"
-                label="End Date"
-                v-on="on"
-              ></v-text-field>
+              <v-text-field v-model="enddate" label="End Date" v-on="on"></v-text-field>
             </template>
             <v-date-picker
               v-model="enddate"
@@ -70,11 +62,7 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="starttime"
-                label="Start Time"
-                v-on="on"
-              ></v-text-field>
+              <v-text-field v-model="starttime" label="Start Time" v-on="on"></v-text-field>
             </template>
             <v-time-picker
               v-model="starttime"
@@ -96,11 +84,7 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="endtime"
-                label="End Time"
-                v-on="on"
-              ></v-text-field>
+              <v-text-field v-model="endtime" label="End Time" v-on="on"></v-text-field>
             </template>
             <v-time-picker
               v-model="endtime"
@@ -183,12 +167,12 @@ export default {
   created() {
     this.api = new CosmosApi()
     let cmds = this.api.get_cmd_list('INST')
-    console.log(cmds)
+    // console.log(cmds)
   },
   methods: {
     testGetCommands() {
       cmds = this.api.get_cmd_list('INST')
-      console.log(cmds)
+      // console.log(cmds)
     }
   }
 }

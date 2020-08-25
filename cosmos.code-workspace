@@ -1,0 +1,28 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "vetur.validation.template": false,
+    "eslint.validate": ["vue", "html", "javascript"],
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    },
+    "explorer.confirmDragAndDrop": true,
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "vetur.completion.scaffoldSnippetSources": {
+      "workspace": "",
+      "user": "",
+      "vetur": ""
+    },
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+    "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
+    "git.ignoreLimitWarning": true
+  },
+  "files.associations": {}
+}

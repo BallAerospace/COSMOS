@@ -296,7 +296,7 @@ export default {
   },
   methods: {
     logItems(item) {
-      console.log(item)
+      //console.log(item)
     },
     addItem(item) {
       // Go thru all the existing items and make sure they are NOT the same target/packet/items as the one being added
@@ -393,7 +393,7 @@ export default {
               )
             }
           })
-          console.log(localItems)
+          // console.log(localItems)
           this.subscription.perform('add', {
             scope: 'DEFAULT',
             items: localItems,
@@ -404,7 +404,7 @@ export default {
         received: json_data => {
           // Process the items when they are received
           let data = JSON.parse(json_data)
-          console.log(data)
+          //console.log(data)
           let columnHeaders = ''
           if (this.useMatlabHeader) {
             columnHeaders = '%'
@@ -415,7 +415,7 @@ export default {
             const keys = Object.keys(packet)
             if (index < 1) {
               keys.forEach(key => {
-                console.log(key)
+                //console.log(key)
 
                 //console.log(shortHeader[3])
                 if (this.useTsv) {
@@ -500,7 +500,7 @@ export default {
             }
           })
           if (data.length == 0) {
-            console.log(this.totalData)
+            //console.log(this.totalData)
             this.blobDownloadLinkReady = false
             // Make Excel link
             if (this.useTsv) {

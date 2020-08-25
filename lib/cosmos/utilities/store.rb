@@ -34,7 +34,8 @@ module Cosmos
 
     def initialize(pool_size = 10)
       Redis.exists_returns_integer = true
-      @redis_pool = ConnectionPool.new(size: pool_size) { Redis.new(url: "redis://localhost:6379/0") }
+      redis_url = ENV['COSMOS_REDIS_URL'] || ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos_redis:6379/0'
+      @redis_pool = ConnectionPool.new(size: pool_size) { Redis.new(url: redis_url) }
       @topic_offsets = {}
       @overrides = {}
     end
