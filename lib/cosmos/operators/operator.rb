@@ -14,6 +14,8 @@ require 'cosmos'
 module Cosmos
 
   class OperatorProcess
+    attr_reader :process_definition
+
     def initialize(process_definition)
       @process = nil
       @process_definition = process_definition
