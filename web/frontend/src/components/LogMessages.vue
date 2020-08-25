@@ -9,6 +9,7 @@
         label="Search"
         single-line
         hide-details
+        data-test="search-log-messages"
       ></v-text-field>
     </v-card-title>
     <v-data-table
@@ -21,6 +22,7 @@
       multi-sort
       dense
       height="45vh"
+      data-test="log-messages"
     ></v-data-table>
   </v-card>
 </template>
