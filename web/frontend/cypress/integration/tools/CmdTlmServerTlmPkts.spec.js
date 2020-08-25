@@ -95,6 +95,52 @@ describe('CmdTlmServer TlmPackets', () => {
       cy.get('textarea')
         .invoke('val')
         .should('include', '00000000:')
+      cy.get('textarea')
+        .invoke('val')
+        .as('textArea')
+    })
+    cy.wait(1500)
+    cy.get('@textArea').then(value => {
+      cy.get('.v-dialog textarea')
+        .invoke('val')
+        .then(textarea => {
+          expect(value).to.not.eq(textarea)
+        })
+    })
+    cy.get('.v-dialog')
+      .contains('Pause')
+      .click()
+    cy.wait(500) // Give it a bit to actually Pause
+    // Ensure it has paused the output
+    cy.get('.v-dialog').within(() => {
+      cy.get('textarea')
+        .invoke('val')
+        .as('textArea')
+    })
+    cy.wait(1500)
+    cy.get('@textArea').then(value => {
+      cy.get('.v-dialog textarea')
+        .invoke('val')
+        .then(textarea => {
+          expect(value).to.eq(textarea)
+        })
+    })
+    // Resume the updates
+    cy.get('.v-dialog')
+      .contains('Resume')
+      .click()
+    cy.get('.v-dialog').within(() => {
+      cy.get('textarea')
+        .invoke('val')
+        .as('textArea')
+    })
+    cy.wait(1500)
+    cy.get('@textArea').then(value => {
+      cy.get('.v-dialog textarea')
+        .invoke('val')
+        .then(textarea => {
+          expect(value).to.not.eq(textarea)
+        })
     })
   })
 

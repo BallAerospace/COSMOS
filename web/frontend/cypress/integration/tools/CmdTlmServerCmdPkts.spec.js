@@ -5,7 +5,8 @@ describe('CmdTlmServer CmdPackets', () => {
     cy.get('.v-tab')
       .contains('Cmd Packets')
       .click()
-    cy.contains('ABORT', { timeout: 10000 })
+    cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
+      .contains('ABORT')
       .parent('tr')
       .within(() => {
         // all searches are automatically rooted to the found tr element
@@ -13,14 +14,16 @@ describe('CmdTlmServer CmdPackets', () => {
           .eq(0)
           .contains('INST') // either INST or INST2
       })
-    cy.contains('COLLECT')
+    cy.get('[data-test=cmd-packets-table]')
+      .contains('COLLECT')
       .parent('tr')
       .within(() => {
         cy.get('td')
           .eq(0)
           .contains('INST') // either INST or INST2
       })
-    cy.contains('EXAMPLE')
+    cy.get('[data-test=cmd-packets-table]')
+      .contains('EXAMPLE')
       .parent('tr')
       .within(() => {
         cy.get('td')
@@ -34,7 +37,8 @@ describe('CmdTlmServer CmdPackets', () => {
     cy.get('.v-tab')
       .contains('Cmd Packets')
       .click()
-    cy.contains('ABORT', { timeout: 10000 })
+    cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
+      .contains('ABORT')
       .parent('tr')
       .within(() => {
         cy.get('td')
@@ -56,7 +60,8 @@ describe('CmdTlmServer CmdPackets', () => {
     cy.get('.v-tab')
       .contains('Cmd Packets')
       .click()
-    cy.contains('ABORT')
+    cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
+      .contains('ABORT')
       .parent('tr')
       .within(() => {
         cy.get('td')
@@ -86,7 +91,8 @@ describe('CmdTlmServer CmdPackets', () => {
     cy.get('.v-tab')
       .contains('Cmd Packets')
       .click()
-    cy.contains('ABORT', { timeout: 10000 })
+    cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
+      .contains('ABORT')
       .parent('tr')
       .within(() => {
         cy.get('td')
@@ -107,6 +113,23 @@ describe('CmdTlmServer CmdPackets', () => {
         .invoke('val')
         .should('include', '00000000:')
     })
+    cy.get('.v-dialog').type('{esc}')
+    // Make sure we can re-open the raw dialog
+    cy.get('[data-test=cmd-packets-table]')
+      .contains('ABORT')
+      .parent('tr')
+      .within(() => {
+        cy.get('td')
+          .eq(0)
+          .contains('INST2')
+        cy.get('td')
+          .eq(3)
+          .click()
+      })
+    cy.get('.v-dialog').within(() => {
+      cy.contains('Raw Command Packet: INST2 ABORT')
+    })
+    cy.get('.v-dialog').type('{esc}')
   })
 
   it('links to command sender', () => {
@@ -120,7 +143,8 @@ describe('CmdTlmServer CmdPackets', () => {
     cy.get('.v-tab')
       .contains('Cmd Packets')
       .click()
-    cy.contains('ABORT', { timeout: 10000 })
+    cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
+      .contains('ABORT')
       .parent('tr')
       .within(() => {
         cy.get('td')

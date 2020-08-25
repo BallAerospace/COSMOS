@@ -44,7 +44,7 @@
       :targetName="target_name"
       :packetName="packet_name"
       :visible="viewRaw"
-      @display="display"
+      @display="rawDisplayCallback"
     />
   </v-card>
 </template>
@@ -79,7 +79,9 @@ export default {
     }
   },
   methods: {
-    display(bool) {
+    // This method is hooked to the RawDialog as a callback to
+    // keep track of whether the dialog is displayed
+    rawDisplayCallback(bool) {
       this.viewRaw = bool
     },
     openViewRaw(target_name, packet_name) {
