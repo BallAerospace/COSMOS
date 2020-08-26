@@ -1112,6 +1112,7 @@ module Cosmos
     # @param limits_set [String] The name of the limits set
     def set_limits_set(limits_set, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', scope: scope, token: token)
+      Logger.info("Setting Limits Set: #{limits_set}")
       Store.instance.hset("#{scope}__cosmos_system", 'limits_set', limits_set)
     end
 
