@@ -15,29 +15,37 @@ RUN apt-get update -y && apt-get install -y \
   --option "Acquire:http::No-Cache=true" \
   --option "Acquire:http::Pipeline-Depth=0" \
   curl \
-  default-jdk \
+  build-essential \
+  #  default-jdk \
+  ruby \
+  ruby-dev \
   git \
-  netbase
+  netbase \
+  zlib1g \
+  zlib1g-dev
 
 # Download and install jruby
-RUN cd /opt \
-  && curl -G https://repo1.maven.org/maven2/org/jruby/jruby-dist/9.2.13.0/jruby-dist-9.2.13.0-bin.tar.gz > jruby.tar.gz \
-  && tar xvf jruby.tar.gz \
-  && mv jruby-9.2.13.0 jruby
+#RUN cd /opt \
+#  && curl -G https://repo1.maven.org/maven2/org/jruby/jruby-dist/9.2.13.0/jruby-dist-9.2.13.0-bin.tar.gz > jruby.tar.gz \
+#  && tar xvf jruby.tar.gz \
+#  && mv jruby-9.2.13.0 jruby
 
-ENV PATH="/opt/jruby/bin:$PATH"
+#ENV PATH="/opt/jruby/bin:$PATH"
 
 RUN gem install bundler
 
 COPY cosmos.gemspec /cosmos/cosmos.gemspec
 COPY Gemfile /cosmos/Gemfile
+COPY Rakefile /cosmos/Rakefile
 COPY bin /cosmos/bin
 COPY data /cosmos/data
 COPY ext /cosmos/ext
 COPY lib /cosmos/lib
+COPY tasks /cosmos/tasks
 
 ENV COSMOS_PATH="/cosmos"
 
 RUN git config --global http.sslCAinfo /devel/cert.pem
 
 RUN cd /cosmos && bundle install --without=development
+RUN cd /cosmos && bundle exec rake build

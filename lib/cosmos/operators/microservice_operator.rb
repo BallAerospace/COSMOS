@@ -32,16 +32,17 @@ module Cosmos
       microservice_config_parsed = JSON.parse(microservice_config)
       filename = microservice_config_parsed["filename"]
       relative_filename = File.expand_path(File.join(__dir__, "../microservices/#{filename}"))
+      scope = microservice_name.split("__")[0]
       if File.exist?(relative_filename)
         # Run ruby syntax so we can log those
         syntax_check, _ = Open3.capture2e("#{@ruby_process_name} -c #{relative_filename}")
         if syntax_check =~ /Syntax OK/
           return [@ruby_process_name, relative_filename, microservice_name]
         else
-          Logger.error("Microservice #{relative_filename} failed syntax check\n#{syntax_check}")
+          Logger.error("Microservice #{relative_filename} failed syntax check\n#{syntax_check}", scope: scope)
         end
       else
-        Logger.error("Microservice #{relative_filename} does not exist")
+        Logger.error("Microservice #{relative_filename} does not exist", scope: scope)
       end
       return nil
     end
@@ -78,7 +79,8 @@ module Cosmos
         @new_microservices.each do |microservice_name, microservice_config|
           process_definition = convert_microservice_to_process_definition(microservice_name, microservice_config)
           if process_definition
-            process = OperatorProcess.new(process_definition)
+            scope = microservice_name.split("__")[0]
+            process = OperatorProcess.new(process_definition, scope)
             @new_processes[microservice_name] = process
             @processes[microservice_name] = process
           end
@@ -92,8 +94,9 @@ module Cosmos
               process.process_definition = process_definition
               @changed_processes[microservice_name] = process
             else
-              Logger.error("Changed microservice #{microservice_name} does not exist. Creating new...")
-              process = OperatorProcess.new(process_definition)
+              scope = microservice_name.split("__")[0]
+              Logger.error("Changed microservice #{microservice_name} does not exist. Creating new...", scope: scope)
+              process = OperatorProcess.new(process_definition, scope)
               @new_processes[microservice_name] = process
               @processes[microservice_name] = process
             end

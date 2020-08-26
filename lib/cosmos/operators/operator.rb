@@ -15,14 +15,16 @@ module Cosmos
 
   class OperatorProcess
     attr_reader :process_definition
+    attr_reader :scope
 
-    def initialize(process_definition)
+    def initialize(process_definition, scope)
       @process = nil
       @process_definition = process_definition
+      @scope = scope
     end
 
     def start
-      Logger.info("Starting: #{@process_definition.join(' ')}")
+      Logger.info("Starting: #{@process_definition.join(' ')}", scope: @scope)
       @process = ChildProcess.build(*@process_definition)
       @process.leader = true
       @process.start
@@ -38,14 +40,14 @@ module Cosmos
 
     def soft_stop
       Thread.new do
-        Logger.info("Soft Shutting down process: #{@process_definition.join(' ')}")
+        Logger.info("Soft Shutting down process: #{@process_definition.join(' ')}", scope: @scope)
         Process.kill("SIGINT", @process.pid)
       end
     end
 
     def hard_stop
       unless @process.exited?
-        Logger.info("Hard Shutting down process: #{@process_definition.join(' ')}")
+        Logger.info("Hard Shutting down process: #{@process_definition.join(' ')}", scope: @scope)
         @process.stop
       end
       @process = nil
@@ -56,6 +58,8 @@ module Cosmos
   class Operator
     def initialize
       Logger.level = Logger::INFO
+      Logger.microservice_name = 'MicroserviceOperator'
+      Logger.tag = "operator.log"
 
       @ruby_process_name = ENV['COSMOS_RUBY']
       if RUBY_ENGINE != 'ruby'
@@ -114,7 +118,7 @@ module Cosmos
           break if @shutdown
           unless p.alive?
             # Respawn process
-            Logger.error("Unexpected process died... respawning! #{p.process_definition.join(' ')}")
+            Logger.error("Unexpected process died... respawning! #{p.process_definition.join(' ')}", scope: p.scope)
             p.start
           end
         end
