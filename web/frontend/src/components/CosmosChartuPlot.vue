@@ -4,11 +4,17 @@
       <v-spacer />
       <span>{{ title }}</span>
       <v-spacer />
-      <v-icon v-if="calcFullSize" @click="collapseAll">mdi-arrow-collapse</v-icon>
+      <v-icon v-if="calcFullSize" @click="collapseAll"
+        >mdi-arrow-collapse</v-icon
+      >
       <v-icon v-else @click="expandAll">mdi-arrow-expand</v-icon>
-      <v-icon v-if="fullWidth" @click="collapseWidth">mdi-arrow-collapse-horizontal</v-icon>
+      <v-icon v-if="fullWidth" @click="collapseWidth"
+        >mdi-arrow-collapse-horizontal</v-icon
+      >
       <v-icon v-else @click="expandWidth">mdi-arrow-expand-horizontal</v-icon>
-      <v-icon v-if="fullHeight" @click="collapseHeight">mdi-arrow-collapse-vertical</v-icon>
+      <v-icon v-if="fullHeight" @click="collapseHeight"
+        >mdi-arrow-collapse-vertical</v-icon
+      >
       <v-icon v-else @click="expandHeight">mdi-arrow-expand-vertical</v-icon>
       <v-icon @click="minMaxTransition">mdi-window-minimize</v-icon>
       <v-icon @click="$emit('closePlot')">mdi-close-box</v-icon>
@@ -346,12 +352,12 @@ export default {
           this.subscription.perform('add', {
             scope: 'DEFAULT',
             items: items,
-            start_time: new Date().getTime() * 1000000, // - 100000000000
-            end_time: new Date().getTime() * 1000000 + 3000000000
+            start_time: new Date().getTime() * 1_000_000 // put units in nanoseconds
+            // No end_time because we want to continue until we stop
           })
-        }
+        },
         // TODO: How should we handle server side disconnect
-        //disconnected: () => alert('disconnected')
+        disconnected: () => alert('disconnected')
       })
     },
     throttle(cb, limit) {
