@@ -172,6 +172,12 @@ export default {
               command: () => {
                 this.addPlot()
               }
+            },
+            {
+              label: 'Edit Plot',
+              command: () => {
+                this.$refs['plot' + this.selectedPlotId][0].editPlot = true
+              }
             }
           ]
         }
@@ -258,31 +264,33 @@ export default {
       this.closeAllPlots()
       let plots = JSON.parse(await this.api.load_config('tlmgrapher'))
       let plotId = 0
-      for (let plot in plots) {
+      for (let plot of plots) {
         plotId += 1
         await this.addPlot()
-        for (let item of plots[plot].items) {
+        let vuePlot = this.$refs['plot' + plotId][0]
+        vuePlot.title = plot.title
+        vuePlot.fullWidth = plot.fullWidth
+        vuePlot.fullHeight = plot.fullHeight
+        vuePlot.resize()
+        for (let item of plot.items) {
           this.addItem({
             targetName: item.targetName,
             packetName: item.packetName,
             itemName: item.itemName
           })
-          let vuePlot = this.$refs['plot' + plotId][0]
-          vuePlot.fullWidth = plots[plot].fullWidth
-          vuePlot.fullHeight = plots[plot].fullHeight
-          vuePlot.resize()
         }
       }
     },
     saveConfiguration() {
-      let config = {}
+      let config = []
       for (let plotId of this.plots) {
         const vuePlot = this.$refs['plot' + plotId][0]
-        config[this.plotId(plotId)] = {
+        config.push({
+          title: vuePlot.title,
           fullWidth: vuePlot.fullWidth,
           fullHeight: vuePlot.fullHeight,
           items: vuePlot.items
-        }
+        })
       }
       this.api.save_config('tlmgrapher', JSON.stringify(config))
     }

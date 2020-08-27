@@ -1,31 +1,44 @@
 <template>
-  <v-card @click.native="$emit('click')">
-    <v-system-bar :class="selectedPlotId === id ? 'active' : 'inactive'">
-      <v-spacer />
-      <span>{{ title }}</span>
-      <v-spacer />
-      <v-icon v-if="calcFullSize" @click="collapseAll"
-        >mdi-arrow-collapse</v-icon
-      >
-      <v-icon v-else @click="expandAll">mdi-arrow-expand</v-icon>
-      <v-icon v-if="fullWidth" @click="collapseWidth"
-        >mdi-arrow-collapse-horizontal</v-icon
-      >
-      <v-icon v-else @click="expandWidth">mdi-arrow-expand-horizontal</v-icon>
-      <v-icon v-if="fullHeight" @click="collapseHeight"
-        >mdi-arrow-collapse-vertical</v-icon
-      >
-      <v-icon v-else @click="expandHeight">mdi-arrow-expand-vertical</v-icon>
-      <v-icon @click="minMaxTransition">mdi-window-minimize</v-icon>
-      <v-icon @click="$emit('closePlot')">mdi-close-box</v-icon>
-    </v-system-bar>
-    <v-expand-transition>
-      <div class="pa-1" id="chart" ref="chart" v-show="expand">
-        <div :id="'chart' + id"></div>
-        <div :id="'overview' + id"></div>
-      </div>
-    </v-expand-transition>
-  </v-card>
+  <div>
+    <v-card @click.native="$emit('click')">
+      <v-system-bar :class="selectedPlotId === id ? 'active' : 'inactive'">
+        <v-spacer />
+        <span>{{ title }}</span>
+        <v-spacer />
+        <v-icon v-if="calcFullSize" @click="collapseAll"
+          >mdi-arrow-collapse</v-icon
+        >
+        <v-icon v-else @click="expandAll">mdi-arrow-expand</v-icon>
+        <v-icon v-if="fullWidth" @click="collapseWidth"
+          >mdi-arrow-collapse-horizontal</v-icon
+        >
+        <v-icon v-else @click="expandWidth">mdi-arrow-expand-horizontal</v-icon>
+        <v-icon v-if="fullHeight" @click="collapseHeight"
+          >mdi-arrow-collapse-vertical</v-icon
+        >
+        <v-icon v-else @click="expandHeight">mdi-arrow-expand-vertical</v-icon>
+        <v-icon @click="minMaxTransition">mdi-window-minimize</v-icon>
+        <v-icon @click="$emit('closePlot')">mdi-close-box</v-icon>
+      </v-system-bar>
+      <v-expand-transition>
+        <div class="pa-1" id="chart" ref="chart" v-show="expand">
+          <div :id="'chart' + id"></div>
+          <div :id="'overview' + id"></div>
+        </div>
+      </v-expand-transition>
+    </v-card>
+    <v-dialog
+      v-model="editPlot"
+      @keydown.esc="editPlot = false"
+      max-width="300"
+    >
+      <v-card class="pa-3">
+        <v-card-title class="headline">Edit Plot</v-card-title>
+        <v-text-field label="Title" v-model="title"></v-text-field>
+        <v-btn color="primary" @click="editPlot = false">OK</v-btn>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script>
@@ -74,6 +87,7 @@ export default {
       fullWidth: true,
       fullHeight: true,
       plot: null,
+      editPlot: false,
       title: '',
       overview: null,
       data: null,
