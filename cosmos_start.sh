@@ -1,24 +1,26 @@
+#!/usr/bin/env bash
+# You may need to comment out the below three lines if you are on linux host (as opposed to mac)
 docker run -it --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
 docker run -it --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/defrag"
 docker run -it --privileged --pid=host justincormack/nsenter1 /bin/sh -c "sysctl -w vm.max_map_count=262144"
 docker network create cosmos
 docker build -f Dockerfile.cosmos_base -t cosmos_base .
-cd web\fluentd && docker build -t cosmos_fluentd .
-cd ..\..
+cd web/fluentd && docker build -t cosmos_fluentd .
+cd ../..
 docker volume create cosmos_elasticsearch_v
 docker run --network cosmos -p 127.0.0.1:9200:9200  -d --name cosmos_elasticsearch -v cosmos_elasticsearch_v:/usr/share/elasticsearch/data -e "bootstrap.memory_lock=true" --ulimit memlock=-1:-1 --env discovery.type="single-node" --env ES_JAVA_OPTS="-Xms1g -Xmx1g" --env MALLOC_ARENA_MAX=4 elasticsearch:7.9.0
-timeout 30 >nul
+sleep 30
 docker run --network cosmos -p 127.0.0.1:5601:5601  -d --name cosmos_kibana --env ELASTICSEARCH_HOSTS=http://cosmos_elasticsearch:9200 kibana:7.9.0
 docker run --network cosmos -p 127.0.0.1:24224:24224 -p 127.0.0.1:24224:24224/udp -d --name cosmos_fluentd cosmos_fluentd
-timeout 30 >nul
+sleep 30
 docker volume create cosmos_redis_v
 docker run --network cosmos -p 127.0.0.1:6379:6379  -d --name cosmos_redis -v cosmos_redis_v:/data --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=redis.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true redis:6.0.6 redis-server --appendonly yes
 docker volume create cosmos_minio_v
 docker run --network cosmos -p 127.0.0.1:9000:9000  -d --name cosmos_minio -v cosmos_minio_v:/data --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=minio.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true minio/minio:RELEASE.2020-08-25T00-21-20Z server /data
-timeout 30 >nul
-del web\cmd_tlm_api\Gemfile.lock
+sleep 30
+rm web/cmd_tlm_api/Gemfile.lock
 docker build -f Dockerfile.cmd_tlm_api -t cosmos_cmd_tlm_api .
-del web\script_runner_api\Gemfile.lock
+rm web/script_runner_api/Gemfile.lock
 docker build -f Dockerfile.script_runner_api -t cosmos_script_runner_api .
 docker build -f Dockerfile.frontend -t cosmos_frontend .
 docker build -f Dockerfile.operator -t cosmos_operator .

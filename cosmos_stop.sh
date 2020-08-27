@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 docker stop cosmos_operator
 docker container rm cosmos_operator
 docker stop cosmos_frontend
