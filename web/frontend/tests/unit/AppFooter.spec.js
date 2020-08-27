@@ -5,7 +5,7 @@ import Vuetify from 'vuetify'
 describe('AppFooter', () => {
   it('shows footer tag line', () => {
     const wrapper = utils.createShallowWrapper(AppFooter)
-    expect(wrapper.html()).toContain('COSMOS Enterprise Edition')
+    expect(wrapper.html()).toContain('COSMOS')
   })
   it('toggles the theme', () => {
     let vuetify = new Vuetify({

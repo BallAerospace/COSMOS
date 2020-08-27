@@ -68,8 +68,9 @@ export default {
         { name: 'Targets', component: 'TargetsTab' },
         { name: 'Cmd Packets', component: 'CmdPacketsTab' },
         { name: 'Tlm Packets', component: 'TlmPacketsTab' },
-        { name: 'Routers', component: 'RoutersTab' },
-        { name: 'Logging', component: 'LoggingTab' },
+        // TODO: Remove these until they work
+        // { name: 'Routers', component: 'RoutersTab' },
+        // { name: 'Logging', component: 'LoggingTab' },
         { name: 'Status', component: 'StatusTab' }
       ],
       updater: null,

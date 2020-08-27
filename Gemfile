@@ -9,12 +9,12 @@ source 'https://rubygems.org'
 #end
 gemspec
 
-unless ENV['JENKINS_HOME']
-  # Example of how to use a local branch (doesn't work on Jenkins)
-  #   You also need to set "bundle config local.mock_redis <LOCAL PATH TO CHECKED OUT GEM>"
-  #   For example: bundle config local.mock_redis C:/_Programs/oss/mock_redis
-  #   Make sure the local copy is checked out to the specified branch
-  group :development do
-    gem 'mock_redis', github: 'jasonatball/mock_redis', branch: 'master'
-  end
-end
+# unless ENV['JENKINS_HOME']
+#   # Example of how to use a local branch (doesn't work on Jenkins)
+#   #   You also need to set "bundle config local.mock_redis <LOCAL PATH TO CHECKED OUT GEM>"
+#   #   For example: bundle config local.mock_redis C:/_Programs/oss/mock_redis
+#   #   Make sure the local copy is checked out to the specified branch
+#   group :development do
+#     gem 'mock_redis', github: 'jasonatball/mock_redis', branch: 'master'
+#   end
+# end

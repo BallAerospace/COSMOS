@@ -3,6 +3,28 @@
 // than something absolute so theming works. See vuetify.js for the base colors
 // and note the variations are: base, lighten[1-5], and darken[1-4]
 
+.cosmos-green {
+  color: rgb(0, 150, 0);
+}
+.cosmos-yellow {
+  color: rgb(190, 135, 0);
+}
+.cosmos-red {
+  color: red;
+}
+.cosmos-blue {
+  color: rgb(0, 100, 255);
+}
+.cosmos-purple {
+  color: rgb(200, 0, 200);
+}
+.cosmos-black {
+  color: black;
+}
+.cosmos-white {
+  color: white;
+}
+
 table,
 .v-dialog,
 .v-sheet,
