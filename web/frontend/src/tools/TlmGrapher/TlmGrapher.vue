@@ -95,6 +95,7 @@ import AppNav from '@/AppNav'
 import CosmosChartuPlot from '@/components/CosmosChartuPlot.vue'
 // import CosmosChartJS from '@/components/CosmosChartJS.vue'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
+import { CosmosApi } from '@/services/cosmos-api'
 import * as Muuri from 'muuri'
 import pull from 'lodash/pull'
 
@@ -107,6 +108,7 @@ export default {
   },
   data() {
     return {
+      api: null,
       state: 'stop', // Valid: stop, start, pause
       grid: null,
       // Setup defaults to show an initial plot
@@ -145,6 +147,23 @@ export default {
         }
       },
       menus: [
+        {
+          label: 'File',
+          items: [
+            {
+              label: 'Load Configuration',
+              command: () => {
+                this.loadConfiguration()
+              }
+            },
+            {
+              label: 'Save Configuration',
+              command: () => {
+                this.saveConfiguration()
+              }
+            }
+          ]
+        },
         {
           label: 'Plot',
           items: [
@@ -186,6 +205,9 @@ export default {
       }
     }
   },
+  created() {
+    this.api = new CosmosApi()
+  },
   mounted() {
     this.grid = new Muuri('.grid', {
       dragEnabled: true,
@@ -215,6 +237,12 @@ export default {
       pull(this.plots, id)
       this.selectedPlotId = null
     },
+    closeAllPlots() {
+      for (let plot of this.plots) {
+        this.closePlot(plot)
+      }
+      this.counter = 1
+    },
     minMaxPlot(id) {
       setTimeout(() => {
         this.grid.refreshItems().layout()
@@ -225,6 +253,38 @@ export default {
     },
     plotSelected(id) {
       this.selectedPlotId = id
+    },
+    async loadConfiguration() {
+      this.closeAllPlots()
+      let plots = JSON.parse(await this.api.load_config('tlmgrapher'))
+      let plotId = 0
+      for (let plot in plots) {
+        plotId += 1
+        await this.addPlot()
+        for (let item of plots[plot].items) {
+          this.addItem({
+            targetName: item.targetName,
+            packetName: item.packetName,
+            itemName: item.itemName
+          })
+          let vuePlot = this.$refs['plot' + plotId][0]
+          vuePlot.fullWidth = plots[plot].fullWidth
+          vuePlot.fullHeight = plots[plot].fullHeight
+          vuePlot.resize()
+        }
+      }
+    },
+    saveConfiguration() {
+      let config = {}
+      for (let plotId of this.plots) {
+        const vuePlot = this.$refs['plot' + plotId][0]
+        config[this.plotId(plotId)] = {
+          fullWidth: vuePlot.fullWidth,
+          fullHeight: vuePlot.fullHeight,
+          items: vuePlot.items
+        }
+      }
+      this.api.save_config('tlmgrapher', JSON.stringify(config))
     }
   }
 }

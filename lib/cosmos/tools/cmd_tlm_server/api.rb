@@ -152,6 +152,8 @@ module Cosmos
         'get_screen_list',
         'get_screen_definition',
         'get_saved_config',
+        'load_config',
+        'save_config'
       ]
     end
 
@@ -1795,6 +1797,14 @@ module Cosmos
     # Get a saved configuration zip file
     def get_saved_config(configuration_name = nil, scope: $cosmos_scope, token: $cosmos_token)
       raise "Not supported by COSMOS 5"
+    end
+
+    def load_config(tool, scope: $cosmos_scope, token: $cosmos_token)
+      Store.instance.hget("#{scope}__config", tool)
+    end
+
+    def save_config(tool, data, scope: $cosmos_scope, token: $cosmos_token)
+      Store.instance.hset("#{scope}__config", tool, data)
     end
 
     private

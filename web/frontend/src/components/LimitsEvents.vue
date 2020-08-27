@@ -83,9 +83,9 @@ export default {
     this.cable.disconnect()
   },
   methods: {
-    formatDate(date) {
+    formatDate(nanoSecs) {
       return format(
-        toDate(parseInt(date) / 1_000_000),
+        toDate(parseInt(nanoSecs) / 1_000_000),
         'yyyy-MM-dd HH:MM:ss.SSS'
       )
     },

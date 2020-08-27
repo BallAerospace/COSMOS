@@ -446,4 +446,12 @@ export class CosmosApi {
   send_raw(interface_name, data) {
     return this.exec('send_raw', [interface_name, data])
   }
+
+  load_config(key) {
+    return this.exec('load_config', [key])
+  }
+
+  save_config(key, data) {
+    return this.exec('save_config', [key, data])
+  }
 }
