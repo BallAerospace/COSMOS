@@ -152,8 +152,10 @@ module Cosmos
         'get_screen_list',
         'get_screen_definition',
         'get_saved_config',
+        'list_configs',
         'load_config',
-        'save_config'
+        'save_config',
+        'delete_config'
       ]
     end
 
@@ -1799,12 +1801,20 @@ module Cosmos
       raise "Not supported by COSMOS 5"
     end
 
-    def load_config(tool, scope: $cosmos_scope, token: $cosmos_token)
-      Store.instance.hget("#{scope}__config", tool)
+    def list_configs(tool, scope: $cosmos_scope, token: $cosmos_token)
+      Store.instance.hkeys("#{scope}__config__#{tool}")
     end
 
-    def save_config(tool, data, scope: $cosmos_scope, token: $cosmos_token)
-      Store.instance.hset("#{scope}__config", tool, data)
+    def load_config(tool, name, scope: $cosmos_scope, token: $cosmos_token)
+      Store.instance.hget("#{scope}__config__#{tool}", name)
+    end
+
+    def save_config(tool, name, data, scope: $cosmos_scope, token: $cosmos_token)
+      Store.instance.hset("#{scope}__config__#{tool}", name, data)
+    end
+
+    def delete_config(tool, name, scope: $cosmos_scope, token: $cosmos_token)
+      Store.instance.hdel("#{scope}__config__#{tool}", name)
     end
 
     private
