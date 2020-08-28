@@ -44,7 +44,7 @@
             <v-btn color="error" @click="deleteItem(item)">Remove</v-btn>
           </v-row></v-container
         >
-        <v-btn color="primary" @click="editPlot = false">OK</v-btn>
+        <v-btn color="primary" @click="editPlot = false">Ok</v-btn>
       </v-card>
     </v-dialog>
   </div>
@@ -608,5 +608,11 @@ export default {
 }
 #chart {
   background-color: var(--v-tertiary-darken2);
+}
+#chart >>> .u-legend {
+  text-align: left;
+}
+#chart >>> .u-inline {
+  max-width: fit-content;
 }
 </style>

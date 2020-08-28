@@ -4,17 +4,37 @@
       <v-card>
         <v-card-title>Save Configuration</v-card-title>
         <v-card-text>
+          <v-list>
+            <v-subheader>Existing Configurations</v-subheader>
+            <v-list-item-group color="primary">
+              <!-- TODO: Is there a way to make this un-selectable but still have delete work? -->
+              <v-list-item
+                flat
+                :ripple="false"
+                v-for="(config, i) in configs"
+                :key="i"
+              >
+                <v-list-item-content>
+                  <v-list-item-title v-text="config"></v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-icon>
+                  <v-icon @click="deleteConfig(config)">mdi-delete</v-icon>
+                </v-list-item-icon>
+              </v-list-item>
+            </v-list-item-group>
+          </v-list>
+
           <v-text-field
             hide-details
-            label="Name"
+            label="Configuration Name"
             v-model="configName"
           ></v-text-field>
           <v-alert dense type="warning" v-if="warning">
-            '{{ configName }}'' already exists! Click "OK" to overwrite.
+            '{{ configName }}' already exists! Click 'OK' to overwrite.
           </v-alert>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" text @click="success()">OK</v-btn>
+          <v-btn color="primary" text @click="success()">Ok</v-btn>
           <v-spacer></v-spacer>
           <v-btn color="primary" text @click="show = false">Cancel</v-btn>
         </v-card-actions>
@@ -35,6 +55,7 @@ export default {
     return {
       api: null,
       configName: '',
+      configs: [],
       warning: false
     }
   },
@@ -51,6 +72,9 @@ export default {
   created() {
     this.api = new CosmosApi()
   },
+  async mounted() {
+    this.configs = await this.api.list_configs(this.tool)
+  },
   methods: {
     async success() {
       let config = await this.api.load_config(this.tool, this.configName)
@@ -61,6 +85,10 @@ export default {
       this.warning = false
       this.show = false
       this.$emit('success', this.configName)
+    },
+    deleteConfig(config) {
+      this.configs.splice(this.configs.indexOf(config), 1)
+      this.api.delete_config(this.tool, config)
     }
   }
 }

@@ -33,12 +33,6 @@ describe('TlmGrapher', () => {
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
     cy.get('#tlmGrapherPlot1').contains('TEMP1')
-    cy.get('[data-test=grapher-controls]').click()
-    cy.get('[data-test=grapher-controls]')
-      .contains('Start')
-      .click()
-    // Click off the controls to make it hide again
-    cy.contains('Description').click()
     cy.wait(2000) // Wait for graphing to occur
     // Add another item while it is already graphing
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
@@ -51,14 +45,48 @@ describe('TlmGrapher', () => {
       .click()
     cy.contains('Description').click()
     cy.wait(1000)
-    cy.wait(1000)
     cy.get('[data-test=grapher-controls]')
       .contains('Resume')
       .click()
-    cy.wait(1000)
+    cy.wait(2000)
     cy.get('[data-test=grapher-controls]')
       .contains('Stop')
       .click()
+    cy.wait(1000) // Small wait to visually see it stopped
+  })
+
+  it('edits a plot', () => {
+    cy.visit('/telemetry-grapher')
+    cy.hideNav()
+    cy.contains('Plot 1')
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
+    cy.contains('Add Item').click()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
+    cy.contains('Add Item').click()
+    cy.wait(2000) // Wait for graphing to occur
+    cy.get('.v-toolbar')
+      .contains('Plot')
+      .click()
+    cy.contains('Edit Plot').click()
+    cy.get('.v-dialog').within(() => {
+      cy.get('input')
+        .clear()
+        .type('My New Title')
+      cy.contains('INST HEALTH_STATUS TEMP1')
+        .parent()
+        .within(() => {
+          cy.get('button').click()
+        })
+      cy.contains('Ok').click()
+    })
+    cy.get('.v-dialog').should('not.be.visible')
+    cy.contains('My New Title')
+      .parents('.v-card')
+      .eq(0)
+      .within(() => {
+        cy.contains('TEMP2')
+        cy.should('not.contain', 'TEMP1')
+      })
   })
 
   it('adds multiple plots', () => {
@@ -87,6 +115,92 @@ describe('TlmGrapher', () => {
       cy.get('.mdi-close-box').click()
     })
     cy.get('#tlmGrapherPlot1').should('not.exist')
+  })
+
+  it('saves and loads the configuration', () => {
+    cy.visit('/telemetry-grapher')
+    cy.hideNav()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
+    cy.contains('Add Item').click()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
+    cy.contains('Add Item').click()
+    cy.get('.v-toolbar')
+      .contains('Plot')
+      .click()
+    cy.contains('Add Plot').click()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP3')
+    cy.contains('Add Item').click()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP4')
+    cy.contains('Add Item').click()
+    let config = 'spec' + Math.floor(Math.random() * 10000)
+    cy.get('.v-toolbar')
+      .contains('File')
+      .click()
+    cy.contains('Save Configuration').click()
+    cy.get('.v-dialog').within(() => {
+      cy.get('input')
+        .clear()
+        .type(config)
+      cy.contains('Ok').click()
+    })
+    cy.get('.v-dialog').should('not.be.visible')
+    // Verify we get a warning if trying to save over existing
+    cy.get('.v-toolbar')
+      .contains('File')
+      .click()
+    cy.contains('Save Configuration').click()
+    cy.get('.v-dialog').within(() => {
+      cy.get('input')
+        .clear()
+        .type(config)
+      cy.contains('Ok').click()
+      cy.contains("'" + config + "' already exists")
+      cy.contains('Cancel').click()
+    })
+    cy.get('.v-dialog').should('not.be.visible')
+    // Totally refresh the page
+    cy.visit('/telemetry-grapher')
+    cy.hideNav()
+    cy.get('.v-toolbar')
+      .contains('File')
+      .click()
+    cy.contains('Load Configuration').click()
+    cy.get('.v-dialog').within(() => {
+      // Try to click OK without anything selected
+      cy.contains('Ok').click()
+      cy.contains('Select a configuration')
+      cy.contains(config).click()
+      cy.contains('Ok').click()
+    })
+    // Verify we're back
+    cy.contains('Plot 1')
+      .parents('.v-card')
+      .eq(0)
+      .within(() => {
+        cy.contains('TEMP1')
+        cy.contains('TEMP2')
+      })
+    cy.contains('Plot 2')
+      .parents('.v-card')
+      .eq(0)
+      .within(() => {
+        cy.contains('TEMP3')
+        cy.contains('TEMP4')
+      })
+    // Delete this test configuation
+    cy.get('.v-toolbar')
+      .contains('File')
+      .click()
+    cy.contains('Load Configuration').click()
+    cy.get('.v-dialog').within(() => {
+      cy.contains(config)
+        .parents('.v-list-item')
+        .eq(0)
+        .within(() => {
+          cy.get('button').click()
+        })
+      cy.contains('Cancel').click()
+    })
   })
 
   it('shrinks and expands a plot width and heigth', () => {

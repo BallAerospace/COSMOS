@@ -94,7 +94,9 @@
       :tool="toolName"
       @success="loadConfiguration($event)"
     />
+    <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
     <SaveConfigDialog
+      v-if="saveConfig"
       v-model="saveConfig"
       :tool="toolName"
       @success="saveConfiguration($event)"
@@ -242,8 +244,11 @@ export default {
     })
   },
   methods: {
-    addItem(item) {
+    addItem(item, startGraphing = true) {
       this.$refs['plot' + this.selectedPlotId][0].addItem(item)
+      if (startGraphing === true) {
+        this.state = 'start'
+      }
     },
     addPlot() {
       this.selectedPlotId = this.counter
@@ -293,13 +298,17 @@ export default {
         vuePlot.fullHeight = plot.fullHeight
         vuePlot.resize()
         for (let item of plot.items) {
-          this.addItem({
-            targetName: item.targetName,
-            packetName: item.packetName,
-            itemName: item.itemName
-          })
+          this.addItem(
+            {
+              targetName: item.targetName,
+              packetName: item.packetName,
+              itemName: item.itemName
+            },
+            false
+          )
         }
       }
+      this.state = 'start'
     },
     saveConfiguration(name) {
       let config = []

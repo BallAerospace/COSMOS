@@ -5,7 +5,7 @@
         <v-card-title>Load Configuration</v-card-title>
         <v-card-text>
           <v-list>
-            <v-subheader>Configurations</v-subheader>
+            <v-subheader>Existing Configurations</v-subheader>
             <v-list-item-group v-model="configIndex" color="primary">
               <v-list-item v-for="(config, i) in configs" :key="i">
                 <v-list-item-content>
@@ -22,7 +22,7 @@
           >
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" text @click="success()">OK</v-btn>
+          <v-btn color="primary" text @click="success()">Ok</v-btn>
           <v-spacer></v-spacer>
           <v-btn color="primary" text @click="show = false">Cancel</v-btn>
         </v-card-actions>
