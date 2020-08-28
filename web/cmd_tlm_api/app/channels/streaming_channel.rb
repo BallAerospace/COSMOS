@@ -13,13 +13,13 @@ class StreamingChannel < ApplicationCable::Channel
 
   # start_time - nsec_since_epoch - null for realtime
   # end_time - nsec_since_epoch - null for realtime or continue to realtime
-  # items [Array of Item keys] ie ["TLM_INST_ADCS_Q1_RAW"]
+  # items [Array of Item keys] ie ["TLM__INST__ADCS__Q1__RAW"]
   # scope
   def add(data)
     @broadcasters[uuid].add(data)
   end
 
-  # items [Array of Item keys] ie ["TLM_INST_ADCS_Q1_RAW"]
+  # items [Array of Item keys] ie ["TLM__INST__ADCS__Q1__RAW"]
   # scope
   def remove(data)
     @broadcasters[uuid].remove(data)

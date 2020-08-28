@@ -30,11 +30,20 @@
     <v-dialog
       v-model="editPlot"
       @keydown.esc="editPlot = false"
-      max-width="300"
+      max-width="500"
     >
       <v-card class="pa-3">
         <v-card-title class="headline">Edit Plot</v-card-title>
         <v-text-field label="Title" v-model="title"></v-text-field>
+        <v-container fluid>
+          <v-row v-for="(item, key) in items" :key="key">
+            <v-col
+              >{{ item.targetName }} {{ item.packetName }}
+              {{ item.itemName }}</v-col
+            >
+            <v-btn color="error" @click="deleteItem(item)">Remove</v-btn>
+          </v-row></v-container
+        >
         <v-btn color="primary" @click="editPlot = false">OK</v-btn>
       </v-card>
     </v-dialog>
@@ -498,13 +507,46 @@ export default {
       this.indexes[key] = index
 
       if (this.state !== 'stop') {
+        let history =
+          new Date().getTime() * 1_000_000 - this.data[0][0] * 1_000_000_000
         this.subscription.perform('add', {
           scope: 'DEFAULT',
           items: [key],
-          start_time: new Date().getTime() * 1000000, // - 100000000000,
-          end_time: new Date().getTime() * 1000000 + 3000000000
+          start_time: new Date().getTime() * 1_000_000 - history
+          // No end_time because we want to continue until we stop
         })
       }
+    },
+    async deleteItem(item) {
+      let key =
+        'TLM__' +
+        item.targetName +
+        '__' +
+        item.packetName +
+        '__' +
+        item.itemName +
+        '__CONVERTED'
+      this.subscription.perform('remove', {
+        scope: 'DEFAULT',
+        items: [key]
+      })
+      const index = this.reorderIndexes(key)
+      this.items.splice(index - 1, 1)
+      this.data.splice(index, 1)
+      this.plot.delSeries(index)
+      this.overview.delSeries(index)
+      this.plot.setData(this.data)
+      this.overview.setData(this.data)
+    },
+    reorderIndexes(key) {
+      let index = this.indexes[key]
+      delete this.indexes[key]
+      for (var i in this.indexes) {
+        if (this.indexes[i] > index) {
+          this.indexes[i] -= 1
+        }
+      }
+      return index
     },
     received(json_data) {
       let data = JSON.parse(json_data)
