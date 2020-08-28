@@ -97,6 +97,8 @@ module Cosmos
             Logger.info "Ack Received: #{msg_id}: #{msg_hash.inspect}"
             if msg_hash["result"] == "SUCCESS"
               return
+            elsif msg_hash["result"] == "HazardousError"
+              raise HazardousError
             else
               raise msg_hash["result"]
             end

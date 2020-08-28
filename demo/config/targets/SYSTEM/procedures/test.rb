@@ -9,7 +9,6 @@ puts "8"
 puts "9"
 puts "10"
 
-play_wav_file(File.join(Cosmos::USERPATH,'config','data','tada.wav'))
 value = ask('Enter the value')
 
 cmd("INST CLEAR")
@@ -48,4 +47,3 @@ if (yep)
 end
 
 puts "done"
-

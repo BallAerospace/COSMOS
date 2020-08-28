@@ -1,5 +1,5 @@
-load_utility 'utilities/collect.rb'
-load_utility 'utilities/clear.rb'
+load_utility 'INST/procedures/utilities/collect.rb'
+load_utility 'INST/procedures/utilities/clear.rb'
 
 number = ask("Enter a number.")
 raise "Bad return" unless number.is_a? Numeric

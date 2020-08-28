@@ -576,7 +576,7 @@ module Cosmos
     #   description). The symbol must be one of {Packet::VALUE_TYPES}.
     # @return [Object] The converted telemetry value
     def tlm_variable(*args, scope: $cosmos_scope, token: $cosmos_token)
-      case args[-1]
+      case args[-1].intern
       when :RAW
         return tlm_raw(*args[0..-2], scope: scope)
       when :CONVERTED

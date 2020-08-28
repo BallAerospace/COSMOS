@@ -14,7 +14,7 @@ require 'cosmos'
 module Cosmos
 
   class OperatorProcess
-    attr_reader :process_definition
+    attr_accessor :process_definition
     attr_reader :scope
 
     def initialize(process_definition, scope)
