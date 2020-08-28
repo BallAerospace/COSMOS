@@ -87,6 +87,18 @@
         </div>
       </div>
     </div>
+    <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
+    <LoadConfigDialog
+      v-if="loadConfig"
+      v-model="loadConfig"
+      :tool="toolName"
+      @success="loadConfiguration($event)"
+    />
+    <SaveConfigDialog
+      v-model="saveConfig"
+      :tool="toolName"
+      @success="saveConfiguration($event)"
+    />
   </div>
 </template>
 
@@ -95,20 +107,26 @@ import AppNav from '@/AppNav'
 import CosmosChartuPlot from '@/components/CosmosChartuPlot.vue'
 // import CosmosChartJS from '@/components/CosmosChartJS.vue'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
+import LoadConfigDialog from '@/components/LoadConfigDialog'
+import SaveConfigDialog from '@/components/SaveConfigDialog'
 import { CosmosApi } from '@/services/cosmos-api'
 import * as Muuri from 'muuri'
-import pull from 'lodash/pull'
 
 export default {
   components: {
     AppNav,
+    LoadConfigDialog,
+    SaveConfigDialog,
     TargetPacketItemChooser,
     CosmosChartuPlot
     // CosmosChartJS
   },
   data() {
     return {
+      toolName: 'telemetry-grapher',
       api: null,
+      loadConfig: false,
+      saveConfig: false,
       state: 'stop', // Valid: stop, start, pause
       grid: null,
       // Setup defaults to show an initial plot
@@ -153,13 +171,13 @@ export default {
             {
               label: 'Load Configuration',
               command: () => {
-                this.loadConfiguration()
+                this.loadConfig = true
               }
             },
             {
               label: 'Save Configuration',
               command: () => {
-                this.saveConfiguration()
+                this.saveConfig = true
               }
             }
           ]
@@ -240,11 +258,12 @@ export default {
     },
     closePlot(id) {
       this.grid.remove(document.getElementById(this.plotId(id)))
-      pull(this.plots, id)
+      this.plots.splice(this.plots.indexOf(id), 1)
       this.selectedPlotId = null
     },
     closeAllPlots() {
-      for (let plot of this.plots) {
+      // Make a copy of this.plots to iterate on since closePlot modifies in place
+      for (let plot of [...this.plots]) {
         this.closePlot(plot)
       }
       this.counter = 1
@@ -260,9 +279,10 @@ export default {
     plotSelected(id) {
       this.selectedPlotId = id
     },
-    async loadConfiguration() {
+    async loadConfiguration(name) {
       this.closeAllPlots()
-      let plots = JSON.parse(await this.api.load_config('tlmgrapher'))
+      let config = await this.api.load_config(this.toolName, name)
+      let plots = JSON.parse(config)
       let plotId = 0
       for (let plot of plots) {
         plotId += 1
@@ -281,7 +301,7 @@ export default {
         }
       }
     },
-    saveConfiguration() {
+    saveConfiguration(name) {
       let config = []
       for (let plotId of this.plots) {
         const vuePlot = this.$refs['plot' + plotId][0]
@@ -292,7 +312,7 @@ export default {
           items: vuePlot.items
         })
       }
-      this.api.save_config('tlmgrapher', JSON.stringify(config))
+      this.api.save_config(this.toolName, name, JSON.stringify(config))
     }
   }
 }

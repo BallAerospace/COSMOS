@@ -447,11 +447,19 @@ export class CosmosApi {
     return this.exec('send_raw', [interface_name, data])
   }
 
-  load_config(key) {
-    return this.exec('load_config', [key])
+  list_configs(tool) {
+    return this.exec('list_configs', [tool])
   }
 
-  save_config(key, data) {
-    return this.exec('save_config', [key, data])
+  load_config(tool, name) {
+    return this.exec('load_config', [tool, name])
+  }
+
+  save_config(tool, name, data) {
+    return this.exec('save_config', [tool, name, data])
+  }
+
+  delete_config(tool, name) {
+    return this.exec('delete_config', [tool, name])
   }
 }

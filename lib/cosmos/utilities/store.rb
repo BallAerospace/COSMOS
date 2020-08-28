@@ -521,6 +521,12 @@ module Cosmos
     def hset(key, field, value)
       @redis_pool.with { |redis| redis.hset(key, field, value) }
     end
+    def hkeys(key)
+      @redis_pool.with { |redis| redis.hkeys(key) }
+    end
+    def hdel(key, field)
+      @redis_pool.with { |redis| redis.hdel(key, field) }
+    end
     def del(key)
       @redis_pool.with { |redis| redis.del(key) }
     end
