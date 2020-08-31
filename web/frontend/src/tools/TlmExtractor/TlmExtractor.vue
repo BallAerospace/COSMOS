@@ -417,12 +417,8 @@ export default {
             const keys = Object.keys(packet)
             if (index < 1) {
               keys.forEach(key => {
-<<<<<<< HEAD
-                console.log(key)
-=======
                 //console.log(key)
 
->>>>>>> 6fdb8f4d185842efafa530a42e526b5f6cf7c3ca
                 //console.log(shortHeader[3])
                 if (this.useTsv) {
                   if (this.useMatlabHeader) {
