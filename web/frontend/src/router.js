@@ -71,12 +71,12 @@ export default new Router({
     //   component: () => import('./views/CommandExtractorView.vue'),
     //   meta: { title: 'Command Extractor', icon: 'mdi-move-resize-variant' }
     // },
-    {
-      path: '/telemetry-extractor',
-      name: 'TlmExtractor',
-      component: () => import('./views/TlmExtractorView.vue'),
-      meta: { title: 'Telemetry Extractor', icon: 'mdi-image-move' }
-    },
+    // {
+    //   path: '/telemetry-extractor',
+    //   name: 'TlmExtractor',
+    //   component: () => import('./views/TlmExtractorView.vue'),
+    //   meta: { title: 'Telemetry Extractor', icon: 'mdi-image-move' }
+    // },
     {
       path: '/admin',
       name: 'Admin',

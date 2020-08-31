@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
+# Please download cacert.pem from https://curl.haxx.se/docs/caextract.html and place in this folder before running
+# Alternatively, if your org requires a different certificate authority file, please place that here as cacert.pem before running
+# This will allow docker to work through local SSL infrastructure such as decryption devices
 # You may need to comment out the below three lines if you are on linux host (as opposed to mac)
+touch cacert.pem
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/defrag"
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "sysctl -w vm.max_map_count=262144"
