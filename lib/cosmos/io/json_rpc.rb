@@ -252,7 +252,7 @@ module Cosmos
         raise unless (hash['jsonrpc'.freeze] == "2.0".freeze && hash['method'.freeze] && hash['id'.freeze])
         self.from_hash(hash)
       rescue
-        raise "Invalid JSON-RPC 2.0 Request"
+        raise "Invalid JSON-RPC 2.0 Request\n#{request_data.inspect}\n"
       end
     end
 
@@ -283,7 +283,7 @@ module Cosmos
     # @param response_data [String] JSON encoded string representing the response
     # @return [JsonRpcResponse]
     def self.from_json(response_data)
-      msg = "Invalid JSON-RPC 2.0 Response"
+      msg = "Invalid JSON-RPC 2.0 Response#{response_data.inspect}\n"
       begin
         hash = JSON.parse(response_data, :allow_nan => true, :create_additions => true)
       rescue
@@ -401,7 +401,7 @@ module Cosmos
       if hash['code'] and (hash['code'].to_i == hash['code']) and hash['message']
         self.new(hash['code'], hash['message'], hash['data'])
       else
-        raise "Invalid JSON-RPC 2.0 Error"
+        raise "Invalid JSON-RPC 2.0 Error\n#{hash.inspect}\n"
       end
     end
   end
