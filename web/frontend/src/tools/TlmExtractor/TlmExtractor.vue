@@ -92,6 +92,34 @@
         </div>
       </v-row>
     </v-container>
+
+    <v-container>
+      <v-row>
+        <v-col>
+          <v-switch v-model="useUtcTime" class="ma-2" label="Use UTC time"></v-switch>
+        </v-col>
+        <v-col>
+          <v-btn depressed small elevation="24" @click="deleteItems">Delete Item(s)</v-btn>
+        </v-col>
+        <v-col>
+          <v-btn depressed small elevation="24" @click="processItems">Process</v-btn>
+        </v-col>
+        <v-col>
+          <v-btn depressed small elevation="24" @click="clearItems">Clear Items</v-btn>
+        </v-col>
+        <v-col>
+          <v-btn
+            ref="blobDownloadLink"
+            v-bind:href="blobDownloadLinkUrl"
+            :disabled="blobDownloadLinkReady"
+            depressed
+            small
+            :download="startDateTimeFilename + downloadFileExtension"
+            elevation="24"
+          >Download File</v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
     <v-card class="mx-auto" max-width="800" scrollable>
       <v-card-text align="center">
         <v-container align="center">
@@ -159,36 +187,6 @@
         </v-container>
       </v-card-text>
     </v-card>
-    <v-container>
-      <v-row>
-        <v-col>
-          <v-switch v-model="useUtcTime" class="ma-2" label="Use UTC time"></v-switch>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-btn depressed small elevation="24" @click="deleteItems">Delete Item(s)</v-btn>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-btn depressed small elevation="24" @click="processItems">Process</v-btn>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-btn
-            ref="blobDownloadLink"
-            v-bind:href="blobDownloadLinkUrl"
-            :disabled="blobDownloadLinkReady"
-            depressed
-            small
-            :download="startDateTimeFilename + downloadFileExtension"
-            elevation="24"
-          >Download File</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
   </div>
 </template>
 
@@ -326,6 +324,10 @@ export default {
         }
       })
     },
+    clearItems() {
+      this.tlmItems = []
+      this.blobDownloadLinkReady = true
+    },
     setTimestamps() {
       //console.log(this.startdate + ' ' + this.starttime)
       //console.log(this.enddate + ' ' + this.endtime)
@@ -404,19 +406,18 @@ export default {
         received: json_data => {
           // Process the items when they are received
           let data = JSON.parse(json_data)
-          console.log(data)
+          //console.log(data)
           let columnHeaders = ''
           if (this.useMatlabHeader) {
+            // Matlab column headers get a leading percent, add the first one here
             columnHeaders = '%'
           }
-
           // use the keys of the first packet to get the column headers
           data.forEach((packet, index) => {
             const keys = Object.keys(packet)
             if (index < 1) {
               keys.forEach(key => {
                 console.log(key)
-
                 //console.log(shortHeader[3])
                 if (this.useTsv) {
                   if (this.useMatlabHeader) {
@@ -456,7 +457,8 @@ export default {
           columnHeaders = this.rtrim(columnHeaders, '\t')
           columnHeaders += '\n'
           this.totalData.push(columnHeaders)
-          // go thru all the packets
+
+          // Now that headers are done, go thru all the packets
           data.forEach((packet, packetindex) => {
             // convert packet array to comma separated string for each row
             const keys = Object.keys(packet)
@@ -500,7 +502,7 @@ export default {
             }
           })
           if (data.length == 0) {
-            console.log(this.totalData)
+            //console.log(this.totalData)
             this.blobDownloadLinkReady = false
             // Make Excel link
             if (this.useTsv) {

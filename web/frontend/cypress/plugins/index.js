@@ -24,9 +24,29 @@
 // }
 // on('file:preprocessor', webpackPreprocessor(options))
 // }
+const csv = require("csv-parser")
+const fs = require("fs")
+const path = require("path")
 
 const preprocessor = require('cypress-vue-unit-test/dist/plugins/webpack')
+
 module.exports = (on, config) => {
+  // `on` is used to hook into various events Cypress emits
+
+  on("task", {
+    parseCsv({ filePath }) {
+      return new Promise((resolve, reject) => {
+        try {
+          const jsonData = csv.parse(fs.readFileSync(filePath))
+          resolve(jsonData)
+        } catch (e) {
+          reject(e)
+        }
+      })
+    }
+  })
+
+
   require('@cypress/code-coverage/task')(on, config)
   preprocessor(on, config)
   // IMPORTANT return the config object
