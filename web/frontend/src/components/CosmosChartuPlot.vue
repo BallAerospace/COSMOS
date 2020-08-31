@@ -1,31 +1,53 @@
 <template>
-  <v-card @click.native="$emit('click')">
-    <v-system-bar :class="selectedPlotId === id ? 'active' : 'inactive'">
-      <v-spacer />
-      <span>{{ title }}</span>
-      <v-spacer />
-      <v-icon v-if="calcFullSize" @click="collapseAll"
-        >mdi-arrow-collapse</v-icon
-      >
-      <v-icon v-else @click="expandAll">mdi-arrow-expand</v-icon>
-      <v-icon v-if="fullWidth" @click="collapseWidth"
-        >mdi-arrow-collapse-horizontal</v-icon
-      >
-      <v-icon v-else @click="expandWidth">mdi-arrow-expand-horizontal</v-icon>
-      <v-icon v-if="fullHeight" @click="collapseHeight"
-        >mdi-arrow-collapse-vertical</v-icon
-      >
-      <v-icon v-else @click="expandHeight">mdi-arrow-expand-vertical</v-icon>
-      <v-icon @click="minMaxTransition">mdi-window-minimize</v-icon>
-      <v-icon @click="$emit('closePlot')">mdi-close-box</v-icon>
-    </v-system-bar>
-    <v-expand-transition>
-      <div class="pa-1" id="chart" ref="chart" v-show="expand">
-        <div :id="'chart' + id"></div>
-        <div :id="'overview' + id"></div>
-      </div>
-    </v-expand-transition>
-  </v-card>
+  <div>
+    <v-card @click.native="$emit('click')">
+      <v-system-bar :class="selectedPlotId === id ? 'active' : 'inactive'">
+        <v-spacer />
+        <span>{{ title }}</span>
+        <v-spacer />
+        <v-icon v-if="calcFullSize" @click="collapseAll"
+          >mdi-arrow-collapse</v-icon
+        >
+        <v-icon v-else @click="expandAll">mdi-arrow-expand</v-icon>
+        <v-icon v-if="fullWidth" @click="collapseWidth"
+          >mdi-arrow-collapse-horizontal</v-icon
+        >
+        <v-icon v-else @click="expandWidth">mdi-arrow-expand-horizontal</v-icon>
+        <v-icon v-if="fullHeight" @click="collapseHeight"
+          >mdi-arrow-collapse-vertical</v-icon
+        >
+        <v-icon v-else @click="expandHeight">mdi-arrow-expand-vertical</v-icon>
+        <v-icon @click="minMaxTransition">mdi-window-minimize</v-icon>
+        <v-icon @click="$emit('closePlot')">mdi-close-box</v-icon>
+      </v-system-bar>
+      <v-expand-transition>
+        <div class="pa-1" id="chart" ref="chart" v-show="expand">
+          <div :id="'chart' + id"></div>
+          <div :id="'overview' + id"></div>
+        </div>
+      </v-expand-transition>
+    </v-card>
+    <v-dialog
+      v-model="editPlot"
+      @keydown.esc="editPlot = false"
+      max-width="500"
+    >
+      <v-card class="pa-3">
+        <v-card-title class="headline">Edit Plot</v-card-title>
+        <v-text-field label="Title" v-model="title"></v-text-field>
+        <v-container fluid>
+          <v-row v-for="(item, key) in items" :key="key">
+            <v-col
+              >{{ item.targetName }} {{ item.packetName }}
+              {{ item.itemName }}</v-col
+            >
+            <v-btn color="error" @click="deleteItem(item)">Remove</v-btn>
+          </v-row></v-container
+        >
+        <v-btn color="primary" @click="editPlot = false">Ok</v-btn>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script>
@@ -74,6 +96,7 @@ export default {
       fullWidth: true,
       fullHeight: true,
       plot: null,
+      editPlot: false,
       title: '',
       overview: null,
       data: null,
@@ -196,7 +219,7 @@ export default {
         ]
       }
     }
-    console.time('chart')
+    // console.time('chart')
     this.plot = new uPlot(
       chartOpts,
       this.data,
@@ -243,7 +266,7 @@ export default {
       this.data,
       document.getElementById('overview' + this.id)
     )
-    console.timeEnd('chart')
+    //console.timeEnd('chart')
 
     // Allow the charts to dynamically resize when the window resizes
     window.addEventListener(
@@ -352,12 +375,12 @@ export default {
           this.subscription.perform('add', {
             scope: 'DEFAULT',
             items: items,
-            start_time: new Date().getTime() * 1000000, // - 100000000000
-            end_time: new Date().getTime() * 1000000 + 3000000000
+            start_time: new Date().getTime() * 1_000_000 // put units in nanoseconds
+            // No end_time because we want to continue until we stop
           })
-        }
+        },
         // TODO: How should we handle server side disconnect
-        //disconnected: () => alert('disconnected')
+        disconnected: () => alert('disconnected')
       })
     },
     throttle(cb, limit) {
@@ -484,13 +507,46 @@ export default {
       this.indexes[key] = index
 
       if (this.state !== 'stop') {
+        let history =
+          new Date().getTime() * 1_000_000 - this.data[0][0] * 1_000_000_000
         this.subscription.perform('add', {
           scope: 'DEFAULT',
           items: [key],
-          start_time: new Date().getTime() * 1000000, // - 100000000000,
-          end_time: new Date().getTime() * 1000000 + 3000000000
+          start_time: new Date().getTime() * 1_000_000 - history
+          // No end_time because we want to continue until we stop
         })
       }
+    },
+    async deleteItem(item) {
+      let key =
+        'TLM__' +
+        item.targetName +
+        '__' +
+        item.packetName +
+        '__' +
+        item.itemName +
+        '__CONVERTED'
+      this.subscription.perform('remove', {
+        scope: 'DEFAULT',
+        items: [key]
+      })
+      const index = this.reorderIndexes(key)
+      this.items.splice(index - 1, 1)
+      this.data.splice(index, 1)
+      this.plot.delSeries(index)
+      this.overview.delSeries(index)
+      this.plot.setData(this.data)
+      this.overview.setData(this.data)
+    },
+    reorderIndexes(key) {
+      let index = this.indexes[key]
+      delete this.indexes[key]
+      for (var i in this.indexes) {
+        if (this.indexes[i] > index) {
+          this.indexes[i] -= 1
+        }
+      }
+      return index
     },
     received(json_data) {
       let data = JSON.parse(json_data)
@@ -552,5 +608,11 @@ export default {
 }
 #chart {
   background-color: var(--v-tertiary-darken2);
+}
+#chart >>> .u-legend {
+  text-align: left;
+}
+#chart >>> .u-inline {
+  max-width: fit-content;
 }
 </style>

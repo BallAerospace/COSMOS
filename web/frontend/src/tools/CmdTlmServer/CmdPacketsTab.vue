@@ -20,14 +20,14 @@
       disable-pagination
       hide-default-footer
       multi-sort
+      data-test="cmd-packets-table"
     >
       <template v-slot:item.view_raw="{ item }">
         <v-btn
           block
           color="primary"
           @click="openViewRaw(item.target_name, item.packet_name)"
-          >View Raw</v-btn
-        >
+        >View Raw</v-btn>
       </template>
       <template v-slot:item.view_in_cmd_sender="{ item }">
         <span v-if="item.target_name === 'UNKNOWN'">N/A</span>
@@ -36,8 +36,7 @@
           block
           color="primary"
           @click="openCmdSender(item.target_name, item.packet_name)"
-          >View In Command Sender</v-btn
-        >
+        >View In Command Sender</v-btn>
       </template>
     </v-data-table>
     <RawDialog
@@ -45,7 +44,7 @@
       :targetName="target_name"
       :packetName="packet_name"
       :visible="viewRaw"
-      @display="display"
+      @display="rawDisplayCallback"
     />
   </v-card>
 </template>
@@ -80,7 +79,9 @@ export default {
     }
   },
   methods: {
-    display(bool) {
+    // This method is hooked to the RawDialog as a callback to
+    // keep track of whether the dialog is displayed
+    rawDisplayCallback(bool) {
       this.viewRaw = bool
     },
     openViewRaw(target_name, packet_name) {

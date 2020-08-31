@@ -1,5 +1,6 @@
 <template>
   <div>
+    <app-nav />
     <v-btn v-if="showRestart" color="primary" @click="restart">Restart</v-btn>
     <div v-if="showGoPauseStop" style="display:inline;">
       <v-btn color="primary" @click="go">Go</v-btn>
@@ -17,10 +18,32 @@
       </div>
     </div>
     <div id="messages" class="ma-2" ref="messagesDiv">
-      <LimitsEvents
-        :eventMessages="messages"
-        @updated="scrollDown"
-      ></LimitsEvents>
+      <v-card>
+        <v-card-title>
+          Log Messages
+          <v-spacer></v-spacer>
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Search"
+            single-line
+            hide-details
+            data-test="search-output-messages"
+          ></v-text-field>
+        </v-card-title>
+        <v-data-table
+          :headers="headers"
+          :items="messages"
+          :search="search"
+          calculate-widths
+          disable-pagination
+          hide-default-footer
+          multi-sort
+          dense
+          height="45vh"
+          data-test="output-messages"
+        ></v-data-table>
+      </v-card>
     </div>
     <AskDialog
       v-if="ask.show"
@@ -42,6 +65,7 @@
 </template>
 
 <script>
+import AppNav from '@/AppNav'
 import * as ace from 'brace'
 import 'brace/mode/ruby'
 import 'brace/theme/twilight'
@@ -49,10 +73,9 @@ import axios from 'axios'
 import ActionCable from 'actioncable'
 import AskDialog from './AskDialog.vue'
 import PromptDialog from './PromptDialog.vue'
-import LimitsEvents from '@/components/LimitsEvents'
 
 export default {
-  components: { AskDialog, PromptDialog, LimitsEvents },
+  components: { AppNav, AskDialog, PromptDialog },
   data() {
     return {
       title: 'ScriptRunner Editor',
@@ -60,12 +83,19 @@ export default {
       showRestart: false,
       curTab: null,
       tabs: [],
+      current_filename: null,
+      files: {},
       editor: null,
       cable: null,
       subscription: null,
       marker: null,
       state: 'Connecting...',
+      search: '',
       messages: [],
+      headers: [
+        { text: 'Time', value: '@timestamp', width: 250 },
+        { text: 'Message', value: 'message' }
+      ],
       maxArrayLength: 30,
       Range: ace.acequire('ace/range').Range,
       ask: {
@@ -128,13 +158,19 @@ export default {
       )
     },
     received(data) {
-      console.log(data)
+      //console.log(data)
       switch (data.type) {
         case 'file':
-          this.editor.setValue(data.text)
-          this.editor.clearSelection()
+          this.files[data.filename] = data.text
           break
         case 'line':
+          if (data.filename !== null) {
+            if (data.filename !== this.current_filename) {
+              this.editor.setValue(this.files[data.filename])
+              this.editor.clearSelection()
+              this.current_filename = data.filename
+            }
+          }
           if (this.marker) {
             this.editor.session.removeMarker(this.marker)
           }
@@ -169,7 +205,7 @@ export default {
           }
           break
         case 'output':
-          this.messages.push([data.line, 'BLACK'])
+          this.messages.push({ '@timestamp': Date.now(), message: data.line })
           while (this.messages.length > this.maxArrayLength) {
             this.messages.shift()
           }
@@ -180,8 +216,8 @@ export default {
           break
 
         default:
-          console.log('Unexpected ActionCable message')
-          console.log(data)
+          //console.log('Unexpected ActionCable message')
+          //console.log(data)
           break
       }
       //event.unshift(Date.now())
@@ -303,9 +339,10 @@ export default {
           this.prompt.show = true
           break
         default:
-          console.log(
+          /* console.log(
             'Unknown script method:' + data.method + ' with args:' + data.args
-          )
+          ) */
+          break
       }
     }
   }

@@ -43,7 +43,7 @@ export class CosmosApi {
         // Something happened in setting up the request and triggered an Error
         err.name = 'Unknown error'
       }
-      console.log(error)
+      //console.log(error)
       throw err
     }
   }
@@ -445,5 +445,21 @@ export class CosmosApi {
   // Called by CmdSenderComponent
   send_raw(interface_name, data) {
     return this.exec('send_raw', [interface_name, data])
+  }
+
+  list_configs(tool) {
+    return this.exec('list_configs', [tool])
+  }
+
+  load_config(tool, name) {
+    return this.exec('load_config', [tool, name])
+  }
+
+  save_config(tool, name, data) {
+    return this.exec('save_config', [tool, name, data])
+  }
+
+  delete_config(tool, name) {
+    return this.exec('delete_config', [tool, name])
   }
 }

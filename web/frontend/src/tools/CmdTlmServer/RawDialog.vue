@@ -1,14 +1,14 @@
 <template>
   <v-row justify="center">
-    <v-dialog v-model="isVisible" width="770px">
+    <v-dialog v-model="isVisible" @keydown.esc="isVisible = false" width="780px">
       <v-card>
         <v-card-title>{{ header }}</v-card-title>
         <v-card-text>
-          Packet Time: {{ packetTime }} <br />
-          Received Time: {{ receivedTime }} <br />
-          <v-btn color="primary" class="mt-2" @click="pause">{{
-            buttonLabel
-          }}</v-btn>
+          Packet Time: {{ packetTime }}
+          <br />
+          Received Time: {{ receivedTime }}
+          <br />
+          <v-btn color="primary" class="mt-2" @click="pause">{{ buttonLabel }}</v-btn>
           <v-textarea class="pa-0 ma-0" v-model="rawData" auto-grow readonly />
         </v-card-text>
       </v-card>
@@ -44,8 +44,6 @@ export default {
       },
       // Reset all the data to defaults
       set: function(bool) {
-        this.targetName = ''
-        this.packetName = ''
         this.header = ''
         this.packetTime = ''
         this.receivedTime = ''
@@ -93,7 +91,7 @@ export default {
           .then(value => {
             this.rawData =
               'Address   Data                                             Ascii\n' +
-              '------------------------------------------------------------------------\n' +
+              '---------------------------------------------------------------------------\n' +
               this.formatBuffer(value.raw)
           })
       } else {

@@ -1,10 +1,15 @@
 <template>
   <div>
     <app-nav :menus="menus" />
-    <v-navigation-drawer absolute permanent expand-on-hover>
+    <v-navigation-drawer
+      absolute
+      permanent
+      expand-on-hover
+      data-test="grapher-controls"
+    >
       <v-list-item class="px-2">
         <v-list-item-avatar>
-          <v-img src="/img/logo.png"></v-img>
+          <v-icon>mdi-chart-line</v-icon>
         </v-list-item-avatar>
         <v-list-item-title>Grapher Controls</v-list-item-title>
       </v-list-item>
@@ -82,6 +87,20 @@
         </div>
       </div>
     </div>
+    <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
+    <LoadConfigDialog
+      v-if="loadConfig"
+      v-model="loadConfig"
+      :tool="toolName"
+      @success="loadConfiguration($event)"
+    />
+    <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
+    <SaveConfigDialog
+      v-if="saveConfig"
+      v-model="saveConfig"
+      :tool="toolName"
+      @success="saveConfiguration($event)"
+    />
   </div>
 </template>
 
@@ -90,18 +109,26 @@ import AppNav from '@/AppNav'
 import CosmosChartuPlot from '@/components/CosmosChartuPlot.vue'
 // import CosmosChartJS from '@/components/CosmosChartJS.vue'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
+import LoadConfigDialog from '@/components/LoadConfigDialog'
+import SaveConfigDialog from '@/components/SaveConfigDialog'
+import { CosmosApi } from '@/services/cosmos-api'
 import * as Muuri from 'muuri'
-import pull from 'lodash/pull'
 
 export default {
   components: {
     AppNav,
+    LoadConfigDialog,
+    SaveConfigDialog,
     TargetPacketItemChooser,
     CosmosChartuPlot
     // CosmosChartJS
   },
   data() {
     return {
+      toolName: 'telemetry-grapher',
+      api: null,
+      loadConfig: false,
+      saveConfig: false,
       state: 'stop', // Valid: stop, start, pause
       grid: null,
       // Setup defaults to show an initial plot
@@ -141,12 +168,35 @@ export default {
       },
       menus: [
         {
+          label: 'File',
+          items: [
+            {
+              label: 'Load Configuration',
+              command: () => {
+                this.loadConfig = true
+              }
+            },
+            {
+              label: 'Save Configuration',
+              command: () => {
+                this.saveConfig = true
+              }
+            }
+          ]
+        },
+        {
           label: 'Plot',
           items: [
             {
               label: 'Add Plot',
               command: () => {
                 this.addPlot()
+              }
+            },
+            {
+              label: 'Edit Plot',
+              command: () => {
+                this.$refs['plot' + this.selectedPlotId][0].editPlot = true
               }
             }
           ]
@@ -181,6 +231,9 @@ export default {
       }
     }
   },
+  created() {
+    this.api = new CosmosApi()
+  },
   mounted() {
     this.grid = new Muuri('.grid', {
       dragEnabled: true,
@@ -191,8 +244,11 @@ export default {
     })
   },
   methods: {
-    addItem(item) {
+    addItem(item, startGraphing = true) {
       this.$refs['plot' + this.selectedPlotId][0].addItem(item)
+      if (startGraphing === true) {
+        this.state = 'start'
+      }
     },
     addPlot() {
       this.selectedPlotId = this.counter
@@ -206,10 +262,16 @@ export default {
       return 'tlmGrapherPlot' + id
     },
     closePlot(id) {
-      console.log('close:' + id)
       this.grid.remove(document.getElementById(this.plotId(id)))
-      pull(this.plots, id)
+      this.plots.splice(this.plots.indexOf(id), 1)
       this.selectedPlotId = null
+    },
+    closeAllPlots() {
+      // Make a copy of this.plots to iterate on since closePlot modifies in place
+      for (let plot of [...this.plots]) {
+        this.closePlot(plot)
+      }
+      this.counter = 1
     },
     minMaxPlot(id) {
       setTimeout(() => {
@@ -221,6 +283,45 @@ export default {
     },
     plotSelected(id) {
       this.selectedPlotId = id
+    },
+    async loadConfiguration(name) {
+      this.closeAllPlots()
+      let config = await this.api.load_config(this.toolName, name)
+      let plots = JSON.parse(config)
+      let plotId = 0
+      for (let plot of plots) {
+        plotId += 1
+        await this.addPlot()
+        let vuePlot = this.$refs['plot' + plotId][0]
+        vuePlot.title = plot.title
+        vuePlot.fullWidth = plot.fullWidth
+        vuePlot.fullHeight = plot.fullHeight
+        vuePlot.resize()
+        for (let item of plot.items) {
+          this.addItem(
+            {
+              targetName: item.targetName,
+              packetName: item.packetName,
+              itemName: item.itemName
+            },
+            false
+          )
+        }
+      }
+      this.state = 'start'
+    },
+    saveConfiguration(name) {
+      let config = []
+      for (let plotId of this.plots) {
+        const vuePlot = this.$refs['plot' + plotId][0]
+        config.push({
+          title: vuePlot.title,
+          fullWidth: vuePlot.fullWidth,
+          fullHeight: vuePlot.fullHeight,
+          items: vuePlot.items
+        })
+      }
+      this.api.save_config(this.toolName, name, JSON.stringify(config))
     }
   }
 }

@@ -88,7 +88,7 @@ module Cosmos
     attr_reader :disconnect
 
     # The default configuration file name
-    DEFAULT_CONFIG_FILE = File.join(ENV['COSMOS_DEVEL'], 'demo', 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
+    # DEFAULT_CONFIG_FILE = File.join(ENV['COSMOS_DEVEL'], 'demo', 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
     # The maximum number of limits events that are queued. Used when
     # subscribing to limits events.
     DEFAULT_LIMITS_EVENT_QUEUE_SIZE = 1000
@@ -129,7 +129,7 @@ module Cosmos
     #   the server in REPLAY mode. Default is false which means to clear all
     #   existing routers and simply create the preidentified routers.
     def initialize(
-      config_file = DEFAULT_CONFIG_FILE,
+      config_file = nil,
       production = false,
       disconnect = false,
       mode = :CMD_TLM_SERVER,
@@ -156,18 +156,17 @@ module Cosmos
       @next_server_message_queue_id = 1
 
       # Process cmd_tlm_server.txt
-      @system_config = SystemConfig.new(File.join(ENV['COSMOS_DEVEL'], "demo", "config/system/system.txt"))
-      @config = CmdTlmServerConfig.new(config_file, @system_config)
-      @background_tasks = BackgroundTasks.new(@config)
-      @commanding = Commanding.new(@config)
-      #@interfaces = Interfaces.new(@config, method(:identified_packet_callback))
-      @packet_logging = PacketLogging.new(@config)
+      #@system_config = SystemConfig.new(File.join(ENV['COSMOS_DEVEL'], "demo", "config/system/system.txt"))
+      #@config = CmdTlmServerConfig.new(config_file, @system_config)
+      #@background_tasks = BackgroundTasks.new(@config)
+      #@commanding = Commanding.new(@config)
+      #@packet_logging = PacketLogging.new(@config)
       #@routers = Routers.new(@config)
       #@replay_backend = ReplayBackend.new(@config)
-      @title = @config.title
-      if @mode != :CMD_TLM_SERVER
-        @title.gsub!("Command and Telemetry Server", "Replay")
-      end
+     # @title = @config.title
+      #if @mode != :CMD_TLM_SERVER
+      #  @title.gsub!("Command and Telemetry Server", "Replay")
+      #end
       @stop_callback = nil
       @reload_callback = nil
 
@@ -180,7 +179,7 @@ module Cosmos
       unless @disconnect
         #System.telemetry # Make sure definitions are loaded by starting anything
 
-        @@meta_callback.call() if @@meta_callback and @config.metadata
+        # @@meta_callback.call() if @@meta_callback and @config.metadata
 
         # Start DRb with access control
         @json_drb = JsonDRb.new
@@ -262,36 +261,36 @@ module Cosmos
     # restarted, it must be recreated
     def stop
       # Break long pollers
-      @limits_event_queues.dup.each do |id, data|
-        queue, _ = @limits_event_queues.delete(id)
-        queue << nil if queue
-      end
+      #~ @limits_event_queues.dup.each do |id, data|
+        #~ queue, _ = @limits_event_queues.delete(id)
+        #~ queue << nil if queue
+      #~ end
 
-      @server_message_queues.dup.each do |id, data|
-        queue, _ = @server_message_queues.delete(id)
-        queue << nil if queue
-      end
+      #~ @server_message_queues.dup.each do |id, data|
+        #~ queue, _ = @server_message_queues.delete(id)
+        #~ queue << nil if queue
+      #~ end
 
-      @packet_data_queues.dup.each do |id, data|
-        queue, _, _ = @packet_data_queues.delete(id)
-        queue << nil if queue
-      end
+      #~ @packet_data_queues.dup.each do |id, data|
+        #~ queue, _, _ = @packet_data_queues.delete(id)
+        #~ queue << nil if queue
+      #~ end
 
       # Shutdown DRb
       @json_drb.stop_service if @json_drb
       #@routers.stop
 
-      if @mode == :CMD_TLM_SERVER
-        # Shutdown staleness monitor thread
-        Cosmos.kill_thread(self, @staleness_monitor_thread)
+      #~ if @mode == :CMD_TLM_SERVER
+        #~ # Shutdown staleness monitor thread
+        #~ Cosmos.kill_thread(self, @staleness_monitor_thread)
 
-        @background_tasks.stop_all
-        #@interfaces.stop
-        @packet_logging.shutdown
-      else
-        #@replay_backend.shutdown
-      end
-      @stop_callback.call if @stop_callback
+        #~ @background_tasks.stop_all
+        #~ #@interfaces.stop
+        #~ @packet_logging.shutdown
+      #~ else
+        #~ #@replay_backend.shutdown
+      #~ end
+      #~ @stop_callback.call if @stop_callback
       #@message_log.stop if @message_log
     end
 

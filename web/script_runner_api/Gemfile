@@ -38,9 +38,10 @@ gem 'aws-sdk-s3', '~> 1.67'
 gem 'ffi'
 gem 'childprocess', '~> 3'
 
-ENV['COSMOS_USERPATH'] = File.join(ENV['COSMOS_DEVEL'], 'demo') unless ENV['COSMOS_USERPATH']
 if ENV['COSMOS_DEVEL']
   gem 'cosmos', :path => ENV['COSMOS_DEVEL']
+elsif ENV['COSMOS_PATH']
+  gem 'cosmos', :path => ENV['COSMOS_PATH']
 else
-  gem 'cosmos'
+  gem 'cosmos', '~> 5'
 end

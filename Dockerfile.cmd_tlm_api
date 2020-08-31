@@ -1,0 +1,9 @@
+FROM cosmos_base
+
+COPY web/cmd_tlm_api /cosmos/web/cmd_tlm_api
+
+RUN cd /cosmos/web/cmd_tlm_api \
+  && bundle install
+
+WORKDIR /cosmos/web/cmd_tlm_api
+CMD bundle exec rails s -b 0.0.0.0 -p 7777

@@ -33,7 +33,7 @@ module Cosmos
         # Check for a raw write to the interface
         if topic =~ /CMDINTERFACE/
           @tlm.attempting() if msg_hash['connect']
-          @tlm.disconnect() if msg_hash['disconnect']
+          @tlm.disconnect(false) if msg_hash['disconnect']
           @interface.write(msg_hash['raw']) if msg_hash['raw']
           @tlm.inject_tlm(msg_hash) if msg_hash['inject_tlm']
           next 'SUCCESS'
@@ -59,12 +59,17 @@ module Cosmos
 
           begin
             @interface.write(command)
+            # TODO: Apparently build_cmd doesn't set received_count so figure it out here
+            topic = "#{@scope}__COMMAND__#{command.target_name}__#{command.packet_name}"
+            id, packet = Store.instance.read_topic_last(topic)
+            count = packet ? packet["received_count"].to_i : 0
+
             msg_hash = { time: command.received_time.to_nsec_from_epoch,
                         target_name: command.target_name,
                         packet_name: command.packet_name,
-                        received_count: command.received_count,
+                        received_count: count + 1,
                         buffer: command.buffer(false) }
-            Store.instance.write_topic("#{@scope}__COMMAND__#{command.target_name}__#{command.packet_name}", msg_hash)
+            Store.instance.write_topic(topic, msg_hash)
 
             json_hash = {}
             command.sorted_items.each do |item|
@@ -77,6 +82,14 @@ module Cosmos
             msg_hash['json_data'] = JSON.generate(json_hash.as_json)
             Store.instance.write_topic("#{@scope}__DECOMCMD__#{command.target_name}__#{command.packet_name}", msg_hash)
             Store.instance.set_interface(@interface, scope: @scope)
+
+            # Update target
+            target = System.targets[command.target_name]
+            if target
+              target.cmd_cnt += 1
+              Store.instance.set_target(target, scope: @scope)
+            end
+
             'SUCCESS'
           rescue => e
             Logger.error e.formatted
@@ -100,6 +113,10 @@ module Cosmos
       @interface.name = interface_name
       @config["target_list"].each do |item|
         @interface.target_names << item["target_name"]
+        target = System.targets[item["target_name"]]
+        # TODO: Shouldn't this mapping be happening in the cmd_tlm_server_config?
+        target.interface = @interface
+        Store.instance.set_target(target, scope: @scope) if target
       end
       if @interface.connect_on_startup
         @interface.state = 'ATTEMPTING'
@@ -107,6 +124,7 @@ module Cosmos
         @interface.state = 'DISCONNECTED'
       end
       Store.instance.set_interface(@interface, initialize: true, scope: @scope)
+
       # TODO: Need to set any additional interface options like protocols
       @interface_thread_sleeper = Sleeper.new
       @cancel_thread = false
@@ -228,11 +246,15 @@ module Cosmos
         Logger.error string
       end
 
+      # Update target
       target = System.targets[packet.target_name]
-      target.tlm_cnt += 1 if target
-      packet.received_count += 1
+      if target
+        target.tlm_cnt += 1
+        Store.instance.set_target(target, scope: @scope)
+      end
 
       # Write to stream
+      packet.received_count += 1
       msg_hash = { time: packet.received_time.to_nsec_from_epoch,
                    stored: packet.stored,
                    target_name: packet.target_name,
@@ -271,7 +293,7 @@ module Cosmos
           end
         end
       end
-      # Connecting failed but we're still attempting so don't call disconnect() here
+      disconnect() # Ensure we do a clean disconnect
     end
 
     def handle_connection_lost(err)
@@ -304,17 +326,19 @@ module Cosmos
       Logger.info "#{@interface.name} Connection Success"
     end
 
-    def disconnect()
+    def disconnect(allow_reconnect = true)
       @interface.disconnect
-      @interface.state = 'DISCONNECTED'
-      Store.instance.set_interface(@interface, scope: @scope)
 
       # If the interface is set to auto_reconnect then delay so the thread
       # can come back around and allow the interface a chance to reconnect.
-      if @interface.auto_reconnect
+      if allow_reconnect and @interface.auto_reconnect
+        attempting()
         if !@cancel_thread
           @interface_thread_sleeper.sleep(@interface.reconnect_delay)
         end
+      else
+        @interface.state = 'DISCONNECTED'
+        Store.instance.set_interface(@interface, scope: @scope)
       end
     end
 

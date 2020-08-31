@@ -52,31 +52,33 @@ export default {
 }
 </script>
 
-<style scoped>
-.value >>> div {
+<style lang="scss" scoped>
+.value ::v-deep div {
   min-height: 24px !important;
   display: flex !important;
   align-items: center !important;
 }
-.cosmos-green >>> input {
+// TODO: These cosmos styles are also defined in assets/stylesheets/layout/_overrides.scss
+// Can they somehow be reused here? We need to force the style down into the input
+.cosmos-green ::v-deep input {
   color: rgb(0, 150, 0);
 }
-.cosmos-yellow >>> input {
+.cosmos-yellow ::v-deep input {
   color: rgb(190, 135, 0);
 }
-.cosmos-red >>> input {
+.cosmos-red ::v-deep input {
   color: red;
 }
-.cosmos-blue >>> input {
+.cosmos-blue ::v-deep input {
   color: rgb(0, 100, 255);
 }
-.cosmos-purple >>> input {
+.cosmos-purple ::v-deep input {
   color: rgb(200, 0, 200);
 }
-.cosmos-black >>> input {
+.cosmos-black ::v-deep input {
   color: black;
 }
-.cosmos-white >>> input {
+.cosmos-white ::v-deep input {
   color: white;
 }
 </style>

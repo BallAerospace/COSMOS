@@ -43,10 +43,10 @@ module Cosmos
     # $disconnected_targets defined. Also creates a JsonDRbObject
     # connected to Replay (if $cmd_tlm_replay_mode) or to the
     # Command and Telemetry Server.
-    def initialize(config_file)
+    def initialize
       if $disconnected_targets
         # Start up a standalone CTS in disconnected mode
-        @disconnected = CmdTlmServer.new(config_file, false, true)
+        #@disconnected = CmdTlmServer.new(config_file, false, true)
       end
       # Start a Json connect to the real server
       if $cmd_tlm_replay_mode
@@ -59,7 +59,7 @@ module Cosmos
     # Ruby method which captures any method calls on this object. This allows
     # us to proxy the methods to either the disconnected CmdTlmServer object
     # or to the real server through the JsonDRbObject.
-    def method_missing(method_name, *method_params)
+    def method_missing(method_name, *method_params, **kw_params)
       # Must call shutdown and disconnect on the JsonDrbObject itself
       # to avoid it being sent to the CmdTlmServer
       case method_name
@@ -115,19 +115,19 @@ module Cosmos
       initialize_script_module()
     end
 
-    def initialize_script_module(config_file = CmdTlmServer::DEFAULT_CONFIG_FILE)
+    def initialize_script_module
       shutdown_cmd_tlm()
-      $cmd_tlm_server = ServerProxy.new(config_file)
+      $cmd_tlm_server = ServerProxy.new
     end
 
     def shutdown_cmd_tlm
       $cmd_tlm_server.shutdown if $cmd_tlm_server
     end
 
-    def set_disconnected_targets(targets, all = false, config_file = CmdTlmServer::DEFAULT_CONFIG_FILE)
+    def set_disconnected_targets(targets, all = false)
       $disconnected_targets = targets
       $disconnect_all_targets = all
-      initialize_script_module(config_file)
+      initialize_script_module()
     end
 
     def get_disconnected_targets

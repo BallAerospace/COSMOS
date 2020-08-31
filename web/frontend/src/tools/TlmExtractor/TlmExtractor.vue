@@ -294,7 +294,7 @@ export default {
   },
   methods: {
     logItems(item) {
-      console.log(item)
+      //console.log(item)
     },
     addItem(item) {
       // Go thru all the existing items and make sure they are NOT the same target/packet/items as the one being added
@@ -395,7 +395,7 @@ export default {
               )
             }
           })
-          console.log(localItems)
+          // console.log(localItems)
           this.subscription.perform('add', {
             scope: 'DEFAULT',
             items: localItems,
@@ -417,7 +417,12 @@ export default {
             const keys = Object.keys(packet)
             if (index < 1) {
               keys.forEach(key => {
+<<<<<<< HEAD
                 console.log(key)
+=======
+                //console.log(key)
+
+>>>>>>> 6fdb8f4d185842efafa530a42e526b5f6cf7c3ca
                 //console.log(shortHeader[3])
                 if (this.useTsv) {
                   if (this.useMatlabHeader) {

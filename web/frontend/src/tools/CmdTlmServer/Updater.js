@@ -18,6 +18,12 @@ export default {
   mounted() {
     this.changeUpdater()
   },
+  beforeDestroy() {
+    if (this.updater != null) {
+      clearInterval(this.updater)
+      this.updater = null
+    }
+  },
   watch: {
     // eslint-disable-next-line no-unused-vars
     refreshInterval: function(newVal, oldVal) {
@@ -33,12 +39,6 @@ export default {
       this.updater = setInterval(() => {
         this.update()
       }, this.refreshInterval)
-    },
-    stop() {
-      if (this.updater != null) {
-        clearInterval(this.updater)
-        this.updater = null
-      }
     }
   }
 }

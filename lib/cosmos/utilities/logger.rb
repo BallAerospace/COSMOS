@@ -74,7 +74,7 @@ module Cosmos
       @no_fluentd = ENV['NO_FLUENTD']
       @no_store = ENV['NO_STORE']
       unless @no_fluentd
-        fluentd_url ||= "localhost:24224"
+        fluentd_url = ENV['COSMOS_FLUENTD_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:24224' : 'http://cosmos_fluentd:24224'
         path = fluentd_url.split('/')[-1].split(':')
         Fluent::Logger::FluentLogger.open(nil, { host: path[0], port: path[1] })
       end
@@ -84,53 +84,73 @@ module Cosmos
     #   below the method name log level.
     # @param block [Proc] Block to call which should return a string to append
     #   to the log message
-    def debug(message = nil, &block)
-      log_message(DEBUG_SEVERITY_STRING, message, &block) if @level <= DEBUG
+    def debug(message = nil, scope: @scope, &block)
+      log_message(DEBUG_SEVERITY_STRING, message, scope: scope, &block) if @level <= DEBUG
     end
 
     # (see #debug)
-    def info(message = nil, &block)
-      log_message(INFO_SEVERITY_STRING, message, &block) if @level <= INFO
+    def info(message = nil, scope: @scope, &block)
+      log_message(INFO_SEVERITY_STRING, message, scope: scope, &block) if @level <= INFO
     end
 
     # (see #debug)
-    def warn(message = nil, &block)
-      log_message(WARN_SEVERITY_STRING, message, &block) if @level <= WARN
+    def warn(message = nil, scope: @scope, &block)
+      log_message(WARN_SEVERITY_STRING, message, scope: scope, &block) if @level <= WARN
     end
 
     # (see #debug)
-    def error(message = nil, &block)
-      log_message(ERROR_SEVERITY_STRING, message, &block) if @level <= ERROR
+    def error(message = nil, scope: @scope, &block)
+      log_message(ERROR_SEVERITY_STRING, message, scope: scope, &block) if @level <= ERROR
     end
 
     # (see #debug)
-    def fatal(message = nil, &block)
-      log_message(FATAL_SEVERITY_STRING, message, &block) if @level <= FATAL
+    def fatal(message = nil, scope: @scope, &block)
+      log_message(FATAL_SEVERITY_STRING, message, scope: scope, &block) if @level <= FATAL
     end
 
     # (see #debug)
-    def self.debug(message = nil, &block)
-      self.instance.debug(message, &block)
+    def self.debug(message = nil, scope: nil, &block)
+      if scope
+        self.instance.debug(message, scope: scope, &block)
+      else
+        self.instance.debug(message, &block)
+      end
     end
 
     # (see #debug)
-    def self.info(message = nil, &block)
-      self.instance.info(message, &block)
+    def self.info(message = nil, scope: nil, &block)
+      if scope
+        self.instance.info(message, scope: scope, &block)
+      else
+        self.instance.info(message, &block)
+      end
     end
 
     # (see #debug)
-    def self.warn(message = nil, &block)
-      self.instance.warn(message, &block)
+    def self.warn(message = nil, scope: nil, &block)
+      if scope
+        self.instance.warn(message, scope: scope, &block)
+      else
+        self.instance.warn(message, &block)
+      end
     end
 
     # (see #debug)
-    def self.error(message = nil, &block)
-      self.instance.error(message, &block)
+    def self.error(message = nil, scope: nil, &block)
+      if scope
+        self.instance.error(message, scope: scope, &block)
+      else
+        self.instance.error(message, &block)
+      end
     end
 
     # (see #debug)
-    def self.fatal(message = nil, &block)
-      self.instance.fatal(message, &block)
+    def self.fatal(message = nil, scope: nil, &block)
+      if scope
+        self.instance.fatal(message, scope: scope, &block)
+      else
+        self.instance.fatal(message, &block)
+      end
     end
 
     # @return [Logger] The logger instance
@@ -144,7 +164,7 @@ module Cosmos
 
     protected
 
-    def log_message(severity_string, message, &block)
+    def log_message(severity_string, message, scope:, &block)
       @mutex.synchronize do
         data = { '@timestamp' => Time.now.xmlschema(3), severity: severity_string }
         data[:microservice_name] = @microservice_name if @microservice_name
@@ -156,7 +176,7 @@ module Cosmos
         data[:log] = message
         Fluent::Logger.post(@tag, data) unless @no_fluentd
         unless @no_store
-          if @scope
+          if scope
             Store.instance.write_topic("#{@scope}__cosmos_log_messages", data)
           else
             Store.instance.write_topic("cosmos_log_messages", data)

@@ -53,24 +53,24 @@ export default new Router({
       component: () => import('./views/TlmViewerView.vue'),
       meta: { title: 'Telemetry Viewer', icon: 'mdi-monitor-dashboard' }
     },
-    {
-      path: '/data-viewer',
-      name: 'DataViewer',
-      component: () => import('./views/DataViewerView.vue'),
-      meta: { title: 'Data Viewer', icon: 'mdi-view-split-horizontal' }
-    },
+    // {
+    //   path: '/data-viewer',
+    //   name: 'DataViewer',
+    //   component: () => import('./views/DataViewerView.vue'),
+    //   meta: { title: 'Data Viewer', icon: 'mdi-view-split-horizontal' }
+    // },
     {
       path: '/telemetry-grapher',
       name: 'TlmGrapher',
       component: () => import('./views/TlmGrapherView.vue'),
       meta: { title: 'Telemetry Grapher', icon: 'mdi-chart-line' }
     },
-    {
-      path: '/command-extractor',
-      name: 'CommandExtractor',
-      component: () => import('./views/CommandExtractorView.vue'),
-      meta: { title: 'Command Extractor', icon: 'mdi-move-resize-variant' }
-    },
+    // {
+    //   path: '/command-extractor',
+    //   name: 'CommandExtractor',
+    //   component: () => import('./views/CommandExtractorView.vue'),
+    //   meta: { title: 'Command Extractor', icon: 'mdi-move-resize-variant' }
+    // },
     {
       path: '/telemetry-extractor',
       name: 'TlmExtractor',

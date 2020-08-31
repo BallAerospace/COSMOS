@@ -9,6 +9,8 @@ require 'childprocess'
 
 module Cosmos
   module Script
+    private
+
     # Define all the user input methods used in scripting which we need to broadcast to the frontend
     SCRIPT_METHODS = %i[ask_string prompt_dialog_box prompt_for_hazardous prompt_to_continue prompt_combo_box prompt_message_box prompt_vertical_message_box]
     SCRIPT_METHODS.each do |method|
@@ -27,24 +29,25 @@ module Cosmos
       end
 
       def start(procedure_name, bucket = nil)
-        path = bucket + "/" + procedure_name
+        bucket ||= ::Script::DEFAULT_BUCKET_NAME
+        path = procedure_name
 
         # Check RAM based instrumented cache
-        instrumented_cache = RunningScript.instrumented_cache[path]
+        instrumented_cache, text = RunningScript.instrumented_cache[path]
         instrumented_script = nil
         if instrumented_cache
           # Use cached instrumentation
           instrumented_script = instrumented_cache
           cached = true
-          ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: procedure_name, bucket: bucket, text: null })
+          ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, bucket: bucket, text: text })
         else
           # Retrieve file
           text = ::Script.body(procedure_name, bucket)
-          ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: procedure_name, bucket: bucket, text: text })
+          ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, bucket: bucket, text: text })
 
           # Cache instrumentation into RAM
           instrumented_script = RunningScript.instrument_script(text, path, bucket, true)
-          RunningScript.instrumented_cache[path] = instrumented_script
+          RunningScript.instrumented_cache[path] = [instrumented_script, text]
           cached = false
         end
 
@@ -56,6 +59,7 @@ module Cosmos
 
       # Require an additional ruby file
       def load_utility(procedure_name, bucket = nil)
+        bucket ||= ::Script::DEFAULT_BUCKET_NAME
         not_cached = false
         if defined? RunningScript and RunningScript.instance
           saved = RunningScript.instance.use_instrumentation
@@ -522,7 +526,7 @@ class RunningScript
             (num_right_square_brackets > num_left_square_brackets)
             instrumented_line = segment
           else
-            instrumented_line = "RunningScript.instance.pre_line_instrumentation('#{filename}', #{line_no}); " + segment
+            instrumented_line = "RunningScript.instance.pre_line_instrumentation('#{filename}', '#{bucket}', #{line_no}); " + segment
           end
         else
           instrumented_line = segment
@@ -1409,6 +1413,7 @@ class RunningScript
   # end
 
   def handle_exception(error, fatal, filename = nil, line_number = 0)
+    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :output, line: error.formatted, color: 'RED' })
     @exceptions ||= []
     @exceptions << error
     @@error = error

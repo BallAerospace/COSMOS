@@ -1,0 +1,8 @@
+FROM cosmos_base
+
+ENV RUBYLIB /cosmos/lib
+
+COPY demo /cosmos/demo
+
+WORKDIR /cosmos/demo
+CMD ruby ../bin/cosmos load

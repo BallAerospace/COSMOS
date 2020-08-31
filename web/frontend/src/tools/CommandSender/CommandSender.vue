@@ -547,7 +547,7 @@ export default {
                 this.processCmdResponse(true, response)
               },
               error => {
-                console.log(error)
+                //console.log(error)
                 this.processCmdResponse(false, error)
               }
             )

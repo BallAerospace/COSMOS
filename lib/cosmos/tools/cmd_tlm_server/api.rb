@@ -152,6 +152,10 @@ module Cosmos
         'get_screen_list',
         'get_screen_definition',
         'get_saved_config',
+        'list_configs',
+        'load_config',
+        'save_config',
+        'delete_config'
       ]
     end
 
@@ -301,7 +305,9 @@ module Cosmos
       Store.instance.cmd_packet_exist?(target_name, command_name, scope: scope)
       topic = "#{scope}__COMMAND__#{target_name}__#{command_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
-      return msg_hash['buffer'] if msg_id
+      if msg_id
+        return msg_hash['buffer'].encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
+      end
       nil
     end
 
@@ -443,40 +449,7 @@ module Cosmos
     # @return [Varies] value
     def get_cmd_value(target_name, command_name, parameter_name, value_type = :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
-      # TODO: Implement New Commanding
-      packet = System.commands.packet(target_name, command_name)
-      # Virtually support RECEIVED_TIMEFORMATTED, RECEIVED_TIMESECONDS, RECEIVED_COUNT
-      # Also PACKET_TIMEFORMATTED and PACKET_TIMESECONDS
-      case parameter_name.to_s.upcase
-      when 'PACKET_TIMEFORMATTED'
-        if packet.packet_time
-          return packet.packet_time.formatted
-        else
-          return 'No Packet Time'
-        end
-      when 'PACKET_TIMESECONDS'
-        if packet.packet_time
-          return packet.packet_time.to_f
-        else
-          return 0.0
-        end
-      when 'RECEIVED_TIMEFORMATTED'
-        if packet.received_time
-          return packet.received_time.formatted
-        else
-          return 'No Packet Received Time'
-        end
-      when 'RECEIVED_TIMESECONDS'
-        if packet.received_time
-          return packet.received_time.to_f
-        else
-          return 0.0
-        end
-      when 'RECEIVED_COUNT'
-        return packet.received_count
-      else
-        return packet.read(parameter_name, value_type.intern)
-      end
+      Store.instance.get_cmd_item(target_name, command_name, parameter_name, type: value_type, scope: scope)
     end
 
     # Returns the time the most recent command was sent
@@ -605,7 +578,7 @@ module Cosmos
     #   description). The symbol must be one of {Packet::VALUE_TYPES}.
     # @return [Object] The converted telemetry value
     def tlm_variable(*args, scope: $cosmos_scope, token: $cosmos_token)
-      case args[-1]
+      case args[-1].intern
       when :RAW
         return tlm_raw(*args[0..-2], scope: scope)
       when :CONVERTED
@@ -790,8 +763,9 @@ module Cosmos
       Store.instance.tlm_packet_exist?(target_name, packet_name, scope: scope)
       topic = "#{scope}__TELEMETRY__#{target_name}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
-      puts "msg:#{msg_id} hash:#{msg_hash}"
-      return msg_hash['buffer'] if msg_id
+      if msg_id
+        return msg_hash['buffer'].encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
+      end
       nil
     end
 
@@ -1142,6 +1116,7 @@ module Cosmos
     # @param limits_set [String] The name of the limits set
     def set_limits_set(limits_set, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', scope: scope, token: token)
+      Logger.info("Setting Limits Set: #{limits_set}")
       Store.instance.hset("#{scope}__cosmos_system", 'limits_set', limits_set)
     end
 
@@ -1479,13 +1454,6 @@ module Cosmos
       info
     end
 
-    def _get_cnt(topic)
-      _, _, target_name, packet_name = topic.split('__')
-      raise "Packet '#{target_name} #{packet_name}' does not exist" unless Store.instance.exists?(topic)
-      id, packet = Store.instance.read_topic_last(topic)
-      packet ? packet["received_count"].to_i : 0
-    end
-
     # Get the transmit count for a command packet
     #
     # @param target_name [String] Target name of the command
@@ -1510,40 +1478,14 @@ module Cosmos
     #
     # @return [Array<String, String, Numeric>] Transmit count for all commands
     def get_all_cmd_info(scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'system', scope: scope, token: token)
-      result = []
-      keys = []
-      count = 0
-      loop do
-        count, part = Store.instance.scan(0, :match => "#{scope}__COMMAND__*", :count => 1000)
-        keys.concat(part)
-        break if count.to_i == 0
-      end
-      keys.each do |key|
-        _, _, target, packet = key.split('__')
-        result << [target, packet, _get_cnt(key)]
-      end
-      result
+      get_all_cmd_tlm_info("COMMAND", scope: scope, token: token)
     end
 
     # Get information on all telemetry packets
     #
     # @return [Array<String, String, Numeric>] Receive count for all telemetry
     def get_all_tlm_info(scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'system', scope: scope, token: token)
-      result = []
-      keys = []
-      count = 0
-      loop do
-        count, part = Store.instance.scan(0, :match => "#{scope}__TELEMETRY__*", :count => 1000)
-        keys.concat(part)
-        break if count.to_i == 0
-      end
-      keys.each do |key|
-        _, _, target, packet = key.split('__')
-        result << [target, packet, _get_cnt(key)]
-      end
-      result
+      get_all_cmd_tlm_info("TELEMETRY", scope: scope, token: token)
     end
 
     # Get the list of packet loggers.
@@ -1859,7 +1801,47 @@ module Cosmos
       raise "Not supported by COSMOS 5"
     end
 
+    def list_configs(tool, scope: $cosmos_scope, token: $cosmos_token)
+      Store.instance.hkeys("#{scope}__config__#{tool}")
+    end
+
+    def load_config(tool, name, scope: $cosmos_scope, token: $cosmos_token)
+      Store.instance.hget("#{scope}__config__#{tool}", name)
+    end
+
+    def save_config(tool, name, data, scope: $cosmos_scope, token: $cosmos_token)
+      Store.instance.hset("#{scope}__config__#{tool}", name, data)
+    end
+
+    def delete_config(tool, name, scope: $cosmos_scope, token: $cosmos_token)
+      Store.instance.hdel("#{scope}__config__#{tool}", name)
+    end
+
     private
+
+    def _get_cnt(topic)
+      _, _, target_name, packet_name = topic.split('__') # split off scope and type
+      raise "Packet '#{target_name} #{packet_name}' does not exist" unless Store.instance.exists?(topic)
+      id, packet = Store.instance.read_topic_last(topic)
+      packet ? packet["received_count"].to_i : 0
+    end
+
+    def get_all_cmd_tlm_info(type, scope:, token:)
+      authorize(permission: 'system', scope: scope, token: token)
+      result = []
+      keys = []
+      count = 0
+      loop do
+        count, part = Store.instance.scan(0, :match => "#{scope}__#{type}__*", :count => 1000)
+        keys.concat(part)
+        break if count.to_i == 0
+      end
+      keys.each do |key|
+        _, _, target, packet = key.split('__') # split off scope and type
+        result << [target, packet, _get_cnt(key)]
+      end
+      result
+    end
 
     def cmd_implementation(range_check, hazardous_check, raw, method_name, *args, scope:, token:)
       case args.length

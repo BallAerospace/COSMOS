@@ -607,7 +607,7 @@ module Cosmos
     # Protected Methods
     ##########################################
 
-    def check_process_args(args, function_name)
+    def check_process_args(args, function_name, scope: $cosmos_scope, token: $cosmos_token)
       case args.length
       when 1
         target_name, packet_name, item_name, comparison_to_eval = extract_fields_from_check_text(args[0])
@@ -623,7 +623,7 @@ module Cosmos
       return [target_name, packet_name, item_name, comparison_to_eval]
     end
 
-    def check_tolerance_process_args(args, function_name)
+    def check_tolerance_process_args(args, function_name, scope: $cosmos_scope, token: $cosmos_token)
       case args.length
       when 3
         target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
@@ -711,7 +711,7 @@ module Cosmos
       time
     end
 
-    def wait_tolerance_process_args(args, function_name)
+    def wait_tolerance_process_args(args, function_name, scope: $cosmos_scope, token: $cosmos_token)
       case args.length
       when 4, 5
         target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
@@ -753,7 +753,7 @@ module Cosmos
     # When testing an array with a tolerance, the expected value and tolerance
     # can both be supplied as either an array or a single value.  If a single
     # value is passed in, that value will be used for all array elements.
-    def array_tolerance_process_args(array_size, expected_value, tolerance, function_name)
+    def array_tolerance_process_args(array_size, expected_value, tolerance, function_name, scope: $cosmos_scope, token: $cosmos_token)
       if expected_value.is_a?(Array)
         if array_size != expected_value.size
           raise "ERROR: Invalid array size for expected_value passed to #{function_name}()"
@@ -771,7 +771,7 @@ module Cosmos
       return [expected_value, tolerance]
     end
 
-    def wait_check_process_args(args, function_name)
+    def wait_check_process_args(args, function_name, scope: $cosmos_scope, token: $cosmos_token)
       case args.length
       when 2, 3
         target_name, packet_name, item_name, comparison_to_eval = extract_fields_from_check_text(args[0])
@@ -885,7 +885,7 @@ module Cosmos
     end
 
     # Wait on an expression to be true.
-    def cosmos_script_wait_implementation_expression(exp_to_eval, timeout, polling_rate, context)
+    def cosmos_script_wait_implementation_expression(exp_to_eval, timeout, polling_rate, context, scope: $cosmos_scope, token: $cosmos_token)
       end_time = Time.now.sys + timeout
       # context = ScriptRunnerFrame.instance.script_binding if !context and defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
 
@@ -915,7 +915,7 @@ module Cosmos
       return nil
     end
 
-    def check_eval(target_name, packet_name, item_name, comparison_to_eval, value)
+    def check_eval(target_name, packet_name, item_name, comparison_to_eval, value, scope: $cosmos_scope, token: $cosmos_token)
       string = "value " + comparison_to_eval
       check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)} #{comparison_to_eval}"
       value_str = "with value == #{value}"

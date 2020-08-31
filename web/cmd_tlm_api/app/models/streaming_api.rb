@@ -19,7 +19,7 @@ Cosmos.require_file 'cosmos/packets/json_packet'
 Cosmos.require_file 'cosmos/packet_logs/packet_log_reader'
 
 Aws.config.update(
-  endpoint: 'http://localhost:9000',
+  endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos_minio:9000',
   access_key_id: 'minioadmin',
   secret_access_key: 'minioadmin',
   force_path_style: true,
