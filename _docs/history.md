@@ -33,6 +33,9 @@ Basic versions of the following COSMOS tools are included in this release:
 
 * Docker - Running COSMOS 5 requires a working Docker installation.  Typically Docker Desktop on Windows / Mac.  Plain docker should work on linux.  We're currently only developing / running with Docker Desktop on Windows, so if you have any issues on another platform, please let us know by submitting a ticket!
 
+Minimum Resources allocated to Docker: 4GB RAM, 1 CPU, 60GB Disk
+Recommended Resources allocated to Docker: 8GB RAM, 2+ CPUs, 100GB Disk
+
 ### To Run:
 
 1. Download one of the archives (.zip or .tar.gz from the Github release page) [Download Release Here](https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0-alpha.1)

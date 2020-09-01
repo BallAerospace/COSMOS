@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Mon, 31 Aug 2020 19:05:00 -0600</pubDate>
-    <lastBuildDate>Mon, 31 Aug 2020 19:05:00 -0600</lastBuildDate>
+    <pubDate>Tue, 01 Sep 2020 13:59:58 -0600</pubDate>
+    <lastBuildDate>Tue, 01 Sep 2020 13:59:58 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v4.1.1</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -66,6 +66,9 @@
 &lt;ul&gt;
   &lt;li&gt;Docker - Running COSMOS 5 requires a working Docker installation.  Typically Docker Desktop on Windows / Mac.  Plain docker should work on linux.  We’re currently only developing / running with Docker Desktop on Windows, so if you have any issues on another platform, please let us know by submitting a ticket!&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;p&gt;Minimum Resources allocated to Docker: 4GB RAM, 1 CPU, 60GB Disk
+Recommended Resources allocated to Docker: 8GB RAM, 2+ CPUs, 100GB Disk&lt;/p&gt;
 
 &lt;h3 id=&quot;to-run&quot;&gt;To Run:&lt;/h3&gt;
 
