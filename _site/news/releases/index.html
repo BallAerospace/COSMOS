@@ -5,7 +5,7 @@
   <title>Releases</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v4.1.0">
+  <meta name="generator" content="Jekyll v4.1.1">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -83,6 +83,8 @@
     <option value="">Navigate the blog...</option>
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
+      
+      <option value="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">Ball Aerospace COSMOS 5.0.0 alpha 1 Released</option>
       
       <option value="/news/2020/03/24/identifies-packets/">Identifying Packets</option>
       
@@ -231,6 +233,81 @@
 
       <div class="unit four-fifths">
         
+  <article>
+  <h2>
+    <a href="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">
+      Ball Aerospace COSMOS 5.0.0 alpha 1 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      31 Aug 2020
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>I am proud to announce the release of COSMOS 5 Alpha 1!</p>
+
+<p>COSMOS 5 is a highly scalable, cloud native, command and control software system.  This is a technology preview release meant to introduce all of the new technologies debuting in COSMOS 5.</p>
+
+<p>New Technologies:</p>
+
+<ul>
+  <li>Docker - COSMOS 5 runs across a set of containers managed by Docker</li>
+  <li>Redis - Redis is used as a key-value store, and streaming data server</li>
+  <li>Minio - Minio provides an S3 compatible file storage server</li>
+  <li>EFK Stack - Elasticsearch, Fluentd, Kibana - Provide a distributed logging solution</li>
+  <li>Vue.js - Javascript technology used to build the new COSMOS user interface</li>
+</ul>
+
+<p>Basic versions of the following COSMOS tools are included in this release:</p>
+
+<ul>
+  <li>Command and Telemetry Server</li>
+  <li>Command Sender</li>
+  <li>Packet Viewer</li>
+  <li>Telemetry Viewer</li>
+  <li>Telemetry Grapher</li>
+  <li>Script Runner</li>
+  <li>Limits Monitor</li>
+</ul>
+
+<h3 id="prerequisites">Prerequisites:</h3>
+
+<ul>
+  <li>Docker - Running COSMOS 5 requires a working Docker installation.  Typically Docker Desktop on Windows / Mac.  Plain docker should work on linux.  We’re currently only developing / running with Docker Desktop on Windows, so if you have any issues on another platform, please let us know by submitting a ticket!</li>
+</ul>
+
+<h3 id="to-run">To Run:</h3>
+
+<ol>
+  <li>Download one of the archives (.zip or .tar.gz from the Github release page) <a href="https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0-alpha.1">Download Release Here</a></li>
+  <li>Extract the archive somewhere on your host computer</li>
+  <li>The COSMOS 5 containers are designed to work and be built in the presence of an SSL Decryption device.  To support this a cacert.pem file can be placed at the base of the COSMOS 5 project that includes any certificates needed by your organization.  If you don’t need this, then please ignore, but if you see any SSL errors, this is probably why.</li>
+  <li>Run cosmos_start.bat (Windows), or cosmos_start.sh (linux/Mac)</li>
+  <li>COSMOS 5 will be built and when ready should be running (~15 mins for first run, ~2 for subsequent)</li>
+  <li>Connect a web browser to http://localhost:8080</li>
+  <li>Have fun trying out COSMOS 5!</li>
+</ol>
+
+<p>Please try it out and let us know what you think!  Please submit any issues as Github tickets, or any generic feedback to COSMOS@ball.com.</p>
+
+<p>Note that this release is not ready for production use.  We will have a more beta ready release in a few months.</p>
+
+<p>Thanks!</p>
+
+  </div>
+</article>
+
+
   <article>
   <h2>
     <a href="/news/2020/03/09/cosmos-4-4-2-released/">
@@ -2462,6 +2539,10 @@ change the whole playing field of Operations, Integration, and Test”.</p>
     <ul>
       
       <li class="">
+        <a href="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">Version 5.0.0-alpha.1</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2020/03/09/cosmos-4-4-2-released/">Version 4.4.2</a>
       </li>
       
@@ -2477,16 +2558,14 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <a href="/news/2018/08/30/cosmos-4-3-0-released/">Version 4.3.0</a>
       </li>
       
-      <li class="">
-        <a href="/news/2018/05/16/cosmos-4-2-4-released/">Version 4.2.4</a>
-      </li>
-      
       <li>
         <a href="/docs/history/">History »</a>
       </li>
     </ul>
     <h4>Other News</h4>
     <ul>
+        
+        
         
         
         <li class="">

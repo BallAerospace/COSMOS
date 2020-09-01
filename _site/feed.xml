@@ -11,10 +11,10 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Fri, 05 Jun 2020 15:00:10 -0600</pubDate>
-    <lastBuildDate>Fri, 05 Jun 2020 15:00:10 -0600</lastBuildDate>
+    <pubDate>Mon, 31 Aug 2020 18:55:13 -0600</pubDate>
+    <lastBuildDate>Mon, 31 Aug 2020 18:55:13 -0600</lastBuildDate>
     <language>en-US</language>
-    <generator>Jekyll v4.1.0</generator>
+    <generator>Jekyll v4.1.1</generator>
     <description>The User Interface for Embedded Systems</description>
     <image>
       <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,68 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 5.0.0 alpha 1 Released</title>
+      <link>http://cosmosrb.com/news/2020/08/31/cosmos-5-0-0-alpha-1-released/</link>
+      <pubDate>Mon, 31 Aug 2020 07:00:00 -0600</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2020/08/31/cosmos-5-0-0-alpha-1-released/</guid>
+      <description>&lt;p&gt;I am proud to announce the release of COSMOS 5 Alpha 1!&lt;/p&gt;
+
+&lt;p&gt;COSMOS 5 is a highly scalable, cloud native, command and control software system.  This is a technology preview release meant to introduce all of the new technologies debuting in COSMOS 5.&lt;/p&gt;
+
+&lt;p&gt;New Technologies:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Docker - COSMOS 5 runs across a set of containers managed by Docker&lt;/li&gt;
+  &lt;li&gt;Redis - Redis is used as a key-value store, and streaming data server&lt;/li&gt;
+  &lt;li&gt;Minio - Minio provides an S3 compatible file storage server&lt;/li&gt;
+  &lt;li&gt;EFK Stack - Elasticsearch, Fluentd, Kibana - Provide a distributed logging solution&lt;/li&gt;
+  &lt;li&gt;Vue.js - Javascript technology used to build the new COSMOS user interface&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Basic versions of the following COSMOS tools are included in this release:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Command and Telemetry Server&lt;/li&gt;
+  &lt;li&gt;Command Sender&lt;/li&gt;
+  &lt;li&gt;Packet Viewer&lt;/li&gt;
+  &lt;li&gt;Telemetry Viewer&lt;/li&gt;
+  &lt;li&gt;Telemetry Grapher&lt;/li&gt;
+  &lt;li&gt;Script Runner&lt;/li&gt;
+  &lt;li&gt;Limits Monitor&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;prerequisites&quot;&gt;Prerequisites:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Docker - Running COSMOS 5 requires a working Docker installation.  Typically Docker Desktop on Windows / Mac.  Plain docker should work on linux.  We’re currently only developing / running with Docker Desktop on Windows, so if you have any issues on another platform, please let us know by submitting a ticket!&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;to-run&quot;&gt;To Run:&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Download one of the archives (.zip or .tar.gz from the Github release page) &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0-alpha.1&quot;&gt;Download Release Here&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Extract the archive somewhere on your host computer&lt;/li&gt;
+  &lt;li&gt;The COSMOS 5 containers are designed to work and be built in the presence of an SSL Decryption device.  To support this a cacert.pem file can be placed at the base of the COSMOS 5 project that includes any certificates needed by your organization.  If you don’t need this, then please ignore, but if you see any SSL errors, this is probably why.&lt;/li&gt;
+  &lt;li&gt;Run cosmos_start.bat (Windows), or cosmos_start.sh (linux/Mac)&lt;/li&gt;
+  &lt;li&gt;COSMOS 5 will be built and when ready should be running (~15 mins for first run, ~2 for subsequent)&lt;/li&gt;
+  &lt;li&gt;Connect a web browser to http://localhost:8080&lt;/li&gt;
+  &lt;li&gt;Have fun trying out COSMOS 5!&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Please try it out and let us know what you think!  Please submit any issues as Github tickets, or any generic feedback to COSMOS@ball.com.&lt;/p&gt;
+
+&lt;p&gt;Note that this release is not ready for production use.  We will have a more beta ready release in a few months.&lt;/p&gt;
+
+&lt;p&gt;Thanks!&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Identifying Packets</title>
