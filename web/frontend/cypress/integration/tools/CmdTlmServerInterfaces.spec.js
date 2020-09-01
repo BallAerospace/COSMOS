@@ -50,6 +50,23 @@ describe('CmdTlmServer Interfaces', () => {
       .children()
       .eq(2)
       .invoke('text')
+      .then(connection => {
+        // Check for DISCONNECTED and if so click connect
+        if (connection === 'DISCONNECTED') {
+          cy.get('[data-test=interfaces-table]')
+            .contains('EXAMPLE_INT')
+            .parent()
+            .children()
+            .eq(1)
+            .click()
+        }
+      })
+    cy.get('[data-test=interfaces-table]')
+      .contains('EXAMPLE_INT')
+      .parent()
+      .children()
+      .eq(2)
+      .invoke('text')
       .should('eq', 'ATTEMPTING')
     // Disconnect
     cy.get('[data-test=interfaces-table]')
