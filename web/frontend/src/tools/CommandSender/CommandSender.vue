@@ -35,12 +35,17 @@
         @contextmenu:row="showContextMenu"
       >
         <template v-slot:item.val_and_states="{ item }">
-          <CommandParameterEditor v-model="item.val_and_states" :statesInHex="statesInHex"></CommandParameterEditor>
+          <CommandParameterEditor
+            v-model="item.val_and_states"
+            :statesInHex="statesInHex"
+          ></CommandParameterEditor>
         </template>
       </v-data-table>
     </v-card>
     <div class="ma-3">Status: {{ status }}</div>
-    <div class="mt-3">Command History: (Pressing Enter on the line re-executes the command)</div>
+    <div class="mt-3">
+      Command History: (Pressing Enter on the line re-executes the command)
+    </div>
     <v-textarea
       ref="history"
       :value="history"
@@ -49,9 +54,16 @@
       hide-details
       data-test="sender-history"
       @keydown.enter="historyEnter($event)"
+      :background-color="getBackgroundColor()"
     />
 
-    <v-menu v-model="contextMenuShown" :position-x="x" :position-y="y" absolute offset-y>
+    <v-menu
+      v-model="contextMenuShown"
+      :position-x="x"
+      :position-y="y"
+      absolute
+      offset-y
+    >
       <v-list>
         <v-list-item
           v-for="(item, index) in contextMenuOptions"
@@ -236,6 +248,9 @@ export default {
     }
   },
   methods: {
+    getBackgroundColor() {
+      return this.$vuetify.theme.parsedTheme.tertiary.darken2
+    },
     historyEnter(event) {
       // Prevent the enter key from actually causing a newline
       event.preventDefault()

@@ -15,6 +15,7 @@
       :headers="headers"
       :items="data"
       :search="search"
+      :custom-sort="sortTable"
       calculate-widths
       disable-pagination
       hide-default-footer
@@ -27,10 +28,13 @@
           color="primary"
           :disabled="buttonsDisabled"
           @click="connectDisconnect(item)"
-        >{{ item.connect }}</v-btn>
+          >{{ item.connect }}</v-btn
+        >
       </template>
       <template v-slot:item.connected="{ item }">
-        <span :style="{ color: item.connected_color }">{{ item.connected }}</span>
+        <span :style="{ color: item.connected_color }">{{
+          item.connected
+        }}</span>
       </template>
     </v-data-table>
   </v-card>
@@ -70,6 +74,58 @@ export default {
     }
   },
   methods: {
+    // Custom sort algorithm to allow the connected column to be sorted by CONNECTED first
+    sortTable(items, index, isDesc) {
+      items.sort((a, b) => {
+        for (let i = 0; i < index.length; i++) {
+          let column = index[i]
+          let desc = isDesc[i]
+
+          if (column === 'connected') {
+            // Items are the same so continue to let subsequent column sorts apply
+            if (a[column] === b[column]) {
+              continue
+            }
+            if (!desc) {
+              if (a[column] === 'CONNECTED') {
+                return -1
+              } else {
+                return 1
+              }
+            } else {
+              if (a[column] === 'CONNECTED') {
+                return 1
+              } else {
+                return -1
+              }
+            }
+          } else if (column === 'name') {
+            // Items are the same so continue to let subsequent column sorts apply
+            if (a[column] === b[column]) {
+              continue
+            }
+            if (!desc) {
+              // Strings so use localeCompare to sort
+              return a[column].localeCompare(b[column])
+            } else {
+              return b[column].localeCompare(a[column])
+            }
+          } else {
+            // Items are the same so continue to let subsequent column sorts apply
+            if (a[column] === b[column]) {
+              continue
+            }
+            if (!desc) {
+              // The rest of the columns are numbers so just subtract to sort
+              return a[column] - b[column]
+            } else {
+              return b[column] - a[column]
+            }
+          }
+        }
+      })
+      return items
+    },
     connectDisconnect(item) {
       this.buttonsDisabled = true
       if (item.connected === 'DISCONNECTED') {
