@@ -1,14 +1,12 @@
 <template>
-  <v-text-field
-    solo
-    dense
-    single-line
-    hide-no-data
+  <v-checkbox
     hide-details
+    dense
+    :label="label"
     v-model="value"
     :style="computedStyle"
   >
-  </v-text-field>
+  </v-checkbox>
 </template>
 
 <script>
@@ -18,14 +16,11 @@ export default {
   mixins: [Widget],
   data() {
     return {
-      value: null
+      items: [],
+      label: 'Checkbox',
+      value: false
     }
   },
-  // computed: {
-  //   width() {
-  //     return this.parameters[0] ? parseInt(this.parameters[0]) : 20
-  //   }
-  // },
   created() {
     // Look through the settings and see if we're a NAMED_WIDGET
     this.settings.forEach(setting => {
@@ -33,17 +28,10 @@ export default {
         setting[2].setNamedWidget(setting[1], this)
       }
     })
-
-    // TODO: Is this actually working or do we need the computed width above (see LedWidget for an example)
-    if (this.parameters[0]) {
-      this.settings.push(['WIDTH', parseInt(this.parameters[0])])
-    }
-    if (this.parameters[1]) {
-      this.value = this.parameters[1]
-    }
+    this.label = this.parameters[0]
   },
   methods: {
-    text() {
+    checked() {
       return this.value
     }
   }

@@ -219,33 +219,34 @@ export default {
         keyword.charAt(0).toUpperCase() +
         keyword.slice(1).toLowerCase() +
         'Widget'
+      let settings = []
+      if (widgetName !== null) {
+        // Push a reference to the screen so the layout can register when it is created
+        // We do this because the widget isn't actually created until
+        // the layout happens with <component :is='type'>
+        settings.push(['NAMED_WIDGET', widgetName, this])
+      }
       // If this is a layout widget we add it to the layoutStack and reset the currentLayout
       if (
         keyword.includes('VERTICAL') ||
         keyword.includes('HORIZONTAL') ||
         keyword.includes('MATRIX') ||
-        keyword === 'CANVAS'
+        keyword === 'CANVAS' ||
+        keyword === 'RADIOGROUP'
       ) {
         const layout = {
           type: componentName,
           parameters: parameters,
-          settings: [],
+          settings: settings,
           widgets: []
         }
         this.layoutStack.push(layout)
         this.currentLayout.widgets.push(layout)
         this.currentLayout = layout
       } else {
-        let settings = []
         // Buttons require a reference to the screen to call get_named_widget
         if (keyword.includes('BUTTON')) {
           settings.push(['SCREEN', this])
-        }
-        if (widgetName !== null) {
-          // Push a reference to the screen so the widget can register when it is created
-          // We do this because the widget isn't actually created until
-          // the layout happens with <component :is='type'>
-          settings.push(['NAMED_WIDGET', widgetName, this])
         }
         this.currentLayout.widgets.push({
           type: componentName,

@@ -21,14 +21,16 @@ VERTICAL
   END
   SETTING BACKCOLOR 163 185 163
 
-  # VERTICALBOX
-  #   SECTIONHEADER "Parameter-less Commands:"
-  #   NAMED_WIDGET ABORT RADIOBUTTON 'Abort' CHECKED
-  #   NAMED_WIDGET CLEAR RADIOBUTTON 'Clear' UNCHECKED
-  #   NAMED_WIDGET CHECK CHECKBUTTON 'Ignore Hazardous Checks' # No option is by default UNCHECKED
-  #   BUTTON 'Send' 'if get_named_widget("ABORT").checked? then cmd("INST ABORT") else if get_named_widget("CHECK").checked? then cmd_no_hazardous_check("INST CLEAR") else cmd("INST CLEAR") end end'
-  # END
-  # SETTING BACKCOLOR 163 185 163
+  VERTICALBOX
+    SECTIONHEADER "Parameter-less Commands:"
+    NAMED_WIDGET GROUP RADIOGROUP 1 # Select 'Clear' initially, 0-based index
+      RADIOBUTTON 'Abort'
+      RADIOBUTTON 'Clear'
+    END
+    NAMED_WIDGET CHECK CHECKBUTTON 'Ignore Hazardous Checks' # No option is by default UNCHECKED
+    BUTTON 'Send' "screen.get_named_widget('GROUP').selected() === 0 ? api.cmd('INST ABORT') : (screen.get_named_widget('CHECK').checked() ? api.cmd_no_hazardous_check('INST CLEAR') : api.cmd('INST CLEAR'))"
+  END
+  SETTING BACKCOLOR 163 185 163
 
   # VERTICALBOX
   #   SECTIONHEADER "Run Script:"
