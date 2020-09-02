@@ -182,7 +182,6 @@
                 </v-card>
               </v-dialog>
             </v-col>
-            <v-btn color="green darken-1" text @click="logItems(item)">Check</v-btn>
           </v-row>
         </v-container>
       </v-card-text>
@@ -195,7 +194,7 @@ import AppNav from '@/AppNav'
 import { CosmosApi } from '@/services/cosmos-api'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
 import * as ActionCable from 'actioncable'
-import bs from 'binary-search'
+//import bs from 'binary-search'
 
 export default {
   components: {
@@ -324,7 +323,7 @@ export default {
         }
       })
     },
-    clearItems() {
+    clearItems(words) {
       this.tlmItems = []
       this.blobDownloadLinkReady = true
     },
@@ -395,7 +394,7 @@ export default {
               )
             }
           })
-          // console.log(localItems)
+          console.log(localItems)
           this.subscription.perform('add', {
             scope: 'DEFAULT',
             items: localItems,
@@ -406,7 +405,7 @@ export default {
         received: json_data => {
           // Process the items when they are received
           let data = JSON.parse(json_data)
-          //console.log(data)
+          console.log(data)
           let columnHeaders = ''
           if (this.useMatlabHeader) {
             // Matlab column headers get a leading percent, add the first one here
@@ -477,6 +476,7 @@ export default {
                     row += packet[key] + ','
                   }
                 })
+                // trim trailing delimiter, not needed
                 if (this.useTsv) {
                   row = this.rtrim(row, '\t')
                 } else {
@@ -487,12 +487,19 @@ export default {
               }
             } else {
               keys.forEach((key, index) => {
+                //console.log(packet[key])
+                //console.log(typeof packet[key])
+                //console.log(packet[key].raw)
+                //if (typeof packet[key] == Object) {
+                //  packet[key] = packet[key].raw
+                //}
                 if (this.useTsv) {
                   row += packet[key] + '\t'
                 } else {
                   row += packet[key] + ','
                 }
               })
+              // trim trailing delimiter
               if (this.useTsv) {
                 row = this.rtrim(row, '\t')
               } else {
