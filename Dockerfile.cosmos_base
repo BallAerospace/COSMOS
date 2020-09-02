@@ -3,10 +3,10 @@ FROM ubuntu:20.04
 # We require a local certificate file so set that up.
 # You must place a valid cert.pem file in your COSMOS development folder for this work
 # Comment out these lines if this is not required in your environment
-COPY cert.pem /devel/cert.pem
-ENV SSL_CERT_FILE /devel/cert.pem
-ENV CURL_CA_BUNDLE /devel/cert.pem
-ENV REQUESTS_CA_BUNDLE /devel/cert.pem
+COPY cacert.pem /devel/cacert.pem
+ENV SSL_CERT_FILE /devel/cacert.pem
+ENV CURL_CA_BUNDLE /devel/cacert.pem
+ENV REQUESTS_CA_BUNDLE /devel/cacert.pem
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
@@ -16,21 +16,12 @@ RUN apt-get update -y && apt-get install -y \
   --option "Acquire:http::Pipeline-Depth=0" \
   curl \
   build-essential \
-  #  default-jdk \
   ruby \
   ruby-dev \
   git \
   netbase \
   zlib1g \
   zlib1g-dev
-
-# Download and install jruby
-#RUN cd /opt \
-#  && curl -G https://repo1.maven.org/maven2/org/jruby/jruby-dist/9.2.13.0/jruby-dist-9.2.13.0-bin.tar.gz > jruby.tar.gz \
-#  && tar xvf jruby.tar.gz \
-#  && mv jruby-9.2.13.0 jruby
-
-#ENV PATH="/opt/jruby/bin:$PATH"
 
 RUN gem install bundler
 
@@ -45,7 +36,7 @@ COPY tasks /cosmos/tasks
 
 ENV COSMOS_PATH="/cosmos"
 
-RUN git config --global http.sslCAinfo /devel/cert.pem
+RUN git config --global http.sslCAinfo /devel/cacert.pem
 
 RUN cd /cosmos && bundle install --without=development
 RUN cd /cosmos && bundle exec rake build

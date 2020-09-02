@@ -79,6 +79,7 @@ export default {
       configParser: null,
       currentLayout: null,
       layoutStack: [],
+      namedWidgets: {},
       width: null,
       height: null,
       fixed: null,
@@ -158,6 +159,15 @@ export default {
     this.startUpdates()
   },
   methods: {
+    // Called by button scripts to get named widgets
+    // Underscores used to match COSMOS API rather than Javascript convention
+    get_named_widget(name) {
+      return this.namedWidgets[name]
+    },
+    // Called by named widgets to register with the screen
+    setNamedWidget(name, widget) {
+      this.namedWidgets[name] = widget
+    },
     update() {
       if (this.$store.state.tlmViewerItems.length !== 0) {
         let items = []
@@ -188,14 +198,14 @@ export default {
       this.$emit('minMaxScreen')
     },
     process_widget(keyword, parameters) {
-      var widget_name = null
+      var widgetName = null
       if (keyword === 'NAMED_WIDGET') {
         this.configParser.verify_num_parameters(
           2,
           null,
           `${keyword} <Widget Name> <Widget Type> <Widget Settings... (optional)>`
         )
-        widget_name = parameters[0].toUpperCase()
+        widgetName = parameters[0].toUpperCase()
         keyword = parameters[1].toUpperCase()
         parameters = parameters.slice(2, parameters.length)
       } else {
@@ -226,10 +236,21 @@ export default {
         this.currentLayout.widgets.push(layout)
         this.currentLayout = layout
       } else {
+        let settings = []
+        // Buttons require a reference to the screen to call get_named_widget
+        if (keyword.includes('BUTTON')) {
+          settings.push(['SCREEN', this])
+        }
+        if (widgetName !== null) {
+          // Push a reference to the screen so the widget can register when it is created
+          // We do this because the widget isn't actually created until
+          // the layout happens with <component :is='type'>
+          settings.push(['NAMED_WIDGET', widgetName, this])
+        }
         this.currentLayout.widgets.push({
           type: componentName,
           parameters: parameters,
-          settings: []
+          settings: settings
         })
       }
     },

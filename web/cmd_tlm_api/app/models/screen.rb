@@ -42,7 +42,10 @@ class Screen
     rubys3_client = Aws::S3::Client.new
     resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{target}/screens/#{screen}.txt")
     @target_name = target
-    ERB.new(resp.body.read).result(binding)
+    file = resp.body.read
+    # Remove all the commented out lines to prevent ERB from running
+    file.gsub!(/^\s*#.*\n/,'')
+    ERB.new(file).result(binding)
   end
 
   # Called by the ERB template to render a partial

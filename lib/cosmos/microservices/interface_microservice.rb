@@ -54,7 +54,10 @@ module Cosmos
 
           if ConfigParser.handle_true_false(msg_hash['hazardous_check'])
             hazardous, hazardous_description = System.commands.cmd_pkt_hazardous?(command)
-            next 'HazardousError' if hazardous
+            # Return back the error, description, and the formatted command
+            # This allows the error handler to simply re-send the command
+            # TODO: Should we set target_name, cmd_name, and cmd_params instead?
+            next "HazardousError\n#{hazardous_description}\n#{System.commands.format(command)}" if hazardous
           end
 
           begin

@@ -1424,6 +1424,7 @@ module Cosmos
         info << [int['name'], int['state'], int['clients'], int['txsize'], int['rxsize'],\
                   int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
       end
+      info.sort! {|a,b| a[0] <=> b[0] }
       info
     end
 
@@ -1840,7 +1841,8 @@ module Cosmos
         _, _, target, packet = key.split('__') # split off scope and type
         result << [target, packet, _get_cnt(key)]
       end
-      result
+      # Return the results sorted by target, packet
+      result.sort_by { |a| [a[0], a[1]] }
     end
 
     def cmd_implementation(range_check, hazardous_check, raw, method_name, *args, scope:, token:)
