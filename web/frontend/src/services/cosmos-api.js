@@ -17,7 +17,7 @@ export class CosmosApi {
         id: this.id,
         keyword_params: { scope: 'DEFAULT' }
       })
-      var data = response.data
+      // var data = response.data
       // if (data.error) {
       //   var err = new Error()
       //   err.name = data.error.data.class
@@ -25,7 +25,7 @@ export class CosmosApi {
       //   console.log(data.error.data.backtrace.join('\n'))
       //   throw err
       // }
-      return data.result
+      return response.data.result
     } catch (error) {
       var err = new Error()
       if (error.response) {

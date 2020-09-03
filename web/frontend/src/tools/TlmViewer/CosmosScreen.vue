@@ -176,8 +176,17 @@ export default {
           items.push([item.target, item.packet, item.item])
           types.push(item.type)
         })
+        // TODO: Is this leaking memory / DOM nodes?
+        // DOM nodes doesn't make sense here but it appears to be increasing
+        // even on a simple screen with a single value
         this.api.get_tlm_values(items, types).then(data => {
           this.$store.commit('tlmViewerUpdateValues', data)
+          // This hard coded value doesn't appear to leak
+          // this.$store.commit('tlmViewerUpdateValues', [
+          //   ['11', '11'],
+          //   [null, null]
+          // ])
+          // I also tried creating a new array and copying in data but that had no effect
         })
       }
     },

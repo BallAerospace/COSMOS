@@ -17,9 +17,19 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field v-model="startdate" label="Start Date" v-on="on" data-test="startdate"></v-text-field>
+              <v-text-field
+                v-model="startdate"
+                label="Start Date"
+                v-on="on"
+                data-test="startdate"
+              ></v-text-field>
             </template>
-            <v-date-picker v-model="startdate" :max="enddate" :show-current="false" no-title></v-date-picker>
+            <v-date-picker
+              v-model="startdate"
+              :max="enddate"
+              :show-current="false"
+              no-title
+            ></v-date-picker>
           </v-menu>
           <v-menu
             ref="enddatemenu"
@@ -32,9 +42,19 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field v-model="enddate" label="End Date" v-on="on" data-test="enddate"></v-text-field>
+              <v-text-field
+                v-model="enddate"
+                label="End Date"
+                v-on="on"
+                data-test="enddate"
+              ></v-text-field>
             </template>
-            <v-date-picker v-model="enddate" :min="startdate" :show-current="false" no-title></v-date-picker>
+            <v-date-picker
+              v-model="enddate"
+              :min="startdate"
+              :show-current="false"
+              no-title
+            ></v-date-picker>
           </v-menu>
         </v-col>
         <v-col>
@@ -49,9 +69,20 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field v-model="starttime" label="Start Time" v-on="on" data-test="starttime"></v-text-field>
+              <v-text-field
+                v-model="starttime"
+                label="Start Time"
+                v-on="on"
+                data-test="starttime"
+              ></v-text-field>
             </template>
-            <v-time-picker v-model="starttime" format="24hr" use-seconds :max="endtime" no-title></v-time-picker>
+            <v-time-picker
+              v-model="starttime"
+              format="24hr"
+              use-seconds
+              :max="endtime"
+              no-title
+            ></v-time-picker>
           </v-menu>
           <v-menu
             ref="endtimemenu"
@@ -64,7 +95,12 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field v-model="endtime" label="End Time" v-on="on" data-test="endtime"></v-text-field>
+              <v-text-field
+                v-model="endtime"
+                label="End Time"
+                v-on="on"
+                data-test="endtime"
+              ></v-text-field>
             </template>
             <v-time-picker
               v-model="endtime"
@@ -84,11 +120,9 @@
             buttonText="Add Item"
             :chooseItem="true"
           ></TargetPacketItemChooser>
-          <v-alert
-            type="warning"
-            v-if="duplicateWarning"
-            dismissible
-          >This item has already been added!</v-alert>
+          <v-alert type="warning" v-if="duplicateWarning" dismissible
+            >This item has already been added!</v-alert
+          >
         </div>
       </v-row>
     </v-container>
@@ -96,16 +130,26 @@
     <v-container>
       <v-row>
         <v-col>
-          <v-switch v-model="useUtcTime" class="ma-2" label="Use UTC time"></v-switch>
+          <v-switch
+            v-model="useUtcTime"
+            class="ma-2"
+            label="Use UTC time"
+          ></v-switch>
         </v-col>
         <v-col>
-          <v-btn depressed small elevation="24" @click="deleteItems">Delete Item(s)</v-btn>
+          <v-btn depressed small elevation="24" @click="deleteItems"
+            >Delete Item(s)</v-btn
+          >
         </v-col>
         <v-col>
-          <v-btn depressed small elevation="24" @click="processItems">Process</v-btn>
+          <v-btn depressed small elevation="24" @click="processItems"
+            >Process</v-btn
+          >
         </v-col>
         <v-col>
-          <v-btn depressed small elevation="24" @click="clearItems">Clear Items</v-btn>
+          <v-btn depressed small elevation="24" @click="clearItems"
+            >Clear Items</v-btn
+          >
         </v-col>
         <v-col>
           <v-btn
@@ -116,7 +160,8 @@
             small
             :download="startDateTimeFilename + downloadFileExtension"
             elevation="24"
-          >Download File</v-btn>
+            >Download File</v-btn
+          >
         </v-col>
       </v-row>
     </v-container>
@@ -125,7 +170,10 @@
         <v-container align="center">
           <v-row v-for="(item, i) in tlmItems" v-bind:key="i" no-gutters>
             <v-col>
-              <v-checkbox :label="`${getItemLabel(item)}`" v-model="item.act"></v-checkbox>
+              <v-checkbox
+                :label="`${getItemLabel(item)}`"
+                v-model="item.act"
+              ></v-checkbox>
             </v-col>
             <v-col>
               <v-dialog v-model="item[i]" max-width="700">
@@ -138,7 +186,8 @@
                     dark
                     v-bind="attrs"
                     v-on="on"
-                  >Edit Item - {{ item.label }}</v-btn>
+                    >Edit Item - {{ item.label }}</v-btn
+                  >
                 </template>
                 <v-card>
                   <v-card-title>Edit {{ item.label }}</v-card-title>
@@ -395,7 +444,7 @@ export default {
               )
             }
           })
-          console.log(localItems)
+          // console.log(localItems)
           this.subscription.perform('add', {
             scope: 'DEFAULT',
             items: localItems,
@@ -406,7 +455,7 @@ export default {
         received: json_data => {
           // Process the items when they are received
           let data = JSON.parse(json_data)
-          console.log(data)
+          // console.log(data)
           let columnHeaders = ''
           if (this.useMatlabHeader) {
             // Matlab column headers get a leading percent, add the first one here
