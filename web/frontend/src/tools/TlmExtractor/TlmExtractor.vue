@@ -220,6 +220,7 @@ export default {
       totalData: [],
       useMatlabHeader: false,
       useFullColumnNames: false,
+      columnHeadersSet: false,
       useUtcTime: false,
       useFillDown: false,
       useUniqueOnly: false,
@@ -414,7 +415,7 @@ export default {
           // use the keys of the first packet to get the column headers
           data.forEach((packet, index) => {
             const keys = Object.keys(packet)
-            if (index < 1) {
+            if (index < 1 && !this.columnHeadersSet) {
               keys.forEach(key => {
                 //console.log(key)
 
@@ -456,8 +457,8 @@ export default {
           columnHeaders = this.rtrim(columnHeaders, ',')
           columnHeaders = this.rtrim(columnHeaders, '\t')
           columnHeaders += '\n'
-          this.totalData.push(columnHeaders)
-
+          if (!this.columnHeadersSet) this.totalData.push(columnHeaders)
+          this.columnHeadersSet = true
           // Now that headers are done, go thru all the packets
           data.forEach((packet, packetindex) => {
             // convert packet array to comma separated string for each row
@@ -470,6 +471,9 @@ export default {
                 // only add a row if current packet is not equal to previous packet
               } else {
                 keys.forEach((key, index) => {
+                  if (typeof packet[key] == 'object') {
+                    packet[key] = packet[key]['raw']
+                  }
                   if (this.useTsv) {
                     row += packet[key] + '\t'
                   } else {
@@ -487,12 +491,9 @@ export default {
               }
             } else {
               keys.forEach((key, index) => {
-                //console.log(packet[key])
-                //console.log(typeof packet[key])
-                //console.log(packet[key].raw)
-                //if (typeof packet[key] == Object) {
-                //  packet[key] = packet[key].raw
-                //}
+                if (typeof packet[key] == 'object') {
+                  packet[key] = packet[key]['raw']
+                }
                 if (this.useTsv) {
                   row += packet[key] + '\t'
                 } else {

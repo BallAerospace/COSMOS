@@ -8,7 +8,7 @@ function getCurrentTime(min) {
   let today = new Date();
   let time = today.getHours() + ":" + min + ":00"
   // sometimes you want the current hour, sometimes the previous hour, manually enter military time
-  let hour = "09"
+  let hour = "08"
   time = hour + ":" + min + ":00"
   return time
 }
@@ -20,10 +20,7 @@ describe('TlmExtractor', () => {
   todaysDate = getTodaysDate()
   currentHour = getCurrentTime('00')
   currentHourPlus = getCurrentTime('15')
-  //downloadFile = getDownloadFilePath('amuscare')
-
   it('Standard CSV output', function () {
-    //cy.wait(5000)
     cy.visit('/telemetry-extractor')
     cy.hideNav()
     cy.get('[data-test=startdate]').type(todaysDate)
@@ -41,18 +38,8 @@ describe('TlmExtractor', () => {
     cy.contains('Process').click()
     cy.wait(5000)
     cy.contains('Download File').click()
-    //cy.wait(5000)
-    /*
-    cy.parseCsv(downloadFile).then(
-      jsonData => {
-        console.log('taco')
-        console.log(jsonData)
-        expect(jsonData[0].data[0]).to.eqls(data);
-      }
-    )
-      */
-  })
 
+  })
   it('Tab delimited output', function () {
     cy.visit('/telemetry-extractor')
     cy.hideNav()
@@ -141,10 +128,10 @@ describe('TlmExtractor', () => {
     cy.selectTargetPacketItem('INST', 'ADCS', 'PACKET_TIMEFORMATTED')
     cy.contains('Add Item').click()
     cy.contains('Process').click()
-    cy.wait(5000)
+    cy.wait(9000)
     cy.contains('Download File').click()
   })
-  /*
+
   it('Unique Only in the output csv', function () {
     cy.visit('/telemetry-extractor')
     cy.hideNav()
@@ -170,5 +157,5 @@ describe('TlmExtractor', () => {
     cy.wait(10000)
     cy.contains('Download File').click()
   })
-*/
+
 })
