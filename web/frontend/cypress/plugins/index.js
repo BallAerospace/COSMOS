@@ -24,28 +24,33 @@
 // }
 // on('file:preprocessor', webpackPreprocessor(options))
 // }
-const csv = require("csv-parser")
-const fs = require("fs")
-const path = require("path")
+const csv = require('csv-parser')
+const fs = require('fs')
+const path = require('path')
 
 const preprocessor = require('cypress-vue-unit-test/dist/plugins/webpack')
 
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
 
-  on("task", {
-    parseCsv({ filePath }) {
-      return new Promise((resolve, reject) => {
-        try {
-          const jsonData = csv.parse(fs.readFileSync(filePath))
-          resolve(jsonData)
-        } catch (e) {
-          reject(e)
-        }
-      })
+  on('before:browser:launch', (browser, options) => {
+    // Make the download directory cypress/downloads
+    const downloadDirectory = path.join(__dirname, '..', 'downloads')
+
+    if (browser.family === 'chromium' && browser.name !== 'electron') {
+      options.preferences.default['download'] = {
+        default_directory: downloadDirectory
+      }
+      return options
+    }
+    if (browser.family === 'firefox') {
+      options.preferences['browser.download.dir'] = downloadDirectory
+      options.preferences['browser.download.folderList'] = 2
+      // needed to prevent download prompt for text/csv files.
+      options.preferences['browser.helperApps.neverAsk.saveToDisk'] = 'text/csv'
+      return options
     }
   })
-
 
   require('@cypress/code-coverage/task')(on, config)
   preprocessor(on, config)

@@ -29,7 +29,7 @@ export default {
     setInterval(() => {
       this.value +=
         '\n' +
-        format(new Date(), 'yyyy-MM-dd HH:MM:ss') +
+        format(new Date(), 'yyyy-MM-dd HH:mm:ss') +
         ': More text to append'
       this.$nextTick(function() {
         let textarea = document.getElementById('text')

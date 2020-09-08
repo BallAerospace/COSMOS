@@ -86,7 +86,7 @@ export default {
     formatDate(nanoSecs) {
       return format(
         toDate(parseInt(nanoSecs) / 1_000_000),
-        'yyyy-MM-dd HH:MM:ss.SSS'
+        'yyyy-MM-dd HH:mm:ss.SSS'
       )
     },
     getColorClass(message) {

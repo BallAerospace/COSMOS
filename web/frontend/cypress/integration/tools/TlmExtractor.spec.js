@@ -1,36 +1,38 @@
-function getTodaysDate() {
-  let today = new Date();
-  let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-  return date
+import { format, sub } from 'date-fns'
+
+function getDate(date) {
+  return format(date, 'yyyy-MM-dd')
 }
-// This returns the current hour then minutes is the min param
-function getCurrentTime(min) {
-  let today = new Date();
-  let time = today.getHours() + ":" + min + ":00"
-  // sometimes you want the current hour, sometimes the previous hour, manually enter military time
-  let hour = "07"
-  time = hour + ":" + min + ":00"
-  return time
+function getStartTime(date, minutes = 5) {
+  return format(sub(date, { minutes: minutes }), 'HH:mm:ss')
 }
-function getDownloadFilePath(username) {
-  return "/Users/" + username + "/Downloads/2020-08-27_08_00_00.csv"
+function getEndTime(date) {
+  return format(date, 'HH:mm:ss')
+}
+function getFilename(date, minutes = 5) {
+  return format(sub(date, { minutes: minutes }), 'yyyy_MM_dd_HH_mm_ss') + '.csv'
 }
 
 describe('TlmExtractor', () => {
-  todaysDate = getTodaysDate()
-  currentHour = getCurrentTime('00')
-  currentHourPlus = getCurrentTime('15')
-
-  it('Standard CSV output', function () {
+  it('creates CSV output', function() {
+    const now = new Date()
     cy.visit('/telemetry-extractor')
     cy.hideNav()
-    cy.get('[data-test=startdate]').type(todaysDate)
+    cy.get('[data-test=startdate]')
+      .clear()
+      .type(getDate(now))
+    cy.focused().click({ force: true })
+    cy.get('[data-test=enddate]')
+      .clear()
+      .type(getDate(now))
     cy.focused().click()
-    cy.get('[data-test=enddate]').type(todaysDate)
+    cy.get('[data-test=starttime]')
+      .clear()
+      .type(getStartTime(now))
     cy.focused().click()
-    cy.get('[data-test=starttime]').type(currentHour)
-    cy.focused().click()
-    cy.get('[data-test=endtime]').type(currentHourPlus)
+    cy.get('[data-test=endtime]')
+      .clear()
+      .type(getEndTime(now))
     cy.focused().click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
@@ -39,22 +41,41 @@ describe('TlmExtractor', () => {
     cy.contains('Process').click()
     cy.wait(5000)
     cy.contains('Download File').click()
-
+    cy.readFile('cypress/downloads/' + getFilename(now)).then(contents => {
+      // Check that we handle raw value types set by the demo
+      expect(contents).to.contain('NaN')
+      expect(contents).to.contain('Infinity')
+      expect(contents).to.contain('-Infinity')
+      var lines = contents.split('\n')
+      expect(lines[0]).to.contain('TEMP1')
+      expect(lines[0]).to.contain('TEMP2')
+      expect(lines.length).to.be.greaterThan(300) // 5 min at 60Hz is 300 samples
+    })
   })
-  it('Tab delimited output', function () {
+
+  it('creates tab delimited output', function() {
+    const now = new Date()
     cy.visit('/telemetry-extractor')
     cy.hideNav()
     cy.get('.v-toolbar')
       .contains('File')
       .click()
     cy.contains(/^Tab Delimited File$/).click()
-    cy.get('[data-test=startdate]').type(todaysDate)
+    cy.get('[data-test=startdate]')
+      .clear()
+      .type(getDate(now))
     cy.focused().click()
-    cy.get('[data-test=enddate]').type(todaysDate)
+    cy.get('[data-test=enddate]')
+      .clear()
+      .type(getDate(now))
     cy.focused().click()
-    cy.get('[data-test=starttime]').type(currentHour)
+    cy.get('[data-test=starttime]')
+      .clear()
+      .type(getStartTime(now))
     cy.focused().click()
-    cy.get('[data-test=endtime]').type(currentHourPlus)
+    cy.get('[data-test=endtime]')
+      .clear()
+      .type(getEndTime(now))
     cy.focused().click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
@@ -64,20 +85,30 @@ describe('TlmExtractor', () => {
     cy.wait(5000)
     cy.contains('Download File').click()
   })
-  it('Full Column Names in output', function () {
+
+  it('outputs full column names', function() {
+    const now = new Date()
     cy.visit('/telemetry-extractor')
     cy.hideNav()
     cy.get('.v-toolbar')
       .contains('File')
       .click()
     cy.contains(/^Use Full Column Names$/).click()
-    cy.get('[data-test=startdate]').type(todaysDate)
+    cy.get('[data-test=startdate]')
+      .clear()
+      .type(getDate(now))
     cy.focused().click()
-    cy.get('[data-test=enddate]').type(todaysDate)
+    cy.get('[data-test=enddate]')
+      .clear()
+      .type(getDate(now))
     cy.focused().click()
-    cy.get('[data-test=starttime]').type(currentHour)
+    cy.get('[data-test=starttime]')
+      .clear()
+      .type(getStartTime(now))
     cy.focused().click()
-    cy.get('[data-test=endtime]').type(currentHourPlus)
+    cy.get('[data-test=endtime]')
+      .clear()
+      .type(getEndTime(now))
     cy.focused().click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
@@ -87,23 +118,35 @@ describe('TlmExtractor', () => {
     cy.wait(5000)
     cy.contains('Download File').click()
   })
-  it('Duplicate Item Triggers Warning', function () {
+
+  it('triggers warning with duplicate item', function() {
+    const now = new Date()
     cy.visit('/telemetry-extractor')
     cy.hideNav()
-    cy.get('[data-test=startdate]').type(todaysDate)
+    cy.get('[data-test=startdate]')
+      .clear()
+      .type(getDate(now))
     cy.focused().click()
-    cy.get('[data-test=enddate]').type(todaysDate)
+    cy.get('[data-test=enddate]')
+      .clear()
+      .type(getDate(now))
     cy.focused().click()
-    cy.get('[data-test=starttime]').type(currentHour)
+    cy.get('[data-test=starttime]')
+      .clear()
+      .type(getStartTime(now))
     cy.focused().click()
-    cy.get('[data-test=endtime]').type(currentHourPlus)
+    cy.get('[data-test=endtime]')
+      .clear()
+      .type(getEndTime(now))
     cy.focused().click()
     // Add the first item, INST/ADCS/CCSDSVER
     cy.contains('Add Item').click()
     cy.contains('Add Item').click()
     cy.contains('This item has already been added').should('be.visible')
   })
-  it('Use Matlab Headers TSV output', function () {
+
+  it('outputs Matlab headers', function() {
+    const now = new Date()
     cy.visit('/telemetry-extractor')
     cy.hideNav()
     cy.get('.v-toolbar')
@@ -114,13 +157,21 @@ describe('TlmExtractor', () => {
       .contains('Mode')
       .click()
     cy.contains(/^Use Matlab Header$/).click()
-    cy.get('[data-test=startdate]').type(todaysDate)
+    cy.get('[data-test=startdate]')
+      .clear()
+      .type(getDate(now))
     cy.focused().click()
-    cy.get('[data-test=enddate]').type(todaysDate)
+    cy.get('[data-test=enddate]')
+      .clear()
+      .type(getDate(now))
     cy.focused().click()
-    cy.get('[data-test=starttime]').type(currentHour)
+    cy.get('[data-test=starttime]')
+      .clear()
+      .type(getStartTime(now))
     cy.focused().click()
-    cy.get('[data-test=endtime]').type(currentHourPlus)
+    cy.get('[data-test=endtime]')
+      .clear()
+      .type(getEndTime(now))
     cy.focused().click()
     cy.selectTargetPacketItem('INST', 'ADCS', 'Q1')
     cy.contains('Add Item').click()
@@ -133,20 +184,29 @@ describe('TlmExtractor', () => {
     cy.contains('Download File').click()
   })
 
-  it('Unique Only in the output csv', function () {
+  it('outputs unique values only', function() {
+    const now = new Date()
     cy.visit('/telemetry-extractor')
     cy.hideNav()
     cy.get('.v-toolbar')
       .contains('Mode')
       .click()
     cy.contains(/^Unique Only$/).click()
-    cy.get('[data-test=startdate]').type(todaysDate)
+    cy.get('[data-test=startdate]')
+      .clear()
+      .type(getDate(now))
     cy.focused().click()
-    cy.get('[data-test=enddate]').type(todaysDate)
+    cy.get('[data-test=enddate]')
+      .clear()
+      .type(getDate(now))
     cy.focused().click()
-    cy.get('[data-test=starttime]').type(currentHour)
+    cy.get('[data-test=starttime]')
+      .clear()
+      .type(getStartTime(now))
     cy.focused().click()
-    cy.get('[data-test=endtime]').type(currentHourPlus)
+    cy.get('[data-test=endtime]')
+      .clear()
+      .type(getEndTime(now))
     cy.focused().click()
     cy.selectTargetPacketItem('INST', 'ADCS', 'Q1')
     cy.contains('Add Item').click()
@@ -159,16 +219,7 @@ describe('TlmExtractor', () => {
     cy.contains('Download File').click()
   })
 
-  /*
-  cy.parseCsv(downloadFile).then(
-    jsonData => {
-      console.log('taco')
-      console.log(jsonData)
-      expect(jsonData[0].data[0]).to.eqls(data);
-    }
-  )
-  */
-  it('Delete some items', function () {
+  it('deletes items', function() {
     cy.visit('/telemetry-extractor')
     cy.hideNav()
     cy.selectTargetPacketItem('INST', 'ADCS', 'Q1')
@@ -181,20 +232,5 @@ describe('TlmExtractor', () => {
     cy.contains('Delete Item(s)').click()
     cy.contains('INST - ADCS - Q2').click()
     cy.contains('Delete Item(s)').click()
-
   })
-  /*
-  it('Change output from converted to raw', function() {
-    cy.visit('/telemetry-extractor')
-    cy.hideNav()
-    cy.selectTargetPacketItem('INST', 'ADCS', 'Q1')
-    cy.contains('Add Item').click()
-    cy.selectTargetPacketItem('INST', 'ADCS', 'Q2')
-    cy.contains('Add Item').click()
-    cy.selectTargetPacketItem('INST', 'ADCS', 'PACKET_TIMEFORMATTED')
-    cy.contains('Add Item').click()
-
-
-  })
-  */
 })

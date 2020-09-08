@@ -243,6 +243,7 @@ import AppNav from '@/AppNav'
 import { CosmosApi } from '@/services/cosmos-api'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
 import * as ActionCable from 'actioncable'
+import { format } from 'date-fns'
 //import bs from 'binary-search'
 
 export default {
@@ -253,14 +254,14 @@ export default {
   data() {
     return {
       dialog: false,
-      startdate: null,
+      startdate: format(new Date(), 'yyyy-MM-dd'),
+      starttime: format(new Date(), 'HH:mm:ss'),
+      endtime: format(new Date(), 'HH:mm:ss'),
+      enddate: format(new Date(), 'yyyy-MM-dd'),
       startdatemenu: false,
       enddatemenu: false,
       starttimemenu: false,
       endtimemenu: false,
-      starttime: null,
-      endtime: null,
-      enddate: null,
       startDateTime: null,
       endDateTime: null,
       startDateTimeFilename: '',
@@ -385,6 +386,10 @@ export default {
       // Replace the colons with underscore
       this.startDateTimeFilename = this.startDateTimeFilename.replace(
         /:\s*/g,
+        '_'
+      )
+      this.startDateTimeFilename = this.startDateTimeFilename.replace(
+        /-\s*/g,
         '_'
       )
       //console.log(this.startDateTimeFilename)
@@ -521,7 +526,7 @@ export default {
               } else {
                 keys.forEach((key, index) => {
                   if (typeof packet[key] == 'object') {
-                    packet[key] = packet[key]['raw']
+                    packet[key] = '"' + packet[key]['raw'] + '"'
                   }
                   if (this.useTsv) {
                     row += packet[key] + '\t'
@@ -541,7 +546,7 @@ export default {
             } else {
               keys.forEach((key, index) => {
                 if (typeof packet[key] == 'object') {
-                  packet[key] = packet[key]['raw']
+                  packet[key] = '"' + packet[key]['raw'] + '"'
                 }
                 if (this.useTsv) {
                   row += packet[key] + '\t'
