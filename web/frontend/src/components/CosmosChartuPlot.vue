@@ -281,11 +281,12 @@ export default {
       this.subscribe()
     }
   },
-  destroyed() {
+  beforeDestroy() {
     if (this.subscription) {
       this.subscription.unsubscribe()
     }
     this.cable.disconnect()
+    window.removeEventListener('resize')
   },
   watch: {
     state: function(newState, oldState) {

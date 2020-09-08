@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+// import cloneDeep from 'lodash/cloneDeep'
 
 Vue.use(Vuex)
 
@@ -14,6 +15,8 @@ export default new Vuex.Store({
   mutations: {
     tlmViewerUpdateValues(state, values) {
       state.tlmViewerValues = values
+      // TODO: Make a deep copy of the values array
+      // state.tlmViewerValues = cloneDeep(values)
     },
     tlmViewerAddItem(state, { item, callback }) {
       state.tlmViewerItems.push(item)

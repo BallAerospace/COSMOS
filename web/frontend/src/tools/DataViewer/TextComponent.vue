@@ -42,6 +42,9 @@ export default {
     window.addEventListener('resize', debounce(this.calcRows, 200))
     this.calcRows()
   },
+  beforeDestroy() {
+    window.removeEventListener('resize')
+  },
   methods: {
     calcRows() {
       let height = Math.max(
