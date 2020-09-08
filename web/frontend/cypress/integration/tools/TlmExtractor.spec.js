@@ -8,7 +8,7 @@ function getCurrentTime(min) {
   let today = new Date();
   let time = today.getHours() + ":" + min + ":00"
   // sometimes you want the current hour, sometimes the previous hour, manually enter military time
-  let hour = "08"
+  let hour = "07"
   time = hour + ":" + min + ":00"
   return time
 }
@@ -20,6 +20,7 @@ describe('TlmExtractor', () => {
   todaysDate = getTodaysDate()
   currentHour = getCurrentTime('00')
   currentHourPlus = getCurrentTime('15')
+
   it('Standard CSV output', function () {
     cy.visit('/telemetry-extractor')
     cy.hideNav()
@@ -158,4 +159,42 @@ describe('TlmExtractor', () => {
     cy.contains('Download File').click()
   })
 
+  /*
+  cy.parseCsv(downloadFile).then(
+    jsonData => {
+      console.log('taco')
+      console.log(jsonData)
+      expect(jsonData[0].data[0]).to.eqls(data);
+    }
+  )
+  */
+  it('Delete some items', function () {
+    cy.visit('/telemetry-extractor')
+    cy.hideNav()
+    cy.selectTargetPacketItem('INST', 'ADCS', 'Q1')
+    cy.contains('Add Item').click()
+    cy.selectTargetPacketItem('INST', 'ADCS', 'Q2')
+    cy.contains('Add Item').click()
+    cy.selectTargetPacketItem('INST', 'ADCS', 'PACKET_TIMEFORMATTED')
+    cy.contains('Add Item').click()
+    cy.contains('INST - ADCS - Q1').click()
+    cy.contains('Delete Item(s)').click()
+    cy.contains('INST - ADCS - Q2').click()
+    cy.contains('Delete Item(s)').click()
+
+  })
+  /*
+  it('Change output from converted to raw', function() {
+    cy.visit('/telemetry-extractor')
+    cy.hideNav()
+    cy.selectTargetPacketItem('INST', 'ADCS', 'Q1')
+    cy.contains('Add Item').click()
+    cy.selectTargetPacketItem('INST', 'ADCS', 'Q2')
+    cy.contains('Add Item').click()
+    cy.selectTargetPacketItem('INST', 'ADCS', 'PACKET_TIMEFORMATTED')
+    cy.contains('Add Item').click()
+
+
+  })
+  */
 })
