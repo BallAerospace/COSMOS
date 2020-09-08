@@ -129,111 +129,100 @@
 
     <v-container>
       <v-row>
+        <v-progress-linear
+          rounded
+          height="10"
+          :indeterminate="progress"
+        ></v-progress-linear>
+      </v-row>
+      <v-row>
         <v-col>
           <v-switch
             v-model="useUtcTime"
-            class="ma-2"
             label="Use UTC time"
+            class="mt-0"
+            dense
+            hide-details
           ></v-switch>
         </v-col>
         <v-col>
-          <v-btn depressed small elevation="24" @click="deleteItems"
-            >Delete Item(s)</v-btn
-          >
-        </v-col>
-        <v-col>
-          <v-btn depressed small elevation="24" @click="processItems"
-            >Process</v-btn
-          >
-        </v-col>
-        <v-col>
-          <v-btn depressed small elevation="24" @click="clearItems"
-            >Clear Items</v-btn
-          >
+          <v-btn block class="primary" @click="processItems">Process</v-btn>
         </v-col>
         <v-col>
           <v-btn
             ref="blobDownloadLink"
             v-bind:href="blobDownloadLinkUrl"
             :disabled="blobDownloadLinkReady"
-            depressed
-            small
+            block
+            class="primary"
             :download="startDateTimeFilename + downloadFileExtension"
-            elevation="24"
             >Download File</v-btn
           >
         </v-col>
       </v-row>
     </v-container>
     <v-card class="mx-auto" max-width="800" scrollable>
-      <v-card-text align="center">
-        <v-container align="center">
-          <v-row v-for="(item, i) in tlmItems" v-bind:key="i" no-gutters>
-            <v-col>
-              <v-checkbox
-                :label="`${getItemLabel(item)}`"
-                v-model="item.act"
-              ></v-checkbox>
-            </v-col>
-            <v-col>
-              <v-dialog v-model="item[i]" max-width="700">
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    class="text-center"
-                    color="primary"
-                    small
-                    text
-                    dark
-                    v-bind="attrs"
-                    v-on="on"
-                    >Edit Item - {{ item.label }}</v-btn
-                  >
-                </template>
-                <v-card>
-                  <v-card-title>Edit {{ item.label }}</v-card-title>
-                  <v-card-text>
-                    <v-col>
-                      <v-select
-                        :items="valueTypes"
-                        label="Value Type:"
-                        outlined
-                        v-model="item.valueType"
-                      ></v-select>
-                    </v-col>
-                    <v-col>
-                      <v-select
-                        :items="dataReductions"
-                        label="Data Reduction:"
-                        outlined
-                        v-model="item.dataReduction"
-                      ></v-select>
-                    </v-col>
-                    <v-col>
-                      <v-select
-                        :items="dataReducedTypes"
-                        label="Data Reduction Type:"
-                        outlined
-                        v-model="item.dataReducedType"
-                      ></v-select>
-                    </v-col>
-                    <v-col v-if="useUniqueOnly">
-                      <v-select
-                        :items="uniqueIgnoreOptions"
-                        label="Add to Unique Ignore List?:"
-                        outlined
-                        v-model="item.uniqueIgnoreAdd"
-                      ></v-select>
-                    </v-col>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </v-col>
-          </v-row>
-        </v-container>
-      </v-card-text>
+      <v-list>
+        <v-subheader inset>
+          Items<v-spacer></v-spacer>
+          <v-btn class="primary" @click="clearItems">Delete All</v-btn>
+        </v-subheader>
+        <v-list-item v-for="(item, i) in tlmItems" :key="i">
+          <v-list-item-icon>
+            <v-dialog v-model="item[i]" max-width="700">
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon v-bind="attrs" v-on="on">mdi-pencil</v-icon>
+              </template>
+              <v-card>
+                <v-card-title>Edit {{ item.label }}</v-card-title>
+                <v-card-text>
+                  <v-col>
+                    <v-select
+                      :items="valueTypes"
+                      label="Value Type:"
+                      outlined
+                      v-model="item.valueType"
+                    ></v-select>
+                  </v-col>
+                  <v-col>
+                    <v-select
+                      :items="dataReductions"
+                      label="Data Reduction:"
+                      outlined
+                      v-model="item.dataReduction"
+                    ></v-select>
+                  </v-col>
+                  <v-col>
+                    <v-select
+                      :items="dataReducedTypes"
+                      label="Data Reduction Type:"
+                      outlined
+                      v-model="item.dataReducedType"
+                    ></v-select>
+                  </v-col>
+                  <v-col v-if="useUniqueOnly">
+                    <v-select
+                      :items="uniqueIgnoreOptions"
+                      label="Add to Unique Ignore List?:"
+                      outlined
+                      v-model="item.uniqueIgnoreAdd"
+                    ></v-select>
+                  </v-col>
+                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title v-text="getItemLabel(item)"></v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-icon>
+            <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
+          </v-list-item-icon>
+        </v-list-item>
+      </v-list>
     </v-card>
   </div>
 </template>
@@ -244,7 +233,6 @@ import { CosmosApi } from '@/services/cosmos-api'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
 import * as ActionCable from 'actioncable'
 import { format } from 'date-fns'
-//import bs from 'binary-search'
 
 export default {
   components: {
@@ -253,7 +241,7 @@ export default {
   },
   data() {
     return {
-      dialog: false,
+      progress: false,
       startdate: format(new Date(), 'yyyy-MM-dd'),
       starttime: format(new Date(), 'HH:mm:ss'),
       endtime: format(new Date(), 'HH:mm:ss'),
@@ -367,12 +355,9 @@ export default {
       item.uniqueIgnoreAdd = 'NO'
       this.tlmItems.push(item)
     },
-    deleteItems() {
-      this.tlmItems = this.tlmItems.filter(item => {
-        if (item.act == false) {
-          return item
-        }
-      })
+    deleteItem(item) {
+      var index = this.tlmItems.indexOf(item)
+      this.tlmItems.splice(index, 1)
     },
     clearItems(words) {
       this.tlmItems = []
@@ -418,6 +403,7 @@ export default {
       return str.replace(rgxtrim, '')
     },
     processItems() {
+      this.progress = true
       this.setTimestamps()
       // Create a cable at initialization
       var cable = ActionCable.createConsumer('ws://localhost:7777/cable')
@@ -466,53 +452,55 @@ export default {
             // Matlab column headers get a leading percent, add the first one here
             columnHeaders = '%'
           }
-          // use the keys of the first packet to get the column headers
-          data.forEach((packet, index) => {
-            const keys = Object.keys(packet)
-            if (index < 1 && !this.columnHeadersSet) {
-              keys.forEach(key => {
-                //console.log(key)
+          if (!this.columnHeadersSet) {
+            // use the keys of the first packet to get the column headers
+            data.forEach((packet, index) => {
+              const keys = Object.keys(packet)
+              if (index < 1 && !this.columnHeadersSet) {
+                keys.forEach(key => {
+                  //console.log(key)
 
-                //console.log(shortHeader[3])
-                if (this.useTsv) {
-                  if (this.useMatlabHeader) {
-                    columnHeaders += key + '\t%'
-                  } else if (this.useFullColumnNames) {
-                    columnHeaders += key + '\t'
-                  } else {
-                    let headerParts = key.split('__')
-                    if (headerParts.length > 1) {
-                      columnHeaders += headerParts[3] + '\t'
+                  //console.log(shortHeader[3])
+                  if (this.useTsv) {
+                    if (this.useMatlabHeader) {
+                      columnHeaders += key + '\t%'
+                    } else if (this.useFullColumnNames) {
+                      columnHeaders += key + '\t'
                     } else {
-                      // this should be the time column
-                      columnHeaders += headerParts[0] + '\t'
-                    }
-                  }
-                } else {
-                  if (this.useMatlabHeader) {
-                    columnHeaders += key + ',%'
-                  } else if (this.useFullColumnNames) {
-                    columnHeaders += key + ','
-                  } else {
-                    let headerParts = key.split('__')
-                    if (headerParts.length > 1) {
                       let headerParts = key.split('__')
-                      columnHeaders += headerParts[3] + ','
+                      if (headerParts.length > 1) {
+                        columnHeaders += headerParts[3] + '\t'
+                      } else {
+                        // this should be the time column
+                        columnHeaders += headerParts[0] + '\t'
+                      }
+                    }
+                  } else {
+                    if (this.useMatlabHeader) {
+                      columnHeaders += key + ',%'
+                    } else if (this.useFullColumnNames) {
+                      columnHeaders += key + ','
                     } else {
-                      // this should be the time column
-                      columnHeaders += headerParts[0] + ','
+                      let headerParts = key.split('__')
+                      if (headerParts.length > 1) {
+                        let headerParts = key.split('__')
+                        columnHeaders += headerParts[3] + ','
+                      } else {
+                        // this should be the time column
+                        columnHeaders += headerParts[0] + ','
+                      }
                     }
                   }
-                }
-              })
-            }
-          })
-          columnHeaders = this.rtrim(columnHeaders, '%')
-          columnHeaders = this.rtrim(columnHeaders, ',')
-          columnHeaders = this.rtrim(columnHeaders, '\t')
-          columnHeaders += '\n'
-          if (!this.columnHeadersSet) this.totalData.push(columnHeaders)
-          this.columnHeadersSet = true
+                })
+              }
+            })
+            columnHeaders = this.rtrim(columnHeaders, '%')
+            columnHeaders = this.rtrim(columnHeaders, ',')
+            columnHeaders = this.rtrim(columnHeaders, '\t')
+            columnHeaders += '\n'
+            this.totalData.push(columnHeaders)
+            this.columnHeadersSet = true
+          }
           // Now that headers are done, go thru all the packets
           data.forEach((packet, packetindex) => {
             // convert packet array to comma separated string for each row
@@ -565,6 +553,7 @@ export default {
             }
           })
           if (data.length == 0) {
+            this.progress = false
             //console.log(this.totalData)
             this.blobDownloadLinkReady = false
             // Make Excel link
