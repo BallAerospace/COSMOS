@@ -176,7 +176,8 @@ module Cosmos
                   handle_packet(packet)
                 else
                   Logger.info "Clean disconnect from #{@interface.name} (returned nil)"
-                  handle_connection_lost(nil)
+                  # Don't reconnect on a clean disconnect because it's intentional
+                  handle_connection_lost(reconnect: false)
                   break if @cancel_thread
                 end
               rescue Exception => err
@@ -185,7 +186,7 @@ module Cosmos
               end
             else
               @interface_thread_sleeper.sleep(1)
-              handle_connection_lost(nil) if !@interface.connected?
+              handle_connection_lost() if !@interface.connected?
             end
           end
         end
@@ -299,7 +300,7 @@ module Cosmos
       disconnect() # Ensure we do a clean disconnect
     end
 
-    def handle_connection_lost(err)
+    def handle_connection_lost(err = nil, reconnect: true)
       if err
         Logger.info "Connection Lost for #{@interface.name}: #{err.formatted(false, false)}"
         case err
@@ -318,7 +319,7 @@ module Cosmos
       else
         Logger.info "Connection Lost for #{@interface.name}"
       end
-      disconnect() # Ensure we do a clean disconnect
+      disconnect(reconnect) # Ensure we do a clean disconnect
     end
 
     def connect()
