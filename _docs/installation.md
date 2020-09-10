@@ -15,6 +15,11 @@ COSMOS is now available as Docker images. See our Docker documentation here:
 
 ## Installing COSMOS on Host Machines
 
+<div class="note warning">
+  <h5>Issues with http_proxy</h5>
+  <p style="margin-bottom:20px;">If you are using the http_proxy environment variable to use a proxy server, you MUST also have a no_proxy variable that includes 127.0.0.1 for COSMOS to work.  Note that 127.0.0.0/8 in a no_proxy variable does not work with COSMOS.  It must contain exactly 127.0.0.1</p>
+</div>
+
 ## Windows 7+
 Run the COSMOS Installation bat file:
 
@@ -66,11 +71,6 @@ Run the following command in a terminal running the **bash** shell:
 ```
 bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 ```
-
-<div class="note warning">
-  <h5>Issues with http_proxy</h5>
-  <p style="margin-bottom:20px;">If you are using the http_proxy environment variable to use a proxy server, you MUST also have a no_proxy variable that includes 127.0.0.1 for COSMOS to work.  Note that 127.0.0.0/8 in a no_proxy variable does not work with COSMOS.  It must contain exactly 127.0.0.1</p>
-</div>
 
 ## Linux Notes
 

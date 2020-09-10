@@ -5048,6 +5048,11 @@
 
 <h2 id="installing-cosmos-on-host-machines">Installing COSMOS on Host Machines</h2>
 
+<div class="note warning">
+  <h5>Issues with http_proxy</h5>
+  <p style="margin-bottom:20px;">If you are using the http_proxy environment variable to use a proxy server, you MUST also have a no_proxy variable that includes 127.0.0.1 for COSMOS to work.  Note that 127.0.0.0/8 in a no_proxy variable does not work with COSMOS.  It must contain exactly 127.0.0.1</p>
+</div>
+
 <h2 id="windows-7">Windows 7+</h2>
 <p>Run the COSMOS Installation bat file:</p>
 
@@ -5100,11 +5105,6 @@ You will need to create new ones with the names above and set their value to the
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 </code></pre></div></div>
-
-<div class="note warning">
-  <h5>Issues with http_proxy</h5>
-  <p style="margin-bottom:20px;">If you are using the http_proxy environment variable to use a proxy server, you MUST also have a no_proxy variable that includes 127.0.0.1 for COSMOS to work.  Note that 127.0.0.0/8 in a no_proxy variable does not work with COSMOS.  It must contain exactly 127.0.0.1</p>
-</div>
 
 <h2 id="linux-notes">Linux Notes</h2>
 
