@@ -15,7 +15,7 @@ collections:
   docs:
     output: true
 
-cosmos_root: ../COSMOS
+cosmos_root: ../COSMOS4
 cosmos_meta_path: data/config
 cosmos_tool_path: install/tools
 
