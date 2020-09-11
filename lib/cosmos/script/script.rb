@@ -25,13 +25,6 @@ $disconnect_all_targets = false
 $cmd_tlm_replay_mode = false
 
 module Cosmos
-  # Error raised by the API when a check fails
-  class CheckError < RuntimeError; end
-  # Error raised when a Script should be stopped
-  class StopScript < StandardError; end
-  # Error raised when a TestCase should be skipped by TestRunner
-  class SkipTestCase < StandardError; end
-
   # Provides a proxy to both a disconnected CmdTlmServer instance and the real
   # JsonDRbObject which communicates with the real CmdTlmServer. If targets
   # are disconnected their method calls are forwarded to the disconnected
