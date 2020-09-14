@@ -1,14 +1,13 @@
 <template>
   <div>
     <app-nav :menus="menus" />
-    <v-container grid-list-md pa-20>
+    <v-container>
       <v-row>
         <h1>Time Period:</h1>
       </v-row>
       <v-row justify="space-around" align="center" fluid>
         <v-col>
           <v-menu
-            v-model="startdatemenu"
             :close-on-content-click="true"
             :nudge-right="40"
             transition="scale-transition"
@@ -17,23 +16,12 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="startdate"
-                label="Start Date"
-                v-on="on"
-                data-test="startdate"
-              ></v-text-field>
+              <v-text-field v-model="startDate" label="Start Date" v-on="on" data-test="startDate"></v-text-field>
             </template>
-            <v-date-picker
-              v-model="startdate"
-              :max="enddate"
-              :show-current="false"
-              no-title
-            ></v-date-picker>
+            <v-date-picker v-model="startDate" :max="endDate" :show-current="false" no-title></v-date-picker>
           </v-menu>
           <v-menu
-            ref="enddatemenu"
-            v-model="enddatemenu"
+            ref="endDatemenu"
             :close-on-content-click="true"
             :nudge-right="40"
             transition="scale-transition"
@@ -42,26 +30,14 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="enddate"
-                label="End Date"
-                v-on="on"
-                data-test="enddate"
-              ></v-text-field>
+              <v-text-field v-model="endDate" label="End Date" v-on="on" data-test="endDate"></v-text-field>
             </template>
-            <v-date-picker
-              v-model="enddate"
-              :min="startdate"
-              :show-current="false"
-              no-title
-            ></v-date-picker>
+            <v-date-picker v-model="endDate" :min="startDate" :show-current="false" no-title></v-date-picker>
           </v-menu>
         </v-col>
         <v-col>
           <v-menu
-            ref="starttimemenu"
             :close-on-content-click="false"
-            v-model="starttimemenu"
             :nudge-right="40"
             transition="scale-transition"
             offset-y
@@ -69,25 +45,12 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="starttime"
-                label="Start Time"
-                v-on="on"
-                data-test="starttime"
-              ></v-text-field>
+              <v-text-field v-model="startTime" label="Start Time" v-on="on" data-test="startTime"></v-text-field>
             </template>
-            <v-time-picker
-              v-model="starttime"
-              format="24hr"
-              use-seconds
-              :max="endtime"
-              no-title
-            ></v-time-picker>
+            <v-time-picker v-model="startTime" format="24hr" use-seconds :max="endTime" no-title></v-time-picker>
           </v-menu>
           <v-menu
-            ref="endtimemenu"
             :close-on-content-click="false"
-            v-model="endtimemenu"
             :nudge-right="40"
             transition="scale-transition"
             offset-y
@@ -95,18 +58,13 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="endtime"
-                label="End Time"
-                v-on="on"
-                data-test="endtime"
-              ></v-text-field>
+              <v-text-field v-model="endTime" label="End Time" v-on="on" data-test="endTime"></v-text-field>
             </template>
             <v-time-picker
-              v-model="endtime"
+              v-model="endTime"
               format="24hr"
               use-seconds
-              :min="starttime"
+              :min="startTime"
               no-title
               @input="setTimestamps"
             ></v-time-picker>
@@ -120,110 +78,97 @@
             buttonText="Add Item"
             :chooseItem="true"
           ></TargetPacketItemChooser>
-          <v-alert type="warning" v-if="duplicateWarning" dismissible
-            >This item has already been added!</v-alert
-          >
+          <v-alert
+            type="warning"
+            v-if="duplicateWarning"
+            dismissible
+          >This item has already been added!</v-alert>
         </div>
       </v-row>
-    </v-container>
-
-    <v-container>
       <v-row>
-        <v-progress-linear
-          rounded
-          height="10"
-          :indeterminate="progress"
-        ></v-progress-linear>
+        <v-progress-linear rounded height="10" :value="progress"></v-progress-linear>
       </v-row>
       <v-row>
         <v-col>
-          <v-switch
-            v-model="useUtcTime"
-            label="Use UTC time"
-            class="mt-0"
-            dense
-            hide-details
-          ></v-switch>
+          <v-switch v-model="useUtcTime" label="Use UTC time" class="mt-0" dense hide-details></v-switch>
         </v-col>
         <v-col>
-          <v-btn block class="primary" @click="processItems">Process</v-btn>
+          <v-btn block class="primary" @click="processItems">
+            {{
+            processButtonText
+            }}
+          </v-btn>
         </v-col>
+      </v-row>
+      <v-row>
         <v-col>
-          <v-btn
-            ref="blobDownloadLink"
-            v-bind:href="blobDownloadLinkUrl"
-            :disabled="blobDownloadLinkReady"
-            block
-            class="primary"
-            :download="startDateTimeFilename + downloadFileExtension"
-            >Download File</v-btn
-          >
+          <v-card scrollable>
+            <v-list>
+              <v-subheader inset>
+                Items
+                <v-spacer></v-spacer>
+                <v-btn class="primary" @click="clearItems">Delete All</v-btn>
+              </v-subheader>
+              <v-list-item v-for="(item, i) in tlmItems" :key="i">
+                <v-list-item-icon>
+                  <v-dialog v-model="item[i]" max-width="700">
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-icon v-bind="attrs" v-on="on">mdi-pencil</v-icon>
+                    </template>
+                    <v-card>
+                      <v-card-title>Edit {{ item.label }}</v-card-title>
+                      <v-card-text>
+                        <v-col>
+                          <v-select
+                            :items="valueTypes"
+                            label="Value Type:"
+                            outlined
+                            v-model="item.valueType"
+                          ></v-select>
+                        </v-col>
+                        <v-col>
+                          <v-select
+                            :items="dataReductions"
+                            label="Data Reduction:"
+                            outlined
+                            v-model="item.dataReduction"
+                          ></v-select>
+                        </v-col>
+                        <v-col>
+                          <v-select
+                            :items="dataReducedTypes"
+                            label="Data Reduction Type:"
+                            outlined
+                            v-model="item.dataReducedType"
+                          ></v-select>
+                        </v-col>
+                        <v-col v-if="useUniqueOnly">
+                          <v-select
+                            :items="uniqueIgnoreOptions"
+                            label="Add to Unique Ignore List?:"
+                            outlined
+                            v-model="item.uniqueIgnoreAdd"
+                          ></v-select>
+                        </v-col>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title v-text="getItemLabel(item)"></v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-icon>
+                  <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
+                </v-list-item-icon>
+              </v-list-item>
+            </v-list>
+          </v-card>
         </v-col>
       </v-row>
     </v-container>
-    <v-card class="mx-auto" max-width="800" scrollable>
-      <v-list>
-        <v-subheader inset>
-          Items<v-spacer></v-spacer>
-          <v-btn class="primary" @click="clearItems">Delete All</v-btn>
-        </v-subheader>
-        <v-list-item v-for="(item, i) in tlmItems" :key="i">
-          <v-list-item-icon>
-            <v-dialog v-model="item[i]" max-width="700">
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon v-bind="attrs" v-on="on">mdi-pencil</v-icon>
-              </template>
-              <v-card>
-                <v-card-title>Edit {{ item.label }}</v-card-title>
-                <v-card-text>
-                  <v-col>
-                    <v-select
-                      :items="valueTypes"
-                      label="Value Type:"
-                      outlined
-                      v-model="item.valueType"
-                    ></v-select>
-                  </v-col>
-                  <v-col>
-                    <v-select
-                      :items="dataReductions"
-                      label="Data Reduction:"
-                      outlined
-                      v-model="item.dataReduction"
-                    ></v-select>
-                  </v-col>
-                  <v-col>
-                    <v-select
-                      :items="dataReducedTypes"
-                      label="Data Reduction Type:"
-                      outlined
-                      v-model="item.dataReducedType"
-                    ></v-select>
-                  </v-col>
-                  <v-col v-if="useUniqueOnly">
-                    <v-select
-                      :items="uniqueIgnoreOptions"
-                      label="Add to Unique Ignore List?:"
-                      outlined
-                      v-model="item.uniqueIgnoreAdd"
-                    ></v-select>
-                  </v-col>
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title v-text="getItemLabel(item)"></v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-icon>
-            <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
-          </v-list-item-icon>
-        </v-list-item>
-      </v-list>
-    </v-card>
   </div>
 </template>
 
@@ -232,7 +177,7 @@ import AppNav from '@/AppNav'
 import { CosmosApi } from '@/services/cosmos-api'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
 import * as ActionCable from 'actioncable'
-import { format } from 'date-fns'
+import { format, getTime } from 'date-fns'
 
 export default {
   components: {
@@ -241,17 +186,15 @@ export default {
   },
   data() {
     return {
-      progress: false,
-      startdate: format(new Date(), 'yyyy-MM-dd'),
-      starttime: format(new Date(), 'HH:mm:ss'),
-      endtime: format(new Date(), 'HH:mm:ss'),
-      enddate: format(new Date(), 'yyyy-MM-dd'),
-      startdatemenu: false,
-      enddatemenu: false,
-      starttimemenu: false,
-      endtimemenu: false,
+      progress: 0,
+      processButtonText: 'Process',
+      startDate: format(new Date(), 'yyyy-MM-dd'),
+      startTime: format(new Date(), 'HH:mm:ss'),
+      endTime: format(new Date(), 'HH:mm:ss'),
+      endDate: format(new Date(), 'yyyy-MM-dd'),
       startDateTime: null,
       endDateTime: null,
+      duration: null,
       startDateTimeFilename: '',
       tlmItems: [],
       duplicateWarning: false,
@@ -263,16 +206,12 @@ export default {
       useFillDown: false,
       useUniqueOnly: false,
       useBatchMode: false,
-      blobDownloadLink: null,
-      blobDownloadLinkReady: true,
-      blobDownloadLinkUrl: null,
-      downloadFileExtension: '',
       valueTypes: ['CONVERTED', 'RAW', 'FORMATTED', 'WITH_UNITS'],
       dataReductions: ['NONE', 'MINUTE', 'HOUR', 'DAY'],
       dataReducedTypes: ['AVG', 'MIN', 'MAX', 'STDDEV'],
       uniqueIgnoreOptions: ['NO', 'YES'],
       cable: ActionCable.Cable,
-      subscriptionToStream: ActionCable.Channel,
+      subscription: ActionCable.Channel,
       menus: [
         {
           label: 'File',
@@ -330,6 +269,16 @@ export default {
       model: this.tlmItems
     }
   },
+  created() {
+    // Creating the cable can be done once, subscriptions come and go
+    this.cable = ActionCable.createConsumer('ws://localhost:7777/cable')
+  },
+  destroyed() {
+    if (this.subscription) {
+      this.subscription.unsubscribe()
+    }
+    this.cable.disconnect()
+  },
   methods: {
     logItems(item) {
       //console.log(item)
@@ -361,36 +310,27 @@ export default {
     },
     clearItems(words) {
       this.tlmItems = []
-      this.blobDownloadLinkReady = true
     },
     setTimestamps() {
-      //console.log(this.startdate + ' ' + this.starttime)
-      //console.log(this.enddate + ' ' + this.endtime)
-      //console.log(this.useUtcTime)
-      this.startDateTimeFilename = this.startdate + '_' + this.starttime
-      // Replace the colons with underscore
+      this.startDateTimeFilename = this.startDate + '_' + this.startTime
+      // Replace the colons and dashes with underscore
       this.startDateTimeFilename = this.startDateTimeFilename.replace(
-        /:\s*/g,
+        /(:|-)\s*/g,
         '_'
       )
-      this.startDateTimeFilename = this.startDateTimeFilename.replace(
-        /-\s*/g,
-        '_'
-      )
-      //console.log(this.startDateTimeFilename)
 
       if (this.useUtcTime) {
         this.startDateTime =
-          new Date(this.startdate + ' ' + this.starttime).getTime() -
-          216000 * 1000000
+          new Date(this.startDate + ' ' + this.startTime).getTime() -
+          216000 * 1_000_000
         this.endDateTime =
-          new Date(this.enddate + ' ' + this.endtime).getTime() -
-          216000 * 1000000
+          new Date(this.endDate + ' ' + this.endTime).getTime() -
+          216000 * 1_000_000
       } else {
         this.startDateTime =
-          new Date(this.startdate + ' ' + this.starttime).getTime() * 1000000
+          new Date(this.startDate + ' ' + this.startTime).getTime() * 1_000_000
         this.endDateTime =
-          new Date(this.enddate + ' ' + this.endtime).getTime() * 1000000
+          new Date(this.endDate + ' ' + this.endTime).getTime() * 1_000_000
       }
     },
     getItemLabel(item) {
@@ -403,12 +343,21 @@ export default {
       return str.replace(rgxtrim, '')
     },
     processItems() {
-      this.progress = true
-      this.setTimestamps()
-      // Create a cable at initialization
-      var cable = ActionCable.createConsumer('ws://localhost:7777/cable')
+      // Check for a process in progress
+      if (this.processButtonText === 'Cancel') {
+        this.subscription.unsubscribe()
+        this.processButtonText = 'Process'
+        return
+      }
 
-      this.subscription = cable.subscriptions.create('StreamingChannel', {
+      this.progress = 0
+      this.columnHeadersSet = false
+      this.setTimestamps()
+      this.processButtonText = 'Cancel'
+      if (this.subscription) {
+        this.subscription.unsubscribe()
+      }
+      this.subscription = this.cable.subscriptions.create('StreamingChannel', {
         connected: () => {
           var localItems = []
           this.tlmItems.forEach(item => {
@@ -435,7 +384,8 @@ export default {
               )
             }
           })
-          // console.log(localItems)
+          this.duration = this.endDateTime - this.startDateTime
+          this.totalData = []
           this.subscription.perform('add', {
             scope: 'DEFAULT',
             items: localItems,
@@ -446,7 +396,6 @@ export default {
         received: json_data => {
           // Process the items when they are received
           let data = JSON.parse(json_data)
-          // console.log(data)
           let columnHeaders = ''
           if (this.useMatlabHeader) {
             // Matlab column headers get a leading percent, add the first one here
@@ -503,6 +452,9 @@ export default {
           }
           // Now that headers are done, go thru all the packets
           data.forEach((packet, packetindex) => {
+            this.progress = Math.ceil(
+              (100 * (packet['time'] - this.startDateTime)) / this.duration
+            )
             // convert packet array to comma separated string for each row
             const keys = Object.keys(packet)
             let row = ''
@@ -553,19 +505,25 @@ export default {
             }
           })
           if (data.length == 0) {
-            this.progress = false
-            //console.log(this.totalData)
-            this.blobDownloadLinkReady = false
-            // Make Excel link
+            this.processButtonText = 'Process'
+            this.progress = 100
+            let downloadFileExtension = '.csv'
+            let type = 'text/csv'
             if (this.useTsv) {
-              this.downloadFileExtension = '.txt'
-            } else {
-              this.downloadFileExtension = '.csv'
+              downloadFileExtension = '.txt'
+              type = 'text/tab-separated-values'
             }
-            let blob = new Blob(this.totalData, {
-              type: 'data:text/csv;charset=utf-8;'
+            const blob = new Blob(this.totalData, {
+              type: type
             })
-            this.blobDownloadLinkUrl = URL.createObjectURL(blob)
+            // Make a link and then 'click' on it to start the download
+            const link = document.createElement('a')
+            link.href = URL.createObjectURL(blob)
+            link.setAttribute(
+              'download',
+              this.startDateTimeFilename + downloadFileExtension
+            )
+            link.click()
           }
         }
       })
@@ -573,3 +531,8 @@ export default {
   }
 }
 </script>
+
+<style lang="sass">
+.v-progress-linear__determinate
+  transition: none !important
+</style>
