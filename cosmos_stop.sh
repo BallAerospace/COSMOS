@@ -17,3 +17,5 @@ docker stop cosmos_kibana
 docker container rm cosmos_kibana
 docker stop cosmos_elasticsearch
 docker container rm cosmos_elasticsearch
+docker stop cosmos_gems
+docker container rm cosmos_gems

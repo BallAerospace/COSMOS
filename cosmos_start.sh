@@ -9,6 +9,10 @@ docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "e
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "sysctl -w vm.max_map_count=262144"
 docker network create cosmos
 docker build -f Dockerfile.cosmos_base -t cosmos_base .
+cd web/geminabox && docker build -t cosmos_gems .
+cd ../..
+docker volume create cosmos_gems_v
+docker run --network cosmos -p 127.0.0.1:9292:9292 -d --name cosmos_gems -v cosmos_gems_v:/data cosmos_gems
 cd web/fluentd && docker build -t cosmos_fluentd .
 cd ../..
 docker volume create cosmos_elasticsearch_v
