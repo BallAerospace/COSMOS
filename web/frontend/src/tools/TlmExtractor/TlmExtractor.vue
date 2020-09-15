@@ -3,9 +3,6 @@
     <app-nav :menus="menus" />
     <v-container>
       <v-row>
-        <h1>Time Period:</h1>
-      </v-row>
-      <v-row justify="space-around" align="center" fluid>
         <v-col>
           <v-menu
             :close-on-content-click="true"
@@ -86,35 +83,39 @@
         </div>
       </v-row>
       <v-row>
-        <v-progress-linear rounded height="10" :value="progress"></v-progress-linear>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-switch v-model="useUtcTime" label="Use UTC time" class="mt-0" dense hide-details></v-switch>
-        </v-col>
-        <v-col>
-          <v-btn block class="primary" @click="processItems">
-            {{
-            processButtonText
-            }}
-          </v-btn>
-        </v-col>
-      </v-row>
-      <v-row>
         <v-col>
           <v-card scrollable>
-            <v-list>
-              <v-subheader inset>
+            <v-progress-linear absolute top height="10" :value="progress" color="secondary"></v-progress-linear>
+            <v-list data-test="itemList">
+              <v-subheader class="mt-3">
                 Items
                 <v-spacer></v-spacer>
-                <v-btn class="primary" @click="clearItems">Delete All</v-btn>
+                <v-btn class="primary mr-4" @click="processItems">
+                  {{
+                  processButtonText
+                  }}
+                </v-btn>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-icon
+                      @click="clearItems"
+                      v-bind="attrs"
+                      v-on="on"
+                      data-test="deleteAll"
+                    >mdi-delete</v-icon>
+                  </template>
+                  <span>Delete All Items</span>
+                </v-tooltip>
               </v-subheader>
               <v-list-item v-for="(item, i) in tlmItems" :key="i">
                 <v-list-item-icon>
-                  <v-dialog v-model="item[i]" max-width="700">
+                  <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
-                      <v-icon v-bind="attrs" v-on="on">mdi-pencil</v-icon>
+                      <v-icon @click.stop="item.edit = true" v-bind="attrs" v-on="on">mdi-pencil</v-icon>
                     </template>
+                    <span>Edit Item</span>
+                  </v-tooltip>
+                  <v-dialog v-model="item.edit" max-width="700">
                     <v-card>
                       <v-card-title>Edit {{ item.label }}</v-card-title>
                       <v-card-text>
@@ -161,7 +162,12 @@
                   <v-list-item-title v-text="getItemLabel(item)"></v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-icon>
-                  <v-icon @click="deleteItem(item)">mdi-delete</v-icon>
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-icon @click="deleteItem(item)" v-bind="attrs" v-on="on">mdi-delete</v-icon>
+                    </template>
+                    <span>Delete Item</span>
+                  </v-tooltip>
                 </v-list-item-icon>
               </v-list-item>
             </v-list>
@@ -169,6 +175,20 @@
         </v-col>
       </v-row>
     </v-container>
+    <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
+    <LoadConfigDialog
+      v-if="loadConfig"
+      v-model="loadConfig"
+      :tool="toolName"
+      @success="loadConfiguration($event)"
+    />
+    <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
+    <SaveConfigDialog
+      v-if="saveConfig"
+      v-model="saveConfig"
+      :tool="toolName"
+      @success="saveConfiguration($event)"
+    />
   </div>
 </template>
 
@@ -176,17 +196,27 @@
 import AppNav from '@/AppNav'
 import { CosmosApi } from '@/services/cosmos-api'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
+import LoadConfigDialog from '@/components/LoadConfigDialog'
+import SaveConfigDialog from '@/components/SaveConfigDialog'
 import * as ActionCable from 'actioncable'
 import { format, getTime } from 'date-fns'
+import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz'
 
 export default {
   components: {
     AppNav,
-    TargetPacketItemChooser
+    TargetPacketItemChooser,
+    LoadConfigDialog,
+    SaveConfigDialog
   },
   data() {
     return {
+      toolName: 'telemetry-extractor',
+      api: null,
+      loadConfig: false,
+      saveConfig: false,
       progress: 0,
+      lastRow: '',
       processButtonText: 'Process',
       startDate: format(new Date(), 'yyyy-MM-dd'),
       startTime: format(new Date(), 'HH:mm:ss'),
@@ -217,6 +247,23 @@ export default {
           label: 'File',
           items: [
             {
+              label: 'Load Configuration',
+              command: () => {
+                this.loadConfig = true
+              }
+            },
+            {
+              label: 'Save Configuration',
+              command: () => {
+                this.saveConfig = true
+              }
+            }
+          ]
+        },
+        {
+          label: 'Mode',
+          items: [
+            {
               label: 'Tab Delimited File',
               checkbox: true,
               command: () => {
@@ -229,12 +276,10 @@ export default {
               command: () => {
                 this.useFullColumnNames = !this.useFullColumnNames
               }
-            }
-          ]
-        },
-        {
-          label: 'Mode',
-          items: [
+            },
+            {
+              divider: true
+            },
             {
               label: 'Fill Down',
               checkbox: true,
@@ -272,6 +317,7 @@ export default {
   created() {
     // Creating the cable can be done once, subscriptions come and go
     this.cable = ActionCable.createConsumer('ws://localhost:7777/cable')
+    this.api = new CosmosApi()
   },
   destroyed() {
     if (this.subscription) {
@@ -280,8 +326,12 @@ export default {
     this.cable.disconnect()
   },
   methods: {
-    logItems(item) {
-      //console.log(item)
+    async loadConfiguration(name) {
+      const config = await this.api.load_config(this.toolName, name)
+      this.tlmItems = JSON.parse(config)
+    },
+    saveConfiguration(name) {
+      this.api.save_config(this.toolName, name, JSON.stringify(this.tlmItems))
     },
     addItem(item) {
       // Go thru all the existing items and make sure they are NOT the same target/packet/items as the one being added
@@ -295,8 +345,7 @@ export default {
           return
         }
       }
-      // it's ok to add the item now, act(active checkbox) is if it's checked to be deleted
-      item.act = false
+      item.edit = false
       item.label = ''
       item.valueType = 'CONVERTED'
       item.dataReduction = 'NONE'
@@ -343,6 +392,10 @@ export default {
       return str.replace(rgxtrim, '')
     },
     processItems() {
+      // Check for an empty list
+      if (this.tlmItems.length === 0) {
+        return
+      }
       // Check for a process in progress
       if (this.processButtonText === 'Cancel') {
         this.subscription.unsubscribe()
@@ -354,9 +407,6 @@ export default {
       this.columnHeadersSet = false
       this.setTimestamps()
       this.processButtonText = 'Cancel'
-      if (this.subscription) {
-        this.subscription.unsubscribe()
-      }
       this.subscription = this.cable.subscriptions.create('StreamingChannel', {
         connected: () => {
           var localItems = []
@@ -398,45 +448,38 @@ export default {
           let data = JSON.parse(json_data)
           let columnHeaders = ''
           if (this.useMatlabHeader) {
-            // Matlab column headers get a leading percent, add the first one here
-            columnHeaders = '%'
+            // Matlab column headers get a leading percent
+            columnHeaders = '% '
           }
           if (!this.columnHeadersSet) {
             // use the keys of the first packet to get the column headers
             data.forEach((packet, index) => {
               const keys = Object.keys(packet)
-              if (index < 1 && !this.columnHeadersSet) {
+              if (index < 1) {
                 keys.forEach(key => {
-                  //console.log(key)
-
-                  //console.log(shortHeader[3])
                   if (this.useTsv) {
-                    if (this.useMatlabHeader) {
-                      columnHeaders += key + '\t%'
-                    } else if (this.useFullColumnNames) {
+                    if (this.useFullColumnNames) {
                       columnHeaders += key + '\t'
                     } else {
                       let headerParts = key.split('__')
                       if (headerParts.length > 1) {
                         columnHeaders += headerParts[3] + '\t'
-                      } else {
-                        // this should be the time column
-                        columnHeaders += headerParts[0] + '\t'
+                        // } else {
+                        //   // this should be the time column
+                        //   columnHeaders += headerParts[0] + '\t'
                       }
                     }
                   } else {
-                    if (this.useMatlabHeader) {
-                      columnHeaders += key + ',%'
-                    } else if (this.useFullColumnNames) {
+                    if (this.useFullColumnNames) {
                       columnHeaders += key + ','
                     } else {
                       let headerParts = key.split('__')
                       if (headerParts.length > 1) {
                         let headerParts = key.split('__')
                         columnHeaders += headerParts[3] + ','
-                      } else {
-                        // this should be the time column
-                        columnHeaders += headerParts[0] + ','
+                        // } else {
+                        //   // this should be the time column
+                        //   columnHeaders += headerParts[0] + ','
                       }
                     }
                   }
@@ -449,6 +492,7 @@ export default {
             columnHeaders += '\n'
             this.totalData.push(columnHeaders)
             this.columnHeadersSet = true
+            this.lastRow = ''
           }
           // Now that headers are done, go thru all the packets
           data.forEach((packet, packetindex) => {
@@ -458,53 +502,31 @@ export default {
             // convert packet array to comma separated string for each row
             const keys = Object.keys(packet)
             let row = ''
-            if (this.useUniqueOnly) {
-              let a = JSON.stringify(data[packetindex])
-              let b = JSON.stringify(data[packetindex - 1])
-              if (a == b) {
-                // only add a row if current packet is not equal to previous packet
-              } else {
-                keys.forEach((key, index) => {
-                  if (typeof packet[key] == 'object') {
-                    packet[key] = '"' + packet[key]['raw'] + '"'
-                  }
-                  if (this.useTsv) {
-                    row += packet[key] + '\t'
-                  } else {
-                    row += packet[key] + ','
-                  }
-                })
-                // trim trailing delimiter, not needed
-                if (this.useTsv) {
-                  row = this.rtrim(row, '\t')
-                } else {
-                  row = this.rtrim(row, ',')
-                }
-                row += '\n'
-                this.totalData.push(row)
+            keys.forEach((key, index) => {
+              if (key === 'time') return
+              if (typeof packet[key] == 'object') {
+                packet[key] = '"' + packet[key]['raw'] + '"'
               }
-            } else {
-              keys.forEach((key, index) => {
-                if (typeof packet[key] == 'object') {
-                  packet[key] = '"' + packet[key]['raw'] + '"'
-                }
-                if (this.useTsv) {
-                  row += packet[key] + '\t'
-                } else {
-                  row += packet[key] + ','
-                }
-              })
-              // trim trailing delimiter
               if (this.useTsv) {
-                row = this.rtrim(row, '\t')
+                row += packet[key] + '\t'
               } else {
-                row = this.rtrim(row, ',')
+                row += packet[key] + ','
               }
-              row += '\n'
+            })
+            // trim trailing delimiter, not needed
+            if (this.useTsv) {
+              row = this.rtrim(row, '\t')
+            } else {
+              row = this.rtrim(row, ',')
+            }
+            row += '\n'
+            if (!this.useUniqueOnly || row !== this.lastRow) {
               this.totalData.push(row)
             }
+            this.lastRow = row
           })
           if (data.length == 0) {
+            this.subscription.unsubscribe()
             this.processButtonText = 'Process'
             this.progress = 100
             let downloadFileExtension = '.csv'
@@ -532,7 +554,9 @@ export default {
 }
 </script>
 
-<style lang="sass">
-.v-progress-linear__determinate
-  transition: none !important
+<style lang="scss" scoped>
+// Disable transition animations to allow bar to grow faster
+.v-progress-linear__determinate {
+  transition: none !important;
+}
 </style>
