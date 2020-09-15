@@ -1,3 +1,0 @@
-TITLE 'COSMOS Command and Telemetry Server'
-AUTO_INTERFACE_TARGETS # Use cmd_tlm_server.txt from all targets declared in system.txt
-#COLLECT_METADATA
