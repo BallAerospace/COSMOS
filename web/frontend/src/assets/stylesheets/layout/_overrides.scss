@@ -30,8 +30,11 @@ table,
 .v-sheet,
 .v-card__title,
 .v-tab,
+.v-date-picker-header,
+.v-date-picker-table,
+.v-time-picker-clock__container,
 .p-menubar {
-  background-color: var(--v-tertiary-darken2);
+  background-color: var(--v-tertiary-darken2) !important;
 }
 .v-main,
 .v-content {

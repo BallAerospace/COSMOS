@@ -13,9 +13,20 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field v-model="startDate" label="Start Date" v-on="on" data-test="startDate"></v-text-field>
+              <v-text-field
+                v-model="startDate"
+                label="Start Date"
+                v-on="on"
+                prepend-icon="mdi-calendar"
+                data-test="startDate"
+              ></v-text-field>
             </template>
-            <v-date-picker v-model="startDate" :max="endDate" :show-current="false" no-title></v-date-picker>
+            <v-date-picker
+              v-model="startDate"
+              :max="endDate"
+              :show-current="false"
+              no-title
+            ></v-date-picker>
           </v-menu>
           <v-menu
             ref="endDatemenu"
@@ -27,9 +38,20 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field v-model="endDate" label="End Date" v-on="on" data-test="endDate"></v-text-field>
+              <v-text-field
+                v-model="endDate"
+                label="End Date"
+                v-on="on"
+                prepend-icon="mdi-calendar"
+                data-test="endDate"
+              ></v-text-field>
             </template>
-            <v-date-picker v-model="endDate" :min="startDate" :show-current="false" no-title></v-date-picker>
+            <v-date-picker
+              v-model="endDate"
+              :min="startDate"
+              :show-current="false"
+              no-title
+            ></v-date-picker>
           </v-menu>
         </v-col>
         <v-col>
@@ -42,9 +64,21 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field v-model="startTime" label="Start Time" v-on="on" data-test="startTime"></v-text-field>
+              <v-text-field
+                v-model="startTime"
+                label="Start Time"
+                v-on="on"
+                prepend-icon="mdi-clock"
+                data-test="startTime"
+              ></v-text-field>
             </template>
-            <v-time-picker v-model="startTime" format="24hr" use-seconds :max="endTime" no-title></v-time-picker>
+            <v-time-picker
+              v-model="startTime"
+              format="24hr"
+              use-seconds
+              :max="endTime"
+              no-title
+            ></v-time-picker>
           </v-menu>
           <v-menu
             :close-on-content-click="false"
@@ -55,7 +89,13 @@
             min-width="290px"
           >
             <template v-slot:activator="{ on }">
-              <v-text-field v-model="endTime" label="End Time" v-on="on" data-test="endTime"></v-text-field>
+              <v-text-field
+                v-model="endTime"
+                label="End Time"
+                v-on="on"
+                prepend-icon="mdi-clock"
+                data-test="endTime"
+              ></v-text-field>
             </template>
             <v-time-picker
               v-model="endTime"
@@ -63,7 +103,6 @@
               use-seconds
               :min="startTime"
               no-title
-              @input="setTimestamps"
             ></v-time-picker>
           </v-menu>
         </v-col>
@@ -75,34 +114,37 @@
             buttonText="Add Item"
             :chooseItem="true"
           ></TargetPacketItemChooser>
-          <v-alert
-            type="warning"
-            v-if="duplicateWarning"
-            dismissible
-          >This item has already been added!</v-alert>
+          <v-alert type="warning" v-model="warning" dismissible
+            >{{ warningText }}
+          </v-alert>
         </div>
       </v-row>
       <v-row>
         <v-col>
           <v-card scrollable>
-            <v-progress-linear absolute top height="10" :value="progress" color="secondary"></v-progress-linear>
+            <v-progress-linear
+              absolute
+              top
+              height="10"
+              :value="progress"
+              color="secondary"
+            ></v-progress-linear>
             <v-list data-test="itemList">
               <v-subheader class="mt-3">
                 Items
                 <v-spacer></v-spacer>
                 <v-btn class="primary mr-4" @click="processItems">
-                  {{
-                  processButtonText
-                  }}
+                  {{ processButtonText }}
                 </v-btn>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
                     <v-icon
-                      @click="clearItems"
+                      @click="deleteAll"
                       v-bind="attrs"
                       v-on="on"
                       data-test="deleteAll"
-                    >mdi-delete</v-icon>
+                      >mdi-delete</v-icon
+                    >
                   </template>
                   <span>Delete All Items</span>
                 </v-tooltip>
@@ -111,13 +153,18 @@
                 <v-list-item-icon>
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
-                      <v-icon @click.stop="item.edit = true" v-bind="attrs" v-on="on">mdi-pencil</v-icon>
+                      <v-icon
+                        @click.stop="item.edit = true"
+                        v-bind="attrs"
+                        v-on="on"
+                        >mdi-pencil</v-icon
+                      >
                     </template>
                     <span>Edit Item</span>
                   </v-tooltip>
                   <v-dialog v-model="item.edit" max-width="700">
                     <v-card>
-                      <v-card-title>Edit {{ item.label }}</v-card-title>
+                      <v-card-title>Edit {{ getItemLabel(item) }}</v-card-title>
                       <v-card-text>
                         <v-col>
                           <v-select
@@ -127,44 +174,29 @@
                             v-model="item.valueType"
                           ></v-select>
                         </v-col>
-                        <v-col>
-                          <v-select
-                            :items="dataReductions"
-                            label="Data Reduction:"
-                            outlined
-                            v-model="item.dataReduction"
-                          ></v-select>
-                        </v-col>
-                        <v-col>
-                          <v-select
-                            :items="dataReducedTypes"
-                            label="Data Reduction Type:"
-                            outlined
-                            v-model="item.dataReducedType"
-                          ></v-select>
-                        </v-col>
-                        <v-col v-if="useUniqueOnly">
+                        <!-- v-col v-if="uniqueOnly">
                           <v-select
                             :items="uniqueIgnoreOptions"
                             label="Add to Unique Ignore List?:"
                             outlined
                             v-model="item.uniqueIgnoreAdd"
                           ></v-select>
-                        </v-col>
+                        </v-col -->
                       </v-card-text>
-                      <v-card-actions>
-                        <v-spacer></v-spacer>
-                      </v-card-actions>
                     </v-card>
                   </v-dialog>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title v-text="getItemLabel(item)"></v-list-item-title>
+                  <v-list-item-title
+                    v-text="getItemLabel(item)"
+                  ></v-list-item-title>
                 </v-list-item-content>
                 <v-list-item-icon>
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
-                      <v-icon @click="deleteItem(item)" v-bind="attrs" v-on="on">mdi-delete</v-icon>
+                      <v-icon @click="deleteItem(item)" v-bind="attrs" v-on="on"
+                        >mdi-delete</v-icon
+                      >
                     </template>
                     <span>Delete Item</span>
                   </v-tooltip>
@@ -176,11 +208,11 @@
       </v-row>
     </v-container>
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <LoadConfigDialog
-      v-if="loadConfig"
-      v-model="loadConfig"
+    <OpenConfigDialog
+      v-if="openConfig"
+      v-model="openConfig"
       :tool="toolName"
-      @success="loadConfiguration($event)"
+      @success="openConfiguration($event)"
     />
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
     <SaveConfigDialog
@@ -195,28 +227,26 @@
 <script>
 import AppNav from '@/AppNav'
 import { CosmosApi } from '@/services/cosmos-api'
-import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
-import LoadConfigDialog from '@/components/LoadConfigDialog'
+import OpenConfigDialog from '@/components/OpenConfigDialog'
 import SaveConfigDialog from '@/components/SaveConfigDialog'
+import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
 import * as ActionCable from 'actioncable'
 import { format, getTime } from 'date-fns'
-import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz'
 
 export default {
   components: {
     AppNav,
-    TargetPacketItemChooser,
-    LoadConfigDialog,
-    SaveConfigDialog
+    OpenConfigDialog,
+    SaveConfigDialog,
+    TargetPacketItemChooser
   },
   data() {
     return {
       toolName: 'telemetry-extractor',
       api: null,
-      loadConfig: false,
+      openConfig: false,
       saveConfig: false,
       progress: 0,
-      lastRow: '',
       processButtonText: 'Process',
       startDate: format(new Date(), 'yyyy-MM-dd'),
       startTime: format(new Date(), 'HH:mm:ss'),
@@ -224,32 +254,31 @@ export default {
       endDate: format(new Date(), 'yyyy-MM-dd'),
       startDateTime: null,
       endDateTime: null,
-      duration: null,
       startDateTimeFilename: '',
+      warning: false,
+      warningText: '',
       tlmItems: [],
-      duplicateWarning: false,
-      totalData: [],
-      useMatlabHeader: false,
-      useFullColumnNames: false,
-      columnHeadersSet: false,
-      useUtcTime: false,
-      useFillDown: false,
-      useUniqueOnly: false,
-      useBatchMode: false,
+      rawData: [],
+      outputFile: [],
+      columnMap: {},
+      delimiter: ',',
+      columnMode: 'normal',
+      matlabHeader: false,
+      fillDown: false,
+      uniqueOnly: false,
       valueTypes: ['CONVERTED', 'RAW', 'FORMATTED', 'WITH_UNITS'],
-      dataReductions: ['NONE', 'MINUTE', 'HOUR', 'DAY'],
-      dataReducedTypes: ['AVG', 'MIN', 'MAX', 'STDDEV'],
-      uniqueIgnoreOptions: ['NO', 'YES'],
+      // uniqueIgnoreOptions: ['NO', 'YES'],
       cable: ActionCable.Cable,
       subscription: ActionCable.Channel,
       menus: [
         {
           label: 'File',
+          radioGroup: 'Comma Delimited', // Default radio selected
           items: [
             {
-              label: 'Load Configuration',
+              label: 'Open Configuration',
               command: () => {
-                this.loadConfig = true
+                this.openConfig = true
               }
             },
             {
@@ -257,61 +286,71 @@ export default {
               command: () => {
                 this.saveConfig = true
               }
-            }
-          ]
-        },
-        {
-          label: 'Mode',
-          items: [
-            {
-              label: 'Tab Delimited File',
-              checkbox: true,
-              command: () => {
-                this.useTsv = !this.useTsv
-              }
-            },
-            {
-              label: 'Use Full Column Names',
-              checkbox: true,
-              command: () => {
-                this.useFullColumnNames = !this.useFullColumnNames
-              }
             },
             {
               divider: true
             },
             {
-              label: 'Fill Down',
-              checkbox: true,
+              label: 'Comma Delimited',
+              radio: true,
               command: () => {
-                this.useFillDown = !this.useFillDown
+                this.delimiter = ','
               }
             },
             {
-              label: 'Use Matlab Header',
+              label: 'Tab Delimited',
+              radio: true,
+              command: () => {
+                this.delimiter = '\t'
+              }
+            }
+          ]
+        },
+        {
+          label: 'Mode',
+          radioGroup: 'Normal Columns', // Default radio selected
+          items: [
+            {
+              label: 'Fill Down',
               checkbox: true,
               command: () => {
-                this.useMatlabHeader = !this.useMatlabHeader
+                this.fillDown = !this.fillDown
+              }
+            },
+            {
+              label: 'Matlab Header',
+              checkbox: true,
+              command: () => {
+                this.matlabHeader = !this.matlabHeader
               }
             },
             {
               label: 'Unique Only',
               checkbox: true,
               command: () => {
-                this.useUniqueOnly = !this.useUniqueOnly
+                this.uniqueOnly = !this.uniqueOnly
               }
             },
             {
-              label: 'Batch Mode',
-              checkbox: true,
+              divider: true
+            },
+            {
+              label: 'Normal Columns',
+              radio: true,
               command: () => {
-                this.useBatchMode = !this.useBatchMode
+                this.columnMode = 'normal'
+              }
+            },
+            {
+              label: 'Full Column Names',
+              radio: true,
+              command: () => {
+                this.columnMode = 'full'
               }
             }
           ]
         }
-      ],
-      model: this.tlmItems
+      ]
     }
   },
   created() {
@@ -326,7 +365,7 @@ export default {
     this.cable.disconnect()
   },
   methods: {
-    async loadConfiguration(name) {
+    async openConfiguration(name) {
       const config = await this.api.load_config(this.toolName, name)
       this.tlmItems = JSON.parse(config)
     },
@@ -334,22 +373,20 @@ export default {
       this.api.save_config(this.toolName, name, JSON.stringify(this.tlmItems))
     },
     addItem(item) {
-      // Go thru all the existing items and make sure they are NOT the same target/packet/items as the one being added
+      // Traditional for loop so we can return if we find a match
       for (var i = 0; i < this.tlmItems.length; i++) {
         if (
           this.tlmItems[i].itemName === item.itemName &&
           this.tlmItems[i].packetName === item.packetName &&
           this.tlmItems[i].targetName === item.targetName
         ) {
-          this.duplicateWarning = true
+          this.warningText = 'This item has already been added!'
+          this.warning = true
           return
         }
       }
       item.edit = false
-      item.label = ''
       item.valueType = 'CONVERTED'
-      item.dataReduction = 'NONE'
-      item.dataReducedType = ''
       item.uniqueIgnoreAdd = 'NO'
       this.tlmItems.push(item)
     },
@@ -357,43 +394,29 @@ export default {
       var index = this.tlmItems.indexOf(item)
       this.tlmItems.splice(index, 1)
     },
-    clearItems(words) {
+    deleteAll() {
       this.tlmItems = []
+    },
+    getItemLabel(item) {
+      return item.targetName + ' - ' + item.packetName + ' - ' + item.itemName
     },
     setTimestamps() {
       this.startDateTimeFilename = this.startDate + '_' + this.startTime
-      // Replace the colons and dashes with underscore
+      // Replace the colons and dashes with underscores in the filename
       this.startDateTimeFilename = this.startDateTimeFilename.replace(
         /(:|-)\s*/g,
         '_'
       )
-
-      if (this.useUtcTime) {
-        this.startDateTime =
-          new Date(this.startDate + ' ' + this.startTime).getTime() -
-          216000 * 1_000_000
-        this.endDateTime =
-          new Date(this.endDate + ' ' + this.endTime).getTime() -
-          216000 * 1_000_000
-      } else {
-        this.startDateTime =
-          new Date(this.startDate + ' ' + this.startTime).getTime() * 1_000_000
-        this.endDateTime =
-          new Date(this.endDate + ' ' + this.endTime).getTime() * 1_000_000
-      }
-    },
-    getItemLabel(item) {
-      item.label =
-        item.targetName + '  -  ' + item.packetName + '  -  ' + item.itemName
-      return item.label
-    },
-    rtrim(str, chr) {
-      var rgxtrim = !chr ? new RegExp('\\s+$') : new RegExp(chr + '+$')
-      return str.replace(rgxtrim, '')
+      this.startDateTime =
+        new Date(this.startDate + ' ' + this.startTime).getTime() * 1_000_000
+      this.endDateTime =
+        new Date(this.endDate + ' ' + this.endTime).getTime() * 1_000_000
     },
     processItems() {
       // Check for an empty list
       if (this.tlmItems.length === 0) {
+        this.warningText = 'No items to process!'
+        this.warning = true
         return
       }
       // Check for a process in progress
@@ -402,153 +425,154 @@ export default {
         this.processButtonText = 'Process'
         return
       }
+      // Check for an empty time period
+      this.setTimestamps()
+      if (this.startDateTime === this.endDateTime) {
+        this.warningText = 'Start date/time is equal to end date/time!'
+        this.warning = true
+        return
+      }
 
       this.progress = 0
-      this.columnHeadersSet = false
-      this.setTimestamps()
       this.processButtonText = 'Cancel'
       this.subscription = this.cable.subscriptions.create('StreamingChannel', {
+        received: data => this.received(data),
         connected: () => {
-          var localItems = []
-          this.tlmItems.forEach(item => {
-            if (item.valueType) {
-              localItems.push(
-                'TLM__' +
-                  item.targetName +
-                  '__' +
-                  item.packetName +
-                  '__' +
-                  item.itemName +
-                  '__' +
-                  item.valueType
-              )
-            } else {
-              localItems.push(
-                'TLM__' +
-                  item.targetName +
-                  '__' +
-                  item.packetName +
-                  '__' +
-                  item.itemName +
-                  '__CONVERTED'
-              )
-            }
-          })
-          this.duration = this.endDateTime - this.startDateTime
-          this.totalData = []
+          this.intializeOutput()
+          var items = this.buildItemList()
           this.subscription.perform('add', {
             scope: 'DEFAULT',
-            items: localItems,
+            items: items,
             start_time: this.startDateTime,
             end_time: this.endDateTime
           })
-        },
-        received: json_data => {
-          // Process the items when they are received
-          let data = JSON.parse(json_data)
-          let columnHeaders = ''
-          if (this.useMatlabHeader) {
-            // Matlab column headers get a leading percent
-            columnHeaders = '% '
-          }
-          if (!this.columnHeadersSet) {
-            // use the keys of the first packet to get the column headers
-            data.forEach((packet, index) => {
-              const keys = Object.keys(packet)
-              if (index < 1) {
-                keys.forEach(key => {
-                  if (this.useTsv) {
-                    if (this.useFullColumnNames) {
-                      columnHeaders += key + '\t'
-                    } else {
-                      let headerParts = key.split('__')
-                      if (headerParts.length > 1) {
-                        columnHeaders += headerParts[3] + '\t'
-                        // } else {
-                        //   // this should be the time column
-                        //   columnHeaders += headerParts[0] + '\t'
-                      }
-                    }
-                  } else {
-                    if (this.useFullColumnNames) {
-                      columnHeaders += key + ','
-                    } else {
-                      let headerParts = key.split('__')
-                      if (headerParts.length > 1) {
-                        let headerParts = key.split('__')
-                        columnHeaders += headerParts[3] + ','
-                        // } else {
-                        //   // this should be the time column
-                        //   columnHeaders += headerParts[0] + ','
-                      }
-                    }
-                  }
-                })
-              }
-            })
-            columnHeaders = this.rtrim(columnHeaders, '%')
-            columnHeaders = this.rtrim(columnHeaders, ',')
-            columnHeaders = this.rtrim(columnHeaders, '\t')
-            columnHeaders += '\n'
-            this.totalData.push(columnHeaders)
-            this.columnHeadersSet = true
-            this.lastRow = ''
-          }
-          // Now that headers are done, go thru all the packets
-          data.forEach((packet, packetindex) => {
-            this.progress = Math.ceil(
-              (100 * (packet['time'] - this.startDateTime)) / this.duration
-            )
-            // convert packet array to comma separated string for each row
-            const keys = Object.keys(packet)
-            let row = ''
-            keys.forEach((key, index) => {
-              if (key === 'time') return
-              if (typeof packet[key] == 'object') {
-                packet[key] = '"' + packet[key]['raw'] + '"'
-              }
-              if (this.useTsv) {
-                row += packet[key] + '\t'
-              } else {
-                row += packet[key] + ','
-              }
-            })
-            // trim trailing delimiter, not needed
-            if (this.useTsv) {
-              row = this.rtrim(row, '\t')
-            } else {
-              row = this.rtrim(row, ',')
-            }
-            row += '\n'
-            if (!this.useUniqueOnly || row !== this.lastRow) {
-              this.totalData.push(row)
-            }
-            this.lastRow = row
-          })
-          if (data.length == 0) {
-            this.subscription.unsubscribe()
-            this.processButtonText = 'Process'
-            this.progress = 100
-            let downloadFileExtension = '.csv'
-            let type = 'text/csv'
-            if (this.useTsv) {
-              downloadFileExtension = '.txt'
-              type = 'text/tab-separated-values'
-            }
-            const blob = new Blob(this.totalData, {
-              type: type
-            })
-            // Make a link and then 'click' on it to start the download
-            const link = document.createElement('a')
-            link.href = URL.createObjectURL(blob)
-            link.setAttribute(
-              'download',
-              this.startDateTimeFilename + downloadFileExtension
-            )
-            link.click()
+        }
+      })
+    },
+    intializeOutput() {
+      this.outputFile = []
+      this.rawData = []
+
+      let columnHeaders = []
+      // Normal column mode has the target and packet listed for each item
+      if (this.columnMode === 'normal') {
+        columnHeaders.push('TARGET')
+        columnHeaders.push('PACKET')
+      }
+      this.tlmItems.forEach(item => {
+        if (this.columnMode === 'full') {
+          columnHeaders.push(
+            item.targetName + ' ' + item.packetName + ' ' + item.itemName
+          )
+        } else {
+          if (item.valueType && item.valueType !== 'CONVERTED') {
+            columnHeaders.push(item.itemName + ' (' + item.valueType + ')')
+          } else {
+            columnHeaders.push(item.itemName)
           }
         }
       })
+      let headers = ''
+      if (this.matlabHeader) {
+        headers += '% '
+      }
+      headers += columnHeaders.join(this.delimiter)
+      this.outputFile.push(headers)
+    },
+    buildItemList() {
+      var localItems = []
+      this.tlmItems.forEach((item, index) => {
+        if (item.valueType) {
+          localItems.push(
+            'TLM__' +
+              item.targetName +
+              '__' +
+              item.packetName +
+              '__' +
+              item.itemName +
+              '__' +
+              item.valueType
+          )
+        } else {
+          localItems.push(
+            'TLM__' +
+              item.targetName +
+              '__' +
+              item.packetName +
+              '__' +
+              item.itemName +
+              '__CONVERTED'
+          )
+        }
+        this.columnMap[localItems[localItems.length - 1]] = index
+      })
+      return localItems
+    },
+    received(json_data) {
+      const data = JSON.parse(json_data)
+      // Initially we just build up the list of data
+      if (data.length > 0) {
+        this.rawData = this.rawData.concat(data)
+        this.progress = Math.ceil(
+          (100 * (data[0]['time'] - this.startDateTime)) /
+            (this.endDateTime - this.startDateTime)
+        )
+      } else {
+        this.progress = 95 // Indicate we're almost done
+        this.subscription.unsubscribe()
+        // Sort everything by time so we can output in order
+        this.rawData.sort((a, b) => a.time - b.time)
+        var row = []
+        var previousRow = null
+        this.rawData.forEach(packet => {
+          if (this.fillDown && previousRow) {
+            row = [...previousRow]
+          } else {
+            row = []
+          }
+          // This pulls out the attributes we requested
+          const keys = Object.keys(packet)
+          keys.forEach(key => {
+            if (key === 'time') return // Skip time field
+            // Get the value and put it into the correct column
+            if (typeof packet[key] === 'object') {
+              row[this.columnMap[key]] = '"' + packet[key]['raw'] + '"'
+            } else {
+              row[this.columnMap[key]] = packet[key]
+            }
+          })
+          // Copy row before pushing on target / packet names
+          previousRow = [...row]
+          // Normal column mode means each row has target / packet name
+          if (this.columnMode === 'normal') {
+            var [, tgt, pkt] = keys[0].split('__')
+            row.unshift(pkt)
+            row.unshift(tgt)
+          }
+          this.outputFile.push(row.join(this.delimiter))
+        })
+
+        let downloadFileExtension = '.csv'
+        let type = 'text/csv'
+        if (this.delimiter === '\t') {
+          downloadFileExtension = '.txt'
+          type = 'text/tab-separated-values'
+        }
+        const blob = new Blob([this.outputFile.join('\n')], {
+          type: type
+        })
+        // Make a link and then 'click' on it to start the download
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(blob)
+        link.setAttribute(
+          'download',
+          this.startDateTimeFilename + downloadFileExtension
+        )
+        link.click()
+
+        this.progress = 100
+        this.processButtonText = 'Process'
+      }
     }
   }
 }

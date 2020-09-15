@@ -164,7 +164,7 @@ describe('TlmGrapher', () => {
     cy.get('.v-toolbar')
       .contains('File')
       .click()
-    cy.contains('Load Configuration').click()
+    cy.contains('Open Configuration').click()
     cy.get('.v-dialog').within(() => {
       // Try to click OK without anything selected
       cy.contains('Ok').click()
@@ -191,7 +191,7 @@ describe('TlmGrapher', () => {
     cy.get('.v-toolbar')
       .contains('File')
       .click()
-    cy.contains('Load Configuration').click()
+    cy.contains('Open Configuration').click()
     cy.get('.v-dialog').within(() => {
       cy.contains(config)
         .parents('.v-list-item')

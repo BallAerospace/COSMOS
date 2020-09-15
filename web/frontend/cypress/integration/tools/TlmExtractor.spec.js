@@ -44,7 +44,7 @@ describe('TlmExtractor', () => {
     cy.get('.v-toolbar')
       .contains('File')
       .click()
-    cy.contains('Load Configuration').click()
+    cy.contains('Open Configuration').click()
     cy.get('.v-dialog').within(() => {
       cy.contains(config).click()
       cy.contains('Ok').click()
@@ -57,7 +57,7 @@ describe('TlmExtractor', () => {
     cy.get('.v-toolbar')
       .contains('File')
       .click()
-    cy.contains('Load Configuration').click()
+    cy.contains('Open Configuration').click()
     cy.get('.v-dialog').within(() => {
       cy.contains(config)
         .parents('.v-list-item')
@@ -110,9 +110,9 @@ describe('TlmExtractor', () => {
     cy.visit('/telemetry-extractor')
     cy.hideNav()
     cy.get('.v-toolbar')
-      .contains('Mode')
+      .contains('File')
       .click()
-    cy.contains(/^Tab Delimited File$/).click()
+    cy.contains(/Tab Delimited/).click()
     cy.get('[data-test=startTime]')
       .clear()
       .type(formatTime(start))
@@ -140,7 +140,7 @@ describe('TlmExtractor', () => {
     cy.get('.v-toolbar')
       .contains('Mode')
       .click()
-    cy.contains(/^Use Full Column Names$/).click()
+    cy.contains(/Full Column Names/).click()
     cy.get('[data-test=startTime]')
       .clear()
       .type(formatTime(start))
@@ -153,8 +153,8 @@ describe('TlmExtractor', () => {
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
       contents => {
         var lines = contents.split('\n')
-        expect(lines[0]).to.contain('INST__HEALTH_STATUS__TEMP1')
-        expect(lines[0]).to.contain('INST__HEALTH_STATUS__TEMP2')
+        expect(lines[0]).to.contain('INST HEALTH_STATUS TEMP1')
+        expect(lines[0]).to.contain('INST HEALTH_STATUS TEMP2')
       }
     )
   })
@@ -166,7 +166,7 @@ describe('TlmExtractor', () => {
     cy.get('.v-toolbar')
       .contains('Mode')
       .click()
-    cy.contains(/^Use Matlab Header$/).click()
+    cy.contains(/Matlab Header/).click()
     cy.get('[data-test=startTime]')
       .clear()
       .type(formatTime(start))
@@ -179,7 +179,7 @@ describe('TlmExtractor', () => {
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
       contents => {
         var lines = contents.split('\n')
-        expect(lines[0]).to.contain('% Q1,Q2')
+        expect(lines[0]).to.contain('% TARGET,PACKET,Q1,Q2')
       }
     )
   })
@@ -191,7 +191,7 @@ describe('TlmExtractor', () => {
     cy.get('.v-toolbar')
       .contains('Mode')
       .click()
-    cy.contains(/^Unique Only$/).click()
+    cy.contains(/Unique Only/).click()
     cy.get('[data-test=startTime]')
       .clear()
       .type(formatTime(start))

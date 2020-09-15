@@ -1,12 +1,7 @@
 <template>
   <div>
     <app-nav :menus="menus" />
-    <v-navigation-drawer
-      absolute
-      permanent
-      expand-on-hover
-      data-test="grapher-controls"
-    >
+    <v-navigation-drawer absolute permanent expand-on-hover data-test="grapher-controls">
       <v-list-item class="px-2">
         <v-list-item-avatar>
           <v-icon>mdi-chart-line</v-icon>
@@ -17,11 +12,7 @@
       <v-divider></v-divider>
 
       <v-list dense>
-        <v-list-item
-          v-for="item in controls"
-          :key="item.title"
-          @click="item.action"
-        >
+        <v-list-item v-for="item in controls" :key="item.title" @click="item.action">
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
@@ -55,19 +46,9 @@
       </v-list>
     </v-navigation-drawer>
     <div class="c-tlmgrapher__contents">
-      <TargetPacketItemChooser
-        @click="addItem($event)"
-        buttonText="Add Item"
-        :chooseItem="true"
-      ></TargetPacketItemChooser>
+      <TargetPacketItemChooser @click="addItem($event)" buttonText="Add Item" :chooseItem="true"></TargetPacketItemChooser>
       <div class="grid">
-        <div
-          class="item"
-          v-for="plot in plots"
-          :key="plot"
-          :id="plotId(plot)"
-          ref="gridItem"
-        >
+        <div class="item" v-for="plot in plots" :key="plot" :id="plotId(plot)" ref="gridItem">
           <div class="item-content">
             <CosmosChartuPlot
               :ref="'plot' + plot"
@@ -88,11 +69,11 @@
       </div>
     </div>
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <LoadConfigDialog
-      v-if="loadConfig"
-      v-model="loadConfig"
+    <OpenConfigDialog
+      v-if="openConfig"
+      v-model="openConfig"
       :tool="toolName"
-      @success="loadConfiguration($event)"
+      @success="openConfiguration($event)"
     />
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
     <SaveConfigDialog
@@ -109,7 +90,7 @@ import AppNav from '@/AppNav'
 import CosmosChartuPlot from '@/components/CosmosChartuPlot.vue'
 // import CosmosChartJS from '@/components/CosmosChartJS.vue'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
-import LoadConfigDialog from '@/components/LoadConfigDialog'
+import OpenConfigDialog from '@/components/OpenConfigDialog'
 import SaveConfigDialog from '@/components/SaveConfigDialog'
 import { CosmosApi } from '@/services/cosmos-api'
 import * as Muuri from 'muuri'
@@ -117,7 +98,7 @@ import * as Muuri from 'muuri'
 export default {
   components: {
     AppNav,
-    LoadConfigDialog,
+    OpenConfigDialog,
     SaveConfigDialog,
     TargetPacketItemChooser,
     CosmosChartuPlot
@@ -127,7 +108,7 @@ export default {
     return {
       toolName: 'telemetry-grapher',
       api: null,
-      loadConfig: false,
+      openConfig: false,
       saveConfig: false,
       state: 'stop', // Valid: stop, start, pause
       grid: null,
@@ -171,9 +152,9 @@ export default {
           label: 'File',
           items: [
             {
-              label: 'Load Configuration',
+              label: 'Open Configuration',
               command: () => {
-                this.loadConfig = true
+                this.openConfig = true
               }
             },
             {
@@ -284,7 +265,7 @@ export default {
     plotSelected(id) {
       this.selectedPlotId = id
     },
-    async loadConfiguration(name) {
+    async openConfiguration(name) {
       this.closeAllPlots()
       let config = await this.api.load_config(this.toolName, name)
       let plots = JSON.parse(config)
