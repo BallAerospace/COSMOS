@@ -1,8 +1,5 @@
-import { format, sub } from 'date-fns'
+import { format, add, sub } from 'date-fns'
 
-function formatDate(date) {
-  return format(date, 'yyyy-MM-dd')
-}
 function formatTime(date) {
   return format(date, 'HH:mm:ss')
 }
@@ -69,7 +66,14 @@ describe('TlmExtractor', () => {
     })
   })
 
-  it('triggers warning with duplicate item', function() {
+  it('warns with no items', function() {
+    cy.visit('/telemetry-extractor')
+    cy.hideNav()
+    cy.contains('Process').click()
+    cy.contains('No items to process').should('be.visible')
+  })
+
+  it('warns with duplicate item', function() {
     cy.visit('/telemetry-extractor')
     cy.hideNav()
     cy.contains('Add Item').click()
@@ -77,14 +81,114 @@ describe('TlmExtractor', () => {
     cy.contains('This item has already been added').should('be.visible')
   })
 
-  it('creates CSV output', function() {
-    const start = sub(new Date(), { minutes: 5 })
+  it('warns with no time delta', function() {
+    cy.visit('/telemetry-extractor')
+    cy.hideNav()
+    cy.contains('Add Item').click()
+    cy.contains('Process').click()
+    cy.contains('Start date/time is equal to end date/time').should(
+      'be.visible'
+    )
+  })
+
+  it('cancels a process', function() {
+    const start = sub(new Date(), { minutes: 1 })
     cy.visit('/telemetry-extractor')
     cy.hideNav()
     cy.get('[data-test=startTime]')
       .clear()
       .type(formatTime(start))
-    cy.focused().click({ force: true })
+    cy.get('[data-test=endTime]')
+      .clear()
+      .type(formatTime(add(start, { hours: 1 })))
+    cy.selectTargetPacketItem('INST', 'ADCS', 'CCSDSVER')
+    cy.contains('Add Item').click()
+    cy.contains('Process').click()
+    cy.contains('End date/time is greater than current date/time').should(
+      'be.visible'
+    )
+    cy.wait(1000)
+    cy.contains('Cancel').click()
+    // Verify the Cancel button goes back to Process
+    cy.contains('Process')
+    // Verify we still get a file
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv')
+  })
+
+  it('add, edits, deletes items', function() {
+    const start = sub(new Date(), { minutes: 1 })
+    cy.visit('/telemetry-extractor')
+    cy.hideNav()
+    cy.get('[data-test=startTime]')
+      .clear()
+      .type(formatTime(start))
+    cy.selectTargetPacketItem('INST', 'ADCS', 'CCSDSVER')
+    cy.contains('Add Item').click()
+    cy.selectTargetPacketItem('INST', 'ADCS', 'CCSDSTYPE')
+    cy.contains('Add Item').click()
+    cy.selectTargetPacketItem('INST', 'ADCS', 'CCSDSSHF')
+    cy.contains('Add Item').click()
+    cy.get('[data-test=itemList]')
+      .find('.v-list-item')
+      .should('have.length', 3)
+    // Delete CCSDSVER
+    cy.get('[data-test=itemList]')
+      .find('.v-list-item')
+      .first()
+      .find('button')
+      .eq(1)
+      .click()
+    cy.get('[data-test=itemList]')
+      .find('.v-list-item')
+      .should('have.length', 2)
+    // Delete CCSDSTYPE
+    cy.get('[data-test=itemList]')
+      .find('.v-list-item')
+      .first()
+      .find('button')
+      .eq(1)
+      .click()
+    cy.get('[data-test=itemList]')
+      .find('.v-list-item')
+      .should('have.length', 1)
+    // Edit CCSDSSHF
+    cy.get('[data-test=itemList]')
+      .find('.v-list-item')
+      .first()
+      .find('button')
+      .first()
+      .click()
+    cy.get('.v-dialog').within(() => {
+      cy.get('label')
+        .contains('Value Type')
+        .click({ force: true })
+    })
+    cy.get('.v-list-item__title')
+      .contains('RAW')
+      .click()
+    cy.contains('INST - ADCS - CCSDSSHF (RAW)')
+    cy.contains('Process').click({ force: true })
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
+      contents => {
+        var lines = contents.split('\n')
+        expect(lines[0]).to.contain('CCSDSSHF (RAW)')
+        expect(lines[1]).to.not.contain('FALSE')
+        expect(lines[1]).to.contain('0')
+      }
+    )
+  })
+
+  it('creates CSV output', function() {
+    const start = sub(new Date(), { minutes: 5 })
+    cy.visit('/telemetry-extractor')
+    cy.hideNav()
+    cy.get('.v-toolbar')
+      .contains('File')
+      .click()
+    cy.contains(/Comma Delimited/).click()
+    cy.get('[data-test=startTime]')
+      .clear()
+      .type(formatTime(start))
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
@@ -116,7 +220,6 @@ describe('TlmExtractor', () => {
     cy.get('[data-test=startTime]')
       .clear()
       .type(formatTime(start))
-    cy.focused().click({ force: true })
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
@@ -134,7 +237,7 @@ describe('TlmExtractor', () => {
   })
 
   it('outputs full column names', function() {
-    const start = sub(new Date(), { minutes: 1 })
+    let start = sub(new Date(), { minutes: 1 })
     cy.visit('/telemetry-extractor')
     cy.hideNav()
     cy.get('.v-toolbar')
@@ -144,7 +247,6 @@ describe('TlmExtractor', () => {
     cy.get('[data-test=startTime]')
       .clear()
       .type(formatTime(start))
-    cy.focused().click({ force: true })
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
@@ -157,9 +259,69 @@ describe('TlmExtractor', () => {
         expect(lines[0]).to.contain('INST HEALTH_STATUS TEMP2')
       }
     )
+    // Switch back and verify
+    cy.get('.v-toolbar')
+      .contains('Mode')
+      .click()
+    cy.contains(/Normal Columns/).click()
+    // Create a new end time so we get a new filename
+    start = sub(new Date(), { minutes: 2 })
+    cy.get('[data-test=startTime]')
+      .clear()
+      .type(formatTime(start))
+    cy.contains('Process').click()
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
+      contents => {
+        var lines = contents.split('\n')
+        expect(lines[0]).to.contain('TARGET,PACKET,TEMP1,TEMP2')
+      }
+    )
   })
 
-  it('outputs Matlab headers', function() {
+  it('fills values', function() {
+    const start = sub(new Date(), { minutes: 1 })
+    cy.visit('/telemetry-extractor')
+    cy.hideNav()
+    cy.get('.v-toolbar')
+      .contains('Mode')
+      .click()
+    cy.contains(/Fill Down/).click()
+    cy.get('[data-test=startTime]')
+      .clear()
+      .type(formatTime(start))
+    cy.selectTargetPacketItem('INST', 'ADCS', 'CCSDSSEQCNT')
+    cy.contains('Add Item').click()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'CCSDSSEQCNT')
+    cy.contains('Add Item').click()
+    cy.contains('Process').click()
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
+      contents => {
+        console.log(contents)
+        var lines = contents.split('\n')
+        expect(lines[0]).to.contain('CCSDSSEQCNT')
+        var firstHS = -1
+        for (let i = 1; i < lines.length; i++) {
+          if (firstHS !== -1) {
+            var [tgt1, pkt1, adcs1, hs1] = lines[firstHS].split(',')
+            var [tgt2, pkt2, adcs2, hs2] = lines[i].split(',')
+            expect(tgt1).to.eq(tgt2) // Both INST
+            expect(pkt1).to.eq('HEALTH_STATUS')
+            expect(pkt2).to.eq('ADCS')
+            expect(parseInt(adcs1) + 1).to.eq(parseInt(adcs2)) // ADCS goes up by one each time
+            expect(parseInt(hs1)).to.be.greaterThan(1) // Double check for a value
+            expect(hs1).to.eq(hs2) // HEALTH_STATUS should be the same
+            break
+          }
+          // Look for the first line containing HEALTH_STATUS
+          if (lines[i].includes('HEALTH_STATUS')) {
+            firstHS = i
+          }
+        }
+      }
+    )
+  })
+
+  it('adds Matlab headers', function() {
     const start = sub(new Date(), { minutes: 1 })
     cy.visit('/telemetry-extractor')
     cy.hideNav()
@@ -170,7 +332,6 @@ describe('TlmExtractor', () => {
     cy.get('[data-test=startTime]')
       .clear()
       .type(formatTime(start))
-    cy.focused().click({ force: true })
     cy.selectTargetPacketItem('INST', 'ADCS', 'Q1')
     cy.contains('Add Item').click()
     cy.selectTargetPacketItem('INST', 'ADCS', 'Q2')
@@ -195,7 +356,6 @@ describe('TlmExtractor', () => {
     cy.get('[data-test=startTime]')
       .clear()
       .type(formatTime(start))
-    cy.focused().click({ force: true })
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'CCSDSVER')
     cy.contains('Add Item').click()
     cy.contains('Process').click()
@@ -204,7 +364,7 @@ describe('TlmExtractor', () => {
         console.log(contents)
         var lines = contents.split('\n')
         expect(lines[0]).to.contain('CCSDSVER')
-        expect(lines.length).to.eq(3) // header and a single value plus a newline
+        expect(lines.length).to.eq(2) // header and a single value
       }
     )
   })

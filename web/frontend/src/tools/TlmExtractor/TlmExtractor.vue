@@ -18,6 +18,7 @@
                 label="Start Date"
                 v-on="on"
                 prepend-icon="mdi-calendar"
+                :rules="[rules.required, rules.calendar]"
                 data-test="startDate"
               ></v-text-field>
             </template>
@@ -43,6 +44,7 @@
                 label="End Date"
                 v-on="on"
                 prepend-icon="mdi-calendar"
+                :rules="[rules.required, rules.calendar]"
                 data-test="endDate"
               ></v-text-field>
             </template>
@@ -55,56 +57,20 @@
           </v-menu>
         </v-col>
         <v-col>
-          <v-menu
-            :close-on-content-click="false"
-            :nudge-right="40"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="startTime"
-                label="Start Time"
-                v-on="on"
-                prepend-icon="mdi-clock"
-                data-test="startTime"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-model="startTime"
-              format="24hr"
-              use-seconds
-              :max="endTime"
-              no-title
-            ></v-time-picker>
-          </v-menu>
-          <v-menu
-            :close-on-content-click="false"
-            :nudge-right="40"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="endTime"
-                label="End Time"
-                v-on="on"
-                prepend-icon="mdi-clock"
-                data-test="endTime"
-              ></v-text-field>
-            </template>
-            <v-time-picker
-              v-model="endTime"
-              format="24hr"
-              use-seconds
-              :min="startTime"
-              no-title
-            ></v-time-picker>
-          </v-menu>
+          <v-text-field
+            v-model="startTime"
+            label="Start Time"
+            prepend-icon="mdi-clock"
+            :rules="[rules.required, rules.time]"
+            data-test="startTime"
+          ></v-text-field>
+          <v-text-field
+            v-model="endTime"
+            label="End Time"
+            prepend-icon="mdi-clock"
+            :rules="[rules.required, rules.time]"
+            data-test="endTime"
+          ></v-text-field>
         </v-col>
       </v-row>
       <v-row>
@@ -162,14 +128,18 @@
                     </template>
                     <span>Edit Item</span>
                   </v-tooltip>
-                  <v-dialog v-model="item.edit" max-width="700">
+                  <v-dialog
+                    v-model="item.edit"
+                    @keydown.esc="item.edit = false"
+                    max-width="700"
+                  >
                     <v-card>
                       <v-card-title>Edit {{ getItemLabel(item) }}</v-card-title>
                       <v-card-text>
                         <v-col>
                           <v-select
                             :items="valueTypes"
-                            label="Value Type:"
+                            label="Value Type"
                             outlined
                             v-model="item.valueType"
                           ></v-select>
@@ -255,6 +225,17 @@ export default {
       startDateTime: null,
       endDateTime: null,
       startDateTimeFilename: '',
+      rules: {
+        required: value => !!value || 'Required',
+        calendar: value => {
+          const pattern = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/
+          return pattern.test(value) || 'Invalid date (YYYY-MM-DD)'
+        },
+        time: value => {
+          const pattern = /^[0-9]{2}:[0-9]{2}:[0-9]{2}$/
+          return pattern.test(value) || 'Invalid time (HH:MM:SS)'
+        }
+      },
       warning: false,
       warningText: '',
       tlmItems: [],
@@ -398,7 +379,13 @@ export default {
       this.tlmItems = []
     },
     getItemLabel(item) {
-      return item.targetName + ' - ' + item.packetName + ' - ' + item.itemName
+      var type = ''
+      if (item.valueType !== 'CONVERTED') {
+        type = ' (' + item.valueType + ')'
+      }
+      return (
+        item.targetName + ' - ' + item.packetName + ' - ' + item.itemName + type
+      )
     },
     setTimestamps() {
       this.startDateTimeFilename = this.startDate + '_' + this.startTime
@@ -421,8 +408,7 @@ export default {
       }
       // Check for a process in progress
       if (this.processButtonText === 'Cancel') {
-        this.subscription.unsubscribe()
-        this.processButtonText = 'Process'
+        this.processReceived()
         return
       }
       // Check for an empty time period
@@ -432,6 +418,16 @@ export default {
         this.warning = true
         return
       }
+      // Check for a future End Time
+      if (new Date(this.endDate + ' ' + this.endTime) > Date.now()) {
+        this.warningText =
+          'Note: End date/time is greater than current date/time. Data will continue to stream in real-time until ' +
+          this.endDate +
+          ' ' +
+          this.endTime +
+          ' is reached.'
+        this.warning = true
+      }
 
       this.progress = 0
       this.processButtonText = 'Cancel'
@@ -439,7 +435,20 @@ export default {
         received: data => this.received(data),
         connected: () => {
           this.intializeOutput()
-          var items = this.buildItemList()
+          var items = []
+          this.tlmItems.forEach((item, index) => {
+            items.push(
+              'TLM__' +
+                item.targetName +
+                '__' +
+                item.packetName +
+                '__' +
+                item.itemName +
+                '__' +
+                item.valueType
+            )
+            this.columnMap[items[items.length - 1]] = index
+          })
           this.subscription.perform('add', {
             scope: 'DEFAULT',
             items: items,
@@ -479,35 +488,6 @@ export default {
       headers += columnHeaders.join(this.delimiter)
       this.outputFile.push(headers)
     },
-    buildItemList() {
-      var localItems = []
-      this.tlmItems.forEach((item, index) => {
-        if (item.valueType) {
-          localItems.push(
-            'TLM__' +
-              item.targetName +
-              '__' +
-              item.packetName +
-              '__' +
-              item.itemName +
-              '__' +
-              item.valueType
-          )
-        } else {
-          localItems.push(
-            'TLM__' +
-              item.targetName +
-              '__' +
-              item.packetName +
-              '__' +
-              item.itemName +
-              '__CONVERTED'
-          )
-        }
-        this.columnMap[localItems[localItems.length - 1]] = index
-      })
-      return localItems
-    },
     received(json_data) {
       const data = JSON.parse(json_data)
       // Initially we just build up the list of data
@@ -518,31 +498,46 @@ export default {
             (this.endDateTime - this.startDateTime)
         )
       } else {
-        this.progress = 95 // Indicate we're almost done
-        this.subscription.unsubscribe()
-        // Sort everything by time so we can output in order
-        this.rawData.sort((a, b) => a.time - b.time)
-        var row = []
-        var previousRow = null
-        this.rawData.forEach(packet => {
-          if (this.fillDown && previousRow) {
-            row = [...previousRow]
+        this.processReceived()
+      }
+    },
+    processReceived() {
+      this.progress = 95 // Indicate we're almost done
+      this.subscription.unsubscribe()
+      // Sort everything by time so we can output in order
+      this.rawData.sort((a, b) => a.time - b.time)
+      var currentValues = []
+      var row = []
+      var previousRow = null
+      this.rawData.forEach(packet => {
+        var changed = false
+        if (this.fillDown && previousRow) {
+          row = [...previousRow] // Copy the previous
+        } else {
+          row = []
+        }
+        // This pulls out the attributes we requested
+        const keys = Object.keys(packet)
+        keys.forEach(key => {
+          if (key === 'time') return // Skip time field
+          // Get the value and put it into the correct column
+          if (typeof packet[key] === 'object') {
+            row[this.columnMap[key]] = '"' + packet[key]['raw'] + '"'
           } else {
-            row = []
+            row[this.columnMap[key]] = packet[key]
           }
-          // This pulls out the attributes we requested
-          const keys = Object.keys(packet)
-          keys.forEach(key => {
-            if (key === 'time') return // Skip time field
-            // Get the value and put it into the correct column
-            if (typeof packet[key] === 'object') {
-              row[this.columnMap[key]] = '"' + packet[key]['raw'] + '"'
-            } else {
-              row[this.columnMap[key]] = packet[key]
-            }
-          })
-          // Copy row before pushing on target / packet names
-          previousRow = [...row]
+          if (
+            this.uniqueOnly &&
+            currentValues[this.columnMap[key]] !== row[this.columnMap[key]]
+          ) {
+            changed = true
+          }
+          currentValues[this.columnMap[key]] = row[this.columnMap[key]]
+        })
+        // Copy row before pushing on target / packet names
+        previousRow = [...row]
+
+        if (!this.uniqueOnly || changed) {
           // Normal column mode means each row has target / packet name
           if (this.columnMode === 'normal') {
             var [, tgt, pkt] = keys[0].split('__')
@@ -550,29 +545,29 @@ export default {
             row.unshift(tgt)
           }
           this.outputFile.push(row.join(this.delimiter))
-        })
-
-        let downloadFileExtension = '.csv'
-        let type = 'text/csv'
-        if (this.delimiter === '\t') {
-          downloadFileExtension = '.txt'
-          type = 'text/tab-separated-values'
         }
-        const blob = new Blob([this.outputFile.join('\n')], {
-          type: type
-        })
-        // Make a link and then 'click' on it to start the download
-        const link = document.createElement('a')
-        link.href = URL.createObjectURL(blob)
-        link.setAttribute(
-          'download',
-          this.startDateTimeFilename + downloadFileExtension
-        )
-        link.click()
+      })
 
-        this.progress = 100
-        this.processButtonText = 'Process'
+      let downloadFileExtension = '.csv'
+      let type = 'text/csv'
+      if (this.delimiter === '\t') {
+        downloadFileExtension = '.txt'
+        type = 'text/tab-separated-values'
       }
+      const blob = new Blob([this.outputFile.join('\n')], {
+        type: type
+      })
+      // Make a link and then 'click' on it to start the download
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.setAttribute(
+        'download',
+        this.startDateTimeFilename + downloadFileExtension
+      )
+      link.click()
+
+      this.progress = 100
+      this.processButtonText = 'Process'
     }
   }
 }
