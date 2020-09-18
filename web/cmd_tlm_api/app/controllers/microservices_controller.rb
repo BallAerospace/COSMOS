@@ -1,0 +1,2 @@
+class MicroservicesController < ApplicationController
+end
