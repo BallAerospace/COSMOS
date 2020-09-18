@@ -65,17 +65,11 @@ export default new Router({
       component: () => import('./views/TlmGrapherView.vue'),
       meta: { title: 'Telemetry Grapher', icon: 'mdi-chart-line' }
     },
-    // {
-    //   path: '/command-extractor',
-    //   name: 'CommandExtractor',
-    //   component: () => import('./views/CommandExtractorView.vue'),
-    //   meta: { title: 'Command Extractor', icon: 'mdi-move-resize-variant' }
-    // },
     {
-      path: '/telemetry-extractor',
-      name: 'TlmExtractor',
+      path: '/data-exporter',
+      name: 'DataExporter',
       component: () => import('./views/TlmExtractorView.vue'),
-      meta: { title: 'Telemetry Extractor', icon: 'mdi-image-move' }
+      meta: { title: 'Data Exporter', icon: 'mdi-archive-arrow-down' }
     },
     {
       path: '/admin',

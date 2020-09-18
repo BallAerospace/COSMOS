@@ -20,6 +20,7 @@
           hide-details
           dense
           @change="packetNameChanged"
+          :disabled="packetsDisabled"
           :items="packetNames"
           item-text="label"
           item-value="value"
@@ -33,6 +34,7 @@
           hide-details
           dense
           @change="itemNameChanged($event)"
+          :disabled="itemsDisabled"
           :items="itemNames"
           item-text="label"
           item-value="value"
@@ -41,7 +43,12 @@
         ></v-select>
       </v-col>
       <v-col v-if="buttonText">
-        <v-btn color="primary" :disabled="buttonDisabled" @click="buttonPressed">{{ buttonText }}</v-btn>
+        <v-btn
+          color="primary"
+          :disabled="buttonDisabled"
+          @click="buttonPressed"
+          >{{ actualButtonText }}</v-btn
+        >
       </v-col>
     </v-row>
     <v-row no-gutters>
@@ -86,9 +93,22 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    allowAll: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
+    actualButtonText() {
+      if (this.selectedPacketName === 'ALL') {
+        return 'Add Target'
+      }
+      if (this.selectedItemName === 'ALL') {
+        return 'Add Packet'
+      }
+      return this.buttonText
+    },
     buttonDisabled() {
       return this.disabled || this.internalDisabled
     },
@@ -119,7 +139,10 @@ export default {
       packet_list_items: [],
       tlm_item_list_items: [],
       internalDisabled: false,
-      api: null
+      packetsDisabled: false,
+      itemsDisabled: false,
+      api: null,
+      ALL: { label: '[ ALL ]', value: 'ALL' } // Constant to indicate all packets or items
     }
   },
   created() {
@@ -134,9 +157,16 @@ export default {
       this.targetNames = targetNames
       if (!this.selectedTargetName) {
         this.selectedTargetName = targetNames[0].value
+        this.targetNameChanged(this.selectedTargetName)
       }
-      this.updatePackets()
     })
+    this.internalDisabled = false
+  },
+  watch: {
+    mode: function(val) {
+      this.updatePackets()
+      this.itemNames = []
+    }
   },
   methods: {
     updatePackets() {
@@ -145,6 +175,9 @@ export default {
         this.api['get_all_commands'](this.selectedTargetName).then(commands => {
           this.packet_list_items = []
           this.packetNames = []
+          if (this.allowAll) {
+            this.packetNames.push(this.ALL)
+          }
           commands.forEach(command => {
             this.packet_list_items.push([
               command.packet_name,
@@ -157,6 +190,7 @@ export default {
           })
           if (!this.selectedPacketName) {
             this.selectedPacketName = this.packetNames[0].value
+            this.packetNameChanged(this.selectedPacketName)
           }
           for (const item of this.packet_list_items) {
             if (this.selectedPacketName === item[0]) {
@@ -164,16 +198,19 @@ export default {
               break
             }
           }
-          this.internalDisabled = false
           this.$emit('on-set', {
             targetName: this.selectedTargetName,
             packetName: this.selectedPacketName
           })
+          this.internalDisabled = false
         })
       } else {
         this.api['get_tlm_list'](this.selectedTargetName).then(packets => {
           this.packet_list_items = packets
           this.packetNames = []
+          if (this.allowAll) {
+            this.packetNames.push(this.ALL)
+          }
           var arrayLength = packets.length
           for (var i = 0; i < arrayLength; i++) {
             this.packetNames.push({
@@ -183,6 +220,7 @@ export default {
           }
           if (!this.selectedPacketName) {
             this.selectedPacketName = this.packetNames[0].value
+            this.packetNameChanged(this.selectedPacketName)
           }
           for (const item of this.packet_list_items) {
             if (this.selectedPacketName === item[0]) {
@@ -190,26 +228,30 @@ export default {
               break
             }
           }
-          if (this.chooseItem) {
-            this.updateItems()
-          } else {
-            this.internalDisabled = false
+          if (!this.chooseItem) {
             this.$emit('on-set', {
               targetName: this.selectedTargetName,
               packetName: this.selectedPacketName
             })
           }
+          this.internalDisabled = false
         })
       }
     },
 
     updateItems() {
       this.internalDisabled = true
-      this.api
-        .get_tlm_item_list(this.selectedTargetName, this.selectedPacketName)
-        .then(items => {
+      let cmd = 'get_tlm_item_list'
+      if (this.mode == 'cmd') {
+        cmd = 'get_cmd_param_list'
+      }
+      this.api[cmd](this.selectedTargetName, this.selectedPacketName).then(
+        items => {
           this.tlm_item_list_items = items
           var itemNames = []
+          if (this.allowAll) {
+            this.itemNames.push(this.ALL)
+          }
           var arrayLength = items.length
           for (var i = 0; i < arrayLength; i++) {
             itemNames.push({ label: items[i][0], value: items[i][0] })
@@ -225,7 +267,8 @@ export default {
             packetName: this.selectedPacketName,
             itemName: this.selectedItemName
           })
-        })
+        }
+      )
     },
 
     targetNameChanged(value) {
@@ -236,23 +279,29 @@ export default {
     },
 
     packetNameChanged(value) {
-      var arrayLength = this.packet_list_items.length
-      for (var i = 0; i < arrayLength; i++) {
-        if (value === this.packet_list_items[i][0]) {
-          this.selectedPacketName = this.packet_list_items[i][0]
-          this.description = this.packet_list_items[i][1]
-          break
+      if (value === 'ALL') {
+        this.itemsDisabled = true
+        this.internalDisabled = false
+      } else {
+        this.itemsDisabled = false
+        var arrayLength = this.packet_list_items.length
+        for (var i = 0; i < arrayLength; i++) {
+          if (value === this.packet_list_items[i][0]) {
+            this.selectedPacketName = this.packet_list_items[i][0]
+            this.description = this.packet_list_items[i][1]
+            break
+          }
         }
-      }
-      if (!this.chooseItem) {
-        this.$emit('on-set', {
-          targetName: this.selectedTargetName,
-          packetName: this.selectedPacketName
-        })
-      }
-      if (this.chooseItem) {
-        this.selectedItemName = ''
-        this.updateItems()
+        if (!this.chooseItem) {
+          this.$emit('on-set', {
+            targetName: this.selectedTargetName,
+            packetName: this.selectedPacketName
+          })
+        }
+        if (this.chooseItem) {
+          this.selectedItemName = ''
+          this.updateItems()
+        }
       }
     },
 
@@ -273,7 +322,33 @@ export default {
     },
 
     buttonPressed() {
-      if (this.chooseItem) {
+      if (this.selectedPacketName === 'ALL') {
+        this.packetNames.forEach(packet => {
+          if (packet === this.ALL) return
+          let cmd = 'get_tlm_item_list'
+          if (this.mode == 'cmd') {
+            cmd = 'get_cmd_param_list'
+          }
+          this.api[cmd](this.selectedTargetName, packet.value).then(items => {
+            items.forEach(item => {
+              this.$emit('click', {
+                targetName: this.selectedTargetName,
+                packetName: packet.value,
+                itemName: item[0]
+              })
+            })
+          })
+        })
+      } else if (this.selectedItemName === 'ALL') {
+        this.itemNames.forEach(item => {
+          if (item === this.ALL) return
+          this.$emit('click', {
+            targetName: this.selectedTargetName,
+            packetName: this.selectedPacketName,
+            itemName: item.value
+          })
+        })
+      } else if (this.chooseItem) {
         this.$emit('click', {
           targetName: this.selectedTargetName,
           packetName: this.selectedPacketName,
