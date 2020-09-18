@@ -541,6 +541,12 @@ module Cosmos
     def sadd(key, value)
       @redis_pool.with { |redis| redis.sadd(key, value) }
     end
+    def smembers(key)
+      @redis_pool.with { |redis| return redis.smembers(key) }
+    end
+    def srem(key, member)
+      @redis_pool.with { |redis| redis.srem(key, member) }
+    end
     def xrevrange(*args, **kw_args)
       @redis_pool.with { |redis| redis.xrevrange(*args, **kw_args) }
     end
