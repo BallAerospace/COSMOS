@@ -73,12 +73,22 @@
           ></v-text-field>
         </v-col>
       </v-row>
+      <v-row no-gutters>
+        <v-col>
+          <v-radio-group v-model="cmdOrTlm" row hide-details class="mt-0">
+            <v-radio label="Command" value="cmd"></v-radio>
+            <v-radio label="Telemetry" value="tlm"></v-radio>
+          </v-radio-group>
+        </v-col>
+      </v-row>
       <v-row>
         <div class="c-tlmgrapher__contents">
           <TargetPacketItemChooser
             @click="addItem($event)"
             buttonText="Add Item"
+            :mode="cmdOrTlm"
             :chooseItem="true"
+            :allowAll="true"
           ></TargetPacketItemChooser>
           <v-alert type="warning" v-model="warning" dismissible
             >{{ warningText }}
@@ -115,7 +125,7 @@
                   <span>Delete All Items</span>
                 </v-tooltip>
               </v-subheader>
-              <v-list-item v-for="(item, i) in tlmItems" :key="i">
+              <v-list-item v-for="(item, i) in items" :key="i">
                 <v-list-item-icon>
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
@@ -212,7 +222,7 @@ export default {
   },
   data() {
     return {
-      toolName: 'telemetry-extractor',
+      toolName: 'data-exporter',
       api: null,
       openConfig: false,
       saveConfig: false,
@@ -236,15 +246,17 @@ export default {
           return pattern.test(value) || 'Invalid time (HH:MM:SS)'
         }
       },
+      cmdOrTlm: 'tlm',
       warning: false,
       warningText: '',
-      tlmItems: [],
+      items: [],
       rawData: [],
       outputFile: [],
       columnMap: {},
       delimiter: ',',
       columnMode: 'normal',
       matlabHeader: false,
+      skipIgnored: true,
       fillDown: false,
       uniqueOnly: false,
       valueTypes: ['CONVERTED', 'RAW', 'FORMATTED', 'WITH_UNITS'],
@@ -291,6 +303,17 @@ export default {
           label: 'Mode',
           radioGroup: 'Normal Columns', // Default radio selected
           items: [
+            {
+              label: 'Skip Ignored on Add',
+              checkbox: true,
+              checked: true, // Skip Ignored is the default
+              command: () => {
+                this.skipIgnored = !this.skipIgnored
+              }
+            },
+            {
+              divider: true
+            },
             {
               label: 'Fill Down',
               checkbox: true,
@@ -348,35 +371,36 @@ export default {
   methods: {
     async openConfiguration(name) {
       const config = await this.api.load_config(this.toolName, name)
-      this.tlmItems = JSON.parse(config)
+      this.items = JSON.parse(config)
     },
     saveConfiguration(name) {
-      this.api.save_config(this.toolName, name, JSON.stringify(this.tlmItems))
+      this.api.save_config(this.toolName, name, JSON.stringify(this.items))
     },
     addItem(item) {
       // Traditional for loop so we can return if we find a match
-      for (var i = 0; i < this.tlmItems.length; i++) {
+      for (var i = 0; i < this.items.length; i++) {
         if (
-          this.tlmItems[i].itemName === item.itemName &&
-          this.tlmItems[i].packetName === item.packetName &&
-          this.tlmItems[i].targetName === item.targetName
+          this.items[i].itemName === item.itemName &&
+          this.items[i].packetName === item.packetName &&
+          this.items[i].targetName === item.targetName
         ) {
           this.warningText = 'This item has already been added!'
           this.warning = true
           return
         }
       }
+      item.cmdOrTlm = this.cmdOrTlm.toUpperCase()
       item.edit = false
       item.valueType = 'CONVERTED'
       item.uniqueIgnoreAdd = 'NO'
-      this.tlmItems.push(item)
+      this.items.push(item)
     },
     deleteItem(item) {
-      var index = this.tlmItems.indexOf(item)
-      this.tlmItems.splice(index, 1)
+      var index = this.items.indexOf(item)
+      this.items.splice(index, 1)
     },
     deleteAll() {
-      this.tlmItems = []
+      this.items = []
     },
     getItemLabel(item) {
       var type = ''
@@ -401,7 +425,7 @@ export default {
     },
     processItems() {
       // Check for an empty list
-      if (this.tlmItems.length === 0) {
+      if (this.items.length === 0) {
         this.warningText = 'No items to process!'
         this.warning = true
         return
@@ -434,11 +458,16 @@ export default {
       this.subscription = this.cable.subscriptions.create('StreamingChannel', {
         received: data => this.received(data),
         connected: () => {
-          this.intializeOutput()
+          this.foundKeys = []
+          this.columnHeaders = []
+          this.columnMap = {}
+          this.outputFile = []
+          this.rawData = []
           var items = []
-          this.tlmItems.forEach((item, index) => {
+          this.items.forEach((item, index) => {
             items.push(
-              'TLM__' +
+              item.cmdOrTlm +
+                '__' +
                 item.targetName +
                 '__' +
                 item.packetName +
@@ -447,7 +476,6 @@ export default {
                 '__' +
                 item.valueType
             )
-            this.columnMap[items[items.length - 1]] = index
           })
           this.subscription.perform('add', {
             scope: 'DEFAULT',
@@ -458,52 +486,72 @@ export default {
         }
       })
     },
-    intializeOutput() {
-      this.outputFile = []
-      this.rawData = []
-
-      let columnHeaders = []
-      // Normal column mode has the target and packet listed for each item
-      if (this.columnMode === 'normal') {
-        columnHeaders.push('TARGET')
-        columnHeaders.push('PACKET')
+    buildHeaders(itemKeys) {
+      if (
+        this.foundKeys.includes(itemKeys[0]) &&
+        this.foundKeys.includes(itemKeys[1])
+      ) {
+        return
       }
-      this.tlmItems.forEach(item => {
+      this.foundKeys = this.foundKeys.concat(itemKeys)
+
+      // Normal column mode has the target and packet listed for each item
+      if (this.columnHeaders.length === 0 && this.columnMode === 'normal') {
+        this.columnHeaders.push('TARGET')
+        this.columnHeaders.push('PACKET')
+      }
+      itemKeys.forEach(item => {
+        if (item === 'time') return
+        this.columnMap[item] = Object.keys(this.columnMap).length
+        const [
+          cmdTlm,
+          targetName,
+          packetName,
+          itemName,
+          valueType
+        ] = item.split('__')
         if (this.columnMode === 'full') {
-          columnHeaders.push(
-            item.targetName + ' ' + item.packetName + ' ' + item.itemName
+          this.this.columnHeaders.push(
+            targetName + ' ' + packetName + ' ' + itemName
           )
         } else {
-          if (item.valueType && item.valueType !== 'CONVERTED') {
-            columnHeaders.push(item.itemName + ' (' + item.valueType + ')')
+          if (valueType && valueType !== 'CONVERTED') {
+            this.columnHeaders.push(itemName + ' (' + valueType + ')')
           } else {
-            columnHeaders.push(item.itemName)
+            this.columnHeaders.push(itemName)
           }
         }
       })
-      let headers = ''
-      if (this.matlabHeader) {
-        headers += '% '
-      }
-      headers += columnHeaders.join(this.delimiter)
-      this.outputFile.push(headers)
     },
     received(json_data) {
       const data = JSON.parse(json_data)
+      console.log(data)
       // Initially we just build up the list of data
       if (data.length > 0) {
+        this.buildHeaders(Object.keys(data[0]))
         this.rawData = this.rawData.concat(data)
         this.progress = Math.ceil(
           (100 * (data[0]['time'] - this.startDateTime)) /
             (this.endDateTime - this.startDateTime)
         )
       } else {
+        console.log('processReceived')
         this.processReceived()
       }
     },
     processReceived() {
       this.progress = 95 // Indicate we're almost done
       this.subscription.unsubscribe()
+
+      // Output the headers
+      let headers = ''
+      if (this.matlabHeader) {
+        headers += '% '
+      }
+      headers += this.columnHeaders.join(this.delimiter)
+      this.outputFile.push(headers)
+      console.log(this.columnMap)
+
       // Sort everything by time so we can output in order
       this.rawData.sort((a, b) => a.time - b.time)
       var currentValues = []

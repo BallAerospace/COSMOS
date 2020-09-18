@@ -374,7 +374,8 @@ class StreamingItem
     @value_type = key_split[4].to_s.intern
     @start_time = start_time
     @end_time = end_time
-    @topic = "#{@scope}__DECOM__#{@target_name}__#{@packet_name}"
+    type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
+    @topic = "#{@scope}__#{type}__#{@target_name}__#{@packet_name}"
     @offset = nil
     @offset = Cosmos::Store.instance.get_last_offset(topic) unless @start_time
     @thread_id = thread_id

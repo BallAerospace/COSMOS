@@ -66,6 +66,8 @@
                   <v-checkbox
                     color="secondary"
                     :label="option.label"
+                    :value="option.label"
+                    v-model="checked"
                   ></v-checkbox>
                 </v-list-item-action>
                 <v-list-item-icon v-if="option.icon">
@@ -104,10 +106,19 @@ export default {
   data() {
     return {
       drawer: true,
-      appNav: []
+      appNav: [],
+      checked: []
     }
   },
   created() {
+    // Determine if any of the checkboxes should be initially checked
+    this.menus.forEach(menu => {
+      menu.items.forEach(item => {
+        if (item.checked) {
+          this.checked.push(item.label)
+        }
+      })
+    })
     this.$router.options.routes.forEach(route => {
       if (route.meta && route.meta.icon) {
         this.appNav.push({
