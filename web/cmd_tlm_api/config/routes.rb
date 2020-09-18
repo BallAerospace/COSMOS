@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   scope :admin do
+    resources :gems
     resources :microservices
     resources :tools
     resources :scopes

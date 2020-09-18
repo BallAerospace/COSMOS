@@ -23,11 +23,13 @@
 import AppNav from '@/AppNav'
 import PluginsTab from '@/tools/CosmosAdmin/PluginsTab'
 import ScopesTab from '@/tools/CosmosAdmin/ScopesTab'
+import GemsTab from '@/tools/CosmosAdmin/GemsTab'
 export default {
   components: {
     AppNav,
     PluginsTab,
-    ScopesTab
+    ScopesTab,
+    GemsTab
   },
   data() {
     return {
@@ -39,7 +41,7 @@ export default {
         { name: 'Routers', component: 'PluginsTab' },
         { name: 'Microservices', component: 'PluginsTab' },
         { name: 'Tools', component: 'PluginsTab' },
-        { name: 'Gems', component: 'PluginsTab' },
+        { name: 'Gems', component: 'GemsTab' },
         { name: 'Scopes', component: 'ScopesTab' }
       ]
     }
