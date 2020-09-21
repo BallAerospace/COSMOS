@@ -16,8 +16,13 @@ class ScopesController < ApplicationController
   # Remove a plugin
   def destroy
     if params[:scope]
-      STDOUT.puts "Removing scope: #{params[:scope]}"
-      Cosmos::Store.instance.srem("cosmos_scopes", params[:scope].to_s.upcase)
+      scopes = Cosmos::Store.instance.smembers("cosmos_scopes")
+      if scopes.length > 1
+        STDOUT.puts "Removing scope: #{params[:scope]}"
+        Cosmos::Store.instance.srem("cosmos_scopes", params[:scope].to_s.upcase)
+      else
+        head :internal_server_error
+      end
     else
       head :internal_server_error
     end
