@@ -23,7 +23,7 @@ describe('CmdTlmServer Interfaces', () => {
       .eq(2)
       .invoke('text')
       .should('eq', 'DISCONNECTED')
-    cy.get('[data-test=log-messages]').contains('Connection Lost for INST_INT')
+    cy.get('[data-test=log-messages]').contains('INST_INT: Disconnect')
     // Connect
     cy.get('[data-test=interfaces-table]')
       .contains('INST_INT')
@@ -38,7 +38,7 @@ describe('CmdTlmServer Interfaces', () => {
       .eq(2)
       .invoke('text')
       .should('eq', 'CONNECTED')
-    cy.get('[data-test=log-messages]').contains('INST_INT Connection Success')
+    cy.get('[data-test=log-messages]').contains('INST_INT: Connection Success')
   })
 
   it('cancels an inteface from attempting', () => {
@@ -82,7 +82,7 @@ describe('CmdTlmServer Interfaces', () => {
       .eq(2)
       .invoke('text')
       .should('eq', 'DISCONNECTED')
-    cy.get('[data-test=log-messages]').contains(/EXAMPLE_INT.*Connect canceled/)
+    cy.get('[data-test=log-messages]').contains('EXAMPLE_INT: Disconnect')
     // Connect
     cy.get('[data-test=interfaces-table]')
       .contains('EXAMPLE_INT')
@@ -97,6 +97,6 @@ describe('CmdTlmServer Interfaces', () => {
       .eq(2)
       .invoke('text')
       .should('eq', 'ATTEMPTING')
-    cy.get('[data-test=log-messages]').contains('Connecting to EXAMPLE_INT')
+    cy.get('[data-test=log-messages]').contains('EXAMPLE_INT: Connecting')
   })
 })

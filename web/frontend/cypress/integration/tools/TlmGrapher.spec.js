@@ -27,6 +27,10 @@ describe('TlmGrapher', () => {
     })
   }
 
+  beforeEach(() => {
+    Cypress.on('uncaught:exception', (err, runnable) => false)
+  })
+
   it('adds items to a graph, starts, pauses, resumes and stops', () => {
     cy.visit('/telemetry-grapher')
     cy.hideNav()

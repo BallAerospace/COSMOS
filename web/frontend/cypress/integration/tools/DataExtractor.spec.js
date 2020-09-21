@@ -7,10 +7,10 @@ function formatFilename(date) {
   return format(date, 'yyyy_MM_dd_HH_mm_ss')
 }
 
-describe('TlmExtractor', () => {
+describe('DataExtractor', () => {
   it('loads and saves the configuration', function() {
     const now = new Date()
-    cy.visit('/telemetry-extractor')
+    cy.visit('/data-extractor')
     cy.hideNav()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
@@ -67,14 +67,14 @@ describe('TlmExtractor', () => {
   })
 
   it('warns with no items', function() {
-    cy.visit('/telemetry-extractor')
+    cy.visit('/data-extractor')
     cy.hideNav()
     cy.contains('Process').click()
     cy.contains('No items to process').should('be.visible')
   })
 
   it('warns with duplicate item', function() {
-    cy.visit('/telemetry-extractor')
+    cy.visit('/data-extractor')
     cy.hideNav()
     cy.contains('Add Item').click()
     cy.contains('Add Item').click()
@@ -82,7 +82,7 @@ describe('TlmExtractor', () => {
   })
 
   it('warns with no time delta', function() {
-    cy.visit('/telemetry-extractor')
+    cy.visit('/data-extractor')
     cy.hideNav()
     cy.contains('Add Item').click()
     cy.contains('Process').click()
@@ -93,7 +93,7 @@ describe('TlmExtractor', () => {
 
   it('cancels a process', function() {
     const start = sub(new Date(), { minutes: 1 })
-    cy.visit('/telemetry-extractor')
+    cy.visit('/data-extractor')
     cy.hideNav()
     cy.get('[data-test=startTime]')
       .clear()
@@ -117,7 +117,7 @@ describe('TlmExtractor', () => {
 
   it('add, edits, deletes items', function() {
     const start = sub(new Date(), { minutes: 1 })
-    cy.visit('/telemetry-extractor')
+    cy.visit('/data-extractor')
     cy.hideNav()
     cy.get('[data-test=startTime]')
       .clear()
@@ -180,7 +180,7 @@ describe('TlmExtractor', () => {
 
   it('creates CSV output', function() {
     const start = sub(new Date(), { minutes: 5 })
-    cy.visit('/telemetry-extractor')
+    cy.visit('/data-extractor')
     cy.hideNav()
     cy.get('.v-toolbar')
       .contains('File')
@@ -211,7 +211,7 @@ describe('TlmExtractor', () => {
 
   it('creates tab delimited output', function() {
     const start = sub(new Date(), { minutes: 5 })
-    cy.visit('/telemetry-extractor')
+    cy.visit('/data-extractor')
     cy.hideNav()
     cy.get('.v-toolbar')
       .contains('File')
@@ -238,7 +238,7 @@ describe('TlmExtractor', () => {
 
   it('outputs full column names', function() {
     let start = sub(new Date(), { minutes: 1 })
-    cy.visit('/telemetry-extractor')
+    cy.visit('/data-extractor')
     cy.hideNav()
     cy.get('.v-toolbar')
       .contains('Mode')
@@ -280,7 +280,7 @@ describe('TlmExtractor', () => {
 
   it('fills values', function() {
     const start = sub(new Date(), { minutes: 1 })
-    cy.visit('/telemetry-extractor')
+    cy.visit('/data-extractor')
     cy.hideNav()
     cy.get('.v-toolbar')
       .contains('Mode')
@@ -323,7 +323,7 @@ describe('TlmExtractor', () => {
 
   it('adds Matlab headers', function() {
     const start = sub(new Date(), { minutes: 1 })
-    cy.visit('/telemetry-extractor')
+    cy.visit('/data-extractor')
     cy.hideNav()
     cy.get('.v-toolbar')
       .contains('Mode')
@@ -347,7 +347,7 @@ describe('TlmExtractor', () => {
 
   it('outputs unique values only', function() {
     const start = sub(new Date(), { minutes: 1 })
-    cy.visit('/telemetry-extractor')
+    cy.visit('/data-extractor')
     cy.hideNav()
     cy.get('.v-toolbar')
       .contains('Mode')

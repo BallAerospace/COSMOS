@@ -159,6 +159,7 @@ export default {
         this.selectedTargetName = targetNames[0].value
         this.targetNameChanged(this.selectedTargetName)
       }
+      this.updatePackets()
     })
     this.internalDisabled = false
   },

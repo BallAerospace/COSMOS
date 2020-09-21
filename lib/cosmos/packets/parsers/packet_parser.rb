@@ -104,6 +104,7 @@ module Cosmos
     def self.finish_create_command(packet, commands, warnings)
       warning = PacketParser.check_for_duplicate('Command', commands, packet)
       warnings << warning if warning
+      packet.define_reserved_items()
       commands[packet.target_name] ||= {}
       packet
     end

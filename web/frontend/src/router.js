@@ -66,10 +66,10 @@ export default new Router({
       meta: { title: 'Telemetry Grapher', icon: 'mdi-chart-line' }
     },
     {
-      path: '/data-exporter',
-      name: 'DataExporter',
-      component: () => import('./views/TlmExtractorView.vue'),
-      meta: { title: 'Data Exporter', icon: 'mdi-archive-arrow-down' }
+      path: '/data-extractor',
+      name: 'Data Extractor',
+      component: () => import('./views/DataExtractorView.vue'),
+      meta: { title: 'Data Extractor', icon: 'mdi-archive-arrow-down' }
     },
     {
       path: '/admin',

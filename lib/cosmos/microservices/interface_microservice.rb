@@ -23,7 +23,7 @@ module Cosmos
         begin
           run()
         rescue Exception => err
-          Logger.error "InterfaceCmdHandleThread died unexpectedly: #{err.formatted}"
+          Logger.error "#{@interface.name}: Command handler thread died: #{err.formatted}"
         end
       end
     end
@@ -32,10 +32,22 @@ module Cosmos
       Store.instance.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
         # Check for a raw write to the interface
         if topic =~ /CMDINTERFACE/
-          @tlm.attempting() if msg_hash['connect']
-          @tlm.disconnect(false) if msg_hash['disconnect']
-          @interface.write(msg_hash['raw']) if msg_hash['raw']
-          @tlm.inject_tlm(msg_hash) if msg_hash['inject_tlm']
+          if msg_hash['connect']
+            Logger.info "#{@interface.name}: Connect requested"
+            @tlm.attempting()
+          end
+          if msg_hash['disconnect']
+            Logger.info "#{@interface.name}: Disconnect requested"
+            @tlm.disconnect(false)
+          end
+          if msg_hash['raw']
+            Logger.info "#{@interface.name}: Write raw"
+            @interface.write(msg_hash['raw'])
+          end
+          if msg_hash['inject_tlm']
+            Logger.info "#{@interface.name}: Inject telemetry"
+            @tlm.inject_tlm(msg_hash)
+          end
           next 'SUCCESS'
         end
 
@@ -48,7 +60,7 @@ module Cosmos
           begin
             command = System.commands.build_cmd(target_name, cmd_name, cmd_params, range_check, raw)
           rescue => e
-            Logger.error e.formatted
+            Logger.error "#{@interface.name}: #{e.formatted}"
             next e.message
           end
 
@@ -95,11 +107,11 @@ module Cosmos
 
             'SUCCESS'
           rescue => e
-            Logger.error e.formatted
+            Logger.error "#{@interface.name}: #{e.formatted}"
             next e.message
           end
         rescue => e
-          Logger.error e.formatted
+          Logger.error "#{@interface.name}: #{e.formatted}"
           next e.message
         end
       end
@@ -148,9 +160,9 @@ module Cosmos
     def run
       begin
         if @interface.read_allowed?
-          Logger.info "Starting packet reading for #{@interface.name}"
+          Logger.info "#{@interface.name}: Starting packet reading"
         else
-          Logger.info "Starting connection maintenance for #{@interface.name}"
+          Logger.info "#{@interface.name}: Starting connection maintenance"
         end
         while true
           break if @cancel_thread
@@ -175,7 +187,7 @@ module Cosmos
                 if packet
                   handle_packet(packet)
                 else
-                  Logger.info "Clean disconnect from #{@interface.name} (returned nil)"
+                  Logger.info "#{@interface.name}: Clean disconnect (returned nil)"
                   # Don't reconnect on a clean disconnect because it's intentional
                   handle_connection_lost(reconnect: false)
                   break if @cancel_thread
@@ -191,11 +203,11 @@ module Cosmos
           end
         end
       rescue Exception => error
-        Logger.error "Packet reading thread unexpectedly died for #{@interface.name}\n#{error.formatted}"
+        Logger.error "#{@interface.name}: Packet reading thread died: #{error.formatted}"
         Cosmos.handle_fatal_exception(error)
       end
       Store.instance.set_interface(@interface, scope: @scope)
-      Logger.info "Stopped packet reading for #{@interface.name}"
+      Logger.info "#{@interface.name}: Stopped packet reading"
     end
 
     def handle_packet(packet)
@@ -216,7 +228,7 @@ module Cosmos
           rescue RuntimeError
             # Packet identified but we don't know about it
             # Clear packet_name and target_name and try to identify
-            Logger.warn "Received unknown identified telemetry: #{packet.target_name} #{packet.packet_name}"
+            Logger.warn "#{@interface.name}: Received unknown identified telemetry: #{packet.target_name} #{packet.packet_name}"
             packet.target_name = nil
             packet.packet_name = nil
             identified_packet = System.telemetry.identify!(packet.buffer,
@@ -241,7 +253,7 @@ module Cosmos
         unknown_packet.extra = packet.extra
         packet = unknown_packet
         data_length = packet.length
-        string = "#{@interface_name} - Unknown #{data_length} byte packet starting: "
+        string = "#{@interface.name}: Unknown #{data_length} byte packet starting: "
         num_bytes_to_print = [UNKNOWN_BYTES_TO_PRINT, data_length].min
         data_to_print = packet.buffer(false)[0..(num_bytes_to_print - 1)]
         data_to_print.each_byte do |byte|
@@ -279,10 +291,10 @@ module Cosmos
     end
 
     def handle_connection_failed(connect_error)
-      Logger.error "#{@interface.name} Connection Failed: #{connect_error.formatted(false, false)}"
+      Logger.error "#{@interface.name}: Connection Failed: #{connect_error.formatted(false, false)}"
       case connect_error
       when Interrupt
-        Logger.info "Closing from signal"
+        Logger.info "#{@interface.name}: Closing from signal"
         @cancel_thread = true
       when Errno::ECONNREFUSED, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::ENOTSOCK, Errno::EHOSTUNREACH, IOError
         # Do not write an exception file for these extremely common cases
@@ -290,7 +302,7 @@ module Cosmos
         if RuntimeError === connect_error and (connect_error.message =~ /canceled/ or connect_error.message =~ /timeout/)
           # Do not write an exception file for these extremely common cases
         else
-          Logger.error connect_error.formatted
+          Logger.error "#{@interface.name}: #{connect_error.formatted}"
           unless @connection_failed_messages.include?(connect_error.message)
             Cosmos.write_exception_file(connect_error)
             @connection_failed_messages << connect_error.message
@@ -302,32 +314,32 @@ module Cosmos
 
     def handle_connection_lost(err = nil, reconnect: true)
       if err
-        Logger.info "Connection Lost for #{@interface.name}: #{err.formatted(false, false)}"
+        Logger.info "#{@interface.name}: Connection Lost: #{err.formatted(false, false)}"
         case err
         when Interrupt
-          Logger.info "Closing from signal"
+          Logger.info "#{@interface.name}: Closing from signal"
           @cancel_thread = true
         when Errno::ECONNABORTED, Errno::ECONNRESET, Errno::ETIMEDOUT, Errno::EBADF, Errno::ENOTSOCK, IOError
           # Do not write an exception file for these extremely common cases
         else
-          Logger.error err.formatted
+          Logger.error "#{@interface.name}: #{err.formatted}"
           unless @connection_lost_messages.include?(err.message)
             Cosmos.write_exception_file(err)
             @connection_lost_messages << err.message
           end
         end
       else
-        Logger.info "Connection Lost for #{@interface.name}"
+        Logger.info "#{@interface.name}: Connection Lost"
       end
       disconnect(reconnect) # Ensure we do a clean disconnect
     end
 
     def connect()
-      Logger.info "Connecting to #{@interface.name}..."
+      Logger.info "#{@interface.name}: Connecting ..."
       @interface.connect
       @interface.state = 'CONNECTED'
       Store.instance.set_interface(@interface, scope: @scope)
-      Logger.info "#{@interface.name} Connection Success"
+      Logger.info "#{@interface.name}: Connection Success"
     end
 
     def disconnect(allow_reconnect = true)
@@ -335,7 +347,7 @@ module Cosmos
 
       # If the interface is set to auto_reconnect then delay so the thread
       # can come back around and allow the interface a chance to reconnect.
-      if allow_reconnect and @interface.auto_reconnect
+      if allow_reconnect and @interface.auto_reconnect and @interface.state != 'DISCONNECTED'
         attempting()
         if !@cancel_thread
           @interface_thread_sleeper.sleep(@interface.reconnect_delay)
@@ -354,6 +366,8 @@ module Cosmos
         @cancel_thread = true
         @interface_thread_sleeper.cancel
         @interface.disconnect
+        @interface.state = 'DISCONNECTED'
+        Store.instance.set_interface(@interface, scope: @scope)
       end
       Cosmos.kill_thread(self, @interface_thread) if @interface_thread and @interface_thread != Thread.current
     end
