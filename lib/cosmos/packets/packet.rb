@@ -717,6 +717,7 @@ module Cosmos
     def restore_defaults(buffer = @buffer, skip_item_names = nil)
       upcase_skip_item_names = skip_item_names.map(&:upcase) if skip_item_names
       @sorted_items.each do |item|
+        next if RESERVED_ITEM_NAMES.include?(item.name)
         write_item(item, item.default, :CONVERTED, buffer) unless (skip_item_names and upcase_skip_item_names.include?(item.name))
       end
     end
@@ -724,19 +725,19 @@ module Cosmos
     # Define the reserved items on the current telemetry packet
     def define_reserved_items
       item = define_item('PACKET_TIMESECONDS', 0, 0, :DERIVED, nil, @default_endianness,
-                         :ERROR, '%0.6f', PacketTimeSecondsConversion.new, PacketTimeSecondsConversion.new)
+                         :ERROR, '%0.6f', PacketTimeSecondsConversion.new)
       item.description = 'COSMOS Packet Time (UTC, Floating point, Unix epoch)'
       item = define_item('PACKET_TIMEFORMATTED', 0, 0, :DERIVED, nil, @default_endianness,
-                         :ERROR, nil, PacketTimeFormattedConversion.new, PacketTimeFormattedConversion.new)
+                         :ERROR, nil, PacketTimeFormattedConversion.new)
       item.description = 'COSMOS Packet Time (Local time zone, Formatted string)'
       item = define_item('RECEIVED_TIMESECONDS', 0, 0, :DERIVED, nil, @default_endianness,
-                         :ERROR, '%0.6f', ReceivedTimeSecondsConversion.new, ReceivedTimeSecondsConversion.new)
+                         :ERROR, '%0.6f', ReceivedTimeSecondsConversion.new)
       item.description = 'COSMOS Received Time (UTC, Floating point, Unix epoch)'
       item = define_item('RECEIVED_TIMEFORMATTED', 0, 0, :DERIVED, nil, @default_endianness,
-                         :ERROR, nil, ReceivedTimeFormattedConversion.new, ReceivedTimeFormattedConversion.new)
+                         :ERROR, nil, ReceivedTimeFormattedConversion.new)
       item.description = 'COSMOS Received Time (Local time zone, Formatted string)'
       item = define_item('RECEIVED_COUNT', 0, 0, :DERIVED, nil, @default_endianness,
-                         :ERROR, nil, ReceivedCountConversion.new, ReceivedCountConversion.new)
+                         :ERROR, nil, ReceivedCountConversion.new)
       item.description = 'COSMOS packet received count'
     end
 

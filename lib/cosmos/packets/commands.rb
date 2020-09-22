@@ -91,7 +91,6 @@ module Cosmos
 
       target_names.each do |target_name|
         target_name = target_name.to_s.upcase
-        
         target_packets = nil
         begin
           target_packets = packets(target_name)
@@ -117,7 +116,7 @@ module Cosmos
             hash = @config.cmd_id_value_hash[target_name]
             identified_packet = hash[key]
             identified_packet = hash['CATCHALL'.freeze] unless identified_packet
-          end          
+          end
         end
 
         if identified_packet
@@ -202,6 +201,7 @@ module Cosmos
 
         params = []
         cmd_params.each do |key, value|
+          next if Packet::RESERVED_ITEM_NAMES.include?(key)
 
           begin
             item_type = command_items[key].data_type

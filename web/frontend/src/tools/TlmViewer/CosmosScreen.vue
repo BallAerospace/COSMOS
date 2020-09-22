@@ -156,7 +156,16 @@ export default {
     this.applyGlobalSettings(this.layoutStack[0].widgets)
   },
   mounted() {
-    this.startUpdates()
+    let refreshInterval = this.pollingPeriod * 1000
+    this.updater = setInterval(() => {
+      this.update()
+    }, refreshInterval)
+  },
+  destroyed() {
+    if (this.updater != null) {
+      clearInterval(this.updater)
+      this.updater = null
+    }
   },
   methods: {
     // Called by button scripts to get named widgets
@@ -179,18 +188,6 @@ export default {
         this.api.get_tlm_values(items, types).then(data => {
           this.$store.commit('tlmViewerUpdateValues', data)
         })
-      }
-    },
-    startUpdates() {
-      let refreshInterval = this.pollingPeriod * 1000
-      this.updater = setInterval(() => {
-        this.update()
-      }, refreshInterval)
-    },
-    stopUpdates() {
-      if (this.updater != null) {
-        clearInterval(this.updater)
-        this.updater = null
       }
     },
     minMaxTransition() {

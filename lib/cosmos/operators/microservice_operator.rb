@@ -106,7 +106,7 @@ module Cosmos
         @removed_microservices.each do |microservice_name, microservice_config|
           process = @processes[microservice_name]
           @processes.delete(microservice_name)
-          @removed_processes << process
+          @removed_processes[microservice_name] = process
         end
       end
     end

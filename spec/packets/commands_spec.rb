@@ -100,11 +100,14 @@ module Cosmos
 
       it "returns all items from packet TGT1/PKT1" do
         items = @cmd.params("TGT1","PKT1")
-        expect(items.length).to eql 4
-        expect(items[0].name).to eql "ITEM1"
-        expect(items[1].name).to eql "ITEM2"
-        expect(items[2].name).to eql "ITEM3"
-        expect(items[3].name).to eql "ITEM4"
+        expect(items.length).to eql 9
+        Packet::RESERVED_ITEM_NAMES.each do |reserved|
+          expect(items.map{|item| item.name }).to include(reserved)
+        end
+        expect(items[5].name).to eql "ITEM1"
+        expect(items[6].name).to eql "ITEM2"
+        expect(items[7].name).to eql "ITEM3"
+        expect(items[8].name).to eql "ITEM4"
       end
     end
 

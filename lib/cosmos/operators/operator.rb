@@ -71,7 +71,7 @@ module Cosmos
       @processes = {}
       @new_processes = {}
       @changed_processes = {}
-      @remove_processes = {}
+      @removed_processes = {}
       @mutex = Mutex.new
       @shutdown = false
       @shutdown_complete = false
@@ -105,9 +105,9 @@ module Cosmos
 
     def remove_old
       @mutex.synchronize do
-        if @remove_processes.length > 0
-          shutdown_processes(@remove_processes)
-          @remove_processes = {}
+        if @removed_processes.length > 0
+          shutdown_processes(@removed_processes)
+          @removed_processes = {}
         end
       end
     end

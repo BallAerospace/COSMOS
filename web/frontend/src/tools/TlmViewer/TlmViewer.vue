@@ -55,7 +55,7 @@ import axios from 'axios'
 import AppNav from '@/AppNav'
 import { CosmosApi } from '@/services/cosmos-api'
 import CosmosScreen from './CosmosScreen'
-import * as Muuri from 'muuri'
+import Muuri from 'muuri'
 
 export default {
   components: {
@@ -90,10 +90,8 @@ export default {
   mounted() {
     this.grid = new Muuri('.grid', {
       dragEnabled: true,
-      dragStartPredicate: {
-        // Only allow drags starting from the v-system-bar title
-        handle: '.v-system-bar'
-      }
+      // Only allow drags starting from the v-system-bar title
+      dragHandle: '.v-system-bar'
     })
   },
   methods: {
@@ -132,12 +130,21 @@ export default {
           })
           this.counter += 1
           this.$nextTick(function() {
-            this.grid.add(this.$refs.gridItem[this.$refs.gridItem.length - 1])
+            var items = this.grid.add(
+              this.$refs.gridItem[this.$refs.gridItem.length - 1],
+              {
+                active: false
+              }
+            )
+            this.grid.show(items)
           })
         })
     },
     closeScreen(id) {
-      this.grid.remove(document.getElementById(this.screenId(id)))
+      var items = this.grid.getItems([
+        document.getElementById(this.screenId(id))
+      ])
+      this.grid.remove(items)
       this.definitions = this.definitions.filter((value, index, arr) => {
         return value.id != id
       })
