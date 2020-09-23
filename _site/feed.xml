@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Thu, 10 Sep 2020 17:07:14 -0600</pubDate>
-    <lastBuildDate>Thu, 10 Sep 2020 17:07:14 -0600</lastBuildDate>
+    <pubDate>Wed, 23 Sep 2020 09:41:41 -0600</pubDate>
+    <lastBuildDate>Wed, 23 Sep 2020 09:41:41 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v4.1.1</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,44 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Packet Time</title>
+      <link>http://cosmosrb.com/news/2020/09/23/packet-time/</link>
+      <pubDate>Wed, 23 Sep 2020 09:00:00 -0600</pubDate>
+      <dc:creator>jmthomas</dc:creator>
+      
+      
+      <category>post</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2020/09/23/packet-time/</guid>
+      <description>&lt;p&gt;It’s been said that there are only &lt;a href=&quot;https://martinfowler.com/bliki/TwoHardThings.html&quot;&gt;two hard things&lt;/a&gt; in programming. I think a corollary to that is &lt;a href=&quot;https://medium.com/@BlueTaslem/time-is-hard-for-computers-programmers-14ef2a7ece77&quot;&gt;time is hard&lt;/a&gt;. So I wanted to write a post about some of the various things COSMOS does with time and what you need to be aware of.&lt;/p&gt;
+
+&lt;h3 id=&quot;received-time&quot;&gt;Received Time&lt;/h3&gt;
+
+&lt;p&gt;If you’ve used COSMOS for a while you’ve noticed that COSMOS automatically creates several telemetry items on every packet: PACKET_TIMESECONDS, PACKET_TIMEFORMATTED, RECEIVED_COUNT, RECEIVED_TIMEFORMATTED, and RECEIVED_TIMESECONDS. While RECEIVED_COUNT is fairly self-explanatory (number of times the packet has been received) it might not be obvious why there are 4! ways to get the time.&lt;/p&gt;
+
+&lt;p&gt;So what’s the difference between RECEIVED_TIME vs PACKET_TIME. First of all they both have a TIMEFORMATTED and TIMESECONDS version. The formatted telemetry item returns the date and time in a YYYY/MM/DD HH:MM:SS.sss format in the local timezone. This is useful for human readable output like in &lt;a href=&quot;/docs/tools/#telemetry-extractor&quot;&gt;Telemetry Extractor&lt;/a&gt;. They also can return TIMESECONDS which is the floating point UTC time in seconds from the Unix epoch.&lt;/p&gt;
+
+&lt;p&gt;RECEIVED_TIME is the time that COSMOS receives the packet. This is set by the interface which is connected to the target and is receiving the raw data. Once a packet has been created out of the raw data the time is set.&lt;/p&gt;
+
+&lt;p&gt;PACKET_TIME is a recent (&lt;a href=&quot;https://cosmosrb.com/news/2018/08/30/cosmos-4-3-0-released/&quot;&gt;4.3.0&lt;/a&gt;) concept introduced by a &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/814&quot;&gt;change to support stored telemetry&lt;/a&gt;. The &lt;a href=&quot;/docs/packet_class/&quot;&gt;Packet&lt;/a&gt; class has a new method called &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet.rb#L243&quot;&gt;packet_time&lt;/a&gt; that by default simply returns the received time as set by COSMOS. But if you define a telemetry item called ‘PACKET_TIME’, that item will be used instead.&lt;/p&gt;
+
+&lt;p&gt;This was done to support processing ‘stored’ telemetry data which isn’t coming into COSMOS in real-time. Previously if you created an interface to process stored telemetry, COSMOS would set the received_time as fast as it processed the files and all your stored telemetry would effective have a timestamp of ‘now’. This would have also updated the current value table in COSMOS which affect scripts, screens, etc. With COSMOS 4.3.0 and later you can set the ‘stored’ flag in your interface and the current value table is unaffected. Also if you define a ‘PACKET_TIME’ item in your packet, this item will be used to calculate the time.&lt;/p&gt;
+
+&lt;h3 id=&quot;example&quot;&gt;Example&lt;/h3&gt;
+
+&lt;p&gt;COSMOS provides a Unix time conversion class which returns a Ruby time object based on the number of seconds and (optionally) microseconds since the Unix epoch. Note: This returns a Ruby Time object and not a float or string!&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  ITEM PACKET_TIME 0 0 DERIVED &quot;Ruby time based on TIMESEC and TIMEUS&quot;
+    READ_CONVERSION unix_time_conversion.rb TIMESEC TIMEUS
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Definining PACKET_TIME allows the PACKET_TIMESECONDS and PACKET_TIMEFORMATTED to be calculated against an internal Packet time rather than the time that COSMOS receives the packet.&lt;/p&gt;
+
+&lt;p&gt;If you have a question, find a bug, or want a feature please use our &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues&quot;&gt;Github Issues&lt;/a&gt;. If you would like more information about a COSMOS training or support contract please contact us at &lt;a href=&quot;mailto:cosmos@ball.com&quot;&gt;cosmos@ball.com&lt;/a&gt;.&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Ball Aerospace COSMOS 5.0.0 alpha 1 Released</title>
