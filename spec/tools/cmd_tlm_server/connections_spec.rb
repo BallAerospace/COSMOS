@@ -17,11 +17,16 @@ require 'tempfile'
 module Cosmos
 
   describe Connections do
+    before(:all) do
+      system_path = File.join(__dir__, '..', '..', 'install', 'config', 'system', 'system.txt')
+      @sc = Cosmos::SystemConfig.new(system_path)
+    end
+
     describe "initialize" do
       it "only allows :ROUTERS or :INTERFACES" do
         tf = Tempfile.new('unittest')
         tf.close
-        expect { Connections.new(:BLAH, CmdTlmServerConfig.new(tf.path)) }.to raise_error("Unknown type: BLAH. Must be :INTERFACES or :ROUTERS.")
+        expect { Connections.new(:BLAH, CmdTlmServerConfig.new(tf.path, @sc)) }.to raise_error("Unknown type: BLAH. Must be :INTERFACES or :ROUTERS.")
         tf.unlink
       end
     end
@@ -31,7 +36,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'ROUTER MY_ROUTER interface.rb'
         tf.close
-        routers = Connections.new(:ROUTERS, CmdTlmServerConfig.new(tf.path))
+        routers = Connections.new(:ROUTERS, CmdTlmServerConfig.new(tf.path, @sc))
         expect { routers.start }.to raise_error("Connections start_thread method not implemented")
         tf.unlink
       end
@@ -43,7 +48,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path, @sc))
         expect { interfaces.stop }.to raise_error("Connections stop_thread method not implemented")
         tf.unlink
       end
@@ -54,7 +59,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path, @sc))
         expect(interfaces).to receive(:start_thread)
         interfaces.connect("MY_INT")
         tf.unlink
@@ -65,7 +70,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path, @sc))
         expect(interfaces).to receive(:stop_thread)
         expect(interfaces).to receive(:start_thread)
         expect(interfaces).to receive(:recreate)
@@ -79,7 +84,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path, @sc))
         expect { interfaces.recreate("MY_INT") }.to raise_error("Connections recreate method not implemented")
         tf.unlink
       end
@@ -93,7 +98,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'ROUTER MY_ROUTER interface.rb'
         tf.close
-        routers = Connections.new(:ROUTERS, CmdTlmServerConfig.new(tf.path))
+        routers = Connections.new(:ROUTERS, CmdTlmServerConfig.new(tf.path, @sc))
         expect(routers.state("MY_ROUTER")).to eql "ATTEMPTING"
         expect(routers.state("MY_ROUTER")).to eql "CONNECTED"
         expect(routers.state("MY_ROUTER")).to eql "DISCONNECTED"
@@ -108,7 +113,7 @@ module Cosmos
         tf.puts 'ROUTER ROUTER2 interface.rb'
         tf.puts 'ROUTER ROUTER3 interface.rb'
         tf.close
-        routers = Connections.new(:ROUTERS, CmdTlmServerConfig.new(tf.path))
+        routers = Connections.new(:ROUTERS, CmdTlmServerConfig.new(tf.path, @sc))
         expect(routers.names).to eql %w(ROUTER1 ROUTER2 ROUTER3)
         tf.unlink
       end
@@ -121,7 +126,7 @@ module Cosmos
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
         tf.puts 'INTERFACE INTERFACE3 interface.rb'
         tf.close
-        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path, @sc))
         interfaces.all.each do |name, interface|
           interface.bytes_written = 100
           interface.bytes_read = 200
@@ -146,7 +151,7 @@ module Cosmos
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
         tf.puts 'INTERFACE INTERFACE3 interface.rb'
         tf.close
-        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path, @sc))
         expect(interfaces.all['INTERFACE1']).to receive(:start_raw_logging)
         expect(interfaces.all['INTERFACE2']).to receive(:start_raw_logging)
         expect(interfaces.all['INTERFACE3']).to receive(:start_raw_logging)
@@ -160,7 +165,7 @@ module Cosmos
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
         tf.puts 'INTERFACE INTERFACE3 interface.rb'
         tf.close
-        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path, @sc))
         expect(interfaces.all['INTERFACE1']).to_not receive(:start_raw_logging)
         expect(interfaces.all['INTERFACE2']).to receive(:start_raw_logging)
         expect(interfaces.all['INTERFACE3']).to_not receive(:start_raw_logging)
@@ -174,7 +179,7 @@ module Cosmos
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
         tf.puts 'INTERFACE INTERFACE3 interface.rb'
         tf.close
-        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path, @sc))
         expect(interfaces.all['INTERFACE1']).to_not receive(:start_raw_logging)
         expect(interfaces.all['INTERFACE2']).to_not receive(:start_raw_logging)
         expect(interfaces.all['INTERFACE3']).to_not receive(:start_raw_logging)
@@ -190,7 +195,7 @@ module Cosmos
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
         tf.puts 'INTERFACE INTERFACE3 interface.rb'
         tf.close
-        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path, @sc))
         expect(interfaces.all['INTERFACE1']).to receive(:stop_raw_logging)
         expect(interfaces.all['INTERFACE2']).to receive(:stop_raw_logging)
         expect(interfaces.all['INTERFACE3']).to receive(:stop_raw_logging)
@@ -204,7 +209,7 @@ module Cosmos
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
         tf.puts 'INTERFACE INTERFACE3 interface.rb'
         tf.close
-        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path, @sc))
         expect(interfaces.all['INTERFACE1']).to_not receive(:stop_raw_logging)
         expect(interfaces.all['INTERFACE2']).to receive(:stop_raw_logging)
         expect(interfaces.all['INTERFACE3']).to_not receive(:stop_raw_logging)
@@ -218,7 +223,7 @@ module Cosmos
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
         tf.puts 'INTERFACE INTERFACE3 interface.rb'
         tf.close
-        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path))
+        interfaces = Connections.new(:INTERFACES, CmdTlmServerConfig.new(tf.path, @sc))
         expect(interfaces.all['INTERFACE1']).to_not receive(:stop_raw_logging)
         expect(interfaces.all['INTERFACE2']).to_not receive(:stop_raw_logging)
         expect(interfaces.all['INTERFACE3']).to_not receive(:stop_raw_logging)
@@ -228,4 +233,3 @@ module Cosmos
     end
   end
 end
-

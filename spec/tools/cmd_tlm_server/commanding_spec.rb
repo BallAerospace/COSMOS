@@ -17,11 +17,16 @@ require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
 module Cosmos
 
   describe Commanding do
+    before(:all) do
+      system_path = File.join(__dir__, '..', '..', 'install', 'config', 'system', 'system.txt')
+      @sc = Cosmos::SystemConfig.new(system_path)
+    end
+
     describe "send_command_to_target" do
       it "complains about unknown targets" do
         tf = Tempfile.new('unittest')
         tf.close
-        cmd = Commanding.new(CmdTlmServerConfig.new(tf.path))
+        cmd = Commanding.new(CmdTlmServerConfig.new(tf.path, @sc))
         expect { cmd.send_command_to_target('BLAH', Packet.new('TGT','PKT')) }.to raise_error("Unknown target: BLAH")
         tf.unlink
       end
@@ -30,7 +35,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        config = CmdTlmServerConfig.new(tf.path)
+        config = CmdTlmServerConfig.new(tf.path, @sc)
         cmd = Commanding.new(config)
         interfaces = Interfaces.new(config)
         interfaces.map_target("SYSTEM","MY_INT")
@@ -59,7 +64,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        config = CmdTlmServerConfig.new(tf.path)
+        config = CmdTlmServerConfig.new(tf.path, @sc)
         cmd = Commanding.new(config)
         interfaces = Interfaces.new(config)
         interfaces.map_target("SYSTEM","MY_INT")
@@ -83,7 +88,7 @@ module Cosmos
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.puts '  LOG_STORED MY_WRITER'
         tf.close
-        config = CmdTlmServerConfig.new(tf.path)
+        config = CmdTlmServerConfig.new(tf.path, @sc)
         cmd = Commanding.new(config)
         interfaces = Interfaces.new(config)
         interfaces.map_target("SYSTEM","MY_INT")
@@ -110,7 +115,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        config = CmdTlmServerConfig.new(tf.path)
+        config = CmdTlmServerConfig.new(tf.path, @sc)
         cmd = Commanding.new(config)
         interfaces = Interfaces.new(config)
         interfaces.map_target("SYSTEM","MY_INT")
@@ -139,7 +144,7 @@ module Cosmos
       it "complains about unknown interfaces" do
         tf = Tempfile.new('unittest')
         tf.close
-        cmd = Commanding.new(CmdTlmServerConfig.new(tf.path))
+        cmd = Commanding.new(CmdTlmServerConfig.new(tf.path, @sc))
         expect { cmd.send_raw('BLAH', Packet.new('TGT','PKT')) }.to raise_error("Unknown interface: BLAH")
         tf.unlink
       end
@@ -152,7 +157,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        config = CmdTlmServerConfig.new(tf.path)
+        config = CmdTlmServerConfig.new(tf.path, @sc)
         cmd = Commanding.new(config)
         interfaces = Interfaces.new(config)
         expect(interfaces.all["MY_INT"]).to receive(:write_raw)
@@ -168,4 +173,3 @@ module Cosmos
 
   end
 end
-

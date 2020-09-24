@@ -72,7 +72,6 @@ module Cosmos
         i = Interface.new
         expect(i.name).to eql "Interface"
         expect(i.target_names).to eql []
-        expect(i.thread).to be_nil
         expect(i.connect_on_startup).to be true
         expect(i.auto_reconnect).to be true
         expect(i.reconnect_delay).to eql 5.0
@@ -465,7 +464,6 @@ module Cosmos
         i = Interface.new
         i.name = 'TEST'
         i.target_names = ['TGT1','TGT2']
-        i.thread = Thread.new {}
         i.connect_on_startup = false
         i.auto_reconnect = false
         i.reconnect_delay = 1.0
@@ -488,7 +486,6 @@ module Cosmos
         i.copy_to(i2)
         expect(i2.name).to eql 'TEST'
         expect(i2.target_names).to eql ['TGT1','TGT2']
-        expect(i2.thread).to be_nil # Thread does not get copied
         expect(i2.connect_on_startup).to be false
         expect(i2.auto_reconnect).to be false
         expect(i2.reconnect_delay).to eql 1.0
@@ -506,7 +503,6 @@ module Cosmos
         expect(i2.read_protocols).to_not be_empty
         expect(i2.write_protocols).to_not be_empty
         expect(i2.protocol_info).to eql [[Protocol, [], :READ_WRITE]]
-        Cosmos.kill_thread(nil, i.thread)
       end
     end
 

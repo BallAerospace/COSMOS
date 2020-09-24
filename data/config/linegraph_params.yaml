@@ -1,6 +1,4 @@
 ---
-# Require data_object to access the COLOR_LIST
-<% require 'cosmos/tools/tlm_grapher/data_objects/data_object' %>
 HORIZONTAL_LINE:
   summary: Create a horizontal line on the plot
   parameters:
@@ -11,7 +9,7 @@ HORIZONTAL_LINE:
     - name: Color
       required: true
       description: Line color
-      values: <%= DataObject::COLOR_LIST %>
+      values: Internet colors
 Y_OFFSET:
   summary: Offset all graph values by this amount when drawing
   parameters:
@@ -27,4 +25,4 @@ Y_AXIS:
     - name: Axis
       required: true
       description: Which axis to associcate the graph with
-      values: ['LEFT', 'RIGHT']
+      values: ["LEFT", "RIGHT"]

@@ -1,6 +1,4 @@
 ---
-# Require data_object to access the COLOR_LIST
-<% require 'cosmos/tools/tlm_grapher/data_objects/data_object' %>
 POINTS_SAVED:
   summary: Number of points saved in the plot history
   warning: The larger the number the more memory Telemetry Grapher will use.
@@ -65,7 +63,7 @@ TAB:
                 - name: Color
                   required: true
                   description: Line color to draw the Data Object
-                  values: <%= DataObject::COLOR_LIST %>
+                  values: Internet colors
             <%= MetaConfigParser.load('housekeeping_params.yaml').to_meta_config_yaml(12) %>
             <%= MetaConfigParser.load('linegraph_params.yaml').to_meta_config_yaml(12) %>
             <%= MetaConfigParser.load('xy_params.yaml').to_meta_config_yaml(12) %>

@@ -17,13 +17,15 @@ module Cosmos
     end
 
     it "loads all the redis keys" do
-      expect(@redis.exists('cosmos_system')).to eql(1)
-      expect(@redis.exists('cosmos_targets')).to eql(1)
+      expect(@redis.exists('cosmos_scopes')).to eql(1)
+      expect(@redis.exists('cosmos_log_messages')).to eql(1)
       expect(@redis.exists('cosmos_microservices')).to eql(1)
-      expect(@redis.exists('cosmoscmd__INST', 'cosmoscmd__SYSTEM')).to eql(2)
-      expect(@redis.exists('cosmostlm__INST', 'cosmostlm__SYSTEM')).to eql(2)
+      expect(@redis.exists('DEFAULT__cosmos_system')).to eql(1)
+      expect(@redis.exists('DEFAULT__cosmos_targets')).to eql(1)
+      expect(@redis.exists('DEFAULT__cosmoscmd__INST', 'DEFAULT__cosmoscmd__SYSTEM')).to eql(2)
+      expect(@redis.exists('DEFAULT__cosmostlm__INST', 'DEFAULT__cosmostlm__SYSTEM')).to eql(2)
 
-      targets = @redis.hgetall('cosmos_targets')
+      targets = @redis.hgetall('DEFAULT__cosmos_targets')
       expect(targets.keys).to include('INST', 'SYSTEM')
     end
   end

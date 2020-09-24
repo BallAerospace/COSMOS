@@ -18,6 +18,9 @@ module Cosmos
 
   describe BackgroundTasks do
     before(:all) do
+      system_path = File.join(__dir__, '..', '..', 'install', 'config', 'system', 'system.txt')
+      @sc = Cosmos::SystemConfig.new(system_path)
+
       4.times.each do |i|
         File.open(File.join(Cosmos::USERPATH,'lib',"my_bg_task#{i}.rb"),'w') do |file|
           file.puts "require 'cosmos/tools/cmd_tlm_server/background_task'"
@@ -45,7 +48,7 @@ module Cosmos
         tf.puts '  STOPPED'
         tf.puts 'BACKGROUND_TASK my_bg_task2.rb'
         tf.close
-        config = CmdTlmServerConfig.new(tf.path)
+        config = CmdTlmServerConfig.new(tf.path, @sc)
         bt = BackgroundTasks.new(config)
         expect(running_threads.length).to eql(1) # RSpec main thread
         expect(bt.instance_variable_get("@threads").length).to eq 0
@@ -83,7 +86,7 @@ module Cosmos
         tf.puts 'BACKGROUND_TASK my_bg_task1.rb'
         tf.puts 'BACKGROUND_TASK my_bg_task2.rb'
         tf.close
-        config = CmdTlmServerConfig.new(tf.path)
+        config = CmdTlmServerConfig.new(tf.path, @sc)
         bt = BackgroundTasks.new(config)
         expect(running_threads.length).to eql(1) # RSpec main thread
         expect(bt.instance_variable_get("@threads").length).to eq 0
@@ -154,7 +157,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'BACKGROUND_TASK my_bg_task3.rb'
         tf.close
-        config = CmdTlmServerConfig.new(tf.path)
+        config = CmdTlmServerConfig.new(tf.path, @sc)
         bt = BackgroundTasks.new(config)
         expect(running_threads.length).to eql(1) # RSpec main thread
         expect(bt.instance_variable_get("@threads").length).to eq 0

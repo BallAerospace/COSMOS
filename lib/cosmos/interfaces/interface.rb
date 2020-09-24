@@ -345,7 +345,7 @@ module Cosmos
     end
 
     # Copy settings from this interface to another interface. All instance
-    # variables are copied except for thread, num_clients, read_queue_size,
+    # variables are copied except for num_clients, read_queue_size,
     # and write_queue_size since these are all specific to the operation of the
     # interface rather than its instantiation.
     #
@@ -353,7 +353,6 @@ module Cosmos
     def copy_to(other_interface)
       other_interface.name = self.name.clone
       other_interface.target_names = self.target_names.clone
-      # The other interface has its own Thread
       other_interface.connect_on_startup = self.connect_on_startup
       other_interface.auto_reconnect = self.auto_reconnect
       other_interface.reconnect_delay = self.reconnect_delay
