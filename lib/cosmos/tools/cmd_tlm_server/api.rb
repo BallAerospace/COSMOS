@@ -384,7 +384,7 @@ module Cosmos
           end
         end
         required = item['required'] ? true : false
-        if item['format_string']
+        if item['format_string'] and item['default']
           unless item['default'].kind_of?(Array)
             list << [item['name'], sprintf(item['format_string'], item['default']), states, item['description'], item['units_full'], item['units'], required, item['data_type']]
           else

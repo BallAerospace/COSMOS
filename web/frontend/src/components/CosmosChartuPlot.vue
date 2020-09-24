@@ -196,6 +196,10 @@ export default {
         }
       ],
       cursor: {
+        drag: {
+          x: true,
+          y: false
+        },
         sync: {
           key: 'cosmos',
           setSeries: true
@@ -204,7 +208,7 @@ export default {
       hooks: {
         setScale: [
           (chart, key) => {
-            if (key == 'x' && !this.zoomOverview) {
+            if (key == 'x' && !this.zoomOverview && this.overview) {
               this.zoomChart = true
               let left = Math.round(
                 this.overview.valToPos(chart.scales.x.min, 'x')
@@ -232,6 +236,7 @@ export default {
       ...this.getAxes('overview'),
       // series: series, // TODO: Uncomment with the performance code
       cursor: {
+        y: false,
         points: {
           show: false // TODO: This isn't working
         },
@@ -269,13 +274,7 @@ export default {
     //console.timeEnd('chart')
 
     // Allow the charts to dynamically resize when the window resizes
-    window.addEventListener(
-      'resize',
-      this.throttle(() => {
-        this.plot.setSize(this.getSize('chart'))
-        this.overview.setSize(this.getSize('overview'))
-      }, 100)
-    )
+    window.addEventListener('resize', this.handleResize)
 
     if (this.state !== 'stop') {
       this.subscribe()
@@ -286,13 +285,10 @@ export default {
       this.subscription.unsubscribe()
     }
     this.cable.disconnect()
-    window.removeEventListener('resize')
+    window.removeEventListener('resize', this.handleResize)
   },
   watch: {
     state: function(newState, oldState) {
-      if (newState === oldState || this.items.length === 0) {
-        return
-      }
       switch (newState) {
         case 'start':
           this.subscribe()
@@ -322,6 +318,11 @@ export default {
     }
   },
   methods: {
+    handleResize() {
+      // TODO: Should this method be throttled?
+      this.plot.setSize(this.getSize('chart'))
+      this.overview.setSize(this.getSize('overview'))
+    },
     resize() {
       this.plot.setSize(this.getSize('chart'))
       this.overview.setSize(this.getSize('overview'))
@@ -433,12 +434,16 @@ export default {
       return {
         scales: {
           x: {
-            min: Math.round(new Date().getTime() / 1000),
-            max: Math.round(new Date().getTime() / 1000) + 1000
+            range(u, dataMin, dataMax) {
+              if (dataMin == null) return [1566453600, 1566497660]
+              return [dataMin, dataMax]
+            }
           },
           y: {
-            min: -100,
-            max: 100
+            range(u, dataMin, dataMax) {
+              if (dataMin == null) return [-100, 100]
+              return uPlot.rangeNum(dataMin, dataMax, 0.1, true)
+            }
           }
         }
       }
@@ -615,5 +620,9 @@ export default {
 }
 #chart >>> .u-inline {
   max-width: fit-content;
+}
+/* TODO: Get this to work with white theme, values would be 0 in white */
+#chart >>> .u-select {
+  background-color: rgba(255, 255, 255, 0.07);
 }
 </style>

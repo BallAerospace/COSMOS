@@ -448,6 +448,13 @@ export default {
     },
 
     updateCmdParams() {
+      const reserved = [
+        'PACKET_TIMESECONDS',
+        'PACKET_TIMEFORMATTED',
+        'RECEIVED_TIMESECONDS',
+        'RECEIVED_TIMEFORMATTED',
+        'RECEIVED_COUNT'
+      ]
       this.sendDisabled = true
       this.ignoredParams = []
       this.rows = []
@@ -457,6 +464,7 @@ export default {
           this.api.get_command(this.targetName, this.commandName).then(
             command => {
               command.items.forEach(parameter => {
+                if (reserved.includes(parameter.name)) return
                 if (
                   !this.ignoredParams.includes(parameter.name) ||
                   this.showIgnoredParams

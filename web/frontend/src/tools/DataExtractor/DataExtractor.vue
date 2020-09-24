@@ -525,7 +525,6 @@ export default {
     },
     received(json_data) {
       const data = JSON.parse(json_data)
-      console.log(data)
       // Initially we just build up the list of data
       if (data.length > 0) {
         this.buildHeaders(Object.keys(data[0]))
@@ -535,7 +534,6 @@ export default {
             (this.endDateTime - this.startDateTime)
         )
       } else {
-        console.log('processReceived')
         this.processReceived()
       }
     },
@@ -550,7 +548,6 @@ export default {
       }
       headers += this.columnHeaders.join(this.delimiter)
       this.outputFile.push(headers)
-      console.log(this.columnMap)
 
       // Sort everything by time so we can output in order
       this.rawData.sort((a, b) => a.time - b.time)
