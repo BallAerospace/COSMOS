@@ -48,6 +48,9 @@ require 'benchmark/ips'
 
 # Set the user path to our COSMOS configuration in the spec directory
 ENV['COSMOS_USERPATH'] = File.join(File.dirname(File.expand_path(__FILE__)), 'install')
+# Disable Redis and Fluentd in the Logger
+ENV['NO_STORE'] = 'true'
+ENV['NO_FLUENTD'] = 'true'
 # TODO: This is a hack until we figure out COSMOS_USERPATH
 module Cosmos
   USERPATH = ENV['COSMOS_USERPATH']
@@ -75,14 +78,15 @@ require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
 require 'cosmos/microservices/configure_microservices'
 
 def configure_store
+  redis = MockRedis.new
+  allow(Redis).to receive(:new).and_return(redis)
+  Cosmos::Store.class_variable_set(:@@instance, nil)
+
   system_path = File.join(__dir__, 'install', 'config', 'system', 'system.txt')
   system_config = Cosmos::SystemConfig.new(system_path)
   cts_path = File.join(__dir__, 'install', 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
   cts_config = Cosmos::CmdTlmServerConfig.new(cts_path, system_config)
 
-  redis = MockRedis.new
-  allow(Redis).to receive(:new).and_return(redis)
-  Cosmos::Store.class_variable_set(:@@instance, nil)
   # Setup Redis with all the keys and fields
   Cosmos::ConfigureMicroservices.new(system_config, cts_config, scope: 'DEFAULT', logger: Cosmos::Logger.new)
   redis
