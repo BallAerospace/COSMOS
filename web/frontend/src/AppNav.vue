@@ -13,24 +13,20 @@
         </v-list-item>
 
         <v-divider></v-divider>
-        <v-list-item
-          v-for="app in appNav"
-          :key="app.label"
-          :to="{ name: app.name }"
-        >
+        <v-list-item v-for="app in appNav" :key="app.name" :href="app.url" target="_blank">
           <v-list-item-icon>
             <v-icon>{{ app.icon }}</v-icon>
           </v-list-item-icon>
 
           <v-list-item-content>
-            <v-list-item-title>{{ app.label }}</v-list-item-title>
+            <v-list-item-title>{{ app.name }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
 
       <template v-slot:append>
         <div class="pa-2">
-          <v-btn block small rounded color="primary" to="admin">Admin</v-btn>
+          <v-btn block small rounded color="primary" href="/admin" target="_blank">Admin</v-btn>
         </div>
       </template>
     </v-navigation-drawer>
@@ -43,26 +39,14 @@
         </template>
         <v-list>
           <!-- The radio-group is necessary in case the application wants radio buttons -->
-          <v-radio-group
-            :value="menu.radioGroup"
-            hide-details
-            dense
-            class="ma-0 pa-0"
-          >
+          <v-radio-group :value="menu.radioGroup" hide-details dense class="ma-0 pa-0">
             <template v-for="(option, j) in menu.items">
               <v-divider v-if="option.divider" :key="j"></v-divider>
               <v-list-item v-else :key="j">
                 <v-list-item-action v-if="option.radio" @click="option.command">
-                  <v-radio
-                    color="secondary"
-                    :label="option.label"
-                    :value="option.label"
-                  ></v-radio>
+                  <v-radio color="secondary" :label="option.label" :value="option.label"></v-radio>
                 </v-list-item-action>
-                <v-list-item-action
-                  v-if="option.checkbox"
-                  @click="option.command"
-                >
+                <v-list-item-action v-if="option.checkbox" @click="option.command">
                   <v-checkbox
                     color="secondary"
                     :label="option.label"
@@ -77,8 +61,7 @@
                   v-if="!option.radio && !option.checkbox"
                   @click="option.command"
                   style="cursor: pointer"
-                  >{{ option.label }}</v-list-item-title
-                >
+                >{{ option.label }}</v-list-item-title>
               </v-list-item>
             </template>
           </v-radio-group>
@@ -95,6 +78,7 @@
 <script>
 import '@astrouxds/rux-clock'
 import '@astrouxds/rux-global-status-bar'
+import axios from 'axios'
 
 export default {
   props: {
@@ -119,15 +103,66 @@ export default {
         }
       })
     })
-    this.$router.options.routes.forEach(route => {
-      if (route.meta && route.meta.icon) {
-        this.appNav.push({
-          label: route.meta.title,
-          icon: route.meta.icon,
-          name: route.name
-        })
-      }
-    })
+    axios
+      .get('http://localhost:7777/admin/tools', {
+        params: { scope: 'DEFAULT' }
+      })
+      .then(response => {
+        this.appNav = response.data
+      })
+      .catch(error => {
+        this.alert = error
+        this.alertType = 'error'
+        this.showAlert = true
+        setTimeout(() => {
+          this.showAlert = false
+        }, 5000)
+      })
+    // this.appNav.push({
+    //   name: 'CmdTlmServer',
+    //   icon: 'mdi-server-network',
+    //   url: '/cmd-tlm-server'
+    // })
+    // this.appNav.push({
+    //   name: 'Limits Monitor',
+    //   icon: 'mdi-alert',
+    //   url: '/limits-monitor'
+    // })
+    // this.appNav.push({
+    //   name: 'Command Sender',
+    //   icon: 'mdi-satellite-uplink',
+    //   url: '/command-sender'
+    // })
+    // this.appNav.push({
+    //   name: 'Script Runner',
+    //   icon: 'mdi-run-fast',
+    //   url: '/script-runner'
+    // })
+    // this.appNav.push({
+    //   name: 'Packet Viewer',
+    //   icon: 'mdi-format-list-bulleted',
+    //   url: '/packet-viewer'
+    // })
+    // this.appNav.push({
+    //   name: 'Telemetry Viewer',
+    //   icon: 'mdi-monitor-dashboard',
+    //   url: '/telemetry-viewer'
+    // })
+    // this.appNav.push({
+    //   name: 'Telemetry Grapher',
+    //   icon: 'mdi-chart-line',
+    //   url: '/telemetry-grapher'
+    // })
+    // this.appNav.push({
+    //   name: 'Data Extractor',
+    //   icon: 'mdi-archive-arrow-down',
+    //   url: '/data-extractor'
+    // })
+    // this.appNav.push({
+    //   name: 'Google',
+    //   icon: 'mdi-search',
+    //   url: 'https://google.com'
+    // })
   }
 }
 </script>

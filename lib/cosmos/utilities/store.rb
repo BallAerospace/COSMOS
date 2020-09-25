@@ -515,6 +515,29 @@ module Cosmos
       end
     end
 
+    def get_tools(scope: $cosmos_scope)
+      result = []
+      @redis_pool.with do |redis|
+        tools = redis.hgetall("#{scope}__cosmos_tools")
+        STDOUT.puts "DUDE: #{tools.inspect}: #{scope}__cosmos_tools"
+        tools.each do |tool_name, tool_json|
+          tool = JSON.parse(tool_json)
+          tool[:name] = tool_name
+          result << tool
+        end
+      end
+      result
+    end
+
+    def set_tool(tool_name, tool_data, scope: $cosmos_scope)
+      STDOUT.puts "Sweet: #{tool_name}: #{scope}__cosmos_tools"
+      hset("#{scope}__cosmos_tools", tool_name, JSON.generate(tool_data.as_json))
+    end
+
+    def remove_tool(tool_name, scope: $cosmos_scope)
+      hdel("#{scope}__cosmos_tools", tool_name)
+    end
+
     # These are low level methods that should only be used as a last resort or for testing
 
     def hget(key, field)
