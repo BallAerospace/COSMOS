@@ -8,11 +8,7 @@
       </v-tabs>
       <v-tabs-items v-model="curTab">
         <v-tab-item v-for="(tab, index) in tabs" :key="index">
-          <component
-            :is="tab.component"
-            v-bind:tabId="index"
-            v-bind:curTab="curTab"
-          ></component>
+          <component :is="tab.component" v-bind:tabId="index" v-bind:curTab="curTab"></component>
         </v-tab-item>
       </v-tabs-items>
     </v-card>
@@ -24,12 +20,14 @@ import AppNav from '@/AppNav'
 import PluginsTab from '@/tools/CosmosAdmin/PluginsTab'
 import ScopesTab from '@/tools/CosmosAdmin/ScopesTab'
 import GemsTab from '@/tools/CosmosAdmin/GemsTab'
+import ToolsTab from '@/tools/CosmosAdmin/ToolsTab'
 export default {
   components: {
     AppNav,
     PluginsTab,
     ScopesTab,
-    GemsTab
+    GemsTab,
+    ToolsTab
   },
   data() {
     return {
@@ -40,7 +38,7 @@ export default {
         { name: 'Interfaces', component: 'PluginsTab' },
         { name: 'Routers', component: 'PluginsTab' },
         { name: 'Microservices', component: 'PluginsTab' },
-        { name: 'Tools', component: 'PluginsTab' },
+        { name: 'Tools', component: 'ToolsTab' },
         { name: 'Gems', component: 'GemsTab' },
         { name: 'Scopes', component: 'ScopesTab' }
       ]
