@@ -42,7 +42,7 @@ module Cosmos
 
     # @return [Symbol] The current limits_set of the system returned from Redis
     def self.limits_set
-      Store.instance.hget('cosmos_system', 'limits_set').intern
+      Store.instance.hget("#{$cosmos_scope}__cosmos_system", 'limits_set').intern
     end
 
     # Get the singleton instance of System

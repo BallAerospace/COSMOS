@@ -1,6 +1,4 @@
 ---
-# Require housekeeping_data_object for the ANALYSIS_TYPES
-<% require 'cosmos/tools/tlm_grapher/data_objects/housekeeping_data_object.rb' %>
 ITEM:
   summary: Graph the specified item
   parameters:
@@ -43,16 +41,17 @@ VALUE_TYPE:
     - name: Item Value Type
       description: Should the value be used raw or converted
       required: true
-      values: ['RAW','CONVERTED']
+      values: ["RAW", "CONVERTED"]
 ANALYSIS:
   summary: Apply an analysis to the given value
   parameters:
     - name: Analysis Type
       description: The type of analysis to perform on the value before graphing
       required: true
-      values: <%= HousekeepingDataObject::ANALYSIS_TYPES.collect {|type| type.to_s } %>
+      values: TBD
 ANALYSIS_SAMPLES:
-  summary: The number of samples to use when performing analysis. Only valid with the
+  summary:
+    The number of samples to use when performing analysis. Only valid with the
     ANALYSIS keyword.
   parameters:
     - name: Samples
@@ -61,25 +60,26 @@ ANALYSIS_SAMPLES:
       values: \d+
 SHOW_LIMITS_LINES:
   summary: Whether to show the limits line on the graph
-  description: The limits lines are horizontal lines which intercept the Y value at the
+  description:
+    The limits lines are horizontal lines which intercept the Y value at the
     defined limits values. The red, yellow, and green limits are drawn with lines with the
     respective colors.
   parameters:
     - name: Display
       description: Whether to display the limits lines
       required: true
-      values: ['TRUE','FALSE']
+      values: ["TRUE", "FALSE"]
 DART_REDUCTION:
   summary: What kind of DART reduction to use for the data item
   parameters:
     - name: Reduction Time Period
       description: DART reduces data over minute, hour, and day
       required: true
-      values: ['NONE','MINUTE','HOUR','DAY']
+      values: ["NONE", "MINUTE", "HOUR", "DAY"]
 DART_REDUCED_TYPE:
   summary: What kind of DART reduction type to use for the data item
   parameters:
     - name: Reduction Type
       description: DART calculates an average, minimum, maximum and standard deviation over the time period
       required: true
-      values: ['AVG','MIN','MAX','STDDEV']
+      values: ["AVG", "MIN", "MAX", "STDDEV"]

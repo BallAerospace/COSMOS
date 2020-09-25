@@ -1,7 +1,12 @@
 <template>
   <div>
     <app-nav :menus="menus" />
-    <v-navigation-drawer absolute permanent expand-on-hover data-test="grapher-controls">
+    <v-navigation-drawer
+      absolute
+      permanent
+      expand-on-hover
+      data-test="grapher-controls"
+    >
       <v-list-item class="px-2">
         <v-list-item-avatar>
           <v-icon>mdi-chart-line</v-icon>
@@ -12,7 +17,11 @@
       <v-divider></v-divider>
 
       <v-list dense>
-        <v-list-item v-for="item in controls" :key="item.title" @click="item.action">
+        <v-list-item
+          v-for="item in controls"
+          :key="item.title"
+          @click="item.action"
+        >
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
           </v-list-item-icon>
@@ -46,9 +55,19 @@
       </v-list>
     </v-navigation-drawer>
     <div class="c-tlmgrapher__contents">
-      <TargetPacketItemChooser @click="addItem($event)" buttonText="Add Item" :chooseItem="true"></TargetPacketItemChooser>
+      <TargetPacketItemChooser
+        @click="addItem($event)"
+        buttonText="Add Item"
+        :chooseItem="true"
+      ></TargetPacketItemChooser>
       <div class="grid">
-        <div class="item" v-for="plot in plots" :key="plot" :id="plotId(plot)" ref="gridItem">
+        <div
+          class="item"
+          v-for="plot in plots"
+          :key="plot"
+          :id="plotId(plot)"
+          ref="gridItem"
+        >
           <div class="item-content">
             <CosmosChartuPlot
               :ref="'plot' + plot"
@@ -93,7 +112,7 @@ import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
 import OpenConfigDialog from '@/components/OpenConfigDialog'
 import SaveConfigDialog from '@/components/SaveConfigDialog'
 import { CosmosApi } from '@/services/cosmos-api'
-import * as Muuri from 'muuri'
+import Muuri from 'muuri'
 
 export default {
   components: {
@@ -218,14 +237,13 @@ export default {
   mounted() {
     this.grid = new Muuri('.grid', {
       dragEnabled: true,
-      dragStartPredicate: {
-        // Only allow drags starting from the v-system-bar title
-        handle: '.v-system-bar'
-      }
+      // Only allow drags starting from the v-system-bar title
+      dragHandle: '.v-system-bar'
     })
   },
   methods: {
     addItem(item, startGraphing = true) {
+      if (this.selectedPlotId === null) return
       this.$refs['plot' + this.selectedPlotId][0].addItem(item)
       if (startGraphing === true) {
         this.state = 'start'
@@ -236,14 +254,19 @@ export default {
       this.plots.push(this.counter)
       this.counter += 1
       this.$nextTick(function() {
-        this.grid.add(this.$refs.gridItem[this.$refs.gridItem.length - 1])
+        var items = this.grid.add(
+          this.$refs.gridItem[this.$refs.gridItem.length - 1],
+          { active: false }
+        )
+        this.grid.show(items)
       })
     },
     plotId(id) {
       return 'tlmGrapherPlot' + id
     },
     closePlot(id) {
-      this.grid.remove(document.getElementById(this.plotId(id)))
+      var items = this.grid.getItems([document.getElementById(this.plotId(id))])
+      this.grid.remove(items)
       this.plots.splice(this.plots.indexOf(id), 1)
       this.selectedPlotId = null
     },

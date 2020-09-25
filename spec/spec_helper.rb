@@ -75,7 +75,6 @@ require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
 require 'cosmos/microservices/configure_microservices'
 
 def configure_store
-  Cosmos::Store.class_variable_set(:@@instance, nil)
   system_path = File.join(__dir__, 'install', 'config', 'system', 'system.txt')
   system_config = Cosmos::SystemConfig.new(system_path)
   cts_path = File.join(__dir__, 'install', 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
@@ -83,8 +82,9 @@ def configure_store
 
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
+  Cosmos::Store.class_variable_set(:@@instance, nil)
   # Setup Redis with all the keys and fields
-  Cosmos::ConfigureMicroservices.new(system_config, cts_config, logger: Cosmos::Logger.new, scope: 'DEFAULT')
+  Cosmos::ConfigureMicroservices.new(system_config, cts_config, scope: 'DEFAULT', logger: Cosmos::Logger.new)
   redis
 end
 

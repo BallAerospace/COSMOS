@@ -18,11 +18,16 @@ module Cosmos
 
   describe Interfaces do
     describe "map_all_targets" do
+      before(:all) do
+        system_path = File.join(__dir__, '..', '..', 'install', 'config', 'system', 'system.txt')
+        @sc = Cosmos::SystemConfig.new(system_path)
+      end
+
       it "complains about an unknown interface" do
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
+        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path, @sc))
         expect { interfaces.map_all_targets("BLAH") }.to raise_error("Unknown interface: BLAH")
         tf.unlink
       end
@@ -35,7 +40,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
+        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path, @sc))
         interfaces.map_all_targets("MY_INT")
         System.targets.each do |name, target|
           expect(target.interface.name).to eql 'MY_INT'
@@ -49,7 +54,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
+        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path, @sc))
         expect { interfaces.map_target("COSMOS","BLAH") }.to raise_error("Unknown interface: BLAH")
         tf.unlink
       end
@@ -58,7 +63,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
+        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path, @sc))
         expect { interfaces.map_target("BLAH","MY_INT") }.to raise_error("Unknown target: BLAH")
         tf.unlink
       end
@@ -72,7 +77,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
+        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path, @sc))
         interfaces.map_target("SYSTEM","MY_INT")
         expect(System.targets["SYSTEM"].interface.name).to eql "MY_INT"
         tf.unlink
@@ -85,7 +90,7 @@ module Cosmos
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
         capture_io do |stdout|
-          interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
+          interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path, @sc))
           interfaces.all['MY_INT'].connect_on_startup = false
 
           allow_any_instance_of(Interface).to receive(:connected?)
@@ -111,7 +116,7 @@ module Cosmos
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
         capture_io do |stdout|
-          interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
+          interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path, @sc))
 
           allow_any_instance_of(Interface).to receive(:connected?).and_return(false, false, true, false)
           allow_any_instance_of(Interface).to receive(:connect)
@@ -142,7 +147,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'INTERFACE MY_INT interface.rb'
         tf.close
-        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
+        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path, @sc))
         expect { interfaces.connect("TEST") }.to raise_error("Unknown interface: TEST")
         tf.unlink
       end
@@ -177,7 +182,7 @@ module Cosmos
             end
           end
 
-          config = CmdTlmServerConfig.new(tf.path)
+          config = CmdTlmServerConfig.new(tf.path, @sc)
           interfaces = Interfaces.new(config)
           expect(config.interfaces['DEST1'].routers[0].name).to eql "MY_ROUTER"
           expect(config.interfaces['DEST2'].routers[0].name).to eql "MY_ROUTER"
@@ -213,7 +218,7 @@ module Cosmos
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
         tf.puts 'INTERFACE INTERFACE3 interface.rb'
         tf.close
-        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
+        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path, @sc))
         expect(interfaces.names).to eql %w(INTERFACE1 INTERFACE2 INTERFACE3)
         tf.unlink
       end
@@ -226,7 +231,7 @@ module Cosmos
         tf.puts 'INTERFACE INTERFACE2 interface.rb'
         tf.puts 'INTERFACE INTERFACE3 interface.rb'
         tf.close
-        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path))
+        interfaces = Interfaces.new(CmdTlmServerConfig.new(tf.path, @sc))
         interfaces.all.each do |name, interface|
           interface.bytes_written = 100
           interface.bytes_read = 200
@@ -245,4 +250,3 @@ module Cosmos
     end
   end
 end
-

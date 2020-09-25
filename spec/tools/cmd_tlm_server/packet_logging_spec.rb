@@ -17,12 +17,17 @@ require 'tempfile'
 module Cosmos
 
   describe PacketLogging do
+    before(:all) do
+      system_path = File.join(__dir__, '..', '..', 'install', 'config', 'system', 'system.txt')
+      @sc = Cosmos::SystemConfig.new(system_path)
+    end
+
     describe "start" do
       it "starts each log writer" do
         tf = Tempfile.new('unittest')
         tf.puts '#'
         tf.close
-        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
+        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path, @sc))
         default = pl.all['DEFAULT']
         expect(default).to be_a PacketLogWriterPair
         expect(default.cmd_log_writer).to receive(:start).with('LABEL')
@@ -37,7 +42,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts '#'
         tf.close
-        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
+        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path, @sc))
         default = pl.all['DEFAULT']
         expect(default).to be_a PacketLogWriterPair
         expect(default.cmd_log_writer).to receive(:stop)
@@ -52,7 +57,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts '#'
         tf.close
-        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
+        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path, @sc))
         expect { pl.start_cmd('BLAH') }.to raise_error("Unknown packet log writer: BLAH")
         expect { pl.stop_cmd('BLAH') }.to raise_error("Unknown packet log writer: BLAH")
         tf.unlink
@@ -62,7 +67,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'PACKET_LOG_WRITER MY_WRITER packet_log_writer.rb'
         tf.close
-        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
+        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path, @sc))
         mine = pl.all['MY_WRITER']
         expect(mine).to be_a PacketLogWriterPair
         expect(mine.cmd_log_writer).to receive(:start).with('LABEL')
@@ -78,7 +83,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts '#'
         tf.close
-        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
+        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path, @sc))
         expect { pl.start_tlm('BLAH') }.to raise_error("Unknown packet log writer: BLAH")
         expect { pl.stop_tlm('BLAH') }.to raise_error("Unknown packet log writer: BLAH")
         tf.unlink
@@ -88,7 +93,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'PACKET_LOG_WRITER MY_WRITER packet_log_writer.rb'
         tf.close
-        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
+        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path, @sc))
         mine = pl.all['MY_WRITER']
         expect(mine).to be_a PacketLogWriterPair
         expect(mine.tlm_log_writer).to receive(:start).with('LABEL')
@@ -104,7 +109,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts '#'
         tf.close
-        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
+        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path, @sc))
         expect { pl.cmd_filename('BLAH') }.to raise_error("Unknown packet log writer: BLAH")
         expect { pl.tlm_filename('BLAH') }.to raise_error("Unknown packet log writer: BLAH")
         tf.unlink
@@ -114,7 +119,7 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts '#'
         tf.close
-        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
+        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path, @sc))
         default = pl.all['DEFAULT']
         expect(default).to be_a PacketLogWriterPair
         expect(default.cmd_log_writer).to receive(:filename).and_return("test_file")
@@ -130,10 +135,9 @@ module Cosmos
         tf = Tempfile.new('unittest')
         tf.puts 'PACKET_LOG_WRITER MY_WRITER packet_log_writer.rb'
         tf.close
-        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path))
+        pl = PacketLogging.new(CmdTlmServerConfig.new(tf.path, @sc))
         expect(pl.all.keys).to eql %w(DEFAULT MY_WRITER)
         tf.unlink
       end
   end
 end
-
