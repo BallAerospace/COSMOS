@@ -76,8 +76,16 @@
       <v-row no-gutters>
         <v-col>
           <v-radio-group v-model="cmdOrTlm" row hide-details class="mt-0">
-            <v-radio label="Command" value="cmd"></v-radio>
-            <v-radio label="Telemetry" value="tlm"></v-radio>
+            <v-radio
+              label="Command"
+              value="cmd"
+              data-test="cmd-radio"
+            ></v-radio>
+            <v-radio
+              label="Telemetry"
+              value="tlm"
+              data-test="tlm-radio"
+            ></v-radio>
           </v-radio-group>
         </v-col>
       </v-row>
@@ -511,7 +519,7 @@ export default {
           valueType
         ] = item.split('__')
         if (this.columnMode === 'full') {
-          this.this.columnHeaders.push(
+          this.columnHeaders.push(
             targetName + ' ' + packetName + ' ' + itemName
           )
         } else {

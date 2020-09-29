@@ -76,6 +76,7 @@ describe('DataExtractor', () => {
   it('warns with duplicate item', function() {
     cy.visit('/data-extractor')
     cy.hideNav()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
     cy.contains('Add Item').click()
     cy.contains('This item has already been added').should('be.visible')
@@ -84,6 +85,7 @@ describe('DataExtractor', () => {
   it('warns with no time delta', function() {
     cy.visit('/data-extractor')
     cy.hideNav()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.contains('Start date/time is equal to end date/time').should(
@@ -113,6 +115,32 @@ describe('DataExtractor', () => {
     cy.contains('Process')
     // Verify we still get a file
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv')
+  })
+
+  it('adds an entire target', function() {
+    const start = sub(new Date(), { minutes: 1 })
+    cy.visit('/data-extractor')
+    cy.hideNav()
+    cy.contains('Add Target').click()
+    cy.get('[data-test=itemList]')
+      .find('.v-list-item')
+      .should($items => {
+        expect($items.length).to.be.greaterThan(50) // Anything bigger than below
+      })
+  })
+
+  it('adds an entire packet', function() {
+    const start = sub(new Date(), { minutes: 1 })
+    cy.visit('/data-extractor')
+    cy.hideNav()
+    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS')
+    cy.contains('Add Packet').click()
+    cy.get('[data-test=itemList]')
+      .find('.v-list-item')
+      .should($items => {
+        expect($items.length).to.be.greaterThan(20)
+        expect($items.length).to.be.lessThan(50) // Less than the full target
+      })
   })
 
   it('add, edits, deletes items', function() {
@@ -174,6 +202,32 @@ describe('DataExtractor', () => {
         expect(lines[0]).to.contain('CCSDSSHF (RAW)')
         expect(lines[1]).to.not.contain('FALSE')
         expect(lines[1]).to.contain('0')
+      }
+    )
+  })
+
+  it.only('processes commands', function() {
+    // Preload an ABORT command
+    cy.visit('/command-sender/INST/ABORT')
+    cy.hideNav()
+    cy.get('button')
+      .contains('Send')
+      .click()
+    cy.contains('cmd("INST ABORT") sent')
+
+    const start = sub(new Date(), { minutes: 5 })
+    cy.visit('/data-extractor')
+    cy.hideNav()
+    cy.get('[data-test=startTime]')
+      .clear()
+      .type(formatTime(start))
+    cy.get('[data-test=cmd-radio]').click({ force: true })
+    cy.selectTargetPacketItem('INST', 'ABORT', 'RECEIVED_TIMESECONDS')
+    cy.contains('Add Item').click()
+    cy.contains('Process').click()
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
+      contents => {
+        console.log(contents)
       }
     )
   })

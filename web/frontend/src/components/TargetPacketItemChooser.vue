@@ -249,17 +249,16 @@ export default {
       this.api[cmd](this.selectedTargetName, this.selectedPacketName).then(
         items => {
           this.tlm_item_list_items = items
-          var itemNames = []
+          this.itemNames = []
           if (this.allowAll) {
             this.itemNames.push(this.ALL)
           }
           var arrayLength = items.length
           for (var i = 0; i < arrayLength; i++) {
-            itemNames.push({ label: items[i][0], value: items[i][0] })
+            this.itemNames.push({ label: items[i][0], value: items[i][0] })
           }
-          this.itemNames = itemNames
           if (!this.selectedItemName) {
-            this.selectedItemName = itemNames[0].value
+            this.selectedItemName = this.itemNames[0].value
           }
           this.description = this.tlm_item_list_items[0][2]
           this.internalDisabled = false

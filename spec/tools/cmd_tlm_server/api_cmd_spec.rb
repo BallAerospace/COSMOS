@@ -607,7 +607,7 @@ module Cosmos
 
       it "returns 0 if no times are set" do
         expect(@api.get_cmd_time("INST", "ABORT")).to eql ["INST", "ABORT", 0, 0]
-        expect(@api.get_cmd_time("INST")).to eql ['INST', nil, 0, 0]
+        expect(@api.get_cmd_time("INST")).to eql [nil, nil, 0, 0]
         expect(@api.get_cmd_time()).to eql [nil, nil, 0, 0]
       end
     end

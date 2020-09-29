@@ -465,38 +465,28 @@ module Cosmos
     # @return [Array<Target Name, Command Name, Time Seconds, Time Microseconds>]
     def get_cmd_time(target_name = nil, command_name = nil, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
-      if target_name
-        if command_name
-          time = Store.instance.get_cmd_item(target_name, command_name, 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
-          return [target_name, command_name, time.to_i, ((time.to_f - time.to_i) * 1_000_000).to_i]
-        else
-          latest_time = 0
-          command_name = nil
-          Store.instance.get_commands(target_name, scope: scope).each do |packet|
-            time = Store.instance.get_cmd_item(target_name, packet["packet_name"], 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
-            puts "packet:#{packet["packet_name"]} time:#{time} latest:#{latest_time}"
-            next unless time
-            if time > latest_time
-              latest_time = time
-              command_name = packet["packet_name"]
-            end
-          end
-          return [target_name, command_name, latest_time.to_i, ((latest_time.to_f - latest_time.to_i) * 1_000_000).to_i]
-        end
+      if target_name and command_name
+        time = Store.instance.get_cmd_item(target_name, command_name, 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
+        return [target_name, command_name, time.to_i, ((time.to_f - time.to_i) * 1_000_000).to_i]
       else
-        Cosmos::Store.instance.get_target_names(scope: scope).each do |target_name|
-          latest_time = 0
+        if target_name.nil?
+          targets = Cosmos::Store.instance.get_target_names(scope: scope)
+        else
+          targets = [target_name]
+        end
+        targets.each do |target_name|
+          time = 0
           command_name = nil
           Store.instance.get_commands(target_name, scope: scope).each do |packet|
-            time = Store.instance.get_cmd_item(target_name, packet["packet_name"], 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
-            next unless time
-            if time > latest_time
-              latest_time = time
+            cur_time = Store.instance.get_cmd_item(target_name, packet["packet_name"], 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
+            next unless cur_time
+            if cur_time > time
+              time = cur_time
               command_name = packet["packet_name"]
             end
           end
           target_name = nil unless command_name
-          return [target_name, command_name, latest_time.to_i, ((latest_time.to_f - latest_time.to_i) * 1_000_000).to_i]
+          return [target_name, command_name, time.to_i, ((time.to_f - time.to_i) * 1_000_000).to_i]
         end
       end
     end
