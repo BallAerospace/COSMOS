@@ -101,6 +101,9 @@
           <v-alert type="warning" v-model="warning" dismissible
             >{{ warningText }}
           </v-alert>
+          <v-alert type="error" v-model="error" dismissible
+            >{{ errorText }}
+          </v-alert>
         </div>
       </v-row>
       <v-row>
@@ -257,6 +260,8 @@ export default {
       cmdOrTlm: 'tlm',
       warning: false,
       warningText: '',
+      error: false,
+      errorText: '',
       items: [],
       rawData: [],
       outputFile: [],
@@ -491,6 +496,14 @@ export default {
             start_time: this.startDateTime,
             end_time: this.endDateTime
           })
+        },
+        disconnected: () => {
+          this.warningText = 'COSMOS backend connection disconnected.'
+          this.warning = true
+        },
+        rejected: () => {
+          this.warningText = 'COSMOS backend connection rejected.'
+          this.warning = true
         }
       })
     },
@@ -532,6 +545,11 @@ export default {
       })
     },
     received(json_data) {
+      if (json_data['error']) {
+        this.errorText = json_data['error']
+        this.error = true
+        return
+      }
       const data = JSON.parse(json_data)
       // Initially we just build up the list of data
       if (data.length > 0) {
@@ -549,76 +567,81 @@ export default {
       this.progress = 95 // Indicate we're almost done
       this.subscription.unsubscribe()
 
-      // Output the headers
-      let headers = ''
-      if (this.matlabHeader) {
-        headers += '% '
-      }
-      headers += this.columnHeaders.join(this.delimiter)
-      this.outputFile.push(headers)
-
-      // Sort everything by time so we can output in order
-      this.rawData.sort((a, b) => a.time - b.time)
-      var currentValues = []
-      var row = []
-      var previousRow = null
-      this.rawData.forEach(packet => {
-        var changed = false
-        if (this.fillDown && previousRow) {
-          row = [...previousRow] // Copy the previous
-        } else {
-          row = []
+      if (this.rawData.length === 0) {
+        this.warningText =
+          'No data found for the items in the requested time range'
+        this.warning = true
+      } else {
+        // Output the headers
+        let headers = ''
+        if (this.matlabHeader) {
+          headers += '% '
         }
-        // This pulls out the attributes we requested
-        const keys = Object.keys(packet)
-        keys.forEach(key => {
-          if (key === 'time') return // Skip time field
-          // Get the value and put it into the correct column
-          if (typeof packet[key] === 'object') {
-            row[this.columnMap[key]] = '"' + packet[key]['raw'] + '"'
+        headers += this.columnHeaders.join(this.delimiter)
+        this.outputFile.push(headers)
+
+        // Sort everything by time so we can output in order
+        this.rawData.sort((a, b) => a.time - b.time)
+        var currentValues = []
+        var row = []
+        var previousRow = null
+        this.rawData.forEach(packet => {
+          var changed = false
+          if (this.fillDown && previousRow) {
+            row = [...previousRow] // Copy the previous
           } else {
-            row[this.columnMap[key]] = packet[key]
+            row = []
           }
-          if (
-            this.uniqueOnly &&
-            currentValues[this.columnMap[key]] !== row[this.columnMap[key]]
-          ) {
-            changed = true
+          // This pulls out the attributes we requested
+          const keys = Object.keys(packet)
+          keys.forEach(key => {
+            if (key === 'time') return // Skip time field
+            // Get the value and put it into the correct column
+            if (typeof packet[key] === 'object') {
+              row[this.columnMap[key]] = '"' + packet[key]['raw'] + '"'
+            } else {
+              row[this.columnMap[key]] = packet[key]
+            }
+            if (
+              this.uniqueOnly &&
+              currentValues[this.columnMap[key]] !== row[this.columnMap[key]]
+            ) {
+              changed = true
+            }
+            currentValues[this.columnMap[key]] = row[this.columnMap[key]]
+          })
+          // Copy row before pushing on target / packet names
+          previousRow = [...row]
+
+          if (!this.uniqueOnly || changed) {
+            // Normal column mode means each row has target / packet name
+            if (this.columnMode === 'normal') {
+              var [, tgt, pkt] = keys[0].split('__')
+              row.unshift(pkt)
+              row.unshift(tgt)
+            }
+            this.outputFile.push(row.join(this.delimiter))
           }
-          currentValues[this.columnMap[key]] = row[this.columnMap[key]]
         })
-        // Copy row before pushing on target / packet names
-        previousRow = [...row]
 
-        if (!this.uniqueOnly || changed) {
-          // Normal column mode means each row has target / packet name
-          if (this.columnMode === 'normal') {
-            var [, tgt, pkt] = keys[0].split('__')
-            row.unshift(pkt)
-            row.unshift(tgt)
-          }
-          this.outputFile.push(row.join(this.delimiter))
+        let downloadFileExtension = '.csv'
+        let type = 'text/csv'
+        if (this.delimiter === '\t') {
+          downloadFileExtension = '.txt'
+          type = 'text/tab-separated-values'
         }
-      })
-
-      let downloadFileExtension = '.csv'
-      let type = 'text/csv'
-      if (this.delimiter === '\t') {
-        downloadFileExtension = '.txt'
-        type = 'text/tab-separated-values'
+        const blob = new Blob([this.outputFile.join('\n')], {
+          type: type
+        })
+        // Make a link and then 'click' on it to start the download
+        const link = document.createElement('a')
+        link.href = URL.createObjectURL(blob)
+        link.setAttribute(
+          'download',
+          this.startDateTimeFilename + downloadFileExtension
+        )
+        link.click()
       }
-      const blob = new Blob([this.outputFile.join('\n')], {
-        type: type
-      })
-      // Make a link and then 'click' on it to start the download
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      link.setAttribute(
-        'download',
-        this.startDateTimeFilename + downloadFileExtension
-      )
-      link.click()
-
       this.progress = 100
       this.processButtonText = 'Process'
     }

@@ -10,6 +10,9 @@
 
 $redis_url = ENV['COSMOS_REDIS_URL'] || ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos_redis:6379/0'
 
+require 'cosmos'
+require 'cosmos/system/system'
+
 module Cosmos
   class ConfigureMicroservices
     def initialize(system_config, cts_config, scope:, url: $redis_url, logger: Logger.new(Logger::INFO, true))

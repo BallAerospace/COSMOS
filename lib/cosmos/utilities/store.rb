@@ -424,6 +424,13 @@ module Cosmos
       end
     end
 
+    def get_newest_message(topic)
+      @redis_pool.with do |redis|
+        result = redis.xrevrange(topic, count: 1)
+        return result[0]
+      end
+    end
+
     def get_last_offset(topic)
       @redis_pool.with do |redis|
         result = redis.xrevrange(topic, count: 1)

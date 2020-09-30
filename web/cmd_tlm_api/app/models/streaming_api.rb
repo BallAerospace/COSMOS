@@ -280,6 +280,14 @@ class StreamingThread
     end
   end
 
+  def alive?
+    if @thread
+      @thread.alive?
+    else
+      false
+    end
+  end
+
   def thread_body
     raise "Must be defined by subclasses"
   end
@@ -295,11 +303,11 @@ class StreamingThread
   end
 
   def redis_thread_body(topics, offsets, items_by_topic)
+    # puts "#{self.class} redis_thread_body topics:#{topics} offsets:#{offsets} items:#{items_by_topic}"
     results = []
     if topics.length > 0
-      #STDOUT.puts topics.inspect, offsets.inspect
       Cosmos::Store.instance.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
-        #STDOUT.puts msg_hash.inspect
+        # puts "read_topics topic:#{topic} id:#{msg_id} msg:#{msg_hash.inspect}"
         items = items_by_topic[topic]
         items.each do |item|
           item.offset = msg_id
@@ -350,97 +358,6 @@ class StreamingThread
   end
 end
 
-class StreamingItem
-  attr_accessor :key
-  attr_accessor :cmd_or_tlm
-  attr_accessor :target_name
-  attr_accessor :packet_name
-  attr_accessor :item_name
-  attr_accessor :value_type
-  attr_accessor :start_time
-  attr_accessor :end_time
-  attr_accessor :offset
-  attr_accessor :topic
-  attr_accessor :thread_id
-
-  def initialize(key, start_time, end_time, thread_id = nil, scope:)
-    @key = key
-    key_split = key.split('__')
-    @cmd_or_tlm = key_split[0].to_s.intern
-    @scope = scope
-    @target_name = key_split[1]
-    @packet_name = key_split[2]
-    @item_name = key_split[3]
-    @value_type = key_split[4].to_s.intern
-    @start_time = start_time
-    @end_time = end_time
-    type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
-    @topic = "#{@scope}__#{type}__#{@target_name}__#{@packet_name}"
-    @offset = nil
-    @offset = Cosmos::Store.instance.get_last_offset(topic) unless @start_time
-    @thread_id = thread_id
-  end
-end
-
-class StreamingItemCollection
-  attr_reader :items_by_thread_id
-
-  def initialize
-    @items_by_key = {}
-    @items_by_thread_id = {}
-    @items_by_thread_id[nil] = []
-    @mutex = Mutex.new
-  end
-
-  def add(items)
-    @mutex.synchronize do
-      items.each do |item|
-        existing_item = @items_by_key[item.key]
-        if existing_item
-          @items_by_thread_id[existing_item.thread_id].delete(existing_item)
-        end
-        @items_by_key[item.key] = item
-        @items_by_thread_id[item.thread_id] ||= []
-        @items_by_thread_id[item.thread_id] << item
-      end
-    end
-  end
-
-  def remove(item_keys)
-    @mutex.synchronize do
-      item_keys.each do |item_key|
-        item = @items_by_key[item_key]
-        if item
-          @items_by_key.delete(item_key)
-          if item.thread_id
-            @items_by_thread_id[item.thread_id].delete(item)
-          end
-        end
-      end
-    end
-  end
-
-  def realtime_topics_offsets_and_items
-    topics_and_offsets = {}
-    items_by_topic = {}
-    @mutex.synchronize do
-      @items_by_thread_id[nil].each do |item|
-        if item.start_time == nil
-          offset = topics_and_offsets[item.topic]
-          topics_and_offsets[item.topic] = item.offset if !offset or item.offset < offset
-          items_by_topic[item.topic] ||= []
-          items_by_topic[item.topic] << item
-        end
-      end
-      return topics_and_offsets.keys, topics_and_offsets.values, items_by_topic
-    end
-  end
-
-  def length
-    return @items_by_key.length
-  end
-end
-
 class LoggedStreamingThread < StreamingThread
   def initialize(thread_id, channel, collection, max_batch_size = 100, scope:)
     super(channel, collection, max_batch_size)
@@ -454,9 +371,11 @@ class LoggedStreamingThread < StreamingThread
     if items and items.length > 0
       first_item = items[0]
       if @mode == :SETUP
-        # Determine oldest timestamp in stream
-        msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_item.topic)
-        if msg_hash
+        # Get the newest message because we only stream if there is data after our start time
+        _, msg_hash_new = Cosmos::Store.instance.get_newest_message(first_item.topic)
+        if msg_hash_new && msg_hash_new['time'].to_i > first_item.start_time
+          # Determine oldest timestamp in stream to determine if we need to go to file
+          msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_item.topic)
           oldest_time = msg_hash['time'].to_i
           if first_item.start_time < oldest_time
             # Stream from Files
@@ -472,7 +391,10 @@ class LoggedStreamingThread < StreamingThread
             @mode = :STREAM
           end
         else
+          # Since we're not going to transmit anything cancel and transmit an empty result
+          # puts "NO DATA DONE! transmit 0 results"
           @cancel_thread = true
+          transmit_results([], force: true)
         end
       elsif @mode == :STREAM
         items_by_topic = {items[0].topic => items}
@@ -482,7 +404,7 @@ class LoggedStreamingThread < StreamingThread
         file_end_time = first_item.end_time
         file_end_time = Time.now.to_nsec_from_epoch unless file_end_time
         file_path = FileCache.instance.reserve_file(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name, first_item.start_time, file_end_time, scope: @scope)
-        #STDOUT.puts file_path
+        # puts file_path
         if file_path
           file_path_split = file_path.split("__")
           file_start_time = file_path_split[0].to_i
@@ -511,6 +433,8 @@ class LoggedStreamingThread < StreamingThread
           FileCache.instance.unreserve_file(file_path)
           items.each {|item| item.start_time = file_end_time}
         else
+          # TODO: What if there is no new data in the Redis stream?
+
           # Switch to stream from Redis
           # Determine oldest timestamp in stream
           msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_item.topic)
@@ -530,6 +454,7 @@ class LoggedStreamingThread < StreamingThread
         end
       end
     else
+      # puts "REGULAR DONE! transmit 0 results"
       @cancel_thread = true
       # Empty set indicates end of all items in collection
       if @collection.length <= 0
@@ -550,20 +475,112 @@ end
 class RealtimeStreamingThread < StreamingThread
   def thread_body
     topics, offsets, items_by_topic = @collection.realtime_topics_offsets_and_items
-    #STDOUT.puts "Realtime thread: #{topics}, #{offsets}"
+    # puts "topics:#{topics} offsets:#{offsets} items:#{items_by_topic}"
     redis_thread_body(topics, offsets, items_by_topic)
   end
 end
 
 class StreamingApi
+  # Helper class to store information about the streaming item
+  class StreamingItem
+    attr_accessor :key
+    attr_accessor :cmd_or_tlm
+    attr_accessor :target_name
+    attr_accessor :packet_name
+    attr_accessor :item_name
+    attr_accessor :value_type
+    attr_accessor :start_time
+    attr_accessor :end_time
+    attr_accessor :offset
+    attr_accessor :topic
+    attr_accessor :thread_id
+
+    def initialize(key, start_time, end_time, thread_id = nil, scope:)
+      @key = key
+      key_split = key.split('__')
+      @cmd_or_tlm = key_split[0].to_s.intern
+      @scope = scope
+      @target_name = key_split[1]
+      @packet_name = key_split[2]
+      @item_name = key_split[3]
+      @value_type = key_split[4].to_s.intern
+      @start_time = start_time
+      @end_time = end_time
+      type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
+      @topic = "#{@scope}__#{type}__#{@target_name}__#{@packet_name}"
+      @offset = nil
+      @offset = Cosmos::Store.instance.get_last_offset(topic) unless @start_time
+      @thread_id = thread_id
+    end
+  end
+
+  # Helper class to collect StreamingItems and map them to threads
+  class StreamingItemCollection
+    attr_reader :items_by_thread_id
+
+    def initialize
+      @items_by_key = {}
+      @items_by_thread_id = {}
+      @items_by_thread_id[nil] = []
+      @mutex = Mutex.new
+    end
+
+    def add(items)
+      @mutex.synchronize do
+        items.each do |item|
+          existing_item = @items_by_key[item.key]
+          if existing_item
+            @items_by_thread_id[existing_item.thread_id].delete(existing_item)
+          end
+          @items_by_key[item.key] = item
+          @items_by_thread_id[item.thread_id] ||= []
+          @items_by_thread_id[item.thread_id] << item
+        end
+      end
+    end
+
+    def remove(item_keys)
+      @mutex.synchronize do
+        item_keys.each do |item_key|
+          item = @items_by_key[item_key]
+          if item
+            @items_by_key.delete(item_key)
+            @items_by_thread_id[item.thread_id].delete(item)
+          end
+        end
+      end
+    end
+
+    def realtime_topics_offsets_and_items
+      topics_and_offsets = {}
+      items_by_topic = {}
+      @mutex.synchronize do
+        @items_by_thread_id[nil].each do |item|
+          if item.start_time == nil
+            offset = topics_and_offsets[item.topic]
+            topics_and_offsets[item.topic] = item.offset if !offset or item.offset < offset
+            items_by_topic[item.topic] ||= []
+            items_by_topic[item.topic] << item
+          end
+        end
+      end
+      return topics_and_offsets.keys, topics_and_offsets.values, items_by_topic
+    end
+
+    def length
+      return @items_by_key.length
+    end
+  end
+
   def initialize(uuid, channel)
     @thread_id = 1
     @uuid = uuid
     @channel = channel
     @mutex = Mutex.new
     @collection = StreamingItemCollection.new
-    @realtime_thread = RealtimeStreamingThread.new(@channel, @collection)
-    @realtime_thread.start
+    @realtime_thread = nil
+    # @realtime_thread = RealtimeStreamingThread.new(@channel, @collection)
+    # @realtime_thread.start
     @logged_threads = []
   end
 
@@ -591,6 +608,13 @@ class StreamingApi
           @thread_id += 1
         end
       end
+      if end_time.nil? or end_time > Time.now.to_nsec_from_epoch
+        # Create a single realtime streaming thread to use the entire collection
+        if @realtime_thread.nil?
+          @realtime_thread = RealtimeStreamingThread.new(@channel, @collection)
+          @realtime_thread.start
+        end
+      end
       @collection.add(items)
     end
   end
@@ -600,10 +624,26 @@ class StreamingApi
   end
 
   def kill
-    @realtime_thread.stop
+    threads = []
+    if @realtime_thread
+      @realtime_thread.stop
+      threads << @realtime_thread
+    end
     @logged_threads.each do |thread|
       thread.stop
+      threads << thread
     end
+    # Allow the threads a chance to stop (1.1s each)
+    threads.each do |thread|
+      i = 0
+      while (thread.alive? or i < 110) do
+        sleep 0.01
+        i += 1
+      end
+    end
+    # Ok we tried, now initialize everything
+    @realtime_thread = nil
+    @logged_threads = []
   end
 end
 
