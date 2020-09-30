@@ -257,6 +257,8 @@ class FileCache
 end
 
 class StreamingThread
+  THREAD_DONE = []
+
   def initialize(channel, collection, max_batch_size = 100)
     @channel = channel
     @collection = collection
@@ -306,7 +308,7 @@ class StreamingThread
     # STDOUT.puts "#{self.class} redis_thread_body topics:#{topics} offsets:#{offsets} items:#{items_by_topic}"
     results = []
     if topics.length > 0
-      Cosmos::Store.instance.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
+      rtr = Cosmos::Store.instance.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
         # STDOUT.puts "read_topics topic:#{topic} id:#{msg_id} msg:#{msg_hash.inspect}"
         items = items_by_topic[topic]
         items.each do |item|
@@ -316,13 +318,38 @@ class StreamingThread
         if result
           results << result
         else
-          break
+          if results.empty?
+            transmit_results(THREAD_DONE, force: true)
+          else
+            results << THREAD_DONE
+          end
+          break results
         end
         if results.length > @max_batch_size
           transmit_results(results)
           results.clear
         end
-        break if @cancel_thread
+        break results if @cancel_thread
+        results
+      end
+
+      # Determine if we're no longer grabbing packets from the stream
+      # If so we check if we need to continue
+      if rtr and rtr.empty?
+        topics.each do |topic|
+          items = items_by_topic[topic]
+          items.each do |item|
+            # If we pass the end_time and we're still not getting anything we're done
+            if item.end_time and item.end_time < Time.now.to_nsec_from_epoch
+              @cancel_thread = true
+              if results.empty?
+                transmit_results(THREAD_DONE, force: true)
+              else
+                results << THREAD_DONE
+              end
+            end
+          end
+        end
       end
       transmit_results(results)
     else
@@ -396,7 +423,7 @@ class LoggedStreamingThread < StreamingThread
           # Since we're not going to transmit anything cancel and transmit an empty result
           # puts "NO DATA DONE! transmit 0 results"
           @cancel_thread = true
-          transmit_results([], force: true)
+          transmit_results(THREAD_DONE, force: true)
         end
       elsif @mode == :STREAM
         items_by_topic = {items[0].topic => items}
@@ -460,7 +487,7 @@ class LoggedStreamingThread < StreamingThread
       @cancel_thread = true
       # Empty set indicates end of all items in collection
       if @collection.length <= 0
-        transmit_results([], force: true)
+        transmit_results(THREAD_DONE, force: true)
       end
     end
 

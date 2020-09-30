@@ -22,6 +22,7 @@ RSpec.describe StreamingApi, type: :model do
       configure_store()
       @start_time = Time.now
       @time = @start_time
+      @max_time = @start_time + 1_000_000
       msg = {}
       msg['target_name'] = 'TGT'
       msg['packet_name'] = 'PKT'
@@ -33,10 +34,30 @@ RSpec.describe StreamingApi, type: :model do
       msg['json_data'] = JSON.generate(packet_data.to_json)
       allow(Cosmos::Store.instance).to receive(:read_topics) do |_, &block|
         sleep 0.1 # Simulate a little blocking time
-        msg['time'] = @time.to_i * 1_000_000_000 # Convert to nsec
-        block.call('DEFAULT__DECOM__TGT__PKT', "#{@time.to_i * 1000}-0", msg, nil)
         @time += 1
+        msg['time'] = @time.to_i * 1_000_000_000 # Convert to nsec
+        if @time < @max_time
+          block.call('DEFAULT__DECOM__TGT__PKT', "#{@time.to_i * 1000}-0", msg, nil)
+        else
+          {} # Return an empty result like the real store code
+        end
       end
+    end
+
+    it 'has no data in time range' do
+      msg1 = {'time' => (@start_time.to_i - 10) * 1_000_000_000 } # newest is 10s ago
+      allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
+      msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+      allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
+
+      @time = Time.at(@start_time.to_i - 5.5)
+      data['start_time'] = @time.to_i * 1_000_000_000 # 5.5s in the past
+      data['end_time'] = (@start_time.to_i - 1.5) * 1_000_000_000 # 1.5 in the past
+      @api.add(data)
+      sleep 0.25 # Allow the threads to run
+      # We should get the empty message to say we're done
+      expect(@messages.length).to eq(1)
+      expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
     end
 
     context 'realtime only' do
@@ -67,8 +88,11 @@ RSpec.describe StreamingApi, type: :model do
         data['end_time'] = (@start_time.to_i + 1.5) * 1_000_000_000 # 1.5s in the future we stop
         @api.add(data)
         sleep 0.35 # Allow the thread to run
-        # We should have 2 messages: one at now, one at plus 1s, and then the time will disqualify them
+        # We should have 2 messages: one at 1s and then the time will disqualify them
+        # so the final message is the empty set to say we're done
         expect(@messages.length).to eq(2)
+        expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
+
         # The realtime thread should still be alive waiting for another add
         expect(@api.instance_variable_get('@realtime_thread').alive?).to be true
         @api.kill
@@ -104,9 +128,10 @@ RSpec.describe StreamingApi, type: :model do
         data['start_time'] = @time.to_i * 1_000_000_000 # 1.5s in the past
         data['end_time'] = (@start_time.to_i + 0.75) * 1_000_000_000 # 0.75s in the future
         @api.add(data)
-        sleep 0.55 # Allow the threads to run
-        # We expect 4 messages because total time is 2.25s and we get a packet at 0, 1, 2, then one more
+        sleep 0.65 # Allow the threads to run
+        # We expect 5 messages because total time is 2.25s and we get a packet at 1, 2, then one more plus empty
         expect(@messages.length).to eq(4)
+        expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
         logged = @api.instance_variable_get('@logged_threads')
         # TODO: Should the thread be cleaned up and removed?
         expect(logged.length).to eq(1)
@@ -115,57 +140,49 @@ RSpec.describe StreamingApi, type: :model do
     end
 
     context 'logging only' do
+      it 'has past start time and past end time' do
+        msg1 = {'time' => @start_time.to_i * 1_000_000_000 } # newest is now
+        allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
+        msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+        allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
+
+        @time = Time.at(@start_time.to_i - 2.5)
+        data['start_time'] = @time.to_i * 1_000_000_000 # 2.5s in the past
+        data['end_time'] = (@start_time.to_i - 0.25) * 1_000_000_000 # 0.25s in the past
+        @api.add(data)
+        sleep 0.65 # Allow the threads to run
+        # We expect 5 messages because total time is 2.25s and we get a packet at 1, 2, then one more plus empty
+        expect(@messages.length).to eq(4)
+        expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
+        logged = @api.instance_variable_get('@logged_threads')
+        # TODO: Should the thread be cleaned up and removed?
+        expect(logged.length).to eq(1)
+        expect(logged[0].alive?).to be false
+      end
+
+      it 'has past start time and past end time with limit' do
+        msg1 = {'time' => @start_time.to_i * 1_000_000_000 } # newest is now
+        allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
+        msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+        allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
+
+        # Set a max time so we stop sending out packets past this time
+        # This simulates a command log which isn't going to constantly spit out packets to force the final processing
+        # The streaming api logic must determine we've waited long enough and stop the stream
+        @max_time = @start_time - 1.25 # We won't reach the end time
+        @time = Time.at(@start_time.to_i - 2.5)
+        data['start_time'] = @time.to_i * 1_000_000_000 # 2.5s in the past
+        data['end_time'] = (@start_time.to_i - 0.25) * 1_000_000_000 # 0.25s in the past
+        @api.add(data)
+        sleep 0.65 # Allow the threads to run
+        # We expect 2 messages because we get a packet at 1 plus empty
+        expect(@messages.length).to eq(2)
+        expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
+        logged = @api.instance_variable_get('@logged_threads')
+        # TODO: Should the thread be cleaned up and removed?
+        expect(logged.length).to eq(1)
+        expect(logged[0].alive?).to be false
+      end
     end
-
-    # context 'add with end and no start' do
-    #   it 'creates realtime and no logging' do
-    #     # Don't actually start the threads for this test
-    #     allow_any_instance_of(StreamingThread).to receive(:start)
-
-    #     expect(@api.instance_variable_get('@logged_threads')).to be_empty
-    #     expect(@api.instance_variable_get('@realtime_thread')).to be_nil
-    #     data = {}
-    #     data["scope"] = 'DEFAULT'
-    #     data["end_time"] = Time.now.to_nsec_from_epoch + 10000000000
-    #     data["items"] = ["TLM__TGT__PKT__ITEM1__CONVERTED", "TLM__TGT__PKT__ITEM2__CONVERTED"]
-    #     @api.add(data)
-    #     expect(@api.instance_variable_get('@realtime_thread')).to_not be_nil
-    #     expect(@api.instance_variable_get('@logged_threads')).to be_empty
-    #   end
-    # end
-
-    # context 'add with start and end time' do
-    #   it 'creates realtime and no logging' do
-    #     # Don't actually start the threads for this test
-    #     allow_any_instance_of(StreamingThread).to receive(:start)
-
-    #     expect(@api.instance_variable_get('@logged_threads')).to be_empty
-    #     expect(@api.instance_variable_get('@realtime_thread')).to be_nil
-    #     data = {}
-    #     data["scope"] = 'DEFAULT'
-    #     data["end_time"] = Time.now.to_nsec_from_epoch + 10000000000
-    #     data["items"] = ["TLM__TGT__PKT__ITEM1__CONVERTED", "TLM__TGT__PKT__ITEM2__CONVERTED"]
-    #     @api.add(data)
-    #     expect(@api.instance_variable_get('@realtime_thread')).to_not be_nil
-    #     expect(@api.instance_variable_get('@logged_threads')).to be_empty
-    #   end
-    # end
   end
-
-  # StreamingItem and StreamingItemCollection are implementation details
-  # describe StreamingApi::StreamingItem do
-  #   context 'command' do
-  #     it 'populates topic' do
-  #       item = StreamingApi::StreamingItem.new('CMD__TGT__PKT__ITEM__CONVERTED', 0, 0, scope: 'DEFAULT')
-  #       expect(item.topic).to eq('DEFAULT__DECOMCMD__TGT__PKT')
-  #     end
-  #   end
-
-  #   context 'telemetry' do
-  #     it 'populates topic' do
-  #       item = StreamingApi::StreamingItem.new('TLM__TGT__PKT__ITEM__CONVERTED', 0, 0, scope: 'DEFAULT')
-  #       expect(item.topic).to eq('DEFAULT__DECOM__TGT__PKT')
-  #     end
-  #   end
-  # end
 end
