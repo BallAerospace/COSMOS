@@ -594,6 +594,9 @@ export default {
           }
           // This pulls out the attributes we requested
           const keys = Object.keys(packet)
+          // TODO: Kludge since it appears the server is sending us a weird 0 length array "packet"
+          if (keys.length === 0) return
+
           keys.forEach(key => {
             if (key === 'time') return // Skip time field
             // Get the value and put it into the correct column

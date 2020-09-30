@@ -395,99 +395,95 @@ class LoggedStreamingThread < StreamingThread
 
   def thread_body
     items = @collection.items_by_thread_id[@thread_id]
-    if items and items.length > 0
-      first_item = items[0]
-      if @mode == :SETUP
-        # Get the newest message because we only stream if there is data after our start time
-        _, msg_hash_new = Cosmos::Store.instance.get_newest_message(first_item.topic)
-        # STDOUT.puts "first time:#{first_item.start_time} newest:#{msg_hash_new['time']}"
-        if msg_hash_new && msg_hash_new['time'].to_i > first_item.start_time
-          # Determine oldest timestamp in stream to determine if we need to go to file
-          msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_item.topic)
-          oldest_time = msg_hash['time'].to_i
-          # STDOUT.puts "first time:#{first_item.start_time} oldest:#{oldest_time}"
-          if first_item.start_time < oldest_time
-            # Stream from Files
-            @mode = :FILE
-          else
-            # Stream from Redis
-            # Guesstimate start offset in stream based on first packet time and redis time
-            redis_time = msg_id.split('-')[0].to_i * 1_000_000
-            delta = redis_time - oldest_time
-            # Start streaming from calculated redis time
-            offset = ((first_item.start_time + delta) / 1_000_000).to_s + '-0'
-            items.each {|item| item.offset = offset}
-            @mode = :STREAM
-          end
+    # Cancel if we don't have any items ... this can happen as things are processed
+    # or if someone calls remove() from the StreamingApi
+    @cancel_thread = true unless items and items.length > 0
+    return if @cancel_thread
+
+    first_item = items[0]
+    if @mode == :SETUP
+      # Get the newest message because we only stream if there is data after our start time
+      _, msg_hash_new = Cosmos::Store.instance.get_newest_message(first_item.topic)
+      # STDOUT.puts "first time:#{first_item.start_time} newest:#{msg_hash_new['time']}"
+      if msg_hash_new && msg_hash_new['time'].to_i > first_item.start_time
+        # Determine oldest timestamp in stream to determine if we need to go to file
+        msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_item.topic)
+        oldest_time = msg_hash['time'].to_i
+        # STDOUT.puts "first time:#{first_item.start_time} oldest:#{oldest_time}"
+        if first_item.start_time < oldest_time
+          # Stream from Files
+          @mode = :FILE
         else
-          # Since we're not going to transmit anything cancel and transmit an empty result
-          # puts "NO DATA DONE! transmit 0 results"
-          @cancel_thread = true
-          transmit_results(THREAD_DONE, force: true)
+          # Stream from Redis
+          # Guesstimate start offset in stream based on first packet time and redis time
+          redis_time = msg_id.split('-')[0].to_i * 1_000_000
+          delta = redis_time - oldest_time
+          # Start streaming from calculated redis time
+          offset = ((first_item.start_time + delta) / 1_000_000).to_s + '-0'
+          items.each {|item| item.offset = offset}
+          @mode = :STREAM
         end
-      elsif @mode == :STREAM
-        items_by_topic = {items[0].topic => items}
-        redis_thread_body([first_item.topic], [first_item.offset], items_by_topic)
-      else # @mode == :FILE
-        # Get next file from file cache
-        file_end_time = first_item.end_time
-        file_end_time = Time.now.to_nsec_from_epoch unless file_end_time
-        file_path = FileCache.instance.reserve_file(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name, first_item.start_time, file_end_time, scope: @scope)
-        # puts file_path
-        if file_path
-          file_path_split = file_path.split("__")
-          file_start_time = file_path_split[0].to_i
-          file_end_time = file_path_split[1].to_i
-
-          # Scan forward to find first packet needed
-          # Stream forward until packet > end_time or no more packets
-          results = []
-          plr = Cosmos::PacketLogReader.new()
-          plr.each(file_path, true, Time.from_nsec_from_epoch(first_item.start_time), Time.from_nsec_from_epoch(first_item.end_time)) do |json_packet|
-            result = handle_json_packet(json_packet, items)
-            if result
-              results << result
-            else
-              break
-            end
-            if results.length > @max_batch_size
-              transmit_results(results)
-              results.clear
-            end
-            break if @cancel_thread
-          end
-          transmit_results(results)
-
-          # Move to the next file
-          FileCache.instance.unreserve_file(file_path)
-          items.each {|item| item.start_time = file_end_time}
-        else
-          # TODO: What if there is no new data in the Redis stream?
-
-          # Switch to stream from Redis
-          # Determine oldest timestamp in stream
-          msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_item.topic)
-          if msg_hash
-            oldest_time = msg_hash['time'].to_i
-            # Stream from Redis
-            # Guesstimate start offset in stream based on first packet time and redis time
-            redis_time = msg_id.split('-')[0].to_i * 1000000
-            delta = redis_time - oldest_time
-            # Start streaming from calculated redis time
-            offset = ((first_item.start_time + delta) / 1000000).to_s + '-0'
-            items.each {|item| item.offset = offset}
-            @mode = :STREAM
-          else
-            @cancel_thread = true
-          end
-        end
-      end
-    else
-      # puts "REGULAR DONE! transmit 0 results"
-      @cancel_thread = true
-      # Empty set indicates end of all items in collection
-      if @collection.length <= 0
+      else
+        # Since we're not going to transmit anything cancel and transmit an empty result
+        # puts "NO DATA DONE! transmit 0 results"
+        @cancel_thread = true
         transmit_results(THREAD_DONE, force: true)
+      end
+    elsif @mode == :STREAM
+      items_by_topic = {items[0].topic => items}
+      redis_thread_body([first_item.topic], [first_item.offset], items_by_topic)
+    else # @mode == :FILE
+      # Get next file from file cache
+      file_end_time = first_item.end_time
+      file_end_time = Time.now.to_nsec_from_epoch unless file_end_time
+      file_path = FileCache.instance.reserve_file(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name, first_item.start_time, file_end_time, scope: @scope)
+      # puts file_path
+      if file_path
+        file_path_split = file_path.split("__")
+        file_start_time = file_path_split[0].to_i
+        file_end_time = file_path_split[1].to_i
+
+        # Scan forward to find first packet needed
+        # Stream forward until packet > end_time or no more packets
+        results = []
+        plr = Cosmos::PacketLogReader.new()
+        plr.each(file_path, true, Time.from_nsec_from_epoch(first_item.start_time), Time.from_nsec_from_epoch(first_item.end_time)) do |json_packet|
+          result = handle_json_packet(json_packet, items)
+          if result
+            results << result
+          else
+            break
+          end
+          if results.length > @max_batch_size
+            transmit_results(results)
+            results.clear
+          end
+          break if @cancel_thread
+        end
+        transmit_results(results)
+
+        # Move to the next file
+        FileCache.instance.unreserve_file(file_path)
+        items.each {|item| item.start_time = file_end_time}
+      else
+        # TODO: What if there is no new data in the Redis stream?
+
+        # Switch to stream from Redis
+        # Determine oldest timestamp in stream
+        msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_item.topic)
+        if msg_hash
+          oldest_time = msg_hash['time'].to_i
+          # Stream from Redis
+          # Guesstimate start offset in stream based on first packet time and redis time
+          redis_time = msg_id.split('-')[0].to_i * 1000000
+          delta = redis_time - oldest_time
+          # Start streaming from calculated redis time
+          offset = ((first_item.start_time + delta) / 1000000).to_s + '-0'
+          items.each {|item| item.offset = offset}
+          @mode = :STREAM
+        else
+          @cancel_thread = true
+        end
       end
     end
 

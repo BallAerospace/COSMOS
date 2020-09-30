@@ -130,7 +130,7 @@ RSpec.describe StreamingApi, type: :model do
         @api.add(data)
         sleep 0.65 # Allow the threads to run
         # We expect 5 messages because total time is 2.25s and we get a packet at 1, 2, then one more plus empty
-        expect(@messages.length).to eq(4)
+        expect(@messages.length).to eq(3)
         expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
         logged = @api.instance_variable_get('@logged_threads')
         # TODO: Should the thread be cleaned up and removed?
@@ -152,7 +152,7 @@ RSpec.describe StreamingApi, type: :model do
         @api.add(data)
         sleep 0.65 # Allow the threads to run
         # We expect 5 messages because total time is 2.25s and we get a packet at 1, 2, then one more plus empty
-        expect(@messages.length).to eq(4)
+        expect(@messages.length).to eq(3)
         expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
         logged = @api.instance_variable_get('@logged_threads')
         # TODO: Should the thread be cleaned up and removed?
