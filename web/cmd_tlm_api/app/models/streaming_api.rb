@@ -303,11 +303,11 @@ class StreamingThread
   end
 
   def redis_thread_body(topics, offsets, items_by_topic)
-    # puts "#{self.class} redis_thread_body topics:#{topics} offsets:#{offsets} items:#{items_by_topic}"
+    # STDOUT.puts "#{self.class} redis_thread_body topics:#{topics} offsets:#{offsets} items:#{items_by_topic}"
     results = []
     if topics.length > 0
       Cosmos::Store.instance.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
-        # puts "read_topics topic:#{topic} id:#{msg_id} msg:#{msg_hash.inspect}"
+        # STDOUT.puts "read_topics topic:#{topic} id:#{msg_id} msg:#{msg_hash.inspect}"
         items = items_by_topic[topic]
         items.each do |item|
           item.offset = msg_id
@@ -373,20 +373,22 @@ class LoggedStreamingThread < StreamingThread
       if @mode == :SETUP
         # Get the newest message because we only stream if there is data after our start time
         _, msg_hash_new = Cosmos::Store.instance.get_newest_message(first_item.topic)
+        # STDOUT.puts "first time:#{first_item.start_time} newest:#{msg_hash_new['time']}"
         if msg_hash_new && msg_hash_new['time'].to_i > first_item.start_time
           # Determine oldest timestamp in stream to determine if we need to go to file
           msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_item.topic)
           oldest_time = msg_hash['time'].to_i
+          # STDOUT.puts "first time:#{first_item.start_time} oldest:#{oldest_time}"
           if first_item.start_time < oldest_time
             # Stream from Files
             @mode = :FILE
           else
             # Stream from Redis
             # Guesstimate start offset in stream based on first packet time and redis time
-            redis_time = msg_id.split('-')[0].to_i * 1000000
+            redis_time = msg_id.split('-')[0].to_i * 1_000_000
             delta = redis_time - oldest_time
             # Start streaming from calculated redis time
-            offset = ((first_item.start_time + delta) / 1000000).to_s + '-0'
+            offset = ((first_item.start_time + delta) / 1_000_000).to_s + '-0'
             items.each {|item| item.offset = offset}
             @mode = :STREAM
           end
@@ -579,8 +581,6 @@ class StreamingApi
     @mutex = Mutex.new
     @collection = StreamingItemCollection.new
     @realtime_thread = nil
-    # @realtime_thread = RealtimeStreamingThread.new(@channel, @collection)
-    # @realtime_thread.start
     @logged_threads = []
   end
 
@@ -607,8 +607,7 @@ class StreamingApi
           @logged_threads << thread
           @thread_id += 1
         end
-      end
-      if end_time.nil? or end_time > Time.now.to_nsec_from_epoch
+      elsif end_time.nil? or end_time > Time.now.to_nsec_from_epoch
         # Create a single realtime streaming thread to use the entire collection
         if @realtime_thread.nil?
           @realtime_thread = RealtimeStreamingThread.new(@channel, @collection)
