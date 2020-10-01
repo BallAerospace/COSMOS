@@ -306,7 +306,8 @@ module Cosmos
       topic = "#{scope}__COMMAND__#{target_name}__#{command_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       if msg_id
-        return msg_hash['buffer'].encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
+        # TODO: Not sure why I was encoding to UTF-8 but that doesn't work .. changes the data
+        return msg_hash['buffer']#.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       end
       nil
     end
@@ -428,9 +429,11 @@ module Cosmos
 
       packet['items'].each do |item|
         next unless params.keys.include?(item['name']) && item['states']
-          # States are an array of the name followed by a hash of 'value' and sometimes 'hazardous'
-          item['states'].each do |name, hash|
-          if hash['value'].to_i == params[item['name']].to_i && hash['hazardous']
+        # States are an array of the name followed by a hash of 'value' and sometimes 'hazardous'
+        item['states'].each do |name, hash|
+          # To be hazardous the state must be marked hazardous
+          # Check if either the state name or value matches the param passed
+          if hash['hazardous'] && (name == params[item['name']] || hash['value'].to_f == params[item['name']].to_f)
             return true
           end
         end
@@ -454,6 +457,7 @@ module Cosmos
 
     # Returns the time the most recent command was sent
     #
+    # @deprecated Use get_cmd_value with RECEIVED_TIMESECONDS or RECEIVED_TIMEFORMATTED
     # @param target_name [String] Target name of the command. If not given then
     #    the most recent time from all commands will be returned
     # @param command_name [String] Packet name of the command. If not given then
@@ -461,39 +465,29 @@ module Cosmos
     # @return [Array<Target Name, Command Name, Time Seconds, Time Microseconds>]
     def get_cmd_time(target_name = nil, command_name = nil, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
-      # TODO: Implement New Commanding
-      last_command = nil
-      if target_name
-        if command_name
-          last_command = System.commands.packet(target_name, command_name)
+      if target_name and command_name
+        time = Store.instance.get_cmd_item(target_name, command_name, 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
+        return [target_name, command_name, time.to_i, ((time.to_f - time.to_i) * 1_000_000).to_i]
+      else
+        if target_name.nil?
+          targets = Cosmos::Store.instance.get_target_names(scope: scope)
         else
-          System.commands.packets(target_name).each do |packet_name, command|
-            last_command = command if !last_command and command.received_time
-            if command.received_time and command.received_time > last_command.received_time
-              last_command = command
+          targets = [target_name]
+        end
+        targets.each do |target_name|
+          time = 0
+          command_name = nil
+          Store.instance.get_commands(target_name, scope: scope).each do |packet|
+            cur_time = Store.instance.get_cmd_item(target_name, packet["packet_name"], 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
+            next unless cur_time
+            if cur_time > time
+              time = cur_time
+              command_name = packet["packet_name"]
             end
           end
+          target_name = nil unless command_name
+          return [target_name, command_name, time.to_i, ((time.to_f - time.to_i) * 1_000_000).to_i]
         end
-      else
-        commands = System.commands.all
-        commands.each do |_, target_commands|
-          target_commands.each do |packet_name, command|
-            last_command = command if !last_command and command.received_time
-            if command.received_time and command.received_time > last_command.received_time
-              last_command = command
-            end
-          end
-        end
-      end
-
-      if last_command
-        if last_command.received_time
-          return [last_command.target_name, last_command.packet_name, last_command.received_time.tv_sec, last_command.received_time.tv_usec]
-        else
-          return [last_command.target_name, last_command.packet_name, nil, nil]
-        end
-      else
-        return [nil, nil, nil, nil]
       end
     end
 

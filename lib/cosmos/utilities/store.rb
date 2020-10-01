@@ -335,13 +335,15 @@ module Cosmos
     def get_cmd_item(target_name, packet_name, param_name, type: :WITH_UNITS, scope: $cosmos_scope)
       msg_id, msg_hash = read_topic_last("#{scope}__DECOMCMD__#{target_name}__#{packet_name}")
       if msg_id
-        # TODO: RECEIVED vs PACKET time
-        if param_name == 'RECEIVED_TIMESECONDS' || param_name == 'PACKET_TIMESECONDS'
-          Time.from_nsec_from_epoch(msg_hash['time'].to_i).to_f
-        elsif param_name == 'RECEIVED_TIMEFORMATTED' || param_name == 'PACKET_TIMEFORMATTED'
-          Time.from_nsec_from_epoch(msg_hash['time'].to_i).formatted
-        elsif param_name == 'RECEIVED_COUNT'
-          msg_hash['received_count'].to_i
+        # TODO: We now have these reserved items directly on command packets
+        # Do we still calculate from msg_hash['time'] or use the times directly?
+        #
+        # if param_name == 'RECEIVED_TIMESECONDS' || param_name == 'PACKET_TIMESECONDS'
+        #   Time.from_nsec_from_epoch(msg_hash['time'].to_i).to_f
+        # elsif param_name == 'RECEIVED_TIMEFORMATTED' || param_name == 'PACKET_TIMEFORMATTED'
+        #   Time.from_nsec_from_epoch(msg_hash['time'].to_i).formatted
+        if param_name == 'RECEIVED_COUNT'
+           msg_hash['received_count'].to_i
         else
           json = msg_hash['json_data']
           hash = JSON.parse(json)
@@ -349,9 +351,9 @@ module Cosmos
           value = hash["#{param_name}__U"]
           return value if value && type == :WITH_UNITS
           value = hash["#{param_name}__F"]
-          return value if value && type == :WITH_UNITS || type == :FORMATTED
+          return value if value && (type == :WITH_UNITS || type == :FORMATTED)
           value = hash["#{param_name}__C"]
-          return value if value && type == :WITH_UNITS || type == :FORMATTED || type == :CONVERTED
+          return value if value && (type == :WITH_UNITS || type == :FORMATTED || type == :CONVERTED)
           return hash[param_name]
         end
       end
@@ -433,6 +435,13 @@ module Cosmos
       end
     end
 
+    def get_newest_message(topic)
+      @redis_pool.with do |redis|
+        result = redis.xrevrange(topic, count: 1)
+        return result[0]
+      end
+    end
+
     def get_last_offset(topic)
       @redis_pool.with do |redis|
         result = redis.xrevrange(topic, count: 1)
@@ -458,15 +467,12 @@ module Cosmos
               offsets << last_id
             else
               # If there is no topic offset this is the first call.
-              # Calculate an offset ID which is just prior to the last
-              # in the stream and set the topic offset. By creating and ID
-              # just prior to the last we include the last ID in the xread results.
+              # Get the last offset ID so we'll start getting everything from now on
               offsets << get_last_offset(topic)
               @topic_offsets[topic] = offsets[-1]
             end
           end
         end
-        # puts "offsets:#{offsets}"
         result = redis.xread(topics, offsets, block: timeout_ms)
         if result and result.length > 0
           result.each do |topic, messages|
@@ -476,7 +482,7 @@ module Cosmos
             end
           end
         end
-        # puts "result:#{result}"
+        # puts "result:#{result}" if result and result.length > 0
         return result
       end
     end
@@ -485,11 +491,9 @@ module Cosmos
     # result = redis.xrevrange(topic, cur_time , cur_time, count: 1)
 
     def read_topic_last(topic)
-      # puts "read_topic_last:#{topic}"
       @redis_pool.with do |redis|
         result = redis.xrevrange(topic, '+', '-', count: 1)
         if result and result.length > 0
-          # puts "result:#{result}"
           return result[0]
         else
           return nil

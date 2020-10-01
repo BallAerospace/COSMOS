@@ -376,8 +376,8 @@ export default {
           })
           this.subscription.perform('add', {
             scope: 'DEFAULT',
-            items: items,
-            start_time: new Date().getTime() * 1_000_000 // put units in nanoseconds
+            items: items
+            // No start_time because we want to start now
             // No end_time because we want to continue until we stop
           })
         },

@@ -32,30 +32,29 @@ module Cosmos
       allow(interface).to receive(:write) { |data| @interface_data = data }
       # Stub out as_json to make the call to Store.instance.set_interface happy
       allow(interface).to receive(:as_json).and_return({})
-      @thread = InterfaceCmdHandlerThread.new(interface, nil)
+      @thread = InterfaceCmdHandlerThread.new(interface, nil, scope: 'DEFAULT')
       Store.instance.set_interface(interface, initialize: true)
       @process = true # Allow the command to be processed or not
-      # Wrap xadd to allow us to process commands like the interface microservices
-      # would in the real system.
-      allow(@redis).to receive(:xadd).and_wrap_original do |m, *args|
-        result = m.call(*args)
-        # Run the InterfaceCmdHandlerThread to process the command
-        # This will ack the command on the ACKCMDTARGET__<TGT> channel
-        if @process && (args[0] =~ /^CMDTARGET/ || args[0] =~ /^CMDINTERFACE/)
-          thread = Thread.new { @thread.run }
-          thread.report_on_exception = false
-          sleep 0.1 # Allow the thread to run
-          thread.kill
-          sleep 0.1 # Wait for the thread to be killed
-        end
+
+      allow(@redis).to receive(:xread).and_wrap_original do |m, *args|
+        result = m.call(*args) if @process
+        # Create a slight delay to simulate the blocking call
+        sleep 0.001 if result and result.length == 0
         result
       end
-      # TODO: Initialize the offsets by reading once ... I don't think we should have to do this
-      # topics = ["CMDINTERFACE__#{interface.name}"]
-      # interface.target_names.each { |target_name| topics << "CMDTARGET__#{target_name}" }
-      # Store.instance.read_topics(topics)
 
+      @int_thread = Thread.new { @thread.run }
+      sleep 0.01 # Allow thread to spin up
       @api = ApiTest.new
+    end
+
+    after(:each) do
+      @int_thread.kill
+      count = 0
+      while (@int_thread.alive? or count < 100) do
+        sleep 0.01
+        count += 1
+      end
     end
 
     def test_cmd_unknown(method)
@@ -433,6 +432,7 @@ module Cosmos
     describe "send_raw" do
       it "sends raw data to an interface" do
         @api.send_raw("INST_INT", "\x00\x01\x02\x03")
+        sleep 0.1
         expect(@interface_data).to eql "\x00\x01\x02\x03"
       end
     end
@@ -531,7 +531,12 @@ module Cosmos
         expect(result['packet_name']).to eql "COLLECT"
         result['items'].each do |parameter|
           expect(parameter).to be_a Hash
-          expect(parameter.keys).to include(*%w(name bit_offset bit_size data_type description default minimum maximum endianness overflow))
+          if Packet::RESERVED_ITEM_NAMES.include?(parameter['name'])
+            # Reserved items don't have default, min, max
+            expect(parameter.keys).to include(*%w(name bit_offset bit_size data_type description endianness overflow))
+          else
+            expect(parameter.keys).to include(*%w(name bit_offset bit_size data_type description default minimum maximum endianness overflow))
+          end
         end
       end
     end
@@ -540,6 +545,8 @@ module Cosmos
       it "returns whether the command with parameters is hazardous" do
         expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"NORMAL"})).to be false
         expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"SPECIAL"})).to be true
+        expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>0})).to be false
+        expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>1})).to be true
       end
 
       it "returns whether the command is hazardous" do
@@ -550,53 +557,58 @@ module Cosmos
     describe "get_cmd_value" do
       it "returns command values" do
         time = Time.now
-        packet = System.commands.packet("INST", "COLLECT")
-        packet.received_time = time
-        packet.restore_defaults
-        packet.received_count = 5
+        target_name, cmd_name, params = @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        sleep 0.1
         expect(@api.get_cmd_value("INST", "COLLECT", "TYPE")).to eql 'NORMAL'
-        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMEFORMATTED")).to eql time.formatted
-        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to eql time.to_f
-        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMEFORMATTED")).to eql time.formatted
-        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMESECONDS")).to eql time.to_f
-        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 5
-      end
-
-      it "returns special values for time if time isn't set" do
-        packet = System.commands.packet("INST", "COLLECT")
-        packet.received_time = nil
-        packet.restore_defaults
-        packet.received_count = 5
-        expect(@api.get_cmd_value("INST", "COLLECT", "TYPE")).to eql 'NORMAL'
-        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMEFORMATTED")).to eql "No Packet Received Time"
-        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to eql 0.0
-        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMEFORMATTED")).to eql "No Packet Time"
-        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMESECONDS")).to eql 0.0
-        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 5
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to be_within(0.01).of(time.to_f)
+        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMESECONDS")).to be_within(0.01).of(time.to_f)
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 1
       end
     end
 
     describe "get_cmd_time" do
       it "returns command times" do
         time = Time.now
-        time2 = Time.now + 2
-        collect_cmd = System.commands.packet("INST", "COLLECT")
-        collect_cmd.received_time = time
-        abort_cmd = System.commands.packet("INST", "ABORT")
-        abort_cmd.received_time = time + 1
-        packet2 = System.commands.packet("SYSTEM", "STARTLOGGING")
-        packet2.received_time = time2
-        expect(@api.get_cmd_time()).to eql ['SYSTEM', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
-        expect(@api.get_cmd_time('INST')).to eql ['INST', 'ABORT', time.tv_sec + 1, time.tv_usec]
-        expect(@api.get_cmd_time('SYSTEM')).to eql ['SYSTEM', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
-        expect(@api.get_cmd_time('INST', 'COLLECT')).to eql ['INST', 'COLLECT', time.tv_sec, time.tv_usec]
-        expect(@api.get_cmd_time('SYSTEM', 'STARTLOGGING')).to eql ['SYSTEM', 'STARTLOGGING', time2.tv_sec, time2.tv_usec]
+        target_name, cmd_name, params = @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        sleep 0.1
+        result = @api.get_cmd_time("INST", "COLLECT")
+        expect(result[0]).to eq("INST")
+        expect(result[1]).to eq("COLLECT")
+        expect(result[2]).to be_within(1).of(time.tv_sec) # Allow 1s for rounding
+        expect(result[3]).to be_within(10_000).of(time.tv_usec) # Allow 10ms
+
+        result = @api.get_cmd_time("INST")
+        expect(result[0]).to eq("INST")
+        expect(result[1]).to eq("COLLECT")
+        expect(result[2]).to be_within(1).of(time.tv_sec) # Allow 1s for rounding
+        expect(result[3]).to be_within(10_000).of(time.tv_usec) # Allow 10ms
+
+        result = @api.get_cmd_time()
+        expect(result[0]).to eq("INST")
+        expect(result[1]).to eq("COLLECT")
+        expect(result[2]).to be_within(1).of(time.tv_sec) # Allow 1s for rounding
+        expect(result[3]).to be_within(10_000).of(time.tv_usec) # Allow 10ms
+
+        time = Time.now
+        target_name, cmd_name, params = @api.cmd("INST ABORT")
+        sleep 0.1
+        result = @api.get_cmd_time("INST")
+        expect(result[0]).to eq("INST")
+        expect(result[1]).to eq("ABORT") # New latest is ABORT
+        expect(result[2]).to be_within(1).of(time.tv_sec) # Allow 1s for rounding
+        expect(result[3]).to be_within(10_000).of(time.tv_usec) # Allow 10ms
+
+        result = @api.get_cmd_time()
+        expect(result[0]).to eq("INST")
+        expect(result[1]).to eq("ABORT")
+        expect(result[2]).to be_within(1).of(time.tv_sec) # Allow 1s for rounding
+        expect(result[3]).to be_within(10_000).of(time.tv_usec) # Allow 10ms
       end
 
-      it "returns nil if no times are set" do
-        System.commands.packets("INST").each { |name, pkt| pkt.received_time = nil }
-        expect(@api.get_cmd_time("INST")).to eql [nil, nil, nil, nil]
-        expect(@api.get_cmd_time("INST", "ABORT")).to eql ["INST", "ABORT", nil, nil]
+      it "returns 0 if no times are set" do
+        expect(@api.get_cmd_time("INST", "ABORT")).to eql ["INST", "ABORT", 0, 0]
+        expect(@api.get_cmd_time("INST")).to eql [nil, nil, 0, 0]
+        expect(@api.get_cmd_time()).to eql [nil, nil, 0, 0]
       end
     end
   end
