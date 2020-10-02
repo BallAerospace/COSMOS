@@ -38,15 +38,10 @@ class StreamingChannel < ApplicationCable::Channel
 
   def validate_data(data)
     result = true
+    # data['items'] isn't required because we can start out with no items
+    # and then add them ... this is how TlmGrapher works
     unless data['scope']
       transmit error: 'scope is required'
-      # TODO: This feels weird but ActionCable is new ... better way?
-      reject # Sets the rejected state on the connection
-      reject_subscription # Calls the 'rejected' method on the frontend
-      result = false
-    end
-    unless data['items'] and data['items'].length > 0
-      transmit error: 'items is required'
       # TODO: This feels weird but ActionCable is new ... better way?
       reject # Sets the rejected state on the connection
       reject_subscription # Calls the 'rejected' method on the frontend
