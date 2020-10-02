@@ -27,7 +27,7 @@
     "uplot": "^1.2.1",
     "vue": "^2.6.12",
     "vue-router": "^3.4.5",
-    "vuetify": "^2.3.10",
+    "vuetify": "^2.3.12",
     "vuex": "^3.5.1"
   },
   "devDependencies": {

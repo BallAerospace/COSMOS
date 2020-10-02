@@ -66,6 +66,37 @@ describe('DataExtractor', () => {
     })
   })
 
+  it('validates dates and times', function() {
+    cy.visit('/data-extractor')
+    cy.hideNav()
+    // Date validation
+    cy.get('[data-test=startDate]').clear()
+    cy.get('.container').should('contain', 'Required')
+    cy.get('[data-test=startDate]').type('2020/01/01') // Must use '-' separator
+    cy.get('.container').should('contain', 'Invalid date')
+    cy.get('[data-test=startDate]')
+      .clear()
+      .type('2020-01-32') // Format valid but impossible date
+    cy.get('.container').should('contain', 'Invalid date')
+    cy.get('[data-test=startDate]')
+      .clear()
+      .type('2020-01-01') // Valid!
+    cy.get('.container').should('not.contain', 'Invalid')
+    // Time validation
+    cy.get('[data-test=startTime]').clear()
+    cy.get('.container').should('contain', 'Required')
+    cy.get('[data-test=startTime]').type('12-15-15') // Must use ':' separator
+    cy.get('.container').should('contain', 'Invalid time')
+    cy.get('[data-test=startTime]')
+      .clear()
+      .type('12:15:61') // Format valid but impossible time
+    cy.get('.container').should('contain', 'Invalid time')
+    cy.get('[data-test=startTime]')
+      .clear()
+      .type('12:15:15')
+    cy.get('.container').should('not.contain', 'Invalid')
+  })
+
   it('warns with no items', function() {
     cy.visit('/data-extractor')
     cy.hideNav()
@@ -91,6 +122,20 @@ describe('DataExtractor', () => {
     cy.contains('Start date/time is equal to end date/time').should(
       'be.visible'
     )
+  })
+
+  it('warns with no data', function() {
+    const start = sub(new Date(), { seconds: 1 })
+    cy.visit('/data-extractor')
+    cy.hideNav()
+    cy.get('[data-test=startTime]')
+      .clear()
+      .type(formatTime(start))
+    cy.get('[data-test=cmd-radio]').click({ force: true })
+    cy.selectTargetPacketItem('INST', 'ABORT', 'RECEIVED_TIMEFORMATTED')
+    cy.contains('Add Item').click()
+    cy.contains('Process').click()
+    cy.contains('No data found').should('be.visible')
   })
 
   it('cancels a process', function() {
@@ -195,6 +240,14 @@ describe('DataExtractor', () => {
       .contains('RAW')
       .click()
     cy.contains('INST - ADCS - CCSDSSHF (RAW)')
+    // TODO: Hack to close the dialog ... shouldn't be necessary if Vuetify focuses the dialog
+    // see https://github.com/vuetifyjs/vuetify/issues/11257
+    cy.get('.v-dialog').within(() => {
+      cy.get('input')
+        .first()
+        .focus()
+        .type('{esc}', { force: true })
+    })
     cy.contains('Process').click({ force: true })
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
       contents => {
@@ -206,7 +259,7 @@ describe('DataExtractor', () => {
     )
   })
 
-  it.only('processes commands', function() {
+  it('processes commands', function() {
     // Preload an ABORT command
     cy.visit('/command-sender/INST/ABORT')
     cy.hideNav()
@@ -222,12 +275,14 @@ describe('DataExtractor', () => {
       .clear()
       .type(formatTime(start))
     cy.get('[data-test=cmd-radio]').click({ force: true })
-    cy.selectTargetPacketItem('INST', 'ABORT', 'RECEIVED_TIMESECONDS')
+    cy.selectTargetPacketItem('INST', 'ABORT', 'RECEIVED_TIMEFORMATTED')
     cy.contains('Add Item').click()
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
       contents => {
-        console.log(contents)
+        var lines = contents.split('\n')
+        expect(lines[1]).to.contain('INST')
+        expect(lines[1]).to.contain('ABORT')
       }
     )
   })
@@ -343,6 +398,7 @@ describe('DataExtractor', () => {
     cy.get('[data-test=startTime]')
       .clear()
       .type(formatTime(start))
+    // Deliberately test with two different packets
     cy.selectTargetPacketItem('INST', 'ADCS', 'CCSDSSEQCNT')
     cy.contains('Add Item').click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'CCSDSSEQCNT')
@@ -350,14 +406,13 @@ describe('DataExtractor', () => {
     cy.contains('Process').click()
     cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
       contents => {
-        console.log(contents)
         var lines = contents.split('\n')
         expect(lines[0]).to.contain('CCSDSSEQCNT')
         var firstHS = -1
         for (let i = 1; i < lines.length; i++) {
           if (firstHS !== -1) {
-            var [tgt1, pkt1, adcs1, hs1] = lines[firstHS].split(',')
-            var [tgt2, pkt2, adcs2, hs2] = lines[i].split(',')
+            var [tgt1, pkt1, hs1, adcs1] = lines[firstHS].split(',')
+            var [tgt2, pkt2, hs2, adcs2] = lines[i].split(',')
             expect(tgt1).to.eq(tgt2) // Both INST
             expect(pkt1).to.eq('HEALTH_STATUS')
             expect(pkt2).to.eq('ADCS')
