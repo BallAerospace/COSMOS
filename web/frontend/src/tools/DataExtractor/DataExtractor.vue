@@ -222,7 +222,7 @@ import OpenConfigDialog from '@/components/OpenConfigDialog'
 import SaveConfigDialog from '@/components/SaveConfigDialog'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
 import * as ActionCable from 'actioncable'
-import { format, getTime } from 'date-fns'
+import { isValid, parse, format, getTime } from 'date-fns'
 
 export default {
   components: {
@@ -249,12 +249,24 @@ export default {
       rules: {
         required: value => !!value || 'Required',
         calendar: value => {
-          const pattern = /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/
-          return pattern.test(value) || 'Invalid date (YYYY-MM-DD)'
+          try {
+            return (
+              isValid(parse(value, 'yyyy-MM-dd', new Date())) ||
+              'Invalid date (YYYY-MM-DD)'
+            )
+          } catch (e) {
+            return 'Invalid date (YYYY-MM-DD)'
+          }
         },
         time: value => {
-          const pattern = /^[0-9]{2}:[0-9]{2}:[0-9]{2}$/
-          return pattern.test(value) || 'Invalid time (HH:MM:SS)'
+          try {
+            return (
+              isValid(parse(value, 'HH:mm:ss', new Date())) ||
+              'Invalid time (HH:MM:SS)'
+            )
+          } catch (e) {
+            return 'Invalid time (HH:MM:SS)'
+          }
         }
       },
       cmdOrTlm: 'tlm',
@@ -594,9 +606,6 @@ export default {
           }
           // This pulls out the attributes we requested
           const keys = Object.keys(packet)
-          // TODO: Kludge since it appears the server is sending us a weird 0 length array "packet"
-          if (keys.length === 0) return
-
           keys.forEach(key => {
             if (key === 'time') return // Skip time field
             // Get the value and put it into the correct column
