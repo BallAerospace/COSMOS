@@ -1,30 +1,7 @@
-class ScopesController < ApplicationController
-  # List the available scopes
-  def index
-    render :json => Cosmos::Store.instance.smembers("cosmos_scopes")
-  end
+require 'cosmos/models/scope_model'
 
-  # Add a new scope
-  def create
-    if params[:scope]
-      Cosmos::Store.instance.sadd("cosmos_scopes", params[:scope].to_s.upcase)
-    else
-      head :internal_server_error
-    end
-  end
-
-  # Remove a plugin
-  def destroy
-    if params[:scope]
-      scopes = Cosmos::Store.instance.smembers("cosmos_scopes")
-      if scopes.length > 1
-        STDOUT.puts "Removing scope: #{params[:scope]}"
-        Cosmos::Store.instance.srem("cosmos_scopes", params[:scope].to_s.upcase)
-      else
-        head :internal_server_error
-      end
-    else
-      head :internal_server_error
-    end
+class ScopesController < ModelController
+  def initialize
+    @model_class = Cosmos::ScopeModel
   end
 end

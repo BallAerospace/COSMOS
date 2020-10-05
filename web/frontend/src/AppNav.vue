@@ -13,20 +13,33 @@
         </v-list-item>
 
         <v-divider></v-divider>
-        <v-list-item v-for="app in appNav" :key="app.name" :href="app.url" target="_blank">
+        <v-list-item
+          v-for="(tool, name) in appNav"
+          :key="name"
+          :href="tool.url"
+          target="_blank"
+        >
           <v-list-item-icon>
-            <v-icon>{{ app.icon }}</v-icon>
+            <v-icon>{{ tool.icon }}</v-icon>
           </v-list-item-icon>
 
           <v-list-item-content>
-            <v-list-item-title>{{ app.name }}</v-list-item-title>
+            <v-list-item-title>{{ name }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
 
       <template v-slot:append>
         <div class="pa-2">
-          <v-btn block small rounded color="primary" href="/admin" target="_blank">Admin</v-btn>
+          <v-btn
+            block
+            small
+            rounded
+            color="primary"
+            href="/admin"
+            target="_blank"
+            >Admin</v-btn
+          >
         </div>
       </template>
     </v-navigation-drawer>
@@ -39,14 +52,26 @@
         </template>
         <v-list>
           <!-- The radio-group is necessary in case the application wants radio buttons -->
-          <v-radio-group :value="menu.radioGroup" hide-details dense class="ma-0 pa-0">
+          <v-radio-group
+            :value="menu.radioGroup"
+            hide-details
+            dense
+            class="ma-0 pa-0"
+          >
             <template v-for="(option, j) in menu.items">
               <v-divider v-if="option.divider" :key="j"></v-divider>
               <v-list-item v-else :key="j">
                 <v-list-item-action v-if="option.radio" @click="option.command">
-                  <v-radio color="secondary" :label="option.label" :value="option.label"></v-radio>
+                  <v-radio
+                    color="secondary"
+                    :label="option.label"
+                    :value="option.label"
+                  ></v-radio>
                 </v-list-item-action>
-                <v-list-item-action v-if="option.checkbox" @click="option.command">
+                <v-list-item-action
+                  v-if="option.checkbox"
+                  @click="option.command"
+                >
                   <v-checkbox
                     color="secondary"
                     :label="option.label"
@@ -61,7 +86,8 @@
                   v-if="!option.radio && !option.checkbox"
                   @click="option.command"
                   style="cursor: pointer"
-                >{{ option.label }}</v-list-item-title>
+                  >{{ option.label }}</v-list-item-title
+                >
               </v-list-item>
             </template>
           </v-radio-group>
@@ -90,7 +116,7 @@ export default {
   data() {
     return {
       drawer: true,
-      appNav: [],
+      appNav: {},
       checked: []
     }
   },
@@ -104,7 +130,7 @@ export default {
       })
     })
     axios
-      .get('http://localhost:7777/admin/tools', {
+      .get('http://localhost:7777/tools/all', {
         params: { scope: 'DEFAULT' }
       })
       .then(response => {
