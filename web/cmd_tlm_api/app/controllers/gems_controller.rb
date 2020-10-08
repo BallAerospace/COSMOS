@@ -2,7 +2,7 @@ require 'open-uri'
 require 'nokogiri'
 
 class GemsController < ApplicationController
-  GEMINABOX_URL = ENV['COSMOS_GEMS_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9292' : 'http://cosmos_gems:9292'
+  GEMINABOX_URL = ENV['COSMOS_GEMS_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9292' : 'http://cosmos-gems:9292'
 
   # List the installed gems
   def index

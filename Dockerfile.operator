@@ -1,4 +1,4 @@
-FROM cosmos_base
+FROM cosmos-base
 
 ENV RUBYLIB /cosmos/lib
 

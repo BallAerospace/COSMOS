@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
-docker stop cosmos_operator
-docker container rm cosmos_operator
-docker stop cosmos_frontend
-docker container rm cosmos_frontend
-docker stop cosmos_script_runner_api
-docker container rm cosmos_script_runner_api
-docker stop cosmos_cmd_tlm_api
-docker container rm cosmos_cmd_tlm_api
-docker stop cosmos_minio
-docker container rm cosmos_minio
-docker stop cosmos_redis
-docker container rm cosmos_redis
-docker stop cosmos_fluentd
-docker container rm cosmos_fluentd
-docker stop cosmos_kibana
-docker container rm cosmos_kibana
-docker stop cosmos_elasticsearch
-docker container rm cosmos_elasticsearch
-docker stop cosmos_gems
-docker container rm cosmos_gems
+docker stop cosmos-operator
+docker container rm cosmos-operator
+docker stop cosmos-frontend
+docker container rm cosmos-frontend
+docker stop cosmos-script-runner-api
+docker container rm cosmos-script-runner-api
+docker stop cosmos-cmd-tlm-api
+docker container rm cosmos-cmd-tlm-api
+docker stop cosmos-minio
+docker container rm cosmos-minio
+docker stop cosmos-redis
+docker container rm cosmos-redis
+docker stop cosmos-fluentd
+docker container rm cosmos-fluentd
+docker stop cosmos-kibana
+docker container rm cosmos-kibana
+docker stop cosmos-elasticsearch
+docker container rm cosmos-elasticsearch
+docker stop cosmos-gems
+docker container rm cosmos-gems

@@ -1,4 +1,4 @@
-FROM cosmos_base
+FROM cosmos-base
 
 COPY . /app
 WORKDIR /app

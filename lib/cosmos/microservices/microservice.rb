@@ -47,7 +47,7 @@ module Cosmos
       FileUtils.mkdir_p("#{@temp_dir}/targets")
 
       # Get microservice configuration from Redis
-      @redis = Redis.new(url: ENV['COSMOS_REDIS_URL'] || ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos_redis:6379/0')
+      @redis = Redis.new(url: ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0'))
       @config = @redis.hget("cosmos_microservices", name)
       if @config
         @config = JSON.parse(@config)

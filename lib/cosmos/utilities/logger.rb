@@ -74,7 +74,7 @@ module Cosmos
       @no_fluentd = ENV['NO_FLUENTD']
       @no_store = ENV['NO_STORE']
       unless @no_fluentd
-        fluentd_url = ENV['COSMOS_FLUENTD_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:24224' : 'http://cosmos_fluentd:24224'
+        fluentd_url = ENV['COSMOS_FLUENTD_URL'] || (ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:24224' : 'http://cosmos-fluentd:24224')
         path = fluentd_url.split('/')[-1].split(':')
         Fluent::Logger::FluentLogger.open(nil, { host: path[0], port: path[1] })
       end

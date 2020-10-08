@@ -6,8 +6,7 @@ module.exports = {
         ignored: ['node_modules'],
         aggregateTimeout: 300,
         poll: 1500
-      },
-      public: 'localhost:8080'
+      }
     }
   }
 }

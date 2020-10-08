@@ -1,4 +1,4 @@
-FROM cosmos_base
+FROM cosmos-base
 
 COPY web/script_runner_api /cosmos/web/script_runner_api
 

@@ -27,7 +27,7 @@ module Cosmos
       end
 
       # Load gem to geminabox
-      gems_host = ENV['COSMOS_GEMS_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9292' : 'http://cosmos_gems:9292'
+      gems_host = ENV['COSMOS_GEMS_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9292' : 'http://cosmos-gems:9292'
       #TODO
 
       # Handle cosmos plugin

@@ -76,7 +76,9 @@ export default {
     add() {
       if (this.scope !== null) {
         axios
-          .post('http://localhost:7777/admin/scopes', { scope: this.scope })
+          .post('http://localhost:7777/admin/scopes', {
+            scope: this.scope
+          })
           .then(response => {
             this.alert = 'Added scope ' + this.scope
             this.alertType = 'success'

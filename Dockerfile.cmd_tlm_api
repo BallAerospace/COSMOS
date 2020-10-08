@@ -1,4 +1,4 @@
-FROM cosmos_base
+FROM cosmos-base
 
 COPY web/cmd_tlm_api /cosmos/web/cmd_tlm_api
 

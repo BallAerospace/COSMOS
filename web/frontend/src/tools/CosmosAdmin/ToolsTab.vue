@@ -26,7 +26,9 @@
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deleteTool(tool.name)" v-bind="attrs" v-on="on">mdi-delete</v-icon>
+              <v-icon @click="deleteTool(tool.name)" v-bind="attrs" v-on="on"
+                >mdi-delete</v-icon
+              >
             </template>
             <span>Delete Tool</span>
           </v-tooltip>
@@ -38,7 +40,8 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-    >{{ alert }}</v-alert>
+      >{{ alert }}</v-alert
+    >
   </div>
 </template>
 
