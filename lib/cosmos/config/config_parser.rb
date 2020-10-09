@@ -177,18 +177,22 @@ module Cosmos
     #   lines or comment lines.
     # @param remove_quotes [Boolean] Whether to remove beginning and ending single
     #   or double quote characters from parameters.
+    # @param run_erb [Boolean] Whether or not to run ERB on the file
+    # @param variables [Hash] variables to pash to ERB context
     # @param block [Block] The block to yield to
     # @yieldparam keyword [String] The keyword in the current parsed line
     # @yieldparam parameters [Array<String>] The parameters in the current parsed line
     def parse_file(filename,
                    yield_non_keyword_lines = false,
                    remove_quotes = true,
+                   run_erb = true,
+                   variables = {},
                    &block)
       raise Error.new(self, "Configuration file #{filename} does not exist.") unless filename && File.exist?(filename)
       @filename = filename
 
       # Create a temp file where we write the ERB parsed output
-      file = create_parsed_output_file(filename)
+      file = create_parsed_output_file(filename, run_erb, variables)
       size = file.stat.size.to_f
 
       # Callbacks for beginning of parsing
@@ -343,10 +347,23 @@ module Cosmos
 
     protected
 
+    def create_erb_binding(config_parser_erb_variables)
+      config_parser_erb_variables ||= {}
+      config_parser_erb_binding = binding
+      config_parser_erb_variables.each do |config_parser_erb_variables_key, config_parser_erb_variables_value|
+        config_parser_erb_binding.set_local_variable(config_parser_erb_variables_key.intern, config_parser_erb_variables_value)
+      end
+      return config_parser_erb_binding
+    end
+
     # Writes the ERB parsed results
-    def create_parsed_output_file(filename)
+    def create_parsed_output_file(filename, run_erb, variables)
       begin
-        output = ERB.new(File.read(filename)).result(binding)
+        if run_erb
+          output = ERB.new(File.read(filename)).result(create_erb_binding(variables))
+        else
+          output = File.read(filename)
+        end
       rescue => e
         # The first line of the backtrace indicates the line where the ERB
         # parse failed. Grab the line number for the error message.

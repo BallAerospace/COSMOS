@@ -68,6 +68,8 @@ module Cosmos
           # Process plugin.txt file
           if plugin_config
             parser = Cosmos::ConfigParser.new("http://cosmosrb.com")
+
+            # Phase 1 Gather Variables
             parser.parse_file(plugin_config) do |keyword, params|
               case keyword
                 when 'COMMAND'

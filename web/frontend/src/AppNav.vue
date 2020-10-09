@@ -14,17 +14,17 @@
 
         <v-divider></v-divider>
         <v-list-item
-          v-for="app in appNav"
-          :key="app.name"
-          :href="app.url"
+          v-for="(tool, name) in appNav"
+          :key="name"
+          :href="tool.url"
           target="_blank"
         >
           <v-list-item-icon>
-            <v-icon>{{ app.icon }}</v-icon>
+            <v-icon>{{ tool.icon }}</v-icon>
           </v-list-item-icon>
 
           <v-list-item-content>
-            <v-list-item-title>{{ app.name }}</v-list-item-title>
+            <v-list-item-title>{{ name }}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -116,7 +116,7 @@ export default {
   data() {
     return {
       drawer: true,
-      appNav: [],
+      appNav: {},
       checked: []
     }
   },
@@ -130,7 +130,7 @@ export default {
       })
     })
     axios
-      .get('http://localhost:7777/admin/tools', {
+      .get('http://localhost:7777/tools/all', {
         params: { scope: 'DEFAULT' }
       })
       .then(response => {

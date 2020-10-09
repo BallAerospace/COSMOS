@@ -12,11 +12,16 @@ $redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.
 
 require 'cosmos'
 require 'cosmos/system/system'
+require 'cosmos/models/interface_model'
+require 'cosmos/models/router_model'
+require 'cosmos/models/microservice_model'
+require 'cosmos/models/target_model'
+require 'cosmos/models/scope_model'
 
 module Cosmos
   class ConfigureMicroservices
     def initialize(system_config, cts_config, scope:, url: $redis_url, logger: Logger.new(Logger::INFO, true))
-      Store.instance.sadd("cosmos_scopes", scope)
+      ScopeModel.new(name: 'DEFAULT').create
 
       target_list = []
       target_names = []
@@ -126,6 +131,8 @@ module Cosmos
         name = "#{scope}__DECOMLOG__#{interface_name}"
         Store.instance.hset("cosmos_microservices", name, JSON.generate(config))
         logger.info "Configured microservice #{name}"
+
+
       end
     end
   end

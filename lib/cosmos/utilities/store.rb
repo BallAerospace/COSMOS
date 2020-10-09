@@ -221,6 +221,19 @@ module Cosmos
       end
     end
 
+    def get_targets(scope: $cosmos_scope)
+      result = []
+      @redis_pool.with do |redis|
+        targets = redis.hgetall("#{scope}__cosmos_targets")
+        targets.each do |target_name, target_json|
+          target = JSON.parse(target_json)
+          target[:name] = target_name
+          result << target
+        end
+      end
+      result
+    end
+
     def get_target(target_name, scope: $cosmos_scope)
       @redis_pool.with do |redis|
         if redis.hexists("#{scope}__cosmos_targets", target_name)
@@ -232,13 +245,11 @@ module Cosmos
     end
 
     def set_target(target, scope: $cosmos_scope)
-      @redis_pool.with do |redis|
-        if redis.hexists("#{scope}__cosmos_targets", target.name)
-          return redis.hset("#{scope}__cosmos_targets", target.name, JSON.generate(target.as_json))
-        else
-          raise "Target '#{target_name}' does not exist"
-        end
-      end
+      hset("#{scope}__cosmos_targets", target.name, JSON.generate(target.as_json))
+    end
+
+    def remove_target(target_name, scope: $cosmos_scope)
+      hdel("#{scope}__cosmos_targets", target_name)
     end
 
     def get_packet(target_name, packet_name, type: 'tlm', scope: $cosmos_scope)
@@ -542,7 +553,55 @@ module Cosmos
       hdel("#{scope}__cosmos_tools", tool_name)
     end
 
+    def get_microservice_names(scope: $cosmos_scope)
+      result = []
+      @redis_pool.with do |redis|
+        keys = redis.hkeys("cosmos_microservices")
+        keys.each do |key|
+          if scope.nil? or key[0..(scope.length + 2)] == "#{scope}__"
+            result << key
+          end
+        end
+      end
+      result
+    end
+
+    def get_microservice(microservice_name, scope: $cosmos_scope)
+      @redis_pool.with do |redis|
+        if redis.hexists("cosmos_microservices", microservice_name)
+          return JSON.parse(redis.hget("cosmos_microservices", microservice_name))
+        else
+          raise "Microservice '#{microservice_name}' does not exist"
+        end
+      end
+    end
+
+    def set_microservice(microservice_name, data, scope: $cosmos_scope)
+      hset("cosmos_microservices", microservice_name, JSON.generate(data.as_json))
+    end
+
+    def remove_microservice(microservice_name, scope: $cosmos_scope)
+      hdel("cosmos_microservices", microservice_name)
+    end
+
     # These are low level methods that should only be used as a last resort or for testing
+
+
+    def self.hget(key, field)
+      self.instance.hget(key, field)
+    end
+    def self.hset(key, field, value)
+      self.instance.hset(key, field, value)
+    end
+    def self.hkeys(key)
+      self.instance.hkeys(key)
+    end
+    def self.hdel(key, field)
+      self.instance.hdel(key, field)
+    end
+    def self.hgetall(key)
+      self.instance.hgetall(key)
+    end
 
     def hget(key, field)
       @redis_pool.with { |redis| return redis.hget(key, field) }
@@ -555,6 +614,9 @@ module Cosmos
     end
     def hdel(key, field)
       @redis_pool.with { |redis| redis.hdel(key, field) }
+    end
+    def hgetall(key)
+      @redis_pool.with { |redis| redis.hgetall(key) }
     end
     def del(key)
       @redis_pool.with { |redis| redis.del(key) }
