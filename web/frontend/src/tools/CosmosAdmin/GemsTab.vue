@@ -64,7 +64,9 @@ export default {
   methods: {
     update() {
       axios
-        .get('http://localhost:7777/admin/gems')
+        .get('http://localhost:7777/admin/gems', {
+          params: { scope: 'DEFAULT', token: localStorage.getItem('token') }
+        })
         .then(response => {
           this.gems = response.data
         })
@@ -81,6 +83,8 @@ export default {
       if (this.file !== null) {
         let formData = new FormData()
         formData.append('gem', this.file, this.file.name)
+        formData.append('scope', 'DEFAULT')
+        formData.append('token', localStorage.getItem('token'))
         axios
           .post('http://localhost:7777/admin/gems', formData)
           .then(response => {
@@ -112,7 +116,11 @@ export default {
     deleteGem(gem) {
       axios
         .delete('http://localhost:7777/admin/gems/0', {
-          params: { gem: gem }
+          params: {
+            gem: gem,
+            scope: 'DEFAULT',
+            token: localStorage.getItem('token')
+          }
         })
         .then(response => {
           this.alert = 'Removed gem ' + gem

@@ -11,7 +11,6 @@
             <!-- v-list-item-subtitle>Enterprise Edition</v-list-item-subtitle -->
           </v-list-item-content>
         </v-list-item>
-
         <v-divider></v-divider>
         <v-list-item
           v-for="(tool, name) in appNav"
@@ -131,7 +130,7 @@ export default {
     })
     axios
       .get('http://localhost:7777/tools/all', {
-        params: { scope: 'DEFAULT' }
+        params: { scope: 'DEFAULT', token: localStorage.getItem('token') }
       })
       .then(response => {
         this.appNav = response.data
@@ -144,51 +143,6 @@ export default {
           this.showAlert = false
         }, 5000)
       })
-    // this.appNav.push({
-    //   name: 'CmdTlmServer',
-    //   icon: 'mdi-server-network',
-    //   url: '/cmd-tlm-server'
-    // })
-    // this.appNav.push({
-    //   name: 'Limits Monitor',
-    //   icon: 'mdi-alert',
-    //   url: '/limits-monitor'
-    // })
-    // this.appNav.push({
-    //   name: 'Command Sender',
-    //   icon: 'mdi-satellite-uplink',
-    //   url: '/command-sender'
-    // })
-    // this.appNav.push({
-    //   name: 'Script Runner',
-    //   icon: 'mdi-run-fast',
-    //   url: '/script-runner'
-    // })
-    // this.appNav.push({
-    //   name: 'Packet Viewer',
-    //   icon: 'mdi-format-list-bulleted',
-    //   url: '/packet-viewer'
-    // })
-    // this.appNav.push({
-    //   name: 'Telemetry Viewer',
-    //   icon: 'mdi-monitor-dashboard',
-    //   url: '/telemetry-viewer'
-    // })
-    // this.appNav.push({
-    //   name: 'Telemetry Grapher',
-    //   icon: 'mdi-chart-line',
-    //   url: '/telemetry-grapher'
-    // })
-    // this.appNav.push({
-    //   name: 'Data Extractor',
-    //   icon: 'mdi-archive-arrow-down',
-    //   url: '/data-extractor'
-    // })
-    // this.appNav.push({
-    //   name: 'Google',
-    //   icon: 'mdi-search',
-    //   url: 'https://google.com'
-    // })
   }
 }
 </script>

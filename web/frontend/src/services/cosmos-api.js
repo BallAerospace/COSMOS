@@ -15,7 +15,10 @@ export class CosmosApi {
         method: method,
         params: params,
         id: this.id,
-        keyword_params: { scope: 'DEFAULT' }
+        keyword_params: {
+          scope: 'DEFAULT',
+          token: localStorage.getItem('token')
+        }
       })
       // var data = response.data
       // if (data.error) {
