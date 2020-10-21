@@ -54,11 +54,12 @@ module Cosmos
       end
       @process = nil
     end
-
   end
 
   class Operator
-    OPERATOR_CYCLE_TIME = 15.0 # cycle time to check for new microservices
+    attr_reader :processes, :cycle_time
+
+    CYCLE_TIME = 15.0 # cycle time to check for new microservices
 
     def initialize
       Logger.level = Logger::INFO
@@ -66,6 +67,7 @@ module Cosmos
       Logger.tag = "operator.log"
 
       OperatorProcess.setup()
+      @cycle_time = (ENV['OPERATOR_CYCLE_TIME'] and ENV['OPERATOR_CYCLE_TIME'].to_f) || CYCLE_TIME # time in seconds
 
       @ruby_process_name = ENV['COSMOS_RUBY']
       if RUBY_ENGINE != 'ruby'
@@ -149,8 +151,7 @@ module Cosmos
       end
 
       # Monitor processes and respawn if died
-      sleep_time = (ENV['OPERATOR_CYCLE_TIME'] and ENV['OPERATOR_CYCLE_TIME'].to_f) || OPERATOR_CYCLE_TIME # time in seconds
-      Logger.info("#{self.class} Monitoring processes every #{sleep_time} sec...")
+      Logger.info("#{self.class} Monitoring processes every #{@cycle_time} sec...")
       loop do
         update()
         remove_old()
@@ -158,7 +159,7 @@ module Cosmos
         start_new()
         respawn_dead()
         break if @shutdown
-        sleep(sleep_time)
+        sleep(@cycle_time)
         break if @shutdown
       end
 
@@ -166,14 +167,17 @@ module Cosmos
         break if @shutdown_complete
         sleep(1)
       end
-
     ensure
       Logger.info("#{self.class} shutdown complete")
     end
 
     def self.run
-      a = self.new
-      a.run
+      @@instance = self.new
+      @@instance.run
+    end
+
+    def self.processes
+      @@instance.processes
     end
   end
 end

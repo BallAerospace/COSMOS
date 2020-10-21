@@ -14,9 +14,9 @@ require 'redis'
 require 'open3'
 
 module Cosmos
-
+  # Creates new OperatorProcess objects based on querying the Redis key value store.
+  # Any keys under 'cosmos_microservices' will be created into microservices.
   class MicroserviceOperator < Operator
-
     def initialize
       Logger.microservice_name = 'MicroserviceOperator'
       super
@@ -110,9 +110,7 @@ module Cosmos
         end
       end
     end
-
-  end # class
-
-end # module
+  end
+end
 
 Cosmos::MicroserviceOperator.run if __FILE__ == $0
