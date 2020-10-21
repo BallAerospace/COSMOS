@@ -3,4 +3,5 @@ FROM cosmos-base
 ENV RUBYLIB /cosmos/lib
 
 WORKDIR /cosmos/lib/cosmos/operators
-CMD ruby microservice_operator.rb
+ENTRYPOINT [ "ruby" ]
+CMD [ "microservice_operator.rb"]

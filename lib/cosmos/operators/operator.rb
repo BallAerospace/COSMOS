@@ -12,10 +12,13 @@ require 'childprocess'
 require 'cosmos'
 
 module Cosmos
-
   class OperatorProcess
     attr_accessor :process_definition
     attr_reader :scope
+
+    def self.setup
+      # Perform any setup steps necessary
+    end
 
     def initialize(process_definition, scope)
       @process = nil
@@ -26,7 +29,6 @@ module Cosmos
     def start
       Logger.info("Starting: #{@process_definition.join(' ')}", scope: @scope)
       @process = ChildProcess.build(*@process_definition)
-      @process.leader = true
       @process.start
     end
 
@@ -56,10 +58,14 @@ module Cosmos
   end
 
   class Operator
+    OPERATOR_CYCLE_TIME = 15.0 # cycle time to check for new microservices
+
     def initialize
       Logger.level = Logger::INFO
       Logger.microservice_name = 'MicroserviceOperator'
       Logger.tag = "operator.log"
+
+      OperatorProcess.setup()
 
       @ruby_process_name = ENV['COSMOS_RUBY']
       if RUBY_ENGINE != 'ruby'
@@ -143,7 +149,8 @@ module Cosmos
       end
 
       # Monitor processes and respawn if died
-      Logger.info("#{self.class} Monitoring processes...")
+      sleep_time = (ENV['OPERATOR_CYCLE_TIME'] and ENV['OPERATOR_CYCLE_TIME'].to_f) || OPERATOR_CYCLE_TIME # time in seconds
+      Logger.info("#{self.class} Monitoring processes every #{sleep_time} sec...")
       loop do
         update()
         remove_old()
@@ -151,7 +158,7 @@ module Cosmos
         start_new()
         respawn_dead()
         break if @shutdown
-        sleep(2)
+        sleep(sleep_time)
         break if @shutdown
       end
 
@@ -168,7 +175,5 @@ module Cosmos
       a = self.new
       a.run
     end
-
-  end # class Operator
-
-end # module Cosmos
+  end
+end
