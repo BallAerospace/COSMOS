@@ -12,6 +12,10 @@ require 'spec_helper'
 require 'mock_redis'
 require 'cosmos/operators/microservice_operator'
 
+# Override at_exit to do nothing for testing
+def at_exit(*args, &block)
+end
+
 module Cosmos
   describe MicroserviceOperator do
     describe "initialize" do
@@ -28,58 +32,83 @@ module Cosmos
     end
 
     describe "update" do
+      before(:all) do
+        File.open(File.join(__dir__, '..', '..', 'lib', 'while.rb'), 'w') do |file|
+          file.puts "while true"
+          file.puts "  sleep 1"
+          file.puts "end"
+        end
+      end
+
+      after(:all) do
+        FileUtils.rm_f File.join(__dir__, '..', '..', 'lib', 'while.rb')
+      end
+
       before(:each) do
         @redis = MockRedis.new
         allow(Redis).to receive(:new).and_return(@redis)
+        allow(Process).to receive(:kill) do |type, pid|
+          # Override SIGINT to just kill the process
+          Process.kill("KILL", pid) if type == "SIGINT"
+        end
+        Logger.stdout = true
+        ENV['OPERATOR_CYCLE_TIME'] = '0.1'
+        @thread = Thread.new { MicroserviceOperator.run }
+        sleep 0.1 # Allow the operator to spin up
       end
 
-      it "should query redis for new microservices and create OperatorProcesses" do
-        config = { 'filename' => 'interface_microservice.rb', 'scope' => 'DEFAULT' }
-        @redis.hset('cosmos_microservices', 'SCOPE__SERVICE__NAME', JSON.generate(config))
-
-        # ENV['OPERATOR_CYCLE_TIME'] = '0.1'
-        # thread = Thread.new { MicroserviceOperator.run }
-        # sleep 0.2 # Allow to run
-
-        op = MicroserviceOperator.new
-        expect(op.processes).to be_empty()
-        op.update()
-        expect(op.processes.keys).to include('SCOPE__SERVICE__NAME')
-        expect(op.processes['SCOPE__SERVICE__NAME']).to be_a OperatorProcess
-        processes = op.processes.dup
-        op.update()
-        expect(op.processes).to eq processes # No change after update
+      after(:each) do
+        @thread.kill
+        @thread.join
       end
 
-      # it "should restart changed microservices" do
-      #   config = { filename: 'interface_microservice.rb', scope: 'DEFAULT' }
-      #   JSON.generate(config)
+      it "should query redis for new microservices and create processes" do
+        capture_io do |stdout|
+          expect(MicroserviceOperator.processes).to be_empty()
+          config = { 'filename' => '../../while.rb', 'scope' => 'DEFAULT' }
+          @redis.hset('cosmos_microservices', 'DEFAULT__INTERFACE__START_INT', JSON.generate(config))
+          sleep 1
+          expect(MicroserviceOperator.processes.keys).to include('DEFAULT__INTERFACE__START_INT')
+          expect(MicroserviceOperator.processes['DEFAULT__INTERFACE__START_INT']).to be_a OperatorProcess
+          expect(stdout.string).to match(/Starting.*ruby.*while.rb DEFAULT__INTERFACE__START_INT/)
+        end
+      end
 
-      #   @redis.hset('cosmos_microservices', 'SCOPE__SERVICE__NAME', JSON.generate(config))
+      it "should restart changed microservices" do
+        capture_io do |stdout|
+          config = { 'filename' => '../../while.rb', 'scope' => 'DEFAULT' }
+          @redis.hset('cosmos_microservices', 'DEFAULT__INTERFACE__RESTART_INT', JSON.generate(config))
+          sleep 1
+          expect(MicroserviceOperator.processes.keys).to include('DEFAULT__INTERFACE__RESTART_INT')
+          expect(MicroserviceOperator.processes['DEFAULT__INTERFACE__RESTART_INT']).to be_a OperatorProcess
 
-      #   op = MicroserviceOperator.new
-      #   op.update()
-      #   expect(op.processes.keys).to include('SCOPE__SERVICE__NAME')
-
-      #   config = { filename: 'interface_microservice.rb', scope: 'DEFAULT', param: 'other' }
-      #   @redis.hset('cosmos_microservices', 'SCOPE__SERVICE__NAME', JSON.generate(config))
-
-      #   op.update()
-      #   expect(op.processes).to be_empty()
-      # end
+          # Slightly change the configuration by adding something
+          config = { 'filename' => '../../while.rb', 'scope' => 'DEFAULT', 'target_list' => 'TEST' }
+          @redis.hset('cosmos_microservices', 'DEFAULT__INTERFACE__RESTART_INT', JSON.generate(config))
+          sleep 5 # Due to 2s wait in shutdown
+          expect(MicroserviceOperator.processes.keys).to include('DEFAULT__INTERFACE__RESTART_INT')
+          expect(MicroserviceOperator.processes['DEFAULT__INTERFACE__RESTART_INT']).to be_a OperatorProcess
+          # We should see starting more than once
+          expect(stdout.string.scan(/Starting.*ruby.*while.rb DEFAULT__INTERFACE__RESTART_INT/).size).to be > 1
+          # We should see Soft and Hard stopping
+          expect(stdout.string.scan(/Soft shutting down.*ruby.*while.rb DEFAULT__INTERFACE__RESTART_INT/).size).to eq 1
+          expect(stdout.string.scan(/Hard shutting down.*ruby.*while.rb DEFAULT__INTERFACE__RESTART_INT/).size).to eq 1
+        end
+      end
 
       it "should remove deleted microservices" do
-        config = { 'filename' => 'interface_microservice.rb', 'scope' => 'DEFAULT' }
-        @redis.hset('cosmos_microservices', 'SCOPE__SERVICE__NAME', JSON.generate(config))
+        capture_io do |stdout|
+          config = { 'filename' => '../../while.rb', 'scope' => 'DEFAULT' }
+          @redis.hset('cosmos_microservices', 'DEFAULT__INTERFACE__DELETE_INT', JSON.generate(config))
+          sleep 1
+          expect(MicroserviceOperator.processes.keys).to include('DEFAULT__INTERFACE__DELETE_INT')
+          expect(MicroserviceOperator.processes['DEFAULT__INTERFACE__DELETE_INT']).to be_a OperatorProcess
 
-        op = MicroserviceOperator.new
-        op.update()
-        expect(op.processes.keys).to include('SCOPE__SERVICE__NAME')
-
-        @redis.hdel('cosmos_microservices', 'SCOPE__SERVICE__NAME')
-
-        op.update()
-        expect(op.processes).to be_empty()
+          @redis.hdel('cosmos_microservices', 'DEFAULT__INTERFACE__DELETE_INT')
+          sleep 1
+          expect(MicroserviceOperator.processes).to be_empty()
+          expect(stdout.string).to match(/shutting down.*ruby.*while.rb DEFAULT__INTERFACE__DELETE_INT/)
+        end
       end
     end
   end

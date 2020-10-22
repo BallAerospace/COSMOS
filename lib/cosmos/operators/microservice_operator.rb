@@ -93,7 +93,7 @@ module Cosmos
             if process
               process.process_definition = process_definition
               @changed_processes[microservice_name] = process
-            else
+            else # TODO: How is this even possible?
               scope = microservice_name.split("__")[0]
               Logger.error("Changed microservice #{microservice_name} does not exist. Creating new...", scope: scope)
               process = OperatorProcess.new(process_definition, scope)

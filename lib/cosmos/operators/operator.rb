@@ -29,6 +29,8 @@ module Cosmos
     def start
       Logger.info("Starting: #{@process_definition.join(' ')}", scope: @scope)
       @process = ChildProcess.build(*@process_definition)
+      # This lets the ChildProcess use the parent IO ... but it breaks unit tests
+      # @process.io.inherit!
       @process.start
     end
 
@@ -42,14 +44,14 @@ module Cosmos
 
     def soft_stop
       Thread.new do
-        Logger.info("Soft Shutting down process: #{@process_definition.join(' ')}", scope: @scope)
-        Process.kill("SIGINT", @process.pid)
+        Logger.info("Soft shutting down process: #{@process_definition.join(' ')}", scope: @scope)
+        Process.kill("SIGINT", @process.pid) # Signal the process to stop
       end
     end
 
     def hard_stop
       unless @process.exited?
-        Logger.info("Hard Shutting down process: #{@process_definition.join(' ')}", scope: @scope)
+        Logger.info("Hard shutting down process: #{@process_definition.join(' ')}", scope: @scope)
         @process.stop
       end
       @process = nil
@@ -58,6 +60,7 @@ module Cosmos
 
   class Operator
     attr_reader :processes, :cycle_time
+    @@instance = nil
 
     CYCLE_TIME = 15.0 # cycle time to check for new microservices
 
@@ -102,9 +105,9 @@ module Cosmos
 
     def respawn_changed
       @mutex.synchronize do
-        @changed_processes.each do |name, p|
-          break if @shutdown
+        if @changed_processes.length > 0
           shutdown_processes(@changed_processes)
+          break if @shutdown
           @changed_processes.each { |name, p| p.start }
           @changed_processes = {}
         end
@@ -135,7 +138,7 @@ module Cosmos
 
     def shutdown_processes(processes)
       processes.each { |name, p| p.soft_stop }
-      sleep(2)
+      sleep(2) # TODO: This is an arbitrary sleep of 2s ...
       processes.each { |name, p| p.hard_stop }
     end
 
