@@ -8,14 +8,30 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
+begin
+  require 'cosmos-enterprise/utilities/authorization'
+  $cosmos_enterprise = true
+rescue LoadError
+  $cosmos_enterprise = false
+end
+
 module Cosmos
 
+  class AuthError < StandardError
+  end
+
+  class ForbiddenError < StandardError
+  end
+
   module Authorization
+
     private
 
-    # Raises an exception if unauthorized, otherwise does nothing
-    def authorize(permission: nil, target_name: nil, packet_name: nil, interface_name: nil, router_name: nil, scope: nil, token: nil)
-      raise "Scope is required" unless scope
+    unless $cosmos_enterprise
+      # Raises an exception if unauthorized, otherwise does nothing
+      def authorize(permission: nil, target_name: nil, packet_name: nil, interface_name: nil, router_name: nil, scope: nil, token: nil)
+        raise AuthError.new("Scope is required") unless scope
+      end
     end
 
   end # module Authorization

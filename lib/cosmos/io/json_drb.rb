@@ -275,6 +275,14 @@ module Cosmos
                 error_code = JsonRpcError::ErrorCode::INVALID_PARAMS
                 response = JsonRpcErrorResponse.new(
                   JsonRpcError.new(error_code, "Invalid params", error), request.id)
+              elsif AuthError === error
+                error_code = JsonRpcError::ErrorCode::AUTH_ERROR
+                response = JsonRpcErrorResponse.new(
+                  JsonRpcError.new(error_code, error.message, error), request.id)
+              elsif ForbiddenError === error
+                error_code = JsonRpcError::ErrorCode::FORBIDDEN_ERROR
+                response = JsonRpcErrorResponse.new(
+                  JsonRpcError.new(error_code, error.message, error), request.id)
               else
                 error_code = JsonRpcError::ErrorCode::OTHER_ERROR
                 response = JsonRpcErrorResponse.new(

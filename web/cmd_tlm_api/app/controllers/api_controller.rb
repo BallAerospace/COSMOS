@@ -55,6 +55,8 @@ class ApiController < ApplicationController
         when Cosmos::JsonRpcError::ErrorCode::METHOD_NOT_FOUND then status = 404 # Not found
         when Cosmos::JsonRpcError::ErrorCode::INVALID_PARAMS   then status = 500 # Internal server error
         when Cosmos::JsonRpcError::ErrorCode::INTERNAL_ERROR   then status = 500 # Internal server error
+        when Cosmos::JsonRpcError::ErrorCode::AUTH_ERROR       then status = 401
+        when Cosmos::JsonRpcError::ErrorCode::FORBIDDEN_ERROR  then status = 403
         else status = 500 # Internal server error
       end
     else
