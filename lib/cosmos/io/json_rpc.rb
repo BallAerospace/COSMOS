@@ -364,6 +364,8 @@ module Cosmos
       METHOD_NOT_FOUND = -32601
       INVALID_PARAMS   = -32602
       INTERNAL_ERROR   = -32603
+      AUTH_ERROR       = -32500
+      FORBIDDEN_ERROR  = -32501
       OTHER_ERROR      = -1
     end
 

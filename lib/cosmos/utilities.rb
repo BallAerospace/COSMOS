@@ -1,5 +1,7 @@
 # encoding: ascii-8bit
 
+require 'cosmos/utilities/authorization.rb'
+
 module Cosmos
   autoload(:Crc, 'cosmos/utilities/crc.rb')
   autoload(:Crc16, 'cosmos/utilities/crc.rb')
