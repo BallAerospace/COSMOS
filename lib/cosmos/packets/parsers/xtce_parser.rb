@@ -102,6 +102,8 @@ module Cosmos
 
     def set_packet_endianness
       item_endianness = @current_packet.sorted_items.collect do |item|
+        # Ignore COSMOS reserved items
+        next if Packet::RESERVED_ITEM_NAMES.include?(item.name)
         # Strings and Blocks endianness don't matter so ignore them
         item.endianness if (item.data_type != :STRING && item.data_type != :BLOCK)
       end

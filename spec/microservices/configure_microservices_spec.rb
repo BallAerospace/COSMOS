@@ -18,7 +18,6 @@ module Cosmos
 
     it "loads all the redis keys" do
       expect(@redis.exists('cosmos_scopes')).to eql(1)
-      expect(@redis.exists('cosmos_log_messages')).to eql(1)
       expect(@redis.exists('cosmos_microservices')).to eql(1)
       expect(@redis.exists('DEFAULT__cosmos_system')).to eql(1)
       expect(@redis.exists('DEFAULT__cosmos_targets')).to eql(1)
