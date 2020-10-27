@@ -1,13 +1,13 @@
 Rails.application.routes.draw do
-  get "/scripts" => "scripts#index"
-  get "/scripts/:name" => "scripts#show", :constraints => { :name => /[^\/]+/ }, format: false, defaults: {format: 'html'}
-  get "/scripts/:name/body" => "scripts#body", :constraints => { :name => /[^\/]+/ }, format: false, defaults: {format: 'html'}
-  post "/scripts/:name" => "scripts#create", :constraints => { :name => /[^\/]+/ }, format: false, defaults: {format: 'html'}
-  # post "/scripts/:name/run" => "scripts#run", :constraints => { :name => /[^\/]+/ }, format: false, defaults: {format: 'html'}
+  get  "/scripts" => "scripts#index"
+  get  "/scripts/*name" => "scripts#body", format: false, defaults: {format: 'html'}
   post "/scripts/*name/run" => "scripts#run", format: false, defaults: {format: 'html'}
-  post "/scripts/:name/delete" => "scripts#destroy", :constraints => { :name => /[^\/]+/ }, format: false, defaults: {format: 'html'}
-  get "/running-script" => "running_script#index"
-  get "/running-script/:id" => "running_script#show"
+  post "/scripts/*name/delete" => "scripts#destroy", format: false, defaults: {format: 'html'}
+  # Must be last so /run and /delete will match first
+  post "/scripts/*name" => "scripts#create", format: false, defaults: {format: 'html'}
+
+  get  "/running-script" => "running_script#index"
+  get  "/running-script/:id" => "running_script#show"
   post "/running-script/:id/start" => "running_script#start"
   post "/running-script/:id/stop" => "running_script#stop"
   post "/running-script/:id/pause" => "running_script#pause"

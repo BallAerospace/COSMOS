@@ -1,5 +1,5 @@
 <template>
-  <v-footer app color="tertiary darken-3">
+  <v-footer id="footer" app color="tertiary darken-3">
     <img src="/img/logo.png" alt="COSMOS" width="20" />
     <span class="footer-text" style="margin-left: 5px">COSMOS &copy; 2020</span>
     <v-spacer />
@@ -18,3 +18,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+#footer {
+  z-index: 1000; /* On TOP! */
+}
+</style>

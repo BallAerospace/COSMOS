@@ -59,18 +59,15 @@
           >
             <template v-for="(option, j) in menu.items">
               <v-divider v-if="option.divider" :key="j"></v-divider>
-              <v-list-item v-else :key="j">
-                <v-list-item-action v-if="option.radio" @click="option.command">
+              <v-list-item v-else :key="j" @click="option.command">
+                <v-list-item-action v-if="option.radio">
                   <v-radio
                     color="secondary"
                     :label="option.label"
                     :value="option.label"
                   ></v-radio>
                 </v-list-item-action>
-                <v-list-item-action
-                  v-if="option.checkbox"
-                  @click="option.command"
-                >
+                <v-list-item-action v-if="option.checkbox">
                   <v-checkbox
                     color="secondary"
                     :label="option.label"
@@ -83,7 +80,6 @@
                 </v-list-item-icon>
                 <v-list-item-title
                   v-if="!option.radio && !option.checkbox"
-                  @click="option.command"
                   style="cursor: pointer"
                   >{{ option.label }}</v-list-item-title
                 >
@@ -153,5 +149,9 @@ export default {
 }
 .theme--dark.v-navigation-drawer {
   background-color: var(--v-primary-darken2);
+}
+.v-list-item__icon {
+  /* For some reason the default margin-right is huge */
+  margin-right: 15px !important;
 }
 </style>
