@@ -21,7 +21,6 @@
 <script>
 import AppNav from '@/AppNav'
 import EditorTab from '@/tools/ScriptRunner/EditorTab'
-import ScriptRunnerEditor from '@/tools/ScriptRunner/ScriptRunnerEditor'
 import ScriptsTab from '@/tools/ScriptRunner/ScriptsTab'
 import RunningScriptsTab from '@/tools/ScriptRunner/RunningScriptsTab'
 
@@ -29,9 +28,8 @@ export default {
   components: {
     AppNav,
     EditorTab,
-    ScriptRunnerEditor,
     ScriptsTab,
-    RunningScriptsTab
+    RunningScriptsTab,
   },
   data() {
     return {
@@ -40,7 +38,7 @@ export default {
       tabs: [
         { name: 'Editor', component: 'EditorTab' },
         { name: 'Scripts', component: 'ScriptsTab' },
-        { name: 'Running Scripts', component: 'RunningScriptsTab' }
+        { name: 'Running Scripts', component: 'RunningScriptsTab' },
       ],
       menus: [
         {
@@ -51,47 +49,47 @@ export default {
               icon: 'mdi-file-plus',
               command: () => {
                 this.$root.$refs.Editor.newFile()
-              }
+              },
             },
             {
               label: 'Open File',
               icon: 'mdi-folder-open',
               command: () => {
                 this.$root.$refs.Editor.openFile()
-              }
+              },
             },
             {
-              divider: true
+              divider: true,
             },
             {
               label: 'Save File',
               icon: 'mdi-content-save',
               command: () => {
                 this.$root.$refs.Editor.saveFile()
-              }
+              },
             },
             {
               label: 'Save As...',
               icon: 'mdi-content-save',
               command: () => {
                 this.$root.$refs.Editor.saveAs()
-              }
+              },
             },
             {
-              divider: true
+              divider: true,
             },
             {
               label: 'Delete File',
               icon: 'mdi-delete',
               command: () => {
                 this.$root.$refs.Editor.delete()
-              }
-            }
-          ]
-        }
-      ]
+              },
+            },
+          ],
+        },
+      ],
     }
-  }
+  },
 }
 </script>
 

@@ -33,7 +33,7 @@ import axios from 'axios'
 export default {
   props: {
     tabId: Number,
-    curTab: Number
+    curTab: Number,
   },
   data() {
     return {
@@ -45,9 +45,9 @@ export default {
           text: 'Actions',
           value: 'actions',
           sortable: false,
-          filterable: false
-        }
-      ]
+          filterable: false,
+        },
+      ],
     }
   },
   created() {
@@ -55,7 +55,7 @@ export default {
   },
   methods: {
     getScripts() {
-      axios.get('http://localhost:3001/scripts').then(response => {
+      axios.get('http://localhost:3001/scripts').then((response) => {
         this.data = []
         for (let item of response.data) {
           this.data.push({ name: item, actions: '' })
@@ -65,14 +65,14 @@ export default {
     run(name) {
       axios
         .post('http://localhost:3001/scripts/' + name + '/run', {})
-        .then(response => {
+        .then((response) => {
           this.$router.push({
             name: 'ScriptRunnerEditor',
-            params: { id: response.data }
+            params: { id: response.data },
           })
         })
-    }
-  }
+    },
+  },
 }
 </script>
 

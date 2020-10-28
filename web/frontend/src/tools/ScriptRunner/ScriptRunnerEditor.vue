@@ -2,7 +2,7 @@
   <div>
     <app-nav />
     <v-btn v-if="showRestart" color="primary" @click="restart">Restart</v-btn>
-    <div v-if="showGoPauseStop" style="display:inline;">
+    <div v-if="showGoPauseStop" style="display: inline">
       <v-btn color="primary" @click="go">Go</v-btn>
       <v-btn color="primary" @click="pause">Pause</v-btn>
       <v-btn color="primary" @click="stop">Stop</v-btn>
@@ -94,7 +94,7 @@ export default {
       messages: [],
       headers: [
         { text: 'Time', value: '@timestamp', width: 250 },
-        { text: 'Message', value: 'message' }
+        { text: 'Message', value: 'message' },
       ],
       maxArrayLength: 30,
       Range: ace.acequire('ace/range').Range,
@@ -104,7 +104,7 @@ export default {
         default: null,
         password: false,
         answerRequired: true,
-        callback: () => {}
+        callback: () => {},
       },
       prompt: {
         show: false,
@@ -112,8 +112,8 @@ export default {
         message: '',
         buttons: null,
         layout: 'horizontal',
-        callback: () => {}
-      }
+        callback: () => {},
+      },
     }
   },
   mounted() {
@@ -230,7 +230,7 @@ export default {
       this.subscription = this.cable.subscriptions.create(
         { channel: 'RunningScriptChannel', id: this.$route.params.id },
         {
-          received: data => this.received(data)
+          received: (data) => this.received(data),
         }
       )
     },
@@ -264,7 +264,7 @@ export default {
           if (data.args[2] === true) {
             this.ask.password = true
           }
-          this.ask.callback = value => {
+          this.ask.callback = (value) => {
             this.ask.show = false // Close the dialog
             axios.post(
               'http://localhost:3001/running-script/' +
@@ -301,7 +301,7 @@ export default {
           this.prompt.message = data.args[0]
           this.prompt.buttons = [
             { text: 'Ok', value: 'Ok' },
-            { text: 'Cancel', value: 'Cancel' }
+            { text: 'Cancel', value: 'Cancel' },
           ]
           this.prompt.callback = this.promptDialogCallback
           this.prompt.show = true
@@ -310,7 +310,7 @@ export default {
           this.prompt.title = 'Prompt'
           this.prompt.message = data.args[0]
           this.prompt.buttons = []
-          data.args[1].forEach(v => {
+          data.args[1].forEach((v) => {
             this.prompt.buttons.push({ text: v, value: v })
           })
           this.prompt.combo = true
@@ -323,7 +323,7 @@ export default {
           this.prompt.title = 'Prompt'
           this.prompt.message = data.args[0]
           this.prompt.buttons = []
-          data.args[1].forEach(v => {
+          data.args[1].forEach((v) => {
             this.prompt.buttons.push({ text: v, value: v })
           })
           // If the last item is false it means they don't want a Cancel button
@@ -344,8 +344,8 @@ export default {
           ) */
           break
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
