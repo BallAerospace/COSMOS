@@ -3,14 +3,26 @@
     <v-container id="header">
       <v-row no-gutters>
         <v-col cols="4">
-          <v-btn color="primary" @click="start" class="mr-4"
-            >Start
+          <v-btn
+            color="primary"
+            @click="startOrGo"
+            :disabled="disableControls"
+            class="mr-4"
+            >{{ startOrGoText }}
             <v-icon right> mdi-play </v-icon>
           </v-btn>
-          <v-btn color="primary" @click="pause" class="mr-4"
+          <v-btn
+            color="primary"
+            @click="pause"
+            :disabled="disableControls"
+            class="mr-4"
             >Pause <v-icon right> mdi-pause </v-icon>
           </v-btn>
-          <v-btn color="primary" @click="stop" class="mr-4"
+          <v-btn
+            color="primary"
+            @click="stop"
+            :disabled="disableControls"
+            class="mr-4"
             >Stop <v-icon right> mdi-stop </v-icon>
           </v-btn>
           <v-progress-circular
@@ -72,6 +84,22 @@
         ></v-data-table>
       </v-card>
     </div>
+    <AskDialog
+      v-if="ask.show"
+      :question="ask.question"
+      :default="ask.default"
+      :password="ask.password"
+      :answerRequired="ask.answerRequired"
+      @submit="ask.callback"
+    ></AskDialog>
+    <PromptDialog
+      v-if="prompt.show"
+      :title="prompt.title"
+      :message="prompt.message"
+      :buttons="prompt.buttons"
+      :layout="prompt.layout"
+      @submit="prompt.callback"
+    ></PromptDialog>
 
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
     <FileOpenDialog
@@ -109,6 +137,8 @@ import 'brace/theme/twilight'
 import FileOpenDialog from '@/components/FileOpenDialog'
 import FileSaveAsDialog from '@/components/FileSaveAsDialog'
 import ActionCable from 'actioncable'
+import AskDialog from './AskDialog.vue'
+import PromptDialog from './PromptDialog.vue'
 
 const NEW_FILENAME = '<Untitled>'
 
@@ -116,6 +146,8 @@ export default {
   components: {
     FileOpenDialog,
     FileSaveAsDialog,
+    AskDialog,
+    PromptDialog,
   },
   data() {
     return {
@@ -125,8 +157,10 @@ export default {
       fileName: NEW_FILENAME,
       fileModified: '',
       fileOpen: false,
+      startOrGoText: 'Start',
       showSaveAs: false,
       areYouSure: false,
+      disableControls: true,
       subscription: null,
       cable: null,
       marker: null,
@@ -138,6 +172,22 @@ export default {
       ],
       maxArrayLength: 30,
       Range: ace.acequire('ace/range').Range,
+      ask: {
+        show: false,
+        question: '',
+        default: null,
+        password: false,
+        answerRequired: true,
+        callback: () => {},
+      },
+      prompt: {
+        show: false,
+        title: '',
+        message: '',
+        buttons: null,
+        layout: 'horizontal',
+        callback: () => {},
+      },
     }
   },
   computed: {
@@ -199,27 +249,30 @@ export default {
     onChange(delta) {
       this.fileModified = '*'
     },
-    start() {
-      axios
-        .post('http://localhost:3001/scripts/' + this.fileName + '/run', {})
-        .then((response) => {
-          // TODO: Start spinner
-          this.state = 'Connecting...'
-          this.scriptId = response.data
-          this.editor.setReadOnly(true)
-          this.subscription = this.cable.subscriptions.create(
-            { channel: 'RunningScriptChannel', id: response.data },
-            {
-              received: (data) => this.received(data),
-            }
-          )
-        })
-    },
-    go() {
-      axios.post(
-        'http://localhost:3001/running-script/' + this.scriptId + '/go',
-        {}
-      )
+    startOrGo() {
+      if (this.startOrGoText === 'Start') {
+        this.saveFile() // Save first or they'll be running old code
+        axios
+          .post('http://localhost:3001/scripts/' + this.fileName + '/run', {})
+          .then((response) => {
+            this.state = 'Connecting...'
+            this.startOrGoText = 'Go'
+            this.scriptId = response.data
+            this.editor.setReadOnly(true)
+            this.subscription = this.cable.subscriptions.create(
+              { channel: 'RunningScriptChannel', id: response.data },
+              {
+                received: (data) => this.received(data),
+              }
+            )
+          })
+      } else {
+        // Go
+        axios.post(
+          'http://localhost:3001/running-script/' + this.scriptId + '/go',
+          {}
+        )
+      }
     },
     pause() {
       axios.post(
@@ -278,13 +331,17 @@ export default {
               marker,
               'fullLine'
             )
-            console.log(this.marker)
           }
           break
         case 'output':
           this.messages.push({ '@timestamp': Date.now(), message: data.line })
           while (this.messages.length > this.maxArrayLength) {
             this.messages.shift()
+          }
+          // TODO: Better way to signal script completion?
+          if (data.line.includes('Script complete')) {
+            this.startOrGoText = 'Start'
+            this.editor.setReadOnly(false)
           }
           break
 
@@ -293,8 +350,117 @@ export default {
           break
 
         default:
-          console.log('Unexpected ActionCable message')
-          console.log(data)
+          // console.log('Unexpected ActionCable message')
+          // console.log(data)
+          break
+      }
+    },
+    promptDialogCallback(value) {
+      this.prompt.show = false
+      axios.post(
+        'http://localhost:3001/running-script/' + this.scriptId + '/prompt',
+        { method: this.prompt.method, answer: value }
+      )
+    },
+    handleScript(data) {
+      this.prompt.method = data.method // Set it here since all prompts use this
+      this.prompt.layout = 'horizontal' // Reset the layout since most are horizontal
+      switch (data.method) {
+        case 'ask_string':
+          // Reset values since this dialog can be re-used
+          this.ask.default = null
+          this.ask.answerRequired = true
+          this.ask.password = false
+          this.ask.question = data.args[0]
+          // If the second parameter is not true or false it indicates a default value
+          if (data.args[1] !== true && data.args[1] !== false) {
+            this.ask.default = data.args[1]
+          } else if (data.args[1] === true) {
+            // If the second parameter is true it means no value is required to be entered
+            this.ask.answerRequired = false
+          }
+          // The third parameter indicates a password textfield
+          if (data.args[2] === true) {
+            this.ask.password = true
+          }
+          this.ask.callback = (value) => {
+            this.ask.show = false // Close the dialog
+            axios.post(
+              'http://localhost:3001/running-script/' +
+                this.scriptId +
+                '/prompt',
+              { method: data.method, answer: value }
+            )
+          }
+          this.ask.show = true // Display the dialog
+          break
+        case 'prompt_dialog_box':
+          this.prompt.title = data.args[0]
+          this.prompt.message = data.args[1]
+          this.prompt.callback = this.promptDialogCallback
+          this.prompt.show = true
+          break
+        case 'prompt_for_hazardous':
+          this.prompt.title = 'Hazardous Command'
+          this.prompt.message =
+            'Warning: Command ' +
+            data.args[0] +
+            ' ' +
+            data.args[1] +
+            ' is Hazardous. '
+          if (data.args[2]) {
+            this.prompt.message += data.args[2] + ' '
+          }
+          this.prompt.message += 'Send?'
+          this.prompt.callback = this.promptDialogCallback
+          this.prompt.show = true
+          break
+        case 'prompt_to_continue':
+          this.prompt.title = 'Prompt'
+          this.prompt.message = data.args[0]
+          this.prompt.buttons = [
+            { text: 'Ok', value: 'Ok' },
+            { text: 'Cancel', value: 'Cancel' },
+          ]
+          this.prompt.callback = this.promptDialogCallback
+          this.prompt.show = true
+          break
+        case 'prompt_combo_box':
+          this.prompt.title = 'Prompt'
+          this.prompt.message = data.args[0]
+          this.prompt.buttons = []
+          data.args[1].forEach((v) => {
+            this.prompt.buttons.push({ text: v, value: v })
+          })
+          this.prompt.combo = true
+          this.prompt.layout = 'combo'
+          this.prompt.callback = this.promptDialogCallback
+          this.prompt.show = true
+          break
+        case 'prompt_message_box':
+        case 'prompt_vertical_message_box':
+          this.prompt.title = 'Prompt'
+          this.prompt.message = data.args[0]
+          this.prompt.buttons = []
+          data.args[1].forEach((v) => {
+            this.prompt.buttons.push({ text: v, value: v })
+          })
+          // If the last item is false it means they don't want a Cancel button
+          if (data.args[1][data.args[1].length - 1] === false) {
+            this.prompt.buttons.pop()
+          } else {
+            this.prompt.buttons.push({ text: 'Cancel', value: 'Cancel' })
+          }
+          if (data.method === 'prompt_vertical_message_box') {
+            this.prompt.layout = 'vertical'
+          }
+          this.prompt.callback = this.promptDialogCallback
+          this.prompt.show = true
+          break
+        default:
+          /* console.log(
+            'Unknown script method:' + data.method + ' with args:' + data.args
+          ) */
           break
       }
     },
@@ -302,6 +468,7 @@ export default {
       this.fileName = NEW_FILENAME
       this.editor.session.setValue('')
       this.fileModified = ''
+      this.disableControls = true
     },
     openFile() {
       this.fileOpen = true
@@ -311,6 +478,7 @@ export default {
       this.fileName = file.name
       this.editor.session.setValue(file.contents)
       this.fileModified = ''
+      this.disableControls = false
     },
     saveFile() {
       if (this.fileName === NEW_FILENAME) {
@@ -324,6 +492,7 @@ export default {
         )
         .then((response) => {
           this.fileModified = ''
+          this.disableControls = false
         })
     },
     saveAs() {
@@ -341,7 +510,7 @@ export default {
         axios
           .post('http://localhost:3001/scripts/' + this.fileName + '/delete')
           .then((response) => {
-            console.log(response)
+            // TODO: Notify user
           })
       }
     },
@@ -351,7 +520,7 @@ export default {
 
 <style scoped>
 #editorbox {
-  height: 100vh;
+  height: 50vh;
 }
 #editor {
   height: 100%;
