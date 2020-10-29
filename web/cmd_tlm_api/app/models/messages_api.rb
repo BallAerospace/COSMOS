@@ -9,9 +9,13 @@
 # attribution addendums as found in the LICENSE.txt
 
 require_relative 'topics_thread'
+require 'cosmos/utilities/authorization'
 
 class MessagesApi
-  def initialize(uuid, channel, history_count = 0, scope: nil)
+  include Cosmos::Authorization
+
+  def initialize(uuid, channel, history_count = 0, scope: nil, token: nil)
+    authorize(permission: 'system', scope: scope, token: token)
     if scope
       topics = ["#{scope}__cosmos_log_messages"]
     else

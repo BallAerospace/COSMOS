@@ -165,30 +165,30 @@ module Cosmos
       end
     end
 
-    def self.get(name:, scope: nil)
+    def self.get(name:, scope: nil, token: nil)
       interface_or_router = self.name.to_s.split("Model")[0].upcase
       if interface_or_router == 'INTERFACE'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name)
+        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name, scope: scope, token: token)
       else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", name: name)
+        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", name: name, scope: scope, token: token)
       end
     end
 
-    def self.names(scope: nil)
+    def self.names(scope: nil, token: nil)
       interface_or_router = self.name.to_s.split("Model")[0].upcase
       if interface_or_router == 'INTERFACE'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}")
+        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", scope: scope, token: token)
       else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}")
+        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", scope: scope, token: token)
       end
     end
 
-    def self.all(scope: nil)
+    def self.all(scope: nil, token: nil)
       interface_or_router = self.name.to_s.split("Model")[0].upcase
       if interface_or_router == 'INTERFACE'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}")
+        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", scope: scope, token: token)
       else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}")
+        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", scope: scope, token: token)
       end
     end
   end

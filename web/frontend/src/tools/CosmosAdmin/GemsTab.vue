@@ -16,9 +16,7 @@
       </v-col>
     </v-row>
     <v-list data-test="gemList">
-      <v-subheader class="mt-3">
-        Gems
-      </v-subheader>
+      <v-subheader class="mt-3"> Gems </v-subheader>
       <v-list-item v-for="(gem, i) in gems" :key="i">
         <v-list-item-content>
           <v-list-item-title v-text="gem"></v-list-item-title>
@@ -55,7 +53,7 @@ export default {
       gems: [],
       alert: '',
       alertType: 'success',
-      showAlert: false
+      showAlert: false,
     }
   },
   mounted() {
@@ -64,13 +62,13 @@ export default {
   methods: {
     update() {
       axios
-        .get('http://localhost:7777/admin/gems', {
-          params: { scope: 'DEFAULT', token: localStorage.getItem('token') }
+        .get('http://localhost:7777/gems', {
+          params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
         })
-        .then(response => {
+        .then((response) => {
           this.gems = response.data
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -86,8 +84,8 @@ export default {
         formData.append('scope', 'DEFAULT')
         formData.append('token', localStorage.getItem('token'))
         axios
-          .post('http://localhost:7777/admin/gems', formData)
-          .then(response => {
+          .post('http://localhost:7777/gems', formData)
+          .then((response) => {
             this.alert = 'Uploaded gem ' + this.file.name
             this.alertType = 'success'
             this.showAlert = true
@@ -96,7 +94,7 @@ export default {
             }, 5000)
             this.update()
           })
-          .catch(error => {
+          .catch((error) => {
             this.alert = error
             this.alertType = 'error'
             this.showAlert = true
@@ -115,14 +113,14 @@ export default {
     },
     deleteGem(gem) {
       axios
-        .delete('http://localhost:7777/admin/gems/0', {
+        .delete('http://localhost:7777/gems/0', {
           params: {
             gem: gem,
             scope: 'DEFAULT',
-            token: localStorage.getItem('token')
-          }
+            token: localStorage.getItem('token'),
+          },
         })
-        .then(response => {
+        .then((response) => {
           this.alert = 'Removed gem ' + gem
           this.alertType = 'success'
           this.showAlert = true
@@ -131,7 +129,7 @@ export default {
           }, 5000)
           this.update()
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -139,7 +137,7 @@ export default {
             this.showAlert = false
           }, 5000)
         })
-    }
-  }
+    },
+  },
 }
 </script>

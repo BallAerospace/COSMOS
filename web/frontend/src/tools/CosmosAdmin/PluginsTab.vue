@@ -16,9 +16,7 @@
       </v-col>
     </v-row>
     <v-list data-test="pluginList">
-      <v-subheader class="mt-3">
-        Plugins
-      </v-subheader>
+      <v-subheader class="mt-3"> Plugins </v-subheader>
       <v-list-item v-for="(plugin, i) in plugins" :key="i">
         <v-list-item-content>
           <v-list-item-title v-text="plugin"></v-list-item-title>
@@ -55,7 +53,7 @@ export default {
       plugins: [],
       alert: '',
       alertType: 'success',
-      showAlert: false
+      showAlert: false,
     }
   },
   mounted() {
@@ -64,11 +62,13 @@ export default {
   methods: {
     update() {
       axios
-        .get('http://localhost:7777/admin/plugins')
-        .then(response => {
+        .get('http://localhost:7777/plugins', {
+          params: { scope: 'DEFAULT' },
+        })
+        .then((response) => {
           this.plugins = response.data
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -82,8 +82,8 @@ export default {
         let formData = new FormData()
         formData.append('plugin', this.file, this.file.name)
         axios
-          .post('http://localhost:7777/admin/plugins', formData)
-          .then(response => {
+          .post('http://localhost:7777/plugins', formData)
+          .then((response) => {
             this.alert = 'Uploaded file ' + this.file.name
             this.alertType = 'success'
             this.showAlert = true
@@ -91,8 +91,9 @@ export default {
               this.showAlert = false
             }, 5000)
             this.update()
+            console.log(response.data)
           })
-          .catch(error => {
+          .catch((error) => {
             this.alert = error
             this.alertType = 'error'
             this.showAlert = true
@@ -111,10 +112,10 @@ export default {
     },
     deletePlugin(plugin) {
       axios
-        .delete('http://localhost:7777/admin/plugins/0', {
-          params: { plugin: plugin }
+        .delete('http://localhost:7777/plugins/0', {
+          params: { plugin: plugin },
         })
-        .then(response => {
+        .then((response) => {
           this.alert = 'Removed plugin ' + plugin
           this.alertType = 'success'
           this.showAlert = true
@@ -123,7 +124,7 @@ export default {
           }, 5000)
           this.update()
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -131,7 +132,7 @@ export default {
             this.showAlert = false
           }, 5000)
         })
-    }
-  }
+    },
+  },
 }
 </script>

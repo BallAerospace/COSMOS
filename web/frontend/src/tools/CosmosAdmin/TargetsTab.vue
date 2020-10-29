@@ -2,17 +2,14 @@
   <div>
     <v-list data-test="targetList">
       <v-subheader class="mt-3">Targets</v-subheader>
-      <v-list-item v-for="(target, i) in targets" :key="i">
+      <v-list-item v-for="target in targets" :key="target">
         <v-list-item-content>
-          <v-list-item-title v-text="target.name"></v-list-item-title>
+          <v-list-item-title v-text="target"></v-list-item-title>
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon
-                @click="deleteTarget(target.name)"
-                v-bind="attrs"
-                v-on="on"
+              <v-icon @click="deleteTarget(target)" v-bind="attrs" v-on="on"
                 >mdi-delete</v-icon
               >
             </template>
@@ -40,7 +37,7 @@ export default {
       targets: [],
       alert: '',
       alertType: 'success',
-      showAlert: false
+      showAlert: false,
     }
   },
   mounted() {
@@ -49,13 +46,13 @@ export default {
   methods: {
     update() {
       axios
-        .get('http://localhost:7777/admin/targets', {
-          params: { scope: 'DEFAULT' }
+        .get('http://localhost:7777/targets', {
+          params: { scope: 'DEFAULT' },
         })
-        .then(response => {
+        .then((response) => {
           this.targets = response.data
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -67,10 +64,10 @@ export default {
     add() {},
     deleteTarget(name) {
       axios
-        .delete('http://localhost:7777/admin/targets/0', {
-          params: { name: name, scope: 'DEFAULT' }
+        .delete('http://localhost:7777/targets/0', {
+          params: { name: name, scope: 'DEFAULT' },
         })
-        .then(response => {
+        .then((response) => {
           this.alert = 'Removed target ' + name
           this.alertType = 'success'
           this.showAlert = true
@@ -79,7 +76,7 @@ export default {
           }, 5000)
           this.update()
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -87,7 +84,7 @@ export default {
             this.showAlert = false
           }, 5000)
         })
-    }
-  }
+    },
+  },
 }
 </script>

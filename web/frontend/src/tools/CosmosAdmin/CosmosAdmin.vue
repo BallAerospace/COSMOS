@@ -39,7 +39,7 @@ export default {
     TargetsTab,
     InterfacesTab,
     RoutersTab,
-    MicroservicesTab
+    MicroservicesTab,
   },
   data() {
     return {
@@ -52,10 +52,10 @@ export default {
         { name: 'Microservices', component: 'MicroservicesTab' },
         { name: 'Tools', component: 'ToolsTab' },
         { name: 'Gems', component: 'GemsTab' },
-        { name: 'Scopes', component: 'ScopesTab' }
-      ]
+        { name: 'Scopes', component: 'ScopesTab' },
+      ],
     }
   },
-  methods: {}
+  methods: {},
 }
 </script>

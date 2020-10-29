@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row no-gutters align="center" style="padding-left:10px;">
+    <v-row no-gutters align="center" style="padding-left: 10px">
       <v-col cols="4">
         <v-text-field v-model="scope" label="Scope Name"></v-text-field>
       </v-col>
@@ -12,9 +12,7 @@
       </v-col>
     </v-row>
     <v-list data-test="scopeList">
-      <v-subheader class="mt-3">
-        Scopes
-      </v-subheader>
+      <v-subheader class="mt-3"> Scopes </v-subheader>
       <v-list-item v-for="(scope, i) in scopes" :key="i">
         <v-list-item-content>
           <v-list-item-title v-text="scope"></v-list-item-title>
@@ -51,7 +49,7 @@ export default {
       scopes: [],
       alert: '',
       alertType: 'success',
-      showAlert: false
+      showAlert: false,
     }
   },
   mounted() {
@@ -60,11 +58,13 @@ export default {
   methods: {
     update() {
       axios
-        .get('http://localhost:7777/admin/scopes')
-        .then(response => {
+        .get('http://localhost:7777/scopes', {
+          params: { scope: 'DEFAULT' },
+        })
+        .then((response) => {
           this.scopes = response.data
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -76,10 +76,10 @@ export default {
     add() {
       if (this.scope !== null) {
         axios
-          .post('http://localhost:7777/admin/scopes', {
-            scope: this.scope
+          .post('http://localhost:7777/scopes', {
+            scope: this.scope,
           })
-          .then(response => {
+          .then((response) => {
             this.alert = 'Added scope ' + this.scope
             this.alertType = 'success'
             this.showAlert = true
@@ -88,7 +88,7 @@ export default {
             }, 5000)
             this.update()
           })
-          .catch(error => {
+          .catch((error) => {
             this.alert = error
             this.alertType = 'error'
             this.showAlert = true
@@ -107,10 +107,10 @@ export default {
     },
     deleteScope(scope) {
       axios
-        .delete('http://localhost:7777/admin/scopes/0', {
-          params: { scope: scope }
+        .delete('http://localhost:7777/scopes/0', {
+          params: { scope: scope },
         })
-        .then(response => {
+        .then((response) => {
           this.alert = 'Removed scope ' + scope
           this.alertType = 'success'
           this.showAlert = true
@@ -119,7 +119,7 @@ export default {
           }, 5000)
           this.update()
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -127,7 +127,7 @@ export default {
             this.showAlert = false
           }, 5000)
         })
-    }
-  }
+    },
+  },
 }
 </script>

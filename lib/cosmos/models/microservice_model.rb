@@ -56,16 +56,16 @@ module Cosmos
       self.new(PRIMARY_KEY, **json)
     end
 
-    def self.get(name:, scope: nil)
-      super(PRIMARY_KEY, name: name)
+    def self.get(name:, scope: nil, token: nil)
+      super(PRIMARY_KEY, name: name, scope: scope, token: token)
     end
 
-    def self.names(scope: nil)
-      super(PRIMARY_KEY)
+    def self.names(scope: nil, token: nil)
+      super(PRIMARY_KEY, scope: scope, token: token)
     end
 
-    def self.all
-      super(PRIMARY_KEY, scope: nil)
+    def self.all(scope: nil, token: nil)
+      super(PRIMARY_KEY, scope: scope, token: token)
     end
   end
 end

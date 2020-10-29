@@ -2,7 +2,7 @@ class MessagesChannel < ApplicationCable::Channel
   def subscribed
     stream_from uuid
     @broadcasters ||= {}
-    @broadcasters[uuid] = MessagesApi.new(uuid, self, params['history_count'], scope: params['scope'])
+    @broadcasters[uuid] = MessagesApi.new(uuid, self, params['history_count'], scope: params['scope'], token: params['token'])
   end
 
   def unsubscribed

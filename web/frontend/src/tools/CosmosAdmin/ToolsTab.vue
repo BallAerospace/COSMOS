@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-row no-gutters align="center" style="padding-left:10px;">
+    <v-row no-gutters align="center" style="padding-left: 10px">
       <v-col cols="3">
         <v-text-field v-model="name" label="Tool Name"></v-text-field>
       </v-col>
@@ -19,14 +19,14 @@
     </v-row>
     <v-list data-test="toolList">
       <v-subheader class="mt-3">Tools</v-subheader>
-      <v-list-item v-for="(tool, i) in tools" :key="i">
+      <v-list-item v-for="tool in tools" :key="tool">
         <v-list-item-content>
-          <v-list-item-title v-text="tool.name"></v-list-item-title>
+          <v-list-item-title v-text="tool"></v-list-item-title>
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deleteTool(tool.name)" v-bind="attrs" v-on="on"
+              <v-icon @click="deleteTool(tool)" v-bind="attrs" v-on="on"
                 >mdi-delete</v-icon
               >
             </template>
@@ -57,7 +57,7 @@ export default {
       tools: [],
       alert: '',
       alertType: 'success',
-      showAlert: false
+      showAlert: false,
     }
   },
   mounted() {
@@ -66,13 +66,13 @@ export default {
   methods: {
     update() {
       axios
-        .get('http://localhost:7777/admin/tools', {
-          params: { scope: 'DEFAULT' }
+        .get('http://localhost:7777/tools', {
+          params: { scope: 'DEFAULT' },
         })
-        .then(response => {
+        .then((response) => {
           this.tools = response.data
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -85,12 +85,12 @@ export default {
       if (this.name !== null && this.icon !== null && this.url !== null) {
         let data = { icon: this.icon, url: this.url }
         axios
-          .post('http://localhost:7777/admin/tools', {
+          .post('http://localhost:7777/tools', {
             name: this.name,
             data: data,
-            scope: 'DEFAULT'
+            scope: 'DEFAULT',
           })
-          .then(response => {
+          .then((response) => {
             this.alert = 'Added tool ' + this.name
             this.alertType = 'success'
             this.showAlert = true
@@ -99,7 +99,7 @@ export default {
             }, 5000)
             this.update()
           })
-          .catch(error => {
+          .catch((error) => {
             this.alert = error
             this.alertType = 'error'
             this.showAlert = true
@@ -118,10 +118,10 @@ export default {
     },
     deleteTool(name) {
       axios
-        .delete('http://localhost:7777/admin/tools/0', {
-          params: { name: name, scope: 'DEFAULT' }
+        .delete('http://localhost:7777/tools/0', {
+          params: { name: name, scope: 'DEFAULT' },
         })
-        .then(response => {
+        .then((response) => {
           this.alert = 'Removed tool ' + name
           this.alertType = 'success'
           this.showAlert = true
@@ -130,7 +130,7 @@ export default {
           }, 5000)
           this.update()
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -138,7 +138,7 @@ export default {
             this.showAlert = false
           }, 5000)
         })
-    }
-  }
+    },
+  },
 }
 </script>
