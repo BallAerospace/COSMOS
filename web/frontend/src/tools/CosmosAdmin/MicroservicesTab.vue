@@ -2,15 +2,15 @@
   <div>
     <v-list data-test="microserviceList">
       <v-subheader class="mt-3">Microservices</v-subheader>
-      <v-list-item v-for="(microservice, i) in microservices" :key="i">
+      <v-list-item v-for="microservice in microservices" :key="microservice">
         <v-list-item-content>
-          <v-list-item-title v-text="microservice.name"></v-list-item-title>
+          <v-list-item-title v-text="microservice"></v-list-item-title>
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-icon
-                @click="deleteMicroservice(microservice.name)"
+                @click="deleteMicroservice(microservice)"
                 v-bind="attrs"
                 v-on="on"
                 >mdi-delete</v-icon
@@ -37,10 +37,10 @@ export default {
   components: {},
   data() {
     return {
-      microservives: [],
+      microservices: [],
       alert: '',
       alertType: 'success',
-      showAlert: false
+      showAlert: false,
     }
   },
   mounted() {
@@ -49,13 +49,13 @@ export default {
   methods: {
     update() {
       axios
-        .get('http://localhost:7777/admin/microservices', {
-          params: { scope: 'DEFAULT' }
+        .get('http://localhost:7777/microservices', {
+          params: { scope: 'DEFAULT' },
         })
-        .then(response => {
+        .then((response) => {
           this.microservices = response.data
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -67,10 +67,10 @@ export default {
     add() {},
     deleteMicroservice(name) {
       axios
-        .delete('http://localhost:7777/admin/microservices/0', {
-          params: { name: name, scope: 'DEFAULT' }
+        .delete('http://localhost:7777/microservices/0', {
+          params: { name: name, scope: 'DEFAULT' },
         })
-        .then(response => {
+        .then((response) => {
           this.alert = 'Removed microservice ' + name
           this.alertType = 'success'
           this.showAlert = true
@@ -79,7 +79,7 @@ export default {
           }, 5000)
           this.update()
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -87,7 +87,7 @@ export default {
             this.showAlert = false
           }, 5000)
         })
-    }
-  }
+    },
+  },
 }
 </script>

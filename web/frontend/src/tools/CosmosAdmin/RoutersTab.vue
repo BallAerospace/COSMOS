@@ -40,7 +40,7 @@ export default {
       routers: [],
       alert: '',
       alertType: 'success',
-      showAlert: false
+      showAlert: false,
     }
   },
   mounted() {
@@ -49,13 +49,13 @@ export default {
   methods: {
     update() {
       axios
-        .get('http://localhost:7777/admin/routers', {
-          params: { scope: 'DEFAULT' }
+        .get('http://localhost:7777/routers', {
+          params: { scope: 'DEFAULT' },
         })
-        .then(response => {
+        .then((response) => {
           this.routers = response.data
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -67,10 +67,10 @@ export default {
     add() {},
     deleteInterface(name) {
       axios
-        .delete('http://localhost:7777/admin/routers/0', {
-          params: { name: name, scope: 'DEFAULT' }
+        .delete('http://localhost:7777/routers/0', {
+          params: { name: name, scope: 'DEFAULT' },
         })
-        .then(response => {
+        .then((response) => {
           this.alert = 'Removed router ' + name
           this.alertType = 'success'
           this.showAlert = true
@@ -79,7 +79,7 @@ export default {
           }, 5000)
           this.update()
         })
-        .catch(error => {
+        .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -87,7 +87,7 @@ export default {
             this.showAlert = false
           }, 5000)
         })
-    }
-  }
+    },
+  },
 }
 </script>

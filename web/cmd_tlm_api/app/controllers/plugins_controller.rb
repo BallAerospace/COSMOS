@@ -103,12 +103,13 @@ end # module Cosmos
 class PluginsController < ApplicationController
   # List the installed plugins
   def index
-    # TODO handle scopes
-    render :json => Cosmos::Store.instance.hkeys("DEFAULT__cosmos_plugins")
+    authorize(permission: 'system', scope: params[:scope], token: params[:token])
+    render :json => Cosmos::Store.instance.hkeys("#{params[:scope]}__cosmos_plugins")
   end
 
   # Add a new plugin
   def create
+    authorize(permission: 'admin', scope: params[:scope], token: params[:token])
     file = params[:plugin]
     if file
       temp_dir = Dir.mktmpdir
@@ -126,6 +127,7 @@ class PluginsController < ApplicationController
 
   # Remove a plugin
   def destroy
+    authorize(permission: 'admin', scope: params[:scope], token: params[:token])
     plugin = Cosmos::Store.instance.hget("DEFAULT__cosmos_plugins", params[:plugin])
     if plugin
       # Remove targets, tools, interfaces, routers, microservices related to this plugin

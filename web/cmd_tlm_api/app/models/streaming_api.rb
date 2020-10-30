@@ -17,6 +17,7 @@ require 'aws-sdk-s3'
 Cosmos.require_file 'cosmos/utilities/store'
 Cosmos.require_file 'cosmos/packets/json_packet'
 Cosmos.require_file 'cosmos/packet_logs/packet_log_reader'
+Cosmos.require_file 'cosmos/utilities/authorization'
 
 Aws.config.update(
   endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000',
@@ -500,8 +501,11 @@ class RealtimeStreamingThread < StreamingThread
 end
 
 class StreamingApi
+  include Cosmos::Authorization
+
   # Helper class to store information about the streaming item
   class StreamingItem
+    include Authorization
     attr_accessor :key
     attr_accessor :cmd_or_tlm
     attr_accessor :target_name
@@ -514,7 +518,7 @@ class StreamingApi
     attr_accessor :topic
     attr_accessor :thread_id
 
-    def initialize(key, start_time, end_time, thread_id = nil, scope:)
+    def initialize(key, start_time, end_time, thread_id = nil, scope:, token: nil)
       @key = key
       key_split = key.split('__')
       @cmd_or_tlm = key_split[0].to_s.intern
@@ -525,6 +529,7 @@ class StreamingApi
       @value_type = key_split[4].to_s.intern
       @start_time = start_time
       @end_time = end_time
+      authorize(permission: @cmd_or_tlm.to_s.downcase, target_name: @target_name, packet_name: @packet_name, item_name: @item_name, scope: scope, token: token)
       type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
       @topic = "#{@scope}__#{type}__#{@target_name}__#{@packet_name}"
       @offset = nil
@@ -595,7 +600,8 @@ class StreamingApi
     end
   end
 
-  def initialize(uuid, channel)
+  def initialize(uuid, channel, scope: nil, token: nil)
+    authorize(permission: 'tlm', scope: scope, token: token)
     @thread_id = 1
     @uuid = uuid
     @channel = channel
@@ -612,10 +618,11 @@ class StreamingApi
       end_time = nil
       end_time = data["end_time"].to_i if data["end_time"]
       scope = data["scope"]
+      token = data["token"]
       items = []
       items_by_topic = {}
       data["items"].each do |item_key|
-        item = StreamingItem.new(item_key, start_time, end_time, scope: scope)
+        item = StreamingItem.new(item_key, start_time, end_time, scope: scope, token: token)
         items_by_topic[item.topic] ||= []
         items_by_topic[item.topic] << item
         items << item

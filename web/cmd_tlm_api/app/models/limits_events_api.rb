@@ -9,9 +9,13 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'topics_thread'
+require 'cosmos/utilities/authorization'
 
 class LimitsEventsApi
-  def initialize(uuid, channel, history_count = 0, scope:)
+  include Cosmos::Authorization
+
+  def initialize(uuid, channel, history_count = 0, scope:, token:)
+    authorize(permission: 'system', scope: scope, token: token)
     topics = ["#{scope}__cosmos_limits_events"]
     @thread = TopicsThread.new(topics, channel, history_count)
     @thread.start

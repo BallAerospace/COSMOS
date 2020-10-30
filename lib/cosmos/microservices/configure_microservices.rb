@@ -21,7 +21,8 @@ require 'cosmos/models/scope_model'
 module Cosmos
   class ConfigureMicroservices
     def initialize(system_config, cts_config, scope:, url: $redis_url, logger: Logger.new(Logger::INFO, true))
-      ScopeModel.new(name: 'DEFAULT').create
+      # TODO: What to do with token here, is DEFAULT a special case?
+      ScopeModel.new(name: 'DEFAULT').create(scope: 'DEFAULT', token: nil)
 
       target_list = []
       target_names = []
