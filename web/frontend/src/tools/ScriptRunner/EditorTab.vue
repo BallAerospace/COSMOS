@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container id="header">
+    <v-container id="header" class="pane">
       <v-row no-gutters>
         <v-col cols="4">
           <v-btn
@@ -53,37 +53,40 @@
         </v-col>
       </v-row>
     </v-container>
-    <div id="editorbox">
-      <pre id="editor"></pre>
-    </div>
-    <div id="messages" class="ma-2" ref="messagesDiv">
-      <v-card>
-        <v-card-title>
-          Log Messages
-          <v-spacer></v-spacer>
-          <v-text-field
-            v-model="search"
-            append-icon="mdi-magnify"
-            label="Search"
-            single-line
-            hide-details
-            data-test="search-output-messages"
-          ></v-text-field>
-        </v-card-title>
-        <v-data-table
-          :headers="headers"
-          :items="messages"
-          :search="search"
-          calculate-widths
-          disable-pagination
-          hide-default-footer
-          multi-sort
-          dense
-          height="45vh"
-          data-test="output-messages"
-        ></v-data-table>
-      </v-card>
-    </div>
+    <Multipane class="horizontal-panes" layout="horizontal">
+      <div id="editorbox" class="pane">
+        <pre id="editor"></pre>
+      </div>
+      <MultipaneResizer><hr /></MultipaneResizer>
+      <div id="messages" class="ma-2 pane" ref="messagesDiv">
+        <v-card>
+          <v-card-title>
+            Log Messages
+            <v-spacer></v-spacer>
+            <v-text-field
+              v-model="search"
+              append-icon="mdi-magnify"
+              label="Search"
+              single-line
+              hide-details
+              data-test="search-output-messages"
+            ></v-text-field>
+          </v-card-title>
+          <v-data-table
+            :headers="headers"
+            :items="messages"
+            :search="search"
+            calculate-widths
+            disable-pagination
+            hide-default-footer
+            multi-sort
+            dense
+            height="45vh"
+            data-test="output-messages"
+          ></v-data-table>
+        </v-card>
+      </div>
+    </Multipane>
     <AskDialog
       v-if="ask.show"
       :question="ask.question"
@@ -100,7 +103,6 @@
       :layout="prompt.layout"
       @submit="prompt.callback"
     ></PromptDialog>
-
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
     <FileOpenDialog
       v-if="fileOpen"
@@ -134,6 +136,7 @@ import axios from 'axios'
 import * as ace from 'brace'
 import 'brace/mode/ruby'
 import 'brace/theme/twilight'
+import { Multipane, MultipaneResizer } from 'vue-multipane'
 import FileOpenDialog from '@/components/FileOpenDialog'
 import FileSaveAsDialog from '@/components/FileSaveAsDialog'
 import ActionCable from 'actioncable'
@@ -148,6 +151,8 @@ export default {
     FileSaveAsDialog,
     AskDialog,
     PromptDialog,
+    Multipane,
+    MultipaneResizer,
   },
   data() {
     return {
@@ -527,6 +532,15 @@ export default {
   width: 100%;
   position: relative;
   font-size: 16px;
+}
+hr {
+  pointer-events: none;
+  position: relative;
+  top: 7px;
+  background-color: grey;
+  height: 3px;
+  width: 5%;
+  margin: auto;
 }
 </style>
 <style>
