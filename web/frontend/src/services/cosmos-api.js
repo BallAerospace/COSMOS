@@ -23,8 +23,8 @@ export class CosmosApi {
         id: this.id,
         keyword_params: {
           scope: 'DEFAULT',
-          token: localStorage.getItem('token')
-        }
+          token: localStorage.getItem('token'),
+        },
       })
       // var data = response.data
       // if (data.error) {
@@ -206,7 +206,7 @@ export class CosmosApi {
     const data = await this.exec('get_tlm_packet', [
       target_name,
       packet_name,
-      value_type
+      value_type,
     ])
     var len = data.length
     var converted = null
@@ -283,7 +283,7 @@ export class CosmosApi {
   async get_cmd_param_list(target_name, command_name) {
     const data = await this.exec('get_cmd_param_list', [
       target_name,
-      command_name
+      command_name,
     ])
     var len = data.length
     var converted = null
@@ -307,7 +307,7 @@ export class CosmosApi {
       target_name,
       packet_name,
       parameter_name,
-      value_type
+      value_type,
     ])
   }
 

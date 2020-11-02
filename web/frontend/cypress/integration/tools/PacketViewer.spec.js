@@ -9,9 +9,7 @@ describe('PacketViewer', () => {
       // Perhaps there's an easier way but this creates an alias to the value
       // Which we can lookup later using cy.get(@itemValue)
       .within(() => {
-        cy.get('input')
-          .invoke('val')
-          .as('itemValue')
+        cy.get('input').invoke('val').as('itemValue')
       })
   }
 
@@ -43,7 +41,7 @@ describe('PacketViewer', () => {
     cy.server()
     cy.route('POST', '/api').as('api')
     cy.wait(2000) // Delay a little to ensure we're getting polled requests
-    cy.wait('@api').should(xhr => {
+    cy.wait('@api').should((xhr) => {
       expect(xhr.request.body.method).to.eql('get_tlm_packet')
       expect(xhr.status, 'successful POST').to.equal(200)
     })
@@ -71,7 +69,7 @@ describe('PacketViewer', () => {
   })
   it('stops posting to the api after closing', () => {
     // Override the fail handler to catch the expected fail
-    Cypress.on('fail', error => {
+    Cypress.on('fail', (error) => {
       // Expect a No request error message once the API requests stop
       expect(error.message).to.include('No request ever occurred.')
       return false
@@ -86,8 +84,8 @@ describe('PacketViewer', () => {
     cy.server()
     cy.route('POST', '/api').as('api')
     cy.wait('@api', {
-      requestTimeout: 1000
-    }).then(xhr => {
+      requestTimeout: 1000,
+    }).then((xhr) => {
       // If an xhr request is made this will fail the test which we want
       assert.isNull(xhr.response.body)
     })
@@ -96,31 +94,27 @@ describe('PacketViewer', () => {
   //
   // Test the File menu
   //
-  it('changes the polling rate', function() {
+  it('changes the polling rate', function () {
     cy.visit('/packet-viewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.contains('TEMP1')
-    cy.get('.v-toolbar')
-      .contains('File')
-      .click()
+    cy.get('.v-toolbar').contains('File').click()
     cy.contains('Options').click()
     cy.get('.v-dialog').within(() => {
-      cy.get('input')
-        .clear()
-        .type('5000')
+      cy.get('input').clear().type('5000')
     })
     cy.get('.v-dialog').type('{esc}')
     cy.wait(1000)
     aliasItemValue('TEMP1')
-    cy.get('@itemValue').then(value => {
+    cy.get('@itemValue').then((value) => {
       cy.wait(3000)
       aliasItemValue('TEMP1')
-      cy.get('@itemValue').should($val => {
+      cy.get('@itemValue').should(($val) => {
         expect($val).to.eq(value)
       })
       cy.wait(3000)
       aliasItemValue('TEMP1')
-      cy.get('@itemValue').then($val => {
+      cy.get('@itemValue').then(($val) => {
         expect($val).to.not.eq(value)
       })
     })
@@ -129,81 +123,64 @@ describe('PacketViewer', () => {
   //
   // Test the View menu
   //
-  it('displays formatted items with units by default', function() {
+  it('displays formatted items with units by default', function () {
     cy.visit('/packet-viewer/INST/HEALTH_STATUS')
     cy.hideNav()
     // Check for exactly 3 decimal points followed by units
     matchItem('TEMP1', /^-?\d+\.\d{3}\s\S$/)
   })
-  it('displays formatted items with units', function() {
+  it('displays formatted items with units', function () {
     cy.visit('/packet-viewer/INST/HEALTH_STATUS')
     cy.hideNav()
-    cy.get('.v-toolbar')
-      .contains('View')
-      .click()
+    cy.get('.v-toolbar').contains('View').click()
     cy.contains(/^Formatted Items with Units$/).click()
     // Check for exactly 3 decimal points followed by units
     matchItem('TEMP1', /^-?\d+\.\d{3}\s\S$/)
   })
-  it('displays raw items', function() {
+  it('displays raw items', function () {
     cy.visit('/packet-viewer/INST/HEALTH_STATUS')
     cy.hideNav()
-    cy.get('.v-toolbar')
-      .contains('View')
-      .click()
+    cy.get('.v-toolbar').contains('View').click()
     cy.contains('Raw').click()
     // // Check for a raw number 1 to 99999
     matchItem('TEMP1', /^\d{1,5}$/)
   })
-  it('displays converted items', function() {
+  it('displays converted items', function () {
     cy.visit('/packet-viewer/INST/HEALTH_STATUS')
     cy.hideNav()
-    cy.get('.v-toolbar')
-      .contains('View')
-      .click()
+    cy.get('.v-toolbar').contains('View').click()
     cy.contains('Converted').click()
     // Check for unformatted decimal points (4+)
     matchItem('TEMP1', /^-?\d+\.\d{4,}$/)
   })
-  it('displays formatted items', function() {
+  it('displays formatted items', function () {
     cy.visit('/packet-viewer/INST/HEALTH_STATUS')
     cy.hideNav()
-    cy.get('.v-toolbar')
-      .contains('View')
-      .click()
+    cy.get('.v-toolbar').contains('View').click()
     cy.contains(/^Formatted Items$/).click()
     // Check for exactly 3 decimal points
     matchItem('TEMP1', /^-?\d+\.\d{3}$/)
   })
-  it('hides ignored items', function() {
+  it('hides ignored items', function () {
     cy.visit('/packet-viewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.contains('CCSDSVER').should('exist')
-    cy.get('.v-toolbar')
-      .contains('View')
-      .click()
+    cy.get('.v-toolbar').contains('View').click()
     cy.contains(/^Hide Ignored/).click()
     cy.contains('CCSDSVER').should('not.exist')
-    cy.get('.v-toolbar')
-      .contains('View')
-      .click()
+    cy.get('.v-toolbar').contains('View').click()
     cy.contains(/^Hide Ignored/).click()
     cy.contains('CCSDSVER').should('exist')
   })
-  it('displays derived last', function() {
+  it('displays derived last', function () {
     cy.visit('/packet-viewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.get('tbody>tr')
       .eq(0)
       .should('contain', '0')
       .and('contain', 'PACKET_TIMESECONDS')
-    cy.get('.v-toolbar')
-      .contains('View')
-      .click()
+    cy.get('.v-toolbar').contains('View').click()
     cy.contains(/^Display Derived/).click()
-    cy.get('tbody>tr')
-      .eq(0)
-      .should('contain', '0')
-      .and('contain', 'CCSDSVER')
+    cy.get('tbody>tr').eq(0).should('contain', '0').and('contain', 'CCSDSVER')
   })
 })

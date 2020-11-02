@@ -16,8 +16,8 @@ import AppFooter from '@/AppFooter'
 
 export default {
   components: {
-    AppFooter
-  }
+    AppFooter,
+  },
 }
 </script>
 

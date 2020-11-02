@@ -14,8 +14,8 @@ export default {
   methods: {
     toggleTheme() {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark
-    }
-  }
+    },
+  },
 }
 </script>
 

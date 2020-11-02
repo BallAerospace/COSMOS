@@ -7,16 +7,16 @@ describe('ValueWidget', () => {
     options = {
       propsData: {
         value: null,
-        limitsState: null
+        limitsState: null,
       },
       mocks: {
         $store: {
           dispatch: () => 0,
           state: {
-            tlmViewerValues: [[], [], [], '']
-          }
-        }
-      }
+            tlmViewerValues: [[], [], [], ''],
+          },
+        },
+      },
     }
   })
 
@@ -52,7 +52,7 @@ describe('ValueWidget', () => {
       { key: 'BLUE', value: 'cosmos-blue' },
       { key: 'STALE', value: 'cosmos-purple' },
       // TODO: Make this work with theme
-      { key: 'InvalidState', value: 'cosmos-white' }
+      { key: 'InvalidState', value: 'cosmos-white' },
     ]
 
     var value = 1
@@ -61,7 +61,7 @@ describe('ValueWidget', () => {
         [value],
         [state.key],
         [],
-        ''
+        '',
       ]
       await wrapper.vm.$nextTick()
       expect(wrapper.classes()).toContain(state.value)

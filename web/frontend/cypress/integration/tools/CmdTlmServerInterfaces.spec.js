@@ -50,7 +50,7 @@ describe('CmdTlmServer Interfaces', () => {
       .children()
       .eq(2)
       .invoke('text')
-      .then(connection => {
+      .then((connection) => {
         // Check for DISCONNECTED and if so click connect
         if (connection === 'DISCONNECTED') {
           cy.get('[data-test=interfaces-table]')

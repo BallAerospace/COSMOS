@@ -8,7 +8,7 @@ import TlmGrapher from '@/tools/TlmGrapher/TlmGrapher'
 export default {
   name: 'TlmGrapherView',
   components: {
-    TlmGrapher
-  }
+    TlmGrapher,
+  },
 }
 </script>

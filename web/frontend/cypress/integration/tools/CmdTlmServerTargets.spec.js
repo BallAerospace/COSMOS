@@ -2,9 +2,7 @@ describe('CmdTlmServer Targets', () => {
   it('displays the list of targets', () => {
     cy.visit('/cmd-tlm-server')
     cy.hideNav()
-    cy.get('.v-tab')
-      .contains('Targets')
-      .click()
+    cy.get('.v-tab').contains('Targets').click()
     cy.get('[data-test=targets-table]', { timeout: 10000 }).contains('INST')
     cy.get('[data-test=targets-table]').contains('INST2')
     cy.get('[data-test=targets-table]').contains('EXAMPLE')
@@ -21,34 +19,28 @@ describe('CmdTlmServer Targets', () => {
   it('displays the command count', () => {
     cy.visit('/cmd-tlm-server')
     cy.hideNav()
-    cy.get('.v-tab')
-      .contains('Targets')
-      .click()
+    cy.get('.v-tab').contains('Targets').click()
     cy.get('[data-test=targets-table]', { timeout: 10000 })
       .contains('INST2_INT')
       .parent()
       .children()
       .eq(2)
       .invoke('text')
-      .then(cmdCnt => {
+      .then((cmdCnt) => {
         cy.visit('/command-sender/INST2/ABORT')
         cy.hideNav()
         cy.contains('Aborts a collect')
-        cy.get('button')
-          .contains('Send')
-          .click()
+        cy.get('button').contains('Send').click()
         cy.visit('/cmd-tlm-server')
         cy.hideNav()
-        cy.get('.v-tab')
-          .contains('Targets')
-          .click()
+        cy.get('.v-tab').contains('Targets').click()
         cy.get('[data-test=targets-table]')
           .contains('INST2_INT')
           .parent()
           .children()
           .eq(2)
           .invoke('text')
-          .then(cmdCnt2 => {
+          .then((cmdCnt2) => {
             expect(parseInt(cmdCnt2)).to.eq(parseInt(cmdCnt) + 1)
           })
       })
@@ -56,16 +48,14 @@ describe('CmdTlmServer Targets', () => {
   it('displays the telemetry count', () => {
     cy.visit('/cmd-tlm-server')
     cy.hideNav()
-    cy.get('.v-tab')
-      .contains('Targets')
-      .click()
+    cy.get('.v-tab').contains('Targets').click()
     cy.get('[data-test=targets-table]', { timeout: 10000 })
       .contains('INST_INT')
       .parent()
       .children()
       .eq(3)
       .invoke('text')
-      .then(tlmCnt => {
+      .then((tlmCnt) => {
         cy.wait(1500)
         cy.get('[data-test=targets-table]')
           .contains('INST_INT')
@@ -73,7 +63,7 @@ describe('CmdTlmServer Targets', () => {
           .children()
           .eq(3)
           .invoke('text')
-          .then(tlmCnt2 => {
+          .then((tlmCnt2) => {
             expect(tlmCnt2).to.not.eq(tlmCnt)
           })
       })

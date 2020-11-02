@@ -10,8 +10,8 @@ describe('AppNav', () => {
         $route: {
           meta: {
             title: 'title',
-            icon: 'icon'
-          }
+            icon: 'icon',
+          },
         },
         $router: {
           options: {
@@ -21,27 +21,27 @@ describe('AppNav', () => {
                 path: '/route0-path',
                 meta: {
                   title: 'Route0Title',
-                  icon: 'Route0Icon'
-                }
+                  icon: 'Route0Icon',
+                },
               },
               {
                 name: 'Route1Name',
                 path: '/route1-path',
                 meta: {
                   title: 'Route1Title',
-                  icon: 'Route1Icon'
-                }
-              }
-            ]
-          }
-        }
+                  icon: 'Route1Icon',
+                },
+              },
+            ],
+          },
+        },
       },
-      stubs: ['rux-clock', 'router-link', 'router-view']
+      stubs: ['rux-clock', 'router-link', 'router-view'],
     }
     vuetifyOptions = {
       breakpoint: {
-        mobileBreakpoint: 0
-      }
+        mobileBreakpoint: 0,
+      },
     }
   })
   it('shows links based on routes', () => {

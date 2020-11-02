@@ -10,7 +10,7 @@ import PacketViewer from '@/tools/PacketViewer/PacketViewer'
 export default {
   name: 'PacketViewerView',
   components: {
-    PacketViewer
-  }
+    PacketViewer,
+  },
 }
 </script>

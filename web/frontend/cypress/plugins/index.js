@@ -39,7 +39,7 @@ module.exports = (on, config) => {
 
     if (browser.family === 'chromium' && browser.name !== 'electron') {
       options.preferences.default['download'] = {
-        default_directory: downloadDirectory
+        default_directory: downloadDirectory,
       }
       return options
     }

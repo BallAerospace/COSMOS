@@ -9,7 +9,7 @@ import CmdTlmServer from '@/tools/CmdTlmServer/CmdTlmServer'
 export default {
   name: 'CmdTlmServerView',
   components: {
-    CmdTlmServer
-  }
+    CmdTlmServer,
+  },
 }
 </script>

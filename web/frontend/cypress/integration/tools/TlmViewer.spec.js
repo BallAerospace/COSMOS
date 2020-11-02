@@ -8,7 +8,7 @@ describe('TlmViewer', () => {
     cy.chooseVSelect('Select Screen', screen)
     cy.contains('Show Screen').click()
     cy.contains(target + ' ' + screen).should('be.visible')
-    cy.wait('@api').should(xhr => {
+    cy.wait('@api').should((xhr) => {
       expect(xhr.status, 'successful POST').to.equal(200)
     })
     cy.get('.mdi-close-box').click()

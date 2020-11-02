@@ -10,7 +10,7 @@ export default {
     return mount(component, {
       localVue,
       vuetify,
-      ...options
+      ...options,
     })
   },
   createShallowWrapper: (component, options = {}, vuetifyOptions = {}) => {
@@ -19,7 +19,7 @@ export default {
     return shallowMount(component, {
       localVue,
       vuetify,
-      ...options
+      ...options,
     })
-  }
+  },
 }

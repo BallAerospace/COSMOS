@@ -9,7 +9,7 @@ import DataExtractor from '@/tools/DataExtractor/DataExtractor'
 export default {
   name: 'DataExtractorView',
   components: {
-    DataExtractor
-  }
+    DataExtractor,
+  },
 }
 </script>

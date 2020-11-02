@@ -1,5 +1,5 @@
 describe('Toggle Theme', () => {
-  test('toggles from dark to light', browser => {
+  test('toggles from dark to light', (browser) => {
     browser.url('http://localhost:8080')
     browser.expect
       .element('#app')
@@ -15,7 +15,7 @@ describe('Toggle Theme', () => {
 })
 
 describe('Toggle Navigation', () => {
-  test('shows and hides the navigation pane', browser => {
+  test('shows and hides the navigation pane', (browser) => {
     browser.url('http://localhost:8080')
     browser.expect.element('.v-navigation-drawer').to.be.visible
     browser.click('button')

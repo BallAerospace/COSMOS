@@ -10,7 +10,7 @@ import LimitsMonitor from '@/tools/LimitsMonitor/LimitsMonitor'
 export default {
   name: 'LimitsMonitorView',
   components: {
-    LimitsMonitor
-  }
+    LimitsMonitor,
+  },
 }
 </script>

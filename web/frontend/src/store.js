@@ -8,7 +8,7 @@ export default new Vuex.Store({
   state: {
     tlmViewerItems: [],
     // Format of the get_tlm_values method result
-    tlmViewerValues: [[], []]
+    tlmViewerValues: [[], []],
   },
   getters: {},
   // Mutations change store state and must be syncronous
@@ -21,16 +21,16 @@ export default new Vuex.Store({
     tlmViewerAddItem(state, { item, callback }) {
       state.tlmViewerItems.push(item)
       callback(state.tlmViewerItems.length - 1)
-    }
+    },
   },
   // Actions commit mutations and can contain arbitrary asynchronous operations
   actions: {
     // Deconstruct the context argument to just get 'commit'
     tlmViewerAddItem({ commit }, item) {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         commit('tlmViewerAddItem', { item: item, callback: resolve })
       })
-    }
+    },
   },
-  modules: {}
+  modules: {},
 })

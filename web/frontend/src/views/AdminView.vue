@@ -9,7 +9,7 @@ import CosmosAdmin from '@/tools/CosmosAdmin/CosmosAdmin'
 export default {
   name: 'AdminView',
   components: {
-    CosmosAdmin
-  }
+    CosmosAdmin,
+  },
 }
 </script>

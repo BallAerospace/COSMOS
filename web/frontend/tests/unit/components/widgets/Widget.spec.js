@@ -4,7 +4,7 @@ import Widget from '@/components/widgets/Widget'
 describe('Widget', () => {
   const Component = {
     render() {},
-    mixins: [Widget]
+    mixins: [Widget],
   }
 
   it('computes styles based on settings', () => {
@@ -19,9 +19,9 @@ describe('Widget', () => {
           ['BORDERCOLOR', 'RED'],
           ['WIDTH', 15],
           ['HEIGHT', 20],
-          ['RAW', 'font-family', 'Courier']
-        ]
-      }
+          ['RAW', 'font-family', 'Courier'],
+        ],
+      },
     })
     let style = wrapper.vm.computedStyle
     expect(style['text-align']).toBe('right')

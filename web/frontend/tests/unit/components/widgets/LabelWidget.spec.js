@@ -5,8 +5,8 @@ describe('LabelWidget', () => {
   it('displays text', () => {
     const wrapper = utils.createShallowWrapper(LabelWidget, {
       propsData: {
-        parameters: ['test']
-      }
+        parameters: ['test'],
+      },
     })
     expect(wrapper.find('span').element.textContent).toEqual('test')
   })

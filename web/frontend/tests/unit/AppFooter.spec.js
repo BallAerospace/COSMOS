@@ -12,10 +12,10 @@ describe('AppFooter', () => {
       mocks: {
         $vuetify: {
           theme: {
-            dark: false // TODO: For some reason starting with true doesn't work
-          }
-        }
-      }
+            dark: false, // TODO: For some reason starting with true doesn't work
+          },
+        },
+      },
     })
     const wrapper = utils.createShallowWrapper(AppFooter, { vuetify })
     expect(wrapper.vm.$vuetify.theme.dark).toBe(false)

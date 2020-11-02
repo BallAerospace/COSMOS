@@ -7,8 +7,8 @@ describe('ValueWidget', () => {
     mount(ValueWidget, {
       propsData: {
         value: 100,
-        limitsState: color
-      }
+        limitsState: color,
+      },
     })
     cy.get('.v-input').should('have.class', cssClass)
   }

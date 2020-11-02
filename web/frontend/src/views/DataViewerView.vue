@@ -9,7 +9,7 @@ import DataViewer from '@/tools/DataViewer/DataViewer'
 export default {
   name: 'DataViewerView',
   components: {
-    DataViewer
-  }
+    DataViewer,
+  },
 }
 </script>

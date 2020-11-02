@@ -1,12 +1,8 @@
 describe('TlmGrapher', () => {
   // Creates an alias to the plot width and height
   function aliasWidthHeight() {
-    cy.get('#tlmGrapherPlot1')
-      .invoke('width')
-      .as('width')
-    cy.get('#tlmGrapherPlot1')
-      .invoke('height')
-      .as('height')
+    cy.get('#tlmGrapherPlot1').invoke('width').as('width')
+    cy.get('#tlmGrapherPlot1').invoke('height').as('height')
   }
   // Compares the current plot width and height to the aliased values
   function checkWidthHeight(
@@ -15,12 +11,12 @@ describe('TlmGrapher', () => {
     heightComparison,
     heightMultiplier = 1
   ) {
-    cy.get('@width').then(value => {
+    cy.get('@width').then((value) => {
       cy.get('#tlmGrapherPlot1')
         .invoke('width')
         .should(widthComparison, value * widthMultiplier)
     })
-    cy.get('@height').then(value => {
+    cy.get('@height').then((value) => {
       cy.get('#tlmGrapherPlot1')
         .invoke('height')
         .should(heightComparison, value * heightMultiplier)
@@ -44,18 +40,12 @@ describe('TlmGrapher', () => {
     cy.get('#tlmGrapherPlot1').contains('TEMP2')
     cy.wait(3000) // Wait for graphing to occur
     cy.get('[data-test=grapher-controls]').click()
-    cy.get('[data-test=grapher-controls]')
-      .contains('Pause')
-      .click()
+    cy.get('[data-test=grapher-controls]').contains('Pause').click()
     cy.contains('Description').click()
     cy.wait(1000)
-    cy.get('[data-test=grapher-controls]')
-      .contains('Resume')
-      .click()
+    cy.get('[data-test=grapher-controls]').contains('Resume').click()
     cy.wait(2000)
-    cy.get('[data-test=grapher-controls]')
-      .contains('Stop')
-      .click()
+    cy.get('[data-test=grapher-controls]').contains('Stop').click()
     cy.wait(1000) // Small wait to visually see it stopped
   })
 
@@ -68,14 +58,10 @@ describe('TlmGrapher', () => {
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
     cy.wait(2000) // Wait for graphing to occur
-    cy.get('.v-toolbar')
-      .contains('Plot')
-      .click()
+    cy.get('.v-toolbar').contains('Plot').click()
     cy.contains('Edit Plot').click()
     cy.get('.v-dialog').within(() => {
-      cy.get('input')
-        .clear()
-        .type('My New Title')
+      cy.get('input').clear().type('My New Title')
       cy.contains('INST HEALTH_STATUS TEMP1')
         .parent()
         .within(() => {
@@ -98,9 +84,7 @@ describe('TlmGrapher', () => {
     cy.hideNav()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
-    cy.get('.v-toolbar')
-      .contains('Plot')
-      .click()
+    cy.get('.v-toolbar').contains('Plot').click()
     cy.contains('Add Plot').click()
     cy.get('#tlmGrapherPlot2')
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
@@ -128,35 +112,25 @@ describe('TlmGrapher', () => {
     cy.contains('Add Item').click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
-    cy.get('.v-toolbar')
-      .contains('Plot')
-      .click()
+    cy.get('.v-toolbar').contains('Plot').click()
     cy.contains('Add Plot').click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP3')
     cy.contains('Add Item').click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP4')
     cy.contains('Add Item').click()
     let config = 'spec' + Math.floor(Math.random() * 10000)
-    cy.get('.v-toolbar')
-      .contains('File')
-      .click()
+    cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save Configuration').click()
     cy.get('.v-dialog').within(() => {
-      cy.get('input')
-        .clear()
-        .type(config)
+      cy.get('input').clear().type(config)
       cy.contains('Ok').click()
     })
     cy.get('.v-dialog').should('not.be.visible')
     // Verify we get a warning if trying to save over existing
-    cy.get('.v-toolbar')
-      .contains('File')
-      .click()
+    cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save Configuration').click()
     cy.get('.v-dialog').within(() => {
-      cy.get('input')
-        .clear()
-        .type(config)
+      cy.get('input').clear().type(config)
       cy.contains('Ok').click()
       cy.contains("'" + config + "' already exists")
       cy.contains('Cancel').click()
@@ -165,9 +139,7 @@ describe('TlmGrapher', () => {
     // Totally refresh the page
     cy.visit('/telemetry-grapher')
     cy.hideNav()
-    cy.get('.v-toolbar')
-      .contains('File')
-      .click()
+    cy.get('.v-toolbar').contains('File').click()
     cy.contains('Open Configuration').click()
     cy.get('.v-dialog').within(() => {
       // Try to click OK without anything selected
@@ -192,9 +164,7 @@ describe('TlmGrapher', () => {
         cy.contains('TEMP4')
       })
     // Delete this test configuation
-    cy.get('.v-toolbar')
-      .contains('File')
-      .click()
+    cy.get('.v-toolbar').contains('File').click()
     cy.contains('Open Configuration').click()
     cy.get('.v-dialog').within(() => {
       cy.contains(config)
@@ -219,9 +189,7 @@ describe('TlmGrapher', () => {
     })
     checkWidthHeight('be.lt', 0.5, 'be.lt', 0.5)
     cy.get('#tlmGrapherPlot1').within(() => {
-      cy.get('button')
-        .eq(0)
-        .click()
+      cy.get('button').eq(0).click()
     })
     checkWidthHeight('eq', 1, 'eq', 1)
   })
@@ -238,9 +206,7 @@ describe('TlmGrapher', () => {
     })
     checkWidthHeight('be.lt', 0.5, 'eq', 1)
     cy.get('#tlmGrapherPlot1').within(() => {
-      cy.get('button')
-        .eq(1)
-        .click()
+      cy.get('button').eq(1).click()
     })
     checkWidthHeight('eq', 1, 'eq', 1)
   })
@@ -257,9 +223,7 @@ describe('TlmGrapher', () => {
     })
     checkWidthHeight('eq', 1, 'be.lt', 0.5)
     cy.get('#tlmGrapherPlot1').within(() => {
-      cy.get('button')
-        .eq(2)
-        .click()
+      cy.get('button').eq(2).click()
     })
     checkWidthHeight('eq', 1, 'eq', 1)
   })
@@ -273,9 +237,7 @@ describe('TlmGrapher', () => {
         .eq(3) // Minimize
         .click()
       cy.get('#chart').should('not.be.visible')
-      cy.get('button')
-        .eq(3)
-        .click()
+      cy.get('button').eq(3).click()
       cy.get('#chart').should('be.visible')
     })
   })

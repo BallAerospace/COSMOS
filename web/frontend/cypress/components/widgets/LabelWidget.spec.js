@@ -9,7 +9,7 @@ describe('LabelWidget', () => {
   })
   it('changes font family', () => {
     mount(LabelWidget, {
-      propsData: { parameters: ['Test of a font', 'courier'] }
+      propsData: { parameters: ['Test of a font', 'courier'] },
     })
     cy.contains('[data-test=label]', 'Test of a font')
       .should('have.css', 'font-family')
@@ -17,7 +17,7 @@ describe('LabelWidget', () => {
   })
   it('change font size', () => {
     mount(LabelWidget, {
-      propsData: { parameters: ['Test of a font', null, 30] }
+      propsData: { parameters: ['Test of a font', null, 30] },
     })
     cy.contains('[data-test=label]', 'Test of a font')
       .should('have.css', 'font-size')
@@ -25,7 +25,7 @@ describe('LabelWidget', () => {
   })
   it('changes font weight', () => {
     mount(LabelWidget, {
-      propsData: { parameters: ['Test of a font', null, null, 'bold'] }
+      propsData: { parameters: ['Test of a font', null, null, 'bold'] },
     })
     cy.contains('[data-test=label]', 'Test of a font')
       .should('have.attr', 'style')
@@ -33,7 +33,7 @@ describe('LabelWidget', () => {
   })
   it('changes font style', () => {
     mount(LabelWidget, {
-      propsData: { parameters: ['Test of a font', null, null, null, 'italic'] }
+      propsData: { parameters: ['Test of a font', null, null, null, 'italic'] },
     })
     cy.contains('[data-test=label]', 'Test of a font')
       .should('have.attr', 'style')
@@ -42,8 +42,8 @@ describe('LabelWidget', () => {
   it('changes everything', () => {
     mount(LabelWidget, {
       propsData: {
-        parameters: ['Change Everything!!!', 'Arial', 50, 'bold', 'italic']
-      }
+        parameters: ['Change Everything!!!', 'Arial', 50, 'bold', 'italic'],
+      },
     })
     cy.contains('[data-test=label]', 'Change Everything!!!')
       .should('have.css', 'font-family')

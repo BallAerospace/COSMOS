@@ -39,7 +39,7 @@ Cypress.Commands.add(
 )
 
 Cypress.Commands.add('hideNav', () => {
-  cy.get('.v-navigation-drawer').then($drawer => {
+  cy.get('.v-navigation-drawer').then(($drawer) => {
     if (Cypress.dom.isVisible($drawer)) {
       cy.get('.v-app-bar__nav-icon').click({ force: true })
     }
@@ -47,7 +47,7 @@ Cypress.Commands.add('hideNav', () => {
 })
 
 Cypress.Commands.add('showNav', () => {
-  cy.get('.v-navigation-drawer').then($drawer => {
+  cy.get('.v-navigation-drawer').then(($drawer) => {
     if (!Cypress.dom.isVisible($drawer)) {
       cy.get('.v-app-bar__nav-icon').click({ force: true })
     }

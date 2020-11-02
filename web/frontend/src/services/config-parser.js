@@ -63,7 +63,7 @@ export class ConfigParserService {
   scan_string(string, rx) {
     if (!rx.global) throw "rx must have 'global' flag set"
     var r = []
-    string.replace(rx, function(match) {
+    string.replace(rx, function (match) {
       r.push(match)
       return match
     })

@@ -105,20 +105,20 @@ export default {
   props: {
     menus: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   data() {
     return {
       drawer: true,
       appNav: {},
-      checked: []
+      checked: [],
     }
   },
   created() {
     // Determine if any of the checkboxes should be initially checked
-    this.menus.forEach(menu => {
-      menu.items.forEach(item => {
+    this.menus.forEach((menu) => {
+      menu.items.forEach((item) => {
         if (item.checked) {
           this.checked.push(item.label)
         }
@@ -126,12 +126,12 @@ export default {
     })
     axios
       .get('http://localhost:7777/tools/all', {
-        params: { scope: 'DEFAULT', token: localStorage.getItem('token') }
+        params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
       })
-      .then(response => {
+      .then((response) => {
         this.appNav = response.data
       })
-      .catch(error => {
+      .catch((error) => {
         this.alert = error
         this.alertType = 'error'
         this.showAlert = true
@@ -139,7 +139,7 @@ export default {
           this.showAlert = false
         }, 5000)
       })
-  }
+  },
 }
 </script>
 

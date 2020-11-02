@@ -9,7 +9,7 @@ import CommandSender from '@/tools/CommandSender/CommandSender'
 export default {
   name: 'CommandSenderView',
   components: {
-    CommandSender
-  }
+    CommandSender,
+  },
 }
 </script>

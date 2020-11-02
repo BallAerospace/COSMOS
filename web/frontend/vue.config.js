@@ -5,8 +5,8 @@ module.exports = {
       watchOptions: {
         ignored: ['node_modules'],
         aggregateTimeout: 300,
-        poll: 1500
-      }
-    }
-  }
+        poll: 1500,
+      },
+    },
+  },
 }

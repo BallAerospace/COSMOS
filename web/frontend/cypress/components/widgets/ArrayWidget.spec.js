@@ -7,13 +7,13 @@ import Vuex from 'vuex'
 describe('ArrayWidget', () => {
   it('displays non array values', () => {
     mount(ArrayWidget, {
-      propsData: { value: 'test', limitsState: 'RED' }
+      propsData: { value: 'test', limitsState: 'RED' },
     })
     cy.get('[data-test=array-widget]').should('have.value', 'test')
   })
   it('displays array values with spaces', () => {
     mount(ArrayWidget, {
-      propsData: { value: ['test', 'two'], limitsState: 'RED' }
+      propsData: { value: ['test', 'two'], limitsState: 'RED' },
     })
     cy.get('[data-test=array-widget]').should('have.value', 'test two')
   })
@@ -21,8 +21,8 @@ describe('ArrayWidget', () => {
     mount(ArrayWidget, {
       propsData: {
         value: ['one', 'two', 'three', 'four', 'five'],
-        limitsState: 'RED'
-      }
+        limitsState: 'RED',
+      },
     })
     cy.get('[data-test=array-widget]').should(
       'have.value',
@@ -34,8 +34,8 @@ describe('ArrayWidget', () => {
       propsData: {
         value: ['test'],
         limitsState: 'RED',
-        parameters: ['TGT', 'PKT', 'ITEM', 200]
-      }
+        parameters: ['TGT', 'PKT', 'ITEM', 200],
+      },
     })
     cy.get('.v-input').should('have.css', 'width', '200px')
   })
@@ -44,8 +44,8 @@ describe('ArrayWidget', () => {
       propsData: {
         value: ['test'],
         limitsState: 'RED',
-        parameters: ['TGT', 'PKT', 'ITEM', null, 300]
-      }
+        parameters: ['TGT', 'PKT', 'ITEM', null, 300],
+      },
     })
     cy.get('.v-input').should('have.css', 'height', '300px')
   })
@@ -54,8 +54,8 @@ describe('ArrayWidget', () => {
       propsData: {
         value: [10, 11, 12],
         limitsState: 'RED',
-        parameters: ['TGT', 'PKT', 'ITEM', null, null, '0x%X']
-      }
+        parameters: ['TGT', 'PKT', 'ITEM', null, null, '0x%X'],
+      },
     })
     cy.get('[data-test=array-widget]').should('have.value', '0xA 0xB 0xC')
   })
@@ -64,27 +64,27 @@ describe('ArrayWidget', () => {
       propsData: {
         value: [10, 11, 12, 13],
         limitsState: 'RED',
-        parameters: ['TGT', 'PKT', 'ITEM', null, null, null, 2]
-      }
+        parameters: ['TGT', 'PKT', 'ITEM', null, null, null, 2],
+      },
     })
     cy.get('[data-test=array-widget]').should('have.value', '10 11\n12 13')
   })
   it('takes a conversion parameter', () => {
     const extensions = {
       plugins: [Vuex],
-      mixin: [{ store }]
+      mixin: [{ store }],
     }
     mount(ArrayWidget, {
       extensions,
       propsData: {
-        parameters: ['TGT', 'PKT', 'ITEM', null, null, null, null, 'RAW']
-      }
+        parameters: ['TGT', 'PKT', 'ITEM', null, null, null, null, 'RAW'],
+      },
     }).then(() => {
       expect(Cypress.vue.$store.state.tlmViewerItems[0]).to.eql({
         target: 'TGT',
         packet: 'PKT',
         item: 'ITEM',
-        type: 'RAW'
+        type: 'RAW',
       })
       Cypress.vue.$store.commit('tlmViewerUpdateValues', [['hello'], []])
     })

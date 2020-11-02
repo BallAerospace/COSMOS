@@ -1,12 +1,12 @@
 module.exports = {
   root: true,
   env: {
-    node: true
+    node: true,
   },
   extends: [
     'plugin:vue/essential',
     'plugin:prettier/recommended',
-    '@vue/prettier'
+    '@vue/prettier',
   ],
   plugins: ['prettier'],
   rules: {
@@ -15,22 +15,28 @@ module.exports = {
     'prettier/prettier': [
       'warn',
       {
-        endOfLine: 'auto'
-      }
-    ]
+        endOfLine: 'auto',
+      },
+    ],
+    'vue/valid-v-slot': [
+      'error',
+      {
+        allowModifiers: true,
+      },
+    ],
   },
   parserOptions: {
-    parser: 'babel-eslint'
+    parser: 'babel-eslint',
   },
   overrides: [
     {
       files: [
         '**/__tests__/*.{j,t}s?(x)',
-        '**/tests/unit/**/*.spec.{j,t}s?(x)'
+        '**/tests/unit/**/*.spec.{j,t}s?(x)',
       ],
       env: {
-        jest: true
-      }
-    }
-  ]
+        jest: true,
+      },
+    },
+  ],
 }

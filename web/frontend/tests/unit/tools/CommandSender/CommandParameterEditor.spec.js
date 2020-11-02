@@ -11,9 +11,9 @@ describe('CommandParameterEditor', () => {
           states: null,
           selected_state: null,
           selected_state_label: '',
-          manual_value: null
-        }
-      }
+          manual_value: null,
+        },
+      },
     }
   })
 

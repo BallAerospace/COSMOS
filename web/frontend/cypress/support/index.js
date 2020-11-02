@@ -17,7 +17,7 @@ import '@cypress/code-coverage/support'
 import 'cypress-vue-unit-test/dist/support'
 import './commands'
 
-Cypress.on('window:before:load', win => {
+Cypress.on('window:before:load', (win) => {
   cy.spy(win.console, 'log').as('consoleLog')
   cy.spy(win.console, 'error').as('consoleError')
 })

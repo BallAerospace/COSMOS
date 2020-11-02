@@ -12,9 +12,13 @@ context('Aliasing', () => {
     // We don't have to traverse to the element
     // later in our code, we reference it with @
 
-    cy.get('.as-table').find('tbody>tr')
-      .first().find('td').first()
-      .find('button').as('firstBtn')
+    cy.get('.as-table')
+      .find('tbody>tr')
+      .first()
+      .find('td')
+      .first()
+      .find('button')
+      .as('firstBtn')
 
     // when we reference the alias, we place an
     // @ in front of its name

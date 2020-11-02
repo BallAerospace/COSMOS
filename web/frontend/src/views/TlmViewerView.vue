@@ -8,7 +8,7 @@ import TlmViewer from '@/tools/TlmViewer/TlmViewer'
 export default {
   name: 'TlmViewerView',
   components: {
-    TlmViewer
-  }
+    TlmViewer,
+  },
 }
 </script>
