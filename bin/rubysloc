@@ -13,25 +13,72 @@
 # Blank lines and comment lines are ignored.  All other
 # lines count as one line.
 
-files = []
-if ARGV.length == 0
-  require 'find'
+require 'ostruct'
+require 'optparse'
 
-  #Find all .rb and .rbw files from the current directory
-  Find.find('.') do |path|
-    Find.prune if FileTest.directory?(path) and File.basename(path) == 'pkg'
-    extension = File.extname(path)
-    files << path if extension.to_s =~ /\.rb/i
+options = OpenStruct.new
+options.filename = nil
+options.sort_column = nil
+
+opts = OptionParser.new do |opts|
+  opts.banner = "Usage: rubysloc"
+  opts.separator ""
+  opts.separator "Recursively calculate SLOC for all ruby files (*.rb) sorted by filename"
+  opts.separator ""
+  opts.on("-h", "--help", "Show this message") do
+    puts opts
+    exit
   end
-else
-  if ARGV[0] == '--infile' or ARGV[0] == '-i'
-    File.open(ARGV[1], 'r') {|file| file.each_line {|line| files << line.chomp.strip}}
-  else
-    files = ARGV
+  opts.on("-i DIRECTORY/FILENAME", "--input DIRECTORY/FILENAME",
+    "Parse only the specified directory/filename (relative or absolute path)") do |arg|
+    options.filename = arg
+  end
+  opts.on("-s SORT", "--sort SORT", "Sort by the specified column. Must be one of LINES, COMMENTS, SLOC, or RATIO.") do |arg|
+    case arg
+    when 'LINES'
+      options.sort_column = 1
+    when 'COMMENTS'
+      options.sort_column = 2
+    when 'SLOC'
+      options.sort_column = 3
+    when 'RATIO'
+      options.sort_column = 4
+    else
+      puts opts
+      exit
+    end
   end
 end
 
+begin
+  opts.parse!(ARGV)
+rescue => err
+  puts err
+  puts opts
+  exit
+end
+
+files = []
+if options.filename
+  options.filename = File.join(Dir.pwd, options.filename) unless File.exist?(options.filename)
+  if File.exist?(options.filename)
+    if File.directory?(options.filename)
+      # Dir only works with unix paths so swap backslashes
+      files = Dir[File.join(options.filename.gsub('\\','/'), '**', '*.rb')]
+    else
+      files << options.filename
+    end
+  else
+    puts "File #{options.filename} not found."
+    puts opts
+    exit
+  end
+else
+  files = Dir['**/*.rb']
+end
+
 # Build results over all found ruby files
+longest_path = 1
 results = []
 files.each do |full_filename|
   filename = File.basename(full_filename)
@@ -43,20 +90,19 @@ files.each do |full_filename|
       lines += 1
       split_line = line.split
       if split_line[0].nil?
-        #Blank Line - Do Nothing
-        #puts "NOT COUNTED - #{line.chomp}"
+        # Blank Line - Do Nothing
       elsif split_line[0].to_s[0..0] == '#'
-        #Comment Line
-        #puts "COMMENT LINE - #{line.chomp}"
         comments += 1
       else
-        #puts "COUNTED - #{line.chomp}"
         slocs += 1
       end
     end
-    results << [filename, lines, comments, slocs, comments.to_f / slocs.to_f]
+    results << [full_filename, lines, comments, slocs, comments.to_f / slocs.to_f]
+    longest_path = full_filename.length if full_filename.length > longest_path
   end
 end
+
+results.sort_by! {|col| col[options.sort_column].finite? ? col[options.sort_column] : -1 } if options.sort_column
 
 # Print results to STDOUT
 total_files    = 0
@@ -65,12 +111,12 @@ total_comments = 0
 total_slocs    = 0
 total_ratio    = 0
 
-puts "|-----------------------------------|----------|----------|----------|--------|"
-puts "| Filename                          |  Lines   | Comments |  SLOCs   |  Ratio |"
-puts "|-----------------------------------|----------|----------|----------|--------|"
+puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-"*longest_path)
+puts sprintf("| %-#{longest_path}s |  Lines   | Comments |  SLOCs   |  Ratio |", "Filename")
+puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-"*longest_path)
 results.each do |filename, lines, comments, slocs, ratio|
-  filename = filename[0..32] if filename.length > 33
-  puts sprintf("| %-33s | %8d | %8d | %8d | %6.2f |",
+  # filename = filename[0..32] if filename.length > 33
+  puts sprintf("| %-#{longest_path}s | %8d | %8d | %8d | %6.2f |",
                filename, lines, comments, slocs, ratio)
   total_files    += 1
   total_lines    += lines
@@ -78,8 +124,7 @@ results.each do |filename, lines, comments, slocs, ratio|
   total_slocs    += slocs
 end
 total_ratio = total_comments.to_f / total_slocs.to_f if total_slocs != 0
-puts "|-----------------------------------|----------|----------|----------|--------|"
-puts sprintf("| Totals - %3d Files                | %8d | %8d | %8d | %6.2f |",
-             total_files, total_lines, total_comments, total_slocs, total_ratio)
-
-puts "|-----------------------------------|----------|----------|----------|--------|"
+puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-"*longest_path)
+puts sprintf("| %-#{longest_path}s | %8d | %8d | %8d | %6.2f |",
+  "Totals - #{total_files} Files", total_lines, total_comments, total_slocs, total_ratio)
+puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-"*longest_path)
