@@ -21,14 +21,12 @@
 <script>
 import AppNav from '@/AppNav'
 import EditorTab from '@/tools/ScriptRunner/EditorTab'
-import ScriptsTab from '@/tools/ScriptRunner/ScriptsTab'
 import RunningScriptsTab from '@/tools/ScriptRunner/RunningScriptsTab'
 
 export default {
   components: {
     AppNav,
     EditorTab,
-    ScriptsTab,
     RunningScriptsTab,
   },
   data() {
@@ -37,7 +35,6 @@ export default {
       curTab: null,
       tabs: [
         { name: 'Editor', component: 'EditorTab' },
-        { name: 'Scripts', component: 'ScriptsTab' },
         { name: 'Running Scripts', component: 'RunningScriptsTab' },
       ],
       menus: [
@@ -73,6 +70,16 @@ export default {
               icon: 'mdi-content-save',
               command: () => {
                 this.$root.$refs.Editor.saveAs()
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Download',
+              icon: 'mdi-cloud-download',
+              command: () => {
+                this.$root.$refs.Editor.download()
               },
             },
             {

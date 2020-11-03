@@ -21,7 +21,7 @@
       multi-sort
     >
       <template v-slot:item.actions="{ item }">
-        <v-btn block color="primary" @click="connect(item.id)">Connect</v-btn>
+        <v-btn color="primary" @click="connect(item.id)">Connect</v-btn>
       </template>
     </v-data-table>
   </v-card>
@@ -33,7 +33,7 @@ import axios from 'axios'
 export default {
   props: {
     tabId: Number,
-    curTab: Number
+    curTab: Number,
   },
   data() {
     return {
@@ -48,9 +48,9 @@ export default {
           text: 'Actions',
           value: 'actions',
           sortable: false,
-          filterable: false
-        }
-      ]
+          filterable: false,
+        },
+      ],
     }
   },
   created() {
@@ -58,14 +58,14 @@ export default {
   },
   methods: {
     getRunningScripts() {
-      axios.get('http://localhost:3001/running-script').then(response => {
+      axios.get('http://localhost:3001/running-script').then((response) => {
         this.data = response.data
       })
     },
     connect(id) {
-      this.$router.push({ name: 'ScriptRunnerEditor', params: { id: id } })
-    }
-  }
+      this.$router.push({ name: 'ScriptRunner', params: { id: id } })
+    },
+  },
 }
 </script>
 

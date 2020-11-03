@@ -201,6 +201,7 @@ export default {
     },
   },
   created() {
+    // TODO: This is how ScriptRunner.vue reaches back to us ... is there a better way?
     this.$root.$refs.Editor = this
   },
   mounted() {
@@ -221,6 +222,19 @@ export default {
       event.returnValue = ''
     })
     this.cable = ActionCable.createConsumer('ws://localhost:3001/cable')
+
+    if (this.$route.params.id) {
+      this.state = 'Connecting...'
+      this.startOrGoText = 'Go'
+      this.scriptId = this.$route.params.id
+      this.editor.setReadOnly(true)
+      this.subscription = this.cable.subscriptions.create(
+        { channel: 'RunningScriptChannel', id: this.scriptId },
+        {
+          received: (data) => this.received(data),
+        }
+      )
+    }
   },
   beforeDestroy() {
     this.editor.destroy()
@@ -265,7 +279,7 @@ export default {
             this.scriptId = response.data
             this.editor.setReadOnly(true)
             this.subscription = this.cable.subscriptions.create(
-              { channel: 'RunningScriptChannel', id: response.data },
+              { channel: 'RunningScriptChannel', id: this.scriptId },
               {
                 received: (data) => this.received(data),
               }
@@ -518,6 +532,16 @@ export default {
             // TODO: Notify user
           })
       }
+    },
+    download() {
+      const blob = new Blob([this.editor.getValue()], {
+        type: 'text/plain',
+      })
+      // Make a link and then 'click' on it to start the download
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.setAttribute('download', this.fileName)
+      link.click()
     },
   },
 }

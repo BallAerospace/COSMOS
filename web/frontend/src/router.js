@@ -30,16 +30,10 @@ export default new Router({
       meta: { title: 'Command Sender', icon: 'mdi-satellite-uplink' },
     },
     {
-      path: '/script-runner',
+      path: '/script-runner/:id?',
       name: 'ScriptRunner',
       component: () => import('./views/ScriptRunnerView.vue'),
       meta: { title: 'Script Runner', icon: 'mdi-run-fast' },
-    },
-    {
-      path: '/script-runner/:id',
-      name: 'ScriptRunnerEditor',
-      component: () => import('./views/ScriptRunnerEditorView.vue'),
-      meta: { title: 'Script Runner' },
     },
     {
       path: '/packet-viewer/:target?/:packet?',
