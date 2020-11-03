@@ -146,7 +146,7 @@ module Cosmos
             'clear_all']
           @json_drb.method_whitelist = whitelist
           begin
-            @json_drb.start_service System.listen_hosts['TLMVIEWER_API'], port, self
+            @json_drb.start_service System.listen_hosts['TLMVIEWER_API'], port, self, 1000, System
           rescue Exception
             raise FatalError.new("Error starting JsonDRb on port #{port}.\nPerhaps a Telemetry Viewer is already running?")
           end
@@ -171,7 +171,7 @@ module Cosmos
 
         ConfigParser.splash = nil
       end
-      
+
       hide() unless options.show_main
     end
 

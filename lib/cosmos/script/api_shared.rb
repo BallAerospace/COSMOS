@@ -949,7 +949,7 @@ module Cosmos
     end
 
     def run_tlm_viewer(action, display_name = '')
-      tlm_viewer = JsonDRbObject.new System.connect_hosts['TLMVIEWER_API'], System.ports['TLMVIEWER_API']
+      tlm_viewer = JsonDRbObject.new System.connect_hosts['TLMVIEWER_API'], System.ports['TLMVIEWER_API'], 1.0, Cosmos::System.x_csrf_token
       begin
         yield tlm_viewer
         tlm_viewer.disconnect

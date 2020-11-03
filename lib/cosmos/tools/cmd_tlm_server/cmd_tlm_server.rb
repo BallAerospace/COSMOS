@@ -201,9 +201,9 @@ module Cosmos
         @json_drb.method_whitelist = @api_whitelist
         begin
           if @mode == :CMD_TLM_SERVER
-            @json_drb.start_service(System.listen_hosts['CTS_API'], System.ports['CTS_API'], self)
+            @json_drb.start_service(System.listen_hosts['CTS_API'], System.ports['CTS_API'], self, 1000, System)
           else
-            @json_drb.start_service(System.listen_hosts['REPLAY_API'], System.ports['REPLAY_API'], self)
+            @json_drb.start_service(System.listen_hosts['REPLAY_API'], System.ports['REPLAY_API'], self, 1000, System)
           end
         rescue Exception
           # Call packet_logging shutdown here to explicitly kill the logging

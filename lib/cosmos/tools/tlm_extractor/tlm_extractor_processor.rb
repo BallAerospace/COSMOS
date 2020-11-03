@@ -72,13 +72,13 @@ module Cosmos
         items = []
         configs.each { |config| config.mode = :dart; items.concat(config.normal_items); config.open_output_file }
         items.uniq!
- 
+
         time_start = Time.utc(1970, 1, 1) unless time_start
         time_end = Time.now unless time_end
 
         results = {}
         begin
-          server = JsonDRbObject.new(System.connect_hosts['DART_DECOM'], System.ports['DART_DECOM'])
+          server = JsonDRbObject.new(System.connect_hosts['DART_DECOM'], System.ports['DART_DECOM'], 1.0, Cosmos::System.x_csrf_token)
 
           index = 0
           items.each do |item_type, target_name, packet_name, item_name, value_type, dart_reduction, dart_reduced_type|
@@ -116,7 +116,7 @@ module Cosmos
             rescue Exception => error
               yield(index.to_f / items.length, "Error querying #{query_string} : #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n") if block_given?
               return # Bail out because something bad happened
-            end          
+            end
           end
 
           configs.each { |config| config.process_dart(results) }

@@ -36,7 +36,7 @@ module Cosmos
       @status_packet.write('PACKET_ID', 1)
       @clear_errors_command = System.commands.packet('DART', 'CLEAR_ERRORS')
       @sleeper = Sleeper.new
-      @dart = JsonDRbObject.new(System.connect_hosts['DART_DECOM'], System.ports['DART_DECOM'])
+      @dart = JsonDRbObject.new(System.connect_hosts['DART_DECOM'], System.ports['DART_DECOM'], 1.0, Cosmos::System.x_csrf_token)
     end
 
     # Indicates if the interface is connected to its target(s) or not. Must be

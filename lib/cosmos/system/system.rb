@@ -76,6 +76,14 @@ module Cosmos
     instance_attr_reader :classificiation_banner
     # @return [String] Which hashing algorithm is in use
     instance_attr_reader :hashing_algorithm
+    # @return [Boolean] Allow router commanding - defaults to false
+    instance_attr_reader :allow_router_commanding
+    # @return [String] API access secret using X-Csrf-Token - defaults to SuperSecret
+    instance_attr_reader :x_csrf_token
+    # @return [Array<String>] Allowed origins in http origin header - defaults to no origin header only
+    instance_attr_reader :allowed_origins
+    # @return [Array<String>] Allowed hosts in http host header - defaults to '127.0.0.1:7777' only
+    instance_attr_reader :allowed_hosts
 
     # Known COSMOS ports
     KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM', 'DART_MASTER']
@@ -373,6 +381,22 @@ module Cosmos
             @classificiation_banner = {'display_text' => parameters[0],
                                        'color'        => color}
 
+          when 'ALLOW_ROUTER_COMMANDING'
+            parser.verify_num_parameters(0, 0, "#{keyword}")
+            @allow_router_commanding = true
+
+          when 'X_CSRF_TOKEN'
+            parser.verify_num_parameters(1, 1, "#{keyword} <Token>")
+            @x_csrf_token = ConfigParser.handle_nil(parameters[0])
+
+          when 'ALLOW_ORIGIN'
+            parser.verify_num_parameters(1, 1, "#{keyword} <Origin>")
+            @allowed_origins << parameters[0]
+
+          when 'ALLOW_HOST'
+            parser.verify_num_parameters(1, 1, "#{keyword} <Host:Port>")
+            @allowed_hosts << parameters[0]
+
           else
             # blank lines will have a nil keyword and should not raise an exception
             raise parser.error("Unknown keyword '#{keyword}'") if keyword
@@ -521,7 +545,7 @@ module Cosmos
                     # Zip file configuration so unzip and reset configuration path
                     configuration = unzip(configuration)
                   end
-                  
+
                   Logger.info "Switching to configuration: #{name}"
                   process_file(File.join(configuration, 'system.txt'), configuration)
                   load_packets(name, false)
@@ -547,7 +571,7 @@ module Cosmos
           Logger.info "Switching to initial configuration: #{@initial_config.name}"
           update_config(@initial_config)
         end
-        
+
         return @config.name, nil
       end
     end
@@ -596,16 +620,14 @@ module Cosmos
       @listen_hosts = {}
       @listen_hosts['CTS_API'] = '127.0.0.1'
       @listen_hosts['TLMVIEWER_API'] = '127.0.0.1'
-      # Localhost would be more secure but historically these are open to allow for chaining servers by default
-      @listen_hosts['CTS_PREIDENTIFIED'] = '0.0.0.0'
-      @listen_hosts['CTS_CMD_ROUTER'] = '0.0.0.0'
+      @listen_hosts['CTS_PREIDENTIFIED'] = '127.0.0.1'
+      @listen_hosts['CTS_CMD_ROUTER'] = '127.0.0.1'
       @listen_hosts['REPLAY_API'] = '127.0.0.1'
-      # Localhost would be more secure but historically these are open to allow for chaining servers by default
-      @listen_hosts['REPLAY_PREIDENTIFIED'] = '0.0.0.0'
-      @listen_hosts['REPLAY_CMD_ROUTER'] = '0.0.0.0'
-      @listen_hosts['DART_STREAM'] = '0.0.0.0'
-      @listen_hosts['DART_DECOM'] = '0.0.0.0'
-      @listen_hosts['DART_MASTER'] = '0.0.0.0'
+      @listen_hosts['REPLAY_PREIDENTIFIED'] = '127.0.0.1'
+      @listen_hosts['REPLAY_CMD_ROUTER'] = '127.0.0.1'
+      @listen_hosts['DART_STREAM'] = '127.0.0.1'
+      @listen_hosts['DART_DECOM'] = '127.0.0.1'
+      @listen_hosts['DART_MASTER'] = '127.0.0.1'
 
       @connect_hosts = {}
       @connect_hosts['CTS_API'] = '127.0.0.1'
@@ -629,6 +651,11 @@ module Cosmos
       @paths['SEQUENCES'] = File.join(USERPATH, 'outputs', 'sequences')
       @paths['DART_DATA'] = File.join(USERPATH, 'outputs', 'dart', 'data')
       @paths['DART_LOGS'] = File.join(USERPATH, 'outputs', 'dart', 'logs')
+
+      @allow_router_commanding = false
+      @x_csrf_token = 'SuperSecret'
+      @allowed_origins = []
+      @allowed_hosts = ['127.0.0.1:7777']
 
       unless filename
         system_arg = false

@@ -17,8 +17,9 @@ module Cosmos
   class JsonDrbRack
     # @param drb [JsonDRb] - An instance of the JsonDRb class that'll be used
     #   to process the JSON request and generate a response
-    def initialize(drb)
+    def initialize(drb, system = nil)
       @drb = drb
+      @system = system
     end
 
     # Handles a request.
@@ -32,22 +33,41 @@ module Cosmos
       # ACL allow_addr? function takes address in the form returned by
       # IPSocket.peeraddr.
       req_addr = ["AF_INET", request.port, request.host.to_s, request.ip.to_s]
+      status = nil
 
       if @drb.acl and !@drb.acl.allow_addr?(req_addr)
         status       = 403
         content_type = "text/plain"
         body         = "Forbidden"
       elsif request.post?
-        status, content_type, body = handle_post(request)
+        if @system
+          if @system.x_csrf_token and (request.env['HTTP_X_CSRF_TOKEN'] != @system.x_csrf_token)
+            status       = 403
+            content_type = "text/plain"
+            body         = "Forbidden: Bad X-Csrf-Token: #{request.env['HTTP_X_CSRF_TOKEN']}"
+          end
+          if !@system.allowed_hosts.include?(request.env['HTTP_HOST'])
+            status       = 403
+            content_type = "text/plain"
+            body         = "Forbidden: #{request.env['HTTP_HOST']} not in allowed hosts"
+          end
+          if request.env['HTTP_ORIGIN'] and !@system.allowed_origins.include?(request.env['HTTP_ORIGIN'])
+            status       = 403
+            content_type = "text/plain"
+            body         = "Forbidden: #{request.env['HTTP_ORIGIN']} not in allowed origins"
+          end
+        end
+
+        status, content_type, body = handle_post(request) unless status
       else
         status       = 405
         content_type = "text/plain"
         body         = "Request not allowed"
       end
-  
+
       return status, {'Content-Type' => content_type}, [body]
     end
-    
+
     # Handles an http post.
     #
     # @param request [Rack::Request] - A rack post request
@@ -57,7 +77,7 @@ module Cosmos
       request_data = request.body.read
       start_time = Time.now.sys
       response_data, error_code = @drb.process_request(request_data, start_time)
-  
+
       # Convert json error code into html status code
       # see http://www.jsonrpc.org/historical/json-rpc-over-http.html#errors
       if error_code

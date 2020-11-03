@@ -114,7 +114,7 @@ module Cosmos
       if !@got_meta_item_names and !@update_thread
         @update_thread = Thread.new do
           begin
-            server = JsonDRbObject.new(System.connect_hosts['DART_DECOM'], System.ports['DART_DECOM'])
+            server = JsonDRbObject.new(System.connect_hosts['DART_DECOM'], System.ports['DART_DECOM'], 1.0, Cosmos::System.x_csrf_token)
             item_names = server.item_names("SYSTEM", "META")
             Qt.execute_in_main_thread do
               unless self.disposed?

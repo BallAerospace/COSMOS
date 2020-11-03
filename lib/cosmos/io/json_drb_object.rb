@@ -38,7 +38,7 @@ module Cosmos
     # @param hostname [String] The name of the machine which has started
     #   the JSON service
     # @param port [Integer] The port number of the JSON service
-    def initialize(hostname, port, connect_timeout = 1.0)
+    def initialize(hostname, port, connect_timeout = 1.0, x_csrf_token = nil)
       hostname = '127.0.0.1' if (hostname.to_s.upcase == 'LOCALHOST')
       begin
         Socket.pack_sockaddr_in(port, hostname)
@@ -61,6 +61,7 @@ module Cosmos
       @connect_timeout = connect_timeout
       @connect_timeout = @connect_timeout.to_f if @connect_timeout
       @shutdown = false
+      @x_csrf_token = x_csrf_token
     end
 
     # Disconnects from http server
@@ -127,7 +128,11 @@ module Cosmos
         STDOUT.puts "\nRequest:\n" if JsonDRb.debug?
         STDOUT.puts @request_data if JsonDRb.debug?
         @request_in_progress = true
-        headers = {'Content-Type' => 'application/json-rpc'}
+        if @x_csrf_token
+          headers = {'Content-Type' => 'application/json-rpc', 'X-Csrf-Token' => @x_csrf_token}
+        else
+          headers = {'Content-Type' => 'application/json-rpc'}
+        end
         res = @http.post(@uri,
                          :body   => @request_data,
                          :header => headers)
