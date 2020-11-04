@@ -653,7 +653,7 @@ module Cosmos
       end
       File.open(File.join(target_folder, 'procedures', "#{target.downcase}_noop.rb"), 'w') do |file|
         file.puts "require 'cosmos'"
-        file.puts "require '#{File.basename(lib_filename)}'"
+        file.puts "load_utility '#{File.basename(lib_filename)}'"
         file.puts "\n"
         file.puts "#{target.downcase} = #{lib_filename.filename_to_class_name}.new"
         file.puts "#{target.downcase}.noop"
