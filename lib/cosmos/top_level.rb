@@ -27,6 +27,10 @@ class HazardousError < StandardError
   attr_accessor :cmd_name
   attr_accessor :cmd_params
   attr_accessor :hazardous_description
+
+  def to_s
+    "#{target_name} #{cmd_name} with #{cmd_params} is Hazardous due to #{hazardous_description}"
+  end
 end
 
 # The Ball Aerospace COSMOS system is almost

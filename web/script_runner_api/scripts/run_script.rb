@@ -4,7 +4,6 @@ name = ARGV[1]
 bucket = ARGV[2]
 require '../config/environment'
 #Rails.application.eager_load!
-message_log = RunningScript.message_log(id)
 bucket ||= Script::DEFAULT_BUCKET_NAME
 startup_time = Time.now - start_time
 path = File.join(bucket, name)
@@ -13,6 +12,7 @@ def run_script_log(id, message, color = 'BLACK')
   line_to_write = Time.now.sys.formatted + " (SCRIPTRUNNER): " + message
   RunningScript.message_log.write(line_to_write + "\n", true)
   ActionCable.server.broadcast("running-script-channel:#{id}", type: :output, line: line_to_write, color: color)
+  # redis.publish("running-script-channel:#{id}", JSON.generate()) # TODO: Equivalent call to broadcast?
 end
 
 run_script_log(id, "Script #{path} spawned in #{startup_time} seconds")
@@ -22,6 +22,11 @@ begin
   running_script.start
 
   redis = Redis.new(url: ActionCable.server.config.cable["url"])
+  # Subscribe to the ActionCable generated topic which is namedspaced with channel_prefix
+  # (defined in cable.yml) and then the channel stream. This isn't typically how you see these
+  # topics used in the Rails ActionCable documentation but this is what is happening under the
+  # scenes in ActionCable. Throughout the rest of the code we use ActionCable to broadcast
+  #   e.g. ActionCable.server.broadcast("running-script-channel:#{@id}", ...)
   redis.subscribe([ActionCable.server.config.cable["channel_prefix"], "cmd-running-script-channel:#{id}"].compact.join(":")) do |on|
     on.message do |channel, msg|
       parsed_cmd = JSON.parse(msg)
@@ -54,8 +59,6 @@ rescue Exception => err
   run_script_log(id, err.formatted, 'RED')
 ensure
   begin
-    run_script_log(id, "Script cleanup")
-
     # Remove running script from redis
     redis = Redis.new(url: ActionCable.server.config.cable["url"])
     script = redis.get("running-script:#{id}")
@@ -68,9 +71,7 @@ ensure
         break
       end
     end
-
-    run_script_log(id, "Script complete")
   ensure
-    message_log.stop
+    running_script.stop_message_log
   end
 end

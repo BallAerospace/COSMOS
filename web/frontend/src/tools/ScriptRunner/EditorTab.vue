@@ -2,55 +2,56 @@
   <div>
     <v-container id="header" class="pane">
       <v-row no-gutters>
-        <v-col cols="4">
-          <v-btn
-            color="primary"
-            @click="startOrGo"
-            :disabled="disableControls"
-            class="mr-4"
-            >{{ startOrGoText }}
-            <v-icon right> mdi-play </v-icon>
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="pause"
-            :disabled="disableControls"
-            class="mr-4"
-            >Pause <v-icon right> mdi-pause </v-icon>
-          </v-btn>
-          <v-btn
-            color="primary"
-            @click="stop"
-            :disabled="disableControls"
-            class="mr-4"
-            >Stop <v-icon right> mdi-stop </v-icon>
-          </v-btn>
-          <v-progress-circular
-            v-if="state === 'Connecting...'"
-            indeterminate
-            color="primary"
-          ></v-progress-circular>
-        </v-col>
-        <v-col cols="2">
-          <v-text-field
-            style="width: 150px"
-            outlined
-            dense
-            hide-details
-            label="Script State"
-            v-model="state"
-          ></v-text-field>
-        </v-col>
-        <v-col>
-          <v-text-field
-            class="ml-10"
-            outlined
-            dense
-            hide-details
-            label="Filename"
-            v-model="fullFileName"
-          ></v-text-field>
-        </v-col>
+        <v-btn
+          color="primary"
+          @click="startOrGo"
+          :disabled="disableControls"
+          style="width: 100px"
+          class="mr-4"
+          >{{ startOrGoText }}
+          <v-icon right> mdi-play </v-icon>
+        </v-btn>
+        <v-btn
+          color="primary"
+          @click="pause"
+          :disabled="disableControls"
+          style="width: 100px"
+          class="mr-4"
+          >Pause <v-icon right> mdi-pause </v-icon>
+        </v-btn>
+        <v-btn
+          color="primary"
+          @click="stop"
+          :disabled="disableControls"
+          style="width: 100px"
+          class="mr-4"
+          >Stop <v-icon right> mdi-stop </v-icon>
+        </v-btn>
+        <v-text-field
+          class="shrink"
+          style="width: 120px"
+          outlined
+          dense
+          hide-details
+          label="Script State"
+          v-model="state"
+        ></v-text-field>
+        <v-progress-circular
+          v-if="state === 'Connecting...'"
+          :size="40"
+          class="ml-2"
+          indeterminate
+          color="primary"
+        ></v-progress-circular>
+        <div v-else style="width: 40px; height: 40px" class="ml-2"></div>
+        <v-text-field
+          class="ml-2"
+          outlined
+          dense
+          hide-details
+          label="Filename"
+          v-model="fullFileName"
+        ></v-text-field>
       </v-row>
     </v-container>
     <Multipane class="horizontal-panes" layout="horizontal">
@@ -136,6 +137,7 @@ import axios from 'axios'
 import * as ace from 'brace'
 import 'brace/mode/ruby'
 import 'brace/theme/twilight'
+import { toDate, format } from 'date-fns'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import FileOpenDialog from '@/components/FileOpenDialog'
 import FileSaveAsDialog from '@/components/FileSaveAsDialog'
@@ -353,7 +355,10 @@ export default {
           }
           break
         case 'output':
-          this.messages.push({ '@timestamp': Date.now(), message: data.line })
+          this.messages.push({
+            '@timestamp': format(Date.now(), 'yyyy-MM-dd HH:mm:ss.SSS'),
+            message: data.line,
+          })
           while (this.messages.length > this.maxArrayLength) {
             this.messages.shift()
           }

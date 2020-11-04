@@ -97,8 +97,18 @@ module Cosmos
             Logger.info "Ack Received: #{msg_id}: #{msg_hash.inspect}"
             if msg_hash["result"] == "SUCCESS"
               return
-            elsif msg_hash["result"] == "HazardousError"
-              raise HazardousError
+            # Check for HazardousError which is a special case
+            elsif msg_hash["result"].include?("HazardousError")
+              _, description, cmd = msg_hash["result"].split("\n")
+              # Create and populate a new HazardousError and raise it up
+              # The _cmd method in script/commands.rb rescues this and calls prompt_for_hazardous
+              error = HazardousError.new
+              error.target_name = target_name
+              error.cmd_name = cmd_name
+              error.cmd_params = cmd_params
+              error.hazardous_description = description
+              # No Logger.info because the error is already logged by the Logger.info "Ack Received ...
+              raise error
             else
               raise msg_hash["result"]
             end
