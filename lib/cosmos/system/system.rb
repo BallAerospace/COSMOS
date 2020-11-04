@@ -87,6 +87,7 @@ module Cosmos
 
     # Known COSMOS ports
     KNOWN_PORTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM', 'DART_MASTER']
+    API_PORTS = ['CTS_API', 'TLMVIEWER_API', 'REPLAY_API', 'DART_DECOM', 'DART_MASTER']
     # Known COSMOS hosts
     KNOWN_HOSTS = ['CTS_API', 'TLMVIEWER_API', 'CTS_PREIDENTIFIED', 'CTS_CMD_ROUTER', 'REPLAY_API', 'REPLAY_PREIDENTIFIED', 'REPLAY_CMD_ROUTER', 'DART_STREAM', 'DART_DECOM', 'DART_MASTER']
     # Known COSMOS paths
@@ -225,6 +226,7 @@ module Cosmos
             parser.verify_num_parameters(2, 2, usage)
             port_name = parameters[0].to_s.upcase
             @ports[port_name] = Integer(parameters[1])
+            @allowed_hosts << "127.0.0.1:#{parameters[1]}" if API_PORTS.include?(port_name)
             Logger.warn("Unknown port name given: #{port_name}") unless KNOWN_PORTS.include?(port_name)
 
           when 'LISTEN_HOST', 'CONNECT_HOST'
@@ -655,7 +657,7 @@ module Cosmos
       @allow_router_commanding = false
       @x_csrf_token = 'SuperSecret'
       @allowed_origins = []
-      @allowed_hosts = ['127.0.0.1:7777']
+      @allowed_hosts = ['127.0.0.1:7777', '127.0.0.1:7778', '127.0.0.1:7877', '127.0.0.1:8779', '127.0.0.1:8780']
 
       unless filename
         system_arg = false

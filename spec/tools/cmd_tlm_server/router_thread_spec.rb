@@ -20,7 +20,7 @@ module Cosmos
     before(:each) do
       @packet = Packet.new('TGT','PKT')
       @packet.buffer = "\x01\x02"
-
+      System.instance.instance_variable_set(:@allow_router_commanding, true)
       @interface = Interface.new
       # Interface#connected? implemented in each test case
       allow(@interface).to receive(:connect)
@@ -32,7 +32,7 @@ module Cosmos
     end
 
     describe "handle_packet" do
-      it "handles disconnectd interfaces" do
+      it "handles disconnected interfaces" do
         allow(@interface).to receive(:connected?).and_return(false)
         @interface.interfaces = [@interface]
         thread = RouterThread.new(@interface)
@@ -148,4 +148,3 @@ module Cosmos
     end
   end
 end
-

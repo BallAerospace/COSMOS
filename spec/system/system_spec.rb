@@ -703,6 +703,114 @@ module Cosmos
         end
       end
 
+      context "with ALLOW_ROUTER_COMMANDING" do
+        it "takes 0 parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts("ALLOW_ROUTER_COMMANDING BLAH TRUE")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for ALLOW_ROUTER_COMMANDING./)
+          tf.unlink
+        end
+
+        it "allows router commanding" do
+          tf = Tempfile.new('unittest')
+          tf.puts("ALLOW_ROUTER_COMMANDING")
+          tf.close
+          expect(System.allow_router_commanding).to be false
+          System.instance.process_file(tf.path)
+          expect(System.allow_router_commanding).to be true
+          tf.unlink
+        end
+
+        it "it disallows router commanding if not present" do
+          tf = Tempfile.new('unittest')
+
+          tf.close
+          expect(System.allow_router_commanding).to be false
+          System.instance.process_file(tf.path)
+          expect(System.allow_router_commanding).to be false
+          tf.unlink
+        end
+      end
+
+      context "with X_CSRF_TOKEN" do
+        it "takes 1 parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts("X_CSRF_TOKEN")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for X_CSRF_TOKEN./)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts("X_CSRF_TOKEN localhost true")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for X_CSRF_TOKEN./)
+          tf.unlink
+        end
+
+        it "updates the CSRF token" do
+          tf = Tempfile.new('unittest')
+          tf.puts("X_CSRF_TOKEN ExtraSpecial")
+          tf.close
+          expect(System.x_csrf_token).to eql "SuperSecret"
+          System.instance.process_file(tf.path)
+          expect(System.x_csrf_token).to eql "ExtraSpecial"
+          tf.unlink
+        end
+      end
+
+      context "with ALLOW_HOST" do
+        it "takes 1 parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts("ALLOW_HOST")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for ALLOW_HOST./)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts("ALLOW_HOST localhost true")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for ALLOW_HOST./)
+          tf.unlink
+        end
+
+        it "adds to allowed hosts" do
+          tf = Tempfile.new('unittest')
+          tf.puts("ALLOW_HOST 1.2.3.4:8888")
+          tf.close
+          expect(System.allowed_hosts).to_not include("1.2.3.4:8888")
+          System.instance.process_file(tf.path)
+          expect(System.allowed_hosts).to include("1.2.3.4:8888")
+          tf.unlink
+        end
+      end
+
+      context "with ALLOW_ORIGIN" do
+        it "takes 1 parameters" do
+          tf = Tempfile.new('unittest')
+          tf.puts("ALLOW_ORIGIN")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Not enough parameters for ALLOW_ORIGIN./)
+          tf.unlink
+
+          tf = Tempfile.new('unittest')
+          tf.puts("ALLOW_ORIGIN localhost true")
+          tf.close
+          expect { System.instance.process_file(tf.path) }.to raise_error(ConfigParser::Error, /Too many parameters for ALLOW_ORIGIN./)
+          tf.unlink
+        end
+
+        it "adds to allowed origins" do
+          tf = Tempfile.new('unittest')
+          tf.puts("ALLOW_ORIGIN 1.2.3.4:8888")
+          tf.close
+          expect(System.allowed_origins).to_not include("1.2.3.4:8888")
+          System.instance.process_file(tf.path)
+          expect(System.allowed_origins).to include("1.2.3.4:8888")
+          tf.unlink
+        end
+      end
+
       context "with ALLOW_ACCESS" do
         it "takes 1 parameters" do
           tf = Tempfile.new('unittest')

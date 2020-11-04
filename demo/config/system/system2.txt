@@ -8,16 +8,17 @@ DECLARE_TARGET EXAMPLE
 DECLARE_TARGET SYSTEM
 
 # Listen Hosts - Ip addresses or hostnames to listen on when running the tools
+# Set these to 0.0.0.0 if you need external connections from other computers
 LISTEN_HOST CTS_API 127.0.0.1
 LISTEN_HOST TLMVIEWER_API 127.0.0.1
-LISTEN_HOST CTS_PREIDENTIFIED 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
-LISTEN_HOST CTS_CMD_ROUTER 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
+LISTEN_HOST CTS_PREIDENTIFIED 127.0.0.1
+LISTEN_HOST CTS_CMD_ROUTER 127.0.0.1
 LISTEN_HOST REPLAY_API 127.0.0.1
-LISTEN_HOST REPLAY_PREIDENTIFIED 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
-LISTEN_HOST REPLAY_CMD_ROUTER 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
-LISTEN_HOST DART_STREAM 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
-LISTEN_HOST DART_DECOM 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
-LISTEN_HOST DART_MASTER 0.0.0.0 # 127.0.0.1 is more secure if you don't need external connections
+LISTEN_HOST REPLAY_PREIDENTIFIED 127.0.0.1
+LISTEN_HOST REPLAY_CMD_ROUTER 127.0.0.1
+LISTEN_HOST DART_STREAM 127.0.0.1
+LISTEN_HOST DART_DECOM 127.0.0.1
+LISTEN_HOST DART_MASTER 127.0.0.1
 
 # Connect Hosts - Ip addresses or hostnames to connect to when running the tools
 CONNECT_HOST CTS_API 127.0.0.1
@@ -65,3 +66,10 @@ ALLOW_ACCESS ALL
 
 # Initialize the metadata dialog using values from the following file:
 # META_INIT config/data/meta_init.txt
+
+# ALLOW_ROUTER_COMMANDING # Enable this to chain servers with commanding
+# ALLOW_HOST localhost:7777 # This is provided by default.  Add with HostIP:7777 for chaining
+# ALLOW_ORIGIN 1.2.3.4:8080 # Add this if you have a webserver that should be able to access the COSMOS API
+
+# *** IMPORTANT *** Change this value to a unique value for each project
+X_CSRF_TOKEN SuperSecret # Secret used to secure requests - Change for each project

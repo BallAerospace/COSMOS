@@ -1,7 +1,8 @@
 ---
 AUTO_DECLARE_TARGETS:
   summary: Automatically load all the target folders under config/targets into the system
-  description: When automatically discovering target folders the COSMOS naming convention
+  description:
+    When automatically discovering target folders the COSMOS naming convention
     must be followed. Target folders must be uppercase and be named according to how
     COSMOS will access them. For example, if you create a config/targets/INST directory,
     COSMOS will create a target named 'INST' which is how it will be referenced.
@@ -9,7 +10,8 @@ AUTO_DECLARE_TARGETS:
     DECLARE_TARGET keyword.
 DECLARE_TARGET:
   summary: Declare a COSMOS target and name it
-  description: Declare target is used in place of AUTO_DECLARE_TARGETS to give more
+  description:
+    Declare target is used in place of AUTO_DECLARE_TARGETS to give more
     fine grained control over how the target folder is loaded and named within COSMOS.
     This is required if AUTO_DECLARE_TARGET is not present.
   example: DECLARE_TARGET INST INST2 inst.txt
@@ -26,7 +28,8 @@ DECLARE_TARGET:
         the target name will be the directory name given above.
     - name: Target Filename
       required: false
-      description: The name of the file in the target directory which contains the
+      description:
+        The name of the file in the target directory which contains the
         configuration information for the target. By default this is 'target.txt'
         but if you want to rename this you need to set this parameter.
 DECLARE_GEM_TARGET:
@@ -38,7 +41,8 @@ DECLARE_GEM_TARGET:
   parameters:
     - name: Gem Name
       required: true
-      description: The COSMOS gem name which must be cosmos-<gem-name> where <gem-name>
+      description:
+        The COSMOS gem name which must be cosmos-<gem-name> where <gem-name>
         is the descriptive gem name. In the above example, the target will be named
         'GEM-NAME' (note the cosmos- prefix is stripped off).
       values: .+
@@ -49,7 +53,8 @@ DECLARE_GEM_TARGET:
         the target name will be the gem name as described above.
     - name: Target Filename
       required: false
-      description: The name of the file in the target directory which contains the
+      description:
+        The name of the file in the target directory which contains the
         configuration information for the target. By default this is 'target.txt'
         but if you want to rename this you need to set this parameter.
 DECLARE_GEM_MULTI_TARGET:
@@ -64,7 +69,8 @@ DECLARE_GEM_MULTI_TARGET:
   parameters:
     - name: Gem Name
       required: true
-      description: The COSMOS gem name which must be cosmos-<gem-name> where <gem-name>
+      description:
+        The COSMOS gem name which must be cosmos-<gem-name> where <gem-name>
         is the descriptive gem name. In the above example, the target will be named
         'GEM-NAME' (note the cosmos- prefix is stripped off).
       values: .+
@@ -80,12 +86,14 @@ DECLARE_GEM_MULTI_TARGET:
         the target name will be the gem name as described above.
     - name: Target Filename
       required: false
-      description: The name of the file in the target directory which contains the
+      description:
+        The name of the file in the target directory which contains the
         configuration information for the target. By default this is 'target.txt'
         but if you want to rename this you need to set this parameter.
 PORT:
   summary: Set a Server Port
-  description: Port is used to set the default ports used by the Command and Telemetry Server.
+  description:
+    Port is used to set the default ports used by the Command and Telemetry Server.
     It is not necessary to set this option unless you wish to override the defaults
     (given in the example usage). Overriding ports is necessary if you want to run
     two Command and Telemetry Servers on the same computer simultaneously.
@@ -96,7 +104,8 @@ PORT:
   parameters:
     - name: Port Name
       required: true
-      description: CTS_API - This port is what tools connect to to communicate with the COSMOS Scripting API.
+      description:
+        CTS_API - This port is what tools connect to to communicate with the COSMOS Scripting API.
         TLMVIEWER_API - This port is used to remotely open and close telemetry screens in Telemetry Viewer.
         CTS_PREIDENTIFIED - This port provides access to a preidentified stream of all telemetry packets
         in the system. This is currently used by Telemetry Grapher and can be used to chain Command
@@ -114,7 +123,8 @@ LISTEN_HOST:
   parameters:
     - name: Host Port Name
       required: true
-      description: CTS_API - This port is what tools connect to to communicate with the COSMOS Scripting API.
+      description:
+        CTS_API - This port is what tools connect to to communicate with the COSMOS Scripting API.
         TLMVIEWER_API - This port is used to remotely open and close telemetry screens in Telemetry Viewer.
         CTS_PREIDENTIFIED - This port provides access to a preidentified stream of all telemetry packets
         in the system. This is currently used by Telemetry Grapher and can be used to chain Command
@@ -124,7 +134,8 @@ LISTEN_HOST:
       values: <%= %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED CTS_CMD_ROUTER) %>
     - name: Host Value
       required: true
-      description: The IP address or host name to bind the Host Port Name to. By default,
+      description:
+        The IP address or host name to bind the Host Port Name to. By default,
         the CTS_API and TLMVIEWER_API are bound to localhost meaning that only tools
         on the same machine can connect. By default, CTS_PREIDENTIFIED and CTS_CMD_ROUTER
         are bound to '0.0.0.0' to allow for tools on any machines to connect. This
@@ -136,7 +147,8 @@ CONNECT_HOST:
   parameters:
     - name: Host Port Name
       required: true
-      description: CTS_API - This port is what tools connect to to communicate with the COSMOS Scripting API.
+      description:
+        CTS_API - This port is what tools connect to to communicate with the COSMOS Scripting API.
         TLMVIEWER_API - This port is used to remotely open and close telemetry screens in Telemetry Viewer.
         CTS_PREIDENTIFIED - This port provides access to a preidentified stream of all telemetry packets
         in the system. This is currently used by Telemetry Grapher and can be used to chain Command
@@ -146,15 +158,18 @@ CONNECT_HOST:
       values: <%= %w(CTS_API TLMVIEWER_API CTS_PREIDENTIFIED CTS_CMD_ROUTER) %>
     - name: Host Value
       required: true
-      description: The IP address or host name to connect tools to. By default all
+      description:
+        The IP address or host name to connect tools to. By default all
         ports are bound to localhost so all tools connect to the local machine.
       values: .+
 PATH:
   summary: Set a Server Path
-  description: Path is used to set the default paths used by the Command and Telemetry Server
+  description:
+    Path is used to set the default paths used by the Command and Telemetry Server
     to access or create files. It is not necessary to set this option unless you wish to
     override the defaults (given in the example usage).
-  warning: The PROCEDURES path must be set for Script Runner and Test Runner to locate your
+  warning:
+    The PROCEDURES path must be set for Script Runner and Test Runner to locate your
     procedure files. You can add multiple 'PATH PROCEDURES' lines to your configuration file
     to set multiple locations.
   example: |
@@ -205,7 +220,8 @@ DEFAULT_PACKET_LOG_READER:
       since: 4.0.0
 STALENESS_SECONDS:
   summary: Number of seconds before marking the packet stale
-  description: A stale packet is identified in telemetry screens by all the telemetry
+  description:
+    A stale packet is identified in telemetry screens by all the telemetry
     items in the stale packet being colored purple..
   example: STALENESS_SECONDS 30 # Default
   parameters:
@@ -227,7 +243,8 @@ DISABLE_DNS:
     As of COSMOS 3.5.0 the default is to not use DNS
 ENABLE_SOUND:
   summary: Enable audible sounds when popups occur
-  description: Enable sound makes any prompts that occur in ScriptRunner/TestRunner
+  description:
+    Enable sound makes any prompts that occur in ScriptRunner/TestRunner
     make an audible sound when they popup to alert the operator of needed input.
   since: 3.5.0
 ALLOW_ACCESS:
@@ -236,12 +253,14 @@ ALLOW_ACCESS:
   parameters:
     - name: Name or IP Address
       required: true
-      description: Machine name to allow access or you can specify 'ALL' to allow
+      description:
+        Machine name to allow access or you can specify 'ALL' to allow
         all machines access
       values: .+
 META_INIT:
   summary: Specify a file to initialize the SYSTEM META packet
-  description: Filename should be a text file with key value pairs where the keyword
+  description:
+    Filename should be a text file with key value pairs where the keyword
     matches an item in the SYSTEM META packet. Note you do not have to specify ALL
     the items in the SYSTEM META packet.
   since: 4.0.0
@@ -252,7 +271,8 @@ META_INIT:
       values: .+
 TIME_ZONE_UTC:
   summary: Report all times as UTC
-  description: COSMOS will report all times as UTC time. If this keyword is not used,
+  description:
+    COSMOS will report all times as UTC time. If this keyword is not used,
     COSMOS will report all times as local times, where the local time zone is determined
     automatically by Ruby based upon the operating system time settings. This setting
     affects packet receive times, timestamped log filenames, message logs,
@@ -260,7 +280,8 @@ TIME_ZONE_UTC:
   since: 3.10.0
 ADD_HASH_FILE:
   summary: Add a file to the hashing sum calculation
-  description: Adds a file to the set of files used in marshal file hashing sum calculation.
+  description:
+    Adds a file to the set of files used in marshal file hashing sum calculation.
     Upon startup, COSMOS calculates a hashing sum over the command/telemetry definition files
     for all targets. After the definitions have been processed, COSMOS saves the resulting
     objects as marshal files in a folder with the hashing sum as part of the name.
@@ -288,11 +309,11 @@ CLASSIFICATION:
     - name: Display Text
       required: true
       description: The text to display in the classification banner
-      values: '.*'
+      values: ".*"
     - name: Color Name | Red Hex
       required: true
       description: The color name or the red value of a RGB triplet
-      values: '.*'
+      values: ".*"
     - name: Green Hex
       required: false
       description: The green value of a RGB triplet
@@ -303,7 +324,8 @@ CLASSIFICATION:
       values: '\d+'
 HASHING_ALGORITHM:
   summary: Specify which Ruby Digest hashing algorithm to use
-  description: Set the hashing algorithm used for config hashing, tlm_viewer hashing, and
+  description:
+    Set the hashing algorithm used for config hashing, tlm_viewer hashing, and
     script hashing. COSMOS will truncate the resulting hash string down to 32 characters
   since: 4.4.0
   example: HASHING_ALGORITHM SHA256
@@ -311,4 +333,39 @@ HASHING_ALGORITHM:
     - name: Algorithm
       required: true
       description: Digest algorithm, one of MD5, RMD160, SHA1, SHA256, SHA384, SHA512
+      values: .+
+ALLOW_ROUTER_COMMANDING:
+  summary: Allow routers to receive and forward commands to interfaces
+  since: 4.5.0
+  example: ALLOW_ROUTER_COMMANDING
+X_CSRF_TOKEN:
+  summary: Secret token passed with API calls
+  since: 4.5.0
+  example: X_CSRF_TOKEN Secret
+  parameters:
+    - name: token
+      required: true
+      description: Token passed with api calls
+      values: .+
+ALLOW_ORIGIN:
+  summary: Allow a specific HTTP Origin header in Api calls
+  description: This keyword should only be used if COSMOS needs to be commanded from a web server.
+  since: 4.5.0
+  example: ALLOW_ORIGIN 1.2.4.4:8080
+  parameters:
+    - name: origin
+      required: true
+      description: Hostname colon port of origin
+      values: .+
+ALLOW_HOST:
+  summary: Allow a specific HTTP Host header in Api calls
+  description:
+    By default includes ['127.0.0.1:7777', '127.0.0.1:7778', '127.0.0.1:7877', '127.0.0.1:8779', '127.0.0.1:8780'].
+    API Ports changed by a PORT line will also be added automatically.  If you need external connections you must add your ip and
+    these ports to allow external access to work for apis
+  example: ALLOW_HOST 1.2.4.4:7777
+  parameters:
+    - name: host
+      required: true
+      description: Hostname colon port of host
       values: .+
