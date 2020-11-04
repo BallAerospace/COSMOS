@@ -105,17 +105,18 @@
       @submit="prompt.callback"
     ></PromptDialog>
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <FileOpenDialog
+    <FileOpenSaveDialog
       v-if="fileOpen"
       v-model="fileOpen"
       type="open"
       @file="setFile($event)"
     />
-    <FileSaveAsDialog
+    <FileOpenSaveDialog
       v-if="showSaveAs"
       v-model="showSaveAs"
-      :fileName="fileName"
-      @fileName="saveAsFileName($event)"
+      type="save"
+      :inputFileName="fileName"
+      @file-name="saveAsFileName($event)"
     />
     <v-dialog v-model="areYouSure" max-width="350">
       <v-card>
@@ -140,8 +141,7 @@ import 'brace/mode/ruby'
 import 'brace/theme/twilight'
 import { toDate, format } from 'date-fns'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
-import FileOpenDialog from '@/components/FileOpenDialog'
-import FileSaveAsDialog from '@/components/FileSaveAsDialog'
+import FileOpenSaveDialog from '@/components/FileOpenSaveDialog'
 import ActionCable from 'actioncable'
 import AskDialog from './AskDialog.vue'
 import PromptDialog from './PromptDialog.vue'
@@ -150,8 +150,7 @@ const NEW_FILENAME = '<Untitled>'
 
 export default {
   components: {
-    FileOpenDialog,
-    FileSaveAsDialog,
+    FileOpenSaveDialog,
     AskDialog,
     PromptDialog,
     Multipane,
