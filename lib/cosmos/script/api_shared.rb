@@ -806,37 +806,6 @@ module Cosmos
       return [target_name, packet_name, item_name, comparison_to_eval, timeout, polling_rate]
     end
 
-    # sleep in a script - returns true if canceled mid sleep
-    def cosmos_script_sleep(sleep_time = nil)
-      # TODO
-      return false if $disconnected_targets
-      # if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
-      #   ScriptRunnerFrame.instance.active_script_highlight('green')
-
-        sleep_time = 30000000 unless sleep_time # Handle infinite wait
-        if sleep_time > 0.0
-          end_time = Time.now.sys + sleep_time
-          until (Time.now.sys >= end_time)
-            sleep(0.01)
-      #       if ScriptRunnerFrame.instance.pause?
-      #         ScriptRunnerFrame.instance.perform_pause
-      #         return true
-      #       end
-      #       return true if ScriptRunnerFrame.instance.go?
-      #       raise StopScript if ScriptRunnerFrame.instance.stop?
-          end
-        end
-      # else
-      #   if sleep_time
-      #     sleep(sleep_time)
-      #   else
-      #     print 'Infinite Wait - Press Enter to Continue: '
-      #     gets()
-      #   end
-      # end
-      # return false
-    end
-
     def _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate, scope: $cosmos_scope, token: $cosmos_token)
       end_time = Time.now.sys + timeout
       exp_to_eval = yield

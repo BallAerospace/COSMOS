@@ -19,7 +19,7 @@ class Script
     contents = resp.to_h[:contents]
     if contents
       contents.each do |object|
-        result << object[:key] if object[:key].include?("procedures")
+        result << object[:key] if object[:key].include?("procedures") || object[:key].include?("lib")
       end
     end
     result.sort

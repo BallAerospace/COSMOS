@@ -108,6 +108,7 @@
     <FileOpenDialog
       v-if="fileOpen"
       v-model="fileOpen"
+      type="open"
       @file="setFile($event)"
     />
     <FileSaveAsDialog
@@ -362,17 +363,13 @@ export default {
           while (this.messages.length > this.maxArrayLength) {
             this.messages.shift()
           }
-          // TODO: Better way to signal script completion?
-          if (data.line.includes('Script complete')) {
-            this.startOrGoText = 'Start'
-            this.editor.setReadOnly(false)
-          }
           break
-
         case 'script':
           this.handleScript(data)
           break
-
+        case 'complete':
+          this.startOrGoText = 'Start'
+          this.editor.setReadOnly(false)
         default:
           // console.log('Unexpected ActionCable message')
           // console.log(data)

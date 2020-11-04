@@ -2,10 +2,25 @@
   <v-dialog v-model="show" width="400">
     <v-card>
       <v-card-title>File Open</v-card-title>
+      <v-sheet class="pl-4 pr-4">
+        <v-text-field
+          label="Search"
+          v-model="search"
+          @input="handleSearch"
+          flat
+          solo-inverted
+          hide-details
+          clearable
+          clear-icon="mdi-close-circle-outline"
+        ></v-text-field>
+      </v-sheet>
       <v-card-text>
         <v-container>
           <v-treeview
+            ref="tree"
             :items="tree"
+            :search="search"
+            open-on-click
             return-object
             @update:active="activeFile"
             activatable
@@ -37,12 +52,21 @@ import axios from 'axios'
 
 export default {
   props: {
+    type: {
+      type: String,
+      required: true,
+      validator: function (value) {
+        // The value must match one of these strings
+        return ['open', 'save'].indexOf(value) !== -1
+      },
+    },
     value: Boolean, // value is the default prop when using v-model
   },
   data() {
     return {
       tree: [],
       id: 1,
+      search: null,
       selectedFile: null,
       warning: false,
     }
@@ -69,6 +93,13 @@ export default {
     })
   },
   methods: {
+    handleSearch(input) {
+      if (input) {
+        this.$refs.tree.updateAll(true)
+      } else {
+        this.$refs.tree.updateAll(false)
+      }
+    },
     activeFile(file) {
       if (file.length === 0) {
         this.selectedFile = null

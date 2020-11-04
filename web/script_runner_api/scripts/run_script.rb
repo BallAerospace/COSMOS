@@ -71,6 +71,7 @@ ensure
         break
       end
     end
+    ActionCable.server.broadcast("running-script-channel:#{id}", type: :complete)
   ensure
     running_script.stop_message_log
   end

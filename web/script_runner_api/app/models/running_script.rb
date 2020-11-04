@@ -77,6 +77,27 @@ module Cosmos
         not_cached
       end
       alias require_utility load_utility
+
+      # sleep in a script - returns true if canceled mid sleep
+      def cosmos_script_sleep(sleep_time = nil)
+        ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}",
+          { type: :line, filename: RunningScript.instance.current_filename, line_no: RunningScript.instance.current_line_number, state: :waiting })
+
+        sleep_time = 30000000 unless sleep_time # Handle infinite wait
+        if sleep_time > 0.0
+          end_time = Time.now.sys + sleep_time
+          until (Time.now.sys >= end_time)
+            sleep(0.01)
+            if RunningScript.instance.pause?
+              RunningScript.instance.perform_pause
+              return true
+            end
+            return true if RunningScript.instance.go?
+            raise StopScript if RunningScript.instance.stop?
+          end
+        end
+        return false
+      end
     end
   end
 end
@@ -87,7 +108,10 @@ class RunningScript
   attr_accessor :name
 
   attr_accessor :use_instrumentation
+  # TODO: Why are there both filename and current_filename
   attr_reader :filename
+  attr_reader :current_filename
+  attr_reader :current_line_number
   attr_accessor :continue_after_error
   attr_accessor :exceptions
   attr_accessor :script_binding
@@ -233,9 +257,19 @@ class RunningScript
     @pause = false unless @@step_mode
   end
 
+  def go?
+    temp = @go
+    @go = false
+    temp
+  end
+
   def pause
     @pause = true
     @go    = false
+  end
+
+  def pause?
+    @pause
   end
 
   def stop
@@ -243,6 +277,10 @@ class RunningScript
       Cosmos.kill_thread(nil, @@run_thread)
       @@run_thread = nil
     end
+  end
+
+  def stop?
+    @stop
   end
 
   def as_json(*args)
@@ -561,11 +599,6 @@ class RunningScript
       end
       Cosmos::Logger.detail_string = detail_string
 
-      # Highlight the line that is about to run
-      #Qt.execute_in_main_thread(true) do
-      #  @active_script.center_line(line_number)
-      #  @active_script.highlight_line
-      #end
       ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :running })
 
       # Handle pausing the script
