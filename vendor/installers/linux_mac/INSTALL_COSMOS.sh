@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Mac Install
-if [[ "$OSTYPE" == "darwin"* ]]; then
+if [[ "$OSTYPE" == "darwin"* ] || [ "$OSTYPE" == "bsd44"* ]]; then
 
   # Disable App Nap
   defaults write -g NSAppSleepDisabled -bool true
