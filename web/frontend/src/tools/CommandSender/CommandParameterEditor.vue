@@ -63,7 +63,7 @@ export default {
   },
   data() {
     return {
-      value: initialValue,
+      value: this.initialValue,
     }
   },
   computed: {
