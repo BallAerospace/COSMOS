@@ -1,30 +1,22 @@
 <template>
   <div>
+    <v-alert dense dismissible :type="alertType" v-if="alertType">{{
+      alertText
+    }}</v-alert>
     <v-container id="header" class="pane">
       <v-row no-gutters>
         <v-btn
           color="primary"
           @click="startOrGo"
-          :disabled="disableControls"
           style="width: 100px"
           class="mr-4"
           >{{ startOrGoText }}
           <v-icon right> mdi-play </v-icon>
         </v-btn>
-        <v-btn
-          color="primary"
-          @click="pause"
-          :disabled="disableControls"
-          style="width: 100px"
-          class="mr-4"
+        <v-btn color="primary" @click="pause" style="width: 100px" class="mr-4"
           >Pause <v-icon right> mdi-pause </v-icon>
         </v-btn>
-        <v-btn
-          color="primary"
-          @click="stop"
-          :disabled="disableControls"
-          style="width: 100px"
-          class="mr-4"
+        <v-btn color="primary" @click="stop" style="width: 100px" class="mr-4"
           >Stop <v-icon right> mdi-stop </v-icon>
         </v-btn>
         <v-text-field
@@ -54,7 +46,13 @@
         ></v-text-field>
       </v-row>
     </v-container>
-    <Multipane class="horizontal-panes" layout="horizontal">
+    <!-- Create Multipane container to support resizing.
+         NOTE: We listen to paneResize event and call editor.resize() to prevent weird sizing issues -->
+    <Multipane
+      class="horizontal-panes"
+      layout="horizontal"
+      @paneResize="editor.resize()"
+    >
       <div id="editorbox" class="pane">
         <pre id="editor"></pre>
       </div>
@@ -174,16 +172,18 @@ export default {
   },
   data() {
     return {
+      alertType: null,
+      alertText: '',
       state: ' ',
       scriptId: null,
       files: {},
       fileName: NEW_FILENAME,
+      tempFileName: null,
       fileModified: '',
       fileOpen: false,
       startOrGoText: 'Start',
       showSaveAs: false,
       areYouSure: false,
-      disableControls: true,
       subscription: null,
       cable: null,
       marker: null,
@@ -280,13 +280,22 @@ export default {
       }
     },
     onChange(delta) {
-      this.fileModified = '*'
+      // Don't track changes on a new unsaved file
+      if (this.fileName !== NEW_FILENAME) {
+        this.fileModified = '*'
+      }
     },
     startOrGo() {
       if (this.startOrGoText === 'Start') {
-        this.saveFile() // Save first or they'll be running old code
+        this.saveFile('start') // Save first or they'll be running old code
+
+        let fileName = this.fileName
+        if (this.fileName === NEW_FILENAME) {
+          // NEW_FILENAME so use tempFileName created by saveFile()
+          fileName = this.tempFileName
+        }
         axios
-          .post('http://localhost:3001/scripts/' + this.fileName + '/run', {})
+          .post('http://localhost:3001/scripts/' + fileName + '/run', {})
           .then((response) => {
             this.state = 'Connecting...'
             this.startOrGoText = 'Go'
@@ -300,7 +309,6 @@ export default {
             )
           })
       } else {
-        // Go
         axios.post(
           'http://localhost:3001/running-script/' + this.scriptId + '/go',
           {}
@@ -378,6 +386,12 @@ export default {
         case 'complete':
           this.startOrGoText = 'Start'
           this.editor.setReadOnly(false)
+          // Delete the temp file created as a result of saving a NEW file
+          if (this.tempFileName) {
+            axios.post(
+              'http://localhost:3001/scripts/' + this.tempFileName + '/delete'
+            )
+          }
         default:
           // console.log('Unexpected ActionCable message')
           // console.log(data)
@@ -504,7 +518,6 @@ export default {
       this.fileName = NEW_FILENAME
       this.editor.session.setValue('')
       this.fileModified = ''
-      this.disableControls = true
     },
     openFile() {
       this.fileOpen = true
@@ -514,22 +527,43 @@ export default {
       this.fileName = file.name
       this.editor.session.setValue(file.contents)
       this.fileModified = ''
-      this.disableControls = false
     },
-    saveFile() {
+    // saveFile takes a type to indicate if it was called by the Menu
+    // or automatically by the 'Start' button (to ensure a consistent backend file)
+    saveFile(type = 'menu') {
       if (this.fileName === NEW_FILENAME) {
-        this.saveAs()
-        return
+        // If this saveFile was called by 'Start' we need to create a temp file
+        if (type === 'start') {
+          this.tempFileName =
+            format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_temp.rb'
+          axios.post(
+            'http://localhost:3001/scripts/' + this.tempFileName,
+            this.editor.getValue() // Pass in the raw file text
+          )
+        } else {
+          // Menu driven saves on a new file should prompt SaveAs
+          this.saveAs()
+        }
+      } else {
+        // Save an existing file by posting the new contents
+        axios
+          .post(
+            'http://localhost:3001/scripts/' + this.fileName,
+            this.editor.getValue() // Pass in the raw file text
+          )
+          .then((response) => {
+            if (response.status == 200) {
+              this.fileModified = ''
+            } else {
+              this.alertType = 'error'
+              this.alertText =
+                'Error saving file. Code: ' +
+                response.status +
+                ' Text: ' +
+                response.statusText
+            }
+          })
       }
-      axios
-        .post(
-          'http://localhost:3001/scripts/' + this.fileName,
-          this.editor.getValue() // Pass in the raw file text
-        )
-        .then((response) => {
-          this.fileModified = ''
-          this.disableControls = false
-        })
     },
     saveAs() {
       this.showSaveAs = true
@@ -546,7 +580,8 @@ export default {
         axios
           .post('http://localhost:3001/scripts/' + this.fileName + '/delete')
           .then((response) => {
-            // TODO: Notify user
+            this.areYouSure = false
+            this.newFile()
           })
       }
     },

@@ -1195,14 +1195,8 @@ class RunningScript
                 line_offset = 0,
                 text_binding = nil,
                 close_on_complete = false)
-    #@realtime_button_bar.start_button.setEnabled(true)
     initialize_variables()
-    #create_tabs()
     @line_offset = line_offset
-    #@script.setReadOnly(true)
-    #@realtime_button_bar.start_button.setText(' Go ')
-    #@realtime_button_bar.state = 'Running'
-
     saved_instance = @@instance
     saved_run_thread = @@run_thread
     @@instance   = self
@@ -1270,11 +1264,9 @@ class RunningScript
           handle_exception(error, true, filename, line_number)
           scriptrunner_puts "Exception in Control Statement - Script stopped: #{File.basename(@filename)}"
           handle_output_io()
-          #Qt.execute_in_main_thread(true) { @script.highlight_line('red') }
           ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :stopped_exception })
         end
       ensure
-        # Change Go Button to Start Button and remove highlight
         # Stop Capturing STDOUT and STDERR
         # Check for remove_stream because if the tool is quitting the
         # Cosmos::restore_io may have been called which sets $stdout and
@@ -1292,30 +1284,17 @@ class RunningScript
         if @@limits_monitor_thread and not @@instance
           @@cancel_limits = true
           @@limits_sleeper.cancel
-          #Qt::CoreApplication.processEvents()
           Cosmos.kill_thread(self, @@limits_monitor_thread)
           @@limits_monitor_thread = nil
         end
         if @@output_thread and not @@instance
           @@cancel_output = true
           @@output_sleeper.cancel
-          #Qt::CoreApplication.processEvents()
           Cosmos.kill_thread(self, @@output_thread)
           @@output_thread = nil
         end
 
-        #@script.setReadOnly(false)
-        #@script.stop_highlight unless uncaught_exception
-        #select_tab_and_destroy_tabs_after_index(0)
-        #remove_tabs()
-        #unless @allow_start
-        #  @realtime_button_bar.start_button.setEnabled(false)
-        #  @script.setReadOnly(true)
-        #end
         mark_stopped()
-        #if close_on_complete
-        #  self.parent.done(0)
-        #end
       end
     end
   end
@@ -1324,7 +1303,7 @@ class RunningScript
     bucket ||= ::Script::DEFAULT_BUCKET_NAME
 
     # Make sure the correct file is shown in script runner
-    if @current_file != filename and @tab_book_shown
+    if @current_file != filename
       #Qt.execute_in_main_thread(true) do
         if @call_stack.include?(filename)
           index = @call_stack.index(filename)
@@ -1446,7 +1425,7 @@ class RunningScript
   # end
 
   def handle_exception(error, fatal, filename = nil, line_number = 0)
-    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :output, line: error.formatted, color: 'RED' })
+    scriptrunner_puts(error.message, 'RED')
     @exceptions ||= []
     @exceptions << error
     @@error = error
