@@ -88,6 +88,7 @@ module Cosmos
 
     @@instance = nil
     @@instance_mutex = Mutex.new
+    @@instance_filename = nil
 
     # Create a new System object. Note, this should not be called directly but
     # you should instead use System.instance and treat this class as a
@@ -97,6 +98,7 @@ module Cosmos
     #   read. Be default this is <Cosmos::USERPATH>/config/system/system.txt
     def initialize(filename = nil)
       raise "Cosmos::System created twice" unless @@instance.nil?
+      @@instance_filename = filename
       reset_variables(filename)
       @@instance = self
     end
@@ -521,7 +523,7 @@ module Cosmos
                     # Zip file configuration so unzip and reset configuration path
                     configuration = unzip(configuration)
                   end
-                  
+
                   Logger.info "Switching to configuration: #{name}"
                   process_file(File.join(configuration, 'system.txt'), configuration)
                   load_packets(name, false)
@@ -547,7 +549,7 @@ module Cosmos
           Logger.info "Switching to initial configuration: #{@initial_config.name}"
           update_config(@initial_config)
         end
-        
+
         return @config.name, nil
       end
     end
@@ -650,7 +652,7 @@ module Cosmos
     end
 
     # Reset variables and load packets
-    def reset(filename = nil)
+    def reset(filename = @@instance_filename)
       reset_variables(filename)
       load_packets()
     end
