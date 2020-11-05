@@ -72,6 +72,7 @@
               hide-details
               data-test="search-output-messages"
             ></v-text-field>
+            <v-icon @click="downloadLog" class="pa-2 mt-3">mdi-download</v-icon>
           </v-card-title>
           <v-data-table
             :headers="headers"
@@ -188,10 +189,7 @@ export default {
       marker: null,
       search: '',
       messages: [],
-      headers: [
-        { text: 'Time', value: '@timestamp', width: 250 },
-        { text: 'Message', value: 'message' },
-      ],
+      headers: [{ text: 'Message', value: 'message' }],
       maxArrayLength: 30,
       Range: ace.acequire('ace/range').Range,
       ask: {
@@ -322,7 +320,7 @@ export default {
       )
     },
     received(data) {
-      console.log(data)
+      // console.log(data)
       switch (data.type) {
         case 'file':
           this.files[data.filename] = data.text
@@ -369,10 +367,7 @@ export default {
           }
           break
         case 'output':
-          this.messages.push({
-            '@timestamp': format(Date.now(), 'yyyy-MM-dd HH:mm:ss.SSS'),
-            message: data.line,
-          })
+          this.messages.push({ message: data.line })
           while (this.messages.length > this.maxArrayLength) {
             this.messages.shift()
           }
@@ -571,6 +566,24 @@ export default {
       axios.post(
         'http://localhost:3001/running-script/' + this.scriptId + '/backtrace'
       )
+    },
+
+    downloadLog() {
+      let output = ''
+      for (let msg of this.messages) {
+        output += msg.message + '\n'
+      }
+      const blob = new Blob([output], {
+        type: 'text/plain',
+      })
+      // Make a link and then 'click' on it to start the download
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.setAttribute(
+        'download',
+        format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_sr_message_log.txt'
+      )
+      link.click()
     },
   },
 }
