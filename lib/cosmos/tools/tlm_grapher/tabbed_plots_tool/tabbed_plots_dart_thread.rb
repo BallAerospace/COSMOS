@@ -45,7 +45,7 @@ module Cosmos
 
           # Execute each query
           results = {}
-          server = JsonDRbObject.new(System.connect_hosts['DART_DECOM'], System.ports['DART_DECOM'])
+          server = JsonDRbObject.new(System.connect_hosts['DART_DECOM'], System.ports['DART_DECOM'], 1.0, Cosmos::System.x_csrf_token)
           time_start = Time.utc(1970, 1, 1) unless time_start
           time_end = Time.now unless time_end
           progress_dialog.set_step_progress(0) if progress_dialog

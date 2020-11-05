@@ -36,16 +36,16 @@ class DartDecommutator
 
   # Wait 60s before giving up on the PacketConfig becoming ready
   PACKET_CONFIG_READY_TIMEOUT = 60
-  
+
   # Delay between updating the DART status packet.   Simply throttles this rarely viewed status
   STATUS_UPDATE_PERIOD_SECONDS = 60.seconds
-  
+
   def initialize(worker_id = 0, num_workers = 1)
     sync_targets_and_packets()
     @worker_id = worker_id
     @num_workers = num_workers
     @status = DartDecommutatorStatus.new
-    @master = Cosmos::JsonDRbObject.new(Cosmos::System.connect_hosts['DART_MASTER'], Cosmos::System.ports['DART_MASTER'])
+    @master = Cosmos::JsonDRbObject.new(Cosmos::System.connect_hosts['DART_MASTER'], Cosmos::System.ports['DART_MASTER'], 1.0, Cosmos::System.x_csrf_token)
   end
 
   def timeit(message, &block)
@@ -84,7 +84,7 @@ class DartDecommutator
             # If we timeout this code will simply exit the application
             wait_for_ready_packet_config(packet_config)
             decom_packet(ple, packet, packet_config)
-            
+
             # Update status
             if Time.now > status_time
               status_time = Time.now + 60.seconds

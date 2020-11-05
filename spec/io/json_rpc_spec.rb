@@ -238,25 +238,25 @@ module Cosmos
 
       it "reports an error if there is no 'result' or 'error' key" do
         json = JsonRpcResponse.new(10).as_json
-        expect { JsonRpcResponse.from_json(json.to_json) }.to raise_error("Invalid JSON-RPC 2.0 Response")
+        expect { JsonRpcResponse.from_json(json.to_json) }.to raise_error(/Invalid JSON-RPC 2.0 Response/)
       end
 
       it "reports an error if the version isn't 2.0" do
         json = JsonRpcResponse.new(10).as_json
         json['jsonrpc'] = "1.1"
         json['result'] = "true"
-        expect { JsonRpcResponse.from_json(json.to_json) }.to raise_error("Invalid JSON-RPC 2.0 Response")
+        expect { JsonRpcResponse.from_json(json.to_json) }.to raise_error(/Invalid JSON-RPC 2.0 Response/)
       end
 
       it "reports an error if there is both a 'result' and 'error' key" do
         json = JsonRpcResponse.new(10).as_json
         json['result'] = "true"
         json['error'] = {"code"=>-1, "message"=>"error"}
-        expect { JsonRpcResponse.from_json(json.to_json) }.to raise_error("Invalid JSON-RPC 2.0 Response")
+        expect { JsonRpcResponse.from_json(json.to_json) }.to raise_error(/Invalid JSON-RPC 2.0 Response/)
       end
 
       it "reports an error if it is not json" do
-        expect { JsonRpcResponse.from_json(Object.new) }.to raise_error("Invalid JSON-RPC 2.0 Response")
+        expect { JsonRpcResponse.from_json(Object.new) }.to raise_error(/Invalid JSON-RPC 2.0 Response/)
       end
 
       it "reports an error if the error hash is bad" do
@@ -268,4 +268,3 @@ module Cosmos
 
   end
 end
-

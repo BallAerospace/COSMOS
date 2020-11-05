@@ -31,7 +31,7 @@ request['value_type'] = 'RAW_AVG'
 request['meta_filters'] = ["OPERATOR_NAME == 'Unspecified'"]
 
 puts "Connecting to Dart Decom Server..."
-server = Cosmos::JsonDRbObject.new(Cosmos::System.connect_hosts['DART_DECOM'], Cosmos::System.ports['DART_DECOM'])
+server = Cosmos::JsonDRbObject.new(Cosmos::System.connect_hosts['DART_DECOM'], Cosmos::System.ports['DART_DECOM'], 1.0, Cosmos::System.x_csrf_token)
 puts "Getting SYSTEM META fields"
 result = server.item_names("SYSTEM", "META")
 puts result.inspect(10000)

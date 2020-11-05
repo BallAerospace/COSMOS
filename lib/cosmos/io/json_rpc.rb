@@ -269,7 +269,7 @@ module Cosmos
     # @param response_data [String] JSON encoded string representing the response
     # @return [JsonRpcResponse]
     def self.from_json(response_data)
-      msg = "Invalid JSON-RPC 2.0 Response"
+      msg = "Invalid JSON-RPC 2.0 Response: #{response_data.inspect}"
       begin
         hash = JSON.parse(response_data, :allow_nan => true, :create_additions => true)
       rescue

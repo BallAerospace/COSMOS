@@ -19,6 +19,11 @@ module Cosmos
     protected
 
     def handle_packet(packet)
+      unless System.allow_router_commanding
+        Logger.error "Router received command with router commanding disabled"
+        return
+      end
+
       # Start out assuming we will route to all associated interfaces
       interfaces = @interface.interfaces
 

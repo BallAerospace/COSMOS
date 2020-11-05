@@ -123,7 +123,7 @@ module Cosmos
     # @param object [Object] The object to send the DRb requests to. This
     #   object must either include the Cosmos::Script module or be the
     #   CmdTlmServer.
-    def start_service(hostname = nil, port = nil, object = nil, max_threads = 1000)
+    def start_service(hostname = nil, port = nil, object = nil, max_threads = 1000, system = nil)
       server_started = false
       @server_mutex.synchronize do
         server_started = true if @server
@@ -147,7 +147,7 @@ module Cosmos
             }
 
             # The run call will block until the server is stopped.
-            Rack::Handler::Puma.run(JsonDrbRack.new(self), server_config) do |server|
+            Rack::Handler::Puma.run(JsonDrbRack.new(self, system), server_config) do |server|
               @server_mutex.synchronize do
                 @server = server
               end
