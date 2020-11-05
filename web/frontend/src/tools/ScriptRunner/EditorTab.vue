@@ -131,6 +131,21 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="infoDialog" max-width="750">
+      <v-card>
+        <v-card-title class="headline">{{ infoTitle }}</v-card-title>
+        <v-card-text class="mb-0">
+          <v-container>
+            <v-row no-gutters v-for="(line, index) in infoText" :key="index">{{
+              line
+            }}</v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" text @click="infoDialog = false"> Ok </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -195,16 +210,15 @@ export default {
         layout: 'horizontal',
         callback: () => {},
       },
+      infoDialog: false,
+      infoTitle: '',
+      infoText: [],
     }
   },
   computed: {
     fullFileName() {
       return this.fileName + ' ' + this.fileModified
     },
-  },
-  created() {
-    // TODO: This is how ScriptRunner.vue reaches back to us ... is there a better way?
-    this.$root.$refs.Editor = this
   },
   mounted() {
     this.editor = ace.edit('editor')
@@ -477,6 +491,11 @@ export default {
           this.prompt.callback = this.promptDialogCallback
           this.prompt.show = true
           break
+        case 'backtrace':
+          this.infoTitle = 'Call Stack'
+          this.infoText = JSON.parse(data.args)
+          this.infoDialog = true
+          break
         default:
           /* console.log(
             'Unknown script method:' + data.method + ' with args:' + data.args
@@ -484,6 +503,8 @@ export default {
           break
       }
     },
+
+    // ScriptRunner File menu actions
     newFile() {
       this.fileName = NEW_FILENAME
       this.editor.session.setValue('')
@@ -544,6 +565,13 @@ export default {
       link.setAttribute('download', this.fileName)
       link.click()
     },
+
+    // ScriptRunner Script menu actions
+    showCallStack() {
+      axios.post(
+        'http://localhost:3001/running-script/' + this.scriptId + '/backtrace'
+      )
+    },
   },
 }
 </script>
@@ -576,7 +604,7 @@ hr {
 }
 .waitingMarker {
   position: absolute;
-  background: rgba(100, 180, 100, 0.5);
+  background: rgba(0, 255, 0, 0.5);
   z-index: 20;
 }
 .pausedMarker {

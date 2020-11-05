@@ -7,6 +7,7 @@
           label="Search"
           v-model="search"
           @input="handleSearch"
+          autofocus
           flat
           solo-inverted
           hide-details
@@ -153,8 +154,7 @@ export default {
           this.warning = true
           return
         } else {
-          console.log('GO!')
-          // this.$emit('file-name', this.selectedFile)
+          this.$emit('file-name', this.selectedFile)
           this.show = false
         }
       }

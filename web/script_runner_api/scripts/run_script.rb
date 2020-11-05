@@ -48,6 +48,10 @@ begin
             running_script.user_input = parsed_cmd["result"].to_s
             run_script_log(id, "User input: #{running_script.user_input}")
             running_script.go if running_script.user_input != 'Cancel'
+          when "backtrace"
+            ActionCable.server.broadcast("running-script-channel:#{id}", { type: :script, method: :backtrace, args: JSON.generate(running_script.current_backtrace) })
+          else
+            run_script_log(id, "ERROR: Script method not handled: #{parsed_cmd["method"]}", 'RED')
           end
         else
           run_script_log(id, "ERROR: Script command not handled: #{msg}", 'RED')

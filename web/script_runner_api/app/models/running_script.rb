@@ -1085,9 +1085,9 @@ class RunningScript
     trace = []
     if @@run_thread
       temp_trace = @@run_thread.backtrace
-      cosmos_lib = Regexp.new(File.join(Cosmos::PATH, 'lib'))
       temp_trace.each do |line|
-        next if line =~ cosmos_lib
+        next if line.include?(Cosmos::PATH)    # Ignore COSMOS internals
+        next if line.include?('lib/ruby/gems') # Ignore system gems
         trace << line
       end
     end

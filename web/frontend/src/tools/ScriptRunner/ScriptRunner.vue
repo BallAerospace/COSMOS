@@ -7,7 +7,9 @@
       </v-tabs>
       <v-tabs-items v-model="curTab">
         <v-tab-item v-for="(tab, index) in tabs" :key="index">
+          <!-- Store a ref to the component for use in calling methods -->
           <component
+            :ref="tab.component"
             :is="tab.component"
             v-bind:tabId="index"
             v-bind:curTab="curTab"
@@ -45,14 +47,14 @@ export default {
               label: 'New File',
               icon: 'mdi-file-plus',
               command: () => {
-                this.$root.$refs.Editor.newFile()
+                this.$refs.EditorTab[0].newFile()
               },
             },
             {
               label: 'Open File',
               icon: 'mdi-folder-open',
               command: () => {
-                this.$root.$refs.Editor.openFile()
+                this.$refs.EditorTab[0].openFile()
               },
             },
             {
@@ -62,14 +64,14 @@ export default {
               label: 'Save File',
               icon: 'mdi-content-save',
               command: () => {
-                this.$root.$refs.Editor.saveFile()
+                this.$refs.EditorTab[0].saveFile()
               },
             },
             {
               label: 'Save As...',
               icon: 'mdi-content-save',
               command: () => {
-                this.$root.$refs.Editor.saveAs()
+                this.$refs.EditorTab[0].saveAs()
               },
             },
             {
@@ -79,7 +81,7 @@ export default {
               label: 'Download',
               icon: 'mdi-cloud-download',
               command: () => {
-                this.$root.$refs.Editor.download()
+                this.$refs.EditorTab[0].download()
               },
             },
             {
@@ -89,7 +91,18 @@ export default {
               label: 'Delete File',
               icon: 'mdi-delete',
               command: () => {
-                this.$root.$refs.Editor.delete()
+                this.$refs.EditorTab[0].delete()
+              },
+            },
+          ],
+        },
+        {
+          label: 'Script',
+          items: [
+            {
+              label: 'Show Call Stack ',
+              command: () => {
+                this.$refs.EditorTab[0].showCallStack()
               },
             },
           ],

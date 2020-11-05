@@ -52,4 +52,14 @@ class RunningScriptController < ApplicationController
       head :not_found
     end
   end
+
+  def method
+    running_script = RunningScript.find(params[:id].to_i)
+    if running_script
+      ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method] })
+      head :ok
+    else
+      head :not_found
+    end
+  end
 end
