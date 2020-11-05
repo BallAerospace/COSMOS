@@ -82,7 +82,7 @@ module Cosmos
       else
         options.config_file = nil
         options.stylesheet = nil
-      end      
+      end
     end
 
     # Creates a path to a configuration file. If the file is given it is
@@ -209,28 +209,26 @@ module Cosmos
 
       # Handle manually positioning the window
       unless @options.auto_position
-        # Get the desktop's geometry
-        desktop = Qt::Application.desktop
-
-        # Handle position relative to right edge
-        @options.x = desktop.width - frameGeometry().width + @options.x + 1 if @options.x < 0
-
-        # Handle position relative to bottom edge
-        @options.y = desktop.height - frameGeometry().height + @options.y + 1 if @options.y < 0
-
         # Move to the desired position
         move(@options.x, @options.y)
       end
 
       if @options.remember_geometry and !@options.command_line_geometry
+        # Get the desktop's geometry
+        desktop = Qt::Application.desktop
+        screen = desktop.screen
         settings = Qt::Settings.new('Ball Aerospace', self.class.to_s)
         if settings.contains('size') and @options.restore_size and @options.startup_state != :DEFAULT
           size = settings.value('size').toSize
-          resize(size)
+          if size.height > 0 and size.height < screen.height and size.width > 0 and size.width < screen.width
+            resize(size)
+          end
         end
         if settings.contains('position') and @options.restore_position
           position = settings.value('position').toPoint
-          move(position)
+          if position.x > 0 and position.y > 0 and position.x < screen.width and position.y < screen.height
+            move(position)
+          end
         end
       end
 
