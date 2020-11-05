@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 # Mac Install
-if [[ "$OSTYPE" == "darwin"* ] || [ "$OSTYPE" == "bsd44"* ]]; then
+if [[ "$OSTYPE" == "darwin"* ]] || [[ "$OSTYPE" == "bsd44"* ]]; then
+  echo "Mac Detected"
 
   # Disable App Nap
   defaults write -g NSAppSleepDisabled -bool true
@@ -49,6 +50,7 @@ if [[ "$OSTYPE" == "darwin"* ] || [ "$OSTYPE" == "bsd44"* ]]; then
   fi
 
 else # Linux
+  echo "Linux Detected"
 
   # Yum dependencies tested on Centos 6.5/6.6/7
   cmdtoyum="yum update -y; yum install -y gcc; yum install -y gcc-c++; yum install -y openssl-devel; yum install -y libyaml-devel; yum install -y libffi-devel; yum install -y readline-devel; yum install -y zlib-devel; yum install -y gdbm-devel; yum install -y ncurses-devel; yum install -y git; yum install -y gstreamer-plugins-base-devel; yum install -y cmake; yum install -y freeglut; yum install -y freeglut-devel; yum install -y qt4; yum install -y qt4-devel;"
