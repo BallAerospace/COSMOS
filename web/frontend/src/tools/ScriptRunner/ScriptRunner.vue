@@ -100,9 +100,23 @@ export default {
           label: 'Script',
           items: [
             {
-              label: 'Show Call Stack ',
+              label: 'Show Call Stack',
               command: () => {
                 this.$refs.EditorTab[0].showCallStack()
+              },
+            },
+            {
+              label: 'Toggle Debug',
+              icon: 'mdi-bug',
+              command: () => {
+                this.$refs.EditorTab[0].toggleDebug()
+              },
+            },
+            {
+              label: 'Toggle Disconnect',
+              icon: 'mdi-connection',
+              command: () => {
+                this.$refs.EditorTab[0].toggleDisconnect()
               },
             },
           ],

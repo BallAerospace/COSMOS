@@ -5,6 +5,9 @@
     }}</v-alert>
     <v-container id="header" class="pane">
       <v-row no-gutters>
+        <v-icon v-if="showDisconnect" class="mr-2" color="red"
+          >mdi-connection</v-icon
+        >
         <v-btn
           color="primary"
           @click="startOrGo"
@@ -44,6 +47,9 @@
           label="Filename"
           v-model="fullFileName"
         ></v-text-field>
+        <v-icon v-if="showDisconnect" class="ml-2" color="red"
+          >mdi-connection</v-icon
+        >
       </v-row>
     </v-container>
     <!-- Create Multipane container to support resizing.
@@ -58,6 +64,16 @@
       </div>
       <MultipaneResizer><hr /></MultipaneResizer>
       <div id="messages" class="ma-2 pane" ref="messagesDiv">
+        <v-text-field
+          v-if="showDebug"
+          class="mb-2"
+          outlined
+          dense
+          hide-details
+          label="Debug"
+          v-model="debug"
+          @keydown="debugKeydown"
+        ></v-text-field>
         <v-card>
           <v-card-title>
             Log Messages
@@ -176,6 +192,11 @@ export default {
       alertText: '',
       state: ' ',
       scriptId: null,
+      showDebug: false,
+      debug: '',
+      debugHistory: [],
+      debugHistoryIndex: 0,
+      showDisconnect: false,
       files: {},
       fileName: NEW_FILENAME,
       tempFileName: null,
@@ -310,21 +331,18 @@ export default {
           })
       } else {
         axios.post(
-          'http://localhost:3001/running-script/' + this.scriptId + '/go',
-          {}
+          'http://localhost:3001/running-script/' + this.scriptId + '/go'
         )
       }
     },
     pause() {
       axios.post(
-        'http://localhost:3001/running-script/' + this.scriptId + '/pause',
-        {}
+        'http://localhost:3001/running-script/' + this.scriptId + '/pause'
       )
     },
     stop() {
       axios.post(
-        'http://localhost:3001/running-script/' + this.scriptId + '/stop',
-        {}
+        'http://localhost:3001/running-script/' + this.scriptId + '/stop'
       )
     },
     received(data) {
@@ -602,7 +620,41 @@ export default {
         'http://localhost:3001/running-script/' + this.scriptId + '/backtrace'
       )
     },
+    toggleDebug() {
+      this.showDebug = !this.showDebug
+    },
+    toggleDisconnect() {
+      this.showDisconnect = !this.showDisconnect
+      // TODO
+    },
 
+    debugKeydown(event) {
+      if (event.key === 'Escape') {
+        this.debug = ''
+        this.debugHistoryIndex = this.debugHistory.length
+      } else if (event.key === 'Enter') {
+        this.debugHistory.push(this.debug)
+        this.debugHistoryIndex = this.debugHistory.length
+        // Post the code to /debug, output is processed by receive()
+        axios.post(
+          'http://localhost:3001/running-script/' + this.scriptId + '/debug',
+          { args: this.debug }
+        )
+        this.debug = ''
+      } else if (event.key === 'ArrowUp') {
+        this.debugHistoryIndex -= 1
+        if (this.debugHistoryIndex < 0) {
+          this.debugHistoryIndex = this.debugHistory.length - 1
+        }
+        this.debug = this.debugHistory[this.debugHistoryIndex]
+      } else if (event.key === 'ArrowDown') {
+        this.debugHistoryIndex += 1
+        if (this.debugHistoryIndex >= this.debugHistory.length) {
+          this.debugHistoryIndex = 0
+        }
+        this.debug = this.debugHistory[this.debugHistoryIndex]
+      }
+    },
     downloadLog() {
       let output = ''
       for (let msg of this.messages) {

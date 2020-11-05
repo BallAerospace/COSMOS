@@ -166,7 +166,7 @@ class RunningScript
     if result.length > 0
       JSON.parse(result)
     else
-      return ""
+      return nil
     end
   end
 
@@ -786,107 +786,40 @@ class RunningScript
   #   end
   # end
 
-  # ######################################################
-  # # Implement the debug capability
-  # ######################################################
-  # def toggle_debug(debug = nil)
-  #   if debug.nil?
-  #     if @debug_frame
-  #       hide_debug()
-  #     else
-  #       show_debug()
-  #     end
-  #   else
-  #     if debug
-  #       if !@debug_frame
-  #         show_debug()
-  #       end
-  #     else
-  #       if @debug_frame
-  #         hide_debug()
-  #       end
-  #     end
-  #   end
-  # end
+  def debug(debug_text)
+    handle_output_io()
+    if not running?
+      # Capture STDOUT and STDERR
+      $stdout.add_stream(@output_io)
+      $stderr.add_stream(@output_io)
+    end
 
-  # def show_debug
-  #   unless @debug_frame
-  #     @realtime_button_bar.step_button.setHidden(false)
-  #     @script.enable_breakpoints = true
-  #     if @tab_book_shown
-  #       if @tab_book.count > 0
-  #         (0..(@tab_book.count - 1)).each do |index|
-  #           @tab_book.widget(index).enable_breakpoints = true
-  #         end
-  #       end
-  #     end
+    if @script_binding
+      # Check for accessing an instance variable or local
+      if debug_text =~ /^@\S+$/ || @script_binding.local_variables.include?(debug_text.to_sym)
+        debug_text = "puts #{debug_text}" # Automatically add puts to print it
+      end
+      eval(debug_text, @script_binding, 'debug', 1)
+    else
+      Object.class_eval(debug_text, 'debug', 1)
+    end
+    handle_output_io()
+  rescue Exception => error
+    if error.class == DRb::DRbConnError
+      Logger.error("Error Connecting to Command and Telemetry Server")
+    else
+      Logger.error(error.class.to_s.split('::')[-1] + ' : ' + error.message)
+    end
+    handle_output_io()
+  ensure
+    if not running?
+      # Capture STDOUT and STDERR
+      $stdout.remove_stream(@output_io)
+      $stderr.remove_stream(@output_io)
+    end
+  end
 
-  #     @debug_frame = Qt::HBoxLayout.new
-  #     @debug_frame.setContentsMargins(0,0,0,0)
-  #     @debug_frame_label = Qt::Label.new("Debug:")
-  #     @debug_frame.addWidget(@debug_frame_label)
-  #     @debug_text = CompletionLineEdit.new(self)
-  #     @debug_text.setFocus(Qt::OtherFocusReason)
-  #     @debug_text.connect(SIGNAL('key_pressed(QKeyEvent*)')) do |event|
-  #       case event.key
-  #       when Qt::Key_Return, Qt::Key_Enter
-  #         begin
-  #           debug_text = @debug_text.toPlainText
-  #           @debug_history.unshift(debug_text)
-  #           @debug_history_index = 0
-  #           @debug_text.setPlainText('')
-  #           scriptrunner_puts "Debug: #{debug_text}"
-  #           handle_output_io()
-  #           if not running?
-  #             # Capture STDOUT and STDERR
-  #             $stdout.add_stream(@output_io)
-  #             $stderr.add_stream(@output_io)
-  #           end
-
-  #           if @script_binding
-  #             # Check for accessing an instance variable or local
-  #             if debug_text =~ /^@\S+$/ || @script_binding.local_variables.include?(debug_text.to_sym)
-  #               debug_text = "puts #{debug_text}" # Automatically add puts to print it
-  #             end
-  #             eval(debug_text, @script_binding, 'debug', 1)
-  #           else
-  #             Object.class_eval(debug_text, 'debug', 1)
-  #           end
-  #           handle_output_io()
-  #         rescue Exception => error
-  #           if error.class == DRb::DRbConnError
-  #             Logger.error("Error Connecting to Command and Telemetry Server")
-  #           else
-  #             Logger.error(error.class.to_s.split('::')[-1] + ' : ' + error.message)
-  #           end
-  #           handle_output_io()
-  #         ensure
-  #           if not running?
-  #             # Capture STDOUT and STDERR
-  #             $stdout.remove_stream(@output_io)
-  #             $stderr.remove_stream(@output_io)
-  #           end
-  #         end
-  #       when Qt::Key_Up
-  #         if @debug_history.length > 0
-  #           @debug_text.setPlainText(@debug_history[@debug_history_index])
-  #           @debug_history_index += 1
-  #           if @debug_history_index == @debug_history.length
-  #             @debug_history_index = @debug_history.length-1
-  #           end
-  #         end
-  #       when Qt::Key_Down
-  #         if @debug_history.length > 0
-  #           @debug_text.setPlainText(@debug_history[@debug_history_index])
-  #           @debug_history_index -= 1
-  #           @debug_history_index = 0 if @debug_history_index < 0
-  #         end
-  #       when Qt::Key_Escape
-  #         @debug_text.setPlainText("")
-  #       end
-  #     end
-  #     @debug_frame.addWidget(@debug_text)
-
+  # TODO: Do we still want a 'Locals' button ... not sure how useful this is
   #     @locals_button = Qt::PushButton.new('Locals')
   #     @locals_button.connect(SIGNAL('clicked(bool)')) do
   #       next unless @script_binding
@@ -899,10 +832,6 @@ class RunningScript
   #       @locals_button.setEnabled(true)
   #     end
   #     @debug_frame.addWidget(@locals_button)
-
-  #     @bottom_frame.layout.addLayout(@debug_frame)
-  #   end
-  # end
 
   # def hide_debug
   #   # Since we're disabling debug, clear the breakpoints and disable them
