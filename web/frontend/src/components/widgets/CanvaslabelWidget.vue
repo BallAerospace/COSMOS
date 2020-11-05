@@ -14,7 +14,7 @@ export default {
         return this.parameters[3]
       }
       return 'black'
-    }
-  }
+    },
+  },
 }
 </script>

@@ -41,8 +41,8 @@
             :target="def.target"
             :screen="def.screen"
             :definition="def.definition"
-            @closeScreen="closeScreen(def.id)"
-            @minMaxScreen="minMaxScreen(def.id)"
+            @close-screen="closeScreen(def.id)"
+            @min-max-screen="minMaxScreen(def.id)"
           />
         </div>
       </div>
@@ -60,7 +60,7 @@ import Muuri from 'muuri'
 export default {
   components: {
     AppNav,
-    CosmosScreen
+    CosmosScreen,
   },
   data() {
     return {
@@ -71,12 +71,12 @@ export default {
       selectedTarget: '',
       selectedScreen: '',
       grid: null,
-      api: null
+      api: null,
     }
   },
   created() {
     this.api = new CosmosApi()
-    this.api.get_target_list().then(data => {
+    this.api.get_target_list().then((data) => {
       var arrayLength = data.length
       for (var i = 0; i < arrayLength; i++) {
         this.targets.push({ label: data[i], value: data[i] })
@@ -91,7 +91,7 @@ export default {
     this.grid = new Muuri('.grid', {
       dragEnabled: true,
       // Only allow drags starting from the v-system-bar title
-      dragHandle: '.v-system-bar'
+      dragHandle: '.v-system-bar',
     })
   },
   methods: {
@@ -99,7 +99,7 @@ export default {
       this.screens = []
       axios
         .get('http://localhost:7777/screen/' + this.selectedTarget)
-        .then(response => {
+        .then((response) => {
           for (let screen of response.data) {
             this.screens.push(screen)
           }
@@ -121,19 +121,19 @@ export default {
             '/' +
             this.selectedScreen
         )
-        .then(response => {
+        .then((response) => {
           this.definitions.push({
             id: this.counter,
             target: this.selectedTarget,
             screen: this.selectedScreen,
-            definition: response.data
+            definition: response.data,
           })
           this.counter += 1
-          this.$nextTick(function() {
+          this.$nextTick(function () {
             var items = this.grid.add(
               this.$refs.gridItem[this.$refs.gridItem.length - 1],
               {
-                active: false
+                active: false,
               }
             )
             this.grid.show(items)
@@ -142,7 +142,7 @@ export default {
     },
     closeScreen(id) {
       var items = this.grid.getItems([
-        document.getElementById(this.screenId(id))
+        document.getElementById(this.screenId(id)),
       ])
       this.grid.remove(items)
       this.definitions = this.definitions.filter((value, index, arr) => {
@@ -156,8 +156,8 @@ export default {
     },
     screenId(id) {
       return 'tlmViewerScreen' + id
-    }
-  }
+    },
+  },
 }
 </script>
 

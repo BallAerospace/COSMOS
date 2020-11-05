@@ -14,7 +14,7 @@ export default {
   mixins: [Widget],
   data() {
     return {
-      valueId: 0
+      valueId: 0,
     }
   },
   computed: {
@@ -28,7 +28,7 @@ export default {
         width = this.parameters[9]
       }
       return 'stroke:' + color + ';stroke-width:' + width
-    }
+    },
   },
   // Note Vuejs still treats this syncronously, but this allows us to dispatch
   // the store mutation and return the array index.
@@ -38,8 +38,8 @@ export default {
       target: this.parameters[0],
       packet: this.parameters[1],
       item: this.parameters[2],
-      type: 'RAW'
+      type: 'RAW',
     })
-  }
+  },
 }
 </script>

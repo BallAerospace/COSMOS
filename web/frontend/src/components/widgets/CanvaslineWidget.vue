@@ -23,7 +23,7 @@ export default {
         width = this.parameters[5]
       }
       return 'stroke:' + color + ';stroke-width:' + width
-    }
-  }
+    },
+  },
 }
 </script>

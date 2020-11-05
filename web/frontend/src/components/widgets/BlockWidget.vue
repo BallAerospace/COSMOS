@@ -46,7 +46,7 @@ import DetailsDialog from '@/components/DetailsDialog'
 import 'sprintf-js'
 export default {
   components: {
-    DetailsDialog
+    DetailsDialog,
   },
   data() {
     return {
@@ -55,7 +55,7 @@ export default {
       bytesPerWord: 4,
       wordsPerRow: 4,
       addrFormat: null,
-      formatter: '%02X'
+      formatter: '%02X',
     }
   },
   mixins: [VWidget],
@@ -115,8 +115,8 @@ export default {
         }
       }
       return text
-    }
-  }
+    },
+  },
 }
 </script>
 

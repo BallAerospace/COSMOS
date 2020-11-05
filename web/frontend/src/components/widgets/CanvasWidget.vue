@@ -21,8 +21,8 @@ export default {
     },
     height() {
       return this.parameters[1] + 'px'
-    }
-  }
+    },
+  },
 }
 </script>
 

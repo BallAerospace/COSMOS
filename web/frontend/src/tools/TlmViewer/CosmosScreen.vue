@@ -5,7 +5,7 @@
       <span>{{ target }} {{ screen }}</span>
       <v-spacer />
       <v-icon @click="minMaxTransition">mdi-window-minimize</v-icon>
-      <v-icon @click="$emit('closeScreen')">mdi-close-box</v-icon>
+      <v-icon @click="$emit('close-screen')">mdi-close-box</v-icon>
     </v-system-bar>
     <v-expand-transition>
       <div class="pa-1" ref="screen" v-show="expand">
@@ -32,7 +32,7 @@ const requireComponent = require.context(
   /[A-Z]\w+Widget\.vue$/
 )
 
-requireComponent.keys().forEach(fileName => {
+requireComponent.keys().forEach((fileName) => {
   // Get component config
   const componentConfig = requireComponent(fileName)
 
@@ -61,16 +61,16 @@ export default {
   props: {
     target: {
       type: String,
-      default: ''
+      default: '',
     },
     screen: {
       type: String,
-      default: ''
+      default: '',
     },
     definition: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
   data() {
     return {
@@ -88,7 +88,7 @@ export default {
       substitute: false,
       original_target_name: null,
       force_substitute: false,
-      pollingPeriod: 1
+      pollingPeriod: 1,
     }
   },
   created() {
@@ -120,7 +120,7 @@ export default {
               this.layoutStack.push({
                 type: 'VerticalWidget',
                 parameters: [],
-                widgets: []
+                widgets: [],
               })
               this.currentLayout = this.layoutStack[this.layoutStack.length - 1]
               break
@@ -181,18 +181,18 @@ export default {
       if (this.$store.state.tlmViewerItems.length !== 0) {
         let items = []
         let types = []
-        this.$store.state.tlmViewerItems.forEach(item => {
+        this.$store.state.tlmViewerItems.forEach((item) => {
           items.push([item.target, item.packet, item.item])
           types.push(item.type)
         })
-        this.api.get_tlm_values(items, types).then(data => {
+        this.api.get_tlm_values(items, types).then((data) => {
           this.$store.commit('tlmViewerUpdateValues', data)
         })
       }
     },
     minMaxTransition() {
       this.expand = !this.expand
-      this.$emit('minMaxScreen')
+      this.$emit('min-max-screen')
     },
     process_widget(keyword, parameters) {
       var widgetName = null
@@ -235,7 +235,7 @@ export default {
           type: componentName,
           parameters: parameters,
           settings: settings,
-          widgets: []
+          widgets: [],
         }
         this.layoutStack.push(layout)
         this.currentLayout.widgets.push(layout)
@@ -248,13 +248,13 @@ export default {
         this.currentLayout.widgets.push({
           type: componentName,
           parameters: parameters,
-          settings: settings
+          settings: settings,
         })
       }
     },
     applyGlobalSettings(widgets) {
-      this.globalSettings.forEach(setting => {
-        widgets.forEach(widget => {
+      this.globalSettings.forEach((setting) => {
+        widgets.forEach((widget) => {
           // widget.type is already the full camelcase widget name like LabelWidget
           // so we have to lower case both and tack on 'widget' to compare
           if (
@@ -269,8 +269,8 @@ export default {
           }
         })
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

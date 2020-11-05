@@ -34,8 +34,8 @@ export default {
       blue: 0,
       api: null,
       limitsSettings: {
-        DEFAULT: []
-      }
+        DEFAULT: [],
+      },
     }
   },
   computed: {
@@ -56,15 +56,15 @@ export default {
         '--yellowhigh-width': this.yellowHigh + '%',
         '--greenlow-width': this.greenLow + '%',
         '--greenhigh-width': this.greenHigh + '%',
-        '--blue-width': this.blue + '%'
+        '--blue-width': this.blue + '%',
       }
-    }
+    },
   },
   async created() {
     this.api = new CosmosApi()
     this.api
       .get_limits(this.parameters[0], this.parameters[1], this.parameters[2])
-      .then(data => {
+      .then((data) => {
         this.limitsSettings = data
       })
 
@@ -76,7 +76,7 @@ export default {
       target: this.parameters[0],
       packet: this.parameters[1],
       item: this.parameters[2],
-      type: type
+      type: type,
     })
   },
   methods: {
@@ -165,8 +165,8 @@ export default {
         this.greenHigh = 0
         this.blue = 0
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

@@ -31,7 +31,7 @@
         </v-card>
       </v-dialog>
     </v-card>
-    <div style="height:20px;" />
+    <div style="height: 20px" />
     <LogMessages />
   </div>
 </template>
@@ -57,7 +57,7 @@ export default {
     RoutersTab,
     LoggingTab,
     StatusTab,
-    LogMessages
+    LogMessages,
   },
   data() {
     return {
@@ -71,7 +71,7 @@ export default {
         // TODO: Remove these until they work
         // { name: 'Routers', component: 'RoutersTab' },
         // { name: 'Logging', component: 'LoggingTab' },
-        { name: 'Status', component: 'StatusTab' }
+        { name: 'Status', component: 'StatusTab' },
       ],
       updater: null,
       refreshInterval: 1000,
@@ -84,13 +84,13 @@ export default {
               label: 'Options',
               command: () => {
                 this.optionsDialog = true
-              }
-            }
-          ]
-        }
-      ]
+              },
+            },
+          ],
+        },
+      ],
     }
-  }
+  },
 }
 </script>
 

@@ -17,7 +17,7 @@ export default {
   data() {
     return {
       radius: 15,
-      fullLabelDisplay: false
+      fullLabelDisplay: false,
     }
   },
   created() {
@@ -38,7 +38,7 @@ export default {
             ' ' +
             this.parameters[1] +
             ' ' +
-            this.parameters[2]
+            this.parameters[2],
         ]
       } else {
         return [this.parameters[2]]
@@ -49,9 +49,9 @@ export default {
       return {
         '--height': this.radius + 'px',
         '--width': this.radius + 'px',
-        '--color': this.limitsColor
+        '--color': this.limitsColor,
       }
-    }
+    },
   },
   methods: {
     getType() {
@@ -60,8 +60,8 @@ export default {
         type = this.parameters[3]
       }
       return type
-    }
-  }
+    },
+  },
 }
 </script>
 

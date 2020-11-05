@@ -18,7 +18,7 @@ export default {
   mixins: [Widget],
   data() {
     return {
-      value: null
+      value: null,
     }
   },
   // computed: {
@@ -28,7 +28,7 @@ export default {
   // },
   created() {
     // Look through the settings and see if we're a NAMED_WIDGET
-    this.settings.forEach(setting => {
+    this.settings.forEach((setting) => {
       if (setting[0] === 'NAMED_WIDGET') {
         setting[2].setNamedWidget(setting[1], this)
       }
@@ -45,8 +45,8 @@ export default {
   methods: {
     text() {
       return this.value
-    }
-  }
+    },
+  },
 }
 </script>
 

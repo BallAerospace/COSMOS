@@ -9,12 +9,12 @@ export default {
   mixins: [Widget],
   data() {
     return {
-      label: 'Radio'
+      label: 'Radio',
     }
   },
   created() {
     this.label = this.parameters[0]
-  }
+  },
 }
 </script>
 

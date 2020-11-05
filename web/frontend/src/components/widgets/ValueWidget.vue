@@ -46,9 +46,9 @@ import VWidget from './VWidget'
 import DetailsDialog from '@/components/DetailsDialog'
 export default {
   components: {
-    DetailsDialog
+    DetailsDialog,
   },
-  mixins: [VWidget]
+  mixins: [VWidget],
 }
 </script>
 

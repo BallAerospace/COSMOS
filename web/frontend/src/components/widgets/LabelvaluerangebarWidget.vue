@@ -18,7 +18,7 @@ export default {
   mixins: [Widget],
   components: {
     LabelvalueWidget,
-    RangebarWidget
+    RangebarWidget,
   },
   computed: {
     labelValueParameters() {
@@ -26,7 +26,7 @@ export default {
         this.parameters[0],
         this.parameters[1],
         this.parameters[2],
-        'WITH_UNITS'
+        'WITH_UNITS',
       ]
     },
     rangebarParameters() {
@@ -34,14 +34,14 @@ export default {
         this.parameters[0],
         this.parameters[1],
         this.parameters[2],
-        'CONVERTED'
+        'CONVERTED',
       ]
     },
     defaultStyle() {
       return {
-        width: '300px'
+        width: '300px',
       }
-    }
-  }
+    },
+  },
 }
 </script>

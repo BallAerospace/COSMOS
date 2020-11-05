@@ -72,8 +72,8 @@ export default {
   props: {
     log: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
   created() {
     this.api = new CosmosApi()
@@ -90,8 +90,8 @@ export default {
     },
     stopCmdLogging(logWriterName) {
       this.api.stop_cmd_log(logWriterName)
-    }
-  }
+    },
+  },
 }
 </script>
 

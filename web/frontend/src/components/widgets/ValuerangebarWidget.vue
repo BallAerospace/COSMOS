@@ -18,7 +18,7 @@ export default {
   mixins: [Widget],
   components: {
     ValueWidget,
-    RangebarWidget
+    RangebarWidget,
   },
   computed: {
     valueParameters() {
@@ -26,14 +26,14 @@ export default {
         this.parameters[0],
         this.parameters[1],
         this.parameters[2],
-        'WITH_UNITS'
+        'WITH_UNITS',
       ]
     },
     defaultStyle() {
       return {
-        width: '300px'
+        width: '300px',
       }
-    }
-  }
+    },
+  },
 }
 </script>

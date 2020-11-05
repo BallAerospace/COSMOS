@@ -41,20 +41,29 @@
 
 <script>
 export default {
+  model: {
+    prop: 'initialValue',
+    event: 'input',
+  },
   props: {
     statesInHex: {
       type: Boolean,
-      default: false
+      default: false,
     },
-    value: {
+    initialValue: {
       type: Object,
       default: () => ({
         val: '',
         states: null,
         selected_state: null,
         selected_state_label: '',
-        manual_value: null
-      })
+        manual_value: null,
+      }),
+    },
+  },
+  data() {
+    return {
+      value: initialValue,
     }
   },
   computed: {
@@ -75,7 +84,7 @@ export default {
         }
         calcStates.push({
           label: 'MANUALLY ENTERED',
-          value: 'MANUALLY ENTERED'
+          value: 'MANUALLY ENTERED',
         })
 
         // TBD pick default better (use actual default instead of just first item in list)
@@ -83,7 +92,7 @@ export default {
       } else {
         return null
       }
-    }
+    },
   },
   methods: {
     handleChange(value) {
@@ -127,8 +136,8 @@ export default {
         this.value.val = selected_state
         this.$emit('input', this.value)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 <style scoped>

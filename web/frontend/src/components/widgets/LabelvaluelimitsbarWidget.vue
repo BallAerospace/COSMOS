@@ -18,7 +18,7 @@ export default {
   mixins: [Widget],
   components: {
     LabelvalueWidget,
-    LimitsbarWidget
+    LimitsbarWidget,
   },
   computed: {
     limitsBarParameters() {
@@ -26,14 +26,14 @@ export default {
         this.parameters[0],
         this.parameters[1],
         this.parameters[2],
-        'CONVERTED'
+        'CONVERTED',
       ]
     },
     defaultStyle() {
       return {
-        width: '300px'
+        width: '300px',
       }
-    }
-  }
+    },
+  },
 }
 </script>

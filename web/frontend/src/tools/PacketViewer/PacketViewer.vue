@@ -38,11 +38,11 @@
               <template v-slot:item.index="{ item }">
                 <span>
                   {{
-                  rows
-                  .map(function(x) {
-                  return x.name
-                  })
-                  .indexOf(item.name)
+                    rows
+                      .map(function (x) {
+                        return x.name
+                      })
+                      .indexOf(item.name)
                   }}
                 </span>
               </template>
@@ -60,7 +60,11 @@
       </v-row>
     </v-container>
 
-    <v-dialog v-model="optionsDialog" @keydown.esc="optionsDialog = false" max-width="300">
+    <v-dialog
+      v-model="optionsDialog"
+      @keydown.esc="optionsDialog = false"
+      max-width="300"
+    >
       <v-card class="pa-3">
         <v-card-title class="headline">Options</v-card-title>
         <v-text-field
@@ -87,7 +91,7 @@ export default {
   components: {
     AppNav,
     TargetPacketItemChooser,
-    ValueWidget
+    ValueWidget,
   },
   data() {
     return {
@@ -96,7 +100,7 @@ export default {
       headers: [
         { text: 'Index', value: 'index' },
         { text: 'Name', value: 'name' },
-        { text: 'Value', value: 'value' }
+        { text: 'Value', value: 'value' },
       ],
       optionsDialog: false,
       hideIgnored: false,
@@ -111,9 +115,9 @@ export default {
               label: 'Options',
               command: () => {
                 this.optionsDialog = true
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         {
           label: 'View',
@@ -124,48 +128,48 @@ export default {
               checkbox: true,
               command: () => {
                 this.hideIgnored = !this.hideIgnored
-              }
+              },
             },
             {
               label: 'Display Derived Last',
               checkbox: true,
               command: () => {
                 this.derivedLast = !this.derivedLast
-              }
+              },
             },
             {
-              divider: true
+              divider: true,
             },
             {
               label: 'Formatted Items with Units',
               radio: true,
               command: () => {
                 this.valueType = 'WITH_UNITS'
-              }
+              },
             },
             {
               label: 'Formatted Items',
               radio: true,
               command: () => {
                 this.valueType = 'FORMATTED'
-              }
+              },
             },
             {
               label: 'Converted Items',
               radio: true,
               command: () => {
                 this.valueType = 'CONVERTED'
-              }
+              },
             },
             {
               label: 'Raw Items',
               radio: true,
               command: () => {
                 this.valueType = 'RAW'
-              }
-            }
-          ]
-        }
+              },
+            },
+          ],
+        },
       ],
       updater: null,
       targetName: '',
@@ -174,14 +178,14 @@ export default {
       refreshInterval: 1000,
       rows: [],
       menuItems: [],
-      api: null
+      api: null,
     }
   },
   watch: {
     // Create a watcher on refreshInterval so we can change the updater
-    refreshInterval: function(newValue, oldValue) {
+    refreshInterval: function (newValue, oldValue) {
       this.changeUpdater(false)
-    }
+    },
   },
   methods: {
     packetChanged(event) {
@@ -191,12 +195,12 @@ export default {
       ) {
         return
       }
-      this.api.get_target_ignored_items(event.targetName).then(ignored => {
+      this.api.get_target_ignored_items(event.targetName).then((ignored) => {
         this.ignoredItems = ignored
       })
       this.api
         .get_packet_derived_items(event.targetName, event.packetName)
-        .then(derived => {
+        .then((derived) => {
           this.derivedItems = derived
         })
 
@@ -210,8 +214,8 @@ export default {
           name: 'PackerViewer',
           params: {
             target: this.targetName,
-            packet: this.packetName
-          }
+            packet: this.packetName,
+          },
         })
       }
       this.changeUpdater(true)
@@ -230,10 +234,10 @@ export default {
       this.updater = setInterval(() => {
         this.api
           .get_tlm_packet(this.targetName, this.packetName, this.valueType)
-          .then(data => {
+          .then((data) => {
             let derived = []
             let other = []
-            data.forEach(value => {
+            data.forEach((value) => {
               if (this.hideIgnored && this.ignoredItems.includes(value[0])) {
                 return
               }
@@ -241,13 +245,13 @@ export default {
                 derived.push({
                   name: value[0],
                   value: value[1],
-                  limitsState: value[2]
+                  limitsState: value[2],
                 })
               } else {
                 other.push({
                   name: value[0],
                   value: value[1],
-                  limitsState: value[2]
+                  limitsState: value[2],
                 })
               }
             })
@@ -258,7 +262,7 @@ export default {
             }
           })
       }, this.refreshInterval)
-    }
+    },
   },
   created() {
     this.api = new CosmosApi()
@@ -269,7 +273,7 @@ export default {
       clearInterval(this.updater)
       this.updater = null
     }
-  }
+  },
 }
 </script>
 

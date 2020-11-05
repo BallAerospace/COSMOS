@@ -10,9 +10,7 @@
     <v-dialog v-model="displaySendHazardous" max-width="300">
       <v-card class="pa-3">
         <v-card-title class="headline">Hazardous</v-card-title>
-        <v-card-text>
-          Warning: Command is Hazardous. Send?
-        </v-card-text>
+        <v-card-text> Warning: Command is Hazardous. Send? </v-card-text>
         <v-btn @click="sendHazardousCmd" class="primary mr-4">Yes</v-btn>
         <v-btn @click="cancelHazardousCmd" class="primary">No</v-btn>
       </v-card>
@@ -31,7 +29,7 @@ export default {
       api: null,
       screen: null,
       displaySendHazardous: false,
-      lastCmd: ''
+      lastCmd: '',
     }
   },
   computed: {
@@ -40,12 +38,12 @@ export default {
     },
     eval() {
       return this.parameters[1]
-    }
+    },
   },
   created() {
     this.api = new CosmosApi()
     // Look through the settings and get a reference to the screen
-    this.settings.forEach(setting => {
+    this.settings.forEach((setting) => {
       if (setting[0] === 'SCREEN') {
         this.screen = setting[1]
       }
@@ -57,10 +55,10 @@ export default {
       // Create local references to variables so users don't need to use 'this'
       const screen = this.screen
       const api = this.api
-      lines.forEach(line => {
+      lines.forEach((line) => {
         eval(line.trim())
-          .then(success => {})
-          .catch(err => {
+          .then((success) => {})
+          .catch((err) => {
             if (err.message.includes('HazardousError')) {
               this.lastCmd = err.message.split('\n')[2]
               this.displaySendHazardous = true
@@ -79,8 +77,8 @@ export default {
     },
     cancelHazardousCmd() {
       this.displaySendHazardous = false
-    }
-  }
+    },
+  },
 }
 </script>
 

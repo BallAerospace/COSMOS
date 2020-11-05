@@ -15,7 +15,7 @@ export default {
   data() {
     return {
       width: '100%', // users will override with px
-      height: 20 // px
+      height: 20, // px
     }
   },
   computed: {
@@ -24,7 +24,7 @@ export default {
         '--height': this.height + 'px',
         '--width': this.width,
         '--container-height': this.height - 5 + 'px',
-        '--position': this.calcPosition() + '%'
+        '--position': this.calcPosition() + '%',
       }
     },
     min() {
@@ -35,7 +35,7 @@ export default {
     },
     range() {
       return this.max - this.min
-    }
+    },
   },
   async created() {
     const type = this.parameters[5] ? this.parameters[5] : 'CONVERTED'
@@ -43,7 +43,7 @@ export default {
       target: this.parameters[0],
       packet: this.parameters[1],
       item: this.parameters[2],
-      type: type
+      type: type,
     })
     if (this.parameters[6]) {
       // Width by default is 100% so add the px designator
@@ -76,8 +76,8 @@ export default {
       } else {
         return result
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

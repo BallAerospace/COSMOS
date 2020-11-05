@@ -15,8 +15,8 @@ import Layout from './Layout'
 export default {
   mixins: [Layout],
   components: {
-    HorizontalWidget
-  }
+    HorizontalWidget,
+  },
 }
 </script>
 

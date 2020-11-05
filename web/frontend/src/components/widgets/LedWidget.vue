@@ -11,8 +11,8 @@ export default {
       valueId: null,
       colors: {
         TRUE: 'green',
-        FALSE: 'red'
-      }
+        FALSE: 'red',
+      },
     }
   },
   computed: {
@@ -34,15 +34,15 @@ export default {
       return {
         '--height': this.height + 'px',
         '--width': this.width + 'px',
-        '--color': color.toLowerCase()
+        '--color': color.toLowerCase(),
       }
-    }
+    },
   },
   // Note Vuejs still treats this syncronously, but this allows us to dispatch
   // the store mutation and return the array index.
   // What this means practically is that future lifecycle hooks may not have valueId set.
   async created() {
-    this.settings.forEach(setting => {
+    this.settings.forEach((setting) => {
       switch (setting[0]) {
         case 'LED_COLOR':
           this.colors[setting[1]] = setting[2]
@@ -56,9 +56,9 @@ export default {
       target: this.parameters[0],
       packet: this.parameters[1],
       item: this.parameters[2],
-      type: this.parameters[3]
+      type: this.parameters[3],
     })
-  }
+  },
 }
 </script>
 

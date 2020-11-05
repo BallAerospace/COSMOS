@@ -27,27 +27,27 @@ export default {
   props: {
     question: {
       type: String,
-      required: true
+      required: true,
     },
     default: {
       type: String,
-      default: null
+      default: null,
     },
     password: {
       type: Boolean,
-      default: false
+      default: false,
     },
     answerRequired: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   data() {
     return {
       show: true,
       value: '',
       valid: false,
-      rules: [v => !!v || 'Required']
+      rules: [(v) => !!v || 'Required'],
     }
   },
   created() {
@@ -57,9 +57,9 @@ export default {
     }
     if (this.answerRequired === false) {
       this.valid = true
-      this.rules = [v => true]
+      this.rules = [(v) => true]
     }
-  }
+  },
 }
 </script>
 

@@ -40,8 +40,8 @@ export default {
   props: {
     history_count: {
       type: Number,
-      default: 1000
-    }
+      default: 1000,
+    },
   },
   data() {
     return {
@@ -49,10 +49,10 @@ export default {
       search: '',
       headers: [
         { text: 'Time', value: 'time_nsec', width: 250 },
-        { text: 'Message', value: 'message' }
+        { text: 'Message', value: 'message' },
       ],
       cable: ActionCable.Cable,
-      subscription: ActionCable.Channel
+      subscription: ActionCable.Channel,
     }
   },
   created() {
@@ -61,10 +61,10 @@ export default {
       {
         channel: 'LimitsEventsChannel',
         history_count: this.history_count,
-        scope: 'DEFAULT'
+        scope: 'DEFAULT',
       },
       {
-        received: data => {
+        received: (data) => {
           let messages = JSON.parse(data)
           for (let i = 0; i < messages.length; i++) {
             this.data.unshift(messages[i])
@@ -72,7 +72,7 @@ export default {
           if (this.data.length > this.history_count) {
             this.data.length = this.history_count
           }
-        }
+        },
       }
     )
   },
@@ -108,8 +108,8 @@ export default {
     calcTableHeight() {
       // TODO: 250 is a magic number but seems to work well
       return window.innerHeight - 250
-    }
-  }
+    },
+  },
 }
 </script>
 

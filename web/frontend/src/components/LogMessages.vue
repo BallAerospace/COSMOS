@@ -34,8 +34,8 @@ export default {
   props: {
     history_count: {
       type: Number,
-      default: 1000
-    }
+      default: 1000,
+    },
   },
   data() {
     return {
@@ -45,10 +45,10 @@ export default {
         { text: 'Time', value: '@timestamp', width: 250 },
         { text: 'Severity', value: 'severity' },
         { text: 'Source', value: 'microservice_name' },
-        { text: 'Message', value: 'log' }
+        { text: 'Message', value: 'log' },
       ],
       cable: ActionCable.Cable,
-      subscription: ActionCable.Channel
+      subscription: ActionCable.Channel,
     }
   },
   created() {
@@ -57,10 +57,10 @@ export default {
       {
         channel: 'MessagesChannel',
         history_count: this.history_count,
-        scope: 'DEFAULT'
+        scope: 'DEFAULT',
       },
       {
-        received: data => {
+        received: (data) => {
           let messages = JSON.parse(data)
           for (let i = 0; i < messages.length; i++) {
             this.data.unshift(messages[i])
@@ -68,7 +68,7 @@ export default {
           if (this.data.length > this.history_count) {
             this.data.length = this.history_count
           }
-        }
+        },
       }
     )
   },
@@ -78,7 +78,7 @@ export default {
     }
     this.cable.disconnect()
   },
-  methods: {}
+  methods: {},
 }
 </script>
 

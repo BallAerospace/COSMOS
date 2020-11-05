@@ -2,21 +2,21 @@ export default {
   props: {
     widgetIndex: {
       type: Number,
-      default: null
+      default: null,
     },
     parameters: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     settings: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   computed: {
     computedStyle() {
       let style = {}
-      this.settings.forEach(setting => {
+      this.settings.forEach((setting) => {
         const index = parseInt(setting[0])
         if (this.widgetIndex !== null && this.widgetIndex === index) {
           setting = setting.slice(1)
@@ -54,7 +54,7 @@ export default {
         }
       })
       return style
-    }
+    },
   },
   methods: {
     // Expects an array, can either be a single color or 3 rgb values
@@ -65,6 +65,6 @@ export default {
         case 3:
           return `rgb(${setting[0]},${setting[1]},${setting[2]})`
       }
-    }
-  }
+    },
+  },
 }

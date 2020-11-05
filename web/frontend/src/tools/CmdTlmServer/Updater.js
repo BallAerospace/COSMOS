@@ -3,13 +3,13 @@ import { CosmosApi } from '@/services/cosmos-api'
 export default {
   props: {
     refreshInterval: {
-      default: 1000
-    }
+      default: 1000,
+    },
   },
   data() {
     return {
       updater: null,
-      api: null
+      api: null,
     }
   },
   created() {
@@ -26,9 +26,9 @@ export default {
   },
   watch: {
     // eslint-disable-next-line no-unused-vars
-    refreshInterval: function(newVal, oldVal) {
+    refreshInterval: function (newVal, oldVal) {
       this.changeUpdater()
-    }
+    },
   },
   methods: {
     changeUpdater() {
@@ -39,6 +39,6 @@ export default {
       this.updater = setInterval(() => {
         this.update()
       }, this.refreshInterval)
-    }
-  }
+    },
+  },
 }

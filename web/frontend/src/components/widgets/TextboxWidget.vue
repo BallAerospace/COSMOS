@@ -46,11 +46,11 @@ import DetailsDialog from '@/components/DetailsDialog'
 import 'sprintf-js'
 export default {
   components: {
-    DetailsDialog
+    DetailsDialog,
   },
   data() {
     return {
-      height: 100
+      height: 100,
     }
   },
   mixins: [VWidget],
@@ -70,8 +70,8 @@ export default {
         type = this.parameters[5]
       }
       return type
-    }
-  }
+    },
+  },
 }
 </script>
 

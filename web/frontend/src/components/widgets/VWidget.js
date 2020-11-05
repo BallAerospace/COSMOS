@@ -6,13 +6,13 @@ export default {
   // or it will register itself in the Vuex store and be updated asyncronously
   props: {
     value: {
-      default: null
+      default: null,
     },
     limitsState: {
       type: String,
-      default: null
+      default: null,
     },
-    formatString: null
+    formatString: null,
   },
   data() {
     return {
@@ -28,20 +28,20 @@ export default {
           action: () => {
             this.contextMenuShown = false
             this.viewDetails = true
-          }
-        }
-      ]
+          },
+        },
+      ],
     }
   },
   computed: {
-    _value: function() {
+    _value: function () {
       let value = this.value
       if (value === null) {
         value = this.$store.state.tlmViewerValues[0][this.valueId]
       }
       return this.formatValue(value)
     },
-    valueClass: function() {
+    valueClass: function () {
       return 'value shrink pa-1 ' + 'cosmos-' + this.limitsColor
     },
     limitsColor() {
@@ -71,7 +71,7 @@ export default {
             return 'white'
         }
       }
-    }
+    },
   },
   // Note Vuejs still treats this syncronously, but this allows us to dispatch
   // the store mutation and return the array index.
@@ -83,7 +83,7 @@ export default {
         target: this.parameters[0],
         packet: this.parameters[1],
         item: this.parameters[2],
-        type: this.getType()
+        type: this.getType(),
       })
     }
   },
@@ -132,6 +132,6 @@ export default {
       this.$nextTick(() => {
         this.contextMenuShown = true
       })
-    }
-  }
+    },
+  },
 }

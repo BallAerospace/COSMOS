@@ -152,7 +152,7 @@ export default {
     AppNav,
     DetailsDialog,
     TargetPacketItemChooser,
-    CommandParameterEditor
+    CommandParameterEditor,
   },
   data() {
     return {
@@ -161,7 +161,7 @@ export default {
         { text: 'Name', value: 'parameter_name' },
         { text: 'Value or State', value: 'val_and_states' },
         { text: 'Units', value: 'units' },
-        { text: 'Description', value: 'description' }
+        { text: 'Description', value: 'description' },
       ],
       targetName: '',
       commandName: '',
@@ -192,8 +192,8 @@ export default {
           action: () => {
             this.contextMenuShown = false
             this.viewDetails = true
-          }
-        }
+          },
+        },
       ],
       menus: [
         // TODO: Implement send raw
@@ -216,14 +216,14 @@ export default {
               checkbox: true,
               command: () => {
                 this.ignoreRangeChecks = !this.ignoreRangeChecks
-              }
+              },
             },
             {
               label: 'Display State Values in Hex',
               checkbox: true,
               command: () => {
                 this.statesInHex = !this.statesInHex
-              }
+              },
             },
             {
               label: 'Show Ignored Parameters',
@@ -233,18 +233,18 @@ export default {
                 // TODO: Maybe we don't need to do this if the data-table
                 // can render the whole thing and we just display with v-if
                 this.updateCmdParams()
-              }
+              },
             },
             {
               label: 'Disable Parameter Conversions',
               checkbox: true,
               command: () => {
                 this.cmdRaw = !this.cmdRaw
-              }
-            }
-          ]
-        }
-      ]
+              },
+            },
+          ],
+        },
+      ],
     }
   },
   methods: {
@@ -440,8 +440,8 @@ export default {
           name: 'CommandSender',
           params: {
             target: this.targetName,
-            packet: this.commandName
-          }
+            packet: this.commandName,
+          },
         })
       }
       this.updateCmdParams()
@@ -453,17 +453,17 @@ export default {
         'PACKET_TIMEFORMATTED',
         'RECEIVED_TIMESECONDS',
         'RECEIVED_TIMEFORMATTED',
-        'RECEIVED_COUNT'
+        'RECEIVED_COUNT',
       ]
       this.sendDisabled = true
       this.ignoredParams = []
       this.rows = []
       this.api.get_target_ignored_parameters(this.targetName).then(
-        ignoredParams => {
+        (ignoredParams) => {
           this.ignoredParams = ignoredParams
           this.api.get_command(this.targetName, this.commandName).then(
-            command => {
-              command.items.forEach(parameter => {
+            (command) => {
+              command.items.forEach((parameter) => {
                 if (reserved.includes(parameter.name)) return
                 if (
                   !this.ignoredParams.includes(parameter.name) ||
@@ -483,23 +483,23 @@ export default {
                       states: parameter.states,
                       selected_state: null,
                       selected_state_label: '',
-                      manual_value: null
+                      manual_value: null,
                     },
                     description: parameter.description,
                     units: parameter.units,
-                    type: parameter.data_type
+                    type: parameter.data_type,
                   })
                 }
               })
               this.sendDisabled = false
               this.status = ''
             },
-            error => {
+            (error) => {
               this.displayError('getting command parameters', error)
             }
           )
         },
-        error => {
+        (error) => {
           this.displayError('getting ignored parameters', error)
         }
       )
@@ -532,7 +532,7 @@ export default {
       let hazardous = false
       let cmd = ''
       this.api.get_cmd_hazardous(targetName, commandName, paramList).then(
-        response => {
+        (response) => {
           hazardous = response
 
           if (hazardous) {
@@ -566,17 +566,17 @@ export default {
             }
 
             obs.then(
-              response => {
+              (response) => {
                 this.processCmdResponse(true, response)
               },
-              error => {
+              (error) => {
                 //console.log(error)
                 this.processCmdResponse(false, error)
               }
             )
           }
         },
-        error => {
+        (error) => {
           this.processCmdResponse(false, error)
         }
       )
@@ -623,10 +623,10 @@ export default {
       }
 
       obs.then(
-        response => {
+        (response) => {
           this.processCmdResponse(true, response)
         },
-        error => {
+        (error) => {
           this.processCmdResponse(false, error)
         }
       )
@@ -689,7 +689,7 @@ export default {
 
     setupRawCmd() {
       this.api.get_interface_names().then(
-        response => {
+        (response) => {
           var interfaces = []
           for (var i = 0; i < response.length; i++) {
             interfaces.push({ label: response[i], value: response[i] })
@@ -698,7 +698,7 @@ export default {
           this.selectedInterface = interfaces[0].value
           this.displaySendRaw = true
         },
-        error => {
+        (error) => {
           this.displaySendRaw = false
           this.displayError('getting interface names', error, true)
         }
@@ -725,7 +725,7 @@ export default {
             ' bytes to interface ' +
             this.selectedInterface
         },
-        error => {
+        (error) => {
           this.displaySendRaw = false
           this.displayError('sending raw data', error, true)
         }
@@ -735,10 +735,10 @@ export default {
     sendRawCmd() {
       var self = this
       var reader = new FileReader()
-      reader.onload = function(e) {
+      reader.onload = function (e) {
         self.onLoad(e)
       }
-      reader.onerror = function(e) {
+      reader.onerror = function (e) {
         self.displaySendRaw = false
         var target = e.target
         self.displayError('sending raw data', target.error, true)
@@ -756,11 +756,11 @@ export default {
     cancelRawCmd() {
       this.displaySendRaw = false
       this.status = 'Raw command not sent'
-    }
+    },
   },
   created() {
     this.api = new CosmosApi()
-  }
+  },
 }
 </script>
 

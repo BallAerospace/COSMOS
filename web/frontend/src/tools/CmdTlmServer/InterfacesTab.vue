@@ -47,7 +47,7 @@ export default {
   mixins: [Updater],
   props: {
     tabId: Number,
-    curTab: Number
+    curTab: Number,
   },
   data() {
     return {
@@ -60,7 +60,7 @@ export default {
           text: 'Connect / Disconnect',
           value: 'connect',
           sortable: false,
-          filterable: false
+          filterable: false,
         },
         { text: 'Connected', value: 'connected' },
         { text: 'Clients', value: 'clients' },
@@ -69,8 +69,8 @@ export default {
         { text: 'Tx Bytes', value: 'tx_bytes' },
         { text: 'Rx Bytes', value: 'rx_bytes' },
         { text: 'Cmd Pkts', value: 'cmd_pkts' },
-        { text: 'Tlm Pkts', value: 'tlm_pkts' }
-      ]
+        { text: 'Tlm Pkts', value: 'tlm_pkts' },
+      ],
     }
   },
   methods: {
@@ -136,7 +136,7 @@ export default {
     },
     update() {
       if (this.tabId != this.curTab) return
-      this.api.get_all_interface_info().then(info => {
+      this.api.get_all_interface_info().then((info) => {
         this.data = [] // Clear the old data
         for (let int of info) {
           let connect = null
@@ -162,13 +162,13 @@ export default {
             tx_bytes: int[5],
             rx_bytes: int[6],
             cmd_pkts: int[7],
-            tlm_pkts: int[8]
+            tlm_pkts: int[8],
           })
         }
         this.buttonsDisabled = false
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

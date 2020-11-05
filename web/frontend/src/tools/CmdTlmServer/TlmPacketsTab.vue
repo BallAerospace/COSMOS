@@ -26,7 +26,8 @@
           block
           color="primary"
           @click="openViewRaw(item.target_name, item.packet_name)"
-        >View Raw</v-btn>
+          >View Raw</v-btn
+        >
       </template>
       <template v-slot:item.view_in_pkt_viewer="{ item }">
         <span v-if="item.target_name === 'UNKNOWN'">N/A</span>
@@ -35,7 +36,8 @@
           block
           color="primary"
           @click="openPktViewer(item.target_name, item.packet_name)"
-        >View In Packet Viewer</v-btn>
+          >View In Packet Viewer</v-btn
+        >
       </template>
     </v-data-table>
     <RawDialog
@@ -54,12 +56,12 @@ import RawDialog from './RawDialog'
 
 export default {
   components: {
-    RawDialog
+    RawDialog,
   },
   mixins: [Updater],
   props: {
     tabId: Number,
-    curTab: Number
+    curTab: Number,
   },
   data() {
     return {
@@ -70,11 +72,11 @@ export default {
         { text: 'Packet Name', value: 'packet_name' },
         { text: 'Packet Count', value: 'count' },
         { text: 'View Raw', value: 'view_raw' },
-        { text: 'View In Packet Viewer', value: 'view_in_pkt_viewer' }
+        { text: 'View In Packet Viewer', value: 'view_in_pkt_viewer' },
       ],
       viewRaw: false,
       target_name: null,
-      packet_name: null
+      packet_name: null,
     }
   },
   methods: {
@@ -93,25 +95,25 @@ export default {
         name: 'PackerViewer',
         params: {
           target: target_name,
-          packet: packet_name
-        }
+          packet: packet_name,
+        },
       })
       window.open(routeData.href, '_blank')
     },
     update() {
       if (this.tabId != this.curTab) return
-      this.api.get_all_tlm_info().then(info => {
+      this.api.get_all_tlm_info().then((info) => {
         this.data = []
         for (let x of info) {
           this.data.push({
             target_name: x[0],
             packet_name: x[1],
-            count: x[2]
+            count: x[2],
           })
         }
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

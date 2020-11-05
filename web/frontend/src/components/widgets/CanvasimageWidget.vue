@@ -31,7 +31,7 @@ export default {
         return this.parameters[4] + 'px'
       }
       return '100%'
-    }
-  }
+    },
+  },
 }
 </script>

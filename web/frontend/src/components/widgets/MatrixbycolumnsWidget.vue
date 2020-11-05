@@ -28,7 +28,7 @@ export default {
     },
     widgetChunks() {
       return _.chunk(this.widgets, this.columns)
-    }
-  }
+    },
+  },
 }
 </script>

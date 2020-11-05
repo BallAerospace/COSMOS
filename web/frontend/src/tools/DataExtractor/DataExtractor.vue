@@ -229,7 +229,7 @@ export default {
     AppNav,
     OpenConfigDialog,
     SaveConfigDialog,
-    TargetPacketItemChooser
+    TargetPacketItemChooser,
   },
   data() {
     return {
@@ -247,8 +247,8 @@ export default {
       endDateTime: null,
       startDateTimeFilename: '',
       rules: {
-        required: value => !!value || 'Required',
-        calendar: value => {
+        required: (value) => !!value || 'Required',
+        calendar: (value) => {
           try {
             return (
               isValid(parse(value, 'yyyy-MM-dd', new Date())) ||
@@ -258,7 +258,7 @@ export default {
             return 'Invalid date (YYYY-MM-DD)'
           }
         },
-        time: value => {
+        time: (value) => {
           try {
             return (
               isValid(parse(value, 'HH:mm:ss', new Date())) ||
@@ -267,7 +267,7 @@ export default {
           } catch (e) {
             return 'Invalid time (HH:MM:SS)'
           }
-        }
+        },
       },
       cmdOrTlm: 'tlm',
       warning: false,
@@ -297,32 +297,32 @@ export default {
               label: 'Open Configuration',
               command: () => {
                 this.openConfig = true
-              }
+              },
             },
             {
               label: 'Save Configuration',
               command: () => {
                 this.saveConfig = true
-              }
+              },
             },
             {
-              divider: true
+              divider: true,
             },
             {
               label: 'Comma Delimited',
               radio: true,
               command: () => {
                 this.delimiter = ','
-              }
+              },
             },
             {
               label: 'Tab Delimited',
               radio: true,
               command: () => {
                 this.delimiter = '\t'
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         {
           label: 'Mode',
@@ -334,52 +334,52 @@ export default {
               checked: true, // Skip Ignored is the default
               command: () => {
                 this.skipIgnored = !this.skipIgnored
-              }
+              },
             },
             {
-              divider: true
+              divider: true,
             },
             {
               label: 'Fill Down',
               checkbox: true,
               command: () => {
                 this.fillDown = !this.fillDown
-              }
+              },
             },
             {
               label: 'Matlab Header',
               checkbox: true,
               command: () => {
                 this.matlabHeader = !this.matlabHeader
-              }
+              },
             },
             {
               label: 'Unique Only',
               checkbox: true,
               command: () => {
                 this.uniqueOnly = !this.uniqueOnly
-              }
+              },
             },
             {
-              divider: true
+              divider: true,
             },
             {
               label: 'Normal Columns',
               radio: true,
               command: () => {
                 this.columnMode = 'normal'
-              }
+              },
             },
             {
               label: 'Full Column Names',
               radio: true,
               command: () => {
                 this.columnMode = 'full'
-              }
-            }
-          ]
-        }
-      ]
+              },
+            },
+          ],
+        },
+      ],
     }
   },
   created() {
@@ -481,7 +481,7 @@ export default {
       this.progress = 0
       this.processButtonText = 'Cancel'
       this.subscription = this.cable.subscriptions.create('StreamingChannel', {
-        received: data => this.received(data),
+        received: (data) => this.received(data),
         connected: () => {
           this.foundKeys = []
           this.columnHeaders = []
@@ -506,7 +506,7 @@ export default {
             scope: 'DEFAULT',
             items: items,
             start_time: this.startDateTime,
-            end_time: this.endDateTime
+            end_time: this.endDateTime,
           })
         },
         disconnected: () => {
@@ -516,7 +516,7 @@ export default {
         rejected: () => {
           this.warningText = 'COSMOS backend connection rejected.'
           this.warning = true
-        }
+        },
       })
     },
     buildHeaders(itemKeys) {
@@ -533,7 +533,7 @@ export default {
         this.columnHeaders.push('TARGET')
         this.columnHeaders.push('PACKET')
       }
-      itemKeys.forEach(item => {
+      itemKeys.forEach((item) => {
         if (item === 'time') return
         this.columnMap[item] = Object.keys(this.columnMap).length
         const [
@@ -541,7 +541,7 @@ export default {
           targetName,
           packetName,
           itemName,
-          valueType
+          valueType,
         ] = item.split('__')
         if (this.columnMode === 'full') {
           this.columnHeaders.push(
@@ -597,7 +597,7 @@ export default {
         var currentValues = []
         var row = []
         var previousRow = null
-        this.rawData.forEach(packet => {
+        this.rawData.forEach((packet) => {
           var changed = false
           if (this.fillDown && previousRow) {
             row = [...previousRow] // Copy the previous
@@ -606,7 +606,7 @@ export default {
           }
           // This pulls out the attributes we requested
           const keys = Object.keys(packet)
-          keys.forEach(key => {
+          keys.forEach((key) => {
             if (key === 'time') return // Skip time field
             // Get the value and put it into the correct column
             if (typeof packet[key] === 'object') {
@@ -643,7 +643,7 @@ export default {
           type = 'text/tab-separated-values'
         }
         const blob = new Blob([this.outputFile.join('\n')], {
-          type: type
+          type: type,
         })
         // Make a link and then 'click' on it to start the download
         const link = document.createElement('a')
@@ -656,8 +656,8 @@ export default {
       }
       this.progress = 100
       this.processButtonText = 'Process'
-    }
-  }
+    },
+  },
 }
 </script>
 

@@ -14,14 +14,14 @@ export default {
   mixins: [Widget],
   components: {
     LabelWidget,
-    LedWidget
+    LedWidget,
   },
   computed: {
     labelName() {
       // LabelWidget uses index 0 from the parameters prop
       // so create an array with the label text in the first position
       return [this.parameters[2] + ':']
-    }
-  }
+    },
+  },
 }
 </script>

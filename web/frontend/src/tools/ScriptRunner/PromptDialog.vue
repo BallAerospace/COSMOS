@@ -50,26 +50,26 @@ export default {
   props: {
     title: {
       type: String,
-      default: 'Prompt Dialog'
+      default: 'Prompt Dialog',
     },
     message: {
       type: String,
-      required: true
+      required: true,
     },
     buttons: {
       type: Array,
-      default: null
+      default: null,
     },
     layout: {
       type: String,
-      default: 'horizontal' // Also 'vertical' or 'combo' when means ComboBox
-    }
+      default: 'horizontal', // Also 'vertical' or 'combo' when means ComboBox
+    },
   },
   data() {
     return {
       show: true,
       selectOkDisabled: true,
-      selectedItem: null
+      selectedItem: null,
     }
   },
   computed: {
@@ -77,7 +77,7 @@ export default {
       return (
         this.buttons || [
           { text: 'Yes', value: true },
-          { text: 'No', value: false }
+          { text: 'No', value: false },
         ]
       )
     },
@@ -88,8 +88,8 @@ export default {
       } else {
         return layout + ' flex-row'
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

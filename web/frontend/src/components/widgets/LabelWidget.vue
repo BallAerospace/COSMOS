@@ -17,7 +17,7 @@ export default {
       fontFamily: null,
       fontSize: null,
       fontWeight: 'normal',
-      fontStyle: 'normal'
+      fontStyle: 'normal',
     }
   },
   computed: {
@@ -33,9 +33,9 @@ export default {
         '--font-family': this.fontFamily,
         '--font-size': size,
         '--font-weight': this.fontWeight,
-        '--font-style': this.fontStyle
+        '--font-style': this.fontStyle,
       }
-    }
+    },
   },
   created() {
     if (this.parameters[1]) {
@@ -50,7 +50,7 @@ export default {
     if (this.parameters[4]) {
       this.fontStyle = this.parameters[4]
     }
-  }
+  },
 }
 </script>
 

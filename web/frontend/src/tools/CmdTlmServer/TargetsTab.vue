@@ -31,7 +31,7 @@ export default {
   mixins: [Updater],
   props: {
     tabId: Number,
-    curTab: Number
+    curTab: Number,
   },
   data() {
     return {
@@ -41,26 +41,26 @@ export default {
         { text: 'Target Name', value: 'name' },
         { text: 'Interface', value: 'interface' },
         { text: 'Command Count', value: 'cmd_count' },
-        { text: 'Telemetry Count', value: 'tlm_count' }
-      ]
+        { text: 'Telemetry Count', value: 'tlm_count' },
+      ],
     }
   },
   methods: {
     update() {
       if (this.tabId != this.curTab) return
-      this.api.get_all_target_info().then(info => {
+      this.api.get_all_target_info().then((info) => {
         this.data = []
         for (let x of info) {
           this.data.push({
             name: x[0],
             interface: x[1],
             cmd_count: x[2],
-            tlm_count: x[3]
+            tlm_count: x[3],
           })
         }
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

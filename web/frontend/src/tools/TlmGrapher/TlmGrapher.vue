@@ -78,8 +78,8 @@
               :pointsSaved="settings.pointsSaved.value"
               :pointsPlotted="settings.pointsPlotted.value"
               :refreshRate="settings.refreshRate.value"
-              @closePlot="closePlot(plot)"
-              @minMaxPlot="minMaxPlot(plot)"
+              @close-plot="closePlot(plot)"
+              @min-max-plot="minMaxPlot(plot)"
               @resize="resize(plot)"
               @click="plotSelected(plot)"
             />
@@ -120,7 +120,7 @@ export default {
     OpenConfigDialog,
     SaveConfigDialog,
     TargetPacketItemChooser,
-    CosmosChartuPlot
+    CosmosChartuPlot,
     // CosmosChartJS
   },
   data() {
@@ -141,7 +141,7 @@ export default {
           icon: 'mdi-play',
           action: () => {
             this.state = 'start'
-          }
+          },
         },
         pause: {
           title: 'Pause',
@@ -156,15 +156,15 @@ export default {
               this.controls.pause.title = 'Pause'
               this.controls.pause.icon = 'mdi-pause'
             }
-          }
+          },
         },
         stop: {
           title: 'Stop',
           icon: 'mdi-stop',
           action: () => {
             this.state = 'stop'
-          }
-        }
+          },
+        },
       },
       menus: [
         {
@@ -174,15 +174,15 @@ export default {
               label: 'Open Configuration',
               command: () => {
                 this.openConfig = true
-              }
+              },
             },
             {
               label: 'Save Configuration',
               command: () => {
                 this.saveConfig = true
-              }
-            }
-          ]
+              },
+            },
+          ],
         },
         {
           label: 'Plot',
@@ -191,44 +191,44 @@ export default {
               label: 'Add Plot',
               command: () => {
                 this.addPlot()
-              }
+              },
             },
             {
               label: 'Edit Plot',
               command: () => {
                 this.$refs['plot' + this.selectedPlotId][0].editPlot = true
-              }
-            }
-          ]
-        }
+              },
+            },
+          ],
+        },
       ],
       settings: {
         secondsPlotted: {
           title: 'Seconds Plotted',
           icon: 'mdi-cog',
           value: 1000,
-          rules: [value => !!value || 'Required']
+          rules: [(value) => !!value || 'Required'],
         },
         pointsSaved: {
           title: 'Points Saved',
           value: 1000000,
           hint: 'Increasing may cause issues',
-          rules: [value => !!value || 'Required']
+          rules: [(value) => !!value || 'Required'],
         },
         pointsPlotted: {
           title: 'Points Plotted',
           value: 1000,
-          rules: [value => !!value || 'Required']
+          rules: [(value) => !!value || 'Required'],
         },
         refreshRate: {
           title: 'Refresh Rate (ms)',
           value: 1000,
           rules: [
-            value => !!value || 'Required',
-            value => (value && value >= 100) || 'Minimum 100ms'
-          ]
-        }
-      }
+            (value) => !!value || 'Required',
+            (value) => (value && value >= 100) || 'Minimum 100ms',
+          ],
+        },
+      },
     }
   },
   created() {
@@ -238,7 +238,7 @@ export default {
     this.grid = new Muuri('.grid', {
       dragEnabled: true,
       // Only allow drags starting from the v-system-bar title
-      dragHandle: '.v-system-bar'
+      dragHandle: '.v-system-bar',
     })
   },
   methods: {
@@ -253,7 +253,7 @@ export default {
       this.selectedPlotId = this.counter
       this.plots.push(this.counter)
       this.counter += 1
-      this.$nextTick(function() {
+      this.$nextTick(function () {
         var items = this.grid.add(
           this.$refs.gridItem[this.$refs.gridItem.length - 1],
           { active: false }
@@ -306,7 +306,7 @@ export default {
             {
               targetName: item.targetName,
               packetName: item.packetName,
-              itemName: item.itemName
+              itemName: item.itemName,
             },
             false
           )
@@ -322,12 +322,12 @@ export default {
           title: vuePlot.title,
           fullWidth: vuePlot.fullWidth,
           fullHeight: vuePlot.fullHeight,
-          items: vuePlot.items
+          items: vuePlot.items,
         })
       }
       this.api.save_config(this.toolName, name, JSON.stringify(config))
-    }
-  }
+    },
+  },
 }
 </script>
 

@@ -63,41 +63,41 @@ export default {
   props: {
     initialTargetName: {
       type: String,
-      default: ''
+      default: '',
     },
     initialPacketName: {
       type: String,
-      default: ''
+      default: '',
     },
     initialItemName: {
       type: String,
-      default: ''
+      default: '',
     },
     mode: {
       type: String,
       default: 'tlm',
       // TODO: add validators throughout
-      validator: propValue => {
+      validator: (propValue) => {
         const propExists = propValue === 'cmd' || propValue === 'tlm'
         return propExists
-      }
+      },
     },
     chooseItem: {
       type: Boolean,
-      default: false
+      default: false,
     },
     buttonText: {
       type: String,
-      default: null
+      default: null,
     },
     disabled: {
       type: Boolean,
-      default: false
+      default: false,
     },
     allowAll: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   computed: {
     actualButtonText() {
@@ -125,7 +125,7 @@ export default {
       } else {
         return { width: '50%', float: 'right' }
       }
-    }
+    },
   },
   data() {
     return {
@@ -142,13 +142,13 @@ export default {
       packetsDisabled: false,
       itemsDisabled: false,
       api: null,
-      ALL: { label: '[ ALL ]', value: 'ALL' } // Constant to indicate all packets or items
+      ALL: { label: '[ ALL ]', value: 'ALL' }, // Constant to indicate all packets or items
     }
   },
   created() {
     this.internalDisabled = true
     this.api = new CosmosApi()
-    this.api.get_target_list().then(data => {
+    this.api.get_target_list().then((data) => {
       var targetNames = []
       var arrayLength = data.length
       for (var i = 0; i < arrayLength; i++) {
@@ -164,49 +164,51 @@ export default {
     this.internalDisabled = false
   },
   watch: {
-    mode: function(val) {
+    mode: function (val) {
       this.updatePackets()
       this.itemNames = []
-    }
+    },
   },
   methods: {
     updatePackets() {
       this.internalDisabled = true
       if (this.mode == 'cmd') {
-        this.api['get_all_commands'](this.selectedTargetName).then(commands => {
-          this.packet_list_items = []
-          this.packetNames = []
-          if (this.allowAll) {
-            this.packetNames.push(this.ALL)
-          }
-          commands.forEach(command => {
-            this.packet_list_items.push([
-              command.packet_name,
-              command.description
-            ])
-            this.packetNames.push({
-              label: command.packet_name,
-              value: command.packet_name
-            })
-          })
-          if (!this.selectedPacketName) {
-            this.selectedPacketName = this.packetNames[0].value
-            this.packetNameChanged(this.selectedPacketName)
-          }
-          for (const item of this.packet_list_items) {
-            if (this.selectedPacketName === item[0]) {
-              this.description = item[1]
-              break
+        this.api['get_all_commands'](this.selectedTargetName).then(
+          (commands) => {
+            this.packet_list_items = []
+            this.packetNames = []
+            if (this.allowAll) {
+              this.packetNames.push(this.ALL)
             }
+            commands.forEach((command) => {
+              this.packet_list_items.push([
+                command.packet_name,
+                command.description,
+              ])
+              this.packetNames.push({
+                label: command.packet_name,
+                value: command.packet_name,
+              })
+            })
+            if (!this.selectedPacketName) {
+              this.selectedPacketName = this.packetNames[0].value
+              this.packetNameChanged(this.selectedPacketName)
+            }
+            for (const item of this.packet_list_items) {
+              if (this.selectedPacketName === item[0]) {
+                this.description = item[1]
+                break
+              }
+            }
+            this.$emit('on-set', {
+              targetName: this.selectedTargetName,
+              packetName: this.selectedPacketName,
+            })
+            this.internalDisabled = false
           }
-          this.$emit('on-set', {
-            targetName: this.selectedTargetName,
-            packetName: this.selectedPacketName
-          })
-          this.internalDisabled = false
-        })
+        )
       } else {
-        this.api['get_tlm_list'](this.selectedTargetName).then(packets => {
+        this.api['get_tlm_list'](this.selectedTargetName).then((packets) => {
           this.packet_list_items = packets
           this.packetNames = []
           if (this.allowAll) {
@@ -216,7 +218,7 @@ export default {
           for (var i = 0; i < arrayLength; i++) {
             this.packetNames.push({
               label: packets[i][0],
-              value: packets[i][0]
+              value: packets[i][0],
             })
           }
           if (!this.selectedPacketName) {
@@ -232,7 +234,7 @@ export default {
           if (!this.chooseItem) {
             this.$emit('on-set', {
               targetName: this.selectedTargetName,
-              packetName: this.selectedPacketName
+              packetName: this.selectedPacketName,
             })
           }
           this.internalDisabled = false
@@ -247,7 +249,7 @@ export default {
         cmd = 'get_cmd_param_list'
       }
       this.api[cmd](this.selectedTargetName, this.selectedPacketName).then(
-        items => {
+        (items) => {
           this.tlm_item_list_items = items
           this.itemNames = []
           if (this.allowAll) {
@@ -265,7 +267,7 @@ export default {
           this.$emit('on-set', {
             targetName: this.selectedTargetName,
             packetName: this.selectedPacketName,
-            itemName: this.selectedItemName
+            itemName: this.selectedItemName,
           })
         }
       )
@@ -295,7 +297,7 @@ export default {
         if (!this.chooseItem) {
           this.$emit('on-set', {
             targetName: this.selectedTargetName,
-            packetName: this.selectedPacketName
+            packetName: this.selectedPacketName,
           })
         }
         if (this.chooseItem) {
@@ -317,50 +319,50 @@ export default {
       this.$emit('on-set', {
         targetName: this.selectedTargetName,
         packetName: this.selectedPacketName,
-        itemName: this.selectedItemName
+        itemName: this.selectedItemName,
       })
     },
 
     buttonPressed() {
       if (this.selectedPacketName === 'ALL') {
-        this.packetNames.forEach(packet => {
+        this.packetNames.forEach((packet) => {
           if (packet === this.ALL) return
           let cmd = 'get_tlm_item_list'
           if (this.mode == 'cmd') {
             cmd = 'get_cmd_param_list'
           }
-          this.api[cmd](this.selectedTargetName, packet.value).then(items => {
-            items.forEach(item => {
+          this.api[cmd](this.selectedTargetName, packet.value).then((items) => {
+            items.forEach((item) => {
               this.$emit('click', {
                 targetName: this.selectedTargetName,
                 packetName: packet.value,
-                itemName: item[0]
+                itemName: item[0],
               })
             })
           })
         })
       } else if (this.selectedItemName === 'ALL') {
-        this.itemNames.forEach(item => {
+        this.itemNames.forEach((item) => {
           if (item === this.ALL) return
           this.$emit('click', {
             targetName: this.selectedTargetName,
             packetName: this.selectedPacketName,
-            itemName: item.value
+            itemName: item.value,
           })
         })
       } else if (this.chooseItem) {
         this.$emit('click', {
           targetName: this.selectedTargetName,
           packetName: this.selectedPacketName,
-          itemName: this.selectedItemName
+          itemName: this.selectedItemName,
         })
       } else {
         this.$emit('click', {
           targetName: this.selectedTargetName,
-          packetName: this.selectedPacketName
+          packetName: this.selectedPacketName,
         })
       }
-    }
-  }
+    },
+  },
 }
 </script>

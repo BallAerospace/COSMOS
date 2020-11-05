@@ -11,24 +11,24 @@ export default {
   mixins: [Widget],
   props: {
     value: {
-      default: null
-    }
+      default: null,
+    },
   },
   data() {
     return {
       valueId: null,
       scaleFactor: 1.0,
-      width: 80
+      width: 80,
     }
   },
   computed: {
-    _value: function() {
+    _value: function () {
       let value = this.value
       if (value === null) {
         value = this.$store.state.tlmViewerValues[0][this.valueId]
       }
       return parseInt(parseFloat(value) * this.scaleFactor)
-    }
+    },
   },
   // Note Vuejs still treats this syncronously, but this allows us to dispatch
   // the store mutation and return the array index.
@@ -51,10 +51,10 @@ export default {
         target: this.parameters[0],
         packet: this.parameters[1],
         item: this.parameters[2],
-        type: type
+        type: type,
       })
     }
-  }
+  },
 }
 </script>
 

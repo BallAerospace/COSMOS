@@ -18,7 +18,7 @@
         >
         <v-icon v-else @click="expandHeight">mdi-arrow-expand-vertical</v-icon>
         <v-icon @click="minMaxTransition">mdi-window-minimize</v-icon>
-        <v-icon @click="$emit('closePlot')">mdi-close-box</v-icon>
+        <v-icon @click="$emit('close-plot')">mdi-close-box</v-icon>
       </v-system-bar>
       <v-expand-transition>
         <div class="pa-1" id="chart" ref="chart" v-show="expand">
@@ -62,32 +62,32 @@ export default {
   props: {
     id: {
       type: Number,
-      required: true
+      required: true,
     },
     selectedPlotId: {
-      type: Number
+      type: Number,
       // Not required because we pass null
     },
     state: {
       type: String,
-      required: true
+      required: true,
     },
     secondsPlotted: {
       type: Number,
-      required: true
+      required: true,
     },
     pointsSaved: {
       type: Number,
-      required: true
+      required: true,
     },
     pointsPlotted: {
       type: Number,
-      required: true
+      required: true,
     },
     refreshRate: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -129,14 +129,14 @@ export default {
         'orange',
         'navy',
         'teal',
-        'black'
-      ]
+        'black',
+      ],
     }
   },
   computed: {
     calcFullSize() {
       return this.fullWidth || this.fullHeight
-    }
+    },
   },
   created() {
     // Creating the cable can be done once, subscriptions come and go
@@ -192,18 +192,18 @@ export default {
       // series: series, // TODO: Uncomment with the performance code
       series: [
         {
-          label: 'Time'
-        }
+          label: 'Time',
+        },
       ],
       cursor: {
         drag: {
           x: true,
-          y: false
+          y: false,
         },
         sync: {
           key: 'cosmos',
-          setSeries: true
-        }
+          setSeries: true,
+        },
       },
       hooks: {
         setScale: [
@@ -219,9 +219,9 @@ export default {
               this.overview.setSelect({ left, width: right - left })
               this.zoomChart = false
             }
-          }
-        ]
-      }
+          },
+        ],
+      },
     }
     // console.time('chart')
     this.plot = new uPlot(
@@ -238,20 +238,20 @@ export default {
       cursor: {
         y: false,
         points: {
-          show: false // TODO: This isn't working
+          show: false, // TODO: This isn't working
         },
         drag: {
           setScale: false,
           x: true,
-          y: false
-        }
+          y: false,
+        },
       },
       legend: {
-        show: false
+        show: false,
       },
       hooks: {
         setSelect: [
-          chart => {
+          (chart) => {
             if (!this.zoomChart) {
               this.zoomOverview = true
               let min = chart.posToVal(chart.select.left, 'x')
@@ -262,9 +262,9 @@ export default {
               this.plot.setScale('x', { min, max })
               this.zoomOverview = false
             }
-          }
-        ]
-      }
+          },
+        ],
+      },
     }
     this.overview = new uPlot(
       overviewOpts,
@@ -288,7 +288,7 @@ export default {
     window.removeEventListener('resize', this.handleResize)
   },
   watch: {
-    state: function(newState, oldState) {
+    state: function (newState, oldState) {
       switch (newState) {
         case 'start':
           this.subscribe()
@@ -299,7 +299,7 @@ export default {
           break
       }
     },
-    data: function(newData, oldData) {
+    data: function (newData, oldData) {
       if (this.state !== 'start') {
         return
       }
@@ -315,7 +315,7 @@ export default {
         min = ptsMin
       }
       this.plot.setScale('x', { min, max })
-    }
+    },
   },
   methods: {
     handleResize() {
@@ -356,14 +356,14 @@ export default {
     },
     minMaxTransition() {
       this.expand = !this.expand
-      this.$emit('minMaxPlot')
+      this.$emit('min-max-plot')
     },
     subscribe() {
       this.subscription = this.cable.subscriptions.create('StreamingChannel', {
-        received: data => this.received(data),
+        received: (data) => this.received(data),
         connected: () => {
           var items = []
-          this.items.forEach(item => {
+          this.items.forEach((item) => {
             items.push(
               'TLM__' +
                 item.targetName +
@@ -376,13 +376,13 @@ export default {
           })
           this.subscription.perform('add', {
             scope: 'DEFAULT',
-            items: items
+            items: items,
             // No start_time because we want to start now
             // No end_time because we want to continue until we stop
           })
         },
         // TODO: How should we handle server side disconnect
-        disconnected: () => alert('disconnected')
+        disconnected: () => alert('disconnected'),
       })
     },
     throttle(cb, limit) {
@@ -427,7 +427,7 @@ export default {
       }
       return {
         width: width,
-        height: height
+        height: height,
       }
     },
     getScales() {
@@ -437,15 +437,15 @@ export default {
             range(u, dataMin, dataMax) {
               if (dataMin == null) return [1566453600, 1566497660]
               return [dataMin, dataMax]
-            }
+            },
           },
           y: {
             range(u, dataMin, dataMax) {
               if (dataMin == null) return [-100, 100]
               return uPlot.rangeNum(dataMin, dataMax, 0.1, true)
-            }
-          }
-        }
+            },
+          },
+        },
       }
     },
     getAxes(type) {
@@ -462,8 +462,8 @@ export default {
             grid: {
               show: true,
               stroke: strokeColor,
-              width: 2
-            }
+              width: 2,
+            },
           },
           {
             size: 70, // This size supports values up to 99 million
@@ -471,10 +471,10 @@ export default {
             grid: {
               show: type === 'overview' ? false : true,
               stroke: strokeColor,
-              width: 2
-            }
-          }
-        ]
+              width: 2,
+            },
+          },
+        ],
       }
     },
     addItem(item) {
@@ -488,14 +488,14 @@ export default {
           spanGaps: true,
           label: item.itemName,
           stroke: this.colors[this.data.length - 1],
-          value: (self, rawValue) => rawValue && rawValue.toFixed(2)
+          value: (self, rawValue) => rawValue && rawValue.toFixed(2),
         },
         index
       )
       this.overview.addSeries(
         {
           spanGaps: true,
-          stroke: this.colors[this.data.length - 1]
+          stroke: this.colors[this.data.length - 1],
         },
         index
       )
@@ -518,7 +518,7 @@ export default {
         this.subscription.perform('add', {
           scope: 'DEFAULT',
           items: [key],
-          start_time: new Date().getTime() * 1_000_000 - history
+          start_time: new Date().getTime() * 1_000_000 - history,
           // No end_time because we want to continue until we stop
         })
       }
@@ -534,7 +534,7 @@ export default {
         '__CONVERTED'
       this.subscription.perform('remove', {
         scope: 'DEFAULT',
-        items: [key]
+        items: [key],
       })
       const index = this.reorderIndexes(key)
       this.items.splice(index - 1, 1)
@@ -600,8 +600,8 @@ export default {
           }
         }
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

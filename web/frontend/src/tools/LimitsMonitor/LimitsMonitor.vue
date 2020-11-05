@@ -13,8 +13,8 @@ import LimitsEvents from '@/components/LimitsEvents'
 export default {
   components: {
     AppNav,
-    LimitsEvents
-  }
+    LimitsEvents,
+  },
 }
 </script>
 

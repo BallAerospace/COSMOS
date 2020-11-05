@@ -56,22 +56,22 @@ import PacketLogInfo from '@/components/PacketLogInfo.vue'
 
 export default {
   components: {
-    PacketLogInfo
+    PacketLogInfo,
   },
   mixins: [Updater],
   props: {
     tabId: Number,
-    curTab: Number
+    curTab: Number,
   },
   data() {
     return {
-      loggers: null
+      loggers: null,
     }
   },
   methods: {
     update() {
       if (this.tabId != this.curTab) return
-      this.api.get_all_packet_logger_info().then(info => {
+      this.api.get_all_packet_logger_info().then((info) => {
         this.loggers = []
         for (let x of info) {
           var log = {}
@@ -106,8 +106,8 @@ export default {
     },
     stopCmdLogging(log_writer_name) {
       this.api.stop_cmd_log(log_writer_name)
-    }
-  }
+    },
+  },
 }
 </script>
 

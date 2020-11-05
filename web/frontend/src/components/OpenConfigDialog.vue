@@ -17,7 +17,9 @@
               </v-list-item>
             </v-list-item-group>
           </v-list>
-          <v-alert dense type="warning" v-if="warning">Select a configuration</v-alert>
+          <v-alert dense type="warning" v-if="warning"
+            >Select a configuration</v-alert
+          >
         </v-card-text>
         <v-card-actions>
           <v-btn color="primary" text @click="success()">Ok</v-btn>
@@ -35,14 +37,14 @@ import { CosmosApi } from '@/services/cosmos-api'
 export default {
   props: {
     tool: String,
-    value: Boolean // value is the default prop when using v-model
+    value: Boolean, // value is the default prop when using v-model
   },
   data() {
     return {
       api: null,
       configIndex: null,
       configs: [],
-      warning: false
+      warning: false,
     }
   },
   computed: {
@@ -52,8 +54,8 @@ export default {
       },
       set(value) {
         this.$emit('input', value) // input is the default event when using v-model
-      }
-    }
+      },
+    },
   },
   created() {
     this.api = new CosmosApi()
@@ -74,8 +76,8 @@ export default {
     deleteConfig(config) {
       this.configs.splice(this.configs.indexOf(config), 1)
       this.api.delete_config(this.tool, config)
-    }
-  }
+    },
+  },
 }
 </script>
 

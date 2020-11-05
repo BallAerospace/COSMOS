@@ -15,7 +15,7 @@ import ValueWidget from './ValueWidget.vue'
 export default {
   mixins: [Widget],
   components: {
-    ValueWidget
+    ValueWidget,
   },
   computed: {
     getParameters() {
@@ -23,9 +23,9 @@ export default {
         this.parameters[0],
         this.parameters[1],
         this.parameters[2],
-        this.parameters[4]
+        this.parameters[4],
       ]
-    }
-  }
+    },
+  },
 }
 </script>

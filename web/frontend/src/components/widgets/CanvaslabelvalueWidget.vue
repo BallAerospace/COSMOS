@@ -15,7 +15,7 @@ export default {
   mixins: [Widget],
   data() {
     return {
-      valueId: null
+      valueId: null,
     }
   },
   computed: {
@@ -33,7 +33,7 @@ export default {
         return this.parameters[6]
       }
       return 'black'
-    }
+    },
   },
   // Note Vuejs still treats this syncronously, but this allows us to dispatch
   // the store mutation and return the array index.
@@ -43,8 +43,8 @@ export default {
       target: this.parameters[0],
       packet: this.parameters[1],
       item: this.parameters[2],
-      type: 'CONVERTED'
+      type: 'CONVERTED',
     })
-  }
+  },
 }
 </script>

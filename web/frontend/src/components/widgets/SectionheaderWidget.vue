@@ -10,8 +10,8 @@ export default {
   computed: {
     labelText() {
       return this.parameters[0]
-    }
-  }
+    },
+  },
 }
 </script>
 

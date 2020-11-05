@@ -14,26 +14,26 @@ export default {
   props: {
     secondsPlotted: {
       type: Number,
-      required: true
+      required: true,
     },
     pointsSaved: {
       type: Number,
-      required: true
+      required: true,
     },
     pointsPlotted: {
       type: Number,
-      required: true
+      required: true,
     },
     refreshRate: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
       chart: null,
       data: {
-        datasets: []
+        datasets: [],
       },
       items: [],
       running: false,
@@ -63,8 +63,8 @@ export default {
         'orange',
         'navy',
         'teal',
-        'black'
-      ]
+        'black',
+      ],
     }
   },
   created() {
@@ -91,7 +91,7 @@ export default {
         data: data.slice(),
         fill: false,
         borderColor: this.colors[i],
-        backgroundColor: this.colors[i]
+        backgroundColor: this.colors[i],
       })
     }
 
@@ -105,21 +105,21 @@ export default {
         scales: {
           x: {
             type: 'time',
-            display: true
-          }
+            display: true,
+          },
         },
         elements: {
           line: {
             tension: 0, // disables bezier curves
             fill: false,
             stepped: false,
-            borderDash: []
+            borderDash: [],
           },
           point: {
-            radius: 0 // default to disabled in all datasets
-          }
-        }
-      }
+            radius: 0, // default to disabled in all datasets
+          },
+        },
+      },
     })
     console.timeEnd('chart')
   },
@@ -134,15 +134,15 @@ export default {
       this.subscription = this.cable.subscriptions.create(
         'PreidentifiedChannel',
         {
-          received: data => this.received(data),
+          received: (data) => this.received(data),
           connected: () => {
-            this.items.forEach(item => {
+            this.items.forEach((item) => {
               this.subscription.perform('add_item', {
                 item:
-                  item.targetName + ' ' + item.packetName + ' ' + item.itemName
+                  item.targetName + ' ' + item.packetName + ' ' + item.itemName,
               })
             })
-          }
+          },
           // TODO: How should we handle server side disconnect
           //disconnected: () => alert('disconnected')
         }
@@ -176,12 +176,12 @@ export default {
         label: item.targetName + ' ' + item.packetName + ' ' + item.itemName,
         data: [],
         borderColor: this.colors[this.data.datasets.length], // line color
-        backgroundColor: this.colors[this.data.datasets.length] // point color
+        backgroundColor: this.colors[this.data.datasets.length], // point color
       })
 
       if (this.running) {
         this.subscription.perform('add_item', {
-          item: item.targetName + ' ' + item.packetName + ' ' + item.itemName
+          item: item.targetName + ' ' + item.packetName + ' ' + item.itemName,
         })
       }
     },
@@ -190,12 +190,12 @@ export default {
       while (i < data.length) {
         this.data.datasets[i].data.push({
           x: DateTime.fromSeconds(data[i]['x']).toISO(),
-          y: data[i]['y']
+          y: data[i]['y'],
         })
         i++
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

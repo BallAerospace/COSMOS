@@ -57,12 +57,12 @@ import RawDialog from './RawDialog'
 
 export default {
   components: {
-    RawDialog
+    RawDialog,
   },
   mixins: [Updater],
   props: {
     tabId: Number,
-    curTab: Number
+    curTab: Number,
   },
   data() {
     return {
@@ -73,11 +73,11 @@ export default {
         { text: 'Packet Name', value: 'packet_name' },
         { text: 'Packet Count', value: 'count' },
         { text: 'View Raw', value: 'view_raw' },
-        { text: 'View In Command Sender', value: 'view_in_cmd_sender' }
+        { text: 'View In Command Sender', value: 'view_in_cmd_sender' },
       ],
       viewRaw: false,
       target_name: null,
-      packet_name: null
+      packet_name: null,
     }
   },
   methods: {
@@ -96,25 +96,25 @@ export default {
         name: 'CommandSender',
         params: {
           target: target_name,
-          packet: packet_name
-        }
+          packet: packet_name,
+        },
       })
       window.open(routeData.href, '_blank')
     },
     update() {
       if (this.tabId != this.curTab) return
-      this.api.get_all_cmd_info().then(info => {
+      this.api.get_all_cmd_info().then((info) => {
         this.data = []
         for (let x of info) {
           this.data.push({
             target_name: x[0],
             packet_name: x[1],
-            count: x[2]
+            count: x[2],
           })
         }
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

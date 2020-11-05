@@ -19,7 +19,7 @@ export default {
     return {
       valueId: 0,
       imageLookup: {},
-      defaultLookup: {}
+      defaultLookup: {},
     }
   },
   computed: {
@@ -47,7 +47,7 @@ export default {
     calcHeight() {
       const value = this.$store.state.tlmViewerValues[0][this.valueId]
       return get(this.imageLookup, [value, 'height'], this.defaultLookup.height)
-    }
+    },
   },
   // Note Vuejs still treats this syncronously, but this allows us to dispatch
   // the store mutation and return the array index.
@@ -61,7 +61,7 @@ export default {
       target: this.parameters[0],
       packet: this.parameters[1],
       item: this.parameters[2],
-      type: theType
+      type: theType,
     })
     let width = '100%'
     if (this.parameters[7]) {
@@ -77,11 +77,11 @@ export default {
         x: this.parameters[5],
         y: this.parameters[6],
         width: width,
-        height: height
+        height: height,
       }
     }
 
-    this.settings.forEach(setting => {
+    this.settings.forEach((setting) => {
       switch (setting[0]) {
         case 'IMAGE':
           set(this.imageLookup, setting[1], {
@@ -89,11 +89,11 @@ export default {
             x: setting[3],
             y: setting[4],
             width: setting[5],
-            height: setting[6]
+            height: setting[6],
           })
           break
       }
     })
-  }
+  },
 }
 </script>

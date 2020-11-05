@@ -167,15 +167,15 @@ export default {
   props: {
     type: {
       default: 'tlm',
-      validator: function(value) {
+      validator: function (value) {
         // The value must match one of these strings
         return ['cmd', 'tlm'].indexOf(value) !== -1
-      }
+      },
     },
     targetName: String,
     packetName: String,
     itemName: String,
-    value: Boolean // value is the default prop when using v-model
+    value: Boolean, // value is the default prop when using v-model
   },
   data() {
     return {
@@ -184,7 +184,7 @@ export default {
       rawValue: null,
       convertedValue: null,
       formattedValue: null,
-      unitsValue: null
+      unitsValue: null,
     }
   },
   computed: {
@@ -194,8 +194,8 @@ export default {
       },
       set(value) {
         this.$emit('input', value) // input is the default event when using v-model
-      }
-    }
+      },
+    },
   },
   created() {
     this.api = new CosmosApi()
@@ -208,7 +208,7 @@ export default {
     // Create a watcher on value which is the indicator to display the dialog
     // If value is true we request the details from the server
     // If this is a tlm dialog we setup an interval to get the telemetry values
-    value: function(newValue, oldValue) {
+    value: function (newValue, oldValue) {
       if (newValue) {
         this.requestDetails()
         if (this.type === 'tlm') {
@@ -219,11 +219,11 @@ export default {
                   [this.targetName, this.packetName, this.itemName],
                   [this.targetName, this.packetName, this.itemName],
                   [this.targetName, this.packetName, this.itemName],
-                  [this.targetName, this.packetName, this.itemName]
+                  [this.targetName, this.packetName, this.itemName],
                 ],
                 ['RAW', 'CONVERTED', 'FORMATTED', 'WITH_UNITS']
               )
-              .then(values => {
+              .then((values) => {
                 this.rawValue = values[0][0]
                 this.convertedValue = values[0][1]
                 this.formattedValue = values[0][2]
@@ -235,20 +235,20 @@ export default {
         clearInterval(this.updater)
         this.updater = null
       }
-    }
+    },
   },
   methods: {
     requestDetails() {
       if (this.type === 'tlm') {
         this.api
           .get_item(this.targetName, this.packetName, this.itemName)
-          .then(details => {
+          .then((details) => {
             this.details = details
           })
       } else {
         this.api
           .get_parameter(this.targetName, this.packetName, this.itemName)
-          .then(details => {
+          .then((details) => {
             this.details = details
           })
       }
@@ -283,8 +283,8 @@ export default {
       } else {
         return limit
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

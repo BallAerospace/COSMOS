@@ -14,6 +14,6 @@
 <script>
 import Layout from './Layout'
 export default {
-  mixins: [Layout]
+  mixins: [Layout],
 }
 </script>

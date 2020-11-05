@@ -10,6 +10,6 @@
 <script>
 import Widget from './Widget'
 export default {
-  mixins: [Widget]
+  mixins: [Widget],
 }
 </script>

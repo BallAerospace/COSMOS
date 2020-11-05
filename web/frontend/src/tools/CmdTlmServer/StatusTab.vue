@@ -42,7 +42,8 @@
             block
             color="primary"
             @click="taskControl(item.name, item.control)"
-          >{{ item.control }}</v-btn>
+            >{{ item.control }}</v-btn
+          >
         </template>
       </v-data-table>
     </v-card>
@@ -56,7 +57,7 @@ export default {
   mixins: [Updater],
   props: {
     tabId: Number,
-    curTab: Number
+    curTab: Number,
   },
   data() {
     return {
@@ -66,28 +67,28 @@ export default {
         { text: 'Clients', value: 'clients' },
         { text: 'Requests', value: 'requests' },
         { text: 'Avg Request Time', value: 'avgTime' },
-        { text: 'Server Threads', value: 'threads' }
+        { text: 'Server Threads', value: 'threads' },
       ],
       backgroundTasks: [],
       backgroundHeaders: [
         { text: 'Name', value: 'name' },
         { text: 'State', value: 'state' },
         { text: 'Status', value: 'status' },
-        { text: 'Control', value: 'control' }
+        { text: 'Control', value: 'control' },
       ],
       limitsSets: [],
-      currentLimitsSet: ''
+      currentLimitsSet: '',
     }
   },
   created() {
-    this.api.get_limits_sets().then(sets => {
+    this.api.get_limits_sets().then((sets) => {
       this.limitsSets = sets
     })
   },
   methods: {
     update() {
       if (this.tabId != this.curTab) return
-      this.api.get_server_status().then(status => {
+      this.api.get_server_status().then((status) => {
         this.currentLimitsSet = status[0]
         this.apiStatus = [
           {
@@ -95,11 +96,11 @@ export default {
             clients: status[2],
             requests: status[3],
             avgTime: (Math.round(status[4] * 1000000) / 1000000).toFixed(6),
-            threads: status[5]
-          }
+            threads: status[5],
+          },
         ]
       })
-      this.api.get_background_tasks().then(tasks => {
+      this.api.get_background_tasks().then((tasks) => {
         this.backgroundTasks = []
         for (let x of tasks) {
           var control = ''
@@ -112,7 +113,7 @@ export default {
             name: x[0],
             state: x[1],
             status: x[2],
-            control: control
+            control: control,
           })
         }
       })
@@ -126,8 +127,8 @@ export default {
       } else if (state == 'Stop') {
         this.api.stop_background_task(name)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
