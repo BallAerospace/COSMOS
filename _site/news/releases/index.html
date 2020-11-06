@@ -84,6 +84,8 @@
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
       
+      <option value="/news/2020/11/05/cosmos-4-5-0-released/">Ball Aerospace COSMOS 4.5.0 Released</option>
+      
       <option value="/news/2020/09/23/packet-time/">Packet Time</option>
       
       <option value="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">Ball Aerospace COSMOS 5.0.0 alpha 1 Released</option>
@@ -235,6 +237,81 @@
 
       <div class="unit four-fifths">
         
+  <article>
+  <h2>
+    <a href="/news/2020/11/05/cosmos-4-5-0-released/">
+      Ball Aerospace COSMOS 4.5.0 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      05 Nov 2020
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>COSMOS 4.5 -</p>
+
+<p>This is a security and bug fix release.  All users are recommended to update. Please see the migration notes below for necessary changes when upgrading from 4.4.2.</p>
+
+<h3 id="security-updates">Security Updates:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/672">#672</a> Secure COSMOS API with Shared Secret</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1227">#1227</a> Prevent a Malicious Website From Sending Commands</li>
+</ul>
+
+<h3 id="bug-fixes">Bug Fixes:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1135">#1135</a> Command Sequence Tool Overriding String Parameter</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1151">#1151</a> CmdSender not setting description</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1158">#1158</a> Loss of 1 us precision on CCSDS time when using Time.ccsds2sec method</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1164">#1164</a> CmdTlmServer#reload always uses default system.txt</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1167">#1167</a> Serial Driver Initialization Bug</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1196">#1196</a> COSMOS windows stuck offscreen at Startup</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1200">#1200</a> Handbook PDF Generation wkhtmltopdf ProtocolUnknownError</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1210">#1210</a> Move CheckError definition to ApiShared</li>
+</ul>
+
+<h3 id="new-features">New Features:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1141">#1141</a> Enable setting arbitrary bits in the serial drivers</li>
+</ul>
+
+<h3 id="maintenance">Maintenance:</h3>
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1136">#1136</a> Telemetry Extractor delimiter on last item</li>
+</ul>
+
+<h3 id="migration-notes-from-cosmos-44x">Migration Notes from COSMOS 4.4,x:</h3>
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+
+<p>Modify you system.txt files to:</p>
+
+<ol>
+  <li>Make sure you have a X_CSRF_TOKEN line with a unique value (anything will do, just change it)</li>
+  <li>Change all LISTEN_HOST settings to 127.0.01 unless you need connections from external hosts</li>
+  <li>If you know only specific external hosts will be connecting, add ALLOW_ACCESS lines for each</li>
+  <li>Only add ALLOW_ROUTER_COMMANDING if you are chaining CmdTlmServers (that need to send commands), or you are receiving commands through routers</li>
+  <li>Only add ALLOW_ORIGIN &lt;Address of webpage&gt;if you expect COSMOS to be accessed from a webpage</li>
+  <li>Add ALLOW_HOST <Your COSMOS="" IP="" Address="">:7777, etc if you expect the COSMOS APIs to be accessed from external computers.  Otherwise it will only accept connections that have a HOST header set to localhost</Your></li>
+</ol>
+
+
+  </div>
+</article>
+
+
   <article>
   <h2>
     <a href="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">
@@ -2544,6 +2621,10 @@ change the whole playing field of Operations, Integration, and Test”.</p>
     <ul>
       
       <li class="">
+        <a href="/news/2020/11/05/cosmos-4-5-0-released/">Version 4.5.0</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">Version 5.0.0-alpha.1</a>
       </li>
       
@@ -2559,16 +2640,14 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <a href="/news/2019/06/28/cosmos-4-4-0-released/">Version 4.4.0</a>
       </li>
       
-      <li class="">
-        <a href="/news/2018/08/30/cosmos-4-3-0-released/">Version 4.3.0</a>
-      </li>
-      
       <li>
         <a href="/docs/history/">History »</a>
       </li>
     </ul>
     <h4>Other News</h4>
     <ul>
+        
+        
         
         
         <li class="">

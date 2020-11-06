@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Wed, 23 Sep 2020 09:41:41 -0600</pubDate>
-    <lastBuildDate>Wed, 23 Sep 2020 09:41:41 -0600</lastBuildDate>
+    <pubDate>Fri, 06 Nov 2020 16:28:54 -0700</pubDate>
+    <lastBuildDate>Fri, 06 Nov 2020 16:28:54 -0700</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v4.1.1</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,68 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 4.5.0 Released</title>
+      <link>http://cosmosrb.com/news/2020/11/05/cosmos-4-5-0-released/</link>
+      <pubDate>Thu, 05 Nov 2020 06:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2020/11/05/cosmos-4-5-0-released/</guid>
+      <description>&lt;p&gt;COSMOS 4.5 -&lt;/p&gt;
+
+&lt;p&gt;This is a security and bug fix release.  All users are recommended to update. Please see the migration notes below for necessary changes when upgrading from 4.4.2.&lt;/p&gt;
+
+&lt;h3 id=&quot;security-updates&quot;&gt;Security Updates:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/672&quot;&gt;#672&lt;/a&gt; Secure COSMOS API with Shared Secret&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1227&quot;&gt;#1227&lt;/a&gt; Prevent a Malicious Website From Sending Commands&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;bug-fixes&quot;&gt;Bug Fixes:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1135&quot;&gt;#1135&lt;/a&gt; Command Sequence Tool Overriding String Parameter&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1151&quot;&gt;#1151&lt;/a&gt; CmdSender not setting description&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1158&quot;&gt;#1158&lt;/a&gt; Loss of 1 us precision on CCSDS time when using Time.ccsds2sec method&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1164&quot;&gt;#1164&lt;/a&gt; CmdTlmServer#reload always uses default system.txt&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1167&quot;&gt;#1167&lt;/a&gt; Serial Driver Initialization Bug&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1196&quot;&gt;#1196&lt;/a&gt; COSMOS windows stuck offscreen at Startup&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1200&quot;&gt;#1200&lt;/a&gt; Handbook PDF Generation wkhtmltopdf ProtocolUnknownError&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1210&quot;&gt;#1210&lt;/a&gt; Move CheckError definition to ApiShared&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;new-features&quot;&gt;New Features:&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1141&quot;&gt;#1141&lt;/a&gt; Enable setting arbitrary bits in the serial drivers&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;maintenance&quot;&gt;Maintenance:&lt;/h3&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/BallAerospace/COSMOS/issues/1136&quot;&gt;#1136&lt;/a&gt; Telemetry Extractor delimiter on last item&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;migration-notes-from-cosmos-44x&quot;&gt;Migration Notes from COSMOS 4.4,x:&lt;/h3&gt;
+&lt;p&gt;To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.&lt;/p&gt;
+
+&lt;p&gt;Modify you system.txt files to:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Make sure you have a X_CSRF_TOKEN line with a unique value (anything will do, just change it)&lt;/li&gt;
+  &lt;li&gt;Change all LISTEN_HOST settings to 127.0.01 unless you need connections from external hosts&lt;/li&gt;
+  &lt;li&gt;If you know only specific external hosts will be connecting, add ALLOW_ACCESS lines for each&lt;/li&gt;
+  &lt;li&gt;Only add ALLOW_ROUTER_COMMANDING if you are chaining CmdTlmServers (that need to send commands), or you are receiving commands through routers&lt;/li&gt;
+  &lt;li&gt;Only add ALLOW_ORIGIN &amp;lt;Address of webpage&amp;gt;if you expect COSMOS to be accessed from a webpage&lt;/li&gt;
+  &lt;li&gt;Add ALLOW_HOST &lt;Your COSMOS=&quot;&quot; IP=&quot;&quot; Address=&quot;&quot;&gt;:7777, etc if you expect the COSMOS APIs to be accessed from external computers.  Otherwise it will only accept connections that have a HOST header set to localhost&lt;/Your&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+</description>
+    </item>
     
     <item>
       <title>Packet Time</title>
