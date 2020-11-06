@@ -129,7 +129,7 @@ module Cosmos
     #   the server in REPLAY mode. Default is false which means to clear all
     #   existing routers and simply create the preidentified routers.
     def initialize(
-      config_file = nil,
+      config_file = nil, # TODO: Remove this parameter
       production = false,
       disconnect = false,
       mode = :CMD_TLM_SERVER,
@@ -727,7 +727,7 @@ module Cosmos
     # staleness so other tools (such as Packet Viewer or Telemetry Viewer) can
     # react accordingly.
     #
-    # This method is shoudl only called by initialize which is why it is private
+    # This method should only be called by initialize which is why it is private
     #
     # @param start_packet_logging [Boolean] Whether to start logging data or not
     def start(start_packet_logging = false)

@@ -22,6 +22,7 @@ module Cosmos
     # Sets api_requests to 0 and initializes the whitelist of allowable API
     # method calls
     def initialize
+      @disconnect = false unless defined? @disconnect
       @api_whitelist = [
         'cmd',
         'cmd_no_range_check',
@@ -1856,7 +1857,7 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{method_name}()"
       end
       authorize(permission: 'cmd', target_name: target_name, packet_name: cmd_name, scope: scope, token: token)
-      Store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, scope: scope)
+      Store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, scope: scope) unless @disconnect
       [target_name, cmd_name, cmd_params]
     end
 
@@ -1876,12 +1877,11 @@ module Cosmos
         latest = 0
         Store.instance.get_telemetry(target_name).each do |packet|
           item = packet['items'].find { |item| item['name'] == item_name }
-          if item
-            time = Store.instance.get_tlm_item(target_name, packet['name'], 'PACKET_TIMESECONDS', scope: scope)
-            # time = packet['items'].find { |item| item['name'] == 'PACKET_TIMESECONDS' }
-            puts "time:#{time}"
-            puts item
-          end
+          # TODO Sort through items and return latest
+          # if item
+          #   time = Store.instance.get_tlm_item(target_name, packet['name'], 'PACKET_TIMESECONDS', scope: scope)
+          #   time = packet['items'].find { |item| item['name'] == 'PACKET_TIMESECONDS' }
+          # end
         end
       else
         # Determine if this item exists, it will raise appropriate errors if not

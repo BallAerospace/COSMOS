@@ -170,7 +170,7 @@ class RunningScript
     end
   end
 
-  def self.spawn(name, bucket = nil)
+  def self.spawn(name, bucket = nil, disconnected_targets = nil)
     bucket ||= Script::DEFAULT_BUCKET_NAME
     runner_path = Rails.root.join('scripts/run_script.rb')
     redis = Redis.new(url: ActionCable.server.config.cable["url"])
@@ -181,22 +181,24 @@ class RunningScript
       ruby_process_name = 'ruby'
     end
     start_time = Time.now
-    process = ChildProcess.build(ruby_process_name, runner_path.to_s, id.to_s, name, bucket)
+    process = ChildProcess.build(ruby_process_name, runner_path.to_s, id.to_s, name, bucket.to_s, disconnected_targets.to_s)
     process.io.inherit! # Helps with debugging
     process.cwd = Rails.root.join('scripts').to_s
     process.start
-    details = { id: id, name: name, bucket: bucket, start_time: start_time.to_s}
+    details = { id: id, name: name, bucket: bucket, start_time: start_time.to_s }
+    details[:disconnect] = disconnected_targets if disconnected_targets
     redis.sadd('running-scripts', details.to_json)
     details[:hostname] = Socket.gethostname
     details[:pid] = process.pid
     details[:state] = :spawning
     details[:line_no] = 1
     details[:update_time] = start_time.to_s
+    details[:disconnect] = disconnected_targets if disconnected_targets
     redis.set("running-script:#{id}", details.to_json)
     id
   end
 
-  def initialize(id, name, bucket = nil)
+  def initialize(id, name, bucket = nil, disconnected_targets = nil)
     bucket ||= Script::DEFAULT_BUCKET_NAME
     @id = id
     @@id = id
@@ -214,12 +216,11 @@ class RunningScript
     @debug_code_completion = nil
     @top_level_instrumented_cache = nil
     @output_time = Time.now.sys
+
     initialize_variables()
-
-    # Redirect $stdout and $stderr
-    redirect_io()
-
+    redirect_io() # Redirect $stdout and $stderr
     mark_breakpoints(@filename)
+    set_disconnected_targets(disconnected_targets.split('&')) if disconnected_targets
 
     @name = name
     @state = :init
@@ -903,113 +904,6 @@ class RunningScript
   #   end
   # end
 
-  # def toggle_disconnect(config_file, ask_for_config_file = true)
-  #   dialog = Qt::Dialog.new(self, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
-  #   dialog.setWindowTitle("Disconnect Settings")
-  #   dialog_layout = Qt::VBoxLayout.new
-  #   dialog_layout.addWidget(Qt::Label.new("Targets checked will be disconnected."))
-
-  #   all_targets = {}
-  #   set_clear_layout = Qt::HBoxLayout.new
-  #   check_all = Qt::PushButton.new("Check All")
-  #   check_all.setAutoDefault(false)
-  #   check_all.setDefault(false)
-  #   check_all.connect(SIGNAL('clicked()')) do
-  #     all_targets.each do |target, checkbox|
-  #       checkbox.setChecked(true)
-  #     end
-  #   end
-  #   set_clear_layout.addWidget(check_all)
-  #   clear_all = Qt::PushButton.new("Clear All")
-  #   clear_all.connect(SIGNAL('clicked()')) do
-  #     all_targets.each do |target, checkbox|
-  #       checkbox.setChecked(false)
-  #     end
-  #   end
-  #   set_clear_layout.addWidget(clear_all)
-  #   dialog_layout.addLayout(set_clear_layout)
-
-  #   scroll = Qt::ScrollArea.new
-  #   target_widget = Qt::Widget.new
-  #   scroll.setWidget(target_widget)
-  #   target_layout = Qt::VBoxLayout.new(target_widget)
-  #   target_layout.setSizeConstraint(Qt::Layout::SetMinAndMaxSize)
-  #   scroll.setSizePolicy(Qt::SizePolicy::Preferred, Qt::SizePolicy::Expanding)
-  #   scroll.setWidgetResizable(true)
-
-  #   existing = get_disconnected_targets()
-  #   System.targets.keys.each do |target|
-  #     check_layout = Qt::HBoxLayout.new
-  #     check_label = Qt::CheckboxLabel.new(target)
-  #     checkbox = Qt::CheckBox.new
-  #     all_targets[target] = checkbox
-  #     if existing
-  #       checkbox.setChecked(existing && existing.include?(target))
-  #     else
-  #       checkbox.setChecked(true)
-  #     end
-  #     check_label.setCheckbox(checkbox)
-  #     check_layout.addWidget(checkbox)
-  #     check_layout.addWidget(check_label)
-  #     check_layout.addStretch
-  #     target_layout.addLayout(check_layout)
-  #   end
-  #   dialog_layout.addWidget(scroll)
-
-  #   if ask_for_config_file
-  #     chooser = FileChooser.new(self, "Config File", config_file, 'Select',
-  #                               File.dirname(config_file))
-  #     chooser.callback = lambda do |filename|
-  #       chooser.filename = filename
-  #     end
-  #     dialog_layout.addWidget(chooser)
-  #   end
-
-  #   button_layout = Qt::HBoxLayout.new
-  #   ok = Qt::PushButton.new("Ok")
-  #   ok.setAutoDefault(true)
-  #   ok.setDefault(true)
-  #   targets = []
-  #   ok.connect(SIGNAL('clicked()')) do
-  #     all_targets.each do |target, checkbox|
-  #       targets << target if checkbox.isChecked
-  #     end
-  #     dialog.accept()
-  #   end
-  #   button_layout.addWidget(ok)
-  #   cancel = Qt::PushButton.new("Cancel")
-  #   cancel.connect(SIGNAL('clicked()')) do
-  #     dialog.reject()
-  #   end
-  #   button_layout.addWidget(cancel)
-  #   dialog_layout.addLayout(button_layout)
-
-  #   dialog.setLayout(dialog_layout)
-  #   my_parent = self.parent
-  #   while my_parent.parent
-  #     my_parent = my_parent.parent
-  #   end
-  #   if dialog.exec == Qt::Dialog::Accepted
-  #     if targets.empty?
-  #       clear_disconnected_targets()
-  #       my_parent.statusBar.showMessage("")
-  #       self.setPalette(Qt::Palette.new(Cosmos::DEFAULT_PALETTE))
-  #     else
-  #       config_file = chooser.filename
-  #       my_parent.statusBar.showMessage("Targets disconnected: #{targets.join(" ")}")
-  #       self.setPalette(Qt::Palette.new(Cosmos::RED_PALETTE))
-  #       Splash.execute(self) do |splash|
-  #         ConfigParser.splash = splash
-  #         splash.message = "Initializing Command and Telemetry Server"
-  #         set_disconnected_targets(targets, targets.length == all_targets.length, config_file)
-  #         ConfigParser.splash = nil
-  #       end
-  #     end
-  #   end
-  #   dialog.dispose
-  #   config_file
-  # end
-
   def current_backtrace
     trace = []
     if @@run_thread
@@ -1138,10 +1032,10 @@ class RunningScript
 
         unless close_on_complete
           scriptrunner_puts("Starting script: #{File.basename(@filename)}")
-          #targets = get_disconnected_targets()
-          #if targets
-          #  scriptrunner_puts("DISCONNECTED targets: #{targets.join(',')}")
-          #end
+          targets = get_disconnected_targets()
+          if targets
+           scriptrunner_puts("DISCONNECTED targets: #{targets.join(', ')}")
+          end
         end
         handle_output_io()
 

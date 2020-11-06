@@ -2,6 +2,7 @@ start_time = Time.now
 id = ARGV[0]
 name = ARGV[1]
 bucket = ARGV[2]
+disconnected_targets = ARGV[3]
 require '../config/environment'
 #Rails.application.eager_load!
 bucket ||= Script::DEFAULT_BUCKET_NAME
@@ -18,7 +19,7 @@ end
 run_script_log(id, "Script #{path} spawned in #{startup_time} seconds")
 
 begin
-  running_script = RunningScript.new(id, name, bucket)
+  running_script = RunningScript.new(id, name, bucket, disconnected_targets)
   running_script.start
 
   redis = Redis.new(url: ActionCable.server.config.cable["url"])
@@ -49,7 +50,8 @@ begin
             run_script_log(id, "User input: #{running_script.user_input}")
             running_script.go if running_script.user_input != 'Cancel'
           when "backtrace"
-            ActionCable.server.broadcast("running-script-channel:#{id}", { type: :script, method: :backtrace, args: JSON.generate(running_script.current_backtrace) })
+            ActionCable.server.broadcast("running-script-channel:#{id}",
+              { type: :script, method: :backtrace, args: JSON.generate(running_script.current_backtrace) })
           when "debug"
             run_script_log(id, "DEBUG: #{parsed_cmd["args"]}") # Log what we were passed
             running_script.debug(parsed_cmd["args"]) # debug() logs the output of the command

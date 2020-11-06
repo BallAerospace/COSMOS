@@ -21,7 +21,6 @@ require 'cosmos/script/tools'
 
 $cmd_tlm_server = nil
 $disconnected_targets = nil
-$disconnect_all_targets = false
 $cmd_tlm_replay_mode = false
 $cosmos_scope = 'DEFAULT'
 
@@ -39,7 +38,7 @@ module Cosmos
     def initialize
       if $disconnected_targets
         # Start up a standalone CTS in disconnected mode
-        #@disconnected = CmdTlmServer.new(config_file, false, true)
+        @disconnected = CmdTlmServer.new(nil, false, true)
       end
       # Start a Json connect to the real server
       if $cmd_tlm_replay_mode
@@ -62,9 +61,7 @@ module Cosmos
       when :disconnect
         @cmd_tlm_server.disconnect
       else
-        if $disconnect_all_targets
-          return @disconnected.send(method_name, *method_params, scope: $cosmos_scope)
-        elsif $disconnected_targets
+        if $disconnected_targets
           name_string = nil
           if method_params[0].is_a?(String)
             name_string = method_params[0]
@@ -102,7 +99,6 @@ module Cosmos
     # Called when this module is mixed in using "include Cosmos::Script"
     def self.included(base)
       $disconnected_targets = nil
-      $disconnect_all_targets = false
       $cmd_tlm_replay_mode = false
       $cmd_tlm_server = nil
       initialize_script_module()
@@ -117,9 +113,8 @@ module Cosmos
       $cmd_tlm_server.shutdown if $cmd_tlm_server
     end
 
-    def set_disconnected_targets(targets, all = false)
+    def set_disconnected_targets(targets)
       $disconnected_targets = targets
-      $disconnect_all_targets = all
       initialize_script_module()
     end
 
@@ -129,7 +124,6 @@ module Cosmos
 
     def clear_disconnected_targets
       $disconnected_targets = nil
-      $disconnect_all_targets = false
     end
 
     def script_disconnect

@@ -315,20 +315,22 @@ export default {
           // NEW_FILENAME so use tempFileName created by saveFile()
           fileName = this.tempFileName
         }
-        axios
-          .post('http://localhost:3001/scripts/' + fileName + '/run', {})
-          .then((response) => {
-            this.state = 'Connecting...'
-            this.startOrGoText = 'Go'
-            this.scriptId = response.data
-            this.editor.setReadOnly(true)
-            this.subscription = this.cable.subscriptions.create(
-              { channel: 'RunningScriptChannel', id: this.scriptId },
-              {
-                received: (data) => this.received(data),
-              }
-            )
-          })
+        let url = 'http://localhost:3001/scripts/' + fileName + '/run'
+        if (this.showDisconnect) {
+          url += '/disconnect/INST&INST2' // TODO: Implement target list
+        }
+        axios.post(url).then((response) => {
+          this.state = 'Connecting...'
+          this.startOrGoText = 'Go'
+          this.scriptId = response.data
+          this.editor.setReadOnly(true)
+          this.subscription = this.cable.subscriptions.create(
+            { channel: 'RunningScriptChannel', id: this.scriptId },
+            {
+              received: (data) => this.received(data),
+            }
+          )
+        })
       } else {
         axios.post(
           'http://localhost:3001/running-script/' + this.scriptId + '/go'
@@ -625,7 +627,7 @@ export default {
     },
     toggleDisconnect() {
       this.showDisconnect = !this.showDisconnect
-      // TODO
+      // TODO: Implement target list picker
     },
 
     debugKeydown(event) {
