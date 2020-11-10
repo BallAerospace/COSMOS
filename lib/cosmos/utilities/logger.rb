@@ -25,17 +25,17 @@ module Cosmos
 
     @@instance = nil
 
-    # DEBUG only prints DEBUG messages
+    # DEBUG always prints
     DEBUG = ::Logger::DEBUG
-    # INFO prints INFO, DEBUG messages
+    # INFO prints INFO, WARN, ERROR, FATAL, UNKNOWN messages
     INFO  = ::Logger::INFO
-    # WARN prints WARN, INFO, DEBUG messages
+    # WARN prints WARN, ERROR, FATAL, UNKNOWN messages
     WARN  = ::Logger::WARN
-    # ERROR prints ERROR, WARN, INFO, DEBUG messages
+    # ERROR prints ERROR, FATAL, UNKNOWN messages
     ERROR = ::Logger::ERROR
-    # FATAL prints FATAL, ERROR, WARN, INFO, DEBUG messages
+    # FATAL prints FATAL, UNKNOWN messages
     FATAL = ::Logger::FATAL
-    # UNKNOWN always prints
+    # UNKNOWN only prints UNKNOWN messages
     UNKNOWN = ::Logger::UNKNOWN
 
     DEBUG_SEVERITY_STRING = ' DEBUG:'
