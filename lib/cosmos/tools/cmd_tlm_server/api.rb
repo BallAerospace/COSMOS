@@ -24,7 +24,6 @@ module Cosmos
     # Sets api_requests to 0 and initializes the whitelist of allowable API
     # method calls
     def initialize
-      @disconnect = false unless defined? @disconnect
       @api_whitelist = [
         'cmd',
         'cmd_no_range_check',
@@ -1859,7 +1858,7 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{method_name}()"
       end
       authorize(permission: 'cmd', target_name: target_name, packet_name: cmd_name, scope: scope, token: token)
-      Store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, scope: scope) unless @disconnect
+      Store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, scope: scope)
       [target_name, cmd_name, cmd_params]
     end
 

@@ -25,22 +25,12 @@ $cmd_tlm_replay_mode = false
 $cosmos_scope = 'DEFAULT'
 
 module Cosmos
-  # Provides a proxy to both a disconnected CmdTlmServer instance and the real
-  # JsonDRbObject which communicates with the real CmdTlmServer. If targets
-  # are disconnected their method calls are forwarded to the disconnected
-  # CmdTlmServer while all other calls are forwarded through to the real
-  # server by the JsonDRbObject.
+  # Provides a proxy to the JsonDRbObject which communicates with the API server
   class ServerProxy
-    # Creates a disconnected CmdTlmServer object if
-    # $disconnect is defined. Also creates a JsonDRbObject
-    # connected to Replay (if $cmd_tlm_replay_mode) or to the
+    # Create a JsonDRbObject connected to Replay (if $cmd_tlm_replay_mode) or to the
     # Command and Telemetry Server.
     def initialize
-      if $disconnect
-        # Start up a standalone CTS in disconnected mode
-        @disconnected = CmdTlmServer.new(nil, false, true)
-      end
-      # Start a Json connect to the real server
+      # Start a JsonDRbObject to connect to the server
       if $cmd_tlm_replay_mode
         @cmd_tlm_server = JsonDRbObject.new(ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'localhost', 7777) # System.connect_hosts['REPLAY_API'], System.ports['REPLAY_API'])
       else
@@ -49,23 +39,17 @@ module Cosmos
     end
 
     # Ruby method which captures any method calls on this object. This allows
-    # us to proxy the methods to either the disconnected CmdTlmServer object
-    # or to the real server through the JsonDRbObject.
+    # us to proxy the methods to the API server through the JsonDRbObject.
     def method_missing(method_name, *method_params, **kw_params)
       # Must call shutdown and disconnect on the JsonDrbObject itself
       # to avoid it being sent to the CmdTlmServer
       case method_name
       when :shutdown
         @cmd_tlm_server.shutdown
-        @disconnected.stop if @disconnected
       when :disconnect
         @cmd_tlm_server.disconnect
       else
-        if $disconnect
-          @disconnected.send(method_name, *method_params, scope: $cosmos_scope)
-        else
-          @cmd_tlm_server.method_missing(method_name, *method_params, scope: $cosmos_scope)
-        end
+        @cmd_tlm_server.method_missing(method_name, *method_params, scope: $cosmos_scope)
       end
     end
   end

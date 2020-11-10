@@ -12,6 +12,9 @@ module Cosmos
   module Script
     private
 
+    # NOTE: No methods are disabled in DISCONNECT mode ($disconnect = true)
+    # This is deliberate to allow users to use set_tlm and override things during testing
+
     # Poll for the converted value of a telemetry item
     # Usage:
     #   tlm(target_name, packet_name, item_name)

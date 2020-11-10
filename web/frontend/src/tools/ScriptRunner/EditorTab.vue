@@ -428,6 +428,7 @@ export default {
     handleScript(data) {
       this.prompt.method = data.method // Set it here since all prompts use this
       this.prompt.layout = 'horizontal' // Reset the layout since most are horizontal
+      this.prompt.buttons = null // Reset buttons so 'Yes', 'No' are used by default
       switch (data.method) {
         case 'ask_string':
           // Reset values since this dialog can be re-used
@@ -491,7 +492,6 @@ export default {
         case 'prompt_combo_box':
           this.prompt.title = 'Prompt'
           this.prompt.message = data.args[0]
-          this.prompt.buttons = []
           data.args[1].forEach((v) => {
             this.prompt.buttons.push({ text: v, value: v })
           })
@@ -504,7 +504,6 @@ export default {
         case 'prompt_vertical_message_box':
           this.prompt.title = 'Prompt'
           this.prompt.message = data.args[0]
-          this.prompt.buttons = []
           data.args[1].forEach((v) => {
             this.prompt.buttons.push({ text: v, value: v })
           })
