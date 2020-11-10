@@ -20,6 +20,7 @@ require 'cosmos/tools/cmd_tlm_server/packet_logging'
 #require 'cosmos/tools/cmd_tlm_server/replay_backend'
 
 module Cosmos
+  # TODO: Does this entire thing just go away ... Just a simple JsonDRB object which includes Api?
   # Provides the interface for all applications to get the latest telemetry and
   # to send commands.
   class CmdTlmServer

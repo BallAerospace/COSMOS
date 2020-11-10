@@ -2,7 +2,7 @@ start_time = Time.now
 id = ARGV[0]
 name = ARGV[1]
 bucket = ARGV[2]
-disconnected_targets = ARGV[3]
+disconnect = ARGV[3]
 require '../config/environment'
 #Rails.application.eager_load!
 bucket ||= Script::DEFAULT_BUCKET_NAME
@@ -19,7 +19,7 @@ end
 run_script_log(id, "Script #{path} spawned in #{startup_time} seconds")
 
 begin
-  running_script = RunningScript.new(id, name, bucket, disconnected_targets)
+  running_script = RunningScript.new(id, name, bucket, disconnect)
   running_script.start
 
   redis = Redis.new(url: ActionCable.server.config.cable["url"])

@@ -20,7 +20,7 @@ require 'cosmos/script/scripting'
 require 'cosmos/script/tools'
 
 $cmd_tlm_server = nil
-$disconnected_targets = nil
+$disconnect = nil
 $cmd_tlm_replay_mode = false
 $cosmos_scope = 'DEFAULT'
 
@@ -31,12 +31,12 @@ module Cosmos
   # CmdTlmServer while all other calls are forwarded through to the real
   # server by the JsonDRbObject.
   class ServerProxy
-    # Creates a disconnected CmdTlmServer object if there are any
-    # $disconnected_targets defined. Also creates a JsonDRbObject
+    # Creates a disconnected CmdTlmServer object if
+    # $disconnect is defined. Also creates a JsonDRbObject
     # connected to Replay (if $cmd_tlm_replay_mode) or to the
     # Command and Telemetry Server.
     def initialize
-      if $disconnected_targets
+      if $disconnect
         # Start up a standalone CTS in disconnected mode
         @disconnected = CmdTlmServer.new(nil, false, true)
       end
@@ -61,27 +61,11 @@ module Cosmos
       when :disconnect
         @cmd_tlm_server.disconnect
       else
-        if $disconnected_targets
-          name_string = nil
-          if method_params[0].is_a?(String)
-            name_string = method_params[0]
-          elsif method_params[0].is_a?(Array)
-            if method_params[0][0].is_a?(Array)
-              if method_params[0][0][0].is_a?(String)
-                name_string = method_params[0][0][0]
-              end
-            elsif method_params[0][0].is_a?(String)
-              name_string = method_params[0][0]
-            end
-          end
-          if name_string
-            target = name_string.split(" ")[0]
-            if $disconnected_targets.include?(target)
-              return @disconnected.send(method_name, *method_params, scope: $cosmos_scope)
-            end
-          end
+        if $disconnect
+          @disconnected.send(method_name, *method_params, scope: $cosmos_scope)
+        else
+          @cmd_tlm_server.method_missing(method_name, *method_params, scope: $cosmos_scope)
         end
-        @cmd_tlm_server.method_missing(method_name, *method_params, scope: $cosmos_scope)
       end
     end
   end
@@ -98,7 +82,7 @@ module Cosmos
 
     # Called when this module is mixed in using "include Cosmos::Script"
     def self.included(base)
-      $disconnected_targets = nil
+      $disconnect = nil
       $cmd_tlm_replay_mode = false
       $cmd_tlm_server = nil
       initialize_script_module()
@@ -113,21 +97,9 @@ module Cosmos
       $cmd_tlm_server.shutdown if $cmd_tlm_server
     end
 
-    def set_disconnected_targets(targets)
-      $disconnected_targets = targets
+    def disconnect_script
+      $disconnect = true
       initialize_script_module()
-    end
-
-    def get_disconnected_targets
-      return $disconnected_targets
-    end
-
-    def clear_disconnected_targets
-      $disconnected_targets = nil
-    end
-
-    def script_disconnect
-      $cmd_tlm_server.disconnect if $cmd_tlm_server
     end
 
     def set_replay_mode(replay_mode)

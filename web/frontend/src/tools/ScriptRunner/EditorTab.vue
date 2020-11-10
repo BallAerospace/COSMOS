@@ -317,7 +317,7 @@ export default {
         }
         let url = 'http://localhost:3001/scripts/' + fileName + '/run'
         if (this.showDisconnect) {
-          url += '/disconnect/INST&INST2' // TODO: Implement target list
+          url += '/disconnect'
         }
         axios.post(url).then((response) => {
           this.state = 'Connecting...'
@@ -627,7 +627,6 @@ export default {
     },
     toggleDisconnect() {
       this.showDisconnect = !this.showDisconnect
-      // TODO: Implement target list picker
     },
 
     debugKeydown(event) {

@@ -122,7 +122,7 @@ module Cosmos
         if all_checks_ok
           Logger.info message
         else
-          if $disconnected_targets && $disconnected_targets.include?(target_name)
+          if $disconnect
             Logger.error message
           else
             raise CheckError, message
@@ -136,7 +136,7 @@ module Cosmos
           Logger.info "#{check_str} was within #{range_str}"
         else
           message = "#{check_str} failed to be within #{range_str}"
-          if $disconnected_targets && $disconnected_targets.include?(target_name)
+          if $disconnect
             Logger.error message
           else
             raise CheckError, message
@@ -175,7 +175,7 @@ module Cosmos
         Logger.info "CHECK: #{exp_to_eval} is TRUE"
       else
         message = "CHECK: #{exp_to_eval} is FALSE"
-        if $disconnected_targets
+        if $disconnect
           Logger.error message
         else
           raise CheckError, message
@@ -287,7 +287,7 @@ module Cosmos
         Logger.info "#{check_str} success #{with_value_str}"
       else
         message = "#{check_str} failed #{with_value_str}"
-        if $disconnected_targets && $disconnected_targets.include?(target_name)
+        if $disconnect
           Logger.error message
         else
           raise CheckError, message
@@ -344,7 +344,7 @@ module Cosmos
         if success
           Logger.info message
         else
-          if $disconnected_targets && $disconnected_targets.include?(target_name)
+          if $disconnect
             Logger.error message
           else
             raise CheckError, message
@@ -360,7 +360,7 @@ module Cosmos
           Logger.info "#{check_str} was within #{range_str}"
         else
           message = "#{check_str} failed to be within #{range_str}"
-          if $disconnected_targets && $disconnected_targets.include?(target_name)
+          if $disconnect
             Logger.error message
           else
             raise CheckError, message
@@ -395,7 +395,7 @@ module Cosmos
         Logger.info "CHECK: #{exp_to_eval} is TRUE after waiting #{time} seconds"
       else
         message = "CHECK: #{exp_to_eval} is FALSE after waiting #{time} seconds"
-        if $disconnected_targets
+        if $disconnect
           Logger.error message
         else
           raise CheckError, message
@@ -432,7 +432,7 @@ module Cosmos
       else
         message = "#{type}: #{target_name.upcase} #{packet_name.upcase} expected to be received #{num_packets} times but only received #{value - initial_count} times after waiting #{time} seconds"
         if check
-          if $disconnected_targets && $disconnected_targets.include?(target_name)
+          if $disconnect
             Logger.error message
           else
             raise CheckError, message
@@ -816,7 +816,7 @@ module Cosmos
         if eval(exp_to_eval)
           return true, value
         end
-        break if Time.now.sys >= end_time || ($disconnected_targets && $disconnected_targets.include?(target_name))
+        break if Time.now.sys >= end_time || $disconnect
 
         delta = Time.now.sys - work_start
         sleep_time = polling_rate - delta
@@ -899,7 +899,7 @@ module Cosmos
         Logger.info "#{check_str} success #{value_str}"
       else
         message = "#{check_str} failed #{value_str}"
-        if $disconnected_targets && $disconnected_targets.include?(target_name)
+        if $disconnect
           Logger.error message
         else
           raise CheckError, message

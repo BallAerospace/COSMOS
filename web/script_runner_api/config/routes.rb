@@ -1,9 +1,7 @@
 Rails.application.routes.draw do
   get  "/scripts" => "scripts#index"
   get  "/scripts/*name" => "scripts#body", format: false, defaults: {format: 'html'}
-  # Should be called with optional '&' separated list of disconnected targets
-  # e.g. /scripts/INST/procedures/proc.rb/run/disconnect/INST&EXAMPLE&TEMPLATED
-  post "/scripts/*name/run(/disconnect/:targets)" => "scripts#run", format: false, defaults: {format: 'html'}
+  post "/scripts/*name/run(/:disconnect)" => "scripts#run", format: false, defaults: {format: 'html'}
   post "/scripts/*name/delete" => "scripts#destroy", format: false, defaults: {format: 'html'}
   # Must be last so /run and /delete will match first
   post "/scripts/*name" => "scripts#create", format: false, defaults: {format: 'html'}

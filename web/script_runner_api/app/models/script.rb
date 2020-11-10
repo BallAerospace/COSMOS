@@ -58,8 +58,8 @@ class Script
     true
   end
 
-  def self.run(name, bucket = nil, disconnected_targets = nil)
+  def self.run(name, bucket = nil, disconnect = false)
     bucket ||= DEFAULT_BUCKET_NAME
-    RunningScript.spawn(name, bucket, disconnected_targets)
+    RunningScript.spawn(name, bucket, disconnect)
   end
 end

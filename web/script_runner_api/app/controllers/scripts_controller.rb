@@ -32,9 +32,7 @@ class ScriptsController < ApplicationController
   end
 
   def run
-    # TODO: We aren't validating the targets param here because we want it as a string
-    # Should we validate and do head :error
-    running_script_id = Script.run(params[:name], params[:bucket], params[:targets])
+    running_script_id = Script.run(params[:name], params[:bucket], params[:disconnect] == 'disconnect')
     if running_script_id
       render :plain => running_script_id.to_s
     else

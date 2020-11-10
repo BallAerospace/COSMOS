@@ -170,7 +170,7 @@ class RunningScript
     end
   end
 
-  def self.spawn(name, bucket = nil, disconnected_targets = nil)
+  def self.spawn(name, bucket = nil, disconnect = false)
     bucket ||= Script::DEFAULT_BUCKET_NAME
     runner_path = Rails.root.join('scripts/run_script.rb')
     redis = Redis.new(url: ActionCable.server.config.cable["url"])
@@ -181,31 +181,32 @@ class RunningScript
       ruby_process_name = 'ruby'
     end
     start_time = Time.now
-    process = ChildProcess.build(ruby_process_name, runner_path.to_s, id.to_s, name, bucket.to_s, disconnected_targets.to_s)
+    process = ChildProcess.build(ruby_process_name, runner_path.to_s, id.to_s, name, bucket.to_s, disconnect.to_s)
     process.io.inherit! # Helps with debugging
     process.cwd = Rails.root.join('scripts').to_s
     process.start
     details = { id: id, name: name, bucket: bucket, start_time: start_time.to_s }
-    details[:disconnect] = disconnected_targets if disconnected_targets
+    details[:disconnect] = true if disconnect
     redis.sadd('running-scripts', details.to_json)
     details[:hostname] = Socket.gethostname
     details[:pid] = process.pid
     details[:state] = :spawning
     details[:line_no] = 1
     details[:update_time] = start_time.to_s
-    details[:disconnect] = disconnected_targets if disconnected_targets
+    details[:disconnect] = true if disconnect
     redis.set("running-script:#{id}", details.to_json)
     id
   end
 
-  def initialize(id, name, bucket = nil, disconnected_targets = nil)
-    bucket ||= Script::DEFAULT_BUCKET_NAME
+  # Parameters are passed to RunningScript.new as strings because
+  # RunningScript.spawn must pass strings to ChildProcess.build
+  def initialize(id, name, bucket, disconnect)
     @id = id
     @@id = id
-    @filename = name
+    @name = name
     @bucket = bucket
+    @filename = name
     @user_input = ''
-
     @line_offset = 0
     @output_io = StringIO.new('', 'r+')
     @output_io_mutex = Mutex.new
@@ -216,14 +217,13 @@ class RunningScript
     @debug_code_completion = nil
     @top_level_instrumented_cache = nil
     @output_time = Time.now.sys
+    @state = :init
 
     initialize_variables()
     redirect_io() # Redirect $stdout and $stderr
     mark_breakpoints(@filename)
-    set_disconnected_targets(disconnected_targets.split('&')) if disconnected_targets
-
-    @name = name
-    @state = :init
+    # disconnect is input as a string due to ChildProcess.build
+    disconnect_script() if disconnect == 'true'
 
     # Get details from redis
     redis = Redis.new(url: ActionCable.server.config.cable["url"])
@@ -245,8 +245,8 @@ class RunningScript
     redis.set("running-script:#{id}", @details.to_json)
 
     # Retrieve file
-    @body = ::Script.body(name, bucket)
-    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: @filename, bucket: bucket, text: @body })
+    @body = ::Script.body(name, @bucket)
+    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: @filename, bucket: @bucket, text: @body })
   end
 
   def start
@@ -1031,11 +1031,9 @@ class RunningScript
         $stderr.add_stream(@output_io)
 
         unless close_on_complete
-          scriptrunner_puts("Starting script: #{File.basename(@filename)}")
-          targets = get_disconnected_targets()
-          if targets
-           scriptrunner_puts("DISCONNECTED targets: #{targets.join(', ')}")
-          end
+          output = "Starting script: #{File.basename(@filename)}"
+          output += " in DISCONNECT mode" if $disconnect
+          scriptrunner_puts(output)
         end
         handle_output_io()
 

@@ -14,6 +14,8 @@ require 'cosmos/utilities/store'
 require 'cosmos/utilities/authorization'
 
 module Cosmos
+  # TODO: Who should include this? This is the interface to the Redis backend.
+  # Should interface code just use the scripting api or should it include this?
   module Api
     include Extract
     include ApiShared
