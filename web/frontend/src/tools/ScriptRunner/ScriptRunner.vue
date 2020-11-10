@@ -100,10 +100,21 @@ export default {
           label: 'Script',
           items: [
             {
+              label: 'Ruby Syntax Check',
+              icon: 'mdi-language-ruby',
+              command: () => {
+                this.$refs.EditorTab[0].rubySyntaxCheck()
+              },
+            },
+            {
               label: 'Show Call Stack',
+              icon: 'mdi-format-list-numbered',
               command: () => {
                 this.$refs.EditorTab[0].showCallStack()
               },
+            },
+            {
+              divider: true,
             },
             {
               label: 'Toggle Debug',

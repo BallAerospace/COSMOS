@@ -62,4 +62,25 @@ class Script
     bucket ||= DEFAULT_BUCKET_NAME
     RunningScript.spawn(name, bucket, disconnect)
   end
+
+  def self.syntax(text)
+    check_process = IO.popen("ruby -c -rubygems 2>&1", 'r+')
+    check_process.write("require 'cosmos'; require 'cosmos/script'; " + text)
+    check_process.close_write
+    results = check_process.readlines
+    check_process.close
+    if results
+      if results.any?(/Syntax OK/)
+        return { "title" => "Syntax Check Successful", "description" => results.to_json }
+      else
+        # Results is an array of strings like this: ":2: syntax error ..."
+        # Normally the procedure comes before the first colon but since we
+        # are writing to the process this is blank so we throw it away
+        results.map! {|result| result.split(':')[1..-1].join(':')}
+        return { "title" => "Syntax Check Failed", "description" => results.to_json }
+      end
+    else
+      return { "title" => "Syntax Check Exception", "description" => "Ruby syntax check unexpectedly returned nil" }
+    end
+  end
 end

@@ -1,5 +1,4 @@
 class ScriptsController < ApplicationController
-
   def index
     render :json => Script.all(params[:bucket])
   end
@@ -49,4 +48,12 @@ class ScriptsController < ApplicationController
     end
   end
 
+  def syntax
+    script = Script.syntax(request.body.read)
+    if script
+      render :json => script
+    else
+      head :error
+    end
+  end
 end

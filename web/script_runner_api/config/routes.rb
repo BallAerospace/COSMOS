@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   get  "/scripts" => "scripts#index"
+  post "/scripts/syntax" => "scripts#syntax"
   get  "/scripts/*name" => "scripts#body", format: false, defaults: {format: 'html'}
   post "/scripts/*name/run(/:disconnect)" => "scripts#run", format: false, defaults: {format: 'html'}
   post "/scripts/*name/delete" => "scripts#destroy", format: false, defaults: {format: 'html'}

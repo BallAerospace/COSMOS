@@ -617,6 +617,19 @@ export default {
     },
 
     // ScriptRunner Script menu actions
+    rubySyntaxCheck() {
+      axios
+        .post(
+          'http://localhost:3001/scripts/syntax',
+          this.editor.getValue() // Pass in the raw text
+        )
+        .then((response) => {
+          console.log(response.data)
+          this.infoTitle = response.data.title
+          this.infoText = JSON.parse(response.data.description)
+          this.infoDialog = true
+        })
+    },
     showCallStack() {
       axios.post(
         'http://localhost:3001/running-script/' + this.scriptId + '/backtrace'
