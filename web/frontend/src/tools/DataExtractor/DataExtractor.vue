@@ -125,12 +125,26 @@
                 </v-btn>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-icon
+                    <v-btn
+                      icon
+                      @click="editAll = true"
+                      v-bind="attrs"
+                      v-on="on"
+                      data-test="editAll"
+                      ><v-icon>mdi-pencil</v-icon></v-btn
+                    >
+                  </template>
+                  <span>Edit All Items</span>
+                </v-tooltip>
+                <v-tooltip bottom>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      icon
                       @click="deleteAll"
                       v-bind="attrs"
                       v-on="on"
                       data-test="deleteAll"
-                      >mdi-delete</v-icon
+                      ><v-icon>mdi-delete</v-icon></v-btn
                     >
                   </template>
                   <span>Delete All Items</span>
@@ -159,6 +173,7 @@
                       <v-card-text>
                         <v-col>
                           <v-select
+                            hide-details
                             :items="valueTypes"
                             label="Value Type"
                             outlined
@@ -174,6 +189,12 @@
                           ></v-select>
                         </v-col -->
                       </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" text @click="item.edit = false">
+                          Ok
+                        </v-btn>
+                      </v-card-actions>
                     </v-card>
                   </v-dialog>
                 </v-list-item-icon>
@@ -198,6 +219,28 @@
         </v-col>
       </v-row>
     </v-container>
+    <v-dialog v-model="editAll" @keydown.esc="editAll = false" max-width="700">
+      <v-card>
+        <v-card-title>Edit All Items</v-card-title>
+        <v-card-text
+          >This will change all items to the following data type!
+          <v-col>
+            <v-select
+              hide-details
+              :items="valueTypes"
+              label="Value Type"
+              outlined
+              v-model="allItemValueType"
+            ></v-select>
+          </v-col>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="editAllValueTypes()"> Ok </v-btn>
+          <v-btn color="primary" text @click="editAll = false"> Cancel </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
     <OpenConfigDialog
       v-if="openConfig"
@@ -285,6 +328,8 @@ export default {
       fillDown: false,
       uniqueOnly: false,
       valueTypes: ['CONVERTED', 'RAW', 'FORMATTED', 'WITH_UNITS'],
+      editAll: false,
+      allItemValueType: null,
       // uniqueIgnoreOptions: ['NO', 'YES'],
       cable: ActionCable.Cable,
       subscription: ActionCable.Channel,
@@ -426,6 +471,12 @@ export default {
     },
     deleteAll() {
       this.items = []
+    },
+    editAllValueTypes() {
+      this.editAll = false
+      for (let item of this.items) {
+        item.valueType = this.allItemValueType
+      }
     },
     getItemLabel(item) {
       var type = ''
