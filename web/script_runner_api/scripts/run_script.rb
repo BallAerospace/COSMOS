@@ -39,6 +39,8 @@ begin
         running_script.go
       when "pause"
         running_script.pause
+      when "retry"
+        running_script.retry_needed
       when "stop"
         running_script.stop
         redis.unsubscribe

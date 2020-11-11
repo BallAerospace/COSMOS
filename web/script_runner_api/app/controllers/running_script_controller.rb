@@ -33,6 +33,16 @@ class RunningScriptController < ApplicationController
     end
   end
 
+  def retry
+    running_script = RunningScript.find(params[:id].to_i)
+    if running_script
+      ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", "retry")
+      head :ok
+    else
+      head :not_found
+    end
+  end
+
   def go
     running_script = RunningScript.find(params[:id].to_i)
     if running_script

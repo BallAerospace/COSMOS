@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   post "/running-script/:id/start" => "running_script#start"
   post "/running-script/:id/stop" => "running_script#stop"
   post "/running-script/:id/pause" => "running_script#pause"
+  post "/running-script/:id/retry" => "running_script#retry"
   post "/running-script/:id/go" => "running_script#go"
   post "/running-script/:id/prompt" => "running_script#prompt"
   post "/running-script/:id/:method" => "running_script#method"

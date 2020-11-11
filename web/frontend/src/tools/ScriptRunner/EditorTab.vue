@@ -13,11 +13,15 @@
           @click="startOrGo"
           style="width: 100px"
           class="mr-4"
-          >{{ startOrGoText }}
+          >{{ startOrGoButton }}
           <v-icon right> mdi-play </v-icon>
         </v-btn>
-        <v-btn color="primary" @click="pause" style="width: 100px" class="mr-4"
-          >Pause <v-icon right> mdi-pause </v-icon>
+        <v-btn
+          color="primary"
+          @click="pauseOrRetry"
+          style="width: 100px"
+          class="mr-4"
+          >{{ pauseOrRetryButton }} <v-icon right> mdi-pause </v-icon>
         </v-btn>
         <v-btn color="primary" @click="stop" style="width: 100px" class="mr-4"
           >Stop <v-icon right> mdi-stop </v-icon>
@@ -192,6 +196,7 @@ export default {
       alertText: '',
       state: ' ',
       scriptId: null,
+      pauseOrRetryButton: 'Pause',
       showDebug: false,
       debug: '',
       debugHistory: [],
@@ -202,7 +207,7 @@ export default {
       tempFileName: null,
       fileModified: '',
       fileOpen: false,
-      startOrGoText: 'Start',
+      startOrGoButton: 'Start',
       showSaveAs: false,
       areYouSure: false,
       subscription: null,
@@ -260,7 +265,7 @@ export default {
 
     if (this.$route.params.id) {
       this.state = 'Connecting...'
-      this.startOrGoText = 'Go'
+      this.startOrGoButton = 'Go'
       this.scriptId = this.$route.params.id
       this.editor.setReadOnly(true)
       this.subscription = this.cable.subscriptions.create(
@@ -307,7 +312,7 @@ export default {
       }
     },
     startOrGo() {
-      if (this.startOrGoText === 'Start') {
+      if (this.startOrGoButton === 'Start') {
         this.saveFile('start') // Save first or they'll be running old code
 
         let fileName = this.fileName
@@ -321,7 +326,7 @@ export default {
         }
         axios.post(url).then((response) => {
           this.state = 'Connecting...'
-          this.startOrGoText = 'Go'
+          this.startOrGoButton = 'Go'
           this.scriptId = response.data
           this.editor.setReadOnly(true)
           this.subscription = this.cable.subscriptions.create(
@@ -337,10 +342,17 @@ export default {
         )
       }
     },
-    pause() {
-      axios.post(
-        'http://localhost:3001/running-script/' + this.scriptId + '/pause'
-      )
+    pauseOrRetry() {
+      if (this.pauseOrRetryButton === 'Pause') {
+        axios.post(
+          'http://localhost:3001/running-script/' + this.scriptId + '/pause'
+        )
+      } else {
+        this.pauseOrRetryButton = 'Pause'
+        axios.post(
+          'http://localhost:3001/running-script/' + this.scriptId + '/retry'
+        )
+      }
     },
     stop() {
       axios.post(
@@ -368,6 +380,7 @@ export default {
           switch (data.state) {
             case 'running':
               marker = 'runningMarker'
+              this.pauseOrRetryButton = 'Pause'
               break
             case 'waiting':
               marker = 'waitingMarker'
@@ -377,6 +390,7 @@ export default {
               break
             case 'error':
               marker = 'errorMarker'
+              this.pauseOrRetryButton = 'Retry'
               break
             case 'fatal':
               marker = 'fatalMarker'
@@ -404,7 +418,8 @@ export default {
           this.handleScript(data)
           break
         case 'complete':
-          this.startOrGoText = 'Start'
+          this.startOrGoButton = 'Start'
+          this.pauseOrRetryButton = 'Pause'
           this.editor.setReadOnly(false)
           // Delete the temp file created as a result of saving a NEW file
           if (this.tempFileName) {
