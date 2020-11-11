@@ -9,17 +9,21 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/packets/packet'
+require 'cosmos/script/extract'
 
 module Cosmos
   module Script
+    include Extract
+
     private
 
     # Format the command like it appears in a script
     def _cmd_string(target_name, cmd_name, cmd_params, raw)
+      output_string = $disconnect ? 'DISCONNECT: ' : ''
       if raw
-        output_string = 'cmd_raw("'
+        output_string += 'cmd_raw("'
       else
-        output_string = 'cmd("'
+        output_string += 'cmd("'
       end
       output_string << target_name + ' ' + cmd_name
       if cmd_params.nil? or cmd_params.empty?
@@ -60,15 +64,36 @@ module Cosmos
     # Send the command and log the results
     # NOTE: This is a helper method and should not be called directly
     def _cmd(cmd, cmd_no_hazardous, *args)
-      if $disconnect
-        # Check for invalid number of arguments
-        raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{cmd}()" if args.length > 3
-        Logger.info "DISCONNECT: cmd(#{args}) ignored"
-      else
-        raw = cmd.include?('raw')
-        no_range = cmd.include?('no_range') || cmd.include?('no_checks')
-        no_hazardous = cmd.include?('no_hazardous') || cmd.include?('no_checks')
+      raw = cmd.include?('raw')
+      no_range = cmd.include?('no_range') || cmd.include?('no_checks')
+      no_hazardous = cmd.include?('no_hazardous') || cmd.include?('no_checks')
 
+      if $disconnect
+        case args.length
+        when 1
+          target_name, cmd_name, cmd_params = extract_fields_from_cmd_text(args[0])
+        when 2, 3
+          target_name = args[0]
+          cmd_name    = args[1]
+          if args.length == 2
+            cmd_params = {}
+          else
+            cmd_params = args[2]
+          end
+        else
+          # Invalid number of arguments
+          raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{cmd}()"
+        end
+        # Get the command and validate the parameters
+        command = $cmd_tlm_server.get_command(target_name, cmd_name)
+        cmd_params.each do |param_name, param_value|
+          param = command['items'].find { |item| item['name'] == param_name }
+          unless param
+            raise "Packet item '#{target_name} #{cmd_name} #{param_name}' does not exist"
+          end
+        end
+        _log_cmd(target_name, cmd_name, cmd_params, raw, no_range, no_hazardous)
+      else
         begin
           target_name, cmd_name, cmd_params = $cmd_tlm_server.method_missing(cmd, *args)
           _log_cmd(target_name, cmd_name, cmd_params, raw, no_range, no_hazardous)
@@ -161,7 +186,7 @@ module Cosmos
     # Sends raw data through an interface
     def send_raw(interface_name, data)
       if $disconnect
-        Logger.info "DISCONNECT: send_raw(#{interface_name}, data) ignored"
+        Logger.info "DISCONNECT: send_raw(#{interface_name}, data)"
       else
         return $cmd_tlm_server.send_raw(interface_name, data)
       end
@@ -170,7 +195,7 @@ module Cosmos
     # Sends raw data through an interface from a file
     def send_raw_file(interface_name, filename)
       if $disconnect
-        Logger.info "DISCONNECT: send_raw_file(#{interface_name}, #{filename}) ignored"
+        Logger.info "DISCONNECT: send_raw_file(#{interface_name}, #{filename})"
       else
         data = nil
         File.open(filename, 'rb') {|file| data = file.read}

@@ -41,7 +41,7 @@ module Cosmos
     # Ruby method which captures any method calls on this object. This allows
     # us to proxy the methods to the API server through the JsonDRbObject.
     def method_missing(method_name, *method_params, **kw_params)
-      # Must call shutdown and disconnect on the JsonDrbObject itself
+      # Must call shutdown and disconnect on the JsonDRbObject itself
       # to avoid it being sent to the CmdTlmServer
       case method_name
       when :shutdown
