@@ -25,7 +25,7 @@ module Cosmos
       else
         output_string += 'cmd("'
       end
-      output_string << target_name + ' ' + cmd_name
+      output_string += target_name + ' ' + cmd_name
       if cmd_params.nil? or cmd_params.empty?
         output_string << '")'
       else
@@ -44,7 +44,7 @@ module Cosmos
           params << "#{key} #{value}"
         end
         params = params.join(", ")
-        output_string << ' with ' + params + '")'
+        output_string += ' with ' + params + '")'
       end
       output_string
     end

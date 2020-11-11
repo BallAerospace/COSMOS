@@ -24,6 +24,7 @@ module Cosmos
           run()
         rescue Exception => err
           Logger.error "#{@interface.name}: Command handler thread died: #{err.formatted}"
+          retry # TODO: Better way to re-start this thread? Kill entire microservice and re-start?
         end
       end
     end
@@ -42,7 +43,7 @@ module Cosmos
           end
           if msg_hash['raw']
             Logger.info "#{@interface.name}: Write raw"
-            @interface.write(msg_hash['raw'])
+            @interface.write_raw(msg_hash['raw'])
           end
           if msg_hash['inject_tlm']
             Logger.info "#{@interface.name}: Inject telemetry"
