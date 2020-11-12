@@ -41,6 +41,8 @@ begin
         running_script.pause
       when "retry"
         running_script.retry_needed
+      when "step"
+        running_script.step
       when "stop"
         running_script.stop
         redis.unsubscribe
@@ -52,7 +54,7 @@ begin
           when "ask_string", /^prompt_.*/
             running_script.user_input = Cosmos::ConfigParser.handle_true_false(parsed_cmd["result"].to_s)
             run_script_log(id, "User input: #{running_script.user_input}")
-            running_script.go if running_script.user_input != 'Cancel'
+            running_script.continue if running_script.user_input != 'Cancel'
           when "backtrace"
             ActionCable.server.broadcast("running-script-channel:#{id}",
               { type: :script, method: :backtrace, args: JSON.generate(running_script.current_backtrace) })

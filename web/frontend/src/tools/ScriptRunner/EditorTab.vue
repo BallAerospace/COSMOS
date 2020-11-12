@@ -68,16 +68,27 @@
       </div>
       <MultipaneResizer><hr /></MultipaneResizer>
       <div id="messages" class="ma-2 pane" ref="messagesDiv">
-        <v-text-field
-          v-if="showDebug"
-          class="mb-2"
-          outlined
-          dense
-          hide-details
-          label="Debug"
-          v-model="debug"
-          @keydown="debugKeydown"
-        ></v-text-field>
+        <v-container id="debug" class="pa-0" v-if="showDebug">
+          <v-row no-gutters>
+            <v-btn
+              color="primary"
+              @click="step"
+              style="width: 100px"
+              class="mr-4"
+              >Step
+              <v-icon right> mdi-step-forward </v-icon>
+            </v-btn>
+            <v-text-field
+              class="mb-2"
+              outlined
+              dense
+              hide-details
+              label="Debug"
+              v-model="debug"
+              @keydown="debugKeydown"
+            ></v-text-field>
+          </v-row>
+        </v-container>
         <v-card>
           <v-card-title>
             Log Messages
@@ -357,6 +368,11 @@ export default {
     stop() {
       axios.post(
         'http://localhost:3001/running-script/' + this.scriptId + '/stop'
+      )
+    },
+    step() {
+      axios.post(
+        'http://localhost:3001/running-script/' + this.scriptId + '/step'
       )
     },
     received(data) {

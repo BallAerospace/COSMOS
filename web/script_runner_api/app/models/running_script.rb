@@ -126,7 +126,6 @@ class RunningScript
   @@message_log = nil
   @@run_thread = nil
   @@breakpoints = {}
-  @@step_mode = false
   @@line_delay = 0.1
   @@instrumented_cache = {}
   @@file_cache = {}
@@ -253,9 +252,24 @@ class RunningScript
     run()
   end
 
+  # Let the script continue pausing if in step mode
+  def continue
+    @go = true
+    @pause = true if @step
+  end
+
+  # Sets step mode and lets the script continue but with pause set
+  def step
+    @step = true
+    @go = true
+    @pause = true
+  end
+
+  # Clears step mode and lets the script continue
   def go
-    @go    = true
-    @pause = false unless @@step_mode
+    @step  = false
+    @go = true
+    @pause = false
   end
 
   def go?
@@ -293,11 +307,8 @@ class RunningScript
   def initialize_variables
     @@error = nil
     @go = false
-    if @@step_mode
-      @pause = true
-    else
-      @pause = false
-    end
+    @pause = false
+    @step = false
     @stop = false
     @retry_needed = false
     @use_instrumentation = true
@@ -354,21 +365,6 @@ class RunningScript
 
   def self.instance=(value)
     @@instance = value
-  end
-
-  def self.step_mode
-    @@step_mode
-  end
-
-  def self.step_mode=(value)
-    @@step_mode = value
-    if self.instance
-      if value
-        self.instance.pause
-      else
-        self.instance.go
-      end
-    end
   end
 
   def self.line_delay
@@ -431,7 +427,6 @@ class RunningScript
   end
 
   def text
-    #@script.toPlainText.gsub("\r", '')
     @body
   end
 
@@ -834,33 +829,6 @@ class RunningScript
   #     end
   #     @debug_frame.addWidget(@locals_button)
 
-  # def hide_debug
-  #   # Since we're disabling debug, clear the breakpoints and disable them
-  #   ScriptRunnerFrame.clear_breakpoints()
-  #   @script.clear_breakpoints
-  #   @script.enable_breakpoints = false
-  #   if @tab_book_shown
-  #     if @tab_book.count > 0
-  #       (0..(@tab_book.count - 1)).each do |index|
-  #         @tab_book.widget(index).enable_breakpoints = false
-  #       end
-  #     end
-  #   end
-  #   @realtime_button_bar.step_button.setHidden(true)
-  #   # Remove the debug frame
-  #   @bottom_frame.layout.takeAt(@bottom_frame.layout.count - 1) if @debug_frame
-  #   @debug_frame.removeAll
-  #   @debug_frame.dispose
-  #   @debug_frame = nil
-
-  #   # If step mode was previously active then pause the script so it doesn't
-  #   # just take off when we end the debugging session
-  #   if @@step_mode
-  #     pause()
-  #     @@step_mode = false
-  #   end
-  # end
-
   # def self.set_breakpoint(filename, line_number)
   #   @@breakpoints[filename] ||= {}
   #   @@breakpoints[filename][line_number] = true
@@ -1161,7 +1129,7 @@ class RunningScript
 
     filename = File.basename(filename)
     if @pause
-      @pause = false unless @@step_mode
+      @pause = false unless @step
       if breakpoint
         perform_breakpoint(filename, line_number)
       else
@@ -1188,62 +1156,6 @@ class RunningScript
     end
     true
   end
-
-  # def handle_step_button
-  #   scriptrunner_puts "User pressed #{@realtime_button_bar.step_button.text.strip}"
-  #   pause()
-  #   @@step_mode = true
-  #   handle_start_go_button(step = true)
-  # end
-
-  # def handle_start_go_button(step = false)
-  #   unless step
-  #     scriptrunner_puts "User pressed #{@realtime_button_bar.start_button.text.strip}"
-  #     @@step_mode = false
-  #   end
-  #   handle_output_io()
-  #   @realtime_button_bar.start_button.clear_focus()
-
-  #   if running?()
-  #     show_active_tab()
-  #     go()
-  #   else
-  #     if @allow_start
-  #       run() if continue_without_pausing_on_errors?()
-  #     end
-  #   end
-  # end
-
-  # def handle_pause_retry_button
-  #   scriptrunner_puts "User pressed #{@realtime_button_bar.pause_button.text.strip}"
-  #   handle_output_io()
-  #   @realtime_button_bar.pause_button.clear_focus()
-  #   show_active_tab() if running?
-  #   if @realtime_button_bar.pause_button.text.to_s == 'Pause'
-  #     pause()
-  #   else
-  #     retry_needed()
-  #   end
-  # end
-
-  # def handle_stop_button
-  #   scriptrunner_puts "User pressed #{@realtime_button_bar.stop_button.text.strip}"
-  #   handle_output_io()
-  #   @realtime_button_bar.stop_button.clear_focus()
-
-  #   if @stop
-  #     # If we're already stopped and they click Stop again, kill the run
-  #     # thread. This will break any ruby sleeps or other code blocks.
-  #     ScriptRunnerFrame.stop!
-  #     handle_output_io()
-  #   else
-  #     @stop = true
-  #   end
-  #   if !running?()
-  #     # Stop highlight if there was a red syntax error
-  #     @script.stop_highlight
-  #   end
-  # end
 
   def handle_exception(error, fatal, filename = nil, line_number = 0)
     scriptrunner_puts(error.message, 'RED')
