@@ -12,9 +12,15 @@
       ></v-text-field>
     </v-row>
     <v-row no-gutters v-for="(item, index) in items" :key="index">
+      <v-btn small class="primary mr-2">Ignore Packet</v-btn>
+      <v-btn small class="primary mr-2">Ignore Item</v-btn>
+      <v-btn small class="primary mr-2" @click="removeItem(index)"
+        >Remove</v-btn
+      >
       <LabelvaluelimitsbarWidget
         v-if="item.limits"
         :parameters="item.parameters"
+        :settings="[['WIDTH', '400']]"
       ></LabelvaluelimitsbarWidget>
       <LabelvalueWidget v-else :parameters="item.parameters"></LabelvalueWidget>
     </v-row>
@@ -73,8 +79,35 @@ export default {
       }
     })
   },
-
+  mounted() {
+    this.updater = setInterval(() => {
+      this.update()
+    }, 1000)
+  },
+  destroyed() {
+    if (this.updater != null) {
+      clearInterval(this.updater)
+      this.updater = null
+    }
+  },
   methods: {
+    removeItem(index) {
+      this.items.splice(index, 1)
+      this.itemList.splice(index, 1)
+    },
+    update() {
+      if (this.$store.state.tlmViewerItems.length !== 0) {
+        let items = []
+        let types = []
+        this.$store.state.tlmViewerItems.forEach((item) => {
+          items.push([item.target, item.packet, item.item])
+          types.push(item.type)
+        })
+        this.api.get_tlm_values(items, types).then((data) => {
+          this.$store.commit('tlmViewerUpdateValues', data)
+        })
+      }
+    },
     handleMessages(messages) {
       for (let message of messages) {
         let item =
@@ -93,6 +126,8 @@ export default {
             message.item_name,
           ],
         }
+        // console.log('new:' + item + ' state:' + message.new_limits_state)
+        // TODO: Handle 'GREEN' items ... they could be limits or not
         if (
           message.new_limits_state == 'YELLOW' ||
           message.new_limits_state == 'RED'
@@ -116,21 +151,16 @@ export default {
 .v-card {
   padding: 10px;
 }
-.textfield-green >>> .v-text-field__slot input {
-  color: green;
-}
+/* TODO: Color the border */
+.textfield-green >>> .v-text-field__slot input,
 .textfield-green >>> .v-text-field__slot label {
   color: green;
 }
-.textfield-yellow >>> .v-text-field__slot input {
-  color: yellow;
-}
+.textfield-yellow >>> .v-text-field__slot input,
 .textfield-yellow >>> .v-text-field__slot label {
   color: yellow;
 }
-.textfield-red >>> .v-text-field__slot input {
-  color: red;
-}
+.textfield-red >>> .v-text-field__slot input,
 .textfield-red >>> .v-text-field__slot label {
   color: red;
 }
