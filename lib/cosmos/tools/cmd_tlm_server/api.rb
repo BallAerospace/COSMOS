@@ -918,17 +918,67 @@ module Cosmos
       details
     end
 
-    # (see Cosmos::Limits#out_of_limits)
+    # Return an array of arrays indicating all items in the packet that are out of limits
+    #   [[target name, packet name, item name, item limits state], ...]
+    #
+    # @return [Array<Array<String, String, String, String>>]
     def get_out_of_limits(scope: $cosmos_scope, token: $cosmos_token)
-      # Todo: Need to check permission on each returned item
       authorize(permission: 'tlm', scope: scope, token: token)
-      return System.limits.out_of_limits(scope: scope)
+      out_of_limits = []
+      limits = Store.instance.hgetall("#{scope}__current_limits")
+      limits.each do |item, limits_state|
+        if %w(RED RED_HIGH RED_LOW YELLOW YELLOW_HIGH YELLOW_LOW).include?(limits_state)
+          target_name, packet_name, item_name = item.split('__')
+          out_of_limits << [target_name, packet_name, item_name, limits_state]
+        end
+      end
+      out_of_limits
     end
 
-    # (see Cosmos::Limits#overall_limits_state)
+    # Get the overall limits state which is the worse case of all limits items.
+    # For example if any limits are YELLOW_LOW or YELLOW_HIGH then the overall limits state is YELLOW.
+    # If a single limit item then turns RED_HIGH the overall limits state is RED.
+    #
+    # @param ignored_items [Array<Array<String, String, String|nil>>] Array of [TGT, PKT, ITEM] strings
+    #   to ignore when determining overall state. Note, ITEM can be nil to indicate to ignore entire packet.
+    # @return [String] The overall limits state for the system, one of 'GREEN', 'YELLOW', 'RED'
     def get_overall_limits_state(ignored_items = nil, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'tlm', scope: scope, token: token)
-      return System.limits.overall_limits_state(ignored_items, scope: scope)
+      # We only need to check out of limits items so call get_out_of_limits() which authorizes
+      out_of_limits = get_out_of_limits(scope: scope, token: token)
+      overall = 'GREEN'
+      limits_packet_stale = false # TODO: Calculate stale
+
+      # Build easily matchable ignore list
+      if ignored_items
+        ignored_items.map! do |item|
+          raise "Invalid ignored item: #{item}. Must be [TGT, PKT, ITEM] where ITEM can be nil." if item.length != 3
+          item.join('__')
+        end
+      else
+        ignored_items = []
+      end
+
+      out_of_limits.each do |target_name, packet_name, item_name, limits_state|
+        # Ignore this item if we match one of the ignored items. Checking against /^#{item}/
+        # allows us to detect matches against a TGT__PKT__ with no item defined.
+        next if ignored_items.detect { |item| "#{target_name}__#{packet_name}__#{item_name}" =~ /^#{item}/ }
+        case overall
+          # If our overall state is currently blue or green we can go to any state
+        when 'BLUE', 'GREEN', 'GREEN_HIGH', 'GREEN_LOW'
+          overall = limits_state
+        # If our overal state is yellow we can only go higher to red
+        when 'YELLOW', 'YELLOW_HIGH', 'YELLOW_LOW'
+          if limits_state == 'RED' || limits_state == 'RED_HIGH' || limits_state == 'RED_LOW'
+            overall = limits_state
+            break # Red is as high as we go so no need to look for more
+          end
+        end
+      end
+      overall = 'GREEN' if overall == 'GREEN_HIGH' || overall == 'GREEN_LOW' || overall == 'BLUE'
+      overall = 'YELLOW' if overall == 'YELLOW_HIGH' || overall == 'YELLOW_LOW'
+      overall = 'RED' if overall == 'RED_HIGH' || overall == 'RED_LOW'
+      overall = 'STALE' if (overall == 'GREEN' || overall == 'BLUE') && limits_packet_stale
+      return overall
     end
 
     # Whether the limits are enabled for the given item

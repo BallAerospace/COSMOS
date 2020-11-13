@@ -471,4 +471,12 @@ export class CosmosApi {
   delete_config(tool, name) {
     return this.exec('delete_config', [tool, name])
   }
+
+  get_out_of_limits() {
+    return this.exec('get_out_of_limits', [])
+  }
+
+  get_overall_limits_state(ignored) {
+    return this.exec('get_overall_limits_state', [ignored])
+  }
 }

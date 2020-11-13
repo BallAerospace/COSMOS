@@ -96,7 +96,17 @@ module Cosmos
         end
       end
 
-      Store.instance.write_topic("#{@scope}__cosmos_limits_events", {type: 'LIMITS_CHANGE', target_name: packet.target_name, packet_name: packet.packet_name, item_name: item.name, old_limits_state: old_limits_state, new_limits_state: item.limits.state, time_nsec: packet_time ? packet_time.to_nsec_from_epoch : Time.now.to_nsec_from_epoch, message: message})
+      # The cosmos_limits_events topic can be listened to for all limits events, it is a continuous stream
+      Store.instance.write_topic("#{@scope}__cosmos_limits_events",
+        {type: 'LIMITS_CHANGE', target_name: packet.target_name, packet_name: packet.packet_name,
+          item_name: item.name, old_limits_state: old_limits_state, new_limits_state: item.limits.state,
+          time_nsec: packet_time ? packet_time.to_nsec_from_epoch : Time.now.to_nsec_from_epoch, message: message})
+      # The current_limits hash keeps only the current limits state of items
+      # It is used by the API to determine the overall limits state
+      # TODO: How do we maintain / clean this hash?
+      Store.instance.hset("#{@scope}__current_limits",
+        "#{packet.target_name}__#{packet.packet_name}__#{item.name}",
+        item.limits.state)
 
       if item.limits.response
         begin

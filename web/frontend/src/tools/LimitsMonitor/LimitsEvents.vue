@@ -33,7 +33,6 @@
 </template>
 
 <script>
-import * as ActionCable from 'actioncable'
 import { toDate, format } from 'date-fns'
 
 export default {
@@ -51,38 +50,17 @@ export default {
         { text: 'Time', value: 'time_nsec', width: 250 },
         { text: 'Message', value: 'message' },
       ],
-      cable: ActionCable.Cable,
-      subscription: ActionCable.Channel,
     }
-  },
-  created() {
-    this.cable = ActionCable.createConsumer('ws://localhost:7777/cable')
-    this.subscription = this.cable.subscriptions.create(
-      {
-        channel: 'LimitsEventsChannel',
-        history_count: this.history_count,
-        scope: 'DEFAULT',
-      },
-      {
-        received: (data) => {
-          let messages = JSON.parse(data)
-          for (let i = 0; i < messages.length; i++) {
-            this.data.unshift(messages[i])
-          }
-          if (this.data.length > this.history_count) {
-            this.data.length = this.history_count
-          }
-        },
-      }
-    )
-  },
-  destroyed() {
-    if (this.subscription) {
-      this.subscription.unsubscribe()
-    }
-    this.cable.disconnect()
   },
   methods: {
+    handleMessages(messages) {
+      for (let i = 0; i < messages.length; i++) {
+        this.data.unshift(messages[i])
+      }
+      if (this.data.length > this.history_count) {
+        this.data.length = this.history_count
+      }
+    },
     formatDate(nanoSecs) {
       return format(
         toDate(parseInt(nanoSecs) / 1_000_000),
