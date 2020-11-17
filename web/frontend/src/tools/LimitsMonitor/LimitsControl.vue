@@ -8,7 +8,7 @@
           outlined
           readonly
           label="Overall Limits State"
-          :value="overallState"
+          :value="overallStateFormatted"
           :class="textFieldClass"
         ></v-text-field>
       </v-row>
@@ -32,7 +32,7 @@
             ]"
           ></LabelvalueWidget>
         </v-col>
-        <v-col>
+        <v-col cols="2">
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
@@ -78,15 +78,20 @@
         </v-col>
       </v-row>
     </v-container>
-    <v-dialog v-model="ignoredItemsDialog" max-width="750">
+    <v-dialog v-model="ignoredItemsDialog" max-width="500">
       <v-card>
         <v-card-title class="headline">Ignored Items</v-card-title>
-        <v-card-text class="mb-0">
-          <v-container>
-            <v-row no-gutters v-for="(item, index) in ignored" :key="index">{{
-              item
-            }}</v-row>
-          </v-container>
+        <v-card-text class="mb-0 pb-0">
+          <v-row
+            no-gutters
+            v-for="(item, index) in ignoredFormatted"
+            :key="index"
+            >{{ item }}
+            <v-spacer />
+            <v-btn icon small @click="restoreItem(item, index)"
+              ><v-icon>mdi-delete</v-icon></v-btn
+            >
+          </v-row>
         </v-card-text>
         <v-card-actions>
           <v-btn color="primary" text @click="ignoredItemsDialog = false">
@@ -126,31 +131,20 @@ export default {
         return ''
       }
     },
+    overallStateFormatted() {
+      if (this.ignored.length === 0) {
+        return this.overallState
+      } else {
+        return this.overallState + ' (Some items ignored)'
+      }
+    },
+    ignoredFormatted() {
+      return this.ignored.map((x) => x.split('__').join(' '))
+    },
   },
   created() {
     this.api = new CosmosApi()
-    this.api.get_out_of_limits().then((items) => {
-      for (const item of items) {
-        this.itemList.push(item.join('__'))
-        let itemInfo = {
-          key: item.slice(0, 3).join('__'),
-          parameters: item.slice(0, 3),
-        }
-        if (item[3].includes('YELLOW') && this.overallState !== 'RED') {
-          this.overallState = 'YELLOW'
-        }
-        if (item[3].includes('RED')) {
-          this.overallState = 'RED'
-        }
-        if (item[3] == 'YELLOW' || item[3] == 'RED') {
-          itemInfo['limits'] = false
-        } else {
-          itemInfo['limits'] = true
-        }
-        this.items.push(itemInfo)
-      }
-      this.calcOverallState()
-    })
+    this.updateOutOfLimits()
   },
   mounted() {
     this.updater = setInterval(() => {
@@ -164,10 +158,44 @@ export default {
     }
   },
   methods: {
+    updateOutOfLimits() {
+      this.api.get_out_of_limits().then((items) => {
+        for (const item of items) {
+          let itemName = item.join('__')
+          // Skip ignored and existing items
+          if (
+            this.itemList.includes(itemName) ||
+            this.ignored.find((ignored) => itemName.includes(ignored))
+          ) {
+            console.log('found:' + itemName)
+            continue
+          }
+
+          this.itemList.push(itemName)
+          let itemInfo = {
+            key: item.slice(0, 3).join('__'),
+            parameters: item.slice(0, 3),
+          }
+          if (item[3].includes('YELLOW') && this.overallState !== 'RED') {
+            this.overallState = 'YELLOW'
+          }
+          if (item[3].includes('RED')) {
+            this.overallState = 'RED'
+          }
+          if (item[3] == 'YELLOW' || item[3] == 'RED') {
+            itemInfo['limits'] = false
+          } else {
+            itemInfo['limits'] = true
+          }
+          this.items.push(itemInfo)
+        }
+        this.calcOverallState()
+      })
+    },
     calcOverallState() {
       let overall = 'GREEN'
       for (let item of this.itemList) {
-        if (this.ignored.find((ignore) => item.includes(ignore))) {
+        if (this.ignored.find((ignored) => item.includes(ignored))) {
           continue
         }
 
@@ -201,6 +229,10 @@ export default {
       this.ignored.push(item)
       this.removeItem(item)
       this.calcOverallState()
+    },
+    restoreItem(item, index) {
+      this.ignored.splice(index, 1)
+      this.updateOutOfLimits()
     },
     removeItem(item) {
       let index = this.itemList.findIndex((arrayItem) =>
@@ -236,7 +268,7 @@ export default {
           continue
         }
         // Skip ignored items
-        if (this.ignored.find((item) => item.includes(itemName))) {
+        if (this.ignored.find((ignored) => itemName.includes(ignored))) {
           continue
         }
         // Only process items who have gone out of limits
@@ -272,7 +304,6 @@ export default {
 
     // Menu options
     showIgnored() {
-      console.log(this.ignored)
       this.ignoredItemsDialog = true
     },
   },
