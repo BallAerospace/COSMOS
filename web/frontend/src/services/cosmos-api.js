@@ -234,8 +234,8 @@ export class CosmosApi {
   }
 
   // Called by CosmosScreenComponent
-  async get_tlm_values(items, value_types) {
-    const data = await this.exec('get_tlm_values', [items, value_types])
+  async get_tlm_values(items) {
+    const data = await this.exec('get_tlm_values', [items])
     var len = data[0].length
     var converted = null
     for (var i = 0; i < len; i++) {

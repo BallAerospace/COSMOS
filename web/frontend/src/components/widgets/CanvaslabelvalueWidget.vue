@@ -20,7 +20,7 @@ export default {
   },
   computed: {
     _value() {
-      return this.$store.state.tlmViewerValues[0][this.valueId]
+      return this.$store.state.tlmViewerValues[this.valueId][0]
     },
     fontSize() {
       if (this.parameters[5]) {
@@ -35,16 +35,18 @@ export default {
       return 'black'
     },
   },
-  // Note Vuejs still treats this syncronously, but this allows us to dispatch
-  // the store mutation and return the array index.
-  // What this means practically is that future lifecycle hooks may not have valueId set.
-  async created() {
-    this.valueId = await this.$store.dispatch('tlmViewerAddItem', {
-      target: this.parameters[0],
-      packet: this.parameters[1],
-      item: this.parameters[2],
-      type: 'CONVERTED',
-    })
+  created() {
+    this.valueId =
+      this.parameters[0] +
+      '__' +
+      this.parameters[1] +
+      '__' +
+      this.parameters[2] +
+      '__CONVERTED'
+    this.$store.commit('tlmViewerAddItem', this.valueId)
+  },
+  destroyed() {
+    this.$store.commit('tlmViewerDeleteItem', this.valueId)
   },
 }
 </script>

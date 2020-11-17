@@ -1,6 +1,6 @@
 <template>
   <div>
-    <app-nav app />
+    <app-nav :menus="menus" />
     <v-tabs v-model="curTab" fixed-tabs>
       <v-tab v-for="(tab, index) in tabs" :key="index">{{ tab }}</v-tab>
     </v-tabs>
@@ -38,6 +38,19 @@ export default {
       tabs: ['Limits', 'Log'],
       cable: ActionCable.Cable,
       subscription: ActionCable.Channel,
+      menus: [
+        {
+          label: 'File',
+          items: [
+            {
+              label: 'Show Ignored',
+              command: () => {
+                this.$refs.control.showIgnored()
+              },
+            },
+          ],
+        },
+      ],
     }
   },
   created() {

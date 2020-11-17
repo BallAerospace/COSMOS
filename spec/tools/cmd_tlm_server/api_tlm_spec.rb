@@ -31,11 +31,11 @@ module Cosmos
       allow_any_instance_of(Cosmos::Interface).to receive(:connected?).and_return(true)
       allow_any_instance_of(Cosmos::Interface).to receive(:read_interface) { sleep }
 
-      @im = InterfaceMicroservice.new("INTERFACE__INST_INT")
+      @im = InterfaceMicroservice.new("DEFAULT__INTERFACE__INST_INT")
       @im_thread = Thread.new { @im.run }
-      @dm = DecomMicroservice.new("DECOM__INST_INT")
+      @dm = DecomMicroservice.new("DEFAULT__DECOM__INST_INT")
       @dm_thead = Thread.new { @dm.run }
-      @cm = CvtMicroservice.new("CVT__INST_INT")
+      @cm = CvtMicroservice.new("DEFAULT__CVT__INST_INT")
       @cm_thead = Thread.new { @cm.run }
       @api = ApiTest.new
       sleep 0.2 # Allow the threads to run
@@ -248,7 +248,7 @@ module Cosmos
       end
 
       it "complains about non-existant items" do
-        expect { @api.inject_tlm("INST","HEALTH_STATUS",{BLAH: 0}) }.to raise_error(RuntimeError, "Item 'INST HEALTH_STATUS BLAH' does not exist")
+        expect { @api.inject_tlm("INST","HEALTH_STATUS",{'BLAH' => 0}) }.to raise_error(RuntimeError, "Item 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
       xit "logs errors writing routers" do
@@ -422,91 +422,78 @@ module Cosmos
     end
 
     describe "get_tlm_values" do
-      it "handles an empty request" do
-        expect(@api.get_tlm_values([])).to eql [[], []]
-      end
-
       it "complains about non-existant targets" do
-        expect { @api.get_tlm_values([["BLAH","HEALTH_STATUS","TEMP1"]]) }.to raise_error(RuntimeError, "Item 'BLAH HEALTH_STATUS TEMP1' does not exist")
+        expect { @api.get_tlm_values(["BLAH__HEALTH_STATUS__TEMP1__CONVERTED"]) }.to raise_error(RuntimeError, "Item 'BLAH HEALTH_STATUS TEMP1' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @api.get_tlm_values([["INST","BLAH","TEMP1"]]) }.to raise_error(RuntimeError, "Item 'INST BLAH TEMP1' does not exist")
+        expect { @api.get_tlm_values(["INST__BLAH__TEMP1__CONVERTED"]) }.to raise_error(RuntimeError, "Item 'INST BLAH TEMP1' does not exist")
       end
 
       it "complains about non-existant items" do
-        expect { @api.get_tlm_values([["INST","LATEST","BLAH"]]) }.to raise_error(RuntimeError, "Item 'INST LATEST BLAH' does not exist")
+        expect { @api.get_tlm_values(["INST__LATEST__BLAH__CONVERTED"]) }.to raise_error(RuntimeError, "Item 'INST LATEST BLAH' does not exist")
       end
 
       it "complains about non-existant value_types" do
-        expect { @api.get_tlm_values([["INST","HEALTH_STATUS","TEMP1"]],:MINE) }.to raise_error(ArgumentError, "Unknown value type: MINE")
+        expect { @api.get_tlm_values(["INST__HEALTH_STATUS__TEMP1__MINE"]) }.to raise_error(RuntimeError, "Unknown value type MINE")
       end
 
       it "complains about bad arguments" do
-        expect { @api.get_tlm_values("INST",:MINE) }.to raise_error(ArgumentError, /item_array must be nested array/)
-        expect { @api.get_tlm_values(["INST","HEALTH_STATUS","TEMP1"],:MINE) }.to raise_error(ArgumentError, /item_array must be nested array/)
-        expect { @api.get_tlm_values([["INST","HEALTH_STATUS","TEMP1"]],10) }.to raise_error(ArgumentError, /value_types must be a single symbol or array of symbols/)
-        expect { @api.get_tlm_values([["INST","HEALTH_STATUS","TEMP1"]],[10]) }.to raise_error(ArgumentError, /value_types must be a single symbol or array of symbols/)
+        expect { @api.get_tlm_values() }.to raise_error(ArgumentError, /items must be array of strings/)
+        expect { @api.get_tlm_values([]) }.to raise_error(ArgumentError, /items must be array of strings/)
+        expect { @api.get_tlm_values([["INST","HEALTH_STATUS","TEMP1"]]) }.to raise_error(ArgumentError, /items must be array of strings/)
+        expect { @api.get_tlm_values(["INST","HEALTH_STATUS","TEMP1"]) }.to raise_error(ArgumentError, /items must be formatted/)
       end
 
       it "reads all the specified items" do
         items = []
-        items << %w(INST HEALTH_STATUS TEMP1)
-        items << %w(INST HEALTH_STATUS TEMP2)
-        items << %w(INST HEALTH_STATUS TEMP3)
-        items << %w(INST HEALTH_STATUS TEMP4)
+        items << 'INST__HEALTH_STATUS__TEMP1__CONVERTED'
+        items << 'INST__HEALTH_STATUS__TEMP2__CONVERTED'
+        items << 'INST__HEALTH_STATUS__TEMP3__CONVERTED'
+        items << 'INST__HEALTH_STATUS__TEMP4__CONVERTED'
         vals = @api.get_tlm_values(items)
         expect(vals[0][0]).to eql -100.0
-        expect(vals[0][1]).to eql -100.0
-        expect(vals[0][2]).to eql -100.0
-        expect(vals[0][3]).to eql -100.0
-        expect(vals[1][0]).to eql :RED_LOW
+        expect(vals[1][0]).to eql -100.0
+        expect(vals[2][0]).to eql -100.0
+        expect(vals[3][0]).to eql -100.0
+        expect(vals[0][1]).to eql :RED_LOW
         expect(vals[1][1]).to eql :RED_LOW
-        expect(vals[1][2]).to eql :RED_LOW
-        expect(vals[1][3]).to eql :RED_LOW
+        expect(vals[2][1]).to eql :RED_LOW
+        expect(vals[3][1]).to eql :RED_LOW
       end
 
       it "reads all the specified items with one conversion" do
         items = []
-        items << %w(INST HEALTH_STATUS TEMP1)
-        items << %w(INST HEALTH_STATUS TEMP2)
-        items << %w(INST HEALTH_STATUS TEMP3)
-        items << %w(INST HEALTH_STATUS TEMP4)
-        vals = @api.get_tlm_values(items, :RAW)
+        items << 'INST__HEALTH_STATUS__TEMP1__RAW'
+        items << 'INST__HEALTH_STATUS__TEMP2__RAW'
+        items << 'INST__HEALTH_STATUS__TEMP3__RAW'
+        items << 'INST__HEALTH_STATUS__TEMP4__RAW'
+        vals = @api.get_tlm_values(items)
         expect(vals[0][0]).to eql 0
-        expect(vals[0][1]).to eql 0
-        expect(vals[0][2]).to eql 0
-        expect(vals[0][3]).to eql 0
-        expect(vals[1][0]).to eql :RED_LOW
+        expect(vals[1][0]).to eql 0
+        expect(vals[2][0]).to eql 0
+        expect(vals[3][0]).to eql 0
+        expect(vals[0][1]).to eql :RED_LOW
         expect(vals[1][1]).to eql :RED_LOW
-        expect(vals[1][2]).to eql :RED_LOW
-        expect(vals[1][3]).to eql :RED_LOW
+        expect(vals[2][1]).to eql :RED_LOW
+        expect(vals[3][1]).to eql :RED_LOW
       end
 
       it "reads all the specified items with different conversions" do
         items = []
-        items << %w(INST HEALTH_STATUS TEMP1)
-        items << %w(INST HEALTH_STATUS TEMP2)
-        items << %w(INST HEALTH_STATUS TEMP3)
-        items << %w(INST HEALTH_STATUS TEMP4)
-        vals = @api.get_tlm_values(items, [:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS])
+        items << 'INST__HEALTH_STATUS__TEMP1__RAW'
+        items << 'INST__HEALTH_STATUS__TEMP2__CONVERTED'
+        items << 'INST__HEALTH_STATUS__TEMP3__FORMATTED'
+        items << 'INST__HEALTH_STATUS__TEMP4__WITH_UNITS'
+        vals = @api.get_tlm_values(items)
         expect(vals[0][0]).to eql 0
-        expect(vals[0][1]).to eql -100.0
-        expect(vals[0][2]).to eql "-100.000"
-        expect(vals[0][3]).to eql "-100.000 C"
-        expect(vals[1][0]).to eql :RED_LOW
+        expect(vals[1][0]).to eql -100.0
+        expect(vals[2][0]).to eql "-100.000"
+        expect(vals[3][0]).to eql "-100.000 C"
+        expect(vals[0][1]).to eql :RED_LOW
         expect(vals[1][1]).to eql :RED_LOW
-        expect(vals[1][2]).to eql :RED_LOW
-        expect(vals[1][3]).to eql :RED_LOW
-      end
-
-      it "complains if items length != conversions length" do
-        items = []
-        items << %w(INST HEALTH_STATUS TEMP1)
-        items << %w(INST HEALTH_STATUS TEMP2)
-        items << %w(INST HEALTH_STATUS TEMP3)
-        items << %w(INST HEALTH_STATUS TEMP4)
-        expect { @api.get_tlm_values(items, [:RAW, :CONVERTED]) }.to raise_error(ArgumentError, "Passed 4 items but only 2 value types")
+        expect(vals[2][1]).to eql :RED_LOW
+        expect(vals[3][1]).to eql :RED_LOW
       end
     end
 

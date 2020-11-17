@@ -18,8 +18,12 @@ export default {
       let style = {}
       this.settings.forEach((setting) => {
         const index = parseInt(setting[0])
-        if (this.widgetIndex !== null && this.widgetIndex === index) {
-          setting = setting.slice(1)
+        if (this.widgetIndex !== null) {
+          if (this.widgetIndex === index) {
+            setting = setting.slice(1)
+          } else {
+            return
+          }
         }
         switch (setting[0]) {
           case 'TEXTALIGN':

@@ -8,28 +8,24 @@ export default new Vuex.Store({
   state: {
     tlmViewerItems: [],
     // Format of the get_tlm_values method result
-    tlmViewerValues: [[], []],
+    tlmViewerValues: {},
   },
   getters: {},
   // Mutations change store state and must be syncronous
   mutations: {
     tlmViewerUpdateValues(state, values) {
-      state.tlmViewerValues = values
-      // TODO: Make a deep copy of the values array
-      // state.tlmViewerValues = cloneDeep(values)
+      for (let i = 0; i < values.length; i++) {
+        Vue.set(state.tlmViewerValues, state.tlmViewerItems[i], values[i])
+      }
     },
-    tlmViewerAddItem(state, { item, callback }) {
+    tlmViewerAddItem(state, item) {
       state.tlmViewerItems.push(item)
-      callback(state.tlmViewerItems.length - 1)
+      Vue.set(state.tlmViewerValues, item, [null, null])
     },
-  },
-  // Actions commit mutations and can contain arbitrary asynchronous operations
-  actions: {
-    // Deconstruct the context argument to just get 'commit'
-    tlmViewerAddItem({ commit }, item) {
-      return new Promise((resolve) => {
-        commit('tlmViewerAddItem', { item: item, callback: resolve })
-      })
+    tlmViewerDeleteItem(state, item) {
+      let index = state.tlmViewerItems.indexOf(item)
+      state.tlmViewerItems.splice(index, 1)
+      delete state.tlmViewerValues[item]
     },
   },
   modules: {},

@@ -37,14 +37,18 @@ export default {
       return this.max - this.min
     },
   },
-  async created() {
+  created() {
     const type = this.parameters[5] ? this.parameters[5] : 'CONVERTED'
-    this.valueId = await this.$store.dispatch('tlmViewerAddItem', {
-      target: this.parameters[0],
-      packet: this.parameters[1],
-      item: this.parameters[2],
-      type: type,
-    })
+    this.valueId =
+      this.parameters[0] +
+      '__' +
+      this.parameters[1] +
+      '__' +
+      this.parameters[2] +
+      '__' +
+      type
+    this.$store.commit('tlmViewerAddItem', this.valueId)
+
     if (this.parameters[6]) {
       // Width by default is 100% so add the px designator
       this.width = parseInt(this.parameters[6]) + 'px'
@@ -54,9 +58,12 @@ export default {
       this.height = parseInt(this.parameters[7])
     }
   },
+  destroyed() {
+    this.$store.commit('tlmViewerDeleteItem', this.valueId)
+  },
   methods: {
     calcPosition() {
-      const value = this.$store.state.tlmViewerValues[0][this.valueId]
+      const value = this.$store.state.tlmViewerValues[this.valueId][0]
       if (!value) {
         return 0
       }

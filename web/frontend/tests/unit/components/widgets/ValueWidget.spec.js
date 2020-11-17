@@ -58,10 +58,8 @@ describe('ValueWidget', () => {
     var value = 1
     for (const state of limitsStates) {
       options.mocks.$store.state.tlmViewerValues = [
-        [value],
-        [state.key],
-        [],
-        '',
+        [value, state.key],
+        [null, ''],
       ]
       await wrapper.vm.$nextTick()
       expect(wrapper.classes()).toContain(state.value)

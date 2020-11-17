@@ -214,20 +214,37 @@ export default {
         if (this.type === 'tlm') {
           this.updater = setInterval(() => {
             this.api
-              .get_tlm_values(
-                [
-                  [this.targetName, this.packetName, this.itemName],
-                  [this.targetName, this.packetName, this.itemName],
-                  [this.targetName, this.packetName, this.itemName],
-                  [this.targetName, this.packetName, this.itemName],
-                ],
-                ['RAW', 'CONVERTED', 'FORMATTED', 'WITH_UNITS']
-              )
+              .get_tlm_values([
+                this.targetName +
+                  '__' +
+                  this.packetName +
+                  '__' +
+                  this.itemName +
+                  '__RAW',
+                this.targetName +
+                  '__' +
+                  this.packetName +
+                  '__' +
+                  this.itemName +
+                  '__CONVERTED',
+                this.targetName +
+                  '__' +
+                  this.packetName +
+                  '__' +
+                  this.itemName +
+                  '__FORMATTED',
+                this.targetName +
+                  '__' +
+                  this.packetName +
+                  '__' +
+                  this.itemName +
+                  '__WITH_UNITS',
+              ])
               .then((values) => {
                 this.rawValue = values[0][0]
-                this.convertedValue = values[0][1]
-                this.formattedValue = values[0][2]
-                this.unitsValue = values[0][3]
+                this.convertedValue = values[1][0]
+                this.formattedValue = values[2][0]
+                this.unitsValue = values[3][0]
               })
           }, 1000)
         }

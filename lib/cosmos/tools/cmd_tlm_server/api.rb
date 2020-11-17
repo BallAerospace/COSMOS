@@ -823,15 +823,19 @@ module Cosmos
     # their target and packet names.
     #
     # @version 5.0.0
-    # @param (see Cosmos::Telemetry#values_and_limits_states)
-    # @return [Array<Array<Object>, Array<Symbol>>]
-    #   Array consisting of an Array of item values and an Array of item limits state
+    # @param items [Array<String>] Array of items consisting of 'tgt__pkt__item__type'
+    # @return [Array<Object, Symbol>]
+    #   Array consisting of the item value and limits state
     #   given as symbols such as :RED, :YELLOW, :STALE
-    def get_tlm_values(item_array, value_types = :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
-      item_array.each do |target_name, packet_name, item_name|
+    def get_tlm_values(items, scope: $cosmos_scope, token: $cosmos_token)
+      if !items.is_a?(Array) || !items[0].is_a?(String)
+        raise ArgumentError, "items must be array of strings: ['TGT__PKT__ITEM__TYPE', ...]"
+      end
+      items.each do |item|
+        target_name, packet_name, item_name, type = item.split('__')
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       end
-      Store.instance.get_tlm_values(item_array, value_types, scope: scope)
+      Store.instance.get_tlm_values(items, scope: scope)
     end
 
     # Returns an array of all the telemetry packet hashes

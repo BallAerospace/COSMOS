@@ -24,7 +24,7 @@ export default {
   },
   computed: {
     calcHref() {
-      const value = this.$store.state.tlmViewerValues[0][this.valueId]
+      const value = this.$store.state.tlmViewerValues[this.valueId][0]
       const href = get(this.imageLookup, [value, 'img'], this.defaultLookup.img)
       if (href && href.includes('http')) {
         return href
@@ -33,36 +33,37 @@ export default {
       }
     },
     calcX() {
-      const value = this.$store.state.tlmViewerValues[0][this.valueId]
+      const value = this.$store.state.tlmViewerValues[this.valueId][0]
       return get(this.imageLookup, [value, 'x'], this.defaultLookup.x)
     },
     calcY() {
-      const value = this.$store.state.tlmViewerValues[0][this.valueId]
+      const value = this.$store.state.tlmViewerValues[this.valueId][0]
       return get(this.imageLookup, [value, 'y'], this.defaultLookup.y)
     },
     calcWidth() {
-      const value = this.$store.state.tlmViewerValues[0][this.valueId]
+      const value = this.$store.state.tlmViewerValues[this.valueId][0]
       return get(this.imageLookup, [value, 'width'], this.defaultLookup.width)
     },
     calcHeight() {
-      const value = this.$store.state.tlmViewerValues[0][this.valueId]
+      const value = this.$store.state.tlmViewerValues[this.valueId][0]
       return get(this.imageLookup, [value, 'height'], this.defaultLookup.height)
     },
   },
-  // Note Vuejs still treats this syncronously, but this allows us to dispatch
-  // the store mutation and return the array index.
-  // What this means practically is that future lifecycle hooks may not have valueId set.
-  async created() {
+  created() {
     let theType = 'RAW'
     if (this.parameters[3]) {
       theType = this.parameters[3]
     }
-    this.valueId = await this.$store.dispatch('tlmViewerAddItem', {
-      target: this.parameters[0],
-      packet: this.parameters[1],
-      item: this.parameters[2],
-      type: theType,
-    })
+    this.valueId =
+      this.parameters[0] +
+      '__' +
+      this.parameters[1] +
+      '__' +
+      this.parameters[2] +
+      '__' +
+      theType
+    this.$store.commit('tlmViewerAddItem', this.valueId)
+
     let width = '100%'
     if (this.parameters[7]) {
       width = this.parameters[7] + 'px'
@@ -94,6 +95,9 @@ export default {
           break
       }
     })
+  },
+  destroyed() {
+    this.$store.commit('tlmViewerDeleteItem', this.valueId)
   },
 }
 </script>

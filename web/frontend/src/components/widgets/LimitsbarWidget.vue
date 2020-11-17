@@ -40,7 +40,7 @@ export default {
   },
   computed: {
     cssProps() {
-      const value = this.$store.state.tlmViewerValues[0][this.valueId]
+      const value = this.$store.state.tlmViewerValues[this.valueId][0]
       // TODO: Pass the current limits set
       this.calcLimits(this.limitsSettings.DEFAULT)
       return {
@@ -60,7 +60,7 @@ export default {
       }
     },
   },
-  async created() {
+  created() {
     this.api = new CosmosApi()
     this.api
       .get_limits(this.parameters[0], this.parameters[1], this.parameters[2])
@@ -72,12 +72,19 @@ export default {
     if (this.parameters[3]) {
       type = this.parameters[3]
     }
-    this.valueId = await this.$store.dispatch('tlmViewerAddItem', {
-      target: this.parameters[0],
-      packet: this.parameters[1],
-      item: this.parameters[2],
-      type: type,
-    })
+    this.valueId =
+      this.parameters[0] +
+      '__' +
+      this.parameters[1] +
+      '__' +
+      this.parameters[2] +
+      '__' +
+      type
+
+    this.$store.commit('tlmViewerAddItem', this.valueId)
+  },
+  destroyed() {
+    this.$store.commit('tlmViewerDeleteItem', this.valueId)
   },
   methods: {
     calcPosition(value, limitsSettings) {

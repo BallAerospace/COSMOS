@@ -134,14 +134,15 @@ module Cosmos
     # optionally green low and high, and the overall limits state of the system.
     # Usage:
     #   values = get_tlm_values([[target_name, packet_name, item_name], ...], <:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS>)
-    def get_tlm_values(items, value_types = :CONVERTED)
-      result = $cmd_tlm_server.get_tlm_values(items, value_types)
-      result[1].length.times do |index|
-        result[1][index] = result[1][index].to_s.intern if result[1][index]
-      end
-      result[3] = result[3].to_s.intern
-      result
-    end
+    # TODO: this is no longer getting returned ... change to the new API
+    # def get_tlm_values(items, value_types = :CONVERTED)
+    #   result = $cmd_tlm_server.get_tlm_values(items, value_types)
+    #   result[1].length.times do |index|
+    #     result[1][index] = result[1][index].to_s.intern if result[1][index]
+    #   end
+    #   result[3] = result[3].to_s.intern
+    #   result
+    # end
 
     # Gets the packets for a given target name. Returns an array of arrays
     # consisting of packet names and packet descriptions.

@@ -124,15 +124,16 @@ module Cosmos
       end
     end
 
-    describe "get_tlm_values" do
-      it "gets the given values" do
-        vals = get_tlm_values([["INST", "HEALTH_STATUS", "TEMP1"], ["INST", "HEALTH_STATUS", "TEMP2"]])
-        expect(vals[0][0]).to eql -100.0
-        expect(vals[1][0]).to eql :RED_LOW
-        expect(vals[2][0]).to eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
-        expect(vals[3]).to eql :DEFAULT
-      end
-    end
+    # TODO:
+    # describe "get_tlm_values" do
+    #   it "gets the given values" do
+    #     vals = get_tlm_values(["INST__HEALTH_STATUS__TEMP1__CONVERTED", "INST__HEALTH_STATUS__TEMP2__CONVERTED"])
+    #     expect(vals[0][0]).to eql -100.0
+    #     expect(vals[0][1]).to eql :RED_LOW
+    #     expect(vals[2][0]).to eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
+    #     expect(vals[3]).to eql :DEFAULT
+    #   end
+    # end
 
     describe "get_tlm_list" do
       it "gets packets for a given target" do

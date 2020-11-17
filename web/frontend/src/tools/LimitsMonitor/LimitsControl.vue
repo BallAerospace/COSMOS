@@ -1,30 +1,101 @@
 <template>
-  <v-container>
-    <v-row no-gutters>
-      <v-text-field
-        width="200"
-        dense
-        outlined
-        readonly
-        label="Overall Limits State"
-        :value="overallState"
-        :class="textFieldClass"
-      ></v-text-field>
-    </v-row>
-    <v-row no-gutters v-for="(item, index) in items" :key="index">
-      <v-btn small class="primary mr-2">Ignore Packet</v-btn>
-      <v-btn small class="primary mr-2">Ignore Item</v-btn>
-      <v-btn small class="primary mr-2" @click="removeItem(index)"
-        >Remove</v-btn
-      >
-      <LabelvaluelimitsbarWidget
-        v-if="item.limits"
-        :parameters="item.parameters"
-        :settings="[['WIDTH', '400']]"
-      ></LabelvaluelimitsbarWidget>
-      <LabelvalueWidget v-else :parameters="item.parameters"></LabelvalueWidget>
-    </v-row>
-  </v-container>
+  <div>
+    <v-container>
+      <v-row no-gutters>
+        <v-text-field
+          width="200"
+          dense
+          outlined
+          readonly
+          label="Overall Limits State"
+          :value="overallState"
+          :class="textFieldClass"
+        ></v-text-field>
+      </v-row>
+      <v-row no-gutters v-for="item in items" :key="item.key">
+        <v-col>
+          <LabelvaluelimitsbarWidget
+            v-if="item.limits"
+            :parameters="item.parameters"
+            :settings="[
+              ['0', 'WIDTH', '150'],
+              ['1', 'WIDTH', '200'],
+              ['2', 'WIDTH', '200'],
+            ]"
+          ></LabelvaluelimitsbarWidget>
+          <LabelvalueWidget
+            v-else
+            :parameters="item.parameters"
+            :settings="[
+              ['0', 'WIDTH', '150'],
+              ['1', 'WIDTH', '200'],
+            ]"
+          ></LabelvalueWidget>
+        </v-col>
+        <v-col>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                small
+                class="primary mr-2"
+                @click="ignorePacket(item.key)"
+                v-bind="attrs"
+                v-on="on"
+                ><v-icon>mdi-close-circle-multiple</v-icon></v-btn
+              >
+            </template>
+            <span>Ignore Entire Packet</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                small
+                class="primary mr-2"
+                @click="ignoreItem(item.key)"
+                v-bind="attrs"
+                v-on="on"
+                ><v-icon>mdi-close-circle</v-icon></v-btn
+              >
+            </template>
+            <span>Ignore Item</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                small
+                class="primary mr-2"
+                @click="removeItem(item.key)"
+                v-bind="attrs"
+                v-on="on"
+                ><v-icon>mdi-eye-off</v-icon></v-btn
+              >
+            </template>
+            <span>Temporarily Hide Item</span>
+          </v-tooltip>
+        </v-col>
+      </v-row>
+    </v-container>
+    <v-dialog v-model="ignoredItemsDialog" max-width="750">
+      <v-card>
+        <v-card-title class="headline">Ignored Items</v-card-title>
+        <v-card-text class="mb-0">
+          <v-container>
+            <v-row no-gutters v-for="(item, index) in ignored" :key="index">{{
+              item
+            }}</v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" text @click="ignoredItemsDialog = false">
+            Ok
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+  </div>
 </template>
 
 <script>
@@ -40,17 +111,9 @@ export default {
   data() {
     return {
       api: null,
-      ignored: [
-        // ['INST', 'HEALTH_STATUS', null],
-        // ['INST2', 'HEALTH_STATUS', null],
-        ['INST', 'MECH', 'SLRPNL1'],
-        ['INST2', 'MECH', 'SLRPNL1'],
-        ['INST', 'PARAMS', 'VALUE2'],
-        ['INST2', 'PARAMS', 'VALUE2'],
-        ['INST', 'PARAMS', 'VALUE4'],
-        ['INST2', 'PARAMS', 'VALUE4'],
-      ],
-      overallState: null,
+      ignored: [],
+      ignoredItemsDialog: false,
+      overallState: 'GREEN',
       items: [],
       itemList: [],
     }
@@ -68,8 +131,17 @@ export default {
     this.api = new CosmosApi()
     this.api.get_out_of_limits().then((items) => {
       for (const item of items) {
-        this.itemList.push(item.slice(0, 3).join('__'))
-        let itemInfo = { parameters: item.slice(0, 3) }
+        this.itemList.push(item.join('__'))
+        let itemInfo = {
+          key: item.slice(0, 3).join('__'),
+          parameters: item.slice(0, 3),
+        }
+        if (item[3].includes('YELLOW') && this.overallState !== 'RED') {
+          this.overallState = 'YELLOW'
+        }
+        if (item[3].includes('RED')) {
+          this.overallState = 'RED'
+        }
         if (item[3] == 'YELLOW' || item[3] == 'RED') {
           itemInfo['limits'] = false
         } else {
@@ -77,6 +149,7 @@ export default {
         }
         this.items.push(itemInfo)
       }
+      this.calcOverallState()
     })
   },
   mounted() {
@@ -91,43 +164,98 @@ export default {
     }
   },
   methods: {
-    removeItem(index) {
+    calcOverallState() {
+      let overall = 'GREEN'
+      for (let item of this.itemList) {
+        if (this.ignored.find((ignore) => item.includes(ignore))) {
+          continue
+        }
+
+        if (item.includes('YELLOW') && overall !== 'RED') {
+          overall = 'YELLOW'
+        }
+        if (item.includes('RED')) {
+          overall = 'RED'
+          break
+        }
+      }
+      this.overallState = overall
+    },
+    ignorePacket(item) {
+      let [target_name, packet_name, item_name] = item.split('__')
+      let newIgnored = target_name + '__' + packet_name
+      this.ignored.push(newIgnored)
+
+      while (true) {
+        let index = this.itemList.findIndex((item) => item.includes(newIgnored))
+        if (index === -1) {
+          break
+        } else {
+          let underIndex = this.itemList[index].lastIndexOf('__')
+          this.removeItem(this.itemList[index].substring(0, underIndex))
+        }
+      }
+      this.calcOverallState()
+    },
+    ignoreItem(item) {
+      this.ignored.push(item)
+      this.removeItem(item)
+      this.calcOverallState()
+    },
+    removeItem(item) {
+      let index = this.itemList.findIndex((arrayItem) =>
+        arrayItem.includes(item)
+      )
       this.items.splice(index, 1)
       this.itemList.splice(index, 1)
     },
     update() {
       if (this.$store.state.tlmViewerItems.length !== 0) {
-        let items = []
-        let types = []
-        this.$store.state.tlmViewerItems.forEach((item) => {
-          items.push([item.target, item.packet, item.item])
-          types.push(item.type)
-        })
-        this.api.get_tlm_values(items, types).then((data) => {
-          this.$store.commit('tlmViewerUpdateValues', data)
-        })
+        this.api
+          .get_tlm_values(this.$store.state.tlmViewerItems)
+          .then((data) => {
+            this.$store.commit('tlmViewerUpdateValues', data)
+          })
       }
     },
     handleMessages(messages) {
       for (let message of messages) {
-        let item =
+        let itemName =
           message.target_name +
           '__' +
           message.packet_name +
           '__' +
           message.item_name
-        if (this.itemList.includes(item)) {
+        const index = this.itemList.findIndex((arrayItem) =>
+          arrayItem.includes(itemName)
+        )
+        // If we find an existing item we update the state and re-calc overall state
+        if (index !== -1) {
+          this.itemList[index] = itemName + '__' + message.new_limits_state
+          this.calcOverallState()
+          continue
+        }
+        // Skip ignored items
+        if (this.ignored.find((item) => item.includes(itemName))) {
+          continue
+        }
+        // Only process items who have gone out of limits
+        if (
+          !(
+            message.new_limits_state.includes('YELLOW') ||
+            message.new_limits_state.includes('RED')
+          )
+        ) {
           continue
         }
         let itemInfo = {
+          key: itemName,
           parameters: [
             message.target_name,
             message.packet_name,
             message.item_name,
           ],
         }
-        // console.log('new:' + item + ' state:' + message.new_limits_state)
-        // TODO: Handle 'GREEN' items ... they could be limits or not
         if (
           message.new_limits_state == 'YELLOW' ||
           message.new_limits_state == 'RED'
@@ -136,12 +264,16 @@ export default {
         } else {
           itemInfo['limits'] = true
         }
-        this.itemList.push(item)
+        this.itemList.push(itemName + '__' + message.new_limits_state)
         this.items.push(itemInfo)
+        this.calcOverallState()
       }
-      this.api.get_overall_limits_state(this.ignored).then((state) => {
-        this.overallState = state
-      })
+    },
+
+    // Menu options
+    showIgnored() {
+      console.log(this.ignored)
+      this.ignoredItemsDialog = true
     },
   },
 }
