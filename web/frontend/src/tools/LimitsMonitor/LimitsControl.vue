@@ -10,9 +10,15 @@
           label="Overall Limits State"
           :value="overallStateFormatted"
           :class="textFieldClass"
+          data-test="overall-state"
         ></v-text-field>
       </v-row>
-      <v-row no-gutters v-for="item in items" :key="item.key">
+      <v-row
+        no-gutters
+        v-for="item in items"
+        :key="item.key"
+        data-test="limits-row"
+      >
         <v-col>
           <LabelvaluelimitsbarWidget
             v-if="item.limits"
@@ -95,7 +101,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn color="primary" text @click="ignoredItemsDialog = false">
-            Ok
+            OK
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -167,7 +173,6 @@ export default {
             this.itemList.includes(itemName) ||
             this.ignored.find((ignored) => itemName.includes(ignored))
           ) {
-            console.log('found:' + itemName)
             continue
           }
 
