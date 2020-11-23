@@ -307,10 +307,7 @@ module Cosmos
       Store.instance.cmd_packet_exist?(target_name, command_name, scope: scope)
       topic = "#{scope}__COMMAND__#{target_name}__#{command_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
-      if msg_id
-        # TODO: Not sure why I was encoding to UTF-8 but that doesn't work .. changes the data
-        return msg_hash['buffer']#.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
-      end
+      return msg_hash['buffer'].b if msg_id # Return as binary
       nil
     end
 
@@ -759,9 +756,7 @@ module Cosmos
       Store.instance.tlm_packet_exist?(target_name, packet_name, scope: scope)
       topic = "#{scope}__TELEMETRY__#{target_name}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
-      if msg_id
-        return msg_hash['buffer'].encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
-      end
+      return msg_hash['buffer'].b if msg_id # Return as binary
       nil
     end
 

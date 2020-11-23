@@ -28,7 +28,7 @@
     "vue": "^2.6.12",
     "vue-multipane": "^0.9.5",
     "vue-router": "^3.4.9",
-    "vuetify": "^2.3.17",
+    "vuetify": "^2.3.18",
     "vuex": "^3.5.1"
   },
   "devDependencies": {

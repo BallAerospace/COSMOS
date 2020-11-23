@@ -3,7 +3,7 @@
     <v-dialog
       v-model="isVisible"
       @keydown.esc="isVisible = false"
-      width="780px"
+      width="790px"
     >
       <v-card>
         <v-card-title>{{ header }}</v-card-title>
