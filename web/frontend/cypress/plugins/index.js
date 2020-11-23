@@ -47,7 +47,8 @@ module.exports = (on, config) => {
       options.preferences['browser.download.dir'] = downloadDirectory
       options.preferences['browser.download.folderList'] = 2
       // needed to prevent download prompt for text/csv files.
-      options.preferences['browser.helperApps.neverAsk.saveToDisk'] = 'text/csv'
+      options.preferences['browser.helperApps.neverAsk.saveToDisk'] =
+        'text/csv,text/plain,text/x-ruby'
       return options
     }
   })

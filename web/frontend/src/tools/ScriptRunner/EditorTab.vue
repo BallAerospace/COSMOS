@@ -13,6 +13,7 @@
           @click="startOrGo"
           style="width: 100px"
           class="mr-4"
+          data-test="start-go-button"
           >{{ startOrGoButton }}
           <v-icon right> mdi-play </v-icon>
         </v-btn>
@@ -21,9 +22,15 @@
           @click="pauseOrRetry"
           style="width: 100px"
           class="mr-4"
+          data-test="pause-retry-button"
           >{{ pauseOrRetryButton }} <v-icon right> mdi-pause </v-icon>
         </v-btn>
-        <v-btn color="primary" @click="stop" style="width: 100px" class="mr-4"
+        <v-btn
+          color="primary"
+          @click="stop"
+          style="width: 100px"
+          class="mr-4"
+          data-test="stop-button"
           >Stop <v-icon right> mdi-stop </v-icon>
         </v-btn>
         <v-text-field
@@ -50,6 +57,7 @@
           hide-details
           label="Filename"
           v-model="fullFileName"
+          data-test="file-name"
         ></v-text-field>
         <v-icon v-if="showDisconnect" class="ml-2" color="red"
           >mdi-connection</v-icon
@@ -86,6 +94,7 @@
               label="Debug"
               v-model="debug"
               @keydown="debugKeydown"
+              data-test="debug-text"
             ></v-text-field>
           </v-row>
         </v-container>
@@ -252,7 +261,11 @@ export default {
   },
   computed: {
     fullFileName() {
-      return this.fileName + ' ' + this.fileModified
+      if (this.fileModified.length === 0) {
+        return this.fileName
+      } else {
+        return this.fileName + ' ' + this.fileModified
+      }
     },
   },
   mounted() {
@@ -263,6 +276,7 @@ export default {
     this.editor.session.setUseWrapMode(true)
     this.editor.$blockScrolling = Infinity
     this.editor.setHighlightActiveLine(false)
+    this.editor.focus()
     this.editor.session.on('change', this.onChange)
     window.addEventListener('keydown', this.keydown)
     // Prevent the user from closing the tab accidentally

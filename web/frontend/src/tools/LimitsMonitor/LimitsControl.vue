@@ -101,7 +101,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn color="primary" text @click="ignoredItemsDialog = false">
-            OK
+            Ok
           </v-btn>
         </v-card-actions>
       </v-card>

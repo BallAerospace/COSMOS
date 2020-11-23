@@ -72,7 +72,7 @@ describe('LimitsMonitor', () => {
       // Find the items and delete them to restore them
       cy.contains('INST HEALTH_STATUS TEMP2').find('button').click()
       cy.contains('INST2 HEALTH_STATUS TEMP2').find('button').click()
-      cy.contains('OK').click()
+      cy.contains('Ok').click()
     })
     cy.get('.v-dialog').should('not.be.visible')
     // Now we find both items again
@@ -113,7 +113,7 @@ describe('LimitsMonitor', () => {
         .find('button')
         .click()
       cy.contains(/INST\d? PARAMS/).should('not.exist')
-      cy.contains('OK').click()
+      cy.contains('Ok').click()
     })
     cy.get('.v-dialog').should('not.be.visible')
     // Now we find both items again
@@ -203,7 +203,7 @@ describe('LimitsMonitor', () => {
       cy.contains('INST2 PARAMS')
       cy.contains('INST MECH SLRPNL1')
       cy.contains('INST2 MECH SLRPNL1')
-      cy.contains('OK').click()
+      cy.contains('Ok').click()
     })
     cy.get('.v-dialog').should('not.be.visible')
   })
@@ -211,7 +211,7 @@ describe('LimitsMonitor', () => {
   //
   // Test the log tab
   //
-  it('displays INST HEALTH_STATUS & polls the api', () => {
+  it('displays the limits log', () => {
     cy.visit('/limits-monitor')
     cy.hideNav()
     cy.get('.v-tab').contains('Log').click()
