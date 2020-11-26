@@ -45,7 +45,7 @@ export default {
       }
     },
     cssProps() {
-      const value = this.$store.state.tlmViewerValues[0][this.valueId]
+      const value = this.$store.state.tlmViewerValues[this.valueId][0]
       return {
         '--height': this.radius + 'px',
         '--width': this.radius + 'px',

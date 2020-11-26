@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import { mount, mountCallback } from 'cypress-vue-unit-test'
+import { mount } from 'cypress-vue-unit-test'
 import ArrayWidget from '@/components/widgets/ArrayWidget.vue'
 import store from '../../../src/store'
 import Vuex from 'vuex'
@@ -80,13 +80,10 @@ describe('ArrayWidget', () => {
         parameters: ['TGT', 'PKT', 'ITEM', null, null, null, null, 'RAW'],
       },
     }).then(() => {
-      expect(Cypress.vue.$store.state.tlmViewerItems[0]).to.eql({
-        target: 'TGT',
-        packet: 'PKT',
-        item: 'ITEM',
-        type: 'RAW',
-      })
-      Cypress.vue.$store.commit('tlmViewerUpdateValues', [['hello'], []])
+      expect(Cypress.vue.$store.state.tlmViewerItems[0]).to.eql(
+        'TGT__PKT__ITEM__RAW'
+      )
+      Cypress.vue.$store.commit('tlmViewerUpdateValues', [['hello', 'GREEN']])
     })
     cy.get('[data-test=array-widget]').should('have.value', 'hello')
   })

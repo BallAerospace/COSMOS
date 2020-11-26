@@ -1,5 +1,5 @@
 describe('CmdTlmServer Interfaces', () => {
-  it('disconnects & connects an interface', () => {
+  xit('disconnects & connects an interface', () => {
     cy.visit('/cmd-tlm-server')
     cy.hideNav()
     cy.get('[data-test=interfaces-table]')
@@ -41,7 +41,7 @@ describe('CmdTlmServer Interfaces', () => {
     cy.get('[data-test=log-messages]').contains('INST_INT: Connection Success')
   })
 
-  it('cancels an inteface from attempting', () => {
+  xit('cancels an inteface from attempting', () => {
     cy.visit('/cmd-tlm-server')
     cy.hideNav()
     cy.get('[data-test=interfaces-table]')

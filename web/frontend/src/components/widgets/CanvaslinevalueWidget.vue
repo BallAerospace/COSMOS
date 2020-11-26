@@ -20,7 +20,7 @@ export default {
   computed: {
     calcStyle() {
       let color = this.parameters[8]
-      if (parseInt(this.$store.state.tlmViewerValues[0][this.valueId]) === 1) {
+      if (parseInt(this.$store.state.tlmViewerValues[this.valueId][0]) === 1) {
         color = this.parameters[7]
       }
       let width = 1
@@ -30,16 +30,18 @@ export default {
       return 'stroke:' + color + ';stroke-width:' + width
     },
   },
-  // Note Vuejs still treats this syncronously, but this allows us to dispatch
-  // the store mutation and return the array index.
-  // What this means practically is that future lifecycle hooks may not have valueId set.
-  async created() {
-    this.valueId = await this.$store.dispatch('tlmViewerAddItem', {
-      target: this.parameters[0],
-      packet: this.parameters[1],
-      item: this.parameters[2],
-      type: 'RAW',
-    })
+  created() {
+    this.valueId =
+      this.parameters[0] +
+      '__' +
+      this.parameters[1] +
+      '__' +
+      this.parameters[2] +
+      '__RAW'
+    this.$store.commit('tlmViewerAddItem', this.valueId)
+  },
+  destroyed() {
+    this.$store.commit('tlmViewerDeleteItem', this.valueId)
   },
 }
 </script>

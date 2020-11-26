@@ -102,7 +102,7 @@ describe('DataExtractor', () => {
     )
   })
 
-  it('warns with no data', function () {
+  it.only('warns with no data', function () {
     const start = sub(new Date(), { seconds: 1 })
     cy.visit('/data-extractor')
     cy.hideNav()

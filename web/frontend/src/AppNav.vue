@@ -1,5 +1,5 @@
 <template>
-  <v-card app>
+  <div>
     <v-navigation-drawer v-model="drawer" app>
       <v-list>
         <v-list-item two-line>
@@ -93,7 +93,7 @@
       <v-spacer />
       <rux-clock />
     </v-app-bar>
-  </v-card>
+  </div>
 </template>
 
 <script>

@@ -1,19 +1,26 @@
 <template>
   <div>
-    <v-text-field
-      solo
-      dense
-      readonly
-      single-line
-      hide-no-data
-      hide-details
-      placeholder="Value"
-      :value="_value"
-      :class="valueClass"
-      :style="computedStyle"
-      data-test="value"
-      @contextmenu="showContextMenu"
-    />
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <v-text-field
+          solo
+          dense
+          readonly
+          single-line
+          hide-no-data
+          hide-details
+          placeholder="Value"
+          :value="_value"
+          :class="valueClass"
+          :style="computedStyle"
+          data-test="value"
+          @contextmenu="showContextMenu"
+          v-bind="attrs"
+          v-on="on"
+        />
+      </template>
+      <span>{{ fullName }}</span>
+    </v-tooltip>
     <v-menu
       v-model="contextMenuShown"
       :position-x="x"
@@ -49,6 +56,13 @@ export default {
     DetailsDialog,
   },
   mixins: [VWidget],
+  computed: {
+    fullName() {
+      return (
+        this.parameters[0] + ' ' + this.parameters[1] + ' ' + this.parameters[2]
+      )
+    },
+  },
 }
 </script>
 

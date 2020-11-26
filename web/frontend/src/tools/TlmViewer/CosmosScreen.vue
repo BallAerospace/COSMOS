@@ -179,15 +179,11 @@ export default {
     },
     update() {
       if (this.$store.state.tlmViewerItems.length !== 0) {
-        let items = []
-        let types = []
-        this.$store.state.tlmViewerItems.forEach((item) => {
-          items.push([item.target, item.packet, item.item])
-          types.push(item.type)
-        })
-        this.api.get_tlm_values(items, types).then((data) => {
-          this.$store.commit('tlmViewerUpdateValues', data)
-        })
+        this.api
+          .get_tlm_values(this.$store.state.tlmViewerItems)
+          .then((data) => {
+            this.$store.commit('tlmViewerUpdateValues', data)
+          })
       }
     },
     minMaxTransition() {

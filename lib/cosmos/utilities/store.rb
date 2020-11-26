@@ -135,73 +135,50 @@ module Cosmos
       end
     end
 
-    def get_tlm_values(item_array, value_types = :CONVERTED, scope: $cosmos_scope)
-      items = []
-      states = []
-      settings = []
-
-      if !item_array.is_a?(Array) || (!item_array[0].is_a?(Array) and !item_array.empty?)
-        raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
-      end
-      return [[], []] if item_array.empty?
-      raise(ArgumentError, "Passed #{item_array.length} items but only #{value_types.length} value types") if (Array === value_types) and item_array.length != value_types.length
-
-      # Convert value_types into an Array length of item_array to make thing easier
-      unless value_types.is_a?(Array)
-        value_types = [value_types] * item_array.length
-      end
-
-      # Validate value_types. Due to JSON round tripping from scripts, value_types can be a String or Symbol
-      value_types.each do |type|
-        if !type.is_a?(Symbol) && !type.is_a?(String)
-          raise ArgumentError, "value_types must be a single symbol or array of symbols specifying the conversion method (:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS)"
-        end
-        unless %w[RAW CONVERTED FORMATTED WITH_UNITS].include?(type.to_s)
-          raise ArgumentError, "Unknown value type: #{type}"
-        end
-      end
-      value_types.map! {|type| type.intern }
+    def get_tlm_values(items, scope: $cosmos_scope)
+      values = []
+      return values if items.empty?
 
       @redis_pool.with do |redis|
         promises = []
         redis.pipelined do
-          item_array.length.times do |index|
-            target_name, packet_name, item_name = item_array[index]
-            value_type = value_types[index]
-            promises[index] = tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type, scope: scope)
+          items.each_with_index do |item, index|
+            target_name, packet_name, item_name, value_type = item.split('__')
+            raise ArgumentError, "items must be formatted as TGT__PKT__ITEM__TYPE" if target_name.nil? || packet_name.nil? || item_name.nil? || value_type.nil?
+            promises[index] = tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type.intern, scope: scope)
           end
         end
         promises.each_with_index do |promise, index|
-          value_type = value_types[index]
+          value_type = items[index].split('__')[-1]
           result = promise.value
           if result[0]
             if value_type == :FORMATTED or value_type == :WITH_UNITS
-              items << JSON.parse(result[0]).to_s
+              values << [JSON.parse(result[0]).to_s]
             else
-              items << JSON.parse(result[0])
+              values << [JSON.parse(result[0])]
             end
           elsif result[1]
             if value_type == :FORMATTED or value_type == :WITH_UNITS
-              items << JSON.parse(result[1]).to_s
+              values << [JSON.parse(result[1]).to_s]
             else
-              items << JSON.parse(result[1])
+              values << [JSON.parse(result[1])]
             end
           elsif result[2]
-            items << JSON.parse(result[2]).to_s
+            values << [JSON.parse(result[2]).to_s]
           elsif result[3]
-            items << JSON.parse(result[3]).to_s
+            values << [JSON.parse(result[3]).to_s]
           else
-            raise "Item '#{item_array[0].join(' ')}' does not exist"
+            raise "Item '#{items[index].split('__')[0..2].join(' ')}' does not exist"
           end
           if result[-1]
-            states << JSON.parse(result[-1]).intern
+            values[-1] << JSON.parse(result[-1]).intern
           else
-            states << nil
+            values[-1] << nil
           end
         end
       end
 
-      return items, states
+      return values
     end
 
     def cmd_packet_exist?(target_name, packet_name, scope: $cosmos_scope)

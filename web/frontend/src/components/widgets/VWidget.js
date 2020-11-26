@@ -37,7 +37,7 @@ export default {
     _value: function () {
       let value = this.value
       if (value === null) {
-        value = this.$store.state.tlmViewerValues[0][this.valueId]
+        value = this.$store.state.tlmViewerValues[this.valueId][0]
       }
       return this.formatValue(value)
     },
@@ -47,7 +47,7 @@ export default {
     limitsColor() {
       let limitsState = this.limitsState
       if (limitsState === null) {
-        limitsState = this.$store.state.tlmViewerValues[1][this.valueId]
+        limitsState = this.$store.state.tlmViewerValues[this.valueId][1]
       }
       if (limitsState != null) {
         switch (limitsState) {
@@ -73,19 +73,23 @@ export default {
       }
     },
   },
-  // Note Vuejs still treats this syncronously, but this allows us to dispatch
-  // the store mutation and return the array index.
-  // What this means practically is that future lifecycle hooks may not have valueId set.
-  async created() {
+  created() {
     // If they're not passing us the value and limitsState we have to register
     if (this.value === null || this.limitsState === null) {
-      this.valueId = await this.$store.dispatch('tlmViewerAddItem', {
-        target: this.parameters[0],
-        packet: this.parameters[1],
-        item: this.parameters[2],
-        type: this.getType(),
-      })
+      this.valueId =
+        this.parameters[0] +
+        '__' +
+        this.parameters[1] +
+        '__' +
+        this.parameters[2] +
+        '__' +
+        this.getType()
+
+      this.$store.commit('tlmViewerAddItem', this.valueId)
     }
+  },
+  destroyed() {
+    this.$store.commit('tlmViewerDeleteItem', this.valueId)
   },
   methods: {
     getType() {

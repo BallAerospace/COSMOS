@@ -23,7 +23,7 @@ export default {
       return this.parameters[5] ? parseInt(this.parameters[5]) : 20
     },
     cssProps() {
-      const value = this.$store.state.tlmViewerValues[0][this.valueId]
+      const value = this.$store.state.tlmViewerValues[this.valueId][0]
       let color = this.colors[value]
       if (!color) {
         color = this.colors.ANY
@@ -41,7 +41,7 @@ export default {
   // Note Vuejs still treats this syncronously, but this allows us to dispatch
   // the store mutation and return the array index.
   // What this means practically is that future lifecycle hooks may not have valueId set.
-  async created() {
+  created() {
     this.settings.forEach((setting) => {
       switch (setting[0]) {
         case 'LED_COLOR':
@@ -52,12 +52,18 @@ export default {
     if (!this.parameters[3]) {
       this.parameters[3] = 'CONVERTED'
     }
-    this.valueId = await this.$store.dispatch('tlmViewerAddItem', {
-      target: this.parameters[0],
-      packet: this.parameters[1],
-      item: this.parameters[2],
-      type: this.parameters[3],
-    })
+    this.valueId =
+      this.parameters[0] +
+      '__' +
+      this.parameters[1] +
+      '__' +
+      this.parameters[2] +
+      '__' +
+      this.parameters[3]
+    this.$store.commit('tlmViewerAddItem', this.valueId)
+  },
+  destroyed() {
+    this.$store.commit('tlmViewerDeleteItem', this.valueId)
   },
 }
 </script>

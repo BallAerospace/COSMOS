@@ -9,7 +9,6 @@
 # attribution addendums as found in the LICENSE.txt
 
 module Cosmos
-
   module Script
     private
 
@@ -30,11 +29,19 @@ module Cosmos
     end
 
     def enable_limits(*args)
-      return $cmd_tlm_server.enable_limits(*args)
+      if $disconnect
+        Logger.info "DISCONNECT: enable_limits(#{args}) ignored"
+      else
+        return $cmd_tlm_server.enable_limits(*args)
+      end
     end
 
     def disable_limits(*args)
-      return $cmd_tlm_server.disable_limits(*args)
+      if $disconnect
+        Logger.info "DISCONNECT: enable_limits(#{args}) ignored"
+      else
+        return $cmd_tlm_server.disable_limits(*args)
+      end
     end
 
     def get_stale(with_limits_only = false, target_name = nil)
@@ -48,9 +55,13 @@ module Cosmos
     end
 
     def set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true)
-      results = $cmd_tlm_server.set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low, green_high, limits_set, persistence, enabled)
-      results[0] = results[0].to_s.intern if results[0]
-      return results
+      if $disconnect
+        Logger.info "DISCONNECT: set_limits(#{target_name}, #{packet_name}, #{item_name}, #{red_low}, #{yellow_low}, #{yellow_high}, #{red_high}, #{green_low}, #{green_high}, #{limits_set}, #{persistence}, #{enabled}) ignored"
+      else
+        results = $cmd_tlm_server.set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low, green_high, limits_set, persistence, enabled)
+        results[0] = results[0].to_s.intern if results[0]
+        return results
+      end
     end
 
     def get_limits_groups
@@ -58,11 +69,19 @@ module Cosmos
     end
 
     def enable_limits_group(group_name)
-      return $cmd_tlm_server.enable_limits_group(group_name)
+      if $disconnect
+        Logger.info "DISCONNECT: enable_limits_group(#{group_name}) ignored"
+      else
+        return $cmd_tlm_server.enable_limits_group(group_name)
+      end
     end
 
     def disable_limits_group(group_name)
-      return $cmd_tlm_server.disable_limits_group(group_name)
+      if $disconnect
+        Logger.info "DISCONNECT: enable_limits_group(#{group_name}) ignored"
+      else
+        return $cmd_tlm_server.disable_limits_group(group_name)
+      end
     end
 
     def get_limits_sets
@@ -74,7 +93,11 @@ module Cosmos
     end
 
     def set_limits_set(limits_set)
-      return $cmd_tlm_server.set_limits_set(limits_set)
+      if $disconnect
+        Logger.info "DISCONNECT: set_limits_set(#{limits_set}) ignored"
+      else
+        return $cmd_tlm_server.set_limits_set(limits_set)
+      end
     end
 
     def get_limits_set
@@ -114,7 +137,5 @@ module Cosmos
       end
       result
     end
-
   end
 end
-

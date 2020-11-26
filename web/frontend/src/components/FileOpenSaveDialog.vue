@@ -13,6 +13,7 @@
           hide-details
           clearable
           clear-icon="mdi-close-circle-outline"
+          data-test="search"
         ></v-text-field>
       </v-sheet>
       <v-card-text>
@@ -41,6 +42,7 @@
           hide-details
           label="File Name"
           v-model="selectedFile"
+          data-test="file-name"
         ></v-text-field>
       </v-card-text>
       <v-card-actions>

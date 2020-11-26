@@ -29,7 +29,7 @@
     "vue-multipane": "^0.9.5",
     "vue-router": "^3.4.9",
     "vuejs-dialog": "^1.4.2",
-    "vuetify": "^2.3.16",
+    "vuetify": "^2.3.18",
     "vuex": "^3.5.1"
   },
   "devDependencies": {

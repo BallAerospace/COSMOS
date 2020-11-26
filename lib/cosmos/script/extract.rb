@@ -8,8 +8,9 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-module Cosmos
+require 'cosmos/utilities/store'
 
+module Cosmos
   module Extract
     SCANNING_REGULAR_EXPRESSION = %r{ (?:"(?:[^\\"]|\\.)*") | (?:'(?:[^\\']|\\.)*') | (?:\[(?:[^\\\[\]]|\\.)*\]) | \S+ }x #"
 
@@ -18,7 +19,12 @@ module Cosmos
     def add_cmd_parameter(keyword, value, packet, cmd_params)
       quotes_removed = value.remove_quotes
       begin
-        type = packet.items[keyword].data_type
+        packet['items'].each do |parameter|
+          if parameter['name'] == keyword
+            type = parameter['data_type']
+            break
+          end
+        end
       rescue
         type = nil
       end
@@ -47,7 +53,7 @@ module Cosmos
       cmd_params = {}
 
       begin
-        packet = System.commands.packet(target_name, cmd_name).clone
+        packet = Store.instance.get_packet(target_name, cmd_name)
       rescue
         packet = nil
       end
@@ -135,7 +141,5 @@ module Cosmos
       raise "ERROR: Use '==' instead of '=': #{text}" if split_string[3] == '='
       return [target_name, packet_name, item_name, comparison_to_eval]
     end
-
-  end # module Extract
-
-end # module Cosmos
+  end
+end

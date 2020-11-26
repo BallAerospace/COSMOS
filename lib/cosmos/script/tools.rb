@@ -17,51 +17,47 @@ module Cosmos
     # Methods accessing script runner
     #######################################
 
-    def _ensure_script_runner_frame
-      yield if (defined? ScriptRunnerFrame) && ScriptRunnerFrame.instance
-    end
-
     def set_line_delay(delay)
-      if defined? ScriptRunnerFrame
-        ScriptRunnerFrame.line_delay = delay if delay >= 0.0
+      if defined? RunningScript
+        RunningScript.line_delay = delay if delay >= 0.0
       end
     end
 
     def get_line_delay
-      if defined? ScriptRunnerFrame
-        ScriptRunnerFrame.line_delay
+      if defined? RunningScript
+        RunningScript.line_delay
       end
     end
 
-    def get_scriptrunner_message_log_filename
-      filename = nil
-      _ensure_script_runner_frame do
-        filename = ScriptRunnerFrame.instance.message_log.filename if ScriptRunnerFrame.instance.message_log
-      end
-      return filename
-    end
+    # def get_scriptrunner_message_log_filename
+    #   filename = nil
+    #   _ensure_script_runner_frame do
+    #     filename = ScriptRunnerFrame.instance.message_log.filename if ScriptRunnerFrame.instance.message_log
+    #   end
+    #   return filename
+    # end
 
-    def start_new_scriptrunner_message_log
-      # A new log will be created at the next message
-      _ensure_script_runner_frame { ScriptRunnerFrame.instance.stop_message_log }
-    end
+    # def start_new_scriptrunner_message_log
+    #   # A new log will be created at the next message
+    #   _ensure_script_runner_frame { ScriptRunnerFrame.instance.stop_message_log }
+    # end
 
     def disable_instrumentation
-      if (defined? ScriptRunnerFrame) && ScriptRunnerFrame.instance
-        ScriptRunnerFrame.instance.use_instrumentation = false
+      if (defined? RunningScript) && RunningScript.instance
+        RunningScript.instance.use_instrumentation = false
         begin
           yield
         ensure
-          ScriptRunnerFrame.instance.use_instrumentation = true
+          RunningScript.instance.use_instrumentation = true
         end
       else
         yield
       end
     end
 
-    def set_stdout_max_lines(max_lines)
-      _ensure_script_runner_frame { ScriptRunnerFrame.instance.stdout_max_lines = max_lines }
-    end
+    # def set_stdout_max_lines(max_lines)
+    #   _ensure_script_runner_frame { ScriptRunnerFrame.instance.stdout_max_lines = max_lines }
+    # end
 
     #######################################
     # Methods for debugging

@@ -13,13 +13,24 @@
           @click="startOrGo"
           style="width: 100px"
           class="mr-4"
-          >{{ startOrGoText }}
+          data-test="start-go-button"
+          >{{ startOrGoButton }}
           <v-icon right> mdi-play </v-icon>
         </v-btn>
-        <v-btn color="primary" @click="pause" style="width: 100px" class="mr-4"
-          >Pause <v-icon right> mdi-pause </v-icon>
+        <v-btn
+          color="primary"
+          @click="pauseOrRetry"
+          style="width: 100px"
+          class="mr-4"
+          data-test="pause-retry-button"
+          >{{ pauseOrRetryButton }} <v-icon right> mdi-pause </v-icon>
         </v-btn>
-        <v-btn color="primary" @click="stop" style="width: 100px" class="mr-4"
+        <v-btn
+          color="primary"
+          @click="stop"
+          style="width: 100px"
+          class="mr-4"
+          data-test="stop-button"
           >Stop <v-icon right> mdi-stop </v-icon>
         </v-btn>
         <v-text-field
@@ -46,6 +57,7 @@
           hide-details
           label="Filename"
           v-model="fullFileName"
+          data-test="file-name"
         ></v-text-field>
         <v-icon v-if="showDisconnect" class="ml-2" color="red"
           >mdi-connection</v-icon
@@ -64,16 +76,28 @@
       </div>
       <MultipaneResizer><hr /></MultipaneResizer>
       <div id="messages" class="ma-2 pane" ref="messagesDiv">
-        <v-text-field
-          v-if="showDebug"
-          class="mb-2"
-          outlined
-          dense
-          hide-details
-          label="Debug"
-          v-model="debug"
-          @keydown="debugKeydown"
-        ></v-text-field>
+        <v-container id="debug" class="pa-0" v-if="showDebug">
+          <v-row no-gutters>
+            <v-btn
+              color="primary"
+              @click="step"
+              style="width: 100px"
+              class="mr-4"
+              >Step
+              <v-icon right> mdi-step-forward </v-icon>
+            </v-btn>
+            <v-text-field
+              class="mb-2"
+              outlined
+              dense
+              hide-details
+              label="Debug"
+              v-model="debug"
+              @keydown="debugKeydown"
+              data-test="debug-text"
+            ></v-text-field>
+          </v-row>
+        </v-container>
         <v-card>
           <v-card-title>
             Log Messages
@@ -192,6 +216,7 @@ export default {
       alertText: '',
       state: ' ',
       scriptId: null,
+      pauseOrRetryButton: 'Pause',
       showDebug: false,
       debug: '',
       debugHistory: [],
@@ -202,7 +227,7 @@ export default {
       tempFileName: null,
       fileModified: '',
       fileOpen: false,
-      startOrGoText: 'Start',
+      startOrGoButton: 'Start',
       showSaveAs: false,
       areYouSure: false,
       subscription: null,
@@ -236,7 +261,11 @@ export default {
   },
   computed: {
     fullFileName() {
-      return this.fileName + ' ' + this.fileModified
+      if (this.fileModified.length === 0) {
+        return this.fileName
+      } else {
+        return this.fileName + ' ' + this.fileModified
+      }
     },
   },
   mounted() {
@@ -247,6 +276,7 @@ export default {
     this.editor.session.setUseWrapMode(true)
     this.editor.$blockScrolling = Infinity
     this.editor.setHighlightActiveLine(false)
+    this.editor.focus()
     this.editor.session.on('change', this.onChange)
     window.addEventListener('keydown', this.keydown)
     // Prevent the user from closing the tab accidentally
@@ -260,7 +290,7 @@ export default {
 
     if (this.$route.params.id) {
       this.state = 'Connecting...'
-      this.startOrGoText = 'Go'
+      this.startOrGoButton = 'Go'
       this.scriptId = this.$route.params.id
       this.editor.setReadOnly(true)
       this.subscription = this.cable.subscriptions.create(
@@ -307,7 +337,7 @@ export default {
       }
     },
     startOrGo() {
-      if (this.startOrGoText === 'Start') {
+      if (this.startOrGoButton === 'Start') {
         this.saveFile('start') // Save first or they'll be running old code
 
         let fileName = this.fileName
@@ -321,7 +351,7 @@ export default {
         }
         axios.post(url).then((response) => {
           this.state = 'Connecting...'
-          this.startOrGoText = 'Go'
+          this.startOrGoButton = 'Go'
           this.scriptId = response.data
           this.editor.setReadOnly(true)
           this.subscription = this.cable.subscriptions.create(
@@ -337,14 +367,26 @@ export default {
         )
       }
     },
-    pause() {
-      axios.post(
-        'http://localhost:3001/running-script/' + this.scriptId + '/pause'
-      )
+    pauseOrRetry() {
+      if (this.pauseOrRetryButton === 'Pause') {
+        axios.post(
+          'http://localhost:3001/running-script/' + this.scriptId + '/pause'
+        )
+      } else {
+        this.pauseOrRetryButton = 'Pause'
+        axios.post(
+          'http://localhost:3001/running-script/' + this.scriptId + '/retry'
+        )
+      }
     },
     stop() {
       axios.post(
         'http://localhost:3001/running-script/' + this.scriptId + '/stop'
+      )
+    },
+    step() {
+      axios.post(
+        'http://localhost:3001/running-script/' + this.scriptId + '/step'
       )
     },
     received(data) {
@@ -368,6 +410,7 @@ export default {
           switch (data.state) {
             case 'running':
               marker = 'runningMarker'
+              this.pauseOrRetryButton = 'Pause'
               break
             case 'waiting':
               marker = 'waitingMarker'
@@ -377,6 +420,7 @@ export default {
               break
             case 'error':
               marker = 'errorMarker'
+              this.pauseOrRetryButton = 'Retry'
               break
             case 'fatal':
               marker = 'fatalMarker'
@@ -404,7 +448,8 @@ export default {
           this.handleScript(data)
           break
         case 'complete':
-          this.startOrGoText = 'Start'
+          this.startOrGoButton = 'Start'
+          this.pauseOrRetryButton = 'Pause'
           this.editor.setReadOnly(false)
           // Delete the temp file created as a result of saving a NEW file
           if (this.tempFileName) {
@@ -428,6 +473,7 @@ export default {
     handleScript(data) {
       this.prompt.method = data.method // Set it here since all prompts use this
       this.prompt.layout = 'horizontal' // Reset the layout since most are horizontal
+      this.prompt.buttons = null // Reset buttons so 'Yes', 'No' are used by default
       switch (data.method) {
         case 'ask_string':
           // Reset values since this dialog can be re-used
@@ -491,7 +537,6 @@ export default {
         case 'prompt_combo_box':
           this.prompt.title = 'Prompt'
           this.prompt.message = data.args[0]
-          this.prompt.buttons = []
           data.args[1].forEach((v) => {
             this.prompt.buttons.push({ text: v, value: v })
           })
@@ -504,7 +549,6 @@ export default {
         case 'prompt_vertical_message_box':
           this.prompt.title = 'Prompt'
           this.prompt.message = data.args[0]
-          this.prompt.buttons = []
           data.args[1].forEach((v) => {
             this.prompt.buttons.push({ text: v, value: v })
           })

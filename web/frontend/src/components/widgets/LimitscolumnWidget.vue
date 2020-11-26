@@ -23,8 +23,8 @@ export default {
   mixins: [Widget],
   data() {
     return {
-      width: '100%', // users will override with px
-      height: 20, // px
+      width: 20, // px
+      height: 100, // users will override with px
       redLow: 0,
       yellowLow: 0,
       greenLow: 0,
@@ -45,18 +45,18 @@ export default {
       this.calcLimits(this.limitsSettings.DEFAULT)
       return {
         '--height': this.height + 'px',
-        '--width': this.width,
-        '--container-height': this.height - 5 + 'px',
+        '--width': this.width + 'px',
+        '--container-width': this.width - 5 + 'px',
         '--position':
           // TODO: Pass the current limits set
           this.calcPosition(value, this.limitsSettings.DEFAULT) + '%',
-        '--redlow-width': this.redLow + '%',
-        '--redhigh-width': this.redHigh + '%',
-        '--yellowlow-width': this.yellowLow + '%',
-        '--yellowhigh-width': this.yellowHigh + '%',
-        '--greenlow-width': this.greenLow + '%',
-        '--greenhigh-width': this.greenHigh + '%',
-        '--blue-width': this.blue + '%',
+        '--redlow-height': this.redLow + '%',
+        '--redhigh-height': this.redHigh + '%',
+        '--yellowlow-height': this.yellowLow + '%',
+        '--yellowhigh-height': this.yellowHigh + '%',
+        '--greenlow-height': this.greenLow + '%',
+        '--greenhigh-height': this.greenHigh + '%',
+        '--blue-height': this.blue + '%',
       }
     },
   },
@@ -181,93 +181,87 @@ export default {
 .limitsbar {
   cursor: default;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 5px;
-  width: var(--width);
+  height: var(--height);
 }
 .limitsbar__container {
   position: relative;
-  flex: 1;
-  height: var(--container-height);
+  flex: 1 1 100%;
+  width: var(--container-width);
   border: 1px solid black;
   background-color: white;
 }
 .limitsbar__redlow {
   position: absolute;
-  top: -1px;
-  left: 0px;
-  width: var(--redlow-width);
-  height: var(--container-height);
+  bottom: 0px;
+  width: var(--container-width);
+  height: var(--redlow-height);
   background-color: red;
 }
 .limitsbar__redhigh {
   position: absolute;
-  top: -1px;
-  right: 0px;
-  width: var(--redhigh-width);
-  height: var(--container-height);
+  top: 0px;
+  width: var(--container-width);
+  height: var(--redhigh-height);
   background-color: red;
 }
 .limitsbar__yellowlow {
   position: absolute;
-  top: -1px;
-  left: var(--redlow-width);
-  width: var(--yellowlow-width);
-  height: var(--container-height);
+  bottom: var(--redlow-height);
+  height: var(--yellowlow-height);
+  width: var(--container-width);
   background-color: rgb(255, 220, 0);
 }
 .limitsbar__yellowhigh {
   position: absolute;
-  top: -1px;
-  right: var(--redhigh-width);
-  width: var(--yellowhigh-width);
-  height: var(--container-height);
+  top: var(--redhigh-height);
+  height: var(--yellowhigh-height);
+  width: var(--container-width);
   background-color: rgb(255, 220, 0);
 }
 .limitsbar__greenlow {
   position: absolute;
-  top: -1px;
-  left: calc(var(--redlow-width) + var(--yellowlow-width));
-  width: var(--greenlow-width);
-  height: var(--container-height);
+  bottom: calc(var(--redlow-height) + var(--yellowlow-height));
+  width: var(--container-width);
+  height: var(--greenlow-height);
   background-color: green;
 }
 .limitsbar__greenhigh {
   position: absolute;
-  top: -1px;
-  right: calc(var(--redhigh-width) + var(--yellowhigh-width));
-  width: var(--greenhigh-width);
-  height: var(--container-height);
+  top: calc(var(--redhigh-height) + var(--yellowhigh-height));
+  width: var(--container-width);
+  height: var(--greenhigh-height);
   background-color: green;
 }
 .limitsbar__blue {
   position: absolute;
-  top: -1px;
-  left: calc(
-    var(--redlow-width) + var(--yellowlow-width) + var(--greenlow-width)
+  bottom: calc(
+    var(--redlow-height) + var(--yellowlow-height) + var(--greenlow-height)
   );
-  width: var(--blue-width);
-  height: var(--container-height);
+  width: var(--container-width);
+  height: var(--blue-height);
   background-color: blue;
 }
 .limitsbar__line {
   position: absolute;
-  left: var(--position);
-  width: 1px;
-  height: var(--container-height);
+  bottom: var(--position);
+  width: var(--container-width);
+  height: 1px;
   background-color: rgb(128, 128, 128);
 }
 $arrow-size: 5px;
 .limitsbar__arrow {
   position: absolute;
-  top: -$arrow-size;
-  left: var(--position);
+  bottom: var(--position);
+  left: var(--container-width);
   width: 0;
   height: 0;
-  transform: translateX(-$arrow-size); // Transform so it sits over the line
-  border-left: $arrow-size solid transparent;
-  border-right: $arrow-size solid transparent;
-  border-top: $arrow-size solid rgb(128, 128, 128);
+  transform: translateY($arrow-size); // Transform so it sits over the line
+  border-top: $arrow-size solid transparent;
+  border-bottom: $arrow-size solid transparent;
+  border-right: $arrow-size solid rgb(128, 128, 128);
 }
 </style>

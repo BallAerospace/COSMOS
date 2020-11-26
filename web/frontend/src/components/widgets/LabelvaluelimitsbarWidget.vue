@@ -4,8 +4,12 @@
     class="d-flex flex-row"
     :style="[defaultStyle, computedStyle]"
   >
-    <LabelvalueWidget :parameters="parameters" />
-    <LimitsbarWidget :parameters="limitsBarParameters" />
+    <LabelvalueWidget :parameters="parameters" :settings="settings" />
+    <LimitsbarWidget
+      :parameters="limitsBarParameters"
+      :settings="settings"
+      :widgetIndex="3"
+    />
   </div>
 </template>
 
@@ -20,6 +24,24 @@ export default {
     LabelvalueWidget,
     LimitsbarWidget,
   },
+  data() {
+    return {
+      overallWidth: '300px',
+    }
+  },
+  created() {
+    // Determine if any sub-setting widths have been given
+    // If so calculate the overall width, if not the default will be used
+    let width = 0
+    this.settings.forEach((setting) => {
+      if (setting[1] === 'WIDTH') {
+        width += parseInt(setting[2])
+      }
+    })
+    if (width != 0) {
+      this.overallWidth = width + 'px'
+    }
+  },
   computed: {
     limitsBarParameters() {
       return [
@@ -31,7 +53,7 @@ export default {
     },
     defaultStyle() {
       return {
-        width: '300px',
+        width: this.overallWidth,
       }
     },
   },

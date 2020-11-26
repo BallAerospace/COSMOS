@@ -234,8 +234,8 @@ export class CosmosApi {
   }
 
   // Called by CosmosScreenComponent
-  async get_tlm_values(items, value_types) {
-    const data = await this.exec('get_tlm_values', [items, value_types])
+  async get_tlm_values(items) {
+    const data = await this.exec('get_tlm_values', [items])
     var len = data[0].length
     var converted = null
     for (var i = 0; i < len; i++) {
@@ -470,5 +470,13 @@ export class CosmosApi {
 
   delete_config(tool, name) {
     return this.exec('delete_config', [tool, name])
+  }
+
+  get_out_of_limits() {
+    return this.exec('get_out_of_limits', [])
+  }
+
+  get_overall_limits_state(ignored) {
+    return this.exec('get_overall_limits_state', [ignored])
   }
 }

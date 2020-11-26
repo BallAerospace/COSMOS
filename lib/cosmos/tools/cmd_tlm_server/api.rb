@@ -24,7 +24,6 @@ module Cosmos
     # Sets api_requests to 0 and initializes the whitelist of allowable API
     # method calls
     def initialize
-      @disconnect = false unless defined? @disconnect
       @api_whitelist = [
         'cmd',
         'cmd_no_range_check',
@@ -308,10 +307,7 @@ module Cosmos
       Store.instance.cmd_packet_exist?(target_name, command_name, scope: scope)
       topic = "#{scope}__COMMAND__#{target_name}__#{command_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
-      if msg_id
-        # TODO: Not sure why I was encoding to UTF-8 but that doesn't work .. changes the data
-        return msg_hash['buffer']#.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
-      end
+      return msg_hash['buffer'].b if msg_id # Return as binary
       nil
     end
 
@@ -760,9 +756,7 @@ module Cosmos
       Store.instance.tlm_packet_exist?(target_name, packet_name, scope: scope)
       topic = "#{scope}__TELEMETRY__#{target_name}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
-      if msg_id
-        return msg_hash['buffer'].encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
-      end
+      return msg_hash['buffer'].b if msg_id # Return as binary
       nil
     end
 
@@ -824,15 +818,19 @@ module Cosmos
     # their target and packet names.
     #
     # @version 5.0.0
-    # @param (see Cosmos::Telemetry#values_and_limits_states)
-    # @return [Array<Array<Object>, Array<Symbol>>]
-    #   Array consisting of an Array of item values and an Array of item limits state
+    # @param items [Array<String>] Array of items consisting of 'tgt__pkt__item__type'
+    # @return [Array<Object, Symbol>]
+    #   Array consisting of the item value and limits state
     #   given as symbols such as :RED, :YELLOW, :STALE
-    def get_tlm_values(item_array, value_types = :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
-      item_array.each do |target_name, packet_name, item_name|
+    def get_tlm_values(items, scope: $cosmos_scope, token: $cosmos_token)
+      if !items.is_a?(Array) || !items[0].is_a?(String)
+        raise ArgumentError, "items must be array of strings: ['TGT__PKT__ITEM__TYPE', ...]"
+      end
+      items.each do |item|
+        target_name, packet_name, item_name, type = item.split('__')
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       end
-      Store.instance.get_tlm_values(item_array, value_types, scope: scope)
+      Store.instance.get_tlm_values(items, scope: scope)
     end
 
     # Returns an array of all the telemetry packet hashes
@@ -919,17 +917,67 @@ module Cosmos
       details
     end
 
-    # (see Cosmos::Limits#out_of_limits)
+    # Return an array of arrays indicating all items in the packet that are out of limits
+    #   [[target name, packet name, item name, item limits state], ...]
+    #
+    # @return [Array<Array<String, String, String, String>>]
     def get_out_of_limits(scope: $cosmos_scope, token: $cosmos_token)
-      # Todo: Need to check permission on each returned item
       authorize(permission: 'tlm', scope: scope, token: token)
-      return System.limits.out_of_limits(scope: scope)
+      out_of_limits = []
+      limits = Store.instance.hgetall("#{scope}__current_limits")
+      limits.each do |item, limits_state|
+        if %w(RED RED_HIGH RED_LOW YELLOW YELLOW_HIGH YELLOW_LOW).include?(limits_state)
+          target_name, packet_name, item_name = item.split('__')
+          out_of_limits << [target_name, packet_name, item_name, limits_state]
+        end
+      end
+      out_of_limits
     end
 
-    # (see Cosmos::Limits#overall_limits_state)
+    # Get the overall limits state which is the worse case of all limits items.
+    # For example if any limits are YELLOW_LOW or YELLOW_HIGH then the overall limits state is YELLOW.
+    # If a single limit item then turns RED_HIGH the overall limits state is RED.
+    #
+    # @param ignored_items [Array<Array<String, String, String|nil>>] Array of [TGT, PKT, ITEM] strings
+    #   to ignore when determining overall state. Note, ITEM can be nil to indicate to ignore entire packet.
+    # @return [String] The overall limits state for the system, one of 'GREEN', 'YELLOW', 'RED'
     def get_overall_limits_state(ignored_items = nil, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'tlm', scope: scope, token: token)
-      return System.limits.overall_limits_state(ignored_items, scope: scope)
+      # We only need to check out of limits items so call get_out_of_limits() which authorizes
+      out_of_limits = get_out_of_limits(scope: scope, token: token)
+      overall = 'GREEN'
+      limits_packet_stale = false # TODO: Calculate stale
+
+      # Build easily matchable ignore list
+      if ignored_items
+        ignored_items.map! do |item|
+          raise "Invalid ignored item: #{item}. Must be [TGT, PKT, ITEM] where ITEM can be nil." if item.length != 3
+          item.join('__')
+        end
+      else
+        ignored_items = []
+      end
+
+      out_of_limits.each do |target_name, packet_name, item_name, limits_state|
+        # Ignore this item if we match one of the ignored items. Checking against /^#{item}/
+        # allows us to detect matches against a TGT__PKT__ with no item defined.
+        next if ignored_items.detect { |item| "#{target_name}__#{packet_name}__#{item_name}" =~ /^#{item}/ }
+        case overall
+          # If our overall state is currently blue or green we can go to any state
+        when 'BLUE', 'GREEN', 'GREEN_HIGH', 'GREEN_LOW'
+          overall = limits_state
+        # If our overal state is yellow we can only go higher to red
+        when 'YELLOW', 'YELLOW_HIGH', 'YELLOW_LOW'
+          if limits_state == 'RED' || limits_state == 'RED_HIGH' || limits_state == 'RED_LOW'
+            overall = limits_state
+            break # Red is as high as we go so no need to look for more
+          end
+        end
+      end
+      overall = 'GREEN' if overall == 'GREEN_HIGH' || overall == 'GREEN_LOW' || overall == 'BLUE'
+      overall = 'YELLOW' if overall == 'YELLOW_HIGH' || overall == 'YELLOW_LOW'
+      overall = 'RED' if overall == 'RED_HIGH' || overall == 'RED_LOW'
+      overall = 'STALE' if (overall == 'GREEN' || overall == 'BLUE') && limits_packet_stale
+      return overall
     end
 
     # Whether the limits are enabled for the given item
@@ -1859,7 +1907,7 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{method_name}()"
       end
       authorize(permission: 'cmd', target_name: target_name, packet_name: cmd_name, scope: scope, token: token)
-      Store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, scope: scope) unless @disconnect
+      Store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, scope: scope)
       [target_name, cmd_name, cmd_params]
     end
 
