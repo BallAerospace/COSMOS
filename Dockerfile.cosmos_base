@@ -23,20 +23,20 @@ RUN apt-get update -y && apt-get install -y \
   zlib1g \
   zlib1g-dev
 
+RUN git config --global http.sslCAinfo /devel/cacert.pem
+
 RUN gem install bundler
 
 COPY cosmos.gemspec /cosmos/cosmos.gemspec
 COPY Gemfile /cosmos/Gemfile
+RUN cd /cosmos && bundle install --without=development
 COPY Rakefile /cosmos/Rakefile
+COPY tasks /cosmos/tasks
+COPY ext /cosmos/ext
+RUN cd /cosmos && mkdir lib && cd lib && mkdir cosmos && cd cosmos && mkdir ext
+RUN cd /cosmos && bundle exec rake build
 COPY bin /cosmos/bin
 COPY data /cosmos/data
-COPY ext /cosmos/ext
 COPY lib /cosmos/lib
-COPY tasks /cosmos/tasks
 
 ENV COSMOS_PATH="/cosmos"
-
-RUN git config --global http.sslCAinfo /devel/cacert.pem
-
-RUN cd /cosmos && bundle install --without=development
-RUN cd /cosmos && bundle exec rake build

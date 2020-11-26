@@ -47,74 +47,43 @@ module Cosmos
 
     # Get the singleton instance of System
     #
-    # @param target_list [Array of Hashes{target_name, substitute_name, target_filename, target_id}]
+    # @param target_names [Array of target_names]
     # @param target_config_dir Directory where target config folders are
     # @return [System] The System singleton
-    def self.instance(target_list = nil, target_config_dir = nil)
+    def self.instance(target_names = nil, target_config_dir = nil)
       return @@instance if @@instance
-      raise "System.instance parameters are required on first call" unless target_list and target_config_dir
+      raise "System.instance parameters are required on first call" unless target_names and target_config_dir
       @@instance_mutex.synchronize do
-        @@instance ||= self.new(target_list, target_config_dir)
+        @@instance ||= self.new(target_names, target_config_dir)
         return @@instance
       end
     end
 
-    # Create a new System object. Note, this should not be called directly but
-    # you should instead use System.instance and treat this class as a
-    # singleton.
+    # Create a new System object.
     #
-    # @param target_list [Array of Hashes{target_name, substitute_name, target_filename, target_id}]
+    # @param target_names [Array of target names]
     # @param target_config_dir Directory where target config folders are
-    def initialize(target_list, target_config_dir)
-      raise "Cosmos::System created twice" unless @@instance.nil?
+    def initialize(target_names, target_config_dir)
       @targets = {}
-      @packet_config = nil
-      @commands = nil
-      @telemetry = nil
-      @limits = nil
-      process_targets(target_list, target_config_dir)
-      load_packets()
-      @@instance = self
-    end
-
-    # Create all the Target instances in the system.
-    #
-    # @param target_list [Array of Hashes{target_name, substitute_name, target_filename, target_id}]
-    # @param target_config_dir Directory where target config folders are
-    def process_targets(target_list, target_config_dir)
-      parser = ConfigParser.new
-      target_list.each do |item|
-        target_name = item['target_name']
-        original_name = item['original_name']
-        target_filename = item['target_filename']
-        if original_name
-          folder_name = File.join(target_config_dir, original_name)
-        else
-          folder_name = File.join(target_config_dir, target_name)
-        end
-        raise parser.error("Target folder must exist '#{folder_name}'.") unless Dir.exist?(folder_name)
-        target = Target.new(target_name, original_name, target_config_dir, target_filename)
-        target.id = item['target_id']
-        @targets[target.name] = target
-      end
-    end
-
-    # Load all of the commands and telemetry into the System
-    def load_packets
-      # Load configuration
       @packet_config = PacketConfig.new
       @commands = Commands.new(@packet_config)
       @telemetry = Telemetry.new(@packet_config)
       @limits = Limits.new(@packet_config)
+      target_names.each { |target_name| add_target(target_name, target_config_dir) }
+    end
 
-      @targets.each do |target_name, target|
-        target.cmd_tlm_files.each do |cmd_tlm_file|
-          begin
-            @packet_config.process_file(cmd_tlm_file, target.name)
-          rescue Exception => err
-            Logger.error "Problem processing #{cmd_tlm_file}."
-            raise err
-          end
+    def add_target(target_name, target_config_dir)
+      parser = ConfigParser.new
+      folder_name = File.join(target_config_dir, target_name)
+      raise parser.error("Target folder must exist '#{folder_name}'.") unless Dir.exist?(folder_name)
+      target = Target.new(target_name, target_config_dir)
+      @targets[target.name] = target
+      target.cmd_tlm_files.each do |cmd_tlm_file|
+        begin
+          @packet_config.process_file(cmd_tlm_file, target.name)
+        rescue Exception => err
+          Logger.error "Problem processing #{cmd_tlm_file}."
+          raise err
         end
       end
     end

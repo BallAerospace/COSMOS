@@ -66,26 +66,34 @@ export default {
     },
     add() {},
     deleteInterface(name) {
-      axios
-        .delete('http://localhost:7777/routers/0', {
-          params: { name: name, scope: 'DEFAULT' },
+      var self = this
+      this.$dialog
+        .confirm('Are you sure you want to remove: ' + name, {
+          okText: 'Delete',
+          cancelText: 'Cancel',
         })
-        .then((response) => {
-          this.alert = 'Removed router ' + name
-          this.alertType = 'success'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-          this.update()
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
+        .then(function (dialog) {
+          axios
+            .delete('http://localhost:7777/routers/' + name, {
+              params: { scope: 'DEFAULT' },
+            })
+            .then((response) => {
+              self.alert = 'Removed router ' + name
+              self.alertType = 'success'
+              self.showAlert = true
+              setTimeout(() => {
+                self.showAlert = false
+              }, 5000)
+              self.update()
+            })
+            .catch((error) => {
+              self.alert = error
+              self.alertType = 'error'
+              self.showAlert = true
+              setTimeout(() => {
+                self.showAlert = false
+              }, 5000)
+            })
         })
     },
   },

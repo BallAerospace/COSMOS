@@ -106,26 +106,34 @@ export default {
       }
     },
     deleteScope(scope) {
-      axios
-        .delete('http://localhost:7777/scopes/0', {
-          params: { scope: scope },
+      var self = this
+      this.$dialog
+        .confirm('Are you sure you want to remove: ' + scope, {
+          okText: 'Delete',
+          cancelText: 'Cancel',
         })
-        .then((response) => {
-          this.alert = 'Removed scope ' + scope
-          this.alertType = 'success'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-          this.update()
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
+        .then(function (dialog) {
+          axios
+            .delete('http://localhost:7777/scopes/' + scope, {
+              params: { scope: scope },
+            })
+            .then((response) => {
+              self.alert = 'Removed scope ' + scope
+              self.alertType = 'success'
+              self.showAlert = true
+              setTimeout(() => {
+                self.showAlert = false
+              }, 5000)
+              self.update()
+            })
+            .catch((error) => {
+              self.alert = error
+              self.alertType = 'error'
+              self.showAlert = true
+              setTimeout(() => {
+                self.showAlert = false
+              }, 5000)
+            })
         })
     },
   },

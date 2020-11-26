@@ -2,3 +2,5 @@ demo/outputs/**
 install/outputs/**
 web/frontend/node_modules
 web/**/log
+Gemfile.lock
+**/*.so

@@ -10,7 +10,15 @@ class GemsController < ApplicationController
     authorize(permission: 'admin', scope: params[:scope], token: params[:token])
     file = params[:gem]
     if file
-      result = Cosmos::GemModel.put(file)
+      temp_dir = Dir.mktmpdir
+      result = false
+      begin
+        gem_file_path = temp_dir + '/' + file.original_filename
+        FileUtils.cp(file.tempfile.path, gem_file_path)
+        result = Cosmos::GemModel.put(gem_file_path)
+      ensure
+        FileUtils.remove_entry(temp_dir) if temp_dir and File.exists?(temp_dir)
+      end
       if result
         head :ok
       else
@@ -24,8 +32,8 @@ class GemsController < ApplicationController
   # Remove a gem
   def destroy
     authorize(permission: 'super_admin', scope: params[:scope], token: params[:token])
-    if params[:gem]
-      result = Cosmos::GemModel.destroy(params[:gem])
+    if params[:id]
+      result = Cosmos::GemModel.destroy(params[:id])
       if result
         head :ok
       else

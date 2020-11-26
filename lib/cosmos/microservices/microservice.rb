@@ -55,23 +55,20 @@ module Cosmos
       else
         @config = {}
       end
+      Logger.info("Microservice initialized with config:\n#{@config}")
       @topics ||= []
 
       # Get configuration for any targets from Minio/S3
-      @target_list = @config["target_list"]
-      @target_list ||= []
+      @target_names = @config["target_names"]
+      @target_names ||= []
       rubys3_client = Aws::S3::Client.new
-      @target_list.each do |item|
+      @target_names.each do |target_name|
         # Retrieve bucket/targets/target_name/target_id.zip
-        response_target = "#{@temp_dir}/targets/#{item["target_id"]}.zip"
+        response_target = "#{@temp_dir}/targets/#{target_name}_current.zip"
         FileUtils.mkdir_p(File.dirname(response_target))
-        if item["original_name"]
-          s3_key = "#{item["original_name"]}/#{item["target_id"]}.zip"
-        else
-          s3_key = "#{item["target_name"]}/#{item["target_id"]}.zip"
-        end
+        s3_key = "#{@scope}/target_archives/#{target_name}/#{target_name}_current.zip"
         Logger.info("Retrieving #{s3_key} from targets bucket")
-        rubys3_client.get_object(bucket: "targets", key: s3_key, response_target: response_target)
+        rubys3_client.get_object(bucket: "config", key: s3_key, response_target: response_target)
         Zip::File.open(response_target) do |zip_file|
           zip_file.each do |entry|
             path = File.join("#{@temp_dir}/targets", entry.name)
@@ -82,7 +79,7 @@ module Cosmos
       end
 
       # Build System from targets
-      System.instance(@target_list, "#{@temp_dir}/targets")
+      System.instance(@target_names, "#{@temp_dir}/targets")
 
       # Use at_exit to shutdown cleanly no matter how we are die
       at_exit do

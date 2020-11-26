@@ -351,7 +351,7 @@ module Cosmos
       config_parser_erb_variables ||= {}
       config_parser_erb_binding = binding
       config_parser_erb_variables.each do |config_parser_erb_variables_key, config_parser_erb_variables_value|
-        config_parser_erb_binding.set_local_variable(config_parser_erb_variables_key.intern, config_parser_erb_variables_value)
+        config_parser_erb_binding.local_variable_set(config_parser_erb_variables_key.intern, config_parser_erb_variables_value)
       end
       return config_parser_erb_binding
     end

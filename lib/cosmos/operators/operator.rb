@@ -14,15 +14,19 @@ require 'cosmos'
 module Cosmos
   class OperatorProcess
     attr_accessor :process_definition
+    attr_accessor :work_dir
+    attr_accessor :env
     attr_reader :scope
 
     def self.setup
       # Perform any setup steps necessary
     end
 
-    def initialize(process_definition, scope)
+    def initialize(process_definition, work_dir: '/cosmos/lib/microservices', env: {}, scope:)
       @process = nil
       @process_definition = process_definition
+      @work_dir = work_dir
+      @env = env
       @scope = scope
     end
 
@@ -31,6 +35,10 @@ module Cosmos
       @process = ChildProcess.build(*@process_definition)
       # This lets the ChildProcess use the parent IO ... but it breaks unit tests
       # @process.io.inherit!
+      @process.cwd = @work_dir
+      @env.each do |key, value|
+        @process.environment[key] = value
+      end
       @process.start
     end
 

@@ -624,7 +624,7 @@ export default {
           this.editor.getValue() // Pass in the raw text
         )
         .then((response) => {
-          console.log(response.data)
+          //console.log(response.data)
           this.infoTitle = response.data.title
           this.infoText = JSON.parse(response.data.description)
           this.infoDialog = true

@@ -112,30 +112,37 @@ export default {
       }
     },
     deleteGem(gem) {
-      axios
-        .delete('http://localhost:7777/gems/0', {
-          params: {
-            gem: gem,
-            scope: 'DEFAULT',
-            token: localStorage.getItem('token'),
-          },
+      var self = this
+      this.$dialog
+        .confirm('Are you sure you want to remove: ' + gem, {
+          okText: 'Delete',
+          cancelText: 'Cancel',
         })
-        .then((response) => {
-          this.alert = 'Removed gem ' + gem
-          this.alertType = 'success'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-          this.update()
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
+        .then(function (dialog) {
+          axios
+            .delete('http://localhost:7777/gems/' + gem, {
+              params: {
+                scope: 'DEFAULT',
+                token: localStorage.getItem('token'),
+              },
+            })
+            .then((response) => {
+              self.alert = 'Removed gem ' + gem
+              self.alertType = 'success'
+              self.showAlert = true
+              setTimeout(() => {
+                self.showAlert = false
+              }, 5000)
+              self.update()
+            })
+            .catch((error) => {
+              self.alert = error
+              self.alertType = 'error'
+              self.showAlert = true
+              setTimeout(() => {
+                self.showAlert = false
+              }, 5000)
+            })
         })
     },
   },

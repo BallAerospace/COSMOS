@@ -43,7 +43,7 @@ module Cosmos
     def get_interfaces(scope: $cosmos_scope)
       result = []
       @redis_pool.with do |redis|
-        interfaces = redis.hgetall("#{scope}__cosmos_interfaces")
+        interfaces = redis.hgetall("#{scope}__cosmos_interface_status")
         interfaces.each do |interface_name, interface_json|
           result << JSON.parse(interface_json)
         end
@@ -53,8 +53,8 @@ module Cosmos
 
     def get_interface(interface_name, scope: $cosmos_scope)
       @redis_pool.with do |redis|
-        if redis.hexists("#{scope}__cosmos_interfaces", interface_name)
-          return JSON.parse(redis.hget("#{scope}__cosmos_interfaces", interface_name))
+        if redis.hexists("#{scope}__cosmos_interface_status", interface_name)
+          return JSON.parse(redis.hget("#{scope}__cosmos_interface_status", interface_name))
         else
           raise "Interface '#{interface_name}' does not exist"
         end
@@ -63,8 +63,8 @@ module Cosmos
 
     def set_interface(interface, initialize: false, scope: $cosmos_scope)
       @redis_pool.with do |redis|
-        if initialize || redis.hexists("#{scope}__cosmos_interfaces", interface.name)
-          return redis.hset("#{scope}__cosmos_interfaces", interface.name, JSON.generate(interface.as_json))
+        if initialize || redis.hexists("#{scope}__cosmos_interface_status", interface.name)
+          return redis.hset("#{scope}__cosmos_interface_status", interface.name, JSON.generate(interface.as_json))
         else
           raise "Interface '#{interface.name}' does not exist"
         end
@@ -73,7 +73,7 @@ module Cosmos
 
     def write_interface(interface_name, hash, scope: $cosmos_scope)
       @redis_pool.with do |redis|
-        if redis.hexists("#{scope}__cosmos_interfaces", interface_name)
+        if redis.hexists("#{scope}__cosmos_interface_status", interface_name)
           write_topic("#{scope}__CMDINTERFACE__#{interface_name}", hash)
         else
           raise "Interface '#{interface_name}' does not exist"
@@ -544,7 +544,7 @@ module Cosmos
       result = []
       @redis_pool.with do |redis|
         tools = redis.hgetall("#{scope}__cosmos_tools")
-        STDOUT.puts "DUDE: #{tools.inspect}: #{scope}__cosmos_tools"
+        #STDOUT.puts "DUDE: #{tools.inspect}: #{scope}__cosmos_tools"
         tools.each do |tool_name, tool_json|
           tool = JSON.parse(tool_json)
           tool[:name] = tool_name
@@ -555,7 +555,7 @@ module Cosmos
     end
 
     def set_tool(tool_name, tool_data, scope: $cosmos_scope)
-      STDOUT.puts "Sweet: #{tool_name}: #{scope}__cosmos_tools"
+      #STDOUT.puts "Sweet: #{tool_name}: #{scope}__cosmos_tools"
       hset("#{scope}__cosmos_tools", tool_name, JSON.generate(tool_data.as_json))
     end
 

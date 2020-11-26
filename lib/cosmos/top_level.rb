@@ -301,14 +301,14 @@ module Cosmos
   # @param additional_data [String] Additional data to add to the hashing sum
   # @param hashing_algorithm [String] Hashing algorithm to use
   # @return [Digest::<algorithm>] The hashing sum object
-  def self.hash_files(filenames, additional_data = nil, hashing_algorithm = 'MD5')
+  def self.hash_files(filenames, additional_data = nil, hashing_algorithm = 'SHA256')
     digest = Digest.const_get(hashing_algorithm).send('new')
 
     Cosmos.set_working_dir do
       filenames.each do |filename|
         next if File.directory?(filename)
         # Read the file's data and add to the running hashing sum
-        digest << File.read(filename).gsub(/\r/,'')
+        digest << File.read(filename)
       end
     end
     digest << additional_data if additional_data

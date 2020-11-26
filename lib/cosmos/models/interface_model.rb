@@ -26,12 +26,15 @@ module Cosmos
       options: [],
       protocols: [],
       interfaces: [],
-      scope: nil)
-      interface_or_router = self.class.name.to_s.split("Model")[0].upcase
+      log: true,
+      log_raw: false,
+      updated_at: nil,
+      scope:)
+      interface_or_router = self.class.name.to_s.split("Model")[0].upcase.split("::")[-1]
       if interface_or_router == 'INTERFACE'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name)
+        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name, updated_at: updated_at)
       else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", name: name)
+        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", name: name, updated_at: updated_at)
       end
       @config_params = config_params
       @target_names = target_names
@@ -42,6 +45,8 @@ module Cosmos
       @options = options
       @protocols = protocols
       @interfaces = interfaces
+      @log = log
+      @log_raw = log_raw
     end
 
     def build
@@ -61,9 +66,8 @@ module Cosmos
       end
       @protocols.each do |protocol|
         klass = Cosmos.require_class(protocol[1])
-        current_interface_or_router.add_protocol(klass, protocol[2..-1], protocol[0].upcase.intern)
+        interface_or_router.add_protocol(klass, protocol[2..-1], protocol[0].upcase.intern)
       end
-      interface_or_router.protocols = @protocols
       interface_or_router.interfaces = @interfaces
       interface_or_router
     end
@@ -79,12 +83,15 @@ module Cosmos
         'disable_disconnect' => @disable_disconnect,
         'options' => @options,
         'protocols' => @protocols,
-        'interfaces' => @interfaces
+        'interfaces' => @interfaces,
+        'log' => @log,
+        'log_raw' => @log_raw,
+        'updated_at' => @updated_at
       }
     end
 
     def as_config
-      interface_or_router = self.class.name.to_s.split("Model")[0].upcase
+      interface_or_router = self.class.name.to_s.split("Model")[0].upcase.split("::")[-1]
       result = "#{interface_or_router} #{@name} #{@config_params.join(' ')}\n"
       @target_names.each do |target_name|
         result << "  MAP_TARGET #{target_name}\n"
@@ -102,38 +109,46 @@ module Cosmos
       @interfaces.each do |interface|
         result << "  ROUTE #{interface}\n"
       end
+      result << "  DONT_LOG" unless @log
+      result << "  LOG_RAW" if @log_raw
       result
     end
 
-    def self.handle_config(primary_key, parser, model, keyword, parameters)
+    def self.handle_config(parser, keyword, parameters, scope:)
       case keyword
       when 'INTERFACE', 'ROUTER'
         parser.verify_num_parameters(2, nil, "INTERFACE/ROUTER <Name> <Filename> <Specific Parameters>")
-        return self.new(name: parameters[0].upcase, config_params: parameters[1..-1])
+        return self.new(name: parameters[0].upcase, config_params: parameters[1..-1], scope: scope)
+      else
+        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Interface/Router: #{keyword} #{parameters.join(" ")}")
+      end
+    end
 
+    def handle_config(parser, keyword, parameters, scope:)
+      case keyword
       when 'MAP_TARGET'
         parser.verify_num_parameters(1, 1, "#{keyword} <Target Name>")
-        model.target_names << parameters[0].upcase
+        @target_names << parameters[0].upcase
 
       when 'DONT_CONNECT'
         parser.verify_num_parameters(0, 0, "#{keyword}")
-        model.connect_on_startup = false
+        @connect_on_startup = false
 
       when 'DONT_RECONNECT'
         parser.verify_num_parameters(0, 0, "#{keyword}")
-        model.auto_reconnect = false
+        @auto_reconnect = false
 
       when 'RECONNECT_DELAY'
         parser.verify_num_parameters(1, 1, "#{keyword} <Delay in Seconds>")
-        model.reconnect_delay = Float(parameters[0])
+        @reconnect_delay = Float(parameters[0])
 
       when 'DISABLE_DISCONNECT'
         parser.verify_num_parameters(0, 0, "#{keyword}")
-        model.disable_disconnect = true
+        @disable_disconnect = true
 
       when 'OPTION'
         parser.verify_num_parameters(2, nil, "#{keyword} <Option Name> <Option Value 1> <Option Value 2 (optional)> <etc>")
-        model.options << parameters.dup
+        @options << parameters.dup
 
       when 'PROTOCOL'
         usage = "#{keyword} <READ WRITE READ_WRITE> <protocol filename or classname> <Protocol specific parameters>"
@@ -141,11 +156,19 @@ module Cosmos
         unless %w(READ WRITE READ_WRITE).include? parameters[0].upcase
           raise parser.error("Invalid protocol type: #{parameters[0]}", usage)
         end
-        model.protocols << parameters.dup
+        @protocols << parameters.dup
 
       when 'ROUTE'
         parser.verify_num_parameters(1, 1, "ROUTE <Interface Name>")
-        model.interfaces << parameters[0].upcase
+        @interfaces << parameters[0].upcase
+
+      when 'DONT_LOG'
+        parser.verify_num_parameters(0, 0, "#{keyword}")
+        @log = false
+
+      when 'LOG_RAW'
+        parser.verify_num_parameters(0, 0, "#{keyword}")
+        @log_raw = true
 
       else
         raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Interface/Router: #{keyword} #{parameters.join(" ")}")
@@ -155,40 +178,61 @@ module Cosmos
       return nil
     end
 
-    def self.from_json(json, scope: nil)
-      json = JSON.parse(json) if String === json
-      interface_or_router = self.name.to_s.split("Model")[0].upcase
+    def self.get(name:, scope: nil)
+      interface_or_router = self.name.to_s.split("Model")[0].upcase.split("::")[-1]
       if interface_or_router == 'INTERFACE'
-        self.new("#{scope}__#{INTERFACES_PRIMARY_KEY}", **json)
+        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name)
       else
-        self.new("#{scope}__#{ROUTERS_PRIMARY_KEY}", **json)
+        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", name: name)
       end
     end
 
-    def self.get(name:, scope: nil, token: nil)
-      interface_or_router = self.name.to_s.split("Model")[0].upcase
+    def self.names(scope: nil)
+      interface_or_router = self.name.to_s.split("Model")[0].upcase.split("::")[-1]
       if interface_or_router == 'INTERFACE'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name, scope: scope, token: token)
+        result = super("#{scope}__#{INTERFACES_PRIMARY_KEY}")
+        result
       else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", name: name, scope: scope, token: token)
+        super("#{scope}__#{ROUTERS_PRIMARY_KEY}")
       end
     end
 
-    def self.names(scope: nil, token: nil)
-      interface_or_router = self.name.to_s.split("Model")[0].upcase
+    def self.all(scope: nil)
+      interface_or_router = self.name.to_s.split("Model")[0].upcase.split("::")[-1]
       if interface_or_router == 'INTERFACE'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", scope: scope, token: token)
+        super("#{scope}__#{INTERFACES_PRIMARY_KEY}")
       else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", scope: scope, token: token)
+        super("#{scope}__#{ROUTERS_PRIMARY_KEY}")
       end
     end
 
-    def self.all(scope: nil, token: nil)
-      interface_or_router = self.name.to_s.split("Model")[0].upcase
+    def deploy(gem_path, variables, scope:)
+      interface_or_router = self.class.name.to_s.split("Model")[0].upcase.split("::")[-1]
+
       if interface_or_router == 'INTERFACE'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", scope: scope, token: token)
+        # Interface Microservice
+        microservice_name = "#{scope}__INTERFACE__#{@name}"
+        microservice = MicroserviceModel.new(
+          name: microservice_name,
+          cmd: ["ruby", "interface_microservice.rb", microservice_name],
+          work_dir: '/cosmos/lib/cosmos/microservices',
+          target_names: @target_names,
+          scope: scope)
+        microservice.create
+        microservice.deploy(gem_path, variables, scope: scope)
+        Logger.info "Configured Interface Microservice #{microservice_name}"
       else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", scope: scope, token: token)
+        # Router Microservice
+        microservice_name = "#{scope}__ROUTER__#{@name}"
+        microservice = MicroserviceModel.new(
+          name: microservice_name,
+          cmd: ["ruby", "router_microservice.rb", microservice_name],
+          work_dir: '/cosmos/lib/cosmos/microservices',
+          target_names: @target_names,
+          scope: scope)
+        microservice.create
+        microservice.deploy(gem_path, variables, scope: scope)
+        Logger.info "Configured Router Microservice #{microservice_name}"
       end
     end
   end

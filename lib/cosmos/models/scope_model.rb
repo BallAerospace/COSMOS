@@ -4,12 +4,14 @@ module Cosmos
   class ScopeModel < Model
     PRIMARY_KEY = 'cosmos_scopes'
 
-    def initialize(name:, scope: nil)
-      super(PRIMARY_KEY, name: name)
+    def initialize(name:, updated_at: nil, scope: nil)
+      super(PRIMARY_KEY, name: name, updated_at: updated_at)
     end
 
     def as_json
-      { 'name' => @name }
+      { 'name' => @name,
+        'updated_at' => @updated_at
+      }
     end
 
     def as_config
@@ -27,21 +29,16 @@ module Cosmos
       return nil
     end
 
-    def self.from_json(json, scope: nil)
-      json = JSON.parse(json) if String === json
-      self.new(PRIMARY_KEY, **json)
+    def self.get(name:, scope: nil)
+      super(PRIMARY_KEY, name: name)
     end
 
-    def self.get(name:, scope: nil, token:  nil)
-      super(PRIMARY_KEY, name: name, scope: scope, token: token)
+    def self.names(scope: nil)
+      super(PRIMARY_KEY)
     end
 
-    def self.names(scope: nil, token: nil)
-      super(PRIMARY_KEY, scope: scope, token: token)
-    end
-
-    def self.all(scope: nil, token: nil)
-      super(PRIMARY_KEY, scope: scope, token: token)
+    def self.all(scope: nil)
+      super(PRIMARY_KEY)
     end
   end
 end

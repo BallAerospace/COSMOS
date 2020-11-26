@@ -10,7 +10,7 @@
 
 require 'open3'
 
-# Cross-platform way of finding an executable in the $PATH.
+# Cross-platform way of finding an executable in the $PATH  .
 #
 #   which('ruby') #=> /usr/bin/ruby
 def which(cmd)

@@ -19,6 +19,7 @@ module Cosmos
   class MicroserviceOperator < Operator
     def initialize
       Logger.microservice_name = 'MicroserviceOperator'
+      Logger.stdout = true
       super
 
       @microservices = {}
@@ -30,21 +31,34 @@ module Cosmos
 
     def convert_microservice_to_process_definition(microservice_name, microservice_config)
       microservice_config_parsed = JSON.parse(microservice_config)
-      filename = microservice_config_parsed["filename"]
-      relative_filename = File.expand_path(File.join(__dir__, "../microservices/#{filename}"))
+      work_dir = microservice_config_parsed["work_dir"]
+      cmd_array = microservice_config_parsed["cmd"]
+      env = microservice_config_parsed["env"]
       scope = microservice_name.split("__")[0]
-      if File.exist?(relative_filename)
-        # Run ruby syntax so we can log those
-        syntax_check, _ = Open3.capture2e("#{@ruby_process_name} -c #{relative_filename}")
-        if syntax_check =~ /Syntax OK/
-          return [@ruby_process_name, relative_filename, microservice_name]
-        else
-          Logger.error("Microservice #{relative_filename} failed syntax check\n#{syntax_check}", scope: scope)
+      ruby_filename = nil
+      #STDOUT.puts cmd_array
+      cmd_array.each do |part|
+        if part =~ /\.rb$/
+          ruby_filename = part
+          break
         end
-      else
-        Logger.error("Microservice #{relative_filename} does not exist", scope: scope)
       end
-      return nil
+      if ruby_filename
+        Cosmos.set_working_dir(work_dir) do
+          if File.exist?(ruby_filename)
+            # Run ruby syntax so we can log those
+            syntax_check, _ = Open3.capture2e("ruby -c #{ruby_filename}")
+            if syntax_check =~ /Syntax OK/
+              Logger.info("Ruby microservice #{microservice_name} file #{ruby_filename} passed syntax check\n", scope: scope)
+            else
+              Logger.error("Ruby microservice #{microservice_name} file #{ruby_filename} failed syntax check\n#{syntax_check}", scope: scope)
+            end
+          else
+            Logger.error("Ruby microservice #{microservice_name} file #{ruby_filename} does not exist", scope: scope)
+          end
+        end
+      end
+      return cmd_array, work_dir, env, scope
     end
 
     def update
@@ -77,26 +91,26 @@ module Cosmos
       # Convert to processes
       @mutex.synchronize do
         @new_microservices.each do |microservice_name, microservice_config|
-          process_definition = convert_microservice_to_process_definition(microservice_name, microservice_config)
-          if process_definition
-            scope = microservice_name.split("__")[0]
-            process = OperatorProcess.new(process_definition, scope)
+          cmd_array, work_dir, env, scope = convert_microservice_to_process_definition(microservice_name, microservice_config)
+          if cmd_array
+            process = OperatorProcess.new(cmd_array, work_dir: work_dir, env: env, scope: scope)
             @new_processes[microservice_name] = process
             @processes[microservice_name] = process
           end
         end
 
         @changed_microservices.each do |microservice_name, microservice_config|
-          process_definition = convert_microservice_to_process_definition(microservice_name, microservice_config)
-          if process_definition
+          cmd_array, work_dir, env, scope = convert_microservice_to_process_definition(microservice_name, microservice_config)
+          if cmd_array
             process = @processes[microservice_name]
             if process
-              process.process_definition = process_definition
+              process.process_definition = cmd_array
+              process.work_dir = work_dir
+              process.env = env
               @changed_processes[microservice_name] = process
             else # TODO: How is this even possible?
-              scope = microservice_name.split("__")[0]
               Logger.error("Changed microservice #{microservice_name} does not exist. Creating new...", scope: scope)
-              process = OperatorProcess.new(process_definition, scope)
+              process = OperatorProcess.new(cmd_array, work_dir: work_dir, env: env, scope: scope)
               @new_processes[microservice_name] = process
               @processes[microservice_name] = process
             end

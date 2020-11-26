@@ -69,6 +69,44 @@ export default new Router({
       path: '/admin',
       name: 'Admin',
       component: () => import('./views/AdminView.vue'),
+      children: [
+        {
+          component: () => import('./tools/CosmosAdmin/PluginsTab'),
+          path: '',
+        },
+        {
+          component: () => import('./tools/CosmosAdmin/PluginsTab'),
+          path: 'plugins',
+        },
+        {
+          component: () => import('./tools/CosmosAdmin/TargetsTab'),
+          path: 'targets',
+        },
+        {
+          component: () => import('./tools/CosmosAdmin/InterfacesTab'),
+          path: 'interfaces',
+        },
+        {
+          component: () => import('./tools/CosmosAdmin/RoutersTab'),
+          path: 'routers',
+        },
+        {
+          component: () => import('./tools/CosmosAdmin/MicroservicesTab'),
+          path: 'microservices',
+        },
+        {
+          component: () => import('./tools/CosmosAdmin/ToolsTab'),
+          path: 'tools',
+        },
+        {
+          component: () => import('./tools/CosmosAdmin/GemsTab'),
+          path: 'gems',
+        },
+        {
+          component: () => import('./tools/CosmosAdmin/ScopesTab'),
+          path: 'scopes',
+        },
+      ],
     },
     // TODO: Create NotFoundComponent since we're doing history browser mode
     // See: https://router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations

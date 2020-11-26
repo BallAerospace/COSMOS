@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/microservices/microservice'
+require 'cosmos/models/interface_model'
 
 module Cosmos
   class InterfaceCmdHandlerThread
@@ -123,13 +124,13 @@ module Cosmos
 
     def initialize(name)
       super(name)
+      scope = name.split("__")[0]
       interface_name = name.split("__")[2]
-      @interface = Cosmos.require_class(@config['interface_params'][0]).new(*@config['interface_params'][1..-1])
+      @interface = InterfaceModel.from_json(InterfaceModel.get(name: interface_name, scope: scope), scope: scope).build
       @interface.name = interface_name
-      @config["target_list"].each do |item|
-        @interface.target_names << item["target_name"]
-        target = System.targets[item["target_name"]]
-        # TODO: Shouldn't this mapping be happening in the cmd_tlm_server_config?
+      @config["target_names"].each do |target_name|
+        @interface.target_names << target_name
+        target = System.targets[target_name]
         target.interface = @interface
         Store.instance.set_target(target, scope: @scope) if target
       end
@@ -140,7 +141,6 @@ module Cosmos
       end
       Store.instance.set_interface(@interface, initialize: true, scope: @scope)
 
-      # TODO: Need to set any additional interface options like protocols
       @interface_thread_sleeper = Sleeper.new
       @cancel_thread = false
       @connection_failed_messages = []

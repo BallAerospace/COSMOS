@@ -20,13 +20,6 @@ module Cosmos
     #   the system processes the target.
     attr_reader :name
 
-    # @return [String] Name of the target as defined by the
-    #   target directory name. This name does not change.
-    attr_reader :original_name
-
-    # @return [Boolean] Indicates if substitution should take place or not
-    attr_reader :substitute
-
     # @return [Array<String>] List of filenames that must be required by Ruby
     #   before parsing the command and telemetry definitions for this target
     attr_reader :requires
@@ -41,9 +34,6 @@ module Cosmos
     #   items.
     attr_reader :ignored_items
 
-    # @return [Boolean] Whether auto screen substitution is enabled
-    attr_reader :auto_screen_substitute
-
     # @return [Array<String>] List of configuration files which define the
     #   commands and telemetry for this target
     attr_reader :cmd_tlm_files
@@ -51,10 +41,7 @@ module Cosmos
     # @return [String] Target filename for this target
     attr_reader :filename
 
-    # @return [String] The directory which contains this target. The directory
-    #   is by default <USERPATH>/config/targets/<original_name>. Once a target
-    #   has been processed it is copied to a saved configuration location and
-    #   the dir will be updated to return this location.
+    # @return [String] The directory which contains this target
     attr_reader :dir
 
     # @return [Interface] The interface used to access the target
@@ -81,48 +68,29 @@ module Cosmos
     # System uses this list and processes them using PacketConfig.
     #
     # @param target_name [String] The name of the target.
-    # @param original_name [String] The original name if the the target is aliased to a new name
     # @param path [String] Path to the target directory
-    # @param target_filename [String] Configuration file for the target. Normally
-    #   target.txt
     # @param gem_path [String] Path to the gem file or nil if there is no gem
-    # TODO: Move path to second argument? path is now required but original_name is not
-    # TODO: Bigger question: Use keyword arguments parameters so this doesn't happen again?
-    def initialize(target_name, original_name = nil, path = nil, target_filename = nil, gem_path = nil, scope: nil)
+    def initialize(target_name, path, gem_path = nil)
       @requires = []
       @ignored_parameters = []
       @ignored_items = []
       @cmd_tlm_files = []
-      @auto_screen_substitute = false
+      #@auto_screen_substitute = false
       @interface = nil
       @routers = []
       @cmd_cnt = 0
       @tlm_cnt = 0
       @cmd_unique_id_mode = false
       @tlm_unique_id_mode = false
-      @id = nil
-      @scope = scope
-
-      # Determine the target name using substitution if given
       @name = target_name.clone.upcase.freeze
-      if original_name
-        @substitute = true
-        @original_name = original_name.clone.upcase.freeze
-      else
-        @substitute = false
-        @original_name = @name
-      end
+      get_target_dir(path, gem_path)
+      process_target_config_file()
 
-      # TODO: path is required .. this is a kludge
-      path = '.' unless path
-      @dir = get_target_dir(path, @original_name, gem_path)
-      # Parse the target.txt file if it exists
-      @filename = process_target_config_file(@dir, @name, target_filename)
       # If target.txt didn't specify specific cmd/tlm files then add everything
       if @cmd_tlm_files.empty?
-        @cmd_tlm_files = add_all_cmd_tlm(@dir)
+        @cmd_tlm_files = add_all_cmd_tlm()
       else
-        add_cmd_tlm_partials(@dir)
+        add_cmd_tlm_partials()
       end
     end
 
@@ -185,9 +153,9 @@ module Cosmos
           @cmd_tlm_files << filename
 
         when 'AUTO_SCREEN_SUBSTITUTE'
-          usage = "#{keyword}"
-          parser.verify_num_parameters(0, 0, usage)
-          @auto_screen_substitute = true
+          # usage = "#{keyword}"
+          # parser.verify_num_parameters(0, 0, usage)
+          # @auto_screen_substitute = true
 
         when 'CMD_UNIQUE_ID_MODE'
           usage = "#{keyword}"
@@ -209,18 +177,16 @@ module Cosmos
     def as_json
       config = {}
       config['name'] = @name
-      config['original_name'] = @original_name
-      config['substitute'] = true if @substitute
       config['requires'] = @requires
       config['ignored_parameters'] = @ignored_parameters
       config['ignored_items'] = @ignored_items
-      config['auto_screen_substitute'] = true if @auto_screen_substitute
+      # config['auto_screen_substitute'] = true if @auto_screen_substitute
       config['cmd_tlm_files'] = @cmd_tlm_files
-      config['filename'] = @filename
-      config['interface'] = @interface.name if @interface
-      config['dir'] = @dir
-      config['cmd_cnt'] = @cmd_cnt
-      config['tlm_cnt'] = @tlm_cnt
+      # config['filename'] = @filename
+      # config['interface'] = @interface.name if @interface
+      # config['dir'] = @dir
+      # config['cmd_cnt'] = @cmd_cnt
+      # config['tlm_cnt'] = @tlm_cnt
       config['cmd_unique_id_mode'] = true if @cmd_unique_id_mode
       config['tlm_unique_id_mode'] = true if @tlm_unique_id_mode
       config['id'] = @id
@@ -231,42 +197,45 @@ module Cosmos
 
     # Get the target directory and add the target's lib folder to the
     # search path if it exists
-    def get_target_dir(path, name, gem_path)
+    def get_target_dir(path, gem_path)
       if gem_path
-        dir = gem_path
+        @dir = gem_path
       else
-        dir = File.join(path, name)
+        @dir = File.join(path, @name)
       end
-      dir.gsub!("\\", '/')
-      lib_dir = File.join(dir, 'lib')
+      @dir.gsub!("\\", '/')
+      lib_dir = File.join(@dir, 'lib')
       Cosmos.add_to_search_path(lib_dir, false) if File.exist?(lib_dir)
-      proc_dir = File.join(dir, 'procedures')
+      proc_dir = File.join(@dir, 'procedures')
       Cosmos.add_to_search_path(proc_dir, false) if File.exist?(proc_dir)
-      dir
     end
 
     # Process the target's configuration file if it exists
-    def process_target_config_file(dir, name, target_filename)
-      filename = File.join(dir, target_filename || 'target.txt')
+    def process_target_config_file
+      @filename = File.join(@dir, 'target.txt')
       if File.exist?(filename)
         process_file(filename)
       else
-        filename = nil
-        raise "Target file #{target_filename} for target #{name} does not exist" if target_filename
+        @filename = nil
       end
-      filename
+      id_filename = File.join(@dir, 'target_id.txt')
+      if File.exist?(id_filename)
+        File.open(id_filename, 'rb') {|file| @id = file.read.strip}
+      else
+        @id = nil
+      end
     end
 
     # Automatically add all command and telemetry definitions to the list
-    def add_all_cmd_tlm(dir)
+    def add_all_cmd_tlm
       cmd_tlm_files = []
-      if Dir.exist?(File.join(dir, 'cmd_tlm'))
+      if Dir.exist?(File.join(@dir, 'cmd_tlm'))
         # Grab All *.txt files in the cmd_tlm folder and subfolders
-        Dir[File.join(dir, 'cmd_tlm', '**', '*.txt')].each do |filename|
+        Dir[File.join(@dir, 'cmd_tlm', '**', '*.txt')].each do |filename|
           cmd_tlm_files << filename
         end
         # Grab All *.xtce files in the cmd_tlm folder and subfolders
-        Dir[File.join(dir, 'cmd_tlm', '**', '*.xtce')].each do |filename|
+        Dir[File.join(@dir, 'cmd_tlm', '**', '*.xtce')].each do |filename|
           cmd_tlm_files << filename
         end
       end
@@ -274,11 +243,11 @@ module Cosmos
     end
 
     # Make sure all partials are included in the cmd_tlm list for the hashing sum calculation
-    def add_cmd_tlm_partials(dir)
+    def add_cmd_tlm_partials
       partial_files = []
-      if Dir.exist?(File.join(dir, 'cmd_tlm'))
+      if Dir.exist?(File.join(@dir, 'cmd_tlm'))
         # Grab all _*.txt files in the cmd_tlm folder and subfolders
-        Dir[File.join(dir, 'cmd_tlm', '**', '_*.txt')].each do |filename|
+        Dir[File.join(@dir, 'cmd_tlm', '**', '_*.txt')].each do |filename|
           partial_files << filename
         end
       end

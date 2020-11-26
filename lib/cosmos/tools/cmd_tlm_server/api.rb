@@ -1134,7 +1134,7 @@ module Cosmos
     # @return [Array<String>] All target names
     def get_target_list(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      JSON.parse(Store.instance.hget("#{scope}__cosmos_system", 'target_names'))
+      Store.instance.get_target_names(scope: scope)
     end
 
     # @see CmdTlmServer.subscribe_limits_events

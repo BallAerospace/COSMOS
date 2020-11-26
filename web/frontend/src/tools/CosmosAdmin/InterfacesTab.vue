@@ -2,15 +2,18 @@
   <div>
     <v-list data-test="interfaceList">
       <v-subheader class="mt-3">Interfaces</v-subheader>
-      <v-list-item v-for="(cosmos_interface, i) in interfaces" :key="i">
+      <v-list-item
+        v-for="cosmos_interface in interfaces"
+        :key="cosmos_interface"
+      >
         <v-list-item-content>
-          <v-list-item-title v-text="cosmos_interface.name"></v-list-item-title>
+          <v-list-item-title v-text="cosmos_interface"></v-list-item-title>
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-icon
-                @click="deleteInterface(cosmos_interface.name)"
+                @click="deleteInterface(cosmos_interface)"
                 v-bind="attrs"
                 v-on="on"
                 >mdi-delete</v-icon
@@ -66,26 +69,34 @@ export default {
     },
     add() {},
     deleteInterface(name) {
-      axios
-        .delete('http://localhost:7777/interfaces/0', {
-          params: { name: name, scope: 'DEFAULT' },
+      var self = this
+      this.$dialog
+        .confirm('Are you sure you want to remove: ' + name, {
+          okText: 'Delete',
+          cancelText: 'Cancel',
         })
-        .then((response) => {
-          this.alert = 'Removed interface ' + name
-          this.alertType = 'success'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-          this.update()
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
+        .then(function (dialog) {
+          axios
+            .delete('http://localhost:7777/interfaces/' + name, {
+              params: { scope: 'DEFAULT' },
+            })
+            .then((response) => {
+              self.alert = 'Removed interface ' + name
+              self.alertType = 'success'
+              self.showAlert = true
+              setTimeout(() => {
+                self.showAlert = false
+              }, 5000)
+              self.update()
+            })
+            .catch((error) => {
+              self.alert = error
+              self.alertType = 'error'
+              self.showAlert = true
+              setTimeout(() => {
+                self.showAlert = false
+              }, 5000)
+            })
         })
     },
   },

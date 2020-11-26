@@ -40,13 +40,20 @@
       transition="scale-transition"
       >{{ alert }}</v-alert
     >
+    <VariablesDialog
+      :variables="variables"
+      v-model="showVariables"
+      v-if="showVariables"
+      @submit="variablesCallback"
+    />
   </div>
 </template>
 
 <script>
 import axios from 'axios'
+import VariablesDialog from '@/tools/CosmosAdmin/VariablesDialog'
 export default {
-  components: {},
+  components: { VariablesDialog },
   data() {
     return {
       file: null,
@@ -54,6 +61,9 @@ export default {
       alert: '',
       alertType: 'success',
       showAlert: false,
+      pluginId: null,
+      variables: {},
+      showVariables: false,
     }
   },
   mounted() {
@@ -66,6 +76,7 @@ export default {
           params: { scope: 'DEFAULT' },
         })
         .then((response) => {
+          //console.log(response.data)
           this.plugins = response.data
         })
         .catch((error) => {
@@ -81,6 +92,7 @@ export default {
       if (this.file !== null) {
         let formData = new FormData()
         formData.append('plugin', this.file, this.file.name)
+        formData.append('scope', 'DEFAULT')
         axios
           .post('http://localhost:7777/plugins', formData)
           .then((response) => {
@@ -91,7 +103,10 @@ export default {
               this.showAlert = false
             }, 5000)
             this.update()
-            console.log(response.data)
+            //console.log(response.data.variables)
+            this.pluginId = this.file.name
+            this.variables = response.data.variables
+            this.showVariables = true
           })
           .catch((error) => {
             this.alert = error
@@ -110,13 +125,18 @@ export default {
         }, 5000)
       }
     },
-    deletePlugin(plugin) {
+    variablesCallback(updated_variables) {
+      this.showVariables = false
+      let formData = new FormData()
+      formData.append('variables', JSON.stringify(updated_variables))
+      formData.append('scope', 'DEFAULT')
       axios
-        .delete('http://localhost:7777/plugins/0', {
-          params: { plugin: plugin },
-        })
+        .post(
+          'http://localhost:7777/plugins/install/' + this.pluginId,
+          formData
+        )
         .then((response) => {
-          this.alert = 'Removed plugin ' + plugin
+          this.alert = 'Installed plugin ' + this.file.name
           this.alertType = 'success'
           this.showAlert = true
           setTimeout(() => {
@@ -131,6 +151,37 @@ export default {
           setTimeout(() => {
             this.showAlert = false
           }, 5000)
+        })
+    },
+    deletePlugin(plugin) {
+      var self = this
+      this.$dialog
+        .confirm('Are you sure you want to remove: ' + plugin, {
+          okText: 'Delete',
+          cancelText: 'Cancel',
+        })
+        .then(function (dialog) {
+          axios
+            .delete('http://localhost:7777/plugins/' + plugin, {
+              params: { scope: 'DEFAULT' },
+            })
+            .then((response) => {
+              self.alert = 'Removed plugin ' + plugin
+              self.alertType = 'success'
+              self.showAlert = true
+              setTimeout(() => {
+                self.showAlert = false
+              }, 5000)
+              self.update()
+            })
+            .catch((error) => {
+              self.alert = error
+              self.alertType = 'error'
+              self.showAlert = true
+              setTimeout(() => {
+                self.showAlert = false
+              }, 5000)
+            })
         })
     },
   },
