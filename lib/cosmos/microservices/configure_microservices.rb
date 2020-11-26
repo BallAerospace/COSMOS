@@ -143,7 +143,7 @@ module Cosmos
         # logger.info "Configured microservice #{name}"
 
 
-      end
+      # end
     end
   end
 end

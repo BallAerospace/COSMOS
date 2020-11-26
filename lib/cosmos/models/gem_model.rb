@@ -4,7 +4,7 @@ require 'httpclient'
 
 module Cosmos
   class GemModel
-    GEMINABOX_URL = ENV['COSMOS_GEMS_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9292' : 'http://cosmos-gems:9292'
+    GEMINABOX_URL = ENV['COSMOS_GEMS_URL'] || (ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9292' : 'http://cosmos-gems:9292')
 
     def self.get(name, dir)
       client = HTTPClient.new(nil)
@@ -19,7 +19,7 @@ module Cosmos
       # Install gem to geminabox - gem push pkg/my-awesome-gem-1.0.gem --host HOST
       result = false
       thread = Thread.new do
-        result = system("gem push #{gem_file_path} --host #{GEMINABOX_URL}")
+        result = system("gem inabox #{gem_file_path} --host #{GEMINABOX_URL}")
       end
       thread.join
       return result
