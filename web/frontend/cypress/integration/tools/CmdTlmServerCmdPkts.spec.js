@@ -1,8 +1,7 @@
 describe('CmdTlmServer CmdPackets', () => {
   it('displays the list of command', () => {
-    cy.visit('/cmd-tlm-server')
+    cy.visit('/cmd-tlm-server/cmd-packets')
     cy.hideNav()
-    cy.get('.v-tab').contains('Cmd Packets').click()
     cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
       .contains('ABORT')
       .parent('tr')
@@ -24,9 +23,8 @@ describe('CmdTlmServer CmdPackets', () => {
       })
   })
   it('displays the command count', () => {
-    cy.visit('/cmd-tlm-server')
+    cy.visit('/cmd-tlm-server/cmd-packets')
     cy.hideNav()
-    cy.get('.v-tab').contains('Cmd Packets').click()
     cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
       .contains('ABORT')
       .parent('tr')
@@ -63,9 +61,8 @@ describe('CmdTlmServer CmdPackets', () => {
     cy.hideNav()
     cy.contains('Aborts a collect')
     cy.get('button').contains('Send').click()
-    cy.visit('/cmd-tlm-server')
+    cy.visit('/cmd-tlm-server/cmd-packets')
     cy.hideNav()
-    cy.get('.v-tab').contains('Cmd Packets').click()
     cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
       .contains('ABORT')
       .parent('tr')
@@ -96,14 +93,13 @@ describe('CmdTlmServer CmdPackets', () => {
   })
 
   it('links to command sender', () => {
-    cy.visit('/cmd-tlm-server', {
+    cy.visit('/cmd-tlm-server/cmd-packets', {
       onBeforeLoad(win) {
         cy.stub(win, 'open').as('windowOpen')
       },
     })
 
     cy.hideNav()
-    cy.get('.v-tab').contains('Cmd Packets').click()
     cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
       .contains('ABORT')
       .parent('tr')

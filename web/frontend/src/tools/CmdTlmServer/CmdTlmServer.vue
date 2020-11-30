@@ -3,19 +3,11 @@
     <app-nav app :menus="menus" />
     <v-card>
       <v-tabs v-model="curTab" fixed-tabs>
-        <v-tab v-for="(tab, index) in tabs" :key="index">{{ tab.name }}</v-tab>
+        <v-tab v-for="(tab, index) in tabs" :key="index" :to="tab.url">{{
+          tab.name
+        }}</v-tab>
       </v-tabs>
-      <v-tabs-items v-model="curTab">
-        <v-tab-item v-for="(tab, index) in tabs" :key="index">
-          <component
-            :is="tab.component"
-            v-bind:tabId="index"
-            v-bind:curTab="curTab"
-            v-bind:refreshInterval="refreshInterval"
-          ></component>
-        </v-tab-item>
-      </v-tabs-items>
-
+      <router-view />
       <v-dialog v-model="optionsDialog" max-width="300">
         <v-card class="pa-3">
           <v-card-title class="headline">Options</v-card-title>
@@ -38,25 +30,10 @@
 
 <script>
 import AppNav from '@/AppNav'
-import InterfacesTab from '@/tools/CmdTlmServer/InterfacesTab'
-import TargetsTab from '@/tools/CmdTlmServer/TargetsTab'
-import CmdPacketsTab from '@/tools/CmdTlmServer/CmdPacketsTab'
-import TlmPacketsTab from '@/tools/CmdTlmServer/TlmPacketsTab'
-import RoutersTab from '@/tools/CmdTlmServer/RoutersTab'
-import LoggingTab from '@/tools/CmdTlmServer/LoggingTab'
-import StatusTab from '@/tools/CmdTlmServer/StatusTab'
 import LogMessages from '@/components/LogMessages'
-
 export default {
   components: {
     AppNav,
-    InterfacesTab,
-    TargetsTab,
-    CmdPacketsTab,
-    TlmPacketsTab,
-    RoutersTab,
-    LoggingTab,
-    StatusTab,
     LogMessages,
   },
   data() {
@@ -64,14 +41,29 @@ export default {
       title: 'CmdTlmServer',
       curTab: null,
       tabs: [
-        { name: 'Interfaces', component: 'InterfacesTab' },
-        { name: 'Targets', component: 'TargetsTab' },
-        { name: 'Cmd Packets', component: 'CmdPacketsTab' },
-        { name: 'Tlm Packets', component: 'TlmPacketsTab' },
+        {
+          name: 'Interfaces',
+          url: '/cmd-tlm-server/interfaces',
+        },
+        {
+          name: 'Targets',
+          url: '/cmd-tlm-server/targets',
+        },
+        {
+          name: 'Cmd Packets',
+          url: '/cmd-tlm-server/cmd-packets',
+        },
+        {
+          name: 'Tlm Packets',
+          url: '/cmd-tlm-server/tlm-packets',
+        },
         // TODO: Remove these until they work
         // { name: 'Routers', component: 'RoutersTab' },
         // { name: 'Logging', component: 'LoggingTab' },
-        { name: 'Status', component: 'StatusTab' },
+        {
+          name: 'Status',
+          url: '/cmd-tlm-server/status',
+        },
       ],
       updater: null,
       refreshInterval: 1000,

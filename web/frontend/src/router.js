@@ -10,12 +10,33 @@ export default new Router({
     {
       path: '/cmd-tlm-server',
       alias: '/',
-      name: 'CmdTlmServer',
       component: () => import('./views/CmdTlmServerView.vue'),
-      meta: {
-        title: 'Command and Telemetry Server',
-        icon: 'mdi-server-network',
-      },
+      children: [
+        {
+          component: () => import('./tools/CmdTlmServer/InterfacesTab'),
+          path: '',
+        },
+        {
+          component: () => import('./tools/CmdTlmServer/InterfacesTab'),
+          path: 'interfaces',
+        },
+        {
+          component: () => import('./tools/CmdTlmServer/TargetsTab'),
+          path: 'targets',
+        },
+        {
+          component: () => import('./tools/CmdTlmServer/CmdPacketsTab'),
+          path: 'cmd-packets',
+        },
+        {
+          component: () => import('./tools/CmdTlmServer/TlmPacketsTab'),
+          path: 'tlm-packets',
+        },
+        {
+          component: () => import('./tools/CmdTlmServer/StatusTab'),
+          path: 'status',
+        },
+      ],
     },
     {
       path: '/limits-monitor',
@@ -67,7 +88,6 @@ export default new Router({
     },
     {
       path: '/admin',
-      name: 'Admin',
       component: () => import('./views/AdminView.vue'),
       children: [
         {

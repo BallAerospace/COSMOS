@@ -1,5 +1,5 @@
 describe('CmdTlmServer Status', () => {
-  it('changes the limits set', () => {
+  xit('changes the limits set', () => {
     cy.visit('/cmd-tlm-server')
     cy.hideNav()
     cy.get('.v-tab').contains('Status').click()
