@@ -7,7 +7,7 @@
           tab.name
         }}</v-tab>
       </v-tabs>
-      <router-view />
+      <router-view :refreshInterval="refreshInterval" />
       <v-dialog v-model="optionsDialog" max-width="300">
         <v-card class="pa-3">
           <v-card-title class="headline">Options</v-card-title>

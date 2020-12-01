@@ -33,7 +33,7 @@ describe('CmdTlmServer', () => {
       cy.get('input').clear().type('5000')
     })
     cy.get('.v-dialog').type('{esc}')
-    cy.wait(1000)
+    cy.get('.v-dialog').should('not.be.visible')
 
     cy.get('[data-test=interfaces-table]')
       .contains('INST_INT')

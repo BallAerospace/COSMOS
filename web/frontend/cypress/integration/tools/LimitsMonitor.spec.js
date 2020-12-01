@@ -28,7 +28,7 @@ describe('LimitsMonitor', () => {
       .find('button')
       .eq(2) // hide item
       .click()
-    cy.get('TEMP2').should('not.be.visible')
+    cy.get('TEMP2').should('not.exist')
 
     // Now wait for them to come back
     cy.get('[data-test=limits-row]:contains("TEMP2")', {
@@ -60,7 +60,7 @@ describe('LimitsMonitor', () => {
       .find('button')
       .eq(1) // ignore item
       .click()
-    cy.get('TEMP2').should('not.be.visible')
+    cy.get('TEMP2').should('not.exist')
     cy.get('[data-test=overall-state]')
       .invoke('val')
       .should('include', 'Some items ignored')

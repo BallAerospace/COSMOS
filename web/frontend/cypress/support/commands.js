@@ -20,20 +20,16 @@ Cypress.Commands.add('chooseVSelect', (inputLabel, selection) => {
 
 Cypress.Commands.add(
   'selectTargetPacketItem',
-  (target, packet, item = null) => {
+  (target, packet = null, item = null) => {
     cy.get('[data-test=select-target]').click({ force: true })
-    cy.get('.v-list-item__title')
-      .contains(new RegExp(`^${target}$`, 'i'))
-      .click()
-    cy.get('[data-test=select-packet]').click({ force: true })
-    cy.get('.v-list-item__title')
-      .contains(new RegExp(`^${packet}$`, 'i'))
-      .click()
-    if (item) {
-      cy.get('[data-test=select-item]').click({ force: true })
-      cy.get('.v-list-item__title')
-        .contains(new RegExp(`^${item}$`, 'i'))
-        .click()
+    cy.contains('.v-list-item__title', new RegExp(`^${target}$`, 'i')).click()
+    if (packet) {
+      cy.get('[data-test=select-packet]').click({ force: true })
+      cy.contains('.v-list-item__title', new RegExp(`^${packet}$`, 'i')).click()
+      if (item) {
+        cy.get('[data-test=select-item]').click({ force: true })
+        cy.contains('.v-list-item__title', new RegExp(`^${item}$`, 'i')).click()
+      }
     }
   }
 )

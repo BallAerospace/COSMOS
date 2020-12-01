@@ -161,7 +161,6 @@ export default {
       }
       this.updatePackets()
     })
-    this.internalDisabled = false
   },
   watch: {
     mode: function (val) {
@@ -200,10 +199,6 @@ export default {
                 break
               }
             }
-            this.$emit('on-set', {
-              targetName: this.selectedTargetName,
-              packetName: this.selectedPacketName,
-            })
             this.internalDisabled = false
           }
         )
@@ -230,12 +225,6 @@ export default {
               this.description = item[1]
               break
             }
-          }
-          if (!this.chooseItem) {
-            this.$emit('on-set', {
-              targetName: this.selectedTargetName,
-              packetName: this.selectedPacketName,
-            })
           }
           this.internalDisabled = false
         })

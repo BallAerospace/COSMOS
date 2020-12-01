@@ -179,7 +179,7 @@ export default {
       displaySendHazardous: false,
       displayErrorDialog: false,
       displaySendRaw: false,
-      sendDisabled: true,
+      sendDisabled: false,
       api: null,
       viewDetails: false,
       contextMenuShown: false,
@@ -245,6 +245,16 @@ export default {
           ],
         },
       ],
+    }
+  },
+  created() {
+    this.api = new CosmosApi()
+    // If we're passed in the route then manually call commandChanged to update
+    if (this.$route.params.target) {
+      this.commandChanged({
+        targetName: this.$route.params.target,
+        packetName: this.$route.params.packet,
+      })
     }
   },
   methods: {
@@ -425,26 +435,26 @@ export default {
 
     commandChanged(event) {
       if (
-        this.targetName === event.targetName &&
-        this.packetName === event.packetName
+        this.targetName !== event.targetName ||
+        this.commandName !== event.packetName
       ) {
-        return
+        this.targetName = event.targetName
+        this.commandName = event.packetName
+        // Only updateCmdParams if we're not already in the middle of an update
+        if (this.sendDisabled === false) {
+          this.updateCmdParams()
+        }
+        this.$router
+          .replace({
+            name: 'CommandSender',
+            params: {
+              target: this.targetName,
+              packet: this.commandName,
+            },
+          })
+          // catch the error in case we route to where we already are
+          .catch((err) => {})
       }
-      this.targetName = event.targetName
-      this.commandName = event.packetName
-      if (
-        this.$route.params.target != this.targetName &&
-        this.$route.params.packet != this.packetName
-      ) {
-        this.$router.push({
-          name: 'CommandSender',
-          params: {
-            target: this.targetName,
-            packet: this.commandName,
-          },
-        })
-      }
-      this.updateCmdParams()
     },
 
     updateCmdParams() {
@@ -570,7 +580,6 @@ export default {
                 this.processCmdResponse(true, response)
               },
               (error) => {
-                //console.log(error)
                 this.processCmdResponse(false, error)
               }
             )
@@ -757,9 +766,6 @@ export default {
       this.displaySendRaw = false
       this.status = 'Raw command not sent'
     },
-  },
-  created() {
-    this.api = new CosmosApi()
   },
 }
 </script>

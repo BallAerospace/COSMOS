@@ -144,7 +144,7 @@ class FileCacheFileCollection
 end
 
 class FileCache
-  MAX_DISK_USAGE = 20000000000 # 20 GB
+  MAX_DISK_USAGE = 20_000_000_000 # 20 GB
 
   attr_reader :cache_dir
 
@@ -505,7 +505,7 @@ class StreamingApi
 
   # Helper class to store information about the streaming item
   class StreamingItem
-    include Authorization
+    include Cosmos::Authorization
     attr_accessor :key
     attr_accessor :cmd_or_tlm
     attr_accessor :target_name
@@ -529,7 +529,7 @@ class StreamingApi
       @value_type = key_split[4].to_s.intern
       @start_time = start_time
       @end_time = end_time
-      authorize(permission: @cmd_or_tlm.to_s.downcase, target_name: @target_name, packet_name: @packet_name, item_name: @item_name, scope: scope, token: token)
+      authorize(permission: @cmd_or_tlm.to_s.downcase, target_name: @target_name, packet_name: @packet_name, scope: scope, token: token)
       type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
       @topic = "#{@scope}__#{type}__#{@target_name}__#{@packet_name}"
       @offset = nil

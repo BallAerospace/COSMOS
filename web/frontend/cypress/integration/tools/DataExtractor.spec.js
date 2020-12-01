@@ -24,7 +24,7 @@ describe('DataExtractor', () => {
       cy.get('input').clear().type(config)
       cy.contains('Ok').click()
     })
-    cy.get('.v-dialog').should('not.be.visible')
+    cy.get('.v-dialog').should('not.exist')
 
     cy.get('[data-test=itemList]').find('.v-list-item').should('have.length', 2)
     cy.get('[data-test=deleteAll]').click()
@@ -36,6 +36,7 @@ describe('DataExtractor', () => {
       cy.contains(config).click()
       cy.contains('Ok').click()
     })
+    cy.get('.v-dialog').should('not.exist')
     cy.get('[data-test=itemList]').find('.v-list-item').should('have.length', 2)
 
     // Delete this test configuation
@@ -50,6 +51,7 @@ describe('DataExtractor', () => {
         })
       cy.contains('Cancel').click()
     })
+    cy.get('.v-dialog').should('not.exist')
   })
 
   it('validates dates and times', function () {
@@ -102,7 +104,7 @@ describe('DataExtractor', () => {
     )
   })
 
-  it.only('warns with no data', function () {
+  it('warns with no data', function () {
     const start = sub(new Date(), { seconds: 1 })
     cy.visit('/data-extractor')
     cy.hideNav()
@@ -140,6 +142,7 @@ describe('DataExtractor', () => {
     const start = sub(new Date(), { minutes: 1 })
     cy.visit('/data-extractor')
     cy.hideNav()
+    cy.selectTargetPacketItem('INST')
     cy.contains('Add Target').click()
     cy.get('[data-test=itemList]')
       .find('.v-list-item')
@@ -224,6 +227,7 @@ describe('DataExtractor', () => {
     cy.hideNav()
     cy.get('button').contains('Send').click()
     cy.contains('cmd("INST ABORT") sent')
+    cy.wait(500)
 
     const start = sub(new Date(), { minutes: 5 })
     cy.visit('/data-extractor')

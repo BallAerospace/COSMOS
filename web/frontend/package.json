@@ -33,7 +33,7 @@
     "vuex": "^3.5.1"
   },
   "devDependencies": {
-    "@cypress/code-coverage": "^3.8.3",
+    "@cypress/code-coverage": "^3.8.5",
     "@vue/cli-plugin-babel": "^4.5.8",
     "@vue/cli-plugin-eslint": "^4.5.8",
     "@vue/cli-plugin-router": "^4.5.8",
@@ -44,7 +44,7 @@
     "@vue/test-utils": "1.1.1",
     "babel-eslint": "^10.1.0",
     "csv-parser": "^2.3.3",
-    "cypress": "^5.6.0",
+    "cypress": "^6.0.1",
     "cypress-vue-unit-test": "3",
     "eslint": "^7.13.0",
     "eslint-plugin-prettier": "^3.1.4",
