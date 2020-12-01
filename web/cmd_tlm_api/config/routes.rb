@@ -24,6 +24,7 @@ Rails.application.routes.draw do
   match '/microservices/:id', to: 'microservices#update', id: /[^\/]+/, via: [:patch, :put]
   delete '/microservices/:id', to: 'microservices#destroy', id: /[^\/]+/
 
+  post '/tools/order/:id', to: 'tools#order', id: /[^\/]+/
   resources :tools, only: [:index, :create]
   get '/tools/:id', to: 'tools#show', id: /[^\/]+/
   match '/tools/:id', to: 'tools#update', id: /[^\/]+/, via: [:patch, :put]

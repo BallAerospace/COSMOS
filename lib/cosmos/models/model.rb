@@ -16,7 +16,6 @@ module Cosmos
     end
 
     def create
-      #STDOUT.puts "creating #{@primary_key} : #{@name}"
       @updated_at = Time.now.to_nsec_from_epoch
       Store.hset(@primary_key, @name, JSON.generate(self.as_json))
     end
@@ -40,6 +39,7 @@ module Cosmos
 
     def self.from_json(json, scope: nil)
       json = JSON.parse(json) if String === json
+      raise "json data is nil" if json.nil?
       symbolized = {}
       json.each do |key, value|
         symbolized[key.intern] = value
