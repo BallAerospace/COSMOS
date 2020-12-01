@@ -24,7 +24,7 @@ module Cosmos
       @position = position
     end
 
-    def create
+    def create(update: false, force: false)
       unless @position
         scope = @primary_key.split("__")[0]
         tools = self.class.all(scope: scope)
@@ -35,7 +35,7 @@ module Cosmos
         max_position ||= 0
         @position = max_position + 1
       end
-      super()
+      super(update: update, force: force)
     end
 
     def as_json
