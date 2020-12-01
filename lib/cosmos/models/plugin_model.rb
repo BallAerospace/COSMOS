@@ -17,19 +17,21 @@ module Cosmos
     def initialize(
       name:,
       variables: {},
-      state: 'init',
       updated_at: nil,
       scope:)
       super("#{scope}__#{PRIMARY_KEY}", name: name, updated_at: updated_at)
       @variables = variables
-      @state = state
+    end
+
+    def create(update: false, force: false)
+      @name = @name + "__#{Time.now.utc.strftime("%Y%m%d%H%M%S")}" unless update
+      super(update: update, force: force)
     end
 
     def as_json
       {
         'name' => @name,
         'variables' => @variables,
-        'state' => @state,
         'updated_at' => @updated_at
       }
     end
@@ -79,10 +81,7 @@ module Cosmos
             end
           end
 
-          # Create plugin model with variables and init state
-          model = PluginModel.new(name: gem_filename, variables: variables, state: 'init', scope: scope)
-          model.create
-
+          model = PluginModel.new(name: gem_filename, variables: variables, scope: scope)
           return model.as_json
         end
       ensure
@@ -99,6 +98,10 @@ module Cosmos
       rescue Aws::S3::Errors::NotFound
         rubys3_client.create_bucket(bucket: 'config')
       end
+
+      # Register plugin to aid in uninstall if install fails
+      model = PluginModel.new(name: name, variables: variables, scope: scope)
+      model.create
 
       temp_dir = Dir.mktmpdir
       begin
@@ -143,10 +146,6 @@ module Cosmos
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exists?(temp_dir)
       end
-
-      # Register plugin with complete info
-      model = PluginModel.new(name: name, variables: variables, state: 'installed', scope: scope)
-      model.create
     end # def self.install
 
   end # class Plugin

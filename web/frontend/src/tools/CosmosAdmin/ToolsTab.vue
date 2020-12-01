@@ -17,7 +17,7 @@
         </v-btn>
       </v-col>
     </v-row>
-    <v-list data-test="toolList">
+    <v-list data-test="toolList" id="toollist">
       <v-subheader class="mt-3">Tools</v-subheader>
       <v-list-item v-for="tool in tools" :key="tool">
         <v-list-item-content>
@@ -47,6 +47,8 @@
 
 <script>
 import axios from 'axios'
+import Sortable from 'sortablejs'
+
 export default {
   components: {},
   data() {
@@ -62,8 +64,37 @@ export default {
   },
   mounted() {
     this.update()
+    var el = document.getElementById('toollist')
+    var sortable = Sortable.create(el, { onUpdate: this.sortChanged })
   },
   methods: {
+    sortChanged(evt) {
+      axios
+        .post(
+          'http://localhost:7777/tools/order/' + this.tools[evt.oldIndex - 1],
+          {
+            order: evt.newIndex - 1,
+            scope: 'DEFAULT',
+          }
+        )
+        .then((response) => {
+          this.alert = 'Reordered tool ' + this.tools[evt.oldIndex - 1]
+          this.alertType = 'success'
+          this.showAlert = true
+          setTimeout(() => {
+            this.showAlert = false
+          }, 5000)
+          this.update()
+        })
+        .catch((error) => {
+          this.alert = error
+          this.alertType = 'error'
+          this.showAlert = true
+          setTimeout(() => {
+            this.showAlert = false
+          }, 5000)
+        })
+    },
     update() {
       axios
         .get('http://localhost:7777/tools', {
@@ -83,11 +114,11 @@ export default {
     },
     add() {
       if (this.name !== null && this.icon !== null && this.url !== null) {
-        let data = { icon: this.icon, url: this.url }
+        let data = { name: this.name, icon: this.icon, url: this.url }
         axios
           .post('http://localhost:7777/tools', {
-            name: this.name,
-            data: data,
+            id: this.name,
+            json: data,
             scope: 'DEFAULT',
           })
           .then((response) => {

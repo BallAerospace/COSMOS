@@ -15,14 +15,21 @@ module Cosmos
       @updated_at = kw_args[:updated_at]
     end
 
-    def create
-      #STDOUT.puts "creating #{@primary_key} : #{@name}"
+    def create(update: false, force: false)
+      existing = Store.hget(@primary_key, @name)
+      unless force
+        if existing
+          raise "#{@primary_key}:#{@name} already exists at create" unless update
+        else
+          raise "#{@primary_key}:#{@name} doesn't exist at update" if update
+        end
+      end
       @updated_at = Time.now.to_nsec_from_epoch
       Store.hset(@primary_key, @name, JSON.generate(self.as_json))
     end
 
     def update
-      create()
+      create(update: true)
     end
 
     def destroy
@@ -40,6 +47,7 @@ module Cosmos
 
     def self.from_json(json, scope: nil)
       json = JSON.parse(json) if String === json
+      raise "json data is nil" if json.nil?
       symbolized = {}
       json.each do |key, value|
         symbolized[key.intern] = value
