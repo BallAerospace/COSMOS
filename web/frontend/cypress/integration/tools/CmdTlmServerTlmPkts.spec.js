@@ -79,7 +79,7 @@ describe('CmdTlmServer TlmPackets', () => {
         })
     })
     cy.get('.v-dialog').contains('Pause').click()
-    cy.wait(500) // Give it a bit to actually Pause
+    cy.wait(1000) // Give it a bit to actually Pause
     // Ensure it has paused the output
     cy.get('.v-dialog').within(() => {
       cy.get('textarea').invoke('val').as('textArea')

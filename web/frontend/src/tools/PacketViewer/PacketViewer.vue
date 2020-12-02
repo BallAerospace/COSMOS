@@ -187,6 +187,24 @@ export default {
       this.changeUpdater(false)
     },
   },
+  created() {
+    this.api = new CosmosApi()
+    // If we're passed in the route then manually call packetChanged to update
+    if (this.$route.params.target) {
+      this.packetChanged({
+        targetName: this.$route.params.target,
+        packetName: this.$route.params.packet,
+      })
+    }
+  },
+  // TODO: This doesn't seem to be called / covered when running cypress tests?
+  beforeDestroy() {
+    if (this.updater != null) {
+      clearInterval(this.updater)
+      this.updater = null
+    }
+  },
+
   methods: {
     packetChanged(event) {
       if (
@@ -263,16 +281,6 @@ export default {
           })
       }, this.refreshInterval)
     },
-  },
-  created() {
-    this.api = new CosmosApi()
-  },
-  // TODO: This doesn't seem to be called / covered when running cypress tests?
-  beforeDestroy() {
-    if (this.updater != null) {
-      clearInterval(this.updater)
-      this.updater = null
-    }
   },
 }
 </script>

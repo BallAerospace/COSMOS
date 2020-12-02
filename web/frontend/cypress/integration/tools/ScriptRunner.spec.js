@@ -4,11 +4,10 @@ describe('ScriptRunner', () => {
   //
   it('opens ready to type', () => {
     cy.visit('/script-runner')
-    cy.hideNav()
     cy.focused().type('this is a test')
     cy.contains('this is a test')
   })
-  it('runs unsaved scripts', () => {
+  it.only('runs unsaved scripts', () => {
     cy.visit('/script-runner')
     cy.hideNav()
     cy.focused().type('puts "Hello World"')

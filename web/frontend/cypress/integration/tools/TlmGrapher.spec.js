@@ -125,7 +125,7 @@ describe('TlmGrapher', () => {
       cy.get('input').clear().type(config)
       cy.contains('Ok').click()
     })
-    cy.get('.v-dialog').should('not.be.visible')
+    cy.get('.v-dialog').should('not.exist')
     // Verify we get a warning if trying to save over existing
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save Configuration').click()
@@ -135,7 +135,7 @@ describe('TlmGrapher', () => {
       cy.contains("'" + config + "' already exists")
       cy.contains('Cancel').click()
     })
-    cy.get('.v-dialog').should('not.be.visible')
+    cy.get('.v-dialog').should('not.exist')
     // Totally refresh the page
     cy.visit('/telemetry-grapher')
     cy.hideNav()

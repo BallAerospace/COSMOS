@@ -531,44 +531,50 @@ export default {
 
       this.progress = 0
       this.processButtonText = 'Cancel'
-      this.subscription = this.cable.subscriptions.create('StreamingChannel', {
-        received: (data) => this.received(data),
-        connected: () => {
-          this.foundKeys = []
-          this.columnHeaders = []
-          this.columnMap = {}
-          this.outputFile = []
-          this.rawData = []
-          var items = []
-          this.items.forEach((item, index) => {
-            items.push(
-              item.cmdOrTlm +
-                '__' +
-                item.targetName +
-                '__' +
-                item.packetName +
-                '__' +
-                item.itemName +
-                '__' +
-                item.valueType
-            )
-          })
-          this.subscription.perform('add', {
-            scope: 'DEFAULT',
-            items: items,
-            start_time: this.startDateTime,
-            end_time: this.endDateTime,
-          })
+      this.subscription = this.cable.subscriptions.create(
+        {
+          channel: 'StreamingChannel',
+          scope: 'DEFAULT',
         },
-        disconnected: () => {
-          this.warningText = 'COSMOS backend connection disconnected.'
-          this.warning = true
-        },
-        rejected: () => {
-          this.warningText = 'COSMOS backend connection rejected.'
-          this.warning = true
-        },
-      })
+        {
+          received: (data) => this.received(data),
+          connected: () => {
+            this.foundKeys = []
+            this.columnHeaders = []
+            this.columnMap = {}
+            this.outputFile = []
+            this.rawData = []
+            var items = []
+            this.items.forEach((item, index) => {
+              items.push(
+                item.cmdOrTlm +
+                  '__' +
+                  item.targetName +
+                  '__' +
+                  item.packetName +
+                  '__' +
+                  item.itemName +
+                  '__' +
+                  item.valueType
+              )
+            })
+            this.subscription.perform('add', {
+              scope: 'DEFAULT',
+              items: items,
+              start_time: this.startDateTime,
+              end_time: this.endDateTime,
+            })
+          },
+          disconnected: () => {
+            this.warningText = 'COSMOS backend connection disconnected.'
+            this.warning = true
+          },
+          rejected: () => {
+            this.warningText = 'COSMOS backend connection rejected.'
+            this.warning = true
+          },
+        }
+      )
     },
     buildHeaders(itemKeys) {
       if (

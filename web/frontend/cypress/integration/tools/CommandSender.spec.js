@@ -177,6 +177,8 @@ describe('CommandSender', () => {
     cy.contains('TYPE').rightclick()
     cy.contains('Details').click()
     cy.get('.v-dialog').contains('INST COLLECT TYPE')
+    cy.get('.v-dialog').type('{esc}')
+    cy.get('.v-dialog').should('not.be.visible')
   })
   it('executes commands from history', () => {
     cy.visit('/command-sender')
