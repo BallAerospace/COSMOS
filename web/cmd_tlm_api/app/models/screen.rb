@@ -19,16 +19,16 @@ Aws.config.update(
 )
 
 class Screen
-  DEFAULT_BUCKET_NAME = 'targets'
+  DEFAULT_BUCKET_NAME = 'config'
 
-  def self.all(target)
+  def self.all(scope, target)
     rubys3_client = Aws::S3::Client.new
     resp = rubys3_client.list_objects_v2(bucket: DEFAULT_BUCKET_NAME)
     result = []
     contents = resp.to_h[:contents]
     if contents
       contents.each do |object|
-        next unless object[:key].include?("#{target}/screens/")
+        next unless object[:key].include?("#{scope}/targets/#{target}/screens/")
         filename = object[:key].split('/')[-1]
         next unless filename.include?(".txt")
         next if filename[0] == '_' # underscore filenames are partials
@@ -38,10 +38,11 @@ class Screen
     result.sort
   end
 
-  def self.find(target, screen)
+  def self.find(scope, target, screen)
     rubys3_client = Aws::S3::Client.new
-    resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{target}/screens/#{screen}.txt")
-    @target_name = target
+    resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{target}/screens/#{screen}.txt")
+    @scope = scope
+    @target = target
     file = resp.body.read
     # Remove all the commented out lines to prevent ERB from running
     file.gsub!(/^\s*#.*\n/,'')
@@ -56,7 +57,7 @@ class Screen
       options[:locals].each {|key, value| b.local_variable_set(key, value) }
     end
     rubys3_client = Aws::S3::Client.new
-    resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{@target_name}/screens/#{template_name}")
+    resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{@scope}/targets/#{@target}/screens/#{template_name}")
     ERB.new(resp.body.read).result(b)
   end
 end

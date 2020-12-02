@@ -1,10 +1,10 @@
 class ApiController < ApplicationController
   def screens
-    render :json => Screen.all(params[:target].upcase)
+    render :json => Screen.all(params[:scope].upcase, params[:target].upcase)
   end
 
   def screen
-    screen = Screen.find(params[:target].upcase, params[:screen].downcase)
+    screen = Screen.find(params[:scope].upcase, params[:target].upcase, params[:screen].downcase)
     if screen
       render :json => screen
     else

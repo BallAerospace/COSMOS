@@ -12,7 +12,7 @@ describe('TlmViewer', () => {
       expect(xhr.status, 'successful POST').to.equal(200)
     })
     cy.get('.mdi-close-box').click()
-    cy.contains(target + ' ' + screen).should('not.be.visible')
+    cy.contains(target + ' ' + screen).should('not.exist')
     cy.get('@consoleError').should('not.be.called')
   }
 

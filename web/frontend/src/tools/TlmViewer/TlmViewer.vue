@@ -98,7 +98,9 @@ export default {
     updateScreens() {
       this.screens = []
       axios
-        .get('http://localhost:7777/screen/' + this.selectedTarget)
+        .get('http://localhost:7777/screen/' + this.selectedTarget, {
+          params: { scope: 'DEFAULT' },
+        })
         .then((response) => {
           for (let screen of response.data) {
             this.screens.push(screen)
@@ -119,7 +121,10 @@ export default {
           'http://localhost:7777/screen/' +
             this.selectedTarget +
             '/' +
-            this.selectedScreen
+            this.selectedScreen,
+          {
+            params: { scope: 'DEFAULT' },
+          }
         )
         .then((response) => {
           this.definitions.push({
