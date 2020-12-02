@@ -202,43 +202,6 @@ module Cosmos
       end
     end
 
-    def get_target_names(scope: $cosmos_scope)
-      @redis_pool.with do |redis|
-        return redis.hkeys("#{scope}__cosmos_targets")
-      end
-    end
-
-    def get_targets(scope: $cosmos_scope)
-      result = []
-      @redis_pool.with do |redis|
-        targets = redis.hgetall("#{scope}__cosmos_targets")
-        targets.each do |target_name, target_json|
-          target = JSON.parse(target_json)
-          target[:name] = target_name
-          result << target
-        end
-      end
-      result
-    end
-
-    def get_target(target_name, scope: $cosmos_scope)
-      @redis_pool.with do |redis|
-        if redis.hexists("#{scope}__cosmos_targets", target_name)
-          return JSON.parse(redis.hget("#{scope}__cosmos_targets", target_name))
-        else
-          raise "Target '#{target_name}' does not exist"
-        end
-      end
-    end
-
-    def set_target(target, scope: $cosmos_scope)
-      hset("#{scope}__cosmos_targets", target.name, JSON.generate(target.as_json))
-    end
-
-    def remove_target(target_name, scope: $cosmos_scope)
-      hdel("#{scope}__cosmos_targets", target_name)
-    end
-
     def get_packet(target_name, packet_name, type: 'tlm', scope: $cosmos_scope)
       @redis_pool.with do |redis|
         # TODO: pipeline

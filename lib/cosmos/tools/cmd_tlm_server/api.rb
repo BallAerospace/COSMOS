@@ -12,6 +12,7 @@ require 'cosmos/script/extract'
 require 'cosmos/script/api_shared'
 require 'cosmos/utilities/store'
 require 'cosmos/utilities/authorization'
+require 'cosmos/models/target_model'
 
 module Cosmos
   # TODO: Who should include this? This is the interface to the Redis backend.
@@ -469,7 +470,7 @@ module Cosmos
         return [target_name, command_name, time.to_i, ((time.to_f - time.to_i) * 1_000_000).to_i]
       else
         if target_name.nil?
-          targets = Cosmos::Store.instance.get_target_names(scope: scope)
+          targets = TargetModel.names(scope: scope)
         else
           targets = [target_name]
         end
@@ -1182,7 +1183,7 @@ module Cosmos
     # @return [Array<String>] All target names
     def get_target_list(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      Store.instance.get_target_names(scope: scope)
+      TargetModel.names(scope: scope)
     end
 
     # @see CmdTlmServer.subscribe_limits_events
@@ -1384,7 +1385,7 @@ module Cosmos
       authorize(permission: 'system', scope: scope, token: token)
       info = []
       get_target_list(scope: scope, token: token).each do |target_name|
-        target = Store.instance.get_target(target_name, scope: scope)
+        target = TargetModel.get(name: target_name, scope: scope)
         info << [target['name'], target['interface'], target['cmd_cnt'], target['tlm_cnt']]
       end
       info
@@ -1397,7 +1398,7 @@ module Cosmos
     # @return [Hash] Hash of all the target properties
     def get_target(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, scope: scope, token: token)
-      return Store.instance.get_target(target_name, scope: scope)
+      return TargetModel.get(name: target_name, scope: scope)
     end
 
     # Get the list of ignored command parameters for a target
@@ -1407,7 +1408,7 @@ module Cosmos
     # @return [Array<String>] All of the ignored command parameters for a target.
     def get_target_ignored_parameters(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, scope: scope, token: token)
-      return Store.instance.get_target(target_name, scope: scope)['ignored_parameters']
+      return TargetModel.get(name: target_name, scope: scope)['ignored_parameters']
     end
 
     # Get the list of ignored telemetry items for a target
@@ -1417,7 +1418,7 @@ module Cosmos
     # @return [Array<String>] All of the ignored telemetry items for a target.
     def get_target_ignored_items(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, scope: scope, token: token)
-      return Store.instance.get_target(target_name, scope: scope)['ignored_items']
+      return TargetModel.get(name: target_name, scope: scope)['ignored_items']
     end
 
     # Get the list of derived telemetry items for a packet

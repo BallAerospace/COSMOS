@@ -104,7 +104,7 @@ module Cosmos
             target = System.targets[command.target_name]
             if target
               target.cmd_cnt += 1
-              Store.instance.set_target(target, scope: @scope)
+              #Store.instance.set_target(target, scope: @scope)
             end
 
             'SUCCESS'
@@ -133,7 +133,7 @@ module Cosmos
         @interface.target_names << target_name
         target = System.targets[target_name]
         target.interface = @interface
-        Store.instance.set_target(target, scope: @scope) if target
+        #Store.instance.set_target(target, scope: @scope) if target
       end
       if @interface.connect_on_startup
         @interface.state = 'ATTEMPTING'
@@ -267,7 +267,7 @@ module Cosmos
       target = System.targets[packet.target_name]
       if target
         target.tlm_cnt += 1
-        Store.instance.set_target(target, scope: @scope)
+        #Store.instance.set_target(target, scope: @scope)
       end
 
       # Write to stream

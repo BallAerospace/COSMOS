@@ -14,6 +14,8 @@ module Cosmos
     attr_accessor :options
     attr_accessor :protocols
     attr_accessor :interfaces
+    attr_accessor :log
+    attr_accessor :log_raw
 
     def initialize(
       name:,
@@ -29,12 +31,13 @@ module Cosmos
       log: true,
       log_raw: false,
       updated_at: nil,
+      plugin: nil,
       scope:)
       interface_or_router = self.class.name.to_s.split("Model")[0].upcase.split("::")[-1]
       if interface_or_router == 'INTERFACE'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name, updated_at: updated_at)
+        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name, updated_at: updated_at, plugin: plugin, scope: scope)
       else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", name: name, updated_at: updated_at)
+        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", name: name, updated_at: updated_at, plugin: plugin, scope: scope)
       end
       @config_params = config_params
       @target_names = target_names
@@ -86,6 +89,7 @@ module Cosmos
         'interfaces' => @interfaces,
         'log' => @log,
         'log_raw' => @log_raw,
+        'plugin' => @plugin,
         'updated_at' => @updated_at
       }
     end
@@ -114,17 +118,17 @@ module Cosmos
       result
     end
 
-    def self.handle_config(parser, keyword, parameters, scope:)
+    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
       case keyword
       when 'INTERFACE', 'ROUTER'
         parser.verify_num_parameters(2, nil, "INTERFACE/ROUTER <Name> <Filename> <Specific Parameters>")
-        return self.new(name: parameters[0].upcase, config_params: parameters[1..-1], scope: scope)
+        return self.new(name: parameters[0].upcase, config_params: parameters[1..-1], plugin: plugin, scope: scope)
       else
         raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Interface/Router: #{keyword} #{parameters.join(" ")}")
       end
     end
 
-    def handle_config(parser, keyword, parameters, scope:)
+    def handle_config(parser, keyword, parameters)
       case keyword
       when 'MAP_TARGET'
         parser.verify_num_parameters(1, 1, "#{keyword} <Target Name>")
@@ -206,34 +210,49 @@ module Cosmos
       end
     end
 
-    def deploy(gem_path, variables, scope:)
+    def deploy(gem_path, variables)
       interface_or_router = self.class.name.to_s.split("Model")[0].upcase.split("::")[-1]
 
       if interface_or_router == 'INTERFACE'
         # Interface Microservice
-        microservice_name = "#{scope}__INTERFACE__#{@name}"
+        microservice_name = "#{@scope}__INTERFACE__#{@name}"
         microservice = MicroserviceModel.new(
           name: microservice_name,
           cmd: ["ruby", "interface_microservice.rb", microservice_name],
           work_dir: '/cosmos/lib/cosmos/microservices',
           target_names: @target_names,
-          scope: scope)
+          plugin: @plugin,
+          scope: @scope)
         microservice.create
-        microservice.deploy(gem_path, variables, scope: scope)
+        microservice.deploy(gem_path, variables)
         Logger.info "Configured Interface Microservice #{microservice_name}"
       else
         # Router Microservice
-        microservice_name = "#{scope}__ROUTER__#{@name}"
+        microservice_name = "#{@scope}__ROUTER__#{@name}"
         microservice = MicroserviceModel.new(
           name: microservice_name,
           cmd: ["ruby", "router_microservice.rb", microservice_name],
           work_dir: '/cosmos/lib/cosmos/microservices',
           target_names: @target_names,
-          scope: scope)
+          plugin: @plugin,
+          scope: @scope)
         microservice.create
-        microservice.deploy(gem_path, variables, scope: scope)
+        microservice.deploy(gem_path, variables)
         Logger.info "Configured Router Microservice #{microservice_name}"
       end
     end
+
+    def undeploy
+      interface_or_router = self.class.name.to_s.split("Model")[0].upcase.split("::")[-1]
+
+      if interface_or_router == 'INTERFACE'
+        model = MicroserviceModel.get_model(name: "#{@scope}__INTERFACE__#{@name}", scope: @scope)
+        model.destroy if model
+      else
+        model = MicroserviceModel.get_model(name: "#{@scope}__ROUTER__#{@name}", scope: @scope)
+        model.destroy if model
+      end
+    end
+
   end
 end

@@ -19,7 +19,7 @@ module Cosmos
       variables: {},
       updated_at: nil,
       scope:)
-      super("#{scope}__#{PRIMARY_KEY}", name: name, updated_at: updated_at)
+      super("#{scope}__#{PRIMARY_KEY}", name: name, updated_at: updated_at, scope: scope)
       @variables = variables
     end
 
@@ -100,8 +100,8 @@ module Cosmos
       end
 
       # Register plugin to aid in uninstall if install fails
-      model = PluginModel.new(name: name, variables: variables, scope: scope)
-      model.create
+      plugin_model = PluginModel.new(name: name, variables: variables, scope: scope)
+      plugin_model.create
 
       temp_dir = Dir.mktmpdir
       begin
@@ -125,13 +125,13 @@ module Cosmos
             when 'TARGET', 'INTERFACE', 'ROUTER', 'MICROSERVICE', 'TOOL'
               if current_model
                 current_model.create
-                current_model.deploy(gem_path, variables, scope: scope)
+                current_model.deploy(gem_path, variables)
                 current_model = nil
               end
-              current_model = Cosmos.const_get((keyword.capitalize + 'Model').intern).handle_config(parser, keyword, params, scope: scope)
+              current_model = Cosmos.const_get((keyword.capitalize + 'Model').intern).handle_config(parser, keyword, params, plugin: plugin_model.name, scope: scope)
             else
               if current_model
-                current_model.handle_config(parser, keyword, params, scope: scope)
+                current_model.handle_config(parser, keyword, params)
               else
                 raise "Invalid keyword #{keyword} in plugin.txt"
               end
@@ -139,7 +139,7 @@ module Cosmos
           end
           if current_model
             current_model.create
-            current_model.deploy(gem_path, variables, scope: scope)
+            current_model.deploy(gem_path, variables)
             current_model = nil
           end
         end
@@ -147,6 +147,13 @@ module Cosmos
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exists?(temp_dir)
       end
     end # def self.install
+
+    def undeploy
+      models = [ToolModel, TargetModel, InterfaceModel, RouterModel, MicroserviceModel]
+      models.each do |model|
+        model.find_all_by_plugin(plugin: @name, scope: @scope).each {|name, model_instance| model_instance.destroy}
+      end
+    end
 
   end # class Plugin
 end # module Cosmos

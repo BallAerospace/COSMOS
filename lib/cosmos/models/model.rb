@@ -8,11 +8,16 @@ module Cosmos
     extend Authorization
 
     attr_accessor :name
+    attr_accessor :updated_at
+    attr_accessor :plugin
+    attr_accessor :scope
 
     def initialize(primary_key, **kw_args)
       @primary_key = primary_key
       @name = kw_args[:name]
       @updated_at = kw_args[:updated_at]
+      @plugin = kw_args[:plugin]
+      @scope = kw_args[:scope]
     end
 
     def create(update: false, force: false)
@@ -32,13 +37,19 @@ module Cosmos
       create(update: true)
     end
 
+    def undeploy
+      # Does nothing by default
+    end
+
     def destroy
+      undeploy()
       Store.hdel(@primary_key, @name)
     end
 
     def as_json
       { 'name' => @name,
-        'updated_at' => @updated_at }
+        'updated_at' => @updated_at,
+        'plugin' => @plugin }
     end
 
     def as_config
@@ -56,7 +67,22 @@ module Cosmos
     end
 
     def self.get(primary_key, name:)
-      JSON.parse(Store.hget(primary_key, name))
+      json = Store.hget(primary_key, name)
+      if json
+        return JSON.parse(json)
+      else
+        return nil
+      end
+    end
+
+    # Note: This will only work in subclasses that reimplement get without primary_key
+    def self.get_model(name:, scope:)
+      json = get(name: name, scope: scope)
+      if json
+        return from_json(json, scope: scope)
+      else
+        return nil
+      end
     end
 
     def self.names(primary_key)
@@ -69,6 +95,23 @@ module Cosmos
         hash[key] = JSON.parse(value)
       end
       hash
+    end
+
+    # Note: This will only work in subclasses that reimplement all without primary_key
+    def self.get_all_models(scope:)
+      models = {}
+      all(scope: scope).each { |name, json| models[name] = from_json(json, scope: scope) }
+      models
+    end
+
+    # Note: This will only work in subclasses that reimplement all without primary_key
+    def self.find_all_by_plugin(plugin:, scope:)
+      result = {}
+      models = get_all_models(scope: scope)
+      models.each do |name, model|
+        result[name] = model if model.plugin == plugin
+      end
+      result
     end
 
     def self.handle_config(parser, model, keyword, parameters)

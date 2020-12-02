@@ -1,4 +1,5 @@
 require 'cosmos/models/model'
+require 'cosmos/utilities/s3'
 
 module Cosmos
   class ToolModel < Model
@@ -16,8 +17,9 @@ module Cosmos
       url: nil,
       position: nil,
       updated_at: nil,
+      plugin: nil,
       scope:)
-      super("#{scope}__#{PRIMARY_KEY}", name: name, updated_at: updated_at)
+      super("#{scope}__#{PRIMARY_KEY}", name: name, plugin: plugin, updated_at: updated_at, scope: scope)
       @folder_name = folder_name
       @icon = icon
       @url = url
@@ -26,8 +28,7 @@ module Cosmos
 
     def create(update: false, force: false)
       unless @position
-        scope = @primary_key.split("__")[0]
-        tools = self.class.all(scope: scope)
+        tools = self.class.all(scope: @scope)
         max_position = nil
         tools.each do |tool_name, tool|
           max_position = tool['position'] if !max_position or tool['position'] > max_position
@@ -45,7 +46,8 @@ module Cosmos
         'icon' => @icon,
         'url' => @url,
         'position' => @position,
-        'updated_at' => @updated_at
+        'updated_at' => @updated_at,
+        'plugin' => @plugin
       }
     end
 
@@ -56,18 +58,18 @@ module Cosmos
       result
     end
 
-    def self.handle_config(parser, keyword, parameters, scope:)
+    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
       case keyword
       when 'TOOL'
         parser.verify_num_parameters(2, 2, "TOOL <Folder Name> <Name>")
-        return self.new(folder_name: parameters[0], name: parameters[1], scope: scope)
+        return self.new(folder_name: parameters[0], name: parameters[1], plugin: plugin, scope: scope)
       else
         raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Tool: #{keyword} #{parameters.join(" ")}")
       end
       return nil
     end
 
-    def handle_config(parser, keyword, parameters, scope:)
+    def handle_config(parser, keyword, parameters)
       case keyword
       when 'URL'
         parser.verify_num_parameters(1, 1, "URL <URL>")
@@ -169,14 +171,14 @@ module Cosmos
       return tools
     end
 
-    def deploy(gem_path, variables, scope:)
+    def deploy(gem_path, variables)
       variables["tool_name"] = @name
       rubys3_client = Aws::S3::Client.new
       start_path = "/tools/#{@folder_name}/"
       Dir.glob(gem_path + start_path + "**/*") do |filename|
         next if filename == '.' or filename == '..' or File.directory?(filename)
         path = filename.split(gem_path)[-1]
-        key = "#{scope}/tools/#{@name}/" + path.split(start_path)[-1]
+        key = "#{@scope}/tools/#{@name}/" + path.split(start_path)[-1]
 
         # Load target files
         data = File.read(filename, mode: "rb")
@@ -185,6 +187,14 @@ module Cosmos
         else
           rubys3_client.put_object(bucket: 'config', key: key, body: data)
         end
+      end
+    end
+
+    def undeploy
+      rubys3_client = Aws::S3::Client.new
+      prefix = "#{@scope}/tools/#{@name}/"
+      rubys3_client.list_objects(bucket: 'config', prefix: prefix).contents.each do |object|
+        rubys3_client.delete_object(bucket: 'config', key: object.key)
       end
     end
 
