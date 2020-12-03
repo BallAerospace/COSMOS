@@ -15,6 +15,7 @@
               class="ma-1"
               @change="selectOkDisabled = false"
               :items="computedButtons"
+              data-test="select"
             ></v-select>
             <v-btn
               class="ma-1"
@@ -58,7 +59,7 @@ export default {
     },
     buttons: {
       type: Array,
-      default: null,
+      default: () => [],
     },
     layout: {
       type: String,
@@ -74,12 +75,14 @@ export default {
   },
   computed: {
     computedButtons() {
-      return (
-        this.buttons || [
+      if (this.buttons.length === 0) {
+        return [
           { text: 'Yes', value: true },
           { text: 'No', value: false },
         ]
-      )
+      } else {
+        return this.buttons
+      }
     },
     layoutClass() {
       let layout = 'd-flex align-start'

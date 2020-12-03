@@ -38,6 +38,9 @@ module.exports = (on, config) => {
     const downloadDirectory = path.join(__dirname, '..', 'downloads')
 
     if (browser.family === 'chromium' && browser.name !== 'electron') {
+      // The available option list is here:
+      // https://src.chromium.org/viewvc/chrome/trunk/src/chrome/common/pref_names.cc?view=markup
+      // TODO: Is there a way to disable the warning about Ruby file downloads?
       options.preferences.default['download'] = {
         default_directory: downloadDirectory,
       }

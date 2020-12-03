@@ -2,14 +2,13 @@ require 'cosmos/config/config_parser'
 
 start_time = Time.now
 id = ARGV[0]
-name = ARGV[1]
-bucket = ARGV[2]
+scope = ARGV[1]
+name = ARGV[2]
 disconnect = ARGV[3]
 require '../config/environment'
 #Rails.application.eager_load!
-bucket ||= Script::DEFAULT_BUCKET_NAME
 startup_time = Time.now - start_time
-path = File.join(bucket, name)
+path = File.join(Script::DEFAULT_BUCKET_NAME, scope, 'targets', name)
 
 def run_script_log(id, message, color = 'BLACK')
   line_to_write = Time.now.sys.formatted + " (SCRIPTRUNNER): " + message
@@ -21,7 +20,7 @@ end
 run_script_log(id, "Script #{path} spawned in #{startup_time} seconds")
 
 begin
-  running_script = RunningScript.new(id, name, bucket, disconnect)
+  running_script = RunningScript.new(id, scope, name, disconnect)
   running_script.start
 
   redis = Redis.new(url: ActionCable.server.config.cable["url"])

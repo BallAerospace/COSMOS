@@ -98,18 +98,22 @@ export default {
     },
   },
   created() {
-    axios.get('http://localhost:3001/scripts').then((response) => {
-      this.tree = []
-      this.id = 1
-      for (let file of response.data) {
-        this.filepath = file
-        this.insertFile(this.tree, 1, file)
-        this.id++
-      }
-      if (this.inputFileName) {
-        this.selectedFile = this.inputFileName
-      }
-    })
+    axios
+      .get('http://localhost:3001/scripts', {
+        params: { scope: 'DEFAULT' },
+      })
+      .then((response) => {
+        this.tree = []
+        this.id = 1
+        for (let file of response.data) {
+          this.filepath = file
+          this.insertFile(this.tree, 1, file)
+          this.id++
+        }
+        if (this.inputFileName) {
+          this.selectedFile = this.inputFileName
+        }
+      })
   },
   methods: {
     handleSearch(input) {
@@ -135,7 +139,9 @@ export default {
       }
       if (this.type === 'open') {
         axios
-          .get('http://localhost:3001/scripts/' + this.selectedFile)
+          .get('http://localhost:3001/scripts/' + this.selectedFile, {
+            params: { scope: 'DEFAULT' },
+          })
           .then((response) => {
             const file = { name: this.selectedFile, contents: response.data }
             this.$emit('file', file)

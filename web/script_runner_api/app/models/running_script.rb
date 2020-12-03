@@ -28,8 +28,7 @@ module Cosmos
         return false # Not aborted - Retry
       end
 
-      def start(procedure_name, bucket = nil)
-        bucket ||= ::Script::DEFAULT_BUCKET_NAME
+      def start(procedure_name)
         path = procedure_name
 
         # Check RAM based instrumented cache
@@ -39,14 +38,14 @@ module Cosmos
           # Use cached instrumentation
           instrumented_script = instrumented_cache
           cached = true
-          ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, bucket: bucket, text: text })
+          ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
         else
           # Retrieve file
-          text = ::Script.body(procedure_name, bucket)
-          ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, bucket: bucket, text: text })
+          text = ::Script.body(RunningScript.instance.scope, procedure_name)
+          ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
 
           # Cache instrumentation into RAM
-          instrumented_script = RunningScript.instrument_script(text, path, bucket, true)
+          instrumented_script = RunningScript.instrument_script(text, path, true)
           RunningScript.instrumented_cache[path] = [instrumented_script, text]
           cached = false
         end
@@ -58,19 +57,18 @@ module Cosmos
       end
 
       # Require an additional ruby file
-      def load_utility(procedure_name, bucket = nil)
-        bucket ||= ::Script::DEFAULT_BUCKET_NAME
+      def load_utility(procedure_name)
         not_cached = false
         if defined? RunningScript and RunningScript.instance
           saved = RunningScript.instance.use_instrumentation
           begin
             RunningScript.instance.use_instrumentation = false
-            not_cached = start(procedure_name, bucket)
+            not_cached = start(procedure_name)
           ensure
             RunningScript.instance.use_instrumentation = saved
           end
         else # Just call start
-          not_cached = start(procedure_name, bucket)
+          not_cached = start(procedure_name)
         end
         # Return whether we had to load and instrument this file, i.e. it was not cached
         # This is designed to match the behavior of Ruby's require and load keywords
@@ -169,8 +167,7 @@ class RunningScript
     end
   end
 
-  def self.spawn(name, bucket = nil, disconnect = false)
-    bucket ||= Script::DEFAULT_BUCKET_NAME
+  def self.spawn(scope, name, disconnect = false)
     runner_path = Rails.root.join('scripts/run_script.rb')
     redis = Redis.new(url: ActionCable.server.config.cable["url"])
     id = redis.incr('running-script-id')
@@ -180,11 +177,11 @@ class RunningScript
       ruby_process_name = 'ruby'
     end
     start_time = Time.now
-    process = ChildProcess.build(ruby_process_name, runner_path.to_s, id.to_s, name, bucket.to_s, disconnect.to_s)
+    process = ChildProcess.build(ruby_process_name, runner_path.to_s, id.to_s, scope, name, disconnect.to_s)
     process.io.inherit! # Helps with debugging
     process.cwd = Rails.root.join('scripts').to_s
     process.start
-    details = { id: id, name: name, bucket: bucket, start_time: start_time.to_s }
+    details = { id: id, scope: scope, name: name, start_time: start_time.to_s }
     details[:disconnect] = true if disconnect
     redis.sadd('running-scripts', details.to_json)
     details[:hostname] = Socket.gethostname
@@ -199,11 +196,11 @@ class RunningScript
 
   # Parameters are passed to RunningScript.new as strings because
   # RunningScript.spawn must pass strings to ChildProcess.build
-  def initialize(id, name, bucket, disconnect)
+  def initialize(id, scope, name, disconnect)
     @id = id
     @@id = id
+    @scope = scope
     @name = name
-    @bucket = bucket
     @filename = name
     @user_input = ''
     @line_offset = 0
@@ -232,7 +229,7 @@ class RunningScript
         @details = JSON.parse(details)
       else
         # Create as much details as we know
-        @details = { id: @id, name: @filename, bucket: @bucket }
+        @details = { id: @id, name: @filename, scope: @scope }
       end
     end
 
@@ -244,8 +241,8 @@ class RunningScript
     redis.set("running-script:#{id}", @details.to_json)
 
     # Retrieve file
-    @body = ::Script.body(name, @bucket)
-    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: @filename, bucket: @bucket, text: @body })
+    @body = ::Script.body(@scope, name)
+    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: @filename, scope: @scope, text: @body })
   end
 
   def start
@@ -473,7 +470,7 @@ class RunningScript
     run_text(@body, 0, text_binding, true)
   end
 
-  def self.instrument_script(text, filename, bucket, mark_private = false)
+  def self.instrument_script(text, filename, mark_private = false)
     if filename and !filename.empty?
       @@file_cache[filename] = text.clone
     end
@@ -490,7 +487,6 @@ class RunningScript
                                         comments_removed_text,
                                         num_lines,
                                         filename,
-                                        bucket,
                                         mark_private)
 
     raise Cosmos::StopScript if @cancel_instrumentation
@@ -501,7 +497,6 @@ class RunningScript
                                             comments_removed_text,
                                             num_lines,
                                             filename,
-                                            bucket,
                                             mark_private = false)
     if mark_private
       instrumented_text = 'private; '
@@ -532,7 +527,7 @@ class RunningScript
 
         # Add preline instrumentation
         instrumented_line << "RunningScript.instance.script_binding = binding(); "\
-          "RunningScript.instance.pre_line_instrumentation('#{filename}', '#{bucket}', #{line_no}); "
+          "RunningScript.instance.pre_line_instrumentation('#{filename}', #{line_no}); "
 
         # Add the actual line
         instrumented_line << "__return_val = begin; "
@@ -560,7 +555,7 @@ class RunningScript
             (num_right_square_brackets > num_left_square_brackets)
             instrumented_line = segment
           else
-            instrumented_line = "RunningScript.instance.pre_line_instrumentation('#{filename}', '#{bucket}', #{line_no}); " + segment
+            instrumented_line = "RunningScript.instance.pre_line_instrumentation('#{filename}', #{line_no}); " + segment
           end
         else
           instrumented_line = segment
@@ -574,7 +569,7 @@ class RunningScript
     instrumented_text
   end
 
-  def pre_line_instrumentation(filename, bucket, line_number)
+  def pre_line_instrumentation(filename, line_number)
     @current_filename = filename
     @current_line_number = line_number
     if @use_instrumentation
@@ -585,7 +580,7 @@ class RunningScript
       raise Cosmos::StopScript if @stop
 
       # Handle needing to change tabs
-      handle_potential_tab_change(filename, bucket)
+      handle_potential_tab_change(filename)
 
       # Adjust line number for offset in main script
       line_number = line_number + @line_offset # if @active_script.object_id == @script.object_id
@@ -1021,9 +1016,9 @@ class RunningScript
         else
           # Instrument the script
           if text_binding
-            instrumented_script = self.class.instrument_script(text, @filename, @bucket, false)
+            instrumented_script = self.class.instrument_script(text, @filename, false)
           else
-            instrumented_script = self.class.instrument_script(text, @filename, @bucket, true)
+            instrumented_script = self.class.instrument_script(text, @filename, true)
           end
           @top_level_instrumented_cache = [text, line_offset, @filename, instrumented_script]
         end
@@ -1088,9 +1083,7 @@ class RunningScript
     end
   end
 
-  def handle_potential_tab_change(filename, bucket = nil)
-    bucket ||= ::Script::DEFAULT_BUCKET_NAME
-
+  def handle_potential_tab_change(filename)
     # Make sure the correct file is shown in script runner
     if @current_file != filename
       #Qt.execute_in_main_thread(true) do
@@ -1108,7 +1101,7 @@ class RunningScript
           # Switch to new tab
           #@tab_book.setCurrentIndex(@tab_book.count - 1)
           #@active_script = new_script
-          load_file_into_script(filename, bucket)
+          load_file_into_script(filename)
           #new_script.setReadOnly(true)
         end
 
@@ -1236,18 +1229,17 @@ class RunningScript
   #   end
   # end
 
-  def load_file_into_script(filename, bucket = nil)
-    bucket ||= ::Script::DEFAULT_BUCKET_NAME
+  def load_file_into_script(filename)
     cached = @@file_cache[filename]
     if cached
       #@active_script.setPlainText(cached.gsub("\r", ''))
       @body = cached
       ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: filename, text: @body })
     else
-      text = ::Script.body(filename, bucket)
+      text = ::Script.body(@scope, filename)
       @@file_cache[filename] = text
       @body = text
-      ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: filename, bucket: bucket, text: @body })
+      ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: filename, text: @body })
     end
     mark_breakpoints(filename)
 

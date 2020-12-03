@@ -41,6 +41,7 @@
           hide-details
           label="Script State"
           v-model="state"
+          data-test="state"
         ></v-text-field>
         <v-progress-circular
           v-if="state === 'Connecting...'"
@@ -349,18 +350,22 @@ export default {
         if (this.showDisconnect) {
           url += '/disconnect'
         }
-        axios.post(url).then((response) => {
-          this.state = 'Connecting...'
-          this.startOrGoButton = 'Go'
-          this.scriptId = response.data
-          this.editor.setReadOnly(true)
-          this.subscription = this.cable.subscriptions.create(
-            { channel: 'RunningScriptChannel', id: this.scriptId },
-            {
-              received: (data) => this.received(data),
-            }
-          )
-        })
+        axios
+          .post(url, {
+            scope: 'DEFAULT',
+          })
+          .then((response) => {
+            this.state = 'Connecting...'
+            this.startOrGoButton = 'Go'
+            this.scriptId = response.data
+            this.editor.setReadOnly(true)
+            this.subscription = this.cable.subscriptions.create(
+              { channel: 'RunningScriptChannel', id: this.scriptId },
+              {
+                received: (data) => this.received(data),
+              }
+            )
+          })
       } else {
         axios.post(
           'http://localhost:3001/running-script/' + this.scriptId + '/go'
@@ -454,7 +459,10 @@ export default {
           // Delete the temp file created as a result of saving a NEW file
           if (this.tempFileName) {
             axios.post(
-              'http://localhost:3001/scripts/' + this.tempFileName + '/delete'
+              'http://localhost:3001/scripts/' + this.tempFileName + '/delete',
+              {
+                scope: 'DEFAULT',
+              }
             )
           }
         default:
@@ -473,7 +481,7 @@ export default {
     handleScript(data) {
       this.prompt.method = data.method // Set it here since all prompts use this
       this.prompt.layout = 'horizontal' // Reset the layout since most are horizontal
-      this.prompt.buttons = null // Reset buttons so 'Yes', 'No' are used by default
+      this.prompt.buttons = [] // Reset buttons so 'Yes', 'No' are used by default
       switch (data.method) {
         case 'ask_string':
           // Reset values since this dialog can be re-used
@@ -600,10 +608,10 @@ export default {
         if (type === 'start') {
           this.tempFileName =
             format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_temp.rb'
-          axios.post(
-            'http://localhost:3001/scripts/' + this.tempFileName,
-            this.editor.getValue() // Pass in the raw file text
-          )
+          axios.post('http://localhost:3001/scripts/' + this.tempFileName, {
+            text: this.editor.getValue(), // Pass in the raw file text
+            scope: 'DEFAULT',
+          })
         } else {
           // Menu driven saves on a new file should prompt SaveAs
           this.saveAs()
@@ -611,10 +619,10 @@ export default {
       } else {
         // Save an existing file by posting the new contents
         axios
-          .post(
-            'http://localhost:3001/scripts/' + this.fileName,
-            this.editor.getValue() // Pass in the raw file text
-          )
+          .post('http://localhost:3001/scripts/' + this.fileName, {
+            text: this.editor.getValue(), // Pass in the raw file text
+            scope: 'DEFAULT',
+          })
           .then((response) => {
             if (response.status == 200) {
               this.fileModified = ''
@@ -642,7 +650,9 @@ export default {
     confirmDelete(action) {
       if (action === true) {
         axios
-          .post('http://localhost:3001/scripts/' + this.fileName + '/delete')
+          .post('http://localhost:3001/scripts/' + this.fileName + '/delete', {
+            scope: 'DEFAULT',
+          })
           .then((response) => {
             this.areYouSure = false
             this.newFile()

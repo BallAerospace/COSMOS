@@ -9,58 +9,55 @@ Aws.config.update(
 )
 
 class Script
-  DEFAULT_BUCKET_NAME = 'targets'
+  DEFAULT_BUCKET_NAME = 'config'
 
-  def self.all(bucket = nil)
-    bucket ||= DEFAULT_BUCKET_NAME
+  def self.all(scope)
     rubys3_client = Aws::S3::Client.new
-    resp = rubys3_client.list_objects_v2(bucket: bucket)
+    resp = rubys3_client.list_objects_v2(bucket: DEFAULT_BUCKET_NAME)
     result = []
     contents = resp.to_h[:contents]
     if contents
       contents.each do |object|
-        result << object[:key] if object[:key].include?("procedures") || object[:key].include?("lib")
+        next unless object[:key].include?("#{scope}/targets")
+        if object[:key].include?("procedures") || object[:key].include?("lib")
+          result << object[:key].split('/')[2..-1].join('/')
+        end
       end
     end
     result.sort
   end
 
-  def self.find(name, bucket = nil)
-    bucket ||= DEFAULT_BUCKET_NAME
-    rubys3_client = Aws::S3::Client.new
-    resp = rubys3_client.get_object(bucket: bucket, key: name)
-    return {"name" => "test.rb"}
-  end
+  # def self.find(scope, name)
+  #   rubys3_client = Aws::S3::Client.new
+  #   resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: name)
+  #   return {"name" => "test.rb"}
+  # end
 
-  def self.body(name, bucket = nil)
-    bucket ||= DEFAULT_BUCKET_NAME
+  def self.body(scope, name)
     rubys3_client = Aws::S3::Client.new
-    resp = rubys3_client.get_object(bucket: bucket, key: name)
+    resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{name}")
     resp.body.read
   end
 
-  def self.create(name, bucket = nil, text = nil)
+  def self.create(scope, name, text = nil)
     return false unless text
-    bucket ||= DEFAULT_BUCKET_NAME
     rubys3_client = Aws::S3::Client.new
     rubys3_client.put_object(
-      key: name,
+      key: "#{scope}/targets/#{name}",
       body: text,
-      bucket: bucket,
+      bucket: DEFAULT_BUCKET_NAME,
       content_type: 'text/plain')
     true
   end
 
-  def self.destroy(name, bucket = nil)
-    bucket ||= DEFAULT_BUCKET_NAME
+  def self.destroy(scope, name)
     rubys3_client = Aws::S3::Client.new
-    rubys3_client.delete_object(key: name, bucket: bucket)
+    rubys3_client.delete_object(key: "#{scope}/targets/#{name}", bucket: DEFAULT_BUCKET_NAME)
     true
   end
 
-  def self.run(name, bucket = nil, disconnect = false)
-    bucket ||= DEFAULT_BUCKET_NAME
-    RunningScript.spawn(name, bucket, disconnect)
+  def self.run(scope, name, disconnect = false)
+    RunningScript.spawn(scope, name, disconnect)
   end
 
   def self.syntax(text)
