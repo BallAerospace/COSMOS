@@ -359,31 +359,39 @@ export default {
       this.$emit('min-max-plot')
     },
     subscribe() {
-      this.subscription = this.cable.subscriptions.create('StreamingChannel', {
-        received: (data) => this.received(data),
-        connected: () => {
-          var items = []
-          this.items.forEach((item) => {
-            items.push(
-              'TLM__' +
-                item.targetName +
-                '__' +
-                item.packetName +
-                '__' +
-                item.itemName +
-                '__CONVERTED'
-            )
-          })
-          this.subscription.perform('add', {
-            scope: 'DEFAULT',
-            items: items,
-            // No start_time because we want to start now
-            // No end_time because we want to continue until we stop
-          })
+      this.subscription = this.cable.subscriptions.create(
+        {
+          channel: 'StreamingChannel',
+          scope: 'DEFAULT',
         },
-        // TODO: How should we handle server side disconnect
-        disconnected: () => alert('disconnected'),
-      })
+        {
+          received: (data) => this.received(data),
+          connected: () => {
+            var items = []
+            this.items.forEach((item) => {
+              items.push(
+                'TLM__' +
+                  item.targetName +
+                  '__' +
+                  item.packetName +
+                  '__' +
+                  item.itemName +
+                  '__CONVERTED'
+              )
+            })
+            console.log('subscribe and add')
+            console.log(new Date().getTime() * 1_000_000)
+            this.subscription.perform('add', {
+              scope: 'DEFAULT',
+              items: items,
+              // No start_time because we want to start now
+              // No end_time because we want to continue until we stop
+            })
+          },
+          // TODO: How should we handle server side disconnect
+          disconnected: () => alert('disconnected'),
+        }
+      )
     },
     throttle(cb, limit) {
       var wait = false
@@ -488,7 +496,8 @@ export default {
           spanGaps: true,
           label: item.itemName,
           stroke: this.colors[this.data.length - 1],
-          value: (self, rawValue) => rawValue && rawValue.toFixed(2),
+          value: (self, rawValue) =>
+            rawValue == null ? '--' : rawValue.toFixed(2),
         },
         index
       )
@@ -513,12 +522,10 @@ export default {
       this.indexes[key] = index
 
       if (this.state !== 'stop') {
-        let history =
-          new Date().getTime() * 1_000_000 - this.data[0][0] * 1_000_000_000
         this.subscription.perform('add', {
           scope: 'DEFAULT',
           items: [key],
-          start_time: new Date().getTime() * 1_000_000 - history,
+          start_time: this.data[0][0] * 1_000_000_000,
           // No end_time because we want to continue until we stop
         })
       }
@@ -555,6 +562,11 @@ export default {
       return index
     },
     received(json_data) {
+      // TODO: Shouldn't get errors but should we handle this every time?
+      // if (json_data.error) {
+      //   console.log(json_data.error)
+      //   return
+      // }
       let data = JSON.parse(json_data)
       for (let i = 0; i < data.length; i++) {
         let time = data[i].time / 1000000000.0 // Time in seconds

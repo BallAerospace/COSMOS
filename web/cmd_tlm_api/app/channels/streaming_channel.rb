@@ -47,17 +47,17 @@ class StreamingChannel < ApplicationCable::Channel
       reject_subscription # Calls the 'rejected' method on the frontend
       result = false
     end
-    if data["start_time"]
-      # TODO: Currently don't support start_time greater than now
-      # Is there a use-case to wait for the start time and then start streaming?
-      if data["start_time"].to_i > Time.now.to_nsec_from_epoch
-        transmit error: 'start_time greater than current time'
-        # TODO: This feels weird but ActionCable is new ... better way?
-        reject # Sets the rejected state on the connection
-        reject_subscription # Calls the 'rejected' method on the frontend
-        result = false
-      end
-    end
+    # if data['start_time']
+    #   # TODO: Currently don't support start_time greater than now
+    #   # Is there a use-case to wait for the start time and then start streaming?
+    #   if data['start_time'].to_i > Time.now.to_nsec_from_epoch
+    #     transmit error: 'start_time greater than current time'
+    #     # TODO: This feels weird but ActionCable is new ... better way?
+    #     reject # Sets the rejected state on the connection
+    #     reject_subscription # Calls the 'rejected' method on the frontend
+    #     result = false
+    #   end
+    # end
     result
   end
 end

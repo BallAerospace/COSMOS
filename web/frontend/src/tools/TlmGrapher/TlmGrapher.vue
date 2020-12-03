@@ -114,6 +114,7 @@ import SaveConfigDialog from '@/components/SaveConfigDialog'
 import { CosmosApi } from '@/services/cosmos-api'
 import Muuri from 'muuri'
 
+const MURRI_REFRESH_TIME = 200
 export default {
   components: {
     AppNav,
@@ -237,6 +238,7 @@ export default {
   mounted() {
     this.grid = new Muuri('.grid', {
       dragEnabled: true,
+      layoutOnResize: true,
       // Only allow drags starting from the v-system-bar title
       dragHandle: '.v-system-bar',
     })
@@ -259,6 +261,9 @@ export default {
           { active: false }
         )
         this.grid.show(items)
+        setTimeout(() => {
+          this.grid.refreshItems().layout()
+        }, MURRI_REFRESH_TIME)
       })
     },
     plotId(id) {
@@ -280,10 +285,12 @@ export default {
     minMaxPlot(id) {
       setTimeout(() => {
         this.grid.refreshItems().layout()
-      }, 500) // TODO: Is 500ms ok for all plots?
+      }, MURRI_REFRESH_TIME)
     },
     resize(id) {
-      this.grid.refreshItems().layout()
+      setTimeout(() => {
+        this.grid.refreshItems().layout()
+      }, MURRI_REFRESH_TIME)
     },
     plotSelected(id) {
       this.selectedPlotId = id
