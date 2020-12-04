@@ -51,9 +51,14 @@ begin
         if parsed_cmd["method"]
           case parsed_cmd["method"]
           when "ask_string", /^prompt_.*/
-            running_script.user_input = Cosmos::ConfigParser.handle_true_false(parsed_cmd["result"].to_s)
-            run_script_log(id, "User input: #{running_script.user_input}")
-            running_script.continue if running_script.user_input != 'Cancel'
+            if parsed_cmd["password"]
+              running_script.user_input = parsed_cmd["password"].to_s
+              running_script.continue if running_script.user_input != 'Cancel'
+            else
+              running_script.user_input = Cosmos::ConfigParser.handle_true_false(parsed_cmd["result"].to_s)
+              run_script_log(id, "User input: #{running_script.user_input}")
+              running_script.continue if running_script.user_input != 'Cancel'
+            end
           when "backtrace"
             ActionCable.server.broadcast("running-script-channel:#{id}",
               { type: :script, method: :backtrace, args: JSON.generate(running_script.current_backtrace) })

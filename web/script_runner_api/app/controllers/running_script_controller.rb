@@ -66,7 +66,12 @@ class RunningScriptController < ApplicationController
   def prompt
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
-      ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method], result: params[:answer] })
+      if params[:password]
+        # TODO: ActionCable is logging this ... probably shouldn't
+        ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method], password: params[:password] })
+      else
+        ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method], result: params[:answer] })
+      end
       head :ok
     else
       head :not_found

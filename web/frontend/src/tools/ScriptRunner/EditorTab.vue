@@ -84,6 +84,7 @@
               @click="step"
               style="width: 100px"
               class="mr-4"
+              data-test="step-button"
               >Step
               <v-icon right> mdi-step-forward </v-icon>
             </v-btn>
@@ -491,7 +492,7 @@ export default {
           this.ask.question = data.args[0]
           // If the second parameter is not true or false it indicates a default value
           if (data.args[1] !== true && data.args[1] !== false) {
-            this.ask.default = data.args[1]
+            this.ask.default = data.args[1].toString()
           } else if (data.args[1] === true) {
             // If the second parameter is true it means no value is required to be entered
             this.ask.answerRequired = false
@@ -502,12 +503,27 @@ export default {
           }
           this.ask.callback = (value) => {
             this.ask.show = false // Close the dialog
-            axios.post(
-              'http://localhost:3001/running-script/' +
-                this.scriptId +
-                '/prompt',
-              { method: data.method, answer: value }
-            )
+            if (this.ask.password) {
+              axios.post(
+                'http://localhost:3001/running-script/' +
+                  this.scriptId +
+                  '/prompt',
+                {
+                  method: data.method,
+                  password: value, // Using password as a key automatically filters it from rails logs
+                }
+              )
+            } else {
+              axios.post(
+                'http://localhost:3001/running-script/' +
+                  this.scriptId +
+                  '/prompt',
+                {
+                  method: data.method,
+                  answer: value,
+                }
+              )
+            }
           }
           this.ask.show = true // Display the dialog
           break
@@ -515,6 +531,11 @@ export default {
           this.prompt.title = data.args[0]
           this.prompt.message = data.args[1]
           this.prompt.callback = this.promptDialogCallback
+          if (data.args[2]) {
+            data.args[2].forEach((v) => {
+              this.prompt.buttons.push({ text: v, value: v })
+            })
+          }
           this.prompt.show = true
           break
         case 'prompt_for_hazardous':

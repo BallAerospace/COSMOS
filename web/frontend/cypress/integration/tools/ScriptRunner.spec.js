@@ -1,19 +1,11 @@
 describe('ScriptRunner', () => {
   //
-  // Test the basic functionality of the application
+  // Test the basic functionality of the application, not running scripts
   //
   it('opens ready to type', () => {
     cy.visit('/script-runner')
     cy.focused().type('this is a test')
     cy.contains('this is a test')
-  })
-  it('runs unsaved scripts', () => {
-    cy.visit('/script-runner')
-    cy.get('#editor').type('puts "Hello World"')
-    cy.get('[data-test=start-go-button]').click()
-    cy.get('[data-test=output-messages]').contains('Hello World', {
-      timeout: 30000,
-    })
   })
 
   //
@@ -96,6 +88,16 @@ describe('ScriptRunner', () => {
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb')
 
+    // Type more and verify the Ctrl-S shortcut
+    cy.get('#editor').type('\n# comment3')
+    cy.get('[data-test=file-name]')
+      .invoke('val')
+      .should('eq', 'INST/procedures/temp.rb *')
+    cy.get('#editor').type('{ctrl}S')
+    cy.get('[data-test=file-name]')
+      .invoke('val')
+      .should('eq', 'INST/procedures/temp.rb')
+
     // Clear the editor
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('New File').click()
@@ -156,50 +158,5 @@ describe('ScriptRunner', () => {
     })
   })
 
-  //
-  // Test the Script menu
-  //
-  it('runs Ruby Syntax check', () => {
-    cy.visit('/script-runner')
-    cy.get('#editor').type('if')
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Ruby Syntax Check').click()
-    cy.get('.v-dialog').within(() => {
-      // New files automatically open File Save As
-      cy.contains('Syntax Check Failed')
-      cy.contains('unexpected end-of-input')
-    })
-  })
-
-  it('does nothing for call stack when not running', () => {
-    cy.visit('/script-runner')
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Show Call Stack').click()
-    cy.get('@consoleError').should('not.be.called')
-  })
-
-  it('displays debug prompt', () => {
-    cy.visit('/script-runner')
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Toggle Debug').click()
-    cy.get('[data-test=debug-text]').should('be.visible')
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Toggle Debug').click()
-    cy.get('[data-test=debug-text]').should('not.exist')
-  })
-
-  it('displays disconnect icon', () => {
-    cy.visit('/script-runner')
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Toggle Disconnect').click()
-    // Specify the icon inside the header since the menu has the same icon!
-    cy.get('#header').within(() => {
-      cy.get('.v-icon.mdi-connection').should('be.visible')
-    })
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Toggle Disconnect').click()
-    cy.get('#header').within(() => {
-      cy.get('.v-icon.mdi-connection').should('not.exist')
-    })
-  })
+  // Script menu tested by ScriptRunnerDebug
 })

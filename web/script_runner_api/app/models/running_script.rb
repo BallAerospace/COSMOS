@@ -1048,7 +1048,7 @@ class RunningScript
           handle_exception(error, true, filename, line_number)
           scriptrunner_puts "Exception in Control Statement - Script stopped: #{File.basename(@filename)}"
           handle_output_io()
-          ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :stopped_exception })
+          ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :fatal })
         end
       ensure
         # Stop Capturing STDOUT and STDERR
