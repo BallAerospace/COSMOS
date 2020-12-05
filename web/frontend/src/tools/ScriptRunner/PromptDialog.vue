@@ -31,15 +31,22 @@
               >Cancel</v-btn
             >
           </template>
-          <v-btn
-            v-else
-            class="ma-1"
-            v-for="(button, index) in computedButtons"
-            :key="index"
-            color="secondary"
-            @click="$emit('submit', button.value)"
-            >{{ button.text }}</v-btn
-          >
+          <template v-else>
+            <v-btn
+              class="ma-1"
+              v-for="(button, index) in computedButtons"
+              :key="index"
+              color="secondary"
+              @click="$emit('submit', button.value)"
+              >{{ button.text }}</v-btn
+            >
+            <v-btn
+              class="ma-1"
+              color="secondary"
+              @click="$emit('submit', 'Cancel')"
+              >Cancel</v-btn
+            >
+          </template>
         </v-card-actions>
       </v-card>
     </v-dialog>

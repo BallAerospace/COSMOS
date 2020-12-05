@@ -1,4 +1,4 @@
-describe('ScriptRunner', () => {
+describe('ScriptRunner Debug', () => {
   it('runs Ruby Syntax check', () => {
     cy.visit('/script-runner')
     cy.get('#editor').type('if{enter}end{enter}end{enter}')

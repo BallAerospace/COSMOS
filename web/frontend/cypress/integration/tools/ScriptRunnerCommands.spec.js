@@ -1,4 +1,17 @@
-describe('ScriptRunner', () => {
+describe('ScriptRunner Commands', () => {
+  it('downloads the log messages', () => {
+    cy.visit('/script-runner')
+    cy.focused().type('puts "This is a test"')
+    cy.get('[data-test=start-go-button]').click()
+    cy.get('[data-test=state]', { timeout: 30000 }).should(
+      'have.value',
+      'stopped'
+    )
+    cy.get('[data-test=output-messages]').contains('Script completed')
+    cy.get('[data-test=download-log]').click()
+    // TODO: Not sure how to verify this download takes place
+  })
+
   it('prompts for hazardous commands', () => {
     cy.visit('/script-runner')
     cy.focused().type('cmd("INST CLEAR")')
@@ -70,6 +83,14 @@ describe('ScriptRunner', () => {
     )
     cy.get('[data-test=start-go-button]').click()
     cy.get('.v-dialog', { timeout: 30000 }).within(() => {
+      cy.contains('Cancel').click()
+    })
+    cy.get('[data-test=output-messages]').contains('User input: Cancel')
+    cy.get('[data-test=state]').should('have.value', 'paused')
+
+    // Clicking go re-launches the dialog
+    cy.get('[data-test=start-go-button]').click()
+    cy.get('.v-dialog').within(() => {
       // Since there was no default the Ok button is disabled
       cy.contains('Ok').should('be.disabled')
       cy.get('input').type('12345')
@@ -106,43 +127,50 @@ describe('ScriptRunner', () => {
       'value = prompt_message_box("Select", ["ONE", "TWO", "THREE"])\n' +
         'puts value\n' +
         'value = prompt_vertical_message_box("Select", ["FOUR", "FIVE", "SIX"])\n' +
-        'puts value\n' +
-        'value = prompt_message_box("Select", ["SEVEN", "EIGHT", "NINE", false])\n' +
         'puts value\n'
     )
     cy.get('[data-test=start-go-button]').click()
     cy.get('.v-dialog', { timeout: 30000 }).within(() => {
       cy.contains('Cancel').click()
     })
+    cy.get('[data-test=output-messages]').contains('User input: Cancel')
     cy.get('[data-test=state]').should('have.value', 'paused')
+
+    // Clicking Go re-launches the dialog
     cy.get('[data-test=start-go-button]').click()
-    // TODO Should clicking GO re-prompt or continue with value 'Cancel'
+    cy.get('.v-dialog', { timeout: 30000 }).within(() => {
+      cy.contains('TWO').click()
+    })
+    cy.get('.v-dialog').should('not.exist')
 
     cy.get('.v-dialog').within(() => {
       cy.contains('FOUR').click()
     })
-    cy.get('.v-dialog').within(() => {
-      cy.get('button').should('not.contain', 'Cancel')
-      cy.contains('NINE').click()
-    })
     cy.get('[data-test=state]').should('have.value', 'stopped')
     cy.get('[data-test=output-messages]').contains('TWO')
     cy.get('[data-test=output-messages]').contains('FOUR')
-    cy.get('[data-test=output-messages]').contains('NINE')
   })
 
   it('opens a dialog with dropdowns for prompt_combo_box', () => {
     cy.visit('/script-runner')
     cy.focused().type(
       'value = prompt_combo_box("Select", ["abc123", "def456"])\n' +
-        'puts value\n' +
-        'value = prompt_combo_box("Select", ["abc123", "def456", false])\n' +
         'puts value\n'
     )
     cy.get('[data-test=start-go-button]').click()
     cy.get('.v-dialog', { timeout: 30000 }).within(() => {
+      cy.contains('Cancel').click()
+    })
+    cy.get('[data-test=output-messages]').contains('User input: Cancel')
+    cy.get('[data-test=state]').should('have.value', 'paused')
+
+    // Clicking go re-launches the dialog
+    cy.get('[data-test=start-go-button]').click()
+    cy.get('.v-dialog').within(() => {
       cy.get('[data-test=select]').click({ force: true })
     })
+    cy.get('[data-test=state]').should('have.value', 'paused')
+
     // This check has to be outside the .v-dialog since it's a floating menu
     cy.get('.v-list-item__title').contains('def456').click()
     cy.contains('Ok').click()
@@ -151,7 +179,7 @@ describe('ScriptRunner', () => {
     cy.get('[data-test=output-messages]').contains('def456')
   })
 
-  it('opens a dialog for prompt_combo_box', () => {
+  it('opens a dialog for prompt_dialog_box', () => {
     cy.visit('/script-runner')
     // Default choices for prompt_dialog_box is Yes and No
     cy.focused().type(
@@ -184,20 +212,16 @@ describe('ScriptRunner', () => {
     cy.visit('/script-runner')
     // Default choices for prompt_to_continue is Ok and Cancel
     cy.focused().type(
-      'value = prompt_to_continue("Continue?")\n' +
-        'puts value\n' +
-        'value = prompt_to_continue("Continue?")\n' +
-        'puts value\n'
+      'value = prompt_to_continue("Continue?")\n' + 'puts value\n'
     )
     cy.get('[data-test=start-go-button]').click()
     cy.get('.v-dialog', { timeout: 30000 }).within(() => {
       cy.contains('Continue?')
       cy.contains('Cancel').click()
     })
-    // Verify cancel pauses the script
-    cy.get('[data-test=output-messages]').contains('Cancel')
+    cy.get('[data-test=output-messages]').contains('User input: Cancel')
     cy.get('[data-test=state]').should('have.value', 'paused')
-    // TODO: Should clicking Go re-execute the prompt_to_continue line?
+    // Clicking Go re-executes the prompt_to_continue
     cy.get('[data-test=start-go-button]').click()
     cy.get('.v-dialog').within(() => {
       cy.contains('Continue?')

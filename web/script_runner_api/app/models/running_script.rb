@@ -15,10 +15,14 @@ module Cosmos
     SCRIPT_METHODS = %i[ask_string prompt_dialog_box prompt_for_hazardous prompt_to_continue prompt_combo_box prompt_message_box prompt_vertical_message_box]
     SCRIPT_METHODS.each do |method|
       define_method(method) do |*args|
-        RunningScript.instance.scriptrunner_puts("#{method}(#{args.join(', ')})")
-        ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :script, method: method, args: args })
-        RunningScript.instance.perform_pause
-        return RunningScript.instance.user_input
+        while true
+          RunningScript.instance.scriptrunner_puts("#{method}(#{args.join(', ')})")
+          ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :script, method: method, args: args })
+          RunningScript.instance.perform_pause
+          input = RunningScript.instance.user_input
+          # All ask and prompt dialogs should include a 'Cancel' button to enable break
+          return input unless input == 'Cancel'
+        end
       end
     end
 

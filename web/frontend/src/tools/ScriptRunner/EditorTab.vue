@@ -112,7 +112,12 @@
               hide-details
               data-test="search-output-messages"
             ></v-text-field>
-            <v-icon @click="downloadLog" class="pa-2 mt-3">mdi-download</v-icon>
+            <v-icon
+              @click="downloadLog"
+              class="pa-2 mt-3"
+              data-test="download-log"
+              >mdi-download</v-icon
+            >
           </v-card-title>
           <v-data-table
             :headers="headers"
@@ -556,10 +561,7 @@ export default {
         case 'prompt_to_continue':
           this.prompt.title = 'Prompt'
           this.prompt.message = data.args[0]
-          this.prompt.buttons = [
-            { text: 'Ok', value: 'Ok' },
-            { text: 'Cancel', value: 'Cancel' },
-          ]
+          this.prompt.buttons = [{ text: 'Ok', value: 'Ok' }]
           this.prompt.callback = this.promptDialogCallback
           this.prompt.show = true
           break
@@ -581,12 +583,6 @@ export default {
           data.args[1].forEach((v) => {
             this.prompt.buttons.push({ text: v, value: v })
           })
-          // If the last item is false it means they don't want a Cancel button
-          if (data.args[1][data.args[1].length - 1] === false) {
-            this.prompt.buttons.pop()
-          } else {
-            this.prompt.buttons.push({ text: 'Cancel', value: 'Cancel' })
-          }
           if (data.method === 'prompt_vertical_message_box') {
             this.prompt.layout = 'vertical'
           }
