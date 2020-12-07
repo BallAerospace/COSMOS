@@ -1,0 +1,2548 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Gem Based Targets and Tools</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v4.1.1">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
+
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+  <section class="docs">
+  <div class="grid wider">
+    <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <select onchange="if (this.value) window.location.href=this.value">
+    <option value="">Navigate the docs...</option>
+    
+    <optgroup label="Getting Started">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="System Configuration">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Tool Configuration">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="DART">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="User's Guides">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Tips">
+      
+
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Development">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Meta">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+  </select>
+</div>
+
+
+    <div class="unit four-fifths">
+      <article>
+        
+        <div class="improve right">
+          <span class="version-badge">v5</span>
+        </div>
+        
+        <h1>Gem Based Targets and Tools</h1>
+        <p>COSMOS supports sharing and reusing targets and tools by bundling the target and tool configuration and code into Ruby gems.
+This document provides the information necessary to use and create gem based targets and tools.</p>
+
+<h2 id="using-gem-based-targets">Using Gem Based Targets</h2>
+
+<p>Step one is to install the gem based target into you COSMOS project by adding a line like the following to your project Gemfile:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="c1"># Gemfile</span>
+
+<span class="n">gem</span> <span class="s1">'cosmos-xxxxxx'</span> <span class="c1"># Name of your gem here. All should start with cosmos-</span></code></pre></figure>
+
+<p>After making the Gemfile modification above, you can install the gem by running <code class="language-plaintext highlighter-rouge">bundle install</code> in your COSMOS project folder. Note if the gem is not hosted at rubygems.org and you just have the file locally, you will most likely need to manually <code class="language-plaintext highlighter-rouge">gem install cosmos-xxxxxxx.gem</code> before running <code class="language-plaintext highlighter-rouge">bundle install</code>.</p>
+
+<p>Step two is to let the COSMOS system know about the gem based target in config/system/system.txt:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># system.txt</span>
+
+<span class="c"># Declare all installed gem based targets in your Gemfile</span>
+
+AUTO_DECLARE_TARGETS <span class="c"># This will discover any gem based targets automatically</span>
+
+<span class="c"># Individually specify targets (and possibly rename)</span>
+
+DECLARE_GEM_TARGET cosmos-xxxxxx</code></pre></figure>
+
+<p>Step three is to configure the interface to the target in config/tools/cmd_tlm_server/cmd_tlm_server.txt. This is done exactly the same way as any other target.</p>
+
+<p>Step four is to configure telemetry screens in config/tools/tlm_viewer/tlm_viewer.txt. This is again done exactly the same way as any other target.</p>
+
+<p>That’s it! You should now be able to connect and interact with your gem based target.</p>
+
+<h2 id="using-gem-based-tools">Using Gem Based Tools</h2>
+
+<p>First, install the gem based tool into your COSMOS project in the same way as installing a target gem above. Then you will need to tell the COSMOS Launcher about the tool in launcher.txt like so:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># launcher.txt</span>
+
+<span class="c"># Provide buttons for all gem based tools</span>
+
+AUTO_GEM_TOOLS
+
+<span class="c"># Or a just specific one</span>
+
+TOOL <span class="s2">"XXXXXX"</span> <span class="s2">"LAUNCH_GEM Xxxxxx"</span> <span class="s2">"xxxxxxx.png"</span></code></pre></figure>
+
+<p>That’s it! Click the new button in launcher to launch the tool.</p>
+
+<h2 id="creating-gem-based-targets">Creating Gem Based Targets</h2>
+
+<p>Creating gem based targets is easy. All that is required is creating a cosmos-xxxxxx.gemspec (replace xxxxxxx with your target name) file in the target folder you wish to make into a gem.
+The folder structure should be just like what is in a normal target folder (ie.):</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">├── cosmos-xxxxxx.gemspec
+├── cmd_tlm_server.txt
+├── target.txt
+├── cmd_tlm
+| └── <span class="c"># Target command and telemetry definition files here</span>
+├── lib
+| └── <span class="c"># Any necessary target code here</span>
+└── screens
+| └── <span class="c"># Target telemetry screen files</span></code></pre></figure>
+
+<p>The gem name must start with “cosmos-“, and should then be followed by the actual target name. For example: cosmos-apcpdu.gemspec could be the gem name for a target called APCPDU.</p>
+
+<p>Example config/targets/XXXXXX/cosmos-xxxxxx.gemspec file:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="c1"># encoding: ascii-8bit</span>
+
+<span class="nb">require</span> <span class="s1">'rbconfig'</span>
+
+<span class="c1"># Create the overall gemspec</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="no">Gem</span><span class="o">::</span><span class="no">Specification</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span> <span class="o">|</span><span class="n">s</span><span class="o">|</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">name</span> <span class="o">=</span> <span class="s1">'cosmos-xxxxxx'</span> <span class="c1"># UPDATE WITH YOUR GEM NAME (must start with cosmos-)</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">summary</span> <span class="o">=</span> <span class="s1">'Ball Aerospace COSMOS target'</span> <span class="c1"># UPDATE</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">description</span> <span class="o">=</span> <span class="o">&lt;&lt;-</span><span class="no">EOF</span><span class="sh">
+Example gem based target # UPDATE
+</span><span class="no">EOF</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">authors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Your Name'</span><span class="p">]</span> <span class="c1"># UPDATE</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">email</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'yourname@yourcompany.com'</span><span class="p">]</span> <span class="c1"># UPDATE</span>
+
+<span class="n">s</span><span class="p">.</span><span class="nf">platform</span> <span class="o">=</span> <span class="no">Gem</span><span class="o">::</span><span class="no">Platform</span><span class="o">::</span><span class="no">RUBY</span>
+<span class="k">if</span> <span class="no">ENV</span><span class="p">[</span><span class="s1">'VERSION'</span><span class="p">]</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">version</span> <span class="o">=</span> <span class="no">ENV</span><span class="p">[</span><span class="s1">'VERSION'</span><span class="p">].</span><span class="nf">dup</span>
+<span class="k">else</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">version</span> <span class="o">=</span> <span class="s1">'0.0.0'</span>
+<span class="k">end</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">license</span> <span class="o">=</span> <span class="s1">'GPL-3.0'</span> <span class="c1"># UPDATE</span>
+
+<span class="c1"># Modify as needed</span>
+
+<span class="n">s</span><span class="p">.</span><span class="nf">files</span> <span class="o">=</span> <span class="no">Dir</span><span class="p">[</span><span class="s1">'lib/*'</span><span class="p">]</span> <span class="o">+</span> <span class="no">Dir</span><span class="p">[</span><span class="s1">'cmd_tlm/*'</span><span class="p">]</span> <span class="o">+</span> <span class="no">Dir</span><span class="p">[</span><span class="s1">'screens/*'</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">'cmd_tlm_server.txt'</span><span class="p">,</span> <span class="s1">'target.txt'</span><span class="p">]</span>
+
+<span class="n">s</span><span class="p">.</span><span class="nf">has_rdoc</span> <span class="o">=</span> <span class="kp">true</span>
+
+<span class="n">s</span><span class="p">.</span><span class="nf">required_ruby_version</span> <span class="o">=</span> <span class="s1">'~&gt; 2'</span>
+
+<span class="c1"># Runtime Dependencies</span>
+
+<span class="n">s</span><span class="p">.</span><span class="nf">add_runtime_dependency</span> <span class="s1">'cosmos'</span><span class="p">,</span> <span class="s1">'~&gt; 3'</span><span class="p">,</span> <span class="s1">'&gt;= 3.7.0'</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>After organizing the files as required and creating the gemspec, create the actual gem with the following:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># Windows - update VERSION as needed</span>
+
+<span class="nb">set </span><span class="nv">VERSION</span><span class="o">=</span>1.0.0
+gem build cosmos-xxxxxx.gemspec
+
+<span class="c"># Linux/Mac - update VERSION as needed</span>
+
+<span class="nb">export </span><span class="nv">VERSION</span><span class="o">=</span>1.0.0
+gem build cosmos-xxxxxx.gemspec</code></pre></figure>
+
+<p>To publish your gem for other COSMOS users consider putting the source on <a href="https://www.github.com">Github</a> and publishing your gem to <a href="http://guides.rubygems.org/publishing/">Rubygems</a>.</p>
+
+<h2 id="creating-gem-based-tools">Creating Gem Based Tools</h2>
+
+<p>Creating a gem based tool is very similar to creating a gem based target. However, generally it will need to be done outside of your COSMOS project folder otherwise careful crafting in the “files” section of the gemspec file is required.
+In general, you will need to create a cosmos-xxxxxx.gemspec (replace xxxxxx with your tool name) file and a directory structure like this:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">├── cosmos-xxxxxx.gemspec
+├── config
+| └── data
+| | └── xxxxxx.png <span class="c"># Tool icon</span>
+├── lib
+| └── <span class="c"># Tool code files</span>
+├── tools
+└── Xxxxxx <span class="c"># Tool starting script (see Launcher, etc)</span>
+└── mac
+└── Xxxxxx <span class="c"># Mac Tool starting script (see Launcher.app, etc)</span></code></pre></figure>
+
+<p>The gem name must start with “cosmos-“, and should then be followed by the actual tool name. For example: cosmos-satvis.gemspec could be the gem name for a tool called Satvis.</p>
+
+<p>Example cosmos-xxxxxx.gemspec file for a tool:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="c1"># encoding: ascii-8bit</span>
+
+<span class="nb">require</span> <span class="s1">'rbconfig'</span>
+
+<span class="c1"># Create the overall gemspec</span>
+
+<span class="n">spec</span> <span class="o">=</span> <span class="no">Gem</span><span class="o">::</span><span class="no">Specification</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span> <span class="o">|</span><span class="n">s</span><span class="o">|</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">name</span> <span class="o">=</span> <span class="s1">'cosmos-xxxxxx'</span> <span class="c1"># UPDATE WITH YOUR GEM NAME (must start with cosmos-)</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">summary</span> <span class="o">=</span> <span class="s1">'Ball Aerospace COSMOS based tool'</span> <span class="c1"># UPDATE</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">description</span> <span class="o">=</span> <span class="o">&lt;&lt;-</span><span class="no">EOF</span><span class="sh">
+Example gem based tool # UPDATE
+</span><span class="no">EOF</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">authors</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Your Name'</span><span class="p">]</span> <span class="c1"># UPDATE</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">email</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'yourname@yourcompany.com'</span><span class="p">]</span> <span class="c1"># UPDATE</span>
+
+<span class="n">s</span><span class="p">.</span><span class="nf">platform</span> <span class="o">=</span> <span class="no">Gem</span><span class="o">::</span><span class="no">Platform</span><span class="o">::</span><span class="no">RUBY</span>
+<span class="k">if</span> <span class="no">ENV</span><span class="p">[</span><span class="s1">'VERSION'</span><span class="p">]</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">version</span> <span class="o">=</span> <span class="no">ENV</span><span class="p">[</span><span class="s1">'VERSION'</span><span class="p">].</span><span class="nf">dup</span>
+<span class="k">else</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">version</span> <span class="o">=</span> <span class="s1">'0.0.0'</span>
+<span class="k">end</span>
+<span class="n">s</span><span class="p">.</span><span class="nf">license</span> <span class="o">=</span> <span class="s1">'GPL-3.0'</span> <span class="c1"># UPDATE</span>
+
+<span class="c1"># Modify as needed</span>
+
+<span class="n">s</span><span class="p">.</span><span class="nf">files</span> <span class="o">=</span> <span class="no">Dir</span><span class="p">[</span><span class="s1">'config/data/*'</span><span class="p">]</span> <span class="o">+</span> <span class="no">Dir</span><span class="p">[</span><span class="s1">'lib/*'</span><span class="p">]</span> <span class="o">+</span> <span class="no">Dir</span><span class="p">[</span><span class="s1">'tools/**/*'</span><span class="p">]</span>
+
+<span class="n">s</span><span class="p">.</span><span class="nf">has_rdoc</span> <span class="o">=</span> <span class="kp">true</span>
+
+<span class="n">s</span><span class="p">.</span><span class="nf">required_ruby_version</span> <span class="o">=</span> <span class="s1">'~&gt; 2'</span>
+
+<span class="c1"># Runtime Dependencies</span>
+
+<span class="n">s</span><span class="p">.</span><span class="nf">add_runtime_dependency</span> <span class="s1">'cosmos'</span><span class="p">,</span> <span class="s1">'~&gt; 3'</span><span class="p">,</span> <span class="s1">'&gt;= 3.7.0'</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>After organizing the files as required and creating the gemspec, create the actual gem with the following:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># Windows - update VERSION as needed</span>
+
+<span class="nb">set </span><span class="nv">VERSION</span><span class="o">=</span>1.0.0
+gem build cosmos-xxxxxx.gemspec
+
+<span class="c"># Linux/Mac - update VERSION as needed</span>
+
+<span class="nb">export </span><span class="nv">VERSION</span><span class="o">=</span>1.0.0
+gem build cosmos-xxxxxx.gemspec</code></pre></figure>
+
+<p>To publish your gem for other COSMOS users consider putting the source on <a href="https://www.github.com">Github</a> and publishing your gem to <a href="http://guides.rubygems.org/publishing/">Rubygems</a>.</p>
+                                                                                                                                                 
+
+      </article>
+    </div>
+
+    <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    <ul>
+      <li>
+        
+        <a href="http://localhost:4000/docs/v4/">v4 Docs</a>
+        
+      </li>
+    </ul>
+    
+    <h4>Getting Started</h4>
+    <!-- prettier-ignore -->
+
+<ul>
+  <!-- prettier-ignore -->
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/tools">Tools</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/installation">Installation</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/upgrading">Upgrading and the Gemfile</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/structure">Directory structure</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/gettingstarted">Getting Started</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+ 
+    <h4>System Configuration</h4>
+    <!-- prettier-ignore -->
+
+<ul>
+  <!-- prettier-ignore -->
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/system">System Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/command">Command Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/telemetry">Telemetry Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/interfaces">Interface Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/protocols">Protocol Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/environment">Environment Variables</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+ 
+    <h4>Tool Descriptions</h4>
+    <!-- prettier-ignore -->
+
+<ul>
+  <!-- prettier-ignore -->
+  
+    
+    
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/cmd-sender">Command Sender</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/cmd-tlm-server">Command and Telemetry Server</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/config-editor">Config Editor</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/data-viewer">Data Viewer</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/extractor">Extractor</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/launcher">Launcher</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/limits-monitor">Limits Monitor</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/packet-viewer">Packet Viewer</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/script-runner">Script Runner</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/tlm-grapher">Telemetry Grapher</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/tlm-viewer">Telemetry Viewer</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/screens">Telemetry Screens</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+ 
+    <h4>User's Guides</h4>
+    <!-- prettier-ignore -->
+
+<ul>
+  <!-- prettier-ignore -->
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/scripting">Scripting Guide</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/scripting-best-practices">Scripting Best Practices</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="current">
+    <a href="http://localhost:4000/docs/v5/gemtargets">Gem Based Targets and Tools</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+ 
+    <h4>Development</h4>
+    <!-- prettier-ignore -->
+
+<ul>
+  <!-- prettier-ignore -->
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/system-class">System Class</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/packet-class">Packet Class</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/packet-item-class">PacketItem Class</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/json-api">JSON API</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/logging">Logging</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+ 
+    <h4>Meta</h4>
+    <!-- prettier-ignore -->
+
+<ul>
+  <!-- prettier-ignore -->
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/requirements">Requirements and Design</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/xtce">XTCE Support</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/contributing">Contributing</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/history">Release History</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/papers">Papers</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+ 
+  </aside>
+</div>
+
+
+    <div class="clear"></div>
+  </div>
+</section>
+
+
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2020 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+  
+  <!-- Google Analytics (http://google.com/analytics) -->
+  <script>
+    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
+    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
+    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
+    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
+
+    ga('create', 'UA-60103689-1', 'cosmosrb.com');
+    ga('send', 'pageview');
+
+  </script>
+
+
+
+</body>
+</html>

@@ -1,5 +1,5 @@
 ---
-layout: docs_v4
+layout: docs
 title: Handbook Creator
 toc: true
 ---

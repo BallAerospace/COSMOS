@@ -1,0 +1,2898 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Interface Configuration</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v4.1.1">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
+
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+  <section class="docs">
+  <div class="grid wider">
+    <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <select onchange="if (this.value) window.location.href=this.value">
+    <option value="">Navigate the docs...</option>
+    
+    <optgroup label="Getting Started">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="System Configuration">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Tool Configuration">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="DART">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="User's Guides">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Tips">
+      
+
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Development">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+    <optgroup label="Meta">
+      
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+    </optgroup>
+    
+  </select>
+</div>
+
+
+    <div class="unit four-fifths">
+      <article>
+        
+        <div class="improve right">
+          <span class="version-badge">v5</span>
+        </div>
+        
+        <div class="toc"><ul class="section-nav">
+<li class="toc-entry toc-h5"><a href="#threads">Threads</a></li>
+<li class="toc-entry toc-h5"><a href="#naming-conventions">Naming Conventions</a></li>
+<li class="toc-entry toc-h2"><a href="#provided-interfaces">Provided Interfaces</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#tcpip-client-interface">TCPIP Client Interface</a></li>
+<li class="toc-entry toc-h3"><a href="#tcpip-server-interface">TCPIP Server Interface</a></li>
+<li class="toc-entry toc-h3"><a href="#udp-interface">UDP Interface</a></li>
+<li class="toc-entry toc-h3"><a href="#serial-interface">Serial Interface</a></li>
+<li class="toc-entry toc-h3"><a href="#cmdtlmserver-interface">CmdTlmServer Interface</a></li>
+<li class="toc-entry toc-h3"><a href="#linc-interface">LINC Interface</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#streams">Streams</a></li>
+<li class="toc-entry toc-h2"><a href="#protocols">Protocols</a></li>
+</ul></div>
+        
+        <h1>Interface Configuration</h1>
+        <p>Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customizable portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own. Note that in most cases you can extend interfaces with <a href="/docs/protocols/">Protocols</a> rather than implementing a new interface.</p>
+
+<div class="note info">
+  Note that Interfaces and Routers are very similar and share the same configuration parameters. Routers are simply Interfaces which route an existing Interface's telemetry data out to the connected target and routes the connected target's commands back to the original Interface's target.
+</div>
+
+<p>Interfaces have the following methods that must be implemented:</p>
+
+<ol>
+  <li>
+<strong>connect</strong> - Open the socket or port or somehow establish the connection to the target. Note: This method may not block indefinitely. Be sure to call super() in your implementation.</li>
+  <li>
+<strong>connected?</strong> - Return true or false depending on the connection state. Note: This method should return immediately.</li>
+  <li>
+<strong>disconnect</strong> - Close the socket or port of somehow disconnect from the target. Note: This method may not block indefinitely. Be sure to call super() in your implementation.</li>
+  <li>
+<strong>read_interface</strong> - Lowest level read of data on the interface. Note: This method should block until data is available or the interface disconnects. On a clean disconnect it should return nil.</li>
+  <li>
+<strong>write_interface</strong> - Lowest level write of data on the interface. Note: This method may not block indefinitely.</li>
+</ol>
+
+<p>Interfaces also have the following methods that exist and have default implementations. They can be overridden if necessary but be sure to call super() to allow the default implementation to be executed.</p>
+
+<ol>
+  <li>
+<strong>read_interface_base</strong> - This method should always be called from read_interface(). It updates interface specific variables that are displayed by CmdTLmServer including the bytes read count, the most recent raw data read, and it handles raw logging if enabled.</li>
+  <li>
+<strong>write_interface_base</strong> - This method should always be called from write_interface(). It updates interface specific variables that are displayed by CmdTLmServer including the bytes written count, the most recent raw data written, and it handles raw logging if enabled.</li>
+  <li>
+<strong>read</strong> - Read the next packet from the interface. COSMOS implements this method to allow the Protocol system to operate on the data and the packet before it is returned.</li>
+  <li>
+<strong>write</strong> - Send a packet to the interface. COSMOS implements this method to allow the Protocol system to operate on the packet and the data before it is sent.</li>
+  <li>
+<strong>write_raw</strong> - Send a raw binary string of data to the target. COSMOS implements this method by basically calling write_interface with the raw data.</li>
+</ol>
+
+<div class="note warning">
+  <h5>
+<a class="anchor" href="#threads" aria-hidden="true"><span class="octicon octicon-link"></span></a>Threads</h5>
+  <p>If you create your own interface be very careful with creating Ruby Threads. The COSMOS server has Thread.abort_on_exception = true which means that if any thread in the Server (including interface threads) crash it will crash the entire server. The internal COSMOS implementation of interface threads wraps the various interface methods with begin / rescue blocks to handle potential exceptions. Custom interfaces should do the same.</p>
+</div>
+
+<div class="note warning">
+  <h5>
+<a class="anchor" href="#naming-conventions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Naming Conventions</h5>
+  <p>When creating your own interfaces, in most cases they will be subclasses of one of the built-in interfaces described below. It is important to know that both the filename and class name of the interface files must match with correct capitalization or you will receive "class not found" errors when trying to load your new interface. For example, an interface file called labview_interface.rb must contain the class LabviewInterface. If the class was named, LabVIEWInterface, for example, COSMOS would not be able to find the class because of the unexpected capitalization.</p>
+</div>
+
+<h2 id="provided-interfaces">
+<a class="anchor" href="#provided-interfaces" aria-hidden="true"><span class="octicon octicon-link"></span></a>Provided Interfaces</h2>
+
+<p>Cosmos provides the following interfaces for use: TCPIP Client, TCPIP Server, UDP, Serial, Command Telemetry Server, and LINC. The interface to use is defined by the <a href="/docs/system/#interface">INTERFACE</a> and <a href="/docs/system/#router">ROUTER</a> keywords.</p>
+
+<h3 id="tcpip-client-interface">
+<a class="anchor" href="#tcpip-client-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>TCPIP Client Interface</h3>
+
+<p>The TCPIP client interface connects to a TCPIP socket to send commands and receive telemetry. This interface is used for targets which open a socket and wait for a connection. This is the most common type of interface.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Host</td>
+      <td>Machine name to connect to</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Write Port</td>
+      <td>Port to write commands to (can be the same as read port)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Read Port</td>
+      <td>Port to read telemetry from (can be the same as write port)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Write Timeout</td>
+      <td>Number of seconds to wait before aborting the write. Pass ‘nil’ to block on write.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Read Timeout</td>
+      <td>Number of seconds to wait before aborting the read. Pass ‘nil’ to block on read.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Protocol Type</td>
+      <td>See Protocols.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Protocol Arguments</td>
+      <td>See Protocols for the arguments each stream protocol takes.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>cmd_tlm_server.txt Examples:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 0xBA5EBA11
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil BURST 4 0xDEADBEEF
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil FIXED 6 0 nil <span class="nb">true
+</span>INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A <span class="nb">true </span>0 0xF005BA11
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 <span class="c"># no built-in protocol</span></code></pre></figure>
+
+<p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
+
+<h3 id="tcpip-server-interface">
+<a class="anchor" href="#tcpip-server-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>TCPIP Server Interface</h3>
+
+<p>The TCPIP server interface creates a TCPIP server which listens for incoming connections and dynamically creates sockets which communicate with the target. This interface is used for targets which open a socket and try to connect to a server.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Write Port</td>
+      <td>Port to write commands to (can be the same as read port)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Read Port</td>
+      <td>Port to read telemetry from (can be the same as write port)</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Write Timeout</td>
+      <td>Number of seconds to wait before aborting the write. Pass ‘nil’ to block on write.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Read Timeout</td>
+      <td>Number of seconds to wait before aborting the read. Pass ‘nil’ to block on read.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Protocol Type</td>
+      <td>See Protocols.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Protocol Arguments</td>
+      <td>See Protocols for the arguments each stream protocol takes.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>cmd_tlm_server.txt Examples:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 0xBA5EBA11
+INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil BURST 4 0xDEADBEEF
+INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil FIXED 6 0 nil <span class="nb">true
+</span>INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
+INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A <span class="nb">true </span>0 0xF005BA11
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 <span class="c"># no built-in protocol</span></code></pre></figure>
+
+<p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword. Note, TcpipServerInterface processes the <a href="/docs/system/#option">OPTION</a> modifier.</p>
+
+<h3 id="udp-interface">
+<a class="anchor" href="#udp-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>UDP Interface</h3>
+
+<p>The UDP interface uses UDP packets to send and receive telemetry from the target.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Host</td>
+      <td>Host name or IP address of the machine to send and receive data with</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Write Dest Port</td>
+      <td>Port on the remote machine to send commands to</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Read Port</td>
+      <td>Port on the remote machine to read telemetry from</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Write Source Port</td>
+      <td>Port on the local machine to send commands from</td>
+      <td>No</td>
+      <td>nil (socket is not bound to an outgoing port)</td>
+    </tr>
+    <tr>
+      <td>Interface Address</td>
+      <td>If the remote machine supports multicast the interface address is used to configure the outgoing multicast address</td>
+      <td>No</td>
+      <td>nil (not used)</td>
+    </tr>
+    <tr>
+      <td>TTL</td>
+      <td>Time to Live. The number of intermediate routers allowed before dropping the packet.</td>
+      <td>No</td>
+      <td>128 (Windows)</td>
+    </tr>
+    <tr>
+      <td>Write Timeout</td>
+      <td>Number of seconds to wait before aborting the write</td>
+      <td>No</td>
+      <td>nil (block on write)</td>
+    </tr>
+    <tr>
+      <td>Read Timeout</td>
+      <td>Number of seconds to wait before aborting the read</td>
+      <td>No</td>
+      <td>nil (block on read)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>cmd_tlm_server.txt Example:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME udp_interface.rb localhost 8080 8081 8082 nil 128 10.0 nil</code></pre></figure>
+
+<p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
+
+<h3 id="serial-interface">
+<a class="anchor" href="#serial-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>Serial Interface</h3>
+
+<p>The serial interface connects to a target over a serial port. COSMOS provides drivers for both Windows and POSIX drivers for UNIX based systems.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Write Port</td>
+      <td>Name of the serial port to write, e.g. ‘COM1’ or ‘/dev/ttyS0’. Pass ‘nil’ to disable writing.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Read Port</td>
+      <td>Name of the serial port to read, e.g. ‘COM1’ or ‘/dev/ttyS0’. Pass ‘nil’ to disable reading.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Baud Rate</td>
+      <td>Baud rate to read and write</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Parity</td>
+      <td>Serial port parity. Must be ‘NONE’, ‘EVEN’, or ‘ODD’.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Stop Bits</td>
+      <td>Number of stop bits, e.g. 1.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Write Timeout</td>
+      <td>Number of seconds to wait before aborting the write. Pass ‘nil’ to block on write.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Read Timeout</td>
+      <td>Number of seconds to wait before aborting the read. Pass ‘nil’ to block on read.</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Protocol Type</td>
+      <td>See Protocols.</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Protocol Arguments</td>
+      <td>See Protocols for the arguments each stream protocol takes.</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>cmd_tlm_server.txt Examples:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME serial_interface.rb COM1 COM1 9600 NONE 1 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 0xBA5EBA11
+INTERFACE INTERFACE_NAME serial_interface.rb /dev/ttyS1 /dev/ttyS1 38400 ODD 1 10.0 nil BURST 4 0xDEADBEEF
+INTERFACE INTERFACE_NAME serial_interface.rb COM2 COM2 19200 EVEN 1 10.0 nil FIXED 6 0 nil <span class="nb">true
+</span>INTERFACE INTERFACE_NAME serial_interface.rb /dev/ttyS0 /dev/ttyS0 57600 NONE 1 10.0 nil PREIDENTIFIED 0xCAFEBABE
+INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 TERMINATED 0x0D0A 0x0D0A <span class="nb">true </span>0 0xF005BA11
+INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 TEMPLATE 0xA 0xA
+INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 <span class="c"># no built-in protocol</span></code></pre></figure>
+
+<p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword. Note, SerialInterface processes the <a href="/docs/system/#option">OPTION</a> modifier.</p>
+
+<h3 id="cmdtlmserver-interface">
+<a class="anchor" href="#cmdtlmserver-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>CmdTlmServer Interface</h3>
+
+<p>The CmdTlmServer interface provides a connection to the COSMOS Command and Telemetry Server. This allows scripts and other COSMOS tools to send commands to the CmdTlmServer to enable and disable logging. It also allows scripts and other tools to receive a COSMOS version information packet and a limits change packet which is sent when any telemetry items change limits states. The CmdTlmServer interface can be used by any COSMOS configuration.</p>
+
+<p>cmd_tlm_server.txt Example:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE COSMOSINT cmd_tlm_server_interface.rb</code></pre></figure>
+
+<p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
+
+<h3 id="linc-interface">
+<a class="anchor" href="#linc-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>LINC Interface</h3>
+
+<p>The LINC interface uses a single TCPIP socket to talk to a Ball Aerospace LINC Labview target.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+      <th>Default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Host</td>
+      <td>Machine name to connect to</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Port</td>
+      <td>Port to write commands to and read telemetry from</td>
+      <td>Yes</td>
+      <td> </td>
+    </tr>
+    <tr>
+      <td>Handshake Enabled</td>
+      <td>Enable command handshaking where commands block until the corresponding handshake message is received</td>
+      <td>No</td>
+      <td>true</td>
+    </tr>
+    <tr>
+      <td>Response Timeout</td>
+      <td>Number of seconds to wait for a handshaking response</td>
+      <td>No</td>
+      <td>5 seconds</td>
+    </tr>
+    <tr>
+      <td>Read Timeout</td>
+      <td>Number of seconds to wait before aborting the read</td>
+      <td>No</td>
+      <td>nil (block on read)</td>
+    </tr>
+    <tr>
+      <td>Write Timeout</td>
+      <td>Number of seconds to wait before aborting the write</td>
+      <td>No</td>
+      <td>5 seconds</td>
+    </tr>
+    <tr>
+      <td>Length Bit Offset</td>
+      <td>The bit offset of the length field. Every packet using this interface must have the same structure such that the length field is the same size at the same location.</td>
+      <td>No</td>
+      <td>0 bits</td>
+    </tr>
+    <tr>
+      <td>Length Bit Size</td>
+      <td>The size in bits of the length field</td>
+      <td>No</td>
+      <td>16 bits</td>
+    </tr>
+    <tr>
+      <td>Length Value Offset</td>
+      <td>The offset to apply to the length field value. For example if the length field indicates packet length minus one, this value should be one.</td>
+      <td>No</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>Fieldname GUID</td>
+      <td>Fieldname of the GUID field</td>
+      <td>No</td>
+      <td>‘HDR_GUID’</td>
+    </tr>
+    <tr>
+      <td>Length Endianness</td>
+      <td>The endianness of the length field. Must be either ‘BIG_ENDIAN’ or ‘LITTLE_ENDIAN’.</td>
+      <td>No</td>
+      <td>‘BIG_ENDIAN’</td>
+    </tr>
+    <tr>
+      <td>Fieldname Cmd Length</td>
+      <td>Fieldname of the length field</td>
+      <td>No</td>
+      <td>‘HDR_LENGTH’</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>cmd_tlm_server.txt Examples:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080
+INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true </span>5 nil 5 0 16 4 HDR_GUID BIG_ENDIAN HDR_LENGTH</code></pre></figure>
+
+<p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
+
+<h2 id="streams">
+<a class="anchor" href="#streams" aria-hidden="true"><span class="octicon octicon-link"></span></a>Streams</h2>
+
+<p>Streams are low level classes that implement read, read_nonblock, write, connect, connected? and disconnect methods. The build-in Stream classes are SerialStream, TcpipSocketStream and TcpipClientStream and they are automatically used when creating a Serial Interface, TCP/IP Server Interface, or TCP/IP Client Interface.</p>
+
+<h2 id="protocols">
+<a class="anchor" href="#protocols" aria-hidden="true"><span class="octicon octicon-link"></span></a>Protocols</h2>
+
+<p>Protocols define the behaviour of an Interface, including differentiating packet boundaries and modifying data as necessary. COSMOS defines the following built-in protocols which can be used with the above interfaces:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="/docs/protocols/#burst-protocol">Burst</a></td>
+      <td>Reads as much data as possible from the interface</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#fixed-protocol">Fixed</a></td>
+      <td>Processes fixed length packets with a known ID position</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#length-protocol">Length</a></td>
+      <td>Processes a length field at a fixed location and then reads the remainder of the data</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#terminated-protocol">Terminated</a></td>
+      <td>Delineates packets uses termination characters at the end of each packet</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#template-protocol">Template</a></td>
+      <td>Processes text based command / response data such as SCPI interfaces</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#preidentified-protocol">Preidentified</a></td>
+      <td>Internal COSMOS protocol used by COSMOS tools</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>These protocols are declared directly after the interface:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil BURST 4 0xDEADBEEF
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil FIXED 6 0 nil <span class="nb">true
+</span>INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TERMINATED 0x0D0A 0x0D0A <span class="nb">true </span>0 0xF005BA11
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 TEMPLATE 0xA 0xA
+INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE</code></pre></figure>
+
+<p>COSMOS also defines the following helper protocols:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="/docs/protocols/#override-protocol">Override</a></td>
+      <td>Allows telemetry items to be fixed to given value when read</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#crc-protocol">CRC</a></td>
+      <td>Adds CRCs to outgoing packets and verifies CRCs on incoming packets</td>
+    </tr>
+    <tr>
+      <td><a href="/docs/protocols/#ignore-protocol">Ignore</a></td>
+      <td>Ignores the specified packet by dropping it</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>These protocols are declared after the INTERFACE:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil BURST 4 0xDEADBEEF
+TARGET TGT
+PROTOCOL READ OverrideProtocol
+PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for parameters</span></code></pre></figure>
+
+<p>Note the first parameter after the PROTOCOL keyword is how to apply the protocol: READ, WRITE, or READ_WRITE. Read applies the protocol on incoming packets (telemetry) and write on outgoing packets (commands). The next parameter is the protocol filename or class name. All other parameters are protocol specific.</p>
+
+<p>In addition, you can define your own protocols which are declared like the COSMOS helper protocols after your interface. See the <a href="/docs/protocols#custom-protocols">Custom Protocols</a> documentation for more information.</p>
+                                                                                                                                                 
+
+      </article>
+    </div>
+
+    <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    <ul>
+      <li>
+        
+        <a href="http://localhost:4000/docs/v4/">v4 Docs</a>
+        
+      </li>
+    </ul>
+    
+    <h4>Getting Started</h4>
+    <!-- prettier-ignore -->
+
+<ul>
+  <!-- prettier-ignore -->
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/tools">Tools</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/installation">Installation</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/upgrading">Upgrading and the Gemfile</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/structure">Directory structure</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/gettingstarted">Getting Started</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+ 
+    <h4>System Configuration</h4>
+    <!-- prettier-ignore -->
+
+<ul>
+  <!-- prettier-ignore -->
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/system">System Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/command">Command Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/telemetry">Telemetry Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="current">
+    <a href="http://localhost:4000/docs/v5/interfaces">Interface Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/protocols">Protocol Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/environment">Environment Variables</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+ 
+    <h4>Tool Descriptions</h4>
+    <!-- prettier-ignore -->
+
+<ul>
+  <!-- prettier-ignore -->
+  
+    
+    
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/cmd-sender">Command Sender</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/cmd-tlm-server">Command and Telemetry Server</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/config-editor">Config Editor</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/data-viewer">Data Viewer</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/extractor">Extractor</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/launcher">Launcher</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/limits-monitor">Limits Monitor</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/packet-viewer">Packet Viewer</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/script-runner">Script Runner</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/tlm-grapher">Telemetry Grapher</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/tlm-viewer">Telemetry Viewer</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/screens">Telemetry Screens</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+ 
+    <h4>User's Guides</h4>
+    <!-- prettier-ignore -->
+
+<ul>
+  <!-- prettier-ignore -->
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/scripting">Scripting Guide</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/scripting-best-practices">Scripting Best Practices</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/gemtargets">Gem Based Targets and Tools</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+ 
+    <h4>Development</h4>
+    <!-- prettier-ignore -->
+
+<ul>
+  <!-- prettier-ignore -->
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/system-class">System Class</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/packet-class">Packet Class</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/packet-item-class">PacketItem Class</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/json-api">JSON API</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/logging">Logging</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+ 
+    <h4>Meta</h4>
+    <!-- prettier-ignore -->
+
+<ul>
+  <!-- prettier-ignore -->
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/requirements">Requirements and Design</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/xtce">XTCE Support</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/contributing">Contributing</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/history">Release History</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="http://localhost:4000/docs/v5/papers">Papers</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+ 
+  </aside>
+</div>
+
+
+    <div class="clear"></div>
+  </div>
+</section>
+
+
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2020 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+  
+  <!-- Google Analytics (http://google.com/analytics) -->
+  <script>
+    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
+    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
+    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
+    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
+
+    ga('create', 'UA-60103689-1', 'cosmosrb.com');
+    ga('send', 'pageview');
+
+  </script>
+
+
+
+</body>
+</html>

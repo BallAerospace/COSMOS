@@ -1,9 +1,16 @@
 <div class="unit one-fifth hide-on-mobiles">
   <aside>
-    <ul><li><a href="{{ site.url }}/docs/v4/">Version 4 Docs</a></li></ul>
-    {% for section in site.data.docs %}
+    <ul>
+      <li>
+        {% if page.collection == 'docs_v4' %}
+        <a href="{{ site.url }}/docs/v5/">v5 Docs</a>
+        {% else %}
+        <a href="{{ site.url }}/docs/v4/">v4 Docs</a>
+        {% endif %}
+      </li>
+    </ul>
+    {% for section in site.data[page.collection] %}
     <h4>{{ section.title }}</h4>
-    {% include docs_ul.html items=section.docs %}
-    {% endfor %}
+    {% include docs_ul.html items=section.docs %} {% endfor %}
   </aside>
 </div>

@@ -1,0 +1,54 @@
+- title: Getting Started
+  docs:
+    - home
+    - tools
+    - installation
+    - upgrading
+    - structure
+    - gettingstarted
+
+- title: System Configuration
+  docs:
+    - system
+    - command
+    - telemetry
+    - interfaces
+    - protocols
+    - environment
+
+- title: Tool Descriptions
+  docs:
+    - cmd_sender
+    - cmd_tlm_server
+    - config_editor
+    - data_viewer
+    - extractor
+    - launcher
+    - limits_monitor
+    - packet_viewer
+    - script_runner
+    - tlm_grapher
+    - tlm_viewer
+    - screens
+
+- title: User's Guides
+  docs:
+    - scripting
+    - scripting_best_practices
+    - gemtargets
+
+- title: Development
+  docs:
+    - system_class
+    - packet_class
+    - packet_item_class
+    - json_api
+    - logging
+
+- title: Meta
+  docs:
+    - requirements
+    - xtce
+    - contributing
+    - history
+    - papers
