@@ -1,9 +1,10 @@
 <!-- prettier-ignore -->
-{% assign version = page.collection | split: "_" %}
+{% assign version = page.collection | split: "_" | last %}
+{% assign pre = "/" | prepend: version | prepend: "/docs/" %}
 <ul>
   <!-- prettier-ignore -->
   {% for item in include.items %}
-    {% assign item_url = item | replace: "_", "-" | prepend: "/" | prepend: version[1] | prepend: "/docs/" %}
+    {% assign item_url = item | replace: "_", "-" | prepend: pre %}
     {% if item_url == page.url %}
       {% assign c = "current" %}
     {% else %}

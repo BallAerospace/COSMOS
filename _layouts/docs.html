@@ -8,9 +8,9 @@ layout: default
 
     <div class="unit four-fifths">
       <article>
-        {% assign version = page.collection | split: "_" %}
+        {% assign version = page.collection | split: "_" | last %}
         <div class="improve right">
-          <span class="version-badge">{{ version[1] }}</span>
+          <span class="version-badge">{{ version }}</span>
         </div>
         {% if page.toc %}
         <div class="toc">{{ content | toc_only }}</div>

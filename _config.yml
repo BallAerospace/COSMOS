@@ -11,20 +11,20 @@ plugins:
   - jekyll-toc
 
 # Collections are specified as a name and correspond to a directory
-# that consists of the name prepended with '_', e.g. _docs_v4
-# Collections are accessed in Jekyll directly via site.docs_v4
-# or indirectly via site['docs_v4']
+# that consists of the name prepended with '_', e.g. _docs
+# Collections are accessed in Jekyll via site.docs or site['docs']
 # Note the collection name is available from the page, e.g. page.collection
 # Thus you can do site[page.collection] to access the collection
 collections:
+  docs: # unversioned docs
+    output: true
+    permalink: /docs/:name
   docs_v5:
     output: true
     permalink: /docs/v5/:name
-    version: 4
   docs_v4:
     output: true
     permalink: /docs/v4/:name
-    version: 5
 
 cosmos_root: ../COSMOS4
 cosmos_meta_path: data/config

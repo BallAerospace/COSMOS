@@ -262,9 +262,9 @@
     </a>
   </div>
   <div class="post-content">
-    <p>COSMOS 4.5 -</p>
+    <p>COSMOS 4.5</p>
 
-<p>This is a security and bug fix release.  All users are recommended to update. Please see the migration notes below for necessary changes when upgrading from 4.4.2.</p>
+<p>This is a security and bug fix release. All users are recommended to update. Please see the migration notes below for necessary changes when upgrading from 4.4.2.</p>
 
 <h3 id="security-updates">Security Updates:</h3>
 
@@ -293,11 +293,13 @@
 </ul>
 
 <h3 id="maintenance">Maintenance:</h3>
+
 <ul>
   <li><a href="https://github.com/BallAerospace/COSMOS/issues/1136">#1136</a> Telemetry Extractor delimiter on last item</li>
 </ul>
 
 <h3 id="migration-notes-from-cosmos-44x">Migration Notes from COSMOS 4.4,x:</h3>
+
 <p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
 
 <p>Modify you system.txt files to:</p>
@@ -308,9 +310,8 @@
   <li>If you know only specific external hosts will be connecting, add ALLOW_ACCESS lines for each</li>
   <li>Only add ALLOW_ROUTER_COMMANDING if you are chaining CmdTlmServers (that need to send commands), or you are receiving commands through routers</li>
   <li>Only add ALLOW_ORIGIN &lt;Address of webpage&gt;if you expect COSMOS to be accessed from a webpage</li>
-  <li>Add ALLOW_HOST <Your COSMOS="" IP="" Address="">:7777, etc if you expect the COSMOS APIs to be accessed from external computers.  Otherwise it will only accept connections that have a HOST header set to localhost</Your></li>
+  <li>Add ALLOW_HOST <Your COSMOS="" IP="" Address="">:7777, etc if you expect the COSMOS APIs to be accessed from external computers. Otherwise it will only accept connections that have a HOST header set to localhost</Your></li>
 </ol>
-
 
   </div>
 </article>
