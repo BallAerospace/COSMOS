@@ -88,6 +88,12 @@
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
       
+      <option value="/news/2020/11/05/cosmos-4-5-0-released/">Ball Aerospace COSMOS 4.5.0 Released</option>
+      
+      <option value="/news/2020/09/23/packet-time/">Packet Time</option>
+      
+      <option value="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">Ball Aerospace COSMOS 5.0.0 alpha 1 Released</option>
+      
       <option value="/news/2020/03/24/identifies-packets/">Identifying Packets</option>
       
       <option value="/news/2020/03/17/protocol-rate/">Protocol Rate</option>
@@ -235,6 +241,210 @@
 
       <div class="unit four-fifths">
         
+  <article>
+  <h2>
+    <a href="/news/2020/11/05/cosmos-4-5-0-released/">
+      Ball Aerospace COSMOS 4.5.0 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      05 Nov 2020
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>COSMOS 4.5 -</p>
+
+<p>This is a security and bug fix release.  All users are recommended to update. Please see the migration notes below for necessary changes when upgrading from 4.4.2.</p>
+
+<h3 id="security-updates">Security Updates:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/672">#672</a> Secure COSMOS API with Shared Secret</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1227">#1227</a> Prevent a Malicious Website From Sending Commands</li>
+</ul>
+
+<h3 id="bug-fixes">Bug Fixes:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1135">#1135</a> Command Sequence Tool Overriding String Parameter</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1151">#1151</a> CmdSender not setting description</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1158">#1158</a> Loss of 1 us precision on CCSDS time when using Time.ccsds2sec method</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1164">#1164</a> CmdTlmServer#reload always uses default system.txt</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1167">#1167</a> Serial Driver Initialization Bug</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1196">#1196</a> COSMOS windows stuck offscreen at Startup</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1200">#1200</a> Handbook PDF Generation wkhtmltopdf ProtocolUnknownError</li>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1210">#1210</a> Move CheckError definition to ApiShared</li>
+</ul>
+
+<h3 id="new-features">New Features:</h3>
+
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1141">#1141</a> Enable setting arbitrary bits in the serial drivers</li>
+</ul>
+
+<h3 id="maintenance">Maintenance:</h3>
+<ul>
+  <li><a href="https://github.com/BallAerospace/COSMOS/issues/1136">#1136</a> Telemetry Extractor delimiter on last item</li>
+</ul>
+
+<h3 id="migration-notes-from-cosmos-44x">Migration Notes from COSMOS 4.4,x:</h3>
+<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+
+<p>Modify you system.txt files to:</p>
+
+<ol>
+  <li>Make sure you have a X_CSRF_TOKEN line with a unique value (anything will do, just change it)</li>
+  <li>Change all LISTEN_HOST settings to 127.0.01 unless you need connections from external hosts</li>
+  <li>If you know only specific external hosts will be connecting, add ALLOW_ACCESS lines for each</li>
+  <li>Only add ALLOW_ROUTER_COMMANDING if you are chaining CmdTlmServers (that need to send commands), or you are receiving commands through routers</li>
+  <li>Only add ALLOW_ORIGIN &lt;Address of webpage&gt;if you expect COSMOS to be accessed from a webpage</li>
+  <li>Add ALLOW_HOST <Your COSMOS="" IP="" Address="">:7777, etc if you expect the COSMOS APIs to be accessed from external computers.  Otherwise it will only accept connections that have a HOST header set to localhost</Your></li>
+</ol>
+
+
+  </div>
+</article>
+
+
+  <article>
+  <h2>
+    <a href="/news/2020/09/23/packet-time/">
+      Packet Time
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      post
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      23 Sep 2020
+    </span>
+    <a href="https://github.com/jmthomas" class="post-author">
+      <img src="https://github.com/jmthomas.png" class="avatar" alt="jmthomas avatar" width="24" height="24">
+      jmthomas
+    </a>
+  </div>
+  <div class="post-content">
+    <p>It’s been said that there are only <a href="https://martinfowler.com/bliki/TwoHardThings.html">two hard things</a> in programming. I think a corollary to that is <a href="https://medium.com/@BlueTaslem/time-is-hard-for-computers-programmers-14ef2a7ece77">time is hard</a>. So I wanted to write a post about some of the various things COSMOS does with time and what you need to be aware of.</p>
+
+<h3 id="received-time">Received Time</h3>
+
+<p>If you’ve used COSMOS for a while you’ve noticed that COSMOS automatically creates several telemetry items on every packet: PACKET_TIMESECONDS, PACKET_TIMEFORMATTED, RECEIVED_COUNT, RECEIVED_TIMEFORMATTED, and RECEIVED_TIMESECONDS. While RECEIVED_COUNT is fairly self-explanatory (number of times the packet has been received) it might not be obvious why there are 4! ways to get the time.</p>
+
+<p>So what’s the difference between RECEIVED_TIME vs PACKET_TIME. First of all they both have a TIMEFORMATTED and TIMESECONDS version. The formatted telemetry item returns the date and time in a YYYY/MM/DD HH:MM:SS.sss format in the local timezone. This is useful for human readable output like in <a href="/docs/tools/#telemetry-extractor">Telemetry Extractor</a>. They also can return TIMESECONDS which is the floating point UTC time in seconds from the Unix epoch.</p>
+
+<p>RECEIVED_TIME is the time that COSMOS receives the packet. This is set by the interface which is connected to the target and is receiving the raw data. Once a packet has been created out of the raw data the time is set.</p>
+
+<p>PACKET_TIME is a recent (<a href="https://cosmosrb.com/news/2018/08/30/cosmos-4-3-0-released/">4.3.0</a>) concept introduced by a <a href="https://github.com/BallAerospace/COSMOS/issues/814">change to support stored telemetry</a>. The <a href="/docs/packet_class/">Packet</a> class has a new method called <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet.rb#L243">packet_time</a> that by default simply returns the received time as set by COSMOS. But if you define a telemetry item called ‘PACKET_TIME’, that item will be used instead.</p>
+
+<p>This was done to support processing ‘stored’ telemetry data which isn’t coming into COSMOS in real-time. Previously if you created an interface to process stored telemetry, COSMOS would set the received_time as fast as it processed the files and all your stored telemetry would effective have a timestamp of ‘now’. This would have also updated the current value table in COSMOS which affect scripts, screens, etc. With COSMOS 4.3.0 and later you can set the ‘stored’ flag in your interface and the current value table is unaffected. Also if you define a ‘PACKET_TIME’ item in your packet, this item will be used to calculate the time.</p>
+
+<h3 id="example">Example</h3>
+
+<p>COSMOS provides a Unix time conversion class which returns a Ruby time object based on the number of seconds and (optionally) microseconds since the Unix epoch. Note: This returns a Ruby Time object and not a float or string!</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  ITEM PACKET_TIME 0 0 DERIVED "Ruby time based on TIMESEC and TIMEUS"
+    READ_CONVERSION unix_time_conversion.rb TIMESEC TIMEUS
+</code></pre></div></div>
+
+<p>Definining PACKET_TIME allows the PACKET_TIMESECONDS and PACKET_TIMEFORMATTED to be calculated against an internal Packet time rather than the time that COSMOS receives the packet.</p>
+
+<p>If you have a question, find a bug, or want a feature please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
+
+  </div>
+</article>
+
+
+  <article>
+  <h2>
+    <a href="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">
+      Ball Aerospace COSMOS 5.0.0 alpha 1 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      31 Aug 2020
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>I am proud to announce the release of COSMOS 5 Alpha 1!</p>
+
+<p>COSMOS 5 is a highly scalable, cloud native, command and control software system.  This is a technology preview release meant to introduce all of the new technologies debuting in COSMOS 5.</p>
+
+<p>New Technologies:</p>
+
+<ul>
+  <li>Docker - COSMOS 5 runs across a set of containers managed by Docker</li>
+  <li>Redis - Redis is used as a key-value store, and streaming data server</li>
+  <li>Minio - Minio provides an S3 compatible file storage server</li>
+  <li>EFK Stack - Elasticsearch, Fluentd, Kibana - Provide a distributed logging solution</li>
+  <li>Vue.js - Javascript technology used to build the new COSMOS user interface</li>
+</ul>
+
+<p>Basic versions of the following COSMOS tools are included in this release:</p>
+
+<ul>
+  <li>Command and Telemetry Server</li>
+  <li>Command Sender</li>
+  <li>Packet Viewer</li>
+  <li>Telemetry Viewer</li>
+  <li>Telemetry Grapher</li>
+  <li>Script Runner</li>
+  <li>Limits Monitor</li>
+</ul>
+
+<h3 id="prerequisites">Prerequisites:</h3>
+
+<ul>
+  <li>Docker - Running COSMOS 5 requires a working Docker installation.  Typically Docker Desktop on Windows / Mac.  Plain docker should work on linux.  We’re currently only developing / running with Docker Desktop on Windows, so if you have any issues on another platform, please let us know by submitting a ticket!</li>
+</ul>
+
+<p>Minimum Resources allocated to Docker: 4GB RAM, 1 CPU, 60GB Disk
+Recommended Resources allocated to Docker: 8GB RAM, 2+ CPUs, 100GB Disk</p>
+
+<h3 id="to-run">To Run:</h3>
+
+<ol>
+  <li>Download one of the archives (.zip or .tar.gz from the Github release page) <a href="https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0-alpha.1">Download Release Here</a></li>
+  <li>Extract the archive somewhere on your host computer</li>
+  <li>The COSMOS 5 containers are designed to work and be built in the presence of an SSL Decryption device.  To support this a cacert.pem file can be placed at the base of the COSMOS 5 project that includes any certificates needed by your organization.  If you don’t need this, then please ignore, but if you see any SSL errors, this is probably why.</li>
+  <li>Run cosmos_start.bat (Windows), or cosmos_start.sh (linux/Mac)</li>
+  <li>COSMOS 5 will be built and when ready should be running (~15 mins for first run, ~2 for subsequent)</li>
+  <li>Connect a web browser to http://localhost:8080</li>
+  <li>Have fun trying out COSMOS 5!</li>
+</ol>
+
+<p>Please try it out and let us know what you think!  Please submit any issues as Github tickets, or any generic feedback to COSMOS@ball.com.</p>
+
+<p>Note that this release is not ready for production use.  We will have a more beta ready release in a few months.</p>
+
+<p>Thanks!</p>
+
+  </div>
+</article>
+
+
   <article>
   <h2>
     <a href="/news/2020/03/24/identifies-packets/">
@@ -5148,6 +5358,14 @@ change the whole playing field of Operations, Integration, and Test”.</p>
     <ul>
       
       <li class="">
+        <a href="/news/2020/11/05/cosmos-4-5-0-released/">Version 4.5.0</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">Version 5.0.0-alpha.1</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2020/03/09/cosmos-4-4-2-released/">Version 4.4.2</a>
       </li>
       
@@ -5159,20 +5377,22 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <a href="/news/2019/06/28/cosmos-4-4-0-released/">Version 4.4.0</a>
       </li>
       
-      <li class="">
-        <a href="/news/2018/08/30/cosmos-4-3-0-released/">Version 4.3.0</a>
-      </li>
-      
-      <li class="">
-        <a href="/news/2018/05/16/cosmos-4-2-4-released/">Version 4.2.4</a>
-      </li>
-      
       <li>
         <a href="/docs/history/">History »</a>
       </li>
     </ul>
     <h4>Other News</h4>
     <ul>
+        
+        
+        
+        
+        <li class="">
+          <a href="/news/2020/09/23/packet-time/">Packet Time</a>
+        </li>
+        
+        
+        
         
         
         <li class="">
