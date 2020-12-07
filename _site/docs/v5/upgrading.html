@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Upgrading and the Gemfile</title>
+  <title>Upgrading</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v4.1.1">
@@ -656,32 +656,22 @@
 
     <div class="unit four-fifths">
       <article>
+        <!-- Get version but ignore the "docs" collection -->
+        <!-- prettier-ignore -->
+        
         
         <div class="improve right">
           <span class="version-badge">v5</span>
         </div>
-        
-        <h1>Upgrading and the Gemfile</h1>
-        <p>Upgrading COSMOS to the latest version is easy. Every COSMOS project comes with what is called a Gemfile. The Gemfile is used to track the library dependencies of your COSMOS project.
-If your project requires a gem that is not a standard COSMOS dependency, be sure to add it to your Gemfile to track that it is a requirement of your project. In any case, to upgrade to the latest
-version of COSMOS all you need to do is run:</p>
+         
+        <h1>Upgrading</h1>
+        <h3 id="from-cosmos-4-to-cosmos-5">From COSMOS 4 to COSMOS 5</h3>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bundle update cosmos</code></pre></figure>
+<p><em>TODO</em></p>
 
-<p>And that should get the latest version installed (unless your Gemfile has locked COSMOS to a specific version). After upgrading, you should also look at the <a href="/docs/history">COSMOS release notes</a> to see if any other migration is required. If you would like to lock COSMOS (or any other gem) to a specific version, you can also do that with your Gemfile. Here is an example Gemfile that
-locks COSMOS to version 4.4.0, shows the ruby-termios gem requirement on non-windows systems, and also adds a project specific requirement for the sshkit gem.</p>
+<h3 id="cosmos-5-upgrades">COSMOS 5 Upgrades</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gem 'cosmos', '4.4.0'
-gem 'ruby-termios' if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i
-gem 'sshkit'
-</code></pre></div></div>
-
-<p>Finally, whenever you receive a new COSMOS project, running the following command will ensure you have everything you need installed to run that configuration.</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">bundle <span class="nb">install</span></code></pre></figure>
-
-<p>For more information on Gemfiles and managing dependencies for a COSMOS (or any other Ruby-based) project see the bundler documentation at:
-<a href="http://bundler.io">Bundler Docs</a></p>
+<p><em>TODO</em></p>
                                                                                                                                      
 
       </article>
@@ -782,29 +772,9 @@ gem 'sshkit'
     
       
     
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -959,80 +929,8 @@ gem 'sshkit'
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="current">
-    <a href="http://localhost:4000/docs/v5/upgrading">Upgrading and the Gemfile</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/structure">Directory structure</a>
+    <a href="http://localhost:4000/docs/v5/upgrading">Upgrading</a>
   </li>
   <!-- prettier-ignore -->
   
@@ -1063,140 +961,16 @@ gem 'sshkit'
   <!-- prettier-ignore -->
   
   
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/securing">Securing COSMOS</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
 </ul>
 
     
-    <h4>System Configuration</h4>
+    <h4>Configuration</h4>
     <!-- prettier-ignore -->
     <!-- prettier-ignore -->
 
 
 <ul>
   <!-- prettier-ignore -->
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/system">System Configuration</a>
-  </li>
-  <!-- prettier-ignore -->
-  
   
     
     
@@ -1214,16 +988,6 @@ gem 'sshkit'
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1354,32 +1118,8 @@ gem 'sshkit'
       
     
       
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/protocols">Protocol Configuration</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/environment">Environment Variables</a>
   </li>
   <!-- prettier-ignore -->
   
@@ -1387,7 +1127,7 @@ gem 'sshkit'
 </ul>
 
     
-    <h4>Tool Descriptions</h4>
+    <h4>Tool User Manuals</h4>
     <!-- prettier-ignore -->
     <!-- prettier-ignore -->
 
@@ -1589,10 +1329,6 @@ gem 'sshkit'
       
     
       
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/packet-viewer">Packet Viewer</a>
   </li>
@@ -1643,10 +1379,6 @@ gem 'sshkit'
       
     
       
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/script-runner">Script Runner</a>
   </li>
@@ -1655,16 +1387,6 @@ gem 'sshkit'
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1779,16 +1501,6 @@ gem 'sshkit'
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
@@ -1797,10 +1509,6 @@ gem 'sshkit'
   
     
     
-    
-      
-    
-      
     
       
     
@@ -1850,7 +1558,7 @@ gem 'sshkit'
 </ul>
 
     
-    <h4>User's Guides</h4>
+    <h4>Usage Guides</h4>
     <!-- prettier-ignore -->
     <!-- prettier-ignore -->
 
@@ -1860,10 +1568,6 @@ gem 'sshkit'
   
     
     
-    
-      
-    
-      
     
       
     
@@ -1962,10 +1666,6 @@ gem 'sshkit'
       
     
       
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting-best-practices">Scripting Best Practices</a>
   </li>
@@ -2006,162 +1706,6 @@ gem 'sshkit'
 
 <ul>
   <!-- prettier-ignore -->
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/system-class">System Class</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/packet-class">Packet Class</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/packet-item-class">PacketItem Class</a>
-  </li>
-  <!-- prettier-ignore -->
-  
   
     
     

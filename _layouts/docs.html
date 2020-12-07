@@ -8,11 +8,14 @@ layout: default
 
     <div class="unit four-fifths">
       <article>
+        <!-- Get version but ignore the "docs" collection -->
+        <!-- prettier-ignore -->
         {% assign version = page.collection | split: "_" | last %}
+        {% if version != "docs" %}
         <div class="improve right">
           <span class="version-badge">{{ version }}</span>
         </div>
-        {% if page.toc %}
+        {% endif %} {% if page.toc %}
         <div class="toc">{{ content | toc_only }}</div>
         {% endif %}
         <h1>{{ page.title }}</h1>

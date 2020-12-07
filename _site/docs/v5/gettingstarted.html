@@ -656,11 +656,14 @@
 
     <div class="unit four-fifths">
       <article>
+        <!-- Get version but ignore the "docs" collection -->
+        <!-- prettier-ignore -->
+        
         
         <div class="improve right">
           <span class="version-badge">v5</span>
         </div>
-        
+         
         <h1>Getting Started</h1>
         <p>Welcome to the COSMOS system… Let’s get started! This guide is a high level overview that will help with setting up your first COSMOS project.</p>
 
@@ -670,17 +673,12 @@
       <li>You should now have COSMOS installed and a Demo project available that we can make changes to.</li>
     </ul>
   </li>
-  <li>Start the COSMOS Launcher in the Demo project
+  <li>Browse to http://localhost:8080
     <ul>
-      <li>Using a terminal or cmd shell change directories to the demo/tools folder and run: <code class="language-plaintext highlighter-rouge">ruby Launcher</code></li>
+      <li>The COSMOS Command and Telemetry Server will appear. This tool provides real-time information about each “target” in the system. Targets are external systems that receive commands and generate telemetry, often over ethernet or serial connections.</li>
     </ul>
   </li>
-  <li>Accept the legal dialog, and then click the Command and Telemetry Server button in the launcher.
-    <ul>
-      <li>The COSMOS Command and Telemetry Server will start up. This tool provides all the real-time functionality for the COSMOS System by connecting to each “target” in the system. Targets are external systems that receive commands and generate telemetry, often over ethernet or serial connections. The Command and Telemetry Server is the hub through which commands are sent and telemetry is received. It also logs all commands and telemetry and performs limits monitoring.</li>
-    </ul>
-  </li>
-  <li>Experiment with launching other COSMOS tools.
+  <li>Experiment with other COSMOS tools.
     <ul>
       <li>Use Command Sender to send individual commands.</li>
       <li>Use Limits Monitor to watch for telemetry limits violations</li>
@@ -689,10 +687,7 @@
       <li>View detailed telemetry displays in Telemetry Viewer</li>
       <li>Graph some data in Telemetry Grapher</li>
       <li>View log type data in Data Viewer</li>
-      <li>Process Log files with Telemetry Extractor and Command Extractor</li>
-      <li>Create command and telemetry handbooks with Handbook Creator</li>
-      <li>Edit binary files with Table Manager</li>
-      <li>Replay logged telemetry with Replay (requires shutting down the Command and Telemetry Server first)</li>
+      <li>Process log data with Extractor</li>
     </ul>
   </li>
 </ol>
@@ -700,6 +695,8 @@
 <h2 id="interfacing-with-your-hardware">Interfacing with Your Hardware</h2>
 
 <p>Playing with the COSMOS Demo is fun and all, but now you want to talk to your own real hardware? Let’s do it!</p>
+
+<p><em>TODO: This section needs to be modified for COSMOS 5</em></p>
 
 <p>1.. The first step is to create a “target folder” for your new target. At a minimum this folder will contain all the information defining the packets (command and telemetry) that are needed to communicate with your hardware.</p>
 
@@ -879,29 +876,9 @@ TARGET BOB</code></pre></figure>
     
       
     
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1056,80 +1033,8 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
-    <a href="http://localhost:4000/docs/v5/upgrading">Upgrading and the Gemfile</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/structure">Directory structure</a>
+    <a href="http://localhost:4000/docs/v5/upgrading">Upgrading</a>
   </li>
   <!-- prettier-ignore -->
   
@@ -1160,140 +1065,16 @@ TARGET BOB</code></pre></figure>
   <!-- prettier-ignore -->
   
   
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/securing">Securing COSMOS</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
 </ul>
 
     
-    <h4>System Configuration</h4>
+    <h4>Configuration</h4>
     <!-- prettier-ignore -->
     <!-- prettier-ignore -->
 
 
 <ul>
   <!-- prettier-ignore -->
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/system">System Configuration</a>
-  </li>
-  <!-- prettier-ignore -->
-  
   
     
     
@@ -1311,16 +1092,6 @@ TARGET BOB</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1451,32 +1222,8 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/protocols">Protocol Configuration</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/environment">Environment Variables</a>
   </li>
   <!-- prettier-ignore -->
   
@@ -1484,7 +1231,7 @@ TARGET BOB</code></pre></figure>
 </ul>
 
     
-    <h4>Tool Descriptions</h4>
+    <h4>Tool User Manuals</h4>
     <!-- prettier-ignore -->
     <!-- prettier-ignore -->
 
@@ -1686,10 +1433,6 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/packet-viewer">Packet Viewer</a>
   </li>
@@ -1740,10 +1483,6 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/script-runner">Script Runner</a>
   </li>
@@ -1752,16 +1491,6 @@ TARGET BOB</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1876,16 +1605,6 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
@@ -1894,10 +1613,6 @@ TARGET BOB</code></pre></figure>
   
     
     
-    
-      
-    
-      
     
       
     
@@ -1947,7 +1662,7 @@ TARGET BOB</code></pre></figure>
 </ul>
 
     
-    <h4>User's Guides</h4>
+    <h4>Usage Guides</h4>
     <!-- prettier-ignore -->
     <!-- prettier-ignore -->
 
@@ -1957,10 +1672,6 @@ TARGET BOB</code></pre></figure>
   
     
     
-    
-      
-    
-      
     
       
     
@@ -2059,10 +1770,6 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting-best-practices">Scripting Best Practices</a>
   </li>
@@ -2103,162 +1810,6 @@ TARGET BOB</code></pre></figure>
 
 <ul>
   <!-- prettier-ignore -->
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/system-class">System Class</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/packet-class">Packet Class</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/packet-item-class">PacketItem Class</a>
-  </li>
-  <!-- prettier-ignore -->
-  
   
     
     

@@ -4,20 +4,16 @@
     - tools
     - installation
     - upgrading
-    - structure
     - gettingstarted
-    - securing
 
-- title: System Configuration
+- title: Configuration
   docs:
-    - system
     - command
     - telemetry
     - interfaces
     - protocols
-    - environment
 
-- title: Tool Descriptions
+- title: Tool User Manuals
   docs:
     - cmd_sender
     - cmd_tlm_server
@@ -32,7 +28,7 @@
     - tlm_viewer
     - screens
 
-- title: User's Guides
+- title: Usage Guides
   docs:
     - scripting
     - scripting_best_practices
@@ -40,8 +36,5 @@
 
 - title: Development
   docs:
-    - system_class
-    - packet_class
-    - packet_item_class
     - json_api
     - logging

@@ -656,18 +656,19 @@
 
     <div class="unit four-fifths">
       <article>
+        <!-- Get version but ignore the "docs" collection -->
+        <!-- prettier-ignore -->
+        
         
         <div class="improve right">
           <span class="version-badge">v5</span>
         </div>
-        
+         
         <h1>Welcome</h1>
         <p>This site aims to be a comprehensive guide to COSMOS. We’ll cover topics such
 as getting your configuration up and running, developing test and operations scripts,
 building custom telemetry screens, and give you some advice on participating in the future
 development of COSMOS itself.</p>
-
-<p><a href="http://localhost:4000/assets/COSMOS_Docs_10_24_2018.pdf">Click here for a PDF version of this webpage</a></p>
 
 <h2 id="so-what-is-ball-aerospace-cosmos-exactly">So what is Ball Aerospace COSMOS, exactly?</h2>
 
@@ -677,9 +678,7 @@ development boards (Arduinos, Raspberry Pi, Beaglebone, etc), to satellites.</p>
 
 <h3 id="cosmos-architecture">COSMOS Architecture</h3>
 
-<p><img src="/img/tools/architecture.png" alt="COSMOS Architecture" /></p>
-
-<p>COSMOS implements a client server architecture with the Command and Telemetry Server and the various other tools typically acting as clients to retreive data. The Command and Telemetry Server connects to the Targets (green circles) and sends commands and receives telemetry (status data) from them. Targets are the items you’re trying to control or get status from. The arrows from the Server to the targets indicate Interfaces which can be over TCP/IP, serial, UDP/IP, or a custom interface that you define. Yellow boxes indicate data items like configuration files, log files, reports, etc.</p>
+<p><em>TODO: COSMOS 5 Architecture Diagram and description</em></p>
 
 <p>Keep reading for an in-depth discussion of each of the COSMOS Tools.</p>
 
@@ -815,29 +814,9 @@ including it in this guide.</p>
     
       
     
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -992,80 +971,8 @@ including it in this guide.</p>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
-    <a href="http://localhost:4000/docs/v5/upgrading">Upgrading and the Gemfile</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/structure">Directory structure</a>
+    <a href="http://localhost:4000/docs/v5/upgrading">Upgrading</a>
   </li>
   <!-- prettier-ignore -->
   
@@ -1096,140 +1003,16 @@ including it in this guide.</p>
   <!-- prettier-ignore -->
   
   
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/securing">Securing COSMOS</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
 </ul>
 
     
-    <h4>System Configuration</h4>
+    <h4>Configuration</h4>
     <!-- prettier-ignore -->
     <!-- prettier-ignore -->
 
 
 <ul>
   <!-- prettier-ignore -->
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/system">System Configuration</a>
-  </li>
-  <!-- prettier-ignore -->
-  
   
     
     
@@ -1247,16 +1030,6 @@ including it in this guide.</p>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1387,32 +1160,8 @@ including it in this guide.</p>
       
     
       
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/protocols">Protocol Configuration</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/environment">Environment Variables</a>
   </li>
   <!-- prettier-ignore -->
   
@@ -1420,7 +1169,7 @@ including it in this guide.</p>
 </ul>
 
     
-    <h4>Tool Descriptions</h4>
+    <h4>Tool User Manuals</h4>
     <!-- prettier-ignore -->
     <!-- prettier-ignore -->
 
@@ -1622,10 +1371,6 @@ including it in this guide.</p>
       
     
       
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/packet-viewer">Packet Viewer</a>
   </li>
@@ -1676,10 +1421,6 @@ including it in this guide.</p>
       
     
       
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/script-runner">Script Runner</a>
   </li>
@@ -1688,16 +1429,6 @@ including it in this guide.</p>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1812,16 +1543,6 @@ including it in this guide.</p>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
@@ -1830,10 +1551,6 @@ including it in this guide.</p>
   
     
     
-    
-      
-    
-      
     
       
     
@@ -1883,7 +1600,7 @@ including it in this guide.</p>
 </ul>
 
     
-    <h4>User's Guides</h4>
+    <h4>Usage Guides</h4>
     <!-- prettier-ignore -->
     <!-- prettier-ignore -->
 
@@ -1893,10 +1610,6 @@ including it in this guide.</p>
   
     
     
-    
-      
-    
-      
     
       
     
@@ -1995,10 +1708,6 @@ including it in this guide.</p>
       
     
       
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting-best-practices">Scripting Best Practices</a>
   </li>
@@ -2039,162 +1748,6 @@ including it in this guide.</p>
 
 <ul>
   <!-- prettier-ignore -->
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/system-class">System Class</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/packet-class">Packet Class</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/packet-item-class">PacketItem Class</a>
-  </li>
-  <!-- prettier-ignore -->
-  
   
     
     

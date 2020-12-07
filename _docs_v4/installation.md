@@ -5,7 +5,7 @@ title: Installation
 
 ## Installing COSMOS
 
-The following sections describe howto get COSMOS installed on various operating systems.
+The following sections describe how to get COSMOS installed on various operating systems.
 
 ## Installing COSMOS using Docker
 

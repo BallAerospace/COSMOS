@@ -7,11 +7,9 @@ Welcome to the COSMOS system... Let's get started! This guide is a high level ov
 
 1. Get COSMOS Installed onto your computer by following the [Installation Guide](/docs/installation).
    - You should now have COSMOS installed and a Demo project available that we can make changes to.
-2. Start the COSMOS Launcher in the Demo project
-   - Using a terminal or cmd shell change directories to the demo/tools folder and run: `ruby Launcher`
-3. Accept the legal dialog, and then click the Command and Telemetry Server button in the launcher.
-   - The COSMOS Command and Telemetry Server will start up. This tool provides all the real-time functionality for the COSMOS System by connecting to each "target" in the system. Targets are external systems that receive commands and generate telemetry, often over ethernet or serial connections. The Command and Telemetry Server is the hub through which commands are sent and telemetry is received. It also logs all commands and telemetry and performs limits monitoring.
-4. Experiment with launching other COSMOS tools.
+2. Browse to http://localhost:8080
+   - The COSMOS Command and Telemetry Server will appear. This tool provides real-time information about each "target" in the system. Targets are external systems that receive commands and generate telemetry, often over ethernet or serial connections.
+3. Experiment with other COSMOS tools.
    - Use Command Sender to send individual commands.
    - Use Limits Monitor to watch for telemetry limits violations
    - Run some of the example scripts in Script Runner and Test Runner
@@ -19,14 +17,13 @@ Welcome to the COSMOS system... Let's get started! This guide is a high level ov
    - View detailed telemetry displays in Telemetry Viewer
    - Graph some data in Telemetry Grapher
    - View log type data in Data Viewer
-   - Process Log files with Telemetry Extractor and Command Extractor
-   - Create command and telemetry handbooks with Handbook Creator
-   - Edit binary files with Table Manager
-   - Replay logged telemetry with Replay (requires shutting down the Command and Telemetry Server first)
+   - Process log data with Extractor
 
 ## Interfacing with Your Hardware
 
 Playing with the COSMOS Demo is fun and all, but now you want to talk to your own real hardware? Let's do it!
+
+_TODO: This section needs to be modified for COSMOS 5_
 
 1.. The first step is to create a "target folder" for your new target. At a minimum this folder will contain all the information defining the packets (command and telemetry) that are needed to communicate with your hardware.
 
