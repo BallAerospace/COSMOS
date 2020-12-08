@@ -12,12 +12,12 @@ module Jekyll
       path = context.registers[:site].config['cosmos_tool_path'].strip
       output = ''
       page = ''
-      # Bundler.with_unbundled_env do
-      #   Dir.chdir(root) do
-      #     puts "Getting cmd line for #{File.join(path, @command)}"
-      #     output = `bundle exec ruby #{File.join(path, @command)} --help`
-      #   end
-      # end
+      Bundler.with_unbundled_env do
+        Dir.chdir(root) do
+          puts "Getting cmd line for #{File.join(path, @command)}"
+          output = `bundle exec ruby #{File.join(path, @command)} --help`
+        end
+      end
       build_page(output, page)
       page
     end

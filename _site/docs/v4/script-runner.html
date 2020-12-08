@@ -665,12 +665,71 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#line_delay">LINE_DELAY</a></li>
+<li class="toc-entry toc-h2"><a href="#pause_on_error">PAUSE_ON_ERROR</a></li>
+<li class="toc-entry toc-h2"><a href="#monitor_limits">MONITOR_LIMITS</a></li>
+<li class="toc-entry toc-h2"><a href="#pause_on_red">PAUSE_ON_RED</a></li>
 <li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
 <li class="toc-entry toc-h2"><a href="#command-line-parameters">Command Line Parameters</a></li>
 </ul></div>
         
         <h1>Script Runner</h1>
         <p>This document describes Script Runner configuration file and command line parameters.</p>
+
+<h2 id="line_delay">
+<a class="anchor" href="#line_delay" aria-hidden="true"><span class="octicon octicon-link"></span></a>LINE_DELAY</h2>
+<p><strong>Sets the amount of time in seconds before the next line of a script will be executed</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Delay</td>
+      <td>Delay in seconds before the next line is executed. A value of 0 means to execute the scripts as fast as possible.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="pause_on_error">
+<a class="anchor" href="#pause_on_error" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAUSE_ON_ERROR</h2>
+<p><strong>Set or clear the pause on error checkbox</strong></p>
+
+<p>If this is checked, Script Runner will pause if the test encounters an error. Otherwise the error will be logged but the script will continue.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Enable</td>
+      <td>Whether to pause when the script encounters an error<br><br>Valid Values: <span class="values">TRUE, FALSE</span>
+</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="monitor_limits">
+<a class="anchor" href="#monitor_limits" aria-hidden="true"><span class="octicon octicon-link"></span></a>MONITOR_LIMITS</h2>
+<p><strong>Log limits events to the Script Runner log file while a script is running</strong></p>
+
+<p>Limits events are always logged by the Command and Telemetry Server but are not put in the Script Runner log without this keyword.</p>
+
+<h2 id="pause_on_red">
+<a class="anchor" href="#pause_on_red" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAUSE_ON_RED</h2>
+<p><strong>Pause a running script if a red limit occurs</strong></p>
 
 <h2 id="example-file">
 <a class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
@@ -683,7 +742,38 @@ PAUSE_ON_RED</code></pre></figure>
 
 <h2 id="command-line-parameters">
 <a class="anchor" href="#command-line-parameters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Line Parameters</h2>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code></code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Usage: ruby ScriptRunner [options]
+
+    -h, --help                       Show this message
+    -v, --version                    Show version
+        --system FILE                Use an alternative system.txt file
+    -c, --config FILE                Use the specified configuration file
+        --stylesheet FILE            Use the specified stylesheet
+
+Window Size Options:
+        --minimized                  Start the tool minimized
+        --maximized                  Start the tool maximized
+        --defaultsize                Start the tool in its default size
+
+Window X &amp; Y Position Options:
+  Positive values indicate a position from the top and left of the screen.
+  Negative values indicate a position from the bottom and right of the screen.
+  A value of -1 indicates to place the right or bottom side of the window
+  next to the right or bottom edge of the screen.
+    -x, --xpos VALUE                 Window X position
+    -y, --ypos VALUE                 Window Y position
+
+Window Width and Height Options:
+  Specifing width and height will force the specified dimension.
+  Otherwise the window will layout according to its defaults.
+    -w, --width VALUE                Window width
+    -t, --height VALUE               Window height
+
+Script Runner Specific Options:
+    -s, --server FILE                Use the specified server configuration file for disconnect mode
+    -r, --run FILE                   Open and run the specified procedure
+    -d, --disconnect                 Start in disconnect mode
+</code></pre></div></div>
 
                                                                                                                                      
 

@@ -665,15 +665,151 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#auto_start">AUTO_START</a></li>
+<li class="toc-entry toc-h2"><a href="#auto_target_components">AUTO_TARGET_COMPONENTS</a></li>
+<li class="toc-entry toc-h2"><a href="#target_component">TARGET_COMPONENT</a></li>
+<li class="toc-entry toc-h2"><a href="#component">COMPONENT</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#component-modifiers">COMPONENT Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#packet">PACKET</a></li>
+</ul>
+</li>
 <li class="toc-entry toc-h2"><a href="#command-line-parameters">Command Line Parameters</a></li>
 </ul></div>
         
         <h1>Data Viewer</h1>
         <p>This document describes Data Viewer configuration file and command line parameters.</p>
 
+<h2 id="auto_start">
+<a class="anchor" href="#auto_start" aria-hidden="true"><span class="octicon octicon-link"></span></a>AUTO_START</h2>
+<p><strong>Automatically start Data Viewer and connect to the Server</strong></p>
+
+<h2 id="auto_target_components">
+<a class="anchor" href="#auto_target_components" aria-hidden="true"><span class="octicon octicon-link"></span></a>AUTO_TARGET_COMPONENTS</h2>
+<p><strong>Automatically load all data_viewer.txt configuration files in each target</strong></p>
+
+<h2 id="target_component">
+<a class="anchor" href="#target_component" aria-hidden="true"><span class="octicon octicon-link"></span></a>TARGET_COMPONENT</h2>
+<p><strong>Load a Data Viewer configuration file in the specified target</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target</td>
+      <td>Name of the target<br><br>Valid Values: <span class="values">Any Target Name</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Filename</td>
+      <td>The Data Viewer configuration file name. Defaults to data_viewer.txt.</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="component">
+<a class="anchor" href="#component" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMPONENT</h2>
+<p><strong>Declare a Data Viewer component</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tab Name</td>
+      <td>Name of the component which shows up in the GUI tab</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Filename</td>
+      <td>Name of the Ruby file which contains the component class</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Options</td>
+      <td>Optional parameters that are sent to the component constructor</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="component-modifiers">
+<a class="anchor" href="#component-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMPONENT Modifiers</h3>
+<p>The following keywords must follow a COMPONENT keyword.</p>
+
+<h3 id="packet">
+<a class="anchor" href="#packet" aria-hidden="true"><span class="octicon octicon-link"></span></a>PACKET</h3>
+<p><strong>Declare a packet to process by the component</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target</td>
+      <td>Name of the target<br><br>Valid Values: <span class="values">Any Target Name</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Packet</td>
+      <td>Name of the packet</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
 <h2 id="command-line-parameters">
 <a class="anchor" href="#command-line-parameters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Line Parameters</h2>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code></code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Usage: ruby DataViewer [options]
+
+    -h, --help                       Show this message
+    -v, --version                    Show version
+        --system FILE                Use an alternative system.txt file
+    -c, --config FILE                Use the specified configuration file
+        --stylesheet FILE            Use the specified stylesheet
+
+Window Size Options:
+        --minimized                  Start the tool minimized
+        --maximized                  Start the tool maximized
+        --defaultsize                Start the tool in its default size
+
+Window X &amp; Y Position Options:
+  Positive values indicate a position from the top and left of the screen.
+  Negative values indicate a position from the bottom and right of the screen.
+  A value of -1 indicates to place the right or bottom side of the window
+  next to the right or bottom edge of the screen.
+    -x, --xpos VALUE                 Window X position
+    -y, --ypos VALUE                 Window Y position
+
+Window Width and Height Options:
+  Specifing width and height will force the specified dimension.
+  Otherwise the window will layout according to its defaults.
+    -w, --width VALUE                Window width
+    -t, --height VALUE               Window height
+
+Data Viewer Specific Options:
+    -s, --start                      Start processing immediately
+        --replay                     Start Data Viewer in Replay mode
+</code></pre></div></div>
 
                                                                                                                                      
 

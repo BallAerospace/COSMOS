@@ -665,15 +665,385 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#page">PAGE</a></li>
+<li class="toc-entry toc-h2"><a href="#target_pages">TARGET_PAGES</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#page-modifiers">PAGE Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#no_pdf">NO_PDF</a></li>
+<li class="toc-entry toc-h3"><a href="#pdf_cover">PDF_COVER</a></li>
+<li class="toc-entry toc-h3"><a href="#pdf_toc">PDF_TOC</a></li>
+<li class="toc-entry toc-h3"><a href="#pdf_header">PDF_HEADER</a></li>
+<li class="toc-entry toc-h3"><a href="#pdf_footer">PDF_FOOTER</a></li>
+<li class="toc-entry toc-h3"><a href="#pdf_top_margin">PDF_TOP_MARGIN</a></li>
+<li class="toc-entry toc-h3"><a href="#pdf_bottom_margin">PDF_BOTTOM_MARGIN</a></li>
+<li class="toc-entry toc-h3"><a href="#pdf_side_margin">PDF_SIDE_MARGIN</a></li>
+<li class="toc-entry toc-h3"><a href="#target">TARGET</a></li>
+<li class="toc-entry toc-h3"><a href="#section">SECTION</a></li>
+<li class="toc-entry toc-h3"><a href="#cmd_section">CMD_SECTION</a></li>
+<li class="toc-entry toc-h3"><a href="#tlm_section">TLM_SECTION</a></li>
+</ul>
+</li>
 <li class="toc-entry toc-h2"><a href="#command-line-parameters">Command Line Parameters</a></li>
 </ul></div>
         
         <h1>Handbook Creator</h1>
         <p>This document describes Handbook Creator configuration file and command line parameters.</p>
 
+<h2 id="page">
+<a class="anchor" href="#page" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAGE</h2>
+<p><strong>Create a new top level webpage</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Name of the HTML file</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="target_pages">
+<a class="anchor" href="#target_pages" aria-hidden="true"><span class="octicon octicon-link"></span></a>TARGET_PAGES</h2>
+<p><strong>Create a new webpage for each of the defined TARGETS</strong></p>
+
+<p>The page will be generated for each target. A top level “Targets” drop down will be created with links to all the generated target pages.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename Postfix</td>
+      <td>The postfix will be applied to each generated target file. For example, a target named INST with a postfix of ‘_cmd_tlm.html’ will result in a file named ‘inst_cmd_tlm.html’.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="page-modifiers">
+<a class="anchor" href="#page-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>PAGE Modifiers</h3>
+<p>The following keywords must follow a PAGE keyword.</p>
+
+<h3 id="no_pdf">
+<a class="anchor" href="#no_pdf" aria-hidden="true"><span class="octicon octicon-link"></span></a>NO_PDF</h3>
+<p><strong>Indicates this page should not be generated when building the PDF</strong></p>
+
+<p>Handbook Creator can create webpages and export them to PDFs. Use this keyword when you have an index webpage or another page for which you do not want a PDF created.</p>
+
+<h3 id="pdf_cover">
+<a class="anchor" href="#pdf_cover" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_COVER</h3>
+<p><strong>Defines an HTML ERB template which is used to create the PDF cover page</strong></p>
+
+<p>The template is simply HTML tags which can reference ‘title’ set by this keyword from ERB context</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Name of the HTML ERB template file which is found in the config/tools/handbook_creator/templates directory.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Title Text</td>
+      <td>Title text which is accessable in the template</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="pdf_toc">
+<a class="anchor" href="#pdf_toc" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_TOC</h3>
+<p><strong>Insert the PDF table of contents</strong></p>
+
+<p>The table of contents is generated from the XSL templated found in config/tools/handbook_creator/default_toc.xsl</p>
+
+<h3 id="pdf_header">
+<a class="anchor" href="#pdf_header" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_HEADER</h3>
+<p><strong>Defines an HTML ERB template which is used to create the header on each PDF page</strong></p>
+
+<p>The template is simply HTML tags which can reference ‘title’ set by this keyword from ERB context</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Name of the HTML ERB template file which is found in the config/tools/handbook_creator/templates directory.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Title Text</td>
+      <td>Title text which is accessable in the template</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="pdf_footer">
+<a class="anchor" href="#pdf_footer" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_FOOTER</h3>
+<p><strong>Defines an HTML ERB template which is used to create the footer on each PDF page</strong></p>
+
+<p>The template is simply HTML tags which can reference ‘title’ set by this keyword from ERB context</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Name of the HTML ERB template file which is found in the config/tools/handbook_creator/templates directory.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Title Text</td>
+      <td>Title text which is accessable in the template</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="pdf_top_margin">
+<a class="anchor" href="#pdf_top_margin" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_TOP_MARGIN</h3>
+<p><strong>The margin from the top of the PDF page before the header</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Margin</td>
+      <td>The margin in pixels</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="pdf_bottom_margin">
+<a class="anchor" href="#pdf_bottom_margin" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_BOTTOM_MARGIN</h3>
+<p><strong>The margin below the footer to the bottom of the PDF page</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Margin</td>
+      <td>The margin in pixels</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="pdf_side_margin">
+<a class="anchor" href="#pdf_side_margin" aria-hidden="true"><span class="octicon octicon-link"></span></a>PDF_SIDE_MARGIN</h3>
+<p><strong>The margin on both sides on the PDF page</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Margin</td>
+      <td>The margin in pixels</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="target">
+<a class="anchor" href="#target" aria-hidden="true"><span class="octicon octicon-link"></span></a>TARGET</h3>
+<p><strong>Specify a target which this page is generated for</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target</td>
+      <td>The target name<br><br>Valid Values: <span class="values">Any Target Name</span>
+</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="section">
+<a class="anchor" href="#section" aria-hidden="true"><span class="octicon octicon-link"></span></a>SECTION</h3>
+<p><strong>Define a page SECTION</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Name of the HTML ERB template file which is found in the config/tools/handbook_creator/templates directory.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Output</td>
+      <td>What output formats should contain this section<br><br>Valid Values: <span class="values">ALl, HTML, PDF</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Title Text</td>
+      <td>Title text which is accessable in the template</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="cmd_section">
+<a class="anchor" href="#cmd_section" aria-hidden="true"><span class="octicon octicon-link"></span></a>CMD_SECTION</h3>
+<p><strong>Define a page SECTION which is generated for all command packets</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Name of the HTML ERB template file which is found in the config/tools/handbook_creator/templates directory.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Output</td>
+      <td>What output formats should contain this section<br><br>Valid Values: <span class="values">ALl, HTML, PDF</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Title Text</td>
+      <td>Title text which is accessable in the template</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="tlm_section">
+<a class="anchor" href="#tlm_section" aria-hidden="true"><span class="octicon octicon-link"></span></a>TLM_SECTION</h3>
+<p><strong>Define a page SECTION which is generated for all telemetry packets</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Name of the HTML ERB template file which is found in the config/tools/handbook_creator/templates directory.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Output</td>
+      <td>What output formats should contain this section<br><br>Valid Values: <span class="values">ALl, HTML, PDF</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Title Text</td>
+      <td>Title text which is accessable in the template</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
 <h2 id="command-line-parameters">
 <a class="anchor" href="#command-line-parameters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Line Parameters</h2>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code></code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Usage: ruby HandbookCreator [options]
+
+    -h, --help                       Show this message
+    -v, --version                    Show version
+        --system FILE                Use an alternative system.txt file
+    -c, --config FILE                Use the specified configuration file
+        --stylesheet FILE            Use the specified stylesheet
+
+Window Size Options:
+        --minimized                  Start the tool minimized
+        --maximized                  Start the tool maximized
+        --defaultsize                Start the tool in its default size
+
+Window X &amp; Y Position Options:
+  Positive values indicate a position from the top and left of the screen.
+  Negative values indicate a position from the bottom and right of the screen.
+  A value of -1 indicates to place the right or bottom side of the window
+  next to the right or bottom edge of the screen.
+    -x, --xpos VALUE                 Window X position
+    -y, --ypos VALUE                 Window Y position
+
+Window Width and Height Options:
+  Specifing width and height will force the specified dimension.
+  Otherwise the window will layout according to its defaults.
+    -w, --width VALUE                Window width
+    -t, --height VALUE               Window height
+
+</code></pre></div></div>
 
                                                                                                                                      
 

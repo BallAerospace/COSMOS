@@ -666,6 +666,24 @@
          
         <div class="toc"><ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#launcher-configuration">Launcher Configuration</a></li>
+<li class="toc-entry toc-h2"><a href="#title">TITLE</a></li>
+<li class="toc-entry toc-h2"><a href="#tool_font">TOOL_FONT</a></li>
+<li class="toc-entry toc-h2"><a href="#label_font">LABEL_FONT</a></li>
+<li class="toc-entry toc-h2"><a href="#label">LABEL</a></li>
+<li class="toc-entry toc-h2"><a href="#divider">DIVIDER</a></li>
+<li class="toc-entry toc-h2"><a href="#num_columns">NUM_COLUMNS</a></li>
+<li class="toc-entry toc-h2"><a href="#tool">TOOL</a></li>
+<li class="toc-entry toc-h2"><a href="#multitool_start">MULTITOOL_START</a></li>
+<li class="toc-entry toc-h2"><a href="#multitool_end">MULTITOOL_END</a></li>
+<li class="toc-entry toc-h2"><a href="#auto_gem_tools">AUTO_GEM_TOOLS</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#tool-modifiers">TOOL Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#dont_capture_io">DONT_CAPTURE_IO</a></li>
+<li class="toc-entry toc-h3"><a href="#multitool_start-modifiers">MULTITOOL_START Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#tool-1">TOOL</a></li>
+<li class="toc-entry toc-h3"><a href="#delay">DELAY</a></li>
+</ul>
+</li>
 <li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
 <li class="toc-entry toc-h2"><a href="#command-line-parameters">Command Line Parameters</a></li>
 </ul></div>
@@ -687,6 +705,258 @@
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">ruby tools<span class="se">\L</span>auncher <span class="nt">--config</span> launcher_config.txt</code></pre></figure>
 
 <div style="clear:both;"></div>
+
+<h2 id="title">
+<a class="anchor" href="#title" aria-hidden="true"><span class="octicon octicon-link"></span></a>TITLE</h2>
+<p><strong>Sets the title of the COSMOS Launcher</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Title</td>
+      <td>Launcher title. Default is “COSMOS Launcher”.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="tool_font">
+<a class="anchor" href="#tool_font" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOOL_FONT</h2>
+<p><strong>Sets the font used for tool buttons</strong></p>
+
+<div class="note warning"><p>Only set the TOOL_FONT once as the last encountered setting will apply to all button labels</p></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Font Family</td>
+      <td>The font family to use<br><br>Valid Values: <span class="values">Arial, Calibri, Cambria, Candara, Castellar, Centaur, Century, Chiller, Consolas, Constantia, Courier, Courier New, Dotum, Elephant, Euphemia, Fixedsys, Georgia, Impact, Lucida, Papyrus, Rockwell, Rod, System, Tahoma, Terminal, Times New Roman, Verdana, Wide Latin</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Font Size</td>
+      <td>The size of the font in standard points</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="label_font">
+<a class="anchor" href="#label_font" aria-hidden="true"><span class="octicon octicon-link"></span></a>LABEL_FONT</h2>
+<p><strong>Sets the font used for labels</strong></p>
+
+<div class="note warning"><p>Only set the LABEL_FONT once as the last encountered setting will apply to all text labels</p></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Font Family</td>
+      <td>The font family to use<br><br>Valid Values: <span class="values">Arial, Calibri, Cambria, Candara, Castellar, Centaur, Century, Chiller, Consolas, Constantia, Courier, Courier New, Dotum, Elephant, Euphemia, Fixedsys, Georgia, Impact, Lucida, Papyrus, Rockwell, Rod, System, Tahoma, Terminal, Times New Roman, Verdana, Wide Latin</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Font Size</td>
+      <td>The size of the font in standard points</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="label">
+<a class="anchor" href="#label" aria-hidden="true"><span class="octicon octicon-link"></span></a>LABEL</h2>
+<p><strong>Creates a label of text in the current font style</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Text</td>
+      <td>The text of the label</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="divider">
+<a class="anchor" href="#divider" aria-hidden="true"><span class="octicon octicon-link"></span></a>DIVIDER</h2>
+<p><strong>Creates a horizontal line between tools</strong></p>
+
+<h2 id="num_columns">
+<a class="anchor" href="#num_columns" aria-hidden="true"><span class="octicon octicon-link"></span></a>NUM_COLUMNS</h2>
+<p><strong>Specifies how many launcher buttons should be created per row</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Columns</td>
+      <td>The number of launcher buttons per row before Launcher automatically creates a new row of buttons.	Default is 4.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="tool">
+<a class="anchor" href="#tool" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOOL</h2>
+<p><strong>Create a new tool launcher button</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Button Text</td>
+      <td>Label that is put on the button that launches the tool</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Shell Command</td>
+      <td>Command that is executed to launch the tool. (The same thing you would type at a command terminal). Note that you can include tool parameters here which will be applied when the tool starts. COSMOS defines three helper keywords to execute tools - LAUNCH, LAUNCH_TERMINAL, and LAUNCH_GEM. LAUNCH starts a GUI Ruby tool without a terminal. LAUNCH_TERMINAL starts a Ruby tool with a terminal window. LAUNCH_GEM launches a Ruby tool distributed with a gem.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Icon Filename</td>
+      <td>Filename of a an icon located in the data directory. Passing ‘nil’ or an empty string ‘’ will result in Launcher using the default COSMOS icon.</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <td>Tool Parameters</td>
+      <td>Tool parameters as you would type on the command line. Specifying parameters here rather than in the ‘Shell Command’ parameter will cause a dialog box to appear which allows the user to edit parameters if desired. Expected to be in parameter name/parameter value pairs, e.g. –config filename.txt.<br><br><span class="param_warning">Warning: The full configuration option name must be used rather than the short name. These parameters will override any parameters specified in the Shell Command.</span>
+</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="multitool_start">
+<a class="anchor" href="#multitool_start" aria-hidden="true"><span class="octicon octicon-link"></span></a>MULTITOOL_START</h2>
+<p><strong>Creates a button which launches multiple tools</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Button Text</td>
+      <td>Label that is put on the button that launches the tools</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Icon Filename</td>
+      <td>Filename of a an icon located in the data directory. Passing ‘nil’ or an empty string ‘’ will result in Launcher using the default COSMOS icon.</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="multitool_end">
+<a class="anchor" href="#multitool_end" aria-hidden="true"><span class="octicon octicon-link"></span></a>MULTITOOL_END</h2>
+<p><strong>Ends the creation of a multi-tool button</strong></p>
+
+<h2 id="auto_gem_tools">
+<a class="anchor" href="#auto_gem_tools" aria-hidden="true"><span class="octicon octicon-link"></span></a>AUTO_GEM_TOOLS</h2>
+<p><strong>Automatically installs COSMOS tool gems</strong></p>
+
+<p>Traverses the installed rubygems looking for COSMOS gems named cosmos-xxxx.gem. If the gem has a tools directory, the tool launcher will be added as a TOOL in the Launcher.</p>
+
+<h3 id="tool-modifiers">
+<a class="anchor" href="#tool-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOOL Modifiers</h3>
+<p>The following keywords must follow a TOOL keyword.</p>
+
+<h3 id="dont_capture_io">
+<a class="anchor" href="#dont_capture_io" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_CAPTURE_IO</h3>
+<p><strong>Don’t capture IO when running the command</strong></p>
+
+<h3 id="multitool_start-modifiers">
+<a class="anchor" href="#multitool_start-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>MULTITOOL_START Modifiers</h3>
+<p>The following keywords must follow a MULTITOOL_START keyword.</p>
+
+<h3 id="tool-1">
+<a class="anchor" href="#tool-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOOL</h3>
+<p><strong>Create a new tool launcher button</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Shell Command</td>
+      <td>Command that is executed to launch the tool. (The same thing you would type at a command terminal). Note that you can include tool parameters here which will be applied when the tool starts. COSMOS defines three helper keywords to execute tools - LAUNCH, LAUNCH_TERMINAL, and LAUNCH_GEM. LAUNCH starts a GUI Ruby tool without a terminal. LAUNCH_TERMINAL starts a Ruby tool with a terminal window. LAUNCH_GEM launches a Ruby tool distributed with a gem.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="delay">
+<a class="anchor" href="#delay" aria-hidden="true"><span class="octicon octicon-link"></span></a>DELAY</h3>
+<p><strong>Inserts a delay between launching multiple tools</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Delay</td>
+      <td>Delay time in seconds</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
 
 <h2 id="example-file">
 <a class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
@@ -726,7 +996,36 @@ TOOL <span class="s2">"Table Manager"</span> <span class="s2">"RUBYW tools/Table
 
 <h2 id="command-line-parameters">
 <a class="anchor" href="#command-line-parameters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Line Parameters</h2>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code></code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Usage: ruby Launcher [options]
+
+    -h, --help                       Show this message
+    -v, --version                    Show version
+        --system FILE                Use an alternative system.txt file
+    -c, --config FILE                Use the specified configuration file
+        --stylesheet FILE            Use the specified stylesheet
+
+Window Size Options:
+        --minimized                  Start the tool minimized
+        --maximized                  Start the tool maximized
+        --defaultsize                Start the tool in its default size
+
+Window X &amp; Y Position Options:
+  Positive values indicate a position from the top and left of the screen.
+  Negative values indicate a position from the bottom and right of the screen.
+  A value of -1 indicates to place the right or bottom side of the window
+  next to the right or bottom edge of the screen.
+    -x, --xpos VALUE                 Window X position
+    -y, --ypos VALUE                 Window Y position
+
+Window Width and Height Options:
+  Specifing width and height will force the specified dimension.
+  Otherwise the window will layout according to its defaults.
+    -w, --width VALUE                Window width
+    -t, --height VALUE               Window height
+
+Launcher Specific Options:
+    -m, --mini                       Create mini launcher
+</code></pre></div></div>
 
                                                                                                                                      
 

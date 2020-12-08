@@ -665,15 +665,150 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#ignore_item">IGNORE_ITEM</a></li>
+<li class="toc-entry toc-h2"><a href="#ignore_packet">IGNORE_PACKET</a></li>
+<li class="toc-entry toc-h2"><a href="#ignore_stale">IGNORE_STALE</a></li>
+<li class="toc-entry toc-h2"><a href="#color_blind">COLOR_BLIND</a></li>
+<li class="toc-entry toc-h2"><a href="#ignore_operational_limits">IGNORE_OPERATIONAL_LIMITS</a></li>
 <li class="toc-entry toc-h2"><a href="#command-line-parameters">Command Line Parameters</a></li>
 </ul></div>
         
         <h1>Limits Monitor</h1>
         <p>This document describes Limits Monitor configuration file and command line parameters.</p>
 
+<h2 id="ignore_item">
+<a class="anchor" href="#ignore_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_ITEM</h2>
+<p><strong>Ignore a particular telemetry item</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the telemetry target<br><br>Valid Values: <span class="values">Any Target Name</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Name of the telemetry packet</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Item Name</td>
+      <td>Name of the telemetry item</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="ignore_packet">
+<a class="anchor" href="#ignore_packet" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_PACKET</h2>
+<p><strong>Ignore all telemetry items for a specified packet</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the telemetry target<br><br>Valid Values: <span class="values">Any Target Name</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Name of the telemetry packet</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="ignore_stale">
+<a class="anchor" href="#ignore_stale" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_STALE</h2>
+<div class="right">(Since 4.0.0)</div>
+<p><strong>Ignore the staleness of a specified packet</strong></p>
+
+<p>Note that only the packet staleness is ignored. If the packet is received and an item is out-of-limits, that will still count against the overall system limits state unless the item or packet is separately ignored with the IGNORE_ITEM or IGNORE_PACKET keyword.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Name of the telemetry target<br><br>Valid Values: <span class="values">Any Target Name</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Packet Name</td>
+      <td>Name of the telemetry packet</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="color_blind">
+<a class="anchor" href="#color_blind" aria-hidden="true"><span class="octicon octicon-link"></span></a>COLOR_BLIND</h2>
+<p><strong>Use a color-blind accessibility mode</strong></p>
+
+<p>Color blind mode causes the value for out-of-limits items to have a code appended to indicate the limits status. The code is r = red low, y = yellow low, g = green low, B = blue, G = green or green high, Y = yellow high, R = red high.</p>
+
+<h2 id="ignore_operational_limits">
+<a class="anchor" href="#ignore_operational_limits" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_OPERATIONAL_LIMITS</h2>
+<p><strong>Ignore GREEN_HIGH or GREEN_LOW limits states</strong></p>
+
+<p>Items with operational limits will only show up in limits monitor if they go yellow or red</p>
+
 <h2 id="command-line-parameters">
 <a class="anchor" href="#command-line-parameters" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Line Parameters</h2>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code></code></pre></div></div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Usage: ruby LimitsMonitor [options]
+
+    -h, --help                       Show this message
+    -v, --version                    Show version
+        --system FILE                Use an alternative system.txt file
+    -c, --config FILE                Use the specified configuration file
+        --stylesheet FILE            Use the specified stylesheet
+
+Window Size Options:
+        --minimized                  Start the tool minimized
+        --maximized                  Start the tool maximized
+        --defaultsize                Start the tool in its default size
+
+Window X &amp; Y Position Options:
+  Positive values indicate a position from the top and left of the screen.
+  Negative values indicate a position from the bottom and right of the screen.
+  A value of -1 indicates to place the right or bottom side of the window
+  next to the right or bottom edge of the screen.
+    -x, --xpos VALUE                 Window X position
+    -y, --ypos VALUE                 Window Y position
+
+Window Width and Height Options:
+  Specifing width and height will force the specified dimension.
+  Otherwise the window will layout according to its defaults.
+    -w, --width VALUE                Window width
+    -t, --height VALUE               Window height
+
+Limits Monitor Specific Options:
+        --replay                     Start Limits Monitor in Replay mode
+</code></pre></div></div>
 
                                                                                                                                      
 
