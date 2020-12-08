@@ -14,6 +14,7 @@ module Jekyll
       page = ''
       Bundler.with_unbundled_env do
         Dir.chdir(root) do
+          puts "Getting cmd line for #{File.join(path, @command)}"
           output = `bundle exec ruby #{File.join(path, @command)} --help`
         end
       end

@@ -1,8 +1,41 @@
 <div class="unit one-fifth hide-on-mobiles">
   <aside>
-    {% for section in site.data.docs %}
+    <ul>
+      {% for collection in site.collections %}
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+      {% if collection.label != "posts" and collection.label != "docs" %}
+      {% assign col_version = collection.label | split: "_" | last %}
+      <li>
+        <!-- Only create links to collections which aren't our own  -->
+        {% if page.collection != collection.label %}
+        <a href="{{ site.url }}/docs/{{ col_version }}/"
+          >{{ col_version }} Docs</a
+        >
+        {% endif %} {% endif %} {% endfor %}
+      </li>
+    </ul>
+
+    <!-- prettier-ignore -->
+    {% assign data = site.data[page.collection] %}
+    {% if data == null %}
+      {% assign col_name = "docs_" | append: site.default %}
+      {% assign data = site.data[col_name] %}
+    {% endif %}
+    {% for section in data %}
     <h4>{{ section.title }}</h4>
+    <!-- prettier-ignore -->
     {% include docs_ul.html items=section.docs %}
     {% endfor %}
+
+    <!-- Every versioned site gets the unversioned Meta section -->
+    <h4>Meta</h4>
+    <ul>
+      {% for p in site.docs %}
+      <li>
+        <a href="{{ site.url }}{{ p.url }}">{{ p.title }}</a>
+      </li>
+      {% endfor %}
+    </ul>
   </aside>
 </div>

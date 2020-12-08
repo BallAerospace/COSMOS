@@ -64,7 +64,9 @@ module Jekyll
       path = File.join(root, context.registers[:site].config['cosmos_meta_path'].strip)
 
       page = ''
-      meta = MetaConfigParser.load(File.join(path, @yaml_file.to_s.strip))
+      filename = File.join(path, @yaml_file.to_s.strip)
+      puts "Processing #{filename}"
+      meta = MetaConfigParser.load(filename)
       build_page(meta, page)
       page
     end

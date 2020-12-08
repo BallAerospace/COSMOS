@@ -1,0 +1,38 @@
+- title: Getting Started
+  docs:
+    - home
+    - tools
+    - installation
+    - upgrading
+    - gettingstarted
+
+- title: Configuration
+  docs:
+    - command
+    - telemetry
+    - interfaces
+    - protocols
+
+- title: Tool User Manuals
+  docs:
+    - cmd_sender
+    - cmd_tlm_server
+    - config_editor
+    - data_viewer
+    - extractor
+    - limits_monitor
+    - packet_viewer
+    - script_runner
+    - tlm_grapher
+    - tlm_viewer
+    - screens
+
+- title: Usage Guides
+  docs:
+    - scripting
+    - scripting_best_practices
+
+- title: Development
+  docs:
+    - json_api
+    - logging
