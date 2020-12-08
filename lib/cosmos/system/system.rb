@@ -14,7 +14,9 @@ require 'cosmos/packets/commands'
 require 'cosmos/packets/telemetry'
 require 'cosmos/packets/limits'
 require 'cosmos/system/target'
+require 'cosmos/utilities/s3'
 require 'thread'
+require 'fileutils'
 
 module Cosmos
 
@@ -43,6 +45,29 @@ module Cosmos
     # @return [Symbol] The current limits_set of the system returned from Redis
     def self.limits_set
       Store.instance.hget("#{$cosmos_scope}__cosmos_system", 'limits_set').intern
+    end
+
+    def self.setup_targets(target_names, base_dir, scope:)
+      FileUtils.mkdir_p("#{base_dir}/targets")
+      rubys3_client = Aws::S3::Client.new
+      target_names.each do |target_name|
+        # Retrieve bucket/targets/target_name/target_id.zip
+        response_target = "#{base_dir}/targets/#{target_name}_current.zip"
+        FileUtils.mkdir_p(File.dirname(response_target))
+        s3_key = "#{scope}/target_archives/#{target_name}/#{target_name}_current.zip"
+        Logger.info("Retrieving #{s3_key} from targets bucket")
+        rubys3_client.get_object(bucket: "config", key: s3_key, response_target: response_target)
+        Zip::File.open(response_target) do |zip_file|
+          zip_file.each do |entry|
+            path = File.join("#{base_dir}/targets", entry.name)
+            FileUtils.mkdir_p(File.dirname(path))
+            zip_file.extract(entry, path) unless File.exist?(path)
+          end
+        end
+      end
+
+      # Build System from targets
+      System.instance(target_names, "#{base_dir}/targets")      
     end
 
     # Get the singleton instance of System

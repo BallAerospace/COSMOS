@@ -10,27 +10,35 @@
 
 require 'childprocess'
 require 'cosmos'
+require 'tempfile'
+require 'fileutils'
 
 module Cosmos
   class OperatorProcess
     attr_accessor :process_definition
     attr_accessor :work_dir
     attr_accessor :env
+    attr_accessor :new_temp_dir
+    attr_reader :temp_dir
     attr_reader :scope
 
     def self.setup
       # Perform any setup steps necessary
     end
 
-    def initialize(process_definition, work_dir: '/cosmos/lib/microservices', env: {}, scope:)
+    def initialize(process_definition, work_dir: '/cosmos/lib/microservices', temp_dir: nil, env: {}, scope:)
       @process = nil
       @process_definition = process_definition
       @work_dir = work_dir
+      @temp_dir = temp_dir
+      @new_temp_dir = temp_dir
       @env = env
       @scope = scope
     end
 
     def start
+      @temp_dir = @new_temp_dir
+      @new_temp_dir = nil
       Logger.info("Starting: #{@process_definition.join(' ')}", scope: @scope)
       @process = ChildProcess.build(*@process_definition)
       # This lets the ChildProcess use the parent IO ... but it breaks unit tests
@@ -39,6 +47,9 @@ module Cosmos
       @env.each do |key, value|
         @process.environment[key] = value
       end
+      @process.environment['COSMOS_SCOPE'] = @scope
+      @process.io.stdout = Tempfile.new("child-output")
+      @process.io.stderr = Tempfile.new("child-output")
       @process.start
     end
 
@@ -53,7 +64,7 @@ module Cosmos
     def soft_stop
       Thread.new do
         Logger.info("Soft shutting down process: #{@process_definition.join(' ')}", scope: @scope)
-        Process.kill("SIGINT", @process.pid) # Signal the process to stop
+        Process.kill("SIGINT", @process.pid) if @process # Signal the process to stop
       end
     end
 
@@ -62,7 +73,16 @@ module Cosmos
         Logger.info("Hard shutting down process: #{@process_definition.join(' ')}", scope: @scope)
         @process.stop
       end
+      FileUtils.remove_entry(@temp_dir) if @temp_dir and File.exists?(@temp_dir)
       @process = nil
+    end
+
+    def stdout
+      @process.io.stdout
+    end
+
+    def stderr
+      @process.io.stderr
     end
   end
 
@@ -137,7 +157,15 @@ module Cosmos
           break if @shutdown
           unless p.alive?
             # Respawn process
-            Logger.error("Unexpected process died... respawning! #{p.process_definition.join(' ')}", scope: p.scope)
+            p.stdout.rewind
+            output = p.stdout.read
+            p.stdout.close
+            p.stdout.unlink
+            p.stderr.rewind
+            err_output = p.stderr.read
+            p.stderr.close
+            p.stderr.unlink
+            Logger.error("Unexpected process died... respawning! #{p.process_definition.join(' ')}\nStdout:\n#{output}\nStderr:\n#{err_output}\n", scope: p.scope)
             p.start
           end
         end

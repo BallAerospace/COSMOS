@@ -19,11 +19,11 @@ class ApiController < ApplicationController
     # IPSocket.peeraddr.
     req_addr = ["AF_INET", req.port, req.host.to_s, req.ip.to_s]
 
-    if Cosmos::CmdTlmServer.instance.json_drb.acl and !Cosmos::CmdTlmServer.instance.json_drb.acl.allow_addr?(req_addr)
-      status       = 403
-      content_type = "text/plain"
-      body         = "Forbidden"
-    elsif request.post?
+    # if Cosmos::CmdTlmServer.instance.json_drb.acl and !Cosmos::CmdTlmServer.instance.json_drb.acl.allow_addr?(req_addr)
+    #  status       = 403
+    #  content_type = "text/plain"
+    #  body         = "Forbidden"
+    if request.post?
       status, content_type, body = handle_post(req)
     else
       status       = 405

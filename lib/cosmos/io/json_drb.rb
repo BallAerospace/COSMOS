@@ -11,7 +11,7 @@
 require 'thread'
 require 'socket'
 require 'json'
-require 'drb/acl'
+# require 'drb/acl'
 require 'drb/drb'
 require 'set'
 require 'cosmos/io/json_rpc'
@@ -57,13 +57,13 @@ module Cosmos
     # @return [Array<String>] List of methods that should be allowed
     attr_accessor :method_whitelist
     # @return [ACL] The access control list
-    attr_accessor :acl
+    # attr_accessor :acl
 
     attr_accessor :object
 
     def initialize
       @thread = nil
-      @acl = nil
+      # @acl = nil
       @object = nil
       @method_whitelist = nil
       @request_count = 0

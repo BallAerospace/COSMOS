@@ -1,0 +1,50 @@
+SCREEN AUTO AUTO 1.0
+
+VERTICAL
+# TODO: This causes an error because layout widgets don't have settings
+# SETTING BACKCOLOR white
+  TITLE "<%= @target_name %> Instrument Ground Station Status"
+  SETTING BACKCOLOR white
+
+  CANVAS 650 700
+    # The code inside <% %> is just ruby
+    <% 11.times do |x| %>
+      # Create a dot at various y locations. The <%= %> adds the expression to the file
+      CANVASDOT 5 <%= 50 * x + 50 %> BLUE 5
+    <% end %> # Close our block from above
+    # This is an example of using TLM_AND to && together different logical values
+    # Note you must use RAW for the base value and use SETTING IMAGE true / false
+    # for the two values you wish to display
+    #CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS
+    #  SETTING TLM_AND INST HEALTH_STATUS GROUND2STATUS VALUE_EQ 1
+    #  SETTING TLM_AND INST HEALTH_STATUS COLLECTS VALUE_EQ 0
+    #  SETTING IMAGE true "ground_on.gif" 100 200
+    #  SETTING IMAGE false "ground_off.gif" 100 200
+    CANVASLINE 10 10 640 10 blue 3
+    CANVASIMAGE "https://images.pexels.com/photos/256152/pexels-photo-256152.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=640&w=426" 0 250 250 150
+    #CANVASIMAGE "satellite.gif" 50 150
+    # We're using the converted value and specifing a default of "ground_error.gif"
+    # if none of the IMAGE settings match the value
+    CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS CONVERTED "https://images.pexels.com/photos/356079/pexels-photo-356079.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=200&w=200" 400 80 200 200
+    # CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS CONVERTED "ground_error.gif" 400 100
+      SETTING IMAGE CONNECTED "https://images.unsplash.com/photo-1590433333434-09df2b2a35a5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80" 400 80 200 200
+      SETTING IMAGE UNAVAILABLE "https://images.unsplash.com/photo-1572224104782-91a08d296390?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80" 400 80 200 200
+      # SETTING IMAGE CONNECTED "ground_on.gif" 400 100
+      # SETTING IMAGE UNAVAILABLE "ground_off.gif" 400 100
+      # If the image is clicked the "INST HS" screen will popup at 100, 100
+      SETTING SCREEN "INST HS" 100 100
+    CANVASLABEL 380 300 "Ground Station #1"
+    CANVASLABELVALUE INST HEALTH_STATUS GROUND1STATUS 520 300
+    # The default type is RAW and no default means anything over 10 will be blank
+    CANVASIMAGEVALUE INST HEALTH_STATUS GROUND2STATUS
+      SETTING IMAGE 1 "ground_on.gif" 400 350
+      SETTING IMAGE 0 "ground_off.gif" 400 350
+      # This is an example of using a range of values with a particular image
+      SETTING IMAGE 2..10 "ground_error.gif" 400 350
+    CANVASLABEL 380 550 "Ground Station #2"
+    CANVASLABELVALUE INST HEALTH_STATUS GROUND2STATUS 520 550
+    CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 420 135 240 330 green white 3
+    CANVASLINEVALUE INST HEALTH_STATUS GROUND2STATUS 420 385 240 330 green white 3
+    CANVASLINE 10 584 640 584 blue 3
+  END
+END

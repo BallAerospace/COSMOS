@@ -33,21 +33,21 @@ module Cosmos
       # IPSocket.peeraddr.
       req_addr = ["AF_INET", request.port, request.host.to_s, request.ip.to_s]
 
-      if @drb.acl and !@drb.acl.allow_addr?(req_addr)
-        status       = 403
-        content_type = "text/plain"
-        body         = "Forbidden"
-      elsif request.post?
+      #if @drb.acl and !@drb.acl.allow_addr?(req_addr)
+      #  status       = 403
+      #  content_type = "text/plain"
+      #  body         = "Forbidden"
+      if request.post?
         status, content_type, body = handle_post(request)
       else
         status       = 405
         content_type = "text/plain"
         body         = "Request not allowed"
       end
-  
+
       return status, {'Content-Type' => content_type}, [body]
     end
-    
+
     # Handles an http post.
     #
     # @param request [Rack::Request] - A rack post request
@@ -57,7 +57,7 @@ module Cosmos
       request_data = request.body.read
       start_time = Time.now.sys
       response_data, error_code = @drb.process_request(request_data, start_time)
-  
+
       # Convert json error code into html status code
       # see http://www.jsonrpc.org/historical/json-rpc-over-http.html#errors
       if error_code

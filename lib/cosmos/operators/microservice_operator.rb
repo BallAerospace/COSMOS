@@ -10,6 +10,7 @@
 
 require 'cosmos'
 require 'cosmos/operators/operator'
+require 'cosmos/utilities/s3'
 require 'redis'
 require 'open3'
 
@@ -35,8 +36,26 @@ module Cosmos
       cmd_array = microservice_config_parsed["cmd"]
       env = microservice_config_parsed["env"]
       scope = microservice_name.split("__")[0]
+
+      # Get Microservice files from S3
+      temp_dir = Dir.mktmpdir
+      rubys3_client = Aws::S3::Client.new
+      prefix = "#{scope}/microservices/#{microservice_name}/"
+      file_count = 0
+      rubys3_client.list_objects(bucket: 'config', prefix: prefix).contents.each do |object|
+        response_target = File.join(temp_dir, object.key.split(prefix)[-1])
+        FileUtils.mkdir_p(File.dirname(response_target))
+        rubys3_client.get_object(bucket: "config", key: object.key, response_target: response_target)
+        file_count += 1
+      end
+
+      # Adjust work_dir to microservice files downloaded if files and a relative path
+      if file_count > 0 and work_dir[0] != '/'
+        work_dir = File.join(temp_dir, work_dir)
+      end
+
+      # Check Syntax on any ruby files
       ruby_filename = nil
-      #STDOUT.puts cmd_array
       cmd_array.each do |part|
         if part =~ /\.rb$/
           ruby_filename = part
@@ -58,7 +77,8 @@ module Cosmos
           end
         end
       end
-      return cmd_array, work_dir, env, scope
+
+      return cmd_array, work_dir, temp_dir, env, scope
     end
 
     def update
@@ -91,26 +111,27 @@ module Cosmos
       # Convert to processes
       @mutex.synchronize do
         @new_microservices.each do |microservice_name, microservice_config|
-          cmd_array, work_dir, env, scope = convert_microservice_to_process_definition(microservice_name, microservice_config)
+          cmd_array, work_dir, temp_dir, env, scope = convert_microservice_to_process_definition(microservice_name, microservice_config)
           if cmd_array
-            process = OperatorProcess.new(cmd_array, work_dir: work_dir, env: env, scope: scope)
+            process = OperatorProcess.new(cmd_array, work_dir: work_dir, temp_dir: temp_dir, env: env, scope: scope)
             @new_processes[microservice_name] = process
             @processes[microservice_name] = process
           end
         end
 
         @changed_microservices.each do |microservice_name, microservice_config|
-          cmd_array, work_dir, env, scope = convert_microservice_to_process_definition(microservice_name, microservice_config)
+          cmd_array, work_dir, temp_dir, env, scope = convert_microservice_to_process_definition(microservice_name, microservice_config)
           if cmd_array
             process = @processes[microservice_name]
             if process
               process.process_definition = cmd_array
               process.work_dir = work_dir
+              process.new_temp_dir = temp_dir
               process.env = env
               @changed_processes[microservice_name] = process
             else # TODO: How is this even possible?
               Logger.error("Changed microservice #{microservice_name} does not exist. Creating new...", scope: scope)
-              process = OperatorProcess.new(cmd_array, work_dir: work_dir, env: env, scope: scope)
+              process = OperatorProcess.new(cmd_array, work_dir: work_dir, temp_dir: temp_dir, env: env, scope: scope)
               @new_processes[microservice_name] = process
               @processes[microservice_name] = process
             end

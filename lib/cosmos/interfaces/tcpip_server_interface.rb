@@ -214,7 +214,8 @@ module Cosmos
     # @return [Packet] Latest packet read from any of the connected clients.
     #   Note this method blocks until data is available.
     def read
-      raise "Interface not connected for read: #{@name}" unless connected? && read_allowed?
+      raise "Interface not connected for read: #{@name}" unless connected?
+      raise "Interface not readable: #{@name}" unless read_allowed?
       packet = @read_queue.pop
       return nil unless packet
       @read_count += 1
@@ -224,7 +225,8 @@ module Cosmos
     # @param packet [Packet] Packet to write to all clients connected to the
     #   write port.
     def write(packet)
-      raise "Interface not connected for write: #{@name}" unless connected? && write_allowed?
+      raise "Interface not connected for write: #{@name}" unless connected?
+      raise "Interface not writable: #{@name}" unless write_allowed?
       @write_count += 1
       @write_queue << packet.clone
       @write_condition_variable.broadcast
@@ -233,7 +235,8 @@ module Cosmos
     # @param data [String] Data to write to all clients connected to the
     #   write port.
     def write_raw(data)
-      raise "Interface not connected for write_raw: #{@name}" unless connected? && write_raw_allowed?
+      raise "Interface not connected for write_raw: #{@name}" unless connected?
+      raise "Interface not write-rawable: #{@name}" unless write_raw_allowed?
       @write_raw_queue << data
       @write_raw_condition_variable.broadcast
       return data
@@ -366,16 +369,16 @@ module Cosmos
 
       port, host_ip = Socket.unpack_sockaddr_in(address)
       hostname = ''
-      hostname = Socket.lookup_hostname_from_ip(host_ip) if System.instance.use_dns
-      if System.instance.acl
-        addr = ["AF_INET", 10, "lc630", host_ip.to_s]
-        if not System.instance.acl.allow_addr?(addr)
-          # Reject connection
-          Cosmos.close_socket(socket)
-          Logger.instance.info "#{@name}: Tcpip server rejected connection from #{hostname}(#{host_ip}):#{port}"
-          return
-        end
-      end
+      hostname = Socket.lookup_hostname_from_ip(host_ip)
+      # if System.instance.acl
+      #   addr = ["AF_INET", 10, "lc630", host_ip.to_s]
+      #   if not System.instance.acl.allow_addr?(addr)
+      #     # Reject connection
+      #     Cosmos.close_socket(socket)
+      #     Logger.instance.info "#{@name}: Tcpip server rejected connection from #{hostname}(#{host_ip}):#{port}"
+      #     return
+      #   end
+      # end
 
       # Configure TCP_NODELAY option
       socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)

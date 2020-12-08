@@ -44,8 +44,7 @@ module Cosmos
 
       # Create temp folder for this microservice
       @temp_dir = Dir.mktmpdir
-      FileUtils.mkdir_p("#{@temp_dir}/targets")
-
+  
       # Get microservice configuration from Redis
       @redis = Redis.new(url: ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0'))
       @config = @redis.hget("cosmos_microservices", name)
@@ -61,25 +60,7 @@ module Cosmos
       # Get configuration for any targets from Minio/S3
       @target_names = @config["target_names"]
       @target_names ||= []
-      rubys3_client = Aws::S3::Client.new
-      @target_names.each do |target_name|
-        # Retrieve bucket/targets/target_name/target_id.zip
-        response_target = "#{@temp_dir}/targets/#{target_name}_current.zip"
-        FileUtils.mkdir_p(File.dirname(response_target))
-        s3_key = "#{@scope}/target_archives/#{target_name}/#{target_name}_current.zip"
-        Logger.info("Retrieving #{s3_key} from targets bucket")
-        rubys3_client.get_object(bucket: "config", key: s3_key, response_target: response_target)
-        Zip::File.open(response_target) do |zip_file|
-          zip_file.each do |entry|
-            path = File.join("#{@temp_dir}/targets", entry.name)
-            FileUtils.mkdir_p(File.dirname(path))
-            zip_file.extract(entry, path) unless File.exist?(path)
-          end
-        end
-      end
-
-      # Build System from targets
-      System.instance(@target_names, "#{@temp_dir}/targets")
+      System.setup_targets(@target_names, @temp_dir, scope: @scope)
 
       # Use at_exit to shutdown cleanly no matter how we are die
       at_exit do

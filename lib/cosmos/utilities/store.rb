@@ -94,7 +94,7 @@ module Cosmos
       (timeout_ms / 100).times do
         read_topics([ack_topic], nil, 100) do |topic, msg_id, msg_hash, redis|
           if msg_id == cmd_id
-            Logger.info "Ack Received: #{msg_id}: #{msg_hash.inspect}"
+            #Logger.info "Ack Received: #{msg_id}: #{msg_hash.inspect}"
             if msg_hash["result"] == "SUCCESS"
               return
             # Check for HazardousError which is a special case

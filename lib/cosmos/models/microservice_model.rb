@@ -139,15 +139,13 @@ module Cosmos
         Dir.glob(gem_path + start_path + "**/*") do |filename|
           next if filename == '.' or filename == '..' or File.directory?(filename)
           path = filename.split(gem_path)[-1]
-          key = "#{@scope}/microservices/#{@name}/" + path.split(start_path)[-1]
+          microservice_folder_path = path.split(start_path)[-1]
+          key = "#{@scope}/microservices/#{@name}/" + microservice_folder_path
 
-          # Load target files
+          # Load microservice files
           data = File.read(filename, mode: "rb")
-          if data.is_printable?
-            rubys3_client.put_object(bucket: 'config', key: key, body: ERB.new(data).result(create_erb_binding(variables)))
-          else
-            rubys3_client.put_object(bucket: 'config', key: key, body: data)
-          end
+          data = ERB.new(data).result(create_erb_binding(variables)) if data.is_printable?
+          rubys3_client.put_object(bucket: 'config', key: key, body: data)
         end
       end
     end

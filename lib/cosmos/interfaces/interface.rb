@@ -186,7 +186,8 @@ module Cosmos
     # @return [Packet] Packet constructed from the data. Packet will be
     #   unidentified (nil target and packet names)
     def read
-      raise "Interface not connected for read: #{@name}" unless connected? && read_allowed?
+      raise "Interface not connected for read: #{@name}" unless connected?
+      raise "Interface not readable: #{@name}" unless read_allowed?
 
       first = true
       loop do
@@ -232,7 +233,8 @@ module Cosmos
     # Method to send a packet on the interface.
     # @param packet [Packet] The Packet to send out the interface
     def write(packet)
-      raise "Interface not connected for write: #{@name}" unless connected? && write_allowed?
+      raise "Interface not connected for write: #{@name}" unless connected?
+      raise "Interface not writable: #{@name}" unless write_allowed?
       _write do
         @write_count += 1
 
@@ -279,7 +281,9 @@ module Cosmos
     # problems.
     # @param data [String] The raw data to send out the interface
     def write_raw(data)
-      raise "Interface not connected for write_raw : #{@name}" unless connected? && write_raw_allowed?
+      raise "Interface not connected for write_raw: #{@name}" unless connected?
+      raise "Interface not write-rawable: #{@name}" unless write_raw_allowed?
+
       _write do
         write_interface(data)
       end
