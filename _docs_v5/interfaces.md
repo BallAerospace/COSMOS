@@ -4,6 +4,10 @@ title: Interface Configuration
 toc: true
 ---
 
+<div class="note unreleased">
+  <p>While Interfaces are the same for COSMOS 5, this section needs to be updated.</p>
+</div>
+
 Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customizable portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own. Note that in most cases you can extend interfaces with [Protocols](/docs/protocols/) rather than implementing a new interface.
 
 <div class="note info">

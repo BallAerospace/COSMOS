@@ -4,4 +4,6 @@ title: Command Sender
 toc: true
 ---
 
-This document describes the Command Sender
+<div class="note unreleased">
+  <p>User Manual</p>
+</div>

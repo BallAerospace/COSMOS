@@ -4,6 +4,10 @@ title: Command Configuration
 toc: true
 ---
 
+<div class="note unreleased">
+  <p>While Command Definition files are the same for COSMOS 5, this section needs to be updated.</p>
+</div>
+
 ## Command Definition Files
 
 Command definition files define the command packets that can be sent to COSMOS targets. One large file can be used to define the command packets, or multiple files can be used at the user's discretion. Command definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some command files that depend on others, e.g. they override or extend existing commands, they must be named last. The easist way to do this is to add an extension to an existing file name. For example, if you already have cmd.txt you can create cmd_override.txt for telemetry that depends on the definitions in tlm.txt. Also note that due to the way the [ASCII Table](http://www.asciitable.com/) is structured, files beginning with capital letters are processed before lower case letters.

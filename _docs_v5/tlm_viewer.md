@@ -4,9 +4,9 @@ title: Telemetry Viewer
 toc: true
 ---
 
-This document describes Telemetry Viewer
+<div class="note unreleased">
+  <p>User Manual</p>
+</div>
 
 For documentation on how to build Telemetry Screens and how to configure the
-screen widgets please see the [Telemetry Screens](/docs/screens).
-
-{% cosmos_meta tlm_viewer.yaml %}
+screen widgets please see the [Telemetry Screens](/docs/v5/screens).

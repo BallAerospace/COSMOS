@@ -26,8 +26,8 @@
     <a href="/">Home</a>
   </li>
   <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
   </li>
   <li class="">
     <a href="/news/">News</a>
@@ -58,8 +58,8 @@
     <a href="/">Home</a>
   </li>
   <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
   </li>
   <li class="">
     <a href="/news/">News</a>
@@ -939,7 +939,11 @@
 </ul></div>
         
         <h1>Scripting Guide</h1>
-        <p>This document provides the information necessary to write test procedures using the COSMOS scripting API. Scripting in COSMOS is designed to be simple and intuitive. The code completion ability for command and telemetry mnemonics makes Script Runner the ideal place to write your procedures, however any text editor will do. If there is functionality that you don’t see here or perhaps an easier syntax for doing something, please submit a ticket.</p>
+        <div class="note unreleased">
+  <p>Needs updates for COSMOS 5 APIs</p>
+</div>
+
+<p>This document provides the information necessary to write test procedures using the COSMOS scripting API. Scripting in COSMOS is designed to be simple and intuitive. The code completion ability for command and telemetry mnemonics makes Script Runner the ideal place to write your procedures, however any text editor will do. If there is functionality that you don’t see here or perhaps an easier syntax for doing something, please submit a ticket.</p>
 
 <h2 id="concepts">
 <a class="anchor" href="#concepts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Concepts</h2>
@@ -6571,33 +6575,9 @@ Consider breaking code like this into a seperate file and using either require/l
     
       
     
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -6650,14 +6630,6 @@ Consider breaking code like this into a seperate file and using either require/l
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -6728,18 +6700,6 @@ Consider breaking code like this into a seperate file and using either require/l
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/upgrading">Upgrading</a>
   </li>
@@ -6748,14 +6708,6 @@ Consider breaking code like this into a seperate file and using either require/l
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -6837,18 +6789,6 @@ Consider breaking code like this into a seperate file and using either require/l
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/telemetry">Telemetry Configuration</a>
   </li>
@@ -6875,14 +6815,6 @@ Consider breaking code like this into a seperate file and using either require/l
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/interfaces">Interface Configuration</a>
   </li>
@@ -6891,16 +6823,6 @@ Consider breaking code like this into a seperate file and using either require/l
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -6978,38 +6900,98 @@ Consider breaking code like this into a seperate file and using either require/l
       
     
       
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/config-editor">Config Editor</a>
-  </li>
-  <!-- prettier-ignore -->
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/data-viewer">Data Viewer</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
     
       
     
@@ -7048,54 +7030,6 @@ Consider breaking code like this into a seperate file and using either require/l
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/launcher">Launcher</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/limits-monitor">Limits Monitor</a>
   </li>
@@ -7104,16 +7038,6 @@ Consider breaking code like this into a seperate file and using either require/l
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -7180,36 +7104,14 @@ Consider breaking code like this into a seperate file and using either require/l
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
-    <a href="http://localhost:4000/docs/v5/script-runner">Script Runner</a>
+    <a href="http://localhost:4000/docs/v5/script-runner">Script & Test Runner</a>
   </li>
   <!-- prettier-ignore -->
   
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -7300,18 +7202,6 @@ Consider breaking code like this into a seperate file and using either require/l
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
@@ -7320,16 +7210,6 @@ Consider breaking code like this into a seperate file and using either require/l
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -7413,16 +7293,6 @@ Consider breaking code like this into a seperate file and using either require/l
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="current">
     <a href="http://localhost:4000/docs/v5/scripting">Scripting Guide</a>
   </li>
@@ -7467,42 +7337,8 @@ Consider breaking code like this into a seperate file and using either require/l
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting-best-practices">Scripting Best Practices</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/gemtargets">Gem Based Targets and Tools</a>
   </li>
   <!-- prettier-ignore -->
   
@@ -7540,14 +7376,6 @@ Consider breaking code like this into a seperate file and using either require/l
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/json-api">JSON API</a>
   </li>
@@ -7556,16 +7384,6 @@ Consider breaking code like this into a seperate file and using either require/l
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     

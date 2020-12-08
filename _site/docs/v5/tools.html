@@ -26,8 +26,8 @@
     <a href="/">Home</a>
   </li>
   <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
   </li>
   <li class="">
     <a href="/news/">News</a>
@@ -58,8 +58,8 @@
     <a href="/">Home</a>
   </li>
   <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
   </li>
   <li class="">
     <a href="/news/">News</a>
@@ -715,7 +715,7 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
 
 <p>Easily send individual commands.</p>
 
-<p><img src="/img/v5/cmd_sender.png" alt="Command Sender"></p>
+<p><img src="/img/v5/command_sender.png" alt="Command Sender"></p>
 
 <ul>
   <li>Select any command by target and command name and then fill out a form with the command parameters</li>
@@ -743,7 +743,10 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
 
 <p>Run test procedures as small repeatable test cases.</p>
 
-<p><img src="/img/v5/test_runner.png" alt="Test Runner"></p>
+<!-- ![Test Runner](/img/v5/test_runner.png) -->
+<div class="note unreleased">
+  <p>Test Runner not yet implemented</p>
+</div>
 
 <ul>
   <li>Develop system level tests much like unit tests</li>
@@ -758,7 +761,7 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
 
 <p>View any telemetry packet in the system with no extra configuration necessary.</p>
 
-<p><img src="/img/v5/pkt_viewer.png" alt="Packet Viewer"></p>
+<p><img src="/img/v5/packet_viewer.png" alt="Packet Viewer"></p>
 
 <ul>
   <li>Automatically contains all defined targets, packets, and telemetry items</li>
@@ -770,7 +773,7 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
 
 <p>Easily create custom telemetry screens with simple configuration text files.</p>
 
-<p><img src="/img/v5/tlm_viewer.png" alt="Telemetry Viewer"></p>
+<p><img src="/img/v5/telemetry_viewer.png" alt="Telemetry Viewer"></p>
 
 <ul>
   <li>Advanced widgets available to display data</li>
@@ -784,7 +787,7 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
 
 <p>Realtime or offline graphing of any telemetry item.</p>
 
-<p><img src="/img/v5/tlm_grapher.png" alt="Telemetry Grapher"></p>
+<p><img src="/img/v5/telemetry_grapher.png" alt="Telemetry Grapher"></p>
 
 <ul>
   <li>One or more telemetry points per plot</li>
@@ -891,33 +894,9 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
     
       
     
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -970,14 +949,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1048,18 +1019,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/upgrading">Upgrading</a>
   </li>
@@ -1068,14 +1027,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1157,18 +1108,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/telemetry">Telemetry Configuration</a>
   </li>
@@ -1195,14 +1134,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/interfaces">Interface Configuration</a>
   </li>
@@ -1211,16 +1142,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1298,38 +1219,98 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
       
     
       
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/config-editor">Config Editor</a>
-  </li>
-  <!-- prettier-ignore -->
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/data-viewer">Data Viewer</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1368,54 +1349,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/launcher">Launcher</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/limits-monitor">Limits Monitor</a>
   </li>
@@ -1424,16 +1357,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1500,36 +1423,14 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
-    <a href="http://localhost:4000/docs/v5/script-runner">Script Runner</a>
+    <a href="http://localhost:4000/docs/v5/script-runner">Script & Test Runner</a>
   </li>
   <!-- prettier-ignore -->
   
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1620,18 +1521,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
@@ -1640,16 +1529,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1733,16 +1612,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting">Scripting Guide</a>
   </li>
@@ -1787,42 +1656,8 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting-best-practices">Scripting Best Practices</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/gemtargets">Gem Based Targets and Tools</a>
   </li>
   <!-- prettier-ignore -->
   
@@ -1860,14 +1695,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/json-api">JSON API</a>
   </li>
@@ -1876,16 +1703,6 @@ This list is updated when new COSMOS gems are installed which add tools.</p>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     

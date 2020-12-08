@@ -26,8 +26,8 @@
     <a href="/">Home</a>
   </li>
   <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
   </li>
   <li class="">
     <a href="/news/">News</a>
@@ -58,8 +58,8 @@
     <a href="/">Home</a>
   </li>
   <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
   </li>
   <li class="">
     <a href="/news/">News</a>
@@ -696,7 +696,9 @@
 
 <p>Playing with the COSMOS Demo is fun and all, but now you want to talk to your own real hardware? Let’s do it!</p>
 
-<p><em>TODO: This section needs to be modified for COSMOS 5</em></p>
+<div class="note unreleased">
+  <p>These instructions need to be updated for COSMOS 5</p>
+</div>
 
 <p>1.. The first step is to create a “target folder” for your new target. At a minimum this folder will contain all the information defining the packets (command and telemetry) that are needed to communicate with your hardware.</p>
 
@@ -864,33 +866,9 @@ TARGET BOB</code></pre></figure>
     
       
     
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -943,14 +921,6 @@ TARGET BOB</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1021,18 +991,6 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/upgrading">Upgrading</a>
   </li>
@@ -1041,14 +999,6 @@ TARGET BOB</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1130,18 +1080,6 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/telemetry">Telemetry Configuration</a>
   </li>
@@ -1168,14 +1106,6 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/interfaces">Interface Configuration</a>
   </li>
@@ -1184,16 +1114,6 @@ TARGET BOB</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1271,38 +1191,98 @@ TARGET BOB</code></pre></figure>
       
     
       
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/config-editor">Config Editor</a>
-  </li>
-  <!-- prettier-ignore -->
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/data-viewer">Data Viewer</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1341,54 +1321,6 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/launcher">Launcher</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/limits-monitor">Limits Monitor</a>
   </li>
@@ -1397,16 +1329,6 @@ TARGET BOB</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1473,36 +1395,14 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
-    <a href="http://localhost:4000/docs/v5/script-runner">Script Runner</a>
+    <a href="http://localhost:4000/docs/v5/script-runner">Script & Test Runner</a>
   </li>
   <!-- prettier-ignore -->
   
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1593,18 +1493,6 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
@@ -1613,16 +1501,6 @@ TARGET BOB</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1706,16 +1584,6 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting">Scripting Guide</a>
   </li>
@@ -1760,42 +1628,8 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting-best-practices">Scripting Best Practices</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/gemtargets">Gem Based Targets and Tools</a>
   </li>
   <!-- prettier-ignore -->
   
@@ -1833,14 +1667,6 @@ TARGET BOB</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/json-api">JSON API</a>
   </li>
@@ -1849,16 +1675,6 @@ TARGET BOB</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     

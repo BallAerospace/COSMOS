@@ -4,4 +4,6 @@ title: Telemetry Grapher
 toc: true
 ---
 
-This document describes Telemetry Grapher
+<div class="note unreleased">
+  <p>User Manual</p>
+</div>

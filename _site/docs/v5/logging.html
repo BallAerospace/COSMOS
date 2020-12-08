@@ -26,8 +26,8 @@
     <a href="/">Home</a>
   </li>
   <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
   </li>
   <li class="">
     <a href="/news/">News</a>
@@ -58,8 +58,8 @@
     <a href="/">Home</a>
   </li>
   <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
   </li>
   <li class="">
     <a href="/news/">News</a>
@@ -665,186 +665,12 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
-<li class="toc-entry toc-h1"><a href="#binary-file-structure">Binary File Structure</a></li>
 </ul></div>
         
         <h1>Logging</h1>
-        <p>This document describes the COSMOS logging framework and structure.</p>
-
-<p>The COSMOS system creates a number of different logs both for data and for application events. The log file location is defined in the system.txt file by the <a href="/docs/system/#path">‘PATH LOGS’</a> setting. The log files which get created in this directory follow a common naming convention. The first part is a date and time: YYYY<em>MM_DD_HH_MM_SS</em>. This is followed by words specific to the COSMOS application. COSMOS applications produce the following logs:</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Application</th>
-      <th>Log File Name</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Any</td>
-      <td>&lt;date&gt;_exception.txt</td>
-      <td>Exception file which is generated if a COSMOS application crashes. Any user provided interface code, background tasks, conversions, etc can result in an exception file if not properly written.</td>
-    </tr>
-    <tr>
-      <td>Any</td>
-      <td>&lt;date&gt;_unexpected.txt</td>
-      <td>Unexpected text output. If user code tries to print to the standard output using ‘puts’, this output is captured and an unexpected log file is created when the application exits.</td>
-    </tr>
-    <tr>
-      <td>Cmd/Tlm Server</td>
-      <td>&lt;date&gt;_cmd.bin</td>
-      <td>All outgoing command packets</td>
-    </tr>
-    <tr>
-      <td>Cmd/Tlm Server</td>
-      <td>&lt;date&gt;_tlm.bin</td>
-      <td>All incoming telemetry packets</td>
-    </tr>
-    <tr>
-      <td>Cmd/Tlm Server</td>
-      <td>&lt;date&gt;_server_messages.txt</td>
-      <td>All the server messages which are found in the bottom half of the Command and Telemetry Server application. Server messages are time stamped and categorized as INFO, WARN, or ERROR. Messages include red, yellow, limit violations, limit groups enable/disable, commands, and log file open/close.</td>
-    </tr>
-    <tr>
-      <td>Command Sender</td>
-      <td>&lt;date&gt;_cmdsender_messages.txt</td>
-      <td>Commands sent through Command Sender are logged and timestamped.</td>
-    </tr>
-    <tr>
-      <td>Script Runner</td>
-      <td>&lt;date&gt;_sr_&lt;filename&gt;_messages.txt</td>
-      <td>Each time a script is run, a new messages log file is created. This log captures any ‘puts’ output in the script as well as any user input. It also captures user interaction with Script Runner such as clicking the Pause and Stop buttons (as well as Step when debugging).</td>
-    </tr>
-    <tr>
-      <td>Test Runner</td>
-      <td>&lt;date&gt;_sr_&lt;test&gt;_messages.txt</td>
-      <td>Each time a test is run, a new messages log file is created. The &lt;test&gt; part of the filename is either the Suite name if a Suite is run, Suite_TestGroup if a Test Group is run, or Suite_TestGroup_TestCase if a test case is run. This log captures any ‘puts’ output in the script as well as any user input. It also captures user interaction with Script Runner such as clicking the Pause and Stop buttons (as well as Step when debugging).</td>
-    </tr>
-    <tr>
-      <td>Test Runner</td>
-      <td>&lt;date&gt;_testrunner_results.txt</td>
-      <td>Test Runner test report which indicates the file run, metadata, Test Runner settings (checkboxes), Test Case Results and a summary of the tests run.</td>
-    </tr>
-    <tr>
-      <td>Test Runner</td>
-      <td>&lt;date&gt;_testrunner_results.zip</td>
-      <td>If the Test Runner <a href="/docs/test_runner/#create_data_package">CREATE_DATA_PACKAGE</a> configuration option is set, a zip file is created containing the the test report, the server messages and the command and telemetry bin files.</td>
-    </tr>
-  </tbody>
-</table>
-
-<h1 id="binary-file-structure">
-<a class="anchor" href="#binary-file-structure" aria-hidden="true"><span class="octicon octicon-link"></span></a>Binary File Structure</h1>
-
-<p>The Command and Telemetry Server binary log files contain command and telemetry packets. Each log file starts with a 128 byte header that is used internally by COSMOS to denote the version of definition files that were used when the file was created.</p>
-
-<table>
-  <tbody>
-    <tr>
-      <td>Item</td>
-      <td>Data Type</td>
-      <td>Description</td>
-    </tr>
-    <tr>
-      <td>Marker</td>
-      <td>8 byte ASCII String</td>
-      <td>The ASCII string ‘COSMOS2*’</td>
-    </tr>
-    <tr>
-      <td>Type</td>
-      <td>4 byte ASCII String</td>
-      <td>Either ‘CMD*’ for command logs or ‘TLM_’ for Telemetry logs</td>
-    </tr>
-    <tr>
-      <td>MD5</td>
-      <td>32 byte ASCII String</td>
-      <td>32 byte MD5 Sum calculated over the configuration files being used</td>
-    </tr>
-    <tr>
-      <td>Underscore</td>
-      <td>1 byte ASCII String</td>
-      <td>An Underscore character</td>
-    </tr>
-    <tr>
-      <td>Hostname</td>
-      <td>83 byte ASCII String</td>
-      <td>Left justified hostname of the computer that created the file</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>The file header is followed by command or telemetry packets (depending on the log type), each with a Big Endian header as follows. Note this is the same binary header used by the preidentified streaming protocol:</p>
-
-<table>
-  <tbody>
-    <tr>
-      <td>Item</td>
-      <td>Data Type</td>
-      <td>Description</td>
-    </tr>
-    <tr>
-      <td>Write Flags</td>
-      <td>8-bit unsigned integer</td>
-      <td>0x80 indicates whether the data is stored telemetry (see below). 0x40 indicates there is extra data following this byte. 0x3F bits are currently undefined. (since 4.3.0)</td>
-    </tr>
-    <tr>
-      <td>Extra Length (optional)</td>
-      <td>32-bit unsigned big endian integer</td>
-      <td>Number of extra bytes (Optional, depends on Write Flags) (since 4.3.0)</td>
-    </tr>
-    <tr>
-      <td>Extra (optional)</td>
-      <td>32-bit unsigned big endian integer</td>
-      <td>JSON encoded extra data (Optional, depends on Write Flags) (since 4.3.0)</td>
-    </tr>
-    <tr>
-      <td>Time Seconds</td>
-      <td>32-bit unsigned big endian integer</td>
-      <td>Seconds since Unix epoch (Jan 1st, 1970 – Midnight)</td>
-    </tr>
-    <tr>
-      <td>Time Microseconds</td>
-      <td>32-bit unsigned big endian integer</td>
-      <td>Microseconds of Second since Unix epoch (Jan 1st, 1970 – Midnight)</td>
-    </tr>
-    <tr>
-      <td>Target Name Length</td>
-      <td>8-bit unsigned integer</td>
-      <td>Length in bytes of the target name</td>
-    </tr>
-    <tr>
-      <td>Target Name</td>
-      <td>Variable length ASCII String</td>
-      <td>String that indicates the name of the target that the data was sourced from.</td>
-    </tr>
-    <tr>
-      <td>Packet Name Length</td>
-      <td>8-bit unsigned integer</td>
-      <td>Length in bytes of the packet name</td>
-    </tr>
-    <tr>
-      <td>Packet Name</td>
-      <td>Variable length ASCII String</td>
-      <td>String that indicates the name of the packet of data.</td>
-    </tr>
-    <tr>
-      <td>Packet Length</td>
-      <td>32-bit unsigned big endian integer</td>
-      <td>Length in bytes of the packet</td>
-    </tr>
-    <tr>
-      <td>Packet</td>
-      <td>Variable length block of data</td>
-      <td>The binary data packet (endianness defined by packet definition)</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>The variable length nature of command and telemetry packets requires a log parser to start from the beginning of each log file when processing packets.</p>
-
-<p>If the Write Flags indicate the data is stored telemetry (MSB set) COSMOS processes and stores the data in the telemetry log file but does not update the current value table. Thus stored telemetry does not affect displays or scripts.</p>
+        <div class="note unreleased">
+  <p>Logging is completely different in COSMOS 5.</p>
+</div>
                                                                                                                                      
 
       </article>
@@ -933,33 +759,9 @@
     
       
     
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1012,14 +814,6 @@
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1090,18 +884,6 @@
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/upgrading">Upgrading</a>
   </li>
@@ -1110,14 +892,6 @@
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1199,18 +973,6 @@
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/telemetry">Telemetry Configuration</a>
   </li>
@@ -1237,14 +999,6 @@
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/interfaces">Interface Configuration</a>
   </li>
@@ -1253,16 +1007,6 @@
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1340,38 +1084,98 @@
       
     
       
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/config-editor">Config Editor</a>
-  </li>
-  <!-- prettier-ignore -->
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/data-viewer">Data Viewer</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1410,54 +1214,6 @@
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/launcher">Launcher</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/limits-monitor">Limits Monitor</a>
   </li>
@@ -1466,16 +1222,6 @@
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1542,36 +1288,14 @@
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
-    <a href="http://localhost:4000/docs/v5/script-runner">Script Runner</a>
+    <a href="http://localhost:4000/docs/v5/script-runner">Script & Test Runner</a>
   </li>
   <!-- prettier-ignore -->
   
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1662,18 +1386,6 @@
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
@@ -1682,16 +1394,6 @@
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1775,16 +1477,6 @@
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting">Scripting Guide</a>
   </li>
@@ -1829,42 +1521,8 @@
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting-best-practices">Scripting Best Practices</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/gemtargets">Gem Based Targets and Tools</a>
   </li>
   <!-- prettier-ignore -->
   
@@ -1902,14 +1560,6 @@
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/json-api">JSON API</a>
   </li>
@@ -1918,16 +1568,6 @@
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     

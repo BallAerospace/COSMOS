@@ -26,8 +26,8 @@
     <a href="/">Home</a>
   </li>
   <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
   </li>
   <li class="">
     <a href="/news/">News</a>
@@ -58,8 +58,8 @@
     <a href="/">Home</a>
   </li>
   <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
   </li>
   <li class="">
     <a href="/news/">News</a>
@@ -700,7 +700,11 @@
 </ul></div>
         
         <h1>Protocol Configuration</h1>
-        <p>Protocols process data on behalf of an Interface. They can modify the data being written, data being read, or both. Protocols can also mark a packet as stored instead of real-time which means COSMOS will not update the current value table with the packet data. Protocols can be layered and will be processed in order. For example, if you have a low-level encryption layer that must be first removed before processing a higher level buffer length protocol.</p>
+        <div class="note unreleased">
+  <p>While Protocols are the same for COSMOS 5, this section needs to be updated.</p>
+</div>
+
+<p>Protocols process data on behalf of an Interface. They can modify the data being written, data being read, or both. Protocols can also mark a packet as stored instead of real-time which means COSMOS will not update the current value table with the packet data. Protocols can be layered and will be processed in order. For example, if you have a low-level encryption layer that must be first removed before processing a higher level buffer length protocol.</p>
 
 <p>Protocols are typically used to define the logic to delineate packets and manipulate data as it written to and read from Interfaces. COSMOS includes Interfaces for TCP/IP Client, TCP/IP Server, Udp Client / Server, and Serial connections. For 99% of use cases these Interfaces should not require any changes as they universally handle the low-level details of reading and writing from these types of connections. All unique behavior should now be defined in Protocols as of COSMOS 4.0.0. (Note in versions of COSMOS before COSMOS 4, Interfaces supported a more limited system called Stream Protocols. Interfaces only allowed one Stream Protocol and were highly coupled. This document refers to protocols in COSMOS 4+.)</p>
 
@@ -1533,33 +1537,9 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
     
       
     
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1612,14 +1592,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1690,18 +1662,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/upgrading">Upgrading</a>
   </li>
@@ -1710,14 +1670,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1799,18 +1751,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/telemetry">Telemetry Configuration</a>
   </li>
@@ -1837,14 +1777,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/interfaces">Interface Configuration</a>
   </li>
@@ -1853,16 +1785,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1940,38 +1862,98 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
       
     
       
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/config-editor">Config Editor</a>
-  </li>
-  <!-- prettier-ignore -->
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/data-viewer">Data Viewer</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
     
       
     
@@ -2010,54 +1992,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/launcher">Launcher</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/limits-monitor">Limits Monitor</a>
   </li>
@@ -2066,16 +2000,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -2142,36 +2066,14 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
-    <a href="http://localhost:4000/docs/v5/script-runner">Script Runner</a>
+    <a href="http://localhost:4000/docs/v5/script-runner">Script & Test Runner</a>
   </li>
   <!-- prettier-ignore -->
   
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -2262,18 +2164,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
@@ -2282,16 +2172,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -2375,16 +2255,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting">Scripting Guide</a>
   </li>
@@ -2429,42 +2299,8 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting-best-practices">Scripting Best Practices</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/gemtargets">Gem Based Targets and Tools</a>
   </li>
   <!-- prettier-ignore -->
   
@@ -2502,14 +2338,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/json-api">JSON API</a>
   </li>
@@ -2518,16 +2346,6 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     

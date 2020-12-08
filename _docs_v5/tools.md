@@ -33,7 +33,7 @@ Situational awareness of everything that is currently out of limits in your syst
 
 Easily send individual commands.
 
-![Command Sender](/img/v5/cmd_sender.png)
+![Command Sender](/img/v5/command_sender.png)
 
 - Select any command by target and command name and then fill out a form with the command parameters
 - Command history can be used to resend the same or slightly modified commands
@@ -55,7 +55,10 @@ Develop and execute test procedures with line highlighting, syntax checking, and
 
 Run test procedures as small repeatable test cases.
 
-![Test Runner](/img/v5/test_runner.png)
+<!-- ![Test Runner](/img/v5/test_runner.png) -->
+<div class="note unreleased">
+  <p>Test Runner not yet implemented</p>
+</div>
 
 - Develop system level tests much like unit tests
 - Automatic test report generation
@@ -67,7 +70,7 @@ Run test procedures as small repeatable test cases.
 
 View any telemetry packet in the system with no extra configuration necessary.
 
-![Packet Viewer](/img/v5/pkt_viewer.png)
+![Packet Viewer](/img/v5/packet_viewer.png)
 
 - Automatically contains all defined targets, packets, and telemetry items
 - Right click to get detailed item information
@@ -76,7 +79,7 @@ View any telemetry packet in the system with no extra configuration necessary.
 
 Easily create custom telemetry screens with simple configuration text files.
 
-![Telemetry Viewer](/img/v5/tlm_viewer.png)
+![Telemetry Viewer](/img/v5/telemetry_viewer.png)
 
 - Advanced widgets available to display data
 - Generate screens from within the tool
@@ -87,7 +90,7 @@ Easily create custom telemetry screens with simple configuration text files.
 
 Realtime or offline graphing of any telemetry item.
 
-![Telemetry Grapher](/img/v5/tlm_grapher.png)
+![Telemetry Grapher](/img/v5/telemetry_grapher.png)
 
 - One or more telemetry points per plot
 - Spread data across multiple plots

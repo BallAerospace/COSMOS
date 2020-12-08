@@ -16,7 +16,9 @@ development boards (Arduinos, Raspberry Pi, Beaglebone, etc), to satellites.
 
 ### COSMOS Architecture
 
-_TODO: COSMOS 5 Architecture Diagram and description_
+<div class="note unreleased">
+  <p>COSMOS 5 Architecture Diagram and description needs to be updated</p>
+</div>
 
 Keep reading for an in-depth discussion of each of the COSMOS Tools.
 

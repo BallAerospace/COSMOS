@@ -23,7 +23,9 @@ Welcome to the COSMOS system... Let's get started! This guide is a high level ov
 
 Playing with the COSMOS Demo is fun and all, but now you want to talk to your own real hardware? Let's do it!
 
-_TODO: This section needs to be modified for COSMOS 5_
+<div class="note unreleased">
+  <p>These instructions need to be updated for COSMOS 5</p>
+</div>
 
 1.. The first step is to create a "target folder" for your new target. At a minimum this folder will contain all the information defining the packets (command and telemetry) that are needed to communicate with your hardware.
 

@@ -4,6 +4,10 @@ title: Telemetry Screens
 toc: true
 ---
 
+<div class="note unreleased">
+  <p>While Screen Definitions are the same for COSMOS 5, this section needs to be updated.</p>
+</div>
+
 This document provides the information necessary to generate and use COSMOS Telemetry Screens, which are displayed by the COSMOS Telemetry Viewer application.
 
 <div style="clear:both;"></div>

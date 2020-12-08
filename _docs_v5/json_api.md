@@ -3,6 +3,10 @@ layout: docs
 title: JSON API
 ---
 
+<div class="note unreleased">
+  <p>Update with COSMOS 5 changes to JSON API</p>
+</div>
+
 <div class="note">
   <h5>This documentation is for COSMOS Developers</h5>
   <p markdown="1">If you're looking for the methods available to write test procedures using the COSMOS scripting API, refer to the [Scripting Guide](/docs/scripting) page. If you're trying to interface to a COSMOS Command and Telemetry Server from an external application using any language then this is the right place.</p>

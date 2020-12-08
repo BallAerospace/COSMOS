@@ -4,6 +4,10 @@ title: Protocol Configuration
 toc: true
 ---
 
+<div class="note unreleased">
+  <p>While Protocols are the same for COSMOS 5, this section needs to be updated.</p>
+</div>
+
 Protocols process data on behalf of an Interface. They can modify the data being written, data being read, or both. Protocols can also mark a packet as stored instead of real-time which means COSMOS will not update the current value table with the packet data. Protocols can be layered and will be processed in order. For example, if you have a low-level encryption layer that must be first removed before processing a higher level buffer length protocol.
 
 Protocols are typically used to define the logic to delineate packets and manipulate data as it written to and read from Interfaces. COSMOS includes Interfaces for TCP/IP Client, TCP/IP Server, Udp Client / Server, and Serial connections. For 99% of use cases these Interfaces should not require any changes as they universally handle the low-level details of reading and writing from these types of connections. All unique behavior should now be defined in Protocols as of COSMOS 4.0.0. (Note in versions of COSMOS before COSMOS 4, Interfaces supported a more limited system called Stream Protocols. Interfaces only allowed one Stream Protocol and were highly coupled. This document refers to protocols in COSMOS 4+.)

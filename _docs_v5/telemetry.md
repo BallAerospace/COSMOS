@@ -4,6 +4,10 @@ title: Telemetry Configuration
 toc: true
 ---
 
+<div class="note unreleased">
+  <p>While Telemetry Definition files are the same for COSMOS 5, this section needs to be updated.</p>
+</div>
+
 ## Telemetry Definition Files
 
 Telemetry definition files define the telemetry packets that can be received and processed from COSMOS targets. One large file can be used to define the telemetry packets, or multiple files can be used at the user's discretion. Telemetry definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some telemetry files that depend on others, e.g. they override or extend existing telemetry, they must be named last. The easist way to do this is to add an extension to an existing file name. For example, if you already have tlm.txt you can create tlm_override.txt for telemetry that depends on the definitions in tlm.txt. Note that due to the way the [ASCII Table](http://www.asciitable.com/) is structured, files beginning with capital letters are processed before lower case letters.

@@ -26,8 +26,8 @@
     <a href="/">Home</a>
   </li>
   <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
   </li>
   <li class="">
     <a href="/news/">News</a>
@@ -58,8 +58,8 @@
     <a href="/">Home</a>
   </li>
   <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v5/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v5/">Docs</a></span>
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
   </li>
   <li class="">
     <a href="/news/">News</a>
@@ -670,7 +670,11 @@
 </ul></div>
         
         <h1>Command Configuration</h1>
-        <h2 id="command-definition-files">
+        <div class="note unreleased">
+  <p>While Command Definition files are the same for COSMOS 5, this section needs to be updated.</p>
+</div>
+
+<h2 id="command-definition-files">
 <a class="anchor" href="#command-definition-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Definition Files</h2>
 
 <p>Command definition files define the command packets that can be sent to COSMOS targets. One large file can be used to define the command packets, or multiple files can be used at the user’s discretion. Command definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some command files that depend on others, e.g. they override or extend existing commands, they must be named last. The easist way to do this is to add an extension to an existing file name. For example, if you already have cmd.txt you can create cmd_override.txt for telemetry that depends on the definitions in tlm.txt. Also note that due to the way the <a href="http://www.asciitable.com/">ASCII Table</a> is structured, files beginning with capital letters are processed before lower case letters.</p>
@@ -808,33 +812,9 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
     
       
     
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -887,14 +867,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -965,18 +937,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/upgrading">Upgrading</a>
   </li>
@@ -985,14 +945,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1074,18 +1026,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/telemetry">Telemetry Configuration</a>
   </li>
@@ -1112,14 +1052,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/interfaces">Interface Configuration</a>
   </li>
@@ -1128,16 +1060,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1215,38 +1137,98 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
       
     
       
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/config-editor">Config Editor</a>
-  </li>
-  <!-- prettier-ignore -->
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/data-viewer">Data Viewer</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1285,54 +1267,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/launcher">Launcher</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/limits-monitor">Limits Monitor</a>
   </li>
@@ -1341,16 +1275,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1417,36 +1341,14 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
-    <a href="http://localhost:4000/docs/v5/script-runner">Script Runner</a>
+    <a href="http://localhost:4000/docs/v5/script-runner">Script & Test Runner</a>
   </li>
   <!-- prettier-ignore -->
   
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1537,18 +1439,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
@@ -1557,16 +1447,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
@@ -1650,16 +1530,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting">Scripting Guide</a>
   </li>
@@ -1704,42 +1574,8 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/scripting-best-practices">Scripting Best Practices</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="http://localhost:4000/docs/v5/gemtargets">Gem Based Targets and Tools</a>
   </li>
   <!-- prettier-ignore -->
   
@@ -1777,14 +1613,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
       
     
       
-    
-      
-    
-      
-    
-      
-    
-      
   <li class="">
     <a href="http://localhost:4000/docs/v5/json-api">JSON API</a>
   </li>
@@ -1793,16 +1621,6 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
   
     
     
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
     
       
     
