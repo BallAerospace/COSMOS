@@ -4,8 +4,6 @@ layout: default
 
 <section class="docs">
   <div class="grid wider">
-    {% include docs_contents_mobile.html %}
-
     <div class="unit four-fifths">
       <article>
         <!-- Get version but ignore the "docs" collection -->
@@ -19,7 +17,7 @@ layout: default
         <div class="toc">{{ content | toc_only }}</div>
         {% endif %}
         <h1>{{ page.title }}</h1>
-        {{ content | inject_anchors }} {% include section_nav.html %}
+        {{ content | inject_anchors }}
       </article>
     </div>
 

@@ -1,8 +1,16 @@
 <!-- prettier-ignore -->
 {% assign version = page.collection | split: "_" | last %}
+{% if version == "docs" %}
+  {% assign version = site.default %}
+{% endif %}
 {% assign pre = "/" | prepend: version | prepend: "/docs/" %}
 <ul>
   <!-- prettier-ignore -->
+  {% assign collection = page.collection %}
+  {% if collection == "docs" %}
+    {% assign collection = "docs_" | append: site.default %}
+  {% endif %}
+
   {% for item in include.items %}
     {% assign item_url = item | replace: "_", "-" | prepend: pre %}
     {% if item_url == page.url %}
@@ -10,7 +18,7 @@
     {% else %}
       {% assign c = "" %}
     {% endif %}
-    {% for p in site[page.collection] %}
+    {% for p in site[collection] %}
       {% if p.url == item_url %}
   <li class="{{ c }}">
     <a href="{{ site.url }}{{ item_url }}">{{ p.title }}</a>

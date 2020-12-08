@@ -3,8 +3,9 @@
     <ul>
       {% for collection in site.collections %}
       <!-- Ignore "posts" and "docs", we only want versioned collections -->
-      {% if collection.label != "posts" and collection.label != "docs" %} {%
-      assign col_version = collection.label | split: "_" | last %}
+      <!-- prettier-ignore -->
+      {% if collection.label != "posts" and collection.label != "docs" %}
+      {% assign col_version = collection.label | split: "_" | last %}
       <li>
         <!-- Only create links to collections which aren't our own  -->
         {% if page.collection != collection.label %}
@@ -15,7 +16,13 @@
       </li>
     </ul>
 
-    {% for section in site.data[page.collection] %}
+    <!-- prettier-ignore -->
+    {% assign data = site.data[page.collection] %}
+    {% if data == null %}
+      {% assign col_name = "docs_" | append: site.default %}
+      {% assign data = site.data[col_name] %}
+    {% endif %}
+    {% for section in data %}
     <h4>{{ section.title }}</h4>
     <!-- prettier-ignore -->
     {% include docs_ul.html items=section.docs %}
