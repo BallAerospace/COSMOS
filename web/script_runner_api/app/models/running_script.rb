@@ -107,6 +107,7 @@ end
 class RunningScript
   attr_accessor :id
   attr_accessor :state
+  attr_accessor :scope
   attr_accessor :name
 
   attr_accessor :use_instrumentation
