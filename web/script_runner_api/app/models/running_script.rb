@@ -45,7 +45,7 @@ module Cosmos
           ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
         else
           # Retrieve file
-          text = ::Script.body(RunningScript.instance.scope, procedure_name)
+          text = ::Script.body(RunningScript.instance.scope, procedure_name)['contents']
           ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
 
           # Cache instrumentation into RAM
@@ -246,7 +246,7 @@ class RunningScript
     redis.set("running-script:#{id}", @details.to_json)
 
     # Retrieve file
-    @body = ::Script.body(@scope, name)
+    @body = ::Script.body(@scope, name)['contents']
     ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: @filename, scope: @scope, text: @body })
   end
 
@@ -1241,7 +1241,7 @@ class RunningScript
       @body = cached
       ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: filename, text: @body })
     else
-      text = ::Script.body(@scope, filename)
+      text = ::Script.body(@scope, filename)['contents']
       @@file_cache[filename] = text
       @body = text
       ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: filename, text: @body })

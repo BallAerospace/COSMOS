@@ -1,4 +1,7 @@
 require 'aws-sdk-s3'
+require 'tempfile'
+require 'cosmos/tools/test_runner/test_runner'
+require 'cosmos/tools/test_runner/test'
 
 Aws.config.update(
   endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000',
@@ -36,7 +39,17 @@ class Script
   def self.body(scope, name)
     rubys3_client = Aws::S3::Client.new
     resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{name}")
-    resp.body.read
+    contents = resp.body.read
+    if name.include?("suite")
+      temp = Tempfile.new(['suite', '.rb'])
+      temp.write(contents)
+      temp.close
+      require temp.path
+      temp.delete
+      return { "contents" => contents, "suites" => Cosmos::TestRunner.build_test_suites }
+    else
+      return { "contents" => contents }
+    end
   end
 
   def self.create(scope, name, text = nil)

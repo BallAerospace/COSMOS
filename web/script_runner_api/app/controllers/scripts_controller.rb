@@ -13,9 +13,9 @@ class ScriptsController < ApplicationController
   # end
 
   def body
-    text = Script.body(params[:scope], params[:name])
-    if text
-      render :plain => text
+    file = Script.body(params[:scope], params[:name])
+    if file
+      render :json => file
     else
       head :not_found
     end

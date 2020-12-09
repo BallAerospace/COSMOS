@@ -3,16 +3,25 @@
     <v-alert dense dismissible :type="alertType" v-if="alertType">{{
       alertText
     }}</v-alert>
+    <test-runner
+      v-if="testRunner"
+      :suiteMap="suiteMap"
+      @start="testRunnerStart"
+      @setup="testRunnerSetup"
+      @teardown="testRunnerTeardown"
+    />
     <v-container id="header" class="pane">
       <v-row no-gutters>
         <v-icon v-if="showDisconnect" class="mr-2" color="red"
           >mdi-connection</v-icon
         >
+        <!-- Disable the Start button when Test Runner controls are showing -->
         <v-btn
           color="primary"
           @click="startOrGo"
           style="width: 100px"
           class="mr-4"
+          :disabled="testRunner"
           data-test="start-go-button"
           >{{ startOrGoButton }}
           <v-icon right> mdi-play </v-icon>
@@ -197,6 +206,8 @@
 
 <script>
 import axios from 'axios'
+// TODO: brace appears to be abandened. Some guy put together this: https://github.com/aminoeditor/vue-ace
+// or we just try to use ace directly ...
 import * as ace from 'brace'
 import 'brace/mode/ruby'
 import 'brace/theme/twilight'
@@ -206,6 +217,7 @@ import FileOpenSaveDialog from '@/components/FileOpenSaveDialog'
 import ActionCable from 'actioncable'
 import AskDialog from './AskDialog.vue'
 import PromptDialog from './PromptDialog.vue'
+import TestRunner from './TestRunner.vue'
 
 const NEW_FILENAME = '<Untitled>'
 
@@ -214,11 +226,14 @@ export default {
     FileOpenSaveDialog,
     AskDialog,
     PromptDialog,
+    TestRunner,
     Multipane,
     MultipaneResizer,
   },
   data() {
     return {
+      testRunner: false,
+      suiteMap: {},
       alertType: null,
       alertText: '',
       state: ' ',
@@ -319,6 +334,18 @@ export default {
     this.cable.disconnect()
   },
   methods: {
+    testRunnerStart(event) {
+      console.log('testRunnerStart')
+      console.log(event)
+    },
+    testRunnerSetup(event) {
+      console.log('testRunnerSetup')
+      console.log(event)
+    },
+    testRunnerTeardown(event) {
+      console.log('testRunnerTeardown')
+      console.log(event)
+    },
     keydown(event) {
       // NOTE: Chrome does not allow overriding Ctrl-N, Ctrl-Shift-N, Ctrl-T, Ctrl-Shift-T, Ctrl-W
       // NOTE: metaKey == Command on Mac
@@ -401,7 +428,7 @@ export default {
       )
     },
     received(data) {
-      // console.log(data)
+      console.log(data)
       switch (data.type) {
         case 'file':
           this.files[data.filename] = data.text
@@ -607,6 +634,7 @@ export default {
       this.fileName = NEW_FILENAME
       this.editor.session.setValue('')
       this.fileModified = ''
+      this.testRunner = false
     },
     openFile() {
       this.fileOpen = true
@@ -616,6 +644,13 @@ export default {
       this.fileName = file.name
       this.editor.session.setValue(file.contents)
       this.fileModified = ''
+      if (file.suites) {
+        this.testRunner = true
+        console.log(file.suites)
+        this.suiteMap = file.suites
+      } else {
+        this.testRunner = false
+      }
     },
     // saveFile takes a type to indicate if it was called by the Menu
     // or automatically by the 'Start' button (to ensure a consistent backend file)
@@ -626,19 +661,19 @@ export default {
           this.tempFileName =
             format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_temp.rb'
           axios.post('http://localhost:3001/scripts/' + this.tempFileName, {
-            text: this.editor.getValue(), // Pass in the raw file text
             scope: 'DEFAULT',
+            text: this.editor.getValue(), // Pass in the raw file text
           })
         } else {
           // Menu driven saves on a new file should prompt SaveAs
           this.saveAs()
         }
       } else {
-        // Save an existing file by posting the new contents
+        // Save a file by posting the new contents
         axios
           .post('http://localhost:3001/scripts/' + this.fileName, {
-            text: this.editor.getValue(), // Pass in the raw file text
             scope: 'DEFAULT',
+            text: this.editor.getValue(), // Pass in the raw file text
           })
           .then((response) => {
             if (response.status == 200) {
@@ -692,10 +727,9 @@ export default {
       axios
         .post(
           'http://localhost:3001/scripts/syntax',
-          this.editor.getValue() // Pass in the raw text
+          this.editor.getValue() // Pass in the raw text, no scope needed
         )
         .then((response) => {
-          //console.log(response.data)
           this.infoTitle = response.data.title
           this.infoText = JSON.parse(response.data.description)
           this.infoDialog = true

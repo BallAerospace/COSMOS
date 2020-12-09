@@ -143,7 +143,13 @@ export default {
             params: { scope: 'DEFAULT' },
           })
           .then((response) => {
-            const file = { name: this.selectedFile, contents: response.data }
+            const file = {
+              name: this.selectedFile,
+              contents: response.data.contents,
+            }
+            if (response.data.suites) {
+              file['suites'] = response.data.suites
+            }
             this.$emit('file', file)
             this.show = false
           })
