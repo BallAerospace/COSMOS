@@ -1,3 +1,4 @@
+require 'cosmos/script'
 require 'cosmos/tools/test_runner/test'
 
 module Cosmos
@@ -7,6 +8,67 @@ module Cosmos
 
   class TestRunner
     @@test_suites = []
+    @@settings = {}
+
+    def self.exec_test(result_string, test_suite_class, test_class = nil, test_case = nil)
+      @@started_success = false
+      @@test_suites.each do |test_suite|
+        if test_suite.class == test_suite_class
+          # @@started_success = @@results_writer.collect_metadata(@@instance)
+          # if @@started_success
+            # @@results_writer.start(result_string, test_suite_class, test_class, test_case, @@settings)
+            # loop do
+              yield(test_suite)
+              # break if not @@settings['Loop Testing'] or (TestStatus.instance.fail_count > 0 and @@settings['Break Loop after Error'])
+            # end
+          # end
+          break
+        end
+      end
+    end
+
+    def self.start(test_suite_class, test_class = nil, test_case = nil)
+      result = []
+      exec_test('', test_suite_class, test_class, test_case) do |test_suite|
+        if test_case
+          result = test_suite.run_test_case(test_class, test_case)
+          # @@results_writer.process_result(result)
+          raise StopScript if (result.exceptions and Test.abort_on_exception) or result.stopped
+        # elsif test_class
+        #   test_suite.run_test(test_class) { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
+        # else
+        #   test_suite.run { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
+        end
+      end
+    end
+
+    def self.start_setup(test_suite_class, test_class = nil)
+      exec_test('Manual Setup', test_suite_class, test_class) do |test_suite|
+        if test_class
+          result = test_suite.run_test_setup(test_class)
+        else
+          result = test_suite.run_setup
+        end
+        if result
+          # @@results_writer.process_result(result)
+          raise StopScript if result.stopped
+        end
+      end
+    end
+
+    def self.start_teardown(test_suite_class, test_class = nil)
+      exec_test('Manual Teardown', test_suite_class, test_class) do |test_suite|
+        if test_class
+          result = test_suite.run_test_teardown(test_class)
+        else
+          result = test_suite.run_teardown
+        end
+        if result
+          # @@results_writer.process_result(result)
+          raise StopScript if result.stopped
+        end
+      end
+    end
 
     # Convert the OpenStruct structure to a simple hash
     # TODO: Maybe just use hashes right from the beginning?

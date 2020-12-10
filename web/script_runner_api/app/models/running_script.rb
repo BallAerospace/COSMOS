@@ -6,6 +6,7 @@ require 'cosmos/io/stdout'
 require 'cosmos/io/stderr'
 require 'redis'
 require 'childprocess'
+require 'cosmos/tools/test_runner/test_runner'
 
 module Cosmos
   module Script
@@ -202,6 +203,7 @@ class RunningScript
   # Parameters are passed to RunningScript.new as strings because
   # RunningScript.spawn must pass strings to ChildProcess.build
   def initialize(id, scope, name, disconnect)
+    @@instance = self
     @id = id
     @@id = id
     @scope = scope
@@ -248,10 +250,14 @@ class RunningScript
     # Retrieve file
     @body = ::Script.body(@scope, name)['contents']
     ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: @filename, scope: @scope, text: @body })
-  end
 
-  def start
-    run()
+    temp = Tempfile.new(['suite', '.rb'])
+    temp.write(@body)
+    temp.close
+    require temp.path
+    temp.delete
+    load_utility(name)
+    Cosmos::TestRunner.build_test_suites
   end
 
   # Let the script continue pausing if in step mode

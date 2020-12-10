@@ -148,7 +148,7 @@ export default {
               contents: response.data.contents,
             }
             if (response.data.suites) {
-              file['suites'] = response.data.suites
+              file['suites'] = JSON.parse(response.data.suites)
             }
             this.$emit('file', file)
             this.show = false

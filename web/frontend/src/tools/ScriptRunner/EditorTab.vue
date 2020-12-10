@@ -10,68 +10,71 @@
       @setup="testRunnerSetup"
       @teardown="testRunnerTeardown"
     />
-    <v-container id="header" class="pane">
-      <v-row no-gutters>
-        <v-icon v-if="showDisconnect" class="mr-2" color="red"
-          >mdi-connection</v-icon
-        >
+    <v-container id="header">
+      <v-row no-gutters justify="space-between">
+        <v-col cols="8">
+          <v-row no-gutters>
+            <v-icon v-if="showDisconnect" class="mr-2" color="red"
+              >mdi-connection</v-icon
+            >
+            <v-text-field
+              outlined
+              dense
+              readonly
+              hide-details
+              label="Filename"
+              v-model="fullFileName"
+              data-test="file-name"
+            ></v-text-field>
+            <v-text-field
+              class="shrink ml-2"
+              style="width: 120px"
+              outlined
+              dense
+              readonly
+              hide-details
+              label="Script State"
+              v-model="state"
+              data-test="state"
+            ></v-text-field>
+            <v-progress-circular
+              v-if="state === 'Connecting...'"
+              :size="40"
+              class="ml-2 mr-2"
+              indeterminate
+              color="primary"
+            ></v-progress-circular>
+            <div
+              v-else
+              style="width: 40px; height: 40px"
+              class="ml-2 mr-2"
+            ></div>
+          </v-row>
+        </v-col>
+
         <!-- Disable the Start button when Test Runner controls are showing -->
-        <v-btn
-          color="primary"
-          @click="startOrGo"
-          style="width: 100px"
-          class="mr-4"
-          :disabled="testRunner"
-          data-test="start-go-button"
-          >{{ startOrGoButton }}
-          <v-icon right> mdi-play </v-icon>
-        </v-btn>
-        <v-btn
-          color="primary"
-          @click="pauseOrRetry"
-          style="width: 100px"
-          class="mr-4"
-          data-test="pause-retry-button"
-          >{{ pauseOrRetryButton }} <v-icon right> mdi-pause </v-icon>
-        </v-btn>
-        <v-btn
-          color="primary"
-          @click="stop"
-          style="width: 100px"
-          class="mr-4"
-          data-test="stop-button"
-          >Stop <v-icon right> mdi-stop </v-icon>
-        </v-btn>
-        <v-text-field
-          class="shrink"
-          style="width: 120px"
-          outlined
-          dense
-          hide-details
-          label="Script State"
-          v-model="state"
-          data-test="state"
-        ></v-text-field>
-        <v-progress-circular
-          v-if="state === 'Connecting...'"
-          :size="40"
-          class="ml-2"
-          indeterminate
-          color="primary"
-        ></v-progress-circular>
-        <div v-else style="width: 40px; height: 40px" class="ml-2"></div>
-        <v-text-field
-          class="ml-2"
-          outlined
-          dense
-          hide-details
-          label="Filename"
-          v-model="fullFileName"
-          data-test="file-name"
-        ></v-text-field>
-        <v-icon v-if="showDisconnect" class="ml-2" color="red"
-          >mdi-connection</v-icon
-        >
+        <v-col cols="4">
+          <v-row no-gutters>
+            <v-spacer />
+            <v-btn
+              color="primary"
+              @click="startOrGo"
+              class="mr-2"
+              data-test="start-go-button"
+              >{{ startOrGoButton }}
+            </v-btn>
+            <v-btn
+              color="primary"
+              @click="pauseOrRetry"
+              class="mr-2"
+              data-test="pause-retry-button"
+              >{{ pauseOrRetryButton }}
+            </v-btn>
+            <v-btn color="primary" @click="stop" data-test="stop-button"
+              >Stop
+            </v-btn>
+          </v-row>
+        </v-col>
       </v-row>
     </v-container>
     <!-- Create Multipane container to support resizing.
@@ -523,7 +526,7 @@ export default {
           this.ask.password = false
           this.ask.question = data.args[0]
           // If the second parameter is not true or false it indicates a default value
-          if (data.args[1] !== true && data.args[1] !== false) {
+          if (data.args[1] && data.args[1] !== true && data.args[1] !== false) {
             this.ask.default = data.args[1].toString()
           } else if (data.args[1] === true) {
             // If the second parameter is true it means no value is required to be entered

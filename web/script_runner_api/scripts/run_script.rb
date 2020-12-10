@@ -21,7 +21,8 @@ run_script_log(id, "Script #{path} spawned in #{startup_time} seconds")
 
 begin
   running_script = RunningScript.new(id, scope, name, disconnect)
-  running_script.start
+  # running_script.run
+  running_script.run_text("Cosmos::TestRunner.start(MyTestSuite, ExampleTest, 'test_2')")
 
   redis = Redis.new(url: ActionCable.server.config.cable["url"])
   # Subscribe to the ActionCable generated topic which is namedspaced with channel_prefix
@@ -92,6 +93,6 @@ ensure
     end
     ActionCable.server.broadcast("running-script-channel:#{id}", type: :complete)
   ensure
-    running_script.stop_message_log
+    running_script.stop_message_log if running_script
   end
 end

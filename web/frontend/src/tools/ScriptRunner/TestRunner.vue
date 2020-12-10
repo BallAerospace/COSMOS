@@ -1,113 +1,170 @@
 <template>
   <div>
     <v-container>
-      <v-row no-gutters>
-        <v-spacer />
-        <v-col>
-          <v-select
-            label="Test Suite:"
-            class="mr-2 mb-2"
-            hide-details
-            dense
-            @change="suiteChanged"
-            :items="suites"
-            v-model="selectedSuite"
-            data-test="select-suite"
-          ></v-select>
+      <v-row no-gutters align="center">
+        <v-col cols="4">
+          <v-row no-gutters>
+            <v-col cols="6">
+              <v-checkbox
+                v-model="options"
+                label="Pause on Error"
+                value="pauseOnError"
+                hide-details
+              ></v-checkbox>
+            </v-col>
+            <v-col cols="6">
+              <v-checkbox
+                v-model="options"
+                label="Manual"
+                value="manual"
+                hide-details
+              ></v-checkbox>
+            </v-col>
+          </v-row>
         </v-col>
-        <v-col cols="1">
-          <v-btn
-            color="primary"
-            @click="$emit('start', { selectedSuite })"
-            data-test="start-suite"
-            >Start
-          </v-btn>
-        </v-col>
-        <v-col cols="1">
-          <v-btn
-            color="primary"
-            @click="$emit('setup', { selectedSuite })"
-            data-test="setup-suite"
-            :disabled="!setupSuiteEnabled"
-            >Setup
-          </v-btn>
-        </v-col>
-        <v-col cols="1">
-          <v-btn
-            color="primary"
-            @click="$emit('teardown', { selectedSuite })"
-            data-test="teardown-suite"
-            :disabled="!setupSuiteEnabled"
-            >Teardown
-          </v-btn>
-        </v-col>
-      </v-row>
-      <v-row no-gutters>
-        <v-spacer />
-        <v-col>
-          <v-select
-            label="Test Group:"
-            class="mr-2 mb-2"
-            hide-details
-            dense
-            @change="groupChanged"
-            :items="groups"
-            v-model="selectedGroup"
-            data-test="select-group"
-          ></v-select>
-        </v-col>
-        <v-col cols="1">
-          <v-btn
-            color="primary"
-            @click="$emit('start', { selectedSuite, selectedGroup })"
-            data-test="start-group"
-            >Start
-          </v-btn>
-        </v-col>
-        <v-col cols="1">
-          <v-btn
-            color="primary"
-            @click="$emit('setup', { selectedSuite, selectedGroup })"
-            data-test="setup-group"
-            :disabled="!setupGroupEnabled"
-            >Setup
-          </v-btn>
-        </v-col>
-        <v-col cols="1">
-          <v-btn
-            color="primary"
-            @click="$emit('teardown', { selectedSuite, selectedGroup })"
-            data-test="teardown-group"
-            :disabled="!teardownGroupEnabled"
-            >Teardown
-          </v-btn>
+        <v-col cols="8">
+          <v-row no-gutters>
+            <v-spacer />
+            <v-select
+              label="Suite:"
+              class="mr-2 mb-2"
+              hide-details
+              dense
+              @change="suiteChanged"
+              :items="suites"
+              v-model="selectedSuite"
+              data-test="select-suite"
+            ></v-select>
+            <v-btn
+              color="primary"
+              class="mr-2"
+              @click="$emit('start', { selectedSuite })"
+              data-test="start-suite"
+              >Start
+            </v-btn>
+            <v-btn
+              color="primary"
+              class="mr-2"
+              @click="$emit('setup', { selectedSuite })"
+              data-test="setup-suite"
+              :disabled="!setupSuiteEnabled"
+              >Setup
+            </v-btn>
+            <v-btn
+              color="primary"
+              @click="$emit('teardown', { selectedSuite })"
+              data-test="teardown-suite"
+              :disabled="!setupSuiteEnabled"
+              >Teardown
+            </v-btn>
+          </v-row>
         </v-col>
       </v-row>
-      <v-row no-gutters>
-        <v-spacer />
-        <v-col>
-          <v-select
-            label="Test Case:"
-            class="mr-2 mb-2"
-            hide-details
-            dense
-            @change="caseChanged"
-            :items="cases"
-            v-model="selectedCase"
-            data-test="select-case"
-          ></v-select>
+      <v-row no-gutters align="center">
+        <v-col cols="4">
+          <v-row no-gutters>
+            <v-col cols="6">
+              <v-checkbox
+                v-model="options"
+                label="Continue after Error"
+                value="continueAfterError"
+                hide-details
+              ></v-checkbox>
+            </v-col>
+            <v-col cols="6">
+              <v-checkbox
+                v-model="options"
+                label="Loop Testing"
+                value="loopTesting"
+                hide-details
+              ></v-checkbox>
+            </v-col>
+          </v-row>
         </v-col>
-        <v-col cols="1">
-          <v-btn
-            color="primary"
-            @click="
-              $emit('start', { selectedSuite, selectedGroup, selectedCase })
-            "
-            data-test="start-case"
-            >Start
-          </v-btn>
+        <v-col cols="8">
+          <v-row no-gutters>
+            <v-spacer />
+            <v-select
+              label="Group:"
+              class="mr-2 mb-2"
+              hide-details
+              dense
+              @change="groupChanged"
+              :items="groups"
+              v-model="selectedGroup"
+              data-test="select-group"
+            ></v-select>
+            <v-btn
+              color="primary"
+              class="mr-2"
+              @click="$emit('start', { selectedSuite, selectedGroup })"
+              data-test="start-group"
+              >Start
+            </v-btn>
+            <v-btn
+              color="primary"
+              class="mr-2"
+              @click="$emit('setup', { selectedSuite, selectedGroup })"
+              data-test="setup-group"
+              :disabled="!setupGroupEnabled"
+              >Setup
+            </v-btn>
+            <v-btn
+              color="primary"
+              @click="$emit('teardown', { selectedSuite, selectedGroup })"
+              data-test="teardown-group"
+              :disabled="!teardownGroupEnabled"
+              >Teardown
+            </v-btn>
+          </v-row>
         </v-col>
-        <v-col cols="2"> </v-col>
+      </v-row>
+      <v-row no-gutters align="center">
+        <v-col cols="4">
+          <v-row no-gutters>
+            <v-col cols="6">
+              <v-checkbox
+                v-model="options"
+                label="Abort after Error"
+                value="abortAfterError"
+                hide-details
+              ></v-checkbox>
+            </v-col>
+            <v-col cols="6">
+              <v-checkbox
+                v-model="options"
+                label="Break Loop on Error"
+                value="breakLoopOnError"
+                hide-details
+              ></v-checkbox>
+            </v-col>
+          </v-row>
+        </v-col>
+        <v-col cols="8">
+          <v-row no-gutters>
+            <v-spacer />
+            <v-select
+              label="Case:"
+              class="mr-2 mb-2"
+              hide-details
+              dense
+              @change="caseChanged"
+              :items="cases"
+              v-model="selectedCase"
+              data-test="select-case"
+            ></v-select>
+            <v-btn
+              color="primary"
+              @click="
+                $emit('start', { selectedSuite, selectedGroup, selectedCase })
+              "
+              data-test="start-case"
+              >Start
+            </v-btn>
+            <!-- TODO: Don't like this hard coded spacer but not sure how else -->
+            <div style="width: 217px" />
+          </v-row>
+        </v-col>
       </v-row>
     </v-container>
   </div>
@@ -129,6 +186,7 @@ export default {
       selectedSuite: '',
       selectedGroup: '',
       selectedCase: '',
+      options: [],
     }
   },
   computed: {
