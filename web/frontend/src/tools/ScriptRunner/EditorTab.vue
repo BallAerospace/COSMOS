@@ -1,5 +1,6 @@
 <template>
   <div>
+    <app-nav :menus="menus" />
     <v-alert dense dismissible :type="alertType" v-if="alertType">{{
       alertText
     }}</v-alert>
@@ -88,7 +89,7 @@
         <pre id="editor"></pre>
       </div>
       <MultipaneResizer><hr /></MultipaneResizer>
-      <div id="messages" class="ma-2 pane" ref="messagesDiv">
+      <div id="messages" class="mt-2 pane" ref="messagesDiv">
         <v-container id="debug" class="pa-0" v-if="showDebug">
           <v-row no-gutters>
             <v-btn
@@ -216,6 +217,7 @@ import 'brace/mode/ruby'
 import 'brace/theme/twilight'
 import { toDate, format } from 'date-fns'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
+import AppNav from '@/AppNav'
 import FileOpenSaveDialog from '@/components/FileOpenSaveDialog'
 import ActionCable from 'actioncable'
 import AskDialog from './AskDialog.vue'
@@ -226,6 +228,7 @@ const NEW_FILENAME = '<Untitled>'
 
 export default {
   components: {
+    AppNav,
     FileOpenSaveDialog,
     AskDialog,
     PromptDialog,
@@ -235,8 +238,116 @@ export default {
   },
   data() {
     return {
-      testRunner: false,
-      suiteMap: {},
+      menus: [
+        {
+          label: 'File',
+          items: [
+            {
+              label: 'New File',
+              icon: 'mdi-file-plus',
+              command: () => {
+                this.$refs.EditorTab[0].newFile()
+              },
+            },
+            {
+              label: 'Open File',
+              icon: 'mdi-folder-open',
+              command: () => {
+                this.$refs.EditorTab[0].openFile()
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Save File',
+              icon: 'mdi-content-save',
+              command: () => {
+                this.$refs.EditorTab[0].saveFile()
+              },
+            },
+            {
+              label: 'Save As...',
+              icon: 'mdi-content-save',
+              command: () => {
+                this.$refs.EditorTab[0].saveAs()
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Download',
+              icon: 'mdi-cloud-download',
+              command: () => {
+                this.$refs.EditorTab[0].download()
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Delete File',
+              icon: 'mdi-delete',
+              command: () => {
+                this.$refs.EditorTab[0].delete()
+              },
+            },
+          ],
+        },
+        {
+          label: 'Script',
+          items: [
+            {
+              label: 'Ruby Syntax Check',
+              icon: 'mdi-language-ruby',
+              command: () => {
+                this.$refs.EditorTab[0].rubySyntaxCheck()
+              },
+            },
+            {
+              label: 'Show Call Stack',
+              icon: 'mdi-format-list-numbered',
+              command: () => {
+                this.$refs.EditorTab[0].showCallStack()
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Toggle Debug',
+              icon: 'mdi-bug',
+              command: () => {
+                this.$refs.EditorTab[0].toggleDebug()
+              },
+            },
+            {
+              label: 'Toggle Disconnect',
+              icon: 'mdi-connection',
+              command: () => {
+                this.$refs.EditorTab[0].toggleDisconnect()
+              },
+            },
+          ],
+        },
+      ],
+      testRunner: false, // Whether to display the TestRunner GUI
+      suiteMap: {
+        // Useful for testing the various options in the TestRunner GUI
+        // Suite: {
+        //   teardown: true,
+        //   tests: {
+        //     Group: {
+        //       setup: true,
+        //       cases: ['case1', 'case2', 'really_long_test_case_name3'],
+        //     },
+        //     ReallyLongGroupName: {
+        //       cases: ['case1', 'case2', 'case3'],
+        //     },
+        //   },
+        // },
+      },
       alertType: null,
       alertText: '',
       state: ' ',
@@ -431,7 +542,6 @@ export default {
       )
     },
     received(data) {
-      console.log(data)
       switch (data.type) {
         case 'file':
           this.files[data.filename] = data.text

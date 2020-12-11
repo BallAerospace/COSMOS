@@ -251,13 +251,15 @@ class RunningScript
     @body = ::Script.body(@scope, name)['contents']
     ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: @filename, scope: @scope, text: @body })
 
-    temp = Tempfile.new(['suite', '.rb'])
-    temp.write(@body)
-    temp.close
-    require temp.path
-    temp.delete
-    load_utility(name)
-    Cosmos::TestRunner.build_test_suites
+    if name.include?("suite")
+      temp = Tempfile.new(['suite', '.rb'])
+      temp.write(@body)
+      temp.close
+      require temp.path
+      temp.delete
+      load_utility(name)
+      Cosmos::TestRunner.build_test_suites
+    end
   end
 
   # Let the script continue pausing if in step mode

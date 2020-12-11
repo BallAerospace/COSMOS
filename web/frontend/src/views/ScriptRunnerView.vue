@@ -1,15 +1,15 @@
 <template>
   <div>
-    <ScriptRunner />
+    <EditorTab />
   </div>
 </template>
 
 <script>
-import ScriptRunner from '@/tools/ScriptRunner/ScriptRunner'
+import EditorTab from '@/tools/ScriptRunner/EditorTab'
 export default {
   name: 'ScriptRunnerView',
   components: {
-    ScriptRunner,
+    EditorTab,
   },
 }
 </script>
