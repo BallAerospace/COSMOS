@@ -57,6 +57,11 @@ export default new Router({
       meta: { title: 'Script Runner', icon: 'mdi-run-fast' },
     },
     {
+      path: '/running-scripts',
+      name: 'RunningScripts',
+      component: () => import('./tools/ScriptRunner/RunningScripts.vue'),
+    },
+    {
       path: '/packet-viewer/:target?/:packet?',
       name: 'PackerViewer',
       component: () => import('./views/PacketViewerView.vue'),

@@ -46,9 +46,17 @@
         ></v-text-field>
       </v-card-text>
       <v-card-actions>
-        <v-btn color="primary" text @click="ok()">Ok</v-btn>
+        <v-btn color="primary" text @click="ok()" :disabled="disableButtons"
+          >Ok</v-btn
+        >
         <v-spacer></v-spacer>
-        <v-btn color="primary" text @click="show = false">Cancel</v-btn>
+        <v-btn
+          color="primary"
+          text
+          @click="show = false"
+          :disabled="disableButtons"
+          >Cancel</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -78,6 +86,7 @@ export default {
       selectedFile: null,
       warning: false,
       warningText: '',
+      disableButtons: false,
     }
   },
   computed: {
@@ -138,6 +147,8 @@ export default {
         return
       }
       if (this.type === 'open') {
+        // Disable the buttons because the axios call can take a bit
+        this.disableButtons = true
         axios
           .get('http://localhost:3001/scripts/' + this.selectedFile, {
             params: { scope: 'DEFAULT' },

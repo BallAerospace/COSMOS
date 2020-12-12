@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container>
+    <v-container id="tr-container">
       <v-row no-gutters align="center">
         <v-col cols="4">
           <v-row no-gutters>
@@ -264,4 +264,11 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+#tr-container {
+  padding-top: 0px;
+  padding-bottom: 15px;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+</style>
