@@ -173,7 +173,7 @@ class RunningScript
     end
   end
 
-  def self.spawn(scope, name, disconnect = false)
+  def self.spawn(scope, name, testRunner = nil, disconnect = false)
     runner_path = Rails.root.join('scripts/run_script.rb')
     redis = Redis.new(url: ActionCable.server.config.cable["url"])
     id = redis.incr('running-script-id')
@@ -183,20 +183,20 @@ class RunningScript
       ruby_process_name = 'ruby'
     end
     start_time = Time.now
-    process = ChildProcess.build(ruby_process_name, runner_path.to_s, id.to_s, scope, name, disconnect.to_s)
-    process.io.inherit! # Helps with debugging
-    process.cwd = Rails.root.join('scripts').to_s
-    process.start
-    details = { id: id, scope: scope, name: name, start_time: start_time.to_s }
-    details[:disconnect] = true if disconnect
+    details = { id: id, scope: scope, name: name, start_time: start_time.to_s, disconnect: disconnect }
     redis.sadd('running-scripts', details.to_json)
     details[:hostname] = Socket.gethostname
-    details[:pid] = process.pid
+    # details[:pid] = process.pid
     details[:state] = :spawning
     details[:line_no] = 1
     details[:update_time] = start_time.to_s
-    details[:disconnect] = true if disconnect
+    details[:test_runner] = testRunner.to_json if testRunner
     redis.set("running-script:#{id}", details.to_json)
+
+    process = ChildProcess.build(ruby_process_name, runner_path.to_s, id.to_s)
+    process.io.inherit! # Helps with debugging
+    process.cwd = Rails.root.join('scripts').to_s
+    process.start
     id
   end
 
@@ -259,6 +259,13 @@ class RunningScript
       temp.delete
       load_utility(name)
       Cosmos::TestRunner.build_test_suites
+    end
+  end
+
+  def parse_options(options)
+    # TODO: Handle all options
+    if options.include?('manual')
+      $manual = true
     end
   end
 

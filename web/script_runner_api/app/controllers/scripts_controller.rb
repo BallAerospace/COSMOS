@@ -31,7 +31,8 @@ class ScriptsController < ApplicationController
   end
 
   def run
-    running_script_id = Script.run(params[:scope], params[:name], params[:disconnect] == 'disconnect')
+    testRunner = params[:testRunner] ? params[:testRunner].as_json : nil
+    running_script_id = Script.run(params[:scope], params[:name], testRunner, params[:disconnect] == 'disconnect')
     if running_script_id
       render :plain => running_script_id.to_s
     else

@@ -1,12 +1,14 @@
-require 'cosmos/config/config_parser'
-
 start_time = Time.now
-id = ARGV[0]
-scope = ARGV[1]
-name = ARGV[2]
-disconnect = ARGV[3]
+require 'cosmos/config/config_parser'
+require 'json'
 require '../config/environment'
-#Rails.application.eager_load!
+
+id = ARGV[0]
+redis = Redis.new(url: ActionCable.server.config.cable["url"])
+script = JSON.parse(redis.get("running-script:#{id}"))
+scope = script['scope']
+name = script['name']
+disconnect = script['disconnect']
 startup_time = Time.now - start_time
 path = File.join(Script::DEFAULT_BUCKET_NAME, scope, 'targets', name)
 
@@ -21,10 +23,20 @@ run_script_log(id, "Script #{path} spawned in #{startup_time} seconds")
 
 begin
   running_script = RunningScript.new(id, scope, name, disconnect)
-  running_script.run
-  # running_script.run_text("Cosmos::TestRunner.start(MyTestSuite, ExampleTest, 'test_2')")
+  if script['test_runner']
+    script['test_runner'] = JSON.parse(script['test_runner']) # Convert to hash
+    running_script.parse_options(script['test_runner']['options'])
+    if script['test_runner']['script']
+      running_script.run_text("Cosmos::TestRunner.start(#{script['test_runner']['suite']}, #{script['test_runner']['group']}, '#{script['test_runner']['script']}')")
+    elsif script['test_runner']['group']
+      running_script.run_text("Cosmos::TestRunner.#{script['test_runner']['method']}(#{script['test_runner']['suite']}, #{script['test_runner']['group']})")
+    else
+      running_script.run_text("Cosmos::TestRunner.#{script['test_runner']['method']}(#{script['test_runner']['suite']})")
+    end
+  else
+    running_script.run
+  end
 
-  redis = Redis.new(url: ActionCable.server.config.cable["url"])
   # Subscribe to the ActionCable generated topic which is namedspaced with channel_prefix
   # (defined in cable.yml) and then the channel stream. This isn't typically how you see these
   # topics used in the Rails ActionCable documentation but this is what is happening under the

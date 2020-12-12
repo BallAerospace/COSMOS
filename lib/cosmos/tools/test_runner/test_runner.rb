@@ -34,15 +34,15 @@ module Cosmos
           result = test_suite.run_test_case(test_class, test_case)
           # @@results_writer.process_result(result)
           raise StopScript if (result.exceptions and Test.abort_on_exception) or result.stopped
-        # elsif test_class
-        #   test_suite.run_test(test_class) { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
-        # else
-        #   test_suite.run { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
+        elsif test_class
+          test_suite.run_test(test_class) #{ |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
+        else
+          test_suite.run #{ |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
         end
       end
     end
 
-    def self.start_setup(test_suite_class, test_class = nil)
+    def self.setup(test_suite_class, test_class = nil)
       exec_test('Manual Setup', test_suite_class, test_class) do |test_suite|
         if test_class
           result = test_suite.run_test_setup(test_class)
@@ -56,7 +56,7 @@ module Cosmos
       end
     end
 
-    def self.start_teardown(test_suite_class, test_class = nil)
+    def self.teardown(test_suite_class, test_class = nil)
       exec_test('Manual Teardown', test_suite_class, test_class) do |test_suite|
         if test_class
           result = test_suite.run_test_teardown(test_class)

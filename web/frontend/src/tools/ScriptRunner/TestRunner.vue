@@ -32,7 +32,7 @@
                 dense
                 @change="suiteChanged"
                 :items="suites"
-                v-model="selectedSuite"
+                v-model="suite"
                 data-test="select-suite"
               ></v-select>
             </v-col>
@@ -40,21 +40,21 @@
               <v-btn
                 color="primary"
                 class="mr-2"
-                @click="$emit('start', { selectedSuite })"
+                @click="$emit('button', { method: 'start', suite, options })"
                 data-test="start-suite"
                 >Start
               </v-btn>
               <v-btn
                 color="primary"
                 class="mr-2"
-                @click="$emit('setup', { selectedSuite })"
+                @click="$emit('button', { method: 'setup', suite, options })"
                 data-test="setup-suite"
                 :disabled="!setupSuiteEnabled"
                 >Setup
               </v-btn>
               <v-btn
                 color="primary"
-                @click="$emit('teardown', { selectedSuite })"
+                @click="$emit('button', { method: 'teardown', suite, options })"
                 data-test="teardown-suite"
                 :disabled="!teardownSuiteEnabled"
                 >Teardown
@@ -94,7 +94,7 @@
                 dense
                 @change="groupChanged"
                 :items="groups"
-                v-model="selectedGroup"
+                v-model="group"
                 data-test="select-group"
               ></v-select>
             </v-col>
@@ -102,21 +102,27 @@
               <v-btn
                 color="primary"
                 class="mr-2"
-                @click="$emit('start', { selectedSuite, selectedGroup })"
+                @click="
+                  $emit('button', { method: 'start', suite, group, options })
+                "
                 data-test="start-group"
                 >Start
               </v-btn>
               <v-btn
                 color="primary"
                 class="mr-2"
-                @click="$emit('setup', { selectedSuite, selectedGroup })"
+                @click="
+                  $emit('button', { method: 'setup', suite, group, options })
+                "
                 data-test="setup-group"
                 :disabled="!setupGroupEnabled"
                 >Setup
               </v-btn>
               <v-btn
                 color="primary"
-                @click="$emit('teardown', { selectedSuite, selectedGroup })"
+                @click="
+                  $emit('button', { method: 'teardown', suite, group, options })
+                "
                 data-test="teardown-group"
                 :disabled="!teardownGroupEnabled"
                 >Teardown
@@ -151,23 +157,29 @@
           <v-row no-gutters justify="end">
             <v-col cols="5">
               <v-select
-                label="Case:"
+                label="Script:"
                 class="mr-2 mb-2"
                 hide-details
                 dense
-                @change="caseChanged"
-                :items="cases"
-                v-model="selectedCase"
-                data-test="select-case"
+                @change="scriptChanged"
+                :items="scripts"
+                v-model="script"
+                data-test="select-script"
               ></v-select>
             </v-col>
             <v-col cols="auto">
               <v-btn
                 color="primary"
                 @click="
-                  $emit('start', { selectedSuite, selectedGroup, selectedCase })
+                  $emit('button', {
+                    method: 'start',
+                    suite,
+                    group,
+                    script,
+                    options,
+                  })
                 "
-                data-test="start-case"
+                data-test="start-script"
                 >Start
               </v-btn>
               <!-- TODO: Don't like this hard coded spacer but not sure how else
@@ -193,23 +205,23 @@ export default {
     return {
       suites: [],
       groups: [],
-      cases: [],
-      selectedSuite: '',
-      selectedGroup: '',
-      selectedCase: '',
+      scripts: [],
+      suite: '',
+      group: '',
+      script: '',
       options: [],
     }
   },
   computed: {
     setupSuiteEnabled() {
-      if (this.selectedSuite && this.suiteMap[this.selectedSuite].setup) {
+      if (this.suite && this.suiteMap[this.suite].setup) {
         return true
       } else {
         return false
       }
     },
     teardownSuiteEnabled() {
-      if (this.selectedSuite && this.suiteMap[this.selectedSuite].teardown) {
+      if (this.suite && this.suiteMap[this.suite].teardown) {
         return true
       } else {
         return false
@@ -217,9 +229,9 @@ export default {
     },
     setupGroupEnabled() {
       if (
-        this.selectedSuite &&
-        this.selectedGroup &&
-        this.suiteMap[this.selectedSuite].tests[this.selectedGroup].setup
+        this.suite &&
+        this.group &&
+        this.suiteMap[this.suite].tests[this.group].setup
       ) {
         return true
       } else {
@@ -228,9 +240,9 @@ export default {
     },
     teardownGroupEnabled() {
       if (
-        this.selectedSuite &&
-        this.selectedGroup &&
-        this.suiteMap[this.selectedSuite].tests[this.selectedGroup].teardown
+        this.suite &&
+        this.group &&
+        this.suiteMap[this.suite].tests[this.group].teardown
       ) {
         return true
       } else {
@@ -243,22 +255,22 @@ export default {
   },
   methods: {
     suiteChanged(event) {
-      this.selectedSuite = event
-      this.selectedGroup = ''
-      this.selectedCase = ''
+      this.suite = event
+      this.group = ''
+      this.script = ''
       this.groups = Object.keys(this.suiteMap[event].tests)
       // Make the group default be the first group
       this.groupChanged(this.groups[0])
     },
     groupChanged(event) {
-      this.selectedGroup = event
-      this.selectedCase = ''
-      this.cases = this.suiteMap[this.selectedSuite].tests[event].cases
-      // Make the test case default be the first test
-      this.caseChanged(this.cases[0])
+      this.group = event
+      this.script = ''
+      this.scripts = this.suiteMap[this.suite].tests[event].cases
+      // Make the script default be the first
+      this.scriptChanged(this.scripts[0])
     },
-    caseChanged(event) {
-      this.selectedCase = event
+    scriptChanged(event) {
+      this.script = event
     },
   },
 }

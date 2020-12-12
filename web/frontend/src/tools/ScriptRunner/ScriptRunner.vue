@@ -7,9 +7,7 @@
     <test-runner
       v-if="testRunner"
       :suiteMap="suiteMap"
-      @start="testRunnerStart"
-      @setup="testRunnerSetup"
-      @teardown="testRunnerTeardown"
+      @button="testRunnerButton"
     />
     <v-container id="sc-controls">
       <v-row no-gutters justify="space-between">
@@ -61,6 +59,7 @@
               color="primary"
               @click="startOrGo"
               class="mr-2"
+              :disabled="testRunner"
               data-test="start-go-button"
               >{{ startOrGoButton }}
             </v-btn>
@@ -343,6 +342,7 @@ export default {
         },
       ],
       testRunner: false, // Whether to display the TestRunner GUI
+      testRunnerConfig: {},
       suiteMap: {
         // Useful for testing the various options in the TestRunner GUI
         // Suite: {
@@ -458,17 +458,8 @@ export default {
     this.cable.disconnect()
   },
   methods: {
-    testRunnerStart(event) {
-      console.log('testRunnerStart')
-      console.log(event)
-    },
-    testRunnerSetup(event) {
-      console.log('testRunnerSetup')
-      console.log(event)
-    },
-    testRunnerTeardown(event) {
-      console.log('testRunnerTeardown')
-      console.log(event)
+    testRunnerButton(event) {
+      this.startOrGo(event, 'testRunner')
     },
     keydown(event) {
       // NOTE: Chrome does not allow overriding Ctrl-N, Ctrl-Shift-N, Ctrl-T, Ctrl-Shift-T, Ctrl-W
@@ -494,7 +485,7 @@ export default {
         this.fileModified = '*'
       }
     },
-    startOrGo() {
+    startOrGo(event, testRunner = null) {
       if (this.startOrGoButton === 'Start') {
         this.saveFile('start') // Save first or they'll be running old code
 
@@ -507,22 +498,22 @@ export default {
         if (this.showDisconnect) {
           url += '/disconnect'
         }
-        axios
-          .post(url, {
-            scope: 'DEFAULT',
-          })
-          .then((response) => {
-            this.state = 'Connecting...'
-            this.startOrGoButton = 'Go'
-            this.scriptId = response.data
-            this.editor.setReadOnly(true)
-            this.subscription = this.cable.subscriptions.create(
-              { channel: 'RunningScriptChannel', id: this.scriptId },
-              {
-                received: (data) => this.received(data),
-              }
-            )
-          })
+        let data = { scope: 'DEFAULT' }
+        if (testRunner) {
+          data['testRunner'] = event
+        }
+        axios.post(url, data).then((response) => {
+          this.state = 'Connecting...'
+          this.startOrGoButton = 'Go'
+          this.scriptId = response.data
+          this.editor.setReadOnly(true)
+          this.subscription = this.cable.subscriptions.create(
+            { channel: 'RunningScriptChannel', id: this.scriptId },
+            {
+              received: (data) => this.received(data),
+            }
+          )
+        })
       } else {
         axios.post(
           'http://localhost:3001/running-script/' + this.scriptId + '/go'
