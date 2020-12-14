@@ -379,8 +379,8 @@ export default {
                   '__CONVERTED'
               )
             })
-            console.log('subscribe and add')
-            console.log(new Date().getTime() * 1_000_000)
+            // console.log('subscribe and add')
+            // console.log(new Date().getTime() * 1_000_000)
             this.subscription.perform('add', {
               scope: 'DEFAULT',
               items: items,

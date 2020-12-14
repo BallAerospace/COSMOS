@@ -37,11 +37,6 @@ end
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data'
 
-gem 'aws-sdk-s3', '~> 1'
-gem 'ffi'
-gem 'childprocess', '~> 3'
-gem 'geminabox'
-
 if ENV['COSMOS_DEVEL']
   gem 'cosmos', :path => ENV['COSMOS_DEVEL']
 elsif ENV['COSMOS_PATH']
