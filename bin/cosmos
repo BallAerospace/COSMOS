@@ -14,6 +14,7 @@
 require 'cosmos'
 require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
 require 'cosmos/microservices/configure_microservices'
+require 'cosmos/models/plugin_model'
 require 'zip'
 require 'zip/filesystem'
 require 'fileutils'
@@ -309,84 +310,11 @@ def put_into_archive(disk_file_path, io, zip_file_path)
   end
 end
 
-def load_cosmos(system_filename = nil, cmd_tlm_server_filename = nil, scope = nil)
-  # system_filename ||= 'system.txt'
-  # system_path = File.join(Dir.pwd, 'config', 'system', system_filename)
-  # system_config = Cosmos::SystemConfig.new(system_path)
-  # cmd_tlm_server_filename ||= 'cmd_tlm_server.txt'
-  # cmd_tlm_server_path = File.join(Dir.pwd, 'config', 'tools', 'cmd_tlm_server', cmd_tlm_server_filename)
-  # cts_config = Cosmos::CmdTlmServerConfig.new(cmd_tlm_server_path, system_config)
-
-  # rubys3_client = Aws::S3::Client.new
-
-  # Ensure targets bucket exists
-  # begin
-  #   rubys3_client.head_bucket(bucket: 'targets')
-  # rescue Aws::S3::Errors::NotFound
-  #   rubys3_client.create_bucket(bucket: 'targets')
-  # end
-
-  # Hash, zip, and upload each target as necessary
-  # zip_targets = {}
-  # system_config.targets.each do |target_name, target|
-  #   # Only do each original_name once
-  #   hash = zip_targets[target.original_name]
-  #   if hash
-  #     target.id = hash
-  #     next
-  #   end
-
-  #   # Build target file list
-  #   target_files = []
-  #   Find.find(target.dir) { |file| target_files << file }
-  #   target_files.sort!
-  #   hash = Cosmos.hash_files(target_files, nil, 'SHA256').hexdigest
-  #   target.id = hash
-
-  #   # Check if target config exists in S3
-  #   s3_key = "#{target.original_name}/#{hash}.zip"
-  #   found = true
-  #   begin
-  #     rubys3_client.head_object(bucket: 'targets', key: s3_key)
-  #   rescue Aws::S3::Errors::NotFound
-  #     found = false
-  #   end
-
-  #   unless found
-  #     prefix = File.dirname(target.dir) + '/'
-  #     output_file = File.join(Dir.tmpdir, hash + '.zip')
-  #     File.delete(output_file) if File.exist?(output_file)
-  #     unless File.exist?(output_file)
-  #       Zip.continue_on_exists_proc = true
-  #       Zip::File.open(output_file, Zip::File::CREATE) do |zipfile|
-  #         target_files.each do |target_file|
-  #           zip_file_path = target_file.delete_prefix(prefix)
-  #           if File.directory?(target_file)
-  #             zipfile.mkdir(zip_file_path)
-  #           else
-  #             zipfile.add(zip_file_path, target_file)
-  #             # Write to S3 Bucket
-  #             File.open(target_file, 'rb') do |file|
-  #               rubys3_client.put_object(bucket: 'targets', key: zip_file_path, body: file)
-  #             end
-  #           end
-  #         end
-  #       end
-  #     end
-
-  #     # Write to S3 Bucket
-  #     File.open(output_file, 'rb') do |file|
-  #       rubys3_client.put_object(bucket: 'targets', key: s3_key, body: file)
-  #     end
-
-  #     puts "targets/#{s3_key} written to S3"
-  #   end
-
-  #   zip_targets[target.original_name] = hash
-  # end
-
+def load_plugin(plugin_file_path, scope:)
   scope ||= 'DEFAULT'
-  Cosmos::ConfigureMicroservices.new(nil, nil, scope: scope)
+
+  plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
+  Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
 end
 
 def get_redis_keys
@@ -424,7 +352,7 @@ if not ARGV[0].nil? # argument(s) given
   # Handle each task
   case ARGV[0].downcase
   when 'load'
-    load_cosmos(ARGV[1], ARGV[2], ARGV[3])
+    load_plugin(ARGV[1], scope: ARGV[2])
 
   when 'docs'
     thread = Thread.new do
