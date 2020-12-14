@@ -10,6 +10,13 @@ module Cosmos
     @@test_suites = []
     @@settings = {}
 
+    def self.settings
+      @@settings
+    end
+    def self.settings=(settings)
+      @@settings = settings
+    end
+
     def self.exec_test(result_string, test_suite_class, test_class = nil, test_case = nil)
       @@started_success = false
       @@test_suites.each do |test_suite|
@@ -17,10 +24,10 @@ module Cosmos
           # @@started_success = @@results_writer.collect_metadata(@@instance)
           # if @@started_success
             # @@results_writer.start(result_string, test_suite_class, test_class, test_case, @@settings)
-            # loop do
+            loop do
               yield(test_suite)
-              # break if not @@settings['Loop Testing'] or (TestStatus.instance.fail_count > 0 and @@settings['Break Loop after Error'])
-            # end
+              break if not @@settings['Loop'] or (TestStatus.instance.fail_count > 0 and @@settings['Break Loop On Error'])
+            end
           # end
           break
         end

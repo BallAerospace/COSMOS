@@ -144,7 +144,7 @@
             </v-col>
             <v-col cols="6">
               <v-checkbox
-                v-if="options.includes('loop')"
+                :disabled="!options.includes('loop')"
                 v-model="options"
                 label="Break Loop on Error"
                 value="breakLoopOnError"
@@ -209,7 +209,7 @@ export default {
       suite: '',
       group: '',
       script: '',
-      options: [],
+      options: ['pauseOnError', 'manual', 'continueAfterError'],
     }
   },
   computed: {

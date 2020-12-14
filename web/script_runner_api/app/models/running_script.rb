@@ -263,10 +263,46 @@ class RunningScript
   end
 
   def parse_options(options)
-    # TODO: Handle all options
+    settings = {}
     if options.include?('manual')
+      settings['Manual'] = true
       $manual = true
+    else
+      settings['Manual'] = false
+      $manual = false
     end
+    if options.include?('pauseOnError')
+      settings['Pause on Error'] = true
+      @@pause_on_error = true
+    else
+      settings['Pause on Error'] = false
+      @@pause_on_error = false
+    end
+    if options.include?('continueAfterError')
+      settings['Continue After Error'] = true
+      @continue_after_error = true
+    else
+      settings['Continue After Error'] = false
+      @continue_after_error = false
+    end
+    if options.include?('abortAfterError')
+      settings['Abort After Error'] = true
+      Cosmos::Test.abort_on_exception = true
+    else
+      settings['Abort After Error'] = false
+      Cosmos::Test.abort_on_exception = false
+    end
+    if options.include?('loop')
+      settings['Loop'] = true
+    else
+      settings['Loop'] = false
+    end
+    if options.include?('breakLoopOnError')
+      settings['Break Loop On Error'] = true
+    else
+      settings['Break Loop On Error'] = false
+    end
+    Cosmos::TestRunner.settings = settings
   end
 
   # Let the script continue pausing if in step mode

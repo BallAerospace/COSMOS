@@ -59,7 +59,7 @@
               color="primary"
               @click="startOrGo"
               class="mr-2"
-              :disabled="testRunner"
+              :disabled="startOrGoDisabled"
               data-test="start-go-button"
               >{{ startOrGoButton }}
             </v-btn>
@@ -413,6 +413,15 @@ export default {
         return this.fileName + ' ' + this.fileModified
       }
     },
+    startOrGoDisabled() {
+      // Disable the Start button when Test Runner controls are visible
+      // so they must use the Start buttons in the Test Runner controls
+      if (this.testRunner && this.startOrGoButton === 'Start') {
+        return true
+      } else {
+        return false
+      }
+    },
   },
   mounted() {
     this.editor = ace.edit('editor')
@@ -588,6 +597,7 @@ export default {
               marker,
               'fullLine'
             )
+            this.editor.gotoLine(data.line_no)
           }
           break
         case 'output':
