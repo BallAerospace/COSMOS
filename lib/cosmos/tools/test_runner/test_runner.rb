@@ -1,5 +1,6 @@
 require 'cosmos/script'
 require 'cosmos/tools/test_runner/test'
+require 'cosmos/tools/test_runner/results_writer'
 
 module Cosmos
   # Placeholder for all tests discovered without assigned TestSuites
@@ -9,6 +10,7 @@ module Cosmos
   class TestRunner
     @@test_suites = []
     @@settings = {}
+    @@results_writer = nil
 
     def self.settings
       @@settings
@@ -16,14 +18,18 @@ module Cosmos
     def self.settings=(settings)
       @@settings = settings
     end
+    def self.results_writer
+      @@results_writer
+    end
 
     def self.exec_test(result_string, test_suite_class, test_class = nil, test_case = nil)
-      @@started_success = false
+      @@results_writer = ResultsWriter.new
+      # @@started_success = false
       @@test_suites.each do |test_suite|
         if test_suite.class == test_suite_class
           # @@started_success = @@results_writer.collect_metadata(@@instance)
           # if @@started_success
-            # @@results_writer.start(result_string, test_suite_class, test_class, test_case, @@settings)
+            @@results_writer.start(result_string, test_suite_class, test_class, test_case, @@settings)
             loop do
               yield(test_suite)
               break if not @@settings['Loop'] or (TestStatus.instance.fail_count > 0 and @@settings['Break Loop On Error'])
@@ -39,12 +45,12 @@ module Cosmos
       exec_test('', test_suite_class, test_class, test_case) do |test_suite|
         if test_case
           result = test_suite.run_test_case(test_class, test_case)
-          # @@results_writer.process_result(result)
+          @@results_writer.process_result(result)
           raise StopScript if (result.exceptions and Test.abort_on_exception) or result.stopped
         elsif test_class
-          test_suite.run_test(test_class) #{ |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
+          test_suite.run_test(test_class) { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
         else
-          test_suite.run #{ |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
+          test_suite.run { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
         end
       end
     end
@@ -57,7 +63,7 @@ module Cosmos
           result = test_suite.run_setup
         end
         if result
-          # @@results_writer.process_result(result)
+          @@results_writer.process_result(result)
           raise StopScript if result.stopped
         end
       end
@@ -71,7 +77,7 @@ module Cosmos
           result = test_suite.run_teardown
         end
         if result
-          # @@results_writer.process_result(result)
+          @@results_writer.process_result(result)
           raise StopScript if result.stopped
         end
       end

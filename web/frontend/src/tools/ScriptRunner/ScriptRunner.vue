@@ -200,7 +200,26 @@
           </v-container>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" text @click="infoDialog = false"> Ok </v-btn>
+          <v-btn color="primary" text @click="infoDialog = false">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="resultsDialog" max-width="750">
+      <v-card>
+        <v-card-title class="headline">Script Results</v-card-title>
+        <v-card-text class="mb-0 pb-0">
+          <v-textarea
+            readonly
+            hide-details
+            dense
+            auto-grow
+            :value="scriptResults"
+          ></v-textarea>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" text @click="resultsDialog = false">Ok</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="downloadResults">Download</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -403,6 +422,8 @@ export default {
       infoDialog: false,
       infoTitle: '',
       infoText: [],
+      resultsDialog: false,
+      scriptResults: '',
     }
   },
   computed: {
@@ -608,6 +629,10 @@ export default {
           break
         case 'script':
           this.handleScript(data)
+          break
+        case 'report':
+          this.resultsDialog = true
+          this.scriptResults = data.report
           break
         case 'complete':
           this.startOrGoButton = 'Start'
@@ -896,6 +921,19 @@ export default {
         }
         this.debug = this.debugHistory[this.debugHistoryIndex]
       }
+    },
+    downloadResults() {
+      const blob = new Blob([this.scriptResults], {
+        type: 'text/plain',
+      })
+      // Make a link and then 'click' on it to start the download
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.setAttribute(
+        'download',
+        format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_testrunner_results.txt'
+      )
+      link.click()
     },
     downloadLog() {
       let output = ''
