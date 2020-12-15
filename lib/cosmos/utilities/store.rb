@@ -23,6 +23,9 @@ module Cosmos
     # Mutex used to ensure that only one instance is created
     @@instance_mutex = Mutex.new
 
+    attr_reader :redis_url
+    attr_reader :redis_pool
+
     # Get the singleton instance
     def self.instance(pool_size = 10)
       return @@instance if @@instance
@@ -32,10 +35,14 @@ module Cosmos
       end
     end
 
+    def build_redis
+      return Redis.new(url: @redis_url)
+    end
+
     def initialize(pool_size = 10)
       Redis.exists_returns_integer = true
-      redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0')
-      @redis_pool = ConnectionPool.new(size: pool_size) { Redis.new(url: redis_url) }
+      @redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0')
+      @redis_pool = ConnectionPool.new(size: pool_size) { build_redis() }
       @topic_offsets = {}
       @overrides = {}
     end
@@ -536,7 +543,15 @@ module Cosmos
 
     # These are low level methods that should only be used as a last resort or for testing
 
-
+    def self.get(*args)
+      self.instance.get(*args)
+    end
+    def self.set(*args)
+      self.instance.set(*args)
+    end
+    def self.incr(key)
+      self.instance.incr(key)
+    end
     def self.hget(key, field)
       self.instance.hget(key, field)
     end
@@ -552,7 +567,40 @@ module Cosmos
     def self.hgetall(key)
       self.instance.hgetall(key)
     end
+    def self.del(key)
+      self.instance.del(key)
+    end
+    def self.exists?(*keys)
+      self.instance.exists?(*keys)
+    end
+    def self.scan(count, **options)
+      self.instance.scan(count, **options)
+    end
+    def self.sadd(key, value)
+      self.instance.sadd(key, value)
+    end
+    def self.srem(key, member)
+      self.instance.srem(key, member)
+    end
+    def self.xrevrange(*args, **kw_args)
+      self.instance.xrevrange(*args, **kw_args)
+    end
+    def self.publish(*args)
+      self.instance.publish(*args)
+    end
+    def self.smembers(key)
+      self.instance.smembers(key)
+    end
 
+    def get(*args)
+      @redis_pool.with { |redis| return redis.get(*args) }
+    end
+    def set(*args)
+      @redis_pool.with { |redis| return redis.set(*args) }
+    end
+    def incr(key)
+      @redis_pool.with { |redis| return redis.incr(key) }
+    end
     def hget(key, field)
       @redis_pool.with { |redis| return redis.hget(key, field) }
     end
@@ -580,14 +628,17 @@ module Cosmos
     def sadd(key, value)
       @redis_pool.with { |redis| redis.sadd(key, value) }
     end
-    def smembers(key)
-      @redis_pool.with { |redis| return redis.smembers(key) }
-    end
     def srem(key, member)
       @redis_pool.with { |redis| redis.srem(key, member) }
     end
     def xrevrange(*args, **kw_args)
       @redis_pool.with { |redis| redis.xrevrange(*args, **kw_args) }
+    end
+    def publish(*args)
+      @redis_pool.with { |redis| redis.publish(*args) }
+    end
+    def smembers(key)
+      @redis_pool.with { |redis| return redis.smembers(key) }
     end
   end
 end

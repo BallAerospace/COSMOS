@@ -4,9 +4,11 @@ require 'cosmos'
 require 'cosmos/script'
 require 'cosmos/io/stdout'
 require 'cosmos/io/stderr'
-require 'redis'
 require 'childprocess'
 require 'cosmos/tools/test_runner/test_runner'
+require 'cosmos/utilities/store'
+
+RAILS_ROOT = File.expand_path(File.join(__dir__, '..', '..'))
 
 module Cosmos
   module Script
@@ -18,7 +20,8 @@ module Cosmos
       define_method(method) do |*args|
         while true
           RunningScript.instance.scriptrunner_puts("#{method}(#{args.join(', ')})")
-          ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :script, method: method, args: args })
+          # ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :script, method: method, args: args })
+          Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :script, method: method, args: args }))
           RunningScript.instance.perform_pause
           input = RunningScript.instance.user_input
           # All ask and prompt dialogs should include a 'Cancel' button to enable break
@@ -43,11 +46,13 @@ module Cosmos
           # Use cached instrumentation
           instrumented_script = instrumented_cache
           cached = true
-          ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
+          #ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
+          Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text }))
         else
           # Retrieve file
           text = ::Script.body(RunningScript.instance.scope, procedure_name)['contents']
-          ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
+          #ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
+          Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text }))
 
           # Cache instrumentation into RAM
           instrumented_script = RunningScript.instrument_script(text, path, true)
@@ -83,8 +88,9 @@ module Cosmos
 
       # sleep in a script - returns true if canceled mid sleep
       def cosmos_script_sleep(sleep_time = nil)
-        ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}",
-          { type: :line, filename: RunningScript.instance.current_filename, line_no: RunningScript.instance.current_line_number, state: :waiting })
+        #ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}",
+        #  { type: :line, filename: RunningScript.instance.current_filename, line_no: RunningScript.instance.current_line_number, state: :waiting })
+        Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :line, filename: RunningScript.instance.current_filename, line_no: RunningScript.instance.current_line_number, state: :waiting }))
 
         sleep_time = 30000000 unless sleep_time # Handle infinite wait
         if sleep_time > 0.0
@@ -146,7 +152,7 @@ class RunningScript
   @@cancel_limits = false
 
   def self.message_log(id = @@id)
-    @@message_log ||= Cosmos::MessageLog.new("sr_#{id}", Rails.root.join('log').to_s)
+    @@message_log ||= Cosmos::MessageLog.new("sr_#{id}", File.join(RAILS_ROOT, 'log'))
   end
 
   def message_log
@@ -154,8 +160,7 @@ class RunningScript
   end
 
   def self.all
-    redis = Redis.new(url: ActionCable.server.config.cable["url"])
-    array = redis.smembers('running-scripts')
+    array = Cosmos::Store.smembers('running-scripts')
     items = []
     array.each do |member|
       items << JSON.parse(member)
@@ -164,8 +169,7 @@ class RunningScript
   end
 
   def self.find(id)
-    redis = Redis.new(url: ActionCable.server.config.cable["url"])
-    result = redis.get("running-script:#{id}").to_s
+    result = Cosmos::Store.get("running-script:#{id}").to_s
     if result.length > 0
       JSON.parse(result)
     else
@@ -174,9 +178,8 @@ class RunningScript
   end
 
   def self.spawn(scope, name, testRunner = nil, disconnect = false)
-    runner_path = Rails.root.join('scripts/run_script.rb')
-    redis = Redis.new(url: ActionCable.server.config.cable["url"])
-    id = redis.incr('running-script-id')
+    runner_path = File.join(RAILS_ROOT, 'scripts', 'run_script.rb')
+    id = Cosmos::Store.incr('running-script-id')
     if RUBY_ENGINE != 'ruby'
       ruby_process_name = 'jruby'
     else
@@ -184,18 +187,18 @@ class RunningScript
     end
     start_time = Time.now
     details = { id: id, scope: scope, name: name, start_time: start_time.to_s, disconnect: disconnect }
-    redis.sadd('running-scripts', details.to_json)
+    Cosmos::Store.sadd('running-scripts', details.to_json)
     details[:hostname] = Socket.gethostname
     # details[:pid] = process.pid
     details[:state] = :spawning
     details[:line_no] = 1
     details[:update_time] = start_time.to_s
     details[:test_runner] = testRunner.to_json if testRunner
-    redis.set("running-script:#{id}", details.to_json)
+    Cosmos::Store.set("running-script:#{id}", details.to_json)
 
     process = ChildProcess.build(ruby_process_name, runner_path.to_s, id.to_s)
     process.io.inherit! # Helps with debugging
-    process.cwd = Rails.root.join('scripts').to_s
+    process.cwd = File.join(RAILS_ROOT, 'scripts')
     process.start
     id
   end
@@ -229,9 +232,8 @@ class RunningScript
     disconnect_script() if disconnect == 'true'
 
     # Get details from redis
-    redis = Redis.new(url: ActionCable.server.config.cable["url"])
     begin
-      details = redis.get("running-script:#{id}")
+      details = Cosmos::Store.get("running-script:#{id}")
       if details
         @details = JSON.parse(details)
       else
@@ -245,11 +247,12 @@ class RunningScript
     @details[:state] = @state
     @details[:line_no] = 1
     @details[:update_time] = Time.now.to_s
-    redis.set("running-script:#{id}", @details.to_json)
+    Cosmos::Store.set("running-script:#{id}", @details.to_json)
 
     # Retrieve file
     @body = ::Script.body(@scope, name)['contents']
-    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: @filename, scope: @scope, text: @body })
+    #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: @filename, scope: @scope, text: @body })
+    Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: @filename, scope: @scope, text: @body }))
 
     if name.include?("suite")
       temp = Tempfile.new(['suite', '.rb'])
@@ -646,7 +649,8 @@ class RunningScript
       end
       Cosmos::Logger.detail_string = detail_string
 
-      ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :running })
+      #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :running })
+      Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :running }))
 
       # Handle pausing the script
       handle_pause(filename, line_number)
@@ -938,7 +942,8 @@ class RunningScript
 
   def scriptrunner_puts(string, color = 'BLACK')
     line_to_write = Time.now.sys.formatted + " (SCRIPTRUNNER): "  + string
-    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :output, line: line_to_write, color: color })
+    #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :output, line: line_to_write, color: color })
+    Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: color }))
   end
 
   def handle_output_io(filename = @current_filename, line_number = @current_line_number)
@@ -966,7 +971,8 @@ class RunningScript
           end
         end
 
-        ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :output, line: line_to_write, color: color })
+        # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :output, line: line_to_write, color: color })
+        Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: color }))
         lines_to_write << line_to_write
 
         line_count += 1
@@ -978,7 +984,8 @@ class RunningScript
             line_to_write = time_formatted + " (SCRIPTRUNNER): "  + out_line
           end
 
-          ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :output, line: line_to_write, color: 'RED' })
+          #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :output, line: line_to_write, color: 'RED' })
+          Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: 'RED' }))
           lines_to_write << line_to_write
           break
         end
@@ -1013,24 +1020,30 @@ class RunningScript
 
   def mark_running
     @state = :running
-    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :running })
+    #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :running })
+    Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :running }))
   end
 
   def mark_paused
-    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :paused })
+    #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :paused })
+    Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :paused }))
   end
 
   def mark_error
-    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :error })
+    # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :error })
+    Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :error }))
   end
 
   def mark_stopped
-    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :stopped })
-    ActionCable.server.broadcast("cmd-running-script-channel:#{@id}", "shutdown")
+    # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :stopped })
+    Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :stopped }))
+    # ActionCable.server.broadcast("cmd-running-script-channel:#{@id}", "shutdown")
+    Cosmos::Store.publish(["script_runner_api", "cmd-running-script-channel:#{@id}"].compact.join(":"), JSON.generate("shutdown"))
   end
 
   def mark_breakpoint
-    ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :breakpoint })
+    #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :breakpoint })
+    Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :breakpoint }))
   end
 
   def run_text(text,
@@ -1104,7 +1117,8 @@ class RunningScript
           handle_exception(error, true, filename, line_number)
           scriptrunner_puts "Exception in Control Statement - Script stopped: #{File.basename(@filename)}"
           handle_output_io()
-          ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :fatal })
+          #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :fatal })
+          Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :fatal }))
         end
       ensure
         # Stop Capturing STDOUT and STDERR
@@ -1290,12 +1304,14 @@ class RunningScript
     if cached
       #@active_script.setPlainText(cached.gsub("\r", ''))
       @body = cached
-      ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: filename, text: @body })
+      # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: filename, text: @body })
+      Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: filename, text: @body }))
     else
       text = ::Script.body(@scope, filename)['contents']
       @@file_cache[filename] = text
       @body = text
-      ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: filename, text: @body })
+      # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: filename, text: @body })
+      Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: filename, text: @body }))
     end
     mark_breakpoints(filename)
 
