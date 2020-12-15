@@ -1037,6 +1037,11 @@ class RunningScript
   def mark_stopped
     # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :stopped })
     Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :stopped }))
+    if Cosmos::TestRunner.results_writer
+      Cosmos::TestRunner.results_writer.complete
+      # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :report, report: Cosmos::TestRunner.results_writer.report })
+      Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :report, report: Cosmos::TestRunner.results_writer.report }))
+    end
     # ActionCable.server.broadcast("cmd-running-script-channel:#{@id}", "shutdown")
     Cosmos::Store.publish(["script_runner_api", "cmd-running-script-channel:#{@id}"].compact.join(":"), JSON.generate("shutdown"))
   end
