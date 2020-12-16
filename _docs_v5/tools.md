@@ -40,7 +40,7 @@ Easily send individual commands.
 
 ## Script Runner
 
-Develop and execute test procedures with line highlighting, syntax checking, and more.
+Develop and execute test procedures with line highlighting, syntax checking, and more. Also supports organization of scripts into repeatable scripts with an auto-generated report.
 
 ![Script Runner](/img/v5/script_runner.png)
 
@@ -50,21 +50,8 @@ Develop and execute test procedures with line highlighting, syntax checking, and
 - Full power of the Ruby programming language available
 - Disconnect mode for offline testing
 - Debugger for step execution
-
-## Test Runner
-
-Run test procedures as small repeatable test cases.
-
-<!-- ![Test Runner](/img/v5/test_runner.png) -->
-<div class="note unreleased">
-  <p>Test Runner not yet implemented</p>
-</div>
-
-- Develop system level tests much like unit tests
-- Automatic test report generation
-- Test Selection to create custom test suites
-- Meta data entry and data package creation
-- Includes all features of Script Runner
+- Script organization by Script, Group, Suite
+- Automatic report generation
 
 ## Packet Viewer
 

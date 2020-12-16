@@ -1278,6 +1278,9 @@ code.output {
   @include border-radius(10px);
   padding: 0px 15px;
   margin: 10px -20px 10px 10px;
+  // Make this appear above .note (banners)
+  position: relative;
+  z-index: 10;
 
   .toc-h2 {
     font-weight: bold;
