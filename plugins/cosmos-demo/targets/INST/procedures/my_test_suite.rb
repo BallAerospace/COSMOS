@@ -8,7 +8,8 @@ class ExampleTest < Cosmos::Test
   def test_case_with_long_name
     puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
     Cosmos::Test.puts "This test verifies requirement 1"
-    wait(2)
+    raise "error"
+    puts "continue past raise"
   end
 
   def test_2

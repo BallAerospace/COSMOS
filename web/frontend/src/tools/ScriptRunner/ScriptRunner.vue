@@ -794,8 +794,15 @@ export default {
       this.editor.session.setValue(file.contents)
       this.fileModified = ''
       if (file.suites) {
-        this.testRunner = true
-        this.suiteMap = file.suites
+        if (typeof file.suites === 'string') {
+          this.testRunner = false
+          this.alertType = 'warning'
+          this.alertText =
+            'Processing ' + this.fileName + ' resulted in: ' + file.suites
+        } else {
+          this.testRunner = true
+          this.suiteMap = file.suites
+        }
       } else {
         this.testRunner = false
       }

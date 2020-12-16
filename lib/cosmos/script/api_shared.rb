@@ -11,10 +11,6 @@
 module Cosmos
   # Error raised by the API when a check fails
   class CheckError < RuntimeError; end
-  # Error raised when a Script should be stopped
-  class StopScript < StandardError; end
-  # Error raised when a TestCase should be skipped by TestRunner
-  class SkipTestCase < StandardError; end
 
   module ApiShared
     DEFAULT_TLM_POLLING_RATE = 0.25

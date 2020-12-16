@@ -13,6 +13,11 @@ require 'cosmos/io/stderr'
 require 'cosmos/io/stdout'
 
 module Cosmos
+  # Error raised when a Script should be stopped
+  class StopScript < StandardError; end
+  # Error raised when a Script should be skipped
+  class SkipTestCase < StandardError; end
+
   # Collects information about the running tests like pass / fail counts
   class TestStatus
     attr_accessor :status
@@ -192,7 +197,7 @@ module Cosmos
           if error.class == SkipTestCase
             result.result  = :SKIP
             result.message ||= ''
-            result.message << error.message
+            result.message << error.message + "\n"
           else
             if error.class != StopScript and
               (not RunningScript.instance or

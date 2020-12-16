@@ -2,6 +2,7 @@ require 'aws-sdk-s3'
 require 'tempfile'
 require 'cosmos/tools/test_runner/test_runner'
 require 'cosmos/tools/test_runner/test'
+require 'cosmos/script/suite'
 
 Aws.config.update(
   endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000',
@@ -46,7 +47,7 @@ class Script
       temp.close
       # We open a new ruby process so as to not pollute the API with require
       check_process = IO.popen("ruby 2>&1", 'r+')
-      check_process.write("require 'json'; require 'cosmos/tools/test_runner/test_runner'; require 'cosmos/tools/test_runner/test'; require '#{temp.path}'; puts Cosmos::TestRunner.build_test_suites.to_json")
+      check_process.write("require 'json'; require 'cosmos/tools/test_runner/test_runner'; require '#{temp.path}'; puts Cosmos::TestRunner.build_test_suites.to_json")
       check_process.close_write
       results = check_process.readlines
       check_process.close

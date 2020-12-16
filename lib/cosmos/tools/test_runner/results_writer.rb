@@ -61,28 +61,28 @@ module Cosmos
       end
       # Process all the results (may be just one)
       results.each do |result|
-        self.puts("#{result.test}:#{result.test_case}:#{result.result}")
+        self.puts("#{result.group}:#{result.script}:#{result.result}")
         if result.message
           result.message.each_line do |line|
             if line =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
               line.chomp!
               line = line.inspect.remove_quotes
             end
-            @report << '  ' + line
+            @report << '  ' + line.strip
           end
         end
         if result.exceptions
           @report << "  Exceptions:"
           result.exceptions.each_with_index do |error, index|
-            error.formatted(true).each_line do |line|
-              break if line =~ /test_runner\/test.rb/
-              next  if line =~ cosmos_lib
+            error.formatted().each_line do |line|
+              next if line =~ /in run_text/
+              next if line =~ /running_script.rb/
+              next if line =~ cosmos_lib
               if line =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
                 line.chomp!
                 line = line.inspect.remove_quotes
-                line << "\n"
               end
-              @report << '    ' + line
+              @report << '    ' + line.strip
             end
             @report << '' if index != (result.exceptions.length - 1)
           end

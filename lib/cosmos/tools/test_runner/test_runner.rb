@@ -1,10 +1,11 @@
 require 'cosmos/script'
+require 'cosmos/script/suite'
 require 'cosmos/tools/test_runner/test'
 require 'cosmos/tools/test_runner/results_writer'
 
 module Cosmos
-  # Placeholder for all tests discovered without assigned TestSuites
-  class UnassignedTestSuite < TestSuite
+  # Placeholder for all tests discovered without assigned Suites
+  class UnassignedSuite < Suite
   end
 
   class TestRunner
@@ -32,7 +33,7 @@ module Cosmos
             @@results_writer.start(result_string, test_suite_class, test_class, test_case, @@settings)
             loop do
               yield(test_suite)
-              break if not @@settings['Loop'] or (TestStatus.instance.fail_count > 0 and @@settings['Break Loop On Error'])
+              break if not @@settings['Loop'] or (ScriptStatus.instance.fail_count > 0 and @@settings['Break Loop On Error'])
             end
           # end
           break
@@ -44,11 +45,11 @@ module Cosmos
       result = []
       exec_test('', test_suite_class, test_class, test_case) do |test_suite|
         if test_case
-          result = test_suite.run_test_case(test_class, test_case)
+          result = test_suite.run_script(test_class, test_case)
           @@results_writer.process_result(result)
-          raise StopScript if (result.exceptions and Test.abort_on_exception) or result.stopped
+          raise StopScript if (result.exceptions and Group.abort_on_exception) or result.stopped
         elsif test_class
-          test_suite.run_test(test_class) { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
+          test_suite.run_group(test_class) { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
         else
           test_suite.run { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
         end
@@ -58,7 +59,7 @@ module Cosmos
     def self.setup(test_suite_class, test_class = nil)
       exec_test('Manual Setup', test_suite_class, test_class) do |test_suite|
         if test_class
-          result = test_suite.run_test_setup(test_class)
+          result = test_suite.run_group_setup(test_class)
         else
           result = test_suite.run_setup
         end
@@ -72,7 +73,7 @@ module Cosmos
     def self.teardown(test_suite_class, test_class = nil)
       exec_test('Manual Teardown', test_suite_class, test_class) do |test_suite|
         if test_class
-          result = test_suite.run_test_teardown(test_class)
+          result = test_suite.run_group_teardown(test_class)
         else
           result = test_suite.run_teardown
         end
@@ -120,20 +121,20 @@ module Cosmos
       #   end
       # end
 
-      # Build list of TestSuites and Tests
-      @@test_suites = @@test_suites.select {|my_suite| my_suite.name == 'CustomTestSuite'}
+      # Build list of Suites and Groups
+      @@test_suites = @@test_suites.select {|my_suite| my_suite.name == 'CustomSuite'}
       tests = []
       ObjectSpace.each_object(Class) do |object|
         begin
-          next if object.name == 'CustomTestSuite'
+          next if object.name == 'CustomSuite'
           ancestors = object.ancestors
         rescue
           # Ignore Classes where name or ancestors may raise exception
           # Bundler::Molinillo::DependencyGraph::Action is one example
           next
         end
-        if (ancestors.include?(TestSuite) &&
-            object != TestSuite &&
+        if (ancestors.include?(Suite) &&
+            object != Suite &&
             !ignored_test_suite_classes.include?(object))
           # Ensure they didn't override name for some reason
           if object.instance_methods(false).include?(:name)
@@ -141,11 +142,11 @@ module Cosmos
           end
           # ObjectSpace.each_object appears to yield objects in the reverse
           # order that they were parsed by the interpreter so push each
-          # TestSuite object to the front of the array to order as encountered
+          # Suite object to the front of the array to order as encountered
           @@test_suites.unshift(object.new)
         end
-        if (ancestors.include?(Test) &&
-            object != Test &&
+        if (ancestors.include?(Group) &&
+            object != Group &&
             !ignored_test_classes.include?(object))
           # Ensure they didn't override self.name for some reason
           if object.methods(false).include?(:name)
@@ -156,27 +157,27 @@ module Cosmos
       end
       # Raise error if no test suites or tests
       if @@test_suites.empty? || tests.empty?
-        msg = "No TestSuites or no Test classes found"
+        msg = "No Suite or no Group classes found"
         if !ignored_test_suite_classes.empty?
-          msg << "\n\nThe following TestSuites were found but ignored:\n#{ignored_test_suite_classes.join(", ")}"
+          msg << "\n\nThe following Suites were found but ignored:\n#{ignored_test_suite_classes.join(", ")}"
         end
         if !ignored_test_classes.empty?
-          msg << "\n\nThe following Tests were found but ignored:\n#{ignored_test_classes.join(", ")}"
+          msg << "\n\nThe following Groups were found but ignored:\n#{ignored_test_classes.join(", ")}"
         end
         return msg
       end
 
-      # Create TestSuite for unassigned Tests
+      # Create Suite for unassigned Tests
       @@test_suites.each do |test_suite|
         tests_to_delete = []
-        tests.each { |test| tests_to_delete << test if test_suite.tests[test] }
+        tests.each { |test| tests_to_delete << test if test_suite.scripts[test] }
         tests_to_delete.each { |test| tests.delete(test) }
       end
       if tests.empty?
-        @@test_suites = @@test_suites.select {|suite| suite.class != UnassignedTestSuite}
+        @@test_suites = @@test_suites.select {|suite| suite.class != UnassignedSuite}
       else
-        uts = @@test_suites.select {|suite| suite.class == UnassignedTestSuite}[0]
-        tests.each { |test| uts.add_test(test) }
+        uts = @@test_suites.select {|suite| suite.class == UnassignedSuite}[0]
+        tests.each { |test| uts.add_group(test) }
       end
 
       @@test_suites.each do |suite|
@@ -186,14 +187,14 @@ module Cosmos
 
         suite.plans.each do |test_type, test_class, test_case|
           case test_type
-          when :TEST
+          when :GROUP
             cur_suite.tests[test_class.name] ||=
               OpenStruct.new(:setup=>false, :teardown=>false, :cases=>[])
-            cur_suite.tests[test_class.name].cases.concat(test_class.test_cases)
+            cur_suite.tests[test_class.name].cases.concat(test_class.scripts)
             cur_suite.tests[test_class.name].cases.uniq!
             cur_suite.tests[test_class.name].setup = true if test_class.method_defined?(:setup)
             cur_suite.tests[test_class.name].teardown = true if test_class.method_defined?(:teardown)
-          when :TEST_CASE
+          when :SCRIPT
             cur_suite.tests[test_class.name] ||=
               OpenStruct.new(:setup=>false, :teardown=>false, :cases=>[])
             # Explicitly check for this method and raise an error if it does not exist
@@ -205,7 +206,7 @@ module Cosmos
             end
             cur_suite.tests[test_class.name].setup = true if test_class.method_defined?(:setup)
             cur_suite.tests[test_class.name].teardown = true if test_class.method_defined?(:teardown)
-          when :TEST_SETUP
+          when :GROUP_SETUP
             cur_suite.tests[test_class.name] ||=
               OpenStruct.new(:setup=>false, :teardown=>false, :cases=>[])
             # Explicitly check for the setup method and raise an error if it does not exist
@@ -214,7 +215,7 @@ module Cosmos
             else
               raise "#{test_class} does not have a setup method defined."
             end
-          when :TEST_TEARDOWN
+          when :GROUP_TEARDOWN
             cur_suite.tests[test_class.name] ||=
               OpenStruct.new(:setup=>false, :teardown=>false, :cases=>[])
             # Explicitly check for the teardown method and raise an error if it does not exist
@@ -225,7 +226,7 @@ module Cosmos
             end
           end
         end
-        suites[suite.name.split('::')[-1]] = open_struct_to_hash(cur_suite) unless suite.name == 'CustomTestSuite'
+        suites[suite.name.split('::')[-1]] = open_struct_to_hash(cur_suite) unless suite.name == 'CustomSuite'
       end
       return suites
     end
