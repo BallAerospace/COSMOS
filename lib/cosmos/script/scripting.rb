@@ -24,11 +24,8 @@ module Cosmos
       Cosmos.play_wav_file(wav_filename)
     end
 
+    # @deprecated
     def status_bar(message)
-      script_runner = ObjectSpace.find(ScriptRunner) if defined? ScriptRunner
-      script_runner.script_set_status(message) if script_runner
-      test_runner = ObjectSpace.find(TestRunner) if defined? TestRunner
-      test_runner.script_set_status(message) if test_runner
     end
 
     def ask_string(question, blank_or_default = false, password = false)

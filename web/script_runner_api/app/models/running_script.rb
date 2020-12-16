@@ -5,7 +5,7 @@ require 'cosmos/script'
 require 'cosmos/io/stdout'
 require 'cosmos/io/stderr'
 require 'childprocess'
-require 'cosmos/tools/test_runner/test_runner'
+require 'cosmos/script/suite_runner'
 require 'cosmos/utilities/store'
 
 RAILS_ROOT = File.expand_path(File.join(__dir__, '..', '..'))
@@ -261,7 +261,7 @@ class RunningScript
       require temp.path
       temp.delete
       load_utility(name)
-      Cosmos::TestRunner.build_suites
+      Cosmos::SuiteRunner.build_suites
     end
   end
 
@@ -305,7 +305,7 @@ class RunningScript
     else
       settings['Break Loop On Error'] = false
     end
-    Cosmos::TestRunner.settings = settings
+    Cosmos::SuiteRunner.settings = settings
   end
 
   # Let the script continue pausing if in step mode
@@ -1037,10 +1037,10 @@ class RunningScript
   def mark_stopped
     # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :stopped })
     Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :stopped }))
-    if Cosmos::TestRunner.results_writer
-      Cosmos::TestRunner.results_writer.complete
-      # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :report, report: Cosmos::TestRunner.results_writer.report })
-      Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :report, report: Cosmos::TestRunner.results_writer.report }))
+    if Cosmos::SuiteRunner.suite_results
+      Cosmos::SuiteRunner.suite_results.complete
+      # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :report, report: Cosmos::SuiteRunner.suite_results.report })
+      Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :report, report: Cosmos::SuiteRunner.suite_results.report }))
     end
     # ActionCable.server.broadcast("cmd-running-script-channel:#{@id}", "shutdown")
     Cosmos::Store.publish(["script_runner_api", "cmd-running-script-channel:#{@id}"].compact.join(":"), JSON.generate("shutdown"))

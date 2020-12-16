@@ -51,7 +51,7 @@
           </v-row>
         </v-col>
 
-        <!-- Disable the Start button when Test Runner controls are showing -->
+        <!-- Disable the Start button when Suite Runner controls are showing -->
         <v-col cols="4">
           <v-row no-gutters>
             <v-spacer />
@@ -434,8 +434,8 @@ export default {
       }
     },
     startOrGoDisabled() {
-      // Disable the Start button when Test Runner controls are visible
-      // so they must use the Start buttons in the Test Runner controls
+      // Disable the Start button when Suite Runner controls are visible
+      // so they must use the Start buttons in the Suite Runner controls
       if (this.suiteRunner && this.startOrGoButton === 'Start') {
         return true
       } else {
@@ -935,7 +935,7 @@ export default {
       link.href = URL.createObjectURL(blob)
       link.setAttribute(
         'download',
-        format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_testrunner_results.txt'
+        format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_suite_results.txt'
       )
       link.click()
     },

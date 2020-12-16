@@ -30,11 +30,11 @@ begin
     script['suite_runner'] = JSON.parse(script['suite_runner']) # Convert to hash
     running_script.parse_options(script['suite_runner']['options'])
     if script['suite_runner']['script']
-      running_script.run_text("Cosmos::TestRunner.start(#{script['suite_runner']['suite']}, #{script['suite_runner']['group']}, '#{script['suite_runner']['script']}')")
+      running_script.run_text("Cosmos::SuiteRunner.start(#{script['suite_runner']['suite']}, #{script['suite_runner']['group']}, '#{script['suite_runner']['script']}')")
     elsif script['suite_runner']['group']
-      running_script.run_text("Cosmos::TestRunner.#{script['suite_runner']['method']}(#{script['suite_runner']['suite']}, #{script['suite_runner']['group']})")
+      running_script.run_text("Cosmos::SuiteRunner.#{script['suite_runner']['method']}(#{script['suite_runner']['suite']}, #{script['suite_runner']['group']})")
     else
-      running_script.run_text("Cosmos::TestRunner.#{script['suite_runner']['method']}(#{script['suite_runner']['suite']})")
+      running_script.run_text("Cosmos::SuiteRunner.#{script['suite_runner']['method']}(#{script['suite_runner']['suite']})")
     end
   else
     running_script.run

@@ -3,7 +3,7 @@ load 'cosmos/tools/test_runner/test.rb'
 # This Test demonstrates the usage of the setup and teardown methods
 # as well as defining two tests. Notice that the setup and teardown
 # methods must be called exactly that. Other test methods must start
-# with 'test_' to be picked up by TestRunner.
+# with 'test_' to be processed.
 class ExampleTest < Cosmos::Test
   def initialize
     super()

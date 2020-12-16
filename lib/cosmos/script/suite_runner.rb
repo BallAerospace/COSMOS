@@ -1,17 +1,18 @@
 require 'cosmos/script'
 require 'cosmos/script/suite'
+require 'cosmos/script/suite_runner'
+require 'cosmos/script/suite_results'
 require 'cosmos/tools/test_runner/test'
-require 'cosmos/tools/test_runner/results_writer'
 
 module Cosmos
   # Placeholder for all Groups discovered without assigned Suites
   class UnassignedSuite < Suite
   end
 
-  class TestRunner
+  class SuiteRunner
     @@suites = []
     @@settings = {}
-    @@results_writer = nil
+    @@suite_results = nil
 
     def self.settings
       @@settings
@@ -19,18 +20,18 @@ module Cosmos
     def self.settings=(settings)
       @@settings = settings
     end
-    def self.results_writer
-      @@results_writer
+    def self.suite_results
+      @@suite_results
     end
 
     def self.exec(result_string, suite_class, group_class = nil, script = nil)
-      @@results_writer = ResultsWriter.new
+      @@suite_results = SuiteResults.new
       # @@started_success = false
       @@suites.each do |suite|
         if suite.class == suite_class
-          # @@started_success = @@results_writer.collect_metadata(@@instance)
+          # @@started_success = @@suite_results.collect_metadata(@@instance)
           # if @@started_success
-            @@results_writer.start(result_string, suite_class, group_class, script, @@settings)
+            @@suite_results.start(result_string, suite_class, group_class, script, @@settings)
             loop do
               yield(suite)
               break if not @@settings['Loop'] or (ScriptStatus.instance.fail_count > 0 and @@settings['Break Loop On Error'])
@@ -46,12 +47,12 @@ module Cosmos
       exec('', suite_class, group_class, script) do |suite|
         if script
           result = suite.run_script(group_class, script)
-          @@results_writer.process_result(result)
+          @@suite_results.process_result(result)
           raise StopScript if (result.exceptions and Group.abort_on_exception) or result.stopped
         elsif group_class
-          suite.run_group(group_class) { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
+          suite.run_group(group_class) { |current_result| @@suite_results.process_result(current_result); raise StopScript if current_result.stopped }
         else
-          suite.run { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
+          suite.run { |current_result| @@suite_results.process_result(current_result); raise StopScript if current_result.stopped }
         end
       end
     end
@@ -64,7 +65,7 @@ module Cosmos
           result = suite.run_setup
         end
         if result
-          @@results_writer.process_result(result)
+          @@suite_results.process_result(result)
           raise StopScript if result.stopped
         end
       end
@@ -78,7 +79,7 @@ module Cosmos
           result = suite.run_teardown
         end
         if result
-          @@results_writer.process_result(result)
+          @@suite_results.process_result(result)
           raise StopScript if result.stopped
         end
       end

@@ -8,14 +8,9 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos'
-require 'cosmos/script'
-
 module Cosmos
-  class ResultsWriter
+  class SuiteResults
     attr_accessor :metadata
-
-    TIME_TOLERANCE = 5.0
 
     def initialize
       @report = nil
