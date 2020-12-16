@@ -4,10 +4,10 @@
     <v-alert dense dismissible :type="alertType" v-if="alertType">{{
       alertText
     }}</v-alert>
-    <test-runner
-      v-if="testRunner"
+    <suite-runner
+      v-if="suiteRunner"
       :suiteMap="suiteMap"
-      @button="testRunnerButton"
+      @button="suiteRunnerButton"
     />
     <v-container id="sc-controls">
       <v-row no-gutters justify="space-between">
@@ -240,7 +240,7 @@ import FileOpenSaveDialog from '@/components/FileOpenSaveDialog'
 import ActionCable from 'actioncable'
 import AskDialog from './AskDialog.vue'
 import PromptDialog from './PromptDialog.vue'
-import TestRunner from './TestRunner.vue'
+import SuiteRunner from './SuiteRunner.vue'
 
 const NEW_FILENAME = '<Untitled>'
 
@@ -250,7 +250,7 @@ export default {
     FileOpenSaveDialog,
     AskDialog,
     PromptDialog,
-    TestRunner,
+    SuiteRunner,
     Multipane,
     MultipaneResizer,
   },
@@ -360,10 +360,9 @@ export default {
           ],
         },
       ],
-      testRunner: false, // Whether to display the TestRunner GUI
-      testRunnerConfig: {},
+      suiteRunner: false, // Whether to display the SuiteRunner GUI
       suiteMap: {
-        // Useful for testing the various options in the TestRunner GUI
+        // Useful for testing the various options in the SuiteRunner GUI
         // Suite: {
         //   teardown: true,
         //   tests: {
@@ -437,7 +436,7 @@ export default {
     startOrGoDisabled() {
       // Disable the Start button when Test Runner controls are visible
       // so they must use the Start buttons in the Test Runner controls
-      if (this.testRunner && this.startOrGoButton === 'Start') {
+      if (this.suiteRunner && this.startOrGoButton === 'Start') {
         return true
       } else {
         return false
@@ -488,8 +487,8 @@ export default {
     this.cable.disconnect()
   },
   methods: {
-    testRunnerButton(event) {
-      this.startOrGo(event, 'testRunner')
+    suiteRunnerButton(event) {
+      this.startOrGo(event, 'suiteRunner')
     },
     keydown(event) {
       // NOTE: Chrome does not allow overriding Ctrl-N, Ctrl-Shift-N, Ctrl-T, Ctrl-Shift-T, Ctrl-W
@@ -515,7 +514,7 @@ export default {
         this.fileModified = '*'
       }
     },
-    startOrGo(event, testRunner = null) {
+    startOrGo(event, suiteRunner = null) {
       if (this.startOrGoButton === 'Start') {
         this.saveFile('start') // Save first or they'll be running old code
 
@@ -529,8 +528,8 @@ export default {
           url += '/disconnect'
         }
         let data = { scope: 'DEFAULT' }
-        if (testRunner) {
-          data['testRunner'] = event
+        if (suiteRunner) {
+          data['suiteRunner'] = event
         }
         axios.post(url, data).then((response) => {
           this.state = 'Connecting...'
@@ -783,14 +782,14 @@ export default {
       this.fileName = NEW_FILENAME
       this.editor.session.setValue('')
       this.fileModified = ''
-      this.testRunner = false
+      this.suiteRunner = false
     },
     openFile() {
       this.fileOpen = true
     },
     // Called by the FileOpenDialog to set the file contents
     setFile(file) {
-      this.testRunner = false
+      this.suiteRunner = false
       this.fileName = file.name
       this.editor.session.setValue(file.contents)
       this.fileModified = ''
@@ -800,8 +799,8 @@ export default {
           this.alertText =
             'Processing ' + this.fileName + ' resulted in: ' + file.suites
         } else {
+          this.suiteRunner = true
           this.suiteMap = file.suites
-          this.testRunner = true
         }
       }
     },

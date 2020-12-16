@@ -26,15 +26,15 @@ run_script_log(id, "Script #{path} spawned in #{startup_time} seconds")
 
 begin
   running_script = RunningScript.new(id, scope, name, disconnect)
-  if script['test_runner']
-    script['test_runner'] = JSON.parse(script['test_runner']) # Convert to hash
-    running_script.parse_options(script['test_runner']['options'])
-    if script['test_runner']['script']
-      running_script.run_text("Cosmos::TestRunner.start(#{script['test_runner']['suite']}, #{script['test_runner']['group']}, '#{script['test_runner']['script']}')")
-    elsif script['test_runner']['group']
-      running_script.run_text("Cosmos::TestRunner.#{script['test_runner']['method']}(#{script['test_runner']['suite']}, #{script['test_runner']['group']})")
+  if script['suite_runner']
+    script['suite_runner'] = JSON.parse(script['suite_runner']) # Convert to hash
+    running_script.parse_options(script['suite_runner']['options'])
+    if script['suite_runner']['script']
+      running_script.run_text("Cosmos::TestRunner.start(#{script['suite_runner']['suite']}, #{script['suite_runner']['group']}, '#{script['suite_runner']['script']}')")
+    elsif script['suite_runner']['group']
+      running_script.run_text("Cosmos::TestRunner.#{script['suite_runner']['method']}(#{script['suite_runner']['suite']}, #{script['suite_runner']['group']})")
     else
-      running_script.run_text("Cosmos::TestRunner.#{script['test_runner']['method']}(#{script['test_runner']['suite']})")
+      running_script.run_text("Cosmos::TestRunner.#{script['suite_runner']['method']}(#{script['suite_runner']['suite']})")
     end
   else
     running_script.run

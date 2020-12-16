@@ -76,8 +76,8 @@ class Script
     true
   end
 
-  def self.run(scope, name, testRunner = nil, disconnect = false)
-    RunningScript.spawn(scope, name, testRunner, disconnect)
+  def self.run(scope, name, suiteRunner = nil, disconnect = false)
+    RunningScript.spawn(scope, name, suiteRunner, disconnect)
   end
 
   def self.syntax(text)

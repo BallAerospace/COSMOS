@@ -177,7 +177,7 @@ class RunningScript
     end
   end
 
-  def self.spawn(scope, name, testRunner = nil, disconnect = false)
+  def self.spawn(scope, name, suiteRunner = nil, disconnect = false)
     runner_path = File.join(RAILS_ROOT, 'scripts', 'run_script.rb')
     id = Cosmos::Store.incr('running-script-id')
     if RUBY_ENGINE != 'ruby'
@@ -193,7 +193,7 @@ class RunningScript
     details[:state] = :spawning
     details[:line_no] = 1
     details[:update_time] = start_time.to_s
-    details[:test_runner] = testRunner.to_json if testRunner
+    details[:suite_runner] = suiteRunner.to_json if suiteRunner
     Cosmos::Store.set("running-script:#{id}", details.to_json)
 
     process = ChildProcess.build(ruby_process_name, runner_path.to_s, id.to_s)

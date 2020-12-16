@@ -250,14 +250,23 @@ export default {
       }
     },
   },
+  created() {
+    this.initSuites()
+  },
   // Watch the suiteMap so we can recreate the suites and set the initial value
   watch: {
-    suiteMap: function (newVal, oldVal) {
-      this.suites = Object.keys(this.suiteMap)
-      this.suiteChanged(this.suites[0])
+    suiteMap: {
+      handler: function (newVal, oldVal) {
+        this.initSuites()
+      },
+      deep: true, // Deep watcher because suiteMap is a nested Object
     },
   },
   methods: {
+    initSuites() {
+      this.suites = Object.keys(this.suiteMap)
+      this.suiteChanged(this.suites[0])
+    },
     suiteChanged(event) {
       this.suite = event
       this.group = ''
