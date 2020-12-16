@@ -231,7 +231,7 @@ export default {
       if (
         this.suite &&
         this.group &&
-        this.suiteMap[this.suite].tests[this.group].setup
+        this.suiteMap[this.suite].groups[this.group].setup
       ) {
         return true
       } else {
@@ -242,7 +242,7 @@ export default {
       if (
         this.suite &&
         this.group &&
-        this.suiteMap[this.suite].tests[this.group].teardown
+        this.suiteMap[this.suite].groups[this.group].teardown
       ) {
         return true
       } else {
@@ -271,14 +271,14 @@ export default {
       this.suite = event
       this.group = ''
       this.script = ''
-      this.groups = Object.keys(this.suiteMap[event].tests)
+      this.groups = Object.keys(this.suiteMap[event].groups)
       // Make the group default be the first group
       this.groupChanged(this.groups[0])
     },
     groupChanged(event) {
       this.group = event
       this.script = ''
-      this.scripts = this.suiteMap[this.suite].tests[event].cases
+      this.scripts = this.suiteMap[this.suite].groups[event].scripts
       // Make the script default be the first
       this.scriptChanged(this.scripts[0])
     },

@@ -261,7 +261,7 @@ class RunningScript
       require temp.path
       temp.delete
       load_utility(name)
-      Cosmos::TestRunner.build_test_suites
+      Cosmos::TestRunner.build_suites
     end
   end
 

@@ -365,7 +365,7 @@ export default {
         // Useful for testing the various options in the SuiteRunner GUI
         // Suite: {
         //   teardown: true,
-        //   tests: {
+        //   groups: {
         //     Group: {
         //       setup: true,
         //       cases: ['case1', 'case2', 'really_long_test_case_name3'],

@@ -4,12 +4,12 @@ require 'cosmos/tools/test_runner/test'
 require 'cosmos/tools/test_runner/results_writer'
 
 module Cosmos
-  # Placeholder for all tests discovered without assigned Suites
+  # Placeholder for all Groups discovered without assigned Suites
   class UnassignedSuite < Suite
   end
 
   class TestRunner
-    @@test_suites = []
+    @@suites = []
     @@settings = {}
     @@results_writer = nil
 
@@ -23,16 +23,16 @@ module Cosmos
       @@results_writer
     end
 
-    def self.exec_test(result_string, test_suite_class, test_class = nil, test_case = nil)
+    def self.exec(result_string, suite_class, group_class = nil, script = nil)
       @@results_writer = ResultsWriter.new
       # @@started_success = false
-      @@test_suites.each do |test_suite|
-        if test_suite.class == test_suite_class
+      @@suites.each do |suite|
+        if suite.class == suite_class
           # @@started_success = @@results_writer.collect_metadata(@@instance)
           # if @@started_success
-            @@results_writer.start(result_string, test_suite_class, test_class, test_case, @@settings)
+            @@results_writer.start(result_string, suite_class, group_class, script, @@settings)
             loop do
-              yield(test_suite)
+              yield(suite)
               break if not @@settings['Loop'] or (ScriptStatus.instance.fail_count > 0 and @@settings['Break Loop On Error'])
             end
           # end
@@ -41,27 +41,27 @@ module Cosmos
       end
     end
 
-    def self.start(test_suite_class, test_class = nil, test_case = nil)
+    def self.start(suite_class, group_class = nil, script = nil)
       result = []
-      exec_test('', test_suite_class, test_class, test_case) do |test_suite|
-        if test_case
-          result = test_suite.run_script(test_class, test_case)
+      exec('', suite_class, group_class, script) do |suite|
+        if script
+          result = suite.run_script(group_class, script)
           @@results_writer.process_result(result)
           raise StopScript if (result.exceptions and Group.abort_on_exception) or result.stopped
-        elsif test_class
-          test_suite.run_group(test_class) { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
+        elsif group_class
+          suite.run_group(group_class) { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
         else
-          test_suite.run { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
+          suite.run { |current_result| @@results_writer.process_result(current_result); raise StopScript if current_result.stopped }
         end
       end
     end
 
-    def self.setup(test_suite_class, test_class = nil)
-      exec_test('Manual Setup', test_suite_class, test_class) do |test_suite|
-        if test_class
-          result = test_suite.run_group_setup(test_class)
+    def self.setup(suite_class, group_class = nil)
+      exec('Manual Setup', suite_class, group_class) do |suite|
+        if group_class
+          result = suite.run_group_setup(group_class)
         else
-          result = test_suite.run_setup
+          result = suite.run_setup
         end
         if result
           @@results_writer.process_result(result)
@@ -70,12 +70,12 @@ module Cosmos
       end
     end
 
-    def self.teardown(test_suite_class, test_class = nil)
-      exec_test('Manual Teardown', test_suite_class, test_class) do |test_suite|
-        if test_class
-          result = test_suite.run_group_teardown(test_class)
+    def self.teardown(suite_class, group_class = nil)
+      exec('Manual Teardown', suite_class, group_class) do |suite|
+        if group_class
+          result = suite.run_group_teardown(group_class)
         else
-          result = test_suite.run_teardown
+          result = suite.run_teardown
         end
         if result
           @@results_writer.process_result(result)
@@ -100,42 +100,15 @@ module Cosmos
       hash
     end
 
-    def self.build_test_suites
+    # Build list of Suites and Groups
+    def self.build_suites
+      @@suites = []
+      # @@suites = @@suites.select { |my_suite| my_suite.name == 'CustomSuite' }
       suites = {}
-      ignored_test_classes = []
-      ignored_test_suite_classes = []
-
-      # @ignore_tests.each do |test_name|
-      #   begin
-      #     klass = Object.const_get(test_name)
-      #     ignored_test_classes << klass if klass
-      #   rescue
-      #   end
-      # end
-
-      # @ignore_test_suites.each do |test_suite_name|
-      #   begin
-      #     klass = Object.const_get(test_suite_name)
-      #     ignored_test_suite_classes << klass if klass
-      #   rescue
-      #   end
-      # end
-
-      # Build list of Suites and Groups
-      @@test_suites = @@test_suites.select {|my_suite| my_suite.name == 'CustomSuite'}
-      tests = []
+      groups = []
       ObjectSpace.each_object(Class) do |object|
-        begin
-          next if object.name == 'CustomSuite'
-          ancestors = object.ancestors
-        rescue
-          # Ignore Classes where name or ancestors may raise exception
-          # Bundler::Molinillo::DependencyGraph::Action is one example
-          next
-        end
-        if (ancestors.include?(Suite) &&
-            object != Suite && object != TestSuite && # TestSuite is the deprecated version of Suite
-            !ignored_test_suite_classes.include?(object))
+        # If we inherit from Suite but aren't Suite or the deprecated TestSuite
+        if object <= Suite && object != Suite && object != TestSuite
           # Ensure they didn't override name for some reason
           if object.instance_methods(false).include?(:name)
             raise FatalError.new("#{object} redefined the 'name' method. Delete the 'name' method and try again.")
@@ -143,86 +116,78 @@ module Cosmos
           # ObjectSpace.each_object appears to yield objects in the reverse
           # order that they were parsed by the interpreter so push each
           # Suite object to the front of the array to order as encountered
-          @@test_suites.unshift(object.new)
+          @@suites.unshift(object.new)
         end
-        if (ancestors.include?(Group) &&
-            object != Group && object != Test && # Test is the deprecated version of Group
-            !ignored_test_classes.include?(object))
+        # If we inherit from Group but aren't Group or the deprecated Test
+        if object <= Group && object != Group && object != Test
           # Ensure they didn't override self.name for some reason
           if object.methods(false).include?(:name)
             raise FatalError.new("#{object} redefined the 'self.name' method. Delete the 'self.name' method and try again.")
           end
-          tests << object
+          groups << object
         end
       end
-      # Raise error if no test suites or tests
-      if @@test_suites.empty? || tests.empty?
-        msg = "No Suite or no Group classes found"
-        if !ignored_test_suite_classes.empty?
-          msg << "\n\nThe following Suites were found but ignored:\n#{ignored_test_suite_classes.join(", ")}"
-        end
-        if !ignored_test_classes.empty?
-          msg << "\n\nThe following Groups were found but ignored:\n#{ignored_test_classes.join(", ")}"
-        end
-        return msg
+      # Raise error if no suites or groups
+      if @@suites.empty? || groups.empty?
+        return "No Suite or no Group classes found"
       end
 
-      # Create Suite for unassigned Tests
-      @@test_suites.each do |test_suite|
-        tests_to_delete = []
-        tests.each { |test| tests_to_delete << test if test_suite.scripts[test] }
-        tests_to_delete.each { |test| tests.delete(test) }
+      # Create Suite for unassigned Groups
+      @@suites.each do |suite|
+        groups_to_delete = []
+        groups.each { |group| groups_to_delete << group if suite.scripts[group] }
+        groups_to_delete.each { |group| groups.delete(group) }
       end
-      if tests.empty?
-        @@test_suites = @@test_suites.select {|suite| suite.class != UnassignedSuite}
+      if groups.empty?
+        @@suites = @@suites.select {|suite| suite.class != UnassignedSuite}
       else
-        uts = @@test_suites.select {|suite| suite.class == UnassignedSuite}[0]
-        tests.each { |test| uts.add_group(test) }
+        unassigned_suite = @@suites.select {|suite| suite.class == UnassignedSuite}[0]
+        groups.each { |group| unassigned_suite.add_group(group) }
       end
 
-      @@test_suites.each do |suite|
-        cur_suite = OpenStruct.new(:setup=>false, :teardown=>false, :tests=>{})
+      @@suites.each do |suite|
+        cur_suite = OpenStruct.new(:setup=>false, :teardown=>false, :groups=>{})
         cur_suite.setup = true if suite.class.method_defined?(:setup)
         cur_suite.teardown = true if suite.class.method_defined?(:teardown)
 
-        suite.plans.each do |test_type, test_class, test_case|
-          case test_type
+        suite.plans.each do |type, group_class, script|
+          case type
           when :GROUP
-            cur_suite.tests[test_class.name] ||=
-              OpenStruct.new(:setup=>false, :teardown=>false, :cases=>[])
-            cur_suite.tests[test_class.name].cases.concat(test_class.scripts)
-            cur_suite.tests[test_class.name].cases.uniq!
-            cur_suite.tests[test_class.name].setup = true if test_class.method_defined?(:setup)
-            cur_suite.tests[test_class.name].teardown = true if test_class.method_defined?(:teardown)
+            cur_suite.groups[group_class.name] ||=
+              OpenStruct.new(:setup=>false, :teardown=>false, :scripts=>[])
+            cur_suite.groups[group_class.name].scripts.concat(group_class.scripts)
+            cur_suite.groups[group_class.name].scripts.uniq!
+            cur_suite.groups[group_class.name].setup = true if group_class.method_defined?(:setup)
+            cur_suite.groups[group_class.name].teardown = true if group_class.method_defined?(:teardown)
           when :SCRIPT
-            cur_suite.tests[test_class.name] ||=
-              OpenStruct.new(:setup=>false, :teardown=>false, :cases=>[])
+            cur_suite.groups[group_class.name] ||=
+              OpenStruct.new(:setup=>false, :teardown=>false, :scripts=>[])
             # Explicitly check for this method and raise an error if it does not exist
-            if test_class.method_defined?(test_case.intern)
-              cur_suite.tests[test_class.name].cases << test_case
-              cur_suite.tests[test_class.name].cases.uniq!
+            if group_class.method_defined?(script.intern)
+              cur_suite.groups[group_class.name].scripts << script
+              cur_suite.groups[group_class.name].scripts.uniq!
             else
-              raise "#{test_class} does not have a #{test_case} method defined."
+              raise "#{group_class} does not have a #{script} method defined."
             end
-            cur_suite.tests[test_class.name].setup = true if test_class.method_defined?(:setup)
-            cur_suite.tests[test_class.name].teardown = true if test_class.method_defined?(:teardown)
+            cur_suite.groups[group_class.name].setup = true if group_class.method_defined?(:setup)
+            cur_suite.groups[group_class.name].teardown = true if group_class.method_defined?(:teardown)
           when :GROUP_SETUP
-            cur_suite.tests[test_class.name] ||=
-              OpenStruct.new(:setup=>false, :teardown=>false, :cases=>[])
+            cur_suite.groups[group_class.name] ||=
+              OpenStruct.new(:setup=>false, :teardown=>false, :scripts=>[])
             # Explicitly check for the setup method and raise an error if it does not exist
-            if test_class.method_defined?(:setup)
-              cur_suite.tests[test_class.name].setup = true
+            if group_class.method_defined?(:setup)
+              cur_suite.groups[group_class.name].setup = true
             else
-              raise "#{test_class} does not have a setup method defined."
+              raise "#{group_class} does not have a setup method defined."
             end
           when :GROUP_TEARDOWN
-            cur_suite.tests[test_class.name] ||=
-              OpenStruct.new(:setup=>false, :teardown=>false, :cases=>[])
+            cur_suite.groups[group_class.name] ||=
+              OpenStruct.new(:setup=>false, :teardown=>false, :scripts=>[])
             # Explicitly check for the teardown method and raise an error if it does not exist
-            if test_class.method_defined?(:teardown)
-              cur_suite.tests[test_class.name].teardown = true
+            if group_class.method_defined?(:teardown)
+              cur_suite.groups[group_class.name].teardown = true
             else
-              raise "#{test_class} does not have a teardown method defined."
+              raise "#{group_class} does not have a teardown method defined."
             end
           end
         end
