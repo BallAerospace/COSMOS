@@ -32,9 +32,9 @@ module Cosmos
     def initialize
       # Start a JsonDRbObject to connect to the server
       if $cmd_tlm_replay_mode
-        @cmd_tlm_server = JsonDRbObject.new(ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'localhost', 7777) # System.connect_hosts['REPLAY_API'], System.ports['REPLAY_API'])
+        @cmd_tlm_server = JsonDRbObject.new(ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-cmd-tlm-api', 7777) # System.connect_hosts['REPLAY_API'], System.ports['REPLAY_API'])
       else
-        @cmd_tlm_server = JsonDRbObject.new(ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'localhost', 7777) # System.connect_hosts['CTS_API'], System.ports['CTS_API'])
+        @cmd_tlm_server = JsonDRbObject.new(ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-cmd-tlm-api', 7777) # System.connect_hosts['CTS_API'], System.ports['CTS_API'])
       end
     end
 

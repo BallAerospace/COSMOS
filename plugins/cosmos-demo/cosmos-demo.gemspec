@@ -22,10 +22,11 @@ spec = Gem::Specification.new do |s|
 
   s.platform = Gem::Platform::RUBY
 
+  time = Time.now.strftime("%Y%m%d%H%M%S")
   if ENV['VERSION']
-    s.version = ENV['VERSION'].dup
+    s.version = ENV['VERSION'].dup + ".#{time}"
   else
-    s.version = '0.0.0'
+    s.version = '0.0.0' + ".#{time}"
   end
   s.license = 'GPL-3.0'
 
