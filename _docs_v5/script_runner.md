@@ -41,7 +41,7 @@ When saving a file for the first time, or using File Save As, the File Save As D
 
 <!-- Image sized to match up with bullets -->
 
-<img src="/img/v5/script_runner/Script_menu.png"
+<img src="/img/v5/script_runner/script_menu.png"
      alt="Script Menu"
      style="float: left; margin-right: 50px; height: 230px;" />
 
