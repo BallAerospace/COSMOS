@@ -163,7 +163,7 @@ export default {
     })
   },
   watch: {
-    mode: function (val) {
+    mode: function (newVal, oldVal) {
       this.updatePackets()
       this.itemNames = []
     },

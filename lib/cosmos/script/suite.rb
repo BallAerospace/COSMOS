@@ -358,11 +358,13 @@ module Cosmos
             RunningScript.instance.exceptions = nil
           end
         rescue StandardError, SyntaxError => error
-          if error.class == StopScript
+          # Check that the error belongs to the StopScript inheritance chain
+          if error.class <= StopScript
             result.stopped = true
             result.result  = :STOP
           end
-          if error.class == SkipScript
+          # Check that the error belongs to the SkipScript inheritance chain
+          if error.class <= SkipScript
             result.result  = :SKIP
             result.message ||= ''
             result.message << error.message + "\n"

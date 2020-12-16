@@ -664,7 +664,7 @@ class RunningScript
   end
 
   def exception_instrumentation(error, filename, line_number)
-    if error.class == Cosmos::StopScript || error.class == Cosmos::SkipScript || !@use_instrumentation
+    if error.class <= Cosmos::StopScript || error.class <= Cosmos::SkipScript || !@use_instrumentation
       raise error
     elsif !error.eql?(@@error)
       line_number = line_number + @line_offset #if @active_script.object_id == @script.object_id
@@ -1099,7 +1099,7 @@ class RunningScript
         handle_output_io()
 
       rescue Exception => error
-        if error.class == Cosmos::StopScript or error.class == Cosmos::SkipScript
+        if error.class <= Cosmos::StopScript or error.class <= Cosmos::SkipScript
           scriptrunner_puts "Script stopped: #{File.basename(@filename)}"
           handle_output_io()
         else

@@ -250,8 +250,12 @@ export default {
       }
     },
   },
-  created() {
-    this.suites = Object.keys(this.suiteMap)
+  // Watch the suiteMap so we can recreate the suites and set the initial value
+  watch: {
+    suiteMap: function (newVal, oldVal) {
+      this.suites = Object.keys(this.suiteMap)
+      this.suiteChanged(this.suites[0])
+    },
   },
   methods: {
     suiteChanged(event) {

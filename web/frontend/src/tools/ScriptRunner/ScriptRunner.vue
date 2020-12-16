@@ -790,21 +790,19 @@ export default {
     },
     // Called by the FileOpenDialog to set the file contents
     setFile(file) {
+      this.testRunner = false
       this.fileName = file.name
       this.editor.session.setValue(file.contents)
       this.fileModified = ''
       if (file.suites) {
         if (typeof file.suites === 'string') {
-          this.testRunner = false
           this.alertType = 'warning'
           this.alertText =
             'Processing ' + this.fileName + ' resulted in: ' + file.suites
         } else {
-          this.testRunner = true
           this.suiteMap = file.suites
+          this.testRunner = true
         }
-      } else {
-        this.testRunner = false
       }
     },
     // saveFile takes a type to indicate if it was called by the Menu

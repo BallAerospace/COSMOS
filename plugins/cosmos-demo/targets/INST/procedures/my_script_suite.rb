@@ -19,6 +19,11 @@ class ExampleGroup < Cosmos::Group
     wait(2)
   end
 
+  def script_3
+    puts "Running #{Cosmos::Group.current_suite}:#{Cosmos::Group.current_group}:#{Cosmos::Group.current_script}"
+    raise SkipScript
+  end
+
   def helper
     if $manual
       answer = ask "Are you sure?"

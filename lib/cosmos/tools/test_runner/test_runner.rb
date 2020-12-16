@@ -134,7 +134,7 @@ module Cosmos
           next
         end
         if (ancestors.include?(Suite) &&
-            object != Suite &&
+            object != Suite && object != TestSuite && # TestSuite is the deprecated version of Suite
             !ignored_test_suite_classes.include?(object))
           # Ensure they didn't override name for some reason
           if object.instance_methods(false).include?(:name)
@@ -146,7 +146,7 @@ module Cosmos
           @@test_suites.unshift(object.new)
         end
         if (ancestors.include?(Group) &&
-            object != Group &&
+            object != Group && object != Test && # Test is the deprecated version of Group
             !ignored_test_classes.include?(object))
           # Ensure they didn't override self.name for some reason
           if object.methods(false).include?(:name)

@@ -19,6 +19,11 @@ class ExampleTest < Cosmos::Test
     wait(2)
   end
 
+  def test_3
+    puts "Running #{Cosmos::Test.current_test_suite}:#{Cosmos::Test.current_test}:#{Cosmos::Test.current_test_case}"
+    raise SkipTestCase
+  end
+
   def helper
     if $manual
       answer = ask "Are you sure?"
