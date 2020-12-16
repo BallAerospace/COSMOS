@@ -3,19 +3,14 @@ class ScriptsController < ApplicationController
     render :json => Script.all(params[:scope])
   end
 
-  # def show
-  #   script = Script.find(params[:scope], params[:name])
-  #   if script
-  #     render :json => script
-  #   else
-  #     head :not_found
-  #   end
-  # end
-
   def body
     file = Script.body(params[:scope], params[:name])
     if file
-      render :json => file
+      results = { "contents" => file }
+      if params[:name].include?('suite')
+        results['suites'] = Script.process_suite(params[:name], file)
+      end
+      render :json => results
     else
       head :not_found
     end
@@ -24,7 +19,11 @@ class ScriptsController < ApplicationController
   def create
     success = Script.create(params[:scope], params[:name], params[:text])
     if success
-      head :ok
+      results = {}
+      if params[:name].include?('suite')
+        results['suites'] = Script.process_suite(params[:name], params[:text])
+      end
+      render :json => results
     else
       head :error
     end

@@ -1,6 +1,4 @@
-require 'cosmos/script'
 require 'cosmos/script/suite'
-require 'cosmos/script/suite_runner'
 require 'cosmos/script/suite_results'
 require 'cosmos/tools/test_runner/test'
 
@@ -108,8 +106,8 @@ module Cosmos
       suites = {}
       groups = []
       ObjectSpace.each_object(Class) do |object|
-        # If we inherit from Suite but aren't Suite or the deprecated TestSuite
-        if object <= Suite && object != Suite && object != TestSuite
+        # If we inherit from Suite but aren't the deprecated TestSuite
+        if object < Suite && object != TestSuite
           # Ensure they didn't override name for some reason
           if object.instance_methods(false).include?(:name)
             raise FatalError.new("#{object} redefined the 'name' method. Delete the 'name' method and try again.")
@@ -119,8 +117,8 @@ module Cosmos
           # Suite object to the front of the array to order as encountered
           @@suites.unshift(object.new)
         end
-        # If we inherit from Group but aren't Group or the deprecated Test
-        if object <= Group && object != Group && object != Test
+        # If we inherit from Group but aren't the deprecated Test
+        if object < Group && object != Test
           # Ensure they didn't override self.name for some reason
           if object.methods(false).include?(:name)
             raise FatalError.new("#{object} redefined the 'self.name' method. Delete the 'self.name' method and try again.")

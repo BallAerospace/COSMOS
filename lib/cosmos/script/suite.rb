@@ -8,7 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos'
+require 'cosmos/core_ext/stringio'
 require 'cosmos/io/stderr'
 require 'cosmos/io/stdout'
 

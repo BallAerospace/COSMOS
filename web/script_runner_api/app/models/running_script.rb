@@ -50,7 +50,7 @@ module Cosmos
           Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text }))
         else
           # Retrieve file
-          text = ::Script.body(RunningScript.instance.scope, procedure_name)['contents']
+          text = ::Script.body(RunningScript.instance.scope, procedure_name)
           #ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
           Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text }))
 
@@ -250,18 +250,14 @@ class RunningScript
     Cosmos::Store.set("running-script:#{id}", @details.to_json)
 
     # Retrieve file
-    @body = ::Script.body(@scope, name)['contents']
-    #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: @filename, scope: @scope, text: @body })
-    Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: @filename, scope: @scope, text: @body }))
-
+    @body = ::Script.body(@scope, name)
+    Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"),
+                          JSON.generate({ type: :file, filename: @filename, scope: @scope, text: @body }))
     if name.include?("suite")
-      temp = Tempfile.new(['suite', '.rb'])
-      temp.write(@body)
-      temp.close
-      require temp.path
-      temp.delete
+      # Process the suite file in this context so we can load it
+      ::Script.process_suite(name, @body, new_process: false)
+      # Call load_utility to parse the suite and allow for individual methods to be executed
       load_utility(name)
-      Cosmos::SuiteRunner.build_suites
     end
   end
 
@@ -1312,7 +1308,7 @@ class RunningScript
       # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: filename, text: @body })
       Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: filename, text: @body }))
     else
-      text = ::Script.body(@scope, filename)['contents']
+      text = ::Script.body(@scope, filename)
       @@file_cache[filename] = text
       @body = text
       # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: filename, text: @body })

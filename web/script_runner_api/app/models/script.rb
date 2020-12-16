@@ -31,31 +31,36 @@ class Script
     result.sort
   end
 
-  # def self.find(scope, name)
-  #   rubys3_client = Aws::S3::Client.new
-  #   resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: name)
-  #   return {"name" => "test.rb"}
-  # end
-
   def self.body(scope, name)
     rubys3_client = Aws::S3::Client.new
     resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{name}")
-    contents = resp.body.read
-    if name.include?("suite")
-      temp = Tempfile.new(['suite', '.rb'])
-      temp.write(contents)
-      temp.close
-      # We open a new ruby process so as to not pollute the API with require
+    resp.body.read
+  end
+
+  def self.process_suite(name, contents, new_process: true)
+    start = Time.now
+    temp = Tempfile.new(['suite', '.rb'])
+    # Remove any carriage returns which ruby doesn't like
+    temp.write(contents.gsub(/\r/," "))
+    temp.close
+    # We open a new ruby process so as to not pollute the API with require
+    results = nil
+    if new_process
       check_process = IO.popen("ruby 2>&1", 'r+')
       check_process.write("require 'json'; require 'cosmos/script/suite_runner'; require '#{temp.path}'; puts Cosmos::SuiteRunner.build_suites.to_json")
       check_process.close_write
       results = check_process.readlines
       check_process.close
-      temp.delete
-      # Return the last result to avoid any warnings as the file is parsed
-      return { "contents" => contents, "suites" => results[-1] }
     else
-      return { "contents" => contents }
+      require temp.path
+      Cosmos::SuiteRunner.build_suites
+    end
+    temp.delete
+    puts "Processed #{name} in #{Time.now - start} seconds"
+    if results
+      puts "Results: #{results}"
+      # Return the last result to avoid any warnings as the file is parsed
+      return results[-1]
     end
   end
 

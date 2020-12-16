@@ -829,6 +829,9 @@ export default {
           })
           .then((response) => {
             if (response.status == 200) {
+              if (response.data.suites) {
+                this.suiteMap = JSON.parse(response.data.suites)
+              }
               this.fileModified = ''
             } else {
               this.alertType = 'error'
