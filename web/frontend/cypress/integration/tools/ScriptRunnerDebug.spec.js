@@ -4,7 +4,7 @@ describe('ScriptRunner Debug', () => {
     cy.get('#editor').type('if{enter}end{enter}end{enter}')
     cy.get('.v-toolbar').contains('Script').click()
     cy.contains('Ruby Syntax Check').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('Syntax Check Failed')
       cy.contains('unexpected `end')
@@ -23,7 +23,7 @@ describe('ScriptRunner Debug', () => {
     cy.get('#editor').type('if{enter}end{enter}end{enter}')
     cy.get('.v-toolbar').contains('Script').click()
     cy.contains('Ruby Syntax Check').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('Syntax Check Failed')
       cy.contains('unexpected `end')
@@ -138,7 +138,7 @@ describe('ScriptRunner Debug', () => {
 
     cy.get('.v-toolbar').contains('Script').click()
     cy.contains('Show Call Stack').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Call Stack')
       cy.get('.row').eq(0).contains('in `two') // Top of the stack is two()
       cy.get('.row').eq(1).contains('in `one') // then one()
@@ -153,13 +153,9 @@ describe('ScriptRunner Debug', () => {
     cy.get('.v-toolbar').contains('Script').click()
     cy.contains('Toggle Disconnect').click()
     // Specify the icon inside the header since the menu has the same icon!
-    cy.get('#header').within(() => {
-      cy.get('.v-icon.mdi-connection').should('be.visible')
-    })
+    cy.get('.v-icon.mdi-connection').should('be.visible')
     cy.get('.v-toolbar').contains('Script').click()
     cy.contains('Toggle Disconnect').click()
-    cy.get('#header').within(() => {
-      cy.get('.v-icon.mdi-connection').should('not.exist')
-    })
+    cy.get('.v-icon.mdi-connection').should('not.be.visible')
   })
 })

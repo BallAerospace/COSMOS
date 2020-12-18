@@ -62,7 +62,7 @@ describe('CmdTlmServer TlmPackets', () => {
         cy.get('td').eq(0).contains('INST')
         cy.get('td').eq(3).click()
       })
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Raw Telemetry Packet: INST HEALTH_STATUS')
       cy.contains(/Packet Time: \d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/)
       cy.contains(/Received Time: \d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/)
@@ -72,34 +72,34 @@ describe('CmdTlmServer TlmPackets', () => {
     })
     cy.wait(1500)
     cy.get('@textArea').then((value) => {
-      cy.get('.v-dialog textarea')
+      cy.get('.v-dialog:visible textarea')
         .invoke('val')
         .then((textarea) => {
           expect(value).to.not.eq(textarea)
         })
     })
-    cy.get('.v-dialog').contains('Pause').click()
+    cy.get('.v-dialog:visible').contains('Pause').click()
     cy.wait(1000) // Give it a bit to actually Pause
     // Ensure it has paused the output
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.get('textarea').invoke('val').as('textArea')
     })
     cy.wait(1500)
     cy.get('@textArea').then((value) => {
-      cy.get('.v-dialog textarea')
+      cy.get('.v-dialog:visible textarea')
         .invoke('val')
         .then((textarea) => {
           expect(value).to.eq(textarea)
         })
     })
     // Resume the updates
-    cy.get('.v-dialog').contains('Resume').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').contains('Resume').click()
+    cy.get('.v-dialog:visible').within(() => {
       cy.get('textarea').invoke('val').as('textArea')
     })
     cy.wait(1500)
     cy.get('@textArea').then((value) => {
-      cy.get('.v-dialog textarea')
+      cy.get('.v-dialog:visible textarea')
         .invoke('val')
         .then((textarea) => {
           expect(value).to.not.eq(textarea)

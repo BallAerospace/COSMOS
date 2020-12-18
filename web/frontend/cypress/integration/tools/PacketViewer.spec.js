@@ -65,7 +65,7 @@ describe('PacketViewer', () => {
       .eq(2)
       .rightclick()
     cy.contains('Details').click()
-    cy.get('.v-dialog').contains('INST HEALTH_STATUS TEMP1')
+    cy.get('.v-dialog:visible').contains('INST HEALTH_STATUS TEMP1')
   })
   it('stops posting to the api after closing', () => {
     // Override the fail handler to catch the expected fail
@@ -100,10 +100,10 @@ describe('PacketViewer', () => {
     cy.contains('TEMP1')
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Options').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.get('input').clear().type('5000')
     })
-    cy.get('.v-dialog').type('{esc}')
+    cy.get('.v-dialog:visible').type('{esc}')
     cy.wait(1000)
     aliasItemValue('TEMP1')
     cy.get('@itemValue').then((value) => {

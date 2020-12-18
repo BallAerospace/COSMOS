@@ -41,7 +41,7 @@ describe('CommandSender', () => {
     cy.hideNav()
     cy.selectTargetPacketItem('EXAMPLE', 'START')
     cy.get('button').contains('Send').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Error')
       cy.get('button').click()
     })
@@ -95,12 +95,12 @@ describe('CommandSender', () => {
     cy.hideNav()
     cy.contains('Clears counters')
     cy.get('button').contains('Send').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('No').click()
     })
     cy.contains('Hazardous command not sent')
     cy.get('button').contains('Send').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Yes').click()
     })
     cy.contains('("INST CLEAR") sent')
@@ -111,7 +111,7 @@ describe('CommandSender', () => {
     cy.hideNav()
     cy.contains('Starts a collect')
     cy.get('button').contains('Send').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       // TODO: Make this clearer with 'TYPE is required'
       cy.contains('Error sending')
       cy.get('button').click()
@@ -123,12 +123,12 @@ describe('CommandSender', () => {
     cy.contains('Starts a collect')
     selectValue('TYPE', 'SPECIAL')
     cy.get('button').contains('Send').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('No').click()
     })
     cy.contains('Hazardous command not sent')
     cy.get('button').contains('Send').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Yes').click()
     })
     cy.contains(
@@ -154,7 +154,7 @@ describe('CommandSender', () => {
     cy.contains('array parameter')
     setValue('ARRAY', '10')
     cy.get('button').contains('Send').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('must be an Array')
       cy.get('button').click()
     })
@@ -176,16 +176,15 @@ describe('CommandSender', () => {
     cy.contains('Starts a collect')
     cy.contains('TYPE').rightclick()
     cy.contains('Details').click()
-    cy.get('.v-dialog').contains('INST COLLECT TYPE')
-    cy.get('.v-dialog').type('{esc}')
-    cy.get('.v-dialog').should('not.be.visible')
+    cy.get('.v-dialog:visible').contains('INST COLLECT TYPE')
+    cy.get('.v-dialog:visible').type('{esc}')
   })
   it('executes commands from history', () => {
     cy.visit('/command-sender')
     cy.hideNav()
     cy.selectTargetPacketItem('INST', 'CLEAR')
     cy.get('button').contains('Send').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Yes').click()
     })
     cy.contains('cmd("INST CLEAR") sent.')
@@ -193,13 +192,13 @@ describe('CommandSender', () => {
     // Re-execute the command from the history
     cy.get('[data-test=sender-history]').click().type('{uparrow}{enter}')
     // Should still get the hazardous warning dialog
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Yes').click()
     })
     // Now history says it was sent twice (2)
     cy.contains('cmd("INST CLEAR") sent. (2)')
     cy.get('[data-test=sender-history]').click().type('{uparrow}{enter}')
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Yes').click()
     })
     // Now history says it was sent three times (3)
@@ -265,7 +264,7 @@ describe('CommandSender', () => {
       })
     cy.get('button').contains('Send').click()
     // Dialog should pop up with error
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('not in valid range')
       cy.get('button').click() // Acknowledge the dialog
     })

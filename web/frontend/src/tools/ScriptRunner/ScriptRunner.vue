@@ -555,8 +555,8 @@ export default {
     },
     startOrGo(event, suiteRunner = null) {
       if (this.startOrGoButton === 'Start') {
-        if (this.fileModified.length > 0) {
-          this.saveFile('start') // Save first or they'll be running old code
+        if (this.filename === NEW_FILENAME || this.fileModified.length > 0) {
+          this.saveFile('start')
         }
 
         let filename = this.filename
@@ -790,7 +790,7 @@ export default {
           break
         case 'backtrace':
           this.infoTitle = 'Call Stack'
-          this.infoText = JSON.parse(data.args)
+          this.infoText = data.args
           this.infoDialog = true
           break
         default:
@@ -807,6 +807,7 @@ export default {
       this.editor.session.setValue('')
       this.fileModified = ''
       this.suiteRunner = false
+      this.startOrGoDisabled = false
     },
     openFile() {
       this.fileOpen = true
@@ -855,6 +856,7 @@ export default {
           .then((response) => {
             if (response.status == 200) {
               if (response.data.suites) {
+                this.suiteRunner = true
                 this.suiteMap = JSON.parse(response.data.suites)
               }
               this.fileModified = ''

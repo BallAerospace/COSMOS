@@ -29,11 +29,10 @@ describe('CmdTlmServer', () => {
     cy.contains('TEMP1')
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Options').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.get('input').clear().type('5000')
     })
-    cy.get('.v-dialog').type('{esc}')
-    cy.get('.v-dialog').should('not.be.visible')
+    cy.get('.v-dialog:visible').type('{esc}')
 
     cy.get('[data-test=interfaces-table]')
       .contains('INST_INT')

@@ -60,7 +60,7 @@ describe('TlmGrapher', () => {
     cy.wait(2000) // Wait for graphing to occur
     cy.get('.v-toolbar').contains('Plot').click()
     cy.contains('Edit Plot').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.get('input').clear().type('My New Title')
       cy.contains('INST HEALTH_STATUS TEMP1')
         .parent()
@@ -69,7 +69,6 @@ describe('TlmGrapher', () => {
         })
       cy.contains('Ok').click()
     })
-    cy.get('.v-dialog').should('not.be.visible')
     cy.contains('My New Title')
       .parents('.v-card')
       .eq(0)
@@ -121,27 +120,27 @@ describe('TlmGrapher', () => {
     let config = 'spec' + Math.floor(Math.random() * 10000)
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save Configuration').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.get('input').clear().type(config)
       cy.contains('Ok').click()
     })
-    cy.get('.v-dialog').should('not.exist')
+    cy.get('.v-dialog:visible').should('not.exist')
     // Verify we get a warning if trying to save over existing
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save Configuration').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.get('input').clear().type(config)
       cy.contains('Ok').click()
       cy.contains("'" + config + "' already exists")
       cy.contains('Cancel').click()
     })
-    cy.get('.v-dialog').should('not.exist')
+    cy.get('.v-dialog:visible').should('not.exist')
     // Totally refresh the page
     cy.visit('/telemetry-grapher')
     cy.hideNav()
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Open Configuration').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       // Try to click OK without anything selected
       cy.contains('Ok').click()
       cy.contains('Select a configuration')
@@ -166,7 +165,7 @@ describe('TlmGrapher', () => {
     // Delete this test configuation
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Open Configuration').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains(config)
         .parents('.v-list-item')
         .eq(0)
@@ -236,7 +235,6 @@ describe('TlmGrapher', () => {
       cy.get('button')
         .eq(3) // Minimize
         .click()
-      cy.get('#chart').should('not.be.visible')
       cy.get('button').eq(3).click()
       cy.get('#chart').should('be.visible')
     })

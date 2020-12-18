@@ -20,11 +20,11 @@ describe('DataExtractor', () => {
     let config = 'spec' + Math.floor(Math.random() * 10000)
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save Configuration').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.get('input').clear().type(config)
       cy.contains('Ok').click()
     })
-    cy.get('.v-dialog').should('not.exist')
+    cy.get('.v-dialog:visible').should('not.exist')
 
     cy.get('[data-test=itemList]').find('.v-list-item').should('have.length', 2)
     cy.get('[data-test=deleteAll]').click()
@@ -32,17 +32,17 @@ describe('DataExtractor', () => {
 
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Open Configuration').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains(config).click()
       cy.contains('Ok').click()
     })
-    cy.get('.v-dialog').should('not.exist')
+    cy.get('.v-dialog:visible').should('not.exist')
     cy.get('[data-test=itemList]').find('.v-list-item').should('have.length', 2)
 
     // Delete this test configuation
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Open Configuration').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains(config)
         .parents('.v-list-item')
         .eq(0)
@@ -51,7 +51,7 @@ describe('DataExtractor', () => {
         })
       cy.contains('Cancel').click()
     })
-    cy.get('.v-dialog').should('not.exist')
+    cy.get('.v-dialog:visible').should('not.exist')
   })
 
   it('validates dates and times', function () {
@@ -200,14 +200,14 @@ describe('DataExtractor', () => {
       .find('button')
       .first()
       .click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.get('label').contains('Value Type').click({ force: true })
     })
     cy.get('.v-list-item__title').contains('RAW').click()
     cy.contains('INST - ADCS - CCSDSSHF (RAW)')
     // TODO: Hack to close the dialog ... shouldn't be necessary if Vuetify focuses the dialog
     // see https://github.com/vuetifyjs/vuetify/issues/11257
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.get('input').first().focus().type('{esc}', { force: true })
     })
     cy.contains('Process').click({ force: true })
@@ -330,7 +330,7 @@ describe('DataExtractor', () => {
     )
   })
 
-  it('fills values', function () {
+  it.only('fills values', function () {
     const start = sub(new Date(), { minutes: 1 })
     cy.visit('/data-extractor')
     cy.hideNav()
@@ -350,8 +350,8 @@ describe('DataExtractor', () => {
         var firstHS = -1
         for (let i = 1; i < lines.length; i++) {
           if (firstHS !== -1) {
-            var [tgt1, pkt1, hs1, adcs1] = lines[firstHS].split(',')
-            var [tgt2, pkt2, hs2, adcs2] = lines[i].split(',')
+            var [tgt1, pkt1, adcs1, hs1] = lines[firstHS].split(',')
+            var [tgt2, pkt2, adcs2, hs2] = lines[i].split(',')
             expect(tgt1).to.eq(tgt2) // Both INST
             expect(pkt1).to.eq('HEALTH_STATUS')
             expect(pkt2).to.eq('ADCS')
@@ -362,6 +362,7 @@ describe('DataExtractor', () => {
           }
           // Look for the first line containing HEALTH_STATUS
           if (lines[i].includes('HEALTH_STATUS')) {
+            console.log('Found first HEALTH_STATUS on line ' + i)
             firstHS = i
           }
         }

@@ -68,13 +68,12 @@ describe('LimitsMonitor', () => {
     // Check the menu
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Show Ignored').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       // Find the items and delete them to restore them
       cy.contains('INST HEALTH_STATUS TEMP2').find('button').click()
       cy.contains('INST2 HEALTH_STATUS TEMP2').find('button').click()
       cy.contains('Ok').click()
     })
-    cy.get('.v-dialog').should('not.be.visible')
     // Now we find both items again
     cy.get('[data-test=limits-row]:contains("TEMP2")', {
       timeout: 30000,
@@ -107,7 +106,7 @@ describe('LimitsMonitor', () => {
     // Check the menu
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Show Ignored').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       // Find the existing item and delete it
       cy.contains(/INST\d? PARAMS/)
         .find('button')
@@ -115,7 +114,6 @@ describe('LimitsMonitor', () => {
       cy.contains(/INST\d? PARAMS/).should('not.exist')
       cy.contains('Ok').click()
     })
-    cy.get('.v-dialog').should('not.be.visible')
     // Now we find both items again
     cy.get('[data-test=limits-row]:contains("VALUE2")').should('have.length', 2)
     cy.get('[data-test=limits-row]:contains("VALUE4")').should('have.length', 2)
@@ -195,7 +193,7 @@ describe('LimitsMonitor', () => {
     // Check the menu
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Show Ignored').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       // Verify the ignored items
       cy.contains('INST HEALTH_STATUS')
       cy.contains('INST2 HEALTH_STATUS')
@@ -205,7 +203,6 @@ describe('LimitsMonitor', () => {
       cy.contains('INST2 MECH SLRPNL1')
       cy.contains('Ok').click()
     })
-    cy.get('.v-dialog').should('not.be.visible')
   })
 
   //

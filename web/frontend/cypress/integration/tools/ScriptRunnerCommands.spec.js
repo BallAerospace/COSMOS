@@ -16,12 +16,12 @@ describe('ScriptRunner Commands', () => {
     cy.visit('/script-runner')
     cy.focused().type('cmd("INST CLEAR")')
     cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog', { timeout: 30000 }).within(() => {
+    cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
       cy.contains('No').click()
     })
     cy.get('[data-test=state]').should('have.value', 'paused')
     cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Yes').click()
     })
     cy.get('[data-test=state]').should('have.value', 'stopped')
@@ -74,7 +74,7 @@ describe('ScriptRunner Commands', () => {
       'value = ask("Enter password:")\n' +
         'puts value\n' +
         'value = ask("Optionally enter password:", true)\n' +
-        'puts "blank:#{{}value.blank?}"\n' +
+        'puts "blank:#{{}value.empty?}"\n' +
         'value = ask("Enter default password:", 67890)\n' +
         'puts value\n' +
         'value = ask("Enter SECRET password:", false, true)\n' +
@@ -82,7 +82,7 @@ describe('ScriptRunner Commands', () => {
         'puts value'
     )
     cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog', { timeout: 30000 }).within(() => {
+    cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
       cy.contains('Cancel').click()
     })
     cy.get('[data-test=output-messages]').contains('User input: Cancel')
@@ -90,26 +90,26 @@ describe('ScriptRunner Commands', () => {
 
     // Clicking go re-launches the dialog
     cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       // Since there was no default the Ok button is disabled
       cy.contains('Ok').should('be.disabled')
       cy.get('input').type('12345')
       cy.contains('Ok').click()
     })
     cy.get('[data-test=output-messages]').contains('12345')
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       // Since nothing is required the Ok button is enabled
       cy.contains('Ok').should('be.enabled')
       cy.contains('Ok').click()
     })
     cy.get('[data-test=output-messages]').contains('blank:true')
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       // Verify the default value
       cy.get('input').should('have.value', '67890')
       cy.contains('Ok').click()
     })
     cy.get('[data-test=output-messages]').contains('67890')
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.get('input').type('abc123!')
       cy.contains('Ok').click()
     })
@@ -130,7 +130,7 @@ describe('ScriptRunner Commands', () => {
         'puts value\n'
     )
     cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog', { timeout: 30000 }).within(() => {
+    cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
       cy.contains('Cancel').click()
     })
     cy.get('[data-test=output-messages]').contains('User input: Cancel')
@@ -138,12 +138,12 @@ describe('ScriptRunner Commands', () => {
 
     // Clicking Go re-launches the dialog
     cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog', { timeout: 30000 }).within(() => {
+    cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
       cy.contains('TWO').click()
     })
-    cy.get('.v-dialog').should('not.exist')
+    cy.get('.v-dialog:visible').should('not.exist')
 
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('FOUR').click()
     })
     cy.get('[data-test=state]').should('have.value', 'stopped')
@@ -158,7 +158,7 @@ describe('ScriptRunner Commands', () => {
         'puts value\n'
     )
     cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog', { timeout: 30000 }).within(() => {
+    cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
       cy.contains('Cancel').click()
     })
     cy.get('[data-test=output-messages]').contains('User input: Cancel')
@@ -166,7 +166,7 @@ describe('ScriptRunner Commands', () => {
 
     // Clicking go re-launches the dialog
     cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.get('[data-test=select]').click({ force: true })
     })
     cy.get('[data-test=state]').should('have.value', 'paused')
@@ -191,18 +191,18 @@ describe('ScriptRunner Commands', () => {
         'puts value\n'
     )
     cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog', { timeout: 30000 }).within(() => {
+    cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
       cy.contains('This is a Title!')
       cy.contains('Yes').click()
     })
     cy.get('[data-test=output-messages]').contains('true') // Yes => true
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Are you tired?')
       cy.contains('Extra message')
       cy.contains('No').click()
     })
     cy.get('[data-test=output-messages]').contains('false') // No => false
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Day').click()
     })
     cy.get('[data-test=output-messages]').contains('Day')
@@ -215,7 +215,7 @@ describe('ScriptRunner Commands', () => {
       'value = prompt_to_continue("Continue?")\n' + 'puts value\n'
     )
     cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog', { timeout: 30000 }).within(() => {
+    cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
       cy.contains('Continue?')
       cy.contains('Cancel').click()
     })
@@ -223,7 +223,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=state]').should('have.value', 'paused')
     // Clicking Go re-executes the prompt_to_continue
     cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Continue?')
       cy.contains('Ok').click()
     })

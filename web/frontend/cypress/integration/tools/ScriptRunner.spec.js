@@ -25,7 +25,7 @@ describe('ScriptRunner', () => {
     cy.get('#editor').type('puts "File Save"')
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save File').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('File Save As')
       cy.get('[data-test=filename]').invoke('val').should('include', 'Untitled')
@@ -46,7 +46,7 @@ describe('ScriptRunner', () => {
       cy.get('[data-test=filename]').type('/temp.rb')
       cy.contains('Ok').click()
     })
-    cy.get('.v-dialog').should('not.exist')
+    cy.get('.v-dialog:visible').should('not.exist')
     cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb')
@@ -71,7 +71,7 @@ describe('ScriptRunner', () => {
     // File->Save As
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save As...').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('File Save As')
       cy.get('[data-test=filename]')
@@ -81,7 +81,7 @@ describe('ScriptRunner', () => {
       cy.contains('Click OK to overwrite')
       cy.contains('Ok').click()
     })
-    cy.get('.v-dialog').should('not.exist')
+    cy.get('.v-dialog:visible').should('not.exist')
     cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb')
@@ -104,7 +104,7 @@ describe('ScriptRunner', () => {
     // Open the file
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Open').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Ok').click()
       cy.contains('Nothing selected')
       cy.get('[data-test=search]').type('temp')
@@ -137,7 +137,7 @@ describe('ScriptRunner', () => {
     // Delete the file
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Delete').click()
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Ok').click()
     })
     cy.contains('puts "File Save"').should('not.exist')

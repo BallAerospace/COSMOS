@@ -78,9 +78,6 @@ begin
             end
           when "backtrace"
             Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :script, method: :backtrace, args: running_script.current_backtrace }))
-
-            # ActionCable.server.broadcast("running-script-channel:#{id}",
-            #   { type: :script, method: :backtrace, args: JSON.generate(running_script.current_backtrace) })
           when "debug"
             run_script_log(id, "DEBUG: #{parsed_cmd["args"]}") # Log what we were passed
             running_script.debug(parsed_cmd["args"]) # debug() logs the output of the command

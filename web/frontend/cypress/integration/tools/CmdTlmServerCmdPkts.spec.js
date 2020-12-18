@@ -69,14 +69,14 @@ describe('CmdTlmServer CmdPackets', () => {
         cy.get('td').eq(0).contains('INST')
         cy.get('td').eq(3).click()
       })
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Raw Command Packet: INST ABORT')
       cy.contains(/Packet Time: \d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/)
       cy.contains(/Received Time: \d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/)
       cy.get('textarea').invoke('val').should('include', 'Address')
       cy.get('textarea').invoke('val').should('include', '00000000:')
     })
-    cy.get('.v-dialog').type('{esc}')
+    cy.get('.v-dialog:visible').type('{esc}')
     // Make sure we can re-open the raw dialog
     cy.get('[data-test=cmd-packets-table]')
       .contains('ABORT')
@@ -85,10 +85,10 @@ describe('CmdTlmServer CmdPackets', () => {
         cy.get('td').eq(0).contains('INST')
         cy.get('td').eq(3).click()
       })
-    cy.get('.v-dialog').within(() => {
+    cy.get('.v-dialog:visible').within(() => {
       cy.contains('Raw Command Packet: INST ABORT')
     })
-    cy.get('.v-dialog').type('{esc}')
+    cy.get('.v-dialog:visible').type('{esc}')
   })
 
   it('links to command sender', () => {
