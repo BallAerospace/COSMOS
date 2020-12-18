@@ -7,6 +7,7 @@
     <suite-runner
       v-if="suiteRunner"
       :suiteMap="suiteMap"
+      :disableButtons="disableSuiteButtons"
       @button="suiteRunnerButton"
     />
     <v-container id="sc-controls">
@@ -22,8 +23,8 @@
               readonly
               hide-details
               label="Filename"
-              v-model="fullFileName"
-              data-test="file-name"
+              v-model="fullFilename"
+              data-test="filename"
             ></v-text-field>
             <v-text-field
               class="shrink ml-2"
@@ -67,10 +68,15 @@
               color="primary"
               @click="pauseOrRetry"
               class="mr-2"
+              :disabled="pauseOrRetryDisabled"
               data-test="pause-retry-button"
               >{{ pauseOrRetryButton }}
             </v-btn>
-            <v-btn color="primary" @click="stop" data-test="stop-button"
+            <v-btn
+              color="primary"
+              @click="stop"
+              data-test="stop-button"
+              :disabled="stopDisabled"
               >Stop
             </v-btn>
           </v-row>
@@ -173,13 +179,13 @@
       v-if="showSaveAs"
       v-model="showSaveAs"
       type="save"
-      :inputFileName="fileName"
-      @file-name="saveAsFileName($event)"
+      :inputFilename="filename"
+      @filename="saveAsFilename($event)"
     />
     <v-dialog v-model="areYouSure" max-width="350">
       <v-card>
         <v-card-title class="headline"> Are you sure? </v-card-title>
-        <v-card-text>Permanently delete file {{ fileName }}! </v-card-text>
+        <v-card-text>Permanently delete file {{ filename }}! </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="primary" text @click="confirmDelete(true)"> Ok </v-btn>
@@ -361,6 +367,7 @@ export default {
         },
       ],
       suiteRunner: false, // Whether to display the SuiteRunner GUI
+      disableSuiteButtons: false,
       suiteMap: {
         // Useful for testing the various options in the SuiteRunner GUI
         // Suite: {
@@ -380,18 +387,21 @@ export default {
       alertText: '',
       state: ' ',
       scriptId: null,
+      startOrGoButton: 'Start',
+      startOrGoDisabled: false,
       pauseOrRetryButton: 'Pause',
+      pauseOrRetryDisabled: true,
+      stopDisabled: true,
       showDebug: false,
       debug: '',
       debugHistory: [],
       debugHistoryIndex: 0,
       showDisconnect: false,
       files: {},
-      fileName: NEW_FILENAME,
-      tempFileName: null,
+      filename: NEW_FILENAME,
+      tempFilename: null,
       fileModified: '',
       fileOpen: false,
-      startOrGoButton: 'Start',
       showSaveAs: false,
       areYouSure: false,
       subscription: null,
@@ -426,20 +436,11 @@ export default {
     }
   },
   computed: {
-    fullFileName() {
-      if (this.fileModified.length === 0) {
-        return this.fileName
+    fullFilename() {
+      if (this.fileModified.length > 0) {
+        return this.filename + ' ' + this.fileModified
       } else {
-        return this.fileName + ' ' + this.fileModified
-      }
-    },
-    startOrGoDisabled() {
-      // Disable the Start button when Suite Runner controls are visible
-      // so they must use the Start buttons in the Suite Runner controls
-      if (this.suiteRunner && this.startOrGoButton === 'Start') {
-        return true
-      } else {
-        return false
+        return this.filename
       }
     },
   },
@@ -452,7 +453,10 @@ export default {
     this.editor.$blockScrolling = Infinity
     this.editor.setHighlightActiveLine(false)
     this.editor.focus()
-    this.editor.session.on('change', this.onChange)
+    // We listen to tokenizerUpdate rather than change because this
+    // is the background process that updates as changes are processed
+    // while change fires immediately before the UndoManager is updated.
+    this.editor.session.on('tokenizerUpdate', this.onChange)
     window.addEventListener('keydown', this.keydown)
     // Prevent the user from closing the tab accidentally
     window.addEventListener('beforeunload', (event) => {
@@ -464,16 +468,7 @@ export default {
     this.cable = ActionCable.createConsumer('ws://localhost:3001/cable')
 
     if (this.$route.params.id) {
-      this.state = 'Connecting...'
-      this.startOrGoButton = 'Go'
-      this.scriptId = this.$route.params.id
-      this.editor.setReadOnly(true)
-      this.subscription = this.cable.subscriptions.create(
-        { channel: 'RunningScriptChannel', id: this.scriptId },
-        {
-          received: (data) => this.received(data),
-        }
-      )
+      this.scriptStart(this.$route.params.id)
     }
   },
   beforeDestroy() {
@@ -508,22 +503,68 @@ export default {
         this.saveAs()
       }
     },
-    onChange(delta) {
+    onChange(event) {
+      // Don't track changes when we're read-only (we're running)
+      if (this.editor.getReadOnly() === true) {
+        return
+      }
       // Don't track changes on a new unsaved file
-      if (this.fileName !== NEW_FILENAME) {
+      if (
+        this.filename !== NEW_FILENAME &&
+        this.editor.session.getUndoManager().dirtyCounter > 0
+      ) {
         this.fileModified = '*'
+      } else {
+        this.fileModified = ''
+      }
+    },
+    scriptStart(id) {
+      this.disableSuiteButtons = true
+      this.startOrGoDisabled = true
+      this.pauseOrRetryDisabled = true
+      this.stopDisabled = true
+      this.state = 'Connecting...'
+      this.startOrGoButton = 'Go'
+      this.scriptId = id
+      this.editor.setReadOnly(true)
+      this.subscription = this.cable.subscriptions.create(
+        { channel: 'RunningScriptChannel', id: this.scriptId },
+        {
+          received: (data) => this.received(data),
+        }
+      )
+    },
+    scriptComplete() {
+      this.disableSuiteButtons = false
+      this.startOrGoButton = 'Start'
+      this.pauseOrRetryButton = 'Pause'
+      // Disable start if suiteRunner
+      this.startOrGoDisabled = this.suiteRunner
+      this.pauseOrRetryDisabled = true
+      this.stopDisabled = true
+      this.editor.setReadOnly(false)
+      // Delete the temp file created as a result of saving a NEW file
+      if (this.tempFilename) {
+        axios.post(
+          'http://localhost:3001/scripts/' + this.tempFilename + '/delete',
+          {
+            scope: 'DEFAULT',
+          }
+        )
       }
     },
     startOrGo(event, suiteRunner = null) {
       if (this.startOrGoButton === 'Start') {
-        this.saveFile('start') // Save first or they'll be running old code
-
-        let fileName = this.fileName
-        if (this.fileName === NEW_FILENAME) {
-          // NEW_FILENAME so use tempFileName created by saveFile()
-          fileName = this.tempFileName
+        if (this.fileModified.length > 0) {
+          this.saveFile('start') // Save first or they'll be running old code
         }
-        let url = 'http://localhost:3001/scripts/' + fileName + '/run'
+
+        let filename = this.filename
+        if (this.filename === NEW_FILENAME) {
+          // NEW_FILENAME so use tempFilename created by saveFile()
+          filename = this.tempFilename
+        }
+        let url = 'http://localhost:3001/scripts/' + filename + '/run'
         if (this.showDisconnect) {
           url += '/disconnect'
         }
@@ -532,16 +573,7 @@ export default {
           data['suiteRunner'] = event
         }
         axios.post(url, data).then((response) => {
-          this.state = 'Connecting...'
-          this.startOrGoButton = 'Go'
-          this.scriptId = response.data
-          this.editor.setReadOnly(true)
-          this.subscription = this.cable.subscriptions.create(
-            { channel: 'RunningScriptChannel', id: this.scriptId },
-            {
-              received: (data) => this.received(data),
-            }
-          )
+          this.scriptStart(response.data)
         })
       } else {
         axios.post(
@@ -591,6 +623,9 @@ export default {
           switch (data.state) {
             case 'running':
               marker = 'runningMarker'
+              this.startOrGoDisabled = false
+              this.pauseOrRetryDisabled = false
+              this.stopDisabled = false
               this.pauseOrRetryButton = 'Pause'
               break
             case 'waiting':
@@ -634,18 +669,7 @@ export default {
           this.scriptResults = data.report
           break
         case 'complete':
-          this.startOrGoButton = 'Start'
-          this.pauseOrRetryButton = 'Pause'
-          this.editor.setReadOnly(false)
-          // Delete the temp file created as a result of saving a NEW file
-          if (this.tempFileName) {
-            axios.post(
-              'http://localhost:3001/scripts/' + this.tempFileName + '/delete',
-              {
-                scope: 'DEFAULT',
-              }
-            )
-          }
+          this.scriptComplete()
         default:
           // console.log('Unexpected ActionCable message')
           // console.log(data)
@@ -779,7 +803,7 @@ export default {
 
     // ScriptRunner File menu actions
     newFile() {
-      this.fileName = NEW_FILENAME
+      this.filename = NEW_FILENAME
       this.editor.session.setValue('')
       this.fileModified = ''
       this.suiteRunner = false
@@ -790,29 +814,30 @@ export default {
     // Called by the FileOpenDialog to set the file contents
     setFile(file) {
       this.suiteRunner = false
-      this.fileName = file.name
+      this.filename = file.name
       this.editor.session.setValue(file.contents)
       this.fileModified = ''
       if (file.suites) {
         if (typeof file.suites === 'string') {
           this.alertType = 'warning'
           this.alertText =
-            'Processing ' + this.fileName + ' resulted in: ' + file.suites
+            'Processing ' + this.filename + ' resulted in: ' + file.suites
         } else {
           this.suiteRunner = true
           this.suiteMap = file.suites
+          this.startOrGoDisabled = true
         }
       }
     },
     // saveFile takes a type to indicate if it was called by the Menu
     // or automatically by the 'Start' button (to ensure a consistent backend file)
     saveFile(type = 'menu') {
-      if (this.fileName === NEW_FILENAME) {
+      if (this.filename === NEW_FILENAME) {
         // If this saveFile was called by 'Start' we need to create a temp file
         if (type === 'start') {
-          this.tempFileName =
+          this.tempFilename =
             format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_temp.rb'
-          axios.post('http://localhost:3001/scripts/' + this.tempFileName, {
+          axios.post('http://localhost:3001/scripts/' + this.tempFilename, {
             scope: 'DEFAULT',
             text: this.editor.getValue(), // Pass in the raw file text
           })
@@ -823,7 +848,7 @@ export default {
       } else {
         // Save a file by posting the new contents
         axios
-          .post('http://localhost:3001/scripts/' + this.fileName, {
+          .post('http://localhost:3001/scripts/' + this.filename, {
             scope: 'DEFAULT',
             text: this.editor.getValue(), // Pass in the raw file text
           })
@@ -847,8 +872,8 @@ export default {
     saveAs() {
       this.showSaveAs = true
     },
-    saveAsFileName(fileName) {
-      this.fileName = fileName
+    saveAsFilename(filename) {
+      this.filename = filename
       this.saveFile()
     },
     delete() {
@@ -857,7 +882,7 @@ export default {
     confirmDelete(action) {
       if (action === true) {
         axios
-          .post('http://localhost:3001/scripts/' + this.fileName + '/delete', {
+          .post('http://localhost:3001/scripts/' + this.filename + '/delete', {
             scope: 'DEFAULT',
           })
           .then((response) => {
@@ -873,7 +898,7 @@ export default {
       // Make a link and then 'click' on it to start the download
       const link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
-      link.setAttribute('download', this.fileName)
+      link.setAttribute('download', this.filename)
       link.click()
     },
 

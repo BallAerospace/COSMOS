@@ -40,9 +40,9 @@
         <v-text-field
           v-if="type === 'save'"
           hide-details
-          label="File Name"
+          label="Filename"
           v-model="selectedFile"
-          data-test="file-name"
+          data-test="filename"
         ></v-text-field>
       </v-card-text>
       <v-card-actions>
@@ -75,7 +75,7 @@ export default {
         return ['open', 'save'].indexOf(value) !== -1
       },
     },
-    inputFileName: String, // passed if this is a 'save' dialog
+    inputFilename: String, // passed if this is a 'save' dialog
     value: Boolean, // value is the default prop when using v-model
   },
   data() {
@@ -119,8 +119,8 @@ export default {
           this.insertFile(this.tree, 1, file)
           this.id++
         }
-        if (this.inputFileName) {
-          this.selectedFile = this.inputFileName
+        if (this.inputFilename) {
+          this.selectedFile = this.inputFilename
         }
       })
   },
@@ -179,7 +179,7 @@ export default {
           this.warning = true
           return
         } else {
-          this.$emit('file-name', this.selectedFile)
+          this.$emit('filename', this.selectedFile)
           this.show = false
         }
       }

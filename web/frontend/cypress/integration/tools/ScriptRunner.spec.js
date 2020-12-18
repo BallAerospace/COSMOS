@@ -28,10 +28,8 @@ describe('ScriptRunner', () => {
     cy.get('.v-dialog').within(() => {
       // New files automatically open File Save As
       cy.contains('File Save As')
-      cy.get('[data-test=file-name]')
-        .invoke('val')
-        .should('include', 'Untitled')
-      cy.get('[data-test=file-name]').clear().type('temp.rb')
+      cy.get('[data-test=filename]').invoke('val').should('include', 'Untitled')
+      cy.get('[data-test=filename]').clear().type('temp.rb')
       cy.contains('Ok').click()
       cy.contains('temp.rb is not a valid path / filename')
       cy.contains('INST')
@@ -42,32 +40,32 @@ describe('ScriptRunner', () => {
         .click()
       cy.contains('procedures').click()
       // Verify the filename includes what we just clicked on
-      cy.get('[data-test=file-name]')
+      cy.get('[data-test=filename]')
         .invoke('val')
         .should('include', 'INST/procedures')
-      cy.get('[data-test=file-name]').type('/temp.rb')
+      cy.get('[data-test=filename]').type('/temp.rb')
       cy.contains('Ok').click()
     })
     cy.get('.v-dialog').should('not.exist')
-    cy.get('[data-test=file-name]')
+    cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb')
 
     // Type a little and verify it indicates the change
     cy.get('#editor').type('\n# comment1')
-    cy.get('[data-test=file-name]')
+    cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb *')
     // Save and verify it no longer indicates change
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save File').click()
-    cy.get('[data-test=file-name]')
+    cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb')
 
     // Type a little more and verify it indicates the change
     cy.get('#editor').type('\n# comment2')
-    cy.get('[data-test=file-name]')
+    cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb *')
     // File->Save As
@@ -76,7 +74,7 @@ describe('ScriptRunner', () => {
     cy.get('.v-dialog').within(() => {
       // New files automatically open File Save As
       cy.contains('File Save As')
-      cy.get('[data-test=file-name]')
+      cy.get('[data-test=filename]')
         .invoke('val')
         .should('include', 'INST/procedures/temp.rb')
       cy.contains('Ok').click()
@@ -84,17 +82,17 @@ describe('ScriptRunner', () => {
       cy.contains('Ok').click()
     })
     cy.get('.v-dialog').should('not.exist')
-    cy.get('[data-test=file-name]')
+    cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb')
 
     // Type more and verify the Ctrl-S shortcut
     cy.get('#editor').type('\n# comment3')
-    cy.get('[data-test=file-name]')
+    cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb *')
     cy.get('#editor').type('{ctrl}S')
-    cy.get('[data-test=file-name]')
+    cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb')
 

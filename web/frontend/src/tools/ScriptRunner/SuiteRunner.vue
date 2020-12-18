@@ -10,6 +10,7 @@
                 label="Pause on Error"
                 value="pauseOnError"
                 hide-details
+                data-test="pause-on-error"
               ></v-checkbox>
             </v-col>
             <v-col cols="6">
@@ -18,6 +19,7 @@
                 label="Manual"
                 value="manual"
                 hide-details
+                data-test="manual"
               ></v-checkbox>
             </v-col>
           </v-row>
@@ -40,6 +42,7 @@
               <v-btn
                 color="primary"
                 class="mr-2"
+                :disabled="disableButtons"
                 @click="$emit('button', { method: 'start', suite, options })"
                 data-test="start-suite"
                 >Start
@@ -49,14 +52,14 @@
                 class="mr-2"
                 @click="$emit('button', { method: 'setup', suite, options })"
                 data-test="setup-suite"
-                :disabled="!setupSuiteEnabled"
+                :disabled="disableButtons || !setupSuiteEnabled"
                 >Setup
               </v-btn>
               <v-btn
                 color="primary"
                 @click="$emit('button', { method: 'teardown', suite, options })"
                 data-test="teardown-suite"
-                :disabled="!teardownSuiteEnabled"
+                :disabled="disableButtons || !teardownSuiteEnabled"
                 >Teardown
               </v-btn>
             </v-col>
@@ -72,6 +75,7 @@
                 label="Continue after Error"
                 value="continueAfterError"
                 hide-details
+                data-test="continue-after-error"
               ></v-checkbox>
             </v-col>
             <v-col cols="6">
@@ -80,6 +84,7 @@
                 label="Loop"
                 value="loop"
                 hide-details
+                data-test="loop"
               ></v-checkbox>
             </v-col>
           </v-row>
@@ -102,6 +107,7 @@
               <v-btn
                 color="primary"
                 class="mr-2"
+                :disabled="disableButtons"
                 @click="
                   $emit('button', { method: 'start', suite, group, options })
                 "
@@ -115,7 +121,7 @@
                   $emit('button', { method: 'setup', suite, group, options })
                 "
                 data-test="setup-group"
-                :disabled="!setupGroupEnabled"
+                :disabled="disableButtons || !setupGroupEnabled"
                 >Setup
               </v-btn>
               <v-btn
@@ -124,7 +130,7 @@
                   $emit('button', { method: 'teardown', suite, group, options })
                 "
                 data-test="teardown-group"
-                :disabled="!teardownGroupEnabled"
+                :disabled="disableButtons || !teardownGroupEnabled"
                 >Teardown
               </v-btn>
             </v-col>
@@ -140,6 +146,7 @@
                 label="Abort after Error"
                 value="abortAfterError"
                 hide-details
+                data-test="abort-after-error"
               ></v-checkbox>
             </v-col>
             <v-col cols="6">
@@ -149,6 +156,7 @@
                 label="Break Loop on Error"
                 value="breakLoopOnError"
                 hide-details
+                data-test="break-loop-on-error"
               ></v-checkbox>
             </v-col>
           </v-row>
@@ -170,6 +178,7 @@
             <v-col cols="auto">
               <v-btn
                 color="primary"
+                :disabled="disableButtons"
                 @click="
                   $emit('button', {
                     method: 'start',
@@ -198,6 +207,10 @@ export default {
   props: {
     suiteMap: {
       type: Object,
+      required: true,
+    },
+    disableButtons: {
+      type: Boolean,
       required: true,
     },
   },
