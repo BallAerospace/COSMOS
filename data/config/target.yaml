@@ -77,16 +77,18 @@ TELEMETRY:
         directory, e.g. "tlm.txt".
       values: '.*\.txt'
 CMD_UNIQUE_ID_MODE:
-  summary: Flags that commands to this target are identified in a mixed variety of ways
+  summary: Command packet identifiers don't all share the same bit offset, size, and type
   description:
-    Ideally all commands for a target are identified using the exact same fields in a header
-    for each command.  If  this target identifies packets using different fields for some commands than others,
-    then this flag must be set to force a brute force identification method.
+    Ideally all commands for a target are identified using the exact same bit offset, size,
+    and type field in each command. If ANY command identifiers differ then this flag must be set
+    to force a brute force identification method.
   warning: Using this mode significantly slows packet identification
+  since: 4.4.0
 TLM_UNIQUE_ID_MODE:
-  summary: Flags that telemetry to this target are identified in a mixed variety of ways
+  summary: Telemetry packets identifiers don't all share the same bit offset, size, and type
   description:
-    Ideally all telemetry for a target are identified using the exact same fields in a header
-    for each packet.  If  this target identifies packets using different fields for some telemetry packets than others,
-    then this flag must be set to force a brute force identification method.
+    Ideally all telemetry for a target are identified using the exact same bit offset, size,
+    and type field in each packet. If ANY telemetry identifiers differ then this flag must be set
+    to force a brute force identification method.
   warning: Using this mode significantly slows packet identification
+  since: 4.4.0

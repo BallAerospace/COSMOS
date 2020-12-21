@@ -37,7 +37,11 @@ export default {
     _value: function () {
       let value = this.value
       if (value === null) {
-        value = this.$store.state.tlmViewerValues[this.valueId][0]
+        if (this.$store.state.tlmViewerValues[this.valueId]) {
+          value = this.$store.state.tlmViewerValues[this.valueId][0]
+        } else {
+          value = null
+        }
       }
       return this.formatValue(value)
     },
@@ -47,7 +51,11 @@ export default {
     limitsColor() {
       let limitsState = this.limitsState
       if (limitsState === null) {
-        limitsState = this.$store.state.tlmViewerValues[this.valueId][1]
+        if (this.$store.state.tlmViewerValues[this.valueId]) {
+          limitsState = this.$store.state.tlmViewerValues[this.valueId][1]
+        } else {
+          limitsState = null
+        }
       }
       if (limitsState != null) {
         switch (limitsState) {

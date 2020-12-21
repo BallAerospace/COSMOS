@@ -9,61 +9,61 @@
         <v-card-text>
           <v-container fluid>
             <v-row no-gutters v-if="type === 'tlm'">
-              <v-col cols="3">Item Values</v-col>
+              <v-col cols="3" class="label">Item Values</v-col>
               <v-col />
               <v-container fluid class="ml-5 pa-0">
                 <v-row no-gutters>
-                  <v-col cols="4">Raw Value</v-col>
+                  <v-col cols="4" class="label">Raw Value</v-col>
                   <v-col>{{ rawValue }}</v-col>
                 </v-row>
                 <v-row no-gutters>
-                  <v-col cols="4">Converted Value</v-col>
+                  <v-col cols="4" class="label">Converted Value</v-col>
                   <v-col>{{ convertedValue }}</v-col>
                 </v-row>
                 <v-row no-gutters>
-                  <v-col cols="4">Formatted Value</v-col>
+                  <v-col cols="4" class="label">Formatted Value</v-col>
                   <v-col>{{ formattedValue }}</v-col>
                 </v-row>
                 <v-row no-gutters>
-                  <v-col cols="4">With Units Value</v-col>
+                  <v-col cols="4" class="label">With Units Value</v-col>
                   <v-col>{{ unitsValue }}</v-col>
                 </v-row>
               </v-container>
             </v-row>
             <v-row no-gutters>
-              <v-col cols="3" class="font-weight-black">Bit Offset</v-col>
+              <v-col cols="3" class="label">Bit Offset</v-col>
               <v-col>{{ details.bit_offset }}</v-col>
             </v-row>
             <v-row no-gutters>
-              <v-col cols="3" class="font-weight-bold">Bit Size</v-col>
+              <v-col cols="3" class="label">Bit Size</v-col>
               <v-col>{{ details.bit_size }}</v-col>
             </v-row>
             <v-row v-if="details.array_size" no-gutters>
-              <v-col cols="3" class="font-weight-medium">Array Size</v-col>
+              <v-col cols="3" class="label">Array Size</v-col>
               <v-col>{{ details.array_size }}</v-col>
             </v-row>
             <v-row no-gutters>
-              <v-col cols="3" class="font-weight-medium">Data Type</v-col>
+              <v-col cols="3" class="label">Data Type</v-col>
               <v-col>{{ details.data_type }}</v-col>
             </v-row>
             <v-row no-gutters v-if="type === 'cmd'">
-              <v-col cols="3">Minimum</v-col>
+              <v-col cols="3" class="label">Minimum</v-col>
               <v-col>{{ details.minimum }}</v-col>
             </v-row>
             <v-row no-gutters v-if="type === 'cmd'">
-              <v-col cols="3">Maximum</v-col>
+              <v-col cols="3" class="label">Maximum</v-col>
               <v-col>{{ details.maximum }}</v-col>
             </v-row>
             <v-row no-gutters v-if="type === 'cmd'">
-              <v-col cols="3">Default</v-col>
+              <v-col cols="3" class="label">Default</v-col>
               <v-col>{{ details.default }}</v-col>
             </v-row>
             <v-row no-gutters>
-              <v-col cols="3">Format String</v-col>
+              <v-col cols="3" class="label">Format String</v-col>
               <v-col>{{ details.format_string }}</v-col>
             </v-row>
             <v-row no-gutters>
-              <v-col cols="3">Read Conversion</v-col>
+              <v-col cols="3" class="label">Read Conversion</v-col>
               <v-col v-if="details.read_conversion">
                 Class: {{ details.read_conversion.class }}
                 <br />
@@ -73,7 +73,7 @@
               <v-col v-else></v-col>
             </v-row>
             <v-row no-gutters>
-              <v-col cols="3">Write Conversion</v-col>
+              <v-col cols="3" class="label">Write Conversion</v-col>
               <v-col v-if="details.write_conversion">
                 Class: {{ details.write_conversion.class }}
                 <br />
@@ -83,23 +83,23 @@
               <v-col v-else></v-col>
             </v-row>
             <v-row no-gutters>
-              <v-col cols="3">Id Value</v-col>
+              <v-col cols="3" class="label">Id Value</v-col>
               <v-col>{{ details.id_value }}</v-col>
             </v-row>
             <v-row no-gutters>
-              <v-col cols="3">Units Full</v-col>
+              <v-col cols="3" class="label">Units Full</v-col>
               <v-col>{{ details.units_full }}</v-col>
             </v-row>
             <v-row no-gutters>
-              <v-col cols="3">Units Abbr</v-col>
+              <v-col cols="3" class="label">Units Abbr</v-col>
               <v-col>{{ details.units }}</v-col>
             </v-row>
             <v-row no-gutters>
-              <v-col cols="3">Endianness</v-col>
+              <v-col cols="3" class="label">Endianness</v-col>
               <v-col>{{ details.endianness }}</v-col>
             </v-row>
             <v-row no-gutters v-if="details.states">
-              <v-col cols="3">States</v-col>
+              <v-col cols="3" class="label">States</v-col>
               <v-col />
               <v-container fluid class="ml-5 pa-0">
                 <v-row
@@ -107,17 +107,17 @@
                   v-for="(state, key) in details.states"
                   :key="key"
                 >
-                  <v-col cols="4">{{ key }}</v-col>
+                  <v-col cols="4" class="label">{{ key }}</v-col>
                   <v-col>{{ state.value }}</v-col>
                 </v-row>
               </v-container>
             </v-row>
             <v-row no-gutters v-else>
-              <v-col cols="3">States</v-col>
+              <v-col cols="3" class="label">States</v-col>
               <v-col>None</v-col>
             </v-row>
             <v-row no-gutters v-if="details.limits">
-              <v-col cols="3">Limits</v-col>
+              <v-col cols="3" class="label">Limits</v-col>
               <v-col></v-col>
               <v-container fluid class="ml-5 pa-0">
                 <v-row
@@ -125,18 +125,18 @@
                   v-for="(limit, key) in details.limits"
                   :key="key"
                 >
-                  <v-col cols="4">{{ key }}</v-col>
+                  <v-col cols="4" class="label">{{ key }}</v-col>
                   {{ formatLimit(limit) }}
                   <v-col></v-col>
                 </v-row>
               </v-container>
             </v-row>
             <v-row no-gutters v-else>
-              <v-col cols="3">Limits</v-col>
+              <v-col cols="3" class="label">Limits</v-col>
               <v-col>None</v-col>
             </v-row>
             <v-row no-gutters v-if="details.meta">
-              <v-col cols="3">Meta</v-col>
+              <v-col cols="3" class="label">Meta</v-col>
               <v-col></v-col>
               <v-container fluid class="ml-5 pa-0">
                 <v-row
@@ -144,13 +144,13 @@
                   v-for="(value, key) in details.meta"
                   :key="key"
                 >
-                  <v-col cols="4">{{ key }}</v-col>
+                  <v-col cols="4" class="label">{{ key }}</v-col>
                   <v-col>{{ value }}</v-col>
                 </v-row>
               </v-container>
             </v-row>
             <v-row v-else no-gutters>
-              <v-col cols="3">Meta</v-col>
+              <v-col cols="3" class="label">Meta</v-col>
               <v-col>None</v-col>
             </v-row>
           </v-container>
@@ -309,5 +309,9 @@ export default {
 .v-card,
 .v-card__title {
   background-color: var(--v-secondary-darken3);
+}
+.label {
+  font-weight: bold;
+  text-transform: capitalize;
 }
 </style>
