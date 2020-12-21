@@ -144,16 +144,12 @@
 </ul></div>
         
         <h1>Command Configuration</h1>
-        <div class="note unreleased">
-  <p>While Command Definition files are the same for COSMOS 5, this section needs to be updated.</p>
-</div>
-
-<h2 id="command-definition-files">
+        <h2 id="command-definition-files">
 <a class="anchor" href="#command-definition-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Definition Files</h2>
 
-<p>Command definition files define the command packets that can be sent to COSMOS targets. One large file can be used to define the command packets, or multiple files can be used at the user’s discretion. Command definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some command files that depend on others, e.g. they override or extend existing commands, they must be named last. The easist way to do this is to add an extension to an existing file name. For example, if you already have cmd.txt you can create cmd_override.txt for telemetry that depends on the definitions in tlm.txt. Also note that due to the way the <a href="http://www.asciitable.com/">ASCII Table</a> is structured, files beginning with capital letters are processed before lower case letters.</p>
+<p>Command definition files define the command packets that can be sent to COSMOS targets. One large file can be used to define the command packets, or multiple files can be used at the user’s discretion. Command definition files are placed in the target’s cmd_tlm directory and are processed alphabetically. Therefore if you have some command files that depend on others, e.g. they override or extend existing commands, they must be named last. The easist way to do this is to add an extension to an existing file name. For example, if you already have cmd.txt you can create cmd_override.txt for telemetry that depends on the definitions in tlm.txt. Also note that due to the way the <a href="http://www.asciitable.com/">ASCII Table</a> is structured, files beginning with capital letters are processed before lower case letters.</p>
 
-<p>When defining command parameters you can choose from the following data types: INT, UINT, FLOAT, DERIVED, STRING, BLOCK. These correspond to integers, unsigned integers, floating point numbers, derived values of 0 size which aren’t actually physically defined in the packet, strings and binary blocks of data. The only difference between a STRING and BLOCK is when COSMOS reads the binary command log it stops reading a STRING type when it encounters a null byte (0). This shows up in the text log produced by Command Extractor. Note that this does NOT affect the data COSMOS writes as it’s still legal to pass null bytes (0) in STRING parameters.</p>
+<p>When defining command parameters you can choose from the following data types: INT, UINT, FLOAT, STRING, BLOCK. These correspond to integers, unsigned integers, floating point numbers, strings and binary blocks of data. The only difference between a STRING and BLOCK is when COSMOS reads the binary command log it stops reading a STRING type when it encounters a null byte (0). This shows up in the text log produced by Data Extractor. Note that this does NOT affect the data COSMOS writes as it’s still legal to pass null bytes (0) in STRING parameters.</p>
 
 <div style="clear:both;"></div>
 
@@ -172,8 +168,7 @@
   <tbody>
     <tr>
       <td>Target</td>
-      <td>Name of the target this command is associated with<br><br>Valid Values: <span class="values">Any Target Name</span>
-</td>
+      <td>Name of the target this command is associated with</td>
       <td>True</td>
     </tr>
     <tr>
@@ -196,7 +191,7 @@
 </table>
 
 <p>Example Usage:</p>
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMAND SYSTEM STARTLOGGING BIG_ENDIAN "Starts logging both commands and telemetry for an interface"</code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMAND INST COLLECT BIG_ENDIAN "Start collect"</code></pre></figure>
 
 <h2 id="select_command">
 <a class="anchor" href="#select_command" aria-hidden="true"><span class="octicon octicon-link"></span></a>SELECT_COMMAND</h2>
@@ -215,8 +210,7 @@
   <tbody>
     <tr>
       <td>Target Name</td>
-      <td>Name of the target this command is associated with<br><br>Valid Values: <span class="values">Any Target Name</span>
-</td>
+      <td>Name of the target this command is associated with</td>
       <td>True</td>
     </tr>
     <tr>
@@ -228,7 +222,7 @@
 </table>
 
 <p>Example Usage:</p>
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_COMMAND SYSTEM STARTLOGGING</code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_COMMAND INST COLLECT</code></pre></figure>
 
 <h3 id="command-modifiers">
 <a class="anchor" href="#command-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMMAND Modifiers</h3>
@@ -749,8 +743,8 @@ APPEND_PARAMETER LABEL 0 STRING "COSMOS" "The label to apply"
 </table>
 
 <p>Example Usage:</p>
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_COMMAND SYSTEM STARTLOGGING
-  SELECT_PARAMETER LABEL
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_COMMAND INST COLLECT
+  SELECT_PARAMETER DURATION
 </code></pre></figure>
 
 <h3 id="delete_parameter">
@@ -778,8 +772,8 @@ APPEND_PARAMETER LABEL 0 STRING "COSMOS" "The label to apply"
 </table>
 
 <p>Example Usage:</p>
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_COMMAND SYSTEM STARTLOGGING
-  DELETE_PARAMETER LABEL
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SELECT_COMMAND INST COLLECT
+  DELETE_PARAMETER DURATION
 </code></pre></figure>
 
 <h3 id="hidden">
@@ -1258,43 +1252,43 @@ SEG_POLY_WRITE_CONVERSION 100 12 0.5 0.3 # Apply the conversion to all values &g
 <h2 id="example-file">
 <a class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
 
-<p><strong>Example File: &lt;COSMOSPATH&gt;/config/TARGET/cmd_tlm/cmd.txt</strong></p>
+<p><strong>Example File: TARGET/cmd_tlm/cmd.txt</strong></p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMAND TARGET COLLECT_DATA BIG_ENDIAN <span class="s2">"Commands my target to collect data"</span>
-PARAMETER CCSDSVER 0 3 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER VERSION NUMBER"</span>
-PARAMETER CCSDSTYPE 3 1 UINT 1 1 1 <span class="s2">"CCSDS PRIMARY HEADER PACKET TYPE"</span>
-PARAMETER CCSDSSHF 4 1 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER SECONDARY HEADER FLAG"</span>
-ID_PARAMETER CCSDSAPID 5 11 UINT 0 2047 100 <span class="s2">"CCSDS PRIMARY HEADER APPLICATION ID"</span>
-PARAMETER CCSDSSEQFLAGS 16 2 UINT 3 3 3 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE FLAGS"</span>
-PARAMETER CCSDSSEQCNT 18 14 UINT 0 16383 0 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE COUNT"</span>
-PARAMETER CCSDSLENGTH 32 16 UINT 4 4 4 <span class="s2">"CCSDS PRIMARY HEADER PACKET LENGTH"</span>
-PARAMETER ANGLE 48 32 FLOAT <span class="nt">-180</span>.0 180.0 0.0 <span class="s2">"ANGLE OF INSTRUMENT IN DEGREES"</span>
-POLY_WRITE_CONVERSION 0 0.01745 0 0
-PARAMETER MODE 80 8 UINT 0 1 0 <span class="s2">"DATA COLLECTION MODE"</span>
-STATE NORMAL 0
-STATE DIAG 1
-
+  PARAMETER CCSDSVER 0 3 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER VERSION NUMBER"</span>
+  PARAMETER CCSDSTYPE 3 1 UINT 1 1 1 <span class="s2">"CCSDS PRIMARY HEADER PACKET TYPE"</span>
+  PARAMETER CCSDSSHF 4 1 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER SECONDARY HEADER FLAG"</span>
+  ID_PARAMETER CCSDSAPID 5 11 UINT 0 2047 100 <span class="s2">"CCSDS PRIMARY HEADER APPLICATION ID"</span>
+  PARAMETER CCSDSSEQFLAGS 16 2 UINT 3 3 3 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE FLAGS"</span>
+  PARAMETER CCSDSSEQCNT 18 14 UINT 0 16383 0 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE COUNT"</span>
+  PARAMETER CCSDSLENGTH 32 16 UINT 4 4 4 <span class="s2">"CCSDS PRIMARY HEADER PACKET LENGTH"</span>
+  PARAMETER ANGLE 48 32 FLOAT <span class="nt">-180</span>.0 180.0 0.0 <span class="s2">"ANGLE OF INSTRUMENT IN DEGREES"</span>
+  POLY_WRITE_CONVERSION 0 0.01745 0 0
+  PARAMETER MODE 80 8 UINT 0 1 0 <span class="s2">"DATA COLLECTION MODE"</span>
+    STATE NORMAL 0
+    STATE DIAG 1
 COMMAND TARGET NOOP BIG_ENDIAN <span class="s2">"Do Nothing"</span>
-PARAMETER CCSDSVER 0 3 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER VERSION NUMBER"</span>
-PARAMETER CCSDSTYPE 3 1 UINT 1 1 1 <span class="s2">"CCSDS PRIMARY HEADER PACKET TYPE"</span>
-PARAMETER CCSDSSHF 4 1 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER SECONDARY HEADER FLAG"</span>
-ID_PARAMETER CCSDSAPID 5 11 UINT 0 2047 101 <span class="s2">"CCSDS PRIMARY HEADER APPLICATION ID"</span>
-PARAMETER CCSDSSEQFLAGS 16 2 UINT 3 3 3 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE FLAGS"</span>
-PARAMETER CCSDSSEQCNT 18 14 UINT 0 16383 0 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE COUNT"</span>
-PARAMETER CCSDSLENGTH 32 16 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER PACKET LENGTH"</span>
-PARAMETER DUMMY 48 8 UINT 0 0 0 <span class="s2">"DUMMY PARAMETER BECAUSE CCSDS REQUIRES 1 BYTE OF DATA"</span>
-
+  PARAMETER CCSDSVER 0 3 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER VERSION NUMBER"</span>
+  PARAMETER CCSDSTYPE 3 1 UINT 1 1 1 <span class="s2">"CCSDS PRIMARY HEADER PACKET TYPE"</span>
+  PARAMETER CCSDSSHF 4 1 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER SECONDARY HEADER FLAG"</span>
+  ID_PARAMETER CCSDSAPID 5 11 UINT 0 2047 101 <span class="s2">"CCSDS PRIMARY HEADER APPLICATION ID"</span>
+  PARAMETER CCSDSSEQFLAGS 16 2 UINT 3 3 3 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE FLAGS"</span>
+  PARAMETER CCSDSSEQCNT 18 14 UINT 0 16383 0 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE COUNT"</span>
+  PARAMETER CCSDSLENGTH 32 16 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER PACKET LENGTH"</span>
+  PARAMETER DUMMY 48 8 UINT 0 0 0 <span class="s2">"DUMMY PARAMETER BECAUSE CCSDS REQUIRES 1 BYTE OF DATA"</span>
 COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
-PARAMETER CCSDSVER 0 3 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER VERSION NUMBER"</span>
-PARAMETER CCSDSTYPE 3 1 UINT 1 1 1 <span class="s2">"CCSDS PRIMARY HEADER PACKET TYPE"</span>
-PARAMETER CCSDSSHF 4 1 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER SECONDARY HEADER FLAG"</span>
-ID_PARAMETER CCSDSAPID 5 11 UINT 0 2047 102 <span class="s2">"CCSDS PRIMARY HEADER APPLICATION ID"</span>
-PARAMETER CCSDSSEQFLAGS 16 2 UINT 3 3 3 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE FLAGS"</span>
-PARAMETER CCSDSSEQCNT 18 14 UINT 0 16383 0 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE COUNT"</span>
-PARAMETER CCSDSLENGTH 32 16 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER PACKET LENGTH"</span>
-&lt;% 5.times <span class="k">do</span> |x| %&gt;
-APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <span class="s2">"Setting &lt;%= x %&gt;"</span>
-&lt;% end %&gt;</code></pre></figure>
+  PARAMETER CCSDSVER 0 3 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER VERSION NUMBER"</span>
+  PARAMETER CCSDSTYPE 3 1 UINT 1 1 1 <span class="s2">"CCSDS PRIMARY HEADER PACKET TYPE"</span>
+  PARAMETER CCSDSSHF 4 1 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER SECONDARY HEADER FLAG"</span>
+  ID_PARAMETER CCSDSAPID 5 11 UINT 0 2047 102 <span class="s2">"CCSDS PRIMARY HEADER APPLICATION ID"</span>
+  PARAMETER CCSDSSEQFLAGS 16 2 UINT 3 3 3 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE FLAGS"</span>
+  PARAMETER CCSDSSEQCNT 18 14 UINT 0 16383 0 <span class="s2">"CCSDS PRIMARY HEADER SEQUENCE COUNT"</span>
+  PARAMETER CCSDSLENGTH 32 16 UINT 0 0 0 <span class="s2">"CCSDS PRIMARY HEADER PACKET LENGTH"</span>
+  &lt;% 5.times <span class="k">do</span> |x| %&gt;
+  APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <span class="s2">"Setting &lt;%= x %&gt;"</span>
+  &lt;% end %&gt;</code></pre></figure>
 
 
       </article>
@@ -1830,7 +1824,7 @@ APPEND_PARAMETER SETTING&lt;%<span class="o">=</span> x %&gt; 16 UINT 0 5 0 <spa
     
       
   <li class="">
-    <a href="/docs/v5/extractor">Extractor</a>
+    <a href="/docs/v5/data-extractor">Data Extractor</a>
   </li>
   <!-- prettier-ignore -->
   

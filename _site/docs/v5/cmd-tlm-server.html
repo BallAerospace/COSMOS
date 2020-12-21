@@ -92,12 +92,102 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
+<li class="toc-entry toc-h2"><a href="#command-and-telemetry-server-menus">Command and Telemetry Server Menus</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#file-menu-items">File Menu Items</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#interfaces-tab">Interfaces Tab</a></li>
+<li class="toc-entry toc-h2"><a href="#targets-tab">Targets Tab</a></li>
+<li class="toc-entry toc-h2"><a href="#command-packets-tab">Command Packets Tab</a></li>
+<li class="toc-entry toc-h2"><a href="#telemetry-packets-tab">Telemetry Packets Tab</a></li>
+<li class="toc-entry toc-h2"><a href="#status-tab">Status Tab</a></li>
+<li class="toc-entry toc-h2"><a href="#log-messages">Log Messages</a></li>
 </ul></div>
         
         <h1>Command and Telemetry Server</h1>
-        <div class="note unreleased">
-  <p>User Manual</p>
+        <h2 id="introduction">
+<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>The Command and Telemetry Server application provides status about the <a href="/docs/v5/interfaces">interfaces</a> and targets instantiated in your COSMOS installation. Intefaces can be connected or disconnected and raw byte counts are returned. The application also provides quick shortcuts to view
+both raw and formatted command and telemetry packets as they go through the COSMOS system.</p>
+
+<p><img src="/img/v5/cmd_tlm_server/cmd_tlm_server.png" alt="Cmd Tlm Server"></p>
+
+<h2 id="command-and-telemetry-server-menus">
+<a class="anchor" href="#command-and-telemetry-server-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command and Telemetry Server Menus</h2>
+
+<h3 id="file-menu-items">
+<a class="anchor" href="#file-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>File Menu Items</h3>
+
+<p>The Command and Telemetry Server has one menu under File -&gt; Options:</p>
+
+<p><img src="/img/v5/cmd_tlm_server/file_menu.png" alt="File Menu"></p>
+
+<p>This dialog changes the refresh rate of the Command and Telemetry Server to reduce load on both your browser window and the backend server. Note that this changes the refresh rate of the various tabs in the application. The Log Messages will continue to update as messages are generated.</p>
+
+<h2 id="interfaces-tab">
+<a class="anchor" href="#interfaces-tab" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interfaces Tab</h2>
+
+<p>The Interfaces tab displays all the interfaces defined by your COSMOS installation. You can Connect or Disconnect interfaces and view raw byte and packet counts.</p>
+
+<p><img src="/img/v5/cmd_tlm_server/interfaces.png" alt="Interfaces"></p>
+
+<h2 id="targets-tab">
+<a class="anchor" href="#targets-tab" aria-hidden="true"><span class="octicon octicon-link"></span></a>Targets Tab</h2>
+
+<p>The Targets tab displays aggregate informatation about individual targets.</p>
+
+<div class="note unreleased">
+  <p>Note: This tab is not fully functional yet.</p>
 </div>
+
+<p><img src="/img/v5/cmd_tlm_server/targets.png" alt="Targets"></p>
+
+<h2 id="command-packets-tab">
+<a class="anchor" href="#command-packets-tab" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Packets Tab</h2>
+
+<p>The Command Packets tab displays all the available commands. The table can be sorted by clicking on the column headers.</p>
+
+<p><img src="/img/v5/cmd_tlm_server/commands.png" alt="Commands"></p>
+
+<p>Clicking on View Raw opens a dialog displaying the raw bytes for that command.</p>
+
+<p><img src="/img/v5/cmd_tlm_server/raw_command.png" alt="Raw Command"></p>
+
+<p>Clicking View in Command Sender opens up a new <a href="/docs/v5/cmd-sender">Command Sender</a> window with the specified command.</p>
+
+<h2 id="telemetry-packets-tab">
+<a class="anchor" href="#telemetry-packets-tab" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Packets Tab</h2>
+
+<p>The Telemetry Packets tab displays all the available telemetry. The table can be sorted by clicking on the column headers.</p>
+
+<p><img src="/img/v5/cmd_tlm_server/telemetry.png" alt="Telemetry"></p>
+
+<p>Clicking on View Raw opens a dialog displaying the raw bytes for that telemetry packet.</p>
+
+<p><img src="/img/v5/cmd_tlm_server/raw_telemetry.png" alt="Raw Telemetry"></p>
+
+<p>Clicking View in Command Sender opens up a new <a href="/docs/v5/packet-viewer">Packet Viewer</a> window with the specified telemetry packet.</p>
+
+<h2 id="status-tab">
+<a class="anchor" href="#status-tab" aria-hidden="true"><span class="octicon octicon-link"></span></a>Status Tab</h2>
+
+<p>The Status tab displays the current COSMOS Limits Set, server API statistics, and Background tasks.</p>
+
+<div class="note unreleased">
+  <p>Note: This tab is not fully functional yet.</p>
+</div>
+
+<p><img src="/img/v5/cmd_tlm_server/status.png" alt="Status"></p>
+
+<h2 id="log-messages">
+<a class="anchor" href="#log-messages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Log Messages</h2>
+
+<p>The Log Messages table sits below all the tabs in the Command and Telemetry Server application. It displays server messages such as limits events (new RED, YELLOW, GREEN values), logging events (new files) and interface events (connecting and disconnecting). It can be filtered by entering values in the Search box.</p>
+
+<p><img src="/img/v5/cmd_tlm_server/log_messages_filter.png" alt="Log Messages"></p>
 
       </article>
     </div>
@@ -632,7 +722,7 @@
     
       
   <li class="">
-    <a href="/docs/v5/extractor">Extractor</a>
+    <a href="/docs/v5/data-extractor">Data Extractor</a>
   </li>
   <!-- prettier-ignore -->
   

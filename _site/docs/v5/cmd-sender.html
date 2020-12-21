@@ -92,12 +92,73 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
+<li class="toc-entry toc-h2"><a href="#command-sender-menus">Command Sender Menus</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#mode-menu-items">Mode Menu Items</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#sending-commands">Sending Commands</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#hazardous-commands">Hazardous Commands</a></li>
+</ul>
+</li>
 </ul></div>
         
         <h1>Command Sender</h1>
-        <div class="note unreleased">
-  <p>User Manual</p>
-</div>
+        <h2 id="introduction">
+<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>Command Sender provides the ability to send any command defined by COSMOS. Commands are selected using the Target and Packet drop down fields which populate the command parameter (if any). A command history is stored which is also editable. Commands in the command history can be re-executed by pressing Enter.</p>
+
+<h2 id="command-sender-menus">
+<a class="anchor" href="#command-sender-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Sender Menus</h2>
+
+<h3 id="mode-menu-items">
+<a class="anchor" href="#mode-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mode Menu Items</h3>
+
+<!-- Image sized to match up with bullets -->
+
+<p><img src="/img/v5/command_sender/mode_menu.png" alt="Mode Menu" style="float: left; margin-right: 50px; height: 160px;"></p>
+
+<ul>
+  <li>Ignores parameter range checking</li>
+  <li>Displays parameter state values in hex</li>
+  <li>Shows ignored parameters</li>
+  <li>Disables all parameter conversions</li>
+</ul>
+
+<h2 id="sending-commands">
+<a class="anchor" href="#sending-commands" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sending Commands</h2>
+
+<p>Select a command by first selecting the target from the Select Target drop down. Changing the target automatically updates the Select Packet options to only display commands from that target. If the command has parameters a table is generated with all the parameters.</p>
+
+<p><img src="/img/v5/command_sender/inst_collect.png" alt="INST COLLECT"></p>
+
+<p>Clicking on a parameter with States (like TYPE in the above example) brings up a drop down to select a state. Selecting a state populates the value field next to it. Sending a command updates the Status text and the Command History.</p>
+
+<p><img src="/img/v5/command_sender/inst_collect_sent.png" alt="INST COLLECT Sent"></p>
+
+<p>You can directly edit the Command History to change a parameter value. Pressing Enter on the line will then execute the command. If the command has changed a new line will be entered in the Command History. Pressing Enter several times on the same line updates the Status text with the number of commands sent (3 in the next example).</p>
+
+<p><img src="/img/v5/command_sender/inst_collect_sent_3.png" alt="INST COLLECT Sent 3"></p>
+
+<h3 id="hazardous-commands">
+<a class="anchor" href="#hazardous-commands" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hazardous Commands</h3>
+
+<p>Sending <a href="/docs/v5/command#hazardous">hazardous</a> commands will prompt the user whether to send the command.</p>
+
+<p><img src="/img/v5/command_sender/inst_clear.png" alt="INST CLEAR"></p>
+
+<p>Commands can also have hazardous <a href="/docs/v5/command#state">states</a> (INST COLLECT with TYPE SPECIAL) which also prompt the user. In this example, we’ve also checked all the menu options to show ignored parameters, display state values in hex (see SPECIAL, 0x1), disabled range checking (DURATION 1000), and disabled parameter conversions.</p>
+
+<p><img src="/img/v5/command_sender/inst_collect_hazardous.png" alt="INST COLLECT Hazardous"></p>
+
+<p>Selecting Yes will send the command and update the history with all the parameters shown.</p>
+
+<p><img src="/img/v5/command_sender/inst_collect_hazardous_history.png" alt="INST COLLECT History"></p>
+
+<p>Note that when writing Scripts all parameters are optional unless explicitly marked <a href="/docs/v5/command#required">required</a>.</p>
 
       </article>
     </div>
@@ -632,7 +693,7 @@
     
       
   <li class="">
-    <a href="/docs/v5/extractor">Extractor</a>
+    <a href="/docs/v5/data-extractor">Data Extractor</a>
   </li>
   <!-- prettier-ignore -->
   

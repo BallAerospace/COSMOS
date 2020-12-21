@@ -134,16 +134,12 @@
 </ul></div>
         
         <h1>Telemetry Configuration</h1>
-        <div class="note unreleased">
-  <p>While Telemetry Definition files are the same for COSMOS 5, this section needs to be updated.</p>
-</div>
-
-<h2 id="telemetry-definition-files">
+        <h2 id="telemetry-definition-files">
 <a class="anchor" href="#telemetry-definition-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Definition Files</h2>
 
-<p>Telemetry definition files define the telemetry packets that can be received and processed from COSMOS targets. One large file can be used to define the telemetry packets, or multiple files can be used at the user’s discretion. Telemetry definition files are placed in the config/TARGET/cmd_tlm directory and are processed alphabetically. Therefore if you have some telemetry files that depend on others, e.g. they override or extend existing telemetry, they must be named last. The easist way to do this is to add an extension to an existing file name. For example, if you already have tlm.txt you can create tlm_override.txt for telemetry that depends on the definitions in tlm.txt. Note that due to the way the <a href="http://www.asciitable.com/">ASCII Table</a> is structured, files beginning with capital letters are processed before lower case letters.</p>
+<p>Telemetry definition files define the telemetry packets that can be received and processed from COSMOS targets. One large file can be used to define the telemetry packets, or multiple files can be used at the user’s discretion. Telemetry definition files are placed in the target’s cmd_tlm directory and are processed alphabetically. Therefore if you have some telemetry files that depend on others, e.g. they override or extend existing telemetry, they must be named last. The easist way to do this is to add an extension to an existing file name. For example, if you already have tlm.txt you can create tlm_override.txt for telemetry that depends on the definitions in tlm.txt. Note that due to the way the <a href="http://www.asciitable.com/">ASCII Table</a> is structured, files beginning with capital letters are processed before lower case letters.</p>
 
-<p>When defining telemetry items you can choose from the following data types: INT, UINT, FLOAT, DERIVED, STRING, BLOCK. These correspond to integers, unsigned integers, floating point numbers, derived values of 0 size which aren’t actually physically defined in the packet, strings and binary blocks of data. The only difference between a STRING and BLOCK is when COSMOS reads a STRING type it stops reading when it encounters a null byte (0). This shows up when displaying the value in Packet Viewer or Tlm Viewer and in the output of Telemetry Extractor.</p>
+<p>When defining telemetry items you can choose from the following data types: INT, UINT, FLOAT, STRING, BLOCK. These correspond to integers, unsigned integers, floating point numbers, strings and binary blocks of data. The only difference between a STRING and BLOCK is when COSMOS reads a STRING type it stops reading when it encounters a null byte (0). This shows up when displaying the value in Packet Viewer or Tlm Viewer and in the output of Data Extractor.</p>
 
 <div style="clear:both;"></div>
 
@@ -162,8 +158,7 @@
   <tbody>
     <tr>
       <td>Target</td>
-      <td>Name of the target this telemetry packet is associated with<br><br>Valid Values: <span class="values">Any Target Name</span>
-</td>
+      <td>Name of the target this telemetry packet is associated with</td>
       <td>True</td>
     </tr>
     <tr>
@@ -205,8 +200,7 @@
   <tbody>
     <tr>
       <td>Target Name</td>
-      <td>Name of the target this telemetry packet is associated with<br><br>Valid Values: <span class="values">Any Target Name</span>
-</td>
+      <td>Name of the target this telemetry packet is associated with</td>
       <td>True</td>
     </tr>
     <tr>
@@ -260,8 +254,7 @@
   <tbody>
     <tr>
       <td>Target Name</td>
-      <td>Name of the target<br><br>Valid Values: <span class="values">Any Target Name</span>
-</td>
+      <td>Name of the target</td>
       <td>True</td>
     </tr>
     <tr>
@@ -1155,44 +1148,46 @@ LIMITS TVAC 3 ENABLED -80.0 -30.0 30.0 80.0
 <h2 id="example-file">
 <a class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
 
-<p><strong>Example File: &lt;COSMOSPATH&gt;/config/TARGET/cmd_tlm/tlm.txt</strong></p>
+<p><strong>Example File: TARGET/cmd_tlm/tlm.txt</strong></p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TELEMETRY TARGET HS BIG_ENDIAN <span class="s2">"Health and Status for My Target"</span>
-ITEM CCSDSVER 0 3 UINT <span class="s2">"CCSDS PACKET VERSION NUMBER (SEE CCSDS 133.0-B-1)"</span>
-ITEM CCSDSTYPE 3 1 UINT <span class="s2">"CCSDS PACKET TYPE (COMMAND OR TELEMETRY)"</span>
-STATE TLM 0
-STATE CMD 1
-ITEM CCSDSSHF 4 1 UINT <span class="s2">"CCSDS SECONDARY HEADER FLAG"</span>
-STATE FALSE 0
-STATE TRUE 1
-ID_ITEM CCSDSAPID 5 11 UINT 102 <span class="s2">"CCSDS APPLICATION PROCESS ID"</span>
-ITEM CCSDSSEQFLAGS 16 2 UINT <span class="s2">"CCSDS SEQUENCE FLAGS"</span>
-STATE FIRST 0
-STATE CONT 1
-STATE LAST 2
-STATE NOGROUP 3
-ITEM CCSDSSEQCNT 18 14 UINT <span class="s2">"CCSDS PACKET SEQUENCE COUNT"</span>
-ITEM CCSDSLENGTH 32 16 UINT <span class="s2">"CCSDS PACKET DATA LENGTH"</span>
-ITEM CCSDSDAY 48 16 UINT <span class="s2">"DAYS SINCE EPOCH (JANUARY 1ST, 1958, MIDNIGHT)"</span>
-ITEM CCSDSMSOD 64 32 UINT <span class="s2">"MILLISECONDS OF DAY (0 - 86399999)"</span>
-ITEM CCSDSUSOMS 96 16 UINT <span class="s2">"MICROSECONDS OF MILLISECOND (0-999)"</span>
-ITEM ANGLEDEG 112 16 INT <span class="s2">"Instrument Angle in Degrees"</span>
-POLY_READ_CONVERSION 0 57.295
-ITEM MODE 128 8 UINT <span class="s2">"Instrument Mode"</span>
-STATE NORMAL 0 GREEN
-STATE DIAG 1 YELLOW
-MACRO_APPEND_START 1 5
-APPEND_ITEM SETTING 16 UINT <span class="s2">"SETTING #x"</span>
-MACRO_APPEND_END
-ITEM TIMESECONDS 0 0 DERIVED <span class="s2">"DERIVED TIME SINCE EPOCH IN SECONDS"</span>
-GENERIC_READ_CONVERSION_START FLOAT 32
-<span class="o">((</span>packet.read<span class="o">(</span><span class="s1">'ccsdsday'</span><span class="o">)</span> <span class="se">\*</span> 86400.0<span class="o">)</span> + <span class="o">(</span>packet.read<span class="o">(</span><span class="s1">'ccsdsmsod'</span><span class="o">)</span> / 1000.0<span class="o">)</span> + <span class="o">(</span>packet.read<span class="o">(</span><span class="s1">'ccsdsusoms'</span><span class="o">)</span> / 1000000.0<span class="o">))</span>
-GENERIC_READ_CONVERSION_END
-ITEM TIMEFORMATTED 0 0 DERIVED <span class="s2">"DERIVED TIME SINCE EPOCH AS A FORMATTED STRING"</span>
-GENERIC_READ_CONVERSION_START STRING 216
-<span class="nb">time</span> <span class="o">=</span> Time.ccsds2mdy<span class="o">(</span>packet.read<span class="o">(</span><span class="s1">'ccsdsday'</span><span class="o">)</span>, packet.read<span class="o">(</span><span class="s1">'ccsdsmsod'</span><span class="o">)</span>, packet.read<span class="o">(</span><span class="s1">'ccsdsusoms'</span><span class="o">))</span>
-sprintf<span class="o">(</span><span class="s1">'%04u/%02u/%02u %02u:%02u:%02u.%06u'</span>, <span class="nb">time</span><span class="o">[</span>0], <span class="nb">time</span><span class="o">[</span>1], <span class="nb">time</span><span class="o">[</span>2], <span class="nb">time</span><span class="o">[</span>3], <span class="nb">time</span><span class="o">[</span>4], <span class="nb">time</span><span class="o">[</span>5], <span class="nb">time</span><span class="o">[</span>6]<span class="o">)</span>
-GENERIC_READ_CONVERSION_END</code></pre></figure>
+  ITEM CCSDSVER 0 3 UINT <span class="s2">"CCSDS PACKET VERSION NUMBER (SEE CCSDS 133.0-B-1)"</span>
+  ITEM CCSDSTYPE 3 1 UINT <span class="s2">"CCSDS PACKET TYPE (COMMAND OR TELEMETRY)"</span>
+    STATE TLM 0
+    STATE CMD 1
+  ITEM CCSDSSHF 4 1 UINT <span class="s2">"CCSDS SECONDARY HEADER FLAG"</span>
+    STATE FALSE 0
+    STATE TRUE 1
+  ID_ITEM CCSDSAPID 5 11 UINT 102 <span class="s2">"CCSDS APPLICATION PROCESS ID"</span>
+  ITEM CCSDSSEQFLAGS 16 2 UINT <span class="s2">"CCSDS SEQUENCE FLAGS"</span>
+    STATE FIRST 0
+    STATE CONT 1
+    STATE LAST 2
+    STATE NOGROUP 3
+  ITEM CCSDSSEQCNT 18 14 UINT <span class="s2">"CCSDS PACKET SEQUENCE COUNT"</span>
+  ITEM CCSDSLENGTH 32 16 UINT <span class="s2">"CCSDS PACKET DATA LENGTH"</span>
+  ITEM CCSDSDAY 48 16 UINT <span class="s2">"DAYS SINCE EPOCH (JANUARY 1ST, 1958, MIDNIGHT)"</span>
+  ITEM CCSDSMSOD 64 32 UINT <span class="s2">"MILLISECONDS OF DAY (0 - 86399999)"</span>
+  ITEM CCSDSUSOMS 96 16 UINT <span class="s2">"MICROSECONDS OF MILLISECOND (0-999)"</span>
+  ITEM ANGLEDEG 112 16 INT <span class="s2">"Instrument Angle in Degrees"</span>
+    POLY_READ_CONVERSION 0 57.295
+  ITEM MODE 128 8 UINT <span class="s2">"Instrument Mode"</span>
+    STATE NORMAL 0 GREEN
+    STATE DIAG 1 YELLOW
+  MACRO_APPEND_START 1 5
+    APPEND_ITEM SETTING 16 UINT <span class="s2">"SETTING #x"</span>
+  MACRO_APPEND_END
+  ITEM TIMESECONDS 0 0 DERIVED <span class="s2">"DERIVED TIME SINCE EPOCH IN SECONDS"</span>
+    GENERIC_READ_CONVERSION_START FLOAT 32
+      <span class="o">((</span>packet.read<span class="o">(</span><span class="s1">'ccsdsday'</span><span class="o">)</span> <span class="se">\*</span> 86400.0<span class="o">)</span> + <span class="o">(</span>packet.read<span class="o">(</span><span class="s1">'ccsdsmsod'</span><span class="o">)</span> / 1000.0<span class="o">)</span> + <span class="o">(</span>packet.read<span class="o">(</span><span class="s1">'ccsdsusoms'</span><span class="o">)</span> / 1000000.0<span class="o">)</span>  <span class="o">)</span>
+    GENERIC_READ_CONVERSION_END
+  ITEM TIMEFORMATTED 0 0 DERIVED <span class="s2">"DERIVED TIME SINCE EPOCH AS A FORMATTED STRING"</span>
+    GENERIC_READ_CONVERSION_START STRING 216
+      <span class="nb">time</span> <span class="o">=</span> Time.ccsds2mdy<span class="o">(</span>packet.read<span class="o">(</span><span class="s1">'ccsdsday'</span><span class="o">)</span>, packet.read<span class="o">(</span><span class="s1">'ccsdsmsod'</span><span class="o">)</span>, packet.read<span class="o">(</span><span class="s1">'ccsdsusoms'</span><span class="o">))</span>
+      sprintf<span class="o">(</span><span class="s1">'%04u/%02u/%02u %02u:%02u:%02u.%06u'</span>, <span class="nb">time</span><span class="o">[</span>0], <span class="nb">time</span><span class="o">[</span>1], <span class="nb">time</span><span class="o">[</span>2], <span class="nb">time</span><span class="o">[</span>3], <span class="nb">time</span><span class="o">[</span>4], <span class="nb">time</span><span class="o">[</span>5], <span class="nb">time</span><span class="o">[</span>6]<span class="o">)</span>
+    GENERIC_READ_CONVERSION_END</code></pre></figure>
 
 
       </article>
@@ -1728,7 +1723,7 @@ GENERIC_READ_CONVERSION_END</code></pre></figure>
     
       
   <li class="">
-    <a href="/docs/v5/extractor">Extractor</a>
+    <a href="/docs/v5/data-extractor">Data Extractor</a>
   </li>
   <!-- prettier-ignore -->
   

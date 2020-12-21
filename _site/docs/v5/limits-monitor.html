@@ -92,12 +92,57 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
+<li class="toc-entry toc-h2"><a href="#limits-monitor-menus">Limits Monitor Menus</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#file-menu-items">File Menu Items</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#limits-tab">Limits Tab</a></li>
+<li class="toc-entry toc-h2"><a href="#log-tab">Log Tab</a></li>
 </ul></div>
         
         <h1>Limits Monitor</h1>
-        <div class="note unreleased">
-  <p>User Manual</p>
-</div>
+        <h2 id="introduction">
+<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>The Limits Monitor application provides situational awareness for all telemetry items with limits. All limits items which violate their yellow or red limits are shown and continue to be shown until explicity dismissed. Individual items and entire packets can be manually ignored to filter out known issues. In addition, all limits events are logged in a table which can be searched.</p>
+
+<p><img src="/img/v5/limits_monitor/limits_monitor.png" alt="Cmd Tlm Server"></p>
+
+<h2 id="limits-monitor-menus">
+<a class="anchor" href="#limits-monitor-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Limits Monitor Menus</h2>
+
+<h3 id="file-menu-items">
+<a class="anchor" href="#file-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>File Menu Items</h3>
+
+<p>Limits Monitor has one menu under File -&gt; Show Ignored:</p>
+
+<p><img src="/img/v5/limits_monitor/ignored.png" alt="Ignored"></p>
+
+<p>This dialog displays all the items which the user has manually ignored by clicking the ignore icons next to out of limits items. Note that entire Packets which have been ignored are listed as TARGET PACKET without an item (as shown by INST MECH). Ignored items are removed by clicking the Trash icon. This means that the next time this item goes out of limits it will be displayed.</p>
+
+<h2 id="limits-tab">
+<a class="anchor" href="#limits-tab" aria-hidden="true"><span class="octicon octicon-link"></span></a>Limits Tab</h2>
+
+<p>The main interface of Limits Monitor is the Limits tab. This is where items are displayed when they violate a yellow or red limit.</p>
+
+<p><img src="/img/v5/limits_monitor/limits.png" alt="Limits"></p>
+
+<p>Items with limits values are displayed using a red yellow green limits bar displaying where the current value lies within the defined limits (as shown by the various TEMP items). Items with yellow or red <a href="/docs/v5/telemetry#state">states</a> are simply displayed with their state color (as shown by GROUND1STATUS). The COSMOS Demo contains both INST HEALTH_STATUS TEMP2 and INST2 HEALTH_STATUS TEMP2 which are identically named items within different target packets. Limits Monitor only displays the item name to save space, however if you mouse over the value box the full target and packet name is displayed.</p>
+
+<p><img src="/img/v5/limits_monitor/mouseover.png" alt="Mouseover"></p>
+
+<p>Clicking the first nested ‘X’ icon ignores the entire packet where the item resides. Any additional items in that packet which go out of limits are also ignored by Limits Monitor. Clicking the second (middle) ‘X’ ignores ONLY that specific item. If any packets or items are ignored the Overall Limits State is updated to indicate “(Some items ignored)” to indicate the Limits State is potentially being affected by ignored items.</p>
+
+<p>Clicking the last icon (eye with strike-through) temporarily hides the specified item. This is different from ignoring an item because if this item goes out of limits it will be again be displayed. Hiding an item is useful if the item has gone back to green and you want to continue to track it but want to clean up the current list of items. For example, we might hide TEMP2 and GROUND2STATUS in the above example as they have transitioned back to green.</p>
+
+<h2 id="log-tab">
+<a class="anchor" href="#log-tab" aria-hidden="true"><span class="octicon octicon-link"></span></a>Log Tab</h2>
+
+<p>The Log tab lists all limits events. Events can be filtered by using the Search box as shown.</p>
+
+<p><img src="/img/v5/limits_monitor/log.png" alt="Log"></p>
 
       </article>
     </div>
@@ -632,7 +677,7 @@
     
       
   <li class="">
-    <a href="/docs/v5/extractor">Extractor</a>
+    <a href="/docs/v5/data-extractor">Data Extractor</a>
   </li>
   <!-- prettier-ignore -->
   

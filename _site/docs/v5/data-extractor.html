@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Extractor</title>
+  <title>Data Extractor</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v4.1.1">
@@ -92,12 +92,155 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
+<li class="toc-entry toc-h2"><a href="#data-extractor-menus">Data Extractor Menus</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#file-menu-items">File Menu Items</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#open-configuration">Open Configuration</a></li>
+<li class="toc-entry toc-h4"><a href="#save-configuration">Save Configuration</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#mode-menu-items">Mode Menu Items</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#selecting-items-for-output">Selecting Items for Output</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#startend-datetime">Start/End Date/Time</a></li>
+<li class="toc-entry toc-h3"><a href="#adding-targets-packets-items">Adding Targets Packets Items</a></li>
+<li class="toc-entry toc-h3"><a href="#removing-items">Removing Items</a></li>
+<li class="toc-entry toc-h3"><a href="#editing-items">Editing Items</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#processing-items">Processing Items</a></li>
 </ul></div>
         
-        <h1>Extractor</h1>
-        <div class="note unreleased">
-  <p>User Manual</p>
-</div>
+        <h1>Data Extractor</h1>
+        <h2 id="introduction">
+<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>Data Extractor extracts command and telemetry items into comma or tab separated files. Individual items or entire packets can be processed over any time period. Data Extractor also has a number of options to control the output for post processing in Excel or Matlab, for example.</p>
+
+<h2 id="data-extractor-menus">
+<a class="anchor" href="#data-extractor-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data Extractor Menus</h2>
+
+<h3 id="file-menu-items">
+<a class="anchor" href="#file-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>File Menu Items</h3>
+
+<!-- Image sized to match up with bullets -->
+
+<p><img src="/img/v5/data_extractor/file_menu.png" alt="File Menu" style="float: left; margin-right: 50px; height: 160px;"></p>
+
+<ul>
+  <li>Opens a saved configuration</li>
+  <li>Save the current configuration (item list)</li>
+  <li>Delimit output with commas</li>
+  <li>Delimit output with tabs</li>
+</ul>
+
+<h4 id="open-configuration">
+<a class="anchor" href="#open-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Open Configuration</h4>
+
+<p>The Open and Save Configuration options deserve a little more explanation. When you select File Open the Open Configuration dialog appears. It displays a list of all saved configurations (INST_TEMPS in this example). You select a configuration and then click Ok to load it. You can delete existing configurations by clicking the Trash icon next to a configuration name.</p>
+
+<p><img src="/img/v5/data_extractor/open_config.png" alt="Open Config"></p>
+
+<h4 id="save-configuration">
+<a class="anchor" href="#save-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Save Configuration</h4>
+
+<p>When you select File Save the Save Configuration dialog appears. It displays a list of all saved configurations (INST_TEMPS in this example). You click the Configuration Name text field, enter the name of your new configuration, and click Ok to save. You can delete existing configurations by clicking the Trash icon next to a configuration name.</p>
+
+<p><img src="/img/v5/data_extractor/save_config.png" alt="Save Config"></p>
+
+<h3 id="mode-menu-items">
+<a class="anchor" href="#mode-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mode Menu Items</h3>
+
+<!-- Image sized to match up with bullets -->
+
+<p><img src="/img/v5/data_extractor/mode_menu.png" alt="Mode Menu" style="float: left; margin-right: 50px; height: 250px;"></p>
+
+<ul>
+  <li>Skip ignored items when <a href="/docs/v5/data-extractor#adding-targets-packets-items">adding</a> targets or packets</li>
+  <li>Fill empty cells with the previous value</li>
+  <li>Add a Matlab comment (‘%’) to the header</li>
+  <li>Only output changed values</li>
+  <li>Only list item name as column header</li>
+  <li>List full Target Packet Item as header</li>
+</ul>
+
+<h2 id="selecting-items-for-output">
+<a class="anchor" href="#selecting-items-for-output" aria-hidden="true"><span class="octicon octicon-link"></span></a>Selecting Items for Output</h2>
+
+<h3 id="startend-datetime">
+<a class="anchor" href="#startend-datetime" aria-hidden="true"><span class="octicon octicon-link"></span></a>Start/End Date/Time</h3>
+
+<p>Data Extractor provides text fields where you specify the time range to extract items. Clicking the Start Date and End Date text fields opens a Date Chooser dialog. Note you can also manually type in the date.</p>
+
+<p><img src="/img/v5/data_extractor/date_chooser.png" alt="Date Chooser"></p>
+
+<p>Start Time and End Time are simple text fields. If you enter an invalid time, Data Extractor will warn you and indicate the correct syntax.</p>
+
+<p><img src="/img/v5/data_extractor/time_validation.png" alt="Time Validation"></p>
+
+<h3 id="adding-targets-packets-items">
+<a class="anchor" href="#adding-targets-packets-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Adding Targets Packets Items</h3>
+
+<p>Data Extractor provides Target, Packet, Item drop downs to select the items you want to export. When you select a Target the Packet drop down defaults to [All] which sets the button to “Add Target”. This would add EVERY item defined in EVERY packet in the target. NOTE: This can be a LOT of telemetry points but any added point can be removed.</p>
+
+<p><img src="/img/v5/data_extractor/select_target.png" alt="Select Target"></p>
+
+<p>When you select a Packet the Item drop down defaults to [All] which sets the button to “Add Packet”. This would add EVERY item defined in the specified packet. NOTE: This can be a LOT of telemetry points but any added point can be removed.</p>
+
+<p><img src="/img/v5/data_extractor/select_packet.png" alt="Select Packet"></p>
+
+<p>When you select an individual Item the button changes to “Add Item” and the Description field updates with the item’s description.</p>
+
+<p><img src="/img/v5/data_extractor/select_item.png" alt="Select Item"></p>
+
+<h3 id="removing-items">
+<a class="anchor" href="#removing-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Removing Items</h3>
+
+<p>Once you’ve added items the Items table will have a list of items.</p>
+
+<p><img src="/img/v5/data_extractor/items_table.png" alt="Items Table"></p>
+
+<p>Items can be removed by clicking the Trash icon next to the item. ALL items can be removed by clicking the Trash icon in the header.</p>
+
+<p><img src="/img/v5/data_extractor/delete_all_mouseover.png" alt="Delete All Mouseover"></p>
+
+<h3 id="editing-items">
+<a class="anchor" href="#editing-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Editing Items</h3>
+
+<p>Items can be edited by clicking the Pencil icon next to the item. ALL items can be edited by clicking the pencil icon in the header.</p>
+
+<p><img src="/img/v5/data_extractor/edit_all_mouseover.png" alt="Edit All Mouseover"></p>
+
+<p>Clicking the Edit All brings up the Edit All Items dialog.</p>
+
+<p><img src="/img/v5/data_extractor/edit_all_items.png" alt="Edit All"></p>
+
+<p>This allows you to change the data type of all items in the list. In this example we change from the default of CONVERTED to RAW. This updates the item list as follows.</p>
+
+<p><img src="/img/v5/data_extractor/items_table_raw.png" alt="Items Table Raw"></p>
+
+<p>Clicking the pencil next to an individual item brings up a similar dialog.</p>
+
+<p><img src="/img/v5/data_extractor/edit_temp1.png" alt="Edit TEMP1"></p>
+
+<p>If we change TEMP1 back to CONVERTED the item list is again updated. Note that (CONVERTED) is not shown as this is the default output.</p>
+
+<p><img src="/img/v5/data_extractor/items_table_temp1.png" alt="Edit TEMP1"></p>
+
+<h2 id="processing-items">
+<a class="anchor" href="#processing-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Processing Items</h2>
+
+<p>Clicking the Process button starts the processing of the items list. A progress bar is shown above the table and the Process button changes to Cancel to allow cancelling the process.</p>
+
+<p><img src="/img/v5/data_extractor/processing.png" alt="Processing"></p>
+
+<p>When the processing is complete, the browser shows a file download link. Note this varies by browser. This example is from Chrome.</p>
+
+<p><img src="/img/v5/data_extractor/download.png" alt="Download"></p>
 
       </article>
     </div>
@@ -632,7 +775,7 @@
     
       
   <li class="current">
-    <a href="/docs/v5/extractor">Extractor</a>
+    <a href="/docs/v5/data-extractor">Data Extractor</a>
   </li>
   <!-- prettier-ignore -->
   
