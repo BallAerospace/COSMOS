@@ -1,9 +1,0 @@
----
-HIDDEN:
-  summary: Indicates that the parameter should not be shown to the user in the Table Manager GUI
-  description: Hidden parameters still exist and will be saved to the resulting
-    binary. This is useful for padding and other essential but non-user editable fields.
-UNEDITABLE:
-  summary: Indicates that the parameter should be shown to the user but not editable.
-  description: Uneditable parameters are useful for control fields which the user
-    may be interested in but should not be able to edit.

@@ -1,14 +1,16 @@
 ---
 COMMAND:
+  # Prevent prettier from removing the newline after modifiers:
+  # prettier-ignore
   modifiers:
     <%= MetaConfigParser.load('command_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Defines a new command packet
-  example: COMMAND SYSTEM STARTLOGGING BIG_ENDIAN "Starts logging both commands and telemetry for an interface"
+  example: COMMAND INST COLLECT BIG_ENDIAN "Start collect"
   parameters:
     - name: Target
       required: true
       description: Name of the target this command is associated with
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Command
       required: true
       description: Name of this command. Also referred to as its mnemonic.
@@ -23,18 +25,19 @@ COMMAND:
       description: Description of this command which must be enclosed with quotes
       values: '[''"].*[''"]'
 SELECT_COMMAND:
+  # prettier-ignore
   modifiers:
     <%= MetaConfigParser.load('command_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Selects an existing command packet for editing
   description:
     Typically used in a separate configuration file from where the original
     command is defined to override or add to the existing command definition
-  example: SELECT_COMMAND SYSTEM STARTLOGGING
+  example: SELECT_COMMAND INST COLLECT
   parameters:
     - name: Target Name
       required: true
       description: Name of the target this command is associated with
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Command Name
       required: true
       description: Name of the command to select

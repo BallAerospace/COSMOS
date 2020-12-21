@@ -5,7 +5,7 @@ TARGET:
     - name: Target Name
       required: true
       description: Target name to map to this interface
-      values: <%= Store.instance.get_target_names %>
+      values: .+
 DONT_CONNECT:
   summary: Server will not automatically try to connect to the interface at startup
 DONT_RECONNECT:

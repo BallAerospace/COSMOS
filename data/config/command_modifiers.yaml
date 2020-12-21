@@ -102,8 +102,8 @@ SELECT_PARAMETER:
     <%= MetaConfigParser.load('parameter_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Selects an existing command parameter for editing
   example: |
-    SELECT_COMMAND SYSTEM STARTLOGGING
-      SELECT_PARAMETER LABEL
+    SELECT_COMMAND INST COLLECT
+      SELECT_PARAMETER DURATION
   parameters:
     - name: Parameter
       required: true
@@ -116,8 +116,8 @@ DELETE_PARAMETER:
     will be a "hole" in the packet where the data is not accessible. You can
     use SELECT_COMMAND and then PARAMETER to define a new parameter.
   example: |
-    SELECT_COMMAND SYSTEM STARTLOGGING
-      DELETE_PARAMETER LABEL
+    SELECT_COMMAND INST COLLECT
+      DELETE_PARAMETER DURATION
   since: 4.4.1
   parameters:
     - name: Parameter

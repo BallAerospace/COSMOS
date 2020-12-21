@@ -1,5 +1,7 @@
 ---
 TELEMETRY:
+  # Prevent prettier from removing the newline after modifiers:
+  # prettier-ignore
   modifiers:
     <%= MetaConfigParser.load('telemetry_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Defines a new telemetry packet
@@ -8,7 +10,7 @@ TELEMETRY:
     - name: Target
       required: true
       description: Name of the target this telemetry packet is associated with
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Command
       required: true
       description:
@@ -24,6 +26,7 @@ TELEMETRY:
       description: Description of this telemetry packet which must be enclosed with quotes
       values: '[''"].*[''"]'
 SELECT_TELEMETRY:
+  # prettier-ignore
   modifiers:
     <%= MetaConfigParser.load('telemetry_modifiers.yaml').to_meta_config_yaml(4) %>
   summary: Selects an existing telemetry packet for editing
@@ -35,7 +38,7 @@ SELECT_TELEMETRY:
     - name: Target Name
       required: true
       description: Name of the target this telemetry packet is associated with
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Command Name
       required: true
       description: Name of the telemetry packet to select
@@ -73,7 +76,7 @@ LIMITS_GROUP_ITEM:
     - name: Target Name
       required: true
       description: Name of the target
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet Name
       required: true
       description: Name of the packet

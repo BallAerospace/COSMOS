@@ -1,7 +1,8 @@
 ---
 REQUIRE:
   summary: Requires a Ruby file
-  description: Ruby files must be required to be available to call in other code.
+  description:
+    Ruby files must be required to be available to call in other code.
     Files are first required from the target's lib folder. If no file is found the
     Ruby system path is checked which includes the base COSMOS/lib folder.
   example: REQUIRE limits_response.rb
@@ -17,7 +18,8 @@ REQUIRE:
       values: .+
 IGNORE_PARAMETER:
   summary: Ignore the given command parameter
-  description: Hint to other COSMOS tools to hide or ignore this command parameter
+  description:
+    Hint to other COSMOS tools to hide or ignore this command parameter
     when processing the command. For example, Command Sender and Command Sequence
     will not display the parameter (by default) when showing the command and Script
     Runner code completion will not display the parameter.
@@ -25,7 +27,8 @@ IGNORE_PARAMETER:
   parameters:
     - name: Parameter Name
       required: true
-      description: The name of a command parameter. Note that this parameter will
+      description:
+        The name of a command parameter. Note that this parameter will
         be ignored in ALL the commands it appears in.
       values: .+
 IGNORE_ITEM:
@@ -37,12 +40,14 @@ IGNORE_ITEM:
   parameters:
     - name: Item name
       required: true
-      description: The name of a telemetry item. Note that this item will be ignored
+      description:
+        The name of a telemetry item. Note that this item will be ignored
         in ALL the telemetry it appears in.
       values: .+
 COMMANDS:
   summary: Process the given command definition file
-  description: This keyword is used to explicitly add the command definition file
+  description:
+    This keyword is used to explicitly add the command definition file
     to the list of command and telemetry files to process.
   warning: Usage of this keyword overrides automatic command and telemetry file
     discovery. If this keyword is used, you must also use the TELEMETRY keyword
@@ -71,22 +76,17 @@ TELEMETRY:
       description: Name of a telemetry definition file in the target's cmd_tlm
         directory, e.g. "tlm.txt".
       values: '.*\.txt'
-AUTO_SCREEN_SUBSTITUTE:
-  summary: Automatically substitute the target's name in screen definitions
-  description: Targets can be renamed when they are declared which would break
-    any screen definitions using the explicit target name. This keyword automatically
-    replaces the target name in the screen definitions with the actual target name.
-  warning: Replaces ALL target names in a screen definition file, so this is not
-    suitable for screens with multiple targets.
 CMD_UNIQUE_ID_MODE:
   summary: Flags that commands to this target are identified in a mixed variety of ways
-  description: Ideally all commands for a target are identified using the exact same fields in a header
+  description:
+    Ideally all commands for a target are identified using the exact same fields in a header
     for each command.  If  this target identifies packets using different fields for some commands than others,
     then this flag must be set to force a brute force identification method.
   warning: Using this mode significantly slows packet identification
 TLM_UNIQUE_ID_MODE:
   summary: Flags that telemetry to this target are identified in a mixed variety of ways
-  description: Ideally all telemetry for a target are identified using the exact same fields in a header
+  description:
+    Ideally all telemetry for a target are identified using the exact same fields in a header
     for each packet.  If  this target identifies packets using different fields for some telemetry packets than others,
     then this flag must be set to force a brute force identification method.
   warning: Using this mode significantly slows packet identification

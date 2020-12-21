@@ -134,7 +134,7 @@ ARRAY:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -170,7 +170,7 @@ BLOCK:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -219,7 +219,7 @@ FORMATFONTVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -259,7 +259,7 @@ FORMATVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -288,7 +288,7 @@ LABELLED:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -324,7 +324,7 @@ LABELPROGRESSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -353,7 +353,7 @@ LABELVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -385,7 +385,7 @@ LABELVALUEDESC:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -415,7 +415,7 @@ LABELFORMATVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -443,7 +443,7 @@ LABELVALUELIMITSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -468,7 +468,7 @@ LABELVALUELIMITSCOLUMN:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -492,7 +492,7 @@ LABELVALUERANGEBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -534,7 +534,7 @@ LABELVALUERANGECOLUMN:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -579,7 +579,7 @@ LED:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -607,7 +607,7 @@ LIMITSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -635,7 +635,7 @@ LIMITSCOLUMN:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -663,7 +663,7 @@ LIMITSCOLOR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -692,7 +692,7 @@ VALUELIMITSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -717,7 +717,7 @@ VALUELIMITSCOLUMN:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -741,7 +741,7 @@ VALUERANGEBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -783,7 +783,7 @@ VALUERANGECOLUMN:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -825,7 +825,7 @@ LINEGRAPH:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -856,7 +856,7 @@ PROGRESSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -885,7 +885,7 @@ RANGEBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -923,7 +923,7 @@ RANGECOLUMN:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -960,7 +960,7 @@ TEXTBOX:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -983,7 +983,7 @@ TIMEGRAPH:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -1024,7 +1024,7 @@ TRENDBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -1057,7 +1057,7 @@ TRENDLIMITSBAR:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -1096,7 +1096,7 @@ VALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -1234,7 +1234,7 @@ CANVASLABELVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -1293,7 +1293,7 @@ CANVASIMAGEVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name
@@ -1357,7 +1357,7 @@ CANVASLINEVALUE:
     - name: Target name
       required: true
       description: The target name
-      values: <%= Store.instance.get_target_names %>
+      values: .+
     - name: Packet name
       required: true
       description: The packet name

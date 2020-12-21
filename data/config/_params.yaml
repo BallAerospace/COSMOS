@@ -22,13 +22,14 @@
           values: .*
         - name: Default Value
           required: true
-          description: Default value for this parameter. You must provide a default
+          description:
+            Default value for this parameter. You must provide a default
             but if you mark the parameter REQUIRED then scripts will be forced to specify a value.
           values: .*
         - name: Description
           required: false
           description: Description for this parameter which must be enclosed with quotes
-          values: "['\"].*['\"]"
+          values: '[''"].*[''"]'
         - name: Endianness
           required: false
           description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
@@ -43,13 +44,14 @@
       parameters: &sparams
         - name: Default Value
           required: true
-          description: Default value for this parameter. You must provide a default
+          description:
+            Default value for this parameter. You must provide a default
             but if you mark the parameter REQUIRED then scripts will be forced to specify a value.
           values: .*
         - name: Description
           required: false
           description: Description for this parameter which must be enclosed with quotes
-          values: "['\"].*['\"]"
+          values: '[''"].*[''"]'
         - name: Endianness
           required: false
           description: Indicates if the data in this command is to be sent in Big Endian or Little Endian format
