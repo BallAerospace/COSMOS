@@ -15,7 +15,7 @@ This list is updated when new COSMOS gems are installed which add tools.
 
 Displays information about the active targets and interfaces.
 
-![Command and Telemetry Server](/img/v5/cmd_tlm_server.png)
+![Command and Telemetry Server](/img/v5/cmd_tlm_server/cmd_tlm_server.png)
 
 - Displays interfaces and associated counters
 - Displays raw versions of commands/telemetry packets
@@ -24,7 +24,7 @@ Displays information about the active targets and interfaces.
 
 Situational awareness of everything that is currently out of limits in your system and everything that has temporarily gone out of limits since it was started.
 
-![Limits Monitor](/img/v5/limits_monitor.png)
+![Limits Monitor](/img/v5/limits_monitor/limits_monitor.png)
 
 - Limits bar widget used to show where in the limits range you are
 - Packets and Items can be ignored
@@ -33,7 +33,7 @@ Situational awareness of everything that is currently out of limits in your syst
 
 Easily send individual commands.
 
-![Command Sender](/img/v5/command_sender.png)
+![Command Sender](/img/v5/command_sender/command_sender.png)
 
 - Select any command by target and command name and then fill out a form with the command parameters
 - Command history can be used to resend the same or slightly modified commands
@@ -42,7 +42,7 @@ Easily send individual commands.
 
 Develop and execute test procedures with line highlighting, syntax checking, and more. Also supports organization of scripts into repeatable scripts with an auto-generated report.
 
-![Script Runner](/img/v5/script_runner.png)
+![Script Runner](/img/v5/script_runner/script_runner.png)
 
 - Simple API to send commands and check telemetry
 - Query the user for information
@@ -83,11 +83,11 @@ Realtime or offline graphing of any telemetry item.
 - Spread data across multiple plots
 - Easily save and restore configurations
 
-## Extractor
+## Data Extractor
 
 Quickly extract command and telemetry into CSV files with just the data you care about.
 
-![Extractor](/img/v5/extractor.png)
+![Data Extractor](/img/v5/data_extractor/data_extractor.png)
 
 - Process items into CSV data for analysis in other tools (Excel, Matlab, etc)
 - Add individual items, whole packets, and every packet from a given target

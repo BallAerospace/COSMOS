@@ -19,7 +19,7 @@
     - cmd_tlm_server
     - config_editor
     - data_viewer
-    - extractor
+    - data_extractor
     - limits_monitor
     - packet_viewer
     - script_runner

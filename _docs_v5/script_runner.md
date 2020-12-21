@@ -18,7 +18,7 @@ Script Runner is both an editor of COSMOS scripts as well as executes scripts. S
      alt="File Menu"
      style="float: left; margin-right: 50px; height: 250px;" />
 
-- Clears the Script Runner editor and filename
+- Clears the editor and filename
 - Opens a dialog to select a file to open
 - Saves the currently opened file to disk
 - Opens a dialog to allow the user to rename the current file
@@ -45,7 +45,7 @@ When saving a file for the first time, or using File Save As, the File Save As D
      alt="Script Menu"
      style="float: left; margin-right: 50px; height: 230px;" />
 
-- Opens another page to display the currently running scripts
+- Opens tab to display currently running scripts
 - Performs a Ruby Syntax check on the current file
 - Shows the Call Stack of the running script (only active when running)
 - Displays the Debug prompt to allow Stepping and [debugging](/docs/v5/script-runner#debugging-scripts)

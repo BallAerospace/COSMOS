@@ -60,7 +60,8 @@ module Jekyll
     end
 
     def render(context)
-      root = File.expand_path(context.registers[:site].config['cosmos_root']).strip
+      version = context.registers[:page].collection.split('_')[-1]
+      root = File.expand_path(context.registers[:site].config["cosmos_root_#{version}"]).strip
       path = File.join(root, context.registers[:site].config['cosmos_meta_path'].strip)
 
       page = ''

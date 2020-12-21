@@ -17,7 +17,7 @@ Welcome to the COSMOS system... Let's get started! This guide is a high level ov
    - View detailed telemetry displays in Telemetry Viewer
    - Graph some data in Telemetry Grapher
    - View log type data in Data Viewer
-   - Process log data with Extractor
+   - Process log data with Data Extractor
 
 ## Interfacing with Your Hardware
 

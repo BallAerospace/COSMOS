@@ -8,7 +8,7 @@ module Jekyll
     end
 
     def render(context)
-      root = File.expand_path(context.registers[:site].config['cosmos_root']).strip
+      root = File.expand_path(context.registers[:site].config['cosmos_root_v4']).strip
       path = context.registers[:site].config['cosmos_tool_path'].strip
       output = ''
       page = ''
