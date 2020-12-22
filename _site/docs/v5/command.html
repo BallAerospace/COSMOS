@@ -93,6 +93,8 @@
          
         <div class="toc"><ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#command-definition-files">Command Definition Files</a></li>
+<li class="toc-entry toc-h1"><a href="#command-keywords">Command Keywords</a>
+<ul>
 <li class="toc-entry toc-h2"><a href="#command">COMMAND</a></li>
 <li class="toc-entry toc-h2"><a href="#select_command">SELECT_COMMAND</a>
 <ul>
@@ -141,6 +143,8 @@
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
+</ul>
+</li>
 </ul></div>
         
         <h1>Command Configuration</h1>
@@ -152,6 +156,9 @@
 <p>When defining command parameters you can choose from the following data types: INT, UINT, FLOAT, STRING, BLOCK. These correspond to integers, unsigned integers, floating point numbers, strings and binary blocks of data. The only difference between a STRING and BLOCK is when COSMOS reads the binary command log it stops reading a STRING type when it encounters a null byte (0). This shows up in the text log produced by Data Extractor. Note that this does NOT affect the data COSMOS writes as it’s still legal to pass null bytes (0) in STRING parameters.</p>
 
 <div style="clear:both;"></div>
+
+<h1 id="command-keywords">
+<a class="anchor" href="#command-keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Keywords</h1>
 
 <h2 id="command">
 <a class="anchor" href="#command" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMMAND</h2>
@@ -1390,9 +1397,13 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
     
       
     
+      
+    
   
     
     
+    
+      
     
       
     
@@ -1515,6 +1526,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/upgrading">Upgrading</a>
   </li>
@@ -1562,6 +1575,52 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
       
     
       
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/target">Target Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
   <li class="current">
     <a href="/docs/v5/command">Command Configuration</a>
   </li>
@@ -1570,6 +1629,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
     
     
+    
+      
     
       
     
@@ -1762,9 +1823,13 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
     
       
     
+      
+    
   
     
     
+    
+      
     
       
     
@@ -1975,6 +2040,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/tlm-grapher">Telemetry Grapher</a>
   </li>
@@ -1983,6 +2050,8 @@ COMMAND TARGET SETTINGS BIG_ENDIAN <span class="s2">"Set the Settings"</span>
   
     
     
+    
+      
     
       
     

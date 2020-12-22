@@ -92,7 +92,13 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
-<li class="toc-entry toc-h2"><a href="#telemetry-definition-files">Telemetry Definition Files</a></li>
+<li class="toc-entry toc-h2"><a href="#telemetry-definition-files">Telemetry Definition Files</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#derived-items">Derived Items</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#telemetry-keywords">Telemetry Keywords</a>
+<ul>
 <li class="toc-entry toc-h2"><a href="#telemetry">TELEMETRY</a></li>
 <li class="toc-entry toc-h2"><a href="#select_telemetry">SELECT_TELEMETRY</a></li>
 <li class="toc-entry toc-h2"><a href="#limits_group">LIMITS_GROUP</a></li>
@@ -131,6 +137,8 @@
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
+</ul>
+</li>
 </ul></div>
         
         <h1>Telemetry Configuration</h1>
@@ -141,7 +149,20 @@
 
 <p>When defining telemetry items you can choose from the following data types: INT, UINT, FLOAT, STRING, BLOCK. These correspond to integers, unsigned integers, floating point numbers, strings and binary blocks of data. The only difference between a STRING and BLOCK is when COSMOS reads a STRING type it stops reading when it encounters a null byte (0). This shows up when displaying the value in Packet Viewer or Tlm Viewer and in the output of Data Extractor.</p>
 
+<h3 id="derived-items">
+<a class="anchor" href="#derived-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Derived Items</h3>
+
+<p>COSMOS has a concept of a derived item which is a telemetry item that doesn’t actually exist in the binary data. Derived items are typically computed based on other telemetry items. COSMOS derived items are very similar to real items except they use the special DERIVED data type. Here is how a derived item might look in a telemetry definition.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
+</code></pre></div></div>
+
+<p>Note the bit offset and bit size of 0 and the data type of DERIVED. This definition must be followed by one of the CONVERSION keywords to generate the value.</p>
+
 <div style="clear:both;"></div>
+
+<h1 id="telemetry-keywords">
+<a class="anchor" href="#telemetry-keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Keywords</h1>
 
 <h2 id="telemetry">
 <a class="anchor" href="#telemetry" aria-hidden="true"><span class="octicon octicon-link"></span></a>TELEMETRY</h2>
@@ -1289,9 +1310,13 @@ LIMITS TVAC 3 ENABLED -80.0 -30.0 30.0 80.0
     
       
     
+      
+    
   
     
     
+    
+      
     
       
     
@@ -1414,6 +1439,8 @@ LIMITS TVAC 3 ENABLED -80.0 -30.0 30.0 80.0
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/upgrading">Upgrading</a>
   </li>
@@ -1461,6 +1488,52 @@ LIMITS TVAC 3 ENABLED -80.0 -30.0 30.0 80.0
       
     
       
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/target">Target Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/command">Command Configuration</a>
   </li>
@@ -1469,6 +1542,8 @@ LIMITS TVAC 3 ENABLED -80.0 -30.0 30.0 80.0
   
     
     
+    
+      
     
       
     
@@ -1661,9 +1736,13 @@ LIMITS TVAC 3 ENABLED -80.0 -30.0 30.0 80.0
     
       
     
+      
+    
   
     
     
+    
+      
     
       
     
@@ -1874,6 +1953,8 @@ LIMITS TVAC 3 ENABLED -80.0 -30.0 30.0 80.0
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/tlm-grapher">Telemetry Grapher</a>
   </li>
@@ -1882,6 +1963,8 @@ LIMITS TVAC 3 ENABLED -80.0 -30.0 30.0 80.0
   
     
     
+    
+      
     
       
     

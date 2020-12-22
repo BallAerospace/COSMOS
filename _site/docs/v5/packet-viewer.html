@@ -92,12 +92,72 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
+<li class="toc-entry toc-h2"><a href="#packet-viewer-menus">Packet Viewer Menus</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#file-menu-items">File Menu Items</a></li>
+<li class="toc-entry toc-h3"><a href="#view-menu-items">View Menu Items</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#selecting-packets">Selecting Packets</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#details">Details</a></li>
+</ul>
+</li>
 </ul></div>
         
         <h1>Packet Viewer</h1>
-        <div class="note unreleased">
-  <p>User Manual</p>
-</div>
+        <h2 id="introduction">
+<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>Packet Viewer is a live telemetry viewer which requires no configuration to display the current values for all defined target, packet, items. Items with limits are displayed colored (blue, green, yellow, or red) according to their current state. Items can be right clicked to get detailed information.</p>
+
+<p><img src="/img/v5/packet_viewer/packet_viewer.png" alt="Packet Viewer"></p>
+
+<h2 id="packet-viewer-menus">
+<a class="anchor" href="#packet-viewer-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Packet Viewer Menus</h2>
+
+<h3 id="file-menu-items">
+<a class="anchor" href="#file-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>File Menu Items</h3>
+
+<p>Packet Viewer has one menu under File -&gt; Options:</p>
+
+<p><img src="/img/v5/packet_viewer/file_menu.png" alt="File Menu"></p>
+
+<p>This dialog changes the refresh rate of Packet Viewer to reduce load on both your browser window and the backend server.</p>
+
+<h3 id="view-menu-items">
+<a class="anchor" href="#view-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>View Menu Items</h3>
+
+<!-- Image sized to match up with bullets -->
+
+<p><img src="/img/v5/packet_viewer/view_menu.png" alt="File Menu" style="float: left; margin-right: 50px; height: 240px;"></p>
+
+<ul>
+  <li>Hides <a href="/docs/v5/target#ignore_item">ignored items</a>
+</li>
+  <li>Show <a href="/docs/v5/telemetry#derived-items">derived</a> items last</li>
+  <li>Display formatted telemetry items with units</li>
+  <li>Display formatted telemetry items</li>
+  <li>Display converted telemetry items</li>
+  <li>Display raw telemetry items</li>
+</ul>
+
+<h2 id="selecting-packets">
+<a class="anchor" href="#selecting-packets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Selecting Packets</h2>
+
+<p>Initially opening Packet Viewer will open the first alphabetical Target and Packet. Click the drop down menus to update the Items table to a new packet. To filter the list of items you can type in the search box.</p>
+
+<p><img src="/img/v5/packet_viewer/items_table_temp.png" alt="Items Table TEMP"></p>
+
+<h3 id="details">
+<a class="anchor" href="#details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Details</h3>
+
+<p>Right-clicking an item and selecting Details will open the details dialog.</p>
+
+<p><img src="/img/v5/packet_viewer/temp1_details.png" alt="Details"></p>
+
+<p>This dialog lists everything defined on the telemetry item.</p>
 
       </article>
     </div>
@@ -198,9 +258,13 @@
     
       
     
+      
+    
   
     
     
+    
+      
     
       
     
@@ -323,6 +387,8 @@
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/upgrading">Upgrading</a>
   </li>
@@ -370,6 +436,52 @@
       
     
       
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/target">Target Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/command">Command Configuration</a>
   </li>
@@ -378,6 +490,8 @@
   
     
     
+    
+      
     
       
     
@@ -570,9 +684,13 @@
     
       
     
+      
+    
   
     
     
+    
+      
     
       
     
@@ -783,6 +901,8 @@
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/tlm-grapher">Telemetry Grapher</a>
   </li>
@@ -791,6 +911,8 @@
   
     
     
+    
+      
     
       
     

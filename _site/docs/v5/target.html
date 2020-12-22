@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Telemetry Grapher</title>
+  <title>Target Configuration</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v4.1.1">
@@ -92,108 +92,181 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
-<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
-<li class="toc-entry toc-h2"><a href="#telemetry-grapher-menus">Telemetry Grapher Menus</a>
+<li class="toc-entry toc-h1"><a href="#target-keywords">Target Keywords</a>
 <ul>
-<li class="toc-entry toc-h3"><a href="#file-menu-items">File Menu Items</a>
-<ul>
-<li class="toc-entry toc-h4"><a href="#open-configuration">Open Configuration</a></li>
-<li class="toc-entry toc-h4"><a href="#save-configuration">Save Configuration</a></li>
+<li class="toc-entry toc-h2"><a href="#require">REQUIRE</a></li>
+<li class="toc-entry toc-h2"><a href="#ignore_parameter">IGNORE_PARAMETER</a></li>
+<li class="toc-entry toc-h2"><a href="#ignore_item">IGNORE_ITEM</a></li>
+<li class="toc-entry toc-h2"><a href="#commands">COMMANDS</a></li>
+<li class="toc-entry toc-h2"><a href="#telemetry">TELEMETRY</a></li>
+<li class="toc-entry toc-h2"><a href="#cmd_unique_id_mode">CMD_UNIQUE_ID_MODE</a></li>
+<li class="toc-entry toc-h2"><a href="#tlm_unique_id_mode">TLM_UNIQUE_ID_MODE</a></li>
 </ul>
 </li>
-<li class="toc-entry toc-h3"><a href="#plot-menu-items">Plot Menu Items</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#selecting-items">Selecting Items</a></li>
-<li class="toc-entry toc-h2"><a href="#plot-window-management">Plot Window Management</a></li>
 </ul></div>
         
-        <h1>Telemetry Grapher</h1>
-        <h2 id="introduction">
-<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+        <h1>Target Configuration</h1>
+        <p>Each target is self contained in a target directory named after the target. In the root of the target directory there is a configuration file named target.txt which configures the individual target.</p>
 
-<p>Packet Viewer is a live telemetry viewer which requires no configuration to display the current values for all defined target, packet, items. Items with limits are displayed colored (blue, green, yellow, or red) according to their current state. Items can be right clicked to get detailed information.</p>
+<h1 id="target-keywords">
+<a class="anchor" href="#target-keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a>Target Keywords</h1>
 
-<p><img src="/img/v5/telemetry_grapher/telemetry_grapher.png" alt="Telemetry Grapher"></p>
+<h2 id="require">
+<a class="anchor" href="#require" aria-hidden="true"><span class="octicon octicon-link"></span></a>REQUIRE</h2>
+<p><strong>Requires a Ruby file</strong></p>
 
-<h2 id="telemetry-grapher-menus">
-<a class="anchor" href="#telemetry-grapher-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Grapher Menus</h2>
+<p>Ruby files must be required to be available to call in other code. Files are first required from the target’s lib folder. If no file is found the Ruby system path is checked which includes the base COSMOS/lib folder.</p>
 
-<h3 id="file-menu-items">
-<a class="anchor" href="#file-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>File Menu Items</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Filename to require. For files in the target’s lib directory simply supply the filename, e.g. “REQUIRE my_file”. Files in the base COSMOS lib directory also should just list the filename. If a file is in a folder under the lib directory then you must specify the folder name, e.g. “REQUIRE folder/my_file”. The filename can also be an absolute path but this is not common. Note the “.rb” extension is optional when specifying the filename.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
 
-<!-- Image sized to match up with bullets -->
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">REQUIRE limits_response.rb</code></pre></figure>
 
-<p><img src="/img/v5/telemetry_grapher/file_menu.png" alt="File Menu" style="float: left; margin-right: 50px; height: 80px;"></p>
+<h2 id="ignore_parameter">
+<a class="anchor" href="#ignore_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_PARAMETER</h2>
+<p><strong>Ignore the given command parameter</strong></p>
 
-<ul>
-  <li>Open a saved configuration (plots and items)</li>
-  <li>Save the current configuration</li>
-</ul>
+<p>Hint to other COSMOS tools to hide or ignore this command parameter when processing the command. For example, Command Sender and Command Sequence will not display the parameter (by default) when showing the command and Script Runner code completion will not display the parameter.</p>
 
-<h4 id="open-configuration">
-<a class="anchor" href="#open-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Open Configuration</h4>
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Parameter Name</td>
+      <td>The name of a command parameter. Note that this parameter will be ignored in ALL the commands it appears in.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
 
-<p>The Open and Save Configuration options deserve a little more explanation. When you select File Open the Open Configuration dialog appears. It displays a list of all saved configurations (INST_TEMPS in this example). You select a configuration and then click Ok to load it. You can delete existing configurations by clicking the Trash icon next to a configuration name.</p>
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_PARAMETER CCSDS_VERSION</code></pre></figure>
 
-<p><img src="/img/v5/telemetry_grapher/open_config.png" alt="Open Config"></p>
+<h2 id="ignore_item">
+<a class="anchor" href="#ignore_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_ITEM</h2>
+<p><strong>Ignore the given telemetry item</strong></p>
 
-<h4 id="save-configuration">
-<a class="anchor" href="#save-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Save Configuration</h4>
+<p>Hint to other COSMOS tools to hide or ignore this telemetry item when processing the telemetry. For example, Packet Viewer will not display the item (by default) when showing the packet.</p>
 
-<p>When you select File Save the Save Configuration dialog appears. It displays a list of all saved configurations (INST_TEMPS in this example). You click the Configuration Name text field, enter the name of your new configuration, and click Ok to save. You can delete existing configurations by clicking the Trash icon next to a configuration name.</p>
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Item name</td>
+      <td>The name of a telemetry item. Note that this item will be ignored in ALL the telemetry it appears in.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
 
-<p><img src="/img/v5/telemetry_grapher/save_config.png" alt="Save Config"></p>
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_ITEM CCSDS_VERSION</code></pre></figure>
 
-<h3 id="plot-menu-items">
-<a class="anchor" href="#plot-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Plot Menu Items</h3>
+<h2 id="commands">
+<a class="anchor" href="#commands" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMMANDS</h2>
+<p><strong>Process the given command definition file</strong></p>
 
-<!-- Image sized to match up with bullets -->
+<p>This keyword is used to explicitly add the command definition file to the list of command and telemetry files to process.</p>
 
-<p><img src="/img/v5/telemetry_grapher/plot_menu.png" alt="File Menu" style="float: left; margin-right: 50px; height: 80px;"></p>
+<div class="note warning"><p>Usage of this keyword overrides automatic command and telemetry file discovery. If this keyword is used, you must also use the TELEMETRY keyword to specify the telemetry files to process.</p></div>
 
-<ul>
-  <li>Add a new plot</li>
-  <li>Edit the current plot</li>
-</ul>
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Name of a command definition file in the target’s cmd_tlm directory, e.g. “cmd.txt”.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
 
-<h2 id="selecting-items">
-<a class="anchor" href="#selecting-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Selecting Items</h2>
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMANDS inst_cmds_v2.txt
+TELEMETRY inst_tlm_v2.txt
+</code></pre></figure>
 
-<p>Selecting a target from the Select Target drop down automatically updates the available packets in the Select Packet drop down which updates the available items in the Select Item drop down. Clicking Add Item adds the item to the graph which immediately beings graphing.</p>
+<h2 id="telemetry">
+<a class="anchor" href="#telemetry" aria-hidden="true"><span class="octicon octicon-link"></span></a>TELEMETRY</h2>
+<p><strong>Process the given telemetry definition file</strong></p>
 
-<p><img src="/img/v5/telemetry_grapher/graph_temp1.png" alt="Temp 1"></p>
+<p>This keyword is used to explicitly add the telemetry definition file to the list of command and telemetry files to process.</p>
 
-<p>As time passes, the main graph fills up and starts scrolling while the overview graph at the bottom shows the entire history.</p>
+<div class="note warning"><p>Usage of this keyword overrides automatic command and telemetry file discovery. If this keyword is used, you must also use the COMMAND keyword to specify the command files to process.</p></div>
 
-<p><img src="/img/v5/telemetry_grapher/graph_temp1_time.png" alt="Temp 1 History"></p>
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Filename</td>
+      <td>Name of a telemetry definition file in the target’s cmd_tlm directory, e.g. “tlm.txt”.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
 
-<p>Selecting a new item and adding it to the graph automatically fills the graph with history until the beginning of the first item. This allows you to add items to the graph incrementally and maintain full history.</p>
+<p>Example Usage:</p>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMANDS inst_cmds_v2.txt
+TELEMETRY inst_tlm_v2.txt
+</code></pre></figure>
 
-<p><img src="/img/v5/telemetry_grapher/graph_temp1_temp2.png" alt="Temp1 Temp2"></p>
+<h2 id="cmd_unique_id_mode">
+<a class="anchor" href="#cmd_unique_id_mode" aria-hidden="true"><span class="octicon octicon-link"></span></a>CMD_UNIQUE_ID_MODE</h2>
+<div class="right">(Since 4.4.0)</div>
+<p><strong>Command packet identifiers don’t all share the same bit offset, size, and type</strong></p>
 
-<h2 id="plot-window-management">
-<a class="anchor" href="#plot-window-management" aria-hidden="true"><span class="octicon octicon-link"></span></a>Plot Window Management</h2>
+<p>Ideally all commands for a target are identified using the exact same bit offset, size, and type field in each command. If ANY command identifiers differ then this flag must be set to force a brute force identification method.</p>
 
-<p>All plots can be moved around the browser window by clicking their title bar and moving them. Other graphs will move around intelligently to fill the space. This allows you order the graphs no matter which order they were create in.</p>
+<div class="note warning"><p>Using this mode significantly slows packet identification</p></div>
 
-<p>Each plot has a set of window buttons in the upper right corner. The first shrinks or grows the plot both horizontally and vertically to allow for 4 plots in the same browser tab. Note that half height graphs no longer show the overview graph.</p>
+<h2 id="tlm_unique_id_mode">
+<a class="anchor" href="#tlm_unique_id_mode" aria-hidden="true"><span class="octicon octicon-link"></span></a>TLM_UNIQUE_ID_MODE</h2>
+<div class="right">(Since 4.4.0)</div>
+<p><strong>Telemetry packets identifiers don’t all share the same bit offset, size, and type</strong></p>
 
-<p><img src="/img/v5/telemetry_grapher/four_plots.png" alt="Four Plots"></p>
+<p>Ideally all telemetry for a target are identified using the exact same bit offset, size, and type field in each packet. If ANY telemetry identifiers differ then this flag must be set to force a brute force identification method.</p>
 
-<p>The second button shrinks or grows the graph horizontally so it will either be half or full width of the browser window. This allows for two full width graphs on top of each other.</p>
+<div class="note warning"><p>Using this mode significantly slows packet identification</p></div>
 
-<p><img src="/img/v5/telemetry_grapher/two_full_width.png" alt="Two Full Width"></p>
-
-<p>The second button shrinks or grows the graph vertically so it will either be half or full height of the browser window. This allows for two full height graphs side by side.</p>
-
-<p><img src="/img/v5/telemetry_grapher/two_full_height.png" alt="Two Full Height"></p>
-
-<p>The line button minimizes the graph to effectively hide it. This allows you to focus on a single graph without losing existing graphs.</p>
-
-<p><img src="/img/v5/telemetry_grapher/minimized.png" alt="Minimized"></p>
-
-<p>The final X button closes the graph.</p>
 
       </article>
     </div>
@@ -504,7 +577,7 @@
       
     
       
-  <li class="">
+  <li class="current">
     <a href="/docs/v5/target">Target Configuration</a>
   </li>
   <!-- prettier-ignore -->
@@ -939,7 +1012,7 @@
       
     
       
-  <li class="current">
+  <li class="">
     <a href="/docs/v5/tlm-grapher">Telemetry Grapher</a>
   </li>
   <!-- prettier-ignore -->
