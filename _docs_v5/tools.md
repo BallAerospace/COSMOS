@@ -69,8 +69,6 @@ Easily create custom telemetry screens with simple configuration text files.
 ![Telemetry Viewer](/img/v5/telemetry_viewer/telemetry_viewer.png)
 
 - Advanced widgets available to display data
-- Generate screens from within the tool
-- Audit that you have a screen for every telemetry point
 - Modular to allow for creating your own custom widgets
 
 ## Telemetry Grapher

@@ -4,13 +4,9 @@ title: Scripting Best Practices
 toc: true
 ---
 
-<div class="note unreleased">
-  <p>Update for consistency with COSMOS 5</p>
-</div>
-
 ## Introduction
 
-This guide aims to provide the best practices for using the scripting capabilities provided by COSMOS. Scripts are used to automate a series of activities for operations or testing. The goal of this document is to ensure scripts are written that are simple, easy to understand, maintainable, and correct. Guidance on some of the key details of using COSMOS's ScriptRunner and TestRunner tools is also provided.
+This guide aims to provide the best practices for using the scripting capabilities provided by COSMOS. Scripts are used to automate a series of activities for operations or testing. The goal of this document is to ensure scripts are written that are simple, easy to understand, maintainable, and correct. Guidance on some of the key details of using COSMOS's Script Runner is also provided.
 
 ## Scripting Philosophy
 
@@ -41,17 +37,17 @@ Ruby is a very powerful language with many ways to accomplish the same thing. Gi
 
 A widespread problem in scripts written for any command and control system is large blocks of code that are repeated multiple times. In extreme cases, this has led to 100,000+ line scripts that are impossible to maintain and review.
 
-There are two common ways repetition presents itself: exact blocks of code to perform a common action such as powering on a subsystem, and blocks of code that only differ in the name of the mnemonic being checked or the values checked against. Both are solved by removing the repetition using functions (also referred to as 'methods' in Ruby).
+There are two common ways repetition presents itself: exact blocks of code to perform a common action such as powering on a subsystem, and blocks of code that only differ in the name of the mnemonic being checked or the values checked against. Both are solved by removing the repetition using methods (or functions).
 
 For example, a script that powers on a subsystem and ensures correct telemetry would become:
 
 ```ruby
 def power_on_subsystem
   # 100 lines of cmd(), wait_check(), etc
-End
+end
 ```
 
-Ideally, the above function would be stored in another file where it could be used by other scripts. If it is truly only useful in the one script, then it could be at the top of the file. The updated script would then look like:
+Ideally, the above methods would be stored in another file where it could be used by other scripts. If it is truly only useful in the one script, then it could be at the top of the file. The updated script would then look like:
 
 ```ruby
 power_on_subsystem()
@@ -65,7 +61,7 @@ power_on_subsystem()
 # etc.
 ```
 
-Blocks of code where only the only variation is the mnemonics or values checked can be replaced by functions with arguments like this:
+Blocks of code where only the only variation is the mnemonics or values checked can be replaced by methods with arguments like this:
 
 ```ruby
 def test_minimum_temp(enable_cmd_name, enable_tlm, temp_tlm, expected_temp)
@@ -86,17 +82,17 @@ cmd("INST ABORT")
 cmd("INST ROTATE with ANGLE 180.0") # Rotate 180 degrees - BAD COMMENT
 ```
 
-### ScriptRunner vs TestRunner
+### Script Runner
 
-COSMOS provides two unique ways to run scripts (also known as procedures). ScriptRunner provides both a script execution environment and a script editor. The script editor includes code completion for both COSMOS methods and command/telemetry item names. It is also a great environment to develop and test scripts. ScriptRunner provides a framework for users that are familiar with a traditional scripting model with longer style procedures, and for users that want to be able to edit their scripts in place.
+COSMOS provides two unique ways to run scripts (also known as procedures). Script Runner provides both a script execution environment and a script editor. The script editor includes code completion for both COSMOS methods and command/telemetry item names. It is also a great environment to develop and test scripts. Script Runner provides a framework for users that are familiar with a traditional scripting model with longer style procedures, and for users that want to be able to edit their scripts in place.
 
-TestRunner provides a more formal, but also more powerful, environment for running scripts. The name TestRunner comes from incorporating several of the concepts from software unit testing frameworks and applying them to system level test and operations. TestRunner, by design, has users break their scripts down into test suites, test groups, and test cases. Test Suites are the highest-level concept and would typically cover a large test procedure such as a thermal vacuum test, or a large operations scenario such as performing on orbit checkout. Test Groups capture a related set of test cases such as all the test cases regarding a specific mechanism. A Test Group might be a collection of test cases all related to a subsystem, or a specific series of tests such as an RF checkout. Test Cases capture individual activities that can either pass or fail. TestRunner allows for running an entire test suite, one or more test groups, or one or more test cases easily. It also automatically produces test reports, can easily gather meta data such as operator name, and produce associated data packages.
+When opening a suite file (named with 'suite') Script Runner provides a more formal, but also more powerful, environment for running scripts. Suite files breaks scripts down into suites, groups, and scripts (individual methods). Suites are the highest-level concept and would typically cover a large procedure such as a thermal vacuum test, or a large operations scenario such as performing on orbit checkout. Groups capture a related set of scripts such as all the scripts regarding a specific mechanism. A Group might be a collection of scripts all related to a subsystem, or a specific series of tests such as an RF checkout. Scripts capture individual activities that can either pass or fail. Script Runner allows for running an entire suite, one or more groups, or one or more scripts easily. It also automatically produces reports indentifing test timing, pass / fail counts, etc.
 
-The correct tool for the job is up to individual users, and many programs will use both tools to complete their goals. For example, while formal tests are typically organized and run out of TestRunner, ScriptRunner is still used to run quick one-off scripts specific to a single target. Additionally, ScriptRunner makes a great editor for writing TestRunner scripts. It is recommended that users try both tools before deciding which will be best for their program.
+The correct environment for the job is up to individual users, and many programs will use both script formats to complete their goals.
 
 ### Looping vs Unrolled Loops
 
-Loops are powerful constructs that allow you to perform the same operations multiple times without having to rewrite the same code over and over (See the DRY Concept). However, they can make restarting a COSMOS script at the point of a failure difficult or impossible. If there is a low probability of something failing, then loops are an excellent choice. If a script is running a loop over a list of telemetry points, it may be a better choice to “unroll” the loop by making the loop body into a function, and then calling that function directly for each iteration of a loop that would have occurred.
+Loops are powerful constructs that allow you to perform the same operations multiple times without having to rewrite the same code over and over (See the DRY Concept). However, they can make restarting a COSMOS script at the point of a failure difficult or impossible. If there is a low probability of something failing, then loops are an excellent choice. If a script is running a loop over a list of telemetry points, it may be a better choice to “unroll” the loop by making the loop body into a method, and then calling that method directly for each iteration of a loop that would have occurred.
 
 For example:
 
@@ -125,18 +121,23 @@ In the unrolled version above, the COSMOS “Start script at selected line” fe
 
 ## Script Organization
 
-### Organize Scripts into Test Case Functions
+### Organize Scripts into Methods
 
-Put each test case into a distinct function. This is the natural way to use TestRunner, but also works well in ScriptRunner. Putting your test cases into functions makes organization easy and gives a great high-level overview of what the overall script does (assuming you name the functions well). There are no bonus points for vague, short function names. Make your function names long and clear.
+Put each activity into a distinct method. Putting your scripts into methods makes organization easy and gives a great high-level overview of what the overall script does (assuming you name the methods well). There are no bonus points for vague, short method names. Make your method names long and clear.
 
 ```ruby
 def test_1_heater_zone_control
   puts "Verifies requirements 304, 306, and 310"
   # Test code here
 end
+
+def script_1_heater_zone_control
+  puts "Verifies requirements 304, 306, and 310"
+  # Test code here
+end
 ```
 
-### Using Classes vs Unscoped Functions
+### Using Classes vs Unscoped Methods
 
 Classes in object-oriented programing allow you to organize a set of related methods and some associated state. The most important aspect is that the methods work on some shared state. For example, if you have code that moves a gimbal around, and need to keep track of the number of moves, or steps, performed across methods, then that is a wonderful place to use a class. If you just need a helper method to do something that happens multiple times in a script without copy and pasting, it probably does not need to be in a class.
 
@@ -185,11 +186,11 @@ load_utility('my_other_script')
 
 COSMOS scripts are normally “instrumented”. This means that each line has some extra code added behind the scenes that primarily highlights the current executing line and catches exceptions if things fail such as a wait_check. If your script needs to use code in other files, there are a few ways to bring in that code. Some techniques bring in instrumented code and others bring in uninstrumented code. There are reasons to use both.
 
-load_utility (and the deprecated require_utility), bring in instrumented code from other files. When COSMOS runs the code in the other file, ScriptRunner/TestRunner will dive into the other file and show each line highlighted as it executes. This should be the default way to bring in other files, as it allows continuing if something fails, and provides better visibility to operators.
+load_utility (and the deprecated require_utility), bring in instrumented code from other files. When COSMOS runs the code in the other file, Script Runner will dive into the other file and show each line highlighted as it executes. This should be the default way to bring in other files, as it allows continuing if something fails, and provides better visibility to operators.
 
-However, sometimes you don’t want to display code executing from other files. Externally developed ruby libraries generally do not like to be instrumented, and code that contains large loops or that just takes a long time to execute when highlighting lines, will be much faster if included in a method that does not instrument lines. Ruby provides two ways to bring in uninstrumented code. The first is the “load” keyword. Load will bring in the code from another file and will bring in any changes to the file if it is updated on the next call to load. “require” is like load but is optimized to only bring in the code from another file once. Therefore, if you use require and then change the file it requires, you must restart ScriptRunner/TestRunner to re-require the file and bring in the changes. In general, load is recommended over require for COSMOS scripting. One gotcha with load is that it requires the full filename including extension, while the require keyword does not.
+However, sometimes you don’t want to display code executing from other files. Externally developed ruby libraries generally do not like to be instrumented, and code that contains large loops or that just takes a long time to execute when highlighting lines, will be much faster if included in a method that does not instrument lines. Ruby provides two ways to bring in uninstrumented code. The first is the “load” keyword. Load will bring in the code from another file and will bring in any changes to the file if it is updated on the next call to load. “require” is like load but is optimized to only bring in the code from another file once. Therefore, if you use require and then change the file it requires, you must restart Script Runner to re-require the file and bring in the changes. In general, load is recommended over require for COSMOS scripting. One gotcha with load is that it requires the full filename including extension, while the require keyword does not.
 
-Finally, COSMOS scripting has a special syntax for disabling instrumentation in the middle of an instrumented script, with the disable_instrumentation function. This allows you to disable instrumentation for large loops and other activities that are too slow when running instrumented.
+Finally, COSMOS scripting has a special syntax for disabling instrumentation in the middle of an instrumented script, with the disable_instrumentation method. This allows you to disable instrumentation for large loops and other activities that are too slow when running instrumented.
 
 ```ruby
 disable_instrumentation do
@@ -209,12 +210,12 @@ end
 
 ### Built-In Debugging Capabilities
 
-Both ScriptRunner and TestRunner have built in debugging capabilities that can be useful in determining why your script is behaving in a certain way. Of primary importance is the ability to inspect and set script variables.
+Script Runner has built in debugging capabilities that can be useful in determining why your script is behaving in a certain way. Of primary importance is the ability to inspect and set script variables.
 
-To use the debugging functionality, first select the “Toggle Debug” option from the Script Menu. This will add a small Debug: prompt to the bottom of the tool. Any code entered in this prompt will be executed when Enter is pressed. To inspect variables in a running script, pause the script and then use “puts” to print out the value of the variable in the debug prompt.
+To use the debugging functionality, first select the “Toggle Debug” option from the Script Menu. This will add a small Debug: prompt to the bottom of the tool. Any code entered in this prompt will be executed when Enter is pressed. To inspect variables in a running script, pause the script and then type the variable name to print out the value of the variable in the debug prompt.
 
 ```ruby
-puts variable_name
+variable_name
 ```
 
 Variables can also be set simply by using equals.
@@ -223,7 +224,7 @@ Variables can also be set simply by using equals.
 variable_name = 5
 ```
 
-If necessary, you can also inject commands from the debug prompt using the normal commanding methods. These commands will be logged to the ScriptRunner message log, which may be advantageous over using a different COSMOS tool like CmdSender (where the command would only be logged in the CmdTlmServer message log).
+If necessary, you can also inject commands from the debug prompt using the normal commanding methods. These commands will be logged to the Script Runner message log, which may be advantageous over using a different COSMOS tool like CmdSender (where the command would only be logged in the CmdTlmServer message log).
 
 ```ruby
 cmd("INST COLLECT with TYPE NORMAL")
@@ -233,33 +234,21 @@ Note that the debug prompt keeps the command history and you can scroll through 
 
 ### Breakpoints
 
-While in Debug mode (Script -> Toggle Debug), you can right-click at any point in a script in ScriptRunner and select “Add Breakpoint”. This places a breakpoint on the selected line and the script will automatically pause when it hits the breakpoint. Once stopped at the breakpoint, you can evaluate the state of the system using telemetry screens or the built-in debugging capabilities.
+While in Debug mode (Script -> Toggle Debug), you can right-click at any point in a script in Script Runner and select “Add Breakpoint”. This places a breakpoint on the selected line and the script will automatically pause when it hits the breakpoint. Once stopped at the breakpoint, you can evaluate the state of the system using telemetry screens or the built-in debugging capabilities.
 
 ### Using Disconnect Mode
 
-Disconnect mode is a feature of ScriptRunner and TestRunner that allows testing scripts in an environment without real hardware in the loop. Disconnect mode is started by selecting Script -> Toggle Disconnect. Once selected, the user is prompted to select which targets to disconnect. By default, all targets are disconnected, which allows for testing scripts without any real hardware. Optionally, only a subset of targets can be selected which can be useful for trying out scripts in partially integrated environments.
+Disconnect mode is a feature of Script Runner that allows testing scripts in an environment without real hardware in the loop. Disconnect mode is started by selecting Script -> Toggle Disconnect. Once selected, the user is prompted to select which targets to disconnect. By default, all targets are disconnected, which allows for testing scripts without any real hardware. Optionally, only a subset of targets can be selected which can be useful for trying out scripts in partially integrated environments.
 
 While in disconnect mode, commands to the disconnected targets always succeed. Additionally, all checks of disconnected targets’ telemetry are immediately successful. This allows for a quick run-through of procedures for logic errors and other script specific errors without having to worry about the behavior and proper functioning of hardware.
 
 ### Auditing your Scripts
 
-ScriptRunner includes several tools to help audit your scripts both before and after execution.
+Script Runner includes several tools to help audit your scripts both before and after execution.
 
 #### Ruby Syntax Check
 
 The Ruby Syntax Check tool is found under the Script Menu. This tool uses the ruby executable with the -c flag to run a syntax check on your script. If any syntax errors are found the exact message presented by the Ruby interpreter is shown to the user. These can be cryptic, but the most common faults are not closing a quoted string, forgetting an “end” keyword, or using a block but forgetting the proceeding “do” keyword.
-
- <img src="/img/syntax_check.png" alt="Syntax Check">
-
-#### Mnemonic Check
-
-The mnemonic check uses an algorithm to scan through your script for command and telemetry mnemonics and make sure they are known to COSMOS.
-
- <img src="/img/mnemonic_check.png" alt="Mnemonic Check">
-
-#### Generate Cmd/Tlm Audit
-
-After you are done running your scripts, you can execute a Cmd/Tlm audit that will scan the ScriptRunner message log files and look for all cmd() lines and CHECK lines to know how many times each command was sent and how many times each telemetry point was checked. This audit reads one or more message log files and generates a CSV file with a count for each command and telemetry point.
 
 ## Common Scenarios
 
@@ -288,7 +277,7 @@ Note that all these user input methods provide the user the option to “Cancel�
 When possible, a useful design pattern is to write your scripts such that they can run without prompting for any user input. This allows the scripts to be more easily tested and provides a documented default value for any user input choices or values. To implement this pattern, all manual steps such as ask(), prompt(), and infinite wait() statements need to be wrapped with an if statement that checks the value of the $manual variable. If $manual is set, then the manual steps should be executed. If not, then a default value should be used.
 
 ```ruby
-# Set the $manual variable – Only needed in ScriptRunner
+# Set the $manual variable – Only needed outside of suites
 answer = ask("Prompt for manual entry (Y/n)?")
 if answer == 'n' or answer == 'N'
   $manual = false
@@ -307,22 +296,19 @@ else
 end
 ```
 
-In TestRunner, there is a checkbox at the top of the tool called “Manual” that affects this $manual variable directly. In ScriptRunner you can also use the $manual pattern, but will need to build in an ask() at the top of your script to ask if the user wants to run manual steps, and then set the $manual variable appropriately.
+When running suites, there is a checkbox at the top of the tool called “Manual” that affects this $manual variable directly.
 
- <img src="/img/test_runner_checkboxes.png" alt="TestRunner Checkboxes">
+### Outputing Extra Information to a Report
 
-### Outputing Extra Information to a TestRunner Test Report
-
-COSMOS TestRunner automatically generates a test report that shows the PASS/FAILED/SKIPPED state for each test case. You can also inject arbitrary text into this report with the current test case using Cosmos::Test.puts “Your Text”. Alternatively, you can simply use puts to place text into the ScriptRunner message log (in both TestRunner/ScriptRunner).
+COSMOS Script Runner operating on a script suite automatically generates a report that shows the PASS/FAILED/SKIPPED state for each script. You can also inject arbitrary text into this report with using Cosmos::Group.puts “Your Text”. Alternatively, you can simply use puts to place text into the Script Runner message log.
 
 ```ruby
-class MyTest < Cosmos::Test
-  def test_1
-    # The following text will be placed in the test report
-    Cosmos::Test.puts "Verifies requirements 304, 306, 310"
-    # Do the test here
+class MyGroup < Cosmos::Group
+  def script_1
+    # The following text will be placed in the  report
+    Cosmos::Group.puts "Verifies requirements 304, 306, 310"
     # This puts line will show up in the sr_messages log file
-    puts "test_1 complete"
+    puts "script_1 complete"
   end
 end
 ```
@@ -358,7 +344,7 @@ unsubscribe_packet_data(id)
 
 ### Using Variables in Mnemonics
 
-Because command and telemetry mnemonics are just strings in COSMOS scripts, you can make use of variables in some contexts to make reusable code. For example, a function can take a target name as an input to support multiple instances of a target. You could also pass in the value for a set of numbered telemetry points.
+Because command and telemetry mnemonics are just strings in COSMOS scripts, you can make use of variables in some contexts to make reusable code. For example, a method can take a target name as an input to support multiple instances of a target. You could also pass in the value for a set of numbered telemetry points.
 
 ```ruby
 def example(target_name, temp_number)
@@ -412,26 +398,6 @@ if temp1 > 10.0
 end
 ```
 
-#### Methods should use explicit return statements
-
-In COSMOS 4.2 and earlier, COSMOS script instrumentation alters the implicit return value of each line. Therefore, when returning from instrumented methods, an explicit “return” keyword should always be used (Normal Ruby will return the result of the last line of a method). Note: This issue has been resolved in COSMOS 4.3, but all earlier versions must use explicit returns.
-
-Don’t do this:
-
-```ruby
-def add_one(x)
-  x + 1
-end
-```
-
-Do this instead:
-
-```ruby
-def add_one(x)
-  return x + 1
-end
-```
-
 ## When Things Go Wrong
 
 ### Common Reasons Checks Fail
@@ -440,7 +406,7 @@ There are three common reasons that checks fail in COSMOS scripts:
 
 1. The delay given was too short
 
-   The wait_check() function takes a timeout that indicates how long to wait for the referenced telemetry point to pass the check. The timeout needs to be large enough for the system under test to finish its action and for updated telemetry to be received. Note that the script will continue as soon as the check completes successfully. Thus, the only penalty for a longer timeout is the additional wait time in a failure condition.
+   The wait_check() method takes a timeout that indicates how long to wait for the referenced telemetry point to pass the check. The timeout needs to be large enough for the system under test to finish its action and for updated telemetry to be received. Note that the script will continue as soon as the check completes successfully. Thus, the only penalty for a longer timeout is the additional wait time in a failure condition.
 
 2. The range or value checked against was incorrect or too stringent
 
@@ -456,17 +422,17 @@ Once something has failed, and your script has stopped with a pink highlighted l
 
 1. Retry
 
-   After a failure, the ScriptRunner/TestRunner “Pause” button changes to “Retry”. Clicking on the Retry button will re-execute the line the failed. For failures due to timing issues, this will often resolve the issue and allow the script to continue. Make note of the failure and be sure to update your script prior to the next run.
+   After a failure, the Script Runner “Pause” button changes to “Retry”. Clicking on the Retry button will re-execute the line the failed. For failures due to timing issues, this will often resolve the issue and allow the script to continue. Make note of the failure and be sure to update your script prior to the next run.
 
-2. Execute Selected Lines While Paused
-
-   Sometimes re-executing a command or a few other lines of a script can correct problems. This can happen when commanding is over an unreliable transport layer such as UDP or a noisy serial line. For these scenarios, users can highlight the lines of the script they want to run again, right-click, and select “Execute Selected Lines While Paused”. This will run the selected lines again with the full script context (all required variables will still be in scope), and then return. Afterwards you can retry the line that failed or just proceed with “Go”.
-
-3. Use the Debug Prompt
+2. Use the Debug Prompt
 
    By selecting Script -> Toggle Debug, you can perform arbitrary actions that may be needed to correct the situation without stopping the running script. You can also inspect variables to help determine why something failed.
 
-4. Log Message to Script Log
+<!-- 2. Execute Selected Lines While Paused
+
+   Sometimes re-executing a command or a few other lines of a script can correct problems. This can happen when commanding is over an unreliable transport layer such as UDP or a noisy serial line. For these scenarios, users can highlight the lines of the script they want to run again, right-click, and select “Execute Selected Lines While Paused”. This will run the selected lines again with the full script context (all required variables will still be in scope), and then return. Afterwards you can retry the line that failed or just proceed with “Go”.
+
+1. Log Message to Script Log
 
    Not necessarily a correction for a failure, but you can log notes or QA approval that occurred after a failure using Script -> Log Message to Script Log.
 
@@ -478,7 +444,7 @@ If you do need to stop your script and restart, COSMOS also provides several met
 
 2. Execute Selected Lines
 
-   If only a small section of a script needs to be run, then “Execute Selected Lines” can be used to execute only a small portion of the script.
+   If only a small section of a script needs to be run, then “Execute Selected Lines” can be used to execute only a small portion of the script. -->
 
 ## Advanced Topics
 
@@ -502,22 +468,22 @@ ss = ExcelSpreadsheet.new('C:/git/COSMOS/demo/test.xlsx')
 puts ss[0][0][0]
 ```
 
-### Script specific screens
+<!-- ### Script specific screens
 
-Starting with COSMOS 4.3, script writers can include temporary screens in their COSMOS scripts that show just the specific values relative to the script. They can even display local variables as shown below. This can be a fantastic way to display just the telemetry that is specifically relevant to what you are operating or testing. Screen definitions take the same format as normal COSMOS screens with the addition of using target name LOCAL and packet name LOCAL to gain access to script local variables. See the [local_screen](/docs/scripting/#local_screen-since-430) documentation in the [Scripting Guide](/docs/scripting).
+Starting with COSMOS 4.3, script writers can include temporary screens in their COSMOS scripts that show just the specific values relative to the script. They can even display local variables as shown below. This can be a fantastic way to display just the telemetry that is specifically relevant to what you are operating or testing. Screen definitions take the same format as normal COSMOS screens with the addition of using target name LOCAL and packet name LOCAL to gain access to script local variables. See the [local_screen](/docs/scripting/#local_screen-since-430) documentation in the [Scripting Guide](/docs/scripting). -->
 
 ### When to use Modules
 
 Modules in Ruby have two purposes: namespacing and mixins. Namespacing allows having classes and methods with the same name, but with different meanings. For example, if they are namespaced, COSMOS can have a Packet class and another Ruby library can have a Packet class. This isn’t typically useful for COSMOS scripting though.
 
-Mixins allow adding common methods to classes without using inheritance. Mixins can be useful in TestRunner to add common functionality to some Test classes but not others, or to break up Test classes into multiple files.
+Mixins allow adding common methods to classes without using inheritance. Mixins can be useful to add common functionality to some classes but not others, or to break up classes into multiple files.
 
 ```ruby
 module MyModule
   def module_method
   end
 end
-class MyTest < Cosmos::Test
+class MyTest < Cosmos::Group
   include MyModule
   def test_1
     module_method()

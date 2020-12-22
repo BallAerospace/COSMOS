@@ -93,13 +93,11 @@
          
         <div class="toc"><ul class="section-nav">
 <li class="toc-entry toc-h2"><a href="#definitions">Definitions</a></li>
-<li class="toc-entry toc-h2"><a href="#telemetry-viewer-configuration">Telemetry Viewer Configuration</a></li>
 <li class="toc-entry toc-h2"><a href="#telemetry-screen-definition-files">Telemetry Screen Definition Files</a></li>
 <li class="toc-entry toc-h2"><a href="#keywords">Keywords:</a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#screen">SCREEN</a></li>
 <li class="toc-entry toc-h3"><a href="#end">END</a></li>
-<li class="toc-entry toc-h3"><a href="#stay_on_top">STAY_ON_TOP</a></li>
 <li class="toc-entry toc-h3"><a href="#global_setting">GLOBAL_SETTING</a></li>
 <li class="toc-entry toc-h3"><a href="#global_subsetting">GLOBAL_SUBSETTING</a></li>
 <li class="toc-entry toc-h3"><a href="#setting">SETTING</a></li>
@@ -109,21 +107,6 @@
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#example-file">Example File</a></li>
-<li class="toc-entry toc-h2"><a href="#telemetry-viewer-settings-files">Telemetry Viewer Settings Files</a></li>
-<li class="toc-entry toc-h2"><a href="#keywords-1">Keywords:</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#auto_targets">AUTO_TARGETS</a></li>
-<li class="toc-entry toc-h3"><a href="#auto_target">AUTO_TARGET</a></li>
-<li class="toc-entry toc-h3"><a href="#new_column">NEW_COLUMN</a></li>
-<li class="toc-entry toc-h3"><a href="#target">TARGET</a></li>
-<li class="toc-entry toc-h3"><a href="#screen-1">SCREEN</a></li>
-<li class="toc-entry toc-h3"><a href="#group">GROUP</a></li>
-<li class="toc-entry toc-h3"><a href="#group_screen">GROUP_SCREEN</a></li>
-<li class="toc-entry toc-h3"><a href="#show_on_startup">SHOW_ON_STARTUP</a></li>
-<li class="toc-entry toc-h3"><a href="#add_show_on_startup">ADD_SHOW_ON_STARTUP</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#example-file-1">Example File</a></li>
 <li class="toc-entry toc-h2"><a href="#widget-descriptions">Widget Descriptions</a></li>
 <li class="toc-entry toc-h2"><a href="#layout-widgets">Layout Widgets</a>
 <ul>
@@ -186,7 +169,6 @@
 <li class="toc-entry toc-h3"><a href="#combobox">COMBOBOX</a></li>
 <li class="toc-entry toc-h3"><a href="#radiobutton">RADIOBUTTON</a></li>
 <li class="toc-entry toc-h3"><a href="#textfield">TEXTFIELD</a></li>
-<li class="toc-entry toc-h3"><a href="#screenshotbutton">SCREENSHOTBUTTON</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#canvas-widgets">Canvas Widgets</a>
@@ -231,11 +213,7 @@
 </ul></div>
         
         <h1>Telemetry Screens</h1>
-        <div class="note unreleased">
-  <p>While Screen Definitions are the same for COSMOS 5, this section needs to be updated.</p>
-</div>
-
-<p>This document provides the information necessary to generate and use COSMOS Telemetry Screens, which are displayed by the COSMOS Telemetry Viewer application.</p>
+        <p>This document provides the information necessary to generate and use COSMOS Telemetry Screens, which are displayed by the COSMOS Telemetry Viewer application.</p>
 
 <div style="clear:both;"></div>
 
@@ -265,15 +243,10 @@
   </tbody>
 </table>
 
-<h2 id="telemetry-viewer-configuration">
-<a class="anchor" href="#telemetry-viewer-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Viewer Configuration</h2>
-
-<p>Two different types of configuration files are used to configure the COSMOS Telemetry Viewer; the screen definition files and a configuration file that lets the tool know what screens are available and how they are organized.</p>
-
 <h2 id="telemetry-screen-definition-files">
 <a class="anchor" href="#telemetry-screen-definition-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Screen Definition Files</h2>
 
-<p>Telemetry screen definition files define the the contents of telemetry screens. They take the general form of a SCREEN keyword followed by a series of widget keywords that define the telemetry screen. Screen definition files specific to a particular target go in that targets configuration folder. For example: config/targets/COSMOS/screens/version.txt. Screen definition files that combine telemetry from multiple targets typically go in the system target’s screens folder. For example: config/targets/SYSTEM/screens/overall.txt.</p>
+<p>Telemetry screen definition files define the the contents of telemetry screens. They take the general form of a SCREEN keyword followed by a series of widget keywords that define the telemetry screen. Screen definition files specific to a particular target go in that target’s screens directory. For example: COSMOS/screens/version.txt. Screen definition files that combine telemetry from multiple targets typically go in the SYSTEM target’s screens folder. For example: SYSTEM/screens/overall.txt.</p>
 
 <h2 id="keywords">
 <a class="anchor" href="#keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a>Keywords:</h2>
@@ -317,17 +290,14 @@
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SCREEN AUTO AUTO 1.0 FIXED</code></pre></figure>
 
 <h3 id="end">
 <a class="anchor" href="#end" aria-hidden="true"><span class="octicon octicon-link"></span></a>END</h3>
 
 <p>The END keyword is used to indicate the close of a layout widget. For example a VERTICALBOX keyword must be matched with an END keyword to indicate where the VERTICALBOX ends.</p>
-
-<h3 id="stay_on_top">
-<a class="anchor" href="#stay_on_top" aria-hidden="true"><span class="octicon octicon-link"></span></a>STAY_ON_TOP</h3>
-
-<p>The STAY_ON_TOP keyword is used to force the screen to the front of the display stack. This forces the window to stay above ALL other windows including other applications not associated with COSMOS.</p>
 
 <h3 id="global_setting">
 <a class="anchor" href="#global_setting" aria-hidden="true"><span class="octicon octicon-link"></span></a>GLOBAL_SETTING</h3>
@@ -362,6 +332,8 @@
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">GLOBAL_SETTING LABELVALUELIMITSBAR COLORBLIND TRUE</code></pre></figure>
 
@@ -404,6 +376,8 @@
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">GLOBAL_SUBSETTING LABELVALUELIMITSBAR 1 COLORBLIND TRUE
 GLOBAL_SUBSETTING LABELVALUELIMITSBAR 0:0 TEXTCOLOR white <span class="c"># Set all text color to white for labelvaluelimitsbars</span></code></pre></figure>
 
@@ -436,8 +410,10 @@ GLOBAL_SUBSETTING LABELVALUELIMITSBAR 0:0 TEXTCOLOR white <span class="c"># Set 
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">VERTICALBOX
-LABEL ... <span class="c"># Various other widgets</span>
+  LABEL ... <span class="c"># Various other widgets</span>
 END
 SETTING BACKCOLOR 163 185 163 <span class="c"># RGB color for the box background</span></code></pre></figure>
 
@@ -475,17 +451,19 @@ SETTING BACKCOLOR 163 185 163 <span class="c"># RGB color for the box background
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">VERTICALBOX
-LABELVALUE ...
-SUBSETTING 0 TEXTCOLOR blue <span class="c"># Change only the label's color</span>
-LABELVALUELIMITSBAR ...
-SUBSETTING 0:0 TEXTCOLOR white <span class="c"># Change the label's text color to white</span>
+  LABELVALUE ...
+  SUBSETTING 0 TEXTCOLOR blue <span class="c"># Change only the label's color</span>
+  LABELVALUELIMITSBAR ...
+  SUBSETTING 0:0 TEXTCOLOR white <span class="c"># Change the label's text color to white</span>
 END</code></pre></figure>
 
 <h3 id="named_widget">
 <a class="anchor" href="#named_widget" aria-hidden="true"><span class="octicon octicon-link"></span></a>NAMED_WIDGET</h3>
 
-<p>The NAMED_WIDGET keyword is used to give a name to a widget that allows it to be accessed from other widgets using the get_named_widget method of Cosmos::Screen. Note that get_named_widget returns the widget itself and thus must be operated on using methods native to that widget.</p>
+<p>The NAMED_WIDGET keyword is used to give a name to a widget that allows it to be accessed from other widgets using the get_named_widget method of screen. Note that get_named_widget returns the widget itself and thus must be operated on using methods native to that widget.</p>
 
 <table>
   <thead>
@@ -516,8 +494,10 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">NAMED_WIDGET heading TITLE <span class="s2">"Main Heading"</span>
-BUTTON <span class="s2">"Push"</span> <span class="s1">'puts get_named_widget("heading").text'</span></code></pre></figure>
+<!-- prettier-ignore -->
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">NAMED_WIDGET DURATION TEXTFIELD
+BUTTON <span class="s2">"Push"</span> <span class="s2">"screen.get_named_widget('DURATION').text()"</span></code></pre></figure>
 
 <h3 id="widgetname">
 <a class="anchor" href="#widgetname" aria-hidden="true"><span class="octicon octicon-link"></span></a>WIDGETNAME</h3>
@@ -551,295 +531,40 @@ BUTTON <span class="s2">"Push"</span> <span class="s1">'puts get_named_widget("h
 <h2 id="example-file">
 <a class="anchor" href="#example-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
 
-<p>Example File: &lt;Cosmos::USERPATH&gt;/config/targets/<target>/myscreen.txt</target></p>
+<p>Example File: <target>/myscreen.txt</target></p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SCREEN AUTO AUTO 0.5
-GLOBAL_SETTING LABELVALUELIMITSBAR COLORBLIND TRUE
 VERTICAL
-TITLE <span class="s2">"Instrument Health and Status"</span>
-SETTING BACKCOLOR 162 181 205
-SETTING TEXTCOLOR black
-VERTICALBOX
-SECTIONHEADER <span class="s2">"General Telemetry"</span>
-BUTTON <span class="s1">'Start Collect'</span> <span class="s1">'target_name = get_target_name("INST"); cmd("#{target_name} COLLECT with TYPE NORMAL, DURATION 5")'</span>
-SETTING BACKCOLOR 54 95 58
-SETTING TEXTCOLOR white
-FORMATVALUE INST HEALTH_STATUS COLLECTS <span class="s2">"0x%08X"</span>
-LABELVALUE INST HEALTH_STATUS COLLECT_TYPE
-LABELVALUE INST HEALTH_STATUS DURATION
-LABELVALUE INST HEALTH_STATUS ASCIICMD WITH_UNITS 30
-END
-SETTING BACKCOLOR 163 185 163
-VERTICALBOX
-SECTIONHEADER <span class="s2">"Temperatures"</span>
-LABELTRENDLIMITSBAR INST HEALTH_STATUS TEMP1 WITH_UNITS 5
-LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP2
-LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP3
-LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP4
-SETTING GRAY_TOLERANCE 0.1
-END
-SETTING BACKCOLOR 203 173 158
-VERTICALBOX
-SECTIONHEADER <span class="s2">"Ground Station"</span>
-LABELVALUE INST HEALTH_STATUS GROUND1STATUS
-LABELVALUE INST HEALTH_STATUS GROUND2STATUS
-END
-VERTICALBOX
-LABELVALUE INST HEALTH_STATUS TIMEFORMATTED WITH_UNITS 30
-SCREENSHOTBUTTON
-END
-SETTING BACKCOLOR 207 171 169
-END
-SETTING BACKCOLOR 162 181 205</code></pre></figure>
-
-<hr>
-
-<h2 id="telemetry-viewer-settings-files">
-<a class="anchor" href="#telemetry-viewer-settings-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Telemetry Viewer Settings Files</h2>
-
-<p>A telemetry viewer settings file tells telemetry viewer what screens exist and how they should be categorized. The default setting files is called tlm_viewer.txt and is located in config/tools/tlm_viewer/tlm_viewer.txt.</p>
-
-<h2 id="keywords-1">
-<a class="anchor" href="#keywords-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Keywords:</h2>
-
-<h3 id="auto_targets">
-<a class="anchor" href="#auto_targets" aria-hidden="true"><span class="octicon octicon-link"></span></a>AUTO_TARGETS</h3>
-
-<p>The AUTO_TARGETS keyword tells Telemetry Viewer to add all the screens defined in the screens directory of each target folder in the config/targets directory. Screens are grouped by target name in the display. For example: all the screens defined in config/targets/COSMOS/screens will be added to a single drop down selection labeled COSMOS.</p>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">AUTO_TARGETS</code></pre></figure>
-
-<h3 id="auto_target">
-<a class="anchor" href="#auto_target" aria-hidden="true"><span class="octicon octicon-link"></span></a>AUTO_TARGET</h3>
-
-<p>The AUTO_TARGET keyword tells Telemetry Viewer to add all the screens defined in the screens directory of the specified target folder in the config/targets directory. Screens are grouped by target name in the display. For example: all the screens defined in config/targets/COSMOS/screens will be added to a single drop down selection labeled COSMOS. If AUTO_TARGETS is used this keyword does nothing.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Target Name</td>
-      <td>Name of the target directory to look for screens.</td>
-      <td>Yes</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">AUTO_TARGET COSMOS</code></pre></figure>
-
-<h3 id="new_column">
-<a class="anchor" href="#new_column" aria-hidden="true"><span class="octicon octicon-link"></span></a>NEW_COLUMN</h3>
-
-<p>The NEW_COLUMN keywords creates a new column of drop down selections in Telemetry Viewer. All the AUTO_TARGET or SCREEN keywords after this keyword will be added to a new column in the GUI.</p>
-
-<h3 id="target">
-<a class="anchor" href="#target" aria-hidden="true"><span class="octicon octicon-link"></span></a>TARGET</h3>
-
-<p>The TARGET keyword is used to call out individual screens within a targets screen directory. It is used in conjunction with the SCREEN keyword.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Name</td>
-      <td>Name of the target directory to look for screens.</td>
-      <td>Yes</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TARGET COSMOS</code></pre></figure>
-
-<h3 id="screen-1">
-<a class="anchor" href="#screen-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>SCREEN</h3>
-
-<p>The SCREEN keyword adds the specified screen from the specified target. It must follow the TARGET keyword and is typically indented to show ownership to the target.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>File Name</td>
-      <td>Name of the file containing the telemetry screen definition. The filename will be upcased and used in the drop down selection.</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>X Position</td>
-      <td>Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied.</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>Y Position</td>
-      <td>Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied.</td>
-      <td>No</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TARGET COSMOS
-SCREEN version.txt 50 50</code></pre></figure>
-
-<h3 id="group">
-<a class="anchor" href="#group" aria-hidden="true"><span class="octicon octicon-link"></span></a>GROUP</h3>
-
-<p>The GROUP keyword is used to create a new drop down group in the Tlm Viewer application.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Group Name</td>
-      <td>Label to display in front of the group drop down.</td>
-      <td>Yes</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">GROUP <span class="s2">"Special Ops"</span></code></pre></figure>
-
-<h3 id="group_screen">
-<a class="anchor" href="#group_screen" aria-hidden="true"><span class="octicon octicon-link"></span></a>GROUP_SCREEN</h3>
-
-<p>The GROUP_SCREEN keyword is used to add a screen to a previously defined group. It must follow the GROUP keyword.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Target Name</td>
-      <td>Name of the target where the screen is defined</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>File Name</td>
-      <td>Name of the file containing the telemetry screen definition. The filename will be upcased and used in the drop down selection.</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>X Position</td>
-      <td>Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied.</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>Y Position</td>
-      <td>Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied.</td>
-      <td>No</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">GROUP <span class="s2">"Special Ops"</span>
-GROUP_SCREEN SYSTEM status.txt</code></pre></figure>
-
-<h3 id="show_on_startup">
-<a class="anchor" href="#show_on_startup" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHOW_ON_STARTUP</h3>
-
-<p>The SHOW_ON_STARTUP keyword causes the previously defined SCREEN to be automatically displayed when Telemetry Viewer starts. It must be preceeded by the SCREEN or GROUP_SCREEN keyword.</p>
-
-<h3 id="add_show_on_startup">
-<a class="anchor" href="#add_show_on_startup" aria-hidden="true"><span class="octicon octicon-link"></span></a>ADD_SHOW_ON_STARTUP</h3>
-
-<p>The ADD_SHOW_ON_STARTUP keyword adds show on startup to any screen that has already been defined. This is useful for adding show on startup to screens defined with AUTO_TARGETS.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Target Name</td>
-      <td>Target Name of the screen</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>Screen Name</td>
-      <td>Base Name of the screen. This is equal to the screens filename with the .txt extension.</td>
-      <td>Yes</td>
-    </tr>
-    <tr>
-      <td>X Position</td>
-      <td>Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied.</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>Y Position</td>
-      <td>Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied.</td>
-      <td>No</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">ADD_SHOW_ON_STARTUP INST HS 500 300
-ADD_SHOW_ON_STARTUP INST ADCS</code></pre></figure>
-
-<h2 id="example-file-1">
-<a class="anchor" href="#example-file-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Example File</h2>
-
-<p>Example File: &lt;Cosmos::USERPATH&gt;/config/tools/tlm_viewer/tlm_viewer.txt</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TARGET INST
-SCREEN <span class="s2">"adcs.txt"</span>
-SCREEN <span class="s2">"array.txt"</span>
-TARGET INST2
-SCREEN <span class="s2">"commanding.txt"</span> 898 317
-SHOW_ON_STARTUP
-SCREEN <span class="s2">"hs.txt"</span>
-TARGET COSMOS
-SCREEN <span class="s2">"version.txt"</span>
-GROUP <span class="s2">"My group"</span>
-GROUP_SCREEN SYSTEM <span class="s2">"status.txt"</span>
-GROUP_SCREEN INST <span class="s2">"hs.txt"</span>
-GROUP_SCREEN INST2 <span class="s2">"hs.txt"</span></code></pre></figure>
-
-<hr>
+  TITLE <span class="s2">"&lt;%= @target_name %&gt; Commanding Examples"</span>
+  LABELVALUE INST HEALTH_STATUS COLLECTS
+  LABELVALUE INST HEALTH_STATUS COLLECT_TYPE
+  LABELVALUE INST HEALTH_STATUS DURATION
+  VERTICALBOX
+    SECTIONHEADER <span class="s2">"Send Collect Command:"</span>
+    HORIZONTAL
+      LABEL <span class="s2">"Type: "</span>
+      NAMED_WIDGET COLLECT_TYPE COMBOBOX NORMAL SPECIAL
+    END
+    HORIZONTAL
+      LABEL <span class="s2">"  Duration: "</span>
+      NAMED_WIDGET DURATION TEXTFIELD 12 <span class="s2">"10.0"</span>
+    END
+    BUTTON <span class="s1">'Start Collect'</span> <span class="s2">"api.cmd('INST COLLECT with TYPE '+screen.get_named_widget('COLLECT_TYPE').text()+', DURATION '+screen.get_named_widget('DURATION').text())"</span>
+  END
+  SETTING BACKCOLOR 163 185 163
+  VERTICALBOX
+    SECTIONHEADER <span class="s2">"Parameter-less Commands:"</span>
+    NAMED_WIDGET GROUP RADIOGROUP 1 <span class="c"># Select 'Clear' initially, 0-based index</span>
+      RADIOBUTTON <span class="s1">'Abort'</span>
+      RADIOBUTTON <span class="s1">'Clear'</span>
+    END
+    NAMED_WIDGET CHECK CHECKBUTTON <span class="s1">'Ignore Hazardous Checks'</span> <span class="c"># No option is by default UNCHECKED</span>
+    BUTTON <span class="s1">'Send'</span> <span class="s2">"screen.get_named_widget('GROUP').selected() === 0 ? api.cmd('INST ABORT') : (screen.get_named_widget('CHECK').checked() ? api.cmd_no_hazardous_check('INST CLEAR') : api.cmd('INST CLEAR'))"</span>
+  END
+  SETTING BACKCOLOR 163 185 163
+END</code></pre></figure>
 
 <h2 id="widget-descriptions">
 <a class="anchor" href="#widget-descriptions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Widget Descriptions</h2>
@@ -880,9 +605,11 @@ GROUP_SCREEN INST2 <span class="s2">"hs.txt"</span></code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">VERTICAL 50
-LABEL <span class="s2">"TEST"</span>
-LABEL <span class="s2">"SCREEN"</span>
+  LABEL <span class="s2">"TEST"</span>
+  LABEL <span class="s2">"SCREEN"</span>
 END</code></pre></figure>
 
 <h3 id="verticalbox">
@@ -919,9 +646,11 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">VERTICALBOX Info
-LABEL <span class="s2">"TEST"</span>
-LABEL <span class="s2">"SCREEN"</span>
+  LABEL <span class="s2">"TEST"</span>
+  LABEL <span class="s2">"SCREEN"</span>
 END</code></pre></figure>
 
 <h3 id="horizontal">
@@ -948,9 +677,11 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">HORIZONTAL 100
-LABEL <span class="s2">"TEST"</span>
-LABEL <span class="s2">"SCREEN"</span>
+  LABEL <span class="s2">"TEST"</span>
+  LABEL <span class="s2">"SCREEN"</span>
 END</code></pre></figure>
 
 <h3 id="horizontalbox">
@@ -982,9 +713,11 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">HORIZONTALBOX Info 10
-LABEL <span class="s2">"TEST"</span>
-LABEL <span class="s2">"SCREEN"</span>
+  LABEL <span class="s2">"TEST"</span>
+  LABEL <span class="s2">"SCREEN"</span>
 END</code></pre></figure>
 
 <h3 id="matrixbycolumns">
@@ -1021,14 +754,15 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">MATRIXBYCOLUMNS 3
-LABEL <span class="s2">"COL 1"</span>
-LABEL <span class="s2">"COL 2"</span>
-LABEL <span class="s2">"COL 3"</span>
+<!-- prettier-ignore -->
 
-LABEL <span class="s2">"100"</span>
-LABEL <span class="s2">"200"</span>
-LABEL <span class="s2">"300"</span>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">MATRIXBYCOLUMNS 3
+  LABEL <span class="s2">"COL 1"</span>
+  LABEL <span class="s2">"COL 2"</span>
+  LABEL <span class="s2">"COL 3"</span>
+  LABEL <span class="s2">"100"</span>
+  LABEL <span class="s2">"200"</span>
+  LABEL <span class="s2">"300"</span>
 END</code></pre></figure>
 
 <h3 id="scrollwindow">
@@ -1038,18 +772,20 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SCROLLWINDOW
-VERTICAL
-LABEL <span class="s2">"100"</span>
-LABEL <span class="s2">"200"</span>
-LABEL <span class="s2">"300"</span>
-LABEL <span class="s2">"400"</span>
-LABEL <span class="s2">"500"</span>
-LABEL <span class="s2">"600"</span>
-LABEL <span class="s2">"700"</span>
-LABEL <span class="s2">"800"</span>
-LABEL <span class="s2">"900"</span>
-END
+  VERTICAL
+    LABEL <span class="s2">"100"</span>
+    LABEL <span class="s2">"200"</span>
+    LABEL <span class="s2">"300"</span>
+    LABEL <span class="s2">"400"</span>
+    LABEL <span class="s2">"500"</span>
+    LABEL <span class="s2">"600"</span>
+    LABEL <span class="s2">"700"</span>
+    LABEL <span class="s2">"800"</span>
+    LABEL <span class="s2">"900"</span>
+  END
 END</code></pre></figure>
 
 <h3 id="tabbook">
@@ -1081,15 +817,17 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TABBOOK
-TABITEM <span class="s2">"Tab 1"</span>
-LABEL <span class="s2">"100"</span>
-LABEL <span class="s2">"200"</span>
-END
-TABITEM <span class="s2">"Tab 2"</span>
-LABEL <span class="s2">"300"</span>
-LABEL <span class="s2">"400"</span>
-END
+  TABITEM <span class="s2">"Tab 1"</span>
+    LABEL <span class="s2">"100"</span>
+    LABEL <span class="s2">"200"</span>
+  END
+  TABITEM <span class="s2">"Tab 2"</span>
+    LABEL <span class="s2">"300"</span>
+    LABEL <span class="s2">"400"</span>
+  END
 END</code></pre></figure>
 
 <h2 id="decoration-widgets">
@@ -1120,6 +858,8 @@ END</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABEL <span class="s2">"Note: This is only a warning"</span></code></pre></figure>
 
@@ -1152,6 +892,8 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SECTIONHEADER Mechanisms</code></pre></figure>
 
 <h3 id="title">
@@ -1177,6 +919,8 @@ END</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TITLE <span class="s2">"Title"</span>
 HORIZONTALLINE
@@ -1222,10 +966,12 @@ LABEL <span class="s2">"Label"</span></code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">VERTICAL 3 FALSE
-LABEL <span class="s2">"Spacer below"</span>
-SPACER 0 100 MINIMUM EXPANDING
-LABEL <span class="s2">"Spacer above"</span>
+  LABEL <span class="s2">"Spacer below"</span>
+  SPACER 0 100 MINIMUM EXPANDING
+  LABEL <span class="s2">"Spacer above"</span>
 END</code></pre></figure>
 
 <h2 id="telemetry-widgets">
@@ -1291,6 +1037,8 @@ END</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">ARRAY INST HEALTH_STATUS ARY 250 50 <span class="s2">"0x%x"</span> 6 FORMATTED
 ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
@@ -1364,6 +1112,8 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">BLOCK INST IMAGE IMAGE 400 130 <span class="s2">"%02X"</span> 4 4 <span class="s2">"0x%08X:"</span></code></pre></figure>
 
 <h3 id="formatfontvalue">
@@ -1435,6 +1185,8 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">FORMATFONTVALUE INST LATEST TIMESEC %012u CONVERTED 12 arial 15 Qt::Font::Bold <span class="nb">true</span></code></pre></figure>
 
 <h3 id="formatvalue">
@@ -1485,6 +1237,8 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">FORMATVALUE INST LATEST TIMESEC %012u CONVERTED 12</code></pre></figure>
 
@@ -1537,6 +1291,8 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELFORMATVALUE INST LATEST TIMESEC %012u CONVERTED 12</code></pre></figure>
 
 <h3 id="labelprogressbar">
@@ -1587,6 +1343,8 @@ ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELPROGRESSBAR INST ADCS POSPROGRESS 2 200 RAW
 LABELPROGRESSBAR INST ADCS POSPROGRESS</code></pre></figure>
@@ -1650,6 +1408,8 @@ LABELPROGRESSBAR INST ADCS POSPROGRESS</code></pre></figure>
 
 <p>Example Usage</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELTRENDLIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 5 20 200 50
 LABELTRENDLIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
 
@@ -1701,6 +1461,8 @@ LABELTRENDLIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUE INST LATEST TIMESEC CONVERTED 18 center
 LABELVALUE INST LATEST COLLECT_TYPE</code></pre></figure>
@@ -1754,6 +1516,8 @@ LABELVALUE INST LATEST COLLECT_TYPE</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUEDESC INST LATEST TIMESEC <span class="s2">"Time in seconds"</span> CONVERTED 18
 LABELVALUEDESC INST LATEST COLLECT_TYPE</code></pre></figure>
 
@@ -1801,6 +1565,8 @@ LABELVALUEDESC INST LATEST COLLECT_TYPE</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 18
 LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
 
@@ -1847,6 +1613,8 @@ LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1 CONVERTED 18
 LABELVALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1</code></pre></figure>
@@ -1915,6 +1683,8 @@ LABELVALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUERANGEBAR INST HEALTH_STATUS TEMP1 0 50 CONVERTED 18 200 50
 LABELVALUERANGEBAR INST HEALTH_STATUS TEMP1 0 50</code></pre></figure>
 
@@ -1982,6 +1752,8 @@ LABELVALUERANGEBAR INST HEALTH_STATUS TEMP1 0 50</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUERANGECOLUMN INST HEALTH_STATUS TEMP1 0 50 CONVERTED 18 50 200
 LABELVALUERANGECOLUMN INST HEALTH_STATUS TEMP1 0 50</code></pre></figure>
 
@@ -2033,6 +1805,8 @@ LABELVALUERANGECOLUMN INST HEALTH_STATUS TEMP1 0 50</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 200 50
 LIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
@@ -2086,6 +1860,8 @@ LIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LIMITSCOLUMN INST HEALTH_STATUS TEMP1 CONVERTED 50 200
 LIMITSCOLUMN INST HEALTH_STATUS TEMP1</code></pre></figure>
 
@@ -2138,6 +1914,8 @@ LIMITSCOLUMN INST HEALTH_STATUS TEMP1</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LIMITSCOLOR INST HEALTH_STATUS TEMP1 CONVERTED 20 TRUE
 LIMITSCOLOR INST HEALTH_STATUS TEMP1</code></pre></figure>
 
@@ -2185,6 +1963,8 @@ LIMITSCOLOR INST HEALTH_STATUS TEMP1</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">VALUELIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 18
 VALUELIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
 
@@ -2231,6 +2011,8 @@ VALUELIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">VALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1 CONVERTED 18
 VALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1</code></pre></figure>
@@ -2299,6 +2081,8 @@ VALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">VALUERANGEBAR INST HEALTH_STATUS TEMP1 0 100 CONVERTED 18 200 50
 VALUERANGEBAR INST HEALTH_STATUS TEMP1 <span class="nt">-1000</span> 1000</code></pre></figure>
 
@@ -2366,6 +2150,8 @@ VALUERANGEBAR INST HEALTH_STATUS TEMP1 <span class="nt">-1000</span> 1000</code>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">VALUERANGECOLUMN INST HEALTH_STATUS TEMP1 0 100 CONVERTED 18 50 200
 VALUERANGECOLUMN INST HEALTH_STATUS TEMP1 <span class="nt">-1000</span> 1000</code></pre></figure>
 
@@ -2423,6 +2209,8 @@ VALUERANGECOLUMN INST HEALTH_STATUS TEMP1 <span class="nt">-1000</span> 1000</co
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LINEGRAPH INST HEALTH_STATUS TEMP1
 LINEGRAPH INST HEALTH_STATUS TEMP1 10 400 100 RAW</code></pre></figure>
 
@@ -2474,6 +2262,8 @@ LINEGRAPH INST HEALTH_STATUS TEMP1 10 400 100 RAW</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">PROGRESSBAR INST ADCS POSPROGRESS 0.5 200
 PROGRESSBAR INST ADCS POSPROGRESS</code></pre></figure>
@@ -2537,6 +2327,8 @@ PROGRESSBAR INST ADCS POSPROGRESS</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">RANGEBAR INST HEALTH_STATUS TEMP1 0 100 CONVERTED 200 50
 RANGEBAR INST HEALTH_STATUS TEMP1 <span class="nt">-1000</span> 1000</code></pre></figure>
 
@@ -2599,6 +2391,8 @@ RANGEBAR INST HEALTH_STATUS TEMP1 <span class="nt">-1000</span> 1000</code></pre
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">RANGECOLUMN INST HEALTH_STATUS TEMP1 0 100 CONVERTED 50 200
 RANGECOLUMN INST HEALTH_STATUS TEMP1 <span class="nt">-1000</span> 1000</code></pre></figure>
 
@@ -2650,6 +2444,8 @@ RANGECOLUMN INST HEALTH_STATUS TEMP1 <span class="nt">-1000</span> 1000</code></
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TEXTBOX INST HEALTH_STATUS TIMEFORMATTED 150 50
 TEXTBOX INST HEALTH_STATUS TIMEFORMATTED</code></pre></figure>
@@ -2718,6 +2514,8 @@ TEXTBOX INST HEALTH_STATUS TIMEFORMATTED</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TIMEGRAPH INST HEALTH_STATUS TEMP1
 TIMEGRAPH INST HEALTH_STATUS TEMP1 10 400 100 <span class="nb">false </span>TIMESECONDS CONVERTED</code></pre></figure>
 
@@ -2774,6 +2572,8 @@ TIMEGRAPH INST HEALTH_STATUS TEMP1 10 400 100 <span class="nb">false </span>TIME
 </table>
 
 <p>Example Usage</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TRENDBAR INST HEALTH_STATUS TEMP1 CONVERTED 20 200 50
 TRENDBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
@@ -2837,6 +2637,8 @@ TRENDBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
 
 <p>Example Usage</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TRENDLIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 20 20 200 50
 TRENDLIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
 
@@ -2884,6 +2686,8 @@ TRENDLIMITSBAR INST HEALTH_STATUS TEMP1</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">VALUE INST HEALTH_STATUS TEMP1 CONVERTED 18
 VALUE INST HEALTH_STATUS TEMP1</code></pre></figure>
 
@@ -2895,9 +2699,9 @@ VALUE INST HEALTH_STATUS TEMP1</code></pre></figure>
 <h3 id="button">
 <a class="anchor" href="#button" aria-hidden="true"><span class="octicon octicon-link"></span></a>BUTTON</h3>
 
-<p>The BUTTON widget displays a rectangular button that is clickable by the mouse. Upon clicking, the button executes the Ruby code assigned. Buttons can be used to send commands and perform other tasks.</p>
+<p>The BUTTON widget displays a rectangular button that is clickable by the mouse. Upon clicking, the button executes the Javascript code assigned. Buttons can be used to send commands and perform other tasks.</p>
 
-<p>If you want your button to use values from other widgets, define them as named widgets and read their values using the <code class="language-plaintext highlighter-rouge">get_named_widget("WIDGET_NAME").text</code> method. See the example in CHECKBUTTON. If your button logic gets complex it’s recommended to <code class="language-plaintext highlighter-rouge">require</code> a separate script and pass the screen to the script using self such as <code class="language-plaintext highlighter-rouge">require utility.rb; utility_method(self)</code>.</p>
+<p>If you want your button to use values from other widgets, define them as named widgets and read their values using the <code class="language-plaintext highlighter-rouge">screen.get_named_widget("WIDGET_NAME").text()</code> method. See the example in CHECKBUTTON.</p>
 
 <table>
   <thead>
@@ -2915,7 +2719,7 @@ VALUE INST HEALTH_STATUS TEMP1</code></pre></figure>
     </tr>
     <tr>
       <td>String to Eval</td>
-      <td>Ruby code to execute when the button is pressed</td>
+      <td>Javascript code to execute when the button is pressed</td>
       <td>Yes</td>
     </tr>
   </tbody>
@@ -2923,11 +2727,9 @@ VALUE INST HEALTH_STATUS TEMP1</code></pre></figure>
 
 <p>Example Usage to execute a command:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">BUTTON <span class="s1">'Start Collect'</span> <span class="s1">'cmd("INST COLLECT with TYPE NORMAL, DURATION 5")'</span></code></pre></figure>
+<!-- prettier-ignore -->
 
-<p>Example Usage to open Script Runner with a given script:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">BUTTON <span class="s2">"Run Script"</span> <span class="s1">'system("ruby #{Cosmos::USERPATH}/tools/ScriptRunner #{Cosmos::USERPATH}/procedures/checks.rb")'</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">BUTTON <span class="s1">'Start Collect'</span> <span class="s1">'api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")'</span></code></pre></figure>
 
 <h3 id="checkbutton">
 <a class="anchor" href="#checkbutton" aria-hidden="true"><span class="octicon octicon-link"></span></a>CHECKBUTTON</h3>
@@ -2958,8 +2760,10 @@ VALUE INST HEALTH_STATUS TEMP1</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">NAMED_WIDGET CHECK CHECKBUTTON <span class="s1">'Ignore Hazardous Checks'</span>
-BUTTON <span class="s1">'Send'</span> <span class="s1">'if get_named_widget("CHECK").checked? then cmd_no_hazardous_check("INST CLEAR") else cmd("INST CLEAR") end'</span></code></pre></figure>
+BUTTON <span class="s1">'Send'</span> <span class="s1">'screen.get_named_widget("CHECK").checked() ? api.cmd_no_hazardous_check("INST CLEAR") : api.cmd("INST CLEAR")'</span></code></pre></figure>
 
 <h3 id="combobox">
 <a class="anchor" href="#combobox" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMBOBOX</h3>
@@ -2990,7 +2794,9 @@ BUTTON <span class="s1">'Send'</span> <span class="s1">'if get_named_widget("CHE
 
 <p>Example Usage:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">BUTTON <span class="s1">'Start Collect'</span> <span class="s1">'cmd("INST COLLECT with TYPE #{get_named_widget("COLLECT_TYPE").text}, DURATION 10.0")'</span>
+<!-- prettier-ignore -->
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">BUTTON <span class="s1">'Start Collect'</span> <span class="s1">'api.cmd("INST COLLECT with TYPE '</span>+screen.get_named_widget<span class="o">(</span><span class="s2">"COLLECT_TYPE"</span><span class="o">)</span>.text<span class="o">()</span>+<span class="s1">', DURATION 10.0")'</span>
 NAMED_WIDGET COLLECT_TYPE COMBOBOX NORMAL SPECIAL</code></pre></figure>
 
 <h3 id="radiobutton">
@@ -3022,9 +2828,11 @@ NAMED_WIDGET COLLECT_TYPE COMBOBOX NORMAL SPECIAL</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">NAMED_WIDGET ABORT RADIOBUTTON <span class="s1">'Abort'</span>
 NAMED_WIDGET CLEAR RADIOBUTTON <span class="s1">'Clear'</span>
-BUTTON <span class="s1">'Send'</span> <span class="s1">'if get_named_widget("ABORT").checked? then cmd("INST ABORT") else cmd("INST CLEAR") end'</span></code></pre></figure>
+BUTTON <span class="s1">'Send'</span> <span class="s1">'screen.get_named_widget("ABORT").checked() ? cmd("INST ABORT") : cmd("INST CLEAR")'</span></code></pre></figure>
 
 <h3 id="textfield">
 <a class="anchor" href="#textfield" aria-hidden="true"><span class="octicon octicon-link"></span></a>TEXTFIELD</h3>
@@ -3055,39 +2863,10 @@ BUTTON <span class="s1">'Send'</span> <span class="s1">'if get_named_widget("ABO
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">NAMED_WIDGET DURATION TEXTFIELD 12 <span class="s2">"10.0"</span>
-BUTTON <span class="s1">'Start Collect'</span> <span class="s1">'cmd("INST COLLECT with TYPE NORMAL, DURATION #{get_named_widget("DURATION").text.to_f}")'</span></code></pre></figure>
-
-<h3 id="screenshotbutton">
-<a class="anchor" href="#screenshotbutton" aria-hidden="true"><span class="octicon octicon-link"></span></a>SCREENSHOTBUTTON</h3>
-
-<p>The SCREENSHOTBUTTON widget displays a button that when clicked takes a screenshot.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Button Text</td>
-      <td>Text to display on the button. (default = “Screenshot”)</td>
-      <td>No</td>
-    </tr>
-    <tr>
-      <td>Directory</td>
-      <td>Directory to save the screenshot. (default = System.paths[‘LOGS’])</td>
-      <td>No</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">SCREENSHOTBUTTON <span class="s2">"Screenshot"</span> <span class="s2">"C:/images/screenshots"</span></code></pre></figure>
+BUTTON <span class="s1">'Start Collect'</span> <span class="s1">'api.cmd("INST COLLECT with TYPE NORMAL, DURATION '</span>+screen.get_named_widget<span class="o">(</span><span class="s2">"DURATION"</span><span class="o">)</span>.text<span class="o">()</span>+<span class="s1">'")'</span></code></pre></figure>
 
 <h2 id="canvas-widgets">
 <a class="anchor" href="#canvas-widgets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Canvas Widgets</h2>
@@ -3167,9 +2946,11 @@ BUTTON <span class="s1">'Start Collect'</span> <span class="s1">'cmd("INST COLLE
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVAS 100 100
-CANVASLABEL 5 34 <span class="s2">"Label1"</span> 24 red
-CANVASLABEL 5 70 <span class="s2">"Label2"</span> 18 blue
+  CANVASLABEL 5 34 <span class="s2">"Label1"</span> 24 red
+  CANVASLABEL 5 70 <span class="s2">"Label2"</span> 18 blue
 END</code></pre></figure>
 
 <h3 id="canvaslabelvalue">
@@ -3241,9 +3022,11 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVAS 200 100
-CANVASLABELVALUE INST HEALTH_STATUS TEMP1 5 34 12 red <span class="nb">true </span>5
-CANVASLABELVALUE INST HEALTH_STATUS TEMP2 5 70 10 blue <span class="nb">false </span>0 WITH_UNITS
+  CANVASLABELVALUE INST HEALTH_STATUS TEMP1 5 34 12 red <span class="nb">true </span>5
+  CANVASLABELVALUE INST HEALTH_STATUS TEMP2 5 70 10 blue <span class="nb">false </span>0 WITH_UNITS
 END</code></pre></figure>
 
 <h3 id="canvasimage">
@@ -3262,7 +3045,7 @@ END</code></pre></figure>
   <tbody>
     <tr>
       <td>Image Name</td>
-      <td>Name of a image file. The file must be located in the &lt;Cosmos::USERPATH&gt;/data directory.</td>
+      <td>Name of a image file which must be located in the TARGET/screens directory or URL to image.</td>
       <td>Yes</td>
     </tr>
     <tr>
@@ -3275,13 +3058,26 @@ END</code></pre></figure>
       <td>Top Y position to draw the image</td>
       <td>Yes</td>
     </tr>
+    <tr>
+      <td>Width</td>
+      <td>Width of the image</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Height</td>
+      <td>Height of the image</td>
+      <td>No</td>
+    </tr>
   </tbody>
 </table>
 
 <p>Example Usage:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVAS 300 300
-CANVASIMAGE <span class="s2">"satellite.gif"</span> 0 0
+<!-- prettier-ignore -->
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">  CANVAS 300 300
+  CANVASIMAGE <span class="s2">"satellite.gif"</span> 0 0
+  CANVASIMAGE <span class="s2">"https://images.pexels.com/photos/256152/pexels-photo-256152.jpeg?auto=compress&amp;cs=tinysrgb&amp;dpr=2&amp;h=640&amp;w=426"</span> 0 250 250 150
 END</code></pre></figure>
 
 <h3 id="canvasimagevalue">
@@ -3315,7 +3111,7 @@ END</code></pre></figure>
     </tr>
     <tr>
       <td>Filename Prefix</td>
-      <td>The prefix part of the filename of the gif images (expected to be in the user’s data directory). The actual filenames will be this value plus the word “on” or the word “off” and “.gif”</td>
+      <td>The prefix part of the filename of the gif images (in the TARGET/screens directory). The actual filenames will be this value plus the word “on” or the word “off” and “.gif”</td>
       <td>Yes</td>
     </tr>
     <tr>
@@ -3338,9 +3134,11 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVAS 150 200
-CANVASLABELVALUE INST HEALTH_STATUS GROUND1STATUS 0 12 12 black <span class="nb">false
-</span>CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS <span class="s2">"ground"</span> 0 20 <span class="c"># Uses groundon.gif and groundoff.gif</span>
+  CANVASLABELVALUE INST HEALTH_STATUS GROUND1STATUS 0 12 12 black <span class="nb">false
+  </span>CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS <span class="s2">"ground"</span> 0 20 <span class="c"># Uses groundon.gif and groundoff.gif</span>
 END</code></pre></figure>
 
 <h3 id="canvasline">
@@ -3397,10 +3195,12 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVAS 100 50
-CANVASLINE 5 5 95 5
-CANVASLINE 5 5 5 45 green 2 CONNECTOR
-CANVASLINE 95 5 95 45 blue 3 CONNECTOR
+  CANVASLINE 5 5 95 5
+  CANVASLINE 5 5 5 45 green 2 CONNECTOR
+  CANVASLINE 95 5 95 45 blue 3 CONNECTOR
 END</code></pre></figure>
 
 <h3 id="canvaslinevalue">
@@ -3482,10 +3282,12 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVAS 120 50
-CANVASLABELVALUE INST HEALTH_STATUS GROUND1STATUS 0 12 12 black <span class="nb">false
-</span>CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 5 25 115 25
-CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 5 45 115 45 purple red 3 CONNECTOR
+  CANVASLABELVALUE INST HEALTH_STATUS GROUND1STATUS 0 12 12 black <span class="nb">false
+  </span>CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 5 25 115 25
+  CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 5 45 115 45 purple red 3 CONNECTOR
 END</code></pre></figure>
 
 <h3 id="canvasdot">
@@ -3527,14 +3329,16 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVAS 201 201
-CANVASLINE 0 0 200 0
-CANVASLINE 200 0 200 200
-CANVASLINE 200 200 0 200
-CANVASLINE 0 200 0 0
-CANVASLINE 99 1 99 199 white
-CANVASLINE 1 99 199 99 white
-CANVASDOT <span class="s1">'tlm_variable("GIMBAL AXIS_STATUS_X POSITION", :RAW) + 100'</span> <span class="s1">'tlm_variable("GIMBAL AXIS_STATUS_Y POSITION", :RAW) + 100'</span> red
+  CANVASLINE 0 0 200 0
+  CANVASLINE 200 0 200 200
+  CANVASLINE 200 200 0 200
+  CANVASLINE 0 200 0 0
+  CANVASLINE 99 1 99 199 white
+  CANVASLINE 1 99 199 99 white
+  CANVASDOT <span class="s1">'api.tlm_variable("GIMBAL AXIS_STATUS_X POSITION", :RAW) + 100'</span> <span class="s1">'api.tlm_variable("GIMBAL AXIS_STATUS_Y POSITION", :RAW) + 100'</span> red
 END</code></pre></figure>
 
 <p><img src="https://cloud.githubusercontent.com/assets/5217851/11122513/d29af8c0-8918-11e5-9138-17011956911a.jpg" alt="720311333_78794"></p>
@@ -3602,6 +3406,8 @@ END</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SETTING BACKCOLOR red
 SETTING BACKCOLOR 162 181 205</code></pre></figure>
 
@@ -3656,6 +3462,8 @@ SETTING BACKCOLOR 162 181 205</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SETTING TEXTCOLOR red
 SETTING TEXTCOLOR 162 181 205</code></pre></figure>
 
@@ -3683,6 +3491,8 @@ SETTING TEXTCOLOR 162 181 205</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SETTING WIDTH 100</code></pre></figure>
 
 <h3 id="height">
@@ -3708,6 +3518,8 @@ SETTING TEXTCOLOR 162 181 205</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">SETTING HEIGHT 100</code></pre></figure>
 
@@ -3769,9 +3581,11 @@ SETTING TEXTCOLOR 162 181 205</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">HORIZONTALBOX
-LABEL <span class="s2">"Label 1"</span>
-LABEL <span class="s2">"Label 2"</span>
+  LABEL <span class="s2">"Label 1"</span>
+  LABEL <span class="s2">"Label 2"</span>
 END
 SETTING BORDERCOLOR red</code></pre></figure>
 
@@ -3798,6 +3612,8 @@ SETTING BORDERCOLOR red</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP1
 SETTING COLORBLIND TRUE</code></pre></figure>
@@ -3826,6 +3642,8 @@ SETTING COLORBLIND TRUE</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUE INST HEALTH_STATUS COLLECTS
 SETTING ENABLE_AGING FALSE</code></pre></figure>
 
@@ -3852,6 +3670,8 @@ SETTING ENABLE_AGING FALSE</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUE INST HEALTH_STATUS COLLECTS
 SETTING GRAY_RATE 5</code></pre></figure>
@@ -3880,6 +3700,8 @@ SETTING GRAY_RATE 5</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUE INST HEALTH_STATUS COLLECTS
 SETTING GRAY_TOLERANCE 1</code></pre></figure>
 
@@ -3906,6 +3728,8 @@ SETTING GRAY_TOLERANCE 1</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">LABELVALUE INST HEALTH_STATUS TEMP1
 SETTING GRAY_TOLERANCE 1000 <span class="c"># Prevent the widget from refreshing by choosing a high tolerance</span>
@@ -3935,6 +3759,8 @@ SETTING MIN_GRAY 0 <span class="c"># Set the minimum gray to black</span></code>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">TRENDBAR INST HEALTH_STATUS TEMP1
 SETTING TREND_SECONDS 10</code></pre></figure>
 
@@ -3961,6 +3787,8 @@ SETTING TREND_SECONDS 10</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS <span class="s2">"ground"</span> 400 100
 SETTING VALUE_EQ 0</code></pre></figure>
@@ -3989,6 +3817,8 @@ SETTING VALUE_EQ 0</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 <span class="s2">"ground"</span> 400 100
 SETTING VALUE_GT 10.0</code></pre></figure>
 
@@ -4015,6 +3845,8 @@ SETTING VALUE_GT 10.0</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 <span class="s2">"ground"</span> 400 100
 SETTING VALUE_GTEQ 10.0</code></pre></figure>
@@ -4043,6 +3875,8 @@ SETTING VALUE_GTEQ 10.0</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 <span class="s2">"ground"</span> 400 100
 SETTING VALUE_LT 10.0</code></pre></figure>
 
@@ -4070,6 +3904,8 @@ Supported widgets: CANVASIMAGEVALUE, CANVASLABELVALUE, CANVASLINEVALUE.</p>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 <span class="s2">"ground"</span> 400 100
 SETTING VALUE_LTEQ 10.0</code></pre></figure>
@@ -4118,6 +3954,8 @@ SETTING VALUE_LTEQ 10.0</code></pre></figure>
 
 <p>Example Usage:</p>
 
+<!-- prettier-ignore -->
+
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 <span class="s2">"ground"</span> 400 100
 SETTING VALUE_LTEQ 10.0
 SETTING TLM_AND INST HEALTH_STATUS TEMP2 VALUE_GT 20.0</code></pre></figure>
@@ -4165,6 +4003,8 @@ SETTING TLM_AND INST HEALTH_STATUS TEMP2 VALUE_GT 20.0</code></pre></figure>
 </table>
 
 <p>Example Usage:</p>
+
+<!-- prettier-ignore -->
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 <span class="s2">"ground"</span> 400 100
 SETTING VALUE_LTEQ 10.0

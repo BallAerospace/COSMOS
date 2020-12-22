@@ -5,7 +5,7 @@ toc: true
 ---
 
 <div class="note unreleased">
-  <p>Needs updates for COSMOS 5 APIs</p>
+  <p>Unimplemented COSMOS 5 have been noted. COSMOS 5 APIs are subject to change. The User Input, Command, and Telemetry APIs are stable.</p>
 </div>
 
 This document provides the information necessary to write test procedures using the COSMOS scripting API. Scripting in COSMOS is designed to be simple and intuitive. The code completion ability for command and telemetry mnemonics makes Script Runner the ideal place to write your procedures, however any text editor will do. If there is functionality that you don't see here or perhaps an easier syntax for doing something, please submit a ticket.
@@ -47,7 +47,7 @@ The following is an example of good style:
 # Date: 7/27/2007
 ######################################
 
-load 'upload_utility.rb' # library we don't want to show executing
+load 'upload_utility.rb' # library we do NOT want to show executing
 load_utility 'helper_utility' # library we do want to show executing
 
 # Declare constants
@@ -76,7 +76,7 @@ clear_collects('INST')
 clear_collects('INST2')
 ```
 
-This example shows several features of COSMOS scripting in action. Notice the difference between 'load' and 'load_utility'. The first is to load additional scripts which will NOT be shown in Script Runner when executing. This is a good place to put code which takes a long time to run such as image analysis or other looping code where you just want the output. 'load_utility' will visually execute the code line by line to show the user what is happening.
+This example shows several features of COSMOS scripting in action. Notice the difference between 'load' and 'load*utility'. The first is to load additional scripts which will NOT be shown in Script Runner when executing. This is a good place to put code which takes a long time to run such as image analysis or other looping code where you just want the output. 'load_utility' will visually execute the code line by line to show the user what is happening. Read [Require vs Load](/news/2017/11/13/require_vs_load/) for \_much* more information.
 
 Next we declare our constants and create an array of strings which we store in OUR_TARGETS. Notice the constant is all uppercase with underscores.
 
@@ -244,24 +244,17 @@ end
 
 ### Using Script Runner
 
-Script Runner is a graphical application that provides the ideal environment for running and implementing your test procedures. The Script Runner tool is broken into 4 main sections. At the top of the tool is a menu bar that allows you to do such things as open and save files, comment out blocks of code, perform a syntax check, and execute your script.
+Script Runner is a graphical application that provides the ideal environment for running and implementing your test procedures. The Script Runner tool is broken into 4 main sections. At the top of the tool is a menu bar that allows you to do such things as open and save files, perform a syntax check, and execute your script.
 
-Next is a tool bar that displays the currently executing line number of the script and three buttons, "Go", "Pause/Resume?", and "Stop". The Go button is used to skip wait statements within the script. This is sometimes useful if an excessive wait statement is added to a script. The Pause/Resume? button will pause the executing script and display the next line that will be executed. Resume will resume execution of the script. The Resume button is also used to continue script execution after an exception occurs such as trying to send a command with a parameter that is out of range. Finally, the Stop button will stop the executing script at any time.
+Next is a tool bar that displays the currently executing script and three buttons, "Start/Go", "Pause/Retry", and "Stop". The Start/Go button is used to start the script and continue past errors or waits. The Pause/Retry button will pause the executing script. If an error is encountered the Pause button changes to Retry to re-execute the errored line. Finally, the Stop button will stop the executing script at any time.
 
 Third is the display of the actual script. While the script is not running, you may edit and compose scripts in this area. A handy code completion feature is provided that will list out the available commands or telemetry points as you are writing your script. Simply begin writing a cmd( or tlm( line to bring up code completion. This feature greatly reduces typos in command and telemetry mnemonics.
 
-Finally, displayed is the script output. All commands that are sent, errors that occur, and user puts statements appear in this output section. Additionally anything printed into this section is logged by Script Runner into your projects COSMOS user area.
+<div class="note unreleased">
+  <p>Code Completion not yet implemented in COSMOS 5</p>
+</div>
 
-### From the Command Line
-
-Note that any COSMOS script can also be run from the command line if the script begins with the following two lines:
-
-```ruby
-require 'cosmos'
-require 'cosmos/script'
-```
-
-The Script Runner Tool automatically executes these lines for you so they aren't required for scripts that will only be run from Script Runner. Nice features such as display of the current line or the ability to pause a script are not available from the command line.
+Finally, displayed is the log messages. All commands that are sent, errors that occur, and user puts statements appear in this area.
 
 ## Test Procedure API
 
@@ -333,18 +326,14 @@ Syntax:
 
 ```ruby
 message_box("<message>", "<button text 1>", ...)
-message_box("<message>", "<button text 1>", ..., false) # Since COSMOS 3.8.3
-vertical_message_box("<message>", "<button text 1>", ...) # Since COSMOS 3.5.0
-vertical_message_box("<message>", "<button text 1>", ..., false) # Since COSMOS 3.8.3
-combo_box("<message>", "<selection text 1>", ...) # Since COSMOS 3.5.0
-combo_box("<message>", "<selection text 1>", ..., false) # Since COSMOS 3.8.3
+vertical_message_box("<message>", "<button text 1>", ...)
+combo_box("<message>", "<selection text 1>", ...)
 ```
 
-| Parameter             | Description                                          |
-| --------------------- | ---------------------------------------------------- |
-| message               | Message to prompt the user with.                     |
-| button/selection text | Text for a button or selection                       |
-| false                 | Whether to display the "Cancel" button (since 3.8.3) |
+| Parameter             | Description                      |
+| --------------------- | -------------------------------- |
+| message               | Message to prompt the user with. |
+| button/selection text | Text for a button or selection   |
 
 Example:
 
@@ -358,42 +347,6 @@ when 'One'
 when 'Two'
   puts 'Sensor Two'
 end
-```
-
-### save_file_dialog
-
-### open_file_dialog
-
-### open_files_dialog
-
-### open_directory_dialog
-
-The save_file_dialog, open_file_dialog, open_files_dialog, and open_directory_dialog methods create a file dialog box so the user can select a file/directory. The selected file/directory is returned.
-
-Syntax:
-
-```ruby
-save_file_dialog("<directory>", "<message>", "<filter>")
-open_file_dialog("<directory>", "<message>", "<filter>")
-open_files_dialog("<directory>", "<message>", "<filter>")
-open_directory_dialog("<directory>", "<message>")
-```
-
-| Parameter | Description                                                                                                                              |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| Directory | The directory to start browsing in. Optional parameter, defaults to Cosmos::USERPATH.                                                    |
-| Message   | The message to display in the dialog box. Optional parameter, defaults to "Save File", "Open File", "Open File(s)", or "Open Directory". |
-| Filter    | Filter to select allowed file type. Optional parameter, defaults to "\*"                                                                 |
-
-Example:
-
-```ruby
-selected_file = open_file_dialog()
-file_data = ""
-File.open(selected_file, 'rb') {|file| file_data = file.read()}
-
-# Filter will initially show only .txt files, but can be changed to show all files...
-selected_file = open_file_dialog(Cosmos::USERPATH, "Open File", "Text (*.txt);;All (*.*)")
 ```
 
 ## Providing information to the user
@@ -418,46 +371,6 @@ Example:
 
 ```ruby
 prompt("Press OK to continue")
-```
-
-### status_bar
-
-The status_bar method displays a message to the user in the status bar (at the bottom of the tool).
-
-Syntax:
-
-```ruby
-status_bar("<message>")
-```
-
-| Parameter | Description                          |
-| --------- | ------------------------------------ |
-| message   | Message to display in the status bar |
-
-Example:
-
-```ruby
-status_bar("Connection Successful")
-```
-
-### play_wav_file
-
-The play_wav_file method plays the provided wav file once. Note that the script will proceed while the wav file plays.
-
-Syntax:
-
-```ruby
-play_wav_file(wav_filename)
-```
-
-| Parameter    | Description                                |
-| ------------ | ------------------------------------------ |
-| wav_filename | Path and filename of the wav file to play. |
-
-Example:
-
-```ruby
-play_wav_file("config/data/alarm.wav")
 ```
 
 ## Commands
@@ -666,6 +579,10 @@ cmd_raw_no_checks("INST", "COLLECT", "DURATION" => 11, "TYPE" => 1)
 
 ### send_raw
 
+<div class="note unreleased">
+  <p>send_raw not yet implemented in COSMOS 5</p>
+</div>
+
 The send_raw method sends raw data on an interface.
 
 Syntax:
@@ -686,6 +603,10 @@ send_raw("INST1INT", data)
 ```
 
 ### send_raw_file
+
+<div class="note unreleased">
+  <p>send_raw_file not yet implemented in COSMOS 5</p>
+</div>
 
 The send_raw_file method sends raw data on an interface from a file.
 
@@ -1551,42 +1472,6 @@ packet = get_packet(id)
 value = packet.read('ITEM_NAME')
 ```
 
-### get_packet_data
-
-NOTE: Most users will want to use get_packet() instead of this lower level method. The get_packet_data method returns a ruby string containing the packet data from a specified telemetry packet. It also returns which telemetry packet the data is from. Can be run in a non-blocking or blocking manner. Packets are queued after calling subscribe_packet_data and none will be lost. If 1000 (or whatever queue_size was specified in subscribe_packet_data) packets are queued and get_packet_data has not been called or has not been keeping up, then the subscription will be dropped.
-
-The returned packet data can be used to populate a packet object. A packet object can be obtained from the System object.
-
-If get_packet_data is called non-blocking <non_block> = true, get_packet_data will raise an error if the queue is empty.
-
-<div class="note warning">
-  <p><b>Overflown Queues Are Deleted</b></p>
-  <p>By default the packet queue is 1000 packets deep. If you don't call get_packet_data fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_packet_data you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_packet_data method.</p>
-</div>
-
-Syntax:
-
-```ruby
-get_packet_data(id, non_block)
-```
-
-| Parameter | Description                                                                                                                                   |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| id        | Unique id given to the tool by subscribe_packet_data.                                                                                         |
-| non_block | Boolean to indicate if the method should block until an packet of data is received or not. Defaults to false, blocks reading data from queue. |
-
-Example:
-
-```ruby
-id = subscribe_packet_data([[“TGT, “PKT1”], [“TGT”, “PKT2”]]) # note double nested array
-
-buffer, target_name, packet_name, received_time, received_count = get_packet_data(id)
-packet = System.telemetry.packet(target_name, packet_name).clone
-packet.buffer = buffer
-packet.received_time = received_time
-packet.received_count = received_count
-```
-
 ## Delays
 
 These methods allow the user to pause the script to wait for telemetry to change or for an amount of time to pass.
@@ -1908,6 +1793,10 @@ wait_check_packet('INST', 'HEALTH_STATUS', 5, 10) # Wait for 5 INST HEALTH_STATU
 ```
 
 ## Limits
+
+<div class="note unreleased">
+  <p>Limits API not fully implemented in COSMOS 5</p>
+</div>
 
 These methods deal with handling telemetry limits.
 
@@ -3039,165 +2928,6 @@ Example:
 stop_background_task("Example Background Task")
 {% endhighlight %}
 
-## Replay
-
-These methods allow the user to control the COSMOS Replay tool.
-
-### set_replay_mode (since 4.1.0)
-
-The set_replay_mode method configures the JSON DRB connection to connect to either the CTS or the Replay tool. The JSON DRB connection must be configured to connect to the Replay tool with this method before any of the other methods in the Replay API can be used.
-
-Syntax:
-{% highlight ruby %}
-set_replay_mode(<replay_mode>)
-{% endhighlight %}
-
-| Parameter   | Description                                                                    |
-| ----------- | ------------------------------------------------------------------------------ |
-| Replay Mode | Set to true to connect to the Replay tool; set to false to connect to the CTS. |
-
-Example:
-{% highlight ruby %}
-set_replay_mode(true)
-{% endhighlight %}
-
-### get_replay_mode (since 4.1.0)
-
-The get_replay_mode method returns true if the JSON DRB connection is configured to connect to the Replay tool or false if the JSON DRB connection is configured to connect to the CTS.
-
-Syntax / Example:
-{% highlight ruby %}
-replay_mode = get_replay_mode()
-{% endhighlight %}
-
-### replay_select_file (since 4.1.0)
-
-The replay_select_file method selects a file to play back in the COSMOS Replay tool.
-
-Syntax:
-{% highlight ruby %}
-replay_select_file("<filename>", <packet_log_reader> (optional))
-{% endhighlight %}
-
-| Parameter         | Description                                                                             |
-| ----------------- | --------------------------------------------------------------------------------------- |
-| Filename          | A log file to load into the Replay tool.                                                |
-| Packet Log Reader | The log reader to use to parse the log file. Optional parameter, defaults to "DEFAULT". |
-
-Example:
-{% highlight ruby %}
-replay_select_file("2018_01_04_13_19_49_tlm.bin")
-{% endhighlight %}
-
-### replay_status (since 4.1.0)
-
-The replay_status method returns status for the Replay tool. The returned status includes the PLAYING/STOPPED status, playback delay, playback filename, file start time, file current (playback) time, file end time, file index, and file max index.
-
-Syntax / Example:
-{% highlight ruby %}
-status, delay, filename, file_start, file_current, file_end, file_index, file_max_index = replay_status()
-{% endhighlight %}
-
-### replay_set_playback_delay (since 4.1.0)
-
-The replay_set_playback_delay method sets the playback delay for the Replay tool.
-
-Syntax:
-{% highlight ruby %}
-replay_set_playback_delay(<delay>)
-{% endhighlight %}
-
-| Parameter | Description                                                                                                                                                                                  |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Delay     | The delay between packets when the Replay tool is playing back. Set to nil for REALTIME, or specify a floating point value in seconds from 0.0 (no delay) to 1.0 (1 second between packets). |
-
-Example:
-{% highlight ruby %}
-replay_set_playback_delay(nil)
-{% endhighlight %}
-
-### replay_play (since 4.1.0)
-
-The replay_play method starts playback in the Replay tool.
-
-Syntax / Example:
-{% highlight ruby %}
-replay_play()
-{% endhighlight %}
-
-### replay_reverse_play (since 4.1.0)
-
-The replay_reverse_play method starts reverse playback in the Replay tool.
-
-Syntax / Example:
-{% highlight ruby %}
-replay_move_end()
-replay_reverse_play()
-{% endhighlight %}
-
-### replay_stop (since 4.1.0)
-
-The replay_stop method stops playback in the Replay tool.
-
-Syntax / Example:
-{% highlight ruby %}
-replay_stop()
-{% endhighlight %}
-
-### replay_step_forward (since 4.1.0)
-
-The replay_step_forward method steps the Replay tool forward by one packet.
-
-Syntax / Example:
-{% highlight ruby %}
-replay_step_forward()
-{% endhighlight %}
-
-### replay_step_back (since 4.1.0)
-
-The replay_step_back method steps the Replay tool backwards by one packet.
-
-Syntax / Example:
-{% highlight ruby %}
-replay_step_back()
-{% endhighlight %}
-
-### replay_move_start (since 4.1.0)
-
-The replay_move_start method sets the Replay tool playback pointer to the start of the file.
-
-Syntax / Example:
-{% highlight ruby %}
-replay_move_start()
-{% endhighlight %}
-
-### replay_move_end (since 4.1.0)
-
-The replay_move_end method sets the Replay tool playback pointer to the end of the file.
-
-Syntax / Example:
-{% highlight ruby %}
-replay_move_end()
-{% endhighlight %}
-
-### replay_move_index (since 4.1.0)
-
-The replay_move_index method sets the Replay tool playback pointer to a specified index. The maximum index can be found with the replay_status method.
-
-Syntax:
-{% highlight ruby %}
-replay_move_index(<index>)
-{% endhighlight %}
-
-| Parameter | Description                                                    |
-| --------- | -------------------------------------------------------------- |
-| Index     | The packet index within the file to move the playback pointer. |
-
-Example:
-{% highlight ruby %}
-replay_move_index(10)
-{% endhighlight %}
-
 ## Executing Other Procedures
 
 These methods allow the user to bring in files of subroutines and execute other test procedures.
@@ -3243,6 +2973,10 @@ load_utility("mode_changes.rb")
 ```
 
 ## Opening, Closing & Creating Telemetry Screens
+
+<div class="note unreleased">
+  <p>Screen APIs not yet implemented in COSMOS 5</p>
+</div>
 
 These methods allow the user to open, close or create unique telemetry screens from within a test procedure.
 

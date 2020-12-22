@@ -4,10 +4,6 @@ title: Telemetry Screens
 toc: true
 ---
 
-<div class="note unreleased">
-  <p>While Screen Definitions are the same for COSMOS 5, this section needs to be updated.</p>
-</div>
-
 This document provides the information necessary to generate and use COSMOS Telemetry Screens, which are displayed by the COSMOS Telemetry Viewer application.
 
 <div style="clear:both;"></div>
@@ -20,13 +16,9 @@ This document provides the information necessary to generate and use COSMOS Tele
 | Screen                 | A screen is a single window that contains any number of widgets which are organized and layed-out in a useful fashion.                                                                                                                             |
 | Screen Definition File | A screen definition file is an ASCII file that tells COSMOS Telemetry Viewer how to draw a screen. It is made up of a series of keyword/parameter lines that define the telemetry points that are displayed on the screen and how to display them. |
 
-## Telemetry Viewer Configuration
-
-Two different types of configuration files are used to configure the COSMOS Telemetry Viewer; the screen definition files and a configuration file that lets the tool know what screens are available and how they are organized.
-
 ## Telemetry Screen Definition Files
 
-Telemetry screen definition files define the the contents of telemetry screens. They take the general form of a SCREEN keyword followed by a series of widget keywords that define the telemetry screen. Screen definition files specific to a particular target go in that targets configuration folder. For example: config/targets/COSMOS/screens/version.txt. Screen definition files that combine telemetry from multiple targets typically go in the system target's screens folder. For example: config/targets/SYSTEM/screens/overall.txt.
+Telemetry screen definition files define the the contents of telemetry screens. They take the general form of a SCREEN keyword followed by a series of widget keywords that define the telemetry screen. Screen definition files specific to a particular target go in that target's screens directory. For example: COSMOS/screens/version.txt. Screen definition files that combine telemetry from multiple targets typically go in the SYSTEM target's screens folder. For example: SYSTEM/screens/overall.txt.
 
 ## Keywords:
 
@@ -42,6 +34,8 @@ The SCREEN keyword is the first keyword in any telemetry screen definition. It d
 | Fixed          | Force the window to be fixed size and not user resizeable                        | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 SCREEN AUTO AUTO 1.0 FIXED
 {% endhighlight %}
@@ -49,10 +43,6 @@ SCREEN AUTO AUTO 1.0 FIXED
 ### END
 
 The END keyword is used to indicate the close of a layout widget. For example a VERTICALBOX keyword must be matched with an END keyword to indicate where the VERTICALBOX ends.
-
-### STAY_ON_TOP
-
-The STAY_ON_TOP keyword is used to force the screen to the front of the display stack. This forces the window to stay above ALL other windows including other applications not associated with COSMOS.
 
 ### GLOBAL_SETTING
 
@@ -65,6 +55,8 @@ The GLOBAL_SETTING keyword is used to apply a widget setting to allow widgets of
 | Setting Value(s)  | Widget specific value(s) to set                                                           | Varies   |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 GLOBAL_SETTING LABELVALUELIMITSBAR COLORBLIND TRUE
 {% endhighlight %}
@@ -81,6 +73,8 @@ The GLOBAL_SUBSETTING keyword is used to apply a widget subsetting to allow widg
 | Setting Value(s)  | Widget specific value(s) to set                                                           | Varies   |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 GLOBAL_SUBSETTING LABELVALUELIMITSBAR 1 COLORBLIND TRUE
 GLOBAL_SUBSETTING LABELVALUELIMITSBAR 0:0 TEXTCOLOR white # Set all text color to white for labelvaluelimitsbars
@@ -96,9 +90,11 @@ The SETTING keyword is used to apply a widget setting to the widget that was spe
 | Setting Value(s) | Widget specific value to set | Varies   |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 VERTICALBOX
-LABEL ... # Various other widgets
+  LABEL ... # Various other widgets
 END
 SETTING BACKCOLOR 163 185 163 # RGB color for the box background
 {% endhighlight %}
@@ -114,18 +110,20 @@ The SUBSETTING keyword is used to apply a widget subsetting to the widget that w
 | Setting Value(s) | Widget specific value to set            | Varies   |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 VERTICALBOX
-LABELVALUE ...
-SUBSETTING 0 TEXTCOLOR blue # Change only the label's color
-LABELVALUELIMITSBAR ...
-SUBSETTING 0:0 TEXTCOLOR white # Change the label's text color to white
+  LABELVALUE ...
+  SUBSETTING 0 TEXTCOLOR blue # Change only the label's color
+  LABELVALUELIMITSBAR ...
+  SUBSETTING 0:0 TEXTCOLOR white # Change the label's text color to white
 END
 {% endhighlight %}
 
 ### NAMED_WIDGET
 
-The NAMED_WIDGET keyword is used to give a name to a widget that allows it to be accessed from other widgets using the get_named_widget method of Cosmos::Screen. Note that get_named_widget returns the widget itself and thus must be operated on using methods native to that widget.
+The NAMED_WIDGET keyword is used to give a name to a widget that allows it to be accessed from other widgets using the get_named_widget method of screen. Note that get_named_widget returns the widget itself and thus must be operated on using methods native to that widget.
 
 | Parameter         | Description                                                                                | Required |
 | ----------------- | ------------------------------------------------------------------------------------------ | -------- |
@@ -134,9 +132,11 @@ The NAMED_WIDGET keyword is used to give a name to a widget that allows it to be
 | Widget Parameters | The unique parameters for the given widget type                                            | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
-NAMED_WIDGET heading TITLE "Main Heading"
-BUTTON "Push" 'puts get_named_widget("heading").text'
+NAMED_WIDGET DURATION TEXTFIELD
+BUTTON "Push" "screen.get_named_widget('DURATION').text()"
 {% endhighlight %}
 
 ### WIDGETNAME
@@ -152,184 +152,41 @@ Example Usage: See the Example File
 
 ## Example File
 
-Example File: <Cosmos::USERPATH>/config/targets/<TARGET>/myscreen.txt
+Example File: <TARGET>/myscreen.txt
 
+<!-- prettier-ignore -->
 {% highlight bash %}
 SCREEN AUTO AUTO 0.5
-GLOBAL_SETTING LABELVALUELIMITSBAR COLORBLIND TRUE
 VERTICAL
-TITLE "Instrument Health and Status"
-SETTING BACKCOLOR 162 181 205
-SETTING TEXTCOLOR black
-VERTICALBOX
-SECTIONHEADER "General Telemetry"
-BUTTON 'Start Collect' 'target_name = get_target_name("INST"); cmd("#{target_name} COLLECT with TYPE NORMAL, DURATION 5")'
-SETTING BACKCOLOR 54 95 58
-SETTING TEXTCOLOR white
-FORMATVALUE INST HEALTH_STATUS COLLECTS "0x%08X"
-LABELVALUE INST HEALTH_STATUS COLLECT_TYPE
-LABELVALUE INST HEALTH_STATUS DURATION
-LABELVALUE INST HEALTH_STATUS ASCIICMD WITH_UNITS 30
+  TITLE "<%= @target_name %> Commanding Examples"
+  LABELVALUE INST HEALTH_STATUS COLLECTS
+  LABELVALUE INST HEALTH_STATUS COLLECT_TYPE
+  LABELVALUE INST HEALTH_STATUS DURATION
+  VERTICALBOX
+    SECTIONHEADER "Send Collect Command:"
+    HORIZONTAL
+      LABEL "Type: "
+      NAMED_WIDGET COLLECT_TYPE COMBOBOX NORMAL SPECIAL
+    END
+    HORIZONTAL
+      LABEL "  Duration: "
+      NAMED_WIDGET DURATION TEXTFIELD 12 "10.0"
+    END
+    BUTTON 'Start Collect' "api.cmd('INST COLLECT with TYPE '+screen.get_named_widget('COLLECT_TYPE').text()+', DURATION '+screen.get_named_widget('DURATION').text())"
+  END
+  SETTING BACKCOLOR 163 185 163
+  VERTICALBOX
+    SECTIONHEADER "Parameter-less Commands:"
+    NAMED_WIDGET GROUP RADIOGROUP 1 # Select 'Clear' initially, 0-based index
+      RADIOBUTTON 'Abort'
+      RADIOBUTTON 'Clear'
+    END
+    NAMED_WIDGET CHECK CHECKBUTTON 'Ignore Hazardous Checks' # No option is by default UNCHECKED
+    BUTTON 'Send' "screen.get_named_widget('GROUP').selected() === 0 ? api.cmd('INST ABORT') : (screen.get_named_widget('CHECK').checked() ? api.cmd_no_hazardous_check('INST CLEAR') : api.cmd('INST CLEAR'))"
+  END
+  SETTING BACKCOLOR 163 185 163
 END
-SETTING BACKCOLOR 163 185 163
-VERTICALBOX
-SECTIONHEADER "Temperatures"
-LABELTRENDLIMITSBAR INST HEALTH_STATUS TEMP1 WITH_UNITS 5
-LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP2
-LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP3
-LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP4
-SETTING GRAY_TOLERANCE 0.1
-END
-SETTING BACKCOLOR 203 173 158
-VERTICALBOX
-SECTIONHEADER "Ground Station"
-LABELVALUE INST HEALTH_STATUS GROUND1STATUS
-LABELVALUE INST HEALTH_STATUS GROUND2STATUS
-END
-VERTICALBOX
-LABELVALUE INST HEALTH_STATUS TIMEFORMATTED WITH_UNITS 30
-SCREENSHOTBUTTON
-END
-SETTING BACKCOLOR 207 171 169
-END
-SETTING BACKCOLOR 162 181 205
 {% endhighlight %}
-
----
-
-## Telemetry Viewer Settings Files
-
-A telemetry viewer settings file tells telemetry viewer what screens exist and how they should be categorized. The default setting files is called tlm_viewer.txt and is located in config/tools/tlm_viewer/tlm_viewer.txt.
-
-## Keywords:
-
-### AUTO_TARGETS
-
-The AUTO_TARGETS keyword tells Telemetry Viewer to add all the screens defined in the screens directory of each target folder in the config/targets directory. Screens are grouped by target name in the display. For example: all the screens defined in config/targets/COSMOS/screens will be added to a single drop down selection labeled COSMOS.
-
-Example Usage:
-{% highlight bash %}
-AUTO_TARGETS
-{% endhighlight %}
-
-### AUTO_TARGET
-
-The AUTO_TARGET keyword tells Telemetry Viewer to add all the screens defined in the screens directory of the specified target folder in the config/targets directory. Screens are grouped by target name in the display. For example: all the screens defined in config/targets/COSMOS/screens will be added to a single drop down selection labeled COSMOS. If AUTO_TARGETS is used this keyword does nothing.
-
-| Parameter   | Description                                       | Required |
-| ----------- | ------------------------------------------------- | -------- |
-| Target Name | Name of the target directory to look for screens. | Yes      |
-
-Example Usage:
-{% highlight bash %}
-AUTO_TARGET COSMOS
-{% endhighlight %}
-
-### NEW_COLUMN
-
-The NEW_COLUMN keywords creates a new column of drop down selections in Telemetry Viewer. All the AUTO_TARGET or SCREEN keywords after this keyword will be added to a new column in the GUI.
-
-### TARGET
-
-The TARGET keyword is used to call out individual screens within a targets screen directory. It is used in conjunction with the SCREEN keyword.
-
-| Parameter | Description                                       | Required |
-| --------- | ------------------------------------------------- | -------- |
-| Name      | Name of the target directory to look for screens. | Yes      |
-
-Example Usage:
-{% highlight bash %}
-TARGET COSMOS
-{% endhighlight %}
-
-### SCREEN
-
-The SCREEN keyword adds the specified screen from the specified target. It must follow the TARGET keyword and is typically indented to show ownership to the target.
-
-| Parameter  | Description                                                                                                                                                            | Required |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| File Name  | Name of the file containing the telemetry screen definition. The filename will be upcased and used in the drop down selection.                                         | Yes      |
-| X Position | Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied. | No       |
-| Y Position | Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied.  | No       |
-
-Example Usage:
-{% highlight bash %}
-TARGET COSMOS
-SCREEN version.txt 50 50
-{% endhighlight %}
-
-### GROUP
-
-The GROUP keyword is used to create a new drop down group in the Tlm Viewer application.
-
-| Parameter  | Description                                       | Required |
-| ---------- | ------------------------------------------------- | -------- |
-| Group Name | Label to display in front of the group drop down. | Yes      |
-
-Example Usage:
-{% highlight bash %}
-GROUP "Special Ops"
-{% endhighlight %}
-
-### GROUP_SCREEN
-
-The GROUP_SCREEN keyword is used to add a screen to a previously defined group. It must follow the GROUP keyword.
-
-| Parameter   | Description                                                                                                                                                            | Required |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| Target Name | Name of the target where the screen is defined                                                                                                                         | Yes      |
-| File Name   | Name of the file containing the telemetry screen definition. The filename will be upcased and used in the drop down selection.                                         | Yes      |
-| X Position  | Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied. | No       |
-| Y Position  | Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied.  | No       |
-
-Example Usage:
-{% highlight bash %}
-GROUP "Special Ops"
-GROUP_SCREEN SYSTEM status.txt
-{% endhighlight %}
-
-### SHOW_ON_STARTUP
-
-The SHOW_ON_STARTUP keyword causes the previously defined SCREEN to be automatically displayed when Telemetry Viewer starts. It must be preceeded by the SCREEN or GROUP_SCREEN keyword.
-
-### ADD_SHOW_ON_STARTUP
-
-The ADD_SHOW_ON_STARTUP keyword adds show on startup to any screen that has already been defined. This is useful for adding show on startup to screens defined with AUTO_TARGETS.
-
-| Parameter   | Description                                                                                                                                                            | Required |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| Target Name | Target Name of the screen                                                                                                                                              | Yes      |
-| Screen Name | Base Name of the screen. This is equal to the screens filename with the .txt extension.                                                                                | Yes      |
-| X Position  | Position in pixels to draw the left edge of the screen on the display. If not supplied the screen will be centered. If supplied, the Y position must also be supplied. | No       |
-| Y Position  | Position in pixels to draw the top edge of the screen on the display. If not supplied the screen will be centered. If supplied, the X position must also be supplied.  | No       |
-
-Example Usage:
-{% highlight bash %}
-ADD_SHOW_ON_STARTUP INST HS 500 300
-ADD_SHOW_ON_STARTUP INST ADCS
-{% endhighlight %}
-
-## Example File
-
-Example File: <Cosmos::USERPATH>/config/tools/tlm_viewer/tlm_viewer.txt
-
-{% highlight bash %}
-TARGET INST
-SCREEN "adcs.txt"
-SCREEN "array.txt"
-TARGET INST2
-SCREEN "commanding.txt" 898 317
-SHOW_ON_STARTUP
-SCREEN "hs.txt"
-TARGET COSMOS
-SCREEN "version.txt"
-GROUP "My group"
-GROUP_SCREEN SYSTEM "status.txt"
-GROUP_SCREEN INST "hs.txt"
-GROUP_SCREEN INST2 "hs.txt"
-{% endhighlight %}
-
----
 
 ## Widget Descriptions
 
@@ -349,10 +206,12 @@ The VERTICAL widget places the widgets it encapsulates vertically on the screen.
 | Vertical Packing | Pack all widgets vertically (default = true)             | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 VERTICAL 50
-LABEL "TEST"
-LABEL "SCREEN"
+  LABEL "TEST"
+  LABEL "SCREEN"
 END
 {% endhighlight %}
 
@@ -367,10 +226,12 @@ The VERTICALBOX widget places the widgets it encapsulates vertically on the scre
 | Vertical Packing | Pack all widgets vertically (default = true)             | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 VERTICALBOX Info
-LABEL "TEST"
-LABEL "SCREEN"
+  LABEL "TEST"
+  LABEL "SCREEN"
 END
 {% endhighlight %}
 
@@ -383,10 +244,12 @@ The HORIZONTAL widget places the widgets it encapsulates horizontally on the scr
 | Horizontal Spacing | Horizontal spacing between widgets in pixels (default = 1) | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 HORIZONTAL 100
-LABEL "TEST"
-LABEL "SCREEN"
+  LABEL "TEST"
+  LABEL "SCREEN"
 END
 {% endhighlight %}
 
@@ -400,10 +263,12 @@ The HORIZONTALBOX widget places the widgets it encapsulates horizontally on the 
 | Horizontal Spacing | Horizontal spacing between widgets in pixels (default = 0) | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 HORIZONTALBOX Info 10
-LABEL "TEST"
-LABEL "SCREEN"
+  LABEL "TEST"
+  LABEL "SCREEN"
 END
 {% endhighlight %}
 
@@ -418,15 +283,16 @@ The MATRIXBYCOLUMNS widget places the widgets into a table-like matrix. The MATR
 | Vertical Spacing   | Spacing between vertical items (default = 0)   | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 MATRIXBYCOLUMNS 3
-LABEL "COL 1"
-LABEL "COL 2"
-LABEL "COL 3"
-
-LABEL "100"
-LABEL "200"
-LABEL "300"
+  LABEL "COL 1"
+  LABEL "COL 2"
+  LABEL "COL 3"
+  LABEL "100"
+  LABEL "200"
+  LABEL "300"
 END
 {% endhighlight %}
 
@@ -435,19 +301,21 @@ END
 The SCROLLWINDOW widget places the widgets inside of it into a scrollable area. The SCROLLWINDOW widget sizes itself to fit the screen in which it is contained.
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 SCROLLWINDOW
-VERTICAL
-LABEL "100"
-LABEL "200"
-LABEL "300"
-LABEL "400"
-LABEL "500"
-LABEL "600"
-LABEL "700"
-LABEL "800"
-LABEL "900"
-END
+  VERTICAL
+    LABEL "100"
+    LABEL "200"
+    LABEL "300"
+    LABEL "400"
+    LABEL "500"
+    LABEL "600"
+    LABEL "700"
+    LABEL "800"
+    LABEL "900"
+  END
 END
 {% endhighlight %}
 
@@ -464,16 +332,18 @@ The TABITEM widget creates a tab into which to place widgets. The tab automatica
 | Tab Text  | Text to diplay in the tab | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 TABBOOK
-TABITEM "Tab 1"
-LABEL "100"
-LABEL "200"
-END
-TABITEM "Tab 2"
-LABEL "300"
-LABEL "400"
-END
+  TABITEM "Tab 1"
+    LABEL "100"
+    LABEL "200"
+  END
+  TABITEM "Tab 2"
+    LABEL "300"
+    LABEL "400"
+  END
 END
 {% endhighlight %}
 
@@ -490,6 +360,8 @@ The LABEL widget displays text on the screen. Generally, label widgets contain a
 | Text      | Text to display on the label | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABEL "Note: This is only a warning"
 {% endhighlight %}
@@ -507,6 +379,8 @@ The SECTIONHEADER widget displays a label that is underlined with a horizontal l
 | Text      | Text to display above the horizontal line | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 SECTIONHEADER Mechanisms
 {% endhighlight %}
@@ -520,6 +394,8 @@ The TITLE widget displays a large centered title on the screen.
 | Text      | Text to display above the horizontal line | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 TITLE "Title"
 HORIZONTALLINE
@@ -539,11 +415,13 @@ The SPACER widget inserts a spacer into a layout. This can be used to separate o
 | Vertical Policy   | The vertical size policy of the spacer. Can be FIXED, MINIMUM, MAXIMUM, PREFERRED, EXPANDING, MINIMUMEXPANDING, or IGNORED. Defaults to MINIMUM.   | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 VERTICAL 3 FALSE
-LABEL "Spacer below"
-SPACER 0 100 MINIMUM EXPANDING
-LABEL "Spacer above"
+  LABEL "Spacer below"
+  SPACER 0 100 MINIMUM EXPANDING
+  LABEL "Spacer above"
 END
 {% endhighlight %}
 
@@ -567,6 +445,8 @@ The ARRAY widget is used to display data from an array telemetry item. Data is o
 | Value Type    | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 ARRAY INST HEALTH_STATUS ARY 250 50 "0x%x" 6 FORMATTED
 ARRAY INST HEALTH_STATUS ARY2 200 60 nil 4 WITH_UNITS
@@ -590,6 +470,8 @@ The BLOCK widget is used to display data from a block telemetry item. Data is or
 | Value Type     | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW)                       | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 BLOCK INST IMAGE IMAGE 400 130 "%02X" 4 4 "0x%08X:"
 {% endhighlight %}
@@ -612,6 +494,8 @@ The FORMATFONTVALUE widget displays a box with a value printed inside that is fo
 | Font Italics         | Whether to display the font in italics. (default = false)                                                                               | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 FORMATFONTVALUE INST LATEST TIMESEC %012u CONVERTED 12 arial 15 Qt::Font::Bold true
 {% endhighlight %}
@@ -630,6 +514,8 @@ The FORMATVALUE widget displays a box with a value printed inside that is format
 | Number of Characters | The number of characters wide to make the value box (default = 12)                               | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 FORMATVALUE INST LATEST TIMESEC %012u CONVERTED 12
 {% endhighlight %}
@@ -648,6 +534,8 @@ The LABELFORMATVALUE widget displays a label with a value box that is formatted 
 | Number of Characters | The number of characters wide to make the value box (default = 12)                               | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELFORMATVALUE INST LATEST TIMESEC %012u CONVERTED 12
 {% endhighlight %}
@@ -666,6 +554,8 @@ The LABELPROGRESSBAR widget displays a LABEL widget showing the items name follo
 | Value Type   | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)                                                 | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELPROGRESSBAR INST ADCS POSPROGRESS 2 200 RAW
 LABELPROGRESSBAR INST ADCS POSPROGRESS
@@ -687,6 +577,8 @@ The LABELTRENDLIMITSBAR widget displays a LABEL widget to show the item's name, 
 | Height        | Height of the limits bar (default = 25)                                                          | No       |
 
 Example Usage
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELTRENDLIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 5 20 200 50
 LABELTRENDLIMITSBAR INST HEALTH_STATUS TEMP1
@@ -706,6 +598,8 @@ The LABELVALUE widget displays a LABEL widget to shows the telemetry items name 
 | Alignment            | How to align the label and value items. Options are 'split', 'right', 'left', 'center'. (default = split) | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELVALUE INST LATEST TIMESEC CONVERTED 18 center
 LABELVALUE INST LATEST COLLECT_TYPE
@@ -725,6 +619,8 @@ The LABELVALUEDESC widget displays a LABEL widget to shows the telemetry items d
 | Number of Characters | The number of characters wide to make the value box (default = 12)                                                      | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELVALUEDESC INST LATEST TIMESEC "Time in seconds" CONVERTED 18
 LABELVALUEDESC INST LATEST COLLECT_TYPE
@@ -743,6 +639,8 @@ The LABELVALUELIMITSBAR widget displays a LABEL widget to shows the telemetry it
 | Number of Characters | The number of characters wide to make the value box (default = 12)                                | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 18
 LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP1
@@ -761,6 +659,8 @@ The LABELVALUELIMITSCOLUMN widget displays a LABEL widget to shows the telemetry
 | Number of Characters | The number of characters wide to make the value box (default = 12)                                | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELVALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1 CONVERTED 18
 LABELVALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1
@@ -783,6 +683,8 @@ The LABELVALUERANGEBAR widget displays a LABEL widget to shows the telemetry ite
 | Height               | Height of the range bar (default = 25)                                                                                      | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELVALUERANGEBAR INST HEALTH_STATUS TEMP1 0 50 CONVERTED 18 200 50
 LABELVALUERANGEBAR INST HEALTH_STATUS TEMP1 0 50
@@ -805,6 +707,8 @@ The LABELVALUERANGECOLUMN widget displays a LABEL widget to shows the telemetry 
 | Height               | Height of the range bar (default = 100)                                                                                     | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELVALUERANGECOLUMN INST HEALTH_STATUS TEMP1 0 50 CONVERTED 18 50 200
 LABELVALUERANGECOLUMN INST HEALTH_STATUS TEMP1 0 50
@@ -824,6 +728,8 @@ The LIMITSBAR widget displays a graphical representation of where an items value
 | Height      | The height of the range bar (default = 25)                                                       | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 200 50
 LIMITSBAR INST HEALTH_STATUS TEMP1
@@ -843,6 +749,8 @@ The LIMITSCOLUMN widget displays a graphical representation of where an items va
 | Height      | The height of the range bar (default = 100)                                                      | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LIMITSCOLUMN INST HEALTH_STATUS TEMP1 CONVERTED 50 200
 LIMITSCOLUMN INST HEALTH_STATUS TEMP1
@@ -862,6 +770,8 @@ The LIMITSCOLOR widget displays a stoplight-like circle depicting the limits col
 | Full Item Name | Show the full item name (default = false)                                                        | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LIMITSCOLOR INST HEALTH_STATUS TEMP1 CONVERTED 20 TRUE
 LIMITSCOLOR INST HEALTH_STATUS TEMP1
@@ -880,6 +790,8 @@ The VALUELIMITSBAR widget displays a graphical representation of where an items 
 | Number of Characters | The number of characters wide to make the value box (default = 12)                                | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 VALUELIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 18
 VALUELIMITSBAR INST HEALTH_STATUS TEMP1
@@ -898,6 +810,8 @@ The VALUELIMITSCOLUMN widget displays a graphical representation of where an ite
 | Number of Characters | The number of characters wide to make the value box (default = 8)                                 | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 VALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1 CONVERTED 18
 VALUELIMITSCOLUMN INST HEALTH_STATUS TEMP1
@@ -920,6 +834,8 @@ The VALUERANGEBAR widget displays a graphical representation of where an items v
 | Height               | Height of the range bar (default = 25)                                                                                      | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 VALUERANGEBAR INST HEALTH_STATUS TEMP1 0 100 CONVERTED 18 200 50
 VALUERANGEBAR INST HEALTH_STATUS TEMP1 -1000 1000
@@ -942,6 +858,8 @@ The VALUERANGECOLUMN widget displays a graphical representation of where an item
 | Height               | Height of the range bar (default = 100)                                                                                     | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 VALUERANGECOLUMN INST HEALTH_STATUS TEMP1 0 100 CONVERTED 18 50 200
 VALUERANGECOLUMN INST HEALTH_STATUS TEMP1 -1000 1000
@@ -962,6 +880,8 @@ The LINEGRAPH widget displays a line graph of a telemetry items value verses sam
 | Value Type  | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LINEGRAPH INST HEALTH_STATUS TEMP1
 LINEGRAPH INST HEALTH_STATUS TEMP1 10 400 100 RAW
@@ -981,6 +901,8 @@ The PROGRESSBAR widget displays a progress bar that is useful for displaying per
 | Value Type   | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED)                                                 | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 PROGRESSBAR INST ADCS POSPROGRESS 0.5 200
 PROGRESSBAR INST ADCS POSPROGRESS
@@ -1002,6 +924,8 @@ The RANGEBAR widget displays a graphical representation of where an items value 
 | Height      | Height of the range bar (default = 25)                                                                                      | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 RANGEBAR INST HEALTH_STATUS TEMP1 0 100 CONVERTED 200 50
 RANGEBAR INST HEALTH_STATUS TEMP1 -1000 1000
@@ -1023,6 +947,8 @@ The RANGECOLUMN widget displays a graphical representation of where an items val
 | Height      | Height of the range bar (default = 100)                                                                                     | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 RANGECOLUMN INST HEALTH_STATUS TEMP1 0 100 CONVERTED 50 200
 RANGECOLUMN INST HEALTH_STATUS TEMP1 -1000 1000
@@ -1042,6 +968,8 @@ The TEXTBOX widget provides a large box for multiline text.
 | Value Type  | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 TEXTBOX INST HEALTH_STATUS TIMEFORMATTED 150 50
 TEXTBOX INST HEALTH_STATUS TIMEFORMATTED
@@ -1064,6 +992,8 @@ The TIMEGRAPH widget displays a line graph of a telemetry items value verses tim
 | Value Type     | The type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 TIMEGRAPH INST HEALTH_STATUS TEMP1
 TIMEGRAPH INST HEALTH_STATUS TEMP1 10 400 100 false TIMESECONDS CONVERTED
@@ -1084,6 +1014,8 @@ The TRENDBAR widget provides the same functionality as the LIMITSBAR widget exce
 | Height        | Height of the limits bar (default = 25)                                                          | No       |
 
 Example Usage
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 TRENDBAR INST HEALTH_STATUS TEMP1 CONVERTED 20 200 50
 TRENDBAR INST HEALTH_STATUS TEMP1
@@ -1105,6 +1037,8 @@ The TRENDLIMITSBAR widget displays a VALUE widget to show the telemetry items cu
 | Height        | Height of the limits bar (default = 25)                                                       | No       |
 
 Example Usage
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 TRENDLIMITSBAR INST HEALTH_STATUS TEMP1 CONVERTED 20 20 200 50
 TRENDLIMITSBAR INST HEALTH_STATUS TEMP1
@@ -1123,6 +1057,8 @@ The VALUE widget displays a box with a value printed inside. The white portion o
 | Characters  | Number of characters to display the value (default = 12)                                      | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 VALUE INST HEALTH_STATUS TEMP1 CONVERTED 18
 VALUE INST HEALTH_STATUS TEMP1
@@ -1134,22 +1070,20 @@ Interactive widgets are used to gather input from the user. Unlike all other wid
 
 ### BUTTON
 
-The BUTTON widget displays a rectangular button that is clickable by the mouse. Upon clicking, the button executes the Ruby code assigned. Buttons can be used to send commands and perform other tasks.
+The BUTTON widget displays a rectangular button that is clickable by the mouse. Upon clicking, the button executes the Javascript code assigned. Buttons can be used to send commands and perform other tasks.
 
-If you want your button to use values from other widgets, define them as named widgets and read their values using the `get_named_widget("WIDGET_NAME").text` method. See the example in CHECKBUTTON. If your button logic gets complex it's recommended to `require` a separate script and pass the screen to the script using self such as `require utility.rb; utility_method(self)`.
+If you want your button to use values from other widgets, define them as named widgets and read their values using the `screen.get_named_widget("WIDGET_NAME").text()` method. See the example in CHECKBUTTON.
 
-| Parameter      | Description                                     | Required |
-| -------------- | ----------------------------------------------- | -------- |
-| Button Text    | Text displayed on the button                    | Yes      |
-| String to Eval | Ruby code to execute when the button is pressed | Yes      |
+| Parameter      | Description                                           | Required |
+| -------------- | ----------------------------------------------------- | -------- |
+| Button Text    | Text displayed on the button                          | Yes      |
+| String to Eval | Javascript code to execute when the button is pressed | Yes      |
 
 Example Usage to execute a command:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
-BUTTON 'Start Collect' 'cmd("INST COLLECT with TYPE NORMAL, DURATION 5")'
-{% endhighlight %}
-Example Usage to open Script Runner with a given script:
-{% highlight bash %}
-BUTTON "Run Script" 'system("ruby #{Cosmos::USERPATH}/tools/ScriptRunner #{Cosmos::USERPATH}/procedures/checks.rb")'
+BUTTON 'Start Collect' 'api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")'
 {% endhighlight %}
 
 ### CHECKBUTTON
@@ -1162,9 +1096,11 @@ The CHECKBUTTON widget displays a check box. Note this is of limited use by itse
 | Checked       | Whether the checkbox should initially be checked. Valid values are 'CHECKED' or 'UNCHECKED'. (default = 'UNCHECKED') | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 NAMED_WIDGET CHECK CHECKBUTTON 'Ignore Hazardous Checks'
-BUTTON 'Send' 'if get_named_widget("CHECK").checked? then cmd_no_hazardous_check("INST CLEAR") else cmd("INST CLEAR") end'
+BUTTON 'Send' 'screen.get_named_widget("CHECK").checked() ? api.cmd_no_hazardous_check("INST CLEAR") : api.cmd("INST CLEAR")'
 {% endhighlight %}
 
 ### COMBOBOX
@@ -1177,8 +1113,10 @@ The COMBOBOX widget displays a drop down list of text items that the user can ch
 | Option Text n | Text to display in the selection drop down | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
-BUTTON 'Start Collect' 'cmd("INST COLLECT with TYPE #{get_named_widget("COLLECT_TYPE").text}, DURATION 10.0")'
+BUTTON 'Start Collect' 'api.cmd("INST COLLECT with TYPE '+screen.get_named_widget("COLLECT_TYPE").text()+', DURATION 10.0")'
 NAMED_WIDGET COLLECT_TYPE COMBOBOX NORMAL SPECIAL
 {% endhighlight %}
 
@@ -1192,10 +1130,12 @@ The RADIOBUTTON widget a radio button and text. Note this is of limited use by i
 | Checked   | Whether the radio button should initially be checked. Valid values are 'CHECKED' or 'UNCHECKED'. (default = 'UNCHECKED') | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 NAMED_WIDGET ABORT RADIOBUTTON 'Abort'
 NAMED_WIDGET CLEAR RADIOBUTTON 'Clear'
-BUTTON 'Send' 'if get_named_widget("ABORT").checked? then cmd("INST ABORT") else cmd("INST CLEAR") end'
+BUTTON 'Send' 'screen.get_named_widget("ABORT").checked() ? cmd("INST ABORT") : cmd("INST CLEAR")'
 {% endhighlight %}
 
 ### TEXTFIELD
@@ -1208,23 +1148,11 @@ The TEXTFIELD widget displays a rectangular box that the user can enter text int
 | Text       | Default text to put in the text field (default is blank) | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 NAMED_WIDGET DURATION TEXTFIELD 12 "10.0"
-BUTTON 'Start Collect' 'cmd("INST COLLECT with TYPE NORMAL, DURATION #{get_named_widget("DURATION").text.to_f}")'
-{% endhighlight %}
-
-### SCREENSHOTBUTTON
-
-The SCREENSHOTBUTTON widget displays a button that when clicked takes a screenshot.
-
-| Parameter   | Description                                                        | Required |
-| ----------- | ------------------------------------------------------------------ | -------- |
-| Button Text | Text to display on the button. (default = "Screenshot")            | No       |
-| Directory   | Directory to save the screenshot. (default = System.paths['LOGS']) | No       |
-
-Example Usage:
-{% highlight bash %}
-SCREENSHOTBUTTON "Screenshot" "C:/images/screenshots"
+BUTTON 'Start Collect' 'api.cmd("INST COLLECT with TYPE NORMAL, DURATION '+screen.get_named_widget("DURATION").text()+'")'
 {% endhighlight %}
 
 ## Canvas Widgets
@@ -1255,10 +1183,12 @@ The CANVASLABEL widget draws text onto the canvas.
 | Color     | Color of the text (default = 'black')                         | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVAS 100 100
-CANVASLABEL 5 34 "Label1" 24 red
-CANVASLABEL 5 70 "Label2" 18 blue
+  CANVASLABEL 5 34 "Label1" 24 red
+  CANVASLABEL 5 70 "Label2" 18 blue
 END
 {% endhighlight %}
 
@@ -1280,10 +1210,12 @@ The CANVASLABELVALUE widget draws the text value of a telemetry item onto the ca
 | Value Type  | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = CONVERTED) | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVAS 200 100
-CANVASLABELVALUE INST HEALTH_STATUS TEMP1 5 34 12 red true 5
-CANVASLABELVALUE INST HEALTH_STATUS TEMP2 5 70 10 blue false 0 WITH_UNITS
+  CANVASLABELVALUE INST HEALTH_STATUS TEMP1 5 34 12 red true 5
+  CANVASLABELVALUE INST HEALTH_STATUS TEMP2 5 70 10 blue false 0 WITH_UNITS
 END
 {% endhighlight %}
 
@@ -1291,16 +1223,21 @@ END
 
 The CANVASIMAGE widget displays a GIF image on the canvas.
 
-| Parameter  | Description                                                                              | Required |
-| ---------- | ---------------------------------------------------------------------------------------- | -------- |
-| Image Name | Name of a image file. The file must be located in the <Cosmos::USERPATH>/data directory. | Yes      |
-| X          | Left X position to draw the image                                                        | Yes      |
-| Y          | Top Y position to draw the image                                                         | Yes      |
+| Parameter  | Description                                                                                 | Required |
+| ---------- | ------------------------------------------------------------------------------------------- | -------- |
+| Image Name | Name of a image file which must be located in the TARGET/screens directory or URL to image. | Yes      |
+| X          | Left X position to draw the image                                                           | Yes      |
+| Y          | Top Y position to draw the image                                                            | Yes      |
+| Width      | Width of the image                                                                          | No       |
+| Height     | Height of the image                                                                         | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
-CANVAS 300 300
-CANVASIMAGE "satellite.gif" 0 0
+  CANVAS 300 300
+  CANVASIMAGE "satellite.gif" 0 0
+  CANVASIMAGE "https://images.pexels.com/photos/256152/pexels-photo-256152.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=640&w=426" 0 250 250 150
 END
 {% endhighlight %}
 
@@ -1308,21 +1245,23 @@ END
 
 The CANVASIMAGEVALUE widget displays a GIF image on the canvas that changes with a telemetry value.
 
-| Parameter       | Description                                                                                                                                                                              | Required |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| Target Name     | Target name portion of the telemetry mnemonic                                                                                                                                            | Yes      |
-| Packet Name     | Packet name portion of the telemetry mnemonic                                                                                                                                            | Yes      |
-| Item Name       | Item name portion of the telemetry mnemonic                                                                                                                                              | Yes      |
-| Filename Prefix | The prefix part of the filename of the gif images (expected to be in the user's data directory). The actual filenames will be this value plus the word "on" or the word "off" and ".gif" | Yes      |
-| X               | X position of the upper-left corner of the image on the canvas                                                                                                                           | Yes      |
-| Y               | Y position of the upper-left corner of the image on the canvas                                                                                                                           | Yes      |
-| Value Type      | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW)                                                                                                   | No       |
+| Parameter       | Description                                                                                                                                                                  | Required |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| Target Name     | Target name portion of the telemetry mnemonic                                                                                                                                | Yes      |
+| Packet Name     | Packet name portion of the telemetry mnemonic                                                                                                                                | Yes      |
+| Item Name       | Item name portion of the telemetry mnemonic                                                                                                                                  | Yes      |
+| Filename Prefix | The prefix part of the filename of the gif images (in the TARGET/screens directory). The actual filenames will be this value plus the word "on" or the word "off" and ".gif" | Yes      |
+| X               | X position of the upper-left corner of the image on the canvas                                                                                                               | Yes      |
+| Y               | Y position of the upper-left corner of the image on the canvas                                                                                                               | Yes      |
+| Value Type      | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW)                                                                                       | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVAS 150 200
-CANVASLABELVALUE INST HEALTH_STATUS GROUND1STATUS 0 12 12 black false
-CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS "ground" 0 20 # Uses groundon.gif and groundoff.gif
+  CANVASLABELVALUE INST HEALTH_STATUS GROUND1STATUS 0 12 12 black false
+  CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS "ground" 0 20 # Uses groundon.gif and groundoff.gif
 END
 {% endhighlight %}
 
@@ -1341,11 +1280,13 @@ The CANVASLINE widget draws a line onto the canvas.
 | Connector | Indicates whether or not to draw a circle at the second endpoint of the line: NO_CONNECTOR or CONNECTOR (default = NO_CONNECTOR) | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVAS 100 50
-CANVASLINE 5 5 95 5
-CANVASLINE 5 5 5 45 green 2 CONNECTOR
-CANVASLINE 95 5 95 45 blue 3 CONNECTOR
+  CANVASLINE 5 5 95 5
+  CANVASLINE 5 5 5 45 green 2 CONNECTOR
+  CANVASLINE 95 5 95 45 blue 3 CONNECTOR
 END
 {% endhighlight %}
 
@@ -1369,11 +1310,13 @@ The CANVASLINEVALUE widget draws a line onto the canvas in one of two colors bas
 | Value Type  | Type of the value to display: RAW, CONVERTED, FORMATTED, or WITH_UNITS (default = RAW)                                           | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVAS 120 50
-CANVASLABELVALUE INST HEALTH_STATUS GROUND1STATUS 0 12 12 black false
-CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 5 25 115 25
-CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 5 45 115 45 purple red 3 CONNECTOR
+  CANVASLABELVALUE INST HEALTH_STATUS GROUND1STATUS 0 12 12 black false
+  CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 5 25 115 25
+  CANVASLINEVALUE INST HEALTH_STATUS GROUND1STATUS 5 45 115 45 purple red 3 CONNECTOR
 END
 {% endhighlight %}
 
@@ -1389,15 +1332,17 @@ The CANVASDOT widget draws a dot onto the canvas, and it can be programmed to ch
 | Width                | Width of the dot in pixels (default = 3)                  | No       |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVAS 201 201
-CANVASLINE 0 0 200 0
-CANVASLINE 200 0 200 200
-CANVASLINE 200 200 0 200
-CANVASLINE 0 200 0 0
-CANVASLINE 99 1 99 199 white
-CANVASLINE 1 99 199 99 white
-CANVASDOT 'tlm_variable("GIMBAL AXIS_STATUS_X POSITION", :RAW) + 100' 'tlm_variable("GIMBAL AXIS_STATUS_Y POSITION", :RAW) + 100' red
+  CANVASLINE 0 0 200 0
+  CANVASLINE 200 0 200 200
+  CANVASLINE 200 200 0 200
+  CANVASLINE 0 200 0 0
+  CANVASLINE 99 1 99 199 white
+  CANVASLINE 1 99 199 99 white
+  CANVASDOT 'api.tlm_variable("GIMBAL AXIS_STATUS_X POSITION", :RAW) + 100' 'api.tlm_variable("GIMBAL AXIS_STATUS_Y POSITION", :RAW) + 100' red
 END
 {% endhighlight %}
 
@@ -1428,6 +1373,8 @@ or
 | Blue Value  | Blue portion of an RGB value (0-255)  | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 SETTING BACKCOLOR red
 SETTING BACKCOLOR 162 181 205
@@ -1448,6 +1395,8 @@ The TEXTCOLOR setting sets the text color for a widget.
 | Blue Value  | Blue portion of an RGB value (0-255)  | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 SETTING TEXTCOLOR red
 SETTING TEXTCOLOR 162 181 205
@@ -1462,6 +1411,8 @@ The WIDTH setting forces the height of a widget to a certain size.
 | Width     | Desired with in pixels | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 SETTING WIDTH 100
 {% endhighlight %}
@@ -1475,6 +1426,8 @@ The HEIGHT setting forces the height of a widget to a certain size.
 | Height    | Desired height in pixels | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 SETTING HEIGHT 100
 {% endhighlight %}
@@ -1500,10 +1453,12 @@ or
 | Blue Value  | Blue portion of an RGB value (0-255)  | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 HORIZONTALBOX
-LABEL "Label 1"
-LABEL "Label 2"
+  LABEL "Label 1"
+  LABEL "Label 2"
 END
 SETTING BORDERCOLOR red
 {% endhighlight %}
@@ -1517,6 +1472,8 @@ The COLORBLIND setting enables/disables providing clues in visualization for use
 | Enable    | TRUE or FALSE | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELVALUELIMITSBAR INST HEALTH_STATUS TEMP1
 SETTING COLORBLIND TRUE
@@ -1531,6 +1488,8 @@ The ENABLE_AGING setting enables/disables graying of widgets if there value does
 | Enable    | TRUE or FALSE | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELVALUE INST HEALTH_STATUS COLLECTS
 SETTING ENABLE_AGING FALSE
@@ -1545,6 +1504,8 @@ The GRAY_RATE and GREY_RATE settings change the rate at which graying occurs in 
 | Gray Rate | The number of shades of gray that are subtracted at each polling period if the value hasn't changed | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELVALUE INST HEALTH_STATUS COLLECTS
 SETTING GRAY_RATE 5
@@ -1559,6 +1520,8 @@ The GRAY_TOLERANCE and GREY_TOLERANCE settings set the maximum change in value t
 | Tolerance Value | The maximum change in value that will cause the widget to not recognize an items value as changing. | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELVALUE INST HEALTH_STATUS COLLECTS
 SETTING GRAY_TOLERANCE 1
@@ -1573,6 +1536,8 @@ The MIN_GRAY and MIN_GREY settings set the minimum shade of a gray that a widget
 | Minimum Gray | The minimum shade of a gray that a widget will decay to if its value doesn't change. Must be a value between 0 (black) and 255 (white). (default = 200) | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 LABELVALUE INST HEALTH_STATUS TEMP1
 SETTING GRAY_TOLERANCE 1000 # Prevent the widget from refreshing by choosing a high tolerance
@@ -1588,6 +1553,8 @@ The TREND_SECONDS setting changes the number of seconds using during trending. S
 | Seconds   | The number of seconds to trend across | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 TRENDBAR INST HEALTH_STATUS TEMP1
 SETTING TREND_SECONDS 10
@@ -1602,6 +1569,8 @@ The VALUE_EQ setting configures for an equal to comparison for a canvas value wi
 | Value     | The value to compare against with == | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVASIMAGEVALUE INST HEALTH_STATUS GROUND1STATUS "ground" 400 100
 SETTING VALUE_EQ 0
@@ -1616,6 +1585,8 @@ The VALUE_GT setting configures for a greater than comparison for a canvas value
 | Value     | The value to compare against with > | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 "ground" 400 100
 SETTING VALUE_GT 10.0
@@ -1630,6 +1601,8 @@ The VALUE_GTEQ setting configures for a greater than or equal to comparison for 
 | Value     | The value to compare against with >= | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 "ground" 400 100
 SETTING VALUE_GTEQ 10.0
@@ -1644,6 +1617,8 @@ The VALUE_LT setting configures for a less than comparison for a canvas value wi
 | Value     | The value to compare against with < | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 "ground" 400 100
 SETTING VALUE_LT 10.0
@@ -1659,6 +1634,8 @@ Supported widgets: CANVASIMAGEVALUE, CANVASLABELVALUE, CANVASLINEVALUE.
 | Value     | The value to compare against with <= | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 "ground" 400 100
 SETTING VALUE_LTEQ 10.0
@@ -1677,6 +1654,8 @@ The TLM_AND setting allows added another comparison that is anded with the origi
 | Value           | The value to compare against                                                 | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 "ground" 400 100
 SETTING VALUE_LTEQ 10.0
@@ -1696,6 +1675,8 @@ The TLM_OR setting allows added another comparison that is ored with the origina
 | Value           | The value to compare against                                                 | Yes      |
 
 Example Usage:
+
+<!-- prettier-ignore -->
 {% highlight bash %}
 CANVASIMAGEVALUE INST HEALTH_STATUS TEMP1 "ground" 400 100
 SETTING VALUE_LTEQ 10.0

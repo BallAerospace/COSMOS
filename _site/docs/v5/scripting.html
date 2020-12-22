@@ -116,7 +116,6 @@
 <li class="toc-entry toc-h2"><a href="#execution-environment">Execution Environment</a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#using-script-runner">Using Script Runner</a></li>
-<li class="toc-entry toc-h3"><a href="#from-the-command-line">From the Command Line</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#test-procedure-api">Test Procedure API</a></li>
@@ -127,17 +126,11 @@
 <li class="toc-entry toc-h3"><a href="#message_box">message_box</a></li>
 <li class="toc-entry toc-h3"><a href="#vertical_message_box">vertical_message_box</a></li>
 <li class="toc-entry toc-h3"><a href="#combo_box">combo_box</a></li>
-<li class="toc-entry toc-h3"><a href="#save_file_dialog">save_file_dialog</a></li>
-<li class="toc-entry toc-h3"><a href="#open_file_dialog">open_file_dialog</a></li>
-<li class="toc-entry toc-h3"><a href="#open_files_dialog">open_files_dialog</a></li>
-<li class="toc-entry toc-h3"><a href="#open_directory_dialog">open_directory_dialog</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#providing-information-to-the-user">Providing information to the user</a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#prompt">prompt</a></li>
-<li class="toc-entry toc-h3"><a href="#status_bar">status_bar</a></li>
-<li class="toc-entry toc-h3"><a href="#play_wav_file">play_wav_file</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#commands">Commands</a>
@@ -198,7 +191,6 @@
 <li class="toc-entry toc-h3"><a href="#subscribe_packet_data">subscribe_packet_data</a></li>
 <li class="toc-entry toc-h3"><a href="#unsubscribe_packet_data">unsubscribe_packet_data</a></li>
 <li class="toc-entry toc-h3"><a href="#get_packet">get_packet</a></li>
-<li class="toc-entry toc-h3"><a href="#get_packet_data">get_packet_data</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#delays">Delays</a>
@@ -308,23 +300,6 @@
 <li class="toc-entry toc-h3"><a href="#stop_background_task-since-410">stop_background_task (since 4.1.0)</a></li>
 </ul>
 </li>
-<li class="toc-entry toc-h2"><a href="#replay">Replay</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#set_replay_mode-since-410">set_replay_mode (since 4.1.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#get_replay_mode-since-410">get_replay_mode (since 4.1.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#replay_select_file-since-410">replay_select_file (since 4.1.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#replay_status-since-410">replay_status (since 4.1.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#replay_set_playback_delay-since-410">replay_set_playback_delay (since 4.1.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#replay_play-since-410">replay_play (since 4.1.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#replay_reverse_play-since-410">replay_reverse_play (since 4.1.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#replay_stop-since-410">replay_stop (since 4.1.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#replay_step_forward-since-410">replay_step_forward (since 4.1.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#replay_step_back-since-410">replay_step_back (since 4.1.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#replay_move_start-since-410">replay_move_start (since 4.1.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#replay_move_end-since-410">replay_move_end (since 4.1.0)</a></li>
-<li class="toc-entry toc-h3"><a href="#replay_move_index-since-410">replay_move_index (since 4.1.0)</a></li>
-</ul>
-</li>
 <li class="toc-entry toc-h2"><a href="#executing-other-procedures">Executing Other Procedures</a>
 <ul>
 <li class="toc-entry toc-h3"><a href="#start">start</a></li>
@@ -367,7 +342,7 @@
         
         <h1>Scripting Guide</h1>
         <div class="note unreleased">
-  <p>Needs updates for COSMOS 5 APIs</p>
+  <p>Unimplemented COSMOS 5 have been noted. COSMOS 5 APIs are subject to change. The User Input, Command, and Telemetry APIs are stable.</p>
 </div>
 
 <p>This document provides the information necessary to write test procedures using the COSMOS scripting API. Scripting in COSMOS is designed to be simple and intuitive. The code completion ability for command and telemetry mnemonics makes Script Runner the ideal place to write your procedures, however any text editor will do. If there is functionality that you don’t see here or perhaps an easier syntax for doing something, please submit a ticket.</p>
@@ -423,7 +398,7 @@
 <span class="c1"># Date: 7/27/2007</span>
 <span class="c1">######################################</span>
 
-<span class="nb">load</span> <span class="s1">'upload_utility.rb'</span> <span class="c1"># library we don't want to show executing</span>
+<span class="nb">load</span> <span class="s1">'upload_utility.rb'</span> <span class="c1"># library we do NOT want to show executing</span>
 <span class="n">load_utility</span> <span class="s1">'helper_utility'</span> <span class="c1"># library we do want to show executing</span>
 
 <span class="c1"># Declare constants</span>
@@ -452,7 +427,7 @@
 <span class="n">clear_collects</span><span class="p">(</span><span class="s1">'INST2'</span><span class="p">)</span>
 </code></pre></div></div>
 
-<p>This example shows several features of COSMOS scripting in action. Notice the difference between ‘load’ and ‘load_utility’. The first is to load additional scripts which will NOT be shown in Script Runner when executing. This is a good place to put code which takes a long time to run such as image analysis or other looping code where you just want the output. ‘load_utility’ will visually execute the code line by line to show the user what is happening.</p>
+<p>This example shows several features of COSMOS scripting in action. Notice the difference between ‘load’ and ‘load<em>utility’. The first is to load additional scripts which will NOT be shown in Script Runner when executing. This is a good place to put code which takes a long time to run such as image analysis or other looping code where you just want the output. ‘load_utility’ will visually execute the code line by line to show the user what is happening. Read <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a> for _much</em> more information.</p>
 
 <p>Next we declare our constants and create an array of strings which we store in OUR_TARGETS. Notice the constant is all uppercase with underscores.</p>
 
@@ -646,24 +621,17 @@
 <h3 id="using-script-runner">
 <a class="anchor" href="#using-script-runner" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using Script Runner</h3>
 
-<p>Script Runner is a graphical application that provides the ideal environment for running and implementing your test procedures. The Script Runner tool is broken into 4 main sections. At the top of the tool is a menu bar that allows you to do such things as open and save files, comment out blocks of code, perform a syntax check, and execute your script.</p>
+<p>Script Runner is a graphical application that provides the ideal environment for running and implementing your test procedures. The Script Runner tool is broken into 4 main sections. At the top of the tool is a menu bar that allows you to do such things as open and save files, perform a syntax check, and execute your script.</p>
 
-<p>Next is a tool bar that displays the currently executing line number of the script and three buttons, “Go”, “Pause/Resume?”, and “Stop”. The Go button is used to skip wait statements within the script. This is sometimes useful if an excessive wait statement is added to a script. The Pause/Resume? button will pause the executing script and display the next line that will be executed. Resume will resume execution of the script. The Resume button is also used to continue script execution after an exception occurs such as trying to send a command with a parameter that is out of range. Finally, the Stop button will stop the executing script at any time.</p>
+<p>Next is a tool bar that displays the currently executing script and three buttons, “Start/Go”, “Pause/Retry”, and “Stop”. The Start/Go button is used to start the script and continue past errors or waits. The Pause/Retry button will pause the executing script. If an error is encountered the Pause button changes to Retry to re-execute the errored line. Finally, the Stop button will stop the executing script at any time.</p>
 
 <p>Third is the display of the actual script. While the script is not running, you may edit and compose scripts in this area. A handy code completion feature is provided that will list out the available commands or telemetry points as you are writing your script. Simply begin writing a cmd( or tlm( line to bring up code completion. This feature greatly reduces typos in command and telemetry mnemonics.</p>
 
-<p>Finally, displayed is the script output. All commands that are sent, errors that occur, and user puts statements appear in this output section. Additionally anything printed into this section is logged by Script Runner into your projects COSMOS user area.</p>
+<div class="note unreleased">
+  <p>Code Completion not yet implemented in COSMOS 5</p>
+</div>
 
-<h3 id="from-the-command-line">
-<a class="anchor" href="#from-the-command-line" aria-hidden="true"><span class="octicon octicon-link"></span></a>From the Command Line</h3>
-
-<p>Note that any COSMOS script can also be run from the command line if the script begins with the following two lines:</p>
-
-<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">require</span> <span class="s1">'cosmos'</span>
-<span class="nb">require</span> <span class="s1">'cosmos/script'</span>
-</code></pre></div></div>
-
-<p>The Script Runner Tool automatically executes these lines for you so they aren’t required for scripts that will only be run from Script Runner. Nice features such as display of the current line or the ability to pause a script are not available from the command line.</p>
+<p>Finally, displayed is the log messages. All commands that are sent, errors that occur, and user puts statements appear in this area.</p>
 
 <h2 id="test-procedure-api">
 <a class="anchor" href="#test-procedure-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test Procedure API</h2>
@@ -771,11 +739,8 @@
 <p>Syntax:</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">message_box</span><span class="p">(</span><span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;button text 1&gt;"</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
-<span class="n">message_box</span><span class="p">(</span><span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;button text 1&gt;"</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="kp">false</span><span class="p">)</span> <span class="c1"># Since COSMOS 3.8.3</span>
-<span class="n">vertical_message_box</span><span class="p">(</span><span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;button text 1&gt;"</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span> <span class="c1"># Since COSMOS 3.5.0</span>
-<span class="n">vertical_message_box</span><span class="p">(</span><span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;button text 1&gt;"</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="kp">false</span><span class="p">)</span> <span class="c1"># Since COSMOS 3.8.3</span>
-<span class="n">combo_box</span><span class="p">(</span><span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;selection text 1&gt;"</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span> <span class="c1"># Since COSMOS 3.5.0</span>
-<span class="n">combo_box</span><span class="p">(</span><span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;selection text 1&gt;"</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="kp">false</span><span class="p">)</span> <span class="c1"># Since COSMOS 3.8.3</span>
+<span class="n">vertical_message_box</span><span class="p">(</span><span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;button text 1&gt;"</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+<span class="n">combo_box</span><span class="p">(</span><span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;selection text 1&gt;"</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
 </code></pre></div></div>
 
 <table>
@@ -794,10 +759,6 @@
       <td>button/selection text</td>
       <td>Text for a button or selection</td>
     </tr>
-    <tr>
-      <td>false</td>
-      <td>Whether to display the “Cancel” button (since 3.8.3)</td>
-    </tr>
   </tbody>
 </table>
 
@@ -812,61 +773,6 @@
 <span class="k">when</span> <span class="s1">'Two'</span>
   <span class="nb">puts</span> <span class="s1">'Sensor Two'</span>
 <span class="k">end</span>
-</code></pre></div></div>
-
-<h3 id="save_file_dialog">
-<a class="anchor" href="#save_file_dialog" aria-hidden="true"><span class="octicon octicon-link"></span></a>save_file_dialog</h3>
-
-<h3 id="open_file_dialog">
-<a class="anchor" href="#open_file_dialog" aria-hidden="true"><span class="octicon octicon-link"></span></a>open_file_dialog</h3>
-
-<h3 id="open_files_dialog">
-<a class="anchor" href="#open_files_dialog" aria-hidden="true"><span class="octicon octicon-link"></span></a>open_files_dialog</h3>
-
-<h3 id="open_directory_dialog">
-<a class="anchor" href="#open_directory_dialog" aria-hidden="true"><span class="octicon octicon-link"></span></a>open_directory_dialog</h3>
-
-<p>The save_file_dialog, open_file_dialog, open_files_dialog, and open_directory_dialog methods create a file dialog box so the user can select a file/directory. The selected file/directory is returned.</p>
-
-<p>Syntax:</p>
-
-<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">save_file_dialog</span><span class="p">(</span><span class="s2">"&lt;directory&gt;"</span><span class="p">,</span> <span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;filter&gt;"</span><span class="p">)</span>
-<span class="n">open_file_dialog</span><span class="p">(</span><span class="s2">"&lt;directory&gt;"</span><span class="p">,</span> <span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;filter&gt;"</span><span class="p">)</span>
-<span class="n">open_files_dialog</span><span class="p">(</span><span class="s2">"&lt;directory&gt;"</span><span class="p">,</span> <span class="s2">"&lt;message&gt;"</span><span class="p">,</span> <span class="s2">"&lt;filter&gt;"</span><span class="p">)</span>
-<span class="n">open_directory_dialog</span><span class="p">(</span><span class="s2">"&lt;directory&gt;"</span><span class="p">,</span> <span class="s2">"&lt;message&gt;"</span><span class="p">)</span>
-</code></pre></div></div>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Directory</td>
-      <td>The directory to start browsing in. Optional parameter, defaults to Cosmos::USERPATH.</td>
-    </tr>
-    <tr>
-      <td>Message</td>
-      <td>The message to display in the dialog box. Optional parameter, defaults to “Save File”, “Open File”, “Open File(s)”, or “Open Directory”.</td>
-    </tr>
-    <tr>
-      <td>Filter</td>
-      <td>Filter to select allowed file type. Optional parameter, defaults to “*”</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example:</p>
-
-<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">selected_file</span> <span class="o">=</span> <span class="n">open_file_dialog</span><span class="p">()</span>
-<span class="n">file_data</span> <span class="o">=</span> <span class="s2">""</span>
-<span class="no">File</span><span class="p">.</span><span class="nf">open</span><span class="p">(</span><span class="n">selected_file</span><span class="p">,</span> <span class="s1">'rb'</span><span class="p">)</span> <span class="p">{</span><span class="o">|</span><span class="n">file</span><span class="o">|</span> <span class="n">file_data</span> <span class="o">=</span> <span class="n">file</span><span class="p">.</span><span class="nf">read</span><span class="p">()}</span>
-
-<span class="c1"># Filter will initially show only .txt files, but can be changed to show all files...</span>
-<span class="n">selected_file</span> <span class="o">=</span> <span class="n">open_file_dialog</span><span class="p">(</span><span class="no">Cosmos</span><span class="o">::</span><span class="no">USERPATH</span><span class="p">,</span> <span class="s2">"Open File"</span><span class="p">,</span> <span class="s2">"Text (*.txt);;All (*.*)"</span><span class="p">)</span>
 </code></pre></div></div>
 
 <h2 id="providing-information-to-the-user">
@@ -902,66 +808,6 @@
 <p>Example:</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">prompt</span><span class="p">(</span><span class="s2">"Press OK to continue"</span><span class="p">)</span>
-</code></pre></div></div>
-
-<h3 id="status_bar">
-<a class="anchor" href="#status_bar" aria-hidden="true"><span class="octicon octicon-link"></span></a>status_bar</h3>
-
-<p>The status_bar method displays a message to the user in the status bar (at the bottom of the tool).</p>
-
-<p>Syntax:</p>
-
-<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">status_bar</span><span class="p">(</span><span class="s2">"&lt;message&gt;"</span><span class="p">)</span>
-</code></pre></div></div>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>message</td>
-      <td>Message to display in the status bar</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example:</p>
-
-<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">status_bar</span><span class="p">(</span><span class="s2">"Connection Successful"</span><span class="p">)</span>
-</code></pre></div></div>
-
-<h3 id="play_wav_file">
-<a class="anchor" href="#play_wav_file" aria-hidden="true"><span class="octicon octicon-link"></span></a>play_wav_file</h3>
-
-<p>The play_wav_file method plays the provided wav file once. Note that the script will proceed while the wav file plays.</p>
-
-<p>Syntax:</p>
-
-<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">play_wav_file</span><span class="p">(</span><span class="n">wav_filename</span><span class="p">)</span>
-</code></pre></div></div>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>wav_filename</td>
-      <td>Path and filename of the wav file to play.</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example:</p>
-
-<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">play_wav_file</span><span class="p">(</span><span class="s2">"config/data/alarm.wav"</span><span class="p">)</span>
 </code></pre></div></div>
 
 <h2 id="commands">
@@ -1324,6 +1170,10 @@
 <h3 id="send_raw">
 <a class="anchor" href="#send_raw" aria-hidden="true"><span class="octicon octicon-link"></span></a>send_raw</h3>
 
+<div class="note unreleased">
+  <p>send_raw not yet implemented in COSMOS 5</p>
+</div>
+
 <p>The send_raw method sends raw data on an interface.</p>
 
 <p>Syntax:</p>
@@ -1357,6 +1207,10 @@
 
 <h3 id="send_raw_file">
 <a class="anchor" href="#send_raw_file" aria-hidden="true"><span class="octicon octicon-link"></span></a>send_raw_file</h3>
+
+<div class="note unreleased">
+  <p>send_raw_file not yet implemented in COSMOS 5</p>
+</div>
 
 <p>The send_raw_file method sends raw data on an interface from a file.</p>
 
@@ -2803,55 +2657,6 @@
 <span class="n">value</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">read</span><span class="p">(</span><span class="s1">'ITEM_NAME'</span><span class="p">)</span>
 </code></pre></div></div>
 
-<h3 id="get_packet_data">
-<a class="anchor" href="#get_packet_data" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_packet_data</h3>
-
-<p>NOTE: Most users will want to use get_packet() instead of this lower level method. The get_packet_data method returns a ruby string containing the packet data from a specified telemetry packet. It also returns which telemetry packet the data is from. Can be run in a non-blocking or blocking manner. Packets are queued after calling subscribe_packet_data and none will be lost. If 1000 (or whatever queue_size was specified in subscribe_packet_data) packets are queued and get_packet_data has not been called or has not been keeping up, then the subscription will be dropped.</p>
-
-<p>The returned packet data can be used to populate a packet object. A packet object can be obtained from the System object.</p>
-
-<p>If get_packet_data is called non-blocking <non_block> = true, get_packet_data will raise an error if the queue is empty.</non_block></p>
-
-<div class="note warning">
-  <p><b>Overflown Queues Are Deleted</b></p>
-  <p>By default the packet queue is 1000 packets deep. If you don't call get_packet_data fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_packet_data you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_packet_data method.</p>
-</div>
-
-<p>Syntax:</p>
-
-<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">get_packet_data</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">non_block</span><span class="p">)</span>
-</code></pre></div></div>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>id</td>
-      <td>Unique id given to the tool by subscribe_packet_data.</td>
-    </tr>
-    <tr>
-      <td>non_block</td>
-      <td>Boolean to indicate if the method should block until an packet of data is received or not. Defaults to false, blocks reading data from queue.</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example:</p>
-
-<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">id</span> <span class="o">=</span> <span class="n">subscribe_packet_data</span><span class="p">([[</span><span class="err">“</span><span class="no">TGT</span><span class="p">,</span> <span class="err">“</span><span class="no">PKT1</span><span class="err">”</span><span class="p">],</span> <span class="p">[</span><span class="err">“</span><span class="no">TGT</span><span class="err">”</span><span class="p">,</span> <span class="err">“</span><span class="no">PKT2</span><span class="err">”</span><span class="p">]])</span> <span class="c1"># note double nested array</span>
-
-<span class="n">buffer</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">received_time</span><span class="p">,</span> <span class="n">received_count</span> <span class="o">=</span> <span class="n">get_packet_data</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
-<span class="n">packet</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">packet</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">).</span><span class="nf">clone</span>
-<span class="n">packet</span><span class="p">.</span><span class="nf">buffer</span> <span class="o">=</span> <span class="n">buffer</span>
-<span class="n">packet</span><span class="p">.</span><span class="nf">received_time</span> <span class="o">=</span> <span class="n">received_time</span>
-<span class="n">packet</span><span class="p">.</span><span class="nf">received_count</span> <span class="o">=</span> <span class="n">received_count</span>
-</code></pre></div></div>
-
 <h2 id="delays">
 <a class="anchor" href="#delays" aria-hidden="true"><span class="octicon octicon-link"></span></a>Delays</h2>
 
@@ -3483,6 +3288,10 @@
 
 <h2 id="limits">
 <a class="anchor" href="#limits" aria-hidden="true"><span class="octicon octicon-link"></span></a>Limits</h2>
+
+<div class="note unreleased">
+  <p>Limits API not fully implemented in COSMOS 5</p>
+</div>
 
 <p>These methods deal with handling telemetry limits.</p>
 
@@ -5144,209 +4953,6 @@ Example:
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">stop_background_task</span><span class="p">(</span><span class="s2">"Example Background Task"</span><span class="p">)</span></code></pre></figure>
 
-<h2 id="replay">
-<a class="anchor" href="#replay" aria-hidden="true"><span class="octicon octicon-link"></span></a>Replay</h2>
-
-<p>These methods allow the user to control the COSMOS Replay tool.</p>
-
-<h3 id="set_replay_mode-since-410">
-<a class="anchor" href="#set_replay_mode-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>set_replay_mode (since 4.1.0)</h3>
-
-<p>The set_replay_mode method configures the JSON DRB connection to connect to either the CTS or the Replay tool. The JSON DRB connection must be configured to connect to the Replay tool with this method before any of the other methods in the Replay API can be used.</p>
-
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">set_replay_mode</span><span class="p">(</span><span class="o">&lt;</span><span class="n">replay_mode</span><span class="o">&gt;</span><span class="p">)</span></code></pre></figure>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Replay Mode</td>
-      <td>Set to true to connect to the Replay tool; set to false to connect to the CTS.</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">set_replay_mode</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span></code></pre></figure>
-
-<h3 id="get_replay_mode-since-410">
-<a class="anchor" href="#get_replay_mode-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>get_replay_mode (since 4.1.0)</h3>
-
-<p>The get_replay_mode method returns true if the JSON DRB connection is configured to connect to the Replay tool or false if the JSON DRB connection is configured to connect to the CTS.</p>
-
-<p>Syntax / Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_mode</span> <span class="o">=</span> <span class="n">get_replay_mode</span><span class="p">()</span></code></pre></figure>
-
-<h3 id="replay_select_file-since-410">
-<a class="anchor" href="#replay_select_file-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_select_file (since 4.1.0)</h3>
-
-<p>The replay_select_file method selects a file to play back in the COSMOS Replay tool.</p>
-
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_select_file</span><span class="p">(</span><span class="s2">"&lt;filename&gt;"</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">packet_log_reader</span><span class="o">&gt;</span> <span class="p">(</span><span class="n">optional</span><span class="p">))</span></code></pre></figure>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Filename</td>
-      <td>A log file to load into the Replay tool.</td>
-    </tr>
-    <tr>
-      <td>Packet Log Reader</td>
-      <td>The log reader to use to parse the log file. Optional parameter, defaults to “DEFAULT”.</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_select_file</span><span class="p">(</span><span class="s2">"2018_01_04_13_19_49_tlm.bin"</span><span class="p">)</span></code></pre></figure>
-
-<h3 id="replay_status-since-410">
-<a class="anchor" href="#replay_status-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_status (since 4.1.0)</h3>
-
-<p>The replay_status method returns status for the Replay tool. The returned status includes the PLAYING/STOPPED status, playback delay, playback filename, file start time, file current (playback) time, file end time, file index, and file max index.</p>
-
-<p>Syntax / Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">status</span><span class="p">,</span> <span class="n">delay</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">file_start</span><span class="p">,</span> <span class="n">file_current</span><span class="p">,</span> <span class="n">file_end</span><span class="p">,</span> <span class="n">file_index</span><span class="p">,</span> <span class="n">file_max_index</span> <span class="o">=</span> <span class="n">replay_status</span><span class="p">()</span></code></pre></figure>
-
-<h3 id="replay_set_playback_delay-since-410">
-<a class="anchor" href="#replay_set_playback_delay-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_set_playback_delay (since 4.1.0)</h3>
-
-<p>The replay_set_playback_delay method sets the playback delay for the Replay tool.</p>
-
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_set_playback_delay</span><span class="p">(</span><span class="o">&lt;</span><span class="n">delay</span><span class="o">&gt;</span><span class="p">)</span></code></pre></figure>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Delay</td>
-      <td>The delay between packets when the Replay tool is playing back. Set to nil for REALTIME, or specify a floating point value in seconds from 0.0 (no delay) to 1.0 (1 second between packets).</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_set_playback_delay</span><span class="p">(</span><span class="kp">nil</span><span class="p">)</span></code></pre></figure>
-
-<h3 id="replay_play-since-410">
-<a class="anchor" href="#replay_play-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_play (since 4.1.0)</h3>
-
-<p>The replay_play method starts playback in the Replay tool.</p>
-
-<p>Syntax / Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_play</span><span class="p">()</span></code></pre></figure>
-
-<h3 id="replay_reverse_play-since-410">
-<a class="anchor" href="#replay_reverse_play-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_reverse_play (since 4.1.0)</h3>
-
-<p>The replay_reverse_play method starts reverse playback in the Replay tool.</p>
-
-<p>Syntax / Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_end</span><span class="p">()</span>
-<span class="n">replay_reverse_play</span><span class="p">()</span></code></pre></figure>
-
-<h3 id="replay_stop-since-410">
-<a class="anchor" href="#replay_stop-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_stop (since 4.1.0)</h3>
-
-<p>The replay_stop method stops playback in the Replay tool.</p>
-
-<p>Syntax / Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_stop</span><span class="p">()</span></code></pre></figure>
-
-<h3 id="replay_step_forward-since-410">
-<a class="anchor" href="#replay_step_forward-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_step_forward (since 4.1.0)</h3>
-
-<p>The replay_step_forward method steps the Replay tool forward by one packet.</p>
-
-<p>Syntax / Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_step_forward</span><span class="p">()</span></code></pre></figure>
-
-<h3 id="replay_step_back-since-410">
-<a class="anchor" href="#replay_step_back-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_step_back (since 4.1.0)</h3>
-
-<p>The replay_step_back method steps the Replay tool backwards by one packet.</p>
-
-<p>Syntax / Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_step_back</span><span class="p">()</span></code></pre></figure>
-
-<h3 id="replay_move_start-since-410">
-<a class="anchor" href="#replay_move_start-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_move_start (since 4.1.0)</h3>
-
-<p>The replay_move_start method sets the Replay tool playback pointer to the start of the file.</p>
-
-<p>Syntax / Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_start</span><span class="p">()</span></code></pre></figure>
-
-<h3 id="replay_move_end-since-410">
-<a class="anchor" href="#replay_move_end-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_move_end (since 4.1.0)</h3>
-
-<p>The replay_move_end method sets the Replay tool playback pointer to the end of the file.</p>
-
-<p>Syntax / Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_end</span><span class="p">()</span></code></pre></figure>
-
-<h3 id="replay_move_index-since-410">
-<a class="anchor" href="#replay_move_index-since-410" aria-hidden="true"><span class="octicon octicon-link"></span></a>replay_move_index (since 4.1.0)</h3>
-
-<p>The replay_move_index method sets the Replay tool playback pointer to a specified index. The maximum index can be found with the replay_status method.</p>
-
-<p>Syntax:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_index</span><span class="p">(</span><span class="o">&lt;</span><span class="n">index</span><span class="o">&gt;</span><span class="p">)</span></code></pre></figure>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Index</td>
-      <td>The packet index within the file to move the playback pointer.</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example:</p>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">replay_move_index</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span></code></pre></figure>
-
 <h2 id="executing-other-procedures">
 <a class="anchor" href="#executing-other-procedures" aria-hidden="true"><span class="octicon octicon-link"></span></a>Executing Other Procedures</h2>
 
@@ -5414,6 +5020,10 @@ Example:
 
 <h2 id="opening-closing--creating-telemetry-screens">
 <a class="anchor" href="#opening-closing--creating-telemetry-screens" aria-hidden="true"><span class="octicon octicon-link"></span></a>Opening, Closing &amp; Creating Telemetry Screens</h2>
+
+<div class="note unreleased">
+  <p>Screen APIs not yet implemented in COSMOS 5</p>
+</div>
 
 <p>These methods allow the user to open, close or create unique telemetry screens from within a test procedure.</p>
 
