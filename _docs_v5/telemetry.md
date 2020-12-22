@@ -10,7 +10,19 @@ Telemetry definition files define the telemetry packets that can be received and
 
 When defining telemetry items you can choose from the following data types: INT, UINT, FLOAT, STRING, BLOCK. These correspond to integers, unsigned integers, floating point numbers, strings and binary blocks of data. The only difference between a STRING and BLOCK is when COSMOS reads a STRING type it stops reading when it encounters a null byte (0). This shows up when displaying the value in Packet Viewer or Tlm Viewer and in the output of Data Extractor.
 
+### Derived Items
+
+COSMOS has a concept of a derived item which is a telemetry item that doesn’t actually exist in the binary data. Derived items are typically computed based on other telemetry items. COSMOS derived items are very similar to real items except they use the special DERIVED data type. Here is how a derived item might look in a telemetry definition.
+
+```
+ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
+```
+
+Note the bit offset and bit size of 0 and the data type of DERIVED. This definition must be followed by one of the CONVERSION keywords to generate the value.
+
 <div style="clear:both;"></div>
+
+# Telemetry Keywords
 
 {% cosmos_meta telemetry.yaml %}
 

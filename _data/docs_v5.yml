@@ -8,6 +8,7 @@
 
 - title: Configuration
   docs:
+    - target
     - command
     - telemetry
     - interfaces

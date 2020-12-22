@@ -8,6 +8,8 @@ toc: true
 
 Data Extractor extracts command and telemetry items into comma or tab separated files. Individual items or entire packets can be processed over any time period. Data Extractor also has a number of options to control the output for post processing in Excel or Matlab, for example.
 
+![Data Extractor](/img/v5/data_extractor/data_extractor.png)
+
 ## Data Extractor Menus
 
 ### File Menu Items

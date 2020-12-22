@@ -57,7 +57,7 @@ Develop and execute test procedures with line highlighting, syntax checking, and
 
 View any telemetry packet in the system with no extra configuration necessary.
 
-![Packet Viewer](/img/v5/packet_viewer.png)
+![Packet Viewer](/img/v5/packet_viewer/packet_viewer.png)
 
 - Automatically contains all defined targets, packets, and telemetry items
 - Right click to get detailed item information
@@ -66,7 +66,7 @@ View any telemetry packet in the system with no extra configuration necessary.
 
 Easily create custom telemetry screens with simple configuration text files.
 
-![Telemetry Viewer](/img/v5/telemetry_viewer.png)
+![Telemetry Viewer](/img/v5/telemetry_viewer/telemetry_viewer.png)
 
 - Advanced widgets available to display data
 - Generate screens from within the tool
@@ -77,7 +77,7 @@ Easily create custom telemetry screens with simple configuration text files.
 
 Realtime or offline graphing of any telemetry item.
 
-![Telemetry Grapher](/img/v5/telemetry_grapher.png)
+![Telemetry Grapher](/img/v5/telemetry_grapher/telemetry_grapher.png)
 
 - One or more telemetry points per plot
 - Spread data across multiple plots

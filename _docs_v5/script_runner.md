@@ -8,6 +8,8 @@ toc: true
 
 Script Runner is both an editor of COSMOS scripts as well as executes scripts. Script files are stored within a COSMOS target and Script Runner provides the ability to open, save, download and delete these files. When a suite of scripts is opened, Script Runner provides additional options to run individial scripts, groups of scripts, or entire suites.
 
+![Script Runner](/img/v5/script_runner/script_runner.png)
+
 ## Script Runner Menus
 
 ### File Menu Items

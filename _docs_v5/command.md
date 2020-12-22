@@ -12,6 +12,8 @@ When defining command parameters you can choose from the following data types: I
 
 <div style="clear:both;"></div>
 
+# Command Keywords
+
 {% cosmos_meta command.yaml %}
 
 ## Example File
