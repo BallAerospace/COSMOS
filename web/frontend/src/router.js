@@ -33,6 +33,10 @@ export default new Router({
           path: 'tlm-packets',
         },
         {
+          component: () => import('./tools/CmdTlmServer/RoutersTab'),
+          path: 'routers',
+        },
+        {
           component: () => import('./tools/CmdTlmServer/StatusTab'),
           path: 'status',
         },

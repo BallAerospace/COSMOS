@@ -58,6 +58,17 @@ module Cosmos
       result
     end
 
+    def get_routers(scope: $cosmos_scope)
+      result = []
+      @redis_pool.with do |redis|
+        routers = redis.hgetall("#{scope}__cosmos_router_status")
+        routers.each do |router_name, router_json|
+          result << JSON.parse(router_json)
+        end
+      end
+      result
+    end
+
     def get_interface(interface_name, scope: $cosmos_scope)
       @redis_pool.with do |redis|
         if redis.hexists("#{scope}__cosmos_interface_status", interface_name)
@@ -74,6 +85,16 @@ module Cosmos
           return redis.hset("#{scope}__cosmos_interface_status", interface.name, JSON.generate(interface.as_json))
         else
           raise "Interface '#{interface.name}' does not exist"
+        end
+      end
+    end
+
+    def set_router(router, initialize: false, scope: $cosmos_scope)
+      @redis_pool.with do |redis|
+        if initialize || redis.hexists("#{scope}__cosmos_router_status", router.name)
+          return redis.hset("#{scope}__cosmos_router_status", router.name, JSON.generate(router.as_json))
+        else
+          raise "Router '#{router.name}' does not exist"
         end
       end
     end
@@ -138,6 +159,27 @@ module Cosmos
           ack_topic[1] = 'ACK' + ack_topic[1]
           ack_topic = ack_topic.join("__")
           write_topic(ack_topic, { 'result' => result }, msg_id)
+        end
+      end
+    end
+
+    def receive_telemetry(router, scope: $cosmos_scope)
+      topics = []
+      topics << "#{scope}__CMDROUTER__#{router.name}"
+      router.target_names.each do |target_name|
+        System.telemetry.packets(target_name).each do |packet_name, packet|
+          topics << "#{@scope}__TELEMETRY__#{packet.target_name}__#{packet.packet_name}"
+        end
+      end
+      while true
+        read_topics(topics) do |topic, msg_id, msg_hash, redis|
+          result = yield topic, msg_hash
+          if topic =~ /CMDROUTER/
+            ack_topic = topic.split("__")
+            ack_topic[1] = 'ACK' + ack_topic[1]
+            ack_topic = ack_topic.join("__")
+            write_topic(ack_topic, { 'result' => result }, msg_id)
+          end
         end
       end
     end

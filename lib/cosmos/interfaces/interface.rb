@@ -83,10 +83,6 @@ module Cosmos
     #   (when used as a Router)
     attr_accessor :write_queue_size
 
-    # @return [Array<Interface>] Array of interfaces to route packets to
-    #   (when used as a Router)
-    attr_accessor :interfaces
-
     # @return [Hash<option name, option values>] Hash of options supplied to interface/router
     attr_accessor :options
 
@@ -140,7 +136,6 @@ module Cosmos
       @read_queue_size = 0
       @write_queue_size = 0
       @write_mutex = Mutex.new
-      @interfaces = []
       @read_allowed = true
       @write_allowed = true
       @write_raw_allowed = true
@@ -372,7 +367,6 @@ module Cosmos
       # num_clients is per interface so don't copy
       # read_queue_size is the number of packets in the queue so don't copy
       # write_queue_size is the number of packets in the queue so don't copy
-      other_interface.interfaces = self.interfaces.clone
       other_interface.options = self.options.clone
       other_interface.protocol_info = []
       self.protocol_info.each do |protocol_class, protocol_args, read_write|

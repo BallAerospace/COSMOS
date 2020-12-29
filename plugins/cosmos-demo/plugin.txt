@@ -8,6 +8,7 @@ VARIABLE example_target_name EXAMPLE
 VARIABLE templated_target_name TEMPLATED
 VARIABLE system_target_name SYSTEM
 VARIABLE inst_int_name INST_INT
+VARIABLE inst_router_name INST_ROUTER
 VARIABLE inst2_int_name INST2_INT
 VARIABLE example_int_name EXAMPLE_INT
 VARIABLE templated_int_name TEMPLATED_INT
@@ -23,6 +24,7 @@ VARIABLE templated_port 5025
 <% include_templated = (templated_target_name.strip.length > 0) %>
 <% include_system = (system_target_name.strip.length > 0) %>
 <% include_inst_int = (inst_int_name.strip.length > 0) %>
+<% include_inst_router = (inst_router_name.strip.length > 0) %>
 <% include_inst2_int = (inst2_int_name.strip.length > 0) %>
 <% include_example_int = (example_int_name.strip.length > 0) %>
 <% include_templated_int = (templated_int_name.strip.length > 0) %>
@@ -74,6 +76,11 @@ VARIABLE templated_port 5025
   INTERFACE <%= templated_int_name %> templated_interface.rb cosmos-operator <%= templated_port %> <%= templated_port %> 5.0 nil TEMPLATE 0xA 0xA
     MAP_TARGET <%= templated_target_name %>
     DONT_CONNECT
+<% end %>
+
+<% if include_inst and include_inst_router %>
+  ROUTER <%= inst_router_name %> tcpip_server_interface.rb 7779 7779 nil 10.0 PREIDENTIFIED
+    MAP_TARGET <%= inst_target_name %>
 <% end %>
 
 <% if include_example_microservice %>

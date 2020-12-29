@@ -1495,9 +1495,11 @@ module Cosmos
     def get_all_router_info(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', scope: scope, token: token)
       info = []
-      CmdTlmServer.routers.names.sort.each do |router_name|
-        info << [router_name].concat(CmdTlmServer.routers.get_info(router_name))
+      Store.instance.get_routers(scope: scope).each do |int|
+        info << [int['name'], int['state'], int['clients'], int['txsize'], int['rxsize'],\
+                  int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
       end
+      info.sort! {|a,b| a[0] <=> b[0] }
       info
     end
 

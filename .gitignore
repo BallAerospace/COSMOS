@@ -79,3 +79,5 @@ node_modules
 
 yarn.lock
 
+web/cosmos-navbar
+web/root-config
