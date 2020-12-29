@@ -27,7 +27,6 @@ module Cosmos
       disable_disconnect: false,
       options: [],
       protocols: [],
-      interfaces: [],
       log: true,
       log_raw: false,
       updated_at: nil,
@@ -47,7 +46,6 @@ module Cosmos
       @disable_disconnect = disable_disconnect
       @options = options
       @protocols = protocols
-      @interfaces = interfaces
       @log = log
       @log_raw = log_raw
     end
@@ -71,7 +69,6 @@ module Cosmos
         klass = Cosmos.require_class(protocol[1])
         interface_or_router.add_protocol(klass, protocol[2..-1], protocol[0].upcase.intern)
       end
-      interface_or_router.interfaces = @interfaces
       interface_or_router
     end
 
@@ -86,7 +83,6 @@ module Cosmos
         'disable_disconnect' => @disable_disconnect,
         'options' => @options,
         'protocols' => @protocols,
-        'interfaces' => @interfaces,
         'log' => @log,
         'log_raw' => @log_raw,
         'plugin' => @plugin,
@@ -109,9 +105,6 @@ module Cosmos
       end
       @protocols.each do |protocol|
         result << "  PROTOCOL #{protocol.join(' ')}\n"
-      end
-      @interfaces.each do |interface|
-        result << "  ROUTE #{interface}\n"
       end
       result << "  DONT_LOG" unless @log
       result << "  LOG_RAW" if @log_raw
@@ -161,10 +154,6 @@ module Cosmos
           raise parser.error("Invalid protocol type: #{parameters[0]}", usage)
         end
         @protocols << parameters.dup
-
-      when 'ROUTE'
-        parser.verify_num_parameters(1, 1, "ROUTE <Interface Name>")
-        @interfaces << parameters[0].upcase
 
       when 'DONT_LOG'
         parser.verify_num_parameters(0, 0, "#{keyword}")

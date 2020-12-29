@@ -60,7 +60,7 @@ docker run --network cosmos -p 127.0.0.1:3001:3001 -d --log-driver=fluentd --log
 docker container rm cosmos-frontend
 docker run --network cosmos -p 127.0.0.1:8080:80 -d --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=frontend.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true --name cosmos-frontend cosmos-frontend
 docker container rm cosmos-operator
-docker run --network cosmos -d --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=operator.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true --name cosmos-operator cosmos-operator
+docker run --network cosmos -d --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=operator.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true -p 7779:7779 --name cosmos-operator cosmos-operator
 docker build -f Dockerfile.init -t cosmos-init .
 docker container rm cosmos-init
 docker run --network cosmos --name cosmos-init --rm cosmos-init

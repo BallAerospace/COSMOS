@@ -2,17 +2,14 @@
   <div>
     <v-list data-test="routerList">
       <v-subheader class="mt-3">Routers</v-subheader>
-      <v-list-item v-for="(router, i) in routers" :key="i">
+      <v-list-item v-for="router in routers" :key="router">
         <v-list-item-content>
-          <v-list-item-title v-text="router.name"></v-list-item-title>
+          <v-list-item-title v-text="router"></v-list-item-title>
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon
-                @click="deleteRouter(router.name)"
-                v-bind="attrs"
-                v-on="on"
+              <v-icon @click="deleteRouter(router)" v-bind="attrs" v-on="on"
                 >mdi-delete</v-icon
               >
             </template>
