@@ -24,10 +24,6 @@ export default {
       type: Number,
       required: true,
     },
-    refreshRate: {
-      type: Number,
-      required: true,
-    },
   },
   data() {
     return {

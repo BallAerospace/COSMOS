@@ -47,6 +47,22 @@
         <v-btn color="primary" @click="editPlot = false">Ok</v-btn>
       </v-card>
     </v-dialog>
+    <v-menu
+      v-if="itemMenu"
+      v-model="itemMenu"
+      :position-x="itemMenuX"
+      :position-y="itemMenuY"
+      absolute
+      offset-y
+    >
+      <v-list>
+        <v-list-item @click="deleteItem(items[selectedItemIndex])">
+          <v-list-item-title style="cursor: pointer"
+            >Delete {{ items[selectedItemIndex].itemName }}</v-list-item-title
+          >
+        </v-list-item>
+      </v-list>
+    </v-menu>
   </div>
 </template>
 
@@ -72,6 +88,11 @@ export default {
       type: String,
       required: true,
     },
+    // start time in nanoseconds to start the plot
+    // this allows multiple plots to be synchronized
+    startTime: {
+      type: Number,
+    },
     secondsPlotted: {
       type: Number,
       required: true,
@@ -84,10 +105,6 @@ export default {
       type: Number,
       required: true,
     },
-    refreshRate: {
-      type: Number,
-      required: true,
-    },
   },
   data() {
     return {
@@ -97,6 +114,10 @@ export default {
       fullHeight: true,
       plot: null,
       editPlot: false,
+      itemMenu: false,
+      itemMenuX: 0,
+      itemMenuY: 0,
+      selectedItemIndex: null,
       title: '',
       overview: null,
       data: null,
@@ -200,9 +221,11 @@ export default {
           x: true,
           y: false,
         },
+        // Sync the cursor across plots so mouseovers are synced
         sync: {
           key: 'cosmos',
-          setSeries: true,
+          // setSeries links plots so clicking an item to hide it also hides the other graph item
+          // setSeries: true,
         },
       },
       hooks: {
@@ -219,6 +242,38 @@ export default {
               this.overview.setSelect({ left, width: right - left })
               this.zoomChart = false
             }
+          },
+        ],
+        ready: [
+          (u) => {
+            let clientX
+            let clientY
+            let legend = u.root.querySelector('.u-legend')
+            legend.addEventListener('contextmenu', (e) => {
+              e.preventDefault()
+              this.itemMenu = false
+              this.itemMenuX = e.clientX
+              this.itemMenuY = e.clientY
+              // let labels = legend.getElementsByClassName('u-label')
+              // labels.forEach((label) => {
+              let found = false
+              for (let i = 0; i < this.items.length; i++) {
+                if (e.path[0].innerText === this.items[i].itemName) {
+                  if (found === false) {
+                    found = true
+                    this.selectedItemIndex = i
+                  } else {
+                    found = null
+                  }
+                }
+              }
+              if (found) {
+                this.itemMenu = true
+              } else if (found === null) {
+                this.editPlot = true
+              }
+              return false
+            })
           },
         ],
       },
@@ -379,12 +434,11 @@ export default {
                   '__CONVERTED'
               )
             })
-            // console.log('subscribe and add')
-            // console.log(new Date().getTime() * 1_000_000)
             this.subscription.perform('add', {
               scope: 'DEFAULT',
               items: items,
-              // No start_time because we want to start now
+              // startTime is either a valid time or null which means start now
+              start_time: this.startTime,
               // No end_time because we want to continue until we stop
             })
           },
@@ -525,7 +579,7 @@ export default {
         this.subscription.perform('add', {
           scope: 'DEFAULT',
           items: [key],
-          start_time: this.data[0][0] * 1_000_000_000,
+          start_time: this.startTime, // this.data[0][0] * 1_000_000_000,
           // No end_time because we want to continue until we stop
         })
       }
@@ -569,7 +623,7 @@ export default {
       // }
       let data = JSON.parse(json_data)
       for (let i = 0; i < data.length; i++) {
-        let time = data[i].time / 1000000000.0 // Time in seconds
+        let time = data[i].time / 1_000_000_000.0 // Time in seconds
         let length = data[0].length
         if (length == 0 || time > data[0][length - 1]) {
           // Nominal case - append new data to end
@@ -591,6 +645,10 @@ export default {
             this.set_data_at_index(ideal_index, time, data[i])
           }
         }
+      }
+      // If we weren't passed a startTime notify grapher of our start
+      if (this.startTime === null) {
+        this.$emit('started', this.data[0][0] * 1_000_000_000)
       }
     },
     bs_comparator(element, needle) {

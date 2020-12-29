@@ -73,15 +73,16 @@
               :ref="'plot' + plot"
               :id="plot"
               :state="state"
+              :startTime="startTime"
               :selectedPlotId="selectedPlotId"
               :secondsPlotted="settings.secondsPlotted.value"
               :pointsSaved="settings.pointsSaved.value"
               :pointsPlotted="settings.pointsPlotted.value"
-              :refreshRate="settings.refreshRate.value"
               @close-plot="closePlot(plot)"
               @min-max-plot="minMaxPlot(plot)"
               @resize="resize(plot)"
               @click="plotSelected(plot)"
+              @started="plotStarted($event)"
             />
           </div>
         </div>
@@ -132,6 +133,7 @@ export default {
       saveConfig: false,
       state: 'stop', // Valid: stop, start, pause
       grid: null,
+      startTime: null, // Start time in nanoseconds
       // Setup defaults to show an initial plot
       plots: [1],
       selectedPlotId: 1,
@@ -221,14 +223,6 @@ export default {
           value: 1000,
           rules: [(value) => !!value || 'Required'],
         },
-        refreshRate: {
-          title: 'Refresh Rate (ms)',
-          value: 1000,
-          rules: [
-            (value) => !!value || 'Required',
-            (value) => (value && value >= 100) || 'Minimum 100ms',
-          ],
-        },
       },
     }
   },
@@ -294,6 +288,13 @@ export default {
     },
     plotSelected(id) {
       this.selectedPlotId = id
+    },
+    plotStarted(time) {
+      // Only set startTime once when notified by the first plot to start
+      // This allows us to have a uniform start time on all plots
+      if (this.startTime === null) {
+        this.startTime = time
+      }
     },
     async openConfiguration(name) {
       this.closeAllPlots()
