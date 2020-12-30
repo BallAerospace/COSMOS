@@ -76,6 +76,28 @@
       </v-list>
     </v-menu>
 
+    <v-dialog
+      v-if="editItem"
+      v-model="editItem"
+      @keydown.esc="editItem = false"
+      max-width="500"
+    >
+      <v-card class="pa-3">
+        <v-card-title class="headline">Edit Item</v-card-title>
+        <v-select
+          hide-details
+          :items="valueTypes"
+          label="Value Type"
+          outlined
+          v-model="this.selectedItem.valueType"
+          @change="changeType($event)"
+        ></v-select>
+        <v-card-actions>
+          <v-btn color="primary" @click="editItem = false">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-menu
       v-if="itemMenu"
       v-model="itemMenu"
@@ -85,6 +107,11 @@
       offset-y
     >
       <v-list>
+        <v-list-item @click="editItem = true">
+          <v-list-item-title style="cursor: pointer"
+            >Edit {{ selectedItem.itemName }}</v-list-item-title
+          >
+        </v-list-item>
         <v-list-item @click="deleteItem(selectedItem)">
           <v-list-item-title style="cursor: pointer"
             >Delete {{ selectedItem.itemName }}</v-list-item-title
@@ -137,6 +164,7 @@ export default {
   },
   data() {
     return {
+      valueTypes: ['CONVERTED', 'RAW'],
       active: true,
       expand: true,
       fullWidth: true,
@@ -146,6 +174,7 @@ export default {
       editPlotMenu: false,
       editPlotMenuX: 0,
       editPlotMenuY: 0,
+      editItem: false,
       itemMenu: false,
       itemMenuX: 0,
       itemMenuY: 0,
@@ -497,7 +526,8 @@ export default {
                   item.packetName +
                   '__' +
                   item.itemName +
-                  '__CONVERTED'
+                  '__' +
+                  item.valueType
               )
             })
             this.subscription.perform('add', {
@@ -513,19 +543,18 @@ export default {
         }
       )
     },
-    throttle(cb, limit) {
-      var wait = false
-
-      return () => {
-        if (!wait) {
-          requestAnimationFrame(cb)
-          wait = true
-          setTimeout(() => {
-            wait = false
-          }, limit)
-        }
-      }
-    },
+    // throttle(cb, limit) {
+    //   var wait = false
+    //   return () => {
+    //     if (!wait) {
+    //       requestAnimationFrame(cb)
+    //       wait = true
+    //       setTimeout(() => {
+    //         wait = false
+    //       }, limit)
+    //     }
+    //   }
+    // },
     getSize(type) {
       const viewWidth = Math.max(
         document.documentElement.clientWidth,
@@ -605,7 +634,12 @@ export default {
         ],
       }
     },
-    addItem(item) {
+    changeType(event) {
+      this.deleteItem(this.selectedItem)
+      this.addItem(this.selectedItem, event)
+    },
+    addItem(item, type = 'CONVERTED') {
+      item.valueType = type // set the default type
       this.items.push(item)
       if (this.data === null) {
         this.data = [[]]
@@ -640,7 +674,8 @@ export default {
         item.packetName +
         '__' +
         item.itemName +
-        '__CONVERTED'
+        '__' +
+        item.valueType
       this.indexes[key] = index
 
       if (this.state !== 'stop') {
@@ -652,7 +687,7 @@ export default {
         })
       }
     },
-    async deleteItem(item) {
+    deleteItem(item) {
       let key =
         'TLM__' +
         item.targetName +
@@ -660,7 +695,8 @@ export default {
         item.packetName +
         '__' +
         item.itemName +
-        '__CONVERTED'
+        '__' +
+        item.valueType
       this.subscription.perform('remove', {
         scope: 'DEFAULT',
         items: [key],
