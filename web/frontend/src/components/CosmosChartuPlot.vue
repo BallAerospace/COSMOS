@@ -27,6 +27,7 @@
         </div>
       </v-expand-transition>
     </v-card>
+
     <v-dialog
       v-model="editPlot"
       @keydown.esc="editPlot = false"
@@ -34,7 +35,17 @@
     >
       <v-card class="pa-3">
         <v-card-title class="headline">Edit Plot</v-card-title>
-        <v-text-field label="Title" v-model="title"></v-text-field>
+        <v-text-field label="Title" v-model="title" hide-details></v-text-field>
+        <v-text-field
+          label="Min X"
+          v-model="plotMinX"
+          hide-details
+        ></v-text-field>
+        <v-text-field
+          label="Max X"
+          v-model="plotMaxX"
+          hide-details
+        ></v-text-field>
         <v-container fluid>
           <v-row v-for="(item, key) in items" :key="key">
             <v-col
@@ -47,6 +58,24 @@
         <v-btn color="primary" @click="editPlot = false">Ok</v-btn>
       </v-card>
     </v-dialog>
+
+    <v-menu
+      v-if="editPlotMenu"
+      v-model="editPlotMenu"
+      :position-x="editPlotMenuX"
+      :position-y="editPlotMenuY"
+      absolute
+      offset-y
+    >
+      <v-list>
+        <v-list-item @click="editPlot = true">
+          <v-list-item-title style="cursor: pointer"
+            >Edit {{ title }}</v-list-item-title
+          >
+        </v-list-item>
+      </v-list>
+    </v-menu>
+
     <v-menu
       v-if="itemMenu"
       v-model="itemMenu"
@@ -56,9 +85,9 @@
       offset-y
     >
       <v-list>
-        <v-list-item @click="deleteItem(items[selectedItemIndex])">
+        <v-list-item @click="deleteItem(selectedItem)">
           <v-list-item-title style="cursor: pointer"
-            >Delete {{ items[selectedItemIndex].itemName }}</v-list-item-title
+            >Delete {{ selectedItem.itemName }}</v-list-item-title
           >
         </v-list-item>
       </v-list>
@@ -114,13 +143,18 @@ export default {
       fullHeight: true,
       plot: null,
       editPlot: false,
+      editPlotMenu: false,
+      editPlotMenuX: 0,
+      editPlotMenuY: 0,
       itemMenu: false,
       itemMenuX: 0,
       itemMenuY: 0,
-      selectedItemIndex: null,
+      selectedItem: null,
       title: '',
       overview: null,
       data: null,
+      plotMinX: '',
+      plotMaxX: '',
       indexes: {},
       items: [],
       drawInterval: null,
@@ -133,23 +167,21 @@ export default {
         'red',
         'green',
         'darkorange',
-        'gold',
         'purple',
-        'hotpink',
-        'lime',
         'cornflowerblue',
-        'brown',
-        'coral',
-        'crimson',
-        'indigo',
+        'lime',
+        'gold',
+        'hotpink',
         'tan',
-        'lightblue',
         'cyan',
         'peru',
         'maroon',
-        'orange',
+        'coral',
         'navy',
         'teal',
+        'brown',
+        'crimson',
+        'lightblue',
         'black',
       ],
     }
@@ -248,29 +280,27 @@ export default {
           (u) => {
             let clientX
             let clientY
+            let canvas = u.root.querySelector('canvas')
+            canvas.addEventListener('contextmenu', (e) => {
+              e.preventDefault()
+              this.editPlotMenuX = e.clientX
+              this.editPlotMenuY = e.clientY
+              this.editPlotMenu = true
+            })
             let legend = u.root.querySelector('.u-legend')
             legend.addEventListener('contextmenu', (e) => {
               e.preventDefault()
-              this.itemMenu = false
               this.itemMenuX = e.clientX
               this.itemMenuY = e.clientY
-              // let labels = legend.getElementsByClassName('u-label')
-              // labels.forEach((label) => {
-              let found = false
-              for (let i = 0; i < this.items.length; i++) {
-                if (e.path[0].innerText === this.items[i].itemName) {
-                  if (found === false) {
-                    found = true
-                    this.selectedItemIndex = i
-                  } else {
-                    found = null
-                  }
-                }
-              }
-              if (found) {
+              // Grab the closest series and then figure out which index it is
+              let seriesEl = e.target.closest('.u-series')
+              let seriesIdx = Array.prototype.slice
+                .call(legend.childNodes)
+                .indexOf(seriesEl)
+              let series = u.series[seriesIdx]
+              if (series.item) {
+                this.selectedItem = series.item
                 this.itemMenu = true
-              } else if (found === null) {
-                this.editPlot = true
               }
               return false
             })
@@ -371,6 +401,20 @@ export default {
       }
       this.plot.setScale('x', { min, max })
     },
+    plotMinX: function (newVal, oldVal) {
+      let val = parseFloat(newVal)
+      if (!isNaN(val)) {
+        this.plotMinX = val
+      }
+      this.setPlotRange()
+    },
+    plotMaxX: function (newVal, oldVal) {
+      let val = parseFloat(newVal)
+      if (!isNaN(val)) {
+        this.plotMaxX = val
+      }
+      this.setPlotRange()
+    },
   },
   methods: {
     handleResize() {
@@ -412,6 +456,28 @@ export default {
     minMaxTransition() {
       this.expand = !this.expand
       this.$emit('min-max-plot')
+    },
+    setPlotRange() {
+      let pad = 0.1
+      if (
+        this.plotMinX ||
+        this.plotMinX === 0 ||
+        this.plotMaxX ||
+        this.plotMaxX === 0
+      ) {
+        pad = 0
+      }
+      this.plot.scales.y.range = (u, dataMin, dataMax) => {
+        let min = dataMin
+        if (this.plotMinX || this.plotMinX === 0) {
+          min = this.plotMinX
+        }
+        let max = dataMax
+        if (this.plotMaxX || this.plotMaxX === 0) {
+          max = this.plotMaxX
+        }
+        return uPlot.rangeNum(min, max, pad, true)
+      }
     },
     subscribe() {
       this.subscription = this.cable.subscriptions.create(
@@ -545,11 +611,13 @@ export default {
         this.data = [[]]
       }
       let index = this.data.length
+      let color = this.colors.shift()
       this.plot.addSeries(
         {
           spanGaps: true,
+          item: item,
           label: item.itemName,
-          stroke: this.colors[this.data.length - 1],
+          stroke: color,
           value: (self, rawValue) =>
             rawValue == null ? '--' : rawValue.toFixed(2),
         },
@@ -558,7 +626,7 @@ export default {
       this.overview.addSeries(
         {
           spanGaps: true,
-          stroke: this.colors[this.data.length - 1],
+          stroke: color,
         },
         index
       )
@@ -598,6 +666,8 @@ export default {
         items: [key],
       })
       const index = this.reorderIndexes(key)
+      // Put back the color so it's available for new series
+      this.colors.unshift(this.plot.series[index].stroke)
       this.items.splice(index - 1, 1)
       this.data.splice(index, 1)
       this.plot.delSeries(index)
