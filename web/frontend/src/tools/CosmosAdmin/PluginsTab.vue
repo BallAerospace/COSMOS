@@ -16,7 +16,6 @@
       </v-col>
     </v-row>
     <v-list data-test="pluginList">
-      <v-subheader class="mt-3"> Plugins </v-subheader>
       <v-list-item v-for="(plugin, i) in plugins" :key="i">
         <v-list-item-content>
           <v-list-item-title v-text="plugin"></v-list-item-title>

@@ -782,12 +782,6 @@ export default {
 </script>
 
 <style scoped>
-.active {
-  background-color: var(--v-secondary-base);
-}
-.inactive {
-  background-color: var(--v-primary-base);
-}
 #chart {
   background-color: var(--v-tertiary-darken2);
 }

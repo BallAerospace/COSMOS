@@ -1,7 +1,6 @@
 <template>
   <div>
     <v-list data-test="targetList">
-      <v-subheader class="mt-3">Targets</v-subheader>
       <v-list-item v-for="target in targets" :key="target">
         <v-list-item-content>
           <v-list-item-title v-text="target"></v-list-item-title>

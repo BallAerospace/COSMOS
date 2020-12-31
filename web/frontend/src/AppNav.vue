@@ -145,7 +145,7 @@ export default {
 
 <style scoped>
 .v-list >>> .v-label {
-  margin-left: 5px !important;
+  margin-left: 5px;
 }
 .theme--dark.v-navigation-drawer {
   background-color: var(--v-primary-darken2);

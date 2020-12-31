@@ -173,10 +173,11 @@ export default {
 }
 </script>
 <style scoped>
-.v-card,
-.v-card__title {
+.theme--dark .v-card__title,
+.theme--dark .v-card__subtitle {
   background-color: var(--v-secondary-darken3);
 }
+
 .v-textarea >>> textarea {
   margin-top: 10px;
   font-family: 'Courier New', Courier, monospace;

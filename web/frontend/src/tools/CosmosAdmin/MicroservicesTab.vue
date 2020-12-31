@@ -1,7 +1,6 @@
 <template>
   <div>
     <v-list data-test="microserviceList">
-      <v-subheader class="mt-3">Microservices</v-subheader>
       <v-list-item v-for="microservice in microservices" :key="microservice">
         <v-list-item-content>
           <v-list-item-title v-text="microservice"></v-list-item-title>

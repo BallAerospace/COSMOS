@@ -12,7 +12,6 @@
       </v-col>
     </v-row>
     <v-list data-test="scopeList">
-      <v-subheader class="mt-3"> Scopes </v-subheader>
       <v-list-item v-for="(scope, i) in scopes" :key="i">
         <v-list-item-content>
           <v-list-item-title v-text="scope"></v-list-item-title>
