@@ -28,14 +28,39 @@
       </v-expand-transition>
     </v-card>
 
+    <!-- Edit Plot dialog -->
     <v-dialog
       v-model="editPlot"
-      @keydown.esc="editPlot = false"
+      @keydown.esc="$emit('input')"
+      @input="editPlotClose()"
       max-width="500"
     >
       <v-card class="pa-3">
         <v-card-title class="headline">Edit Plot</v-card-title>
-        <v-text-field label="Title" v-model="title" hide-details></v-text-field>
+        <v-text-field
+          class="pb-2"
+          label="Title"
+          v-model="title"
+          hide-details
+        ></v-text-field>
+        <v-card-text class="pa-0"
+          >Select a start date/time for the graph. Leave blank for start now.
+        </v-card-text>
+        <date-time-chooser
+          :required="false"
+          @date-time="plotStartDateTime = $event"
+          dateLabel="Start Date"
+          timeLabel="Start Time"
+        ></date-time-chooser>
+        <v-card-text class="pa-0"
+          >Select a end date/time for the graph. Leave blank for continuous
+          real-time graphing.
+        </v-card-text>
+        <date-time-chooser
+          dateLabel="End Date"
+          timeLabel="End Time"
+          @date-time="plotEndDateTime = $event"
+        ></date-time-chooser>
         <v-text-field
           label="Min X"
           v-model="plotMinX"
@@ -55,10 +80,11 @@
             <v-btn color="error" @click="deleteItem(item)">Remove</v-btn>
           </v-row></v-container
         >
-        <v-btn color="primary" @click="editPlot = false">Ok</v-btn>
+        <v-btn color="primary" @click="editPlotClose()">Ok</v-btn>
       </v-card>
     </v-dialog>
 
+    <!-- Edit Plot right click context menu -->
     <v-menu
       v-if="editPlotMenu"
       v-model="editPlotMenu"
@@ -76,6 +102,7 @@
       </v-list>
     </v-menu>
 
+    <!-- Edit Item dialog -->
     <v-dialog
       v-if="editItem"
       v-model="editItem"
@@ -98,6 +125,7 @@
       </v-card>
     </v-dialog>
 
+    <!-- Edit Item right click context menu -->
     <v-menu
       v-if="itemMenu"
       v-model="itemMenu"
@@ -123,14 +151,19 @@
 </template>
 
 <script>
+import DateTimeChooser from './DateTimeChooser'
 import * as ActionCable from 'actioncable'
 import uPlot from 'uplot'
 import bs from 'binary-search'
+import { getTime } from 'date-fns'
 
 // TODO Is there a better way to import this ... maybe in the style section?
 require('./../../node_modules/uplot/dist/uPlot.min.css')
 
 export default {
+  components: {
+    DateTimeChooser,
+  },
   props: {
     id: {
       type: Number,
@@ -184,13 +217,15 @@ export default {
       data: null,
       plotMinX: '',
       plotMaxX: '',
+      plotStartDateTime: this.startTime,
+      plotEndDateTime: null,
       indexes: {},
       items: [],
       drawInterval: null,
       zoomChart: false,
       zoomOverview: false,
       cable: ActionCable.Cable,
-      subscription: ActionCable.Channel,
+      subscription: null,
       colors: [
         'blue',
         'red',
@@ -405,16 +440,22 @@ export default {
     state: function (newState, oldState) {
       switch (newState) {
         case 'start':
-          this.subscribe()
+          // Only subscribe if we were previously stopped
+          // If we were paused we do nothing ... see the data function
+          if (oldState === 'stop') {
+            this.subscribe()
+          }
           break
-        // case 'pause': Nothing to do here
+        // case 'pause': Nothing to do ... see the data function
         case 'stop':
           this.subscription.unsubscribe()
+          this.subscription = null
           break
       }
     },
     data: function (newData, oldData) {
-      if (this.state !== 'start') {
+      // Ignore changes to the data while we're paused
+      if (this.state === 'pause') {
         return
       }
       this.plot.setData(newData)
@@ -446,6 +487,33 @@ export default {
     },
   },
   methods: {
+    editPlotClose() {
+      this.editPlot = false
+      if (this.plotStartDateTime !== null) {
+        // Convert to COSMOS backend nanoseconds
+        this.plotStartDateTime =
+          new Date(this.plotStartDateTime).getTime() * 1_000_000
+        // If they're specifying an end time we're not streaming realtime
+        // thus stop any ongoing subscriptions and clear the data
+        if (this.plotEndDateTime !== null) {
+          if (this.subscription) {
+            this.subscription.unsubscribe()
+            this.subscription = null
+            this.data = [[]]
+            for (let i = 1; i <= this.items.length; i++) {
+              this.data.splice(i, 0, [])
+            }
+          }
+          // Convert to COSMOS backend nanoseconds
+          this.plotEndDateTime =
+            new Date(this.plotEndDateTime).getTime() * 1_000_000
+          this.subscribe(this.plotEndDateTime)
+        } else {
+          // No end date given so subscribe using the current start as the end
+          this.subscribe(this.data[0][0] * 1_000_000_000)
+        }
+      }
+    },
     handleResize() {
       // TODO: Should this method be throttled?
       this.plot.setSize(this.getSize('chart'))
@@ -508,11 +576,12 @@ export default {
         return uPlot.rangeNum(min, max, pad, true)
       }
     },
-    subscribe() {
-      this.subscription = this.cable.subscriptions.create(
+    subscribe(endTime = null) {
+      let subscription = this.cable.subscriptions.create(
         {
           channel: 'StreamingChannel',
           scope: 'DEFAULT',
+          uuid: Math.random(),
         },
         {
           received: (data) => this.received(data),
@@ -530,18 +599,22 @@ export default {
                   item.valueType
               )
             })
-            this.subscription.perform('add', {
+            subscription.perform('add', {
               scope: 'DEFAULT',
               items: items,
               // startTime is either a valid time or null which means start now
-              start_time: this.startTime,
-              // No end_time because we want to continue until we stop
+              start_time: this.plotStartDateTime,
+              end_time: endTime,
             })
           },
           // TODO: How should we handle server side disconnect
           disconnected: () => alert('disconnected'),
         }
       )
+      // Store the subscription if we haven't already
+      if (this.subscription === null) {
+        this.subscription = subscription
+      }
     },
     // throttle(cb, limit) {
     //   var wait = false
@@ -678,12 +751,12 @@ export default {
         item.valueType
       this.indexes[key] = index
 
-      if (this.state !== 'stop') {
+      if (this.subscription) {
         this.subscription.perform('add', {
           scope: 'DEFAULT',
           items: [key],
-          start_time: this.startTime, // this.data[0][0] * 1_000_000_000,
-          // No end_time because we want to continue until we stop
+          start_time: this.plotStartDateTime,
+          end_time: this.plotEndDateTime, // normally null which means continue in real-time
         })
       }
     },
@@ -754,7 +827,8 @@ export default {
       }
       // If we weren't passed a startTime notify grapher of our start
       if (this.startTime === null) {
-        this.$emit('started', this.data[0][0] * 1_000_000_000)
+        this.plotStartDateTime = this.data[0][0] * 1_000_000_000
+        this.$emit('started', this.plotStartDateTime)
       }
     },
     bs_comparator(element, needle) {
