@@ -75,22 +75,16 @@ $cosmos_scope = 'DEFAULT'
 
 require 'mock_redis'
 require 'cosmos/utilities/store'
-require 'cosmos/system/system_config'
-require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
-require 'cosmos/microservices/configure_microservices'
+require 'cosmos/models/plugin_model'
 
 def configure_store
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
   Cosmos::Store.class_variable_set(:@@instance, nil)
 
-  system_path = File.join(__dir__, 'install', 'config', 'system', 'system.txt')
-  system_config = Cosmos::SystemConfig.new(system_path)
-  cts_path = File.join(__dir__, 'install', 'config', 'tools', 'cmd_tlm_server', 'cmd_tlm_server.txt')
-  cts_config = Cosmos::CmdTlmServerConfig.new(cts_path, system_config)
-
-  # Setup Redis with all the keys and fields
-  Cosmos::ConfigureMicroservices.new(system_config, cts_config, scope: 'DEFAULT', logger: Cosmos::Logger.new)
+  plugin = File.join(__dir__, 'install', 'cosmos-demo-1.0.0.gem')
+  # plugin_hash = Cosmos::PluginModel.install_phase1(plugin, scope: $cosmos_scope)
+  Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: $cosmos_scope)
   redis
 end
 

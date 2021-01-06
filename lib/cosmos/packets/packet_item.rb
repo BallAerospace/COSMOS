@@ -409,7 +409,15 @@ module Cosmos
       config['array_size'] = self.array_size if self.array_size
       config['description'] = self.description
       config['id_value'] = self.id_value.as_json if self.id_value
-      config['default'] = @default.as_json if @default
+      if @default
+        if @default.is_a? String
+          # JSON only represents UTF-8 strings so convert to UTF-8 here since some defaults
+          # can have weird ASCII-8BIT encodings like binary data, e.g. \xDE\xAD\xBE\xEF
+          config['default'] = @default.dup.encode('UTF-8', invalid: :replace, undef: :replace).as_json
+        else
+          config['default'] = @default
+        end
+      end
       if self.range
         config['minimum'] = self.range.first.as_json
         config['maximum'] = self.range.last.as_json

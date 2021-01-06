@@ -276,10 +276,6 @@ class StreamingThread
         end
       rescue => err
         Cosmos::Logger.error "#{self.class.name} unexpectedly died\n#{err.formatted}"
-      ensure
-        # If this is the last thread (the collection is empty)
-        # then send empty set as notification that we're done
-        transmit_results([], force: true) if @collection.empty?
       end
     end
   end
@@ -332,12 +328,13 @@ class StreamingThread
 
       # If we're no longer grabbing packets from the stream (empty result)
       # we check to see if we need to continue
+      # STDOUT.puts "rtr:#{rtr} empty?:#{rtr.empty?} results:#{results} topics:#{topics}"
       if rtr and rtr.empty?
         topics.each do |topic|
           items = items_by_topic[topic]
           items.each do |item|
             item_keys = []
-            # If we pass the end_time and we're still not getting anything we're done
+            # If time has passed the end_time and we're still not getting anything we're done
             if item.end_time and item.end_time < Time.now.to_nsec_from_epoch
               item_keys << item.key
               @cancel_thread = true
@@ -346,7 +343,7 @@ class StreamingThread
           end
         end
       end
-      transmit_results(results)
+      transmit_results(results, force: @collection.empty?)
     else
       sleep(1)
     end
@@ -355,7 +352,8 @@ class StreamingThread
   def handle_message(topic, msg_id, msg_hash, redis, items)
     first_item = items[0]
     time = msg_hash['time'].to_i
-    json_packet = Cosmos::JsonPacket.new(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name, time, Cosmos::ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["json_data"])
+    json_packet = Cosmos::JsonPacket.new(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name,
+      time, Cosmos::ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["json_data"])
     return handle_json_packet(json_packet, items)
   end
 
