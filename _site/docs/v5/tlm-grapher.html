@@ -101,11 +101,11 @@
 <li class="toc-entry toc-h4"><a href="#save-configuration">Save Configuration</a></li>
 </ul>
 </li>
-<li class="toc-entry toc-h3"><a href="#plot-menu-items">Plot Menu Items</a></li>
+<li class="toc-entry toc-h3"><a href="#graph-menu-items">Graph Menu Items</a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#selecting-items">Selecting Items</a></li>
-<li class="toc-entry toc-h2"><a href="#plot-window-management">Plot Window Management</a></li>
+<li class="toc-entry toc-h2"><a href="#graph-window-management">Graph Window Management</a></li>
 <li class="toc-entry toc-h2"><a href="#grapher-controls">Grapher Controls</a></li>
 </ul></div>
         
@@ -113,7 +113,7 @@
         <h2 id="introduction">
 <a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
 
-<p>Packet Viewer is a live telemetry viewer which requires no configuration to display the current values for all defined target, packet, items. Items with limits are displayed colored (blue, green, yellow, or red) according to their current state. Items can be right clicked to get detailed information.</p>
+<p>Telemetry Grapher is a graphing application that allows for one or more telemetry points per graph. It supports multiple graphs per screen which can be resized and reordered. Multiple configurations can be saved and restored for different situations.</p>
 
 <p><img src="/img/v5/telemetry_grapher/telemetry_grapher.png" alt="Telemetry Grapher"></p>
 
@@ -128,7 +128,7 @@
 <p><img src="/img/v5/telemetry_grapher/file_menu.png" alt="File Menu" style="float: left; margin-right: 50px; height: 80px;"></p>
 
 <ul>
-  <li>Open a saved configuration (plots and items)</li>
+  <li>Open a saved configuration (graphs and items)</li>
   <li>Save the current configuration</li>
 </ul>
 
@@ -146,24 +146,32 @@
 
 <p><img src="/img/v5/telemetry_grapher/save_config.png" alt="Save Config"></p>
 
-<h3 id="plot-menu-items">
-<a class="anchor" href="#plot-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Plot Menu Items</h3>
+<h3 id="graph-menu-items">
+<a class="anchor" href="#graph-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Graph Menu Items</h3>
 
 <!-- Image sized to match up with bullets -->
 
-<p><img src="/img/v5/telemetry_grapher/plot_menu.png" alt="File Menu" style="float: left; margin-right: 50px; height: 80px;"></p>
+<p><img src="/img/v5/telemetry_grapher/graph_menu.png" alt="File Menu" style="float: left; margin-right: 50px; height: 80px;"></p>
 
 <ul>
-  <li>Add a new plot</li>
-  <li>Edit the current plot</li>
+  <li>Add a new graph</li>
+  <li>Edit the current graph</li>
 </ul>
 
-<p>Editing the plot allows you to change the Plot Title.</p>
+<p>Editing the graph allows you to change the graph title among other items.</p>
+
+<p><img src="/img/v5/telemetry_grapher/edit_graph.png" alt="Edit Graph"></p>
+
+<p>Editing the Start Date and Start Time will re-query the data to begin at the specified time. This operation can take several seconds depending on how far back data is requested. Similarly, specifying the End Date and End Time will limit the data request to the specified time. Leaving the End Date / End Time fields blank will cause Telemetry Grapher to continue to graph items in real-time as they arrive.</p>
+
+<p>Changing the Min X and Max X values simply sets the graph scale. Deleting the Min X and Max X values allows the graph to scale automatically as values arrive. Compare the following graph with the minimum set to -20 and the maximum set to 20 with the first graph image (auto-scale).</p>
+
+<p><img src="/img/v5/telemetry_grapher/graph_min_max.png" alt="Min Max"></p>
 
 <h2 id="selecting-items">
 <a class="anchor" href="#selecting-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Selecting Items</h2>
 
-<p>Selecting a target from the Select Target drop down automatically updates the available packets in the Select Packet drop down which updates the available items in the Select Item drop down. Clicking Add Item adds the item to the graph which immediately beings graphing.</p>
+<p>Selecting a target from the Select Target drop down automatically updates the available packets in the Select Packet drop down which updates the available items in the Select Item drop down. Clicking Add Item adds the item to the graph which immediately begins graphing.</p>
 
 <p><img src="/img/v5/telemetry_grapher/graph_temp1.png" alt="Temp 1"></p>
 
@@ -175,14 +183,14 @@
 
 <p><img src="/img/v5/telemetry_grapher/graph_temp1_temp2.png" alt="Temp1 Temp2"></p>
 
-<h2 id="plot-window-management">
-<a class="anchor" href="#plot-window-management" aria-hidden="true"><span class="octicon octicon-link"></span></a>Plot Window Management</h2>
+<h2 id="graph-window-management">
+<a class="anchor" href="#graph-window-management" aria-hidden="true"><span class="octicon octicon-link"></span></a>Graph Window Management</h2>
 
-<p>All plots can be moved around the browser window by clicking their title bar and moving them. Other graphs will move around intelligently to fill the space. This allows you order the graphs no matter which order they were created in.</p>
+<p>All graphs can be moved around the browser window by clicking their title bar and moving them. Other graphs will move around intelligently to fill the space. This allows you order the graphs no matter which order they were created in.</p>
 
-<p>Each plot has a set of window buttons in the upper right corner. The first shrinks or grows the plot both horizontally and vertically to allow for 4 plots in the same browser tab. Note that half height graphs no longer show the overview graph.</p>
+<p>Each graph has a set of window buttons in the upper right corner. The first shrinks or grows the graph both horizontally and vertically to allow for 4 graphs in the same browser tab. Note that half height graphs no longer show the overview graph.</p>
 
-<p><img src="/img/v5/telemetry_grapher/four_plots.png" alt="Four Plots"></p>
+<p><img src="/img/v5/telemetry_grapher/four_graphs.png" alt="Four Graphs"></p>
 
 <p>The second button shrinks or grows the graph horizontally so it will either be half or full width of the browser window. This allows for two full width graphs on top of each other.</p>
 
@@ -217,15 +225,15 @@
 <div style="height: 2px"></div>
 
 <ul>
-  <li>Number of seconds plotted</li>
+  <li>Number of seconds graphed</li>
   <li>Total telemetry points kept in memory</li>
-  <li>Number of points to plot</li>
+  <li>Number of points to graph</li>
 </ul>
 <div style="height: 2px"></div>
 
 <p>Changing the Points Saved will affect performance of the browser window if set too high. The default of 1,000,000 points can store over 11.5 days of 1Hz data points.</p>
 
-<p>The smaller of Seconds Plotted and Points Plotted will be used when calculating the number of points to display.</p>
+<p>The smaller of Seconds Graphed and Points Graphed will be used when calculating the number of points to display.</p>
 
 <p>While the graph is paused it continues to receive updates. The Stop button disconnects Telemetry Grapher from the backend and no longer receives data. If you Start again there will be a gap where no data was received.</p>
 
@@ -1295,7 +1303,7 @@
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2020 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">
