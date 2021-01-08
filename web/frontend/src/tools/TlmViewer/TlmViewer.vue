@@ -142,6 +142,7 @@ export default {
               }
             )
             this.grid.show(items)
+            this.grid.refreshItems().layout()
           })
         })
     },
@@ -150,6 +151,7 @@ export default {
         document.getElementById(this.screenId(id)),
       ])
       this.grid.remove(items)
+      this.grid.refreshItems().layout()
       this.definitions = this.definitions.filter((value, index, arr) => {
         return value.id != id
       })
@@ -172,6 +174,8 @@ export default {
 }
 .item {
   position: absolute;
+  display: block;
+  margin: 5px;
   z-index: 1;
 }
 .item.muuri-item-dragging {
@@ -187,6 +191,5 @@ export default {
   position: relative;
   cursor: pointer;
   border-radius: 6px;
-  margin: 5px;
 }
 </style>

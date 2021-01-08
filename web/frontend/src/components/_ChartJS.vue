@@ -1,3 +1,4 @@
+<!-- OBE by Graph.vue which uses uPlot -->
 <template>
   <div>
     <canvas id="chart"></canvas>
@@ -12,7 +13,7 @@ import { DateTime } from 'luxon'
 
 export default {
   props: {
-    secondsPlotted: {
+    secondsGraphed: {
       type: Number,
       required: true,
     },
@@ -20,7 +21,7 @@ export default {
       type: Number,
       required: true,
     },
-    pointsPlotted: {
+    pointsGraphed: {
       type: Number,
       required: true,
     },
@@ -67,8 +68,7 @@ export default {
     // Creating the cable can be done once, subscriptions come and go
     this.cable = ActionCable.createConsumer('ws://localhost:7777/cable')
   },
-  // TODO: Remove async when patched uPlot no longer needed
-  async mounted() {
+  mounted() {
     // TODO: This is demo / performance code of multiple items with many data points
     // 10000 pts takes 1.7s, Chrome consume 530MB mem
     // 20000 pts takes 3.6s, Chrome consumes 1GB

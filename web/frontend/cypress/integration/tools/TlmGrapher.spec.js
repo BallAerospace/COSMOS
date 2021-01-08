@@ -1,10 +1,10 @@
 describe('TlmGrapher', () => {
-  // Creates an alias to the plot width and height
+  // Creates an alias to the graph width and height
   function aliasWidthHeight() {
-    cy.get('#tlmGrapherPlot1').invoke('width').as('width')
-    cy.get('#tlmGrapherPlot1').invoke('height').as('height')
+    cy.get('#tlmGrapherGraph1').invoke('width').as('width')
+    cy.get('#tlmGrapherGraph1').invoke('height').as('height')
   }
-  // Compares the current plot width and height to the aliased values
+  // Compares the current graph width and height to the aliased values
   function checkWidthHeight(
     widthComparison,
     widthMultiplier = 1,
@@ -12,12 +12,12 @@ describe('TlmGrapher', () => {
     heightMultiplier = 1
   ) {
     cy.get('@width').then((value) => {
-      cy.get('#tlmGrapherPlot1')
+      cy.get('#tlmGrapherGraph1')
         .invoke('width')
         .should(widthComparison, value * widthMultiplier)
     })
     cy.get('@height').then((value) => {
-      cy.get('#tlmGrapherPlot1')
+      cy.get('#tlmGrapherGraph1')
         .invoke('height')
         .should(heightComparison, value * heightMultiplier)
     })
@@ -32,12 +32,12 @@ describe('TlmGrapher', () => {
     cy.hideNav()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
-    cy.get('#tlmGrapherPlot1').contains('TEMP1')
+    cy.get('#tlmGrapherGraph1').contains('TEMP1')
     cy.wait(2000) // Wait for graphing to occur
     // Add another item while it is already graphing
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
-    cy.get('#tlmGrapherPlot1').contains('TEMP2')
+    cy.get('#tlmGrapherGraph1').contains('TEMP2')
     cy.wait(3000) // Wait for graphing to occur
     cy.get('[data-test=grapher-controls]').click()
     cy.get('[data-test=grapher-controls]').contains('Pause').click()
@@ -49,19 +49,19 @@ describe('TlmGrapher', () => {
     cy.wait(1000) // Small wait to visually see it stopped
   })
 
-  it('edits a plot', () => {
+  it('edits a graph title', () => {
     cy.visit('/telemetry-grapher')
     cy.hideNav()
-    cy.contains('Plot 1')
+    cy.contains('Graph 1')
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
     cy.wait(2000) // Wait for graphing to occur
-    cy.get('.v-toolbar').contains('Plot').click()
-    cy.contains('Edit Plot').click()
+    cy.get('.v-toolbar').contains('Graph').click()
+    cy.contains('Edit Graph').click()
     cy.get('.v-dialog:visible').within(() => {
-      cy.get('input').clear().type('My New Title')
+      cy.get('[data-test=edit-title]').clear().type('My New Title')
       cy.contains('INST HEALTH_STATUS TEMP1')
         .parent()
         .within(() => {
@@ -78,30 +78,42 @@ describe('TlmGrapher', () => {
       })
   })
 
-  it('adds multiple plots', () => {
+  it.skip('edits the min/max scale', () => {
+    // TODO
+  })
+
+  it.skip('edits the start date/time', () => {
+    // TODO
+  })
+
+  it.skip('edits the end date/time', () => {
+    // TODO
+  })
+
+  it('adds multiple graphs', () => {
     cy.visit('/telemetry-grapher')
     cy.hideNav()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
-    cy.get('.v-toolbar').contains('Plot').click()
-    cy.contains('Add Plot').click()
-    cy.get('#tlmGrapherPlot2')
+    cy.get('.v-toolbar').contains('Graph').click()
+    cy.contains('Add Graph').click()
+    cy.get('#tlmGrapherGraph2')
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
-    // Ensure TEMP2 got added to the correct plot
-    cy.get('#tlmGrapherPlot2').within(() => {
-      cy.contains('Plot 2')
+    // Ensure TEMP2 got added to the correct graph
+    cy.get('#tlmGrapherGraph2').within(() => {
+      cy.contains('Graph 2')
       cy.contains('TEMP2')
       cy.should('not.contain', 'TEMP1')
     })
-    cy.get('#tlmGrapherPlot1').within(() => {
-      cy.contains('Plot 1')
+    cy.get('#tlmGrapherGraph1').within(() => {
+      cy.contains('Graph 1')
       cy.contains('TEMP1')
       cy.should('not.contain', 'TEMP2')
-      // Close Plot 1
+      // Close Graph 1
       cy.get('.mdi-close-box').click()
     })
-    cy.get('#tlmGrapherPlot1').should('not.exist')
+    cy.get('#tlmGrapherGraph1').should('not.exist')
   })
 
   it('saves and loads the configuration', () => {
@@ -111,8 +123,8 @@ describe('TlmGrapher', () => {
     cy.contains('Add Item').click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
-    cy.get('.v-toolbar').contains('Plot').click()
-    cy.contains('Add Plot').click()
+    cy.get('.v-toolbar').contains('Graph').click()
+    cy.contains('Add Graph').click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP3')
     cy.contains('Add Item').click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP4')
@@ -148,14 +160,14 @@ describe('TlmGrapher', () => {
       cy.contains('Ok').click()
     })
     // Verify we're back
-    cy.contains('Plot 1')
+    cy.contains('Graph 1')
       .parents('.v-card')
       .eq(0)
       .within(() => {
         cy.contains('TEMP1')
         cy.contains('TEMP2')
       })
-    cy.contains('Plot 2')
+    cy.contains('Graph 2')
       .parents('.v-card')
       .eq(0)
       .within(() => {
@@ -176,61 +188,61 @@ describe('TlmGrapher', () => {
     })
   })
 
-  it('shrinks and expands a plot width and heigth', () => {
+  it('shrinks and expands a graph width and height', () => {
     cy.visit('/telemetry-grapher')
     cy.hideNav()
     aliasWidthHeight()
-    cy.get('#tlmGrapherPlot1').within(() => {
-      cy.contains('Plot 1')
+    cy.get('#tlmGrapherGraph1').within(() => {
+      cy.contains('Graph 1')
       cy.get('button')
         .eq(0) // Expand button
         .click()
     })
     checkWidthHeight('be.lt', 0.5, 'be.lt', 0.5)
-    cy.get('#tlmGrapherPlot1').within(() => {
+    cy.get('#tlmGrapherGraph1').within(() => {
       cy.get('button').eq(0).click()
     })
     checkWidthHeight('eq', 1, 'eq', 1)
   })
 
-  it('shrinks and expands a plot width', () => {
+  it('shrinks and expands a graph width', () => {
     cy.visit('/telemetry-grapher')
     cy.hideNav()
     aliasWidthHeight()
-    cy.get('#tlmGrapherPlot1').within(() => {
-      cy.contains('Plot 1')
+    cy.get('#tlmGrapherGraph1').within(() => {
+      cy.contains('Graph 1')
       cy.get('button')
         .eq(1) // Width button
         .click()
     })
     checkWidthHeight('be.lt', 0.5, 'eq', 1)
-    cy.get('#tlmGrapherPlot1').within(() => {
+    cy.get('#tlmGrapherGraph1').within(() => {
       cy.get('button').eq(1).click()
     })
     checkWidthHeight('eq', 1, 'eq', 1)
   })
 
-  it('shrinks and expands a plot height', () => {
+  it('shrinks and expands a graph height', () => {
     cy.visit('/telemetry-grapher')
     cy.hideNav()
     aliasWidthHeight()
-    cy.get('#tlmGrapherPlot1').within(() => {
-      cy.contains('Plot 1')
+    cy.get('#tlmGrapherGraph1').within(() => {
+      cy.contains('Graph 1')
       cy.get('button')
         .eq(2) // Height button
         .click()
     })
     checkWidthHeight('eq', 1, 'be.lt', 0.5)
-    cy.get('#tlmGrapherPlot1').within(() => {
+    cy.get('#tlmGrapherGraph1').within(() => {
       cy.get('button').eq(2).click()
     })
     checkWidthHeight('eq', 1, 'eq', 1)
   })
 
-  it('minimizes a plot', () => {
+  it('minimizes a graph', () => {
     cy.visit('/telemetry-grapher')
     cy.hideNav()
-    cy.get('#tlmGrapherPlot1').within(() => {
+    cy.get('#tlmGrapherGraph1').within(() => {
       cy.get('#chart').should('be.visible')
       cy.get('button')
         .eq(3) // Minimize

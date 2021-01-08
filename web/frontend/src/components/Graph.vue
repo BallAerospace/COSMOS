@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-card @click.native="$emit('click')">
-      <v-system-bar :class="selectedPlotId === id ? 'active' : 'inactive'">
+      <v-system-bar :class="selectedGraphId === id ? 'active' : 'inactive'">
         <v-spacer />
         <span>{{ title }}</span>
         <v-spacer />
@@ -18,7 +18,7 @@
         >
         <v-icon v-else @click="expandHeight">mdi-arrow-expand-vertical</v-icon>
         <v-icon @click="minMaxTransition">mdi-window-minimize</v-icon>
-        <v-icon @click="$emit('close-plot')">mdi-close-box</v-icon>
+        <v-icon @click="$emit('close-graph')">mdi-close-box</v-icon>
       </v-system-bar>
       <v-expand-transition>
         <div class="pa-1" id="chart" ref="chart" v-show="expand">
@@ -28,27 +28,28 @@
       </v-expand-transition>
     </v-card>
 
-    <!-- Edit Plot dialog -->
+    <!-- Edit dialog -->
     <v-dialog
-      v-model="editPlot"
+      v-model="editGraph"
       @keydown.esc="$emit('input')"
-      @input="editPlotClose()"
+      @input="editGraphClose()"
       max-width="500"
     >
       <v-card class="pa-3">
-        <v-card-title class="headline">Edit Plot</v-card-title>
+        <v-card-title class="headline">Edit Graph</v-card-title>
         <v-text-field
           class="pb-2"
           label="Title"
           v-model="title"
           hide-details
+          data-test="edit-title"
         ></v-text-field>
         <v-card-text class="pa-0"
           >Select a start date/time for the graph. Leave blank for start now.
         </v-card-text>
         <date-time-chooser
           :required="false"
-          @date-time="plotStartDateTime = $event"
+          @date-time="graphStartDateTime = $event"
           dateLabel="Start Date"
           timeLabel="Start Time"
         ></date-time-chooser>
@@ -59,16 +60,16 @@
         <date-time-chooser
           dateLabel="End Date"
           timeLabel="End Time"
-          @date-time="plotEndDateTime = $event"
+          @date-time="graphEndDateTime = $event"
         ></date-time-chooser>
         <v-text-field
           label="Min X"
-          v-model="plotMinX"
+          v-model="graphMinX"
           hide-details
         ></v-text-field>
         <v-text-field
           label="Max X"
-          v-model="plotMaxX"
+          v-model="graphMaxX"
           hide-details
         ></v-text-field>
         <v-container fluid>
@@ -80,21 +81,21 @@
             <v-btn color="error" @click="deleteItem(item)">Remove</v-btn>
           </v-row></v-container
         >
-        <v-btn color="primary" @click="editPlotClose()">Ok</v-btn>
+        <v-btn color="primary" @click="editGraphClose()">Ok</v-btn>
       </v-card>
     </v-dialog>
 
-    <!-- Edit Plot right click context menu -->
+    <!-- Edit right click context menu -->
     <v-menu
-      v-if="editPlotMenu"
-      v-model="editPlotMenu"
-      :position-x="editPlotMenuX"
-      :position-y="editPlotMenuY"
+      v-if="editGraphMenu"
+      v-model="editGraphMenu"
+      :position-x="editGraphMenuX"
+      :position-y="editGraphMenuY"
       absolute
       offset-y
     >
       <v-list>
-        <v-list-item @click="editPlot = true">
+        <v-list-item @click="editGraph = true">
           <v-list-item-title style="cursor: pointer"
             >Edit {{ title }}</v-list-item-title
           >
@@ -169,7 +170,7 @@ export default {
       type: Number,
       required: true,
     },
-    selectedPlotId: {
+    selectedGraphId: {
       type: Number,
       // Not required because we pass null
     },
@@ -177,12 +178,12 @@ export default {
       type: String,
       required: true,
     },
-    // start time in nanoseconds to start the plot
-    // this allows multiple plots to be synchronized
+    // start time in nanoseconds to start the graph
+    // this allows multiple graphs to be synchronized
     startTime: {
       type: Number,
     },
-    secondsPlotted: {
+    secondsGraphed: {
       type: Number,
       required: true,
     },
@@ -190,7 +191,7 @@ export default {
       type: Number,
       required: true,
     },
-    pointsPlotted: {
+    pointsGraphed: {
       type: Number,
       required: true,
     },
@@ -202,11 +203,11 @@ export default {
       expand: true,
       fullWidth: true,
       fullHeight: true,
-      plot: null,
-      editPlot: false,
-      editPlotMenu: false,
-      editPlotMenuX: 0,
-      editPlotMenuY: 0,
+      graph: null,
+      editGraph: false,
+      editGraphMenu: false,
+      editGraphMenuX: 0,
+      editGraphMenuY: 0,
       editItem: false,
       itemMenu: false,
       itemMenuX: 0,
@@ -215,10 +216,10 @@ export default {
       title: '',
       overview: null,
       data: null,
-      plotMinX: '',
-      plotMaxX: '',
-      plotStartDateTime: this.startTime,
-      plotEndDateTime: null,
+      graphMinX: '',
+      graphMaxX: '',
+      graphStartDateTime: this.startTime,
+      graphEndDateTime: null,
       indexes: {},
       items: [],
       drawInterval: null,
@@ -258,7 +259,7 @@ export default {
   created() {
     // Creating the cable can be done once, subscriptions come and go
     this.cable = ActionCable.createConsumer('ws://localhost:7777/cable')
-    this.title = 'Plot ' + this.id
+    this.title = 'Graph ' + this.id
   },
   mounted() {
     // This code allows for temporary pulling in a patched uPlot
@@ -320,10 +321,10 @@ export default {
           x: true,
           y: false,
         },
-        // Sync the cursor across plots so mouseovers are synced
+        // Sync the cursor across graphs so mouseovers are synced
         sync: {
           key: 'cosmos',
-          // setSeries links plots so clicking an item to hide it also hides the other graph item
+          // setSeries links graphs so clicking an item to hide it also hides the other graph item
           // setSeries: true,
         },
       },
@@ -350,9 +351,9 @@ export default {
             let canvas = u.root.querySelector('canvas')
             canvas.addEventListener('contextmenu', (e) => {
               e.preventDefault()
-              this.editPlotMenuX = e.clientX
-              this.editPlotMenuY = e.clientY
-              this.editPlotMenu = true
+              this.editGraphMenuX = e.clientX
+              this.editGraphMenuY = e.clientY
+              this.editGraphMenu = true
             })
             let legend = u.root.querySelector('.u-legend')
             legend.addEventListener('contextmenu', (e) => {
@@ -376,7 +377,7 @@ export default {
       },
     }
     // console.time('chart')
-    this.plot = new uPlot(
+    this.graph = new uPlot(
       chartOpts,
       this.data,
       document.getElementById('chart' + this.id)
@@ -411,7 +412,7 @@ export default {
                 chart.select.left + chart.select.width,
                 'x'
               )
-              this.plot.setScale('x', { min, max })
+              this.graph.setScale('x', { min, max })
               this.zoomOverview = false
             }
           },
@@ -461,47 +462,47 @@ export default {
       if (this.state === 'pause') {
         return
       }
-      this.plot.setData(newData)
+      this.graph.setData(newData)
       this.overview.setData(newData)
       let max = newData[0][newData[0].length - 1]
-      let ptsMin = newData[0][newData[0].length - this.pointsPlotted]
+      let ptsMin = newData[0][newData[0].length - this.pointsGraphed]
       let min = newData[0][0]
-      if (min < max - this.secondsPlotted) {
-        min = max - this.secondsPlotted
+      if (min < max - this.secondsGraphed) {
+        min = max - this.secondsGraphed
       }
       if (ptsMin > min) {
         min = ptsMin
       }
-      this.plot.setScale('x', { min, max })
+      this.graph.setScale('x', { min, max })
     },
-    plotMinX: function (newVal, oldVal) {
+    graphMinX: function (newVal, oldVal) {
       let val = parseFloat(newVal)
       if (!isNaN(val)) {
-        this.plotMinX = val
+        this.graphMinX = val
       }
-      this.setPlotRange()
+      this.setGraphRange()
     },
-    plotMaxX: function (newVal, oldVal) {
+    graphMaxX: function (newVal, oldVal) {
       let val = parseFloat(newVal)
       if (!isNaN(val)) {
-        this.plotMaxX = val
+        this.graphMaxX = val
       }
-      this.setPlotRange()
+      this.setGraphRange()
     },
   },
   methods: {
-    editPlotClose() {
-      this.editPlot = false
+    editGraphClose() {
+      this.editGraph = false
 
-      if (this.plotStartDateTime !== null) {
+      if (this.graphStartDateTime !== null) {
         // Convert to COSMOS backend nanoseconds if necessary
-        if (typeof this.plotStartDateTime === 'string') {
-          this.plotStartDateTime =
-            new Date(this.plotStartDateTime).getTime() * 1_000_000
+        if (typeof this.graphStartDateTime === 'string') {
+          this.graphStartDateTime =
+            new Date(this.graphStartDateTime).getTime() * 1_000_000
         }
         // If they're specifying an end time we're not streaming realtime
         // thus stop any ongoing subscriptions and clear the data
-        if (this.plotEndDateTime !== null) {
+        if (this.graphEndDateTime !== null) {
           if (this.subscription) {
             this.subscription.unsubscribe()
             this.subscription = null
@@ -511,11 +512,11 @@ export default {
             }
           }
           // Convert to COSMOS backend nanoseconds if necessary
-          if (typeof this.plotEndDateTime === 'string') {
-            this.plotEndDateTime =
-              new Date(this.plotEndDateTime).getTime() * 1_000_000
+          if (typeof this.graphEndDateTime === 'string') {
+            this.graphEndDateTime =
+              new Date(this.graphEndDateTime).getTime() * 1_000_000
           }
-          this.subscribe(this.plotEndDateTime)
+          this.subscribe(this.graphEndDateTime)
         } else {
           // No end date given so subscribe using the current start as the end
           this.subscribe(this.data[0][0] * 1_000_000_000)
@@ -524,13 +525,13 @@ export default {
     },
     handleResize() {
       // TODO: Should this method be throttled?
-      this.plot.setSize(this.getSize('chart'))
+      this.graph.setSize(this.getSize('chart'))
       this.overview.setSize(this.getSize('overview'))
     },
     resize() {
-      this.plot.setSize(this.getSize('chart'))
+      this.graph.setSize(this.getSize('chart'))
       this.overview.setSize(this.getSize('overview'))
-      this.$emit('resize')
+      this.$emit('resize', this.id)
     },
     expandAll() {
       this.fullWidth = true
@@ -560,26 +561,26 @@ export default {
     },
     minMaxTransition() {
       this.expand = !this.expand
-      this.$emit('min-max-plot')
+      this.$emit('min-max-graph', this.id)
     },
-    setPlotRange() {
+    setGraphRange() {
       let pad = 0.1
       if (
-        this.plotMinX ||
-        this.plotMinX === 0 ||
-        this.plotMaxX ||
-        this.plotMaxX === 0
+        this.graphMinX ||
+        this.graphMinX === 0 ||
+        this.graphMaxX ||
+        this.graphMaxX === 0
       ) {
         pad = 0
       }
-      this.plot.scales.y.range = (u, dataMin, dataMax) => {
+      this.graph.scales.y.range = (u, dataMin, dataMax) => {
         let min = dataMin
-        if (this.plotMinX || this.plotMinX === 0) {
-          min = this.plotMinX
+        if (this.graphMinX || this.graphMinX === 0) {
+          min = this.graphMinX
         }
         let max = dataMax
-        if (this.plotMaxX || this.plotMaxX === 0) {
-          max = this.plotMaxX
+        if (this.graphMaxX || this.graphMaxX === 0) {
+          max = this.graphMaxX
         }
         return uPlot.rangeNum(min, max, pad, true)
       }
@@ -589,7 +590,7 @@ export default {
         {
           channel: 'StreamingChannel',
           scope: 'DEFAULT',
-          start_time: this.plotStartDateTime,
+          start_time: this.graphStartDateTime,
           end_time: endTime,
         },
         {
@@ -611,7 +612,7 @@ export default {
             subscription.perform('add', {
               scope: 'DEFAULT',
               items: items,
-              start_time: this.plotStartDateTime,
+              start_time: this.graphStartDateTime,
               end_time: endTime,
             })
           },
@@ -653,8 +654,8 @@ export default {
           height = 0
         }
       } else {
-        // Height of chart is viewportSize - chooser - overview - fudge factor
-        height = viewHeight - chooser.clientHeight - height - 150
+        // Height of chart is viewportSize - chooser - overview - fudge factor (primarily padding)
+        height = viewHeight - chooser.clientHeight - height - 190
         if (!this.fullHeight) {
           height = height / 2.0 + 10 // 5px padding top and bottom
         }
@@ -727,7 +728,7 @@ export default {
       }
       let index = this.data.length
       let color = this.colors.shift()
-      this.plot.addSeries(
+      this.graph.addSeries(
         {
           spanGaps: true,
           item: item,
@@ -763,8 +764,8 @@ export default {
         this.subscription.perform('add', {
           scope: 'DEFAULT',
           items: [key],
-          start_time: this.plotStartDateTime,
-          end_time: this.plotEndDateTime, // normally null which means continue in real-time
+          start_time: this.graphStartDateTime,
+          end_time: this.graphEndDateTime, // normally null which means continue in real-time
         })
       }
     },
@@ -784,12 +785,12 @@ export default {
       })
       const index = this.reorderIndexes(key)
       // Put back the color so it's available for new series
-      this.colors.unshift(this.plot.series[index].stroke)
+      this.colors.unshift(this.graph.series[index].stroke)
       this.items.splice(index - 1, 1)
       this.data.splice(index, 1)
-      this.plot.delSeries(index)
+      this.graph.delSeries(index)
       this.overview.delSeries(index)
-      this.plot.setData(this.data)
+      this.graph.setData(this.data)
       this.overview.setData(this.data)
     },
     reorderIndexes(key) {
@@ -835,8 +836,8 @@ export default {
       }
       // If we weren't passed a startTime notify grapher of our start
       if (this.startTime === null) {
-        this.plotStartDateTime = this.data[0][0] * 1_000_000_000
-        this.$emit('started', this.plotStartDateTime)
+        this.graphStartDateTime = this.data[0][0] * 1_000_000_000
+        this.$emit('started', this.graphStartDateTime)
       }
     },
     bs_comparator(element, needle) {

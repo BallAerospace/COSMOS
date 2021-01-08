@@ -63,26 +63,26 @@
       <div class="grid">
         <div
           class="item"
-          v-for="plot in plots"
-          :key="plot"
-          :id="plotId(plot)"
+          v-for="graph in graphs"
+          :key="graph"
+          :id="graphId(graph)"
           ref="gridItem"
         >
           <div class="item-content">
-            <CosmosChartuPlot
-              :ref="'plot' + plot"
-              :id="plot"
+            <graph
+              :ref="'graph' + graph"
+              :id="graph"
               :state="state"
               :startTime="startTime"
-              :selectedPlotId="selectedPlotId"
-              :secondsPlotted="settings.secondsPlotted.value"
+              :selectedGraphId="selectedGraphId"
+              :secondsGraphed="settings.secondsGraphed.value"
               :pointsSaved="settings.pointsSaved.value"
-              :pointsPlotted="settings.pointsPlotted.value"
-              @close-plot="closePlot(plot)"
-              @min-max-plot="minMaxPlot(plot)"
-              @resize="resize(plot)"
-              @click="plotSelected(plot)"
-              @started="plotStarted($event)"
+              :pointsGraphed="settings.pointsGraphed.value"
+              @close-graph="closeGraph(graph)"
+              @min-max-graph="minMaxGraph(graph)"
+              @resize="resize(graph)"
+              @click="graphSelected(graph)"
+              @started="graphStarted($event)"
             />
           </div>
         </div>
@@ -107,23 +107,21 @@
 
 <script>
 import AppNav from '@/AppNav'
-import CosmosChartuPlot from '@/components/CosmosChartuPlot.vue'
-// import CosmosChartJS from '@/components/CosmosChartJS.vue'
+import Graph from '@/components/Graph.vue'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
 import OpenConfigDialog from '@/components/OpenConfigDialog'
 import SaveConfigDialog from '@/components/SaveConfigDialog'
 import { CosmosApi } from '@/services/cosmos-api'
 import Muuri from 'muuri'
 
-const MURRI_REFRESH_TIME = 200
+const MURRI_REFRESH_TIME = 250
 export default {
   components: {
     AppNav,
     OpenConfigDialog,
     SaveConfigDialog,
     TargetPacketItemChooser,
-    CosmosChartuPlot,
-    // CosmosChartJS
+    Graph,
   },
   data() {
     return {
@@ -134,9 +132,9 @@ export default {
       state: 'stop', // Valid: stop, start, pause
       grid: null,
       startTime: null, // Start time in nanoseconds
-      // Setup defaults to show an initial plot
-      plots: [1],
-      selectedPlotId: 1,
+      // Setup defaults to show an initial graph
+      graphs: [1],
+      selectedGraphId: 1,
       counter: 2,
       controls: {
         start: {
@@ -188,26 +186,26 @@ export default {
           ],
         },
         {
-          label: 'Plot',
+          label: 'Graph',
           items: [
             {
-              label: 'Add Plot',
+              label: 'Add Graph',
               command: () => {
-                this.addPlot()
+                this.addGraph()
               },
             },
             {
-              label: 'Edit Plot',
+              label: 'Edit Graph',
               command: () => {
-                this.$refs['plot' + this.selectedPlotId][0].editPlot = true
+                this.$refs['graph' + this.selectedGraphId][0].editGraph = true
               },
             },
           ],
         },
       ],
       settings: {
-        secondsPlotted: {
-          title: 'Seconds Plotted',
+        secondsGraphed: {
+          title: 'Seconds Graphed',
           icon: 'mdi-cog',
           value: 1000,
           rules: [(value) => !!value || 'Required'],
@@ -218,8 +216,8 @@ export default {
           hint: 'Increasing may cause issues',
           rules: [(value) => !!value || 'Required'],
         },
-        pointsPlotted: {
-          title: 'Points Plotted',
+        pointsGraphed: {
+          title: 'Points Graphed',
           value: 1000,
           rules: [(value) => !!value || 'Required'],
         },
@@ -239,15 +237,15 @@ export default {
   },
   methods: {
     addItem(item, startGraphing = true) {
-      if (this.selectedPlotId === null) return
-      this.$refs['plot' + this.selectedPlotId][0].addItem(item)
+      if (this.selectedGraphId === null) return
+      this.$refs['graph' + this.selectedGraphId][0].addItem(item)
       if (startGraphing === true) {
         this.state = 'start'
       }
     },
-    addPlot() {
-      this.selectedPlotId = this.counter
-      this.plots.push(this.counter)
+    addGraph() {
+      this.selectedGraphId = this.counter
+      this.graphs.push(this.counter)
       this.counter += 1
       this.$nextTick(function () {
         var items = this.grid.add(
@@ -260,58 +258,62 @@ export default {
         }, MURRI_REFRESH_TIME)
       })
     },
-    plotId(id) {
-      return 'tlmGrapherPlot' + id
+    graphId(id) {
+      return 'tlmGrapherGraph' + id
     },
-    closePlot(id) {
-      var items = this.grid.getItems([document.getElementById(this.plotId(id))])
+    closeGraph(id) {
+      var items = this.grid.getItems([
+        document.getElementById(this.graphId(id)),
+      ])
       this.grid.remove(items)
-      this.plots.splice(this.plots.indexOf(id), 1)
-      this.selectedPlotId = null
+      this.graphs.splice(this.graphs.indexOf(id), 1)
+      this.selectedGraphId = null
     },
-    closeAllPlots() {
-      // Make a copy of this.plots to iterate on since closePlot modifies in place
-      for (let plot of [...this.plots]) {
-        this.closePlot(plot)
+    closeAllGraphs() {
+      // Make a copy of this.graphs to iterate on since closeGraph modifies in place
+      for (let graph of [...this.graphs]) {
+        this.closeGraph(graph)
       }
       this.counter = 1
     },
-    minMaxPlot(id) {
+    minMaxGraph(id) {
+      this.selectedGraphId = id
       setTimeout(() => {
         this.grid.refreshItems().layout()
-      }, MURRI_REFRESH_TIME)
+      }, MURRI_REFRESH_TIME * 2) // Double the time since there is more animation
     },
     resize(id) {
+      this.selectedGraphId = id
       setTimeout(() => {
         this.grid.refreshItems().layout()
       }, MURRI_REFRESH_TIME)
     },
-    plotSelected(id) {
-      this.selectedPlotId = id
+    graphSelected(id) {
+      this.selectedGraphId = id
     },
-    plotStarted(time) {
-      // Only set startTime once when notified by the first plot to start
-      // This allows us to have a uniform start time on all plots
+    graphStarted(time) {
+      // Only set startTime once when notified by the first graph to start
+      // This allows us to have a uniform start time on all graphs
       if (this.startTime === null) {
         this.startTime = time
       }
     },
     async openConfiguration(name) {
-      this.closeAllPlots()
+      this.closeAllGraphs()
       let config = await this.api.load_config(this.toolName, name)
-      let plots = JSON.parse(config)
-      let plotId = 0
-      for (let plot of plots) {
-        plotId += 1
-        await this.addPlot()
-        let vuePlot = this.$refs['plot' + plotId][0]
-        vuePlot.title = plot.title
-        vuePlot.fullWidth = plot.fullWidth
-        vuePlot.fullHeight = plot.fullHeight
-        vuePlot.plotMinX = plot.plotMinX
-        vuePlot.plotMaxX = plot.plotMaxX
-        vuePlot.resize()
-        for (let item of plot.items) {
+      let graphs = JSON.parse(config)
+      let graphId = 0
+      for (let graph of graphs) {
+        graphId += 1
+        await this.addGraph()
+        let vueGraph = this.$refs['graph' + graphId][0]
+        vueGraph.title = graph.title
+        vueGraph.fullWidth = graph.fullWidth
+        vueGraph.fullHeight = graph.fullHeight
+        vueGraph.graphMinX = graph.graphMinX
+        vueGraph.graphMaxX = graph.graphMaxX
+        vueGraph.resize()
+        for (let item of graph.items) {
           this.addItem(
             {
               targetName: item.targetName,
@@ -326,15 +328,15 @@ export default {
     },
     saveConfiguration(name) {
       let config = []
-      for (let plotId of this.plots) {
-        const vuePlot = this.$refs['plot' + plotId][0]
+      for (let graphId of this.graphs) {
+        const vueGraph = this.$refs['graph' + graphId][0]
         config.push({
-          title: vuePlot.title,
-          fullWidth: vuePlot.fullWidth,
-          fullHeight: vuePlot.fullHeight,
-          items: vuePlot.items,
-          plotMinX: vuePlot.plotMinX,
-          plotMaxX: vuePlot.plotMaxX,
+          title: vueGraph.title,
+          fullWidth: vueGraph.fullWidth,
+          fullHeight: vueGraph.fullHeight,
+          items: vueGraph.items,
+          graphMinX: vueGraph.graphMinX,
+          graphMaxX: vueGraph.graphMaxX,
         })
       }
       this.api.save_config(this.toolName, name, JSON.stringify(config))
