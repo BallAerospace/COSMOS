@@ -1,2 +1,0 @@
-INTERFACE INST_INT interface.rb
-TARGET INST

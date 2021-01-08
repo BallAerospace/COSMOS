@@ -12,8 +12,6 @@
 # This file will handle COSMOS tasks such as instantiating a new project
 
 require 'cosmos'
-require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server_config'
-require 'cosmos/microservices/configure_microservices'
 require 'cosmos/models/plugin_model'
 require 'zip'
 require 'zip/filesystem'

@@ -6,8 +6,8 @@ class StreamingChannel < ApplicationCable::Channel
   end
 
   def unsubscribed
-    stop_all_streams()
     if @broadcasters[uuid]
+      stop_stream_from uuid
       @broadcasters[uuid].kill
       @broadcasters[uuid] = nil
     end

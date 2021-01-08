@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'rubygems/package'
+require 'cosmos'
 require 'cosmos/utilities/s3'
 require 'cosmos/utilities/store'
 require 'cosmos/config/config_parser'

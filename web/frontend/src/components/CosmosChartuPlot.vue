@@ -27,14 +27,50 @@
         </div>
       </v-expand-transition>
     </v-card>
+
+    <!-- Edit Plot dialog -->
     <v-dialog
       v-model="editPlot"
-      @keydown.esc="editPlot = false"
+      @keydown.esc="$emit('input')"
+      @input="editPlotClose()"
       max-width="500"
     >
       <v-card class="pa-3">
         <v-card-title class="headline">Edit Plot</v-card-title>
-        <v-text-field label="Title" v-model="title"></v-text-field>
+        <v-text-field
+          class="pb-2"
+          label="Title"
+          v-model="title"
+          hide-details
+        ></v-text-field>
+        <v-card-text class="pa-0"
+          >Select a start date/time for the graph. Leave blank for start now.
+        </v-card-text>
+        <date-time-chooser
+          :required="false"
+          @date-time="plotStartDateTime = $event"
+          dateLabel="Start Date"
+          timeLabel="Start Time"
+        ></date-time-chooser>
+        <v-card-text class="pa-0"
+          >Select a end date/time for the graph. Leave blank for continuous
+          real-time graphing.
+        </v-card-text>
+        <date-time-chooser
+          dateLabel="End Date"
+          timeLabel="End Time"
+          @date-time="plotEndDateTime = $event"
+        ></date-time-chooser>
+        <v-text-field
+          label="Min X"
+          v-model="plotMinX"
+          hide-details
+        ></v-text-field>
+        <v-text-field
+          label="Max X"
+          v-model="plotMaxX"
+          hide-details
+        ></v-text-field>
         <v-container fluid>
           <v-row v-for="(item, key) in items" :key="key">
             <v-col
@@ -44,9 +80,52 @@
             <v-btn color="error" @click="deleteItem(item)">Remove</v-btn>
           </v-row></v-container
         >
-        <v-btn color="primary" @click="editPlot = false">Ok</v-btn>
+        <v-btn color="primary" @click="editPlotClose()">Ok</v-btn>
       </v-card>
     </v-dialog>
+
+    <!-- Edit Plot right click context menu -->
+    <v-menu
+      v-if="editPlotMenu"
+      v-model="editPlotMenu"
+      :position-x="editPlotMenuX"
+      :position-y="editPlotMenuY"
+      absolute
+      offset-y
+    >
+      <v-list>
+        <v-list-item @click="editPlot = true">
+          <v-list-item-title style="cursor: pointer"
+            >Edit {{ title }}</v-list-item-title
+          >
+        </v-list-item>
+      </v-list>
+    </v-menu>
+
+    <!-- Edit Item dialog -->
+    <v-dialog
+      v-if="editItem"
+      v-model="editItem"
+      @keydown.esc="editItem = false"
+      max-width="500"
+    >
+      <v-card class="pa-3">
+        <v-card-title class="headline">Edit Item</v-card-title>
+        <v-select
+          hide-details
+          :items="valueTypes"
+          label="Value Type"
+          outlined
+          v-model="this.selectedItem.valueType"
+          @change="changeType($event)"
+        ></v-select>
+        <v-card-actions>
+          <v-btn color="primary" @click="editItem = false">Ok</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Edit Item right click context menu -->
     <v-menu
       v-if="itemMenu"
       v-model="itemMenu"
@@ -56,9 +135,14 @@
       offset-y
     >
       <v-list>
-        <v-list-item @click="deleteItem(items[selectedItemIndex])">
+        <v-list-item @click="editItem = true">
           <v-list-item-title style="cursor: pointer"
-            >Delete {{ items[selectedItemIndex].itemName }}</v-list-item-title
+            >Edit {{ selectedItem.itemName }}</v-list-item-title
+          >
+        </v-list-item>
+        <v-list-item @click="deleteItem(selectedItem)">
+          <v-list-item-title style="cursor: pointer"
+            >Delete {{ selectedItem.itemName }}</v-list-item-title
           >
         </v-list-item>
       </v-list>
@@ -67,14 +151,19 @@
 </template>
 
 <script>
+import DateTimeChooser from './DateTimeChooser'
 import * as ActionCable from 'actioncable'
 import uPlot from 'uplot'
 import bs from 'binary-search'
+import { getTime } from 'date-fns'
 
 // TODO Is there a better way to import this ... maybe in the style section?
 require('./../../node_modules/uplot/dist/uPlot.min.css')
 
 export default {
+  components: {
+    DateTimeChooser,
+  },
   props: {
     id: {
       type: Number,
@@ -108,48 +197,55 @@ export default {
   },
   data() {
     return {
+      valueTypes: ['CONVERTED', 'RAW'],
       active: true,
       expand: true,
       fullWidth: true,
       fullHeight: true,
       plot: null,
       editPlot: false,
+      editPlotMenu: false,
+      editPlotMenuX: 0,
+      editPlotMenuY: 0,
+      editItem: false,
       itemMenu: false,
       itemMenuX: 0,
       itemMenuY: 0,
-      selectedItemIndex: null,
+      selectedItem: null,
       title: '',
       overview: null,
       data: null,
+      plotMinX: '',
+      plotMaxX: '',
+      plotStartDateTime: this.startTime,
+      plotEndDateTime: null,
       indexes: {},
       items: [],
       drawInterval: null,
       zoomChart: false,
       zoomOverview: false,
       cable: ActionCable.Cable,
-      subscription: ActionCable.Channel,
+      subscription: null,
       colors: [
         'blue',
         'red',
         'green',
         'darkorange',
-        'gold',
         'purple',
-        'hotpink',
-        'lime',
         'cornflowerblue',
-        'brown',
-        'coral',
-        'crimson',
-        'indigo',
+        'lime',
+        'gold',
+        'hotpink',
         'tan',
-        'lightblue',
         'cyan',
         'peru',
         'maroon',
-        'orange',
+        'coral',
         'navy',
         'teal',
+        'brown',
+        'crimson',
+        'lightblue',
         'black',
       ],
     }
@@ -248,29 +344,27 @@ export default {
           (u) => {
             let clientX
             let clientY
+            let canvas = u.root.querySelector('canvas')
+            canvas.addEventListener('contextmenu', (e) => {
+              e.preventDefault()
+              this.editPlotMenuX = e.clientX
+              this.editPlotMenuY = e.clientY
+              this.editPlotMenu = true
+            })
             let legend = u.root.querySelector('.u-legend')
             legend.addEventListener('contextmenu', (e) => {
               e.preventDefault()
-              this.itemMenu = false
               this.itemMenuX = e.clientX
               this.itemMenuY = e.clientY
-              // let labels = legend.getElementsByClassName('u-label')
-              // labels.forEach((label) => {
-              let found = false
-              for (let i = 0; i < this.items.length; i++) {
-                if (e.path[0].innerText === this.items[i].itemName) {
-                  if (found === false) {
-                    found = true
-                    this.selectedItemIndex = i
-                  } else {
-                    found = null
-                  }
-                }
-              }
-              if (found) {
+              // Grab the closest series and then figure out which index it is
+              let seriesEl = e.target.closest('.u-series')
+              let seriesIdx = Array.prototype.slice
+                .call(legend.childNodes)
+                .indexOf(seriesEl)
+              let series = u.series[seriesIdx]
+              if (series.item) {
+                this.selectedItem = series.item
                 this.itemMenu = true
-              } else if (found === null) {
-                this.editPlot = true
               }
               return false
             })
@@ -346,16 +440,22 @@ export default {
     state: function (newState, oldState) {
       switch (newState) {
         case 'start':
-          this.subscribe()
+          // Only subscribe if we were previously stopped
+          // If we were paused we do nothing ... see the data function
+          if (oldState === 'stop') {
+            this.subscribe()
+          }
           break
-        // case 'pause': Nothing to do here
+        // case 'pause': Nothing to do ... see the data function
         case 'stop':
           this.subscription.unsubscribe()
+          this.subscription = null
           break
       }
     },
     data: function (newData, oldData) {
-      if (this.state !== 'start') {
+      // Ignore changes to the data while we're paused
+      if (this.state === 'pause') {
         return
       }
       this.plot.setData(newData)
@@ -371,8 +471,49 @@ export default {
       }
       this.plot.setScale('x', { min, max })
     },
+    plotMinX: function (newVal, oldVal) {
+      let val = parseFloat(newVal)
+      if (!isNaN(val)) {
+        this.plotMinX = val
+      }
+      this.setPlotRange()
+    },
+    plotMaxX: function (newVal, oldVal) {
+      let val = parseFloat(newVal)
+      if (!isNaN(val)) {
+        this.plotMaxX = val
+      }
+      this.setPlotRange()
+    },
   },
   methods: {
+    editPlotClose() {
+      this.editPlot = false
+      if (this.plotStartDateTime !== null) {
+        // Convert to COSMOS backend nanoseconds
+        this.plotStartDateTime =
+          new Date(this.plotStartDateTime).getTime() * 1_000_000
+        // If they're specifying an end time we're not streaming realtime
+        // thus stop any ongoing subscriptions and clear the data
+        if (this.plotEndDateTime !== null) {
+          if (this.subscription) {
+            this.subscription.unsubscribe()
+            this.subscription = null
+            this.data = [[]]
+            for (let i = 1; i <= this.items.length; i++) {
+              this.data.splice(i, 0, [])
+            }
+          }
+          // Convert to COSMOS backend nanoseconds
+          this.plotEndDateTime =
+            new Date(this.plotEndDateTime).getTime() * 1_000_000
+          this.subscribe(this.plotEndDateTime)
+        } else {
+          // No end date given so subscribe using the current start as the end
+          this.subscribe(this.data[0][0] * 1_000_000_000)
+        }
+      }
+    },
     handleResize() {
       // TODO: Should this method be throttled?
       this.plot.setSize(this.getSize('chart'))
@@ -413,11 +554,34 @@ export default {
       this.expand = !this.expand
       this.$emit('min-max-plot')
     },
-    subscribe() {
-      this.subscription = this.cable.subscriptions.create(
+    setPlotRange() {
+      let pad = 0.1
+      if (
+        this.plotMinX ||
+        this.plotMinX === 0 ||
+        this.plotMaxX ||
+        this.plotMaxX === 0
+      ) {
+        pad = 0
+      }
+      this.plot.scales.y.range = (u, dataMin, dataMax) => {
+        let min = dataMin
+        if (this.plotMinX || this.plotMinX === 0) {
+          min = this.plotMinX
+        }
+        let max = dataMax
+        if (this.plotMaxX || this.plotMaxX === 0) {
+          max = this.plotMaxX
+        }
+        return uPlot.rangeNum(min, max, pad, true)
+      }
+    },
+    subscribe(endTime = null) {
+      let subscription = this.cable.subscriptions.create(
         {
           channel: 'StreamingChannel',
           scope: 'DEFAULT',
+          uuid: Math.random(),
         },
         {
           received: (data) => this.received(data),
@@ -431,35 +595,39 @@ export default {
                   item.packetName +
                   '__' +
                   item.itemName +
-                  '__CONVERTED'
+                  '__' +
+                  item.valueType
               )
             })
-            this.subscription.perform('add', {
+            subscription.perform('add', {
               scope: 'DEFAULT',
               items: items,
               // startTime is either a valid time or null which means start now
-              start_time: this.startTime,
-              // No end_time because we want to continue until we stop
+              start_time: this.plotStartDateTime,
+              end_time: endTime,
             })
           },
           // TODO: How should we handle server side disconnect
           disconnected: () => alert('disconnected'),
         }
       )
-    },
-    throttle(cb, limit) {
-      var wait = false
-
-      return () => {
-        if (!wait) {
-          requestAnimationFrame(cb)
-          wait = true
-          setTimeout(() => {
-            wait = false
-          }, limit)
-        }
+      // Store the subscription if we haven't already
+      if (this.subscription === null) {
+        this.subscription = subscription
       }
     },
+    // throttle(cb, limit) {
+    //   var wait = false
+    //   return () => {
+    //     if (!wait) {
+    //       requestAnimationFrame(cb)
+    //       wait = true
+    //       setTimeout(() => {
+    //         wait = false
+    //       }, limit)
+    //     }
+    //   }
+    // },
     getSize(type) {
       const viewWidth = Math.max(
         document.documentElement.clientWidth,
@@ -539,17 +707,24 @@ export default {
         ],
       }
     },
-    addItem(item) {
+    changeType(event) {
+      this.deleteItem(this.selectedItem)
+      this.addItem(this.selectedItem, event)
+    },
+    addItem(item, type = 'CONVERTED') {
+      item.valueType = type // set the default type
       this.items.push(item)
       if (this.data === null) {
         this.data = [[]]
       }
       let index = this.data.length
+      let color = this.colors.shift()
       this.plot.addSeries(
         {
           spanGaps: true,
+          item: item,
           label: item.itemName,
-          stroke: this.colors[this.data.length - 1],
+          stroke: color,
           value: (self, rawValue) =>
             rawValue == null ? '--' : rawValue.toFixed(2),
         },
@@ -558,7 +733,7 @@ export default {
       this.overview.addSeries(
         {
           spanGaps: true,
-          stroke: this.colors[this.data.length - 1],
+          stroke: color,
         },
         index
       )
@@ -572,19 +747,20 @@ export default {
         item.packetName +
         '__' +
         item.itemName +
-        '__CONVERTED'
+        '__' +
+        item.valueType
       this.indexes[key] = index
 
-      if (this.state !== 'stop') {
+      if (this.subscription) {
         this.subscription.perform('add', {
           scope: 'DEFAULT',
           items: [key],
-          start_time: this.startTime, // this.data[0][0] * 1_000_000_000,
-          // No end_time because we want to continue until we stop
+          start_time: this.plotStartDateTime,
+          end_time: this.plotEndDateTime, // normally null which means continue in real-time
         })
       }
     },
-    async deleteItem(item) {
+    deleteItem(item) {
       let key =
         'TLM__' +
         item.targetName +
@@ -592,12 +768,15 @@ export default {
         item.packetName +
         '__' +
         item.itemName +
-        '__CONVERTED'
+        '__' +
+        item.valueType
       this.subscription.perform('remove', {
         scope: 'DEFAULT',
         items: [key],
       })
       const index = this.reorderIndexes(key)
+      // Put back the color so it's available for new series
+      this.colors.unshift(this.plot.series[index].stroke)
       this.items.splice(index - 1, 1)
       this.data.splice(index, 1)
       this.plot.delSeries(index)
@@ -648,7 +827,8 @@ export default {
       }
       // If we weren't passed a startTime notify grapher of our start
       if (this.startTime === null) {
-        this.$emit('started', this.data[0][0] * 1_000_000_000)
+        this.plotStartDateTime = this.data[0][0] * 1_000_000_000
+        this.$emit('started', this.plotStartDateTime)
       }
     },
     bs_comparator(element, needle) {
@@ -676,12 +856,6 @@ export default {
 </script>
 
 <style scoped>
-.active {
-  background-color: var(--v-secondary-base);
-}
-.inactive {
-  background-color: var(--v-primary-base);
-}
 #chart {
   background-color: var(--v-tertiary-darken2);
 }

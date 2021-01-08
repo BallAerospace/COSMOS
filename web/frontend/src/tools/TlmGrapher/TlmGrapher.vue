@@ -308,6 +308,8 @@ export default {
         vuePlot.title = plot.title
         vuePlot.fullWidth = plot.fullWidth
         vuePlot.fullHeight = plot.fullHeight
+        vuePlot.plotMinX = plot.plotMinX
+        vuePlot.plotMaxX = plot.plotMaxX
         vuePlot.resize()
         for (let item of plot.items) {
           this.addItem(
@@ -331,6 +333,8 @@ export default {
           fullWidth: vuePlot.fullWidth,
           fullHeight: vuePlot.fullHeight,
           items: vuePlot.items,
+          plotMinX: vuePlot.plotMinX,
+          plotMaxX: vuePlot.plotMaxX,
         })
       }
       this.api.save_config(this.toolName, name, JSON.stringify(config))

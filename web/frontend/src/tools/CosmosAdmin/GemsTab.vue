@@ -16,7 +16,6 @@
       </v-col>
     </v-row>
     <v-list data-test="gemList">
-      <v-subheader class="mt-3"> Gems </v-subheader>
       <v-list-item v-for="(gem, i) in gems" :key="i">
         <v-list-item-content>
           <v-list-item-title v-text="gem"></v-list-item-title>

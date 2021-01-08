@@ -1,7 +1,6 @@
 <template>
   <div>
     <v-list data-test="interfaceList">
-      <v-subheader class="mt-3">Interfaces</v-subheader>
       <v-list-item
         v-for="cosmos_interface in interfaces"
         :key="cosmos_interface"

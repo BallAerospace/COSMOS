@@ -18,7 +18,6 @@
       </v-col>
     </v-row>
     <v-list data-test="toolList" id="toollist">
-      <v-subheader class="mt-3">Tools</v-subheader>
       <v-list-item v-for="tool in tools" :key="tool">
         <v-list-item-content>
           <v-list-item-title v-text="tool"></v-list-item-title>

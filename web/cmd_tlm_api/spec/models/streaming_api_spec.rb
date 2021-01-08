@@ -5,7 +5,7 @@ RSpec.describe StreamingApi, type: :model do
     @messages = []
     @channel = double('channel')
     allow(@channel).to receive(:transmit) { |msg| @messages << msg }
-    @api = StreamingApi.new(123, @channel)
+    @api = StreamingApi.new(123, @channel, scope: 'DEFAULT')
   end
 
   it 'creates a collection and stores the channel' do

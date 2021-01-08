@@ -1,7 +1,6 @@
 <template>
   <div>
     <v-list data-test="routerList">
-      <v-subheader class="mt-3">Routers</v-subheader>
       <v-list-item v-for="router in routers" :key="router">
         <v-list-item-content>
           <v-list-item-title v-text="router"></v-list-item-title>
