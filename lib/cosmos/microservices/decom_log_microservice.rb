@@ -21,7 +21,10 @@ module Cosmos
         packet_name = topic_split[3]
         remote_log_directory = "#{scope}/decomlogs/tlm/#{target_name}/#{packet_name}"
         label = "#{scope}__#{target_name}__#{packet_name}__decom"
-        plws[topic] = PacketLogWriter.new(remote_log_directory, label, true, nil, 10000000, 0, 0)
+        # NOTE: Setting a cycle time of 3600s means the DecomMicroservice must allow for at LEAST
+        # 3600s worth of data in the Redis stream. This is due to how the streaming_api works
+        # when switching between a closed log file and the active Redis stream.
+        plws[topic] = PacketLogWriter.new(remote_log_directory, label, true, 3600, nil)
       end
       while true
         break if @cancel_thread

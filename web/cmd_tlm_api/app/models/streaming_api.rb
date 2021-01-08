@@ -50,18 +50,18 @@ class FileCacheFile
       rubys3_client = Aws::S3::Client.new
       local_path = "#{FileCache.instance.cache_dir}/#{File.basename(@s3_path)}"
       Cosmos::Logger.info("Retrieving #{@s3_path} from logs bucket")
-      #STDOUT.puts "Retrieving #{@s3_path} from logs bucket"
+      #Cosmos::Logger.debug "Retrieving #{@s3_path} from logs bucket"
       rubys3_client.get_object(bucket: "logs", key: @s3_path, response_target: local_path)
       if File.exist?(local_path)
         @size = File.size(local_path)
         @local_path = local_path
       end
       Cosmos::Logger.info("Successfully retrieved #{@s3_path} from logs bucket")
-      #STDOUT.puts "Successfully retrieved #{@s3_path} from logs bucket"
+      #Cosmos::Logger.debug "Successfully retrieved #{@s3_path} from logs bucket"
     rescue => err
       @error = err
       Cosmos::Logger.error("Failed to retreive #{@s3_path}\n#{err.formatted}")
-      #STDOUT.puts "Failed to retreive #{@s3_path}\n#{err.formatted}"
+      #Cosmos::Logger.debug "Failed to retreive #{@s3_path}\n#{err.formatted}"
     end
   end
 
@@ -175,7 +175,7 @@ class FileCache
       begin
         while true
           file = @cached_files.get_next_to_retrieve
-          #STDOUT.puts "Next file: #{file}"
+          #Cosmos::Logger.debug "Next file: #{file}"
           if file and (file.size + @cached_files.current_disk_usage()) <= @max_disk_usage
             file.retrieve
           else
@@ -184,7 +184,6 @@ class FileCache
         end
       rescue => err
         Cosmos::Logger.error "FileCache thread unexpectedly died\n#{err.formatted}"
-        #STDOUT.puts "FileCache thread unexpectedly died\n#{err.formatted}"
       end
     end
   end
@@ -213,7 +212,7 @@ class FileCache
       s3_path = item.key
       if file_in_time_range(s3_path, start_time_nsec, end_time_nsec)
         file = @cached_files.add(s3_path, item.size, index)
-        #STDOUT.puts file.inspect
+        #Cosmos::Logger.debug file.inspect
         files << file
       end
     end
@@ -259,6 +258,8 @@ end
 
 class StreamingThread
   def initialize(channel, collection, max_batch_size = 100)
+    # Cosmos::Logger.level = Cosmos::Logger::DEBUG
+    # Cosmos::Logger.stdout = true
     @channel = channel
     @collection = collection
     @max_batch_size = max_batch_size
@@ -303,11 +304,11 @@ class StreamingThread
   end
 
   def redis_thread_body(topics, offsets, items_by_topic)
-    # STDOUT.puts "#{self.class} redis_thread_body topics:#{topics} offsets:#{offsets} items:#{items_by_topic}"
+    # Cosmos::Logger.debug "#{self.class} redis_thread_body topics:#{topics} offsets:#{offsets} items:#{items_by_topic}"
     results = []
     if topics.length > 0
       rtr = Cosmos::Store.instance.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
-        # STDOUT.puts "read_topics topic:#{topic} id:#{msg_id} msg:#{msg_hash.inspect}"
+        # Cosmos::Logger.debug "read_topics topic:#{topic} offsets:#{offsets} id:#{msg_id} msg time:#{msg_hash['time']}"
         items = items_by_topic[topic]
         items.each do |item|
           item.offset = msg_id
@@ -328,7 +329,7 @@ class StreamingThread
 
       # If we're no longer grabbing packets from the stream (empty result)
       # we check to see if we need to continue
-      # STDOUT.puts "rtr:#{rtr} empty?:#{rtr.empty?} results:#{results} topics:#{topics}"
+      # Cosmos::Logger.debug "rtr:#{rtr} empty?:#{rtr.empty?} results:#{results} topics:#{topics} offsets:#{offsets}"
       if rtr and rtr.empty?
         topics.each do |topic|
           items = items_by_topic[topic]
@@ -397,12 +398,12 @@ class LoggedStreamingThread < StreamingThread
     if @mode == :SETUP
       # Get the newest message because we only stream if there is data after our start time
       _, msg_hash_new = Cosmos::Store.instance.get_newest_message(first_item.topic)
-      # STDOUT.puts "first time:#{first_item.start_time} newest:#{msg_hash_new['time']}"
+      # Cosmos::Logger.debug "first time:#{first_item.start_time} newest:#{msg_hash_new['time']}"
       if msg_hash_new && msg_hash_new['time'].to_i > first_item.start_time
         # Determine oldest timestamp in stream to determine if we need to go to file
         msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_item.topic)
         oldest_time = msg_hash['time'].to_i
-        # STDOUT.puts "first time:#{first_item.start_time} oldest:#{oldest_time}"
+        # Cosmos::Logger.debug "first start time:#{first_item.start_time} oldest:#{oldest_time}"
         if first_item.start_time < oldest_time
           # Stream from Files
           @mode = :FILE
@@ -418,7 +419,7 @@ class LoggedStreamingThread < StreamingThread
         end
       else
         # Since we're not going to transmit anything cancel and transmit an empty result
-        # puts "NO DATA DONE! transmit 0 results"
+        # Cosmos::Logger.debug "NO DATA DONE! transmit 0 results"
         @cancel_thread = true
         transmit_results([], force: true)
       end
@@ -432,9 +433,9 @@ class LoggedStreamingThread < StreamingThread
       file_path = FileCache.instance.reserve_file(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name, first_item.start_time, file_end_time, scope: @scope)
       # puts file_path
       if file_path
-        file_path_split = file_path.split("__")
-        file_start_time = file_path_split[0].to_i
+        file_path_split = File.basename(file_path).split("__")
         file_end_time = file_path_split[1].to_i
+        # Cosmos::Logger.debug("file:#{file_path} end:#{file_end_time}")
 
         # Scan forward to find first packet needed
         # Stream forward until packet > end_time or no more packets
@@ -459,6 +460,7 @@ class LoggedStreamingThread < StreamingThread
         FileCache.instance.unreserve_file(file_path)
         items.each {|item| item.start_time = file_end_time}
       else
+        Cosmos::Logger.info("Switch stream from file to Redis")
         # TODO: What if there is no new data in the Redis stream?
 
         # Switch to stream from Redis
@@ -471,7 +473,8 @@ class LoggedStreamingThread < StreamingThread
           redis_time = msg_id.split('-')[0].to_i * 1000000
           delta = redis_time - oldest_time
           # Start streaming from calculated redis time
-          offset = ((first_item.start_time + delta) / 1000000).to_s + '-0'
+          offset = ((first_item.start_time + delta) / 1_000_000).to_s + '-0'
+          Cosmos::Logger.debug("Oldest Redis id:#{msg_id} msg time:#{oldest_time} last item time:#{first_item.start_time} offset:#{offset}")
           items.each {|item| item.offset = offset}
           @mode = :STREAM
         else
@@ -610,6 +613,8 @@ class StreamingApi
   end
 
   def add(data)
+    # Cosmos::Logger.info "start:#{Time.at(data["start_time"].to_i/1_000_000_000.0).formatted}" if data["start_time"]
+    # Cosmos::Logger.info "end:#{Time.at(data["end_time"].to_i/1_000_000_000.0).formatted}" if data["end_time"]
     @mutex.synchronize do
       start_time = nil
       start_time = data["start_time"].to_i if data["start_time"]

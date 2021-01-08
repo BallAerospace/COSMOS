@@ -65,7 +65,12 @@ module Cosmos
       msg_hash.delete("buffer")
       # TODO: msg_hash['time'] = json_hash['PACKET_TIME_NSEC']
       msg_hash['json_data'] = JSON.generate(json_hash.as_json)
-      Store.instance.write_topic("#{@scope}__DECOM__#{target_name}__#{packet_name}", msg_hash)
+      # NOTE: The final parameter is important! (See DecomLogMicroservice)
+      # It must be greater than the size of a log file to allow the decom_log_microservice
+      # to write and close the previous log file and still have data available
+      # for the streaming_api to switch between a closed log file and the active Redis stream.
+      # TODO: How do we handle various data rates?
+      Store.instance.write_topic("#{@scope}__DECOM__#{target_name}__#{packet_name}", msg_hash, nil, 4000)
     end
 
     # Called when an item in any packet changes limits states.

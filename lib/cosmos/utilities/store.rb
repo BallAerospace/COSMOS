@@ -475,6 +475,7 @@ module Cosmos
         result = redis.xread(topics, offsets, block: timeout_ms)
         if result and result.length > 0
           result.each do |topic, messages|
+            # Logger.info "redis messages len:#{messages.length}"
             messages.each do |msg_id, msg_hash|
               @topic_offsets[topic] = msg_id
               yield topic, msg_id, msg_hash, redis if block_given?
@@ -533,7 +534,6 @@ module Cosmos
       result = []
       @redis_pool.with do |redis|
         tools = redis.hgetall("#{scope}__cosmos_tools")
-        #STDOUT.puts "DUDE: #{tools.inspect}: #{scope}__cosmos_tools"
         tools.each do |tool_name, tool_json|
           tool = JSON.parse(tool_json)
           tool[:name] = tool_name
@@ -544,7 +544,6 @@ module Cosmos
     end
 
     def set_tool(tool_name, tool_data, scope: $cosmos_scope)
-      #STDOUT.puts "Sweet: #{tool_name}: #{scope}__cosmos_tools"
       hset("#{scope}__cosmos_tools", tool_name, JSON.generate(tool_data.as_json))
     end
 

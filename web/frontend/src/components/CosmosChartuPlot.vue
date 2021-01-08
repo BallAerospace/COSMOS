@@ -155,7 +155,7 @@ import DateTimeChooser from './DateTimeChooser'
 import * as ActionCable from 'actioncable'
 import uPlot from 'uplot'
 import bs from 'binary-search'
-import { getTime } from 'date-fns'
+import { toDate, format, getTime } from 'date-fns'
 
 // TODO Is there a better way to import this ... maybe in the style section?
 require('./../../node_modules/uplot/dist/uPlot.min.css')
@@ -310,6 +310,9 @@ export default {
       series: [
         {
           label: 'Time',
+          value: (u, v) =>
+            // Convert the unix timestamp into a formatted date / time
+            v == null ? '--' : format(toDate(v * 1000), 'yyyy-MM-dd HH:mm:ss'),
         },
       ],
       cursor: {
@@ -489,10 +492,13 @@ export default {
   methods: {
     editPlotClose() {
       this.editPlot = false
+
       if (this.plotStartDateTime !== null) {
-        // Convert to COSMOS backend nanoseconds
-        this.plotStartDateTime =
-          new Date(this.plotStartDateTime).getTime() * 1_000_000
+        // Convert to COSMOS backend nanoseconds if necessary
+        if (typeof this.plotStartDateTime === 'string') {
+          this.plotStartDateTime =
+            new Date(this.plotStartDateTime).getTime() * 1_000_000
+        }
         // If they're specifying an end time we're not streaming realtime
         // thus stop any ongoing subscriptions and clear the data
         if (this.plotEndDateTime !== null) {
@@ -504,9 +510,11 @@ export default {
               this.data.splice(i, 0, [])
             }
           }
-          // Convert to COSMOS backend nanoseconds
-          this.plotEndDateTime =
-            new Date(this.plotEndDateTime).getTime() * 1_000_000
+          // Convert to COSMOS backend nanoseconds if necessary
+          if (typeof this.plotEndDateTime === 'string') {
+            this.plotEndDateTime =
+              new Date(this.plotEndDateTime).getTime() * 1_000_000
+          }
           this.subscribe(this.plotEndDateTime)
         } else {
           // No end date given so subscribe using the current start as the end
@@ -581,7 +589,8 @@ export default {
         {
           channel: 'StreamingChannel',
           scope: 'DEFAULT',
-          uuid: Math.random(),
+          start_time: this.plotStartDateTime,
+          end_time: endTime,
         },
         {
           received: (data) => this.received(data),
@@ -602,7 +611,6 @@ export default {
             subscription.perform('add', {
               scope: 'DEFAULT',
               items: items,
-              // startTime is either a valid time or null which means start now
               start_time: this.plotStartDateTime,
               end_time: endTime,
             })
