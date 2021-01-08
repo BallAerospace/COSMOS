@@ -77,8 +77,8 @@ Realtime or offline graphing of any telemetry item.
 
 ![Telemetry Grapher](/img/v5/telemetry_grapher/telemetry_grapher.png)
 
-- One or more telemetry points per plot
-- Spread data across multiple plots
+- One or more telemetry points per graph
+- Spread data across multiple graphs
 - Easily save and restore configurations
 
 ## Data Extractor
