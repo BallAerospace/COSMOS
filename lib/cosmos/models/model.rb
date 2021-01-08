@@ -21,8 +21,8 @@ module Cosmos
     end
 
     def create(update: false, force: false)
-      existing = Store.hget(@primary_key, @name)
       unless force
+        existing = Store.hget(@primary_key, @name)
         if existing
           raise "#{@primary_key}:#{@name} already exists at create" unless update
         else
@@ -30,6 +30,7 @@ module Cosmos
         end
       end
       @updated_at = Time.now.to_nsec_from_epoch
+      STDOUT.puts @primary_key, @name, JSON.generate(self.as_json).to_s
       Store.hset(@primary_key, @name, JSON.generate(self.as_json))
     end
 
@@ -59,11 +60,15 @@ module Cosmos
     def self.from_json(json, scope: nil)
       json = JSON.parse(json) if String === json
       raise "json data is nil" if json.nil?
-      symbolized = {}
-      json.each do |key, value|
-        symbolized[key.intern] = value
-      end
-      self.new(**symbolized, scope: scope)
+      json[:scope] = scope
+      json.transform_keys!(&:to_sym)
+      self.new(**json, scope: scope)
+    end
+
+    def self.set(json, scope:)
+      json[:scope] = scope
+      json.transform_keys!(&:to_sym)
+      self.new(**json).create(force: true)
     end
 
     def self.get(primary_key, name:)

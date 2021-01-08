@@ -8,7 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-require 'cosmos/tools/cmd_tlm_server/api'
+require 'cosmos/api/api'
 require 'cosmos/io/raw_logger_pair'
 
 module Cosmos
@@ -308,7 +308,6 @@ module Cosmos
       config['rxbytes'] = @bytes_read
       config['cmdcnt'] = @write_count
       config['tlmcnt'] = @read_count
-      config['target_names'] = @target_names
       config
     end
 

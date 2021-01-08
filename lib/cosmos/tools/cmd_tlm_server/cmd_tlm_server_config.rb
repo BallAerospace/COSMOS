@@ -9,10 +9,6 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/config/config_parser'
-#require 'cosmos/interfaces'
-#require 'cosmos/tools/cmd_tlm_server/interface_thread'
-#require 'cosmos/packet_logs'
-#require 'cosmos/io/raw_logger_pair'
 
 module Cosmos
   # Reads an ascii file that defines the configuration settings used to

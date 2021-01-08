@@ -120,6 +120,7 @@ module Cosmos
         end
 
         if identified_packet
+          identified_packet.received_count += 1
           identified_packet = identified_packet.clone
           identified_packet.received_time = nil
           identified_packet.stored = false
@@ -150,7 +151,9 @@ module Cosmos
       packet_upcase = packet_name.to_s.upcase
 
       # Lookup the command and create a light weight copy
-      command = packet(target_upcase, packet_upcase).clone
+      pkt = packet(target_upcase, packet_upcase)
+      pkt.received_count += 1
+      command = pkt.clone
 
       # Restore the command's buffer to a zeroed string of defined length
       # This will undo any side effects from earlier commands that may have altered the size

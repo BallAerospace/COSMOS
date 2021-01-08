@@ -14,7 +14,8 @@ module Cosmos
   class RouterMicroservice < InterfaceMicroservice
 
     def handle_packet(packet)
-      Store.instance.set_router(@interface, scope: @scope)
+      @count += 1
+      RouterStatusModel.set(@interface.as_json, scope: @scope)
       if !packet.identified?
         # Need to identify so we can find the target
         identified_packet = System.commands.identify(packet.buffer(false), @target_names)
@@ -22,14 +23,10 @@ module Cosmos
       end
 
       begin
-        if packet.identified?
-          topic = "#{@scope}__CMDTARGET__#{packet.target_name}"
-          write_topic(topic, { 'target_name' => packet.target_name, 'cmd_name' => packet.packet_name, 'cmd_buffer' => packet.buffer(false) })
-        elsif @target_names.length == 1
-          topic = "#{@scope}__CMDTARGET__#{@target_names[0]}"
-          write_topic(topic, { 'target_name' => packet.target_name, 'cmd_name' => 'UNKNOWN', 'cmd_buffer' => packet.buffer(false) })
-        end
+        RouterTopics.route_command(packet, @target_names, scope: @scope)
+        @count += 1
       rescue Exception => err
+        @error = err
         Logger.error "Error routing command from #{@interface.name}\n#{err.formatted}"
       end
     end

@@ -9,17 +9,21 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/microservices/microservice'
+require 'cosmos/topics/topic'
+require 'cosmos/models/cvt_model'
 
 module Cosmos
   class CvtMicroservice < Microservice
     def run
       while true
         break if @cancel_thread
-        Store.instance.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
+        Topic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
           begin
             cvt_data(topic, msg_id, msg_hash, redis)
+            @count += 1
             break if @cancel_thread
           rescue => err
+            @error = err
             Logger.error("Cvt error: #{err.formatted}")
           end
         end
@@ -35,7 +39,7 @@ module Cosmos
       json_hash.each do |key, value|
         updated_json_hash[key] = JSON.generate(value.as_json)
       end
-      @redis.mapped_hmset("#{@scope}__tlm__#{target_name}__#{packet_name}", updated_json_hash)
+      CvtModel.set(updated_json_hash, target_name: target_name, packet_name: packet_name, scope: @scope)
     end
   end
 end

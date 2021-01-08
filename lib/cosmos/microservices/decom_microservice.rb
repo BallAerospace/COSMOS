@@ -9,6 +9,8 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/microservices/microservice'
+require 'cosmos/topics/telemetry_decom_topic'
+require 'cosmos/topics/limits_event_topic'
 
 module Cosmos
   class DecomMicroservice < Microservice
@@ -22,18 +24,19 @@ module Cosmos
       while true
         break if @cancel_thread
         begin
-          Store.instance.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
+          Topic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
             break if @cancel_thread
             decom_packet(topic, msg_id, msg_hash, redis)
+            @count += 1
           end
         rescue => err
+          @error = err
           Logger.error("Decom error: #{err.formatted}")
         end
       end
     end
 
     def decom_packet(topic, msg_id, msg_hash, redis)
-      # TODO: Could also pull this by splitting the topic name?
       target_name = msg_hash["target_name"]
       packet_name = msg_hash["packet_name"]
 
@@ -44,28 +47,7 @@ module Cosmos
       packet.buffer = msg_hash["buffer"]
       packet.check_limits
 
-      # Need to build a JSON hash of the decommutated data
-      # Support "downward typing"
-      # everything base name is RAW (including DERIVED)
-      # Request for WITH_UNITS, etc will look down until it finds something
-      # If nothing - item does not exist - nil
-      # __ as seperators ITEM1, ITEM1__C, ITEM1__F, ITEM1__U
-
-      json_hash = {}
-      packet.sorted_items.each do |item|
-        json_hash[item.name] = packet.read_item(item, :RAW)
-        json_hash[item.name + "__C"] = packet.read_item(item, :CONVERTED) if item.read_conversion or item.states
-        json_hash[item.name + "__F"] = packet.read_item(item, :FORMATTED) if item.format_string
-        json_hash[item.name + "__U"] = packet.read_item(item, :WITH_UNITS) if item.units
-        limits_state = item.limits.state
-        json_hash[item.name + "__L"] = limits_state if limits_state
-      end
-
-      # Write to stream
-      msg_hash.delete("buffer")
-      # TODO: msg_hash['time'] = json_hash['PACKET_TIME_NSEC']
-      msg_hash['json_data'] = JSON.generate(json_hash.as_json)
-      Store.instance.write_topic("#{@scope}__DECOM__#{target_name}__#{packet_name}", msg_hash)
+      TelemetryDecomTopic.write_packet(packet, scope: @scope)
     end
 
     # Called when an item in any packet changes limits states.
@@ -97,21 +79,15 @@ module Cosmos
       end
 
       # The cosmos_limits_events topic can be listened to for all limits events, it is a continuous stream
-      Store.instance.write_topic("#{@scope}__cosmos_limits_events",
-        {type: 'LIMITS_CHANGE', target_name: packet.target_name, packet_name: packet.packet_name,
-          item_name: item.name, old_limits_state: old_limits_state, new_limits_state: item.limits.state,
-          time_nsec: packet_time ? packet_time.to_nsec_from_epoch : Time.now.to_nsec_from_epoch, message: message})
-      # The current_limits hash keeps only the current limits state of items
-      # It is used by the API to determine the overall limits state
-      # TODO: How do we maintain / clean this hash?
-      Store.instance.hset("#{@scope}__current_limits",
-        "#{packet.target_name}__#{packet.packet_name}__#{item.name}",
-        item.limits.state)
+      LimitsEventTopic.write(type: 'LIMITS_CHANGE', target_name: packet.target_name, packet_name: packet.packet_name,
+        item_name: item.name, old_limits_state: old_limits_state, new_limits_state: item.limits.state,
+        time_nsec: packet_time ? packet_time.to_nsec_from_epoch : Time.now.to_nsec_from_epoch, message: message, scope: @scope)
 
       if item.limits.response
         begin
           item.limits.response.call(packet, item, old_limits_state)
         rescue Exception => err
+          @error = err
           Logger.error "#{packet.target_name} #{packet.packet_name} #{item.name} Limits Response Exception!"
           Logger.error "Called with old_state = #{old_limits_state}, new_state = #{item.limits.state}"
           Logger.error err.formatted

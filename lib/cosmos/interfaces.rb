@@ -3,7 +3,6 @@
 module Cosmos
   autoload(:Interface, 'cosmos/interfaces/interface.rb')
   autoload(:StreamInterface, 'cosmos/interfaces/stream_interface.rb')
-  autoload(:CmdTlmServerInterface, 'cosmos/interfaces/cmd_tlm_server_interface.rb')
   autoload(:SerialInterface, 'cosmos/interfaces/serial_interface.rb')
   autoload(:SimulatedTargetInterface, 'cosmos/interfaces/simulated_target_interface.rb')
   autoload(:TcpipClientInterface, 'cosmos/interfaces/tcpip_client_interface.rb')

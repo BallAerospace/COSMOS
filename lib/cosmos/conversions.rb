@@ -3,7 +3,6 @@
 module Cosmos
   autoload(:Conversion, 'cosmos/conversions/conversion.rb')
   autoload(:GenericConversion, 'cosmos/conversions/generic_conversion.rb')
-  autoload(:NewPacketLogConversion, 'cosmos/conversions/new_packet_log_conversion.rb')
   autoload(:PacketTimeFormattedConversion, 'cosmos/conversions/packet_time_formatted_conversion.rb')
   autoload(:PacketTimeSecondsConversion, 'cosmos/conversions/packet_time_seconds_conversion.rb')
   autoload(:PolynomialConversion, 'cosmos/conversions/polynomial_conversion.rb')

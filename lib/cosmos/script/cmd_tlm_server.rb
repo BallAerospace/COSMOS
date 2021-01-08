@@ -189,7 +189,7 @@ module Cosmos
       return $cmd_tlm_server.start_new_server_message_log
     end
 
-    def subscribe_server_messages(queue_size = CmdTlmServer::DEFAULT_SERVER_MESSAGES_QUEUE_SIZE)
+    def subscribe_server_messages(queue_size = 1000)
       return $cmd_tlm_server.subscribe_server_messages(queue_size)
     end
 

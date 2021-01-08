@@ -10,7 +10,6 @@
 
 require 'cosmos'
 require 'cosmos/io/json_drb_object'
-require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server'
 require 'cosmos/script/cmd_tlm_server'
 require 'cosmos/script/replay'
 require 'cosmos/script/commands'
@@ -42,7 +41,7 @@ module Cosmos
     # us to proxy the methods to the API server through the JsonDRbObject.
     def method_missing(method_name, *method_params, **kw_params)
       # Must call shutdown and disconnect on the JsonDRbObject itself
-      # to avoid it being sent to the CmdTlmServer
+      # to avoid it being sent to the API
       case method_name
       when :shutdown
         @cmd_tlm_server.shutdown

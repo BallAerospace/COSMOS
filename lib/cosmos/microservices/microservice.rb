@@ -14,25 +14,58 @@ Cosmos.require_file 'redis'
 Cosmos.require_file 'fileutils'
 Cosmos.require_file 'zip'
 Cosmos.require_file 'zip/filesystem'
-Cosmos.require_file 'cosmos/io/json_rpc'
 Cosmos.require_file 'cosmos/utilities/store'
 Cosmos.require_file 'cosmos/utilities/s3'
+Cosmos.require_file 'cosmos/utilities/sleeper'
+Cosmos.require_file 'cosmos/models/microservice_model'
+Cosmos.require_file 'cosmos/models/microservice_status_model'
 
 module Cosmos
+
   class Microservice
+    attr_accessor :microservice_status_thread
+    attr_accessor :name
+    attr_accessor :state
+    attr_accessor :count
+    attr_accessor :error
+    attr_accessor :custom
+    attr_accessor :scope
+
     def self.run
+      microservice = nil
       begin
         microservice = self.new(ARGV[0])
+        MicroserviceStatusModel.set(microservice.as_json, scope: microservice.scope)
+        microservice.state = 'RUNNING'
         microservice.run
+        microservice.state = 'FINISHED'
       rescue Exception => err
-        unless err.class == SystemExit or err.class == Interrupt
+        if err.class == SystemExit or err.class == Interrupt
+          microservice.state = 'KILLED'
+        else
+          microservice.error = err
+          microservice.state = 'DIED_ERROR'
           Logger.fatal("Microservice #{ARGV[0]} dying from exception\n#{err.formatted}")
         end
+      ensure
+        MicroserviceStatusModel.set(microservice.as_json, scope: microservice.scope)
       end
+    end
+
+    def as_json
+      {
+        'name' => @name,
+        'state' => @state,
+        'count' => @count,
+        'error' => @error.as_json,
+        'custom' => @custom.as_json,
+        'plugin' => @plugin,
+      }
     end
 
     def initialize(name)
       raise "Microservice must be named" unless name
+      @name = name
       split_name = name.split("__")
       raise "Microservice names should be scope, type, and then name" if split_name.length != 3
       @scope = split_name[0]
@@ -44,15 +77,15 @@ module Cosmos
 
       # Create temp folder for this microservice
       @temp_dir = Dir.mktmpdir
-  
+
       # Get microservice configuration from Redis
-      @redis = Redis.new(url: ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0'))
-      @config = @redis.hget("cosmos_microservices", name)
+      @config = MicroserviceModel.get(name: @name, scope: @scope)
       if @config
-        @config = JSON.parse(@config)
         @topics = @config['topics']
+        @plugin = @config['plugin']
       else
         @config = {}
+        @plugin = nil
       end
       Logger.info("Microservice initialized with config:\n#{@config}")
       @topics ||= []
@@ -66,10 +99,26 @@ module Cosmos
       at_exit do
         shutdown()
       end
+
+      @count = 0
+      @error = nil
+      @custom = nil
+      @state = 'INITIALIZED'
+
+      @microservice_sleeper = Sleeper.new
+      @microservice_status_period_seconds = 5
+      @microservice_status_thread = Thread.new do
+        until @cancel_thread
+          MicroserviceStatusModel.set(as_json(), scope: @scope) unless @cancel_thread
+          break if @microservice_sleeper.sleep(@microservice_status_period_seconds)
+        end
+      end
     end
 
     def shutdown
       @cancel_thread = true
+      @microservice_sleeper.cancel
+      MicroserviceStatusModel.set(as_json(), scope: @scope)
       FileUtils.remove_entry(@temp_dir) if File.exists?(@temp_dir)
     end
   end

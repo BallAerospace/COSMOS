@@ -15,6 +15,8 @@ rescue LoadError
   $cosmos_enterprise = false
 end
 
+$cosmos_authorize = false
+
 module Cosmos
 
   class AuthError < StandardError

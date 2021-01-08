@@ -11,6 +11,13 @@
 require 'cosmos/microservices/microservice'
 require 'cosmos/models/interface_model'
 require 'cosmos/models/router_model'
+require 'cosmos/models/interface_status_model'
+require 'cosmos/models/router_status_model'
+require 'cosmos/topics/telemetry_topic'
+require 'cosmos/topics/command_topic'
+require 'cosmos/topics/command_decom_topic'
+require 'cosmos/topics/interface_topics'
+require 'cosmos/topics/router_topics'
 
 module Cosmos
   class InterfaceCmdHandlerThread
@@ -26,13 +33,13 @@ module Cosmos
           run()
         rescue Exception => err
           Logger.error "#{@interface.name}: Command handler thread died: #{err.formatted}"
-          retry # TODO: Better way to re-start this thread? Kill entire microservice and re-start?
+          raise err
         end
       end
     end
 
     def run
-      Store.instance.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
+      InterfaceTopics.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
         # Check for a raw write to the interface
         if topic =~ /CMDINTERFACE/
           if msg_hash['connect']
@@ -82,7 +89,10 @@ module Cosmos
                 command = System.commands.identify(cmd_buffer, @target_names)
               end
               unless command
-                command = Packet.new('UNKNOWN', 'UNKNOWN', cmd_buffer)
+                command = System.commands.packet('UNKNOWN', 'UNKNOWN')
+                command.received_count += 1
+                command = command.clone
+                command.buffer = cmd_buffer
               end
             else
               raise "Invalid command received:\n #{msg_hash}"
@@ -103,38 +113,10 @@ module Cosmos
 
           begin
             @interface.write(command)
-            # TODO: Apparently build_cmd doesn't set received_count so figure it out here
-            topic = "#{@scope}__COMMAND__#{command.target_name}__#{command.packet_name}"
-            id, packet = Store.instance.read_topic_last(topic)
-            count = packet ? packet["received_count"].to_i : 0
-
-            msg_hash = { time: command.received_time.to_nsec_from_epoch,
-                        target_name: command.target_name,
-                        packet_name: command.packet_name,
-                        received_count: count + 1,
-                        buffer: command.buffer(false) }
-            Store.instance.write_topic(topic, msg_hash)
-
-            json_hash = {}
-            command.sorted_items.each do |item|
-              json_hash[item.name] = command.read_item(item, :RAW)
-              json_hash[item.name + "__C"] = command.read_item(item, :CONVERTED) if item.write_conversion or item.states
-              json_hash[item.name + "__F"] = command.read_item(item, :FORMATTED) if item.format_string
-              json_hash[item.name + "__U"] = command.read_item(item, :WITH_UNITS) if item.units
-            end
-            msg_hash.delete("buffer")
-            msg_hash['json_data'] = JSON.generate(json_hash.as_json)
-            Store.instance.write_topic("#{@scope}__DECOMCMD__#{command.target_name}__#{command.packet_name}", msg_hash)
-            Store.instance.set_interface(@interface, scope: @scope)
-
-            # Update target
-            target = System.targets[command.target_name]
-            if target
-              target.cmd_cnt += 1
-              #Store.instance.set_target(target, scope: @scope)
-            end
-
-            'SUCCESS'
+            CommandTopic.write_packet(command, scope: @scope)
+            CommandDecomTopic.write_packet(command, scope: @scope)
+            InterfaceStatusModel.set(@interface.as_json, scope: @scope)
+            next 'SUCCESS'
           rescue => e
             Logger.error "#{@interface.name}: #{e.formatted}"
             next e.message
@@ -160,13 +142,13 @@ module Cosmos
           run()
         rescue Exception => err
           Logger.error "#{@router.name}: Telemetry handler thread died: #{err.formatted}"
-          retry # TODO: Better way to re-start this thread? Kill entire microservice and re-start?
+          raise err
         end
       end
     end
 
     def run
-      Store.instance.receive_telemetry(@router, scope: @scope) do |topic, msg_hash|
+      RouterTopics.receive_telemetry(@router, scope: @scope) do |topic, msg_hash|
         # Check for commands to the router itself
         if topic =~ /CMDROUTER/
           if msg_hash['connect']
@@ -191,8 +173,8 @@ module Cosmos
 
         begin
           @router.write(packet)
-          Store.instance.set_router(@router, scope: @scope)
-          'SUCCESS'
+          RouterStatusModel.set(@router.as_json, scope: @scope)
+          next 'SUCCESS'
         rescue => e
           Logger.error "#{@router.name}: #{e.formatted}"
           next e.message
@@ -210,16 +192,15 @@ module Cosmos
       @scope = name.split("__")[0]
       interface_name = name.split("__")[2]
       if @interface_or_router == 'INTERFACE'
-        @interface = InterfaceModel.from_json(InterfaceModel.get(name: interface_name, scope: @scope), scope: @scope).build
+        @interface = InterfaceModel.get_model(name: interface_name, scope: @scope).build
       else
-        @interface = RouterModel.from_json(RouterModel.get(name: interface_name, scope: @scope), scope: @scope).build
+        @interface = RouterModel.get_model(name: interface_name, scope: @scope).build
       end
       @interface.name = interface_name
       @config["target_names"].each do |target_name|
         @interface.target_names << target_name
         target = System.targets[target_name]
         target.interface = @interface
-        #Store.instance.set_target(target, scope: @scope) if target
       end
       if @interface.connect_on_startup
         @interface.state = 'ATTEMPTING'
@@ -227,9 +208,9 @@ module Cosmos
         @interface.state = 'DISCONNECTED'
       end
       if @interface_or_router == 'INTERFACE'
-        Store.instance.set_interface(@interface, initialize: true, scope: @scope)
+        InterfaceStatusModel.set(@interface.as_json, scope: @scope)
       else
-        Store.instance.set_router(@interface, initialize: true, scope: @scope)
+        RouterStatusModel.set(@interface.as_json, scope: @scope)
       end
 
       @interface_thread_sleeper = Sleeper.new
@@ -250,9 +231,9 @@ module Cosmos
     def attempting()
       @interface.state = 'ATTEMPTING'
       if @interface_or_router == 'INTERFACE'
-        Store.instance.set_interface(@interface, initialize: true, scope: @scope)
+        InterfaceStatusModel.set(@interface.as_json, scope: @scope)
       else
-        Store.instance.set_router(@interface, initialize: true, scope: @scope)
+        RouterStatusModel.set(@interface.as_json, scope: @scope)
       end
     end
 
@@ -285,6 +266,7 @@ module Cosmos
                 packet = @interface.read
                 if packet
                   handle_packet(packet)
+                  @count += 1
                 else
                   Logger.info "#{@interface.name}: Clean disconnect (returned nil)"
                   # Don't reconnect on a clean disconnect because it's intentional
@@ -306,15 +288,15 @@ module Cosmos
         Cosmos.handle_fatal_exception(error)
       end
       if @interface_or_router == 'INTERFACE'
-        Store.instance.set_interface(@interface, scope: @scope)
+        InterfaceStatusModel.set(@interface.as_json, scope: @scope)
       else
-        Store.instance.set_router(@interface, scope: @scope)
+        RouterStatusModel.set(@interface.as_json, scope: @scope)
       end
       Logger.info "#{@interface.name}: Stopped packet reading"
     end
 
     def handle_packet(packet)
-      Store.instance.set_interface(@interface, scope: @scope)
+      InterfaceStatusModel.set(@interface.as_json, scope: @scope)
       packet.received_time = Time.now.sys unless packet.received_time
 
       if packet.stored
@@ -365,22 +347,9 @@ module Cosmos
         Logger.error string
       end
 
-      # Update target
-      target = System.targets[packet.target_name]
-      if target
-        target.tlm_cnt += 1
-        #Store.instance.set_target(target, scope: @scope)
-      end
-
       # Write to stream
       packet.received_count += 1
-      msg_hash = { time: packet.received_time.to_nsec_from_epoch,
-                   stored: packet.stored,
-                   target_name: packet.target_name,
-                   packet_name: packet.packet_name,
-                   received_count: packet.received_count,
-                   buffer: packet.buffer(false) }
-      Store.instance.write_topic("#{@scope}__TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
+      TelemetryTopic.write_packet(packet, scope: @scope)
     end
 
     def inject_tlm(hash)
@@ -394,6 +363,7 @@ module Cosmos
     end
 
     def handle_connection_failed(connect_error)
+      @error = connect_error
       Logger.error "#{@interface.name}: Connection Failed: #{connect_error.formatted(false, false)}"
       case connect_error
       when Interrupt
@@ -417,6 +387,7 @@ module Cosmos
 
     def handle_connection_lost(err = nil, reconnect: true)
       if err
+        @error = err
         Logger.info "#{@interface.name}: Connection Lost: #{err.formatted(false, false)}"
         case err
         when Interrupt
@@ -442,9 +413,9 @@ module Cosmos
       @interface.connect
       @interface.state = 'CONNECTED'
       if @interface_or_router == 'INTERFACE'
-        Store.instance.set_interface(@interface, scope: @scope)
+        InterfaceStatusModel.set(@interface.as_json, scope: @scope)
       else
-        Store.instance.set_router(@interface, scope: @scope)
+        RouterStatusModel.set(@interface.as_json, scope: @scope)
       end
       Logger.info "#{@interface.name}: Connection Success"
     end
@@ -462,9 +433,9 @@ module Cosmos
       else
         @interface.state = 'DISCONNECTED'
         if @interface_or_router == 'INTERFACE'
-          Store.instance.set_interface(@interface, scope: @scope)
+          InterfaceStatusModel.set(@interface.as_json, scope: @scope)
         else
-          Store.instance.set_router(@interface, scope: @scope)
+          RouterStatusModel.set(@interface.as_json, scope: @scope)
         end
       end
     end
@@ -479,9 +450,9 @@ module Cosmos
         @interface.disconnect
         @interface.state = 'DISCONNECTED'
         if @interface_or_router == 'INTERFACE'
-          Store.instance.set_interface(@interface, scope: @scope)
+          InterfaceStatusModel.set(@interface.as_json, scope: @scope)
         else
-          Store.instance.set_router(@interface, scope: @scope)
+          RouterStatusModel.set(@interface.as_json, scope: @scope)
         end
       end
       Cosmos.kill_thread(self, @interface_thread) if @interface_thread and @interface_thread != Thread.current
