@@ -4,6 +4,12 @@
       <v-list-item v-for="microservice in microservices" :key="microservice">
         <v-list-item-content>
           <v-list-item-title v-text="microservice"></v-list-item-title>
+          <v-list-item-subtitle v-if="microservice_status[microservice]"
+            >Updated: {{ microservice_status[microservice].updated_at }}, State:
+            {{ microservice_status[microservice].state }}, Count:
+            {{ microservice_status[microservice].count }}, Error:
+            {{ microservice_status[microservice].error }}
+          </v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
@@ -20,6 +26,7 @@
         </v-list-item-icon>
       </v-list-item>
     </v-list>
+
     <v-alert
       :type="alertType"
       v-model="showAlert"
@@ -37,6 +44,7 @@ export default {
   data() {
     return {
       microservices: [],
+      microservice_status: {},
       alert: '',
       alertType: 'success',
       showAlert: false,
@@ -48,11 +56,26 @@ export default {
   methods: {
     update() {
       axios
-        .get('http://localhost:7777/microservices', {
+        .get('http://localhost:7777/microservice_status/all', {
           params: { scope: 'DEFAULT' },
         })
         .then((response) => {
-          this.microservices = response.data
+          this.microservice_status = response.data
+          axios
+            .get('http://localhost:7777/microservices', {
+              params: { scope: 'DEFAULT' },
+            })
+            .then((response) => {
+              this.microservices = response.data
+            })
+            .catch((error) => {
+              this.alert = error
+              this.alertType = 'error'
+              this.showAlert = true
+              setTimeout(() => {
+                this.showAlert = false
+              }, 5000)
+            })
         })
         .catch((error) => {
           this.alert = error

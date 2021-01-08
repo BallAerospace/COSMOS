@@ -40,6 +40,7 @@ module Cosmos
           # This typically means the target disconnected
         rescue Exception => err
           Logger.error "Polling Thread Unexpectedly Died.\n#{err.formatted}"
+          raise err
         end
       end
     end

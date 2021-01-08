@@ -68,7 +68,6 @@ module Cosmos
       result
     end
 
-
     def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
       case keyword
       when 'MICROSERVICE'

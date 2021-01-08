@@ -114,9 +114,7 @@ module Cosmos
 
     # @param hostname [String] The host to start the service on
     # @param port [Integer] The port number to listen for connections
-    # @param object [Object] The object to send the DRb requests to. This
-    #   object must either include the Cosmos::Script module or be the
-    #   CmdTlmServer.
+    # @param object [Object] The object to send the DRb requests to.
     def start_service(hostname = nil, port = nil, object = nil, max_threads = 1000)
       server_started = false
       @server_mutex.synchronize do
@@ -165,7 +163,7 @@ module Cosmos
             end
 
           # The address in use error is pretty typical if an existing
-          # CmdTlmServer is running so explicitly rescue this
+          # server is running so explicitly rescue this
           rescue Errno::EADDRINUSE
             @server = nil
             raise "Error binding to port #{port}.\n" +

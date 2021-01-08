@@ -12,8 +12,6 @@ require 'redis'
 require 'json'
 require 'thread'
 require 'connection_pool'
-require 'cosmos/config/config_parser'
-require 'cosmos/io/json_rpc'
 
 module Cosmos
   class Store
@@ -47,58 +45,6 @@ module Cosmos
       @overrides = {}
     end
 
-    def get_interfaces(scope: $cosmos_scope)
-      result = []
-      @redis_pool.with do |redis|
-        interfaces = redis.hgetall("#{scope}__cosmos_interface_status")
-        interfaces.each do |interface_name, interface_json|
-          result << JSON.parse(interface_json)
-        end
-      end
-      result
-    end
-
-    def get_routers(scope: $cosmos_scope)
-      result = []
-      @redis_pool.with do |redis|
-        routers = redis.hgetall("#{scope}__cosmos_router_status")
-        routers.each do |router_name, router_json|
-          result << JSON.parse(router_json)
-        end
-      end
-      result
-    end
-
-    def get_interface(interface_name, scope: $cosmos_scope)
-      @redis_pool.with do |redis|
-        if redis.hexists("#{scope}__cosmos_interface_status", interface_name)
-          return JSON.parse(redis.hget("#{scope}__cosmos_interface_status", interface_name))
-        else
-          raise "Interface '#{interface_name}' does not exist"
-        end
-      end
-    end
-
-    def set_interface(interface, initialize: false, scope: $cosmos_scope)
-      @redis_pool.with do |redis|
-        if initialize || redis.hexists("#{scope}__cosmos_interface_status", interface.name)
-          return redis.hset("#{scope}__cosmos_interface_status", interface.name, JSON.generate(interface.as_json))
-        else
-          raise "Interface '#{interface.name}' does not exist"
-        end
-      end
-    end
-
-    def set_router(router, initialize: false, scope: $cosmos_scope)
-      @redis_pool.with do |redis|
-        if initialize || redis.hexists("#{scope}__cosmos_router_status", router.name)
-          return redis.hset("#{scope}__cosmos_router_status", router.name, JSON.generate(router.as_json))
-        else
-          raise "Router '#{router.name}' does not exist"
-        end
-      end
-    end
-
     def write_interface(interface_name, hash, scope: $cosmos_scope)
       @redis_pool.with do |redis|
         if redis.hexists("#{scope}__cosmos_interface_status", interface_name)
@@ -118,11 +64,13 @@ module Cosmos
       cmd_packet_exist?(target_name, cmd_name, scope: scope)
       topic = "#{scope}__CMDTARGET__#{target_name}"
       ack_topic = "#{scope}__ACKCMDTARGET__#{target_name}"
+      update_topic_offsets([ack_topic])
       cmd_id = write_topic(topic, { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
       (timeout_ms / 100).times do
+        Logger.info "waiting for #{ack_topic}"
         read_topics([ack_topic], nil, 100) do |topic, msg_id, msg_hash, redis|
-          if msg_id == cmd_id
-            #Logger.info "Ack Received: #{msg_id}: #{msg_hash.inspect}"
+          if msg_hash["id"] == cmd_id
+            # Logger.debug "Ack Received: #{msg_id}: #{msg_hash.inspect}"
             if msg_hash["result"] == "SUCCESS"
               return
             # Check for HazardousError which is a special case
@@ -144,44 +92,6 @@ module Cosmos
         end
       end
       raise "Timeout waiting for cmd ack"
-    end
-
-    def receive_commands(interface, scope: $cosmos_scope)
-      topics = []
-      topics << "#{scope}__CMDINTERFACE__#{interface.name}"
-      interface.target_names.each do |target_name|
-        topics << "#{scope}__CMDTARGET__#{target_name}"
-      end
-      while true
-        read_topics(topics) do |topic, msg_id, msg_hash, redis|
-          result = yield topic, msg_hash
-          ack_topic = topic.split("__")
-          ack_topic[1] = 'ACK' + ack_topic[1]
-          ack_topic = ack_topic.join("__")
-          write_topic(ack_topic, { 'result' => result }, msg_id)
-        end
-      end
-    end
-
-    def receive_telemetry(router, scope: $cosmos_scope)
-      topics = []
-      topics << "#{scope}__CMDROUTER__#{router.name}"
-      router.target_names.each do |target_name|
-        System.telemetry.packets(target_name).each do |packet_name, packet|
-          topics << "#{@scope}__TELEMETRY__#{packet.target_name}__#{packet.packet_name}"
-        end
-      end
-      while true
-        read_topics(topics) do |topic, msg_id, msg_hash, redis|
-          result = yield topic, msg_hash
-          if topic =~ /CMDROUTER/
-            ack_topic = topic.split("__")
-            ack_topic[1] = 'ACK' + ack_topic[1]
-            ack_topic = ack_topic.join("__")
-            write_topic(ack_topic, { 'result' => result }, msg_id)
-          end
-        end
-      end
     end
 
     def get_tlm_values(items, scope: $cosmos_scope)
@@ -452,44 +362,6 @@ module Cosmos
       end
     end
 
-    def read_topics(topics, offsets = nil, timeout_ms = 1000)
-      # Logger.info("read_topics: #{topics}, #{offsets}")
-      # puts "read_topics:#{topics}"
-      @redis_pool.with do |redis|
-        unless offsets
-          offsets = []
-          topics.each do |topic|
-            # Normally we will just be grabbing the topic offset
-            # this allows xread to get everything past this point
-            last_id = @topic_offsets[topic]
-            if last_id
-              offsets << last_id
-            else
-              # If there is no topic offset this is the first call.
-              # Get the last offset ID so we'll start getting everything from now on
-              offsets << get_last_offset(topic)
-              @topic_offsets[topic] = offsets[-1]
-            end
-          end
-        end
-        result = redis.xread(topics, offsets, block: timeout_ms)
-        if result and result.length > 0
-          result.each do |topic, messages|
-            # Logger.info "redis messages len:#{messages.length}"
-            messages.each do |msg_id, msg_hash|
-              @topic_offsets[topic] = msg_id
-              yield topic, msg_id, msg_hash, redis if block_given?
-            end
-          end
-        end
-        # puts "result:#{result}" if result and result.length > 0
-        return result
-      end
-    end
-
-    # cur_time = (Time.now.to_f * 1000).to_i
-    # result = redis.xrevrange(topic, cur_time , cur_time, count: 1)
-
     def read_topic_last(topic)
       @redis_pool.with do |redis|
         result = redis.xrevrange(topic, '+', '-', count: 1)
@@ -510,17 +382,6 @@ module Cosmos
       end
     end
 
-    def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
-      # puts "write_topic topic:#{topic} id:#{id}"#" hash:#{msg_hash}"
-      @redis_pool.with do |redis|
-        if id
-          return redis.xadd(topic, msg_hash, id: id, maxlen: maxlen, approximate: approximate)
-        else
-          return redis.xadd(topic, msg_hash, maxlen: maxlen, approximate: approximate)
-        end
-      end
-    end
-
     def decrement_id(id)
       time, sequence = id.split('-')
       if sequence == '0'
@@ -529,60 +390,6 @@ module Cosmos
         "#{time}-#{sequence.to_i - 1}"
       end
     end
-
-    def get_tools(scope: $cosmos_scope)
-      result = []
-      @redis_pool.with do |redis|
-        tools = redis.hgetall("#{scope}__cosmos_tools")
-        tools.each do |tool_name, tool_json|
-          tool = JSON.parse(tool_json)
-          tool[:name] = tool_name
-          result << tool
-        end
-      end
-      result
-    end
-
-    def set_tool(tool_name, tool_data, scope: $cosmos_scope)
-      hset("#{scope}__cosmos_tools", tool_name, JSON.generate(tool_data.as_json))
-    end
-
-    def remove_tool(tool_name, scope: $cosmos_scope)
-      hdel("#{scope}__cosmos_tools", tool_name)
-    end
-
-    def get_microservice_names(scope: $cosmos_scope)
-      result = []
-      @redis_pool.with do |redis|
-        keys = redis.hkeys("cosmos_microservices")
-        keys.each do |key|
-          if scope.nil? or key[0..(scope.length + 2)] == "#{scope}__"
-            result << key
-          end
-        end
-      end
-      result
-    end
-
-    def get_microservice(microservice_name, scope: $cosmos_scope)
-      @redis_pool.with do |redis|
-        if redis.hexists("cosmos_microservices", microservice_name)
-          return JSON.parse(redis.hget("cosmos_microservices", microservice_name))
-        else
-          raise "Microservice '#{microservice_name}' does not exist"
-        end
-      end
-    end
-
-    def set_microservice(microservice_name, data, scope: $cosmos_scope)
-      hset("cosmos_microservices", microservice_name, JSON.generate(data.as_json))
-    end
-
-    def remove_microservice(microservice_name, scope: $cosmos_scope)
-      hdel("cosmos_microservices", microservice_name)
-    end
-
-    # These are low level methods that should only be used as a last resort or for testing
 
     def self.get(*args)
       self.instance.get(*args)
@@ -631,6 +438,18 @@ module Cosmos
     end
     def self.smembers(key)
       self.instance.smembers(key)
+    end
+    def self.update_topic_offsets(topics)
+      self.instance.update_topic_offsets(topics)
+    end
+    def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
+      self.instance.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
+    end
+    def self.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
+      self.instance.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
+    end
+    def self.mapped_hmset(key, hash)
+      self.instance.mapped_hmset(key, hash)
     end
 
     def get(*args)
@@ -681,5 +500,58 @@ module Cosmos
     def smembers(key)
       @redis_pool.with { |redis| return redis.smembers(key) }
     end
+    def mapped_hmset(key, hash)
+      @redis_pool.with { |redis| return redis.mapped_hmset(key, hash) }
+    end
+
+    def update_topic_offsets(topics)
+      @redis_pool.with do |redis|
+        offsets = []
+        topics.each do |topic|
+          # Normally we will just be grabbing the topic offset
+          # this allows xread to get everything past this point
+          last_id = @topic_offsets[topic]
+          if last_id
+            offsets << last_id
+          else
+            # If there is no topic offset this is the first call.
+            # Get the last offset ID so we'll start getting everything from now on
+            offsets << get_last_offset(topic)
+            @topic_offsets[topic] = offsets[-1]
+          end
+        end
+        return offsets
+      end
+    end
+
+    def read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
+      # Logger.debug "read_topics: #{topics}, #{offsets}"
+      @redis_pool.with do |redis|
+        offsets = update_topic_offsets(topics) unless offsets
+        result = redis.xread(topics, offsets, block: timeout_ms)
+        if result and result.length > 0
+          result.each do |topic, messages|
+            messages.each do |msg_id, msg_hash|
+              @topic_offsets[topic] = msg_id
+              yield topic, msg_id, msg_hash, redis if block_given?
+            end
+          end
+        end
+        # puts "result:#{result}" if result and result.length > 0
+        return result
+      end
+    end
+
+    def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
+      # Logger.debug "write_topic topic:#{topic} id:#{id}"#" hash:#{msg_hash}"
+      @redis_pool.with do |redis|
+        if id
+          return redis.xadd(topic, msg_hash, id: id, maxlen: maxlen, approximate: approximate)
+        else
+          return redis.xadd(topic, msg_hash, maxlen: maxlen, approximate: approximate)
+        end
+      end
+    end
+
   end
 end

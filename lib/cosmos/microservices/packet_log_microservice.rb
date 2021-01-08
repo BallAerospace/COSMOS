@@ -9,6 +9,7 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/microservices/microservice'
+require 'cosmos/topics/topic'
 
 module Cosmos
   class PacketLogMicroservice < Microservice
@@ -24,15 +25,16 @@ module Cosmos
       end
       while true
         break if @cancel_thread
-        Store.instance.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
+        Topic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
           begin
             break if @cancel_thread
             topic_split = topic.split("__")
             target_name = topic_split[2]
             packet_name = topic_split[3]
-
             plws[topic].write(:RAW_PACKET, :TLM, target_name, packet_name, msg_hash["time"].to_i, ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["buffer"], nil)
+            @count += 1
           rescue => err
+            @error = err
             Logger.error("PacketLog error: #{err.formatted}")
           end
         end

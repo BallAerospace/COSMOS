@@ -9,3 +9,14 @@
 # attribution addendums as found in the LICENSE.txt
 
 require 'cosmos/api/api'
+
+module Cosmos
+  module AuthorizedApi
+    include Api
+
+    def self.included(base)
+      $cosmos_authorize = true
+    end
+
+  end
+end

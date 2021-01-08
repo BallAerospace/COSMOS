@@ -44,7 +44,7 @@ class ApiController < ApplicationController
   def handle_post(request)
     request_data = request.body.read
     start_time = Time.now.sys
-    response_data, error_code = Cosmos::CmdTlmServer.instance.json_drb.process_request(request_data, start_time)
+    response_data, error_code = Cosmos::Cts.instance.json_drb.process_request(request_data, start_time)
 
     # Convert json error code into html status code
     # see http://www.jsonrpc.org/historical/json-rpc-over-http.html#errors
@@ -58,6 +58,11 @@ class ApiController < ApplicationController
         when Cosmos::JsonRpcError::ErrorCode::AUTH_ERROR       then status = 401
         when Cosmos::JsonRpcError::ErrorCode::FORBIDDEN_ERROR  then status = 403
         else status = 500 # Internal server error
+      end
+      parsed = JSON.parse(response_data)
+      if parsed["error"]
+        Rails.logger.error "\n#{parsed['error']['data']['class']} : #{parsed['error']['data']['message']}\n"
+        Rails.logger.error parsed['error']['data']['backtrace'].join("\n")
       end
     else
       status = 200 # OK

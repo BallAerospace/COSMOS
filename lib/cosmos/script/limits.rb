@@ -106,7 +106,7 @@ module Cosmos
       result.to_s.intern
     end
 
-    def subscribe_limits_events(queue_size = CmdTlmServer::DEFAULT_LIMITS_EVENT_QUEUE_SIZE)
+    def subscribe_limits_events(queue_size = 1000)
       return $cmd_tlm_server.subscribe_limits_events(queue_size)
     end
 

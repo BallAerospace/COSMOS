@@ -10,7 +10,7 @@
 
 # This file implements a class to handle responses to limits state changes.
 
-require 'cosmos/tools/cmd_tlm_server/api'
+require 'cosmos/api/api'
 
 module Cosmos
   # This class defines a #call method which is called when a PacketItem

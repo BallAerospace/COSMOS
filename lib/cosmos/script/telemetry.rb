@@ -174,7 +174,7 @@ module Cosmos
     # use in get_packet_data and unsubscribe_packet_data.
     # Usage:
     #   id = subscribe_packet_data([[target_name,packet_name], ...], <queue_size>)
-    def subscribe_packet_data(packets, queue_size = CmdTlmServer::DEFAULT_PACKET_DATA_QUEUE_SIZE)
+    def subscribe_packet_data(packets, queue_size = 1000)
       $cmd_tlm_server.subscribe_packet_data(packets, queue_size)
     end
 

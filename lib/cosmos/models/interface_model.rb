@@ -183,8 +183,7 @@ module Cosmos
     def self.names(scope: nil)
       interface_or_router = self.name.to_s.split("Model")[0].upcase.split("::")[-1]
       if interface_or_router == 'INTERFACE'
-        result = super("#{scope}__#{INTERFACES_PRIMARY_KEY}")
-        result
+        super("#{scope}__#{INTERFACES_PRIMARY_KEY}")
       else
         super("#{scope}__#{ROUTERS_PRIMARY_KEY}")
       end
