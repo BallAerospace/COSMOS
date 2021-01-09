@@ -49,7 +49,6 @@ module Cosmos
         end
       end
       @updated_at = Time.now.to_nsec_from_epoch
-      STDOUT.puts @primary_key, @name, JSON.generate(self.as_json).to_s
       Store.hset(@primary_key, @name, JSON.generate(self.as_json))
     end
 

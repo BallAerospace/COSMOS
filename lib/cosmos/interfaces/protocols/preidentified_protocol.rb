@@ -18,11 +18,13 @@
 # copyright holder
 
 require 'cosmos/interfaces/protocols/burst_protocol'
-require 'cosmos/packet_logs/packet_log_reader'
 
 module Cosmos
   # Delineates packets using the COSMOS preidentification system
   class PreidentifiedProtocol < BurstProtocol
+
+    COSMOS4_STORED_FLAG_MASK = 0x80
+    COSMOS4_EXTRA_FLAG_MASK = 0x40
 
     # @param sync_pattern (see BurstProtocol#initialize)
     # @param max_length [Integer] The maximum allowed value of the length field
@@ -61,10 +63,10 @@ module Cosmos
       @write_packet_name = 'UNKNOWN' unless @write_packet_name
       if @mode == 4 # COSMOS4.3+ Protocol
         @write_flags = 0
-        @write_flags |= PacketLogReader::COSMOS4_STORED_FLAG_MASK if packet.stored
+        @write_flags |= COSMOS4_STORED_FLAG_MASK if packet.stored
         @write_extra = nil
         if packet.extra
-          @write_flags |= PacketLogReader::COSMOS4_EXTRA_FLAG_MASK
+          @write_flags |= COSMOS4_EXTRA_FLAG_MASK
           @write_extra = packet.extra.to_json
         end
       end
@@ -141,9 +143,9 @@ module Cosmos
         flags = @data[0].unpack('C')[0] # byte
         @data.replace(@data[1..-1])
         @read_stored = false
-        @read_stored = true if (flags & PacketLogReader::COSMOS4_STORED_FLAG_MASK) != 0
+        @read_stored = true if (flags & COSMOS4_STORED_FLAG_MASK) != 0
         @read_extra = nil
-        if (flags & PacketLogReader::COSMOS4_EXTRA_FLAG_MASK) != 0
+        if (flags & COSMOS4_EXTRA_FLAG_MASK) != 0
           @reduction_state = :NEED_EXTRA
         else
           @reduction_state = :FLAGS_REMOVED

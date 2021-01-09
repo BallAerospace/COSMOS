@@ -19,6 +19,7 @@
 
 require 'cosmos/models/router_model'
 require 'cosmos/models/router_status_model'
+require 'cosmos/topics/router_topics'
 
 module Cosmos
   module Api
@@ -46,8 +47,7 @@ module Cosmos
     # @param params [Array] Parameters to pass to the router.
     def connect_router(router_name, *params, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', router_name: router_name, scope: scope, token: token)
-      CmdTlmServer.routers.connect(router_name, *params)
-      nil
+      RouterTopics.connect_router(router_name, scope: scope)
     end
 
     # Disconnects a router and kills its command gathering thread
@@ -55,8 +55,7 @@ module Cosmos
     # @param router_name (see #connect_router)
     def disconnect_router(router_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', router_name: router_name, scope: scope, token: token)
-      CmdTlmServer.routers.disconnect(router_name)
-      nil
+      RouterTopics.disconnect_router(router_name, scope: scope)
     end
 
     # @param router_name (see #connect_router)
@@ -64,9 +63,8 @@ module Cosmos
     #   'ATTEMPTING' or 'DISCONNECTED'.
     def router_state(router_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', router_name: router_name, scope: scope, token: token)
-      CmdTlmServer.routers.state(router_name)
+      RouterStatusModel.get(name: router_name, scope: scope)['state']
     end
-
 
     # Get information about a router
     #
@@ -77,7 +75,9 @@ module Cosmos
     #   Pkts sent] for the router
     def get_router_info(router_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', router_name: router_name, scope: scope, token: token)
-      RouterStatusModel.get(name: router_name, scope: scope)
+      int = RouterStatusModel.get(name: router_name, scope: scope)
+      return [int['state'], int['clients'], int['txsize'], int['rxsize'],
+              int['txbytes'], int['rxbytes'], int['rxcnt'], int['txcnt']]
     end
 
     # Get information about all routers
@@ -89,9 +89,9 @@ module Cosmos
     def get_all_router_info(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', scope: scope, token: token)
       info = []
-      Store.instance.get_routers(scope: scope).each do |int|
+      RouterStatusModel.all(scope: scope).each do |int_name, int|
         info << [int['name'], int['state'], int['clients'], int['txsize'], int['rxsize'],\
-                  int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
+                  int['txbytes'], int['rxbytes'], int['rxcnt'], int['txcnt']]
       end
       info.sort! {|a,b| a[0] <=> b[0] }
       info

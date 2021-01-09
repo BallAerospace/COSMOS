@@ -50,7 +50,7 @@ module Cosmos
     def run
       InterfaceTopics.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
         # Check for a raw write to the interface
-        if topic =~ /CMDINTERFACE/
+        if topic =~ /CMDINTERFACE/ or topic =~ /CMDROUTER/
           if msg_hash['connect']
             Logger.info "#{@interface.name}: Connect requested"
             @tlm.attempting()
@@ -171,22 +171,24 @@ module Cosmos
           next 'SUCCESS'
         end
 
-        target_name = msg_hash["target_name"]
-        packet_name = msg_hash["packet_name"]
+        if @router.connected?
+          target_name = msg_hash["target_name"]
+          packet_name = msg_hash["packet_name"]
 
-        packet = System.telemetry.packet(target_name, packet_name)
-        packet.stored = ConfigParser.handle_true_false(msg_hash["stored"])
-        packet.received_time = Time.from_nsec_from_epoch(msg_hash["time"].to_i)
-        packet.received_count = msg_hash["received_count"].to_i
-        packet.buffer = msg_hash["buffer"]
+          packet = System.telemetry.packet(target_name, packet_name)
+          packet.stored = ConfigParser.handle_true_false(msg_hash["stored"])
+          packet.received_time = Time.from_nsec_from_epoch(msg_hash["time"].to_i)
+          packet.received_count = msg_hash["received_count"].to_i
+          packet.buffer = msg_hash["buffer"]
 
-        begin
-          @router.write(packet)
-          RouterStatusModel.set(@router.as_json, scope: @scope)
-          next 'SUCCESS'
-        rescue => e
-          Logger.error "#{@router.name}: #{e.formatted}"
-          next e.message
+          begin
+            @router.write(packet)
+            RouterStatusModel.set(@router.as_json, scope: @scope)
+            next 'SUCCESS'
+          rescue => e
+            Logger.error "#{@router.name}: #{e.formatted}"
+            next e.message
+          end
         end
       end
     end

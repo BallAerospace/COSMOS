@@ -31,19 +31,24 @@
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
-        <v-list-item
-          v-for="(tool, name) in appNav"
-          :key="name"
-          :href="tool.url"
-          target="_blank"
-        >
-          <v-list-item-icon>
-            <v-icon>{{ tool.icon }}</v-icon>
-          </v-list-item-icon>
+        <v-list-item v-for="(tool, name) in appNav" :key="name">
+          <router-link :to="tool.url">
+            <v-list-item-icon>
+              <v-icon>{{ tool.icon }}</v-icon>
+            </v-list-item-icon>
+          </router-link>
 
           <v-list-item-content>
-            <v-list-item-title>{{ name }}</v-list-item-title>
+            <router-link :to="tool.url">
+              <v-list-item-title>{{ name }}</v-list-item-title>
+            </router-link>
           </v-list-item-content>
+
+          <v-list-item-icon>
+            <a :href="tool.url" target="_blank"
+              ><v-icon>mdi-arrow-top-right-thin-circle-outline</v-icon></a
+            >
+          </v-list-item-icon>
         </v-list-item>
       </v-list>
 
@@ -172,5 +177,8 @@ export default {
 .v-list-item__icon {
   /* For some reason the default margin-right is huge */
   margin-right: 15px !important;
+}
+.v-list-item__title {
+  color: white;
 }
 </style>

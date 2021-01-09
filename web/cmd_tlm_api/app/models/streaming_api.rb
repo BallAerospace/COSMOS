@@ -21,20 +21,12 @@
 
 require 'fileutils'
 require 'cosmos'
-require 'aws-sdk-s3'
+require 'cosmos/utilities/s3'
 
 Cosmos.require_file 'cosmos/utilities/store'
 Cosmos.require_file 'cosmos/packets/json_packet'
 Cosmos.require_file 'cosmos/packet_logs/packet_log_reader'
 Cosmos.require_file 'cosmos/utilities/authorization'
-
-Aws.config.update(
-  endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000',
-  access_key_id: 'minioadmin',
-  secret_access_key: 'minioadmin',
-  force_path_style: true,
-  region: 'us-east-1'
-)
 
 class FileCacheFile
   attr_reader :s3_path
@@ -339,7 +331,7 @@ class StreamingThread
       # If we're no longer grabbing packets from the stream (empty result)
       # we check to see if we need to continue
       # Cosmos::Logger.debug "rtr:#{rtr} empty?:#{rtr.empty?} results:#{results} topics:#{topics} offsets:#{offsets}"
-      if rtr and rtr.empty?
+      if rtr.nil? or rtr.empty?
         topics.each do |topic|
           items = items_by_topic[topic]
           items.each do |item|
@@ -354,6 +346,7 @@ class StreamingThread
         end
       end
       transmit_results(results, force: @collection.empty?)
+      transmit_results([], force: true) if !results.empty? and @collection.empty?
     else
       sleep(1)
     end

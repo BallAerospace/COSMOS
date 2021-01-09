@@ -19,6 +19,7 @@
 
 require 'cosmos/models/interface_model'
 require 'cosmos/models/interface_status_model'
+require 'cosmos/topics/interface_topics'
 
 module Cosmos
   module Api
@@ -62,7 +63,7 @@ module Cosmos
     # @param params [Array] Parameters to pass to the interface.
     def connect_interface(interface_name, *params, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
-      Store.instance.write_interface(interface_name, {'connect' => true}, scope: scope)
+      InterfaceTopics.connect_interface(interface_name, scope: scope)
     end
 
     # Disconnects from an interface and kills its telemetry gathering thread
@@ -70,7 +71,7 @@ module Cosmos
     # @param interface_name (see #connect_interface)
     def disconnect_interface(interface_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
-      Store.instance.write_interface(interface_name, {'disconnect' => true }, scope: scope)
+      InterfaceTopics.disconnect_interface(interface_name, scope: scope)
     end
 
     # @param interface_name (see #connect_interface)
@@ -78,7 +79,7 @@ module Cosmos
     #   'ATTEMPTING' or 'DISCONNECTED'.
     def interface_state(interface_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', interface_name: interface_name, scope: scope, token: token)
-      CmdTlmServer.interfaces.state(interface_name)
+      InterfaceStatusModel.get(name: interface_name, scope: scope)['state']
     end
 
     # Associates a target and all its commands and telemetry with a particular
@@ -112,7 +113,7 @@ module Cosmos
       authorize(permission: 'system', interface_name: interface_name, scope: scope, token: token)
       int = InterfaceStatusModel.get(name: interface_name, scope: scope)
       return [int['state'], int['clients'], int['txsize'], int['rxsize'],
-              int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
+              int['txbytes'], int['rxbytes'], int['txcnt'], int['rxcnt']]
     end
 
     # Get information about all interfaces
@@ -126,7 +127,7 @@ module Cosmos
       info = []
       InterfaceStatusModel.all(scope: scope).each do |int_name, int|
         info << [int['name'], int['state'], int['clients'], int['txsize'], int['rxsize'],
-                  int['txbytes'], int['rxbytes'], int['cmdcnt'], int['tlmcnt']]
+                  int['txbytes'], int['rxbytes'], int['txcnt'], int['rxcnt']]
       end
       info.sort! {|a,b| a[0] <=> b[0] }
       info

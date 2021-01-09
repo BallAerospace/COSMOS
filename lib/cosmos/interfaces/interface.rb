@@ -315,8 +315,8 @@ module Cosmos
       config['rxsize'] = @read_queue_size
       config['txbytes'] = @bytes_written
       config['rxbytes'] = @bytes_read
-      config['cmdcnt'] = @write_count
-      config['tlmcnt'] = @read_count
+      config['txcnt'] = @write_count
+      config['rxcnt'] = @read_count
       config
     end
 

@@ -54,21 +54,6 @@ module Cosmos
       @overrides = {}
     end
 
-    def write_interface(interface_name, hash, scope: $cosmos_scope)
-      @redis_pool.with do |redis|
-        if redis.hexists("#{scope}__cosmos_interface_status", interface_name)
-          write_topic("#{scope}__CMDINTERFACE__#{interface_name}", hash)
-        else
-          raise "Interface '#{interface_name}' does not exist"
-        end
-      end
-    end
-
-    # TODO: Is this used anywhere?
-    # def cmd_interface(interface_name, target_name, cmd_name, cmd_params, range_check, hazardous_check, raw)
-    #   write_topic("CMDINTERFACE__#{interface_name}", { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
-    # end
-
     def cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, timeout_ms: 5000, scope: $cosmos_scope)
       cmd_packet_exist?(target_name, cmd_name, scope: scope)
       topic = "#{scope}__CMDTARGET__#{target_name}"
@@ -76,7 +61,6 @@ module Cosmos
       update_topic_offsets([ack_topic])
       cmd_id = write_topic(topic, { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
       (timeout_ms / 100).times do
-        Logger.info "waiting for #{ack_topic}"
         read_topics([ack_topic], nil, 100) do |topic, msg_id, msg_hash, redis|
           if msg_hash["id"] == cmd_id
             # Logger.debug "Ack Received: #{msg_id}: #{msg_hash.inspect}"

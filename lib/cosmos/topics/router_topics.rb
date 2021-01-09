@@ -54,5 +54,13 @@ module Cosmos
       end
     end
 
+    def self.connect_router(router_name, scope:)
+      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", {'connect' => true})
+    end
+
+    def self.disconnect_router(router_name, scope:)
+      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", {'disconnect' => true})
+    end
+
   end
 end

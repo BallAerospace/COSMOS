@@ -37,5 +37,13 @@ module Cosmos
         end
       end
     end
+
+    def self.connect_interface(interface_name, scope:)
+      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", {'connect' => true})
+    end
+
+    def self.disconnect_interface(interface_name, scope:)
+      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", {'disconnect' => true})
+    end
   end
 end

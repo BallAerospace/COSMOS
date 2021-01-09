@@ -136,52 +136,52 @@ module Cosmos
       if tools.length < 1
         tools = {}
         tools['CmdTlmServer'] = {
-          name: 'CmdTlmServer',
-          icon: 'mdi-server-network',
-          url: '/cmd-tlm-server',
-          position: 1,
+          'name' => 'CmdTlmServer',
+          'icon' => 'mdi-server-network',
+          'url' => '/cmd-tlm-server',
+          'position' => 1,
         }
         tools['Limits Monitor'] = {
-          name: 'Limits Monitor',
-          icon: 'mdi-alert',
-          url: '/limits-monitor',
-          position: 2,
+          'name' => 'Limits Monitor',
+          'icon' => 'mdi-alert',
+          'url' => '/limits-monitor',
+          'position' => 2,
         }
         tools['Command Sender'] = {
-          name: 'Command Sender',
-          icon: 'mdi-satellite-uplink',
-          url: '/command-sender',
-          position: 3,
+          'name' => 'Command Sender',
+          'icon' => 'mdi-satellite-uplink',
+          'url' => '/command-sender',
+          'position' => 3,
         }
         tools['Script Runner'] = {
-          name: 'Script Runner',
-          icon: 'mdi-run-fast',
-          url: '/script-runner',
-          position: 4,
+          'name' => 'Script Runner',
+          'icon' => 'mdi-run-fast',
+          'url' => '/script-runner',
+          'position' => 4,
         }
         tools['Packet Viewer'] = {
-          name: 'Packet Viewer',
-          icon: 'mdi-format-list-bulleted',
-          url: '/packet-viewer',
-          position: 5,
+          'name' => 'Packet Viewer',
+          'icon' => 'mdi-format-list-bulleted',
+          'url' => '/packet-viewer',
+          'position' => 5,
         }
         tools['Telemetry Viewer'] = {
-          name: 'Telemetry Viewer',
-          icon: 'mdi-monitor-dashboard',
-          url: '/telemetry-viewer',
-          position: 6,
+          'name' => 'Telemetry Viewer',
+          'icon' => 'mdi-monitor-dashboard',
+          'url' => '/telemetry-viewer',
+          'position' => 6,
         }
         tools['Telemetry Grapher'] = {
-          name: 'Telemetry Grapher',
-          icon: 'mdi-chart-line',
-          url: '/telemetry-grapher',
-          position: 7,
+          'name' => 'Telemetry Grapher',
+          'icon' => 'mdi-chart-line',
+          'url' => '/telemetry-grapher',
+          'position' => 7,
         }
         tools['Data Extractor'] = {
-          name: 'Data Extractor',
-          icon: 'mdi-archive-arrow-down',
-          url: '/data-extractor',
-          position: 8,
+          'name' => 'Data Extractor',
+          'icon' => 'mdi-archive-arrow-down',
+          'url' => '/data-extractor',
+          'position' => 8,
         }
         tools.each do |name, tool|
           Store.hset("#{scope}__#{PRIMARY_KEY}", name, JSON.generate(tool))

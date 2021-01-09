@@ -30,8 +30,8 @@ module Cosmos
     attr_accessor :rxsize
     attr_accessor :txbytes
     attr_accessor :rxbytes
-    attr_accessor :cmdcnt
-    attr_accessor :tlmcnt
+    attr_accessor :txcnt
+    attr_accessor :rxcnt
 
     def initialize(
       name:,
@@ -41,8 +41,8 @@ module Cosmos
       rxsize: 0,
       txbytes: 0,
       rxbytes: 0,
-      cmdcnt: 0,
-      tlmcnt: 0,
+      txcnt: 0,
+      rxcnt: 0,
       updated_at: nil,
       plugin: nil,
       scope:)
@@ -58,8 +58,8 @@ module Cosmos
       @rxsize = rxsize
       @txbytes = txbytes
       @rxbytes = rxbytes
-      @cmdcnt = cmdcnt
-      @tlmcnt = tlmcnt
+      @txcnt = txcnt
+      @rxcnt = rxcnt
     end
 
     def as_json
@@ -71,8 +71,8 @@ module Cosmos
         'rxsize' => @rxsize,
         'txbytes' => @txbytes,
         'rxbytes' => @rxbytes,
-        'cmdcnt' => @cmdcnt,
-        'tlmcnt' => @tlmcnt,
+        'txcnt' => @txcnt,
+        'rxcnt' => @rxcnt,
         'plugin' => @plugin,
         'updated_at' => @updated_at
       }

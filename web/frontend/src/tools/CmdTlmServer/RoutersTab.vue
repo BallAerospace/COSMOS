@@ -34,18 +34,26 @@
       :headers="headers"
       :items="data"
       :search="search"
+      :custom-sort="sortTable"
       calculate-widths
       disable-pagination
       hide-default-footer
       multi-sort
+      data-test="routers-table"
     >
       <template v-slot:item.connect="{ item }">
-        <v-btn block color="primary">{{ item.connect }}</v-btn>
+        <v-btn
+          block
+          color="primary"
+          :disabled="buttonsDisabled"
+          @click="connectDisconnect(item)"
+          >{{ item.connect }}</v-btn
+        >
       </template>
       <template v-slot:item.connected="{ item }">
-        <span :style="{ color: item.connected_color }">
-          {{ item.connected }}
-        </span>
+        <span :style="{ color: item.connected_color }">{{
+          item.connected
+        }}</span>
       </template>
     </v-data-table>
   </v-card>
@@ -64,6 +72,7 @@ export default {
     return {
       search: '',
       data: [],
+      buttonsDisabled: false,
       headers: [
         { text: 'Name', value: 'name' },
         {
@@ -84,11 +93,64 @@ export default {
     }
   },
   methods: {
-    interfaceConnect(name, connect) {
-      if (connect == 'Connect') {
-        this.api.connect_router(name)
+    // Custom sort algorithm to allow the connected column to be sorted by CONNECTED first
+    sortTable(items, index, isDesc) {
+      items.sort((a, b) => {
+        for (let i = 0; i < index.length; i++) {
+          let column = index[i]
+          let desc = isDesc[i]
+
+          if (column === 'connected') {
+            // Items are the same so continue to let subsequent column sorts apply
+            if (a[column] === b[column]) {
+              continue
+            }
+            if (!desc) {
+              if (a[column] === 'CONNECTED') {
+                return -1
+              } else {
+                return 1
+              }
+            } else {
+              if (a[column] === 'CONNECTED') {
+                return 1
+              } else {
+                return -1
+              }
+            }
+          } else if (column === 'name') {
+            // Items are the same so continue to let subsequent column sorts apply
+            if (a[column] === b[column]) {
+              continue
+            }
+            if (!desc) {
+              // Strings so use localeCompare to sort
+              return a[column].localeCompare(b[column])
+            } else {
+              return b[column].localeCompare(a[column])
+            }
+          } else {
+            // Items are the same so continue to let subsequent column sorts apply
+            if (a[column] === b[column]) {
+              continue
+            }
+            if (!desc) {
+              // The rest of the columns are numbers so just subtract to sort
+              return a[column] - b[column]
+            } else {
+              return b[column] - a[column]
+            }
+          }
+        }
+      })
+      return items
+    },
+    connectDisconnect(item) {
+      this.buttonsDisabled = true
+      if (item.connected === 'DISCONNECTED') {
+        this.api.connect_router(item.name)
       } else {
-        this.api.disconnect_router(name)
+        this.api.disconnect_router(item.name)
       }
     },
     update() {
@@ -101,12 +163,12 @@ export default {
           if (int[1] == 'DISCONNECTED') {
             connect = 'Connect'
             connected_color = 'white'
-          } else if (int[1] == 'ATTEMPTING') {
-            connect = 'Cancel'
-            connected_color = 'red'
-          } else {
+          } else if (int[1] == 'CONNECTED') {
             connect = 'Disconnect'
             connected_color = 'green'
+          } else {
+            connect = 'Cancel'
+            connected_color = 'red'
           }
           this.data.push({
             name: int[0],
@@ -122,6 +184,7 @@ export default {
             tlm_pkts: int[8],
           })
         }
+        this.buttonsDisabled = false
       })
     },
   },
