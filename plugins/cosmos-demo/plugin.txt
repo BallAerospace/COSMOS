@@ -96,6 +96,6 @@ VARIABLE templated_port 5025
 <% end %>
 
 <% if include_demo_tool %>
-  TOOL DEMO <%= demo_tool_name %>
-    URL dist/index.html
+#  TOOL DEMO <%= demo_tool_name %>
+#    URL dist/index.html
 <% end %>

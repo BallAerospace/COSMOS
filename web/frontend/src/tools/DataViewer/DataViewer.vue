@@ -1,3 +1,22 @@
+<!--
+# Copyright 2021 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU Affero General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# This program may also be used under the terms of a commercial or
+# enterprise edition license of COSMOS if purchased from the
+# copyright holder
+-->
+
 <template>
   <div>
     <app-nav app :menus="menus" />
@@ -38,7 +57,7 @@ const requireComponent = require.context(
   /[A-Z]\w+Component\.vue$/
 )
 
-requireComponent.keys().forEach(fileName => {
+requireComponent.keys().forEach((fileName) => {
   // Get component config
   const componentConfig = requireComponent(fileName)
 
@@ -65,7 +84,7 @@ requireComponent.keys().forEach(fileName => {
 
 export default {
   components: {
-    AppNav
+    AppNav,
   },
   data() {
     return {
@@ -83,14 +102,14 @@ export default {
             {
               label: 'Reset',
               command: () => {
-                this.$refs.component.forEach(child => {
+                this.$refs.component.forEach((child) => {
                   child.reset()
                 })
-              }
-            }
-          ]
-        }
-      ]
+              },
+            },
+          ],
+        },
+      ],
     }
   },
   created() {
@@ -133,14 +152,14 @@ COMPONENT "Operators" text_component.rb "OPERATOR_NAME"
               this.tabs.push({
                 name: parameters[0],
                 component: componentName,
-                options: parameters.slice(2)
+                options: parameters.slice(2),
               })
               break
           }
         }
       }
     )
-  }
+  },
 }
 </script>
 

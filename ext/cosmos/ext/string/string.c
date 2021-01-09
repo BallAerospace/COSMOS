@@ -1,11 +1,20 @@
 /*
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
-# under the terms of the GNU General Public License
+# under the terms of the GNU Affero General Public License
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# This program may also be used under the terms of a commercial or
+# enterprise edition license of COSMOS if purchased from the
+# copyright holder
 */
 
 #include "ruby.h"
@@ -19,21 +28,24 @@
 static VALUE string_remove_quotes(VALUE self)
 {
   long length = RSTRING_LEN(self);
-  char* ptr = RSTRING_PTR(self);
+  char *ptr = RSTRING_PTR(self);
   char first_char = 0;
   char last_char = 0;
 
-  if (length < 2) {
+  if (length < 2)
+  {
     return self;
   }
 
   first_char = ptr[0];
-  if ((first_char != 34) && (first_char != 39)) {
+  if ((first_char != 34) && (first_char != 39))
+  {
     return self;
   }
 
   last_char = ptr[length - 1];
-  if (last_char != first_char) {
+  if (last_char != first_char)
+  {
     return self;
   }
 
@@ -43,7 +55,7 @@ static VALUE string_remove_quotes(VALUE self)
 /*
  * Initialize methods for String Core Ext
  */
-void Init_string (void)
+void Init_string(void)
 {
-  rb_define_method(rb_cString, "remove_quotes",  string_remove_quotes, 0);
+  rb_define_method(rb_cString, "remove_quotes", string_remove_quotes, 0);
 }

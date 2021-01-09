@@ -1,11 +1,20 @@
 /*
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
-# under the terms of the GNU General Public License
+# under the terms of the GNU Affero General Public License
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# This program may also be used under the terms of a commercial or
+# enterprise edition license of COSMOS if purchased from the
+# copyright holder
 */
 
 #include "ruby.h"
@@ -34,7 +43,8 @@ static VALUE symbol_CONVERTED = Qnil;
  *@return [Hash<packet_name=>Packet>] Hash of the telemetry packets for the given
  *  target name keyed by the packet name
  */
-static VALUE packets(VALUE self, VALUE target_name) {
+static VALUE packets(VALUE self, VALUE target_name)
+{
   volatile VALUE target_packets = Qnil;
   volatile VALUE upcase_target_name = Qnil;
   volatile VALUE telemetry = Qnil;
@@ -44,7 +54,8 @@ static VALUE packets(VALUE self, VALUE target_name) {
   telemetry = rb_funcall(rb_ivar_get(self, id_ivar_config), id_method_telemetry, 0);
   target_packets = rb_hash_aref(telemetry, upcase_target_name);
 
-  if (!(RTEST(target_packets))) {
+  if (!(RTEST(target_packets)))
+  {
     rb_raise(rb_eRuntimeError, "Telemetry target '%s' does not exist", RSTRING_PTR(upcase_target_name));
   }
 
@@ -69,7 +80,8 @@ static VALUE packet(VALUE self, VALUE target_name, VALUE packet_name)
   upcase_packet_name = rb_funcall(packet_name, id_method_to_s, 0);
   upcase_packet_name = rb_funcall(upcase_packet_name, id_method_upcase, 0);
   packet = rb_hash_aref(target_packets, upcase_packet_name);
-  if (!(RTEST(packet))) {
+  if (!(RTEST(packet)))
+  {
     upcase_target_name = rb_funcall(target_name, id_method_to_s, 0);
     upcase_target_name = rb_funcall(upcase_target_name, id_method_upcase, 0);
     rb_raise(rb_eRuntimeError, "Telemetry packet '%s %s' does not exist", RSTRING_PTR(upcase_target_name), RSTRING_PTR(upcase_packet_name));
@@ -93,7 +105,7 @@ static VALUE packet_and_item(VALUE self, VALUE target_name, VALUE packet_name, V
   volatile VALUE return_packet = Qnil;
   volatile VALUE item = Qnil;
   volatile VALUE return_value = Qnil;
-  char * string_packet_name = NULL;
+  char *string_packet_name = NULL;
 
   upcase_packet_name = rb_funcall(packet_name, id_method_upcase, 0);
   string_packet_name = RSTRING_PTR(upcase_packet_name);
@@ -126,7 +138,7 @@ static VALUE packet_and_item(VALUE self, VALUE target_name, VALUE packet_name, V
  * as Strings. :RAW values will match their data_type. :CONVERTED values
  * can be any type.
  */
-static VALUE value(int argc, VALUE* argv, VALUE self)
+static VALUE value(int argc, VALUE *argv, VALUE self)
 {
   volatile VALUE target_name = Qnil;
   volatile VALUE packet_name = Qnil;
@@ -137,22 +149,22 @@ static VALUE value(int argc, VALUE* argv, VALUE self)
 
   switch (argc)
   {
-    case 3:
-      target_name = argv[0];
-      packet_name = argv[1];
-      item_name = argv[2];
-      value_type = symbol_CONVERTED;
-      break;
-    case 4:
-      target_name = argv[0];
-      packet_name = argv[1];
-      item_name = argv[2];
-      value_type = argv[3];
-      break;
-    default:
-      /* Invalid number of arguments given */
-      rb_raise(rb_eArgError, "wrong number of arguments (%d for 3..4)", argc);
-      break;
+  case 3:
+    target_name = argv[0];
+    packet_name = argv[1];
+    item_name = argv[2];
+    value_type = symbol_CONVERTED;
+    break;
+  case 4:
+    target_name = argv[0];
+    packet_name = argv[1];
+    item_name = argv[2];
+    value_type = argv[3];
+    break;
+  default:
+    /* Invalid number of arguments given */
+    rb_raise(rb_eArgError, "wrong number of arguments (%d for 3..4)", argc);
+    break;
   };
 
   result = packet_and_item(self, target_name, packet_name, item_name);
@@ -175,7 +187,8 @@ static VALUE value(int argc, VALUE* argv, VALUE self)
  *   second their limits state, and the third the limits settings which includes
  *   red, yellow, and green (if given) limits values.
  */
-static VALUE values_and_limits_states(int argc, VALUE* argv, VALUE self) {
+static VALUE values_and_limits_states(int argc, VALUE *argv, VALUE self)
+{
   volatile VALUE item_array = Qnil;
   volatile VALUE value_types = Qnil;
   volatile VALUE items = Qnil;
@@ -196,38 +209,43 @@ static VALUE values_and_limits_states(int argc, VALUE* argv, VALUE self) {
   long value_types_length = 0;
   int index = 0;
 
-  switch (argc) {
-    case 1:
-      item_array = argv[0];
-      value_types = symbol_CONVERTED;
-      break;
-    case 2:
-      item_array = argv[0];
-      value_types = argv[1];
-      break;
-    default:
-      /* Invalid number of arguments given */
-      rb_raise(rb_eArgError, "wrong number of arguments (%d for 1..2)", argc);
-      break;
+  switch (argc)
+  {
+  case 1:
+    item_array = argv[0];
+    value_types = symbol_CONVERTED;
+    break;
+  case 2:
+    item_array = argv[0];
+    value_types = argv[1];
+    break;
+  default:
+    /* Invalid number of arguments given */
+    rb_raise(rb_eArgError, "wrong number of arguments (%d for 1..2)", argc);
+    break;
   };
 
   items = rb_ary_new();
   /* Verify items is a nested array */
   entry = rb_ary_entry(item_array, index);
-  if (TYPE(entry) != T_ARRAY) {
+  if (TYPE(entry) != T_ARRAY)
+  {
     rb_raise(rb_eArgError, "item_array must be a nested array consisting of [[tgt,pkt,item],[tgt,pkt,item],...]");
   }
   states = rb_ary_new();
   settings = rb_ary_new();
   limits_set = rb_funcall(cSystem, id_method_limits_set, 0);
   length = RARRAY_LEN(item_array);
-  if (TYPE(value_types) == T_ARRAY) {
+  if (TYPE(value_types) == T_ARRAY)
+  {
     value_types_length = RARRAY_LEN(value_types);
-    if (length != value_types_length) {
+    if (length != value_types_length)
+    {
       rb_raise(rb_eArgError, "Passed %ld items but only %ld value types", length, value_types_length);
     }
 
-    for (index = 0; index < length; index++) {
+    for (index = 0; index < length; index++)
+    {
       entry = rb_ary_entry(item_array, index);
       target_name = rb_ary_entry(entry, 0);
       packet_name = rb_ary_entry(entry, 1);
@@ -240,16 +258,22 @@ static VALUE values_and_limits_states(int argc, VALUE* argv, VALUE self) {
       limits = rb_funcall(rb_ary_entry(result, 1), id_method_limits, 0);
       rb_ary_push(states, rb_funcall(limits, id_method_state, 0));
       limits_values = rb_funcall(limits, id_method_values, 0);
-      if (RTEST(limits_values)) {
+      if (RTEST(limits_values))
+      {
         limits_settings = rb_hash_aref(limits_values, limits_set);
-      } else {
+      }
+      else
+      {
         limits_settings = Qnil;
       }
       rb_ary_push(settings, limits_settings);
     }
-  } else {
+  }
+  else
+  {
     value_type = rb_funcall(value_types, id_method_intern, 0);
-    for (index = 0; index < length; index++) {
+    for (index = 0; index < length; index++)
+    {
       entry = rb_ary_entry(item_array, index);
       target_name = rb_ary_entry(entry, 0);
       packet_name = rb_ary_entry(entry, 1);
@@ -260,9 +284,12 @@ static VALUE values_and_limits_states(int argc, VALUE* argv, VALUE self) {
       limits = rb_funcall(rb_ary_entry(result, 1), id_method_limits, 0);
       rb_ary_push(states, rb_funcall(limits, id_method_state, 0));
       limits_values = rb_funcall(limits, id_method_values, 0);
-      if (RTEST(limits_values)) {
+      if (RTEST(limits_values))
+      {
         limits_settings = rb_hash_aref(limits_values, limits_set);
-      } else {
+      }
+      else
+      {
         limits_settings = Qnil;
       }
       rb_ary_push(settings, limits_settings);
@@ -279,7 +306,7 @@ static VALUE values_and_limits_states(int argc, VALUE* argv, VALUE self) {
 /*
  * Initialize methods for Telemetry
  */
-void Init_telemetry (void)
+void Init_telemetry(void)
 {
   id_ivar_config = rb_intern("@config");
   id_method_telemetry = rb_intern("telemetry");

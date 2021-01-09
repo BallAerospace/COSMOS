@@ -1,11 +1,20 @@
 /*
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
-# under the terms of the GNU General Public License
+# under the terms of the GNU Affero General Public License
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# This program may also be used under the terms of a commercial or
+# enterprise edition license of COSMOS if purchased from the
+# copyright holder
 */
 
 #include "ruby.h"
@@ -13,7 +22,7 @@
 #include "math.h"
 
 #ifndef RFLOAT_VALUE
-  #define RFLOAT_VALUE(v) (RFLOAT(v)->value)
+#define RFLOAT_VALUE(v) (RFLOAT(v)->value)
 #endif
 
 VALUE mCosmos;
@@ -60,7 +69,7 @@ static VALUE polynomial_conversion_call(VALUE self, VALUE value, VALUE myself, V
 /*
  * Initialize methods for PolynomialConversion
  */
-void Init_polynomial_conversion (void)
+void Init_polynomial_conversion(void)
 {
   id_ivar_coeffs = rb_intern("@coeffs");
   id_method_to_f = rb_intern("to_f");

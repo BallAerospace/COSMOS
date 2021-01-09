@@ -1,11 +1,20 @@
 /*
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
-# under the terms of the GNU General Public License
+# under the terms of the GNU Affero General Public License
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# This program may also be used under the terms of a commercial or
+# enterprise edition license of COSMOS if purchased from the
+# copyright holder
 */
 
 #include "ruby.h"
@@ -50,13 +59,18 @@ static ID id_ivar_extra = 0;
  * will have target name set to nil.
  *
  * @param target_name [String] Name of the target this packet is associated with */
-static VALUE target_name_equals(VALUE self, VALUE target_name) {
-  if (RTEST(target_name)) {
-    if (rb_funcall(target_name, id_method_class, 0) != rb_cString) {
+static VALUE target_name_equals(VALUE self, VALUE target_name)
+{
+  if (RTEST(target_name))
+  {
+    if (rb_funcall(target_name, id_method_class, 0) != rb_cString)
+    {
       rb_raise(rb_eArgError, "target_name must be a String but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(target_name, id_method_class, 0), id_method_to_s, 0)));
     }
     rb_ivar_set(self, id_ivar_target_name, rb_funcall(rb_funcall(target_name, id_method_upcase, 0), id_method_freeze, 0));
-  } else {
+  }
+  else
+  {
     rb_ivar_set(self, id_ivar_target_name, Qnil);
   }
   return rb_ivar_get(self, id_ivar_target_name);
@@ -66,13 +80,18 @@ static VALUE target_name_equals(VALUE self, VALUE target_name) {
  * nil.
  *
  * @param packet_name [String] Name of the packet */
-static VALUE packet_name_equals(VALUE self, VALUE packet_name) {
-  if (RTEST(packet_name)) {
-    if (rb_funcall(packet_name, id_method_class, 0) != rb_cString) {
+static VALUE packet_name_equals(VALUE self, VALUE packet_name)
+{
+  if (RTEST(packet_name))
+  {
+    if (rb_funcall(packet_name, id_method_class, 0) != rb_cString)
+    {
       rb_raise(rb_eArgError, "packet_name must be a String but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(packet_name, id_method_class, 0), id_method_to_s, 0)));
     }
     rb_ivar_set(self, id_ivar_packet_name, rb_funcall(rb_funcall(packet_name, id_method_upcase, 0), id_method_freeze, 0));
-  } else {
+  }
+  else
+  {
     rb_ivar_set(self, id_ivar_packet_name, Qnil);
   }
   return rb_ivar_get(self, id_ivar_packet_name);
@@ -81,13 +100,18 @@ static VALUE packet_name_equals(VALUE self, VALUE packet_name) {
 /* Sets the description of the packet
  *
  * @param description [String] Description of the packet */
-static VALUE description_equals(VALUE self, VALUE description) {
-  if (RTEST(description)) {
-    if (rb_funcall(description, id_method_class, 0) != rb_cString) {
+static VALUE description_equals(VALUE self, VALUE description)
+{
+  if (RTEST(description))
+  {
+    if (rb_funcall(description, id_method_class, 0) != rb_cString)
+    {
       rb_raise(rb_eArgError, "description must be a String but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(description, id_method_class, 0), id_method_to_s, 0)));
     }
     rb_ivar_set(self, id_ivar_description, rb_funcall(rb_funcall(description, id_method_clone, 0), id_method_freeze, 0));
-  } else {
+  }
+  else
+  {
     rb_ivar_set(self, id_ivar_description, Qnil);
   }
   return rb_ivar_get(self, id_ivar_description);
@@ -96,17 +120,23 @@ static VALUE description_equals(VALUE self, VALUE description) {
 /* Sets the received time of the packet
  *
  * @param received_time [Time] Time this packet was received */
-static VALUE received_time_equals(VALUE self, VALUE received_time) {
+static VALUE received_time_equals(VALUE self, VALUE received_time)
+{
   volatile VALUE read_conversion_cache = rb_ivar_get(self, id_ivar_read_conversion_cache);
-  if (RTEST(received_time)) {
-    if (rb_funcall(received_time, id_method_class, 0) != rb_cTime) {
+  if (RTEST(received_time))
+  {
+    if (rb_funcall(received_time, id_method_class, 0) != rb_cTime)
+    {
       rb_raise(rb_eArgError, "received_time must be a Time but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(received_time, id_method_class, 0), id_method_to_s, 0)));
     }
     rb_ivar_set(self, id_ivar_received_time, rb_funcall(rb_funcall(received_time, id_method_clone, 0), id_method_freeze, 0));
-  } else {
+  }
+  else
+  {
     rb_ivar_set(self, id_ivar_received_time, Qnil);
   }
-  if (RTEST(read_conversion_cache)) {
+  if (RTEST(read_conversion_cache))
+  {
     rb_funcall(read_conversion_cache, id_method_clear, 0);
   }
   return rb_ivar_get(self, id_ivar_received_time);
@@ -116,19 +146,23 @@ static VALUE received_time_equals(VALUE self, VALUE received_time) {
  *
  * @param received_count [Integer] Number of times this packet has been
  *   received */
-static VALUE received_count_equals(VALUE self, VALUE received_count) {
+static VALUE received_count_equals(VALUE self, VALUE received_count)
+{
   volatile VALUE read_conversion_cache = rb_ivar_get(self, id_ivar_read_conversion_cache);
 #ifdef RUBY_INTEGER_UNIFICATION /* Ruby 2.4.0 unified Fixnum and Bignum into Integer. This check allows the code to build pre- and post-2.4.0. */
-  if (rb_funcall(received_count, id_method_class, 0) != rb_cInteger) {
+  if (rb_funcall(received_count, id_method_class, 0) != rb_cInteger)
+  {
     rb_raise(rb_eArgError, "received_count must be an Integer but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(received_count, id_method_class, 0), id_method_to_s, 0)));
   }
 #else
-  if ((rb_funcall(received_count, id_method_class, 0) != rb_cFixnum) && (rb_funcall(received_count, id_method_class, 0) != rb_cBignum)) {
+  if ((rb_funcall(received_count, id_method_class, 0) != rb_cFixnum) && (rb_funcall(received_count, id_method_class, 0) != rb_cBignum))
+  {
     rb_raise(rb_eArgError, "received_count must be an Integer but is a %s", RSTRING_PTR(rb_funcall(rb_funcall(received_count, id_method_class, 0), id_method_to_s, 0)));
   }
 #endif
   rb_ivar_set(self, id_ivar_received_count, received_count);
-  if (RTEST(read_conversion_cache)) {
+  if (RTEST(read_conversion_cache))
+  {
     rb_funcall(read_conversion_cache, id_method_clear, 0);
   }
   return rb_ivar_get(self, id_ivar_received_count);
@@ -144,7 +178,8 @@ static VALUE received_count_equals(VALUE self, VALUE received_count) {
  * @param item_class [Class] Class used to instantiate items (Must be a
  *   subclass of PacketItem)
  */
-static VALUE packet_initialize(int argc, VALUE* argv, VALUE self) {
+static VALUE packet_initialize(int argc, VALUE *argv, VALUE self)
+{
   volatile VALUE target_name = Qnil;
   volatile VALUE packet_name = Qnil;
   volatile VALUE default_endianness = Qnil;
@@ -155,56 +190,56 @@ static VALUE packet_initialize(int argc, VALUE* argv, VALUE self) {
 
   switch (argc)
   {
-    case 2:
-      target_name = argv[0];
-      packet_name = argv[1];
-      default_endianness = symbol_BIG_ENDIAN;
-      description = Qnil;
-      buffer = rb_str_new2("");
-      item_class = cPacketItem;
-      break;
-    case 3:
-      target_name = argv[0];
-      packet_name = argv[1];
-      default_endianness = argv[2];
-      description = Qnil;
-      buffer = rb_str_new2("");
-      item_class = cPacketItem;
-      break;
-    case 4:
-      target_name = argv[0];
-      packet_name = argv[1];
-      default_endianness = argv[2];
-      description = argv[3];
-      buffer = rb_str_new2("");
-      item_class = cPacketItem;
-      break;
-    case 5:
-      target_name = argv[0];
-      packet_name = argv[1];
-      default_endianness = argv[2];
-      description = argv[3];
-      buffer = argv[4];
-      item_class = cPacketItem;
-      break;
-    case 6:
-      target_name = argv[0];
-      packet_name = argv[1];
-      default_endianness = argv[2];
-      description = argv[3];
-      buffer = argv[4];
-      item_class = argv[5];
-      break;
-    default:
-      /* Invalid number of arguments given */
-      rb_raise(rb_eArgError, "wrong number of arguments (%d for 2..6)", argc);
-      break;
+  case 2:
+    target_name = argv[0];
+    packet_name = argv[1];
+    default_endianness = symbol_BIG_ENDIAN;
+    description = Qnil;
+    buffer = rb_str_new2("");
+    item_class = cPacketItem;
+    break;
+  case 3:
+    target_name = argv[0];
+    packet_name = argv[1];
+    default_endianness = argv[2];
+    description = Qnil;
+    buffer = rb_str_new2("");
+    item_class = cPacketItem;
+    break;
+  case 4:
+    target_name = argv[0];
+    packet_name = argv[1];
+    default_endianness = argv[2];
+    description = argv[3];
+    buffer = rb_str_new2("");
+    item_class = cPacketItem;
+    break;
+  case 5:
+    target_name = argv[0];
+    packet_name = argv[1];
+    default_endianness = argv[2];
+    description = argv[3];
+    buffer = argv[4];
+    item_class = cPacketItem;
+    break;
+  case 6:
+    target_name = argv[0];
+    packet_name = argv[1];
+    default_endianness = argv[2];
+    description = argv[3];
+    buffer = argv[4];
+    item_class = argv[5];
+    break;
+  default:
+    /* Invalid number of arguments given */
+    rb_raise(rb_eArgError, "wrong number of arguments (%d for 2..6)", argc);
+    break;
   };
 
   super_args[0] = default_endianness;
   super_args[1] = buffer;
   super_args[2] = item_class;
-  rb_call_super(3, (VALUE*) super_args);
+  rb_call_super(3, (VALUE *)super_args);
   target_name_equals(self, target_name);
   packet_name_equals(self, packet_name);
   description_equals(self, description);
@@ -233,7 +268,7 @@ static VALUE packet_initialize(int argc, VALUE* argv, VALUE self) {
 /*
  * Initialize all Packet methods
  */
-void Init_packet (void)
+void Init_packet(void)
 {
   Init_structure();
 

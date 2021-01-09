@@ -1,24 +1,33 @@
 /*
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
-# under the terms of the GNU General Public License
+# under the terms of the GNU Affero General Public License
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# This program may also be used under the terms of a commercial or
+# enterprise edition license of COSMOS if purchased from the
+# copyright holder
 */
 
 #include "ruby.h"
 #include "stdio.h"
 
 static const int endianness_check = 1;
-#define HOST_ENDIANNESS (*((char *) &endianness_check))
+#define HOST_ENDIANNESS (*((char *)&endianness_check))
 #define COSMOS_BIG_ENDIAN 0
 #define COSMOS_LITTLE_ENDIAN 1
 
 VALUE mCosmosIO = Qnil;
 
-static ID id_method_read         = 0;
+static ID id_method_read = 0;
 
 /* Reads a length field and then return the String resulting from reading the
   * number of bytes the length field indicates
@@ -34,38 +43,38 @@ static ID id_method_read         = 0;
   * @param length_num_bytes [Integer] Number of bytes in the length field
   * @return [String] A String of "length field" number of bytes
   */
-static VALUE read_length_bytes(int argc, VALUE* argv, VALUE self)
+static VALUE read_length_bytes(int argc, VALUE *argv, VALUE self)
 {
   int length_num_bytes = 0;
   int max_read_size = 0;
-  unsigned char* string = NULL;
+  unsigned char *string = NULL;
   long string_length = 0;
   unsigned short short_length = 0;
-  unsigned char* length_ptr = NULL;
+  unsigned char *length_ptr = NULL;
   volatile VALUE temp_string = Qnil;
   volatile VALUE temp_string_length = Qnil;
   volatile VALUE return_value = Qnil;
   volatile VALUE param_length_num_bytes = Qnil;
   volatile VALUE param_max_read_size = Qnil;
-  
+
   switch (argc)
   {
-    case 1:
-      param_length_num_bytes = argv[0];
-      param_max_read_size = Qnil;
-      break;
-    case 2:
-      param_length_num_bytes = argv[0];
-      param_max_read_size = argv[1];
-      break;
-    default:
-      /* Invalid number of arguments given */
-      rb_raise(rb_eArgError, "wrong number of arguments (%d for 1..2)", argc);
-      break;
-  };	
-  
+  case 1:
+    param_length_num_bytes = argv[0];
+    param_max_read_size = Qnil;
+    break;
+  case 2:
+    param_length_num_bytes = argv[0];
+    param_max_read_size = argv[1];
+    break;
+  default:
+    /* Invalid number of arguments given */
+    rb_raise(rb_eArgError, "wrong number of arguments (%d for 1..2)", argc);
+    break;
+  };
+
   length_num_bytes = FIX2INT(param_length_num_bytes);
-  
+
   /* Read bytes for string length */
   temp_string = rb_funcall(self, id_method_read, 1, param_length_num_bytes);
   if (NIL_P(temp_string) || (RSTRING_LEN(temp_string) != length_num_bytes))
@@ -73,51 +82,53 @@ static VALUE read_length_bytes(int argc, VALUE* argv, VALUE self)
     return Qnil;
   }
 
-  string = (unsigned char*) RSTRING_PTR(temp_string);
+  string = (unsigned char *)RSTRING_PTR(temp_string);
   switch (length_num_bytes)
   {
-    case 1:
-      string_length = (unsigned int) string[0];
-      break;
-    case 2:
-      length_ptr = (unsigned char*) &short_length;
-      if (HOST_ENDIANNESS == COSMOS_BIG_ENDIAN)
-      {
-        length_ptr[1] = string[1];
-        length_ptr[0] = string[0];
-      }
-      else
-      {
-        length_ptr[0] = string[1];
-        length_ptr[1] = string[0];
-      }
-      string_length = short_length;
-      break;
-    case 4:
-      length_ptr = (unsigned char*) &string_length;
-      if (HOST_ENDIANNESS == COSMOS_BIG_ENDIAN)
-      {
-        length_ptr[3] = string[3];
-        length_ptr[2] = string[2];
-        length_ptr[1] = string[1];
-        length_ptr[0] = string[0];
-      }
-      else
-      {
-        length_ptr[0] = string[3];
-        length_ptr[1] = string[2];
-        length_ptr[2] = string[1];
-        length_ptr[3] = string[0];
-      }
-      break;
-    default:
-      return Qnil;
-      break;
+  case 1:
+    string_length = (unsigned int)string[0];
+    break;
+  case 2:
+    length_ptr = (unsigned char *)&short_length;
+    if (HOST_ENDIANNESS == COSMOS_BIG_ENDIAN)
+    {
+      length_ptr[1] = string[1];
+      length_ptr[0] = string[0];
+    }
+    else
+    {
+      length_ptr[0] = string[1];
+      length_ptr[1] = string[0];
+    }
+    string_length = short_length;
+    break;
+  case 4:
+    length_ptr = (unsigned char *)&string_length;
+    if (HOST_ENDIANNESS == COSMOS_BIG_ENDIAN)
+    {
+      length_ptr[3] = string[3];
+      length_ptr[2] = string[2];
+      length_ptr[1] = string[1];
+      length_ptr[0] = string[0];
+    }
+    else
+    {
+      length_ptr[0] = string[3];
+      length_ptr[1] = string[2];
+      length_ptr[2] = string[1];
+      length_ptr[3] = string[0];
+    }
+    break;
+  default:
+    return Qnil;
+    break;
   };
 
-  if (RTEST(param_max_read_size)) {
+  if (RTEST(param_max_read_size))
+  {
     max_read_size = FIX2INT(param_max_read_size);
-    if (string_length > max_read_size) {
+    if (string_length > max_read_size)
+    {
       return Qnil;
     }
   }
@@ -136,7 +147,7 @@ static VALUE read_length_bytes(int argc, VALUE* argv, VALUE self)
 /*
  * Initialize methods for CosmosIO
  */
-void Init_cosmos_io (void)
+void Init_cosmos_io(void)
 {
   id_method_read = rb_intern("read");
 

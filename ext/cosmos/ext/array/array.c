@@ -1,11 +1,20 @@
 /*
-# Copyright 2014 Ball Aerospace & Technologies Corp.
+# Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
-# under the terms of the GNU General Public License
+# under the terms of the GNU Affero General Public License
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# This program may also be used under the terms of a commercial or
+# enterprise edition license of COSMOS if purchased from the
+# copyright holder
 */
 
 #include "ruby.h"
@@ -17,7 +26,7 @@ static ID id_method_less_than = 0;
 /*
  * Returns the maximum value and its index
  */
-static VALUE max_with_index (VALUE self)
+static VALUE max_with_index(VALUE self)
 {
   int index = 0;
   long array_length = RARRAY_LEN(self);
@@ -59,7 +68,7 @@ static VALUE max_with_index (VALUE self)
 /*
  * Returns the minimum value and its index
  */
-static VALUE min_with_index (VALUE self)
+static VALUE min_with_index(VALUE self)
 {
   int index = 0;
   long array_length = RARRAY_LEN(self);
@@ -101,11 +110,11 @@ static VALUE min_with_index (VALUE self)
 /*
  * Initialize methods for Array Core Ext
  */
-void Init_array (void)
+void Init_array(void)
 {
   id_method_greater_than = rb_intern(">");
   id_method_less_than = rb_intern("<");
 
-  rb_define_method(rb_cArray,  "max_with_index", max_with_index, 0);
-  rb_define_method(rb_cArray,  "min_with_index", min_with_index, 0);
+  rb_define_method(rb_cArray, "max_with_index", max_with_index, 0);
+  rb_define_method(rb_cArray, "min_with_index", min_with_index, 0);
 }
