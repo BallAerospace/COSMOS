@@ -636,7 +636,7 @@ export default {
             })
           },
           // TODO: How should we handle server side disconnect
-          disconnected: () => alert('disconnected'),
+          // disconnected: () => console.log('disconnected'),
         }
       )
       // Store the subscription if we haven't already
