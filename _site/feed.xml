@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosrb/feed.xml" rel="self"/>
     <link>http://cosmosrb.com/</link>
-    <pubDate>Fri, 08 Jan 2021 15:07:03 -0700</pubDate>
-    <lastBuildDate>Fri, 08 Jan 2021 15:07:03 -0700</lastBuildDate>
+    <pubDate>Sat, 09 Jan 2021 18:10:33 -0700</pubDate>
+    <lastBuildDate>Sat, 09 Jan 2021 18:10:33 -0700</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v4.1.1</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -24,6 +24,101 @@
       <width>144</width>
       <height>73</height>
     </image>
+    
+    <item>
+      <title>Ball Aerospace COSMOS 5.0.0 beta 1 Released</title>
+      <link>http://cosmosrb.com/news/2021/01/09/cosmos-5-0-0-beta-1-released/</link>
+      <pubDate>Sat, 09 Jan 2021 06:00:00 -0700</pubDate>
+      <dc:creator>ryanmelt</dc:creator>
+      
+      
+      <category>release</category>
+      
+      <guid isPermaLink="true">http://cosmosrb.com/news/2021/01/09/cosmos-5-0-0-beta-1-released/</guid>
+      <description>&lt;p&gt;I am proud to announce the release of COSMOS 5 Beta 1!&lt;/p&gt;
+
+&lt;p&gt;COSMOS 5 is a highly scalable, cloud native, command and control software system.  This is a beta release meant for COSMOS users to start experimenting with and providing feedback on the COSMOS 5 architecture and tools.&lt;/p&gt;
+
+&lt;p&gt;Changes from the Alpha 1 Release:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Extractor - Combines the TlmExtractor and CmdExtractor tools from COSMOS 4&lt;/li&gt;
+  &lt;li&gt;Test Runner Support - Script Runner will now treat any file with _suite.rb in the filename as a test runner suite&lt;/li&gt;
+  &lt;li&gt;Plugin System - One of the most exciting features coming in COSMOS 5 are plugins that allow plugging in targets / tools / and microservices into COSMOS&lt;/li&gt;
+  &lt;li&gt;Admin Interface - Allows adding/removing plugins and changing configuration&lt;/li&gt;
+  &lt;li&gt;Fully functional ethernet based interfaces and routers&lt;/li&gt;
+  &lt;li&gt;Functional Limits Monitor&lt;/li&gt;
+  &lt;li&gt;Lots of fixes and improvements&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;COSMOS 5 Technologies:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Docker - COSMOS 5 runs across a set of containers managed by Docker&lt;/li&gt;
+  &lt;li&gt;Redis - Redis is used as a key-value store, and streaming data server&lt;/li&gt;
+  &lt;li&gt;Minio - Minio provides an S3 compatible file storage server&lt;/li&gt;
+  &lt;li&gt;EFK Stack - Elasticsearch, Fluentd, Kibana - Provide a distributed logging solution&lt;/li&gt;
+  &lt;li&gt;Vue.js - Javascript technology used to build the new COSMOS user interface&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Functional versions of the following COSMOS tools are included in this release:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Command and Telemetry Server&lt;/li&gt;
+  &lt;li&gt;Command Sender&lt;/li&gt;
+  &lt;li&gt;Packet Viewer&lt;/li&gt;
+  &lt;li&gt;Telemetry Viewer&lt;/li&gt;
+  &lt;li&gt;Telemetry Grapher&lt;/li&gt;
+  &lt;li&gt;Script Runner (Test Runner now built in)&lt;/li&gt;
+  &lt;li&gt;Limits Monitor&lt;/li&gt;
+  &lt;li&gt;Extractor&lt;/li&gt;
+  &lt;li&gt;Admin Interface&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Known Things That Aren’t Done/Fully Working Yet:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Limits Sets and Limits Groups&lt;/li&gt;
+  &lt;li&gt;The LATEST telemetry packet&lt;/li&gt;
+  &lt;li&gt;Data Viewer&lt;/li&gt;
+  &lt;li&gt;Handbook Creator&lt;/li&gt;
+  &lt;li&gt;Replay&lt;/li&gt;
+  &lt;li&gt;Per-Target Cmd/Tlm Counters&lt;/li&gt;
+  &lt;li&gt;Plugin Tool Support&lt;/li&gt;
+  &lt;li&gt;Serial Interface Support (probably would work on a linux host with the cosmos-operator container running with –privileged)&lt;/li&gt;
+  &lt;li&gt;subscribe_ API calls&lt;/li&gt;
+  &lt;li&gt;Some lesser used API calls&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;prerequisites&quot;&gt;Prerequisites:&lt;/h3&gt;
+
+&lt;p&gt;Docker - Running COSMOS 5 requires a working Docker installation.  Typically Docker Desktop on Windows / Mac.  Plain docker should work on linux.  We’re currently only developing / running with Docker Desktop on Windows, so if you have any issues on another platform, please let us know by submitting a ticket!&lt;/p&gt;
+
+&lt;p&gt;Minimum Resources allocated to Docker: 8GB RAM, 1 CPU, 80GB Disk
+Recommended Resources allocated to Docker: 16GB RAM, 2+ CPUs, 100GB Disk&lt;/p&gt;
+
+&lt;h3 id=&quot;to-run&quot;&gt;To Run:&lt;/h3&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Download one of the archives (.zip or .tar.gz from the Github release page) &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0-beta.1&quot;&gt;Download Release Here&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Extract the archive somewhere on your host computer&lt;/li&gt;
+  &lt;li&gt;The COSMOS 5 containers are designed to work and be built in the presence of an SSL Decryption device.  To support this a cacert.pem file can be placed at the base of the COSMOS 5 project that includes any certificates needed by your organization.  If you don’t need this, then please ignore, but if you see any SSL errors, this is probably why.&lt;/li&gt;
+  &lt;li&gt;Run cosmos_start.bat (Windows), or cosmos_start.sh (linux/Mac)&lt;/li&gt;
+  &lt;li&gt;COSMOS 5 will be built and when ready should be running (~15 mins for first run, ~2 for subsequent)&lt;/li&gt;
+  &lt;li&gt;Connect a web browser to http://localhost:8080&lt;/li&gt;
+  &lt;li&gt;Have fun trying out COSMOS 5!&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;We will be actively updating documentation on cosmosrb.com throughout the month of January.  So if it isn’t documented yet, we’re getting there!&lt;/p&gt;
+
+&lt;p&gt;Please try it out and let us know what you think!  Please submit any issues as Github tickets, or any generic feedback to COSMOS@ball.com.&lt;/p&gt;
+
+&lt;p&gt;Note that this release is not recommended for production use.  We will have a release candidate release in a few months.&lt;/p&gt;
+
+&lt;p&gt;Thanks!&lt;/p&gt;
+
+</description>
+    </item>
     
     <item>
       <title>Ball Aerospace COSMOS 4.5.0 Released</title>

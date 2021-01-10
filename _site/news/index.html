@@ -88,6 +88,8 @@
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
       
+      <option value="/news/2021/01/09/cosmos-5-0-0-beta-1-released/">Ball Aerospace COSMOS 5.0.0 beta 1 Released</option>
+      
       <option value="/news/2020/11/05/cosmos-4-5-0-released/">Ball Aerospace COSMOS 4.5.0 Released</option>
       
       <option value="/news/2020/09/23/packet-time/">Packet Time</option>
@@ -241,6 +243,114 @@
 
       <div class="unit four-fifths">
         
+  <article>
+  <h2>
+    <a href="/news/2021/01/09/cosmos-5-0-0-beta-1-released/">
+      Ball Aerospace COSMOS 5.0.0 beta 1 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      09 Jan 2021
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>I am proud to announce the release of COSMOS 5 Beta 1!</p>
+
+<p>COSMOS 5 is a highly scalable, cloud native, command and control software system.  This is a beta release meant for COSMOS users to start experimenting with and providing feedback on the COSMOS 5 architecture and tools.</p>
+
+<p>Changes from the Alpha 1 Release:</p>
+
+<ul>
+  <li>Extractor - Combines the TlmExtractor and CmdExtractor tools from COSMOS 4</li>
+  <li>Test Runner Support - Script Runner will now treat any file with _suite.rb in the filename as a test runner suite</li>
+  <li>Plugin System - One of the most exciting features coming in COSMOS 5 are plugins that allow plugging in targets / tools / and microservices into COSMOS</li>
+  <li>Admin Interface - Allows adding/removing plugins and changing configuration</li>
+  <li>Fully functional ethernet based interfaces and routers</li>
+  <li>Functional Limits Monitor</li>
+  <li>Lots of fixes and improvements</li>
+</ul>
+
+<p>COSMOS 5 Technologies:</p>
+
+<ul>
+  <li>Docker - COSMOS 5 runs across a set of containers managed by Docker</li>
+  <li>Redis - Redis is used as a key-value store, and streaming data server</li>
+  <li>Minio - Minio provides an S3 compatible file storage server</li>
+  <li>EFK Stack - Elasticsearch, Fluentd, Kibana - Provide a distributed logging solution</li>
+  <li>Vue.js - Javascript technology used to build the new COSMOS user interface</li>
+</ul>
+
+<p>Functional versions of the following COSMOS tools are included in this release:</p>
+
+<ul>
+  <li>Command and Telemetry Server</li>
+  <li>Command Sender</li>
+  <li>Packet Viewer</li>
+  <li>Telemetry Viewer</li>
+  <li>Telemetry Grapher</li>
+  <li>Script Runner (Test Runner now built in)</li>
+  <li>Limits Monitor</li>
+  <li>Extractor</li>
+  <li>Admin Interface</li>
+</ul>
+
+<p>Known Things That Aren’t Done/Fully Working Yet:</p>
+
+<ul>
+  <li>Limits Sets and Limits Groups</li>
+  <li>The LATEST telemetry packet</li>
+  <li>Data Viewer</li>
+  <li>Handbook Creator</li>
+  <li>Replay</li>
+  <li>Per-Target Cmd/Tlm Counters</li>
+  <li>Plugin Tool Support</li>
+  <li>Serial Interface Support (probably would work on a linux host with the cosmos-operator container running with –privileged)</li>
+  <li>subscribe_ API calls</li>
+  <li>Some lesser used API calls</li>
+</ul>
+
+<h3 id="prerequisites">Prerequisites:</h3>
+
+<p>Docker - Running COSMOS 5 requires a working Docker installation.  Typically Docker Desktop on Windows / Mac.  Plain docker should work on linux.  We’re currently only developing / running with Docker Desktop on Windows, so if you have any issues on another platform, please let us know by submitting a ticket!</p>
+
+<p>Minimum Resources allocated to Docker: 8GB RAM, 1 CPU, 80GB Disk
+Recommended Resources allocated to Docker: 16GB RAM, 2+ CPUs, 100GB Disk</p>
+
+<h3 id="to-run">To Run:</h3>
+
+<ol>
+  <li>Download one of the archives (.zip or .tar.gz from the Github release page) <a href="https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0-beta.1">Download Release Here</a></li>
+  <li>Extract the archive somewhere on your host computer</li>
+  <li>The COSMOS 5 containers are designed to work and be built in the presence of an SSL Decryption device.  To support this a cacert.pem file can be placed at the base of the COSMOS 5 project that includes any certificates needed by your organization.  If you don’t need this, then please ignore, but if you see any SSL errors, this is probably why.</li>
+  <li>Run cosmos_start.bat (Windows), or cosmos_start.sh (linux/Mac)</li>
+  <li>COSMOS 5 will be built and when ready should be running (~15 mins for first run, ~2 for subsequent)</li>
+  <li>Connect a web browser to http://localhost:8080</li>
+  <li>Have fun trying out COSMOS 5!</li>
+</ol>
+
+<p>We will be actively updating documentation on cosmosrb.com throughout the month of January.  So if it isn’t documented yet, we’re getting there!</p>
+
+<p>Please try it out and let us know what you think!  Please submit any issues as Github tickets, or any generic feedback to COSMOS@ball.com.</p>
+
+<p>Note that this release is not recommended for production use.  We will have a release candidate release in a few months.</p>
+
+<p>Thanks!</p>
+
+
+  </div>
+</article>
+
+
   <article>
   <h2>
     <a href="/news/2020/11/05/cosmos-4-5-0-released/">
@@ -5359,6 +5469,10 @@ change the whole playing field of Operations, Integration, and Test”.</p>
     <ul>
       
       <li class="">
+        <a href="/news/2021/01/09/cosmos-5-0-0-beta-1-released/">Version 5.0.0-beta.1</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2020/11/05/cosmos-4-5-0-released/">Version 4.5.0</a>
       </li>
       
@@ -5374,16 +5488,14 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <a href="/news/2019/12/30/cosmos-4-4-1-released/">Version 4.4.1</a>
       </li>
       
-      <li class="">
-        <a href="/news/2019/06/28/cosmos-4-4-0-released/">Version 4.4.0</a>
-      </li>
-      
       <li>
         <a href="/docs/history/">History »</a>
       </li>
     </ul>
     <h4>Other News</h4>
     <ul>
+        
+        
         
         
         
