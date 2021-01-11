@@ -31,21 +31,21 @@ module Cosmos
       end
     end
 
-    describe 'get_target' do
-      it 'raises if target does not exist' do
-        expect { Store.instance.get_target('NOTGT') }.to raise_error("Target 'NOTGT' does not exist")
-      end
+    # describe 'get_target' do
+    #   it 'raises if target does not exist' do
+    #     expect { Store.instance.get_target('NOTGT') }.to raise_error("Target 'NOTGT' does not exist")
+    #   end
 
-      it 'returns a target hash' do
-        tgt = Store.instance.get_target('INST')
-        expect(tgt).to be_a(Hash)
-        expect(tgt['name']).to eql 'INST'
-      end
-    end
+    #   it 'returns a target hash' do
+    #     tgt = Store.instance.get_target('INST')
+    #     expect(tgt).to be_a(Hash)
+    #     expect(tgt['name']).to eql 'INST'
+    #   end
+    # end
 
     describe 'get_packet' do
       it 'raises if target does not exist' do
-        expect { Store.instance.get_packet('NOTGT', 'PKT') }.to raise_error("Target 'NOTGT' does not exist")
+        expect { Store.instance.get_packet('NO_TGT', 'PKT') }.to raise_error("Target 'NO_TGT' does not exist")
       end
 
       it 'raises if packet does not exist' do

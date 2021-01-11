@@ -92,7 +92,12 @@ def configure_store
   Cosmos::Store.class_variable_set(:@@instance, nil)
 
   plugin = File.join(__dir__, 'install', 'cosmos-demo-1.0.0.gem')
-  # plugin_hash = Cosmos::PluginModel.install_phase1(plugin, scope: $cosmos_scope)
+  allow(Cosmos::GemModel).to receive(:put)
+  allow(Cosmos::GemModel).to receive(:get).and_return(plugin)
+  s3 = instance_double("Aws::S3::Client").as_null_object
+  allow(Aws::S3::Client).to receive(:new).and_return(s3)
+
+  plugin_hash = Cosmos::PluginModel.install_phase1(plugin, scope: $cosmos_scope)
   Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: $cosmos_scope)
   redis
 end

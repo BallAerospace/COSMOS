@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'spec_helper'
+require 'cosmos/microservices/configure_microservices'
 
 module Cosmos
   describe ConfigureMicroservices do
