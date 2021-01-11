@@ -89,6 +89,7 @@ require 'cosmos/models/plugin_model'
 def configure_store
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
+  # allow(ConnectionPool).to receive(:new).and_return(redis)
   Cosmos::Store.class_variable_set(:@@instance, nil)
 
   plugin = File.join(__dir__, 'install', 'cosmos-demo-1.0.0.gem')

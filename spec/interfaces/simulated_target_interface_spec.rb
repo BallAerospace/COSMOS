@@ -21,7 +21,7 @@ require 'spec_helper'
 require 'cosmos/interfaces/simulated_target_interface'
 
 module Cosmos
-  describe SimulatedTargetInterface do
+  xdescribe SimulatedTargetInterface do
     before(:all) do
       File.open(File.join(File.dirname(__FILE__),'..','..','lib','test_inst.rb'),'w') do |file|
         file.puts <<-DOC

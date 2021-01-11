@@ -19,81 +19,11 @@
 
 require 'spec_helper'
 require 'cosmos'
-require 'cosmos/tools/cmd_tlm_server/cmd_tlm_server'
-require 'cosmos/tools/cmd_tlm_server/api'
+require 'cosmos/api/api'
+require 'cosmos/microservices/interface_microservice'
 
 module Cosmos
-  describe Api do
-    before(:all) do
-      # Save cmd_tlm_server.txt
-      @cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')
-      FileUtils.mv @cts, Cosmos::USERPATH
-
-      FileUtils.mkdir_p(File.dirname(@cts))
-      File.open(@cts,'w') do |file|
-        file.puts 'INTERFACE INST_INT interface.rb'
-        file.puts '  TARGET INST'
-        file.puts '  PROTOCOL READ_WRITE OverrideProtocol'
-        file.puts 'ROUTER ROUTE interface.rb'
-        file.puts 'BACKGROUND_TASK example_background_task1.rb'
-        file.puts 'BACKGROUND_TASK example_background_task2.rb'
-      end
-      @background1 = File.join(Cosmos::USERPATH,'lib','example_background_task1.rb')
-      File.open(@background1,'w') do |file|
-        file.write <<-DOC
-require 'cosmos/tools/cmd_tlm_server/background_task'
-module Cosmos
-  class ExampleBackgroundTask1 < BackgroundTask
-    def initialize
-      super()
-      @name = 'Example Background Task1'
-      @status = "This is example one"
-      @sleeper = Sleeper.new
-    end
-    def call
-      return if @sleeper.sleep(0.3)
-    end
-    def stop
-      @sleeper.cancel
-    end
-  end
-end
-DOC
-      end
-      @background2 = File.join(Cosmos::USERPATH,'lib','example_background_task2.rb')
-      File.open(@background2,'w') do |file|
-        file.write <<-DOC
-require 'cosmos/tools/cmd_tlm_server/background_task'
-module Cosmos
-  class ExampleBackgroundTask2 < BackgroundTask
-    def initialize
-      super()
-      @name = 'Example Background Task2'
-      @status = "This is example two"
-      @sleeper = Sleeper.new
-    end
-    def call
-      loop do
-        return if @sleeper.sleep(1)
-      end
-    end
-    def stop
-      @sleeper.cancel
-    end
-  end
-end
-DOC
-      end
-    end
-
-    after(:all) do
-      FileUtils.rm_rf @background1
-      FileUtils.rm_rf @background2
-      # Restore cmd_tlm_server.txt
-      FileUtils.mv File.join(Cosmos::USERPATH, 'cmd_tlm_server.txt'),
-      File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server')
-    end
-
+  xdescribe Api do
     before(:each) do
       @redis = configure_store()
       allow_any_instance_of(Interface).to receive(:connected?)
