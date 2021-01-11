@@ -4,21 +4,15 @@
 
 [Documentation](http://cosmosrb.com)
 
-Ball Aerospace COSMOS provides all the functionality needed to send commands to and receive data from one or more embedded systems referred to as "targets". Out of the box functionality includes: Telemetry Display, Telemetry Graphing, Operational and Test Scripting, Command Sending, Logging, Log File Playback, Table Management, and more.
+Ball Aerospace COSMOS provides all the functionality needed to send commands to and receive data from one or more embedded systems referred to as "targets". Out of the box functionality includes: Telemetry Display, Telemetry Graphing, Operational and Test Scripting, Command Sending, Logging, Log File Playback, and more.
 
-So what can you use this for? We use it to test about everything we create and COSMOS is great for automating any system of embedded systems. It can provide a fully featured user interface to any piece of hardware that provides an electronic way of communicating with it (TCP/IP, UDP, Serial, etc). Potential uses range from testing embedded systems, to home automation, to verifying cell phones, to helping you make that next great thing that changes the world! The sky is the limit...
+So what can you use this for? We use it to test about everything we create and COSMOS is great for automating embedded systems testing or operation. It can provide a fully featured user interface to any piece of hardware that provides an electronic way of communicating with it (TCP/IP, UDP, Serial, etc). Potential uses range from testing embedded systems, to home automation, to verifying cell phones, to helping you make that next great thing that changes the world! The sky is the limit...
 
-After configuring COSMOS to talk to your hardware, you immediately can use the following 15 tools:
-
-![COSMOS Architecture](data/COSMOS_Architecture.png)
+After configuring COSMOS to talk to your hardware, you immediately can use the following tools:
 
 1. **Command and Telemetry Server**
 
-   - This is the heart of the realtime functionality within the Ball Aerospace COSMOS system. It maintains realtime connections to each target in your system and is the single point for all outgoing commands and incoming telemetry packets. By default, it logs all commands and telemetry sent/received for later review and analysis. The Command and Telemetry Server also monitors limits on all telemetry packets received.
-
-1. **Replay**
-
-   - Replay masquerades as the Command and Telemetry Server but it sources telemetry packets from telemetry log files instead of realtime streams. VCR style controls are provided to move backwards and forwards through telemetry logs and play them back into the other COSMOS realtime tools. Especially useful with Telemetry Viewer. Cannot be used at the same time as the Command and Telemetry Server (at least on the same computer).
+   - This provides status of all the target connections within the Ball Aerospace COSMOS system. It provides allows interfaces to be connected and disconnected and allows raw packet data to be viewed.
 
 1. **Limits Monitor**
 
@@ -30,11 +24,9 @@ After configuring COSMOS to talk to your hardware, you immediately can use the f
 
 1. **Script Runner**
 
-   - Script Runner allows for running COSMOS test procedures or any other Ruby code from a graphical environment that highlights each line as it executes. At anytime during execution, the script can be paused or stopped. If a telemetry check fails or any other exception occurs, the script is immediately stopped and the user notified. Built-in code completion makes writing COSMOS scripts easy.
+   - Script Runner allows for running COSMOS test procedures or any other Ruby code from a graphical environment that highlights each line as it executes. At anytime during execution, the script can be paused or stopped. If a telemetry check fails or any other exception occurs, the script is immediately stopped and the user notified.
 
-1. **Test Runner**
-
-   - Operations and formal testing meet the unit test framework paradigm. Test Runner allows you to break your operational or test procedures down into discreet test cases that each complete with either SUCCESS or FAILURE. After running, a test report is automatically created for you. Convenient features such as the ability to loop testing help get the kinks out of your system before formal runs.
+   - Script Runner also allows you to break your operational or test procedures down into discreet test cases that each complete with either SUCCESS or FAILURE. After running, a test report is automatically created for you. Convenient features such as the ability to loop testing help get the kinks out of your system before formal runs.
 
 1. **Packet Viewer**
 
@@ -46,57 +38,19 @@ After configuring COSMOS to talk to your hardware, you immediately can use the f
 
 1. **Telemetry Grapher**
 
-   - Realtime and offline line graphing and x-y plotting of telemetry points. Multiple telemetry points per plot, multiple plots per tab, and multiple tabs allow you to efficiently organize your data. Great for graphing temperatures and voltages both in realtime and post-test.
+   - Realtime and offline line graphing of telemetry points. Multiple telemetry points per graphs and multiple graphs per window allow you to efficiently organize your data. Great for graphing temperatures and voltages both in realtime and post-test.
 
-1. **Data Viewer**
+1. **Extractor**
 
-   - Sometimes data cannot be displayed effectively in telemety widgets or is not as useful without being able to scroll back through a history of values. Data Viewer is used to provide a textual display of telemetry items and packets with scrollable history. It provides a great display for log messages, events, memory dumps, and other forms of data that don't fit well into the other display options.
-
-1. **Telemetry Extractor**
-
-   - Used for offline analysis of telemetry log files. Telemetry Extracts extracts a given list of telemetry items from a telemetry log file into a CSV file for further analysis in other tools such as Excel or Matlab.
-
-1. **Command Extractor**
-
-   - Used for offline analysis of command log files. Takes binary command log files and converts them into human readable text.
-
-1. **Handbook Creator**
-
-   - Creates Command and Telemetry Handbooks using the information in the COSMOS configuration files in both HTML and PDF formats. This provides a more human readable reference document to give to people who want to use a COSMOS system.
-
-1. **Table Manager**
-
-   - Table Manager provides a graphical binary file editor that provides a convenient method for creating and modifying binary configuration files/tables.
-
-1. **OpenGL Builder**
-   - OpenGL Builder helps in building 3d scenes of objects made of STL (stereolithography) files that can then be used within custom written COSMOS applications where they can be animated or change color based on telemetry.
+   - Used for offline analysis of command and telemetry data. Extracts a given list of items into a CSV file for further analysis in other tools such as Excel or Matlab.
 
 COSMOS is built and maintained by Ryan Melton (ryanatball/ryanmelt) and Jason Thomas (jmthomas) at Ball Aerospace & Technologies Corp.
 
 ## Getting Started
 
-1.  Install COSMOS at the command prompt if you haven't yet:
+1.  See the [Installation Guide](https://cosmosrb.com/docs/v5/installation) for detailed instructions.
 
-         gem install cosmos
-
-    Note on non-windows systems you will need to have all necessary prerequisites installed. See the [Installation Guide](http://cosmosrb.com/docs/installation/) for detailed instructions.
-
-2.  At the command prompt, create a new COSMOS project:
-
-         cosmos demo test
-
-    where "test" is the application name.
-
-3.  Change directory to `test` and start the COSMOS Launcher:
-
-         cd test
-         ruby Launcher
-
-    Run with `--help` or `-h` for options.
-
-4.  Click on the various tools to start experimenting with COSMOS!
-
-5.  Follow the [Documentation](http://cosmosrb.com) to start developing your configuration.
+1.  Follow the [Getting Started](https://cosmosrb.com/docs/v5/gettingstarted) to start developing your configuration.
 
 ## Docker
 
@@ -128,4 +82,4 @@ This protects both you and us and you retain full rights to any code you write.
 
 ## License
 
-Ball Aerospace COSMOS is released under the GPLv3.0 with a few addendums. See [LICENSE.txt](LICENSE.txt)
+Ball Aerospace COSMOS is released under the AGPL v3 with a few addendums. See [LICENSE.txt](LICENSE.txt)

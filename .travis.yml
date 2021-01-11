@@ -5,10 +5,10 @@ cache: bundler
 services:
   - postgresql
 rvm:
-  - jruby-9.2.9.0
+  - jruby-head
+  - 3.0.0
   - 2.7.1
-  - 2.6.5
-  - 2.5.7
+  - 2.6.6
 before_install:
   - sudo apt-get install -y libgl1-mesa-dev
   - gem update --system
