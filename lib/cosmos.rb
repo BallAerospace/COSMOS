@@ -40,6 +40,7 @@ require 'cosmos/utilities'
 require 'cosmos/conversions'
 require 'cosmos/interfaces'
 require 'cosmos/processors'
+require 'cosmos/packets/packet'
 require 'cosmos/packet_logs'
 require 'cosmos/system'
 
