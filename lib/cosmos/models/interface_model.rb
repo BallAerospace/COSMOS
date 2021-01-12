@@ -69,6 +69,9 @@ module Cosmos
       @log_raw = log_raw
     end
 
+    # Called by InterfaceMicroservice to instantiate the Interface defined
+    # by the model configuration. Must be called after get_model which
+    # calls from_json to instantiate the class and populate the attributes.
     def build
       klass = Cosmos.require_class(@config_params[0])
       if @config_params.length > 1
@@ -132,11 +135,11 @@ module Cosmos
 
     def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
       case keyword
-      when 'INTERFACE', 'ROUTER'
-        parser.verify_num_parameters(2, nil, "INTERFACE/ROUTER <Name> <Filename> <Specific Parameters>")
+      when 'INTERFACE'
+        parser.verify_num_parameters(2, nil, "INTERFACE <Name> <Filename> <Specific Parameters>")
         return self.new(name: parameters[0].upcase, config_params: parameters[1..-1], plugin: plugin, scope: scope)
       else
-        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Interface/Router: #{keyword} #{parameters.join(" ")}")
+        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Interface: #{keyword} #{parameters.join(" ")}")
       end
     end
 
@@ -189,6 +192,8 @@ module Cosmos
 
       return nil
     end
+
+    # The following class methods are used by the ModelController
 
     def self.get(name:, scope: nil)
       interface_or_router = self.name.to_s.split("Model")[0].upcase.split("::")[-1]

@@ -35,6 +35,8 @@ module Cosmos
 
     # Get the singleton instance
     def self.instance(pool_size = 10)
+      # Logger.level = Logger::DEBUG
+      # Logger.stdout = true
       return @@instance if @@instance
       @@instance_mutex.synchronize do
         @@instance ||= self.new(pool_size)
@@ -518,7 +520,7 @@ module Cosmos
     end
 
     def read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-      # Logger.debug "read_topics: #{topics}, #{offsets}"
+      # Logger.debug "read_topics: #{topics}, #{offsets} pool:#{@redis_pool}"
       @redis_pool.with do |redis|
         offsets = update_topic_offsets(topics) unless offsets
         result = redis.xread(topics, offsets, block: timeout_ms)
@@ -536,7 +538,7 @@ module Cosmos
     end
 
     def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
-      # Logger.debug "write_topic topic:#{topic} id:#{id}"#" hash:#{msg_hash}"
+      # Logger.debug "write_topic topic:#{topic} id:#{id} hash:#{msg_hash}"
       @redis_pool.with do |redis|
         if id
           return redis.xadd(topic, msg_hash, id: id, maxlen: maxlen, approximate: approximate)

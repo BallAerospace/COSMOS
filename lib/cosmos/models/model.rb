@@ -56,6 +56,10 @@ module Cosmos
       create(update: true)
     end
 
+    def deploy(gem_path, variables)
+      raise "must be implmented by subclass"
+    end
+
     def undeploy
       # Does nothing by default
     end
@@ -71,6 +75,8 @@ module Cosmos
         'plugin' => @plugin }
     end
 
+    # TODO: This has a potential use-case in exporting other configuration formats
+    # like XTCE back to COSMOS formats. However, it's currently not used.
     def as_config
       ""
     end
