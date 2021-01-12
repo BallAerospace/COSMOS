@@ -6,11 +6,10 @@ services:
   - postgresql
 rvm:
   - jruby
-  - 3.0
   - 2.7
   - 2.6
 before_install:
   - sudo apt-get install -y libgl1-mesa-dev
-  - gem update --system
+  - yes | gem update --system --force
   - gem install bundler
 script: bundle exec rake build spec
