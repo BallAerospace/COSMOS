@@ -23,7 +23,7 @@ COSMOS is now available as Docker images. See our Docker documentation here:
 
 Run the COSMOS Installation bat file:
 
-1. Right click this link and choose "Save Target As" or "Save Link As": [INSTALL_COSMOS.bat](https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/windows/INSTALL_COSMOS.bat)
+1. Right click this link and choose "Save Target As" or "Save Link As": [INSTALL_COSMOS.bat](https://raw.githubusercontent.com/BallAerospace/COSMOS/cosmos4/vendor/installers/windows/INSTALL_COSMOS.bat)
 2. Save the file to your harddrive
 3. Run the bat from from Windows explorer or a cmd window
 
@@ -70,7 +70,7 @@ The following instructions work for an installation on CentOS Linux 6.5,s 6.6, o
 Run the following command in a terminal running the **bash** shell:
 
 ```
-bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/cosmos4/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 ```
 
 ## Linux Notes
@@ -83,7 +83,7 @@ If installing in an environment where SSL Certificates are not setup correctly. 
 echo "insecure" >> ~/.curlrc
 export RUBY_BUILD_CURL_OPTS="-k"
 git config --global http.sslVerify false
-bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/cosmos4/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 ```
 
 ## Mac Notes

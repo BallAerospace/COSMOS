@@ -1,10 +1,11 @@
 ---
 layout: news_item
-title: 'Deploying COSMOS to the Cloud'
+title: "Deploying COSMOS to the Cloud"
 date: 2017-08-23 13:00:00 -0700
 author: jmthomas
 categories: [post]
 ---
+
 COSMOS is a GUI application which runs equally well on Windows, Linux, and Mac OS X due to the QT GUI framework and Ruby language it is written in. Traditionally this means you install it locally on your own workstation and you're off and running. But can COSMOS also be deployed to the cloud? Yes! This post describes how I deployed COSMOS to Amazon Web Services (AWS) using several different technologies.
 
 ### AWS
@@ -38,21 +39,25 @@ Use the same key pair when creating your Windows instance and create the instanc
 ![Connect Dialog](/img/2017_08_23_aws_red_hat_connect.png)
 
 SSH to the instance using the connection string provided making sure to specify the full path to your 'pem' file in the quoted path after the -i option. Install a GUI by issuing the following command:
+
 ```
 sudo yum groupinstall 'Server with GUI'
 ```
 
 Install COSMOS using the installation bash file:
+
 ```
-bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/cosmos4/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 ```
 
 Chose the sudo option when asked how to install. To enable X forwarding edit the SSH config file:
+
 ```
 sudo vim /etc/ssh/sshd_config
 ```
 
 Enable the following settings:
+
 ```
 X11Forwarding yes
 X11DisplayOffset 10
@@ -76,12 +81,14 @@ Click on the instance and click the Description tab which appears below the inst
 ![Security Group](/img/2017_08_23_aws_security_group.png)
 
 SSH to the instance using the connection string provided making sure to specify the full path to your 'pem' file in the quoted path after the -i option. Install a GUI by issuing the following command:
+
 ```
 sudo apt-get update
 sudo apt install xfce4 xfce4-goodies tightvncserver
 ```
 
 Run the following commands to setup the VNC server:
+
 ```
 vncserver
 vncserver -kill :1
@@ -89,6 +96,7 @@ vim ~/.vnc/xstartup
 ```
 
 Ensure your xstartup file matches the following:
+
 ```
 #!/bin/sh
 
@@ -107,13 +115,15 @@ vncconfig -iconic &
 ```
 
 Restart VNC:
+
 ```
 vncserver
 ```
 
 Install COSMOS using the installation bash file:
+
 ```
-bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/master/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+bash <(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/cosmos4/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
 ```
 
 Chose the sudo option when asked how to install. On your local machine install a VNC viewer such as TightVNC and connect by entering the Public DNS address of your AWS instance in the Remote Host as well as the Port number of 5901. Typically this is added by appending it to the Remote Host address with a colon. Here is a screenshot of it running while I connected via TightVNC:
