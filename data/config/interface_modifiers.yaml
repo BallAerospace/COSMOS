@@ -1,5 +1,5 @@
 ---
-TARGET:
+MAP_TARGET:
   summary: Maps a target name to an interface
   parameters:
     - name: Target Name

@@ -1,0 +1,12 @@
+---
+VARIABLE:
+  summary: Variable which is used to configure the plugin
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the variable in the plugin
+      values: .+
+    - name: Default
+      required: true
+      description: Default value for the variable
+      values: .+

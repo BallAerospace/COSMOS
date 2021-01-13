@@ -67,20 +67,20 @@ MATRIXBYCOLUMNS:
       required: false
       description: Vertical spacing between matrix items in pixels (default = 0)
       values: .*
-SCROLLWINDOW:
-  summary: Places the widgets inside of it into a scrollable
-    area. The SCROLLWINDOW widget sizes itself to fit the screen in which it is contained.
-TABBOOK:
-  summary: Creates a tabbed area in which to place TABITEM widgets
-    to form a tabbed layout.
-TABITEM:
-  summary: Creates a tab into which to place widgets. The tab
-    automatically acts like a VERTICAL widget.
-  parameters:
-    - name: Tab text
-      required: true
-      description: Text to diplay in the tab
-      values: .*
+# SCROLLWINDOW:
+#   summary: Places the widgets inside of it into a scrollable
+#     area. The SCROLLWINDOW widget sizes itself to fit the screen in which it is contained.
+# TABBOOK:
+#   summary: Creates a tabbed area in which to place TABITEM widgets
+#     to form a tabbed layout.
+# TABITEM:
+#   summary: Creates a tab into which to place widgets. The tab
+#     automatically acts like a VERTICAL widget.
+#   parameters:
+#     - name: Tab text
+#       required: true
+#       description: Text to diplay in the tab
+#       values: .*
 LABEL:
   summary: Displays text on the screen. Generally, label widgets
     contain a telemetry mnemonic and are placed next to the telemetry VALUE widget.
@@ -89,8 +89,8 @@ LABEL:
       required: true
       description: Text to display on the label
       values: .*
-HORIZONTALLINE:
-  summary: Displays a horizontal line on the screen that can be used as a separator
+# HORIZONTALLINE:
+#   summary: Displays a horizontal line on the screen that can be used as a separator
 SECTIONHEADER:
   summary: Displays a label that is underlined with a
     horizontal line. Generally, SECTIONHEADER widgets are the first widget placed
@@ -107,26 +107,26 @@ TITLE:
       required: true
       description: Text to display above the horizontal line
       values: .*
-SPACER:
-  summary: Inserts a spacer into a layout. This can be used to
-    separate or align other widgets.
-  parameters:
-    - name: Width
-      required: true
-      description: The width of the spacer in pixels.
-      values: .*
-    - name: Height
-      required: true
-      description: The height of the spacer in pixels.
-      values: .*
-    - name: Horizontal Policy
-      required: false
-      description: The horizontal size policy of the spacer. Default is MINIMUM.
-      values: <%= %w(FIXED MINIMUM MAXIMUM PREFERRED EXPANDING MINIMUMEXPANDING IGNORED) %>
-    - name: Vertical Policy
-      required: false
-      description: The vertical size policy of the spacer. Default is MINIMUM.
-      values: <%= %w(FIXED MINIMUM MAXIMUM PREFERRED EXPANDING MINIMUMEXPANDING IGNORED) %>
+# SPACER:
+#   summary: Inserts a spacer into a layout. This can be used to
+#     separate or align other widgets.
+#   parameters:
+#     - name: Width
+#       required: true
+#       description: The width of the spacer in pixels.
+#       values: .*
+#     - name: Height
+#       required: true
+#       description: The height of the spacer in pixels.
+#       values: .*
+#     - name: Horizontal Policy
+#       required: false
+#       description: The horizontal size policy of the spacer. Default is MINIMUM.
+#       values: <%= %w(FIXED MINIMUM MAXIMUM PREFERRED EXPANDING MINIMUMEXPANDING IGNORED) %>
+#     - name: Vertical Policy
+#       required: false
+#       description: The vertical size policy of the spacer. Default is MINIMUM.
+#       values: <%= %w(FIXED MINIMUM MAXIMUM PREFERRED EXPANDING MINIMUMEXPANDING IGNORED) %>
 ARRAY:
   summary: Displays data from an array telemetry item.
     Data is organized into rows and by default space separated.
@@ -208,46 +208,46 @@ BLOCK:
       required: false
       description: The type of the value to display. Default is CONVERTED.
       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-FORMATFONTVALUE:
-  summary: Displays a box with a value printed inside
-    that is formatted by the specified string rather than by a format string given
-    in the telemetry definition files. Additionally, this widget can use a specified
-    font. The white portion of the box darkens to gray while the value remains
-    stagnant, then brightens to white each time the value changes. Additionally
-    the value is colored based on the items limits state (Red for example if it is out of limits).
-  parameters:
-    - name: Target name
-      required: true
-      description: The target name
-      values: .+
-    - name: Packet name
-      required: true
-      description: The packet name
-      values: .+
-    - name: Item name
-      required: true
-      description: The item name
-      values: .+
-    - name: Format string
-      required: false
-      description: Printf style format string to apply to the telemetry item
-      values: .*
-    - name: Value type
-      required: false
-      description: The type of the value to display. Default is CONVERTED.
-      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-    - name: Number of characters
-      required: false
-      description: The number of characters wide to make the value box (default = 12)
-      values: .*
-    - name: Font name
-      required: false
-      description: The font to use. (default = arial)
-      values: .*
-    - name: Font size
-      required: false
-      description: The font size. (default = 100)
-      values: .*
+# FORMATFONTVALUE:
+#   summary: Displays a box with a value printed inside
+#     that is formatted by the specified string rather than by a format string given
+#     in the telemetry definition files. Additionally, this widget can use a specified
+#     font. The white portion of the box darkens to gray while the value remains
+#     stagnant, then brightens to white each time the value changes. Additionally
+#     the value is colored based on the items limits state (Red for example if it is out of limits).
+#   parameters:
+#     - name: Target name
+#       required: true
+#       description: The target name
+#       values: .+
+#     - name: Packet name
+#       required: true
+#       description: The packet name
+#       values: .+
+#     - name: Item name
+#       required: true
+#       description: The item name
+#       values: .+
+#     - name: Format string
+#       required: false
+#       description: Printf style format string to apply to the telemetry item
+#       values: .*
+#     - name: Value type
+#       required: false
+#       description: The type of the value to display. Default is CONVERTED.
+#       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+#     - name: Number of characters
+#       required: false
+#       description: The number of characters wide to make the value box (default = 12)
+#       values: .*
+#     - name: Font name
+#       required: false
+#       description: The font to use. (default = arial)
+#       values: .*
+#     - name: Font size
+#       required: false
+#       description: The font size. (default = 100)
+#       values: .*
 FORMATVALUE:
   summary: Displays a box with a value printed inside that
     is formatted by the specified string rather than by a format string given in
@@ -378,64 +378,64 @@ LABELVALUE:
         together with any additional space to the left and right. 'LEFT' or 'RIGHT'
         pushes them to the respective side with the space going on the opposite.
       values: ["SPLIT", "CENTER", "LEFT", "RIGHT"]
-LABELVALUEDESC:
-  summary: Displays a LABEL widget to show the telemetry
-    items description followed by a VALUE widget to display the items value.
-  parameters:
-    - name: Target name
-      required: true
-      description: The target name
-      values: .+
-    - name: Packet name
-      required: true
-      description: The packet name
-      values: .+
-    - name: Item name
-      required: true
-      description: The item name
-      values: .+
-    - name: Description
-      required: false
-      description:
-        The description to display in the label (default is to display
-        the description text associated with the telemetry item)
-      values: .*
-    - name: Value type
-      required: false
-      description: The type of the value to display. Default is CONVERTED.
-      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-    - name: Number of characters
-      required: false
-      description: The number of characters wide to make the value box (default = 12)
-      values: .*
-LABELFORMATVALUE:
-  summary: Displays a LABEL widget to show the telemetry
-    items name followed by a formatted VALUE widget to display the items value.
-  parameters:
-    - name: Target name
-      required: true
-      description: The target name
-      values: .+
-    - name: Packet name
-      required: true
-      description: The packet name
-      values: .+
-    - name: Item name
-      required: true
-      description: The item name
-      values: .+
-    - name: Format String
-      required: true
-      description: Printf style format string, for example %0.6f
-      values: .*
-    - name: Value type
-      required: false
-      description: The type of the value to display. Default is CONVERTED.
-      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-    - name: Number of characters
-      required: false
-      description: The number of characters wide to make the value box (default = 12)
-      values: .*
+# LABELVALUEDESC:
+#   summary: Displays a LABEL widget to show the telemetry
+#     items description followed by a VALUE widget to display the items value.
+#   parameters:
+#     - name: Target name
+#       required: true
+#       description: The target name
+#       values: .+
+#     - name: Packet name
+#       required: true
+#       description: The packet name
+#       values: .+
+#     - name: Item name
+#       required: true
+#       description: The item name
+#       values: .+
+#     - name: Description
+#       required: false
+#       description:
+#         The description to display in the label (default is to display
+#         the description text associated with the telemetry item)
+#       values: .*
+#     - name: Value type
+#       required: false
+#       description: The type of the value to display. Default is CONVERTED.
+#       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+#     - name: Number of characters
+#       required: false
+#       description: The number of characters wide to make the value box (default = 12)
+#       values: .*
+# LABELFORMATVALUE:
+#   summary: Displays a LABEL widget to show the telemetry
+#     items name followed by a formatted VALUE widget to display the items value.
+#   parameters:
+#     - name: Target name
+#       required: true
+#       description: The target name
+#       values: .+
+#     - name: Packet name
+#       required: true
+#       description: The packet name
+#       values: .+
+#     - name: Item name
+#       required: true
+#       description: The item name
+#       values: .+
+#     - name: Format String
+#       required: true
+#       description: Printf style format string, for example %0.6f
+#       values: .*
+#     - name: Value type
+#       required: false
+#       description: The type of the value to display. Default is CONVERTED.
+#       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+#     - name: Number of characters
+#       required: false
+#       description: The number of characters wide to make the value box (default = 12)
+#       values: .*
 LABELVALUELIMITSBAR:
   summary: Displays a LABEL widget to show the telemetry item's name,
     followed by a VALUE widget to display the item's value, followed by a LIMITSBAR widget.
@@ -527,48 +527,48 @@ LABELVALUERANGEBAR:
       required: false
       description: Height of the range bar (default = 25)
       values: .*
-LABELVALUERANGECOLUMN:
-  summary: Displays a LABEL widget to show the telemetry item's name,
-    followed by a VALUE widget to display the item's value, followed by a RANGECOLUMN widget.
-  parameters:
-    - name: Target name
-      required: true
-      description: The target name
-      values: .+
-    - name: Packet name
-      required: true
-      description: The packet name
-      values: .+
-    - name: Item name
-      required: true
-      description: The item name
-      values: .+
-    - name: Low Value
-      required: true
-      description: Minimum value to display on the range bar. If the telemetry
-        item goes below this value the bar is “pegged” on the low end.
-      values: .+
-    - name: High Value
-      required: true
-      description: Maximum value to display on the range bar. If the telemetry
-        item goes above this value the bar is “pegged” on the high end.
-      values: .+
-    - name: Value type
-      required: false
-      description: The type of the value to display. Default is CONVERTED.
-      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-    - name: Number of characters
-      required: false
-      description: The number of characters wide to make the value box (default = 12)
-      values: .*
-    - name: Width
-      required: false
-      description: Width of the range bar (default = 160)
-      values: .*
-    - name: Height
-      required: false
-      description: Height of the range bar (default = 25)
-      values: .*
+# LABELVALUERANGECOLUMN:
+#   summary: Displays a LABEL widget to show the telemetry item's name,
+#     followed by a VALUE widget to display the item's value, followed by a RANGECOLUMN widget.
+#   parameters:
+#     - name: Target name
+#       required: true
+#       description: The target name
+#       values: .+
+#     - name: Packet name
+#       required: true
+#       description: The packet name
+#       values: .+
+#     - name: Item name
+#       required: true
+#       description: The item name
+#       values: .+
+#     - name: Low Value
+#       required: true
+#       description: Minimum value to display on the range bar. If the telemetry
+#         item goes below this value the bar is “pegged” on the low end.
+#       values: .+
+#     - name: High Value
+#       required: true
+#       description: Maximum value to display on the range bar. If the telemetry
+#         item goes above this value the bar is “pegged” on the high end.
+#       values: .+
+#     - name: Value type
+#       required: false
+#       description: The type of the value to display. Default is CONVERTED.
+#       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+#     - name: Number of characters
+#       required: false
+#       description: The number of characters wide to make the value box (default = 12)
+#       values: .*
+#     - name: Width
+#       required: false
+#       description: Width of the range bar (default = 160)
+#       values: .*
+#     - name: Height
+#       required: false
+#       description: Height of the range bar (default = 25)
+#       values: .*
 LED:
   summary: Displays a LED which changes color based on telemetry values.
     By default TRUE is green and FALSE is red and all other values are black.
@@ -776,80 +776,80 @@ VALUERANGEBAR:
       required: false
       description: Height of the range bar (default = 25)
       values: .*
-VALUERANGECOLUMN:
-  summary: Displays a graphical representation of where
-    an item's value falls within a range vertically and its value in a VALUE widget.
-  parameters:
-    - name: Target name
-      required: true
-      description: The target name
-      values: .+
-    - name: Packet name
-      required: true
-      description: The packet name
-      values: .+
-    - name: Item name
-      required: true
-      description: The item name
-      values: .+
-    - name: Low Value
-      required: true
-      description: Minimum value to display on the range bar. If the telemetry
-        item goes below this value the bar is “pegged” on the low end.
-      values: .+
-    - name: High Value
-      required: true
-      description: Maximum value to display on the range bar. If the telemetry
-        item goes above this value the bar is “pegged” on the high end.
-      values: .+
-    - name: Value type
-      required: false
-      description: The type of the value to display. Default is CONVERTED.
-      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-    - name: Number of characters
-      required: false
-      description: The number of characters wide to make the value box (default = 12)
-      values: .*
-    - name: Width
-      required: false
-      description: Width of the range bar (default = 160)
-      values: .*
-    - name: Height
-      required: false
-      description: Height of the range bar (default = 25)
-      values: .*
-LINEGRAPH:
-  summary: Displays a line graph of a telemetry items value
-    verses sample number
-  parameters:
-    - name: Target name
-      required: true
-      description: The target name
-      values: .+
-    - name: Packet name
-      required: true
-      description: The packet name
-      values: .+
-    - name: Item name
-      required: true
-      description: The item name
-      values: .+
-    - name: Num Samples
-      required: false
-      description: Number of samples to display on the graph (default = 100)
-      values: .*
-    - name: Width
-      required: false
-      description: Width of the graph (default = 300)
-      values: .*
-    - name: Height
-      required: false
-      description: Height of the graph (default = 200)
-      values: .*
-    - name: Value type
-      required: false
-      description: The type of the value to display. Default is CONVERTED.
-      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+# VALUERANGECOLUMN:
+#   summary: Displays a graphical representation of where
+#     an item's value falls within a range vertically and its value in a VALUE widget.
+#   parameters:
+#     - name: Target name
+#       required: true
+#       description: The target name
+#       values: .+
+#     - name: Packet name
+#       required: true
+#       description: The packet name
+#       values: .+
+#     - name: Item name
+#       required: true
+#       description: The item name
+#       values: .+
+#     - name: Low Value
+#       required: true
+#       description: Minimum value to display on the range bar. If the telemetry
+#         item goes below this value the bar is “pegged” on the low end.
+#       values: .+
+#     - name: High Value
+#       required: true
+#       description: Maximum value to display on the range bar. If the telemetry
+#         item goes above this value the bar is “pegged” on the high end.
+#       values: .+
+#     - name: Value type
+#       required: false
+#       description: The type of the value to display. Default is CONVERTED.
+#       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+#     - name: Number of characters
+#       required: false
+#       description: The number of characters wide to make the value box (default = 12)
+#       values: .*
+#     - name: Width
+#       required: false
+#       description: Width of the range bar (default = 160)
+#       values: .*
+#     - name: Height
+#       required: false
+#       description: Height of the range bar (default = 25)
+#       values: .*
+# LINEGRAPH:
+#   summary: Displays a line graph of a telemetry items value
+#     verses sample number
+#   parameters:
+#     - name: Target name
+#       required: true
+#       description: The target name
+#       values: .+
+#     - name: Packet name
+#       required: true
+#       description: The packet name
+#       values: .+
+#     - name: Item name
+#       required: true
+#       description: The item name
+#       values: .+
+#     - name: Num Samples
+#       required: false
+#       description: Number of samples to display on the graph (default = 100)
+#       values: .*
+#     - name: Width
+#       required: false
+#       description: Width of the graph (default = 300)
+#       values: .*
+#     - name: Height
+#       required: false
+#       description: Height of the graph (default = 200)
+#       values: .*
+#     - name: Value type
+#       required: false
+#       description: The type of the value to display. Default is CONVERTED.
+#       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
 PROGRESSBAR:
   summary: Displays a progress bar that is useful for displaying percentages
   parmeters:
@@ -916,44 +916,44 @@ RANGEBAR:
       required: false
       description: Height of the range bar (default = 25)
       values: .*
-RANGECOLUMN:
-  summary: Displays a graphical representation of where
-    an item's value falls withing a range vertically
-  parameters:
-    - name: Target name
-      required: true
-      description: The target name
-      values: .+
-    - name: Packet name
-      required: true
-      description: The packet name
-      values: .+
-    - name: Item name
-      required: true
-      description: The item name
-      values: .+
-    - name: Low Value
-      required: true
-      description: Minimum value to display on the range bar. If the telemetry
-        item goes below this value the bar is “pegged” on the low end.
-      values: .+
-    - name: High Value
-      required: true
-      description: Maximum value to display on the range bar. If the telemetry
-        item goes above this value the bar is “pegged” on the high end.
-      values: .+
-    - name: Value type
-      required: false
-      description: The type of the value to display. Default is CONVERTED.
-      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-    - name: Width
-      required: false
-      description: Width of the range bar (default = 30)
-      values: .*
-    - name: Height
-      required: false
-      description: Height of the range bar (default = 100)
-      values: .*
+# RANGECOLUMN:
+#   summary: Displays a graphical representation of where
+#     an item's value falls withing a range vertically
+#   parameters:
+#     - name: Target name
+#       required: true
+#       description: The target name
+#       values: .+
+#     - name: Packet name
+#       required: true
+#       description: The packet name
+#       values: .+
+#     - name: Item name
+#       required: true
+#       description: The item name
+#       values: .+
+#     - name: Low Value
+#       required: true
+#       description: Minimum value to display on the range bar. If the telemetry
+#         item goes below this value the bar is “pegged” on the low end.
+#       values: .+
+#     - name: High Value
+#       required: true
+#       description: Maximum value to display on the range bar. If the telemetry
+#         item goes above this value the bar is “pegged” on the high end.
+#       values: .+
+#     - name: Value type
+#       required: false
+#       description: The type of the value to display. Default is CONVERTED.
+#       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+#     - name: Width
+#       required: false
+#       description: Width of the range bar (default = 30)
+#       values: .*
+#     - name: Height
+#       required: false
+#       description: Height of the range bar (default = 100)
+#       values: .*
 TEXTBOX:
   summary: Provides a large box for multiline text
   parameters:
@@ -977,115 +977,115 @@ TEXTBOX:
       required: false
       description: Height of the range bar (default = 100)
       values: .*
-TIMEGRAPH:
-  summary: Displays a line graph of a telemetry items value verses time
-  parameters:
-    - name: Target name
-      required: true
-      description: The target name
-      values: .+
-    - name: Packet name
-      required: true
-      description: The packet name
-      values: .+
-    - name: Item name
-      required: true
-      description: The item name
-      values: .+
-    - name: Num Samples
-      required: false
-      description: Number of samples to display on graph (default = 100)
-      values: .*
-    - name: Width
-      required: false
-      description: Width of the graph (default = 300)
-      values: .*
-    - name: Height
-      required: false
-      description: Height of the graph (default = 200)
-      values: .*
-    - name: Show Points
-      required: false
-      description: Whether to show points or just draw lines between points (default = true)
-      values: ["TRUE", "FALSE"]
-    - name: Time item name
-      required: false
-      description: The telemetry item to use as the time on the X axis (default = TIMESECONDS)
-      value: .*
-    - name: Value type
-      required: false
-      description: The type of the value to display. Default is CONVERTED.
-      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-TRENDBAR:
-  summary: Provides the same functionality as the LIMITSBAR
-    widget except that it also keeps a history of the telemetry item and
-    graphically shows where the value was X seconds ago.
-  parameters:
-    - name: Target name
-      required: true
-      description: The target name
-      values: .+
-    - name: Packet name
-      required: true
-      description: The packet name
-      values: .+
-    - name: Item name
-      required: true
-      description: The item name
-      values: .+
-    - name: Value type
-      required: false
-      description: The type of the value to display. Default is CONVERTED.
-      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-    - name: Trend Seconds
-      required: false
-      description: The number of seconds in the past to display the trend value (default = 60)
-      values: .*
-    - name: Width
-      required: false
-      description: Width of the limits bar (default = 160)
-      values: .*
-    - name: Height
-      required: false
-      description: Height of the limits bar (default = 25)
-      values: .*
-TRENDLIMITSBAR:
-  summary: Displays a VALUE widget to show the telemetry items current value,
-    a VALUE widget to display the value of the item X seconds ago, and a TRENDBAR
-    widget to display the items value within its limits ranges and its trend.
-  parameters:
-    - name: Target name
-      required: true
-      description: The target name
-      values: .+
-    - name: Packet name
-      required: true
-      description: The packet name
-      values: .+
-    - name: Item name
-      required: true
-      description: The item name
-      values: .+
-    - name: Value type
-      required: false
-      description: The type of the value to display. Default is CONVERTED.
-      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-    - name: Trend Seconds
-      required: false
-      description: The number of seconds in the past to display the trend value (default = 60)
-      values: .*
-    - name: Characters
-      required: false
-      description: The number of characters to display the telemetry value (default = 12)
-      values: .*
-    - name: Width
-      required: false
-      description: Width of the limits bar (default = 160)
-      values: .*
-    - name: Height
-      required: false
-      description: Height of the limits bar (default = 25)
-      values: .*
+# TIMEGRAPH:
+#   summary: Displays a line graph of a telemetry items value verses time
+#   parameters:
+#     - name: Target name
+#       required: true
+#       description: The target name
+#       values: .+
+#     - name: Packet name
+#       required: true
+#       description: The packet name
+#       values: .+
+#     - name: Item name
+#       required: true
+#       description: The item name
+#       values: .+
+#     - name: Num Samples
+#       required: false
+#       description: Number of samples to display on graph (default = 100)
+#       values: .*
+#     - name: Width
+#       required: false
+#       description: Width of the graph (default = 300)
+#       values: .*
+#     - name: Height
+#       required: false
+#       description: Height of the graph (default = 200)
+#       values: .*
+#     - name: Show Points
+#       required: false
+#       description: Whether to show points or just draw lines between points (default = true)
+#       values: ["TRUE", "FALSE"]
+#     - name: Time item name
+#       required: false
+#       description: The telemetry item to use as the time on the X axis (default = TIMESECONDS)
+#       values: .*
+#     - name: Value type
+#       required: false
+#       description: The type of the value to display. Default is CONVERTED.
+#       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+# TRENDBAR:
+#   summary: Provides the same functionality as the LIMITSBAR
+#     widget except that it also keeps a history of the telemetry item and
+#     graphically shows where the value was X seconds ago.
+#   parameters:
+#     - name: Target name
+#       required: true
+#       description: The target name
+#       values: .+
+#     - name: Packet name
+#       required: true
+#       description: The packet name
+#       values: .+
+#     - name: Item name
+#       required: true
+#       description: The item name
+#       values: .+
+#     - name: Value type
+#       required: false
+#       description: The type of the value to display. Default is CONVERTED.
+#       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+#     - name: Trend Seconds
+#       required: false
+#       description: The number of seconds in the past to display the trend value (default = 60)
+#       values: .*
+#     - name: Width
+#       required: false
+#       description: Width of the limits bar (default = 160)
+#       values: .*
+#     - name: Height
+#       required: false
+#       description: Height of the limits bar (default = 25)
+#       values: .*
+# TRENDLIMITSBAR:
+#   summary: Displays a VALUE widget to show the telemetry items current value,
+#     a VALUE widget to display the value of the item X seconds ago, and a TRENDBAR
+#     widget to display the items value within its limits ranges and its trend.
+#   parameters:
+#     - name: Target name
+#       required: true
+#       description: The target name
+#       values: .+
+#     - name: Packet name
+#       required: true
+#       description: The packet name
+#       values: .+
+#     - name: Item name
+#       required: true
+#       description: The item name
+#       values: .+
+#     - name: Value type
+#       required: false
+#       description: The type of the value to display. Default is CONVERTED.
+#       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+#     - name: Trend Seconds
+#       required: false
+#       description: The number of seconds in the past to display the trend value (default = 60)
+#       values: .*
+#     - name: Characters
+#       required: false
+#       description: The number of characters to display the telemetry value (default = 12)
+#       values: .*
+#     - name: Width
+#       required: false
+#       description: Width of the limits bar (default = 160)
+#       values: .*
+#     - name: Height
+#       required: false
+#       description: Height of the limits bar (default = 25)
+#       values: .*
 VALUE:
   summary:
     The VALUE widget displays a box with a value printed inside. The white
@@ -1133,27 +1133,6 @@ BUTTON:
       required: true
       description: Ruby code to execute when the button is pressed
       values: .+
-BACKGROUNDBUTTON:
-  summary: Displays a rectangular clickable button
-  description:
-    Upon clicking, the button executes the Ruby code assigned in a new thread
-    so the code executes in the background (not in the GUI thread). Buttons
-    can be used to send commands and perform other tasks. If you want your button
-    to use values from other widgets, define them as named widgets and read their
-    values using the get_named_widget("WIDGET_NAME").text method.
-  warning:
-    If your button logic gets complex it's recommended to require a separate
-    script and pass the screen to the script using self,
-    e.g. require utility.rb; utility_method(self).
-  parameters:
-    - name: Button Text
-      required: true
-      description: Text displayed on the button
-      values: .+
-    - name: Button Code
-      required: true
-      description: Ruby code to execute when the button is pressed
-      values: .+
 CHECKBUTTON:
   summary: Displays a check box
   description: Note this is of limited use by itself and is primarily used in
@@ -1171,11 +1150,20 @@ COMBOBOX:
     - name: Option Text
       required: true
       description: Text to display in the selection drop down
-      value: .+
+      values: .+
+RADIOGROUP:
+  summary: Creates a group of RADIOBUTTONs
+  description: RADIOBUTTONs must be part of a group to enable selection logic
+  parameters:
+    - name: Initial selected button
+      required: false
+      description: Selects a radio button at initialization (0-based)
+      values: \d+
 RADIOBUTTON:
   summary: Displays a radio button and text
   description: Note this is of limited use by itself and is primarily used in
-    conjunction with NAMED_WIDGET.
+    conjunction with NAMED_WIDGET. It must be contained by a RADIOGROUP to enable
+    typical selection of a single RADIOBUTTON.
   parameters:
     - name: Text
       required: true
@@ -1425,34 +1413,34 @@ CANVASDOT:
       required: false
       description: Width of the dot in pixels (default = 3)
       values: \d+
-CANVASELLIPSE:
-  summary: The CANVASELLIPSE widget draws an ellipse onto the canvas
-  parameters:
-    - name: X Center
-      required: true
-      description: X position of the center of the ellipse
-      values: \d+
-    - name: Y Center
-      required: true
-      description: Y position of the center of the ellipse
-      values: \d+
-    - name: Width
-      required: true
-      description: Width of the ellipse in pixels
-      values: \d+
-    - name: Height
-      required: true
-      description: Height of the ellipse in pixels
-      values: \d+
-    - name: Color
-      required: false
-      description: Color of the ellipse. Default is black.
-      values: .+
-    - name: Line Width
-      required: false
-      description: Width of the line. Default is 1
-      values: \d+
-    - name: Fill
-      required: false
-      description: Whether to fill the ellipse. Default is false.
-      values: .+
+# CANVASELLIPSE:
+#   summary: The CANVASELLIPSE widget draws an ellipse onto the canvas
+#   parameters:
+#     - name: X Center
+#       required: true
+#       description: X position of the center of the ellipse
+#       values: \d+
+#     - name: Y Center
+#       required: true
+#       description: Y position of the center of the ellipse
+#       values: \d+
+#     - name: Width
+#       required: true
+#       description: Width of the ellipse in pixels
+#       values: \d+
+#     - name: Height
+#       required: true
+#       description: Height of the ellipse in pixels
+#       values: \d+
+#     - name: Color
+#       required: false
+#       description: Color of the ellipse. Default is black.
+#       values: .+
+#     - name: Line Width
+#       required: false
+#       description: Width of the line. Default is 1
+#       values: \d+
+#     - name: Fill
+#       required: false
+#       description: Whether to fill the ellipse. Default is false.
+#       values: .+

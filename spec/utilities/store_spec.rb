@@ -20,7 +20,8 @@
 require 'spec_helper'
 
 module Cosmos
-  describe Store do
+  # TODO: All store functionality is pretty much going out of store ... it will remain a shell for redis commands
+  xdescribe Store do
     before(:each) do
       configure_store()
     end

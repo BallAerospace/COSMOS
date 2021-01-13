@@ -161,7 +161,7 @@ module Cosmos
           raise parser.error("#{filename} not found") unless File.exist?(filename)
           @cmd_tlm_files << filename
 
-        when 'AUTO_SCREEN_SUBSTITUTE'
+        # when 'AUTO_SCREEN_SUBSTITUTE'
           # usage = "#{keyword}"
           # parser.verify_num_parameters(0, 0, usage)
           # @auto_screen_substitute = true

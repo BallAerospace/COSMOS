@@ -242,7 +242,7 @@ export default {
       if (
         keyword.includes('VERTICAL') ||
         keyword.includes('HORIZONTAL') ||
-        keyword.includes('MATRIX') ||
+        keyword.includes('MATRIXBYCOLUMNS') ||
         keyword === 'CANVAS' ||
         keyword === 'RADIOGROUP'
       ) {

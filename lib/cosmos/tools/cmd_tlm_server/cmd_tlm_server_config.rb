@@ -207,7 +207,7 @@ module Cosmos
 
             end # end case keyword for all keywords that require a current interface
 
-          when 'DONT_CONNECT', 'DONT_RECONNECT', 'RECONNECT_DELAY', 'DISABLE_DISCONNECT', 'LOG_RAW', 'ROUTER_LOG_RAW', 'OPTION', 'PROTOCOL'
+          when 'DONT_CONNECT', 'DONT_RECONNECT', 'RECONNECT_DELAY', 'DISABLE_DISCONNECT', 'LOG_RAW', 'OPTION', 'PROTOCOL'
             raise parser.error("No current interface or router for #{keyword}") unless current_interface_or_router
 
             case keyword
@@ -228,8 +228,7 @@ module Cosmos
               parser.verify_num_parameters(0, 0, "#{keyword}")
               current_interface_or_router.disable_disconnect = true
 
-            # TODO: Deprecate ROUTER_LOG_RAW
-            when 'LOG_RAW', 'ROUTER_LOG_RAW'
+            when 'LOG_RAW',
               parser.verify_num_parameters(0, nil, "#{keyword} <Raw Logger Class File (optional)> <Raw Logger Parameters (optional)>")
               #current_interface_or_router.raw_logger_pair = RawLoggerPair.new(current_interface_or_router.name, params)
               #current_interface_or_router.start_raw_logging

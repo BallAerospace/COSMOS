@@ -1,0 +1,28 @@
+---
+TOOL:
+  summary: Defines a new tool
+  example: TOOL DEMO Demo
+  parameters:
+    - name: Folder Name
+      required: true
+      description: The target folder where the tool is located
+      values: .*
+    - name: Name
+      required: true
+      description: The tool name
+      values: .*
+  modifiers:
+    URL:
+      summary: Url to reach the tool
+      parameters:
+        - name: URL
+          required: true
+          description: URL
+          values: .*
+    ICON:
+      summary: Icon used to display the tool link
+      parameters:
+        - name: Name
+          required: true
+          description: Material design icon name (https://materialdesignicons.com/)
+          values: .*
