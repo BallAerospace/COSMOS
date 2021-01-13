@@ -9,8 +9,7 @@ cache:
   - vendor\bundle -> appveyor.yml, Gemfile, cosmos.gemspec
 
 install:
-  - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
-  - SET PATH=C:\MinGW\bin;%PATH%
+  - SET PATH=C:\Ruby%ruby_version%\bin;C:\MinGW\bin;%PATH%
   - SET RAKEOPT=-rdevkit
   - SET COSMOS_DEVEL=true
   - bundle config --local path vendor/bundle
