@@ -24,8 +24,7 @@ require 'tempfile'
 require 'fileutils'
 
 module Cosmos
-
-  describe System do
+  xdescribe System do
     before(:all) do
       setup_system()
       clean_config()

@@ -28,7 +28,7 @@ module Cosmos
         expect(spy).to receive(:start)
         expect(ChildProcess).to receive(:build).with('ruby', 'filename.rb', 'DEFAULT__SERVICE__NAME').and_return(spy)
 
-        op = OperatorProcess.new(['ruby','filename.rb','DEFAULT__SERVICE__NAME'], 'DEFAULT')
+        op = OperatorProcess.new(['ruby','filename.rb','DEFAULT__SERVICE__NAME'], scope: 'DEFAULT')
         op.start
       end
     end

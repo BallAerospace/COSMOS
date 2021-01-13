@@ -40,7 +40,7 @@ module Cosmos
       end
     end
 
-    describe "update" do
+    xdescribe "update" do
       before(:all) do
         File.open(File.join(__dir__, '..', '..', 'lib', 'while.rb'), 'w') do |file|
           file.puts "while true"
