@@ -31,6 +31,7 @@ module Cosmos
     attr_accessor :plugin
     attr_accessor :scope
 
+    # Store the primary key and keyword arguments
     def initialize(primary_key, **kw_args)
       @primary_key = primary_key
       @name = kw_args[:name]
@@ -39,6 +40,8 @@ module Cosmos
       @scope = kw_args[:scope]
     end
 
+    # Update the Redis hash at primary_key and set the field "name"
+    # to the JSON generated via calling as_json
     def create(update: false, force: false)
       unless force
         existing = Store.hget(@primary_key, @name)
@@ -52,36 +55,43 @@ module Cosmos
       Store.hset(@primary_key, @name, JSON.generate(self.as_json))
     end
 
+    # Alias for create(update: true)
     def update
       create(update: true)
     end
 
+    # Deploy the model into the COSMOS system. Subclasses must implement this
+    # and typically create MicroserviceModels to implement.
     def deploy(gem_path, variables)
-      raise "must be implmented by subclass"
+      raise "must be implemented by subclass"
     end
 
+    # Undo the actions of deploy and remove the model from COSMOS.
+    # Subclasses must implement this as by default it is a noop.
     def undeploy
-      # Does nothing by default
     end
 
+    # Delete the model from the Store
     def destroy
       undeploy()
       Store.hdel(@primary_key, @name)
     end
 
+    # @return [Hash] JSON encoding of this model
     def as_json
       { 'name' => @name,
         'updated_at' => @updated_at,
-        'plugin' => @plugin }
+        'plugin' => @plugin,
+        'scope' => @scope }
     end
 
-    # TODO: This has a potential use-case in exporting other configuration formats
-    # like XTCE back to COSMOS formats. However, it's currently not used.
+    # TODO: Not currently used but may be used by a XTCE or other format to COSMOS conversion
     def as_config
       ""
     end
 
-    def self.from_json(json, scope: nil)
+    # @return [Array<Hash>] All the models (as Hash objects) stored under the primary key
+    def self.from_json(json, scope:)
       json = JSON.parse(json) if String === json
       raise "json data is nil" if json.nil?
       json[:scope] = scope
@@ -89,12 +99,17 @@ module Cosmos
       self.new(**json, scope: scope)
     end
 
+    # Sets (updates) the redis hash of this model
     def self.set(json, scope:)
       json[:scope] = scope
       json.transform_keys!(&:to_sym)
       self.new(**json).create(force: true)
     end
 
+    # NOTE: The following three methods must be reimplemented by Model subclasses
+    # without primary_key to support other class methods.
+
+    # @return [Hash|nil] Hash of this model or nil if name not found under primary_key
     def self.get(primary_key, name:)
       json = Store.hget(primary_key, name)
       if json
@@ -103,8 +118,22 @@ module Cosmos
         return nil
       end
     end
+    # @return [Array<String>] All the names stored under the primary key
+    def self.names(primary_key)
+      Store.hkeys(primary_key).sort
+    end
+    # @return [Array<Hash>] All the models (as Hash objects) stored under the primary key
+    def self.all(primary_key)
+      hash = Store.hgetall(primary_key)
+      hash.each do |key, value|
+        hash[key] = JSON.parse(value)
+      end
+      hash
+    end
+    # END NOTE
 
-    # Note: This will only work in subclasses that reimplement get without primary_key
+    # Calls self.get and then from_json to turn the Hash configuration into a Ruby Model object.
+    # @return [Object|nil] Model object or nil if name not found under primary_key
     def self.get_model(name:, scope:)
       json = get(name: name, scope: scope)
       if json
@@ -114,26 +143,15 @@ module Cosmos
       end
     end
 
-    def self.names(primary_key)
-      Store.hkeys(primary_key).sort
-    end
-
-    def self.all(primary_key)
-      hash = Store.hgetall(primary_key)
-      hash.each do |key, value|
-        hash[key] = JSON.parse(value)
-      end
-      hash
-    end
-
-    # Note: This will only work in subclasses that reimplement all without primary_key
+    # @return [Array<Object>] All the models (as Model objects) stored under the primary key
     def self.get_all_models(scope:)
       models = {}
       all(scope: scope).each { |name, json| models[name] = from_json(json, scope: scope) }
       models
     end
 
-    # Note: This will only work in subclasses that reimplement all without primary_key
+    # @return [Array<Object>] All the models (as Model objects) stored under the primary key
+    #   which have the plugin attribute
     def self.find_all_by_plugin(plugin:, scope:)
       result = {}
       models = get_all_models(scope: scope)
@@ -144,25 +162,17 @@ module Cosmos
     end
 
     def self.handle_config(parser, model, keyword, parameters)
-      raise "must be implmented by subclass"
+      raise "must be implemented by subclass"
     end
 
-    def self.from_config(primary_key, filename)
-      model = nil
-      parser = ConfigParser.new
-      parser.parse_file(filename) do |keyword, parameters|
-        model = self.handle_config(primary_key, parser, model, keyword, parameters)
-      end
-      model
-    end
-
-    def create_erb_binding(config_parser_erb_variables)
-      config_parser_erb_variables ||= {}
-      config_parser_erb_binding = binding
-      config_parser_erb_variables.each do |config_parser_erb_variables_key, config_parser_erb_variables_value|
-        config_parser_erb_binding.local_variable_set(config_parser_erb_variables_key.intern, config_parser_erb_variables_value)
-      end
-      return config_parser_erb_binding
-    end
+    # TODO: Not used
+    # def self.from_config(primary_key, filename)
+    #   model = nil
+    #   parser = ConfigParser.new
+    #   parser.parse_file(filename) do |keyword, parameters|
+    #     model = self.handle_config(primary_key, parser, model, keyword, parameters)
+    #   end
+    #   model
+    # end
   end
 end

@@ -48,6 +48,23 @@ module Cosmos
       end
     end
 
+    describe "self.get" do
+      it "returns the specified interface" do
+        model = RouterModel.new(name: "TEST_ROUTE", scope: "DEFAULT",
+          connect_on_startup: false, auto_reconnect: false) # Set a few things to check
+        model.create
+        model = RouterModel.new(name: "SPEC_ROUTE", scope: "DEFAULT",
+          connect_on_startup: true, auto_reconnect: true) # Set to opposite of TEST_ROUTE
+        model.create
+        all = RouterModel.all(scope: "DEFAULT")
+        expect(all.keys).to contain_exactly("TEST_ROUTE", "SPEC_ROUTE")
+        expect(all["TEST_ROUTE"]["connect_on_startup"]).to be false
+        expect(all["TEST_ROUTE"]["auto_reconnect"]).to be false
+        expect(all["SPEC_ROUTE"]["connect_on_startup"]).to be true
+        expect(all["SPEC_ROUTE"]["auto_reconnect"]).to be true
+      end
+    end
+
     describe "self.names" do
       it "returns all interface names" do
         model = RouterModel.new(name: "TEST_ROUTE", scope: "DEFAULT")
@@ -77,20 +94,28 @@ module Cosmos
       end
     end
 
-    describe "self.get" do
-      it "returns the specified interface" do
-        model = RouterModel.new(name: "TEST_ROUTE", scope: "DEFAULT",
-          connect_on_startup: false, auto_reconnect: false) # Set a few things to check
+    describe "deploy" do
+      it "creates and deploys a MicroserviceModel" do
+        dir = Dir.pwd
+        variables = {"test"=>"example"}
+        # double MicroserviceModel because we're not testing that here
+        umodel = double(MicroserviceModel)
+        expect(umodel).to receive(:create)
+        expect(umodel).to receive(:deploy).with(dir, variables)
+        expect(MicroserviceModel).to receive(:new).and_return(umodel)
+        model = RouterModel.new(name: "TEST_ROUTE", scope: "DEFAULT", plugin: "PLUG")
         model.create
-        model = RouterModel.new(name: "SPEC_ROUTE", scope: "DEFAULT",
-          connect_on_startup: true, auto_reconnect: true) # Set to opposite of TEST_ROUTE
-        model.create
-        all = RouterModel.all(scope: "DEFAULT")
-        expect(all.keys).to contain_exactly("TEST_ROUTE", "SPEC_ROUTE")
-        expect(all["TEST_ROUTE"]["connect_on_startup"]).to be false
-        expect(all["TEST_ROUTE"]["auto_reconnect"]).to be false
-        expect(all["SPEC_ROUTE"]["connect_on_startup"]).to be true
-        expect(all["SPEC_ROUTE"]["auto_reconnect"]).to be true
+        model.deploy(dir, variables)
+      end
+    end
+
+    describe "undeploy" do
+      it "calls destroy on a deployed MicroserviceModel" do
+        umodel = double(MicroserviceModel)
+        expect(umodel).to receive(:destroy)
+        expect(MicroserviceModel).to receive(:get_model).and_return(umodel)
+        model = RouterModel.new(name: "TEST_ROUTE", scope: "DEFAULT", plugin: "PLUG")
+        model.undeploy
       end
     end
   end

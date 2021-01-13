@@ -28,81 +28,27 @@ module Cosmos
       Cosmos::Store.class_variable_set(:@@instance, nil)
     end
 
-    describe "initialize" do
-      it "requires name and scope" do
-        expect { InterfaceModel.new(name: "TEST_INT") }.to raise_error(ArgumentError)
-        expect { InterfaceModel.new(scope: "TEST_INT") }.to raise_error(ArgumentError)
-        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
-      end
-    end
-
-    describe "create" do
-      it "stores model based on scope and class name" do
-        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
-        model.create
-        keys = Store.scan(0)
-        # This is an implementation detail but Redis keys are pretty critical so test it
-        expect(keys[1]).to contain_exactly("DEFAULT__cosmos_interfaces")
-      end
-
-      it "complains if it already exists" do
-        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
-        model.create
-        expect { model.create }.to raise_error(/TEST_INT already exists/)
-      end
-
-      it "complains if updating non-existant" do
-        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
-        expect { model.create(update: true) }.to raise_error(/TEST_INT doesn't exist/)
-      end
-
-      it "updates existing" do
-        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", auto_reconnect: false)
-        model.create
-        saved = InterfaceModel.get(name: "TEST_INT", scope: "DEFAULT")
-        expect(saved['auto_reconnect']).to be false
-
-        model.auto_reconnect = true
-        model.create(update: true)
-        saved = InterfaceModel.get(name: "TEST_INT", scope: "DEFAULT")
-        expect(saved['auto_reconnect']).to be true
-      end
-    end
-
-    describe "update" do
-      it "updates existing" do
-        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", auto_reconnect: false)
-        model.create
-        saved = InterfaceModel.get(name: "TEST_INT", scope: "DEFAULT")
-        expect(saved['auto_reconnect']).to be false
-
-        model.auto_reconnect = true
-        model.update
-        saved = InterfaceModel.get(name: "TEST_INT", scope: "DEFAULT")
-        expect(saved['auto_reconnect']).to be true
-      end
-    end
-
-    describe "as_json" do
-      it "encodes all the input parameters" do
-        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
-        json = model.as_json
-        expect(json['name']).to eq "TEST_INT"
-        params = model.method(:initialize).parameters
-        params.each do |type, name|
-          # TODO: Why isn't scope included in as_json?
-          next if name == :scope
-          expect(json.key?(name.to_s)).to be true
-        end
-      end
-    end
-
     describe "self.handle_config" do
       it "only recognizes INTERFACE" do
         parser = double("ConfigParser").as_null_object
         expect(parser).to receive(:verify_num_parameters)
         InterfaceModel.handle_config(parser, "INTERFACE", ["TEST_INT"], scope: "DEFAULT")
         expect { InterfaceModel.handle_config(parser, "ROUTER", ["TEST_INT"], scope: "DEFAULT") }.to raise_error(ConfigParser::Error)
+      end
+    end
+
+    describe "self.get" do
+      it "returns the specified interface" do
+        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT",
+          connect_on_startup: false, auto_reconnect: false) # Set a few things to check
+        model.create
+        model = InterfaceModel.new(name: "SPEC_INT", scope: "DEFAULT",
+          connect_on_startup: true, auto_reconnect: true) # Set to opposite of TEST_INT
+        model.create
+        test = InterfaceModel.get(name: "TEST_INT", scope: "DEFAULT")
+        expect(test["name"]).to eq "TEST_INT"
+        expect(test["connect_on_startup"]).to be false
+        expect(test["auto_reconnect"]).to be false
       end
     end
 
@@ -139,18 +85,80 @@ module Cosmos
       end
     end
 
-    describe "self.get" do
-      it "returns the specified interface" do
+    describe "initialize" do
+      it "requires name and scope" do
+        expect { InterfaceModel.new(name: "TEST_INT") }.to raise_error(ArgumentError)
+        expect { InterfaceModel.new(scope: "TEST_INT") }.to raise_error(ArgumentError)
+        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
+      end
+    end
+
+    describe "create" do
+      it "stores model based on scope and class name" do
+        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
+        model.create
+        keys = Store.scan(0)
+        # This is an implementation detail but Redis keys are pretty critical so test it
+        expect(keys[1]).to contain_exactly("DEFAULT__cosmos_interfaces")
+      end
+    end
+
+    describe "build" do
+      it "instantiates the interface" do
+        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", config_params: ["interface.rb"])
+        interface = model.build
+        expect(interface.class).to eq Interface
+        # Now instantiate a more complex option
         model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT",
-          connect_on_startup: false, auto_reconnect: false) # Set a few things to check
+          config_params: %w(tcpip_client_interface.rb 127.0.0.1 8080 8081 10.0 nil BURST 4 0xDEADBEEF))
+        interface = model.build
+        expect(interface.class).to eq TcpipClientInterface
+      end
+    end
+
+    describe "as_json" do
+      it "encodes all the input parameters" do
+        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
+        json = model.as_json
+        expect(json['name']).to eq "TEST_INT"
+        params = model.method(:initialize).parameters
+        params.each do |type, name|
+          # TODO: Why isn't scope included in as_json?
+          next if name == :scope
+          expect(json.key?(name.to_s)).to be true
+        end
+      end
+    end
+
+    describe "as_config" do
+      it "exports model as COSMOS configuration" do
+        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
+        expect(model.as_config).to match(/INTERFACE TEST_INT/)
+      end
+    end
+
+    describe "deploy" do
+      it "creates and deploys a MicroserviceModel" do
+        dir = Dir.pwd
+        variables = {"test"=>"example"}
+        # double MicroserviceModel because we're not testing that here
+        umodel = double(MicroserviceModel)
+        expect(umodel).to receive(:create)
+        expect(umodel).to receive(:deploy).with(dir, variables)
+        expect(MicroserviceModel).to receive(:new).and_return(umodel)
+        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", plugin: "PLUG")
         model.create
-        model = InterfaceModel.new(name: "SPEC_INT", scope: "DEFAULT",
-          connect_on_startup: true, auto_reconnect: true) # Set to opposite of TEST_INT
-        model.create
-        test = InterfaceModel.get(name: "TEST_INT", scope: "DEFAULT")
-        expect(test["name"]).to eq "TEST_INT"
-        expect(test["connect_on_startup"]).to be false
-        expect(test["auto_reconnect"]).to be false
+        model.deploy(dir, variables)
+      end
+    end
+
+    describe "undeploy" do
+      it "calls destroy on a deployed MicroserviceModel" do
+        umodel = double(MicroserviceModel)
+        expect(umodel).to receive(:destroy)
+        expect(MicroserviceModel).to receive(:get_model).and_return(umodel)
+        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", plugin: "PLUG")
+        model.undeploy
       end
     end
   end

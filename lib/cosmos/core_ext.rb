@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/core_ext/array'
+require 'cosmos/core_ext/binding'
 require 'cosmos/core_ext/class'
 require 'cosmos/core_ext/cosmos_io'
 require 'cosmos/core_ext/exception'

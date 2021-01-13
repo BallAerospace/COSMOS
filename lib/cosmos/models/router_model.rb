@@ -21,6 +21,7 @@ require 'cosmos/models/interface_model'
 
 module Cosmos
   class RouterModel < InterfaceModel
+    # Called by the PluginModel to allow this class to validate it's top-level keyword: "ROUTER"
     def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
       case keyword
       when 'ROUTER'

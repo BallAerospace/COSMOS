@@ -124,7 +124,7 @@ module Cosmos
 
           # Load target files
           data = File.read(filename, mode: "rb")
-          data = ERB.new(data).result(create_erb_binding(variables)) if data.is_printable?
+          data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
           local_path = File.join(temp_dir, @name, target_folder_path)
           FileUtils.mkdir_p(File.dirname(local_path))
           File.open(local_path, 'wb') {|file| file.write(data)}

@@ -23,7 +23,7 @@ require 'cosmos/script'
 require 'tempfile'
 
 module Cosmos
-  describe Script do
+  xdescribe Script do
     before(:each) do
       allow_any_instance_of(Interface).to receive(:connected?).and_return(true)
       allow_any_instance_of(Interface).to receive(:disconnect)

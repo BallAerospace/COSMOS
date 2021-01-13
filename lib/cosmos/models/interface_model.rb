@@ -36,6 +36,52 @@ module Cosmos
     attr_accessor :log
     attr_accessor :log_raw
 
+    # NOTE: The following three class methods are used by the ModelController
+    # and are reimplemented to enable various Model class methods to work
+    def self.get(name:, scope:)
+      super("#{scope}__#{_get_key}", name: name)
+    end
+
+    def self.names(scope:)
+      super("#{scope}__#{_get_key}")
+    end
+
+    def self.all(scope:)
+      super("#{scope}__#{_get_key}")
+    end
+    # END NOTE
+
+    # Called by the PluginModel to allow this class to validate it's top-level keyword: "INTERFACE"
+    # Interface/Router specific keywords are handled by the instance method "handle_config"
+    # NOTE: See RouterModel for the router method implementation
+    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
+      case keyword
+      when 'INTERFACE'
+        parser.verify_num_parameters(2, nil, "INTERFACE <Name> <Filename> <Specific Parameters>")
+        return self.new(name: parameters[0].upcase, config_params: parameters[1..-1], plugin: plugin, scope: scope)
+      else
+        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Interface: #{keyword} #{parameters.join(" ")}")
+      end
+    end
+
+    # Helper method to return the correct type based on class name
+    def self._get_type
+      self.name.to_s.split("Model")[0].upcase.split("::")[-1]
+    end
+
+    # Helper method to return the correct primary key based on class name
+    def self._get_key
+      type = _get_type
+      case type
+      when 'INTERFACE'
+        INTERFACES_PRIMARY_KEY
+      when 'ROUTER'
+        ROUTERS_PRIMARY_KEY
+      else
+        raise "Unknown type #{type} from class #{self.name}"
+      end
+    end
+
     def initialize(
       name:,
       config_params: [],
@@ -51,8 +97,7 @@ module Cosmos
       updated_at: nil,
       plugin: nil,
       scope:)
-      interface_or_router = self.class.name.to_s.split("Model")[0].upcase.split("::")[-1]
-      if interface_or_router == 'INTERFACE'
+      if self.class._get_type == 'INTERFACE'
         super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name, updated_at: updated_at, plugin: plugin, scope: scope)
       else
         super("#{scope}__#{ROUTERS_PRIMARY_KEY}", name: name, updated_at: updated_at, plugin: plugin, scope: scope)
@@ -112,9 +157,9 @@ module Cosmos
       }
     end
 
+    # TODO: Not currently used but may be used by a XTCE or other format to COSMOS conversion
     def as_config
-      interface_or_router = self.class.name.to_s.split("Model")[0].upcase.split("::")[-1]
-      result = "#{interface_or_router} #{@name} #{@config_params.join(' ')}\n"
+      result = "#{self.class._get_type} #{@name} #{@config_params.join(' ')}\n"
       @target_names.each do |target_name|
         result << "  MAP_TARGET #{target_name}\n"
       end
@@ -133,16 +178,7 @@ module Cosmos
       result
     end
 
-    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
-      case keyword
-      when 'INTERFACE'
-        parser.verify_num_parameters(2, nil, "INTERFACE <Name> <Filename> <Specific Parameters>")
-        return self.new(name: parameters[0].upcase, config_params: parameters[1..-1], plugin: plugin, scope: scope)
-      else
-        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Interface: #{keyword} #{parameters.join(" ")}")
-      end
-    end
-
+    # Handles Interface/Router specific configuration keywords
     def handle_config(parser, keyword, parameters)
       case keyword
       when 'MAP_TARGET'
@@ -193,78 +229,27 @@ module Cosmos
       return nil
     end
 
-    # The following class methods are used by the ModelController
-
-    def self.get(name:, scope: nil)
-      interface_or_router = self.name.to_s.split("Model")[0].upcase.split("::")[-1]
-      if interface_or_router == 'INTERFACE'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name)
-      else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", name: name)
-      end
-    end
-
-    def self.names(scope: nil)
-      interface_or_router = self.name.to_s.split("Model")[0].upcase.split("::")[-1]
-      if interface_or_router == 'INTERFACE'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}")
-      else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}")
-      end
-    end
-
-    def self.all(scope: nil)
-      interface_or_router = self.name.to_s.split("Model")[0].upcase.split("::")[-1]
-      if interface_or_router == 'INTERFACE'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}")
-      else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}")
-      end
-    end
-
+    # Creates a MicroserviceModel to deploy the Interface/Router
     def deploy(gem_path, variables)
-      interface_or_router = self.class.name.to_s.split("Model")[0].upcase.split("::")[-1]
-
-      if interface_or_router == 'INTERFACE'
-        # Interface Microservice
-        microservice_name = "#{@scope}__INTERFACE__#{@name}"
-        microservice = MicroserviceModel.new(
-          name: microservice_name,
-          cmd: ["ruby", "interface_microservice.rb", microservice_name],
-          work_dir: '/cosmos/lib/cosmos/microservices',
-          target_names: @target_names,
-          plugin: @plugin,
-          scope: @scope)
-        microservice.create
-        microservice.deploy(gem_path, variables)
-        Logger.info "Configured Interface Microservice #{microservice_name}"
-      else
-        # Router Microservice
-        microservice_name = "#{@scope}__ROUTER__#{@name}"
-        microservice = MicroserviceModel.new(
-          name: microservice_name,
-          cmd: ["ruby", "router_microservice.rb", microservice_name],
-          work_dir: '/cosmos/lib/cosmos/microservices',
-          target_names: @target_names,
-          plugin: @plugin,
-          scope: @scope)
-        microservice.create
-        microservice.deploy(gem_path, variables)
-        Logger.info "Configured Router Microservice #{microservice_name}"
-      end
+      type = self.class._get_type
+      microservice_name = "#{@scope}__#{type}__#{@name}"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        cmd: ["ruby", "#{type.downcase}_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        target_names: @target_names,
+        plugin: @plugin,
+        scope: @scope)
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured #{type.downcase} microservice #{microservice_name}"
+      microservice
     end
 
+    # Looks up the deployed MicroserviceModel and destroys it
     def undeploy
-      interface_or_router = self.class.name.to_s.split("Model")[0].upcase.split("::")[-1]
-
-      if interface_or_router == 'INTERFACE'
-        model = MicroserviceModel.get_model(name: "#{@scope}__INTERFACE__#{@name}", scope: @scope)
-        model.destroy if model
-      else
-        model = MicroserviceModel.get_model(name: "#{@scope}__ROUTER__#{@name}", scope: @scope)
-        model.destroy if model
-      end
+      model = MicroserviceModel.get_model(name: "#{@scope}__#{self.class._get_type}__#{@name}", scope: @scope)
+      model.destroy if model
     end
-
   end
 end

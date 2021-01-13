@@ -202,7 +202,7 @@ module Cosmos
         # Load target files
         data = File.read(filename, mode: "rb")
         if data.is_printable?
-          rubys3_client.put_object(bucket: 'config', key: key, body: ERB.new(data).result(create_erb_binding(variables)))
+          rubys3_client.put_object(bucket: 'config', key: key, body: ERB.new(data).result(binding.set_variables(variables)))
         else
           rubys3_client.put_object(bucket: 'config', key: key, body: data)
         end
