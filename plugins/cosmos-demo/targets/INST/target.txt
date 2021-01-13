@@ -33,6 +33,3 @@ IGNORE_ITEM RECEIVED_TIMEFORMATTED
 COMMANDS inst_cmds.txt
 TELEMETRY inst_tlm.txt
 TELEMETRY inst_tlm_override.txt
-
-# Automatically substitute the target name in screen definitions
-AUTO_SCREEN_SUBSTITUTE

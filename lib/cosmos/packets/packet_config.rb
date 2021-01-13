@@ -21,7 +21,6 @@ require 'cosmos/config/config_parser'
 require 'cosmos/packets/packet'
 require 'cosmos/packets/parsers/packet_parser'
 require 'cosmos/packets/parsers/packet_item_parser'
-require 'cosmos/packets/parsers/macro_parser'
 require 'cosmos/packets/parsers/limits_parser'
 require 'cosmos/packets/parsers/limits_response_parser'
 require 'cosmos/packets/parsers/state_parser'
@@ -369,7 +368,8 @@ module Cosmos
       when 'ITEM', 'PARAMETER', 'ID_ITEM', 'ID_PARAMETER', 'ARRAY_ITEM', 'ARRAY_PARAMETER',\
           'APPEND_ITEM', 'APPEND_PARAMETER', 'APPEND_ID_ITEM', 'APPEND_ID_PARAMETER',\
           'APPEND_ARRAY_ITEM', 'APPEND_ARRAY_PARAMETER'
-        start_item(parser)
+        finish_item()
+        @current_item = PacketItemParser.parse(parser, @current_packet, @current_cmd_or_tlm, @warnings)
 
       # Allow this packet to be received with less data than the defined length
       # without generating a warning.
@@ -586,12 +586,6 @@ module Cosmos
         @current_item.overlap = true
 
       end
-    end
-
-    def start_item(parser)
-      finish_item()
-      @current_item = PacketItemParser.parse(parser, @current_packet, @current_cmd_or_tlm, @warnings)
-      MacroParser.new_item()
     end
 
     # Finish updating packet item
