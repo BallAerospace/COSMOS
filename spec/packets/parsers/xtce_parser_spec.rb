@@ -56,6 +56,10 @@ END
 
 module Cosmos
   describe XtceParser do
+    before(:all) do
+      setup_system()
+    end
+
     def xml_file(target)
       tf = Tempfile.new(['unittest', '.xtce'])
       tf.puts '<?xml version="1.0" encoding="UTF-8"?>'
@@ -138,7 +142,6 @@ module Cosmos
 
     describe "process_file" do
       before(:each) do
-        configure_store()
         @pc = PacketConfig.new
       end
 
