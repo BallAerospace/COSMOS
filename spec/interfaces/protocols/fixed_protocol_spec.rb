@@ -43,8 +43,8 @@ module Cosmos
     end
 
     describe "read_data" do
-      before(:each) do
-        configure_store()
+      before(:all) do
+        setup_system()
       end
 
       $index = 0
@@ -93,7 +93,7 @@ module Cosmos
       it "handles targets with no defined telemetry" do
         @interface.add_protocol(FixedProtocol, [1], :READ)
         @interface.instance_variable_set(:@stream, FixedStream.new)
-        @interface.target_names = ['BLAH']
+        @interface.target_names = ['EMPTY']
         $index = 1
         packet = @interface.read
         expect(packet.received_time.to_f).to eql 0.0

@@ -23,8 +23,8 @@ require 'cosmos/interfaces/protocols/override_protocol'
 
 module Cosmos
   describe OverrideProtocol do
-    before(:each) do
-      configure_store()
+    before(:all) do
+      setup_system()
     end
 
     let(:interface) do

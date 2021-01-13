@@ -86,6 +86,11 @@ require 'mock_redis'
 require 'cosmos/utilities/store'
 require 'cosmos/models/plugin_model'
 
+def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
+  dir = File.join(__dir__, 'install', 'config', 'targets')
+  Cosmos::System.instance(targets, dir)
+end
+
 def configure_store
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)

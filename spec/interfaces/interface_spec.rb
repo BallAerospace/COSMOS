@@ -127,7 +127,6 @@ module Cosmos
     end
 
     describe "read" do
-      skip "TODO: revisit when logging has been finalized" do
       let(:interface) { Interface.new }
 
       it "raises unless connected" do
@@ -137,7 +136,7 @@ module Cosmos
         expect { interface.read }.to raise_error(/Interface not connected/)
       end
 
-      it "optionally logs raw data received from read_interface" do
+      xit "optionally logs raw data received from read_interface" do
         class << interface
           def connected?; true; end
           def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
@@ -192,7 +191,7 @@ module Cosmos
         expect(interface.bytes_read).to eq 12
       end
 
-      it "allows protocol read_data to manipulate data" do
+      xit "allows protocol read_data to manipulate data" do
         class << interface
           def connected?; true; end
           def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
@@ -210,7 +209,7 @@ module Cosmos
         expect(File.read(filename)).to eq "\x01\x02\x03\x04"
       end
 
-      it "aborts if protocol read_data returns :DISCONNECT" do
+      xit "aborts if protocol read_data returns :DISCONNECT" do
         class << interface
           def connected?; true; end
           def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
@@ -226,7 +225,7 @@ module Cosmos
         expect(File.read(filename)).to eq "\x01\x02\x03\x04"
       end
 
-      it "gets more data if a protocol read_data returns :STOP" do
+      xit "gets more data if a protocol read_data returns :STOP" do
         class << interface
           def connected?; true; end
           def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
@@ -288,7 +287,6 @@ module Cosmos
         expect(packet.target_name).to be_nil
         expect(packet.packet_name).to be_nil
       end
-    end
     end
 
     describe "write" do

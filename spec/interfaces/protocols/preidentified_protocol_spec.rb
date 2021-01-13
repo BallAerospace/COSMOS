@@ -24,11 +24,14 @@ require 'cosmos/streams/stream'
 
 module Cosmos
   describe PreidentifiedProtocol do
+    before(:all) do
+      setup_system()
+    end
+
     before(:each) do
       $buffer = ''
       @interface = StreamInterface.new
       allow(@interface).to receive(:connected?) { true }
-      configure_store()
     end
 
     class PreStream < Stream

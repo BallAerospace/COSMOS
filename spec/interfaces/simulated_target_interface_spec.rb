@@ -51,10 +51,6 @@ end
       File.delete(File.join(File.dirname(__FILE__),'..','..','lib','test_inst.rb'))
     end
 
-    before(:each) do
-      configure_store()
-    end
-
     describe "initialize" do
       it "complains if the simulated target file doesn't exist" do
         expect { SimulatedTargetInterface.new("doesnt_exist.rb") }.to raise_error(/Unable to require doesnt_exist.rb/)
