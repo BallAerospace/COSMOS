@@ -50,7 +50,7 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
       describe "connect" do
         before(:all) do
           # If we're locally testing on a Windows box test for serial ports
-          if Kernel.is_windows? && !ENV['APPVEYOR']
+          if Kernel.is_windows?
             result = `chgport 2>&1`
             @ports = !result.include?("No serial ports")
           end

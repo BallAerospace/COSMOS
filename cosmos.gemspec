@@ -80,7 +80,7 @@ spec = Gem::Specification.new do |s|
       files
     else [] end
 
-  s.required_ruby_version = '~> 2.5'
+  s.required_ruby_version = '>= 2.5'
 
   # Runtime Dependencies
   s.add_runtime_dependency 'bundler', '>= 1.3'

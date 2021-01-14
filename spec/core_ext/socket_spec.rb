@@ -34,10 +34,8 @@ describe Socket do
 
   describe "lookup_hostname_from_ip" do
     it "returns the hostname for the ip address" do
-      if !ENV['APPVEYOR']
-        ipaddr = Resolv.getaddress "localhost"
-        expect(Socket.lookup_hostname_from_ip(ipaddr)).to_not be_nil
-      end
+      ipaddr = Resolv.getaddress "localhost"
+      expect(Socket.lookup_hostname_from_ip(ipaddr)).to_not be_nil
     end
   end
 end
