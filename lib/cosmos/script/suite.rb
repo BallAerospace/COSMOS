@@ -225,7 +225,6 @@ module Cosmos
     def run_setup(internal = false)
       ScriptResult.suite = name() unless internal
       result = nil
-      puts "self.class:#{self.class} defined:#{self.class.method_defined?(:setup)} len:#{@scripts.length}"
       if self.class.method_defined?(:setup) and @scripts.length > 0
         ScriptStatus.instance.total = 1 unless internal
         ScriptStatus.instance.status = "#{self.class} : setup"
