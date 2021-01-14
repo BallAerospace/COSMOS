@@ -99,6 +99,7 @@ module Cosmos
           exceptions = []
           messages = []
           exceptions = []
+          output = nil
           capture_io do |stdout|
             $stdout.define_singleton_method(:add_stream) { |stream| }
             $stdout.define_singleton_method(:remove_stream) { |stream| }
@@ -115,7 +116,9 @@ module Cosmos
             expect(stdout.string).to include("test_image1")
             expect(stdout.string).to include("mech1_exception")
             expect(stdout.string).to include("image2_exception")
+            output = stdout.string
           end
+          puts output
           expect(results).to eq(%i(PASS PASS FAIL PASS SKIP PASS PASS PASS FAIL PASS PASS PASS))
           expect(messages).to eq(["TestSuite::TestSuite::setup\n", "TestSuite::MechGroup::setup\n", "TestSuite::MechGroup::test_mech1\n", "TestSuite::MechGroup::test_mech2\n", "TestSuite::MechGroup::test_mech3\nunimplemented\n", "TestSuite::MechGroup::teardown\n", "TestSuite::ImageGroup::setup\n", "TestSuite::ImageGroup::test_image1\n", "TestSuite::ImageGroup::test_image2\n", "TestSuite::ImageGroup::test_image3\n", "TestSuite::ImageGroup::teardown\n", "TestSuite::TestSuite::teardown\n"])
           expect(exceptions.map {|e| e.message }).to include("mech1_exception")
