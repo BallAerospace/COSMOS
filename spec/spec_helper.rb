@@ -31,7 +31,7 @@ end
 # NOTE: You MUST require simplecov before anything else!
 if !ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
-  if ENV['TRAVIS'] # Only if we're on Travis do we use codecov
+  if ENV['GITHUB_WORKFLOW']
     require 'codecov'
     SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
       SimpleCov::Formatter::HTMLFormatter,
