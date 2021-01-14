@@ -86,7 +86,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'bundler', '>= 1.3'
   s.add_runtime_dependency 'rdoc', '>= 4'
   s.add_runtime_dependency 'rake', '>= 10.0' # 10.0 released Nov 12, 2012
-  s.add_runtime_dependency 'json', '>= 1.5', '< 3' # 2.0+ works with COSMOS
+  s.add_runtime_dependency 'json', '~> 2.5'
   s.add_runtime_dependency 'yard', '~> 0.9.11'
   s.add_runtime_dependency 'uuidtools', '~> 2.1'
   s.add_runtime_dependency 'snmp', '~> 1.0'
