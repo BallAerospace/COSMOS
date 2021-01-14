@@ -21,7 +21,6 @@ require 'cosmos/config/config_parser'
 require 'cosmos/packets/packet'
 require 'cosmos/packets/parsers/packet_parser'
 require 'cosmos/packets/parsers/packet_item_parser'
-require 'cosmos/packets/parsers/macro_parser'
 require 'cosmos/packets/parsers/limits_parser'
 require 'cosmos/packets/parsers/limits_response_parser'
 require 'cosmos/packets/parsers/state_parser'
@@ -210,8 +209,8 @@ module Cosmos
           when 'SELECT_ITEM', 'SELECT_PARAMETER', 'DELETE_ITEM', 'DELETE_PARAMETER', 'ITEM',\
               'PARAMETER', 'ID_ITEM', 'ID_PARAMETER', 'ARRAY_ITEM', 'ARRAY_PARAMETER', 'APPEND_ITEM',\
               'APPEND_PARAMETER', 'APPEND_ID_ITEM', 'APPEND_ID_PARAMETER', 'APPEND_ARRAY_ITEM',\
-              'APPEND_ARRAY_PARAMETER', 'MACRO_APPEND_START', 'MACRO_APPEND_END', 'ALLOW_SHORT',\
-              'HAZARDOUS', 'PROCESSOR', 'META', 'DISABLE_MESSAGES', 'HIDDEN', 'DISABLED'
+              'APPEND_ARRAY_PARAMETER', 'ALLOW_SHORT', 'HAZARDOUS', 'PROCESSOR', 'META',\
+              'DISABLE_MESSAGES', 'HIDDEN', 'DISABLED'
             raise parser.error("No current packet for #{keyword}") unless @current_packet
             process_current_packet(parser, keyword, params)
 
@@ -369,19 +368,8 @@ module Cosmos
       when 'ITEM', 'PARAMETER', 'ID_ITEM', 'ID_PARAMETER', 'ARRAY_ITEM', 'ARRAY_PARAMETER',\
           'APPEND_ITEM', 'APPEND_PARAMETER', 'APPEND_ID_ITEM', 'APPEND_ID_PARAMETER',\
           'APPEND_ARRAY_ITEM', 'APPEND_ARRAY_PARAMETER'
-        start_item(parser)
-
-      # Start the creation of a macro-expanded list of items
-      # This simulates an array of structures of multiple items in the packet by repeating
-      # each item in the list multiple times with a different "index" added to the name.
-      when 'MACRO_APPEND_START'
-        Logger.warn "MACRO_APPEND_START/END is deprecated. Please use new ERB macro syntax."
-        MacroParser.start(parser)
-
-      # End the creation of a macro-expanded list of items
-      when 'MACRO_APPEND_END'
         finish_item()
-        MacroParser.end(parser, @current_packet)
+        @current_item = PacketItemParser.parse(parser, @current_packet, @current_cmd_or_tlm, @warnings)
 
       # Allow this packet to be received with less data than the defined length
       # without generating a warning.
@@ -598,12 +586,6 @@ module Cosmos
         @current_item.overlap = true
 
       end
-    end
-
-    def start_item(parser)
-      finish_item()
-      @current_item = PacketItemParser.parse(parser, @current_packet, @current_cmd_or_tlm, @warnings)
-      MacroParser.new_item()
     end
 
     # Finish updating packet item

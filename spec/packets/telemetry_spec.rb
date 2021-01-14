@@ -30,6 +30,10 @@ module Cosmos
       end
     end
 
+    before(:all) do
+      setup_system()
+    end
+
     before(:each) do
       tf = Tempfile.new('unittest')
       tf.puts '# This is a comment'
@@ -51,7 +55,6 @@ module Cosmos
       tf.puts '  APPEND_ITEM item2 8 UINT "Item2"'
       tf.close
 
-      configure_store()
       pc = PacketConfig.new
       pc.process_file(tf.path, "SYSTEM")
       @tlm = Telemetry.new(pc)
@@ -267,7 +270,7 @@ module Cosmos
       end
 
       it "works in unique id mode and not" do
-        System.targets["TGT1"] = Target.new("TGT1")
+        System.targets["TGT1"] = Target.new("TGT1", Dir.pwd)
         target = System.targets["TGT1"]
         buffer = "\x01\x02\x03\x04"
         target.tlm_unique_id_mode = false
@@ -515,7 +518,9 @@ module Cosmos
 
     describe "values_and_limits_states" do
       before(:each) do
-        configure_store()
+        redis = MockRedis.new
+        redis.hset("DEFAULT__cosmos_system", 'limits_set', 'DEFAULT')
+        allow(Redis).to receive(:new).and_return(redis)
       end
 
       it "complains about non-existant targets" do

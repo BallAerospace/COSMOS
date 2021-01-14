@@ -24,12 +24,15 @@ require 'cosmos/streams/stream'
 
 module Cosmos
   describe IgnorePacketProtocol do
+    before(:all) do
+      setup_system()
+    end
+
     before(:each) do
       $buffer = nil
       @interface = StreamInterface.new
       @interface.target_names = ['SYSTEM', 'INST']
       allow(@interface).to receive(:connected?) { true }
-      configure_store()
     end
 
     class PreStream < Stream

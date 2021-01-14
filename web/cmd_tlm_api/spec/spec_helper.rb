@@ -48,7 +48,7 @@ def configure_store
   allow(Redis).to receive(:new).and_return(redis)
   Cosmos::Store.class_variable_set(:@@instance, nil)
 
-  plugin = File.join(__dir__, 'install', 'cosmos-demo-1.0.0.gem')
+  plugin = File.join(__dir__, 'install', 'cosmos-demo-5.0.0.gem')
   allow(Cosmos::GemModel).to receive(:put)
   allow(Cosmos::GemModel).to receive(:get).and_return(plugin)
   s3 = instance_double("Aws::S3::Client").as_null_object

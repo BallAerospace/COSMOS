@@ -41,9 +41,8 @@ module Cosmos
     attr_accessor :scope
 
     def self.run
-      microservice = nil
+      microservice = self.new(ARGV[0])
       begin
-        microservice = self.new(ARGV[0])
         MicroserviceStatusModel.set(microservice.as_json, scope: microservice.scope)
         microservice.state = 'RUNNING'
         microservice.run
@@ -104,7 +103,7 @@ module Cosmos
       @target_names ||= []
       System.setup_targets(@target_names, @temp_dir, scope: @scope)
 
-      # Use at_exit to shutdown cleanly no matter how we are die
+      # Use at_exit to shutdown cleanly no matter how we die
       at_exit do
         shutdown()
       end
@@ -122,6 +121,11 @@ module Cosmos
           break if @microservice_sleeper.sleep(@microservice_status_period_seconds)
         end
       end
+    end
+
+    # Must be implemented by a subclass
+    def run
+      shutdown()
     end
 
     def shutdown

@@ -25,13 +25,10 @@ require 'cosmos/config/meta_config_parser'
 module Cosmos
   describe Cosmos do
     # These are not expected to be documented as they are deprecated
-    DEPRECATED = %w(MACRO_APPEND_START MACRO_APPEND_END ROUTER_LOG_RAW IGNORE REQUIRE_UTILITY)
+    DEPRECATED = %w(REQUIRE_UTILITY)
     # These source keywords are ignored in the YAML
-    EXCEPTIONS = %w(LAUNCH LAUNCH_TERMINAL LAUNCH_GEM CONVERTED RAW FORMATTED WITH_UNITS NONE)
-    EXCEPTIONS.concat(%w(MINUTE HOUR DAY AVG MIN MAX STDDEV AGING CRC OVERRIDE))
-    # These are not documented because OpenGL is not officially a tool
-    OPENGL = %w(STL_FILE TEXTURE_MAPPED_SPHERE TIP_TEXT POSITION ROTATION_X ROTATION_Y ROTATION_Z)
-    OPENGL.concat(%w(ZOOM ORIENTATION CENTER BOUNDS))
+    EXCEPTIONS = %w(CONVERTED RAW FORMATTED WITH_UNITS NONE)
+    EXCEPTIONS.concat(%w(MINUTE HOUR DAY AVG MIN MAX STDDEV AGING CRC OVERRIDE IGNORE_PACKET))
 
     def process_line(line)
       line.split(',').each do |item|
@@ -56,12 +53,14 @@ module Cosmos
       @src_keywords = []
       path = File.expand_path(File.join(File.dirname(__FILE__), "../../lib/**/*.rb"))
       Dir[path].each do |filename|
+        # There is no longer a system.txt in COSMOS 5 so ignore system_config.rb
+        next if File.basename(filename) == 'system_config.rb'
         data = File.read(filename)
         part = nil
         if data.include?('parser.parse_file')
           part = data.split('parser.parse_file')[1..-1].join
-        elsif data.include?('handle_keyword(parser, keyword, parameters)')
-          part = data.split('handle_keyword(parser, keyword, parameters)')[1..-1].join
+        elsif data.include?('handle_config(parser, keyword, parameters)')
+          part = data.split('handle_config(parser, keyword, parameters)')[1..-1].join
         end
         if part
           continuation = false
@@ -70,7 +69,7 @@ module Cosmos
               continuation = process_continuation(line)
               process_line(line)
             end
-            if match = line.match(/when (.*)/)
+            if match = line.match(/^(?!\s*#)\s*when (.*)/)
               line = match.captures[0]
               continuation = process_continuation(line)
               process_line(line)
@@ -79,15 +78,21 @@ module Cosmos
         end
       end
 
-      # All the widgets are referenced in screen definitions
-      path = File.expand_path(File.join(File.dirname(__FILE__), "../../lib/cosmos/tools/tlm_viewer/widgets/*_widget.rb"))
-      Dir[path].each do |filename|
-        @src_keywords << filename.split('/')[-1].split('_widget.rb')[0].upcase
+      # Get the screen keywords
+      path = File.expand_path(File.join(File.dirname(__FILE__), "../../web/frontend/src/tools/TlmViewer/CosmosScreen.vue"))
+      File.readlines(path).each do |line|
+        if match = line.match(/^\s+case '(.*)'/)
+          @src_keywords << match.captures[0]
+        elsif match = line.match(/keyword.*'(.*)'/)
+          @src_keywords << match.captures[0]
+        end
       end
-      # Remove the base classes
-      @src_keywords -= %w(CANVASVALUE LAYOUT MULTI)
-      # Add specific keyword(s) that we want to document
-      @src_keywords.concat(%w(NAMED_WIDGET))
+
+      # All the widgets are referenced in screen definitions
+      path = File.expand_path(File.join(File.dirname(__FILE__), "../../web/frontend/src/components/widgets/*Widget.vue"))
+      Dir[path].each do |filename|
+        @src_keywords << filename.split('/')[-1].split('Widget.vue')[0].upcase
+      end
 
       # All the protocols are referenced as keywords in INTERFACES
       path = File.expand_path(File.join(File.dirname(__FILE__), "../../lib/cosmos/interfaces/protocols/*_protocol.rb"))
@@ -97,7 +102,7 @@ module Cosmos
 
       # Remove things we don't document
       @src_keywords.uniq!
-      @src_keywords -= (DEPRECATED + EXCEPTIONS + OPENGL)
+      @src_keywords -= (DEPRECATED + EXCEPTIONS)
 
       #puts "Total source keywords: #{@src_keywords.length}"
       expect(@src_keywords.length > 100) # Sanity check
@@ -119,6 +124,8 @@ module Cosmos
       @yaml_keywords = []
       path = File.expand_path(File.join(File.dirname(__FILE__), "../../data/config/*.yaml"))
       Dir[path].each do |filename|
+        # Skip screens and widgets since this is now implemented in Javascript
+        # next if filename.include?("screen.yaml") || filename.include?("widgets.yaml")
         meta = Cosmos::MetaConfigParser.load(filename)
         process_meta(@yaml_keywords, meta)
       end
@@ -131,10 +138,6 @@ module Cosmos
       get_yaml_keywords()
     end
 
-    before(:each) do
-      configure_store()
-    end
-
     it "should document all source keywords" do
       undocumented = []
       @src_keywords.each do |keyword|
@@ -143,7 +146,7 @@ module Cosmos
       expect(undocumented).to be_empty, "Following source keywords not in YAML: #{undocumented}"
     end
 
-    xit "should not have extra keywords" do
+    it "should not have extra keywords" do
       extra = []
       @yaml_keywords.each do |keyword|
         extra << keyword unless @src_keywords.include?(keyword)

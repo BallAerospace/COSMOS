@@ -127,18 +127,17 @@ module Cosmos
     end
 
     describe "read" do
-      skip "TODO: revisit when logging has been finalized" do
       let(:interface) { Interface.new }
 
       it "raises unless connected" do
-        class <<interface
+        class << interface
           def connected?; false; end
         end
         expect { interface.read }.to raise_error(/Interface not connected/)
       end
 
-      it "optionally logs raw data received from read_interface" do
-        class <<interface
+      xit "optionally logs raw data received from read_interface" do
+        class << interface
           def connected?; true; end
           def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
         end
@@ -153,7 +152,7 @@ module Cosmos
       end
 
       it "aborts and doesn't log if no data is returned from read_interface" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def read_interface; nil end
         end
@@ -166,7 +165,7 @@ module Cosmos
 
       it "counts raw bytes read" do
         $i = 0
-        class <<interface
+        class << interface
           def connected?; true; end
           def read_interface
             case $i
@@ -192,8 +191,8 @@ module Cosmos
         expect(interface.bytes_read).to eq 12
       end
 
-      it "allows protocol read_data to manipulate data" do
-        class <<interface
+      xit "allows protocol read_data to manipulate data" do
+        class << interface
           def connected?; true; end
           def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
         end
@@ -210,8 +209,8 @@ module Cosmos
         expect(File.read(filename)).to eq "\x01\x02\x03\x04"
       end
 
-      it "aborts if protocol read_data returns :DISCONNECT" do
-        class <<interface
+      xit "aborts if protocol read_data returns :DISCONNECT" do
+        class << interface
           def connected?; true; end
           def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
         end
@@ -226,8 +225,8 @@ module Cosmos
         expect(File.read(filename)).to eq "\x01\x02\x03\x04"
       end
 
-      it "gets more data if a protocol read_data returns :STOP" do
-        class <<interface
+      xit "gets more data if a protocol read_data returns :STOP" do
+        class << interface
           def connected?; true; end
           def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
         end
@@ -243,7 +242,7 @@ module Cosmos
       end
 
       it "allows protocol read_packet to manipulate packet" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
         end
@@ -255,7 +254,7 @@ module Cosmos
       end
 
       it "aborts if protocol read_packet returns :DISCONNECT" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
           def post_read_packet(packet); nil; end
@@ -268,7 +267,7 @@ module Cosmos
       end
 
       it "gets more data if protocol read_packet returns :STOP" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
         end
@@ -280,7 +279,7 @@ module Cosmos
       end
 
       it "returns an unidentified packet" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def read_interface; data = "\x01\x02\x03\x04"; read_interface_base(data); data; end
         end
@@ -289,21 +288,20 @@ module Cosmos
         expect(packet.packet_name).to be_nil
       end
     end
-    end
 
     describe "write" do
       let(:interface) { Interface.new }
       let(:packet) { Packet.new('TGT', 'PKT', :BIG_ENDIAN, 'Packet', "\x01\x02\x03\x04") }
 
       it "raises unless connected" do
-        class <<interface
+        class << interface
           def connected?; false; end
         end
         expect { interface.write(packet)}.to raise_error(/Interface not connected/)
       end
 
       it "is single threaded" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def write_interface(data); write_interface_base(data); sleep 0.1; end
         end
@@ -321,7 +319,7 @@ module Cosmos
       end
 
       it "raises an error if not connected" do
-        class <<interface
+        class << interface
           def connected?; false; end
         end
         expect { interface.write(packet)}.to raise_error(/Interface not connected/)
@@ -330,7 +328,7 @@ module Cosmos
       end
 
       it "disconnects if write_interface raises an exception" do
-        class <<interface
+        class << interface
           attr_accessor :disconnect_called
           def disconnect; @disconnect_called = true; end
           def connected?; true; end
@@ -343,7 +341,7 @@ module Cosmos
       end
 
       xit "allows protocols write_packet to modify the packet" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def write_interface(data); write_interface_base(data); end
         end
@@ -359,7 +357,7 @@ module Cosmos
       end
 
       it "aborts if write_packet returns :DISCONNECT" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def write_interface(data); write_interface_base(data); end
         end
@@ -370,7 +368,7 @@ module Cosmos
       end
 
       it "stops if write_packet returns :STOP" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def write_interface(data); write_interface_base(data); end
         end
@@ -382,7 +380,7 @@ module Cosmos
       end
 
       xit "allows protocol write_data to modify the data" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def write_interface(data); write_interface_base(data); end
         end
@@ -398,7 +396,7 @@ module Cosmos
       end
 
       it "aborts if write_data returns :DISCONNECT" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def write_interface(data); write_interface_base(data); end
         end
@@ -409,7 +407,7 @@ module Cosmos
       end
 
       it "stops if write_data returns :STOP" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def write_interface(data); write_interface_base(data); end
         end
@@ -423,7 +421,7 @@ module Cosmos
       it "calls post_write_interface with the packet and data" do
         $packet = nil
         $data = nil
-        class <<interface
+        class << interface
           def connected?; true; end
           def write_interface(data); write_interface_base(data); end
         end
@@ -443,14 +441,14 @@ module Cosmos
       let(:data) { "\x01\x02\x03\x04" }
 
       it "raises unless connected" do
-        class <<interface
+        class << interface
           def connected?; false; end
         end
         expect { interface.write_raw(data)}.to raise_error(/Interface not connected/)
       end
 
       it "is single threaded" do
-        class <<interface
+        class << interface
           def connected?; true; end
           def write_interface(data); write_interface_base(data); sleep 0.1; end
         end
@@ -486,7 +484,6 @@ module Cosmos
         i.num_clients = 5
         i.read_queue_size = 6
         i.write_queue_size = 7
-        i.interfaces = [5,6]
         i.read_protocols = [1, 2]
         i.write_protocols = [3, 4]
         i.protocol_info = [[Protocol, [], :READ_WRITE]]
@@ -508,7 +505,6 @@ module Cosmos
         expect(i2.num_clients).to eql 0 # does not get copied
         expect(i2.read_queue_size).to eql 0 # does not get copied
         expect(i2.write_queue_size).to eql 0 # does not get copied
-        expect(i2.interfaces).to eql [5,6]
         expect(i2.read_protocols).to_not be_empty
         expect(i2.write_protocols).to_not be_empty
         expect(i2.protocol_info).to eql [[Protocol, [], :READ_WRITE]]

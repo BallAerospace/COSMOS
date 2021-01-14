@@ -1,0 +1,66 @@
+---
+MICROSERVICE:
+  summary: Defines a new microservice
+  example: MICROSERVICE EXAMPLE example-microservice
+  parameters:
+    - name: Folder Name
+      required: true
+      description: The target folder where the microservice is located
+      values: .*
+    - name: Name
+      required: true
+      description: The microservice name
+      values: .*
+  modifiers:
+    ENV:
+      summary: Environment variable
+      parameters:
+        - name: Name
+          required: true
+          description: Environment variable name
+          values: .*
+        - name: Value
+          required: true
+          description: Environment variable value
+          values: .*
+    WORK_DIR:
+      summary: Directory to start the microservice in (CWD)
+      parameters:
+        - name: Path
+          required: true
+          description: Relative path from the target directory
+          values: .*
+    TOPIC:
+      summary: Topic the microservice should process data from
+      parameters:
+        - name: Name
+          required: true
+          description: Topic name
+          values: .*
+    TARGET_NAME:
+      summary: Target which this microservice processes
+      parameters:
+        - name: Name
+          required: true
+          description: Target name
+          values: .*
+    CMD:
+      summary: Command to run which starts the microservice
+      parameters:
+        - name: Executable
+          required: true
+          description: Executable to call
+          values: .*
+        - name: Command parameters
+          required: false
+          description: Additional parameters used by the command
+    OPTION:
+      summary: Options to pass to the underlying microservice (used by InterfaceMicroservice, etc.)
+      parameters:
+        - name: Name
+          required: true
+          description: Option name
+          values: .*
+        - name: Values
+          required: false
+          description: Option values

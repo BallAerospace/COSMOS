@@ -19,12 +19,7 @@ COMMAND INST CLEAR BIG_ENDIAN "Clears counters on the <%= @target_name %> instru
 
 COMMAND INST SETPARAMS BIG_ENDIAN "Sets numbered parameters"
   <%= render "_ccsds_cmd.txt", locals: {id: 4} %>
-  # Old deprecated MACRO syntax:
-  # MACRO_APPEND_START 1 5
-  #   APPEND_PARAMETER VALUE 16 UINT 0 5 0 "A value setting"
-  # MACRO_APPEND_END
-
-  # New more flexible ERB syntax:
+  # ERB syntax:
   <% (1..5).each do |i| %>
     APPEND_PARAMETER VALUE<%= i %> 16 UINT 0 5 1 "Value <%= i %> setting"
   <% end %>

@@ -164,7 +164,7 @@ module Cosmos
   end
 
   describe "hash_files" do
-    it "calculates a hashing sum across files in md5 mode" do
+    xit "calculates a hashing sum across files in md5 mode" do
       File.open(File.join(Cosmos::PATH,'test1.txt'),'w') {|f| f.puts "test1" }
       File.open(File.join(Cosmos::PATH,'test2.txt'),'w') {|f| f.puts "test2" }
       digest = Cosmos.hash_files(["test1.txt", "test2.txt"])

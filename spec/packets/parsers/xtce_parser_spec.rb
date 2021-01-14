@@ -56,6 +56,10 @@ END
 
 module Cosmos
   describe XtceParser do
+    before(:all) do
+      setup_system()
+    end
+
     def xml_file(target)
       tf = Tempfile.new(['unittest', '.xtce'])
       tf.puts '<?xml version="1.0" encoding="UTF-8"?>'
@@ -138,7 +142,6 @@ module Cosmos
 
     describe "process_file" do
       before(:each) do
-        configure_store()
         @pc = PacketConfig.new
       end
 
@@ -385,18 +388,20 @@ module Cosmos
         tf.puts limits
         tf.close
         @pc.process_file(tf.path, "TGT1")
-        @pc.to_xtce(Cosmos::USERPATH)
-        xml_path = File.join(Cosmos::USERPATH, "TGT1", "cmd_tlm", "tgt1.xtce")
+        spec_install = File.join("..", "..", "install")
+        @pc.to_xtce(spec_install)
+        xml_path = File.join(spec_install, "TGT1", "cmd_tlm", "tgt1.xtce")
         expect(File.exist?(xml_path)).to be true
         @pc.process_file(xml_path, "TGT1")
-        @pc.to_config(Cosmos::USERPATH)
-        cmd_config_path = File.join(Cosmos::USERPATH, "TGT1", "cmd_tlm", "tgt1_cmd.txt")
+        @pc.to_config(spec_install)
+        cmd_config_path = File.join(spec_install, "TGT1", "cmd_tlm", "tgt1_cmd.txt")
         expect(File.read(cmd_config_path)).to include(cmd)
-        tlm_config_path = File.join(Cosmos::USERPATH, "TGT1", "cmd_tlm", "tgt1_tlm.txt")
+        tlm_config_path = File.join(spec_install, "TGT1", "cmd_tlm", "tgt1_tlm.txt")
         tlm = File.read(tlm_config_path)
         expect(tlm).to include(tlm1)
         expect(tlm).to include(tlm2)
         tf.unlink
+        FileUtils.rm_rf File.join(spec_install, "TGT1")
       end
     end
   end

@@ -31,7 +31,7 @@ end
 # NOTE: You MUST require simplecov before anything else!
 if !ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
-  if ENV['TRAVIS'] # Only if we're on Travis do we use codecov
+  if ENV['GITHUB_WORKFLOW']
     require 'codecov'
     SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
       SimpleCov::Formatter::HTMLFormatter,
@@ -86,13 +86,18 @@ require 'mock_redis'
 require 'cosmos/utilities/store'
 require 'cosmos/models/plugin_model'
 
+def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
+  dir = File.join(__dir__, 'install', 'config', 'targets')
+  Cosmos::System.instance(targets, dir)
+end
+
 def configure_store
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
   # allow(ConnectionPool).to receive(:new).and_return(redis)
   Cosmos::Store.class_variable_set(:@@instance, nil)
 
-  plugin = File.join(__dir__, 'install', 'cosmos-demo-1.0.0.gem')
+  plugin = File.join(__dir__, 'install', 'cosmos-demo-5.0.0.gem')
   allow(Cosmos::GemModel).to receive(:put)
   allow(Cosmos::GemModel).to receive(:get).and_return(plugin)
   s3 = instance_double("Aws::S3::Client").as_null_object

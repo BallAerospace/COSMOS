@@ -117,14 +117,7 @@ TELEMETRY INST ADCS BIG_ENDIAN "Position and attitude data"
 
 TELEMETRY INST PARAMS BIG_ENDIAN "Params set by SETPARAMS command"
   <%= render "_ccsds_tlm.txt", locals: {apid: 3} %>
-  # Old deprecated MACRO syntax:
-  #MACRO_APPEND_START 5 1
-  #  APPEND_ITEM Value 16 UINT "Value setting"
-  #    STATE GOOD 0 GREEN
-  #    STATE BAD 1 RED
-  #MACRO_APPEND_END
-
-  # New more flexible ERB syntax:
+  # ERB syntax:
   <% (1..5).each do |i| %>
     APPEND_ITEM VALUE<%= i %> 16 UINT "Value <%= i %> setting"
       STATE GOOD 0 GREEN

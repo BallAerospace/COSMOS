@@ -26,8 +26,11 @@ require 'tempfile'
 module Cosmos
   describe PacketConfig do
     describe "parse" do
+      before(:all) do
+        setup_system()
+      end
+
       before(:each) do
-        configure_store()
         @pc = PacketConfig.new
       end
 

@@ -17,20 +17,13 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'spec_helper'
-require 'cosmos/operators/operator'
-
-module Cosmos
-  describe OperatorProcess do
-    describe "start" do
-      it "starts the process" do
-        spy = spy('ChildProcess')
-        expect(spy).to receive(:start)
-        expect(ChildProcess).to receive(:build).with('ruby', 'filename.rb', 'DEFAULT__SERVICE__NAME').and_return(spy)
-
-        op = OperatorProcess.new(['ruby','filename.rb','DEFAULT__SERVICE__NAME'], scope: 'DEFAULT')
-        op.start
-      end
+# COSMOS specific additions to the Ruby Binding class
+class Binding
+  def set_variables(variables)
+    variables ||= {}
+    variables.each do |variables_key, variables_value|
+      local_variable_set(variables_key.intern, variables_value)
     end
+    self
   end
 end

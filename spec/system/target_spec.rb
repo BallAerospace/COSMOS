@@ -24,7 +24,7 @@ require 'tempfile'
 require 'pathname'
 
 module Cosmos
-  describe Target do
+  xdescribe Target do
     after(:all) do
       FileUtils.rm_rf File.join(Cosmos::USERPATH,'target_spec_temp')
     end

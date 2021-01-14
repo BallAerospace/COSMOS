@@ -24,6 +24,10 @@ require 'tempfile'
 
 module Cosmos
   describe Limits do
+    before(:all) do
+      setup_system()
+    end
+
     before(:each) do
       tf = Tempfile.new('unittest')
       tf.puts '# This is a comment'
@@ -58,7 +62,6 @@ module Cosmos
       tf.close
 
       # Verify initially that everything is empty
-      configure_store()
       pc = PacketConfig.new
       pc.process_file(tf.path, "SYSTEM")
       @tlm = Telemetry.new(pc)
@@ -311,7 +314,9 @@ module Cosmos
 
     describe "get" do
       before(:each) do
-        configure_store()
+        redis = MockRedis.new
+        redis.hset("DEFAULT__cosmos_system", 'limits_set', 'DEFAULT')
+        allow(Redis).to receive(:new).and_return(redis)
       end
 
       it "gets the limits for an item with limits" do
@@ -333,7 +338,9 @@ module Cosmos
 
     describe "set" do
       before(:each) do
-        configure_store()
+        redis = MockRedis.new
+        redis.hset("DEFAULT__cosmos_system", 'limits_set', 'DEFAULT')
+        allow(Redis).to receive(:new).and_return(redis)
       end
 
       it "sets limits for an item" do

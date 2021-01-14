@@ -24,9 +24,9 @@ require 'tempfile'
 require 'fileutils'
 
 module Cosmos
-
-  describe System do
+  xdescribe System do
     before(:all) do
+      setup_system()
       clean_config()
       System.class_eval('@@instance = nil')
 
@@ -44,10 +44,6 @@ module Cosmos
       FileUtils.mv File.join(Cosmos::USERPATH, 'system.txt'),
         File.join(Cosmos::USERPATH,'config','system')
       System.class_eval('@@instance = nil')
-    end
-
-    before(:each) do
-      configure_store()
     end
 
     after(:each) do

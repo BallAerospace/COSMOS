@@ -150,7 +150,7 @@ module Cosmos
     end
 
     def deploy(gem_path, variables)
-      if @folder_name
+      if @folder_name # TODO: Is this possible? no folder_name?
         variables["microservice_name"] = @name
         rubys3_client = Aws::S3::Client.new
         start_path = "/microservices/#{@folder_name}/"
@@ -162,7 +162,7 @@ module Cosmos
 
           # Load microservice files
           data = File.read(filename, mode: "rb")
-          data = ERB.new(data).result(create_erb_binding(variables)) if data.is_printable?
+          data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
           rubys3_client.put_object(bucket: 'config', key: key, body: data)
         end
       end

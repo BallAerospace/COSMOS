@@ -23,7 +23,7 @@ require 'cosmos/script'
 require 'tempfile'
 
 module Cosmos
-  describe Script do
+  xdescribe Script do
     before(:all) do
       # Save cmd_tlm_server.txt
       @cts = File.join(Cosmos::USERPATH,'config','tools','cmd_tlm_server','cmd_tlm_server.txt')

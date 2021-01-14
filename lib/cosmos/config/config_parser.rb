@@ -356,20 +356,11 @@ module Cosmos
 
     protected
 
-    def create_erb_binding(config_parser_erb_variables)
-      config_parser_erb_variables ||= {}
-      config_parser_erb_binding = binding
-      config_parser_erb_variables.each do |config_parser_erb_variables_key, config_parser_erb_variables_value|
-        config_parser_erb_binding.local_variable_set(config_parser_erb_variables_key.intern, config_parser_erb_variables_value)
-      end
-      return config_parser_erb_binding
-    end
-
     # Writes the ERB parsed results
     def create_parsed_output_file(filename, run_erb, variables)
       begin
         if run_erb
-          output = ERB.new(File.read(filename)).result(create_erb_binding(variables))
+          output = ERB.new(File.read(filename)).result(binding.set_variables(variables))
         else
           output = File.read(filename)
         end

@@ -20,7 +20,7 @@ end
 
 # Stub out classes for testing
 $stop_script = false
-class TestSuite < Cosmos::Suite
+class SpecSuite < Cosmos::Suite
   def setup
     Cosmos::Group.puts "#{Cosmos::Group.current_suite}::#{Cosmos::Group.current_group}::#{Cosmos::Group.current_script}"
   end
@@ -77,13 +77,13 @@ end
 module Cosmos
   describe Suite do
     before(:each) do
-      @suite = TestSuite.new
+      @suite = SpecSuite.new
       $stop_script = false
     end
 
     describe "name" do
       it "returns the name of the suite" do
-        expect(@suite.name).to eq "TestSuite"
+        expect(@suite.name).to eq "SpecSuite"
       end
     end
 
@@ -117,7 +117,7 @@ module Cosmos
             expect(stdout.string).to include("image2_exception")
           end
           expect(results).to eq(%i(PASS PASS FAIL PASS SKIP PASS PASS PASS FAIL PASS PASS PASS))
-          expect(messages).to eq(["TestSuite::TestSuite::setup\n", "TestSuite::MechGroup::setup\n", "TestSuite::MechGroup::test_mech1\n", "TestSuite::MechGroup::test_mech2\n", "TestSuite::MechGroup::test_mech3\nunimplemented\n", "TestSuite::MechGroup::teardown\n", "TestSuite::ImageGroup::setup\n", "TestSuite::ImageGroup::test_image1\n", "TestSuite::ImageGroup::test_image2\n", "TestSuite::ImageGroup::test_image3\n", "TestSuite::ImageGroup::teardown\n", "TestSuite::TestSuite::teardown\n"])
+          expect(messages).to eq(["SpecSuite::SpecSuite::setup\n", "SpecSuite::MechGroup::setup\n", "SpecSuite::MechGroup::test_mech1\n", "SpecSuite::MechGroup::test_mech2\n", "SpecSuite::MechGroup::test_mech3\nunimplemented\n", "SpecSuite::MechGroup::teardown\n", "SpecSuite::ImageGroup::setup\n", "SpecSuite::ImageGroup::test_image1\n", "SpecSuite::ImageGroup::test_image2\n", "SpecSuite::ImageGroup::test_image3\n", "SpecSuite::ImageGroup::teardown\n", "SpecSuite::SpecSuite::teardown\n"])
           expect(exceptions.map {|e| e.message }).to include("mech1_exception")
           expect(exceptions.map {|e| e.message }).to include("image2_exception")
         end
@@ -142,7 +142,7 @@ module Cosmos
             end
           end
           expect(results).to eq(%i(PASS PASS FAIL PASS PASS))
-          expect(messages).to eq(["TestSuite::ImageGroup::setup\n", "TestSuite::ImageGroup::test_image1\n", "TestSuite::ImageGroup::test_image2\n", "TestSuite::ImageGroup::test_image3\n", "TestSuite::ImageGroup::teardown\n"])
+          expect(messages).to eq(["SpecSuite::ImageGroup::setup\n", "SpecSuite::ImageGroup::test_image1\n", "SpecSuite::ImageGroup::test_image2\n", "SpecSuite::ImageGroup::test_image3\n", "SpecSuite::ImageGroup::teardown\n"])
           expect(exceptions.map {|e| e.message }).to include("image2_exception")
         end
 
@@ -170,7 +170,7 @@ module Cosmos
             $stdout.define_singleton_method(:remove_stream) { |stream| }
             result = @suite.run_script(ImageGroup, "test_image1")
           end
-          expect(result.message).to eq("TestSuite::ImageGroup::test_image1\n")
+          expect(result.message).to eq("SpecSuite::ImageGroup::test_image1\n")
           expect(result.exceptions).to be_nil
         end
       end
@@ -198,7 +198,7 @@ module Cosmos
             expect(stdout.string).to include("mech1_exception")
             expect(stdout.string).to include("image2_exception")
           end
-          expect(messages).to eq(["TestSuite::TestSuite::setup\n", "TestSuite::ImageGroup::test_image2\n", "TestSuite::MechGroup::teardown\n", "TestSuite::MechGroup::test_mech1\n", "TestSuite::ImageGroup::setup\n", "TestSuite::TestSuite::teardown\n"])
+          expect(messages).to eq(["SpecSuite::SpecSuite::setup\n", "SpecSuite::ImageGroup::test_image2\n", "SpecSuite::MechGroup::teardown\n", "SpecSuite::MechGroup::test_mech1\n", "SpecSuite::ImageGroup::setup\n", "SpecSuite::SpecSuite::teardown\n"])
           expect(exceptions.map {|e| e.message }).to include("mech1_exception")
           expect(exceptions.map {|e| e.message }).to include("image2_exception")
         end
@@ -220,7 +220,7 @@ module Cosmos
             $stdout.define_singleton_method(:remove_stream) { |stream| }
             @suite.run_group(ImageGroup) { |result| messages << result.message; exceptions.concat(result.exceptions) if result.exceptions }
           end
-          expect(messages).to eq(["TestSuite::ImageGroup::test_image2\n", "TestSuite::ImageGroup::setup\n"])
+          expect(messages).to eq(["SpecSuite::ImageGroup::test_image2\n", "SpecSuite::ImageGroup::setup\n"])
           expect(exceptions.map {|e| e.message }).to include("image2_exception")
 
           messages = []
@@ -230,7 +230,7 @@ module Cosmos
             $stdout.define_singleton_method(:remove_stream) { |stream| }
             @suite.run_group(MechGroup) { |result| messages << result.message; exceptions.concat(result.exceptions) if result.exceptions }
           end
-          expect(messages).to eq(["TestSuite::MechGroup::teardown\n", "TestSuite::MechGroup::test_mech1\n"])
+          expect(messages).to eq(["SpecSuite::MechGroup::teardown\n", "SpecSuite::MechGroup::test_mech1\n"])
           expect(exceptions.map {|e| e.message }).to include("mech1_exception")
         end
       end

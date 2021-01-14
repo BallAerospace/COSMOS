@@ -20,10 +20,31 @@
 require 'spec_helper'
 require 'cosmos/microservices/microservice'
 
+# Override at_exit to do nothing for testing
+def at_exit(*args, &block)
+end
+
 module Cosmos
   describe Microservice do
-    it "provides a run method" do
-      Microservice.run
+    before(:all) do
+      setup_system()
+    end
+
+    describe "self.run" do
+      before(:each) do
+        allow(MicroserviceModel).to receive(:get).and_return(nil)
+        allow(MicroserviceStatusModel).to receive(:set).with(any_args)
+      end
+
+      it "expects SCOPE__TYPE__NAME parameter as ARGV[0]" do
+        expect { Microservice.run }.to raise_error(/Microservice names/)
+        ARGV.replace ["DEFAULT"]
+        expect { Microservice.run}.to raise_error(/Microservice names/)
+        ARGV.replace ["DEFAULT_TYPE_NAME"]
+        expect { Microservice.run }.to raise_error(/Microservice names/)
+        ARGV.replace ["DEFAULT__TYPE__NAME"]
+        Microservice.run
+      end
     end
   end
 end

@@ -30,6 +30,10 @@ module Cosmos
       end
     end
 
+    before(:all) do
+      setup_system()
+    end
+
     before(:each) do
       tf = Tempfile.new('unittest')
       tf.puts '# This is a comment'
@@ -60,7 +64,6 @@ module Cosmos
       tf.puts '    POLY_WRITE_CONVERSION 0 2'
       tf.close
 
-      configure_store()
       pc = PacketConfig.new
       pc.process_file(tf.path, "SYSTEM")
       @cmd = Commands.new(pc)
@@ -152,7 +155,7 @@ module Cosmos
       end
 
       it "works in unique id mode or not" do
-        System.targets["TGT1"] = Target.new("TGT1")
+        System.targets["TGT1"] = Target.new("TGT1", Dir.pwd)
         target = System.targets["TGT1"]
         target.cmd_unique_id_mode = false
         buffer = "\x01\x02\x03\x04"

@@ -27,18 +27,17 @@ module Cosmos
 
     def add_cmd_parameter(keyword, value, packet, cmd_params)
       quotes_removed = value.remove_quotes
-      begin
-        packet['items'].each do |parameter|
-          if parameter['name'] == keyword
-            type = parameter['data_type']
-            break
+      if value == quotes_removed
+        type = nil
+        if packet['items']
+          packet['items'].each do |parameter|
+            if parameter['name'] == keyword
+              type = parameter['data_type']
+              break
+            end
           end
         end
-      rescue
-        type = nil
-      end
-      if value == quotes_removed
-        if (type == :STRING or type == :BLOCK) and value.upcase.start_with?("0X")
+        if (type == 'STRING' or type == 'BLOCK') and value.upcase.start_with?("0X")
           cmd_params[keyword] = value.hex_to_byte_string
         else
           cmd_params[keyword] = value.convert_to_value
@@ -62,9 +61,10 @@ module Cosmos
       cmd_params = {}
 
       begin
+        # Returns the packet JSON representation
         packet = Store.instance.get_packet(target_name, cmd_name)
       rescue
-        packet = nil
+        packet = {}
       end
 
       if split_string.length == 2
