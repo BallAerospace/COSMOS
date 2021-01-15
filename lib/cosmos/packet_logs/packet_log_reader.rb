@@ -19,35 +19,14 @@
 
 require 'cosmos/core_ext/io'
 require 'cosmos/packets/packet'
+require 'cosmos/packets/json_packet'
 require 'cosmos/io/buffered_file'
+require 'cosmos/packet_logs/packet_log_constants'
 
 module Cosmos
-
   # Reads a packet log of either commands or telemetry.
   class PacketLogReader
-    # Constants to detect old file formats
-    COSMOS2_MARKER = 'COSMOS2_'
-    COSMOS4_MARKER = 'COSMOS4_'
-
-    # COSMOS 5 Constants
-    COSMOS5_MARKER = 'COSMOS5_'
-    COSMOS5_INDEX_MARKER = 'COSIDX5_'
-    COSMOS5_HEADER_LENGTH = COSMOS5_MARKER.length
-    COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK = 0x1000
-    COSMOS5_PACKET_DECLARATION_ENTRY_TYPE_MASK = 0x2000
-    COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK = 0x3000
-    COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK = 0x4000
-    COSMOS5_CMD_FLAG_MASK = 0x0800
-    COSMOS5_STORED_FLAG_MASK = 0x0400
-    COSMOS5_ID_FLAG_MASK = 0x0200
-    COSMOS5_PRIMARY_FIXED_SIZE = 2
-    COSMOS5_TARGET_DECLARATION_SECONDARY_FIXED_SIZE = 1
-    COSMOS5_PACKET_DECLARATION_SECONDARY_FIXED_SIZE = 3
-    COSMOS5_RAW_PACKET_SECONDARY_FIXED_SIZE = 14
-    COSMOS5_JSON_PACKET_SECONDARY_FIXED_SIZE = 14
-    COSMOS5_ID_FIXED_SIZE = 32
-    COSMOS5_MAX_PACKET_INDEX = 65535
-    COSMOS5_MAX_TARGET_INDEX = 65535
+    include PacketLogConstants
 
     MAX_READ_SIZE = 1000000000
 
@@ -119,37 +98,28 @@ module Cosmos
     def read(identify_and_define = true)
       # Read entry length
       length = @file.read(4)
-      return nil if !length or length.length == 0
+      return nil if !length or length.length <= 0
       length = length.unpack('N')[0]
-      #STDOUT.puts "length = #{length}"
-
       entry = @file.read(length)
       flags = entry[0..1].unpack('n')[0]
-      #STDOUT.printf("flags = 0x%0X\n", flags)
 
       cmd_or_tlm = :TLM
       cmd_or_tlm = :CMD if flags & COSMOS5_CMD_FLAG_MASK == COSMOS5_CMD_FLAG_MASK
-      #STDOUT.puts "cmd_or_tlm = #{cmd_or_tlm}"
       stored = false
       stored = true if flags & COSMOS5_STORED_FLAG_MASK == COSMOS5_STORED_FLAG_MASK
-      #STDOUT.puts "stored = #{stored}"
       id = false
       id = true if flags & COSMOS5_ID_FLAG_MASK == COSMOS5_ID_FLAG_MASK
-      #STDOUT.puts "id = #{id}"
 
       if flags & COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK == COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK
-        #STDOUT.puts "JSON_PACKET"
         packet_index, time_nsec_since_epoch = entry[2..11].unpack('nQ>')
         json_data = entry[12..-1]
-        #STDOUT.puts json_data.inspect
-        cmd_or_tlm, target_name, packet_name, id = @packets[packet_index]
+        target_name, packet_name, id = @packets[packet_index]
         raise "Invalid Packet Index: #{packet_index}" unless cmd_or_tlm
         return JsonPacket.new(cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, json_data)
       elsif flags & COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK == COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK
-        #STDOUT.puts "RAW_PACKET"
         packet_index, time_nsec_since_epoch = entry[2..11].unpack('nQ>')
         packet_data = entry[12..-1]
-        cmd_or_tlm, target_name, packet_name, id = @packets[packet_index]
+        target_name, packet_name, id = @packets[packet_index]
         received_time = Time.from_nsec_from_epoch(time_nsec_since_epoch)
         if identify_and_define
           packet = identify_and_define_packet_data(cmd_or_tlm, target_name, packet_name, received_time, packet_data)
@@ -163,10 +133,8 @@ module Cosmos
         packet.received_count += 1
         return packet
       elsif flags & COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK == COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK
-        #STDOUT.puts "TARGET DEC"
         target_name_length = entry[2].unpack('C')[0]
         target_name = entry[3..(target_name_length + 2)]
-        #STDOUT.puts "target_name = #{target_name}"
         if id
           id = entry[(target_name_length + 3)..(target_name_length + 34)]
           @target_ids << id
@@ -174,17 +142,15 @@ module Cosmos
         @target_names << target_name
         return read(identify_and_define)
       elsif flags & COSMOS5_PACKET_DECLARATION_ENTRY_TYPE_MASK == COSMOS5_PACKET_DECLARATION_ENTRY_TYPE_MASK
-        #STDOUT.puts "PACKET DEC"
         target_index = entry[2..3].unpack('n')[0]
         target_name = @target_names[target_index]
         packet_name_length = entry[4].unpack('C')[0]
         packet_name = entry[5..(packet_name_length + 4)]
-        #STDOUT.puts "packet_name = #{packet_name}"
         if id
           id = entry[(packet_name_length + 5)..(packet_name_length + 36)]
           @packet_ids << id
         end
-        @packets << [cmd_or_tlm, target_name, packet_name, id]
+        @packets << [target_name, packet_name, id]
         return read(identify_and_define)
       else
         raise "Invalid Entry Flags: #{flags}"
@@ -335,11 +301,11 @@ module Cosmos
     def read_file_header
       header = @file.read(COSMOS5_HEADER_LENGTH)
       if header and header.length == COSMOS5_HEADER_LENGTH
-        if header == COSMOS5_MARKER
+        if header == COSMOS5_FILE_HEADER
           # Found COSMOS 5 File Header - That's all we need to do
-        elsif header == COSMOS4_MARKER
+        elsif header == COSMOS4_FILE_HEADER
           raise "COSMOS 4 log file must be converted to COSMOS 5"
-        elsif header == COSMOS2_MARKER
+        elsif header == COSMOS2_FILE_HEADER
           raise "COSMOS 2 log file must be converted to COSMOS 5"
         else
           raise "COSMOS file header not found"

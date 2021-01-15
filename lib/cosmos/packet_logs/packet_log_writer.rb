@@ -20,6 +20,7 @@
 require 'thread'
 require 'aws-sdk-s3'
 require 'cosmos/config/config_parser'
+require 'cosmos/packet_logs/packet_log_constants'
 
 Aws.config.update(
   endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000',
@@ -33,6 +34,8 @@ module Cosmos
   # Creates a packet log. Can automatically cycle the log based on an elasped
   # time period or when the log file reaches a predefined size.
   class PacketLogWriter
+    include PacketLogConstants
+
     # @return [String] The filename of the packet log
     attr_reader :filename
 
@@ -309,30 +312,6 @@ module Cosmos
       end
     end
 
-    COSMOS5_FILE_HEADER = "COSMOS5_".freeze
-    COSMOS5_INDEX_HEADER = "COSIDX5_".freeze
-    COSMOS5_TARGET_DECLARATION_PACK_DIRECTIVE = 'NnC'.freeze
-    COSMOS5_TARGET_DECLARATION_PACK_ITEMS = 3 # Useful for testing
-    COSMOS5_PACKET_DECLARATION_PACK_DIRECTIVE = 'NnnC'.freeze
-    COSMOS5_PACKET_DECLARATION_PACK_ITEMS = 4 # Useful for testing
-    COSMOS5_PACKET_PACK_DIRECTIVE = 'NnnQ>'.freeze
-    COSMOS5_PACKET_PACK_ITEMS = 4 # Useful for testing
-    COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK = 0x1000
-    COSMOS5_PACKET_DECLARATION_ENTRY_TYPE_MASK = 0x2000
-    COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK = 0x3000
-    COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK = 0x4000
-    COSMOS5_CMD_FLAG_MASK = 0x0800
-    COSMOS5_STORED_FLAG_MASK = 0x0400
-    COSMOS5_ID_FLAG_MASK = 0x0200
-    COSMOS5_PRIMARY_FIXED_SIZE = 2
-    COSMOS5_TARGET_DECLARATION_SECONDARY_FIXED_SIZE = 1
-    COSMOS5_PACKET_DECLARATION_SECONDARY_FIXED_SIZE = 3
-    COSMOS5_RAW_PACKET_SECONDARY_FIXED_SIZE = 10
-    COSMOS5_JSON_PACKET_SECONDARY_FIXED_SIZE = 10
-    COSMOS5_ID_FIXED_SIZE = 32
-    COSMOS5_MAX_PACKET_INDEX = 65535
-    COSMOS5_MAX_TARGET_INDEX = 65535
-
     def get_packet_index(cmd_or_tlm, target_name, packet_name)
       if cmd_or_tlm == :CMD
         target_table = @cmd_packet_table[target_name]
@@ -416,8 +395,10 @@ module Cosmos
         else
           flags |= COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK
         end
-        flags |= COSMOS5_CMD_FLAG_MASK if cmd_or_tlm == :CMD
-        length += COSMOS5_RAW_PACKET_SECONDARY_FIXED_SIZE + data.length
+        if cmd_or_tlm == :CMD
+          flags |= COSMOS5_CMD_FLAG_MASK
+        end
+        length += COSMOS5_PACKET_SECONDARY_FIXED_SIZE + data.length
         @entry.clear
         @index_entry.clear
         @index_entry << [length, flags, packet_index, time_nsec_since_epoch].pack(COSMOS5_PACKET_PACK_DIRECTIVE)

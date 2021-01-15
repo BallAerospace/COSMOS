@@ -44,7 +44,7 @@ module Cosmos
       it "complains if the log has a COSMOS2 header" do
         filename = File.join(@log_path, 'test.bin')
         File.open(filename, 'wb') do |file|
-          file.write "#{PacketLogReader::COSMOS2_MARKER}\x00\x00\000\x00"
+          file.write "#{PacketLogReader::COSMOS2_FILE_HEADER}\x00\x00\000\x00"
         end
         expect { @plr.open(filename) }.to raise_error("COSMOS 2 log file must be converted to COSMOS 5")
       end
@@ -52,7 +52,7 @@ module Cosmos
       it "complains if the log has a COSMOS4 header" do
         filename = File.join(@log_path, 'test.bin')
         File.open(filename, 'wb') do |file|
-          file.write "#{PacketLogReader::COSMOS4_MARKER}\x00\x00\000\x00"
+          file.write "#{PacketLogReader::COSMOS4_FILE_HEADER}\x00\x00\000\x00"
         end
         expect { @plr.open(filename) }.to raise_error("COSMOS 4 log file must be converted to COSMOS 5")
       end
@@ -69,26 +69,35 @@ module Cosmos
     end
 
     describe "each" do
-      context "with telemetry" do
-        before(:each) do
-          allow(Aws::S3::Client).to receive(:new).and_raise("Nope")
-          plw = PacketLogWriter.new(@log_path, 'spec')
-          time = Time.now.to_nsec_from_epoch
-          @times = [time, time + 1, time + 2]
-          @pkt = System.telemetry.packet("INST", "HEALTH_STATUS").clone
+      def setup_logfile(cmd_or_tlm, raw_or_json)
+        allow(Aws::S3::Client).to receive(:new).and_raise("Nope")
+        plw = PacketLogWriter.new(@log_path, 'spec')
+        time = Time.now.to_nsec_from_epoch
+        @times = [time, time + 1, time + 2]
+        if (cmd_or_tlm == :CMD)
+          @pkt = System.commands.packet("INST", "COLLECT")
+          @pkt.write("DURATION", 10.0)
+        else
+          @pkt = System.telemetry.packet("INST", "HEALTH_STATUS")
           @pkt.write("COLLECTS", 100)
-          plw.write(:RAW_PACKET, :TLM, @pkt.target_name, @pkt.packet_name, @times[0], true, @pkt.buffer, nil)
-          plw.write(:RAW_PACKET, :TLM, @pkt.target_name, @pkt.packet_name, @times[1], true, @pkt.buffer, nil)
-          plw.write(:RAW_PACKET, :TLM, @pkt.target_name, @pkt.packet_name, @times[2], true, @pkt.buffer, nil)
-          @logfile = plw.filename
-          plw.shutdown
-
-          # Calculate the size of a single packet entry
-          tmp = Array.new(PacketLogWriter::COSMOS5_PACKET_PACK_ITEMS, 0)
-          data = tmp.pack(PacketLogWriter::COSMOS5_PACKET_PACK_DIRECTIVE)
-          @pkt_entry_length = data.length + @pkt.length
         end
+        data = raw_or_json == :RAW_PACKET ? @pkt.buffer : JSON.generate(@pkt.as_json)
+        plw.write(raw_or_json, cmd_or_tlm, @pkt.target_name, @pkt.packet_name, @times[0], true, data, nil)
+        plw.write(raw_or_json, cmd_or_tlm, @pkt.target_name, @pkt.packet_name, @times[1], true, data, nil)
+        plw.write(raw_or_json, cmd_or_tlm, @pkt.target_name, @pkt.packet_name, @times[2], true, data, nil)
+        @logfile = plw.filename
+        plw.shutdown
 
+        # Calculate the size of a single packet entry
+        tmp = Array.new(PacketLogReader::COSMOS5_PACKET_PACK_ITEMS, 0)
+        raw = tmp.pack(PacketLogReader::COSMOS5_PACKET_PACK_DIRECTIVE)
+        @pkt_entry_length = raw.length + data.length
+      end
+
+      context "with raw telemetry" do
+        before(:each) do
+          setup_logfile(:TLM, :RAW_PACKET)
+        end
         after(:each) do
           FileUtils.rm_f @logfile
         end
@@ -126,26 +135,39 @@ module Cosmos
         end
       end
 
-      context "with commands" do
+      context "with json telemetry" do
         before(:each) do
-          allow(Aws::S3::Client).to receive(:new).and_raise("Nope")
-          plw = PacketLogWriter.new(@log_path, 'spec')
-          time = Time.now.to_nsec_from_epoch
-          @times = [time, time + 1, time + 2]
-          @pkt = System.commands.packet("INST", "COLLECT")
-          @pkt.write("DURATION", 10.0)
-          plw.write(:RAW_PACKET, :TLM, @pkt.target_name, @pkt.packet_name, @times[0], true, @pkt.buffer, nil)
-          plw.write(:RAW_PACKET, :TLM, @pkt.target_name, @pkt.packet_name, @times[1], true, @pkt.buffer, nil)
-          plw.write(:RAW_PACKET, :TLM, @pkt.target_name, @pkt.packet_name, @times[2], true, @pkt.buffer, nil)
-          @logfile = plw.filename
-          plw.shutdown
-
-          # Calculate the size of a single packet entry
-          tmp = Array.new(PacketLogWriter::COSMOS5_PACKET_PACK_ITEMS, 0)
-          data = tmp.pack(PacketLogWriter::COSMOS5_PACKET_PACK_DIRECTIVE)
-          @pkt_entry_length = data.length + @pkt.length
+          setup_logfile(:TLM, :JSON_PACKET)
+        end
+        after(:each) do
+          FileUtils.rm_f @logfile
         end
 
+        it "returns identified packets" do
+          last_bytes_read = 0
+          index = 0
+          @plr.each(@logfile) do |packet|
+            expect(packet.target_name).to eql @pkt.target_name
+            expect(packet.packet_name).to eql @pkt.packet_name
+            # TODO: How do I read an item value ... they don't appear to be set
+            # expect(packet.read("COLLECTS")).to eql 100
+            expect(packet.packet_time.to_nsec_from_epoch).to eql @times[index]
+            # TODO: Should JsonPacket have a received_count?
+            # expect(packet.received_count).to eql index + 1
+            if last_bytes_read != 0
+              # Check the size of single packet entry
+              expect(@plr.bytes_read - last_bytes_read).to eql @pkt_entry_length
+            end
+            last_bytes_read = @plr.bytes_read
+            index += 1
+          end
+        end
+      end
+
+      context "with raw commands" do
+        before(:each) do
+          setup_logfile(:CMD, :RAW_PACKET)
+        end
         after(:each) do
           FileUtils.rm_f @logfile
         end
@@ -178,6 +200,35 @@ module Cosmos
             expect { packet.read("DURATION") }.to raise_error(/does not exist/)
             expect(packet.received_time.to_nsec_from_epoch).to eql @times[index]
             expect(packet.received_count).to eql 1 # unidentified packets don't increment received_count
+            index += 1
+          end
+        end
+      end
+
+      context "with json commands" do
+        before(:each) do
+          setup_logfile(:CMD, :JSON_PACKET)
+        end
+        after(:each) do
+          FileUtils.rm_f @logfile
+        end
+
+        it "returns identified packets" do
+          last_bytes_read = 0
+          index = 0
+          @plr.each(@logfile) do |packet|
+            expect(packet.target_name).to eql @pkt.target_name
+            expect(packet.packet_name).to eql @pkt.packet_name
+            # TODO: How do I read an item value ... they don't appear to be set
+            # expect(packet.read("DURATION")).to eql 10.0
+            expect(packet.packet_time.to_nsec_from_epoch).to eql @times[index]
+            # TODO: Should JsonPacket have a received_count?
+            # expect(packet.received_count).to eql index + 1
+            if last_bytes_read != 0
+              # Check the size of single packet entry
+              expect(@plr.bytes_read - last_bytes_read).to eql @pkt_entry_length
+            end
+            last_bytes_read = @plr.bytes_read
             index += 1
           end
         end
