@@ -26,7 +26,6 @@ module Cosmos
   # Reads a packet log of either commands or telemetry.
   class PacketLogReader
     # Constants to detect old file formats
-    COSMOS1_MARKER = 'COSMOS'
     COSMOS2_MARKER = 'COSMOS2_'
     COSMOS4_MARKER = 'COSMOS4_'
 
@@ -339,8 +338,6 @@ module Cosmos
           raise "COSMOS 4.3+ Log File Must be Converted to COSMOS 5"
         elsif header == COSMOS2_MARKER
           raise "COSMOS 2 Log File Must be Converted to COSMOS 5"
-        elsif header[COSMOS1_MARKER_RANGE] == COSMOS1_MARKER
-          raise "COSMOS 1 Log File Must be Converted to COSMOS 5"
         else
           raise "COSMOS file header not found on packet log"
         end
