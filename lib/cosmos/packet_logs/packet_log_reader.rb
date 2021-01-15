@@ -90,42 +90,10 @@ module Cosmos
       close()
     end
 
-    # Returns an analysis of the log file by reading all the packets and
-    # returning information about each packet. This information maps directly
-    # to the parameters need by the {#read_at_offset} method and thus should be
-    # called before using {#read_at_offset}.
-    #
-    # @param filename [String] The filename to analyze
-    # @param progress_callback [Proc] Callback that should receive a single
-    #   floating point parameter which is the percentage done
-    # @return [Array<Array<Integer, Integer, String, String, Time, Time>] Array
-    #   of arrays for each packet found in the log file consisting of:
-    #   [File position, length, target name, packet name, time formatted,
-    #   received time].
-    def packet_offsets(filename, progress_callback = nil)
-      open(filename)
-      offsets = []
-      filesize = size().to_f
-
-      while true
-        current_pos = @file.pos
-        packet = read(false)
-        break unless packet
-        offsets << current_pos
-        if progress_callback
-          break if progress_callback.call(current_pos / filesize)
-        end
-      end
-
-      return offsets
-    ensure
-      close()
-    end
-
     # @param filename [String] The log filename to open
     # @return [Boolean, Exception] Returns true if successfully changed to configuration specified in log,
     #    otherwise returns false and potentially an Exception class if an error occurred.  If no error occurred
-    #    false indicates that the requested configuration was simply not found
+    #    false indicates that the requested configuration was simply not found.
     def open(filename)
       close()
       reset()
@@ -226,6 +194,40 @@ module Cosmos
       raise err
     end
 
+    # TODO: Currently not used
+    # Returns an analysis of the log file by reading all the packets and
+    # returning information about each packet. This information maps directly
+    # to the parameters need by the {#read_at_offset} method and thus should be
+    # called before using {#read_at_offset}.
+    #
+    # @param filename [String] The filename to analyze
+    # @param progress_callback [Proc] Callback that should receive a single
+    #   floating point parameter which is the percentage done
+    # @return [Array<Array<Integer, Integer, String, String, Time, Time>] Array
+    #   of arrays for each packet found in the log file consisting of:
+    #   [File position, length, target name, packet name, time formatted,
+    #   received time].
+    # def packet_offsets(filename, progress_callback = nil)
+    #   open(filename)
+    #   offsets = []
+    #   filesize = size().to_f
+
+    #   while true
+    #     current_pos = @file.pos
+    #     packet = read(false)
+    #     break unless packet
+    #     offsets << current_pos
+    #     if progress_callback
+    #       break if progress_callback.call(current_pos / filesize)
+    #     end
+    #   end
+
+    #   return offsets
+    # ensure
+    #   close()
+    # end
+
+    # TODO: Currently not used
     # Reads a packet from the opened log file. Should only be used in
     # conjunction with {#packet_offsets}.
     #
@@ -233,51 +235,53 @@ module Cosmos
     #   reading
     # @param identify_and_define (see #each)
     # @return [Packet]
-    def read_at_offset(file_offset, identify_and_define = true)
-      @file.seek(file_offset, IO::SEEK_SET)
-      return read(identify_and_define)
-    rescue => err
-      close()
-      raise err
-    end
+    # def read_at_offset(file_offset, identify_and_define = true)
+    #   @file.seek(file_offset, IO::SEEK_SET)
+    #   return read(identify_and_define)
+    # rescue => err
+    #   close()
+    #   raise err
+    # end
 
+    # TODO: Currently not used
     # Read the first packet from the log file and reset the file position back
     # to the current position. This allows the client to call read multiple
     # times to return packets, call first, and continue calling read which will
     # return the next packet in the file.
     #
     # @return [Packet]
-    def first
-      original_position = @file.pos
-      @file.seek(0, IO::SEEK_SET)
-      read_file_header()
-      packet = read()
-      raise "No first packet found" unless packet
-      @file.seek(original_position, IO::SEEK_SET)
-      packet.clone
-    rescue => err
-      close()
-      raise err
-    end
+    # def first
+    #   original_position = @file.pos
+    #   @file.seek(0, IO::SEEK_SET)
+    #   read_file_header()
+    #   packet = read()
+    #   raise "No first packet found" unless packet
+    #   @file.seek(original_position, IO::SEEK_SET)
+    #   packet.clone
+    # rescue => err
+    #   close()
+    #   raise err
+    # end
 
+    # TODO: Currently not used
     # Read the last packet from the log file and reset the file position back
     # to the current position. This allows the client to call read multiple
     # times to return packets, call last, and continue calling read which will
     # return the next packet in the file.
     #
     # @return [Packet]
-    def last
-      raise "TODO: Implement me - Need to add end of file entry to support"
-      original_position = @file.pos
-      @file.seek(-1, IO::SEEK_END)
-      packet = search(-1)
-      raise "No last packet found" unless packet
-      @file.seek(original_position, IO::SEEK_SET)
-      packet.clone
-    rescue => err
-      close()
-      raise err
-    end
+    # def last
+    #   raise "TODO: Implement me - Need to add end of file entry to support"
+    #   original_position = @file.pos
+    #   @file.seek(-1, IO::SEEK_END)
+    #   packet = search(-1)
+    #   raise "No last packet found" unless packet
+    #   @file.seek(original_position, IO::SEEK_SET)
+    #   packet.clone
+    # rescue => err
+    #   close()
+    #   raise err
+    # end
 
     # @return [Integer] The size of the log file being processed
     def size
@@ -295,7 +299,6 @@ module Cosmos
       @file = nil
       @filename = nil
       @max_read_size = MAX_READ_SIZE
-      @bytes_read = 0
       @target_names = []
       @target_ids = []
       @packets = []
@@ -335,11 +338,11 @@ module Cosmos
         if header == COSMOS5_MARKER
           # Found COSMOS 5 File Header - That's all we need to do
         elsif header == COSMOS4_MARKER
-          raise "COSMOS 4.3+ Log File Must be Converted to COSMOS 5"
+          raise "COSMOS 4 log file must be converted to COSMOS 5"
         elsif header == COSMOS2_MARKER
-          raise "COSMOS 2 Log File Must be Converted to COSMOS 5"
+          raise "COSMOS 2 log file must be converted to COSMOS 5"
         else
-          raise "COSMOS file header not found on packet log"
+          raise "COSMOS file header not found"
         end
       else
         raise "Failed to read at least #{COSMOS5_HEADER_LENGTH} bytes from packet log"
@@ -349,7 +352,5 @@ module Cosmos
     def seek_to_time(time)
       raise "TODO: Implement me - Use index file or offsets"
     end
-
-  end # class PacketLogReader
-
-end # module Cosmos
+  end
+end

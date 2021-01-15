@@ -30,11 +30,9 @@ Aws.config.update(
 )
 
 module Cosmos
-
   # Creates a packet log. Can automatically cycle the log based on an elasped
   # time period or when the log file reaches a predefined size.
   class PacketLogWriter
-
     # @return [String] The filename of the packet log
     attr_reader :filename
 

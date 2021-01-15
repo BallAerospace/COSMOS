@@ -24,10 +24,8 @@ require 'cosmos/packet_logs/packet_log_reader'
 module Cosmos
   describe PacketLogWriter do
     before(:all) do
-      # Logger.level = Logger::DEBUG
-      # Logger.stdout = true
       setup_system()
-      @log_dir = File.expand_path(File.join(Dir.pwd, '..', 'install', 'outputs', 'logs'))
+      @log_dir = File.expand_path(File.join(SPEC_DIR, 'install', 'outputs', 'logs'))
     end
 
     before(:each) do
@@ -71,10 +69,9 @@ module Cosmos
         plw.shutdown
         sleep(0.1) # Allow for shutdown thread "copy" to S3
 
-        s3_filenames = @files.keys
         # Files copied to S3 are named via the first_time, last_time, label
-        expect(s3_filenames[0]).to eq "#{first_time}__#{last_time}__#{label}.bin"
-        expect(s3_filenames[1]).to eq "#{first_time}__#{last_time}__#{label}.idx"
+        expect(@files.keys).to contain_exactly("#{first_time}__#{last_time}__#{label}.bin",
+          "#{first_time}__#{last_time}__#{label}.idx")
 
         # Verify the COSMOS5 header on the binary file
         bin = @files["#{first_time}__#{last_time}__#{label}.bin"]

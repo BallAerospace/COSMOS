@@ -71,6 +71,7 @@ require 'cosmos'
 require 'cosmos/utilities/logger'
 
 DEFAULT_USERPATH = Cosmos::USERPATH
+SPEC_DIR = File.dirname(__FILE__)
 
 $system_exit_count = 0
 # Overload exit so we know when it is called
