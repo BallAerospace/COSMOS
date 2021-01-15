@@ -51,15 +51,15 @@ const requireComponent = require.context(
   /[A-Z]\w+Widget\.vue$/
 )
 
-requireComponent.keys().forEach((fileName) => {
+requireComponent.keys().forEach((filename) => {
   // Get component config
-  const componentConfig = requireComponent(fileName)
+  const componentConfig = requireComponent(filename)
 
   // Get PascalCase name of component
   const componentName = upperFirst(
     camelCase(
-      // Gets the file name regardless of folder depth
-      fileName
+      // Gets the filename regardless of folder depth
+      filename
         .split('/')
         .pop()
         .replace(/\.\w+$/, '')

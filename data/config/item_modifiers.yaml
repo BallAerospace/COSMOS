@@ -55,11 +55,11 @@ READ_CONVERSION:
       end
     end
   parameters:
-    - name: Class File Name
+    - name: Class Filename
       required: true
-      description: The file name which contains the Ruby class. The file name must
+      description: The filename which contains the Ruby class. The filename must
         be named after the class such that the class is a CamelCase version of the
-        underscored file name. For example, 'the_great_conversion.rb' should contain
+        underscored filename. For example, 'the_great_conversion.rb' should contain
         'class TheGreatConversion'.
       values: .*\.rb
     - name: Parameter

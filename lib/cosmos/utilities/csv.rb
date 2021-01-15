@@ -27,7 +27,7 @@ module Cosmos
     # @return [String] The name of the archive file
     attr_reader :archive_file
 
-    # @param input_file [String] CSV file name to read
+    # @param input_file [String] CSV filename to read
     def initialize(input_file)
       @filename = input_file
       @hash = {}

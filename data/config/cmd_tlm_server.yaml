@@ -56,7 +56,7 @@ INTERFACE_TARGET:
       values: .+
     - name: Configuration File
       required: false
-      description: Configuration file name which contains the interface configuration.
+      description: Configuration filename which contains the interface configuration.
         Defaults to 'cmd_tlm_server.txt'.
       values: .+
 INTERFACE:
