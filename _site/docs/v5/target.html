@@ -94,13 +94,7 @@
         <div class="toc"><ul class="section-nav">
 <li class="toc-entry toc-h1"><a href="#target-keywords">Target Keywords</a>
 <ul>
-<li class="toc-entry toc-h2"><a href="#require">REQUIRE</a></li>
-<li class="toc-entry toc-h2"><a href="#ignore_parameter">IGNORE_PARAMETER</a></li>
-<li class="toc-entry toc-h2"><a href="#ignore_item">IGNORE_ITEM</a></li>
-<li class="toc-entry toc-h2"><a href="#commands">COMMANDS</a></li>
-<li class="toc-entry toc-h2"><a href="#telemetry">TELEMETRY</a></li>
-<li class="toc-entry toc-h2"><a href="#cmd_unique_id_mode">CMD_UNIQUE_ID_MODE</a></li>
-<li class="toc-entry toc-h2"><a href="#tlm_unique_id_mode">TLM_UNIQUE_ID_MODE</a></li>
+<li class="toc-entry toc-h2"><a href="#target">TARGET</a></li>
 </ul>
 </li>
 </ul></div>
@@ -111,11 +105,9 @@
 <h1 id="target-keywords">
 <a class="anchor" href="#target-keywords" aria-hidden="true"><span class="octicon octicon-link"></span></a>Target Keywords</h1>
 
-<h2 id="require">
-<a class="anchor" href="#require" aria-hidden="true"><span class="octicon octicon-link"></span></a>REQUIRE</h2>
-<p><strong>Requires a Ruby file</strong></p>
-
-<p>Ruby files must be required to be available to call in other code. Files are first required from the target’s lib folder. If no file is found the Ruby system path is checked which includes the base COSMOS/lib folder.</p>
+<h2 id="target">
+<a class="anchor" href="#target" aria-hidden="true"><span class="octicon octicon-link"></span></a>TARGET</h2>
+<p><strong>Defines a new target</strong></p>
 
 <table>
   <thead>
@@ -127,145 +119,20 @@
   </thead>
   <tbody>
     <tr>
-      <td>Filename</td>
-      <td>Filename to require. For files in the target’s lib directory simply supply the filename, e.g. “REQUIRE my_file”. Files in the base COSMOS lib directory also should just list the filename. If a file is in a folder under the lib directory then you must specify the folder name, e.g. “REQUIRE folder/my_file”. The filename can also be an absolute path but this is not common. Note the “.rb” extension is optional when specifying the filename.</td>
+      <td>Folder Name</td>
+      <td>The target folder</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Name</td>
+      <td>The target name. While this is almost always the same as Folder Name it can be different to create multiple targets based on the same target folder.</td>
       <td>True</td>
     </tr>
   </tbody>
 </table>
 
 <p>Example Usage:</p>
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">REQUIRE limits_response.rb</code></pre></figure>
-
-<h2 id="ignore_parameter">
-<a class="anchor" href="#ignore_parameter" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_PARAMETER</h2>
-<p><strong>Ignore the given command parameter</strong></p>
-
-<p>Hint to other COSMOS tools to hide or ignore this command parameter when processing the command. For example, Command Sender and Command Sequence will not display the parameter (by default) when showing the command and Script Runner code completion will not display the parameter.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Parameter Name</td>
-      <td>The name of a command parameter. Note that this parameter will be ignored in ALL the commands it appears in.</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_PARAMETER CCSDS_VERSION</code></pre></figure>
-
-<h2 id="ignore_item">
-<a class="anchor" href="#ignore_item" aria-hidden="true"><span class="octicon octicon-link"></span></a>IGNORE_ITEM</h2>
-<p><strong>Ignore the given telemetry item</strong></p>
-
-<p>Hint to other COSMOS tools to hide or ignore this telemetry item when processing the telemetry. For example, Packet Viewer will not display the item (by default) when showing the packet.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Item name</td>
-      <td>The name of a telemetry item. Note that this item will be ignored in ALL the telemetry it appears in.</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">IGNORE_ITEM CCSDS_VERSION</code></pre></figure>
-
-<h2 id="commands">
-<a class="anchor" href="#commands" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMMANDS</h2>
-<p><strong>Process the given command definition file</strong></p>
-
-<p>This keyword is used to explicitly add the command definition file to the list of command and telemetry files to process.</p>
-
-<div class="note warning"><p>Usage of this keyword overrides automatic command and telemetry file discovery. If this keyword is used, you must also use the TELEMETRY keyword to specify the telemetry files to process.</p></div>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Filename</td>
-      <td>Name of a command definition file in the target’s cmd_tlm directory, e.g. “cmd.txt”.</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMANDS inst_cmds_v2.txt
-TELEMETRY inst_tlm_v2.txt
-</code></pre></figure>
-
-<h2 id="telemetry">
-<a class="anchor" href="#telemetry" aria-hidden="true"><span class="octicon octicon-link"></span></a>TELEMETRY</h2>
-<p><strong>Process the given telemetry definition file</strong></p>
-
-<p>This keyword is used to explicitly add the telemetry definition file to the list of command and telemetry files to process.</p>
-
-<div class="note warning"><p>Usage of this keyword overrides automatic command and telemetry file discovery. If this keyword is used, you must also use the COMMAND keyword to specify the command files to process.</p></div>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Description</th>
-      <th>Required</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Filename</td>
-      <td>Name of a telemetry definition file in the target’s cmd_tlm directory, e.g. “tlm.txt”.</td>
-      <td>True</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">COMMANDS inst_cmds_v2.txt
-TELEMETRY inst_tlm_v2.txt
-</code></pre></figure>
-
-<h2 id="cmd_unique_id_mode">
-<a class="anchor" href="#cmd_unique_id_mode" aria-hidden="true"><span class="octicon octicon-link"></span></a>CMD_UNIQUE_ID_MODE</h2>
-<div class="right">(Since 4.4.0)</div>
-<p><strong>Command packet identifiers don’t all share the same bit offset, size, and type</strong></p>
-
-<p>Ideally all commands for a target are identified using the exact same bit offset, size, and type field in each command. If ANY command identifiers differ then this flag must be set to force a brute force identification method.</p>
-
-<div class="note warning"><p>Using this mode significantly slows packet identification</p></div>
-
-<h2 id="tlm_unique_id_mode">
-<a class="anchor" href="#tlm_unique_id_mode" aria-hidden="true"><span class="octicon octicon-link"></span></a>TLM_UNIQUE_ID_MODE</h2>
-<div class="right">(Since 4.4.0)</div>
-<p><strong>Telemetry packets identifiers don’t all share the same bit offset, size, and type</strong></p>
-
-<p>Ideally all telemetry for a target are identified using the exact same bit offset, size, and type field in each packet. If ANY telemetry identifiers differ then this flag must be set to force a brute force identification method.</p>
-
-<div class="note warning"><p>Using this mode significantly slows packet identification</p></div>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">TARGET INST</code></pre></figure>
 
 
       </article>
