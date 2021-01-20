@@ -31,6 +31,91 @@ module Cosmos
     attr_accessor :plugin
     attr_accessor :scope
 
+    # NOTE: The following three methods must be reimplemented by Model subclasses
+    # without primary_key to support other class methods.
+
+    # @return [Hash|nil] Hash of this model or nil if name not found under primary_key
+    def self.get(primary_key, name:)
+      json = Store.hget(primary_key, name)
+      if json
+        return JSON.parse(json)
+      else
+        return nil
+      end
+    end
+    # @return [Array<String>] All the names stored under the primary key
+    def self.names(primary_key)
+      Store.hkeys(primary_key).sort
+    end
+    # @return [Array<Hash>] All the models (as Hash objects) stored under the primary key
+    def self.all(primary_key)
+      hash = Store.hgetall(primary_key)
+      hash.each do |key, value|
+        hash[key] = JSON.parse(value)
+      end
+      hash
+    end
+    # END NOTE
+
+    # Sets (updates) the redis hash of this model
+    def self.set(json, scope:)
+      json[:scope] = scope
+      json.transform_keys!(&:to_sym)
+      self.new(**json).create(force: true)
+    end
+
+    # @return [Array<Hash>] All the models (as Hash objects) stored under the primary key
+    def self.from_json(json, scope:)
+      json = JSON.parse(json) if String === json
+      raise "json data is nil" if json.nil?
+      json[:scope] = scope
+      json.transform_keys!(&:to_sym)
+      self.new(**json, scope: scope)
+    end
+
+    # Calls self.get and then from_json to turn the Hash configuration into a Ruby Model object.
+    # @return [Object|nil] Model object or nil if name not found under primary_key
+    def self.get_model(name:, scope:)
+      json = get(name: name, scope: scope)
+      if json
+        return from_json(json, scope: scope)
+      else
+        return nil
+      end
+    end
+
+    # @return [Array<Object>] All the models (as Model objects) stored under the primary key
+    def self.get_all_models(scope:)
+      models = {}
+      all(scope: scope).each { |name, json| models[name] = from_json(json, scope: scope) }
+      models
+    end
+
+    # @return [Array<Object>] All the models (as Model objects) stored under the primary key
+    #   which have the plugin attribute
+    def self.find_all_by_plugin(plugin:, scope:)
+      result = {}
+      models = get_all_models(scope: scope)
+      models.each do |name, model|
+        result[name] = model if model.plugin == plugin
+      end
+      result
+    end
+
+    def self.handle_config(parser, model, keyword, parameters)
+      raise "must be implemented by subclass"
+    end
+
+    # TODO: Not used
+    # def self.from_config(primary_key, filename)
+    #   model = nil
+    #   parser = ConfigParser.new
+    #   parser.parse_file(filename) do |keyword, parameters|
+    #     model = self.handle_config(primary_key, parser, model, keyword, parameters)
+    #   end
+    #   model
+    # end
+
     # Store the primary key and keyword arguments
     def initialize(primary_key, **kw_args)
       @primary_key = primary_key
@@ -89,90 +174,5 @@ module Cosmos
     def as_config
       ""
     end
-
-    # @return [Array<Hash>] All the models (as Hash objects) stored under the primary key
-    def self.from_json(json, scope:)
-      json = JSON.parse(json) if String === json
-      raise "json data is nil" if json.nil?
-      json[:scope] = scope
-      json.transform_keys!(&:to_sym)
-      self.new(**json, scope: scope)
-    end
-
-    # Sets (updates) the redis hash of this model
-    def self.set(json, scope:)
-      json[:scope] = scope
-      json.transform_keys!(&:to_sym)
-      self.new(**json).create(force: true)
-    end
-
-    # NOTE: The following three methods must be reimplemented by Model subclasses
-    # without primary_key to support other class methods.
-
-    # @return [Hash|nil] Hash of this model or nil if name not found under primary_key
-    def self.get(primary_key, name:)
-      json = Store.hget(primary_key, name)
-      if json
-        return JSON.parse(json)
-      else
-        return nil
-      end
-    end
-    # @return [Array<String>] All the names stored under the primary key
-    def self.names(primary_key)
-      Store.hkeys(primary_key).sort
-    end
-    # @return [Array<Hash>] All the models (as Hash objects) stored under the primary key
-    def self.all(primary_key)
-      hash = Store.hgetall(primary_key)
-      hash.each do |key, value|
-        hash[key] = JSON.parse(value)
-      end
-      hash
-    end
-    # END NOTE
-
-    # Calls self.get and then from_json to turn the Hash configuration into a Ruby Model object.
-    # @return [Object|nil] Model object or nil if name not found under primary_key
-    def self.get_model(name:, scope:)
-      json = get(name: name, scope: scope)
-      if json
-        return from_json(json, scope: scope)
-      else
-        return nil
-      end
-    end
-
-    # @return [Array<Object>] All the models (as Model objects) stored under the primary key
-    def self.get_all_models(scope:)
-      models = {}
-      all(scope: scope).each { |name, json| models[name] = from_json(json, scope: scope) }
-      models
-    end
-
-    # @return [Array<Object>] All the models (as Model objects) stored under the primary key
-    #   which have the plugin attribute
-    def self.find_all_by_plugin(plugin:, scope:)
-      result = {}
-      models = get_all_models(scope: scope)
-      models.each do |name, model|
-        result[name] = model if model.plugin == plugin
-      end
-      result
-    end
-
-    def self.handle_config(parser, model, keyword, parameters)
-      raise "must be implemented by subclass"
-    end
-
-    # TODO: Not used
-    # def self.from_config(primary_key, filename)
-    #   model = nil
-    #   parser = ConfigParser.new
-    #   parser.parse_file(filename) do |keyword, parameters|
-    #     model = self.handle_config(primary_key, parser, model, keyword, parameters)
-    #   end
-    #   model
-    # end
   end
 end

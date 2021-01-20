@@ -23,18 +23,7 @@ require 'cosmos/models/interface_model'
 module Cosmos
   describe InterfaceModel do
     before(:each) do
-      @redis = MockRedis.new
-      allow(Redis).to receive(:new).and_return(@redis)
-      Cosmos::Store.class_variable_set(:@@instance, nil)
-    end
-
-    describe "self.handle_config" do
-      it "only recognizes INTERFACE" do
-        parser = double("ConfigParser").as_null_object
-        expect(parser).to receive(:verify_num_parameters)
-        InterfaceModel.handle_config(parser, "INTERFACE", ["TEST_INT"], scope: "DEFAULT")
-        expect { InterfaceModel.handle_config(parser, "ROUTER", ["TEST_INT"], scope: "DEFAULT") }.to raise_error(ConfigParser::Error)
-      end
+      mock_redis()
     end
 
     describe "self.get" do
@@ -85,6 +74,15 @@ module Cosmos
       end
     end
 
+    describe "self.handle_config" do
+      it "only recognizes INTERFACE" do
+        parser = double("ConfigParser").as_null_object
+        expect(parser).to receive(:verify_num_parameters)
+        InterfaceModel.handle_config(parser, "INTERFACE", ["TEST_INT"], scope: "DEFAULT")
+        expect { InterfaceModel.handle_config(parser, "ROUTER", ["TEST_INT"], scope: "DEFAULT") }.to raise_error(ConfigParser::Error)
+      end
+    end
+
     describe "initialize" do
       it "requires name and scope" do
         expect { InterfaceModel.new(name: "TEST_INT") }.to raise_error(ArgumentError)
@@ -123,7 +121,7 @@ module Cosmos
         expect(json['name']).to eq "TEST_INT"
         params = model.method(:initialize).parameters
         params.each do |type, name|
-          # TODO: Why isn't scope included in as_json?
+          # Scope isn't included in as_json as it is part of the key used to get the model
           next if name == :scope
           expect(json.key?(name.to_s)).to be true
         end

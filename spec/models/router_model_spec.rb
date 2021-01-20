@@ -24,9 +24,7 @@ module Cosmos
   # NOTE: Most of this class duplicates InterfaceModel and is tested by the interface_model_spec
   describe RouterModel do
     before(:each) do
-      @redis = MockRedis.new
-      allow(Redis).to receive(:new).and_return(@redis)
-      Cosmos::Store.class_variable_set(:@@instance, nil)
+      mock_redis()
     end
 
     describe "create" do

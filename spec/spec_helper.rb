@@ -71,6 +71,7 @@ require 'cosmos'
 require 'cosmos/utilities/logger'
 
 DEFAULT_USERPATH = Cosmos::USERPATH
+SPEC_DIR = File.dirname(__FILE__)
 
 $system_exit_count = 0
 # Overload exit so we know when it is called
@@ -91,12 +92,17 @@ def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
   Cosmos::System.instance(targets, dir)
 end
 
-def configure_store
+def mock_redis
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
-  # allow(ConnectionPool).to receive(:new).and_return(redis)
+  # pool = double(ConnectionPool)
+  # allow(pool).to receive(:with) { redis }
+  # allow(ConnectionPool).to receive(:new).and_return(pool)
   Cosmos::Store.class_variable_set(:@@instance, nil)
+  redis
+end
 
+def install_plugin
   plugin = File.join(__dir__, 'install', 'cosmos-demo-5.0.0.gem')
   allow(Cosmos::GemModel).to receive(:put)
   allow(Cosmos::GemModel).to receive(:get).and_return(plugin)
@@ -105,7 +111,6 @@ def configure_store
 
   plugin_hash = Cosmos::PluginModel.install_phase1(plugin, scope: $cosmos_scope)
   Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: $cosmos_scope)
-  redis
 end
 
 RSpec.configure do |config|
