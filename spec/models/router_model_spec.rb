@@ -27,25 +27,6 @@ module Cosmos
       mock_redis()
     end
 
-    describe "create" do
-      it "stores model based on scope and class name" do
-        model = RouterModel.new(name: "TEST_ROUTE", scope: "DEFAULT")
-        model.create
-        keys = Store.scan(0)
-        # This is an implementation detail but Redis keys are pretty critical so test it
-        expect(keys[1]).to contain_exactly("DEFAULT__cosmos_routers")
-      end
-    end
-
-    describe "self.handle_config" do
-      it "only recognizes ROUTER" do
-        parser = double("ConfigParser").as_null_object
-        expect(parser).to receive(:verify_num_parameters)
-        RouterModel.handle_config(parser, "ROUTER", ["TEST_ROUTER"], scope: "DEFAULT")
-        expect { RouterModel.handle_config(parser, "INTERFACE", ["TEST_INT"], scope: "DEFAULT") }.to raise_error(ConfigParser::Error)
-      end
-    end
-
     describe "self.get" do
       it "returns the specified interface" do
         model = RouterModel.new(name: "TEST_ROUTE", scope: "DEFAULT",
@@ -89,6 +70,25 @@ module Cosmos
         expect(all["TEST_ROUTE"]["auto_reconnect"]).to be false
         expect(all["SPEC_ROUTE"]["connect_on_startup"]).to be true
         expect(all["SPEC_ROUTE"]["auto_reconnect"]).to be true
+      end
+    end
+
+    describe "self.handle_config" do
+      it "only recognizes ROUTER" do
+        parser = double("ConfigParser").as_null_object
+        expect(parser).to receive(:verify_num_parameters)
+        RouterModel.handle_config(parser, "ROUTER", ["TEST_ROUTER"], scope: "DEFAULT")
+        expect { RouterModel.handle_config(parser, "INTERFACE", ["TEST_INT"], scope: "DEFAULT") }.to raise_error(ConfigParser::Error)
+      end
+    end
+
+    describe "create" do
+      it "stores model based on scope and class name" do
+        model = RouterModel.new(name: "TEST_ROUTE", scope: "DEFAULT")
+        model.create
+        keys = Store.scan(0)
+        # This is an implementation detail but Redis keys are pretty critical so test it
+        expect(keys[1]).to contain_exactly("DEFAULT__cosmos_routers")
       end
     end
 

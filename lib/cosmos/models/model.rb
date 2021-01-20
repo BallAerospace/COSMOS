@@ -43,10 +43,12 @@ module Cosmos
         return nil
       end
     end
+
     # @return [Array<String>] All the names stored under the primary key
     def self.names(primary_key)
       Store.hkeys(primary_key).sort
     end
+
     # @return [Array<Hash>] All the models (as Hash objects) stored under the primary key
     def self.all(primary_key)
       hash = Store.hgetall(primary_key)

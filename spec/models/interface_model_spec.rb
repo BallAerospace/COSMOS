@@ -39,6 +39,23 @@ module Cosmos
         expect(test["connect_on_startup"]).to be false
         expect(test["auto_reconnect"]).to be false
       end
+
+      it "works with same named routers" do
+        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT",
+          connect_on_startup: false, auto_reconnect: false) # Set a few things to check
+        model.create
+        model = RouterModel.new(name: "TEST_INT", scope: "DEFAULT",
+          connect_on_startup: true, auto_reconnect: true) # Set to opposite
+        model.create
+        test = InterfaceModel.get(name: "TEST_INT", scope: "DEFAULT")
+        expect(test["name"]).to eq "TEST_INT"
+        expect(test["connect_on_startup"]).to be false
+        expect(test["auto_reconnect"]).to be false
+        test = RouterModel.get(name: "TEST_INT", scope: "DEFAULT")
+        expect(test["name"]).to eq "TEST_INT"
+        expect(test["connect_on_startup"]).to be true
+        expect(test["auto_reconnect"]).to be true
+      end
     end
 
     describe "self.names" do

@@ -73,7 +73,7 @@ module Cosmos
       gem_filename = File.basename(gem_file_path)
 
       # Load gem to internal gem server
-      result = Cosmos::GemModel.put(gem_file_path)
+      Cosmos::GemModel.put(gem_file_path)
 
       # Extract gem and process plugin.txt to determine what VARIABLEs need to be filled in
       pkg = Gem::Package.new(gem_file_path)
@@ -127,7 +127,7 @@ module Cosmos
       temp_dir = Dir.mktmpdir
       begin
         # Get the gem from local gem server
-        gem_file_path = Cosmos::GemModel.get(name, temp_dir)
+        gem_file_path = Cosmos::GemModel.get(temp_dir, name)
         gem_path = File.join(temp_dir, "gem")
         FileUtils.mkdir_p(gem_path)
         pkg = Gem::Package.new(gem_file_path)
