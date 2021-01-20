@@ -73,7 +73,9 @@ module Cosmos
       return run_command(command)
     end
 
-    private
+    ##################################################
+    # The following methods are implementation details
+    ##################################################
 
     def self.run_command(command)
       status = 0

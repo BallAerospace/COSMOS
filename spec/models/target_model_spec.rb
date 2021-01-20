@@ -23,7 +23,7 @@ require 'cosmos/models/target_model'
 module Cosmos
   describe TargetModel do
     before(:each) do
-      @redis = mock_redis()
+      mock_redis()
     end
 
     describe "self.get" do

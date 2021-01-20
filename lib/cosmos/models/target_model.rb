@@ -165,7 +165,9 @@ module Cosmos
       model.destroy if model
     end
 
-    private
+    ##################################################
+    # The following methods are implementation details
+    ##################################################
 
     def build_target_archive(rubys3_client, temp_dir, target_folder)
       target_files = []
