@@ -29,7 +29,7 @@ module Cosmos
     # @return [RawLogger] The write logger
     attr_accessor :write_logger
 
-    # @param name [String] name to be added to log file names
+    # @param name [String] name to be added to log filenames
     # @param log_directory [String] The directory to store the log files
     # @param params [Array] raw log writer parameters or empty array
     def initialize(name, log_directory, params = [])

@@ -20,6 +20,7 @@
 require 'thread'
 require 'aws-sdk-s3'
 require 'cosmos/config/config_parser'
+require 'cosmos/packet_logs/packet_log_constants'
 
 Aws.config.update(
   endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000',
@@ -30,10 +31,10 @@ Aws.config.update(
 )
 
 module Cosmos
-
   # Creates a packet log. Can automatically cycle the log based on an elasped
   # time period or when the log file reaches a predefined size.
   class PacketLogWriter
+    include PacketLogConstants
 
     # @return [String] The filename of the packet log
     attr_reader :filename
@@ -45,7 +46,8 @@ module Cosmos
     # granularity.
     CYCLE_TIME_INTERVAL = 2
 
-    # @param remote_log_directory [String] The s3 path to store the log files.
+    # @param remote_log_directory [String] The s3 path to store the log files
+    # @param label [String] Label to apply to the log filename
     # @param logging_enabled [Boolean] Whether to start with logging enabled
     # @param cycle_time [Integer] The amount of time in seconds before creating
     #   a new log file. This can be combined with cycle_size but is better used
@@ -53,6 +55,11 @@ module Cosmos
     # @param cycle_size [Integer] The size in bytes before creating a new log
     #   file. This can be combined with cycle_time but is better used
     #   independently.
+    # @param cycle_hour [Integer] The time at which to cycle the log. Combined with
+    #   cycle_minute to cycle the log daily at the specified time. If nil, the log
+    #   will be cycled hourly at the specified cycle_minute.
+    # @param cycle_minute [Integer] The time at which to cycle the log. See cycle_hour
+    #   for more information.
     def initialize(
       remote_log_directory,
       label,
@@ -66,7 +73,10 @@ module Cosmos
       @label = label
       @logging_enabled = ConfigParser.handle_true_false(logging_enabled)
       @cycle_time = ConfigParser.handle_nil(cycle_time)
-      @cycle_time = Integer(@cycle_time) if @cycle_time
+      if @cycle_time
+        @cycle_time = Integer(@cycle_time)
+        raise "cycle_time must be >= #{CYCLE_TIME_INTERVAL}" if @cycle_time < CYCLE_TIME_INTERVAL
+      end
       @cycle_size = ConfigParser.handle_nil(cycle_size)
       @cycle_size = Integer(@cycle_size) if @cycle_size
       @cycle_hour = ConfigParser.handle_nil(cycle_hour)
@@ -155,7 +165,6 @@ module Cosmos
         Cosmos.kill_thread(self, @cycle_thread)
         @cycle_thread = nil
       end
-      Cosmos.kill_thread(self, @logging_thread)
     end
 
     def graceful_kill
@@ -187,18 +196,13 @@ module Cosmos
       # Start main log file
       @filename = create_unique_filename('.bin'.freeze)
       @file = File.new(@filename, 'wb')
-      @file_size = 0
-      file_header = build_file_header()
-      if file_header
-        @file.write(file_header)
-        @file_size += file_header.length
-      end
+      @file.write(COSMOS5_FILE_HEADER)
+      @file_size = COSMOS5_FILE_HEADER.length
 
       # Start index log file
       @index_filename = create_unique_filename('.idx'.freeze)
       @index_file = File.new(@index_filename, 'wb')
-      index_file_header = build_index_file_header()
-      @index_file.write(index_file_header) if index_file_header
+      @index_file.write(COSMOS5_INDEX_HEADER)
 
       @start_time = Time.now.utc
       @cmd_packet_table = {}
@@ -288,10 +292,11 @@ module Cosmos
         # and closing the file
         @mutex.synchronize do
           utc_now = Time.now.utc
+          # Logger.debug("start:#{@start_time.to_f} now:#{utc_now.to_f} cycle:#{@cycle_time} new:#{(utc_now - @start_time) > @cycle_time}")
           if @logging_enabled and
             (
               # Cycle based on total time logging
-              (@cycle_time and (Time.now.utc - @start_time) > @cycle_time) or
+              (@cycle_time and (utc_now - @start_time) > @cycle_time) or
 
               # Cycle daily at a specific time
               (@cycle_hour and @cycle_minute and utc_now.hour == @cycle_hour and utc_now.min == @cycle_minute and @start_time.yday != utc_now.yday) or
@@ -306,30 +311,6 @@ module Cosmos
         break if @cycle_sleeper.sleep(CYCLE_TIME_INTERVAL)
       end
     end
-
-    def build_file_header
-      return "COSMOS5_".freeze
-    end
-
-    def build_index_file_header
-      return "COSIDX5_".freeze
-    end
-
-    COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK = 0x1000
-    COSMOS5_PACKET_DECLARATION_ENTRY_TYPE_MASK = 0x2000
-    COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK = 0x3000
-    COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK = 0x4000
-    COSMOS5_CMD_FLAG_MASK = 0x0800
-    COSMOS5_STORED_FLAG_MASK = 0x0400
-    COSMOS5_ID_FLAG_MASK = 0x0200
-    COSMOS5_PRIMARY_FIXED_SIZE = 2
-    COSMOS5_TARGET_DECLARATION_SECONDARY_FIXED_SIZE = 1
-    COSMOS5_PACKET_DECLARATION_SECONDARY_FIXED_SIZE = 3
-    COSMOS5_RAW_PACKET_SECONDARY_FIXED_SIZE = 10
-    COSMOS5_JSON_PACKET_SECONDARY_FIXED_SIZE = 10
-    COSMOS5_ID_FIXED_SIZE = 32
-    COSMOS5_MAX_PACKET_INDEX = 65535
-    COSMOS5_MAX_TARGET_INDEX = 65535
 
     def get_packet_index(cmd_or_tlm, target_name, packet_name)
       if cmd_or_tlm == :CMD
@@ -356,7 +337,9 @@ module Cosmos
 
       # New target_table entry needed
       packet_index = @next_packet_index
-      raise "Packet Table Overflow" if packet_index > COSMOS5_MAX_PACKET_INDEX
+      if packet_index > COSMOS5_MAX_PACKET_INDEX
+        raise "Packet Index Overflow"
+      end
       target_table[packet_name] = packet_index
       @next_packet_index += 1
 
@@ -384,12 +367,14 @@ module Cosmos
         target_index = @next_target_index
         @target_indexes[target_name] = target_index
         @next_target_index += 1
-        raise "Target Index Overflow" if target_index > COSMOS5_MAX_TARGET_INDEX
+        if target_index > COSMOS5_MAX_TARGET_INDEX
+          raise "Target Index Overflow"
+        end
         flags |= COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK
         length += COSMOS5_TARGET_DECLARATION_SECONDARY_FIXED_SIZE + target_name.length
         length += COSMOS5_ID_FIXED_SIZE if id
         @entry.clear
-        @entry << [length, flags, target_name.length].pack('NnC'.freeze) << target_name
+        @entry << [length, flags, target_name.length].pack(COSMOS5_TARGET_DECLARATION_PACK_DIRECTIVE) << target_name
         @entry << [id].pack('H*') if id
         @target_dec_entries << @entry.dup
       when :PACKET_DECLARATION
@@ -398,7 +383,7 @@ module Cosmos
         length += COSMOS5_PACKET_DECLARATION_SECONDARY_FIXED_SIZE + packet_name.length
         length += COSMOS5_ID_FIXED_SIZE if id
         @entry.clear
-        @entry << [length, flags, target_index, packet_name.length].pack('NnnC'.freeze) << packet_name
+        @entry << [length, flags, target_index, packet_name.length].pack(COSMOS5_PACKET_DECLARATION_PACK_DIRECTIVE) << packet_name
         @entry << [id].pack('H*') if id
         @packet_dec_entries << @entry.dup
       when :RAW_PACKET, :JSON_PACKET
@@ -410,11 +395,13 @@ module Cosmos
         else
           flags |= COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK
         end
-        flags |= COSMOS5_CMD_FLAG_MASK if cmd_or_tlm == :CMD
-        length += COSMOS5_RAW_PACKET_SECONDARY_FIXED_SIZE + data.length
+        if cmd_or_tlm == :CMD
+          flags |= COSMOS5_CMD_FLAG_MASK
+        end
+        length += COSMOS5_PACKET_SECONDARY_FIXED_SIZE + data.length
         @entry.clear
         @index_entry.clear
-        @index_entry << [length, flags, packet_index, time_nsec_since_epoch].pack('NnnQ>'.freeze)
+        @index_entry << [length, flags, packet_index, time_nsec_since_epoch].pack(COSMOS5_PACKET_PACK_DIRECTIVE)
         @entry << @index_entry << data
         @index_entry << [@file_size].pack('Q>')
         @index_file.write(@index_entry)
@@ -443,7 +430,5 @@ module Cosmos
       end
       @index_file.write([footer_length].pack('N'))
     end
-
-  end # class PacketLogWriter
-
-end # module Cosmos
+  end
+end
