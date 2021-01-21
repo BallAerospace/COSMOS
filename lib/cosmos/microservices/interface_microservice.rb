@@ -341,7 +341,7 @@ module Cosmos
         identified_packet.received_time = packet.received_time
         identified_packet.stored = packet.stored
         identified_packet.extra = packet.extra
-          packet = identified_packet
+        packet = identified_packet
       else
         unknown_packet = System.telemetry.update!('UNKNOWN', 'UNKNOWN', packet.buffer)
         unknown_packet.received_time = packet.received_time

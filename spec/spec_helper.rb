@@ -32,6 +32,8 @@ end
 if !ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
   if ENV['GITHUB_WORKFLOW']
+    # TODO: Is this really needed?
+    # ENV['CODECOV_TOKEN'] = "a9684b83-9a5d-4a27-b6cd-35e445b5fb0a"
     require 'codecov'
     SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
       SimpleCov::Formatter::HTMLFormatter,
@@ -71,6 +73,7 @@ require 'cosmos'
 require 'cosmos/utilities/logger'
 
 DEFAULT_USERPATH = Cosmos::USERPATH
+SPEC_DIR = File.dirname(__FILE__)
 
 $system_exit_count = 0
 # Overload exit so we know when it is called

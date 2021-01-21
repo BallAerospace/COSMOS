@@ -77,7 +77,7 @@ PROTOCOL:
       values: ["READ", "WRITE", "READ_WRITE"]
     - name: Protocol Filename or Classname
       required: true
-      description: Ruby file name or class name which implements the protocol
+      description: Ruby filename or class name which implements the protocol
       values: .*
     - name: Protocol specific parameters
       required: false

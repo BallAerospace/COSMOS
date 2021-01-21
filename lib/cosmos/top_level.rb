@@ -86,7 +86,7 @@ module Cosmos
   end
 
   # Searches the COSMOS::USERPATH/config/data directory and then the core
-  # COSMOS/data directory for the given file name. Returns the absolute file
+  # COSMOS/data directory for the given filename. Returns the absolute file
   # path or nil if the file could not be found. This allows for user configuration
   # files to override COSMOS data file defaults.
   # def self.data_path(name)
@@ -333,7 +333,7 @@ module Cosmos
   #   default log directory. By setting this parameter you can override the
   #   directory the log will be written to.
   # @yieldparam file [File] The log file
-  # @return [String|nil] The fully pathed log file name or nil if there was
+  # @return [String|nil] The fully pathed log filename or nil if there was
   #   an error creating the log file.
   def self.create_log_file(filename, log_dir = nil)
     log_file = nil
@@ -391,7 +391,7 @@ module Cosmos
   # @param [String] log_dir By default this method will write to the COSMOS
   #   default log directory. By setting this parameter you can override the
   #   directory the log will be written to.
-  # @return [String|nil] The fully pathed log file name or nil if there was
+  # @return [String|nil] The fully pathed log filename or nil if there was
   #   an error creating the log file.
   def self.write_exception_file(exception, filename = 'exception', log_dir = nil)
     log_file = create_log_file(filename, log_dir) do |file|
@@ -449,7 +449,7 @@ module Cosmos
   # @param [String] log_dir By default this method will write to the COSMOS
   #   default log directory. By setting this parameter you can override the
   #   directory the log will be written to.
-  # @return [String|nil] The fully pathed log file name or nil if there was
+  # @return [String|nil] The fully pathed log filename or nil if there was
   #   an error creating the log file.
   def self.write_unexpected_file(text, filename = 'unexpected', log_dir = nil)
     log_file = create_log_file(filename, log_dir) do |file|
