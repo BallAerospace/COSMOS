@@ -32,7 +32,7 @@ module Cosmos
     attr_reader :filename
 
     # @param tool_name [String] The name of the tool creating the message log.
-    #   This will be inserted into the message log file name to help identify it.
+    #   This will be inserted into the message log filename to help identify it.
     # @param log_dir [String] The filesystem path to store the message log file.
     def initialize(tool_name, log_dir)
       @tool_name = tool_name

@@ -199,7 +199,7 @@ module Cosmos
       # Immediately create another log file to ensure we get unique names
       filename2 = Cosmos.create_log_file('test', 'X:/directory/which/does/not/exit')
       expect(File.exist?(filename2)).to be true
-      # Ensure the file names are unique
+      # Ensure the filenames are unique
       expect(filename1).to_not eql filename2
       File.delete(filename1)
       File.delete(filename2)

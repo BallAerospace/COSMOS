@@ -87,7 +87,7 @@ module Cosmos
         files.select! {|f| File.directory? f }
       end
       while answer.empty?
-        print message + "\n" + files.join("\n") + "\n<Type file name>:"
+        print message + "\n" + files.join("\n") + "\n<Type filename>:"
         answer = gets
         answer.chomp!
       end
