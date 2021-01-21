@@ -32,7 +32,8 @@ end
 if !ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
   if ENV['GITHUB_WORKFLOW']
-    ENV['CODECOV_TOKEN'] = "a9684b83-9a5d-4a27-b6cd-35e445b5fb0a"
+    # TODO: Is this really needed?
+    # ENV['CODECOV_TOKEN'] = "a9684b83-9a5d-4a27-b6cd-35e445b5fb0a"
     require 'codecov'
     SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
       SimpleCov::Formatter::HTMLFormatter,

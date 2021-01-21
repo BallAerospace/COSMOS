@@ -113,13 +113,18 @@ module Cosmos
       if flags & COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK == COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK
         packet_index, time_nsec_since_epoch = entry[2..11].unpack('nQ>')
         json_data = entry[12..-1]
-        target_name, packet_name, id = @packets[packet_index]
-        raise "Invalid Packet Index: #{packet_index}" unless cmd_or_tlm
+        lookup_cmd_or_tlm, target_name, packet_name, id = @packets[packet_index]
+        if cmd_or_tlm != lookup_cmd_or_tlm
+          raise "Packet type mismatch, packet:#{cmd_or_tlm}, lookup:#{lookup_cmd_or_tlm}"
+        end
         return JsonPacket.new(cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, json_data)
       elsif flags & COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK == COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK
         packet_index, time_nsec_since_epoch = entry[2..11].unpack('nQ>')
         packet_data = entry[12..-1]
-        target_name, packet_name, id = @packets[packet_index]
+        lookup_cmd_or_tlm, target_name, packet_name, id = @packets[packet_index]
+        if cmd_or_tlm != lookup_cmd_or_tlm
+          raise "Packet type mismatch, packet:#{cmd_or_tlm}, lookup:#{lookup_cmd_or_tlm}"
+        end
         received_time = Time.from_nsec_from_epoch(time_nsec_since_epoch)
         if identify_and_define
           packet = identify_and_define_packet_data(cmd_or_tlm, target_name, packet_name, received_time, packet_data)
@@ -150,7 +155,7 @@ module Cosmos
           id = entry[(packet_name_length + 5)..(packet_name_length + 36)]
           @packet_ids << id
         end
-        @packets << [target_name, packet_name, id]
+        @packets << [cmd_or_tlm, target_name, packet_name, id]
         return read(identify_and_define)
       else
         raise "Invalid Entry Flags: #{flags}"

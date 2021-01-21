@@ -380,6 +380,9 @@ module Cosmos
       when :PACKET_DECLARATION
         target_index = @target_indexes[target_name]
         flags |= COSMOS5_PACKET_DECLARATION_ENTRY_TYPE_MASK
+        if cmd_or_tlm == :CMD
+          flags |= COSMOS5_CMD_FLAG_MASK
+        end
         length += COSMOS5_PACKET_DECLARATION_SECONDARY_FIXED_SIZE + packet_name.length
         length += COSMOS5_ID_FIXED_SIZE if id
         @entry.clear
