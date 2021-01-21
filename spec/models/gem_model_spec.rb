@@ -28,6 +28,7 @@ module Cosmos
     describe "self.get" do
       it "raises if the gem server can't be reached" do
         expect { GemModel.get(Dir.pwd, 'testgem') }.to raise_error(Errno::ECONNREFUSED)
+        FileUtils.rm_f 'testgem'
       end
 
       it "copies the gem to the local filesystem" do
@@ -45,16 +46,20 @@ module Cosmos
 
       it "raises if the gem server can't be reached" do
         tf = Tempfile.new("testgem")
+        tf.close
         expect { GemModel.put(tf.path) }.to raise_error(/Errno::ECONNREFUSED/)
+        tf.unlink
       end
 
       it "installs the gem to the gem server" do
         tf = Tempfile.new("testgem")
+        tf.close
         status = double("status")
         expect(status).to receive(:success?).and_return(true)
         expect(Open3).to receive(:capture2e).with(/#{tf.path}/).and_return(["success", status])
         result = GemModel.put(tf.path)
         expect(result).to eql "success"
+        tf.unlink
       end
     end
   end

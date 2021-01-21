@@ -66,7 +66,7 @@ module Cosmos
       self.new(**json).create(force: true)
     end
 
-    # @return [Array<Hash>] All the models (as Hash objects) stored under the primary key
+    # @return [Model] Model generated from the passed JSON
     def self.from_json(json, scope:)
       json = JSON.parse(json) if String === json
       raise "json data is nil" if json.nil?
