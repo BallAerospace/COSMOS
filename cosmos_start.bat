@@ -51,7 +51,7 @@ docker container rm cosmos-fluentd
 docker build -f fluentd\dockerfile -t cosmos-fluentd fluentd
 docker run --network cosmos -p 127.0.0.1:24224:24224 -p 127.0.0.1:24224:24224/udp -d --name cosmos-fluentd cosmos-fluentd
 timeout 30 >nul
-curl -X POST http://localhost:5601/api/saved_objects/index-pattern/fluentd -H "Content-Type: application/json" -H "kbn-xsrf:true" --data @kibana\setup.json -w "\n"
+curl -X POST http://localhost:5601/api/saved_objects/_import?createNewCopies=true -H "kbn-xsrf:true" --form file=@kibana\export.ndjson -w "\n"
 
 docker volume create cosmos-redis-v
 docker container rm cosmos-redis
