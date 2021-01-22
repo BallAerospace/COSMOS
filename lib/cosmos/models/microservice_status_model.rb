@@ -28,9 +28,23 @@ module Cosmos
     attr_accessor :error
     attr_accessor :custom
 
+    # NOTE: The following three class methods are used by the ModelController
+    # and are reimplemented to enable various Model class methods to work
+    def self.get(name:, scope:)
+      super("#{scope}__#{PRIMARY_KEY}", name: name)
+    end
+
+    def self.names(scope:)
+      super("#{scope}__#{PRIMARY_KEY}")
+    end
+
+    def self.all(scope:)
+      super("#{scope}__#{PRIMARY_KEY}")
+    end
+
     def initialize(
       name:,
-      state:,
+      state: nil,
       count: 0,
       error: nil,
       custom: nil,
@@ -54,18 +68,5 @@ module Cosmos
         'updated_at' => @updated_at
       }
     end
-
-    def self.get(name:, scope:)
-      super("#{scope}__#{PRIMARY_KEY}", name: name)
-    end
-
-    def self.names(scope:)
-      super("#{scope}__#{PRIMARY_KEY}")
-    end
-
-    def self.all(scope:)
-      super("#{scope}__#{PRIMARY_KEY}")
-    end
-
   end
 end

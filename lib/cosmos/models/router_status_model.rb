@@ -20,6 +20,8 @@
 require 'cosmos/models/interface_status_model'
 
 module Cosmos
+  # Stores the status about a router. All of the functionality is handled
+  # in the InterfaceStatusModel so we simply inherit it.
   class RouterStatusModel < InterfaceStatusModel
   end
 end

@@ -94,22 +94,27 @@ def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
   Cosmos::System.instance(targets, dir)
 end
 
-def configure_store
+def mock_redis
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
-  # allow(ConnectionPool).to receive(:new).and_return(redis)
+  # pool = double(ConnectionPool)
+  # allow(pool).to receive(:with) { redis }
+  # allow(ConnectionPool).to receive(:new).and_return(pool)
   Cosmos::Store.class_variable_set(:@@instance, nil)
-
-  plugin = File.join(__dir__, 'install', 'cosmos-demo-5.0.0.gem')
-  allow(Cosmos::GemModel).to receive(:put)
-  allow(Cosmos::GemModel).to receive(:get).and_return(plugin)
-  s3 = instance_double("Aws::S3::Client").as_null_object
-  allow(Aws::S3::Client).to receive(:new).and_return(s3)
-
-  plugin_hash = Cosmos::PluginModel.install_phase1(plugin, scope: $cosmos_scope)
-  Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: $cosmos_scope)
   redis
 end
+
+# TODO: REMOVE
+# def install_plugin
+#   plugin = File.join(__dir__, 'install', 'cosmos-demo-5.0.0.gem')
+#   allow(Cosmos::GemModel).to receive(:put)
+#   allow(Cosmos::GemModel).to receive(:get).and_return(plugin)
+#   s3 = instance_double("Aws::S3::Client").as_null_object
+#   allow(Aws::S3::Client).to receive(:new).and_return(s3)
+
+#   plugin_hash = Cosmos::PluginModel.install_phase1(plugin, scope: $cosmos_scope)
+#   Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: $cosmos_scope)
+# end
 
 RSpec.configure do |config|
   # Enforce the new expect() syntax instead of the old should syntax

@@ -30,7 +30,6 @@ Cosmos.require_file 'cosmos/models/microservice_model'
 Cosmos.require_file 'cosmos/models/microservice_status_model'
 
 module Cosmos
-
   class Microservice
     attr_accessor :microservice_status_thread
     attr_accessor :name

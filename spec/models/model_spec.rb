@@ -41,9 +41,7 @@ module Cosmos
     end
 
     before(:each) do
-      @redis = MockRedis.new
-      allow(Redis).to receive(:new).and_return(@redis)
-      Cosmos::Store.class_variable_set(:@@instance, nil)
+      mock_redis()
     end
 
     describe "create" do

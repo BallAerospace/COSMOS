@@ -54,8 +54,7 @@ module Cosmos
       end
 
       before(:each) do
-        @redis = MockRedis.new
-        allow(Redis).to receive(:new).and_return(@redis)
+        @redis = mock_redis()
         allow(Process).to receive(:kill) do |type, pid|
           # Override SIGINT to just kill the process
           Process.kill("KILL", pid) if type == "SIGINT"
