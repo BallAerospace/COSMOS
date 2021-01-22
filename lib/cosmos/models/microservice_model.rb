@@ -116,7 +116,7 @@ module Cosmos
     end
 
     def as_config
-      result = "MICROSERVICE #{@folder_name} #{@name.split("__")[-1]}\n"
+      result = "MICROSERVICE #{@folder_name ? @folder_name : 'nil'} #{@name.split("__")[-1]}\n"
       result << "  CMD #{@cmd.join(' ')}\n"
       result << "  WORK_DIR \"#{@work_dir}\"\n"
       @topics.each do |topic_name|
