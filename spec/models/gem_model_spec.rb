@@ -62,5 +62,18 @@ module Cosmos
         tf.unlink
       end
     end
+
+    describe "self.destroy" do
+      it "removes the gem from the gem server" do
+        tf = Tempfile.new("testgem")
+        tf.close
+        status = double("status")
+        expect(status).to receive(:success?).and_return(true)
+        expect(Open3).to receive(:capture2e).with(/gem yank my-awesome-gem -v 1.2.3.4/).and_return(["success", status])
+        result = GemModel.destroy("my-awesome-gem-1.2.3.4.gem")
+        expect(result).to eql "success"
+        tf.unlink
+      end
+    end
   end
 end

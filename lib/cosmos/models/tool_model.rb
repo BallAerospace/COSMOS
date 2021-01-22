@@ -70,53 +70,26 @@ module Cosmos
     end
 
     # The ToolsTab.vue calls the ToolsController which uses this method to reorder the tools
-    # Order is the position in the list starting with 0 = first
-    def self.set_order(name:, order:, scope:)
-      ordered = all(scope: scope)
-      tool_model = from_json(ordered[name], scope: scope)
-      index = 0
-      previous_position = 0.0
-      move_next = false
-      tool_position = 0
-      ordered.each do |tool_name, tool|
-        tool_position = tool['position']
-        if move_next or index == order
-          # Need to take the position of this tool
-          if move_next or tool_name != name
-            if move_next or tool_model.position > tool_position
-              new_position = (previous_position + tool_position) / 2.0
-              tool_model.position = new_position
-              tool_model.update
-              return
-            else
-              move_next = true
-            end
-          end
+    # Position is index in the list starting with 0 = first
+    def self.set_position(name:, position:, scope:)
+      position = Integer(position)
+      next_position = position + 1
+
+      # Go through all the tools and reorder
+      all(scope: scope).each do |tool_name, tool|
+        tool_model = from_json(tool, scope: scope)
+        # Update the requested model to the new position
+        if tool_model.name == name
+          tool_model.position = position
+        # Move existing tools down in the order
+        elsif position > 0 && position >= tool_model.position
+          tool_model.position -= 1
+        else # Move existing tools up in the order
+          tool_model.position = next_position
+          next_position += 1
         end
-        previous_position = tool_position
-        index += 1
-      end
-      if move_next
-        new_position = previous_position + 1
-        tool_model.position = new_position
         tool_model.update
       end
-    end
-
-    # Returns the list of tools or the default COSMOS tool set if no tools have been created
-    def self.unordered_all(scope: nil)
-      tools = Store.hgetall("#{scope}__#{PRIMARY_KEY}")
-      tools.each do |key, value|
-        tools[key] = JSON.parse(value)
-      end
-      # If no tools exist generate the default list and store it
-      if tools.length == 0
-        tools = default_tools()
-        tools.each do |name, tool|
-          Store.hset("#{scope}__#{PRIMARY_KEY}", name, JSON.generate(tool))
-        end
-      end
-      return tools
     end
 
     def initialize(
@@ -138,12 +111,8 @@ module Cosmos
     def create(update: false, force: false)
       unless @position
         tools = self.class.all(scope: @scope)
-        max_position = nil
-        tools.each do |tool_name, tool|
-          max_position = tool['position'] if !max_position or tool['position'] > max_position
-        end
-        max_position ||= 0
-        @position = max_position + 1
+        _, tool = tools.max_by { |tool_name, tool| tool['position'] }
+        @position = tool['position'] + 1
       end
       super(update: update, force: force)
     end
@@ -182,6 +151,8 @@ module Cosmos
     end
 
     def deploy(gem_path, variables)
+      return unless @folder_name
+
       variables["tool_name"] = @name
       rubys3_client = Aws::S3::Client.new
       start_path = "/tools/#{@folder_name}/"
@@ -190,13 +161,10 @@ module Cosmos
         path = filename.split(gem_path)[-1]
         key = "#{@scope}/tools/#{@name}/" + path.split(start_path)[-1]
 
-        # Load target files
+        # Load tool files
         data = File.read(filename, mode: "rb")
-        if data.is_printable?
-          rubys3_client.put_object(bucket: 'config', key: key, body: ERB.new(data).result(binding.set_variables(variables)))
-        else
-          rubys3_client.put_object(bucket: 'config', key: key, body: data)
-        end
+        data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
+        rubys3_client.put_object(bucket: 'config', key: key, body: data)
       end
     end
 
@@ -211,6 +179,22 @@ module Cosmos
     ##################################################
     # The following methods are implementation details
     ##################################################
+
+    # Returns the list of tools or the default COSMOS tool set if no tools have been created
+    def self.unordered_all(scope: nil)
+      tools = Store.hgetall("#{scope}__#{PRIMARY_KEY}")
+      tools.each do |key, value|
+        tools[key] = JSON.parse(value)
+      end
+      # If no tools exist generate the default list and store it
+      if tools.length == 0
+        tools = default_tools()
+        tools.each do |name, tool|
+          Store.hset("#{scope}__#{PRIMARY_KEY}", name, JSON.generate(tool))
+        end
+      end
+      return tools
+    end
 
     def self.default_tools
       tools = {}

@@ -118,6 +118,66 @@ module Cosmos
       end
     end
 
+    describe "handle_config" do
+      it "raise on unknown keywords" do
+        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
+        parser = ConfigParser.new
+        tf = Tempfile.new
+        tf.puts "UNKNOWN"
+        tf.close
+        parser.parse_file(tf.path) do |keyword, params|
+          expect { model.handle_config(parser, keyword, params) }.to raise_error(/Unknown keyword/)
+        end
+        tf.unlink
+      end
+
+      it "raise on badly formatted keywords" do
+        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
+        parser = ConfigParser.new
+        tf = Tempfile.new
+        tf.puts "PROTOCOL OTHER ReadProtocol"
+        tf.close
+        parser.parse_file(tf.path) do |keyword, params|
+          expect { model.handle_config(parser, keyword, params) }.to raise_error("Invalid protocol type: OTHER")
+        end
+        tf.unlink
+      end
+
+      it "parses tool specific keywords" do
+        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
+
+        parser = ConfigParser.new
+        tf = Tempfile.new
+        tf.puts "MAP_TARGET TARGET1"
+        tf.puts "MAP_TARGET TARGET2"
+        tf.puts "DONT_CONNECT"
+        tf.puts "DONT_RECONNECT"
+        tf.puts "RECONNECT_DELAY 10"
+        tf.puts "DISABLE_DISCONNECT"
+        tf.puts "OPTION NAME1 VALUE1"
+        tf.puts "OPTION NAME2 VALUE2"
+        tf.puts "PROTOCOL READ ReadProtocol 1 2 3"
+        tf.puts "PROTOCOL WRITE WriteProtocol"
+        tf.puts "DONT_LOG"
+        tf.puts "LOG_RAW"
+        tf.close
+        parser.parse_file(tf.path) do |keyword, params|
+          model.handle_config(parser, keyword, params)
+        end
+        json = model.as_json
+        expect(json['target_names']).to include("TARGET1", "TARGET2")
+        expect(json['connect_on_startup']).to be false
+        expect(json['auto_reconnect']).to be false
+        expect(json['reconnect_delay']).to eql 10.0
+        expect(json['disable_disconnect']).to be true
+        expect(json['options']).to include(["NAME1", "VALUE1"], ["NAME2", "VALUE2"])
+        expect(json['protocols']).to include(["READ", "ReadProtocol", "1", "2", "3"], ["WRITE", "WriteProtocol"])
+        expect(json['log']).to be false
+        expect(json['log_raw']).to be true
+        tf.unlink
+      end
+    end
+
     describe "build" do
       it "instantiates the interface" do
         model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", config_params: ["interface.rb"])

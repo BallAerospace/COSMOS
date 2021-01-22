@@ -171,6 +171,13 @@ module Cosmos
     end
 
     describe "deploy" do
+      it "does nothing if folder_name is undefined" do
+        model = MicroserviceModel.new(name: "DEFAULT__TYPE__NAME", scope: "DEFAULT")
+        model.create
+        expect(Aws::S3::Client).not_to receive(:new)
+        model.deploy(Dir.pwd, {})
+      end
+
       it "creates and deploys a MicroserviceModel" do
         s3 = instance_double("Aws::S3::Client")
         allow(Aws::S3::Client).to receive(:new).and_return(s3)

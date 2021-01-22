@@ -32,31 +32,14 @@ require 'cosmos/models/tool_model'
 require 'cosmos/models/microservice_model'
 
 module Cosmos
+  # Represents a COSMOS plugin that can consist of targets, interfaces, routers
+  # microservices and tools. The PluginModel installs all these pieces as well
+  # as destroys them all when the plugin is removed.
   class PluginModel < Model
     PRIMARY_KEY = 'cosmos_plugins'
 
-    def initialize(
-      name:,
-      variables: {},
-      updated_at: nil,
-      scope:)
-      super("#{scope}__#{PRIMARY_KEY}", name: name, updated_at: updated_at, scope: scope)
-      @variables = variables
-    end
-
-    def create(update: false, force: false)
-      @name = @name + "__#{Time.now.utc.strftime("%Y%m%d%H%M%S")}" unless update
-      super(update: update, force: force)
-    end
-
-    def as_json
-      {
-        'name' => @name,
-        'variables' => @variables,
-        'updated_at' => @updated_at
-      }
-    end
-
+    # NOTE: The following three class methods are used by the ModelController
+    # and are reimplemented to enable various Model class methods to work
     def self.get(name:, scope: nil)
       super("#{scope}__#{PRIMARY_KEY}", name: name)
     end
@@ -69,6 +52,8 @@ module Cosmos
       super("#{scope}__#{PRIMARY_KEY}")
     end
 
+    # Called by the PluginsController to parse the plugin variables
+    # Doesn't actaully create the plugin during the phase
     def self.install_phase1(gem_file_path, scope:)
       gem_filename = File.basename(gem_file_path)
 
@@ -110,6 +95,7 @@ module Cosmos
       end
     end
 
+    # Called by the PluginsController to create the plugin
     def self.install_phase2(name, variables, scope:)
       rubys3_client = Aws::S3::Client.new
 
@@ -167,14 +153,37 @@ module Cosmos
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exists?(temp_dir)
       end
-    end # def self.install
-
-    def undeploy
-      models = [ToolModel, TargetModel, InterfaceModel, RouterModel, MicroserviceModel]
-      models.each do |model|
-        model.find_all_by_plugin(plugin: @name, scope: @scope).each {|name, model_instance| model_instance.destroy}
-      end
     end
 
-  end # class Plugin
-end # module Cosmos
+    def initialize(
+      name:,
+      variables: {},
+      updated_at: nil,
+      scope:)
+      super("#{scope}__#{PRIMARY_KEY}", name: name, updated_at: updated_at, scope: scope)
+      @variables = variables
+    end
+
+    def create(update: false, force: false)
+      @name = @name + "__#{Time.now.utc.strftime("%Y%m%d%H%M%S")}" unless update
+      super(update: update, force: force)
+    end
+
+    def as_json
+      {
+        'name' => @name,
+        'variables' => @variables,
+        'updated_at' => @updated_at
+      }
+    end
+
+    # Undeploy all models associated with this plugin
+    def undeploy
+      [ToolModel, TargetModel, InterfaceModel, RouterModel, MicroserviceModel].each do |model|
+        model.find_all_by_plugin(plugin: @name, scope: @scope).each do |name, model_instance|
+          model_instance.destroy
+        end
+      end
+    end
+  end
+end

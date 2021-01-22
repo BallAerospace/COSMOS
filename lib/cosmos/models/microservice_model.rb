@@ -163,14 +163,14 @@ module Cosmos
 
     def deploy(gem_path, variables)
       return unless @folder_name
+
       variables["microservice_name"] = @name
       rubys3_client = Aws::S3::Client.new
       start_path = "/microservices/#{@folder_name}/"
       Dir.glob(gem_path + start_path + "**/*") do |filename|
         next if filename == '.' or filename == '..' or File.directory?(filename)
         path = filename.split(gem_path)[-1]
-        microservice_folder_path = path.split(start_path)[-1]
-        key = "#{@scope}/microservices/#{@name}/" + microservice_folder_path
+        key = "#{@scope}/microservices/#{@name}/" + path.split(start_path)[-1]
 
         # Load microservice files
         data = File.read(filename, mode: "rb")

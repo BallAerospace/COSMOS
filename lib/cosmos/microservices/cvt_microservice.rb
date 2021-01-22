@@ -19,7 +19,6 @@
 
 require 'cosmos/microservices/microservice'
 require 'cosmos/topics/topic'
-require 'cosmos/models/cvt_model'
 
 module Cosmos
   class CvtMicroservice < Microservice
