@@ -121,7 +121,7 @@ module Cosmos
 
     def initialize(
       name:,
-      folder_name:,
+      folder_name: nil,
       icon: 'mdi-alert',
       url: nil,
       position: nil,
@@ -218,49 +218,49 @@ module Cosmos
         'name' => 'CmdTlmServer',
         'icon' => 'mdi-server-network',
         'url' => '/cmd-tlm-server',
-        'position' => 1,
+        'position' => 0,
       }
       tools['Limits Monitor'] = {
         'name' => 'Limits Monitor',
         'icon' => 'mdi-alert',
         'url' => '/limits-monitor',
-        'position' => 2,
+        'position' => 1,
       }
       tools['Command Sender'] = {
         'name' => 'Command Sender',
         'icon' => 'mdi-satellite-uplink',
         'url' => '/command-sender',
-        'position' => 3,
+        'position' => 2,
       }
       tools['Script Runner'] = {
         'name' => 'Script Runner',
         'icon' => 'mdi-run-fast',
         'url' => '/script-runner',
-        'position' => 4,
+        'position' => 3,
       }
       tools['Packet Viewer'] = {
         'name' => 'Packet Viewer',
         'icon' => 'mdi-format-list-bulleted',
         'url' => '/packet-viewer',
-        'position' => 5,
+        'position' => 4,
       }
       tools['Telemetry Viewer'] = {
         'name' => 'Telemetry Viewer',
         'icon' => 'mdi-monitor-dashboard',
         'url' => '/telemetry-viewer',
-        'position' => 6,
+        'position' => 5,
       }
       tools['Telemetry Grapher'] = {
         'name' => 'Telemetry Grapher',
         'icon' => 'mdi-chart-line',
         'url' => '/telemetry-grapher',
-        'position' => 7,
+        'position' => 6,
       }
       tools['Data Extractor'] = {
         'name' => 'Data Extractor',
         'icon' => 'mdi-archive-arrow-down',
         'url' => '/data-extractor',
-        'position' => 8,
+        'position' => 7,
       }
       tools
     end

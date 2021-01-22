@@ -70,7 +70,7 @@ module Cosmos
     # Create a microservice model to be deployed to S3
     def initialize(
       name:,
-      folder_name:,
+      folder_name: nil,
       cmd: [],
       work_dir: '.',
       env: {},
@@ -162,6 +162,7 @@ module Cosmos
     end
 
     def deploy(gem_path, variables)
+      return unless @folder_name
       variables["microservice_name"] = @name
       rubys3_client = Aws::S3::Client.new
       start_path = "/microservices/#{@folder_name}/"

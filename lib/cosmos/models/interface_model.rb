@@ -235,7 +235,6 @@ module Cosmos
       microservice_name = "#{@scope}__#{type}__#{@name}"
       microservice = MicroserviceModel.new(
         name: microservice_name,
-        folder_name: microservice_name,
         work_dir: '/cosmos/lib/cosmos/microservices',
         cmd: ["ruby", "#{type.downcase}_microservice.rb", microservice_name],
         target_names: @target_names,

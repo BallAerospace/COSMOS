@@ -110,12 +110,6 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "requires name, folder_name, scope" do
-        expect { MicroserviceModel.new(folder_name: "TEST", name: "SCOPE__TYPE__NAME") }.to raise_error(ArgumentError)
-        expect { MicroserviceModel.new(name: "SCOPE__TYPE__NAME", scope: "DEFAULT") }.to raise_error(ArgumentError)
-        expect { MicroserviceModel.new(folder_name: "TEST", scope: "DEFAULT") }.to raise_error(ArgumentError)
-      end
-
       it "requires name to be formatted SCOPE__TYPE__NAME" do
         expect { MicroserviceModel.new(name: "SCOPE", folder_name: "FOLDER", scope: "DEFAULT") }.to raise_error("name 'SCOPE' must be formatted as SCOPE__TYPE__NAME")
         expect { MicroserviceModel.new(name: "SCOPE__TYPE", folder_name: "FOLDER", scope: "DEFAULT") }.to raise_error("name 'SCOPE__TYPE' must be formatted as SCOPE__TYPE__NAME")
