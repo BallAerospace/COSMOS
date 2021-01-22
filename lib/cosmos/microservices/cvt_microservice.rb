@@ -47,7 +47,7 @@ module Cosmos
       json_hash.each do |key, value|
         updated_json_hash[key] = JSON.generate(value.as_json)
       end
-      Store.mapped_hmset("#{@scope}__tlm__#{target_name}__#{packet_name}", updated_json_hash)
+      CvtModel.set(updated_json_hash, target_name: target_name, packet_name: packet_name, scope: @scope)
     end
   end
 end

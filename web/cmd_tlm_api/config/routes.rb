@@ -45,7 +45,7 @@ Rails.application.routes.draw do
 
   get '/microservice_status/:id', to: 'microservice_status#show', id: /[^\/]+/
 
-  post '/tools/order/:id', to: 'tools#order', id: /[^\/]+/
+  post '/tools/position/:id', to: 'tools#position', id: /[^\/]+/
   resources :tools, only: [:index, :create]
   get '/tools/:id', to: 'tools#show', id: /[^\/]+/
   match '/tools/:id', to: 'tools#update', id: /[^\/]+/, via: [:patch, :put]
