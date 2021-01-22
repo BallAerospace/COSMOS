@@ -24,11 +24,11 @@ class ToolsController < ModelController
     @model_class = Cosmos::ToolModel
   end
 
-  # Set the tools order in the list -
-  # Passed order is an integer index starting with 0 being first in the list
-  def order
+  # Set the tools position in the list
+  # Passed position is an integer index starting with 0 being first in the list
+  def position
     authorize(permission: 'admin', scope: params[:scope], token: params[:token])
-    @model_class.set_order(name: params[:id], order: params[:order], scope: params[:scope])
+    @model_class.set_position(name: params[:id], order: params[:position], scope: params[:scope])
     head :ok
   end
 end

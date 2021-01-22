@@ -44,6 +44,7 @@ module Cosmos
         expect { Microservice.run }.to raise_error(/Microservice names/)
         ARGV.replace ["DEFAULT__TYPE__NAME"]
         Microservice.run
+        sleep 0.1
       end
     end
   end
