@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/api/cmd_api'
 require 'cosmos/microservices/interface_microservice'
 require 'cosmos/script/extract'
-# require 'cosmos/script/api_shared'
 require 'cosmos/utilities/authorization'
 
 module Cosmos
@@ -560,6 +559,9 @@ module Cosmos
 
     describe "get_cmd_hazardous" do
       it "returns whether the command with parameters is hazardous" do
+        expect(@api.get_cmd_hazardous("INST COLLECT with TYPE NORMAL")).to be false
+        expect(@api.get_cmd_hazardous("INST COLLECT with TYPE SPECIAL")).to be true
+
         expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"NORMAL"})).to be false
         expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"SPECIAL"})).to be true
         expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>0})).to be false
@@ -567,7 +569,12 @@ module Cosmos
       end
 
       it "returns whether the command is hazardous" do
+        expect(@api.get_cmd_hazardous("INST CLEAR")).to be true
         expect(@api.get_cmd_hazardous("INST","CLEAR")).to be true
+      end
+
+      it "raises with the wrong number of arguments" do
+        expect { @api.get_cmd_hazardous("INST", "COLLECT", "TYPE", "SPECIAL") }.to raise_error(/Invalid number of arguments/)
       end
     end
 
@@ -626,6 +633,40 @@ module Cosmos
         expect(@api.get_cmd_time("INST", "ABORT")).to eql ["INST", "ABORT", 0, 0]
         expect(@api.get_cmd_time("INST")).to eql [nil, nil, 0, 0]
         expect(@api.get_cmd_time()).to eql [nil, nil, 0, 0]
+      end
+    end
+
+    describe "get_cmd_cnt" do
+      it "returns the transmit count" do
+        start = @api.get_cmd_cnt("INST", "COLLECT")
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        # Send unrelated commands to ensure specific command count
+        @api.cmd("INST ABORT")
+        @api.cmd_no_hazardous_check("INST CLEAR")
+        sleep 0.1
+
+        count = @api.get_cmd_cnt("INST", "COLLECT")
+        expect(count).to eql start + 1
+      end
+    end
+
+    describe "get_all_cmd_info" do
+      it "returns transmit count for all commands" do
+        @api.cmd("INST ABORT")
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        sleep 0.1
+        baseline = @api.get_all_cmd_info()
+        @api.cmd("INST ABORT")
+        @api.cmd("INST ABORT")
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        sleep 0.1
+        info = @api.get_all_cmd_info()
+        expect(info[0][0]).to eql "INST"
+        expect(info[0][1]).to eql "ABORT"
+        expect(info[0][2]).to eql baseline[0][2] + 2
+        expect(info[1][0]).to eql "INST"
+        expect(info[1][1]).to eql "COLLECT"
+        expect(info[1][2]).to eql baseline[1][2] + 1
       end
     end
   end

@@ -531,6 +531,7 @@ module Cosmos
     # @return [Numeric] Receive count for the telemetry packet
     def get_tlm_cnt(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
+      Store.instance.tlm_packet_exist?(target_name, command_name, scope: scope)
       _get_cnt("#{scope}__TELEMETRY__#{target_name}__#{packet_name}")
     end
 

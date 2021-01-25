@@ -70,7 +70,9 @@ module Cosmos
 
     describe "each" do
       def setup_logfile(cmd_or_tlm, raw_or_json)
-        allow(Aws::S3::Client).to receive(:new).and_raise("Nope")
+        allow(File).to receive(:delete).and_return(nil)
+        s3 = double("Aws::S3::Client").as_null_object
+        allow(Aws::S3::Client).to receive(:new).and_return(s3)
         plw = PacketLogWriter.new(@log_path, 'spec')
         time = Time.now.to_nsec_from_epoch
         @times = [time, time + 1, time + 2]

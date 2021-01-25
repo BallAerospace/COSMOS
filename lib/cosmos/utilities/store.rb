@@ -56,40 +56,6 @@ module Cosmos
       @overrides = {}
     end
 
-    def cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, timeout_ms: 5000, scope: $cosmos_scope)
-      cmd_packet_exist?(target_name, cmd_name, scope: scope)
-      topic = "#{scope}__CMDTARGET__#{target_name}"
-      ack_topic = "#{scope}__ACKCMDTARGET__#{target_name}"
-      update_topic_offsets([ack_topic])
-      cmd_id = write_topic(topic, { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
-      (timeout_ms / 100).times do
-        read_topics([ack_topic], nil, 100) do |topic, msg_id, msg_hash, redis|
-          # Logger.debug("topic:#{topic} id:#{msg_id} hash:#{msg_hash.inspect}")
-          if msg_hash["id"] == cmd_id
-            # Logger.debug "Ack Received topic:#{topic} id:#{msg_id} msg:#{msg_hash.inspect}"
-            if msg_hash["result"] == "SUCCESS"
-              return
-            # Check for HazardousError which is a special case
-            elsif msg_hash["result"].include?("HazardousError")
-              _, description, cmd = msg_hash["result"].split("\n")
-              # Create and populate a new HazardousError and raise it up
-              # The _cmd method in script/commands.rb rescues this and calls prompt_for_hazardous
-              error = HazardousError.new
-              error.target_name = target_name
-              error.cmd_name = cmd_name
-              error.cmd_params = cmd_params
-              error.hazardous_description = description
-              # No Logger.info because the error is already logged by the Logger.info "Ack Received ...
-              raise error
-            else
-              raise msg_hash["result"]
-            end
-          end
-        end
-      end
-      raise "Timeout waiting for cmd ack"
-    end
-
     def get_tlm_values(items, scope: $cosmos_scope)
       values = []
       return values if items.empty?

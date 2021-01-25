@@ -76,6 +76,7 @@ $cosmos_scope = 'DEFAULT'
 def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
   require 'cosmos/system'
   dir = File.join(__dir__, 'install', 'config', 'targets')
+  Cosmos::System.class_variable_set(:@@instance, nil)
   Cosmos::System.instance(targets, dir)
 end
 

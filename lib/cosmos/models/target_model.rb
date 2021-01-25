@@ -27,6 +27,8 @@ require 'tempfile'
 module Cosmos
   class TargetModel < Model
     PRIMARY_KEY = 'cosmos_targets'
+    CMD_DEF_KEY = 'cosmoscmd'
+    TLM_DEF_KEY = 'cosmostlm'
 
     attr_accessor :folder_name
     attr_accessor :requires
@@ -152,8 +154,8 @@ module Cosmos
         rubys3_client.delete_object(bucket: 'config', key: object.key)
       end
 
-      Store.instance.del("#{@scope}__cosmostlm__#{@name}")
-      Store.instance.del("#{@scope}__cosmoscmd__#{@name}")
+      Store.instance.del("#{@scope}__#{TLM_DEF_KEY}__#{@name}")
+      Store.instance.del("#{@scope}__#{CMD_DEF_KEY}__#{@name}")
 
       model = MicroserviceModel.get_model(name: "#{@scope}__DECOM__#{@name}", scope: @scope)
       model.destroy if model
@@ -221,17 +223,17 @@ module Cosmos
 
       # Load Packet Definitions
       system.telemetry.all.each do |target_name, packets|
-        Store.instance.del("#{@scope}__cosmostlm__#{target_name}")
+        Store.instance.del("#{@scope}__#{TLM_DEF_KEY}__#{target_name}")
         packets.each do |packet_name, packet|
           Logger.info "Configuring tlm packet: #{target_name} #{packet_name}"
-          Store.instance.hset("#{@scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          Store.instance.hset("#{@scope}__#{TLM_DEF_KEY}__#{target_name}", packet_name, JSON.generate(packet.as_json))
         end
       end
       system.commands.all.each do |target_name, packets|
-        Store.instance.del("#{@scope}__cosmoscmd__#{target_name}")
+        Store.instance.del("#{@scope}__#{CMD_DEF_KEY}__#{target_name}")
         packets.each do |packet_name, packet|
           Logger.info "Configuring cmd packet: #{target_name} #{packet_name}"
-          Store.instance.hset("#{@scope}__cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          Store.instance.hset("#{@scope}__#{CMD_DEF_KEY}__#{target_name}", packet_name, JSON.generate(packet.as_json))
         end
       end
       return system
