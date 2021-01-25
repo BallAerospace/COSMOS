@@ -18,18 +18,27 @@
 # copyright holder
 
 require 'spec_helper'
-require 'cosmos'
-require 'cosmos/api/api'
+require 'cosmos/api/cmd_api'
 require 'cosmos/microservices/interface_microservice'
+require 'cosmos/script/extract'
+# require 'cosmos/script/api_shared'
+require 'cosmos/utilities/authorization'
 
 module Cosmos
-  xdescribe Api do
+  describe Api do
     class ApiTest
+      include Extract
       include Api
+      include Authorization
     end
 
     before(:each) do
-      @redis = configure_store()
+      redis = mock_redis()
+      setup_system()
+      require 'cosmos/models/target_model'
+      model = TargetModel.new(folder_name: 'INST', name: 'INST', scope: "DEFAULT")
+      model.create
+      model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
 
       # Create an Interface we can use in the InterfaceCmdHandlerThread
       # It has to have a valid list of target_names as that is what 'receive_commands'
@@ -45,7 +54,7 @@ module Cosmos
       # Store.instance.set_interface(interface, initialize: true)
       @process = true # Allow the command to be processed or not
 
-      allow(@redis).to receive(:xread).and_wrap_original do |m, *args|
+      allow(redis).to receive(:xread).and_wrap_original do |m, *args|
         result = m.call(*args) if @process
         # Create a slight delay to simulate the blocking call
         sleep 0.001 if result and result.length == 0
@@ -78,7 +87,6 @@ module Cosmos
     describe "cmd" do
       it "complains about unknown targets, commands, and parameters" do
         test_cmd_unknown(:cmd)
-        # sleep(0.5)
       end
 
       it "processes a string" do
@@ -438,13 +446,13 @@ module Cosmos
       end
     end
 
-    describe "send_raw" do
-      it "sends raw data to an interface" do
-        @api.send_raw("INST_INT", "\x00\x01\x02\x03")
-        sleep 0.1
-        expect(@interface_data).to eql "\x00\x01\x02\x03"
-      end
-    end
+    # describe "send_raw" do
+    #   it "sends raw data to an interface" do
+    #     @api.send_raw("INST_INT", "\x00\x01\x02\x03")
+    #     sleep 0.1
+    #     expect(@interface_data).to eql "\x00\x01\x02\x03"
+    #   end
+    # end
 
     # DEPRECATED: use get_all_commands
     describe "get_cmd_list" do
@@ -563,17 +571,17 @@ module Cosmos
       end
     end
 
-    describe "get_cmd_value" do
-      it "returns command values" do
-        time = Time.now
-        target_name, cmd_name, params = @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
-        sleep 0.1
-        expect(@api.get_cmd_value("INST", "COLLECT", "TYPE")).to eql 'NORMAL'
-        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to be_within(0.01).of(time.to_f)
-        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMESECONDS")).to be_within(0.01).of(time.to_f)
-        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 1
-      end
-    end
+    # describe "get_cmd_value" do
+    #   it "returns command values" do
+    #     time = Time.now
+    #     target_name, cmd_name, params = @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+    #     sleep 0.1
+    #     expect(@api.get_cmd_value("INST", "COLLECT", "TYPE")).to eql 'NORMAL'
+    #     expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to be_within(0.01).of(time.to_f)
+    #     expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMESECONDS")).to be_within(0.01).of(time.to_f)
+    #     expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 1
+    #   end
+    # end
 
     describe "get_cmd_time" do
       it "returns command times" do

@@ -64,8 +64,9 @@ module Cosmos
       cmd_id = write_topic(topic, { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
       (timeout_ms / 100).times do
         read_topics([ack_topic], nil, 100) do |topic, msg_id, msg_hash, redis|
+          # Logger.debug("topic:#{topic} id:#{msg_id} hash:#{msg_hash.inspect}")
           if msg_hash["id"] == cmd_id
-            # Logger.debug "Ack Received: #{msg_id}: #{msg_hash.inspect}"
+            # Logger.debug "Ack Received topic:#{topic} id:#{msg_id} msg:#{msg_hash.inspect}"
             if msg_hash["result"] == "SUCCESS"
               return
             # Check for HazardousError which is a special case
@@ -532,7 +533,7 @@ module Cosmos
             end
           end
         end
-        # puts "result:#{result}" if result and result.length > 0
+        # Logger.debug "result:#{result}" if result and result.length > 0
         return result
       end
     end

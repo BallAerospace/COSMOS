@@ -124,7 +124,7 @@ module Cosmos
             @interface.write(command)
             CommandTopic.write_packet(command, scope: @scope)
             CommandDecomTopic.write_packet(command, scope: @scope)
-            InterfaceStatusModel.set(@interface.as_json, scope: @scope)
+            # InterfaceStatusModel.set(@interface.as_json, scope: @scope)
             next 'SUCCESS'
           rescue => e
             Logger.error "#{@interface.name}: #{e.formatted}"
