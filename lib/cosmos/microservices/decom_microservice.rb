@@ -69,10 +69,8 @@ module Cosmos
     # @param log_change [Boolean] Whether to log this limits change event
     def limits_change_callback(packet, item, old_limits_state, value, log_change)
       packet_time = packet.packet_time
-      tgt_pkt_item_str = "#{packet.target_name} #{packet.packet_name} #{item.name} = #{value} is"
-      pkt_time_str = ""
-      pkt_time_str << " (#{packet.packet_time.sys.formatted})" if packet_time
-      message = "#{tgt_pkt_item_str} #{item.limits.state} #{pkt_time_str}"
+      message = "#{packet.target_name} #{packet.packet_name} #{item.name} = #{value} is #{item.limits.state}"
+      message << " (#{packet.packet_time.sys.formatted})" if packet_time
 
       if log_change
         case item.limits.state
