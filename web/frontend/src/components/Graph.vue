@@ -618,14 +618,10 @@ export default {
             var items = []
             this.items.forEach((item) => {
               items.push(
-                'TLM__' +
-                  item.targetName +
-                  '__' +
-                  item.packetName +
-                  '__' +
-                  item.itemName +
-                  '__' +
-                  item.valueType
+                {
+                  cmdOrTlm: 'TLM',
+                  ...item
+                }
               )
             })
             subscription.perform('add', {

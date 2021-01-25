@@ -258,7 +258,7 @@ class FileCache
 end
 
 class StreamingThread
-  def initialize(channel, collection, max_batch_size = 100)
+  def initialize(channel, collection, stream_type, max_batch_size = 100)
     # Cosmos::Logger.level = Cosmos::Logger::DEBUG
     # Cosmos::Logger.stdout = true
     @channel = channel
@@ -266,6 +266,7 @@ class StreamingThread
     @max_batch_size = max_batch_size
     @cancel_thread = false
     @thread = nil
+    @stream_type = stream_type
   end
 
   def start
@@ -355,9 +356,16 @@ class StreamingThread
   def handle_message(topic, msg_id, msg_hash, redis, items)
     first_item = items[0]
     time = msg_hash['time'].to_i
-    json_packet = Cosmos::JsonPacket.new(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name,
-      time, Cosmos::ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["json_data"])
-    return handle_json_packet(json_packet, items)
+    if @stream_type == :RAW
+      return {
+        topic => msg_hash['buffer'].b,
+        'time' => time
+      }
+    else
+      json_packet = Cosmos::JsonPacket.new(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name,
+        time, Cosmos::ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["json_data"])
+      return handle_json_packet(json_packet, items)
+    end
   end
 
   def handle_json_packet(json_packet, items)
@@ -521,19 +529,23 @@ class StreamingApi
     attr_accessor :topic
     attr_accessor :thread_id
 
-    def initialize(key, start_time, end_time, thread_id = nil, scope:, token: nil)
-      @key = key
-      key_split = key.split('__')
-      @cmd_or_tlm = key_split[0].to_s.intern
+    def initialize(item, start_time, end_time, thread_id = nil, stream_type:, scope:, token: nil)
       @scope = scope
-      @target_name = key_split[1]
-      @packet_name = key_split[2]
-      @item_name = key_split[3]
-      @value_type = key_split[4].to_s.intern
+      @cmd_or_tlm = item['cmdOrTlm']
+      @target_name = item['targetName']
+      @packet_name = item['packetName']
+      type = nil
+      if stream_type == :RAW
+        type = item['type']
+      else # stream_type == :JSON
+        @key = "#{item['cmdOrTlm']}__#{item['targetName']}__#{item['packetName']}__#{item['itemName']}__#{item['valueType']}"
+        @item_name = item['itemName']
+        @value_type = item['valueType']
+        type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
+      end
       @start_time = start_time
       @end_time = end_time
       authorize(permission: @cmd_or_tlm.to_s.downcase, target_name: @target_name, packet_name: @packet_name, scope: scope, token: token)
-      type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
       @topic = "#{@scope}__#{type}__#{@target_name}__#{@packet_name}"
       @offset = nil
       @offset = Cosmos::Store.instance.get_last_offset(topic) unless @start_time
@@ -622,12 +634,15 @@ class StreamingApi
       start_time = data["start_time"].to_i if data["start_time"]
       end_time = nil
       end_time = data["end_time"].to_i if data["end_time"]
+      stream_type = data["stream_type"].to_s.intern if data["stream_type"]
+      stream_type ||= :JSON
+      @stream_type = stream_type
       scope = data["scope"]
       token = data["token"]
       items = []
       items_by_topic = {}
-      data["items"].each do |item_key|
-        item = StreamingItem.new(item_key, start_time, end_time, scope: scope, token: token)
+      data["items"].each do |item|
+        item = StreamingItem.new(item, start_time, end_time, stream_type: stream_type, scope: scope, token: token)
         items_by_topic[item.topic] ||= []
         items_by_topic[item.topic] << item
         items << item
@@ -635,7 +650,7 @@ class StreamingApi
       if start_time
         items_by_topic.each do |topic, items|
           items.each {|item| item.thread_id = @thread_id}
-          thread = LoggedStreamingThread.new(@thread_id, @channel, @collection, scope: scope)
+          thread = LoggedStreamingThread.new(@thread_id, @channel, @collection, stream_type, scope: scope)
           thread.start
           @logged_threads << thread
           @thread_id += 1
@@ -643,7 +658,7 @@ class StreamingApi
       elsif end_time.nil? or end_time > Time.now.to_nsec_from_epoch
         # Create a single realtime streaming thread to use the entire collection
         if @realtime_thread.nil?
-          @realtime_thread = RealtimeStreamingThread.new(@channel, @collection)
+          @realtime_thread = RealtimeStreamingThread.new(@channel, @collection, stream_type)
           @realtime_thread.start
         end
       end

@@ -566,15 +566,9 @@ export default {
             var items = []
             this.items.forEach((item, index) => {
               items.push(
-                item.cmdOrTlm +
-                  '__' +
-                  item.targetName +
-                  '__' +
-                  item.packetName +
-                  '__' +
-                  item.itemName +
-                  '__' +
-                  item.valueType
+                {
+                  ...item
+                }
               )
             })
             this.subscription.perform('add', {
