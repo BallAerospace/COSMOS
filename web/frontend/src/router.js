@@ -96,12 +96,12 @@ export default new Router({
       component: () => import('./views/TlmViewerView.vue'),
       meta: { title: 'Telemetry Viewer', icon: 'mdi-monitor-dashboard' },
     },
-    // {
-    //   path: '/data-viewer',
-    //   name: 'DataViewer',
-    //   component: () => import('./views/DataViewerView.vue'),
-    //   meta: { title: 'Data Viewer', icon: 'mdi-view-split-horizontal' }
-    // },
+    {
+      path: '/data-viewer',
+      name: 'DataViewer',
+      component: () => import('./views/DataViewerView.vue'),
+      meta: { title: 'Data Viewer', icon: 'mdi-view-split-horizontal' },
+    },
     {
       path: '/telemetry-grapher',
       name: 'TlmGrapher',

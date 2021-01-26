@@ -18,13 +18,35 @@
 -->
 
 <template>
-  <v-textarea> </v-textarea>
+  <v-textarea disabled filled :value="hexText"></v-textarea>
 </template>
 
 <script>
-import Component from './Component'
 export default {
-  mixins: [Component],
+  props: {
+    packet: {
+      type: Object,
+    },
+  },
+  data: function () {
+    return {
+      history: [],
+    }
+  },
+  watch: {
+    packet: function (val) {
+      this.history.push(val)
+    },
+  },
+  computed: {
+    hexBytes: function () {
+      if (!this.packet) return ['No data']
+      return this.packet.raw.map((byte) => byte.toString(16).padStart(2, '0'))
+    },
+    hexText: function () {
+      return this.hexBytes.join(' ')
+    },
+  },
 }
 </script>
 

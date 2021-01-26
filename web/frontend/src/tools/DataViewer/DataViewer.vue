@@ -26,13 +26,20 @@
       </v-tabs>
       <v-tabs-items v-model="curTab">
         <v-tab-item v-for="(tab, index) in tabs" :key="index">
-          <component
+          <!-- <component
             ref="component"
             :is="tab.component"
             v-bind:tabId="index"
             v-bind:curTab="curTab"
             v-bind:refreshInterval="refreshInterval"
-          ></component>
+          >
+          </component> -->
+          <dump-component
+            v-for="(packet, packetIndex) in tab.packets"
+            :key="`${index}-${packetIndex}`"
+            :ref="packet.key"
+            :packet="packetData[packet.key]"
+          />
         </v-tab-item>
       </v-tabs-items>
     </v-card>
@@ -44,8 +51,10 @@ import AppNav from '@/AppNav'
 import { ConfigParserService } from '@/services/config-parser'
 import { CosmosApi } from '@/services/cosmos-api'
 import Vue from 'vue'
+import * as ActionCable from 'actioncable'
 import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'
+import DumpComponent from './DumpComponent.vue'
 
 // Globally register all XxxWidget.vue components
 const requireComponent = require.context(
@@ -85,13 +94,17 @@ requireComponent.keys().forEach((filename) => {
 export default {
   components: {
     AppNav,
+    DumpComponent,
   },
   data() {
     return {
       api: null,
+      cable: ActionCable.Cable,
+      subscription: ActionCable.Channel,
       configParser: null,
       curTab: null,
       tabs: [],
+      packetData: {},
       updater: null,
       refreshInterval: 1000,
       optionsDialog: false,
@@ -125,9 +138,9 @@ COMPONENT "Other Packets" data_viewer_component.rb
   PACKET INST PARAMS
   PACKET INST IMAGE
 
-COMPONENT "Operators" text_component.rb "OPERATOR_NAME"
-  PACKET SYSTEM META
 `
+    // COMPONENT "Operators" text_component.rb "OPERATOR_NAME"
+    //   PACKET SYSTEM META
     this.configParser = new ConfigParserService()
     this.configParser.parse_string(
       this.config,
@@ -153,12 +166,94 @@ COMPONENT "Operators" text_component.rb "OPERATOR_NAME"
                 name: parameters[0],
                 component: componentName,
                 options: parameters.slice(2),
+                packets: [],
+              })
+              break
+            case 'PACKET':
+              if (this.tabs.length === 0) throw 'Invalid configuration string'
+              this.tabs[this.tabs.length - 1].packets.push({
+                target: parameters[0],
+                packet: parameters[1],
+                key: `DEFAULT__TELEMETRY__${parameters[0]}__${parameters[1]}`,
               })
               break
           }
         }
       }
     )
+    this.cable = ActionCable.createConsumer('ws://localhost:7777/cable')
+    this.subscribe()
+  },
+  destroyed: function () {
+    if (this.subscription) {
+      this.subscription.unsubscribe()
+    }
+    this.cable.disconnect()
+  },
+  methods: {
+    subscribe: function () {
+      this.subscription = this.cable.subscriptions.create(
+        {
+          channel: 'StreamingChannel',
+          scope: 'DEFAULT',
+        },
+        {
+          received: (data) => this.received(data),
+          connected: () => {
+            // TODO
+            // this.foundKeys = []
+            // this.columnHeaders = []
+            // this.columnMap = {}
+            // this.outputFile = []
+            // this.rawData = []
+            // TODO: remove slice (this is there because when one thread gets cancelled in the streaming API, all topic subscriptions die)
+            // const items = this.tabs.slice(1, 2).flatMap((tab) => {
+            const items = this.tabs.flatMap((tab) => {
+              return tab.packets.map((packet) => {
+                return {
+                  cmdOrTlm: 'TLM',
+                  type: 'TELEMETRY',
+                  targetName: packet.target,
+                  packetName: packet.packet,
+                }
+              })
+            })
+            this.subscription.perform('add', {
+              scope: 'DEFAULT',
+              items: items.reverse(),
+              // start_time: 1609532973000000000, // use to hit the file cache
+              start_time: Date.now() * 1000000 - 1000000000,
+              end_time: Date.now() * 1000060,
+              stream_type: 'RAW',
+            })
+          },
+          // TODO: warnings
+          disconnected: () => {
+            this.warningText = 'COSMOS backend connection disconnected.'
+            this.warning = true
+          },
+          rejected: () => {
+            this.warningText = 'COSMOS backend connection rejected.'
+            this.warning = true
+          },
+        }
+      )
+    },
+    received: function (json_data) {
+      // TODO: errors
+      // if (json_data['error']) {
+      //   this.errorText = json_data['error']
+      //   this.error = true
+      //   return
+      // }
+      JSON.parse(json_data).forEach((packet) => {
+        // TODO: this causes every component to update instead of just the ones with a new packet
+        // which is less than ideal, but it works for now
+        this.packetData = Object.assign({}, this.packetData, packet)
+        // This also works, but you have to update the components with a key change
+        // Object.assign(this.packetData, packet)
+      })
+    },
   },
 }
 </script>
