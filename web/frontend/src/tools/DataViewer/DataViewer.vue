@@ -34,12 +34,17 @@
             v-bind:refreshInterval="refreshInterval"
           >
           </component> -->
-          <dump-component
+          <v-card
             v-for="(packet, packetIndex) in tab.packets"
             :key="`${index}-${packetIndex}`"
-            :ref="packet.key"
-            :packet="packetData[packet.key]"
-          />
+          >
+            <v-card-title>{{ packet.target }} {{ packet.packet }}</v-card-title>
+            <dump-component
+              v-if="packetData[packet.key]"
+              :packet="packetData[packet.key]"
+            />
+            <v-card-text v-else>No data</v-card-text>
+          </v-card>
         </v-tab-item>
       </v-tabs-items>
     </v-card>
@@ -206,8 +211,6 @@ COMPONENT "Other Packets" data_viewer_component.rb
             // this.columnMap = {}
             // this.outputFile = []
             // this.rawData = []
-            // TODO: remove slice (this is there because when one thread gets cancelled in the streaming API, all topic subscriptions die)
-            // const items = this.tabs.slice(1, 2).flatMap((tab) => {
             const items = this.tabs.flatMap((tab) => {
               return tab.packets.map((packet) => {
                 return {
@@ -220,7 +223,7 @@ COMPONENT "Other Packets" data_viewer_component.rb
             })
             this.subscription.perform('add', {
               scope: 'DEFAULT',
-              items: items.reverse(),
+              items: items,
               // start_time: 1609532973000000000, // use to hit the file cache
               start_time: Date.now() * 1000000 - 1000000000,
               end_time: Date.now() * 1000060,
@@ -249,7 +252,13 @@ COMPONENT "Other Packets" data_viewer_component.rb
       JSON.parse(json_data).forEach((packet) => {
         // TODO: this causes every component to update instead of just the ones with a new packet
         // which is less than ideal, but it works for now
+        const time = packet.time
+        delete packet.time
         this.packetData = Object.assign({}, this.packetData, packet)
+        // console.log('packet', packet)
+        Object.keys(packet).forEach((key) => {
+          this.packetData[key].time = time
+        })
         // This also works, but you have to update the components with a key change
         // Object.assign(this.packetData, packet)
       })

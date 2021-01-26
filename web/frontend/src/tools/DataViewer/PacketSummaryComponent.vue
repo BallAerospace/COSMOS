@@ -18,49 +18,53 @@
 -->
 
 <template>
-  <v-container>
-    <packet-summary-component
-      :key="packet.time"
-      :packet="packet"
-      :received-count="history.length"
-    />
-    <v-textarea :value="hexText" auto-grow readonly filled />
-  </v-container>
+  <v-data-table
+    :headers="headers"
+    :items="rows"
+    disable-pagination
+    hide-default-footer
+    dense
+  />
 </template>
 
 <script>
-import PacketSummaryComponent from './PacketSummaryComponent'
-
 export default {
   props: {
     packet: {
       type: Object,
       required: true,
     },
+    receivedCount: {
+      type: Number,
+      required: true,
+    },
   },
   data: function () {
     return {
-      history: [],
+      headers: [
+        { text: 'Received', value: 'name' },
+        { text: '', value: 'value' },
+      ],
     }
   },
-  watch: {
-    packet: function (val) {
-      this.history.push(val)
-    },
-  },
   computed: {
-    hexBytes: function () {
-      return this.packet.raw.map((byte) => byte.toString(16).padStart(2, '0'))
-    },
-    hexText: function () {
-      return this.hexBytes.join(' ')
+    rows: function () {
+      const milliseconds = this.packet.time / 1000000
+      return [
+        {
+          name: 'Seconds',
+          value: milliseconds / 1000,
+        },
+        {
+          name: 'Time',
+          value: new Date(milliseconds).toISOString(),
+        },
+        {
+          name: 'Count',
+          value: this.receivedCount,
+        },
+      ]
     },
   },
 }
 </script>
-
-<style lang="scss" scoped>
-.v-textarea {
-  font-family: 'Courier New', Courier, monospace;
-}
-</style>
