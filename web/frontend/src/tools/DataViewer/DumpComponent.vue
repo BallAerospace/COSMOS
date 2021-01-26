@@ -24,6 +24,10 @@
       :packet="packet"
       :received-count="history.length"
     />
+    <v-radio-group v-model="format" row hide-details>
+      <v-radio label="Hex" value="hex" />
+      <v-radio label="ASCII" value="ascii" />
+    </v-radio-group>
     <v-textarea :value="hexText" auto-grow readonly filled />
   </v-container>
 </template>
@@ -46,6 +50,7 @@ export default {
   data: function () {
     return {
       history: [],
+      format: 'hex',
     }
   },
   watch: {
@@ -55,7 +60,16 @@ export default {
   },
   computed: {
     hexBytes: function () {
-      return this.packet.raw.map((byte) => byte.toString(16).padStart(2, '0'))
+      if (this.format === 'ascii') {
+        return this.packet.raw.map((byte) =>
+          String.fromCharCode(byte)
+            .replace(/\n/, '\\n')
+            .replace(/\r/, '\\r')
+            .padStart(2, ' ')
+        )
+      } else {
+        return this.packet.raw.map((byte) => byte.toString(16).padStart(2, '0'))
+      }
     },
     hexLines: function () {
       return _.chunk(this.hexBytes, this.columns).map((chunk, index) => {
