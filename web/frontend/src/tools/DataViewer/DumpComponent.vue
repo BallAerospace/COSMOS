@@ -29,6 +29,7 @@
 </template>
 
 <script>
+import _ from 'lodash'
 import PacketSummaryComponent from './PacketSummaryComponent'
 
 export default {
@@ -36,6 +37,10 @@ export default {
     packet: {
       type: Object,
       required: true,
+    },
+    columns: {
+      type: Number,
+      default: 16,
     },
   },
   data: function () {
@@ -52,8 +57,14 @@ export default {
     hexBytes: function () {
       return this.packet.raw.map((byte) => byte.toString(16).padStart(2, '0'))
     },
+    hexLines: function () {
+      return _.chunk(this.hexBytes, this.columns).map((chunk, index) => {
+        const lineNumber = (index * this.columns).toString(16).padStart(8, '0')
+        return `${lineNumber}: ${chunk.join(' ')}`
+      })
+    },
     hexText: function () {
-      return this.hexBytes.join(' ')
+      return this.hexLines.join('\n')
     },
   },
 }

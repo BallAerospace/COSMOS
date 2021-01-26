@@ -25,7 +25,7 @@
         <v-tab v-for="(tab, index) in tabs" :key="index">{{ tab.name }}</v-tab>
       </v-tabs>
       <v-tabs-items v-model="curTab">
-        <v-tab-item v-for="(tab, index) in tabs" :key="index">
+        <v-tab-item v-for="(tab, index) in tabs" :key="index" :tab-id="index">
           <!-- <component
             ref="component"
             :is="tab.component"
