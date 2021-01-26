@@ -80,7 +80,7 @@ module Cosmos
       end
 
       it "processes a string" do
-        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
+        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(-100.0)
       end
 
       it "returns the value using LATEST" do
@@ -98,7 +98,7 @@ module Cosmos
       end
 
       it "processes parameters" do
-        expect(@api.tlm("INST","HEALTH_STATUS","TEMP1")).to eql -100.0
+        expect(@api.tlm("INST","HEALTH_STATUS","TEMP1")).to eql(-100.0)
       end
 
       it "complains if too many parameters" do
@@ -171,21 +171,21 @@ module Cosmos
       end
 
       it "processes a string" do
-        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:CONVERTED)).to eql -100.0
+        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:CONVERTED)).to eql(-100.0)
         expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:RAW)).to eql 0
         expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:FORMATTED)).to eql "-100.000"
         expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:WITH_UNITS)).to eql "-100.000 C"
       end
 
       it "returns the value using LATEST" do
-        expect(@api.tlm_variable("INST LATEST TEMP1",:CONVERTED)).to eql -100.0
+        expect(@api.tlm_variable("INST LATEST TEMP1",:CONVERTED)).to eql(-100.0)
         expect(@api.tlm_variable("INST LATEST TEMP1",:RAW)).to eql 0
         expect(@api.tlm_variable("INST LATEST TEMP1",:FORMATTED)).to eql "-100.000"
         expect(@api.tlm_variable("INST LATEST TEMP1",:WITH_UNITS)).to eql "-100.000 C"
       end
 
       it "processes parameters" do
-        expect(@api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:CONVERTED)).to eql -100.0
+        expect(@api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:CONVERTED)).to eql(-100.0)
         expect(@api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:RAW)).to eql 0
         expect(@api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:FORMATTED)).to eql "-100.000"
         expect(@api.tlm_variable("INST","HEALTH_STATUS","TEMP1",:WITH_UNITS)).to eql "-100.000 C"
@@ -260,6 +260,39 @@ module Cosmos
     end
 
     describe "inject_tlm" do
+      before(:each) do
+        model = InterfaceModel.new(name: "INST_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
+        model.create
+
+        # Mock out some stuff in Microservice initialize()
+        dbl = double("AwsS3Client").as_null_object
+        allow(Aws::S3::Client).to receive(:new).and_return(dbl)
+        allow(Zip::File).to receive(:open).and_return(true)
+        allow_any_instance_of(Cosmos::Interface).to receive(:connected?).and_return(true)
+        allow_any_instance_of(Cosmos::Interface).to receive(:read_interface) { sleep }
+
+        model = MicroserviceModel.new(name: "DEFAULT__INTERFACE__INST_INT", scope: "DEFAULT", target_names: ["INST"])
+        model.create
+        @im = InterfaceMicroservice.new("DEFAULT__INTERFACE__INST_INT")
+        @im_thread = Thread.new { @im.run }
+
+        model = MicroserviceModel.new(name: "DEFAULT__DECOM__INST_INT", scope: "DEFAULT", topics: ["DEFAULT__TELEMETRY__INST__HEALTH_STATUS"])
+        model.create
+        @dm = DecomMicroservice.new("DEFAULT__DECOM__INST_INT")
+        @dm_thread = Thread.new { @dm.run }
+
+        sleep(0.1)
+      end
+
+      after(:each) do
+        @im.shutdown
+        @dm.shutdown
+        sleep 0.1
+        Thread.list.each do |t|
+          t.kill if t != Thread.current
+        end
+      end
+
       it "complains about non-existant targets" do
         expect { @api.inject_tlm("BLAH","HEALTH_STATUS") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
       end
@@ -281,15 +314,15 @@ module Cosmos
         @api.inject_tlm("INST","HEALTH_STATUS")
       end
 
-      xit "injects a packet into the system" do
+      it "injects a packet into the system" do
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 10, TEMP2: 20}, :CONVERTED, true, true, false)
         sleep 0.2
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to be_within(0.1).of(20.0)
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0}, :RAW, true, true, false)
         sleep 0.2
-        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
-        expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql -100.0
+        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(-100.0)
+        expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql(-100.0)
       end
 
       xit "writes to routers and logs even if the packet has no interface" do
@@ -428,16 +461,16 @@ module Cosmos
         expect(vals[4][2]).to be_nil
         # Spot check a few more
         expect(vals[24][0]).to eql "TEMP1"
-        expect(vals[24][1]).to eql -100.0
+        expect(vals[24][1]).to eql(-100.0)
         expect(vals[24][2]).to eql "RED_LOW"
         expect(vals[25][0]).to eql "TEMP2"
-        expect(vals[25][1]).to eql -100.0
+        expect(vals[25][1]).to eql(-100.0)
         expect(vals[25][2]).to eql "RED_LOW"
         expect(vals[26][0]).to eql "TEMP3"
-        expect(vals[26][1]).to eql -100.0
+        expect(vals[26][1]).to eql(-100.0)
         expect(vals[26][2]).to eql "RED_LOW"
         expect(vals[27][0]).to eql "TEMP4"
-        expect(vals[27][1]).to eql -100.0
+        expect(vals[27][1]).to eql(-100.0)
         expect(vals[27][2]).to eql "RED_LOW"
       end
     end
@@ -473,10 +506,10 @@ module Cosmos
         items << 'INST__HEALTH_STATUS__TEMP3__CONVERTED'
         items << 'INST__HEALTH_STATUS__TEMP4__CONVERTED'
         vals = @api.get_tlm_values(items)
-        expect(vals[0][0]).to eql -100.0
-        expect(vals[1][0]).to eql -100.0
-        expect(vals[2][0]).to eql -100.0
-        expect(vals[3][0]).to eql -100.0
+        expect(vals[0][0]).to eql(-100.0)
+        expect(vals[1][0]).to eql(-100.0)
+        expect(vals[2][0]).to eql(-100.0)
+        expect(vals[3][0]).to eql(-100.0)
         expect(vals[0][1]).to eql :RED_LOW
         expect(vals[1][1]).to eql :RED_LOW
         expect(vals[2][1]).to eql :RED_LOW
@@ -508,7 +541,7 @@ module Cosmos
         items << 'INST__HEALTH_STATUS__TEMP4__WITH_UNITS'
         vals = @api.get_tlm_values(items)
         expect(vals[0][0]).to eql 0
-        expect(vals[1][0]).to eql -100.0
+        expect(vals[1][0]).to eql(-100.0)
         expect(vals[2][0]).to eql "-100.000"
         expect(vals[3][0]).to eql "-100.000 C"
         expect(vals[0][1]).to eql :RED_LOW

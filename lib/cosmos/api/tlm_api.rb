@@ -225,7 +225,8 @@ module Cosmos
     # @param send_routers[Boolean] Whether or not to send to routers for the target's interface
     # @param send_packet_log_writers[Boolean] Whether or not to send to the packet log writers for the target's interface
     # @param create_new_logs[Boolean] Whether or not to create new log files before writing this packet to logs
-    def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true, send_packet_log_writers = true, create_new_logs = false, scope: $cosmos_scope, token: $cosmos_token)
+    def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true,
+      send_packet_log_writers = true, create_new_logs = false, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
 
       # Get the packet hash ... this will raise errors if target_name and packet_name do not exist
@@ -246,9 +247,9 @@ module Cosmos
       # TODO: Handle the rest of the parameters
       # inject['send_routers'] = true if send_routers
 
-      Store.instance.get_interfaces.each do |interface|
-        if interface['target_names'].include?(target_name)
-          Store.instance.write_interface(interface['name'], inject)
+      InterfaceModel.all(scope: scope).each do |name, interface|
+        if interface['target_names'].include? target_name
+          Store.write_topic("#{scope}__CMDINTERFACE__#{interface['name']}", inject)
         end
       end
       nil
@@ -593,26 +594,6 @@ module Cosmos
       return [target_name, packet_name, item_name]
     end
 
-    def tlm_variable_process_args(args, function_name, scope: $cosmos_scope, token: $cosmos_token)
-      case args.length
-      when 2
-        target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
-        value_type = args[1].to_s.intern
-      when 4
-        target_name = args[0]
-        packet_name = args[1]
-        item_name = args[2]
-        value_type = args[3].to_s.intern
-      else
-        # Invalid number of arguments
-        raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
-      end
-      # Determine if this item exists, it will raise appropriate errors if not
-      Store.instance.get_item(target_name, packet_name, item_name, scope: scope)
-
-      return [target_name, packet_name, item_name, value_type]
-    end
-
     def set_tlm_process_args(args, function_name, scope: $cosmos_scope, token: $cosmos_token)
       case args.length
       when 1
@@ -631,6 +612,5 @@ module Cosmos
 
       return [target_name, packet_name, item_name, value]
     end
-
   end
 end
