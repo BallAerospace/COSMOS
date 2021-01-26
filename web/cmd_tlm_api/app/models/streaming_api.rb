@@ -195,11 +195,19 @@ class FileCache
     # Get List of Files from S3
     total_resp = []
     token = nil
+    prefix = "#{scope}/#{type.to_s.downcase}logs/#{cmd_or_tlm.to_s.downcase}/"
+    if type == :RAW
+      prefix << "TELEMETRY/"
+    end
+    prefix << "#{target_name}/"
+    if type == :DECOM
+      prefix << "#{packet_name}/"
+    end
     while true
       resp = rubys3_client.list_objects_v2({
         bucket: "logs",
         max_keys: 1000,
-        prefix: "#{scope}/#{type.to_s.downcase}logs/#{cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}/",
+        prefix: prefix,
         continuation_token: token
       })
       total_resp.concat(resp.contents)
@@ -430,6 +438,8 @@ class LoggedStreamingThread < StreamingThread
       else
         # Since we're not going to transmit anything cancel and transmit an empty result
         # Cosmos::Logger.debug "NO DATA DONE! transmit 0 results"
+
+        # TODO: this kills all other topics added?
         @cancel_thread = true
         transmit_results([], force: true)
       end
@@ -440,7 +450,8 @@ class LoggedStreamingThread < StreamingThread
       # Get next file from file cache
       file_end_time = first_item.end_time
       file_end_time = Time.now.to_nsec_from_epoch unless file_end_time
-      file_path = FileCache.instance.reserve_file(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name, first_item.start_time, file_end_time, scope: @scope)
+      type = @stream_type == :JSON ? :DECOM : :RAW # TODO: not sure if this will actually work for RAW
+      file_path = FileCache.instance.reserve_file(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name, first_item.start_time, file_end_time, type, scope: @scope)
       # puts file_path
       if file_path
         file_path_split = File.basename(file_path).split("__")
