@@ -80,7 +80,7 @@ module Cosmos
       @name = name
       @cancel_thread = false
       Logger.microservice_name = @name
-      Logger.tag = @name + ".log"
+      Logger.tag = @name + "__cosmos.log"
 
       # Create temp folder for this microservice
       @temp_dir = Dir.mktmpdir

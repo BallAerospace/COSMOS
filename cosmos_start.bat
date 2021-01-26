@@ -47,11 +47,16 @@ docker pull amazon/opendistro-for-elasticsearch-kibana:1.12.0
 docker build -f kibana\dockerfile -t cosmos-kibana kibana
 docker run --network cosmos -p 127.0.0.1:5601:5601 -d --name cosmos-kibana --env ELASTICSEARCH_HOSTS=http://cosmos-elasticsearch:9200 cosmos-kibana
 
+docker container rm cosmos-prometheus
+docker pull prom/prometheus:v2.24.1
+docker build -f prometheus\dockerfile -t cosmos-prometheus prometheus
+docker run --network cosmos -p 127.0.0.1:9090:9090 -d --name cosmos-prometheus cosmos-prometheus
+
 docker container rm cosmos-fluentd
 docker build -f fluentd\dockerfile -t cosmos-fluentd fluentd
 docker run --network cosmos -p 127.0.0.1:24224:24224 -p 127.0.0.1:24224:24224/udp -d --name cosmos-fluentd cosmos-fluentd
 timeout 30 >nul
-curl -X POST http://localhost:5601/api/saved_objects/_import?createNewCopies=true -H "kbn-xsrf:true" --form file=@kibana\export.ndjson -w "\n"
+curl -X POST http://localhost:5601/api/saved_objects/_import -H "kbn-xsrf:true" --form file=@kibana\export.ndjson -w "\n"
 
 docker volume create cosmos-redis-v
 docker container rm cosmos-redis

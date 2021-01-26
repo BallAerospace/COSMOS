@@ -46,6 +46,7 @@ module Cosmos
     end
 
     def decom_packet(topic, msg_id, msg_hash, redis)
+      start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       target_name = msg_hash["target_name"]
       packet_name = msg_hash["packet_name"]
 
@@ -57,6 +58,16 @@ module Cosmos
       packet.check_limits
 
       TelemetryDecomTopic.write_packet(packet, scope: @scope)
+
+      diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
+      metric_data = {
+        "source" => "#{self.class.to_s}.#{self.__method__.to_s}",
+        "target" => target_name,
+        "packet" => packet_name,
+        "duration" => diff,
+        "description" => "duration: seconds as a float",
+      }
+      Logger.metric(metric_data) if ENV.has_key?("COSMOS_METRIC")
     end
 
     # Called when an item in any packet changes limits states.
@@ -69,10 +80,8 @@ module Cosmos
     # @param log_change [Boolean] Whether to log this limits change event
     def limits_change_callback(packet, item, old_limits_state, value, log_change)
       packet_time = packet.packet_time
-      tgt_pkt_item_str = "#{packet.target_name} #{packet.packet_name} #{item.name} = #{value} is"
-      pkt_time_str = ""
-      pkt_time_str << " (#{packet.packet_time.sys.formatted})" if packet_time
-      message = "#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
+      message = "#{packet.target_name} #{packet.packet_name} #{item.name} = #{value} is #{item.limits.state}"
+      message << " (#{packet.packet_time.sys.formatted})" if packet_time
 
       if log_change
         case item.limits.state
