@@ -565,11 +565,9 @@ export default {
             this.rawData = []
             var items = []
             this.items.forEach((item, index) => {
-              items.push(
-                {
-                  ...item
-                }
-              )
+              items.push({
+                ...item,
+              })
             })
             this.subscription.perform('add', {
               scope: 'DEFAULT',

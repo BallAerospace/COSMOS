@@ -617,12 +617,10 @@ export default {
           connected: () => {
             var items = []
             this.items.forEach((item) => {
-              items.push(
-                {
-                  cmdOrTlm: 'TLM',
-                  ...item
-                }
-              )
+              items.push({
+                cmdOrTlm: 'TLM',
+                ...item,
+              })
             })
             subscription.perform('add', {
               scope: 'DEFAULT',
