@@ -72,6 +72,7 @@ require 'cosmos/top_level'
 # Create a easy alias to the base of the spec directory
 SPEC_DIR = File.dirname(__FILE__)
 $cosmos_scope = 'DEFAULT'
+$cosmos_token = nil
 
 def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
   require 'cosmos/system'

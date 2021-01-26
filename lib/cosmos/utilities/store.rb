@@ -214,7 +214,7 @@ module Cosmos
         # elsif param_name == 'RECEIVED_TIMEFORMATTED' || param_name == 'PACKET_TIMEFORMATTED'
         #   Time.from_nsec_from_epoch(msg_hash['time'].to_i).formatted
         if param_name == 'RECEIVED_COUNT'
-           msg_hash['received_count'].to_i
+          msg_hash['received_count'].to_i
         else
           json = msg_hash['json_data']
           hash = JSON.parse(json)
@@ -243,7 +243,7 @@ module Cosmos
       else
         raise "Unknown value type #{value_type}"
       end
-      result = redis.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *secondary_keys)
+      redis.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *secondary_keys)
     end
 
     def get_tlm_item(target_name, packet_name, item_name, type: :WITH_UNITS, scope: $cosmos_scope)

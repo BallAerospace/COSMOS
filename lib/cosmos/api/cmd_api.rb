@@ -53,7 +53,8 @@ module Cosmos
     #
     # @param args [String|Array<String>] See the description for calling style
     # @return [Array<String, String, Hash>] target_name, command_name, parameters
-    def cmd(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(true, true, false, 'cmd', *args, scope: scope, token: token)
     end
 
@@ -69,7 +70,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_no_range_check(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_no_range_check(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(false, true, false, 'cmd_no_range_check', *args, scope: scope, token: token)
     end
 
@@ -85,7 +87,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_no_hazardous_check(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_no_hazardous_check(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(true, false, false, 'cmd_no_hazardous_check', *args, scope: scope, token: token)
     end
 
@@ -100,7 +103,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_no_checks(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_no_checks(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(false, false, false, 'cmd_no_checks', *args, scope: scope, token: token)
     end
 
@@ -114,7 +118,8 @@ module Cosmos
     #
     # @param args [String|Array<String>] See the description for calling style
     # @return [Array<String, String, Hash>] target_name, command_name, parameters
-    def cmd_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_raw(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(true, true, true, 'cmd_raw', *args, scope: scope, token: token)
     end
 
@@ -130,7 +135,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_raw_no_range_check(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_raw_no_range_check(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(false, true, true, 'cmd_raw_no_range_check', *args, scope: scope, token: token)
     end
 
@@ -146,7 +152,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_raw_no_hazardous_check(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_raw_no_hazardous_check(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(true, false, true, 'cmd_raw_no_hazardous_check', *args, scope: scope, token: token)
     end
 
@@ -161,7 +168,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_raw_no_checks(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_raw_no_checks(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(false, false, true, 'cmd_raw_no_checks', *args, scope: scope, token: token)
     end
 
@@ -251,7 +259,6 @@ module Cosmos
     def get_cmd_param_list(target_name, command_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
       list = []
-      packet_json = nil
       packet = Store.instance.get_packet(target_name, command_name, type: 'cmd', scope: scope)
       packet['items'].each do |item|
         states = nil
@@ -283,7 +290,8 @@ module Cosmos
     #
     # @param args [String|Array<String>] See the description for calling style
     # @return [Boolean] Whether the command is hazardous
-    def get_cmd_hazardous(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def get_cmd_hazardous(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       case args.length
       when 1
         target_name, command_name, params = extract_fields_from_cmd_text(args[0])

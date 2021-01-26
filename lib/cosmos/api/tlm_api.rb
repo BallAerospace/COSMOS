@@ -391,7 +391,7 @@ module Cosmos
         raise ArgumentError, "items must be array of strings: ['TGT__PKT__ITEM__TYPE', ...]"
       end
       items.each do |item|
-        target_name, packet_name, item_name, type = item.split('__')
+        target_name, packet_name, _, _ = item.split('__')
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       end
       Store.instance.get_tlm_values(items, scope: scope)
@@ -569,15 +569,16 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
       end
       if packet_name == 'LATEST'
-        latest = 0
-        Store.instance.get_telemetry(target_name).each do |packet|
-          item = packet['items'].find { |item| item['name'] == item_name }
+        # TODO
+        # latest = 0
+        # Store.instance.get_telemetry(target_name).each do |packet|
+        #   item = packet['items'].find { |item| item['name'] == item_name }
           # TODO Sort through items and return latest
           # if item
           #   time = Store.instance.get_tlm_item(target_name, packet['name'], 'PACKET_TIMESECONDS', scope: scope)
           #   time = packet['items'].find { |item| item['name'] == 'PACKET_TIMESECONDS' }
           # end
-        end
+        # end
       else
         # Determine if this item exists, it will raise appropriate errors if not
         Store.instance.get_item(target_name, packet_name, item_name, scope: scope)

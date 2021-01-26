@@ -54,7 +54,8 @@ module Cosmos
       @process = true # Allow the command to be processed or not
 
       allow(redis).to receive(:xread).and_wrap_original do |m, *args|
-        result = m.call(*args) if @process
+        # Only use the first two arguments as the last argument is keyword block:
+        result = m.call(*args[0..1]) if @process
         # Create a slight delay to simulate the blocking call
         sleep 0.001 if result and result.length == 0
         result
@@ -75,12 +76,12 @@ module Cosmos
     end
 
     def test_cmd_unknown(method)
-      expect { @api.send(method,"BLAH COLLECT with TYPE NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"INST UNKNOWN with TYPE NORMAL") }.to raise_error(/does not exist/)
-      # expect { @api.send(method,"INST COLLECT with BLAH NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"BLAH","COLLECT","TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"INST","UNKNOWN","TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
-      # expect { @api.send(method,"INST","COLLECT","BLAH"=>"NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.send(method, "BLAH COLLECT with TYPE NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.send(method, "INST UNKNOWN with TYPE NORMAL") }.to raise_error(/does not exist/)
+      # expect { @api.send(method, "INST COLLECT with BLAH NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.send(method, "BLAH", "COLLECT", "TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.send(method, "INST", "UNKNOWN", "TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
+      # expect { @api.send(method, "INST", "COLLECT", "BLAH"=>"NORMAL") }.to raise_error(/does not exist/)
     end
 
     describe "cmd" do
@@ -578,22 +579,28 @@ module Cosmos
       end
     end
 
-    # describe "get_cmd_value" do
-    #   it "returns command values" do
-    #     time = Time.now
-    #     target_name, cmd_name, params = @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
-    #     sleep 0.1
-    #     expect(@api.get_cmd_value("INST", "COLLECT", "TYPE")).to eql 'NORMAL'
-    #     expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to be_within(0.01).of(time.to_f)
-    #     expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMESECONDS")).to be_within(0.01).of(time.to_f)
-    #     expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 1
-    #   end
-    # end
+    describe "get_cmd_value" do
+      it "returns command values" do
+        time = Time.now
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        sleep 0.1
+        expect(@api.get_cmd_value("INST", "COLLECT", "TYPE")).to eql 'NORMAL'
+        expect(@api.get_cmd_value("INST", "COLLECT", "DURATION")).to eql 5.0
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to be_within(0.01).of(time.to_f)
+        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMESECONDS")).to be_within(0.01).of(time.to_f)
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 1
+
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 7")
+        sleep 0.1
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 2
+        expect(@api.get_cmd_value("INST", "COLLECT", "DURATION")).to eql 7.0
+      end
+    end
 
     describe "get_cmd_time" do
       it "returns command times" do
         time = Time.now
-        target_name, cmd_name, params = @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
         sleep 0.1
         result = @api.get_cmd_time("INST", "COLLECT")
         expect(result[0]).to eq("INST")
@@ -614,7 +621,7 @@ module Cosmos
         expect(result[3]).to be_within(10_000).of(time.tv_usec) # Allow 10ms
 
         time = Time.now
-        target_name, cmd_name, params = @api.cmd("INST ABORT")
+        @api.cmd("INST ABORT")
         sleep 0.1
         result = @api.get_cmd_time("INST")
         expect(result[0]).to eq("INST")
