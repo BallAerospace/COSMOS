@@ -316,11 +316,12 @@ module Cosmos
 
       it "injects a packet into the system" do
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 10, TEMP2: 20}, :CONVERTED, true, true, false)
-        sleep 0.2
+        sleep 0.3
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to be_within(0.1).of(20.0)
+
         @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0}, :RAW, true, true, false)
-        sleep 0.2
+        sleep 0.3
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(-100.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql(-100.0)
       end
@@ -411,13 +412,13 @@ module Cosmos
       end
     end
 
-    xdescribe "get_tlm_buffer" do
+    describe "get_tlm_buffer" do
       it "returns a telemetry packet buffer" do
-        @api.inject_tlm("INST","HEALTH_STATUS",{TIMESEC: 0xDEADBEEF})
-        sleep 0.2
-        # TODO: It appears that the DECOM is somehow overwriting the TELEMETRY__ topic
-        # This might be a mock_redis issue ...
-        expect(@api.get_tlm_buffer("INST", "HEALTH_STATUS")[6..10].unpack("N")[0]).to eq 0xDEADBEEF
+        buffer = "\x01\x02\x03\x04"
+        packet = System.telemetry.packet('INST', 'HEALTH_STATUS')
+        packet.buffer = buffer
+        TelemetryTopic.write_packet(packet, scope: 'DEFAULT')
+        expect(@api.get_tlm_buffer("INST", "HEALTH_STATUS")[0..3]).to eq buffer
       end
     end
 
@@ -438,26 +439,22 @@ module Cosmos
         expect { @api.get_tlm_packet("INST","HEALTH_STATUS",:MINE) }.to raise_error(RuntimeError, "Unknown value type on read: MINE")
       end
 
-      xit "reads all telemetry items with their limits states" do
-        # Call inject_tlm to ensure the limits are set
-        @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
-        sleep 0.2
-
+      it "reads all telemetry items as CONVERTED with their limits states" do
         vals = @api.get_tlm_packet("INST","HEALTH_STATUS")
         expect(vals[0][0]).to eql "PACKET_TIMESECONDS"
         expect(vals[0][1]).to be > 0
         expect(vals[0][2]).to be_nil
         expect(vals[1][0]).to eql "PACKET_TIMEFORMATTED"
-        expect(vals[1][1].split(' ')[0]).to eql Time.now.formatted.split(' ')[0]
+        expect(vals[1][1].split(' ')[0]).to eql Time.now.formatted.split(' ')[0] # Match the date
         expect(vals[1][2]).to be_nil
         expect(vals[2][0]).to eql "RECEIVED_TIMESECONDS"
         expect(vals[2][1]).to be > 0
         expect(vals[2][2]).to be_nil
         expect(vals[3][0]).to eql "RECEIVED_TIMEFORMATTED"
-        expect(vals[3][1].split(' ')[0]).to eql Time.now.formatted.split(' ')[0]
+        expect(vals[3][1].split(' ')[0]).to eql Time.now.formatted.split(' ')[0] # Match the date
         expect(vals[3][2]).to be_nil
         expect(vals[4][0]).to eql "RECEIVED_COUNT"
-        expect(vals[4][1]).to be > 0
+        expect(vals[4][1]).to eql 0
         expect(vals[4][2]).to be_nil
         # Spot check a few more
         expect(vals[24][0]).to eql "TEMP1"
@@ -471,6 +468,54 @@ module Cosmos
         expect(vals[26][2]).to eql "RED_LOW"
         expect(vals[27][0]).to eql "TEMP4"
         expect(vals[27][1]).to eql(-100.0)
+        expect(vals[27][2]).to eql "RED_LOW"
+      end
+
+      it "reads all telemetry items as RAW" do
+        vals = @api.get_tlm_packet("INST","HEALTH_STATUS", :RAW)
+        expect(vals[24][0]).to eql "TEMP1"
+        expect(vals[24][1]).to eql 0
+        expect(vals[24][2]).to eql "RED_LOW"
+        expect(vals[25][0]).to eql "TEMP2"
+        expect(vals[25][1]).to eql 0
+        expect(vals[25][2]).to eql "RED_LOW"
+        expect(vals[26][0]).to eql "TEMP3"
+        expect(vals[26][1]).to eql 0
+        expect(vals[26][2]).to eql "RED_LOW"
+        expect(vals[27][0]).to eql "TEMP4"
+        expect(vals[27][1]).to eql 0
+        expect(vals[27][2]).to eql "RED_LOW"
+      end
+
+      it "reads all telemetry items as FORMATTED" do
+        vals = @api.get_tlm_packet("INST","HEALTH_STATUS", :FORMATTED)
+        expect(vals[24][0]).to eql "TEMP1"
+        expect(vals[24][1]).to eql "-100.000"
+        expect(vals[24][2]).to eql "RED_LOW"
+        expect(vals[25][0]).to eql "TEMP2"
+        expect(vals[25][1]).to eql "-100.000"
+        expect(vals[25][2]).to eql "RED_LOW"
+        expect(vals[26][0]).to eql "TEMP3"
+        expect(vals[26][1]).to eql "-100.000"
+        expect(vals[26][2]).to eql "RED_LOW"
+        expect(vals[27][0]).to eql "TEMP4"
+        expect(vals[27][1]).to eql "-100.000"
+        expect(vals[27][2]).to eql "RED_LOW"
+      end
+
+      it "reads all telemetry items as WITH_UNITS" do
+        vals = @api.get_tlm_packet("INST","HEALTH_STATUS", :WITH_UNITS)
+        expect(vals[24][0]).to eql "TEMP1"
+        expect(vals[24][1]).to eql "-100.000 C"
+        expect(vals[24][2]).to eql "RED_LOW"
+        expect(vals[25][0]).to eql "TEMP2"
+        expect(vals[25][1]).to eql "-100.000 C"
+        expect(vals[25][2]).to eql "RED_LOW"
+        expect(vals[26][0]).to eql "TEMP3"
+        expect(vals[26][1]).to eql "-100.000 C"
+        expect(vals[26][2]).to eql "RED_LOW"
+        expect(vals[27][0]).to eql "TEMP4"
+        expect(vals[27][1]).to eql "-100.000 C"
         expect(vals[27][2]).to eql "RED_LOW"
       end
     end
