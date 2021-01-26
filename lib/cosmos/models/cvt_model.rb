@@ -24,5 +24,9 @@ module Cosmos
     def self.set(hash, target_name:, packet_name:, scope:)
       Store.mapped_hmset("#{scope}__tlm__#{target_name}__#{packet_name}", hash)
     end
+
+    # def self.get_item(target_name:, packet_name:, item_name: type: :WITH_UNITS, scope:)
+    #   TODO:
+    # end
   end
 end

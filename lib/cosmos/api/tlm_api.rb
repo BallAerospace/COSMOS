@@ -472,6 +472,11 @@ module Cosmos
         raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
       end
 
+      # packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
+      # return packet['items'].map {|item| [item['name'], item['states'], item['description']] }
+
+      # def get_telemetry(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
+
       details = []
       item_array.each do |target_name, packet_name, item_name|
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
@@ -569,16 +574,17 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
       end
       if packet_name == 'LATEST'
-        # TODO
-        # latest = 0
-        # Store.instance.get_telemetry(target_name).each do |packet|
-        #   item = packet['items'].find { |item| item['name'] == item_name }
-          # TODO Sort through items and return latest
-          # if item
-          #   time = Store.instance.get_tlm_item(target_name, packet['name'], 'PACKET_TIMESECONDS', scope: scope)
-          #   time = packet['items'].find { |item| item['name'] == 'PACKET_TIMESECONDS' }
-          # end
-        # end
+        latest = 0
+        Store.instance.get_telemetry(target_name).each do |packet|
+          item = packet['items'].find { |item| item['name'] == item_name }
+          if item
+            _, msg_hash = Store.instance.get_oldest_message("#{scope}__DECOM__#{target_name}__#{packet['packet_name']}")
+            if msg_hash && msg_hash['time'] && msg_hash['time'].to_i > latest
+              packet_name = packet['packet_name']
+              latest = msg_hash['time'].to_i
+            end
+          end
+        end
       else
         # Determine if this item exists, it will raise appropriate errors if not
         Store.instance.get_item(target_name, packet_name, item_name, scope: scope)

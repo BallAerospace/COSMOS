@@ -47,10 +47,7 @@ module Cosmos
       interface.target_names = %w[INST]
       # Stub out write to make the InterfaceCmdHandlerThread happy
       allow(interface).to receive(:write) { |data| @interface_data = data }
-      # Stub out as_json to make the call to Store.instance.set_interface happy
-      allow(interface).to receive(:as_json).and_return({})
       @thread = InterfaceCmdHandlerThread.new(interface, nil, scope: 'DEFAULT')
-      # Store.instance.set_interface(interface, initialize: true)
       @process = true # Allow the command to be processed or not
 
       allow(redis).to receive(:xread).and_wrap_original do |m, *args|

@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/microservices/microservice'
+require 'cosmos/models/cvt_model'
 require 'cosmos/topics/topic'
 
 module Cosmos
