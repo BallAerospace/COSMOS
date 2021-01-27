@@ -18,13 +18,16 @@
 -->
 
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="rows"
-    disable-pagination
-    hide-default-footer
-    dense
-  />
+  <v-simple-table dense>
+    <template v-slot:default>
+      <tbody>
+        <tr v-for="item in rows" :key="item.name">
+          <td>{{ item.name }}</td>
+          <td>{{ item.value }}</td>
+        </tr>
+      </tbody>
+    </template>
+  </v-simple-table>
 </template>
 
 <script>
@@ -38,14 +41,6 @@ export default {
       type: Number,
       required: true,
     },
-  },
-  data: function () {
-    return {
-      headers: [
-        { text: 'Received', value: 'name' },
-        { text: '', value: 'value' },
-      ],
-    }
   },
   computed: {
     rows: function () {

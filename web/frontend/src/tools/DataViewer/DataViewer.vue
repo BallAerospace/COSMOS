@@ -25,7 +25,7 @@
         <v-tab v-for="(tab, index) in tabs" :key="index">{{ tab.name }}</v-tab>
       </v-tabs>
       <v-tabs-items v-model="curTab">
-        <v-tab-item v-for="(tab, index) in tabs" :key="index" :tab-id="index">
+        <v-tab-item v-for="(tab, index) in tabs" :key="index">
           <!-- <component
             ref="component"
             :is="tab.component"
@@ -37,6 +37,7 @@
           <v-card
             v-for="(packet, packetIndex) in tab.packets"
             :key="`${index}-${packetIndex}`"
+            flat
           >
             <v-card-title>{{ packet.target }} {{ packet.packet }}</v-card-title>
             <dump-component
