@@ -383,10 +383,10 @@ module Cosmos
         end
         allow(Store.instance).to receive(:read_topics).and_yield('topic', '1577836800000-0', {"result" => "SUCCESS"}, nil)
 
-        cmd1, tlm1 = @api.get_target_info("INST")
+        cmd1, _ = @api.get_target_info("INST")
         @api.cmd("INST ABORT")
         # @api.inject_tlm("INST","HEALTH_STATUS")
-        cmd2, tlm2 = @api.get_target_info("INST")
+        cmd2, _ = @api.get_target_info("INST")
         expect(cmd2 - cmd1).to eq 1
         # expect(tlm2 - tlm1).to eq 1
       end

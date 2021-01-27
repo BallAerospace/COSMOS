@@ -100,7 +100,7 @@ module Cosmos
       end
 
       it "returns -1 for negative" do
-        expect(Quaternion.signnz(-123456789)).to eql -1.0
+        expect(Quaternion.signnz(-123456789)).to eql(-1.0)
       end
     end
 

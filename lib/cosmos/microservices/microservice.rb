@@ -131,7 +131,7 @@ module Cosmos
       @cancel_thread = true
       @microservice_sleeper.cancel
       MicroserviceStatusModel.set(as_json(), scope: @scope)
-      FileUtils.remove_entry(@temp_dir) if File.exists?(@temp_dir)
+      FileUtils.remove_entry(@temp_dir) if File.exist?(@temp_dir)
     end
   end
 end

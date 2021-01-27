@@ -22,15 +22,17 @@ require 'mock_redis'
 require 'cosmos/operators/microservice_operator'
 
 # Override at_exit to do nothing for testing
+saved_verbose = $VERBOSE; $VERBOSE = nil;
 def at_exit(*args, &block)
 end
+$VERBOSE = saved_verbose
 
 module Cosmos
   describe MicroserviceOperator do
     describe "initialize" do
       it "should call OperatorProcess.setup" do
         expect(OperatorProcess).to receive(:setup)
-        op = MicroserviceOperator.new
+        MicroserviceOperator.new
       end
 
       it "should cycle every ENV['OPERATOR_CYCLE_TIME'] seconds" do

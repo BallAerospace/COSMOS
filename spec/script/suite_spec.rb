@@ -12,11 +12,13 @@ require 'spec_helper'
 require 'cosmos/script/suite'
 
 # Stub out RunningScript.instance
+saved_verbose = $VERBOSE; $VERBOSE = nil;
 class RunningScript
   def self.instance
     false
   end
 end
+$VERBOSE = saved_verbose
 
 # Stub out classes for testing
 $stop_script = false

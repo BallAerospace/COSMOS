@@ -36,7 +36,7 @@ class GemsController < ApplicationController
         FileUtils.cp(file.tempfile.path, gem_file_path)
         result = Cosmos::GemModel.put(gem_file_path)
       ensure
-        FileUtils.remove_entry(temp_dir) if temp_dir and File.exists?(temp_dir)
+        FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
       end
       if result
         head :ok

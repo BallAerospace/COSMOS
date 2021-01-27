@@ -22,9 +22,7 @@ require 'cosmos'
 require 'cosmos/packets/structure_item'
 
 module Cosmos
-
   describe StructureItem do
-
     describe "name=" do
       it "creates new structure items" do
         expect(StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, nil).name).to eql "TEST"
@@ -103,7 +101,7 @@ module Cosmos
         if 0.class == Integer
           # Ruby version >= 2.4.0
           expect { StructureItem.new("test", 0, nil, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_size must be an Integer")
-          else
+        else
           # Ruby version < 2.4.0
           expect { StructureItem.new("test", 0, nil, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_size must be a Fixnum")
         end

@@ -105,6 +105,7 @@ module Cosmos
         expect { InterfaceModel.new(name: "TEST_INT") }.to raise_error(ArgumentError)
         expect { InterfaceModel.new(scope: "TEST_INT") }.to raise_error(ArgumentError)
         model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT")
+        expect(model.name).to eql "TEST_INT"
       end
     end
 

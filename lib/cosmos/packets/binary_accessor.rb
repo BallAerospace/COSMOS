@@ -365,7 +365,6 @@ module Cosmos
                 # String was completely empty
                 if end_bytes > 0
                   # Preserve bytes at end of buffer
-                  buffer_length = buffer.length
                   buffer << "\000" * value.length
                   buffer[lower_bound + value.length, end_bytes] = buffer[lower_bound, end_bytes]
                 end
@@ -377,7 +376,6 @@ module Cosmos
                 buffer[upper_bound + 1, old_upper_bound - upper_bound] = ''
               elsif (upper_bound > old_upper_bound) && (end_bytes > 0)
                 # Preserve bytes at end of buffer
-                buffer_length = buffer.length
                 diff = upper_bound - old_upper_bound
                 buffer << "\000" * diff
                 buffer[upper_bound + 1, end_bytes] = buffer[old_upper_bound + 1, end_bytes]
