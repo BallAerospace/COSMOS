@@ -213,14 +213,9 @@ COMPONENT "Other Packets" data_viewer_component.rb
             // this.outputFile = []
             // this.rawData = []
             const items = this.tabs.flatMap((tab) => {
-              return tab.packets.map((packet) => {
-                return {
-                  cmdOrTlm: 'TLM',
-                  type: 'TELEMETRY',
-                  targetName: packet.target,
-                  packetName: packet.packet,
-                }
-              })
+              return tab.packets.map(
+                (packet) => 'TLM__' + packet.target + '__' + packet.packet
+              )
             })
             this.subscription.perform('add', {
               scope: 'DEFAULT',
@@ -228,7 +223,7 @@ COMPONENT "Other Packets" data_viewer_component.rb
               // start_time: 1609532973000000000, // use to hit the file cache
               start_time: Date.now() * 1000000 - 1000000000,
               end_time: Date.now() * 1000060,
-              stream_type: 'RAW',
+              mode: 'RAW',
             })
           },
           // TODO: warnings
@@ -258,7 +253,7 @@ COMPONENT "Other Packets" data_viewer_component.rb
         this.packetData = Object.assign({}, this.packetData, packet)
         // console.log('packet', packet)
         Object.keys(packet).forEach((key) => {
-          this.packetData[key].time = time
+          // this.packetData[key].time = time
         })
         // This also works, but you have to update the components with a key change
         // Object.assign(this.packetData, packet)
