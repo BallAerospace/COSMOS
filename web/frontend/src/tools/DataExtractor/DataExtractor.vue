@@ -565,9 +565,17 @@ export default {
             this.rawData = []
             var items = []
             this.items.forEach((item, index) => {
-              items.push({
-                ...item,
-              })
+              items.push(
+                item.cmdOrTlm +
+                  '__' +
+                  item.targetName +
+                  '__' +
+                  item.packetName +
+                  '__' +
+                  item.itemName +
+                  '__' +
+                  item.valueType
+              )
             })
             this.subscription.perform('add', {
               scope: 'DEFAULT',

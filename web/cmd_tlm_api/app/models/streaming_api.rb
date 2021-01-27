@@ -439,7 +439,6 @@ class LoggedStreamingThread < StreamingThread
         # Since we're not going to transmit anything cancel and transmit an empty result
         # Cosmos::Logger.debug "NO DATA DONE! transmit 0 results"
 
-        # TODO: this kills all other topics added?
         @cancel_thread = true
         transmit_results([], force: true)
       end
@@ -539,25 +538,26 @@ class StreamingApi
     attr_accessor :topic
     attr_accessor :thread_id
 
-    def initialize(item, start_time, end_time, thread_id = nil, stream_mode:, scope:, token: nil)
+    def initialize(key, start_time, end_time, thread_id = nil, stream_mode:, scope:, token: nil)
+      @key = key
+      key_split = key.split('__')
+      @cmd_or_tlm = key_split[0].to_s.intern
       @scope = scope
-      @cmd_or_tlm = item['cmdOrTlm']
-      @target_name = item['targetName']
-      @packet_name = item['packetName']
+      @target_name = key_split[1]
+      @packet_name = key_split[2]
       type = nil
       if stream_mode == :RAW
-        type = item['type']
+        @value_type = :RAW
+        type = (@cmd_or_tlm == :CMD) ? '???' : 'TELEMETRY' # TODO
       else # stream_mode == :DECOM
-        @key = "#{item['cmdOrTlm']}__#{item['targetName']}__#{item['packetName']}__#{item['itemName']}__#{item['valueType']}"
-        @item_name = item['itemName']
-        @value_type = item['valueType']
+        @item_name = key_split[3]
+        @value_type = key_split[4].to_s.intern
         type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
       end
       @start_time = start_time
       @end_time = end_time
       authorize(permission: @cmd_or_tlm.to_s.downcase, target_name: @target_name, packet_name: @packet_name, scope: scope, token: token)
       @topic = "#{@scope}__#{type}__#{@target_name}__#{@packet_name}"
-      @key ||= @topic
       @offset = nil
       @offset = Cosmos::Store.instance.get_last_offset(topic) unless @start_time
       @thread_id = thread_id
@@ -651,11 +651,18 @@ class StreamingApi
       token = data["token"]
       items = []
       items_by_topic = {}
-      data["items"].each do |item|
-        item = StreamingItem.new(item, start_time, end_time, stream_mode: stream_mode, scope: scope, token: token)
+      if data["items"]
+        data["items"].each do |item_key|
+          item = StreamingItem.new(item_key, start_time, end_time, stream_mode: stream_mode, scope: scope, token: token)
         items_by_topic[item.topic] ||= []
         items_by_topic[item.topic] << item
         items << item
+      end
+      end
+      if data["packets"]
+        data["packets"].each do |packet|
+          # TODO
+        end
       end
       if start_time
         items_by_topic.each do |topic, items|
