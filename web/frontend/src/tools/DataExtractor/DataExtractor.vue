@@ -571,6 +571,7 @@ export default {
             })
             this.subscription.perform('add', {
               scope: 'DEFAULT',
+              mode: 'DECOM',
               items: items,
               start_time: this.startDateTime,
               end_time: this.endDateTime,
