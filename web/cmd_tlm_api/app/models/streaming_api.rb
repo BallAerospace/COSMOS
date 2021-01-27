@@ -19,6 +19,7 @@
 
 # TODO : Handoff to realtime thread
 
+require 'base64'
 require 'fileutils'
 require 'cosmos'
 require 'cosmos/utilities/s3'
@@ -366,8 +367,9 @@ class StreamingThread
     time = msg_hash['time'].to_i
     if @stream_mode == :RAW
       return {
-        topic => msg_hash['buffer'].b,
-        'time' => time
+        packet: topic,
+        buffer: Base64.encode64(msg_hash['buffer']),
+        time: time
       }
     else # @stream_mode == :DECOM
       json_packet = Cosmos::JsonPacket.new(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name,
