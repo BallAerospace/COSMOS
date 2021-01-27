@@ -61,14 +61,14 @@ export default {
   computed: {
     hexBytes: function () {
       if (this.format === 'ascii') {
-        return this.packet.raw.map((byte) =>
+        return this.packet.buffer.map((byte) =>
           String.fromCharCode(byte)
             .replace(/\n/, '\\n')
             .replace(/\r/, '\\r')
             .padStart(2, ' ')
         )
       } else {
-        return this.packet.raw.map((byte) => byte.toString(16).padStart(2, '0'))
+        return this.packet.buffer.map((byte) => byte.toString(16).padStart(2, '0'))
       }
     },
     hexLines: function () {

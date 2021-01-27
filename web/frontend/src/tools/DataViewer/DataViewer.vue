@@ -245,18 +245,16 @@ COMPONENT "Other Packets" data_viewer_component.rb
       //   this.error = true
       //   return
       // }
-      JSON.parse(json_data).forEach((packet) => {
+      JSON.parse(json_data).forEach((data) => {
+        this.packetData[data.packet] = {
+          buffer: atob(data.buffer)
+            .split('')
+            .map((c) => c.charCodeAt(0)),
+          time: data.time
+        }
         // TODO: this causes every component to update instead of just the ones with a new packet
         // which is less than ideal, but it works for now
-        const time = packet.time
-        delete packet.time
-        this.packetData = Object.assign({}, this.packetData, packet)
-        // console.log('packet', packet)
-        Object.keys(packet).forEach((key) => {
-          // this.packetData[key].time = time
-        })
-        // This also works, but you have to update the components with a key change
-        // Object.assign(this.packetData, packet)
+        this.packetData = { ...this.packetData }
       })
     },
   },
