@@ -19,6 +19,7 @@
 
 require 'spec_helper'
 require 'cosmos/models/target_model'
+require 'cosmos/models/microservice_model'
 
 module Cosmos
   describe TargetModel do
@@ -62,6 +63,35 @@ module Cosmos
         model.create
         all = TargetModel.all(scope: "DEFAULT")
         expect(all.keys).to contain_exactly("TEST", "SPEC")
+      end
+    end
+
+    describe "self.packet_exist" do
+      before(:each) do
+        setup_system()
+        model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+      end
+
+      it "raises for an unknown type" do
+        expect { TargetModel.packet_exist("INST", "HEALTH_STATUS", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type OTHER/)
+      end
+
+      it "raises for a non-existant target" do
+        expect { TargetModel.packet_exist("BLAH", "HEALTH_STATUS", type: :TLM, scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
+      end
+
+      it "raises for a non-existant packet" do
+        expect { TargetModel.packet_exist("INST", "BLAH", type: :TLM, scope: "DEFAULT") }.to raise_error("Packet 'INST BLAH' does not exist")
+      end
+
+      it "returns true if the packet exists" do
+        expect(TargetModel.packet_exist("INST", "HEALTH_STATUS", type: :TLM, scope: "DEFAULT")).to be true
+      end
+
+      it "returns true if the packet exists" do
+        expect(TargetModel.packet_exist("INST", "ABORT", type: :CMD, scope: "DEFAULT")).to be true
       end
     end
 

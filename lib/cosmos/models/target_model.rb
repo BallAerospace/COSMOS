@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/models/model'
+require 'cosmos/system'
 require 'cosmos/utilities/s3'
 require 'zip'
 require 'zip/filesystem'
@@ -51,6 +52,20 @@ module Cosmos
 
     def self.all(scope: nil)
       super("#{scope}__#{PRIMARY_KEY}")
+    end
+
+    # @return [Boolean] true if the packet exists or raises an exception
+    def self.packet_exist(target_name, packet_name, type:, scope:)
+      raise "Unknown type #{type} for #{target_name} #{packet_name}" unless %i(CMD TLM).include?(type)
+      if Store.exists?("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}")
+        if Store.hexists("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}", packet_name)
+          true
+        else
+          raise "Packet '#{target_name} #{packet_name}' does not exist"
+        end
+      else
+        raise "Target '#{target_name}' does not exist"
+      end
     end
 
     # Called by the PluginModel to allow this class to validate it's top-level keyword: "TARGET"

@@ -36,7 +36,7 @@ module Cosmos
     end
 
     before(:each) do
-      redis = mock_redis()
+      mock_redis()
       setup_system()
       %w(INST SYSTEM).each do |target|
         model = TargetModel.new(folder_name: target, name: target, scope: "DEFAULT")
@@ -210,27 +210,18 @@ module Cosmos
         expect { @api.set_tlm("INST","HEALTH_STATUS","BLAH",1) }.to raise_error(/does not exist/)
       end
 
-      it "doesn't allow SYSTEM META PKTID or CONFIG" do
-        expect { @api.set_tlm("SYSTEM META PKTID = 1") }.to raise_error(/set_tlm not allowed/)
-        expect { @api.set_tlm("SYSTEM META CONFIG = 1") }.to raise_error(/set_tlm not allowed/)
-      end
-
-      xit "sets SYSTEM META command as well as tlm" do
-        cmd = System.commands.packet("SYSTEM", "META")
-        tlm = System.telemetry.packet("SYSTEM", "META")
-        @api.set_tlm("SYSTEM META RUBY_VERSION = 1.8.0")
-        expect(cmd.read("RUBY_VERSION")).to eq("1.8.0")
-        expect(tlm.read("RUBY_VERSION")).to eq("1.8.0")
-      end
-
       it "processes a string" do
         @api.set_tlm("INST HEALTH_STATUS TEMP1 = 0.0")
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(0.0)
+        @api.set_tlm("INST HEALTH_STATUS TEMP1 = 100.0")
+        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(100.0)
       end
 
       it "processes parameters" do
         @api.set_tlm("INST","HEALTH_STATUS","TEMP1", 0.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(0.0)
+        @api.set_tlm("INST","HEALTH_STATUS","TEMP1", -50.0)
+        expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(-50.0)
       end
 
       it "complains with too many parameters" do
@@ -249,11 +240,15 @@ module Cosmos
       end
 
       it "processes a string" do
+        @api.set_tlm_raw("INST HEALTH_STATUS TEMP1 = 10.0")
+        expect(@api.tlm_raw("INST HEALTH_STATUS TEMP1")).to eql 10.0
         @api.set_tlm_raw("INST HEALTH_STATUS TEMP1 = 0.0")
         expect(@api.tlm_raw("INST HEALTH_STATUS TEMP1")).to eql 0.0
       end
 
       it "processes parameters" do
+        @api.set_tlm_raw("INST","HEALTH_STATUS","TEMP1", 20.0)
+        expect(@api.tlm_raw("INST HEALTH_STATUS TEMP1")).to eql 20.0
         @api.set_tlm_raw("INST","HEALTH_STATUS","TEMP1", 0.0)
         expect(@api.tlm_raw("INST HEALTH_STATUS TEMP1")).to eql 0.0
       end

@@ -17,6 +17,9 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/models/target_model'
+require 'cosmos/models/cvt_model'
+
 module Cosmos
   module Api
     WHITELIST ||= []
@@ -68,7 +71,7 @@ module Cosmos
     def tlm(*args, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name = tlm_process_args(args, 'tlm', scope: scope)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.get_tlm_item(target_name, packet_name, item_name, type: :CONVERTED, scope: scope)
+      CvtModel.get_item(target_name, packet_name, item_name, type: :CONVERTED, scope: scope)
     end
 
     # Request a raw telemetry item from a packet.
@@ -85,7 +88,7 @@ module Cosmos
     def tlm_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name = tlm_process_args(args, 'tlm_raw', scope: scope)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.get_tlm_item(target_name, packet_name, item_name, type: :RAW, scope: scope)
+      CvtModel.get_item(target_name, packet_name, item_name, type: :RAW, scope: scope)
     end
 
     # Request a formatted telemetry item from a packet.
@@ -102,7 +105,7 @@ module Cosmos
     def tlm_formatted(*args, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name = tlm_process_args(args, 'tlm_formatted', scope: scope)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.get_tlm_item(target_name, packet_name, item_name, type: :FORMATTED, scope: scope)
+      CvtModel.get_item(target_name, packet_name, item_name, type: :FORMATTED, scope: scope)
     end
 
     # Request a telemetry item with units from a packet.
@@ -118,7 +121,7 @@ module Cosmos
     def tlm_with_units(*args, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name = tlm_process_args(args, 'tlm_with_units', scope: scope)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.get_tlm_item(target_name, packet_name, item_name, type: :WITH_UNITS, scope: scope)
+      CvtModel.get_item(target_name, packet_name, item_name, type: :WITH_UNITS, scope: scope)
     end
 
     # Request a telemetry item from a packet with the specified conversion
@@ -149,9 +152,7 @@ module Cosmos
       end
     end
 
-    # Set a telemetry item in a packet to a particular value and then verifies
-    # the value is within the acceptable limits. This method uses any
-    # conversions that apply to the item when setting the value.
+    # Set a telemetry item in the current value table.
     #
     # Note: If this is done while COSMOS is currently receiving telemetry,
     # this value could get overwritten at any time. Thus this capability is
@@ -167,51 +168,19 @@ module Cosmos
     # @param args The args must either be a string followed by a value or
     #   three strings followed by a value (see the calling style in the
     #   description).
-    def set_tlm(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def set_tlm(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__, scope: scope)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
-        raise "set_tlm not allowed on #{target_name} #{packet_name} #{item_name}" if ['PKTID', 'CONFIG'].include?(item_name)
-      end
-
-      Store.instance.set_tlm_item(target_name, packet_name, item_name, value, scope: scope)
-
-      # TODO: Need to decide how SYSTEM META will work going forward
-      # if target_name == 'SYSTEM'.freeze and packet_name == 'META'.freeze
-      #   tlm_packet = System.telemetry.packet('SYSTEM', 'META')
-      #   cmd_packet = System.commands.packet('SYSTEM', 'META')
-      #   cmd_packet.buffer = tlm_packet.buffer
-      # end
-
-      # TODO: May need to somehow force limits checking microservice to recheck
-      # System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
+      CvtModel.set_item(target_name, packet_name, item_name, value, type: type, scope: scope)
       nil
     end
 
-    # Set a telemetry item in a packet to a particular value and then verifies
-    # the value is within the acceptable limits. No conversions are applied.
-    #
-    # Note: If this is done while COSMOS is currently receiving telemetry,
-    # this value could get overwritten at any time. Thus this capability is
-    # best used for testing or for telemetry items that are not received
-    # regularly through the target interface.
-    #
-    # Accepts two different calling styles:
-    #   set_tlm_raw("TGT PKT ITEM = 1.0")
-    #   set_tlm_raw('TGT','PKT','ITEM', 10.0)
-    #
-    # Favor the first syntax where possible as it is more succinct.
-    #
+    # @deprecated Use #set_tlm with type: :RAW
     # @param args The args must either be a string followed by a value or
     #   three strings followed by a value (see the calling style in the
     #   description).
     def set_tlm_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__, scope: scope)
-      authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.set_tlm_item(target_name, packet_name, item_name, value, type: :RAW, scope: scope)
-      # TODO
-      #System.telemetry.packet(target_name, packet_name).check_limits(System.limits_set, true)
-      nil
+      set_tlm(*args, type: :RAW, scope: scope, token: token)
     end
 
     # TODO: Need to add new set_tlm_formatted and set_tlm_with_units
@@ -255,9 +224,9 @@ module Cosmos
       nil
     end
 
-    # Override a telemetry item in a packet to a particular value such that it
-    # is always returned even when new telemetry packets are received from the
-    # target.
+    # Override the current value table such that a particular item always
+    # returns the same value (for a given type) even when new telemetry
+    # packets are received from the target.
     #
     # Accepts two different calling styles:
     #   override_tlm("TGT PKT ITEM = 1.0")
@@ -268,10 +237,11 @@ module Cosmos
     # @param args The args must either be a string followed by a value or
     #   three strings followed by a value (see the calling style in the
     #   description).
-    def override_tlm(*args, scope: $cosmos_scope, token: $cosmos_token)
+    # @param type One of :CONVERTED (default), :RAW, :FORMATTED, or :WITH_UNITS
+    def override_tlm(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__, scope: scope)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.override(target_name, packet_name, item_name, value, type: :CONVERTED, scope: scope)
+      CvtModel.override(target_name, packet_name, item_name, value, type: type, scope: scope)
     end
 
     # Override a telemetry item in a packet to a particular value such that it
@@ -291,7 +261,7 @@ module Cosmos
     def override_tlm_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__, scope: scope)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.override(target_name, packet_name, item_name, value, type: :RAW, scope: scope)
+      CvtModel.override(target_name, packet_name, item_name, value, type: :RAW, scope: scope)
     end
 
     # Normalize a telemetry item in a packet to its default behavior. Called
@@ -308,7 +278,7 @@ module Cosmos
     def normalize_tlm(*args, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name = tlm_process_args(args, __method__, scope: scope)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.normalize(target_name, packet_name, item_name, scope: scope)
+      CvtModel.normalize(target_name, packet_name, item_name, scope: scope)
     end
 
     # Returns the raw buffer for a telemetry packet.
@@ -318,7 +288,7 @@ module Cosmos
     # @return [String] last telemetry packet buffer
     def get_tlm_buffer(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.tlm_packet_exist?(target_name, packet_name, scope: scope)
+      TargetModel.packet_exist(target_name, packet_name, type: :TLM, scope: scope)
       topic = "#{scope}__TELEMETRY__#{target_name}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       return msg_hash['buffer'].b if msg_id # Return as binary
@@ -537,7 +507,7 @@ module Cosmos
     # @return [Numeric] Receive count for the telemetry packet
     def get_tlm_cnt(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.tlm_packet_exist?(target_name, command_name, scope: scope)
+      TargetModel.packet_exist(target_name, command_name, type: :TLM, scope: scope)
       _get_cnt("#{scope}__TELEMETRY__#{target_name}__#{packet_name}")
     end
 

@@ -305,7 +305,8 @@ module Cosmos
           splash.progress = index / total
         end
 
-        ignored_items = System.targets[target_name].ignored_items
+        # TODO: This wasn't being used ... should it be
+        # ignored_items = System.targets[target_name].ignored_items
 
         packets(target_name).each do |command_name, packet|
           # We don't audit against hidden or disabled packets/commands

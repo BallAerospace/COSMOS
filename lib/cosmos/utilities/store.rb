@@ -53,7 +53,6 @@ module Cosmos
       @redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0')
       @redis_pool = ConnectionPool.new(size: pool_size) { build_redis() }
       @topic_offsets = {}
-      @overrides = {}
     end
 
     def get_tlm_values(items, scope: $cosmos_scope)
@@ -100,27 +99,6 @@ module Cosmos
       end
 
       return values
-    end
-
-    def cmd_packet_exist?(target_name, packet_name, scope: $cosmos_scope)
-      _packet_exist?(target_name, packet_name, type: 'cmd', scope: scope)
-    end
-    def tlm_packet_exist?(target_name, packet_name, scope: $cosmos_scope)
-      _packet_exist?(target_name, packet_name, type: 'tlm', scope: scope)
-    end
-    def _packet_exist?(target_name, packet_name, type:, scope: $cosmos_scope)
-      @redis_pool.with do |redis|
-        # TODO: pipeline
-        if redis.exists("#{scope}__cosmos#{type}__#{target_name}") != 0
-          if redis.hexists("#{scope}__cosmos#{type}__#{target_name}", packet_name)
-            true
-          else
-            raise "Packet '#{target_name} #{packet_name}' does not exist"
-          end
-        else
-          raise "Target '#{target_name}' does not exist"
-        end
-      end
     end
 
     def get_packet(target_name, packet_name, type: 'tlm', scope: $cosmos_scope)
@@ -188,21 +166,6 @@ module Cosmos
       result
     end
 
-    # TODO: This can't take a Packet but this is how the interface_microservice works
-    # def inject_packet(packet)
-    #   # Test to make sure this is a valid packet
-    #   get_packet(packet.target_name, packet.packet_name)
-
-    #   # Write new packet to stream
-    #   msg_hash = { time: packet.received_time.to_nsec_from_epoch,
-    #                stored: packet.stored,
-    #                target_name: packet.target_name,
-    #                packet_name: packet.packet_name,
-    #                received_count: packet.received_count, # TODO: Plus one?
-    #                buffer: packet.buffer(false) }
-    #   write_topic("TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
-    # end
-
     def get_cmd_item(target_name, packet_name, param_name, type: :WITH_UNITS, scope: $cosmos_scope)
       msg_id, msg_hash = read_topic_last("#{scope}__DECOMCMD__#{target_name}__#{packet_name}")
       if msg_id
@@ -246,56 +209,16 @@ module Cosmos
       redis.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *secondary_keys)
     end
 
-    def get_tlm_item(target_name, packet_name, item_name, type: :WITH_UNITS, scope: $cosmos_scope)
-      if @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"]
-        return @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"]
-      end
+    ###########################################################################
+    # Stream APIs
+    ###########################################################################
 
-      types = []
-      case type
-      when :WITH_UNITS
-        types = ["#{item_name}__U", "#{item_name}__F", "#{item_name}__C", item_name]
-      when :FORMATTED
-        types = ["#{item_name}__F", "#{item_name}__C", item_name]
-      when :CONVERTED
-        types = ["#{item_name}__C", item_name]
-      when :RAW
-        types = [item_name]
-      end
-
+    def initialize_streams(topics)
       @redis_pool.with do |redis|
-        results = redis.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *types)
-        results.each do |result|
-          return JSON.parse(result) if result
+        topics.each do |topic|
+          # Create empty stream with maxlen 0
+          redis.xadd(topic, { a: 'b' }, maxlen: 0)
         end
-        return nil
-      end
-    end
-
-    def set_tlm_item(target_name, packet_name, item_name, value, type: :CONVERTED, scope: $cosmos_scope)
-      case type
-      when :WITH_UNITS
-        field = "#{item_name}__U"
-      when :FORMATTED
-        field = "#{item_name}__F"
-      when :CONVERTED
-        field = "#{item_name}__C"
-      when :RAW
-        field = item_name
-      end
-
-      @redis_pool.with do |redis|
-        redis.hset("#{scope}__tlm__#{target_name}__#{packet_name}", field, value)
-      end
-    end
-
-    def override(target_name, packet_name, item_name, value, type:, scope: $cosmos_scope)
-      @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"] = value
-    end
-
-    def normalize(target_name, packet_name, item_name, scope: $cosmos_scope)
-      %w(RAW CONVERTED FORMATTED WITH_UNITS).each do |type|
-        @overrides.delete("#{target_name}__#{packet_name}__#{item_name}__#{type}")
       end
     end
 
@@ -335,15 +258,6 @@ module Cosmos
       end
     end
 
-    def initialize_streams(topics)
-      @redis_pool.with do |redis|
-        topics.each do |topic|
-          # Create empty stream with maxlen 0
-          redis.xadd(topic, { a: 'b' }, maxlen: 0)
-        end
-      end
-    end
-
     def decrement_id(id)
       time, sequence = id.split('-')
       if sequence == '0'
@@ -351,119 +265,6 @@ module Cosmos
       else
         "#{time}-#{sequence.to_i - 1}"
       end
-    end
-
-    def self.get(*args)
-      self.instance.get(*args)
-    end
-    def self.set(*args)
-      self.instance.set(*args)
-    end
-    def self.incr(key)
-      self.instance.incr(key)
-    end
-    def self.hget(key, field)
-      self.instance.hget(key, field)
-    end
-    def self.hset(key, field, value)
-      self.instance.hset(key, field, value)
-    end
-    def self.hkeys(key)
-      self.instance.hkeys(key)
-    end
-    def self.hdel(key, field)
-      self.instance.hdel(key, field)
-    end
-    def self.hgetall(key)
-      self.instance.hgetall(key)
-    end
-    def self.del(key)
-      self.instance.del(key)
-    end
-    def self.exists?(*keys)
-      self.instance.exists?(*keys)
-    end
-    def self.scan(count, **options)
-      self.instance.scan(count, **options)
-    end
-    def self.sadd(key, value)
-      self.instance.sadd(key, value)
-    end
-    def self.srem(key, member)
-      self.instance.srem(key, member)
-    end
-    def self.xrevrange(*args, **kw_args)
-      self.instance.xrevrange(*args, **kw_args)
-    end
-    def self.publish(*args)
-      self.instance.publish(*args)
-    end
-    def self.smembers(key)
-      self.instance.smembers(key)
-    end
-    def self.update_topic_offsets(topics)
-      self.instance.update_topic_offsets(topics)
-    end
-    def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-      self.instance.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-    end
-    def self.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
-      self.instance.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
-    end
-    def self.mapped_hmset(key, hash)
-      self.instance.mapped_hmset(key, hash)
-    end
-
-    def get(*args)
-      @redis_pool.with { |redis| return redis.get(*args) }
-    end
-    def set(*args)
-      @redis_pool.with { |redis| return redis.set(*args) }
-    end
-    def incr(key)
-      @redis_pool.with { |redis| return redis.incr(key) }
-    end
-    def hget(key, field)
-      @redis_pool.with { |redis| return redis.hget(key, field) }
-    end
-    def hset(key, field, value)
-      @redis_pool.with { |redis| redis.hset(key, field, value) }
-    end
-    def hkeys(key)
-      @redis_pool.with { |redis| redis.hkeys(key) }
-    end
-    def hdel(key, field)
-      @redis_pool.with { |redis| redis.hdel(key, field) }
-    end
-    def hgetall(key)
-      @redis_pool.with { |redis| redis.hgetall(key) }
-    end
-    def del(key)
-      @redis_pool.with { |redis| redis.del(key) }
-    end
-    def exists?(*keys)
-      @redis_pool.with { |redis| redis.exists?(*keys) }
-    end
-    def scan(count, **options)
-      @redis_pool.with { |redis| redis.scan(count, **options) }
-    end
-    def sadd(key, value)
-      @redis_pool.with { |redis| redis.sadd(key, value) }
-    end
-    def srem(key, member)
-      @redis_pool.with { |redis| redis.srem(key, member) }
-    end
-    def xrevrange(*args, **kw_args)
-      @redis_pool.with { |redis| redis.xrevrange(*args, **kw_args) }
-    end
-    def publish(*args)
-      @redis_pool.with { |redis| redis.publish(*args) }
-    end
-    def smembers(key)
-      @redis_pool.with { |redis| return redis.smembers(key) }
-    end
-    def mapped_hmset(key, hash)
-      @redis_pool.with { |redis| return redis.mapped_hmset(key, hash) }
     end
 
     def update_topic_offsets(topics)
@@ -515,5 +316,133 @@ module Cosmos
       end
     end
 
+    ###########################################################################
+    # From here on we just pass through to Redis
+    ###########################################################################
+
+    def self.get(*args)
+      self.instance.get(*args)
+    end
+    def self.set(*args)
+      self.instance.set(*args)
+    end
+    def self.incr(key)
+      self.instance.incr(key)
+    end
+    def self.hget(key, field)
+      self.instance.hget(key, field)
+    end
+    def self.hmget(key, *fields)
+      self.instance.hmget(key, *fields)
+    end
+    def self.hset(key, field, value)
+      self.instance.hset(key, field, value)
+    end
+    def self.hkeys(key)
+      self.instance.hkeys(key)
+    end
+    def self.hdel(key, field)
+      self.instance.hdel(key, field)
+    end
+    def self.hgetall(key)
+      self.instance.hgetall(key)
+    end
+    def self.del(key)
+      self.instance.del(key)
+    end
+    def self.exists?(*keys)
+      self.instance.exists?(*keys)
+    end
+    def self.hexists(key, field)
+      self.instance.hexists(key, field)
+    end
+    def self.scan(count, **options)
+      self.instance.scan(count, **options)
+    end
+    def self.sadd(key, value)
+      self.instance.sadd(key, value)
+    end
+    def self.srem(key, member)
+      self.instance.srem(key, member)
+    end
+    def self.xrevrange(*args, **kw_args)
+      self.instance.xrevrange(*args, **kw_args)
+    end
+    def self.publish(*args)
+      self.instance.publish(*args)
+    end
+    def self.smembers(key)
+      self.instance.smembers(key)
+    end
+    def self.update_topic_offsets(topics)
+      self.instance.update_topic_offsets(topics)
+    end
+    def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
+      self.instance.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
+    end
+    def self.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
+      self.instance.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
+    end
+    def self.mapped_hmset(key, hash)
+      self.instance.mapped_hmset(key, hash)
+    end
+
+    def get(*args)
+      @redis_pool.with { |redis| return redis.get(*args) }
+    end
+    def set(*args)
+      @redis_pool.with { |redis| return redis.set(*args) }
+    end
+    def incr(key)
+      @redis_pool.with { |redis| return redis.incr(key) }
+    end
+    def hget(key, field)
+      @redis_pool.with { |redis| return redis.hget(key, field) }
+    end
+    def hmget(key, *fields)
+      @redis_pool.with { |redis| return redis.hmget(key, *fields) }
+    end
+    def hset(key, field, value)
+      @redis_pool.with { |redis| redis.hset(key, field, value) }
+    end
+    def hkeys(key)
+      @redis_pool.with { |redis| redis.hkeys(key) }
+    end
+    def hdel(key, field)
+      @redis_pool.with { |redis| redis.hdel(key, field) }
+    end
+    def hgetall(key)
+      @redis_pool.with { |redis| redis.hgetall(key) }
+    end
+    def del(key)
+      @redis_pool.with { |redis| redis.del(key) }
+    end
+    def exists?(*keys)
+      @redis_pool.with { |redis| redis.exists?(*keys) }
+    end
+    def hexists(key, field)
+      @redis_pool.with { |redis| redis.hexists(key, field) }
+    end
+    def scan(count, **options)
+      @redis_pool.with { |redis| redis.scan(count, **options) }
+    end
+    def sadd(key, value)
+      @redis_pool.with { |redis| redis.sadd(key, value) }
+    end
+    def srem(key, member)
+      @redis_pool.with { |redis| redis.srem(key, member) }
+    end
+    def xrevrange(*args, **kw_args)
+      @redis_pool.with { |redis| redis.xrevrange(*args, **kw_args) }
+    end
+    def publish(*args)
+      @redis_pool.with { |redis| redis.publish(*args) }
+    end
+    def smembers(key)
+      @redis_pool.with { |redis| return redis.smembers(key) }
+    end
+    def mapped_hmset(key, hash)
+      @redis_pool.with { |redis| return redis.mapped_hmset(key, hash) }
+    end
   end
 end
