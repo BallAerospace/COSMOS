@@ -91,7 +91,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'uuidtools', '~> 2.1'
   s.add_runtime_dependency 'snmp', '~> 1.0'
   s.add_runtime_dependency 'rubyzip', '~> 2.0'
-  s.add_runtime_dependency 'nokogiri', '~> 1.10'
+  s.add_runtime_dependency 'nokogiri', '~> 1.11'
   s.add_runtime_dependency 'puma', '~> 4.3'
   s.add_runtime_dependency 'rack', '~> 2.0'
   s.add_runtime_dependency 'httpclient', '~> 2.8'
