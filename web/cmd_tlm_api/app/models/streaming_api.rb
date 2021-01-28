@@ -314,17 +314,17 @@ class StreamingThread
     end
   end
 
-  def redis_thread_body(topics, offsets, items_by_topic)
-    # Cosmos::Logger.debug "#{self.class} redis_thread_body topics:#{topics} offsets:#{offsets} items:#{items_by_topic}"
+  def redis_thread_body(topics, offsets, objects_by_topic)
+    # Cosmos::Logger.debug "#{self.class} redis_thread_body topics:#{topics} offsets:#{offsets} objects:#{objects_by_topic}"
     results = []
     if topics.length > 0
       rtr = Cosmos::Store.instance.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
         # Cosmos::Logger.debug "read_topics topic:#{topic} offsets:#{offsets} id:#{msg_id} msg time:#{msg_hash['time']}"
-        items = items_by_topic[topic]
-        items.each do |item|
-          item.offset = msg_id
+        objects = objects_by_topic[topic]
+        objects.each do |object|
+          object.offset = msg_id
         end
-        result = handle_message(topic, msg_id, msg_hash, redis, items)
+        result = handle_message(topic, msg_id, msg_hash, redis, objects)
         if result
           results << result
         else
@@ -343,12 +343,12 @@ class StreamingThread
       # Cosmos::Logger.debug "rtr:#{rtr} empty?:#{rtr.empty?} results:#{results} topics:#{topics} offsets:#{offsets}"
       if rtr.nil? or rtr.empty?
         topics.each do |topic|
-          items = items_by_topic[topic]
-          items.each do |item|
-            item_keys = []
+          objects = objects_by_topic[topic]
+          objects.each do |object|
+            keys = []
             # If time has passed the end_time and we're still not getting anything we're done
             if item.end_time and item.end_time < Time.now.to_nsec_from_epoch
-              item_keys << item.key
+              keys << object.key
               @cancel_thread = true
             end
             @collection.remove(item_keys)
@@ -362,8 +362,8 @@ class StreamingThread
     end
   end
 
-  def handle_message(topic, msg_id, msg_hash, redis, items)
-    first_item = items[0]
+  def handle_message(topic, msg_id, msg_hash, redis, objects)
+    first_object = objects[0]
     time = msg_hash['time'].to_i
     if @stream_mode == :RAW
       return {
@@ -372,26 +372,36 @@ class StreamingThread
         time: time
       }
     else # @stream_mode == :DECOM
-      json_packet = Cosmos::JsonPacket.new(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name,
+      json_packet = Cosmos::JsonPacket.new(first_object.cmd_or_tlm, first_object.target_name, first_object.packet_name,
         time, Cosmos::ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["json_data"])
-      return handle_json_packet(json_packet, items)
+      return handle_json_packet(json_packet, objects)
     end
   end
 
-  def handle_json_packet(json_packet, items)
-    first_item = items[0]
+  def handle_json_packet(json_packet, objects)
+    first_object = objects[0]
     time = json_packet.packet_time
-    if first_item.end_time and time.to_nsec_from_epoch > first_item.end_time
-      # These items are done - and the thread is done
-      item_keys = []
-      items.each do |item|
-        item_keys << item.key
+    if first_object.end_time and time.to_nsec_from_epoch > first_object.end_time
+      # These objects are done - and the thread is done
+      keys = []
+      objects.each do |object|
+        keys << objects.key
       end
-      @collection.remove(item_keys)
+      @collection.remove(keys)
       return nil
     end
     result = {}
-    items.each do |item|
+    value_types = []
+    # If any objects don't have an item_name, read every item with this value_type from json_packet
+    whole_packets = objects.select {|object| !object.item_name}
+    whole_packets.each do |packet|
+      this_packet = json_packet.read_all(packet.value_type)
+      value_types << packet.value_type
+      result = result.merge(this_packet)
+    end
+    # Filter out any overlap from the whole packets and the rest of the items so as to not read twice
+    remaining_items = objects.select {|object| !value_types.include?(object.value_type)}
+    remaining_items.each do |item|
       result[item.key] = json_packet.read(item.item_name, item.value_type)
     end
     result['time'] = time.to_nsec_from_epoch
@@ -408,23 +418,23 @@ class LoggedStreamingThread < StreamingThread
   end
 
   def thread_body
-    items = @collection.items_by_thread_id[@thread_id]
-    # Cancel if we don't have any items ... this can happen as things are processed
+    objects = @collection.objects_by_thread_id[@thread_id]
+    # Cancel if we don't have any objects ... this can happen as things are processed
     # or if someone calls remove() from the StreamingApi
-    @cancel_thread = true unless items and items.length > 0
+    @cancel_thread = true unless objects and objects.length > 0
     return if @cancel_thread
 
-    first_item = items[0]
+    first_object = objects[0]
     if @thread_mode == :SETUP
       # Get the newest message because we only stream if there is data after our start time
-      _, msg_hash_new = Cosmos::Store.instance.get_newest_message(first_item.topic)
-      # Cosmos::Logger.debug "first time:#{first_item.start_time} newest:#{msg_hash_new['time']}"
-      if msg_hash_new && msg_hash_new['time'].to_i > first_item.start_time
+      _, msg_hash_new = Cosmos::Store.instance.get_newest_message(first_object.topic)
+      # Cosmos::Logger.debug "first time:#{first_object.start_time} newest:#{msg_hash_new['time']}"
+      if msg_hash_new && msg_hash_new['time'].to_i > first_object.start_time
         # Determine oldest timestamp in stream to determine if we need to go to file
-        msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_item.topic)
+        msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_object.topic)
         oldest_time = msg_hash['time'].to_i
-        # Cosmos::Logger.debug "first start time:#{first_item.start_time} oldest:#{oldest_time}"
-        if first_item.start_time < oldest_time
+        # Cosmos::Logger.debug "first start time:#{first_object.start_time} oldest:#{oldest_time}"
+        if first_object.start_time < oldest_time
           # Stream from Files
           @thread_mode = :FILE
         else
@@ -433,8 +443,8 @@ class LoggedStreamingThread < StreamingThread
           redis_time = msg_id.split('-')[0].to_i * 1_000_000
           delta = redis_time - oldest_time
           # Start streaming from calculated redis time
-          offset = ((first_item.start_time + delta) / 1_000_000).to_s + '-0'
-          items.each {|item| item.offset = offset}
+          offset = ((first_object.start_time + delta) / 1_000_000).to_s + '-0'
+          objects.each {|object| object.offset = offset}
           @thread_mode = :STREAM
         end
       else
@@ -445,13 +455,13 @@ class LoggedStreamingThread < StreamingThread
         transmit_results([], force: true)
       end
     elsif @thread_mode == :STREAM
-      items_by_topic = {items[0].topic => items}
-      redis_thread_body([first_item.topic], [first_item.offset], items_by_topic)
+      objects_by_topic = {objects[0].topic => objects}
+      redis_thread_body([first_object.topic], [first_object.offset], objects_by_topic)
     else # @thread_mode == :FILE
       # Get next file from file cache
-      file_end_time = first_item.end_time
+      file_end_time = first_object.end_time
       file_end_time = Time.now.to_nsec_from_epoch unless file_end_time
-      file_path = FileCache.instance.reserve_file(first_item.cmd_or_tlm, first_item.target_name, first_item.packet_name, first_item.start_time, file_end_time, @stream_mode, scope: @scope)
+      file_path = FileCache.instance.reserve_file(first_object.cmd_or_tlm, first_object.target_name, first_object.packet_name, first_object.start_time, file_end_time, @stream_mode, scope: @scope) # TODO: look at how @stream_mode is being used
       # puts file_path
       if file_path
         file_path_split = File.basename(file_path).split("__")
@@ -462,8 +472,8 @@ class LoggedStreamingThread < StreamingThread
         # Stream forward until packet > end_time or no more packets
         results = []
         plr = Cosmos::PacketLogReader.new()
-        plr.each(file_path, true, Time.from_nsec_from_epoch(first_item.start_time), Time.from_nsec_from_epoch(first_item.end_time)) do |json_packet|
-          result = handle_json_packet(json_packet, items)
+        plr.each(file_path, true, Time.from_nsec_from_epoch(first_object.start_time), Time.from_nsec_from_epoch(first_object.end_time)) do |json_packet|
+          result = handle_json_packet(json_packet, objects)
           if result
             results << result
           else
@@ -479,14 +489,14 @@ class LoggedStreamingThread < StreamingThread
 
         # Move to the next file
         FileCache.instance.unreserve_file(file_path)
-        items.each {|item| item.start_time = file_end_time}
+        objects.each {|object| object.start_time = file_end_time}
       else
         Cosmos::Logger.info("Switch stream from file to Redis")
         # TODO: What if there is no new data in the Redis stream?
 
         # Switch to stream from Redis
         # Determine oldest timestamp in stream
-        msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_item.topic)
+        msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_object.topic)
         if msg_hash
           oldest_time = msg_hash['time'].to_i
           # Stream from Redis
@@ -494,9 +504,9 @@ class LoggedStreamingThread < StreamingThread
           redis_time = msg_id.split('-')[0].to_i * 1000000
           delta = redis_time - oldest_time
           # Start streaming from calculated redis time
-          offset = ((first_item.start_time + delta) / 1_000_000).to_s + '-0'
-          Cosmos::Logger.debug("Oldest Redis id:#{msg_id} msg time:#{oldest_time} last item time:#{first_item.start_time} offset:#{offset}")
-          items.each {|item| item.offset = offset}
+          offset = ((first_object.start_time + delta) / 1_000_000).to_s + '-0'
+          Cosmos::Logger.debug("Oldest Redis id:#{msg_id} msg time:#{oldest_time} last item time:#{first_object.start_time} offset:#{offset}")
+          objects.each {|object| object.offset = offset}
           @thread_mode = :STREAM
         else
           @cancel_thread = true
@@ -516,9 +526,9 @@ end
 
 class RealtimeStreamingThread < StreamingThread
   def thread_body
-    topics, offsets, items_by_topic = @collection.realtime_topics_offsets_and_items
-    # puts "topics:#{topics} offsets:#{offsets} items:#{items_by_topic}"
-    redis_thread_body(topics, offsets, items_by_topic)
+    topics, offsets, objects_by_topic = @collection.realtime_topics_offsets_and_objects
+    # puts "topics:#{topics} offsets:#{offsets} objects:#{objects_by_topic}"
+    redis_thread_body(topics, offsets, objects_by_topic)
   end
 end
 
@@ -526,7 +536,7 @@ class StreamingApi
   include Cosmos::Authorization
 
   # Helper class to store information about the streaming item
-  class StreamingItem
+  class StreamingObject
     include Cosmos::Authorization
     attr_accessor :key
     attr_accessor :cmd_or_tlm
@@ -548,13 +558,13 @@ class StreamingApi
       @target_name = key_split[1]
       @packet_name = key_split[2]
       type = nil
-      if stream_mode == :RAW
-        @value_type = :RAW
-        type = (@cmd_or_tlm == :CMD) ? '???' : 'TELEMETRY' # TODO
-      else # stream_mode == :DECOM
+      if key_split.length > 4 # specific item from packet
         @item_name = key_split[3]
         @value_type = key_split[4].to_s.intern
         type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
+      else # whole packet
+        @value_type = key_split[3].to_s.intern if key_split[3]
+        type = (stream_mode == :RAW) ? 'TELEMETRY' : 'DECOM' # TODO is this right?
       end
       @start_time = start_time
       @end_time = end_time
@@ -566,61 +576,61 @@ class StreamingApi
     end
   end
 
-  # Helper class to collect StreamingItems and map them to threads
-  class StreamingItemCollection
-    attr_reader :items_by_thread_id
+  # Helper class to collect StreamingObjects and map them to threads
+  class StreamingObjectCollection
+    attr_reader :objects_by_thread_id
 
     def initialize
-      @items_by_key = {}
-      @items_by_thread_id = {}
-      @items_by_thread_id[nil] = []
+      @objects_by_key = {}
+      @objects_by_thread_id = {}
+      @objects_by_thread_id[nil] = []
       @mutex = Mutex.new
     end
 
-    def add(items)
+    def add(objects)
       @mutex.synchronize do
-        items.each do |item|
-          existing_item = @items_by_key[item.key]
-          if existing_item
-            @items_by_thread_id[existing_item.thread_id].delete(existing_item)
+        objects.each do |object|
+          existing_object = @objects_by_key[object.key]
+          if existing_object
+            @objects_by_thread_id[existing_object.thread_id].delete(existing_object)
           end
-          @items_by_key[item.key] = item
-          @items_by_thread_id[item.thread_id] ||= []
-          @items_by_thread_id[item.thread_id] << item
+          @objects_by_key[object.key] = object
+          @objects_by_thread_id[object.thread_id] ||= []
+          @objects_by_thread_id[object.thread_id] << object
         end
       end
     end
 
-    def remove(item_keys)
+    def remove(keys)
       @mutex.synchronize do
-        item_keys.each do |item_key|
-          item = @items_by_key[item_key]
-          if item
-            @items_by_key.delete(item_key)
-            @items_by_thread_id[item.thread_id].delete(item)
+        keys.each do |key|
+          object = @objects_by_key[key]
+          if object
+            @objects_by_key.delete(key)
+            @objects_by_thread_id[object.thread_id].delete(object)
           end
         end
       end
     end
 
-    def realtime_topics_offsets_and_items
+    def realtime_topics_offsets_and_objects
       topics_and_offsets = {}
-      items_by_topic = {}
+      objects_by_topic = {}
       @mutex.synchronize do
-        @items_by_thread_id[nil].each do |item|
-          if item.start_time == nil
-            offset = topics_and_offsets[item.topic]
-            topics_and_offsets[item.topic] = item.offset if !offset or item.offset < offset
-            items_by_topic[item.topic] ||= []
-            items_by_topic[item.topic] << item
+        @objects_by_thread_id[nil].each do |object|
+          if object.start_time == nil
+            offset = topics_and_offsets[object.topic]
+            topics_and_offsets[object.topic] = object.offset if !offset or object.offset < offset
+            objects_by_topic[object.topic] ||= []
+            objects_by_topic[object.topic] << object
           end
         end
       end
-      return topics_and_offsets.keys, topics_and_offsets.values, items_by_topic
+      return topics_and_offsets.keys, topics_and_offsets.values, objects_by_topic
     end
 
     def length
-      return @items_by_key.length
+      return @objects_by_key.length
     end
 
     def empty?
@@ -634,7 +644,7 @@ class StreamingApi
     @uuid = uuid
     @channel = channel
     @mutex = Mutex.new
-    @collection = StreamingItemCollection.new
+    @collection = StreamingObjectCollection.new
     @realtime_thread = nil
     @logged_threads = []
   end
@@ -651,24 +661,20 @@ class StreamingApi
       # @stream_mode = stream_mode
       scope = data["scope"]
       token = data["token"]
-      items = []
-      items_by_topic = {}
-      if data["items"]
-        data["items"].each do |item_key|
-          item = StreamingItem.new(item_key, start_time, end_time, stream_mode: stream_mode, scope: scope, token: token)
-        items_by_topic[item.topic] ||= []
-        items_by_topic[item.topic] << item
-        items << item
-      end
-      end
-      if data["packets"]
-        data["packets"].each do |packet|
-          # TODO
-        end
+      keys = []
+      keys.concat(data["items"]) if data["items"]
+      keys.concat(data["packets"]) if data["packets"]
+      objects = []
+      objects_by_topic = {}
+      keys.each do |key|
+        object = StreamingObject.new(key, start_time, end_time, stream_mode: stream_mode, scope: scope, token: token)
+        objects_by_topic[object.topic] ||= []
+        objects_by_topic[object.topic] << object
+        objects << object
       end
       if start_time
-        items_by_topic.each do |topic, items|
-          items.each {|item| item.thread_id = @thread_id}
+        objects_by_topic.each do |topic, objects|
+          objects.each {|object| object.thread_id = @thread_id}
           thread = LoggedStreamingThread.new(@thread_id, @channel, @collection, stream_mode, scope: scope)
           thread.start
           @logged_threads << thread
@@ -681,12 +687,15 @@ class StreamingApi
           @realtime_thread.start
         end
       end
-      @collection.add(items)
+      @collection.add(objects)
     end
   end
 
   def remove(data)
-    @collection.remove(data["items"])
+    keys = []
+    keys.concat(data["items"]) if data["items"]
+    keys.concat(data["packets"]) if data["packets"]
+    @collection.remove(keys)
   end
 
   def kill
