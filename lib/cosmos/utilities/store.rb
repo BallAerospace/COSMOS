@@ -21,6 +21,7 @@ require 'redis'
 require 'json'
 require 'thread'
 require 'connection_pool'
+require 'ruby2_keywords'
 
 module Cosmos
   class Store
@@ -45,13 +46,13 @@ module Cosmos
     end
 
     # Delegate all unknown class methods to delegate to the instance
-    def self.method_missing(message, *args, **kwargs, &block)
-      self.instance.send(message, *args, **kwargs, &block)
+    ruby2_keywords def self.method_missing(message, *args, &block)
+      self.instance.send(message, *args, &block)
     end
 
     # Delegate all unknown methods to redis through the @redis_pool
-    def method_missing(message, *args, **kwargs, &block)
-      @redis_pool.with { |redis| redis.send(message, *args, **kwargs, &block) }
+    ruby2_keywords def method_missing(message, *args, &block)
+      @redis_pool.with { |redis| redis.send(message, *args, &block) }
     end
 
     def initialize(pool_size = 10)
