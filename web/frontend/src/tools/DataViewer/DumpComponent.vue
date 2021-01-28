@@ -47,6 +47,20 @@
       </v-col>
     </v-row>
     <v-row>
+      <v-col>
+        <v-slider
+          v-model="playPosition"
+          v-on:mousedown="pause"
+          @click:prepend="stepBackward"
+          @click:append="stepForward"
+          prepend-icon="mdi-step-backward"
+          append-icon="mdi-step-forward"
+          :min="0"
+          :max="historyMax"
+        />
+      </v-col>
+    </v-row>
+    <v-row>
       <v-col class="pl-0 pr-0">
         <div class="text-area-container">
           <v-textarea :value="displayText" auto-grow readonly solo flat />
@@ -87,27 +101,45 @@ export default {
       showLineAddress: true,
       bytesPerLine: 16,
       paused: false,
-      pausedBuffer: [],
+      pausedAt: 0,
+      playPosition: 0,
     }
   },
   watch: {
     packet: function (val) {
       this.history.push(val)
+      if (!this.paused) this.playPosition++
     },
     paused: function (val) {
       if (val) {
-        this.pausedBuffer = this.packet.buffer
+        this.pausedAt = this.playPosition
+      } else {
+        this.playPosition = this.history.length - 1
       }
     },
   },
   methods: {
+    pause: function () {
+      this.paused = true
+    },
     togglePlayPause: function () {
       this.paused = !this.paused
     },
+    stepBackward: function () {
+      this.pause()
+      this.playPosition--
+    },
+    stepForward: function () {
+      this.pause()
+      this.playPosition++
+    },
   },
   computed: {
+    historyMax: function () {
+      return this.paused ? this.pausedAt : this.history.length - 1
+    },
     currentBytes: function () {
-      const buffer = this.paused ? this.pausedBuffer : this.packet.buffer
+      const buffer = this.history[this.playPosition].buffer
       if (this.format === 'ascii') {
         return buffer.map((byte) =>
           String.fromCharCode(byte)
