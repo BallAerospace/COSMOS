@@ -86,12 +86,45 @@ module Cosmos
         expect { TargetModel.packet_exist("INST", "BLAH", type: :TLM, scope: "DEFAULT") }.to raise_error("Packet 'INST BLAH' does not exist")
       end
 
-      it "returns true if the packet exists" do
+      it "returns true if the telemetry exists" do
         expect(TargetModel.packet_exist("INST", "HEALTH_STATUS", type: :TLM, scope: "DEFAULT")).to be true
       end
 
-      it "returns true if the packet exists" do
+      it "returns true if the command exists" do
         expect(TargetModel.packet_exist("INST", "ABORT", type: :CMD, scope: "DEFAULT")).to be true
+      end
+    end
+
+    describe "self.packet" do
+      before(:each) do
+        setup_system()
+        model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+      end
+
+      it "raises for an unknown type" do
+        expect { TargetModel.packet("INST", "HEALTH_STATUS", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type OTHER/)
+      end
+
+      it "raises for a non-existant target" do
+        expect { TargetModel.packet("BLAH", "HEALTH_STATUS", type: :TLM, scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
+      end
+
+      it "raises for a non-existant packet" do
+        expect { TargetModel.packet("INST", "BLAH", type: :TLM, scope: "DEFAULT") }.to raise_error("Packet 'INST BLAH' does not exist")
+      end
+
+      it "returns packet hash if the telemetry exists" do
+        pkt = TargetModel.packet("INST", "HEALTH_STATUS", type: :TLM, scope: "DEFAULT")
+        expect(pkt['target_name']).to eql "INST"
+        expect(pkt['packet_name']).to eql "HEALTH_STATUS"
+      end
+
+      it "returns packet hash if the command exists" do
+        pkt = TargetModel.packet("INST", "ABORT", type: :CMD, scope: "DEFAULT")
+        expect(pkt['target_name']).to eql "INST"
+        expect(pkt['packet_name']).to eql "ABORT"
       end
     end
 
@@ -208,11 +241,11 @@ module Cosmos
         expect(Store.hkeys("DEFAULT__cosmoscmd__INST")).to include("ABORT", "COLLECT", "CLEAR") #... etc
 
         # Spot check a telemetry packet and a command
-        telemetry = Store.instance.get_packet(@target, "HEALTH_STATUS", scope: @scope)
+        telemetry = TargetModel.packet(@target, "HEALTH_STATUS", type: :TLM, scope: @scope)
         expect(telemetry['target_name']).to eql @target
         expect(telemetry['packet_name']).to eql "HEALTH_STATUS"
         expect(telemetry['items'].length).to be > 10
-        command = Store.instance.get_packet(@target, "ABORT", scope: @scope, type: 'cmd')
+        command = TargetModel.packet(@target, "ABORT", type: :CMD, scope: @scope)
         expect(command['target_name']).to eql @target
         expect(command['packet_name']).to eql "ABORT"
         expect(command['items'].length).to be > 10

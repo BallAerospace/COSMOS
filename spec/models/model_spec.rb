@@ -129,6 +129,12 @@ module Cosmos
       end
     end
 
+    describe "self.get" do
+      it "returns nil if the name can't be found" do
+        expect(TestModel.get(name: "BLAH", scope: "DEFAULT")).to be_nil
+      end
+    end
+
     describe "self.get_model" do
       it "returns the model object" do
         model = TestModel.new(name: "TEST1", scope: "DEFAULT")

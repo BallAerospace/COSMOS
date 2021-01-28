@@ -199,7 +199,7 @@ module Cosmos
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
 
       # Get the packet hash ... this will raise errors if target_name and packet_name do not exist
-      packet = Store.instance.get_packet(target_name, packet_name)
+      packet = TargetModel.packet(target_name, packet_name, type: :TLM, scope: scope)
       if item_hash
         item_hash.each do |item_name, item_value|
           # Verify the item exists
@@ -304,7 +304,7 @@ module Cosmos
     # @return (see Cosmos::Packet#read_all_with_limits_states)
     def get_tlm_packet(target_name, packet_name, value_type = :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.get_packet(target_name, packet_name, scope: scope)
+      TargetModel.packet(target_name, packet_name, type: :TLM, scope: scope)
       value_type = value_type.intern
       case value_type
       when :RAW
@@ -386,7 +386,7 @@ module Cosmos
     # @return [Hash] Telemetry packet hash
     def get_telemetry(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.get_packet(target_name, packet_name, scope: scope)
+      TargetModel.packet(target_name, packet_name, type: :TLM, scope: scope)
     end
 
     # Returns a telemetry packet item hash
@@ -427,7 +427,7 @@ module Cosmos
     #   item description]
     def get_tlm_item_list(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
+      packet = TargetModel.packet(target_name, packet_name, type: :TLM, scope: scope)
       return packet['items'].map {|item| [item['name'], item['states'], item['description']] }
     end
 
@@ -443,7 +443,7 @@ module Cosmos
         raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
       end
 
-      # packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
+      # packet = TargetModel.packet(target_name, packet_name, type: :TLM, scope: scope)
       # return packet['items'].map {|item| [item['name'], item['states'], item['description']] }
 
       # def get_telemetry(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
@@ -525,7 +525,7 @@ module Cosmos
     # @return [Array<String>] All of the ignored telemetry items for a packet.
     def get_packet_derived_items(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
+      packet = TargetModel.packet(target_name, packet_name, type: :TLM, scope: scope)
       raise "Unknown target or packet: #{target_name} #{packet_name}" unless packet
       return packet['items'].select {|item| item['data_type'] == 'DERIVED' }.map {|item| item['name']}
     end

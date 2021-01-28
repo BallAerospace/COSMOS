@@ -22,7 +22,6 @@ require 'cosmos/api/tlm_api'
 require 'cosmos/microservices/interface_microservice'
 require 'cosmos/microservices/decom_microservice'
 require 'cosmos/microservices/cvt_microservice'
-require 'cosmos/operators/microservice_operator'
 require 'cosmos/script/extract'
 require 'cosmos/utilities/authorization'
 require 'cosmos/models/target_model'
@@ -414,6 +413,20 @@ module Cosmos
         packet.buffer = buffer
         TelemetryTopic.write_packet(packet, scope: 'DEFAULT')
         expect(@api.get_tlm_buffer("INST", "HEALTH_STATUS")[0..3]).to eq buffer
+      end
+    end
+
+    describe "get_telemetry" do
+      it "raises if the target or packet do not exist" do
+        expect { @api.get_telemetry("BLAH", "HEALTH_STATUS", scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
+        expect { @api.get_telemetry("INST", "BLAH", scope: "DEFAULT") }.to raise_error("Packet 'INST BLAH' does not exist")
+      end
+
+      it "returns a packet hash" do
+        pkt = @api.get_telemetry("INST", "HEALTH_STATUS", scope: "DEFAULT")
+        expect(pkt).to be_a Hash
+        expect(pkt['target_name']).to eql "INST"
+        expect(pkt['packet_name']).to eql "HEALTH_STATUS"
       end
     end
 

@@ -234,7 +234,7 @@ module Cosmos
     # @return [Hash] Command as a hash
     def get_command(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, scope: scope, token: token)
-      Store.instance.get_packet(target_name, packet_name, type: 'cmd', scope: scope)
+      TargetModel.packet(target_name, packet_name, type: :CMD, scope: scope)
     end
 
     # Returns a hash of the given command parameter
@@ -261,7 +261,7 @@ module Cosmos
     def get_cmd_param_list(target_name, command_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
       list = []
-      packet = Store.instance.get_packet(target_name, command_name, type: 'cmd', scope: scope)
+      packet = TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
       packet['items'].each do |item|
         states = nil
         if item['states']
@@ -296,7 +296,7 @@ module Cosmos
       args << kwargs unless kwargs.empty?
       case args.length
       when 1
-        target_name, command_name, params = extract_fields_from_cmd_text(args[0])
+        target_name, command_name, params = extract_fields_from_cmd_text(args[0], scope: scope)
       when 2, 3
         target_name = args[0]
         command_name = args[1]
@@ -311,7 +311,7 @@ module Cosmos
       end
 
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
-      packet = Store.instance.get_packet(target_name, command_name, type: 'cmd', scope: scope)
+      packet = TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
       return true if packet['hazardous']
 
       packet['items'].each do |item|
@@ -403,7 +403,7 @@ module Cosmos
     def cmd_implementation(range_check, hazardous_check, raw, method_name, *args, scope:, token:)
       case args.length
       when 1
-        target_name, cmd_name, cmd_params = extract_fields_from_cmd_text(args[0])
+        target_name, cmd_name, cmd_params = extract_fields_from_cmd_text(args[0], scope: scope)
       when 2, 3
         target_name = args[0]
         cmd_name    = args[1]

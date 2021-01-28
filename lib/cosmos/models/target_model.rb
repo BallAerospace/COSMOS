@@ -68,6 +68,12 @@ module Cosmos
       end
     end
 
+    # @return [Hash] Packet hash or raises an exception
+    def self.packet(target_name, packet_name, type:, scope:)
+      packet_exist(target_name, packet_name, type: type, scope: scope)
+      return JSON.parse(Store.hget("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}", packet_name))
+    end
+
     # Called by the PluginModel to allow this class to validate it's top-level keyword: "TARGET"
     def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
       case keyword

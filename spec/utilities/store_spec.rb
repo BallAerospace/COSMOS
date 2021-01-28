@@ -44,27 +44,6 @@ module Cosmos
     #   end
     # end
 
-    describe 'get_packet' do
-      it 'raises if target does not exist' do
-        expect { Store.instance.get_packet('NO_TGT', 'PKT') }.to raise_error("Target 'NO_TGT' does not exist")
-      end
-
-      it 'raises if packet does not exist' do
-        expect { Store.instance.get_packet('INST', 'NOPKT') }.to raise_error("Packet 'INST NOPKT' does not exist")
-      end
-
-      it 'returns a packet hash' do
-        pkt = Store.instance.get_packet('INST', 'HEALTH_STATUS', type: 'tlm')
-        expect(pkt).to be_a(Hash)
-        expect(pkt['target_name']).to eql 'INST'
-        expect(pkt['packet_name']).to eql 'HEALTH_STATUS'
-        pkt = Store.instance.get_packet('INST', 'COLLECT', type: 'cmd')
-        expect(pkt).to be_a(Hash)
-        expect(pkt['target_name']).to eql 'INST'
-        expect(pkt['packet_name']).to eql 'COLLECT'
-      end
-    end
-
     describe 'get_commands' do
       it 'raises if target does not exist' do
         expect { Store.instance.get_commands('NOTGT') }.to raise_error("Target 'NOTGT' does not exist")

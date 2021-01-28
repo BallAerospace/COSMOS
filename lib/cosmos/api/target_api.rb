@@ -25,8 +25,8 @@ module Cosmos
     WHITELIST.concat([
       'get_target_list',
       'get_target',
-      'get_all_target_info',
       'get_target_info',
+      'get_all_target_info',
       'get_target_ignored_parameters',
       'get_target_ignored_items',
     ])
@@ -37,6 +37,16 @@ module Cosmos
     def get_target_list(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
       TargetModel.names(scope: scope)
+    end
+
+    # Gets the full target hash
+    #
+    # @since 5.0.0
+    # @param target_name [String] Target name
+    # @return [Hash] Hash of all the target properties
+    def get_target(target_name, scope: $cosmos_scope, token: $cosmos_token)
+      authorize(permission: 'system', target_name: target_name, scope: scope, token: token)
+      return TargetModel.get(name: target_name, scope: scope)
     end
 
     # Get cmd and tlm counts for a target
@@ -70,16 +80,6 @@ module Cosmos
       info
     end
 
-    # Gets the full target hash
-    #
-    # @since 5.0.0
-    # @param target_name [String] Target name
-    # @return [Hash] Hash of all the target properties
-    def get_target(target_name, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'system', target_name: target_name, scope: scope, token: token)
-      return TargetModel.get(name: target_name, scope: scope)
-    end
-
     # Get the list of ignored command parameters for a target
     #
     # @deprecated Use #get_target
@@ -99,6 +99,5 @@ module Cosmos
       authorize(permission: 'system', target_name: target_name, scope: scope, token: token)
       return TargetModel.get(name: target_name, scope: scope)['ignored_items']
     end
-
   end
 end

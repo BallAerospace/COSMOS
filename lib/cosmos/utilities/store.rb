@@ -46,7 +46,7 @@ module Cosmos
     end
 
     # Delegate all unknown class methods to delegate to the instance
-    ruby2_keywords def self.method_missing(message, *args, &block)
+    def self.method_missing(message, *args, &block)
       self.instance.send(message, *args, &block)
     end
 
