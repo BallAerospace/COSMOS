@@ -570,7 +570,6 @@ class StreamingApi
       @end_time = end_time
       authorize(permission: @cmd_or_tlm.to_s.downcase, target_name: @target_name, packet_name: @packet_name, scope: scope, token: token)
       @topic = "#{@scope}__#{type}__#{@target_name}__#{@packet_name}"
-      @key ||= @topic
       @offset = nil
       @offset = Cosmos::Store.instance.get_last_offset(topic) unless @start_time
       @thread_id = thread_id

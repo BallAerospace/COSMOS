@@ -19,16 +19,50 @@
 
 <template>
   <v-container>
-    <packet-summary-component
-      :key="packet.time"
-      :packet="packet"
-      :received-count="history.length"
-    />
-    <v-radio-group v-model="format" row hide-details>
-      <v-radio label="Hex" value="hex" />
-      <v-radio label="ASCII" value="ascii" />
-    </v-radio-group>
-    <v-textarea :value="hexText" auto-grow readonly filled />
+    <v-row>
+      <v-col>
+        <packet-summary-component
+          :key="packet.time"
+          :packet="packet"
+          :received-count="history.length"
+        />
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-radio-group v-model="format" row hide-details>
+          <v-radio label="Hex" value="hex" />
+          <v-radio label="ASCII" value="ascii" />
+        </v-radio-group>
+      </v-col>
+      <v-col>
+        <v-switch v-model="showLineAddress" label="Show line address" />
+      </v-col>
+      <v-col>
+        <v-text-field
+          v-model="bytesPerLine"
+          label="Bytes per line"
+          type="number"
+        ></v-text-field>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col class="pl-0 pr-0">
+        <div class="text-area-container">
+          <v-textarea :value="displayText" auto-grow readonly solo flat />
+          <v-btn
+            class="play-control"
+            :class="{ pulse: paused }"
+            v-on:click="togglePlayPause"
+            color="primary"
+            fab
+          >
+            <v-icon large v-if="paused">mdi-play</v-icon>
+            <v-icon large v-else>mdi-pause</v-icon>
+          </v-btn>
+        </div>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -45,52 +79,93 @@ export default {
       type: Object,
       required: true,
     },
-    columns: {
-      type: Number,
-      default: 16,
-    },
   },
   data: function () {
     return {
       history: [this.packet], // Note: history doesn't start working until this component is mounted
       format: 'hex',
+      showLineAddress: true,
+      bytesPerLine: 16,
+      paused: false,
+      pausedBuffer: [],
     }
   },
   watch: {
     packet: function (val) {
       this.history.push(val)
     },
+    paused: function (val) {
+      if (val) {
+        this.pausedBuffer = this.packet.buffer
+      }
+    },
+  },
+  methods: {
+    togglePlayPause: function () {
+      this.paused = !this.paused
+    },
   },
   computed: {
-    hexBytes: function () {
+    currentBytes: function () {
+      const buffer = this.paused ? this.pausedBuffer : this.packet.buffer
       if (this.format === 'ascii') {
-        return this.packet.buffer.map((byte) =>
+        return buffer.map((byte) =>
           String.fromCharCode(byte)
             .replace(/\n/, '\\n')
             .replace(/\r/, '\\r')
             .padStart(2, ' ')
         )
       } else {
-        return this.packet.buffer.map((byte) =>
-          byte.toString(16).padStart(2, '0')
-        )
+        return buffer.map((byte) => byte.toString(16).padStart(2, '0'))
       }
     },
-    hexLines: function () {
-      return _.chunk(this.hexBytes, this.columns).map((chunk, index) => {
-        const lineNumber = (index * this.columns).toString(16).padStart(8, '0')
-        return `${lineNumber}: ${chunk.join(' ')}`
-      })
+    currentLines: function () {
+      return _.chunk(this.currentBytes, this.bytesPerLine).map(
+        (chunk, index) => {
+          const line = chunk.join(' ')
+          if (this.showLineAddress) {
+            const address = (index * this.bytesPerLine)
+              .toString(16)
+              .padStart(8, '0')
+            return `${address}: ${line}`
+          }
+          return line
+        }
+      )
     },
-    hexText: function () {
-      return this.hexLines.join('\n')
+    displayText: function () {
+      return this.currentLines.join('\n')
     },
   },
 }
 </script>
 
 <style lang="scss" scoped>
-.v-textarea {
-  font-family: 'Courier New', Courier, monospace;
+.text-area-container {
+  position: relative;
+
+  .v-textarea {
+    font-family: 'Courier New', Courier, monospace;
+  }
+
+  .play-control {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+
+    &.pulse {
+      animation: pulse 1s infinite;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 </style>
