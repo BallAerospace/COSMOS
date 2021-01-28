@@ -21,19 +21,19 @@
   <div>
     <app-nav app :menus="menus" />
     <v-card>
+      <div class="mb-1">
+        <v-alert type="warning" v-model="warning" dismissible>
+          {{ warningText }}
+        </v-alert>
+        <v-alert type="error" v-model="error" dismissible>
+          {{ errorText }}
+        </v-alert>
+      </div>
       <v-tabs v-model="curTab" fixed-tabs>
         <v-tab v-for="(tab, index) in tabs" :key="index">{{ tab.name }}</v-tab>
       </v-tabs>
       <v-tabs-items v-model="curTab">
         <v-tab-item v-for="(tab, index) in tabs" :key="index">
-          <!-- <component
-            ref="component"
-            :is="tab.component"
-            v-bind:tabId="index"
-            v-bind:curTab="curTab"
-            v-bind:refreshInterval="refreshInterval"
-          >
-          </component> -->
           <v-card
             v-for="(packet, packetIndex) in tab.packets"
             :key="`${index}-${packetIndex}`"
@@ -56,46 +56,10 @@
 import AppNav from '@/AppNav'
 import { ConfigParserService } from '@/services/config-parser'
 import { CosmosApi } from '@/services/cosmos-api'
-import Vue from 'vue'
 import * as ActionCable from 'actioncable'
 import upperFirst from 'lodash/upperFirst'
 import camelCase from 'lodash/camelCase'
 import DumpComponent from './DumpComponent.vue'
-
-// Globally register all XxxWidget.vue components
-const requireComponent = require.context(
-  // The relative path of the components folder
-  '@/tools/DataViewer',
-  // Whether or not to look in subfolders
-  false,
-  // The regular expression used to match base component filenames
-  /[A-Z]\w+Component\.vue$/
-)
-
-requireComponent.keys().forEach((filename) => {
-  // Get component config
-  const componentConfig = requireComponent(filename)
-
-  // Get PascalCase name of component
-  const componentName = upperFirst(
-    camelCase(
-      // Gets the filename regardless of folder depth
-      filename
-        .split('/')
-        .pop()
-        .replace(/\.\w+$/, '')
-    )
-  )
-
-  // Register component globally
-  Vue.component(
-    componentName,
-    // Look for the component options on `.default`, which will
-    // exist if the component was exported with `export default`,
-    // otherwise fall back to module's root.
-    componentConfig.default || componentConfig
-  )
-})
 
 export default {
   components: {
@@ -129,6 +93,10 @@ export default {
           ],
         },
       ],
+      warning: false,
+      warningText: '',
+      error: false,
+      errorText: '',
     }
   },
   created() {
@@ -187,7 +155,7 @@ COMPONENT "Other Packets" data_viewer_component.rb
         }
       }
     )
-    this.cable = ActionCable.createConsumer('ws://localhost:7777/cable')
+    this.cable = ActionCable.createConsumer('ws://localhost:7777/cable') // TODO: handle failed connection? Seems to be a missing callback in ActionCable API
     this.subscribe()
   },
   destroyed: function () {
@@ -206,27 +174,20 @@ COMPONENT "Other Packets" data_viewer_component.rb
         {
           received: (data) => this.received(data),
           connected: () => {
-            // TODO
-            // this.foundKeys = []
-            // this.columnHeaders = []
-            // this.columnMap = {}
-            // this.outputFile = []
-            // this.rawData = []
-            const items = this.tabs.flatMap((tab) => {
+            const packets = this.tabs.flatMap((tab) => {
               return tab.packets.map(
                 (packet) => 'TLM__' + packet.target + '__' + packet.packet
               )
             })
             this.subscription.perform('add', {
               scope: 'DEFAULT',
-              items: items,
+              packets: packets,
               // start_time: 1609532973000000000, // use to hit the file cache
               start_time: Date.now() * 1000000 - 1000000000,
               end_time: Date.now() * 1000060,
               mode: 'RAW',
             })
           },
-          // TODO: warnings
           disconnected: () => {
             this.warningText = 'COSMOS backend connection disconnected.'
             this.warning = true
@@ -239,18 +200,17 @@ COMPONENT "Other Packets" data_viewer_component.rb
       )
     },
     received: function (json_data) {
-      // TODO: errors
-      // if (json_data['error']) {
-      //   this.errorText = json_data['error']
-      //   this.error = true
-      //   return
-      // }
+      if (json_data['error']) {
+        this.errorText = json_data['error']
+        this.error = true
+        return
+      }
       JSON.parse(json_data).forEach((data) => {
         this.packetData[data.packet] = {
           buffer: atob(data.buffer)
             .split('')
             .map((c) => c.charCodeAt(0)),
-          time: data.time
+          time: data.time,
         }
         // TODO: this causes every component to update instead of just the ones with a new packet
         // which is less than ideal, but it works for now

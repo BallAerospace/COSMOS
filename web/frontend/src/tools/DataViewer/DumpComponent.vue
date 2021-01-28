@@ -37,6 +37,9 @@ import _ from 'lodash'
 import PacketSummaryComponent from './PacketSummaryComponent'
 
 export default {
+  components: {
+    PacketSummaryComponent,
+  },
   props: {
     packet: {
       type: Object,
@@ -49,7 +52,7 @@ export default {
   },
   data: function () {
     return {
-      history: [],
+      history: [this.packet], // Note: history doesn't start working until this component is mounted
       format: 'hex',
     }
   },
@@ -68,7 +71,9 @@ export default {
             .padStart(2, ' ')
         )
       } else {
-        return this.packet.buffer.map((byte) => byte.toString(16).padStart(2, '0'))
+        return this.packet.buffer.map((byte) =>
+          byte.toString(16).padStart(2, '0')
+        )
       }
     },
     hexLines: function () {
