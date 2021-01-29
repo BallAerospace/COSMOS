@@ -391,18 +391,13 @@ class StreamingThread
       return nil
     end
     result = {}
-    value_types = []
-    # If any objects don't have an item_name, read every item with this value_type from json_packet
-    whole_packets = objects.select {|object| !object.item_name}
-    whole_packets.each do |packet|
-      this_packet = json_packet.read_all(packet.value_type)
-      value_types << packet.value_type
-      result = result.merge(this_packet)
-    end
-    # Filter out any overlap from the whole packets and the rest of the items so as to not read twice
-    remaining_items = objects.select {|object| !value_types.include?(object.value_type)}
-    remaining_items.each do |item|
-      result[item.key] = json_packet.read(item.item_name, item.value_type)
+    objects.each do |object|
+      if object.item_name
+        result[object.key] = json_packet.read(object.item_name, object.value_type)
+      else # whole packet
+        this_packet = json_packet.read_all(object.value_type)
+        result = result.merge(this_packet)
+      end
     end
     result['time'] = time.to_nsec_from_epoch
     return result
@@ -559,13 +554,17 @@ class StreamingApi
       @target_name = key_split[1]
       @packet_name = key_split[2]
       type = nil
-      if key_split.length > 4 # specific item from packet
-        @item_name = key_split[3]
-        @value_type = key_split[4].to_s.intern
+      if stream_mode == :RAW
+        # value_type is implied to be :RAW and this must be a whole packet
+        @value_type = :RAW
+        type = (@cmd_or_tlm == :CMD) ? 'COMMAND' : 'TELEMETRY'
+      else
+        # value_type must be specified and this might be a whole packet or just an item
+        @value_type = key_split[-1].to_s.intern
         type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
-      else # whole packet
-        @value_type = key_split[3].to_s.intern if key_split[3]
-        type = (stream_mode == :RAW) ? 'TELEMETRY' : 'DECOM' # TODO is this right?
+        if key_split.length > 4
+          @item_name = key_split[3]
+        end
       end
       @start_time = start_time
       @end_time = end_time
