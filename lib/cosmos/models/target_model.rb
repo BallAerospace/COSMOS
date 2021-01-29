@@ -55,7 +55,7 @@ module Cosmos
     end
 
     # @return [Boolean] true if the packet exists or raises an exception
-    def self.packet_exist(target_name, packet_name, type:, scope:)
+    def self.packet_exist(target_name, packet_name, type: :TLM, scope:)
       raise "Unknown type #{type} for #{target_name} #{packet_name}" unless %i(CMD TLM).include?(type)
       if Store.exists?("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}")
         if Store.hexists("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}", packet_name)
@@ -69,9 +69,33 @@ module Cosmos
     end
 
     # @return [Hash] Packet hash or raises an exception
-    def self.packet(target_name, packet_name, type:, scope:)
+    def self.packet(target_name, packet_name, type: :TLM, scope:)
       packet_exist(target_name, packet_name, type: type, scope: scope)
       return JSON.parse(Store.hget("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}", packet_name))
+    end
+
+    # @return [Hash] Item hash or raises an exception
+    def self.packet_item(target_name, packet_name, item_name, type: :TLM, scope:)
+      packet = packet(target_name, packet_name, type: type, scope: scope)
+      item = packet['items'].find {|item| item['name'] == item_name.to_s }
+      raise "Item '#{packet['target_name']} #{packet['packet_name']} #{item_name}' does not exist" unless item
+      item
+    end
+
+    # @return [Array<Hash>] Item hash array or raises an exception
+    def self.packet_items(target_name, packet_name, items, type: :TLM, scope:)
+      packet = packet(target_name, packet_name, type: type, scope: scope)
+      found = packet['items'].find_all {|item| items.map(&:to_s).include?(item['name']) }
+      if found.length != items.length # we didn't find them all
+        found_items = found.collect { |item| item['name'] }
+        not_found = []
+        (items - found_items).each do |item|
+          not_found << "'#{target_name} #{packet_name} #{item}'"
+        end
+        # 'does not exist' not gramatically correct but we use it in every other exception
+        raise "Item(s) #{not_found.join(', ')} does not exist"
+      end
+      found
     end
 
     # Called by the PluginModel to allow this class to validate it's top-level keyword: "TARGET"

@@ -246,7 +246,7 @@ module Cosmos
     # @return [Hash] Command parameter as a hash
     def get_parameter(target_name, packet_name, param_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.get_item(target_name, packet_name, param_name, type: 'cmd', scope: scope)
+      TargetModel.packet_item(target_name, packet_name, param_name, type: :CMD, scope: scope)
     end
 
     # Returns the list of all the parameters for the given command.

@@ -128,6 +128,96 @@ module Cosmos
       end
     end
 
+    describe "self.packet_item" do
+      before(:each) do
+        setup_system()
+        model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+      end
+
+      it "raises for an unknown type" do
+        expect { TargetModel.packet_item("INST", "HEALTH_STATUS", "CCSDSVER", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type OTHER/)
+      end
+
+      it "raises for a non-existant target" do
+        expect { TargetModel.packet_item("BLAH", "HEALTH_STATUS", "CCSDSVER", scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
+      end
+
+      it "raises for a non-existant packet" do
+        expect { TargetModel.packet_item("INST", "BLAH", "CCSDSVER", scope: "DEFAULT") }.to raise_error("Packet 'INST BLAH' does not exist")
+      end
+
+      it "raises for a non-existant item" do
+        expect { TargetModel.packet_item("INST", "HEALTH_STATUS", "BLAH", scope: "DEFAULT") }.to raise_error("Item 'INST HEALTH_STATUS BLAH' does not exist")
+      end
+
+      it "returns item hash if the telemetry item exists" do
+        item = TargetModel.packet_item("INST", "HEALTH_STATUS", "CCSDSVER", scope: "DEFAULT")
+        expect(item['name']).to eql "CCSDSVER"
+        expect(item['bit_offset']).to eql 0
+      end
+
+      it "returns item hash if the command item exists" do
+        item = TargetModel.packet_item("INST", "ABORT", "CCSDSVER", type: :CMD, scope: "DEFAULT")
+        expect(item['name']).to eql "CCSDSVER"
+        expect(item['bit_offset']).to eql 0
+      end
+    end
+
+    describe "self.packet_items" do
+      before(:each) do
+        setup_system()
+        model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+      end
+
+      it "raises for an unknown type" do
+        expect { TargetModel.packet_items("INST", "HEALTH_STATUS", ["CCSDSVER"], type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type OTHER/)
+      end
+
+      it "raises for a non-existant target" do
+        expect { TargetModel.packet_items("BLAH", "HEALTH_STATUS", ["CCSDSVER"], scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
+      end
+
+      it "raises for a non-existant packet" do
+        expect { TargetModel.packet_items("INST", "BLAH", ["CCSDSVER"], scope: "DEFAULT") }.to raise_error("Packet 'INST BLAH' does not exist")
+      end
+
+      it "raises for non-existant items" do
+        expect { TargetModel.packet_items("INST", "HEALTH_STATUS", ["BLAH"], scope: "DEFAULT") }.to \
+          raise_error("Item(s) 'INST HEALTH_STATUS BLAH' does not exist")
+        expect { TargetModel.packet_items("INST", "HEALTH_STATUS", ["CCSDSVER", "BLAH"], scope: "DEFAULT") }.to \
+          raise_error("Item(s) 'INST HEALTH_STATUS BLAH' does not exist")
+        expect { TargetModel.packet_items("INST", "HEALTH_STATUS", [:BLAH, :NOPE], scope: "DEFAULT") }.to \
+          raise_error("Item(s) 'INST HEALTH_STATUS BLAH', 'INST HEALTH_STATUS NOPE' does not exist")
+      end
+
+      it "returns item hash array if the telemetry items exists" do
+        items = TargetModel.packet_items("INST", "HEALTH_STATUS", ["CCSDSVER", "CCSDSTYPE"], scope: "DEFAULT")
+        expect(items.length).to eql 2
+        expect(items[0]['name']).to eql "CCSDSVER"
+        expect(items[0]['bit_offset']).to eql 0
+        expect(items[1]['name']).to eql "CCSDSTYPE"
+
+        # Verify it also works with symbols
+        items = TargetModel.packet_items("INST", "HEALTH_STATUS", [:CCSDSVER, :CCSDSTYPE], scope: "DEFAULT")
+        expect(items.length).to eql 2
+        expect(items[0]['name']).to eql "CCSDSVER"
+        expect(items[0]['bit_offset']).to eql 0
+        expect(items[1]['name']).to eql "CCSDSTYPE"
+      end
+
+      it "returns item hash array if the command items exists" do
+        items = TargetModel.packet_items("INST", "ABORT", ["CCSDSVER", "CCSDSTYPE"], type: :CMD, scope: "DEFAULT")
+        expect(items.length).to eql 2
+        expect(items[0]['name']).to eql "CCSDSVER"
+        expect(items[0]['bit_offset']).to eql 0
+        expect(items[1]['name']).to eql "CCSDSTYPE"
+      end
+    end
+
     describe "self.handle_config" do
       it "only recognizes TARGET" do
         parser = double("ConfigParser").as_null_object

@@ -288,15 +288,15 @@ module Cosmos
       end
 
       it "complains about non-existant targets" do
-        expect { @api.inject_tlm("BLAH","HEALTH_STATUS") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
+        expect { @api.inject_tlm("BLAH","HEALTH_STATUS") }.to raise_error("Target 'BLAH' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @api.inject_tlm("INST","BLAH") }.to raise_error(RuntimeError, "Packet 'INST BLAH' does not exist")
+        expect { @api.inject_tlm("INST","BLAH") }.to raise_error("Packet 'INST BLAH' does not exist")
       end
 
       it "complains about non-existant items" do
-        expect { @api.inject_tlm("INST","HEALTH_STATUS",{'BLAH' => 0}) }.to raise_error(RuntimeError, "Item 'INST HEALTH_STATUS BLAH' does not exist")
+        expect { @api.inject_tlm("INST","HEALTH_STATUS",{'BLAH' => 0}) }.to raise_error("Item(s) 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
       xit "logs errors writing routers" do

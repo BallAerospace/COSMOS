@@ -197,16 +197,13 @@ module Cosmos
     def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true,
       send_packet_log_writers = true, create_new_logs = false, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-
-      # Get the packet hash ... this will raise errors if target_name and packet_name do not exist
-      packet = TargetModel.packet(target_name, packet_name, type: :TLM, scope: scope)
       if item_hash
-        item_hash.each do |item_name, item_value|
-          # Verify the item exists
-          Store.instance.get_item_from_packet_hash(packet, item_name)
-        end
+        # Check that the items exist ... exceptions are raised if not
+        TargetModel.packet_items(target_name, packet_name, item_hash.keys, scope: scope)
+      else
+        # Check that the packet exists ... exceptions are raised if not
+        TargetModel.packet(target_name, packet_name, scope: scope)
       end
-
       inject = {}
       inject['inject_tlm'] = true
       inject['target_name'] = target_name
@@ -288,7 +285,7 @@ module Cosmos
     # @return [String] last telemetry packet buffer
     def get_tlm_buffer(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      TargetModel.packet_exist(target_name, packet_name, type: :TLM, scope: scope)
+      TargetModel.packet_exist(target_name, packet_name, scope: scope)
       topic = "#{scope}__TELEMETRY__#{target_name}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       return msg_hash['buffer'].b if msg_id # Return as binary
@@ -304,7 +301,7 @@ module Cosmos
     # @return (see Cosmos::Packet#read_all_with_limits_states)
     def get_tlm_packet(target_name, packet_name, value_type = :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      TargetModel.packet(target_name, packet_name, type: :TLM, scope: scope)
+      TargetModel.packet(target_name, packet_name, scope: scope)
       value_type = value_type.intern
       case value_type
       when :RAW
@@ -386,7 +383,7 @@ module Cosmos
     # @return [Hash] Telemetry packet hash
     def get_telemetry(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      TargetModel.packet(target_name, packet_name, type: :TLM, scope: scope)
+      TargetModel.packet(target_name, packet_name, scope: scope)
     end
 
     # Returns a telemetry packet item hash
@@ -398,7 +395,7 @@ module Cosmos
     # @return [Hash] Telemetry packet item hash
     def get_item(target_name, packet_name, item_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.get_item(target_name, packet_name, item_name, scope: scope)
+      TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
     end
 
     # Returns the sorted packet names and their descriptions for a particular
@@ -427,7 +424,7 @@ module Cosmos
     #   item description]
     def get_tlm_item_list(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      packet = TargetModel.packet(target_name, packet_name, type: :TLM, scope: scope)
+      packet = TargetModel.packet(target_name, packet_name, scope: scope)
       return packet['items'].map {|item| [item['name'], item['states'], item['description']] }
     end
 
@@ -443,7 +440,7 @@ module Cosmos
         raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
       end
 
-      # packet = TargetModel.packet(target_name, packet_name, type: :TLM, scope: scope)
+      # packet = TargetModel.packet(target_name, packet_name, scope: scope)
       # return packet['items'].map {|item| [item['name'], item['states'], item['description']] }
 
       # def get_telemetry(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
@@ -507,7 +504,7 @@ module Cosmos
     # @return [Numeric] Receive count for the telemetry packet
     def get_tlm_cnt(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      TargetModel.packet_exist(target_name, command_name, type: :TLM, scope: scope)
+      TargetModel.packet_exist(target_name, command_name, scope: scope)
       _get_cnt("#{scope}__TELEMETRY__#{target_name}__#{packet_name}")
     end
 
@@ -525,7 +522,7 @@ module Cosmos
     # @return [Array<String>] All of the ignored telemetry items for a packet.
     def get_packet_derived_items(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      packet = TargetModel.packet(target_name, packet_name, type: :TLM, scope: scope)
+      packet = TargetModel.packet(target_name, packet_name, scope: scope)
       raise "Unknown target or packet: #{target_name} #{packet_name}" unless packet
       return packet['items'].select {|item| item['data_type'] == 'DERIVED' }.map {|item| item['name']}
     end
@@ -558,7 +555,7 @@ module Cosmos
         end
       else
         # Determine if this item exists, it will raise appropriate errors if not
-        Store.instance.get_item(target_name, packet_name, item_name, scope: scope)
+        TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
       end
 
       return [target_name, packet_name, item_name]
@@ -578,7 +575,7 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
       end
       # Determine if this item exists, it will raise appropriate errors if not
-      Store.instance.get_item(target_name, packet_name, item_name, scope: scope)
+      TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
 
       return [target_name, packet_name, item_name, value]
     end

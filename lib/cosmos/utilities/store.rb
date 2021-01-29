@@ -112,47 +112,6 @@ module Cosmos
       return values
     end
 
-    def get_packet(target_name, packet_name, type: 'tlm', scope: $cosmos_scope)
-      @redis_pool.with do |redis|
-        # TODO: pipeline
-        if redis.exists("#{scope}__cosmos#{type}__#{target_name}") != 0
-          if redis.hexists("#{scope}__cosmos#{type}__#{target_name}", packet_name)
-            return JSON.parse(redis.hget("#{scope}__cosmos#{type}__#{target_name}", packet_name))
-          else
-            raise "Packet '#{target_name} #{packet_name}' does not exist"
-          end
-        else
-          raise "Target '#{target_name}' does not exist"
-        end
-      end
-    end
-
-    # TODO: Is this needed?
-    # def set_packet(packet, type: 'tlm')
-    #   @redis_pool.with do |redis|
-    #     if redis.exists("cosmos#{type}__#{packet.target_name}") != 0
-    #       if redis.hexists("cosmos#{type}__#{packet.target_name}", packet.packet_name)
-    #         return redis.hset("cosmos#{type}__#{packet.target_name}", packet.packet_name, JSON.generate(packet.as_json))
-    #       else
-    #         raise "Packet '#{packet.target_name} #{packet.packet_name}' does not exist"
-    #       end
-    #     else
-    #       raise "Target '#{packet.target_name}' does not exist"
-    #     end
-    #   end
-    # end
-
-    def get_item_from_packet_hash(packet, item_name)
-      item = packet['items'].find {|item| item['name'] == item_name.to_s }
-      raise "Item '#{packet['target_name']} #{packet['packet_name']} #{item_name}' does not exist" unless item
-      item
-    end
-
-    def get_item(target_name, packet_name, item_name, type: 'tlm', scope: $cosmos_scope)
-      packet = get_packet(target_name, packet_name, type: type, scope: scope)
-      get_item_from_packet_hash(packet, item_name)
-    end
-
     def get_commands(target_name, scope: $cosmos_scope)
       _get_cmd_tlm(target_name, type: 'cmd', scope: scope)
     end
