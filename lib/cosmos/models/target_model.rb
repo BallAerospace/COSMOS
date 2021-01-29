@@ -28,8 +28,7 @@ require 'tempfile'
 module Cosmos
   class TargetModel < Model
     PRIMARY_KEY = 'cosmos_targets'
-    CMD_DEF_KEY = 'cosmoscmd'
-    TLM_DEF_KEY = 'cosmostlm'
+    VALID_TYPES = %i(CMD TLM)
 
     attr_accessor :folder_name
     attr_accessor :requires
@@ -54,24 +53,25 @@ module Cosmos
       super("#{scope}__#{PRIMARY_KEY}")
     end
 
-    # @return [Boolean] true if the packet exists or raises an exception
-    def self.packet_exist(target_name, packet_name, type: :TLM, scope:)
-      raise "Unknown type #{type} for #{target_name} #{packet_name}" unless %i(CMD TLM).include?(type)
-      if Store.exists?("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}")
-        if Store.hexists("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}", packet_name)
-          true
-        else
-          raise "Packet '#{target_name} #{packet_name}' does not exist"
-        end
-      else
-        raise "Target '#{target_name}' does not exist"
-      end
-    end
-
     # @return [Hash] Packet hash or raises an exception
     def self.packet(target_name, packet_name, type: :TLM, scope:)
-      packet_exist(target_name, packet_name, type: type, scope: scope)
-      return JSON.parse(Store.hget("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}", packet_name))
+      raise "Unknown type #{type} for #{target_name} #{packet_name}" unless VALID_TYPES.include?(type)
+      # Assume it exists and just try to get it to avoid an extra call to Store.exist?
+      json = Store.hget("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}", packet_name)
+      raise "Packet '#{target_name} #{packet_name}' does not exist" if json.nil?
+      JSON.parse(json)
+    end
+
+    # @return [Array>Hash>] All packet hashes under the target_name
+    def self.packets(target_name, type: :TLM, scope:)
+      raise "Unknown type #{type} for #{target_name}" unless VALID_TYPES.include?(type)
+      raise "Target '#{target_name}' does not exist" unless get(name: target_name, scope: scope)
+      result = []
+      packets = Store.hgetall("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}")
+      packets.sort.each do |packet_name, packet_json|
+        result << JSON.parse(packet_json)
+      end
+      result
     end
 
     # @return [Hash] Item hash or raises an exception
@@ -199,8 +199,8 @@ module Cosmos
         rubys3_client.delete_object(bucket: 'config', key: object.key)
       end
 
-      Store.instance.del("#{@scope}__#{TLM_DEF_KEY}__#{@name}")
-      Store.instance.del("#{@scope}__#{CMD_DEF_KEY}__#{@name}")
+      Store.instance.del("#{@scope}__cosmostlm__#{@name}")
+      Store.instance.del("#{@scope}__cosmoscmd__#{@name}")
 
       model = MicroserviceModel.get_model(name: "#{@scope}__DECOM__#{@name}", scope: @scope)
       model.destroy if model
@@ -268,17 +268,17 @@ module Cosmos
 
       # Load Packet Definitions
       system.telemetry.all.each do |target_name, packets|
-        Store.instance.del("#{@scope}__#{TLM_DEF_KEY}__#{target_name}")
+        Store.instance.del("#{@scope}__cosmostlm__#{target_name}")
         packets.each do |packet_name, packet|
           Logger.info "Configuring tlm packet: #{target_name} #{packet_name}"
-          Store.instance.hset("#{@scope}__#{TLM_DEF_KEY}__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          Store.instance.hset("#{@scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
         end
       end
       system.commands.all.each do |target_name, packets|
-        Store.instance.del("#{@scope}__#{CMD_DEF_KEY}__#{target_name}")
+        Store.instance.del("#{@scope}__cosmoscmd__#{target_name}")
         packets.each do |packet_name, packet|
           Logger.info "Configuring cmd packet: #{target_name} #{packet_name}"
-          Store.instance.hset("#{@scope}__#{CMD_DEF_KEY}__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          Store.instance.hset("#{@scope}__cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
         end
       end
       return system

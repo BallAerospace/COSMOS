@@ -134,7 +134,6 @@ module Cosmos
           identified_packet.received_time = nil
           identified_packet.stored = false
           identified_packet.extra = nil
-          identified_packet.received_count = 0
           identified_packet.buffer = packet_data
           break
         end

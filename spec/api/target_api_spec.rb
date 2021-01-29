@@ -21,6 +21,8 @@ require 'spec_helper'
 require 'cosmos/api/target_api'
 require 'cosmos/script/extract'
 require 'cosmos/utilities/authorization'
+require 'cosmos/topics/command_topic'
+require 'cosmos/topics/telemetry_topic'
 
 module Cosmos
   describe Api do
@@ -33,7 +35,7 @@ module Cosmos
     before(:each) do
       mock_redis()
       setup_system()
-      %w(INST SYSTEM).each do |target|
+      %w(INST EMPTY SYSTEM).each do |target|
         model = TargetModel.new(folder_name: target, name: target, scope: "DEFAULT")
         model.create
         model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
@@ -63,42 +65,44 @@ module Cosmos
       end
     end
 
-    describe "get_target_info" do
-      it "complains about non-existant targets" do
-        expect { @api.get_target_info("BLAH", scope: "DEFAULT") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
-      end
-
-      xit "gets target cmd tlm count" do
-        allow(Store.instance).to receive(:write_topic).and_wrap_original do |m, *args|
-          if args[0] =~ /COMMAND__/
-            m.call(*args)
-          else
-            '1577836800000-0'
-          end
-        end
-        allow(Store.instance).to receive(:read_topics).and_yield('topic', '1577836800000-0', {"result" => "SUCCESS"}, nil)
-
-        cmd1, tlm1 = @api.get_target_info("INST")
-        @api.cmd("INST ABORT")
-        # @api.inject_tlm("INST","HEALTH_STATUS")
-        cmd2, tlm2 = @api.get_target_info("INST")
-        expect(cmd2 - cmd1).to eq 1
-        # expect(tlm2 - tlm1).to eq 1
-      end
-    end
-
-    xdescribe "get_all_target_info" do
+    describe "get_all_target_info" do
       it "gets target name, interface name, cmd & tlm count" do
-        # @api.cmd("INST ABORT")
-        # @api.inject_tlm("INST","HEALTH_STATUS")
-        info = @api.get_all_target_info().sort
-        expect(info[0][0]).to eq "INST"
-        # TODO: How does this get set
-        # expect(info[0][1]).to eq "INST_INT"
+        info = @api.get_all_target_info(scope: "DEFAULT")
+        pp info
+        expect(info[0][0]).to eq "EMPTY"
+        # TODO: interface name
         expect(info[0][2]).to eq 0
         expect(info[0][3]).to eq 0
-        expect(info[1][0]).to eq "SYSTEM"
-        # expect(info[1][1]).to eq "" # No interface
+        expect(info[1][0]).to eq "INST"
+        # TODO: expect(info[0][1]).to eq "INST_INT"
+        expect(info[1][2]).to eq 0
+        expect(info[1][3]).to eq 0
+        expect(info[2][0]).to eq "SYSTEM"
+        # TODO: expect(info[1][1]).to eq "" # No interface
+        expect(info[2][2]).to eq 0
+        expect(info[2][3]).to eq 0
+
+        # Act like the InterfaceMicroservice and write to the CommandTopic & TelemetryTopic
+        packet = System.commands.packet("INST", "ABORT").clone
+        packet.received_time = Time.now.sys
+        packet.received_count += 1
+        CommandTopic.write_packet(packet, scope: "DEFAULT")
+        packet = System.commands.packet("INST", "CLEAR").clone
+        packet.received_time = Time.now.sys
+        packet.received_count += 1
+        CommandTopic.write_packet(packet, scope: "DEFAULT")
+        packet = System.telemetry.packet("INST", "HEALTH_STATUS").clone
+        packet.received_time = Time.now.sys
+        packet.received_count += 1
+        TelemetryTopic.write_packet(packet, scope: "DEFAULT")
+        packet = System.telemetry.packet("INST", "ADCS").clone
+        packet.received_time = Time.now.sys
+        packet.received_count += 1
+        TelemetryTopic.write_packet(packet, scope: "DEFAULT")
+
+        info = @api.get_all_target_info(scope: "DEFAULT")
+        expect(info[1][2]).to eql 2 # cmd count
+        expect(info[1][3]).to eql 2 # tlm count
       end
     end
   end

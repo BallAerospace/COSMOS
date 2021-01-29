@@ -192,7 +192,7 @@ module Cosmos
     # @return [String] last command buffer packet
     def get_cmd_buffer(target_name, command_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
-      TargetModel.packet_exist(target_name, command_name, type: :CMD, scope: scope)
+      TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
       topic = "#{scope}__COMMAND__#{target_name}__#{command_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       return msg_hash['buffer'].b if msg_id # Return as binary
@@ -385,7 +385,7 @@ module Cosmos
     # @return [Numeric] Transmit count for the command
     def get_cmd_cnt(target_name, command_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, packet_name: command_name, scope: scope, token: token)
-      TargetModel.packet_exist(target_name, command_name, type: :CMD, scope: scope)
+      TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
       _get_cnt("#{scope}__COMMAND__#{target_name}__#{command_name}")
     end
 
@@ -417,7 +417,7 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{method_name}()"
       end
       authorize(permission: 'cmd', target_name: target_name, packet_name: cmd_name, scope: scope, token: token)
-      TargetModel.packet_exist(target_name, cmd_name, type: :CMD, scope: scope)
+      TargetModel.packet(target_name, cmd_name, type: :CMD, scope: scope)
 
       timeout_ms = 5000  # TODO: This 5 second timeout is arbitrary ... what should it be
       ack_topic = "#{scope}__ACKCMDTARGET__#{target_name}"

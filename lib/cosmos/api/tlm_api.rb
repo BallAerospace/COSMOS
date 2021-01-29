@@ -285,7 +285,7 @@ module Cosmos
     # @return [String] last telemetry packet buffer
     def get_tlm_buffer(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      TargetModel.packet_exist(target_name, packet_name, scope: scope)
+      TargetModel.packet(target_name, packet_name, scope: scope)
       topic = "#{scope}__TELEMETRY__#{target_name}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       return msg_hash['buffer'].b if msg_id # Return as binary
@@ -504,7 +504,7 @@ module Cosmos
     # @return [Numeric] Receive count for the telemetry packet
     def get_tlm_cnt(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      TargetModel.packet_exist(target_name, command_name, scope: scope)
+      TargetModel.packet(target_name, command_name, scope: scope)
       _get_cnt("#{scope}__TELEMETRY__#{target_name}__#{packet_name}")
     end
 

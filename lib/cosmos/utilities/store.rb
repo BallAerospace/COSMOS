@@ -112,30 +112,6 @@ module Cosmos
       return values
     end
 
-    def get_commands(target_name, scope: $cosmos_scope)
-      _get_cmd_tlm(target_name, type: 'cmd', scope: scope)
-    end
-
-    def get_telemetry(target_name, scope: $cosmos_scope)
-      _get_cmd_tlm(target_name, type: 'tlm', scope: scope)
-    end
-
-    # Helper method for get_commands and get_telemetry
-    def _get_cmd_tlm(target_name, type:, scope: $cosmos_scope)
-      result = []
-      @redis_pool.with do |redis|
-        if redis.exists("#{scope}__cosmos#{type}__#{target_name}") != 0
-          packets = redis.hgetall("#{scope}__cosmos#{type}__#{target_name}")
-          packets.sort.each do |packet_name, packet_json|
-            result << JSON.parse(packet_json)
-          end
-        else
-          raise "Target '#{target_name}' does not exist"
-        end
-      end
-      result
-    end
-
     def get_cmd_item(target_name, packet_name, param_name, type: :WITH_UNITS, scope: $cosmos_scope)
       msg_id, msg_hash = read_topic_last("#{scope}__DECOMCMD__#{target_name}__#{packet_name}")
       if msg_id

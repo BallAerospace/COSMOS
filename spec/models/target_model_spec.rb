@@ -66,32 +66,62 @@ module Cosmos
       end
     end
 
-    describe "self.packet_exist" do
+    describe "self.packets" do
       before(:each) do
         setup_system()
         model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
         model.create
         model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model = TargetModel.new(folder_name: "EMPTY", name: "EMPTY", scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
       end
 
       it "raises for an unknown type" do
-        expect { TargetModel.packet_exist("INST", "HEALTH_STATUS", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type OTHER/)
+        expect { TargetModel.packets("INST", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type OTHER/)
       end
 
       it "raises for a non-existant target" do
-        expect { TargetModel.packet_exist("BLAH", "HEALTH_STATUS", type: :TLM, scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
+        expect { TargetModel.packets("BLAH", scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
       end
 
-      it "raises for a non-existant packet" do
-        expect { TargetModel.packet_exist("INST", "BLAH", type: :TLM, scope: "DEFAULT") }.to raise_error("Packet 'INST BLAH' does not exist")
+      it "returns all telemetry packets" do
+        pkts = TargetModel.packets("INST", type: :TLM, scope: "DEFAULT")
+        # Verify result is Array of packet Hashes
+        expect(pkts).to be_a Array
+        names = []
+        pkts.each do |pkt|
+          expect(pkt).to be_a Hash
+          expect(pkt['target_name']).to eql "INST"
+          names << pkt['packet_name']
+        end
+        expect(names).to include("ADCS", "HEALTH_STATUS", "PARAMS", "IMAGE", "MECH")
       end
 
-      it "returns true if the telemetry exists" do
-        expect(TargetModel.packet_exist("INST", "HEALTH_STATUS", type: :TLM, scope: "DEFAULT")).to be true
+      it "returns empty array for no telemetry packets" do
+        pkts = TargetModel.packets("EMPTY", type: :TLM, scope: "DEFAULT")
+        # Verify result is Array of packet Hashes
+        expect(pkts).to be_a Array
+        expect(pkts).to be_empty
       end
 
-      it "returns true if the command exists" do
-        expect(TargetModel.packet_exist("INST", "ABORT", type: :CMD, scope: "DEFAULT")).to be true
+      it "returns packet hash if the command exists" do
+        pkts = TargetModel.packets("INST", type: :CMD, scope: "DEFAULT")
+        expect(pkts).to be_a Array
+        names = []
+        pkts.each do |pkt|
+          expect(pkt).to be_a Hash
+          expect(pkt['target_name']).to eql "INST"
+          names << pkt['packet_name']
+        end
+        expect(names).to include("ABORT", "COLLECT", "CLEAR") # Spot check
+      end
+
+      it "returns empty array for no command packets" do
+        pkts = TargetModel.packets("EMPTY", type: :CMD, scope: "DEFAULT")
+        # Verify result is Array of packet Hashes
+        expect(pkts).to be_a Array
+        expect(pkts).to be_empty
       end
     end
 
@@ -108,7 +138,7 @@ module Cosmos
       end
 
       it "raises for a non-existant target" do
-        expect { TargetModel.packet("BLAH", "HEALTH_STATUS", type: :TLM, scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
+        expect { TargetModel.packet("BLAH", "HEALTH_STATUS", type: :TLM, scope: "DEFAULT") }.to raise_error("Packet 'BLAH HEALTH_STATUS' does not exist")
       end
 
       it "raises for a non-existant packet" do
@@ -141,7 +171,7 @@ module Cosmos
       end
 
       it "raises for a non-existant target" do
-        expect { TargetModel.packet_item("BLAH", "HEALTH_STATUS", "CCSDSVER", scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
+        expect { TargetModel.packet_item("BLAH", "HEALTH_STATUS", "CCSDSVER", scope: "DEFAULT") }.to raise_error("Packet 'BLAH HEALTH_STATUS' does not exist")
       end
 
       it "raises for a non-existant packet" do
@@ -178,7 +208,7 @@ module Cosmos
       end
 
       it "raises for a non-existant target" do
-        expect { TargetModel.packet_items("BLAH", "HEALTH_STATUS", ["CCSDSVER"], scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
+        expect { TargetModel.packet_items("BLAH", "HEALTH_STATUS", ["CCSDSVER"], scope: "DEFAULT") }.to raise_error("Packet 'BLAH HEALTH_STATUS' does not exist")
       end
 
       it "raises for a non-existant packet" do
