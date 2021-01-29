@@ -35,21 +35,25 @@ module Cosmos
     before(:each) do
       mock_redis()
       setup_system()
+
+      model = InterfaceModel.new(name: "INST_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
+      model.create
       %w(INST EMPTY SYSTEM).each do |target|
         model = TargetModel.new(folder_name: target, name: target, scope: "DEFAULT")
         model.create
         model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
       end
+
       @api = ApiTest.new
     end
 
     describe "get_target_list" do
-      it "gets the list of targets" do
-        puts @api.get_target_list(scope: "UNKNOWN")
+      it "gets an empty array for an unknown scope" do
+        expect(@api.get_target_list(scope: "UNKNOWN")).to be_empty
       end
 
       it "gets the list of targets" do
-        expect(@api.get_target_list(scope: "DEFAULT")).to contain_exactly("SYSTEM", "INST")
+        expect(@api.get_target_list(scope: "DEFAULT")).to contain_exactly("EMPTY", "INST", "SYSTEM")
       end
     end
 
@@ -68,17 +72,16 @@ module Cosmos
     describe "get_all_target_info" do
       it "gets target name, interface name, cmd & tlm count" do
         info = @api.get_all_target_info(scope: "DEFAULT")
-        pp info
         expect(info[0][0]).to eq "EMPTY"
-        # TODO: interface name
+        expect(info[0][1]).to eq ""
         expect(info[0][2]).to eq 0
         expect(info[0][3]).to eq 0
         expect(info[1][0]).to eq "INST"
-        # TODO: expect(info[0][1]).to eq "INST_INT"
+        expect(info[1][1]).to eq "INST_INT"
         expect(info[1][2]).to eq 0
         expect(info[1][3]).to eq 0
         expect(info[2][0]).to eq "SYSTEM"
-        # TODO: expect(info[1][1]).to eq "" # No interface
+        expect(info[2][1]).to eq ""
         expect(info[2][2]).to eq 0
         expect(info[2][3]).to eq 0
 
@@ -103,6 +106,28 @@ module Cosmos
         info = @api.get_all_target_info(scope: "DEFAULT")
         expect(info[1][2]).to eql 2 # cmd count
         expect(info[1][3]).to eql 2 # tlm count
+      end
+    end
+
+    describe "get_target_ignored_parameters" do
+      it "raises for unknown targets" do
+        expect { @api.get_target_ignored_parameters("BLAH")}.to raise_error("Target 'BLAH' does not exist")
+      end
+
+      it "returns the target ignored parameters" do
+        params = @api.get_target_ignored_parameters("INST")
+        expect(params).to include("CCSDSVER", "CCSDSTYPE", "CCSDSLENGTH", "PKTID") # Spot check
+      end
+    end
+
+    describe "get_target_ignored_items" do
+      it "raises for unknown targets" do
+        expect { @api.get_target_ignored_items("BLAH")}.to raise_error("Target 'BLAH' does not exist")
+      end
+
+      it "returns the target ignored items" do
+        items = @api.get_target_ignored_items("INST")
+        expect(items).to include("CCSDSVER", "CCSDSTYPE", "CCSDSLENGTH", "RECEIVED_COUNT") # Spot check
       end
     end
   end

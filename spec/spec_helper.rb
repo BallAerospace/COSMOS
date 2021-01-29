@@ -32,8 +32,6 @@ end
 if !ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
   if ENV['GITHUB_WORKFLOW']
-    # TODO: Is this really needed?
-    # ENV['CODECOV_TOKEN'] = "a9684b83-9a5d-4a27-b6cd-35e445b5fb0a"
     require 'codecov'
     SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
       SimpleCov::Formatter::HTMLFormatter,
@@ -41,9 +39,8 @@ if !ENV['COSMOS_NO_SIMPLECOV']
     ])
   end
   SimpleCov.start do
-    merge_timeout 12 * 60 * 60 # merge the last 12 hours of results
+    # merge_timeout 12 * 60 * 60 # merge the last 12 hours of results
     add_filter '/spec/'
-    add_filter '/autohotkey/'
     root = File.dirname(__FILE__)
     root.to_s
   end

@@ -372,7 +372,7 @@ module Cosmos
     # @return [Array<Hash>] Array of all telemetry packet hashes
     def get_all_telemetry(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, scope: scope, token: token)
-      Store.instance.get_telemetry(target_name, scope: scope)
+      TargetModel.packets(target_name, scope: scope)
     end
 
     # Returns a telemetry packet hash
@@ -408,7 +408,7 @@ module Cosmos
     def get_tlm_list(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, scope: scope, token: token)
       list = []
-      Store.instance.get_telemetry(target_name, scope: scope).each do |packet|
+      TargetModel.packets(target_name, scope: scope).each do |packet|
         list << [packet['packet_name'], packet['description']]
       end
       list.sort
@@ -442,8 +442,6 @@ module Cosmos
 
       # packet = TargetModel.packet(target_name, packet_name, scope: scope)
       # return packet['items'].map {|item| [item['name'], item['states'], item['description']] }
-
-      # def get_telemetry(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
 
       details = []
       item_array.each do |target_name, packet_name, item_name|
@@ -543,7 +541,7 @@ module Cosmos
       end
       if packet_name == 'LATEST'
         latest = 0
-        Store.instance.get_telemetry(target_name).each do |packet|
+        TargetModel.packets(target_name, scope: scope).each do |packet|
           item = packet['items'].find { |item| item['name'] == item_name }
           if item
             _, msg_hash = Store.instance.get_oldest_message("#{scope}__DECOM__#{target_name}__#{packet['packet_name']}")

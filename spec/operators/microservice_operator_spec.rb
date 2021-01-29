@@ -18,7 +18,6 @@
 # copyright holder
 
 require 'spec_helper'
-require 'mock_redis'
 require 'cosmos/operators/microservice_operator'
 
 # Override at_exit to do nothing for testing

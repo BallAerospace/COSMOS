@@ -48,16 +48,6 @@ module Cosmos
       TargetModel.get(name: target_name, scope: scope)
     end
 
-    # Gets the full packet hash
-    #
-    # @since 5.0.0
-    # @param target_name [String] Target name
-    # @return [Hash] Hash of all the target properties
-    def get_packets(target_name, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'system', target_name: target_name, scope: scope, token: token)
-      TargetModel.packets(target_name, scope: scope)
-    end
-
     # Get information about all targets
     #
     # @return [Array<Array<String, Numeric, Numeric>] Array of Arrays \[name, interface, cmd_cnt, tlm_cnt]
@@ -75,8 +65,14 @@ module Cosmos
         packets.each do |packet|
           tlm_cnt += _get_cnt("#{scope}__TELEMETRY__#{target_name}__#{packet['packet_name']}")
         end
-        # TODO: Set the interface name
-        info << [target_name, '', cmd_cnt, tlm_cnt]
+        interface_name = ''
+        InterfaceModel.all(scope: scope).each do |name, interface|
+          if interface['target_names'].include? target_name
+            interface_name = interface['name']
+            break
+          end
+        end
+        info << [target_name, interface_name, cmd_cnt, tlm_cnt]
       end
       info
     end
@@ -88,7 +84,9 @@ module Cosmos
     # @return [Array<String>] All of the ignored command parameters for a target.
     def get_target_ignored_parameters(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, scope: scope, token: token)
-      return TargetModel.get(name: target_name, scope: scope)['ignored_parameters']
+      target = TargetModel.get(name: target_name, scope: scope)
+      raise "Target '#{target_name}' does not exist" unless target
+      target['ignored_parameters']
     end
 
     # Get the list of ignored telemetry items for a target
@@ -98,7 +96,9 @@ module Cosmos
     # @return [Array<String>] All of the ignored telemetry items for a target.
     def get_target_ignored_items(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, scope: scope, token: token)
-      return TargetModel.get(name: target_name, scope: scope)['ignored_items']
+      target = TargetModel.get(name: target_name, scope: scope)
+      raise "Target '#{target_name}' does not exist" unless target
+      target['ignored_items']
     end
   end
 end

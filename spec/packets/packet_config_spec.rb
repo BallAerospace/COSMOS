@@ -60,6 +60,8 @@ module Cosmos
         expect(tlm.strip).to eql File.read(File.join(Cosmos::USERPATH, 'TGT1', 'cmd_tlm', 'tgt1_tlm.txt')).strip
         expect(limits.strip).to eql File.read(File.join(Cosmos::USERPATH, 'SYSTEM', 'cmd_tlm', 'limits_groups.txt')).strip
         tf.unlink
+        FileUtils.rm_rf(File.join(Cosmos::USERPATH, 'TGT1'))
+        FileUtils.rm_rf(File.join(Cosmos::USERPATH, 'SYSTEM'))
       end
 
       context "with all telemetry keywords" do

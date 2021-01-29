@@ -209,7 +209,7 @@ module Cosmos
     def get_cmd_list(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, scope: scope, token: token)
       list = []
-      commands = Store.instance.get_commands(target_name, scope: scope)
+      commands = TargetModel.packets(target_name, type: :CMD, scope: scope)
       commands.each do |command|
         list << [command['packet_name'], command['description']]
       end
@@ -223,7 +223,7 @@ module Cosmos
     # @return [Array<Hash>] Array of all commands as a hash
     def get_all_commands(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, scope: scope, token: token)
-      Store.instance.get_commands(target_name, scope: scope)
+      TargetModel.packets(target_name, type: :CMD, scope: scope)
     end
 
     # Returns a hash of the given command
@@ -364,7 +364,7 @@ module Cosmos
         targets.each do |target_name|
           time = 0
           command_name = nil
-          Store.instance.get_commands(target_name, scope: scope).each do |packet|
+          TargetModel.packets(target_name, type: :CMD, scope: scope).each do |packet|
             cur_time = Store.instance.get_cmd_item(target_name, packet["packet_name"], 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
             next unless cur_time
             if cur_time > time
