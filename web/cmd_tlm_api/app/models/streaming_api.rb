@@ -347,11 +347,11 @@ class StreamingThread
           objects.each do |object|
             keys = []
             # If time has passed the end_time and we're still not getting anything we're done
-            if item.end_time and item.end_time < Time.now.to_nsec_from_epoch
+            if object.end_time and object.end_time < Time.now.to_nsec_from_epoch
               keys << object.key
               @cancel_thread = true
             end
-            @collection.remove(item_keys)
+            @collection.remove(keys)
           end
         end
       end
@@ -391,18 +391,13 @@ class StreamingThread
       return nil
     end
     result = {}
-    value_types = []
-    # If any objects don't have an item_name, read every item with this value_type from json_packet
-    whole_packets = objects.select {|object| !object.item_name}
-    whole_packets.each do |packet|
-      this_packet = json_packet.read_all(packet.value_type)
-      value_types << packet.value_type
-      result = result.merge(this_packet)
-    end
-    # Filter out any overlap from the whole packets and the rest of the items so as to not read twice
-    remaining_items = objects.select {|object| !value_types.include?(object.value_type)}
-    remaining_items.each do |item|
-      result[item.key] = json_packet.read(item.item_name, item.value_type)
+    objects.each do |object|
+      if object.item_name
+        result[object.key] = json_packet.read(object.item_name, object.value_type)
+      else # whole packet
+        this_packet = json_packet.read_all(object.value_type)
+        result = result.merge(this_packet)
+      end
     end
     result['time'] = time.to_nsec_from_epoch
     return result
@@ -429,7 +424,9 @@ class LoggedStreamingThread < StreamingThread
       # Get the newest message because we only stream if there is data after our start time
       _, msg_hash_new = Cosmos::Store.instance.get_newest_message(first_object.topic)
       # Cosmos::Logger.debug "first time:#{first_object.start_time} newest:#{msg_hash_new['time']}"
-      if msg_hash_new && msg_hash_new['time'].to_i > first_object.start_time
+      # Allow 1 minute in the future to account for big time discrepancies
+      allowable_start_time = first_object.start_time - (60 * 1_000_000_000)
+      if msg_hash_new && msg_hash_new['time'].to_i > allowable_start_time
         # Determine oldest timestamp in stream to determine if we need to go to file
         msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_object.topic)
         oldest_time = msg_hash['time'].to_i
@@ -450,7 +447,6 @@ class LoggedStreamingThread < StreamingThread
       else
         # Since we're not going to transmit anything cancel and transmit an empty result
         # Cosmos::Logger.debug "NO DATA DONE! transmit 0 results"
-
         @cancel_thread = true
         transmit_results([], force: true)
       end
@@ -505,7 +501,7 @@ class LoggedStreamingThread < StreamingThread
           delta = redis_time - oldest_time
           # Start streaming from calculated redis time
           offset = ((first_object.start_time + delta) / 1_000_000).to_s + '-0'
-          Cosmos::Logger.debug("Oldest Redis id:#{msg_id} msg time:#{oldest_time} last item time:#{first_object.start_time} offset:#{offset}")
+          Cosmos::Logger.debug("Oldest Redis id:#{msg_id} msg time:#{oldest_time} last object time:#{first_object.start_time} offset:#{offset}")
           objects.each {|object| object.offset = offset}
           @thread_mode = :STREAM
         else
@@ -558,13 +554,17 @@ class StreamingApi
       @target_name = key_split[1]
       @packet_name = key_split[2]
       type = nil
-      if key_split.length > 4 # specific item from packet
-        @item_name = key_split[3]
-        @value_type = key_split[4].to_s.intern
+      if stream_mode == :RAW
+        # value_type is implied to be :RAW and this must be a whole packet
+        @value_type = :RAW
+        type = (@cmd_or_tlm == :CMD) ? 'COMMAND' : 'TELEMETRY'
+      else
+        # value_type must be specified and this might be a whole packet or just an item
+        @value_type = key_split[-1].to_s.intern
         type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
-      else # whole packet
-        @value_type = key_split[3].to_s.intern if key_split[3]
-        type = (stream_mode == :RAW) ? 'TELEMETRY' : 'DECOM' # TODO is this right?
+        if key_split.length > 4
+          @item_name = key_split[3]
+        end
       end
       @start_time = start_time
       @end_time = end_time
