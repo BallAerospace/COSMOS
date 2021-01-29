@@ -641,6 +641,14 @@ module Cosmos
     end
 
     describe "get_cmd_cnt" do
+      it "complains about non-existant targets" do
+        expect { @api.get_cmd_cnt("BLAH", "ABORT") }.to raise_error("Packet 'BLAH ABORT' does not exist")
+      end
+
+      it "complains about non-existant packets" do
+        expect { @api.get_cmd_cnt("INST", "BLAH") }.to raise_error("Packet 'INST BLAH' does not exist")
+      end
+
       it "returns the transmit count" do
         start = @api.get_cmd_cnt("INST", "COLLECT")
         @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")

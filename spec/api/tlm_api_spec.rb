@@ -299,15 +299,6 @@ module Cosmos
         expect { @api.inject_tlm("INST", "HEALTH_STATUS",{'BLAH' => 0}) }.to raise_error("Item(s) 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
-      xit "logs errors writing routers" do
-        @api.inject_tlm("INST", "HEALTH_STATUS",{TEMP1: 50, TEMP2: 50, TEMP3: 50, TEMP4: 50}, :CONVERTED)
-        allow_any_instance_of(Interface).to receive(:write_allowed?).and_raise("PROBLEM!")
-        expect(Logger).to receive(:error) do |msg|
-          expect(msg).to match(/Problem writing to router/)
-        end
-        @api.inject_tlm("INST", "HEALTH_STATUS")
-      end
-
       it "injects a packet into the system" do
         @api.inject_tlm("INST", "HEALTH_STATUS",{TEMP1: 10, TEMP2: 20}, :CONVERTED, true, true, false)
         sleep 0.5
@@ -318,20 +309,6 @@ module Cosmos
         sleep 0.5
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(-100.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql(-100.0)
-      end
-
-      xit "writes to routers and logs even if the packet has no interface" do
-        sys = System.targets["SYSTEM"]
-        interface = sys.interface
-        sys.interface = nil
-
-        allow_any_instance_of(Interface).to receive(:write_allowed?).and_raise("PROBLEM!")
-        expect(Logger).to receive(:error) do |msg|
-          expect(msg).to match(/Problem writing to router/)
-        end
-
-        @api.inject_tlm("SYSTEM", "LIMITS_CHANGE")
-        sys.interface = interface
       end
     end
 
@@ -416,6 +393,24 @@ module Cosmos
       end
     end
 
+    describe "get_all_telemetry" do
+      it "raises if the target does not exist" do
+        expect { @api.get_all_telemetry("BLAH", scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
+      end
+
+      it "returns an array of all packet hashes" do
+        pkts = @api.get_all_telemetry("INST", scope: "DEFAULT")
+        expect(pkts).to be_a Array
+        names = []
+        pkts.each do |pkt|
+          expect(pkt).to be_a Hash
+          expect(pkt['target_name']).to eql "INST"
+          names << pkt['packet_name']
+        end
+        expect(names).to include("ADCS", "HEALTH_STATUS", "PARAMS", "IMAGE", "MECH")
+      end
+    end
+
     describe "get_telemetry" do
       it "raises if the target or packet do not exist" do
         expect { @api.get_telemetry("BLAH", "HEALTH_STATUS", scope: "DEFAULT") }.to raise_error("Packet 'BLAH HEALTH_STATUS' does not exist")
@@ -427,6 +422,21 @@ module Cosmos
         expect(pkt).to be_a Hash
         expect(pkt['target_name']).to eql "INST"
         expect(pkt['packet_name']).to eql "HEALTH_STATUS"
+      end
+    end
+
+    describe "get_item" do
+      it "raises if the target or packet or item do not exist" do
+        expect { @api.get_item("BLAH", "HEALTH_STATUS", "CCSDSVER", scope: "DEFAULT") }.to raise_error("Packet 'BLAH HEALTH_STATUS' does not exist")
+        expect { @api.get_item("INST", "BLAH", "CCSDSVER", scope: "DEFAULT") }.to raise_error("Packet 'INST BLAH' does not exist")
+        expect { @api.get_item("INST", "HEALTH_STATUS", "BLAH", scope: "DEFAULT") }.to raise_error("Item 'INST HEALTH_STATUS BLAH' does not exist")
+      end
+
+      it "returns an item hash" do
+        item = @api.get_item("INST", "HEALTH_STATUS", "CCSDSVER", scope: "DEFAULT")
+        expect(item).to be_a Hash
+        expect(item['name']).to eql "CCSDSVER"
+        expect(item['bit_offset']).to eql 0
       end
     end
 
@@ -647,22 +657,22 @@ module Cosmos
       end
     end
 
-    xdescribe "get_tlm_details" do
+    describe "get_tlm_details" do
       it "complains about non-existant targets" do
-        expect { @api.get_tlm_details([["BLAH", "HEALTH_STATUS", "TEMP1"]]) }.to raise_error(RuntimeError, "Telemetry target 'BLAH' does not exist")
+        expect { @api.get_tlm_details([["BLAH", "HEALTH_STATUS", "TEMP1"]]) }.to raise_error(RuntimeError, "Packet 'BLAH HEALTH_STATUS' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @api.get_tlm_details([["INST", "BLAH", "TEMP1"]]) }.to raise_error(RuntimeError, "Telemetry packet 'INST BLAH' does not exist")
+        expect { @api.get_tlm_details([["INST", "BLAH", "TEMP1"]]) }.to raise_error(RuntimeError, "Packet 'INST BLAH' does not exist")
       end
 
       it "complains about non-existant items" do
-        expect { @api.get_tlm_details([["INST", "LATEST", "BLAH"]]) }.to raise_error(RuntimeError, "Telemetry item 'INST LATEST BLAH' does not exist")
+        expect { @api.get_tlm_details([["INST", "HEALTH_STATUS", "BLAH"]]) }.to raise_error(RuntimeError, "Item 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
       it "complains about bad parameters" do
         expect { @api.get_tlm_details("INST") }.to raise_error(ArgumentError, /item_array must be nested array/)
-        expect { @api.get_tlm_details(["INST", "LATEST", "BLAH"]) }.to raise_error(ArgumentError, /item_array must be nested array/)
+        expect { @api.get_tlm_details(["INST", "HEALTH_STATUS", "BLAH"]) }.to raise_error(ArgumentError, /item_array must be nested array/)
       end
 
       it "reads all the specified items" do
@@ -677,6 +687,101 @@ module Cosmos
         expect(details[1]["name"]).to eql "TEMP2"
         expect(details[2]["name"]).to eql "TEMP3"
         expect(details[3]["name"]).to eql "TEMP4"
+      end
+    end
+
+    describe "subscribe_packet, get_packet" do
+      it "streams packets since the subscription was created" do
+        # Write an initial packet that should not be returned
+        packet = System.telemetry.packet("INST", "HEALTH_STATUS")
+        packet.received_time = Time.now.sys
+        packet.write("DURATION", 1.0)
+        TelemetryDecomTopic.write_packet(packet, scope: @scope)
+        sleep(0.01)
+
+        id = @api.subscribe_packet_data([["INST","HEALTH_STATUS"],["INST","ADCS"]])
+
+        # Write some packets that should be returned and one that will not
+        packet.received_time = Time.now.sys
+        packet.write("DURATION", 2.0)
+        TelemetryDecomTopic.write_packet(packet, scope: @scope)
+        packet.received_time = Time.now.sys
+        packet.write("DURATION", 3.0)
+        TelemetryDecomTopic.write_packet(packet, scope: @scope)
+        packet = System.telemetry.packet("INST", "ADCS")
+        packet.received_time = Time.now.sys
+        TelemetryDecomTopic.write_packet(packet, scope: @scope)
+        packet = System.telemetry.packet("INST", "IMAGE") # Not subscribed
+        packet.received_time = Time.now.sys
+        TelemetryDecomTopic.write_packet(packet, scope: @scope)
+
+        index = 0
+        pkt = @api.get_packet(id) do |target, packet, hash|
+          expect(target).to eql "INST"
+          case index
+          when 0
+            expect(packet).to eql "HEALTH_STATUS"
+            expect(hash['DURATION']).to eql 2.0
+          when 1
+            expect(packet).to eql "HEALTH_STATUS"
+            expect(hash['DURATION']).to eql 2.0
+          when 2
+            expect(packet).to eql "ADCS"
+          else
+            raise "Found too many packets"
+          end
+          index += 1
+        end
+      end
+    end
+
+    describe "get_tlm_cnt" do
+      it "complains about non-existant targets" do
+        expect { @api.get_tlm_cnt("BLAH", "ABORT") }.to raise_error("Packet 'BLAH ABORT' does not exist")
+      end
+
+      it "complains about non-existant packets" do
+        expect { @api.get_tlm_cnt("INST", "BLAH") }.to raise_error("Packet 'INST BLAH' does not exist")
+      end
+
+      it "returns the receive count" do
+        start = @api.get_tlm_cnt("INST", "HEALTH_STATUS")
+
+        packet = System.telemetry.packet("INST", "HEALTH_STATUS").clone
+        packet.received_time = Time.now.sys
+        packet.received_count += 1
+        TelemetryTopic.write_packet(packet, scope: "DEFAULT")
+
+        count = @api.get_tlm_cnt("INST", "HEALTH_STATUS")
+        expect(count).to eql start + 1
+      end
+    end
+
+    describe "get_all_tlm_info" do
+      it "returns receive count for all packets" do
+        packet = System.telemetry.packet("INST", "ADCS").clone
+        packet.received_time = Time.now.sys
+        packet.received_count = 100 # This is what is used in the result
+        TelemetryTopic.write_packet(packet, scope: "DEFAULT")
+        info = @api.get_all_tlm_info()
+        expect(info[0][0]).to eql "INST"
+        expect(info[0][1]).to eql "ADCS"
+        expect(info[0][2]).to eql 100
+      end
+    end
+
+    describe "get_packet_derived_items" do
+      it "complains about non-existant targets" do
+        expect { @api.get_packet_derived_items("BLAH", "ABORT") }.to raise_error("Packet 'BLAH ABORT' does not exist")
+      end
+
+      it "complains about non-existant packets" do
+        expect { @api.get_packet_derived_items("INST", "BLAH") }.to raise_error("Packet 'INST BLAH' does not exist")
+      end
+
+      it "returns the packet derived items" do
+        items = @api.get_packet_derived_items("INST", "HEALTH_STATUS")
+        expect(items).to include("RECEIVED_TIMESECONDS", "RECEIVED_TIMEFORMATTED", "RECEIVED_COUNT")
       end
     end
   end

@@ -242,5 +242,86 @@ module Cosmos
     #     @api.get_limits_event(0)
     #   end
     # end
+
+    # describe "get_out_of_limits" do
+    #   xit "returns all out of limits items" do
+    #     @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
+    #     items = @api.get_out_of_limits
+    #     (0..3).each do |i|
+    #       expect(items[i][0]).to eql "INST"
+    #       expect(items[i][1]).to eql "HEALTH_STATUS"
+    #       expect(items[i][2]).to eql "TEMP#{i+1}"
+    #       expect(items[i][3]).to eql :RED_LOW
+    #     end
+    #   end
+    # end
+
+    # describe "get_overall_limits_state" do
+    #   xit "returns the overall system limits state" do
+    #     @api.inject_tlm("INST","HEALTH_STATUS",{TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
+    #     expect(@api.get_overall_limits_state).to eq :RED
+    #   end
+    # end
+
+    # describe "limits_enabled?" do
+    #   it "complains about non-existant targets" do
+    #     expect { @api.limits_enabled?("BLAH","HEALTH_STATUS","TEMP1") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
+    #   end
+
+    #   it "complains about non-existant packets" do
+    #     expect { @api.limits_enabled?("INST","BLAH","TEMP1") }.to raise_error(RuntimeError, "Packet 'INST BLAH' does not exist")
+    #   end
+
+    #   it "complains about non-existant items" do
+    #     expect { @api.limits_enabled?("INST","HEALTH_STATUS","BLAH") }.to raise_error(RuntimeError, "Item 'INST HEALTH_STATUS BLAH' does not exist")
+    #   end
+
+    #   it "returns whether limits are enable for an item" do
+    #     expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be true
+    #   end
+    # end
+
+    # describe "enable_limits" do
+    #   it "complains about non-existant targets" do
+    #     expect { @api.enable_limits("BLAH","HEALTH_STATUS","TEMP1") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
+    #   end
+
+    #   it "complains about non-existant packets" do
+    #     expect { @api.enable_limits("INST","BLAH","TEMP1") }.to raise_error(RuntimeError, "Packet 'INST BLAH' does not exist")
+    #   end
+
+    #   it "complains about non-existant items" do
+    #     expect { @api.enable_limits("INST","HEALTH_STATUS","BLAH") }.to raise_error(RuntimeError, "Item 'INST HEALTH_STATUS BLAH' does not exist")
+    #   end
+
+    #   it "enables limits for an item" do
+    #     expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be true
+    #     @api.disable_limits("INST","HEALTH_STATUS","TEMP1")
+    #     expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be false
+    #     @api.enable_limits("INST","HEALTH_STATUS","TEMP1")
+    #     expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be true
+    #   end
+    # end
+
+    # describe "disable_limits" do
+    #   it "complains about non-existant targets" do
+    #     expect { @api.disable_limits("BLAH","HEALTH_STATUS","TEMP1") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
+    #   end
+
+    #   it "complains about non-existant packets" do
+    #     expect { @api.disable_limits("INST","BLAH","TEMP1") }.to raise_error(RuntimeError, "Packet 'INST BLAH' does not exist")
+    #   end
+
+    #   it "complains about non-existant items" do
+    #     expect { @api.disable_limits("INST","HEALTH_STATUS","BLAH") }.to raise_error(RuntimeError, "Item 'INST HEALTH_STATUS BLAH' does not exist")
+    #   end
+
+    #   it "disables limits for an item" do
+    #     expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be true
+    #     @api.disable_limits("INST","HEALTH_STATUS","TEMP1")
+    #     expect(@api.limits_enabled?("INST","HEALTH_STATUS","TEMP1")).to be false
+    #     @api.enable_limits("INST","HEALTH_STATUS","TEMP1")
+    #   end
+    # end
   end
 end

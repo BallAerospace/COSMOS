@@ -431,7 +431,6 @@ module Cosmos
     # Returns an array of Hashes with all the attributes of the item.
     #
     # @deprecated Use #get_telemetry
-    # @param (see Cosmos::Telemetry#values_and_limits_states)
     # @return [Array<Hash>] Array of hashes describing the items. All the
     #   attributes in {Cosmos::PacketItem} and {Cosmos::StructItem} are
     #   present in the Hash.
@@ -439,42 +438,36 @@ module Cosmos
       if !item_array.is_a?(Array) || !item_array[0].is_a?(Array)
         raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
       end
-
-      # packet = TargetModel.packet(target_name, packet_name, scope: scope)
-      # return packet['items'].map {|item| [item['name'], item['states'], item['description']] }
-
       details = []
       item_array.each do |target_name, packet_name, item_name|
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-        _, item = System.telemetry.packet_and_item(target_name, packet_name, item_name, scope: scope)
-        details << item.to_hash
+        details << TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
       end
       details
     end
 
-    # @see CmdTlmServer.subscribe_packet_data
-    def subscribe_packet_data(packets,
-                              queue_size = CmdTlmServer::DEFAULT_PACKET_DATA_QUEUE_SIZE, scope: $cosmos_scope, token: $cosmos_token)
+    # @param packets [Array<Array<String, String>>] Array of arrays consisting of target name, packet name
+    def subscribe_packet(packets, scope: $cosmos_scope, token: $cosmos_token)
+      if !packets.is_a?(Array) || !packets[0].is_a?(Array)
+        raise ArgumentError, "packets must be nested array: [['TGT','PKT'],...]"
+      end
+      result = [Time.now.to_nsec_from_epoch]
       packets.each do |target_name, packet_name|
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
+        result << "#{scope}__DECOM__#{target_name}__#{packet_name}"
+        # result << "#{topic}__#{Store.get_last_offset(topic)}"
       end
-      CmdTlmServer.subscribe_packet_data(packets, queue_size)
+      result.join("\n")
     end
+    alias subscribe_packet_data subscribe_packet
 
-    # @see CmdTlmServer.unsubscribe_packet_data
+    # @deprecated No need to unsubscribe
     def unsubscribe_packet_data(id, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'tlm', scope: scope, token: token)
-      CmdTlmServer.unsubscribe_packet_data(id)
-    end
-
-    # @see CmdTlmServer.get_packet_data
-    def get_packet_data(id, non_block = false, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'tlm', scope: scope, token: token)
-      CmdTlmServer.get_packet_data(id, non_block)
+      # No-op in the new system
     end
 
     # Get a packet which was previously subscribed to by
-    # subscribe_packet_data. This method can block waiting for new packets or
+    # subscribe_packet. This method can block waiting for new packets or
     # not based on the second parameter. It returns a single Cosmos::Packet instance
     # and will return nil when no more packets are buffered (assuming non_block
     # is false).
@@ -482,17 +475,15 @@ module Cosmos
     #   get_packet(id, <true or false to block>)
     def get_packet(id, non_block = false, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      packet = nil
-      # The get_packet_data in the CmdTlmServer returns the number of seconds
-      # followed by microseconds after the packet_name. This is different that the Script API.
-      buffer, target_name, packet_name, rx_sec, rx_usec, rx_count = get_packet_data(id, non_block)
-      if buffer
-        packet = System.telemetry.packet(target_name, packet_name).clone
-        packet.buffer = buffer
-        packet.received_time = Time.at(rx_sec, rx_usec).sys
-        packet.received_count = rx_count
+      offset, *topics = id.split("\n")
+      offsets = []
+      topics.each do |topic|
+        offsets << (offset.to_i / 1_000_000).to_s + '-0'
       end
-      packet
+      Topic.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
+        _, _, target_name, packet_name = topic.split('__')
+        yield target_name, packet_name, msg_hash
+      end
     end
 
     # Get the receive count for a telemetry packet
@@ -502,7 +493,7 @@ module Cosmos
     # @return [Numeric] Receive count for the telemetry packet
     def get_tlm_cnt(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      TargetModel.packet(target_name, command_name, scope: scope)
+      TargetModel.packet(target_name, packet_name, scope: scope)
       _get_cnt("#{scope}__TELEMETRY__#{target_name}__#{packet_name}")
     end
 
@@ -521,7 +512,6 @@ module Cosmos
     def get_packet_derived_items(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       packet = TargetModel.packet(target_name, packet_name, scope: scope)
-      raise "Unknown target or packet: #{target_name} #{packet_name}" unless packet
       return packet['items'].select {|item| item['data_type'] == 'DERIVED' }.map {|item| item['name']}
     end
 

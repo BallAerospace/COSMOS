@@ -39,8 +39,8 @@ if !ENV['COSMOS_NO_SIMPLECOV']
     ])
   end
   SimpleCov.start do
-    # merge_timeout 12 * 60 * 60 # merge the last 12 hours of results
-    add_filter '/spec/'
+    merge_timeout 60 * 60 # merge the last hour of results
+    add_filter '/spec/' # no coverage on spec files
     root = File.dirname(__FILE__)
     root.to_s
   end
