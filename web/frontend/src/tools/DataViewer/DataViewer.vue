@@ -28,6 +28,9 @@
         <v-alert type="error" v-model="error" dismissible>
           {{ errorText }}
         </v-alert>
+        <v-alert type="error" v-model="connectionFailure">
+          COSMOS backend connection failed.
+        </v-alert>
       </div>
       <v-tabs ref="tabs" v-model="curTab">
         <v-tab v-for="(tab, index) in tabs" :key="index">{{ tab.name }}</v-tab>
@@ -97,11 +100,15 @@ export default {
       warningText: '',
       error: false,
       errorText: '',
+      connectionFailure: false,
     }
   },
   watch: {
     'tabs.length': function () {
       this.resizeTabs()
+    },
+    'cable.connection.disconnected': function (val) {
+      this.connectionFailure = val
     },
   },
   created() {
@@ -162,6 +169,9 @@ COMPONENT "Other Packets" data_viewer_component.rb
     )
     this.cable = ActionCable.createConsumer('ws://localhost:7777/cable') // TODO: handle failed connection? Seems to be a missing callback in ActionCable API
     this.subscribe()
+    setTimeout(() => {
+      this.connectionFailure = this.cable.connection.disconnected
+    }, 1000)
   },
   destroyed: function () {
     if (this.subscription) {
