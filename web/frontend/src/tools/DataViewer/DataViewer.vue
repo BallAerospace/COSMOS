@@ -29,11 +29,11 @@
           {{ errorText }}
         </v-alert>
       </div>
-      <v-tabs v-model="curTab" fixed-tabs>
+      <v-tabs ref="tabs" v-model="curTab">
         <v-tab v-for="(tab, index) in tabs" :key="index">{{ tab.name }}</v-tab>
       </v-tabs>
       <v-tabs-items v-model="curTab">
-        <v-tab-item v-for="(tab, index) in tabs" :key="index">
+        <v-tab-item v-for="(tab, index) in tabs" :key="index" eager>
           <v-card
             v-for="(packet, packetIndex) in tab.packets"
             :key="`${index}-${packetIndex}`"
@@ -98,6 +98,11 @@ export default {
       error: false,
       errorText: '',
     }
+  },
+  watch: {
+    'tabs.length': function () {
+      this.resizeTabs()
+    },
   },
   created() {
     this.api = new CosmosApi()
@@ -165,6 +170,9 @@ COMPONENT "Other Packets" data_viewer_component.rb
     this.cable.disconnect()
   },
   methods: {
+    resizeTabs: function () {
+      if (this.$refs.tabs) this.$refs.tabs.onResize()
+    },
     subscribe: function () {
       this.subscription = this.cable.subscriptions.create(
         {
@@ -183,8 +191,8 @@ COMPONENT "Other Packets" data_viewer_component.rb
               scope: 'DEFAULT',
               packets: packets,
               // start_time: 1609532973000000000, // use to hit the file cache
-              start_time: Date.now() * 1000000 - 1000000000,
-              end_time: Date.now() * 1000060,
+              start_time: Date.now() * 1000000,
+              end_time: null,
               mode: 'RAW',
             })
           },
