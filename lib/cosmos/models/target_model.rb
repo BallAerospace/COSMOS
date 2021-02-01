@@ -266,7 +266,7 @@ module Cosmos
       @id = target.id
       update()
 
-      # Load Packet Definitions
+      # Store Packet Definitions
       system.telemetry.all.each do |target_name, packets|
         Store.instance.del("#{@scope}__cosmostlm__#{target_name}")
         packets.each do |packet_name, packet|
@@ -281,6 +281,15 @@ module Cosmos
           Store.instance.hset("#{@scope}__cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
         end
       end
+      # Store Limits Groups (which are already a Hash)
+      Store.instance.hset("#{@scope}__cosmos_system", 'limits_groups', JSON.generate(system.limits.groups))
+      # Merge in Limits Sets
+      sets = Store.instance.hget("#{@scope}__cosmos_system", 'limits_sets')
+      sets = JSON.parse(sets) if sets
+      sets ||= []
+      sets.concat(system.limits.sets.map(&:to_s)) # Convert the symbols to strings
+      Store.instance.hset("#{@scope}__cosmos_system", 'limits_sets', JSON.generate(sets.uniq)) # Ensure uniq set
+
       return system
     end
 

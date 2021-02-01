@@ -55,7 +55,7 @@ module Cosmos
       packet.received_time = Time.from_nsec_from_epoch(msg_hash["time"].to_i)
       packet.received_count = msg_hash["received_count"].to_i
       packet.buffer = msg_hash["buffer"]
-      packet.check_limits
+      packet.check_limits # Process all the limits and call the limits_change_callback (as necessary)
 
       TelemetryDecomTopic.write_packet(packet, scope: @scope)
 
