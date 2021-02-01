@@ -64,9 +64,9 @@ RSpec.describe StreamingApi, type: :model do
     let(:data) { { 'scope' => 'DEFAULT', 'items' => ['TLM__TGT__PKT__ITEM1__CONVERTED'] } }
 
     it 'has no data in time range' do
-      msg1 = {'time' => (@start_time.to_i - 10) * 1_000_000_000 } # newest is 10s ago
+      msg1 = {'time' => ((@start_time.to_i - 10) * 1_000_000_000) - LoggedStreamingThread::ALLOWABLE_START_TIME_OFFSET_NSEC } # newest is 10s before the allowable offset
       allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
-      msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+      msg2 = {'time' => ((@start_time.to_i - 100) * 1_000_000_000) - LoggedStreamingThread::ALLOWABLE_START_TIME_OFFSET_NSEC } # oldest is 100s before the allowable offset
       allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
 
       @time = Time.at(@start_time.to_i - 5.5)
@@ -89,9 +89,11 @@ RSpec.describe StreamingApi, type: :model do
         # Remove the items and we should get one more packet due to the processing loop
         @api.remove(data)
         sleep 0.15
-        expect(@messages.length).to eq(4) # One more
+        expect(@messages.length).to eq(5) # One more, plus the empty one
+        expect(@messages[-1]).to eq("[]") # Last message after removing the subscription should be empty
         sleep 0.15
-        expect(@messages.length).to eq(4) # No more
+        expect(@messages.length).to eq(5) # No more
+        expect(@messages[-1]).to eq("[]") # Last message should still be empty
 
         # Ensure we can add items again and resume processing
         @api.add(data)
