@@ -21,6 +21,7 @@ require 'redis'
 require 'json'
 require 'thread'
 require 'connection_pool'
+require 'ruby2_keywords'
 
 module Cosmos
   class Store
@@ -44,8 +45,14 @@ module Cosmos
       end
     end
 
-    def build_redis
-      return Redis.new(url: @redis_url)
+    # Delegate all unknown class methods to delegate to the instance
+    def self.method_missing(message, *args, &block)
+      self.instance.send(message, *args, &block)
+    end
+
+    # Delegate all unknown methods to redis through the @redis_pool
+    ruby2_keywords def method_missing(message, *args, &block)
+      @redis_pool.with { |redis| redis.send(message, *args, &block) }
     end
 
     def initialize(pool_size = 10)
@@ -53,40 +60,10 @@ module Cosmos
       @redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0')
       @redis_pool = ConnectionPool.new(size: pool_size) { build_redis() }
       @topic_offsets = {}
-      @overrides = {}
     end
 
-    def cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, timeout_ms: 5000, scope: $cosmos_scope)
-      cmd_packet_exist?(target_name, cmd_name, scope: scope)
-      topic = "#{scope}__CMDTARGET__#{target_name}"
-      ack_topic = "#{scope}__ACKCMDTARGET__#{target_name}"
-      update_topic_offsets([ack_topic])
-      cmd_id = write_topic(topic, { 'target_name' => target_name, 'cmd_name' => cmd_name, 'cmd_params' => JSON.generate(cmd_params.as_json), 'range_check' => range_check, 'hazardous_check' => hazardous_check, 'raw' => raw })
-      (timeout_ms / 100).times do
-        read_topics([ack_topic], nil, 100) do |topic, msg_id, msg_hash, redis|
-          if msg_hash["id"] == cmd_id
-            # Logger.debug "Ack Received: #{msg_id}: #{msg_hash.inspect}"
-            if msg_hash["result"] == "SUCCESS"
-              return
-            # Check for HazardousError which is a special case
-            elsif msg_hash["result"].include?("HazardousError")
-              _, description, cmd = msg_hash["result"].split("\n")
-              # Create and populate a new HazardousError and raise it up
-              # The _cmd method in script/commands.rb rescues this and calls prompt_for_hazardous
-              error = HazardousError.new
-              error.target_name = target_name
-              error.cmd_name = cmd_name
-              error.cmd_params = cmd_params
-              error.hazardous_description = description
-              # No Logger.info because the error is already logged by the Logger.info "Ack Received ...
-              raise error
-            else
-              raise msg_hash["result"]
-            end
-          end
-        end
-      end
-      raise "Timeout waiting for cmd ack"
+    def build_redis
+      return Redis.new(url: @redis_url)
     end
 
     def get_tlm_values(items, scope: $cosmos_scope)
@@ -135,107 +112,6 @@ module Cosmos
       return values
     end
 
-    def cmd_packet_exist?(target_name, packet_name, scope: $cosmos_scope)
-      _packet_exist?(target_name, packet_name, type: 'cmd', scope: scope)
-    end
-    def tlm_packet_exist?(target_name, packet_name, scope: $cosmos_scope)
-      _packet_exist?(target_name, packet_name, type: 'tlm', scope: scope)
-    end
-    def _packet_exist?(target_name, packet_name, type:, scope: $cosmos_scope)
-      @redis_pool.with do |redis|
-        # TODO: pipeline
-        if redis.exists("#{scope}__cosmos#{type}__#{target_name}") != 0
-          if redis.hexists("#{scope}__cosmos#{type}__#{target_name}", packet_name)
-            true
-          else
-            raise "Packet '#{target_name} #{packet_name}' does not exist"
-          end
-        else
-          raise "Target '#{target_name}' does not exist"
-        end
-      end
-    end
-
-    def get_packet(target_name, packet_name, type: 'tlm', scope: $cosmos_scope)
-      @redis_pool.with do |redis|
-        # TODO: pipeline
-        if redis.exists("#{scope}__cosmos#{type}__#{target_name}") != 0
-          if redis.hexists("#{scope}__cosmos#{type}__#{target_name}", packet_name)
-            return JSON.parse(redis.hget("#{scope}__cosmos#{type}__#{target_name}", packet_name))
-          else
-            raise "Packet '#{target_name} #{packet_name}' does not exist"
-          end
-        else
-          raise "Target '#{target_name}' does not exist"
-        end
-      end
-    end
-
-    # TODO: Is this needed?
-    # def set_packet(packet, type: 'tlm')
-    #   @redis_pool.with do |redis|
-    #     if redis.exists("cosmos#{type}__#{packet.target_name}") != 0
-    #       if redis.hexists("cosmos#{type}__#{packet.target_name}", packet.packet_name)
-    #         return redis.hset("cosmos#{type}__#{packet.target_name}", packet.packet_name, JSON.generate(packet.as_json))
-    #       else
-    #         raise "Packet '#{packet.target_name} #{packet.packet_name}' does not exist"
-    #       end
-    #     else
-    #       raise "Target '#{packet.target_name}' does not exist"
-    #     end
-    #   end
-    # end
-
-    def get_item_from_packet_hash(packet, item_name)
-      item = packet['items'].find {|item| item['name'] == item_name.to_s }
-      raise "Item '#{packet['target_name']} #{packet['packet_name']} #{item_name}' does not exist" unless item
-      item
-    end
-
-    def get_item(target_name, packet_name, item_name, type: 'tlm', scope: $cosmos_scope)
-      packet = get_packet(target_name, packet_name, type: type, scope: scope)
-      get_item_from_packet_hash(packet, item_name)
-    end
-
-    def get_commands(target_name, scope: $cosmos_scope)
-      _get_cmd_tlm(target_name, type: 'cmd', scope: scope)
-    end
-
-    def get_telemetry(target_name, scope: $cosmos_scope)
-      _get_cmd_tlm(target_name, type: 'tlm', scope: scope)
-    end
-
-    # Helper method for get_commands and get_telemetry
-    def _get_cmd_tlm(target_name, type:, scope: $cosmos_scope)
-      result = []
-      @redis_pool.with do |redis|
-        if redis.exists("#{scope}__cosmos#{type}__#{target_name}") != 0
-          packets = redis.hgetall("#{scope}__cosmos#{type}__#{target_name}")
-          packets.sort.each do |packet_name, packet_json|
-            result << JSON.parse(packet_json)
-          end
-        else
-          raise "Target '#{target_name}' does not exist"
-        end
-      end
-      result
-    end
-
-    # TODO: This can't take a Packet but this is how the interface_microservice works
-    # def inject_packet(packet)
-    #   # Test to make sure this is a valid packet
-    #   get_packet(packet.target_name, packet.packet_name)
-
-    #   # Write new packet to stream
-    #   msg_hash = { time: packet.received_time.to_nsec_from_epoch,
-    #                stored: packet.stored,
-    #                target_name: packet.target_name,
-    #                packet_name: packet.packet_name,
-    #                received_count: packet.received_count, # TODO: Plus one?
-    #                buffer: packet.buffer(false) }
-    #   write_topic("TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
-    # end
-
     def get_cmd_item(target_name, packet_name, param_name, type: :WITH_UNITS, scope: $cosmos_scope)
       msg_id, msg_hash = read_topic_last("#{scope}__DECOMCMD__#{target_name}__#{packet_name}")
       if msg_id
@@ -247,7 +123,7 @@ module Cosmos
         # elsif param_name == 'RECEIVED_TIMEFORMATTED' || param_name == 'PACKET_TIMEFORMATTED'
         #   Time.from_nsec_from_epoch(msg_hash['time'].to_i).formatted
         if param_name == 'RECEIVED_COUNT'
-           msg_hash['received_count'].to_i
+          msg_hash['received_count'].to_i
         else
           json = msg_hash['json_data']
           hash = JSON.parse(json)
@@ -276,59 +152,19 @@ module Cosmos
       else
         raise "Unknown value type #{value_type}"
       end
-      result = redis.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *secondary_keys)
+      redis.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *secondary_keys)
     end
 
-    def get_tlm_item(target_name, packet_name, item_name, type: :WITH_UNITS, scope: $cosmos_scope)
-      if @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"]
-        return @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"]
-      end
+    ###########################################################################
+    # Stream APIs
+    ###########################################################################
 
-      types = []
-      case type
-      when :WITH_UNITS
-        types = ["#{item_name}__U", "#{item_name}__F", "#{item_name}__C", item_name]
-      when :FORMATTED
-        types = ["#{item_name}__F", "#{item_name}__C", item_name]
-      when :CONVERTED
-        types = ["#{item_name}__C", item_name]
-      when :RAW
-        types = [item_name]
-      end
-
+    def initialize_streams(topics)
       @redis_pool.with do |redis|
-        results = redis.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *types)
-        results.each do |result|
-          return JSON.parse(result) if result
+        topics.each do |topic|
+          # Create empty stream with maxlen 0
+          redis.xadd(topic, { a: 'b' }, maxlen: 0)
         end
-        return nil
-      end
-    end
-
-    def set_tlm_item(target_name, packet_name, item_name, value, type: :CONVERTED, scope: $cosmos_scope)
-      case type
-      when :WITH_UNITS
-        field = "#{item_name}__U"
-      when :FORMATTED
-        field = "#{item_name}__F"
-      when :CONVERTED
-        field = "#{item_name}__C"
-      when :RAW
-        field = item_name
-      end
-
-      @redis_pool.with do |redis|
-        redis.hset("#{scope}__tlm__#{target_name}__#{packet_name}", field, value)
-      end
-    end
-
-    def override(target_name, packet_name, item_name, value, type:, scope: $cosmos_scope)
-      @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"] = value
-    end
-
-    def normalize(target_name, packet_name, item_name, scope: $cosmos_scope)
-      %w(RAW CONVERTED FORMATTED WITH_UNITS).each do |type|
-        @overrides.delete("#{target_name}__#{packet_name}__#{item_name}__#{type}")
       end
     end
 
@@ -368,137 +204,19 @@ module Cosmos
       end
     end
 
-    def initialize_streams(topics)
-      @redis_pool.with do |redis|
-        topics.each do |topic|
-          # Create empty stream with maxlen 0
-          redis.xadd(topic, { a: 'b' }, maxlen: 0)
-        end
-      end
-    end
+    # TODO: Currently unused
+    # def decrement_id(id)
+    #   time, sequence = id.split('-')
+    #   if sequence == '0'
+    #     "#{time.to_i - 1}-18446744073709551615"
+    #   else
+    #     "#{time}-#{sequence.to_i - 1}"
+    #   end
+    # end
 
-    def decrement_id(id)
-      time, sequence = id.split('-')
-      if sequence == '0'
-        "#{time.to_i - 1}-18446744073709551615"
-      else
-        "#{time}-#{sequence.to_i - 1}"
-      end
-    end
-
-    def self.get(*args)
-      self.instance.get(*args)
-    end
-    def self.set(*args)
-      self.instance.set(*args)
-    end
-    def self.incr(key)
-      self.instance.incr(key)
-    end
-    def self.hget(key, field)
-      self.instance.hget(key, field)
-    end
-    def self.hset(key, field, value)
-      self.instance.hset(key, field, value)
-    end
-    def self.hkeys(key)
-      self.instance.hkeys(key)
-    end
-    def self.hdel(key, field)
-      self.instance.hdel(key, field)
-    end
-    def self.hgetall(key)
-      self.instance.hgetall(key)
-    end
-    def self.del(key)
-      self.instance.del(key)
-    end
-    def self.exists?(*keys)
-      self.instance.exists?(*keys)
-    end
-    def self.scan(count, **options)
-      self.instance.scan(count, **options)
-    end
-    def self.sadd(key, value)
-      self.instance.sadd(key, value)
-    end
-    def self.srem(key, member)
-      self.instance.srem(key, member)
-    end
-    def self.xrevrange(*args, **kw_args)
-      self.instance.xrevrange(*args, **kw_args)
-    end
-    def self.publish(*args)
-      self.instance.publish(*args)
-    end
-    def self.smembers(key)
-      self.instance.smembers(key)
-    end
     def self.update_topic_offsets(topics)
       self.instance.update_topic_offsets(topics)
     end
-    def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-      self.instance.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-    end
-    def self.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
-      self.instance.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
-    end
-    def self.mapped_hmset(key, hash)
-      self.instance.mapped_hmset(key, hash)
-    end
-
-    def get(*args)
-      @redis_pool.with { |redis| return redis.get(*args) }
-    end
-    def set(*args)
-      @redis_pool.with { |redis| return redis.set(*args) }
-    end
-    def incr(key)
-      @redis_pool.with { |redis| return redis.incr(key) }
-    end
-    def hget(key, field)
-      @redis_pool.with { |redis| return redis.hget(key, field) }
-    end
-    def hset(key, field, value)
-      @redis_pool.with { |redis| redis.hset(key, field, value) }
-    end
-    def hkeys(key)
-      @redis_pool.with { |redis| redis.hkeys(key) }
-    end
-    def hdel(key, field)
-      @redis_pool.with { |redis| redis.hdel(key, field) }
-    end
-    def hgetall(key)
-      @redis_pool.with { |redis| redis.hgetall(key) }
-    end
-    def del(key)
-      @redis_pool.with { |redis| redis.del(key) }
-    end
-    def exists?(*keys)
-      @redis_pool.with { |redis| redis.exists?(*keys) }
-    end
-    def scan(count, **options)
-      @redis_pool.with { |redis| redis.scan(count, **options) }
-    end
-    def sadd(key, value)
-      @redis_pool.with { |redis| redis.sadd(key, value) }
-    end
-    def srem(key, member)
-      @redis_pool.with { |redis| redis.srem(key, member) }
-    end
-    def xrevrange(*args, **kw_args)
-      @redis_pool.with { |redis| redis.xrevrange(*args, **kw_args) }
-    end
-    def publish(*args)
-      @redis_pool.with { |redis| redis.publish(*args) }
-    end
-    def smembers(key)
-      @redis_pool.with { |redis| return redis.smembers(key) }
-    end
-    def mapped_hmset(key, hash)
-      @redis_pool.with { |redis| return redis.mapped_hmset(key, hash) }
-    end
-
     def update_topic_offsets(topics)
       @redis_pool.with do |redis|
         offsets = []
@@ -519,6 +237,9 @@ module Cosmos
       end
     end
 
+    def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
+      self.instance.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
+    end
     def read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
       # Logger.debug "read_topics: #{topics}, #{offsets} pool:#{@redis_pool}"
       @redis_pool.with do |redis|
@@ -532,11 +253,14 @@ module Cosmos
             end
           end
         end
-        # puts "result:#{result}" if result and result.length > 0
+        # Logger.debug "result:#{result}" if result and result.length > 0
         return result
       end
     end
 
+    def self.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
+      self.instance.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
+    end
     def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
       # Logger.debug "write_topic topic:#{topic} id:#{id} hash:#{msg_hash}"
       @redis_pool.with do |redis|
@@ -547,6 +271,5 @@ module Cosmos
         end
       end
     end
-
   end
 end

@@ -18,18 +18,26 @@
 # copyright holder
 
 require 'spec_helper'
-require 'cosmos'
-require 'cosmos/api/api'
+require 'cosmos/api/cmd_api'
 require 'cosmos/microservices/interface_microservice'
+require 'cosmos/script/extract'
+require 'cosmos/utilities/authorization'
 
 module Cosmos
-  xdescribe Api do
+  describe Api do
     class ApiTest
+      include Extract
       include Api
+      include Authorization
     end
 
     before(:each) do
-      @redis = configure_store()
+      redis = mock_redis()
+      setup_system()
+      require 'cosmos/models/target_model'
+      model = TargetModel.new(folder_name: 'INST', name: 'INST', scope: "DEFAULT")
+      model.create
+      model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
 
       # Create an Interface we can use in the InterfaceCmdHandlerThread
       # It has to have a valid list of target_names as that is what 'receive_commands'
@@ -39,14 +47,12 @@ module Cosmos
       interface.target_names = %w[INST]
       # Stub out write to make the InterfaceCmdHandlerThread happy
       allow(interface).to receive(:write) { |data| @interface_data = data }
-      # Stub out as_json to make the call to Store.instance.set_interface happy
-      allow(interface).to receive(:as_json).and_return({})
       @thread = InterfaceCmdHandlerThread.new(interface, nil, scope: 'DEFAULT')
-      # Store.instance.set_interface(interface, initialize: true)
       @process = true # Allow the command to be processed or not
 
-      allow(@redis).to receive(:xread).and_wrap_original do |m, *args|
-        result = m.call(*args) if @process
+      allow(redis).to receive(:xread).and_wrap_original do |m, *args|
+        # Only use the first two arguments as the last argument is keyword block:
+        result = m.call(*args[0..1]) if @process
         # Create a slight delay to simulate the blocking call
         sleep 0.001 if result and result.length == 0
         result
@@ -67,18 +73,17 @@ module Cosmos
     end
 
     def test_cmd_unknown(method)
-      expect { @api.send(method,"BLAH COLLECT with TYPE NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"INST UNKNOWN with TYPE NORMAL") }.to raise_error(/does not exist/)
-      # expect { @api.send(method,"INST COLLECT with BLAH NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"BLAH","COLLECT","TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"INST","UNKNOWN","TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
-      # expect { @api.send(method,"INST","COLLECT","BLAH"=>"NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.send(method, "BLAH COLLECT with TYPE NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.send(method, "INST UNKNOWN with TYPE NORMAL") }.to raise_error(/does not exist/)
+      # expect { @api.send(method, "INST COLLECT with BLAH NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.send(method, "BLAH", "COLLECT", "TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.send(method, "INST", "UNKNOWN", "TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
+      # expect { @api.send(method, "INST", "COLLECT", "BLAH"=>"NORMAL") }.to raise_error(/does not exist/)
     end
 
     describe "cmd" do
       it "complains about unknown targets, commands, and parameters" do
         test_cmd_unknown(:cmd)
-        # sleep(0.5)
       end
 
       it "processes a string" do
@@ -438,13 +443,13 @@ module Cosmos
       end
     end
 
-    describe "send_raw" do
-      it "sends raw data to an interface" do
-        @api.send_raw("INST_INT", "\x00\x01\x02\x03")
-        sleep 0.1
-        expect(@interface_data).to eql "\x00\x01\x02\x03"
-      end
-    end
+    # describe "send_raw" do
+    #   it "sends raw data to an interface" do
+    #     @api.send_raw("INST_INT", "\x00\x01\x02\x03")
+    #     sleep 0.1
+    #     expect(@interface_data).to eql "\x00\x01\x02\x03"
+    #   end
+    # end
 
     # DEPRECATED: use get_all_commands
     describe "get_cmd_list" do
@@ -552,6 +557,9 @@ module Cosmos
 
     describe "get_cmd_hazardous" do
       it "returns whether the command with parameters is hazardous" do
+        expect(@api.get_cmd_hazardous("INST COLLECT with TYPE NORMAL")).to be false
+        expect(@api.get_cmd_hazardous("INST COLLECT with TYPE SPECIAL")).to be true
+
         expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"NORMAL"})).to be false
         expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"SPECIAL"})).to be true
         expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>0})).to be false
@@ -559,65 +567,118 @@ module Cosmos
       end
 
       it "returns whether the command is hazardous" do
+        expect(@api.get_cmd_hazardous("INST CLEAR")).to be true
         expect(@api.get_cmd_hazardous("INST","CLEAR")).to be true
+      end
+
+      it "raises with the wrong number of arguments" do
+        expect { @api.get_cmd_hazardous("INST", "COLLECT", "TYPE", "SPECIAL") }.to raise_error(/Invalid number of arguments/)
       end
     end
 
     describe "get_cmd_value" do
       it "returns command values" do
         time = Time.now
-        target_name, cmd_name, params = @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
         sleep 0.1
         expect(@api.get_cmd_value("INST", "COLLECT", "TYPE")).to eql 'NORMAL'
+        expect(@api.get_cmd_value("INST", "COLLECT", "DURATION")).to eql 5.0
         expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to be_within(0.01).of(time.to_f)
         expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMESECONDS")).to be_within(0.01).of(time.to_f)
         expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 1
+
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 7")
+        sleep 0.1
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 2
+        expect(@api.get_cmd_value("INST", "COLLECT", "DURATION")).to eql 7.0
       end
     end
 
     describe "get_cmd_time" do
       it "returns command times" do
         time = Time.now
-        target_name, cmd_name, params = @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
         sleep 0.1
         result = @api.get_cmd_time("INST", "COLLECT")
         expect(result[0]).to eq("INST")
         expect(result[1]).to eq("COLLECT")
         expect(result[2]).to be_within(1).of(time.tv_sec) # Allow 1s for rounding
-        expect(result[3]).to be_within(10_000).of(time.tv_usec) # Allow 10ms
+        expect(result[3]).to be_within(50_000).of(time.tv_usec) # Allow 50ms
 
         result = @api.get_cmd_time("INST")
         expect(result[0]).to eq("INST")
         expect(result[1]).to eq("COLLECT")
         expect(result[2]).to be_within(1).of(time.tv_sec) # Allow 1s for rounding
-        expect(result[3]).to be_within(10_000).of(time.tv_usec) # Allow 10ms
+        expect(result[3]).to be_within(50_000).of(time.tv_usec) # Allow 50ms
 
         result = @api.get_cmd_time()
         expect(result[0]).to eq("INST")
         expect(result[1]).to eq("COLLECT")
         expect(result[2]).to be_within(1).of(time.tv_sec) # Allow 1s for rounding
-        expect(result[3]).to be_within(10_000).of(time.tv_usec) # Allow 10ms
+        expect(result[3]).to be_within(50_000).of(time.tv_usec) # Allow 50ms
 
         time = Time.now
-        target_name, cmd_name, params = @api.cmd("INST ABORT")
+        @api.cmd("INST ABORT")
         sleep 0.1
         result = @api.get_cmd_time("INST")
         expect(result[0]).to eq("INST")
         expect(result[1]).to eq("ABORT") # New latest is ABORT
         expect(result[2]).to be_within(1).of(time.tv_sec) # Allow 1s for rounding
-        expect(result[3]).to be_within(10_000).of(time.tv_usec) # Allow 10ms
+        expect(result[3]).to be_within(50_000).of(time.tv_usec) # Allow 50ms
 
         result = @api.get_cmd_time()
         expect(result[0]).to eq("INST")
         expect(result[1]).to eq("ABORT")
         expect(result[2]).to be_within(1).of(time.tv_sec) # Allow 1s for rounding
-        expect(result[3]).to be_within(10_000).of(time.tv_usec) # Allow 10ms
+        expect(result[3]).to be_within(50_000).of(time.tv_usec) # Allow 50ms
       end
 
       it "returns 0 if no times are set" do
         expect(@api.get_cmd_time("INST", "ABORT")).to eql ["INST", "ABORT", 0, 0]
         expect(@api.get_cmd_time("INST")).to eql [nil, nil, 0, 0]
         expect(@api.get_cmd_time()).to eql [nil, nil, 0, 0]
+      end
+    end
+
+    describe "get_cmd_cnt" do
+      it "complains about non-existant targets" do
+        expect { @api.get_cmd_cnt("BLAH", "ABORT") }.to raise_error("Packet 'BLAH ABORT' does not exist")
+      end
+
+      it "complains about non-existant packets" do
+        expect { @api.get_cmd_cnt("INST", "BLAH") }.to raise_error("Packet 'INST BLAH' does not exist")
+      end
+
+      it "returns the transmit count" do
+        start = @api.get_cmd_cnt("INST", "COLLECT")
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        # Send unrelated commands to ensure specific command count
+        @api.cmd("INST ABORT")
+        @api.cmd_no_hazardous_check("INST CLEAR")
+        sleep 0.1
+
+        count = @api.get_cmd_cnt("INST", "COLLECT")
+        expect(count).to eql start + 1
+      end
+    end
+
+    describe "get_all_cmd_info" do
+      it "returns transmit count for all commands" do
+        @api.cmd("INST ABORT")
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        sleep 0.1
+        baseline = @api.get_all_cmd_info()
+        @api.cmd("INST ABORT")
+        @api.cmd("INST ABORT")
+        @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
+        sleep 0.1
+        info = @api.get_all_cmd_info()
+        expect(info[0][0]).to eql "INST"
+        expect(info[0][1]).to eql "ABORT"
+        expect(info[0][2]).to eql baseline[0][2] + 2
+        expect(info[1][0]).to eql "INST"
+        expect(info[1][1]).to eql "COLLECT"
+        expect(info[1][2]).to eql baseline[1][2] + 1
       end
     end
   end

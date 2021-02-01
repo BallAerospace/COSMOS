@@ -82,7 +82,7 @@ module Cosmos
         Logger.info("Hard shutting down process: #{@process_definition.join(' ')}", scope: @scope)
         @process.stop
       end
-      FileUtils.remove_entry(@temp_dir) if @temp_dir and File.exists?(@temp_dir)
+      FileUtils.remove_entry(@temp_dir) if @temp_dir and File.exist?(@temp_dir)
       @process = nil
     end
 

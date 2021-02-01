@@ -27,6 +27,47 @@ module Cosmos
     attr_accessor :cmd
     attr_accessor :options
 
+    # NOTE: The following three class methods are used by the ModelController
+    # and are reimplemented to enable various Model class methods to work
+    def self.get(name:, scope: nil)
+      super(PRIMARY_KEY, name: name)
+    end
+
+    def self.names(scope: nil)
+      scoped = []
+      unscoped = super(PRIMARY_KEY)
+      unscoped.each do |name|
+        if !scope or name.split("__")[0] == scope
+          scoped << name
+        end
+      end
+      scoped
+    end
+
+    def self.all(scope: nil)
+      scoped = {}
+      unscoped = super(PRIMARY_KEY)
+      unscoped.each do |name, json|
+        if !scope or name.split("__")[0] == scope
+          scoped[name] = json
+        end
+      end
+      scoped
+    end
+
+    # Called by the PluginModel to allow this class to validate it's top-level keyword: "MICROSERVICE"
+    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
+      case keyword
+      when 'MICROSERVICE'
+        parser.verify_num_parameters(2, 2, "#{keyword} <Folder Name> <Name>")
+        # Create name by adding scope and type 'USER' to indicate where this microservice came from
+        return self.new(folder_name: parameters[0], name: "#{scope}__USER__#{parameters[1].upcase}", plugin: plugin, scope: scope)
+      else
+        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Microservice: #{keyword} #{parameters.join(" ")}")
+      end
+    end
+
+    # Create a microservice model to be deployed to S3
     def initialize(
       name:,
       folder_name: nil,
@@ -40,6 +81,13 @@ module Cosmos
       updated_at: nil,
       plugin: nil,
       scope:)
+      parts = name.split("__")
+      if parts.length != 3
+        raise "name '#{name}' must be formatted as SCOPE__TYPE__NAME"
+      end
+      if parts[0] != scope
+        raise "name '#{name}' scope '#{parts[0]}' doesn't match scope parameter '#{scope}'"
+      end
       super(PRIMARY_KEY, name: name, updated_at: updated_at, plugin: plugin, scope: scope)
       @folder_name = folder_name
       @cmd = cmd
@@ -68,7 +116,7 @@ module Cosmos
     end
 
     def as_config
-      result = "MICROSERVICE #{@folder_name ? @folder_name : 'nil'} #{@name}\n"
+      result = "MICROSERVICE #{@folder_name ? @folder_name : 'nil'} #{@name.split("__")[-1]}\n"
       result << "  CMD #{@cmd.join(' ')}\n"
       result << "  WORK_DIR \"#{@work_dir}\"\n"
       @topics.each do |topic_name|
@@ -85,16 +133,6 @@ module Cosmos
       end
       result << "  CONTAINER #{@container}\n" if @container != 'cosmos-base'
       result
-    end
-
-    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
-      case keyword
-      when 'MICROSERVICE'
-        parser.verify_num_parameters(2, 2, "#{keyword} <Folder Name> <Name>")
-        return self.new(folder_name: parameters[0], name: "#{scope}__#{parameters[1]}", plugin: plugin, scope: scope)
-      else
-        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Microservice: #{keyword} #{parameters.join(" ")}")
-      end
     end
 
     def handle_config(parser, keyword, parameters)
@@ -123,48 +161,21 @@ module Cosmos
       return nil
     end
 
-    def self.get(name:, scope: nil)
-      super(PRIMARY_KEY, name: name)
-    end
-
-    def self.names(scope: nil)
-      scoped = []
-      unscoped = super(PRIMARY_KEY)
-      unscoped.each do |name|
-        if !scope or name.split("__")[0] == scope
-          scoped << name
-        end
-      end
-      scoped
-    end
-
-    def self.all(scope: nil)
-      scoped = {}
-      unscoped = super(PRIMARY_KEY)
-      unscoped.each do |name, json|
-        if !scope or name.split("__")[0] == scope
-          scoped[name] = json
-        end
-      end
-      scoped
-    end
-
     def deploy(gem_path, variables)
-      if @folder_name # TODO: Is this possible? no folder_name?
-        variables["microservice_name"] = @name
-        rubys3_client = Aws::S3::Client.new
-        start_path = "/microservices/#{@folder_name}/"
-        Dir.glob(gem_path + start_path + "**/*") do |filename|
-          next if filename == '.' or filename == '..' or File.directory?(filename)
-          path = filename.split(gem_path)[-1]
-          microservice_folder_path = path.split(start_path)[-1]
-          key = "#{@scope}/microservices/#{@name}/" + microservice_folder_path
+      return unless @folder_name
 
-          # Load microservice files
-          data = File.read(filename, mode: "rb")
-          data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
-          rubys3_client.put_object(bucket: 'config', key: key, body: data)
-        end
+      variables["microservice_name"] = @name
+      rubys3_client = Aws::S3::Client.new
+      start_path = "/microservices/#{@folder_name}/"
+      Dir.glob(gem_path + start_path + "**/*") do |filename|
+        next if filename == '.' or filename == '..' or File.directory?(filename)
+        path = filename.split(gem_path)[-1]
+        key = "#{@scope}/microservices/#{@name}/" + path.split(start_path)[-1]
+
+        # Load microservice files
+        data = File.read(filename, mode: "rb")
+        data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
+        rubys3_client.put_object(bucket: 'config', key: key, body: data)
       end
     end
 

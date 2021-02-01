@@ -29,79 +29,8 @@ module Cosmos
     attr_accessor :url
     attr_accessor :position
 
-    def initialize(
-      name:,
-      folder_name: nil,
-      icon: 'mdi-alert',
-      url: nil,
-      position: nil,
-      updated_at: nil,
-      plugin: nil,
-      scope:)
-      super("#{scope}__#{PRIMARY_KEY}", name: name, plugin: plugin, updated_at: updated_at, scope: scope)
-      @folder_name = folder_name
-      @icon = icon
-      @url = url
-      @position = position
-    end
-
-    def create(update: false, force: false)
-      unless @position
-        tools = self.class.all(scope: @scope)
-        max_position = nil
-        tools.each do |tool_name, tool|
-          max_position = tool['position'] if !max_position or tool['position'] > max_position
-        end
-        max_position ||= 0
-        @position = max_position + 1
-      end
-      super(update: update, force: force)
-    end
-
-    def as_json
-      {
-        'name' => @name,
-        'folder_name' => @folder_name,
-        'icon' => @icon,
-        'url' => @url,
-        'position' => @position,
-        'updated_at' => @updated_at,
-        'plugin' => @plugin
-      }
-    end
-
-    def as_config
-      result = "TOOL #{@folder_name ? @folder_name : 'nil'} \"#{@name}\"\n"
-      result << "  URL #{@url}\n"
-      result << "  ICON #{@icon}\n"
-      result
-    end
-
-    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
-      case keyword
-      when 'TOOL'
-        parser.verify_num_parameters(2, 2, "TOOL <Folder Name> <Name>")
-        return self.new(folder_name: parameters[0], name: parameters[1], plugin: plugin, scope: scope)
-      else
-        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Tool: #{keyword} #{parameters.join(" ")}")
-      end
-      return nil
-    end
-
-    def handle_config(parser, keyword, parameters)
-      case keyword
-      when 'URL'
-        parser.verify_num_parameters(1, 1, "URL <URL>")
-        @url = parameters[0]
-      when 'ICON'
-        parser.verify_num_parameters(1, 1, "ICON <ICON Name>")
-        @icon = parameters[0]
-      else
-        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Tool: #{keyword} #{parameters.join(" ")}")
-      end
-      return nil
-    end
-
+    # NOTE: The following three class methods are used by the ModelController
+    # and are reimplemented to enable various Model class methods to work
     def self.get(name:, scope: nil)
       super("#{scope}__#{PRIMARY_KEY}", name: name)
     end
@@ -128,69 +57,102 @@ module Cosmos
       ordered_hash
     end
 
-    def self.unordered_all(scope: nil)
-      tools = Store.hgetall("#{scope}__#{PRIMARY_KEY}")
-      tools.each do |key, value|
-        tools[key] = JSON.parse(value)
+    # Called by the PluginModel to allow this class to validate it's top-level keyword: "TOOL"
+    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
+      case keyword
+      when 'TOOL'
+        parser.verify_num_parameters(2, 2, "TOOL <Folder Name> <Name>")
+        return self.new(folder_name: parameters[0], name: parameters[1], plugin: plugin, scope: scope)
+      else
+        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Tool: #{keyword} #{parameters.join(" ")}")
       end
-      if tools.length < 1
-        tools = {}
-        tools['CmdTlmServer'] = {
-          'name' => 'CmdTlmServer',
-          'icon' => 'mdi-server-network',
-          'url' => '/cmd-tlm-server',
-          'position' => 1,
-        }
-        tools['Limits Monitor'] = {
-          'name' => 'Limits Monitor',
-          'icon' => 'mdi-alert',
-          'url' => '/limits-monitor',
-          'position' => 2,
-        }
-        tools['Command Sender'] = {
-          'name' => 'Command Sender',
-          'icon' => 'mdi-satellite-uplink',
-          'url' => '/command-sender',
-          'position' => 3,
-        }
-        tools['Script Runner'] = {
-          'name' => 'Script Runner',
-          'icon' => 'mdi-run-fast',
-          'url' => '/script-runner',
-          'position' => 4,
-        }
-        tools['Packet Viewer'] = {
-          'name' => 'Packet Viewer',
-          'icon' => 'mdi-format-list-bulleted',
-          'url' => '/packet-viewer',
-          'position' => 5,
-        }
-        tools['Telemetry Viewer'] = {
-          'name' => 'Telemetry Viewer',
-          'icon' => 'mdi-monitor-dashboard',
-          'url' => '/telemetry-viewer',
-          'position' => 6,
-        }
-        tools['Telemetry Grapher'] = {
-          'name' => 'Telemetry Grapher',
-          'icon' => 'mdi-chart-line',
-          'url' => '/telemetry-grapher',
-          'position' => 7,
-        }
-        tools['Data Extractor'] = {
-          'name' => 'Data Extractor',
-          'icon' => 'mdi-archive-arrow-down',
-          'url' => '/data-extractor',
-          'position' => 8,
-        }
-        tools.each do |name, tool|
-          Store.hset("#{scope}__#{PRIMARY_KEY}", name, JSON.generate(tool))
+      return nil
+    end
+
+    # The ToolsTab.vue calls the ToolsController which uses this method to reorder the tools
+    # Position is index in the list starting with 0 = first
+    def self.set_position(name:, position:, scope:)
+      position = Integer(position)
+      next_position = position + 1
+
+      # Go through all the tools and reorder
+      all(scope: scope).each do |tool_name, tool|
+        tool_model = from_json(tool, scope: scope)
+        # Update the requested model to the new position
+        if tool_model.name == name
+          tool_model.position = position
+        # Move existing tools down in the order
+        elsif position > 0 && position >= tool_model.position
+          tool_model.position -= 1
+        else # Move existing tools up in the order
+          tool_model.position = next_position
+          next_position += 1
         end
+        tool_model.update
       end
-      return tools
+    end
+
+    def initialize(
+      name:,
+      folder_name: nil,
+      icon: 'mdi-alert',
+      url: nil,
+      position: nil,
+      updated_at: nil,
+      plugin: nil,
+      scope:)
+      super("#{scope}__#{PRIMARY_KEY}", name: name, plugin: plugin, updated_at: updated_at, scope: scope)
+      @folder_name = folder_name
+      @icon = icon
+      @url = url
+      @position = position
+    end
+
+    def create(update: false, force: false)
+      unless @position
+        tools = self.class.all(scope: @scope)
+        _, tool = tools.max_by { |tool_name, tool| tool['position'] }
+        @position = tool['position'] + 1
+      end
+      super(update: update, force: force)
+    end
+
+    def as_json
+      {
+        'name' => @name,
+        'folder_name' => @folder_name,
+        'icon' => @icon,
+        'url' => @url,
+        'position' => @position,
+        'updated_at' => @updated_at,
+        'plugin' => @plugin
+      }
+    end
+
+    def as_config
+      result = "TOOL #{@folder_name ? @folder_name : 'nil'} \"#{@name}\"\n"
+      result << "  URL #{@url}\n"
+      result << "  ICON #{@icon}\n"
+      result
+    end
+
+    def handle_config(parser, keyword, parameters)
+      case keyword
+      when 'URL'
+        parser.verify_num_parameters(1, 1, "URL <URL>")
+        @url = parameters[0]
+      when 'ICON'
+        parser.verify_num_parameters(1, 1, "ICON <ICON Name>")
+        @icon = parameters[0]
+      else
+        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Tool: #{keyword} #{parameters.join(" ")}")
+      end
+      return nil
     end
 
     def deploy(gem_path, variables)
+      return unless @folder_name
+
       variables["tool_name"] = @name
       rubys3_client = Aws::S3::Client.new
       start_path = "/tools/#{@folder_name}/"
@@ -199,13 +161,10 @@ module Cosmos
         path = filename.split(gem_path)[-1]
         key = "#{@scope}/tools/#{@name}/" + path.split(start_path)[-1]
 
-        # Load target files
+        # Load tool files
         data = File.read(filename, mode: "rb")
-        if data.is_printable?
-          rubys3_client.put_object(bucket: 'config', key: key, body: ERB.new(data).result(binding.set_variables(variables)))
-        else
-          rubys3_client.put_object(bucket: 'config', key: key, body: data)
-        end
+        data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
+        rubys3_client.put_object(bucket: 'config', key: key, body: data)
       end
     end
 
@@ -217,37 +176,77 @@ module Cosmos
       end
     end
 
-    # Order is the position in the list starting with 0 = first
-    def self.set_order(name:, order:, scope:)
-      ordered = all(scope: scope)
-      tool_model = from_json(ordered[name], scope: scope)
-      index = 0
-      previous_position = 0.0
-      move_next = false
-      tool_position = 0
-      ordered.each do |tool_name, tool|
-        tool_position = tool['position']
-        if move_next or index == order
-          # Need to take the position of this tool
-          if move_next or tool_name != name
-            if move_next or tool_model.position > tool_position
-              new_position = (previous_position + tool_position) / 2.0
-              tool_model.position = new_position
-              tool_model.update
-              return
-            else
-              move_next = true
-            end
-          end
+    ##################################################
+    # The following methods are implementation details
+    ##################################################
+
+    # Returns the list of tools or the default COSMOS tool set if no tools have been created
+    def self.unordered_all(scope: nil)
+      tools = Store.hgetall("#{scope}__#{PRIMARY_KEY}")
+      tools.each do |key, value|
+        tools[key] = JSON.parse(value)
+      end
+      # If no tools exist generate the default list and store it
+      if tools.length == 0
+        tools = default_tools()
+        tools.each do |name, tool|
+          Store.hset("#{scope}__#{PRIMARY_KEY}", name, JSON.generate(tool))
         end
-        previous_position = tool_position
-        index += 1
       end
-      if move_next
-        new_position = previous_position + 1
-        tool_model.position = new_position
-        tool_model.update
-      end
+      return tools
+    end
+
+    def self.default_tools
+      tools = {}
+      tools['CmdTlmServer'] = {
+        'name' => 'CmdTlmServer',
+        'icon' => 'mdi-server-network',
+        'url' => '/cmd-tlm-server',
+        'position' => 0,
+      }
+      tools['Limits Monitor'] = {
+        'name' => 'Limits Monitor',
+        'icon' => 'mdi-alert',
+        'url' => '/limits-monitor',
+        'position' => 1,
+      }
+      tools['Command Sender'] = {
+        'name' => 'Command Sender',
+        'icon' => 'mdi-satellite-uplink',
+        'url' => '/command-sender',
+        'position' => 2,
+      }
+      tools['Script Runner'] = {
+        'name' => 'Script Runner',
+        'icon' => 'mdi-run-fast',
+        'url' => '/script-runner',
+        'position' => 3,
+      }
+      tools['Packet Viewer'] = {
+        'name' => 'Packet Viewer',
+        'icon' => 'mdi-format-list-bulleted',
+        'url' => '/packet-viewer',
+        'position' => 4,
+      }
+      tools['Telemetry Viewer'] = {
+        'name' => 'Telemetry Viewer',
+        'icon' => 'mdi-monitor-dashboard',
+        'url' => '/telemetry-viewer',
+        'position' => 5,
+      }
+      tools['Telemetry Grapher'] = {
+        'name' => 'Telemetry Grapher',
+        'icon' => 'mdi-chart-line',
+        'url' => '/telemetry-grapher',
+        'position' => 6,
+      }
+      tools['Data Extractor'] = {
+        'name' => 'Data Extractor',
+        'icon' => 'mdi-archive-arrow-down',
+        'url' => '/data-extractor',
+        'position' => 7,
+      }
+      tools
     end
   end
 end

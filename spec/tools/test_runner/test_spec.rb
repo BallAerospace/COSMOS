@@ -12,11 +12,13 @@ require 'spec_helper'
 require 'cosmos/tools/test_runner/test'
 
 # Stub out RunningScript.instance
+saved_verbose = $VERBOSE; $VERBOSE = nil;
 class RunningScript
   def self.instance
     false
   end
 end
+$VERBOSE = saved_verbose
 
 # Stub out classes for testing
 $stop_script = false
@@ -94,7 +96,6 @@ module Cosmos
           results = []
           messages = []
           exceptions = []
-          str = ''
           capture_io do |stdout|
             $stdout.define_singleton_method(:add_stream) { |stream| }
             $stdout.define_singleton_method(:remove_stream) { |stream| }

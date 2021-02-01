@@ -13,6 +13,8 @@ docker stop cosmos-redis
 docker container rm cosmos-redis
 docker stop cosmos-fluentd
 docker container rm cosmos-fluentd
+docker stop cosmos-prometheus
+docker container rm cosmos-prometheus
 docker stop cosmos-kibana
 docker container rm cosmos-kibana
 docker stop cosmos-elasticsearch

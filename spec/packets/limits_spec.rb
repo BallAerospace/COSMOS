@@ -314,7 +314,7 @@ module Cosmos
 
     describe "get" do
       before(:each) do
-        redis = MockRedis.new
+        redis = mock_redis()
         redis.hset("DEFAULT__cosmos_system", 'limits_set', 'DEFAULT')
         allow(Redis).to receive(:new).and_return(redis)
       end
@@ -338,7 +338,7 @@ module Cosmos
 
     describe "set" do
       before(:each) do
-        redis = MockRedis.new
+        redis = mock_redis()
         redis.hset("DEFAULT__cosmos_system", 'limits_set', 'DEFAULT')
         allow(Redis).to receive(:new).and_return(redis)
       end
