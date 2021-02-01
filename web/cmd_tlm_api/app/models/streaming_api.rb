@@ -385,7 +385,7 @@ class StreamingThread
       # These objects are done - and the thread is done
       keys = []
       objects.each do |object|
-        keys << objects.key
+        keys << object.key
       end
       @collection.remove(keys)
       return nil
