@@ -405,6 +405,8 @@ class StreamingThread
 end
 
 class LoggedStreamingThread < StreamingThread
+  ALLOWABLE_START_TIME_OFFSET_NSEC = 60 * Time::NSEC_PER_SECOND
+
   def initialize(thread_id, channel, collection, max_batch_size = 100, scope:)
     super(channel, collection, max_batch_size)
     @thread_id = thread_id
@@ -425,7 +427,7 @@ class LoggedStreamingThread < StreamingThread
       _, msg_hash_new = Cosmos::Store.instance.get_newest_message(first_object.topic)
       # Cosmos::Logger.debug "first time:#{first_object.start_time} newest:#{msg_hash_new['time']}"
       # Allow 1 minute in the future to account for big time discrepancies
-      allowable_start_time = first_object.start_time - (60 * 1_000_000_000)
+      allowable_start_time = first_object.start_time - ALLOWABLE_START_TIME_OFFSET_NSEC
       if msg_hash_new && msg_hash_new['time'].to_i > allowable_start_time
         # Determine oldest timestamp in stream to determine if we need to go to file
         msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_object.topic)
