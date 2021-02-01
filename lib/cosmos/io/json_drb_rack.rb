@@ -40,7 +40,7 @@ module Cosmos
 
       # ACL allow_addr? function takes address in the form returned by
       # IPSocket.peeraddr.
-      req_addr = ["AF_INET", request.port, request.host.to_s, request.ip.to_s]
+      # req_addr = ["AF_INET", request.port, request.host.to_s, request.ip.to_s]
 
       #if @drb.acl and !@drb.acl.allow_addr?(req_addr)
       #  status       = 403

@@ -34,6 +34,7 @@ module Cosmos
       allow(@interface).to receive(:connected?) { true }
     end
 
+    saved_verbose = $VERBOSE; $VERBOSE = nil;
     class PreStream < Stream
       def connect; end
       def connected?; true; end
@@ -41,6 +42,7 @@ module Cosmos
       def read; $buffer; end
       def write(data); $buffer = data; end
     end
+    $VERBOSE = saved_verbose
 
     it "handles receiving a bad packet length" do
       @interface.instance_variable_set(:@stream, PreStream.new)

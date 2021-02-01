@@ -34,7 +34,7 @@ module Cosmos
         model.create
         names = PluginModel.names(scope: "DEFAULT")
         plugin = PluginModel.get(name: names[0], scope: "DEFAULT")
-        expect(plugin["name"]).to match /TEST1__\d{13}/
+        expect(plugin["name"]).to match(/TEST1__\d{13}/)
       end
     end
 
@@ -102,7 +102,7 @@ module Cosmos
         # Just stub the instance deploy method
         expect_any_instance_of(ToolModel).to receive(:deploy).with(anything, variables).and_return(nil)
         expect_any_instance_of(TargetModel).to receive(:deploy).with(anything, variables).and_return(nil)
-        model = PluginModel.install_phase2("name", variables, scope: "DEFAULT")
+        PluginModel.install_phase2("name", variables, scope: "DEFAULT")
       end
     end
 

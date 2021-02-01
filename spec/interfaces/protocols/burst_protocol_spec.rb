@@ -24,6 +24,15 @@ require 'cosmos/streams/stream'
 
 module Cosmos
   describe BurstProtocol do
+    $data = "\x01\x02\x03\x04"
+    class StreamStub < Stream
+      def connect; end
+      def connected?; true; end
+      def disconnect; end
+      def read; $data; end
+      def write(data) $data = data; end
+    end
+
     before(:each) do
       @interface = StreamInterface.new
       allow(@interface).to receive(:connected?) { true }
@@ -59,40 +68,23 @@ module Cosmos
 
     describe "read_data" do
       it "reads data from the stream" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
-          def read; "\x01\x02\x03\x04"; end
-        end
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.instance_variable_set(:@stream, StreamStub.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 4
       end
 
       it "handles timeouts from the stream" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
+        class TimeoutStream < StreamStub
           def read; raise Timeout::Error; end
         end
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.instance_variable_set(:@stream, TimeoutStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         expect(@interface.read).to be_nil
       end
 
       it "discards leading bytes from the stream" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
-          def read
-            "\x01\x02\x03\x04"
-          end
-        end
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.instance_variable_set(:@stream, StreamStub.new)
         @interface.add_protocol(BurstProtocol, [2], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 2
@@ -101,15 +93,8 @@ module Cosmos
 
       # The sync pattern is NOT part of the data
       it "discards the entire sync pattern" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
-          def read
-            "\x12\x34\x56\x78\x9A\xBC"
-          end
-        end
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        $data = "\x12\x34\x56\x78\x9A\xBC"
+        @interface.instance_variable_set(:@stream, StreamStub.new)
         @interface.add_protocol(BurstProtocol, [2, '0x1234'], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 4
@@ -118,15 +103,8 @@ module Cosmos
 
       # The sync pattern is partially part of the data
       it "discards part of the sync pattern" do
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
-          def read
-            "\x12\x34\x56\x78\x9A\xBC"
-          end
-        end
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        $data = "\x12\x34\x56\x78\x9A\xBC"
+        @interface.instance_variable_set(:@stream, StreamStub.new)
         @interface.add_protocol(BurstProtocol, [1, '0x123456'], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 5
@@ -136,10 +114,7 @@ module Cosmos
       # The sync pattern is completely part of the data
       it "handles a sync pattern" do
         $read_cnt = 0
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
+        class SyncStream1 < StreamStub
           def read
             $read_cnt += 1
             case $read_cnt
@@ -152,7 +127,7 @@ module Cosmos
             end
           end
         end
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.instance_variable_set(:@stream, SyncStream1.new)
         @interface.add_protocol(BurstProtocol, [0, '0x1234'], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 4 # sync plus two bytes
@@ -161,10 +136,7 @@ module Cosmos
 
       it "handles a sync pattern split across reads" do
         $read_cnt = 0
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
+        class SyncStream2 < StreamStub
           def read
             $read_cnt += 1
             case $read_cnt
@@ -177,7 +149,7 @@ module Cosmos
             end
           end
         end
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.instance_variable_set(:@stream, SyncStream2.new)
         @interface.add_protocol(BurstProtocol, [0, '0x1234'], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 3 # sync plus one byte
@@ -185,10 +157,7 @@ module Cosmos
 
       it "handles a false positive sync pattern" do
         $read_cnt = 0
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
+        class SyncStream3 < StreamStub
           def read
             $read_cnt += 1
             case $read_cnt
@@ -201,7 +170,7 @@ module Cosmos
             end
           end
         end
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.instance_variable_set(:@stream, SyncStream3.new)
         @interface.add_protocol(BurstProtocol, [0, '0x1234'], :READ_WRITE)
         pkt = @interface.read
         expect(pkt.length).to eql 3 # sync plus one byte
@@ -228,99 +197,63 @@ module Cosmos
 
     describe "write" do
       it "doesn't change the data if fill_fields is false" do
-        $buffer = ''
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
-          def write(buffer) $buffer = buffer; end
-        end
+        $data = ''
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x01\x02\x03")
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.instance_variable_set(:@stream, StreamStub.new)
         @interface.add_protocol(BurstProtocol, [0, '0x1234'], :READ_WRITE)
         data = @interface.write(data)
-        expect($buffer).to eql "\x00\x01\x02\x03"
+        expect($data).to eql "\x00\x01\x02\x03"
       end
 
       it "complains if the data isn't big enough to hold the sync pattern" do
-        $buffer = ''
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def write(buffer) $buffer = buffer; end
-          def disconnect; end
-        end
+        $data = ''
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x00")
         # Don't discard bytes, include and fill the sync pattern
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.instance_variable_set(:@stream, StreamStub.new)
         @interface.add_protocol(BurstProtocol, [0, '0x12345678', true], :READ_WRITE)
         # 2 bytes are not enough to hold the 4 byte sync
         expect { @interface.write(data) }.to raise_error(ArgumentError, /buffer insufficient/)
       end
 
       it "fills the sync pattern in the data" do
-        $buffer = ''
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
-          def write(buffer) $buffer = buffer; end
-        end
+        $data = ''
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x01\x02\x03")
         # Don't discard bytes, include and fill the sync pattern
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.instance_variable_set(:@stream, StreamStub.new)
         @interface.add_protocol(BurstProtocol, [0, '0x1234', true], :READ_WRITE)
         @interface.write(data)
-        expect($buffer).to eql "\x12\x34\x02\x03"
+        expect($data).to eql "\x12\x34\x02\x03"
       end
 
       it "adds the sync pattern to the data stream" do
-        $buffer = ''
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
-          def write(buffer) $buffer = buffer; end
-        end
+        $data = ''
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x01\x02\x03")
         # Discard first 2 bytes (the sync pattern), include and fill the sync pattern
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.instance_variable_set(:@stream, StreamStub.new)
         @interface.add_protocol(BurstProtocol, [2, '0x12345678', true], :READ_WRITE)
         @interface.write(data)
-        expect($buffer).to eql "\x12\x34\x56\x78\x02\x03"
+        expect($data).to eql "\x12\x34\x56\x78\x02\x03"
       end
 
       it "adds part of the sync pattern to the data stream" do
-        $buffer = ''
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
-          def write(buffer) $buffer = buffer; end
-        end
+        $data = ''
         data = Packet.new(nil, nil, :BIG_ENDIAN, nil, "\x00\x00\x02\x03")
         # Discard first byte (part of the sync pattern), include and fill the sync pattern
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.instance_variable_set(:@stream, StreamStub.new)
         @interface.add_protocol(BurstProtocol, [1, '0x123456', true], :READ_WRITE)
         @interface.write(data)
-        expect($buffer).to eql "\x12\x34\x56\x02\x03"
+        expect($data).to eql "\x12\x34\x56\x02\x03"
       end
     end
 
     describe "write_raw" do
       it "doesnt change the data" do
-        $buffer = ''
-        class MyStream < Stream
-          def connect; end
-          def connected?; true; end
-          def disconnect; end
-          def write(buffer) $buffer = buffer; end
-        end
+        $data = ''
         # Discard first 2 bytes (the sync pattern), include and fill the sync pattern
-        @interface.instance_variable_set(:@stream, MyStream.new)
+        @interface.instance_variable_set(:@stream, StreamStub.new)
         @interface.add_protocol(BurstProtocol, [2, '0x1234', true], :READ_WRITE)
         @interface.write_raw("\x00\x01\x02\x03")
-        expect($buffer).to eql "\x00\x01\x02\x03"
+        expect($data).to eql "\x00\x01\x02\x03"
       end
     end
   end

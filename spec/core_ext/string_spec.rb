@@ -216,7 +216,7 @@ describe String do
 
     it "handles special float values" do
       expect("Infinity".convert_to_value).to eql Float::INFINITY
-      expect("-Infinity".convert_to_value).to eql -Float::INFINITY
+      expect("-Infinity".convert_to_value).to eql(-Float::INFINITY)
       expect("NAN".convert_to_value.nan?).to eql true # Note Float::NAN != Float::NAN by definition
     end
   end
