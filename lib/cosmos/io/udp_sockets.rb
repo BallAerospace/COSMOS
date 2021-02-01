@@ -26,7 +26,6 @@ Socket::IP_MULTICAST_IF = 9 unless Socket.const_defined?('IP_MULTICAST_IF')
 Socket::IP_MULTICAST_TTL = 10 unless Socket.const_defined?('IP_MULTICAST_TTL')
 
 module Cosmos
-
   class UdpReadWriteSocket
     # @param bind_port [Integer[ Port to write data out from and receive data on (0 = randomly assigned)
     # @param bind_address [String] Local address to bind to (0.0.0.0 = All local addresses)
@@ -58,7 +57,7 @@ module Cosmos
       @socket.connect(external_address, external_port) if (external_address and external_port)
 
       # Handle multicast
-      if UdpReadWriteSocket.multicast?(external_address)
+      if UdpReadWriteSocket.multicast?(external_address, external_port)
         if write_multicast
           # Basic setup set time to live
           @socket.setsockopt(Socket::IPPROTO_IP, Socket::IP_MULTICAST_TTL, ttl.to_i)
@@ -127,30 +126,16 @@ module Cosmos
     end
 
     # @param host [String] Machine name or IP address
+    # @param port [String] Port
     # @return [Boolean] Whether the hostname is multicast
-    def self.multicast?(host)
-      return false if host.nil?
-      # Look up address
-      _, _, _, *address_list = Socket.gethostbyname(host)
-      first_addr_byte = 0
-      address_list.each do |address|
-        if address.length == 4
-          first_addr_byte = address.getbyte(0)
-          break
-        end
-      end
-
-      if (first_addr_byte >= 224) && (first_addr_byte <= 239)
-        true
-      else
-        false
-      end
+    def self.multicast?(host, port)
+      return false if host.nil? || port.nil?
+      Addrinfo.udp(host, port).ipv4_multicast?
     end
   end
 
   # Creates a UDPSocket and implements a non-blocking write.
   class UdpWriteSocket < UdpReadWriteSocket
-
     # @param dest_address [String] Host to send data to
     # @param dest_port [Integer] Port to send data to
     # @param src_port [Integer[ Port to send data out from
@@ -179,7 +164,6 @@ module Cosmos
 
   # Creates a UDPSocket and implements a non-blocking read.
   class UdpReadSocket < UdpReadWriteSocket
-
     # @param recv_port [Integer] Port to receive data on
     # @param multicast_address [String] Address to add multicast
     # @param multicast_interface_address [String] Local incoming interface to receive multicast packets on
@@ -201,5 +185,4 @@ module Cosmos
         false)
     end
   end
-
-end # module Cosmos
+end

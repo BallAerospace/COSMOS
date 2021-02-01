@@ -22,11 +22,13 @@ require 'cosmos/interfaces/linc_interface'
 
 module Cosmos
   xdescribe LincInterface do
+    saved_verbose = $VERBOSE; $VERBOSE = nil;
     class TcpipClientStream < TcpipSocketStream
       # Allow the connect_nonblock method to simply return
       def connect_nonblock(socket, addr); end
       def write(data); end
     end
+    $VERBOSE = saved_verbose
 
     describe "connect" do
       it "passes a new TcpipClientStream to the stream protocol" do

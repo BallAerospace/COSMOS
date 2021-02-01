@@ -115,6 +115,7 @@ module Cosmos
         expect { MicroserviceModel.new(name: "SCOPE__TYPE", folder_name: "FOLDER", scope: "DEFAULT") }.to raise_error("name 'SCOPE__TYPE' must be formatted as SCOPE__TYPE__NAME")
         expect { MicroserviceModel.new(name: "SCOPE__TYPE__NAME", folder_name: "FOLDER", scope: "DEFAULT") }.to raise_error("name 'SCOPE__TYPE__NAME' scope 'SCOPE' doesn't match scope parameter 'DEFAULT'")
         model = MicroserviceModel.new(folder_name: "TEST", name: "DEFAULT__TYPE__NAME", scope: "DEFAULT")
+        expect(model.name).to eql "DEFAULT__TYPE__NAME"
       end
     end
 

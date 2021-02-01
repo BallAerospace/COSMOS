@@ -20,6 +20,7 @@
 require 'cosmos/config/config_parser'
 require 'cosmos/packets/packet_config'
 require 'cosmos/packets/commands'
+# TODO: System requires telemetry and Telemetry require system ... circular reference
 require 'cosmos/packets/telemetry'
 require 'cosmos/packets/limits'
 require 'cosmos/system/target'

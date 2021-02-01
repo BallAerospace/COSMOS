@@ -188,7 +188,7 @@ module Cosmos
         system = update_store(temp_dir)
         deploy_microservices(gem_path, variables, system)
       ensure
-        FileUtils.remove_entry(temp_dir) if temp_dir and File.exists?(temp_dir)
+        FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
       end
     end
 

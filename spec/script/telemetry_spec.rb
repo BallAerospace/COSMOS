@@ -68,7 +68,7 @@ module Cosmos
     describe "tlm, tlm_raw, tlm_formatted, tlm_with_units, tlm_variable, get_tlm_buffer" do
       it "passes through to the cmd_tlm_server" do
         expect {
-          expect(tlm("INST HEALTH_STATUS TEMP1")).to eql -100.0
+          expect(tlm("INST HEALTH_STATUS TEMP1")).to eql(-100.0)
           expect(tlm_raw("INST HEALTH_STATUS TEMP1")).to eql 0
           expect(tlm_formatted("INST HEALTH_STATUS TEMP1")).to eql "-100.000"
           expect(tlm_with_units("INST HEALTH_STATUS TEMP1")).to eql "-100.000 C"
@@ -137,7 +137,7 @@ module Cosmos
     # describe "get_tlm_values" do
     #   it "gets the given values" do
     #     vals = get_tlm_values(["INST__HEALTH_STATUS__TEMP1__CONVERTED", "INST__HEALTH_STATUS__TEMP2__CONVERTED"])
-    #     expect(vals[0][0]).to eql -100.0
+    #     expect(vals[0][0]).to eql(-100.0)
     #     expect(vals[0][1]).to eql :RED_LOW
     #     expect(vals[2][0]).to eql [-80.0, -70.0, 60.0, 80.0, -20.0, 20.0]
     #     expect(vals[3]).to eql :DEFAULT

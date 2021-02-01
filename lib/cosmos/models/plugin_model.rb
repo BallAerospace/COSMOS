@@ -91,7 +91,7 @@ module Cosmos
           return model.as_json
         end
       ensure
-        FileUtils.remove_entry(temp_dir) if temp_dir and File.exists?(temp_dir)
+        FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
       end
     end
 
@@ -151,7 +151,7 @@ module Cosmos
           end
         end
       ensure
-        FileUtils.remove_entry(temp_dir) if temp_dir and File.exists?(temp_dir)
+        FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
       end
     end
 
