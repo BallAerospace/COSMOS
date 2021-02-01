@@ -33,6 +33,31 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
+# NOTE: You MUST require simplecov before anything else!
+if !ENV['COSMOS_NO_SIMPLECOV']
+  require 'simplecov'
+  if ENV['GITHUB_WORKFLOW']
+    require 'codecov'
+    SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
+      SimpleCov::Formatter::HTMLFormatter,
+      SimpleCov::Formatter::Codecov,
+    ])
+  end
+  SimpleCov.start do
+    merge_timeout 60 * 60 # merge the last hour of results
+    add_filter '/spec/' # no coverage on spec files
+    root = File.dirname(__FILE__)
+    root.to_s
+  end
+  SimpleCov.at_exit do
+    Cosmos.disable_warnings do
+      Encoding.default_external = Encoding::UTF_8
+      Encoding.default_internal = nil
+    end
+    SimpleCov.result.format!
+  end
+end
+
 # Disable Redis and Fluentd in the Logger
 ENV['NO_STORE'] = 'true'
 ENV['NO_FLUENTD'] = 'true'
