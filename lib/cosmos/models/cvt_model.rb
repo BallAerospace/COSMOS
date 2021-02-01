@@ -21,8 +21,82 @@ require 'cosmos/utilities/store'
 
 module Cosmos
   class CvtModel
+    VALUE_TYPES = [:RAW, :CONVERTED, :FORMATTED, :WITH_UNITS]
+    # Stores telemetry item overrides which are returned on every request to get_item
+    @overrides = {}
+
+    # Set multiple items in the current value table using the hash
     def self.set(hash, target_name:, packet_name:, scope:)
       Store.mapped_hmset("#{scope}__tlm__#{target_name}__#{packet_name}", hash)
+    end
+
+    # Set an item in the current value table
+    def self.set_item(target_name, packet_name, item_name, value, type:, scope:)
+      case type
+      when :WITH_UNITS
+        field = "#{item_name}__U"
+      when :FORMATTED
+        field = "#{item_name}__F"
+      when :CONVERTED
+        field = "#{item_name}__C"
+      when :RAW
+        field = item_name
+      else
+        raise "Unrecognized type #{type} for #{target_name} #{packet_name} #{item_name}"
+      end
+      Store.hset("#{scope}__tlm__#{target_name}__#{packet_name}", field, value)
+    end
+
+    # Get an item from the current value table
+    def self.get_item(target_name, packet_name, item_name, type:, scope:)
+      if @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"]
+        return @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"]
+      end
+
+      types = []
+      case type
+      when :WITH_UNITS
+        types = ["#{item_name}__U", "#{item_name}__F", "#{item_name}__C", item_name]
+      when :FORMATTED
+        types = ["#{item_name}__F", "#{item_name}__C", item_name]
+      when :CONVERTED
+        types = ["#{item_name}__C", item_name]
+      when :RAW
+        types = [item_name]
+      else
+        raise "Unrecognized type #{type} for #{target_name} #{packet_name} #{item_name}"
+      end
+
+      results = Store.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *types)
+      results.each do |result|
+        return JSON.parse(result) if result
+      end
+      return nil
+    end
+
+    # Override a current value table item such that it always returns the same value
+    # for the given type
+    def self.override(target_name, packet_name, item_name, value, type:, scope: $cosmos_scope)
+      if VALUE_TYPES.include?(type)
+        @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"] = value
+      else
+        raise "Unrecognized type #{type} for #{target_name} #{packet_name} #{item_name}"
+      end
+    end
+
+    # Normalize a current value table item such that it returns the actual value
+    def self.normalize(target_name, packet_name, item_name, type: :ALL, scope: $cosmos_scope)
+      if type == :ALL
+        VALUE_TYPES.each do |type|
+          @overrides.delete("#{target_name}__#{packet_name}__#{item_name}__#{type}")
+        end
+      else
+        if VALUE_TYPES.include?(type)
+          @overrides.delete("#{target_name}__#{packet_name}__#{item_name}__#{type}")
+        else
+          raise "Unrecognized type #{type} for #{target_name} #{packet_name} #{item_name}"
+        end
+      end
     end
   end
 end

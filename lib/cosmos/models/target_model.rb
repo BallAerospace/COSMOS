@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/models/model'
+require 'cosmos/system'
 require 'cosmos/utilities/s3'
 require 'zip'
 require 'zip/filesystem'
@@ -27,6 +28,7 @@ require 'tempfile'
 module Cosmos
   class TargetModel < Model
     PRIMARY_KEY = 'cosmos_targets'
+    VALID_TYPES = %i(CMD TLM)
 
     attr_accessor :folder_name
     attr_accessor :requires
@@ -49,6 +51,51 @@ module Cosmos
 
     def self.all(scope: nil)
       super("#{scope}__#{PRIMARY_KEY}")
+    end
+
+    # @return [Hash] Packet hash or raises an exception
+    def self.packet(target_name, packet_name, type: :TLM, scope:)
+      raise "Unknown type #{type} for #{target_name} #{packet_name}" unless VALID_TYPES.include?(type)
+      # Assume it exists and just try to get it to avoid an extra call to Store.exist?
+      json = Store.hget("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}", packet_name)
+      raise "Packet '#{target_name} #{packet_name}' does not exist" if json.nil?
+      JSON.parse(json)
+    end
+
+    # @return [Array>Hash>] All packet hashes under the target_name
+    def self.packets(target_name, type: :TLM, scope:)
+      raise "Unknown type #{type} for #{target_name}" unless VALID_TYPES.include?(type)
+      raise "Target '#{target_name}' does not exist" unless get(name: target_name, scope: scope)
+      result = []
+      packets = Store.hgetall("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}")
+      packets.sort.each do |packet_name, packet_json|
+        result << JSON.parse(packet_json)
+      end
+      result
+    end
+
+    # @return [Hash] Item hash or raises an exception
+    def self.packet_item(target_name, packet_name, item_name, type: :TLM, scope:)
+      packet = packet(target_name, packet_name, type: type, scope: scope)
+      item = packet['items'].find {|item| item['name'] == item_name.to_s }
+      raise "Item '#{packet['target_name']} #{packet['packet_name']} #{item_name}' does not exist" unless item
+      item
+    end
+
+    # @return [Array<Hash>] Item hash array or raises an exception
+    def self.packet_items(target_name, packet_name, items, type: :TLM, scope:)
+      packet = packet(target_name, packet_name, type: type, scope: scope)
+      found = packet['items'].find_all {|item| items.map(&:to_s).include?(item['name']) }
+      if found.length != items.length # we didn't find them all
+        found_items = found.collect { |item| item['name'] }
+        not_found = []
+        (items - found_items).each do |item|
+          not_found << "'#{target_name} #{packet_name} #{item}'"
+        end
+        # 'does not exist' not gramatically correct but we use it in every other exception
+        raise "Item(s) #{not_found.join(', ')} does not exist"
+      end
+      found
     end
 
     # Called by the PluginModel to allow this class to validate it's top-level keyword: "TARGET"

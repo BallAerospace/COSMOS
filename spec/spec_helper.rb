@@ -32,8 +32,6 @@ end
 if !ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
   if ENV['GITHUB_WORKFLOW']
-    # TODO: Is this really needed?
-    # ENV['CODECOV_TOKEN'] = "a9684b83-9a5d-4a27-b6cd-35e445b5fb0a"
     require 'codecov'
     SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
       SimpleCov::Formatter::HTMLFormatter,
@@ -41,9 +39,8 @@ if !ENV['COSMOS_NO_SIMPLECOV']
     ])
   end
   SimpleCov.start do
-    merge_timeout 12 * 60 * 60 # merge the last 12 hours of results
-    add_filter '/spec/'
-    add_filter '/autohotkey/'
+    merge_timeout 60 * 60 # merge the last hour of results
+    add_filter '/spec/' # no coverage on spec files
     root = File.dirname(__FILE__)
     root.to_s
   end
@@ -56,8 +53,6 @@ if !ENV['COSMOS_NO_SIMPLECOV']
   end
 end
 require 'rspec'
-require 'ruby-prof' if RUBY_ENGINE == 'ruby'
-require 'benchmark/ips'
 
 # Set the user path to our COSMOS configuration in the spec directory
 ENV['COSMOS_USERPATH'] = File.join(File.dirname(File.expand_path(__FILE__)), 'install')
@@ -69,32 +64,22 @@ module Cosmos
   USERPATH = ENV['COSMOS_USERPATH']
 end
 
-require 'cosmos'
-require 'cosmos/utilities/logger'
-
-DEFAULT_USERPATH = Cosmos::USERPATH
+require 'cosmos/top_level'
+# require 'cosmos/utilities/logger'
+# Create a easy alias to the base of the spec directory
 SPEC_DIR = File.dirname(__FILE__)
-
-$system_exit_count = 0
-# Overload exit so we know when it is called
-
-alias old_exit exit
-def exit(*args)
-  $system_exit_count += 1
-end
-
 $cosmos_scope = 'DEFAULT'
-
-require 'mock_redis'
-require 'cosmos/utilities/store'
-require 'cosmos/models/plugin_model'
+$cosmos_token = nil
 
 def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
+  require 'cosmos/system'
   dir = File.join(__dir__, 'install', 'config', 'targets')
+  Cosmos::System.class_variable_set(:@@instance, nil)
   Cosmos::System.instance(targets, dir)
 end
 
 def mock_redis
+  require 'mock_redis'
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
   # pool = double(ConnectionPool)
@@ -103,61 +88,6 @@ def mock_redis
   Cosmos::Store.class_variable_set(:@@instance, nil)
   redis
 end
-
-# TODO: REMOVE
-# def install_plugin
-#   plugin = File.join(__dir__, 'install', 'cosmos-demo-5.0.0.gem')
-#   allow(Cosmos::GemModel).to receive(:put)
-#   allow(Cosmos::GemModel).to receive(:get).and_return(plugin)
-#   s3 = instance_double("Aws::S3::Client").as_null_object
-#   allow(Aws::S3::Client).to receive(:new).and_return(s3)
-
-#   plugin_hash = Cosmos::PluginModel.install_phase1(plugin, scope: $cosmos_scope)
-#   Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: $cosmos_scope)
-# end
-
-RSpec.configure do |config|
-  # Enforce the new expect() syntax instead of the old should syntax
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
-  end
-
-  # Store standard output global and CONSTANT since we will mess with them
-  config.before(:all) do
-    $saved_stdout_global = $stdout
-    $saved_stdout_const  = Object.const_get(:STDOUT)
-  end
-
-  config.after(:all) {
-    clean_config()
-    Cosmos.disable_warnings do
-      def Object.exit(*args)
-        old_exit(*args)
-      end
-    end
-  }
-
-  # Before each test make sure $stdout and STDOUT are set. They might be messed
-  # up if a spec fails in the middle of capture_io and we don't have a chance
-  # to return and reset them.
-  config.before(:each) do
-    $stdout = $saved_stdout_global if $stdout != $saved_stdout_global
-    Cosmos.disable_warnings do
-      Object.const_set(:STDOUT, $saved_stdout_const)
-    end
-    kill_leftover_threads()
-  end
-
-  config.after(:each) do
-    # Make sure we didn't leave any lingering threads
-    threads = running_threads()
-    thread_count = threads.size()
-    running_threads_str = threads.join("\n")
-
-    expect(thread_count).to eql(1), "At end of test expect 1 remaining thread but found #{thread_count}.\nEnsure you kill all spawned threads before the test finishes.\nThreads:\n#{running_threads_str}"
-  end
-end
-
 # Clean up the spec configuration directory
 def clean_config
   %w(outputs/logs outputs/saved_config outputs/tmp outputs/tables outputs/handbooks procedures).each do |dir|
@@ -230,60 +160,112 @@ def kill_leftover_threads
   end
 end
 
-RSpec.configure do |c|
-  if ENV.key?("PROFILE")
-    c.before(:suite) do
-      RubyProf.start
-    end
-    c.after(:suite) do |example|
-      result = RubyProf.stop
-      result.exclude_common_methods!
-      printer = RubyProf::GraphHtmlPrinter.new(result)
-      printer.print(File.open("profile.html", 'w+'), :min_percent => 1)
-    end
-    c.around(:each) do |example|
-      # Run each test 100 times to prevent startup issues from dominating
-      100.times do
-        example.run
-      end
-    end
-  end
-  if ENV.key?("BENCHMARK")
-    c.around(:each) do |example|
-      Benchmark.ips do |x|
-        x.report(example.metadata[:full_description]) do
-          example.run
-        end
-      end
-    end
-  end
-  if ENV.key?("STRESS")
-    c.around(:each) do |example|
-      begin
-        GC.stress = true
-        example.run
-      ensure
-        GC.stress = false
-      end
-    end
-  end
-# This code causes a new profile file to be created for each test case which is excessive and hard to read
-#  c.around(:each) do |example|
-#    if ENV.key?("PROFILE")
-#      klass = example.metadata[:example_group][:example_group][:description_args][0].to_s.gsub(/::/,'')
-#      method = example.metadata[:description_args][0].to_s.gsub!(/ /,'_')
-#      RubyProf.start
-#      100.times do
-#        example.run
-#      end
-#      result = RubyProf.stop
-#      result.eliminate_methods!([/RSpec/, /BasicObject/])
-#      printer = RubyProf::GraphHtmlPrinter.new(result)
-#      dir = "./profile/#{klass}"
-#      FileUtils.mkdir_p(dir)
-#      printer.print(File.open("#{dir}/#{method}.html", 'w+'), :min_percent => 2)
-#    else
-#      example.run
-#    end
-#  end
+$system_exit_count = 0
+# Overload exit so we know when it is called
+alias old_exit exit
+def exit(*args)
+  $system_exit_count += 1
 end
+
+RSpec.configure do |config|
+  # Enforce the new expect() syntax instead of the old should syntax
+  config.expect_with :rspec do |c|
+    c.syntax = :expect
+  end
+
+  # Store standard output global and CONSTANT since we will mess with them
+  config.before(:all) do
+    $saved_stdout_global = $stdout
+    $saved_stdout_const  = Object.const_get(:STDOUT)
+  end
+
+  config.after(:all) {
+    Cosmos.disable_warnings do
+      def Object.exit(*args)
+        old_exit(*args)
+      end
+    end
+  }
+
+  # Before each test make sure $stdout and STDOUT are set. They might be messed
+  # up if a spec fails in the middle of capture_io and we don't have a chance
+  # to return and reset them.
+  config.before(:each) do
+    $stdout = $saved_stdout_global if $stdout != $saved_stdout_global
+    Cosmos.disable_warnings do
+      Object.const_set(:STDOUT, $saved_stdout_const)
+    end
+    kill_leftover_threads()
+  end
+
+  config.after(:each) do
+    # Make sure we didn't leave any lingering threads
+    threads = running_threads()
+    thread_count = threads.size()
+    running_threads_str = threads.join("\n")
+
+    expect(thread_count).to eql(1), "At end of test expect 1 remaining thread but found #{thread_count}.\nEnsure you kill all spawned threads before the test finishes.\nThreads:\n#{running_threads_str}"
+  end
+end
+
+# Commented out for performance reasons
+# If you want to manually profile, benchmark, or stress test then uncomment
+# require 'ruby-prof' if RUBY_ENGINE == 'ruby'
+# require 'benchmark/ips' if ENV.key?("BENCHMARK")
+# RSpec.configure do |c|
+#   if ENV.key?("PROFILE")
+#     c.before(:suite) do
+#       RubyProf.start
+#     end
+#     c.after(:suite) do |example|
+#       result = RubyProf.stop
+#       result.exclude_common_methods!
+#       printer = RubyProf::GraphHtmlPrinter.new(result)
+#       printer.print(File.open("profile.html", 'w+'), :min_percent => 1)
+#     end
+#     c.around(:each) do |example|
+#       # Run each test 100 times to prevent startup issues from dominating
+#       100.times do
+#         example.run
+#       end
+#     end
+#   end
+#   if ENV.key?("BENCHMARK")
+#     c.around(:each) do |example|
+#       Benchmark.ips do |x|
+#         x.report(example.metadata[:full_description]) do
+#           example.run
+#         end
+#       end
+#     end
+#   end
+#   if ENV.key?("STRESS")
+#     c.around(:each) do |example|
+#       begin
+#         GC.stress = true
+#         example.run
+#       ensure
+#         GC.stress = false
+#       end
+#     end
+#   end
+# # This code causes a new profile file to be created for each test case which is excessive and hard to read
+# #  c.around(:each) do |example|
+# #    if ENV.key?("PROFILE")
+# #      klass = example.metadata[:example_group][:example_group][:description_args][0].to_s.gsub(/::/,'')
+# #      method = example.metadata[:description_args][0].to_s.gsub!(/ /,'_')
+# #      RubyProf.start
+# #      100.times do
+# #        example.run
+# #      end
+# #      result = RubyProf.stop
+# #      result.eliminate_methods!([/RSpec/, /BasicObject/])
+# #      printer = RubyProf::GraphHtmlPrinter.new(result)
+# #      dir = "./profile/#{klass}"
+# #      FileUtils.mkdir_p(dir)
+# #      printer.print(File.open("#{dir}/#{method}.html", 'w+'), :min_percent => 2)
+# #    else
+# #      example.run
+# #    end
+# #  end
+# end

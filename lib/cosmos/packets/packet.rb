@@ -636,7 +636,7 @@ module Cosmos
         if item.write_conversion
           value = item.write_conversion.call(value, self, buffer)
         else
-          raise "Cannot write DERIVED item without a write conversion" if item.data_type == :DERIVED
+          raise "Cannot write DERIVED item #{item.name} without a write conversion" if item.data_type == :DERIVED
         end
         begin
           super(item, value, :RAW, buffer) unless item.data_type == :DERIVED

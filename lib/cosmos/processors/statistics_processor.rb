@@ -77,7 +77,7 @@ module Cosmos
     end
 
     def as_json
-      {'name' => @name, 'class' => self.class.name, 'params' => [@item_name, @sample_to_average, @value_type.to_s]}
+      {'name' => @name, 'class' => self.class.name, 'params' => [@item_name, @samples_to_average, @value_type.to_s]}
     end
   end # class StatisticsProcessor
 

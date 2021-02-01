@@ -19,6 +19,7 @@
 
 require 'spec_helper'
 require 'cosmos/models/target_model'
+require 'cosmos/models/microservice_model'
 
 module Cosmos
   describe TargetModel do
@@ -62,6 +63,188 @@ module Cosmos
         model.create
         all = TargetModel.all(scope: "DEFAULT")
         expect(all.keys).to contain_exactly("TEST", "SPEC")
+      end
+    end
+
+    describe "self.packets" do
+      before(:each) do
+        setup_system()
+        model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model = TargetModel.new(folder_name: "EMPTY", name: "EMPTY", scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+      end
+
+      it "raises for an unknown type" do
+        expect { TargetModel.packets("INST", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type OTHER/)
+      end
+
+      it "raises for a non-existant target" do
+        expect { TargetModel.packets("BLAH", scope: "DEFAULT") }.to raise_error("Target 'BLAH' does not exist")
+      end
+
+      it "returns all telemetry packets" do
+        pkts = TargetModel.packets("INST", type: :TLM, scope: "DEFAULT")
+        # Verify result is Array of packet Hashes
+        expect(pkts).to be_a Array
+        names = []
+        pkts.each do |pkt|
+          expect(pkt).to be_a Hash
+          expect(pkt['target_name']).to eql "INST"
+          names << pkt['packet_name']
+        end
+        expect(names).to include("ADCS", "HEALTH_STATUS", "PARAMS", "IMAGE", "MECH")
+      end
+
+      it "returns empty array for no telemetry packets" do
+        pkts = TargetModel.packets("EMPTY", type: :TLM, scope: "DEFAULT")
+        # Verify result is Array of packet Hashes
+        expect(pkts).to be_a Array
+        expect(pkts).to be_empty
+      end
+
+      it "returns packet hash if the command exists" do
+        pkts = TargetModel.packets("INST", type: :CMD, scope: "DEFAULT")
+        expect(pkts).to be_a Array
+        names = []
+        pkts.each do |pkt|
+          expect(pkt).to be_a Hash
+          expect(pkt['target_name']).to eql "INST"
+          names << pkt['packet_name']
+        end
+        expect(names).to include("ABORT", "COLLECT", "CLEAR") # Spot check
+      end
+
+      it "returns empty array for no command packets" do
+        pkts = TargetModel.packets("EMPTY", type: :CMD, scope: "DEFAULT")
+        # Verify result is Array of packet Hashes
+        expect(pkts).to be_a Array
+        expect(pkts).to be_empty
+      end
+    end
+
+    describe "self.packet" do
+      before(:each) do
+        setup_system()
+        model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+      end
+
+      it "raises for an unknown type" do
+        expect { TargetModel.packet("INST", "HEALTH_STATUS", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type OTHER/)
+      end
+
+      it "raises for a non-existant target" do
+        expect { TargetModel.packet("BLAH", "HEALTH_STATUS", type: :TLM, scope: "DEFAULT") }.to raise_error("Packet 'BLAH HEALTH_STATUS' does not exist")
+      end
+
+      it "raises for a non-existant packet" do
+        expect { TargetModel.packet("INST", "BLAH", type: :TLM, scope: "DEFAULT") }.to raise_error("Packet 'INST BLAH' does not exist")
+      end
+
+      it "returns packet hash if the telemetry exists" do
+        pkt = TargetModel.packet("INST", "HEALTH_STATUS", type: :TLM, scope: "DEFAULT")
+        expect(pkt['target_name']).to eql "INST"
+        expect(pkt['packet_name']).to eql "HEALTH_STATUS"
+      end
+
+      it "returns packet hash if the command exists" do
+        pkt = TargetModel.packet("INST", "ABORT", type: :CMD, scope: "DEFAULT")
+        expect(pkt['target_name']).to eql "INST"
+        expect(pkt['packet_name']).to eql "ABORT"
+      end
+    end
+
+    describe "self.packet_item" do
+      before(:each) do
+        setup_system()
+        model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+      end
+
+      it "raises for an unknown type" do
+        expect { TargetModel.packet_item("INST", "HEALTH_STATUS", "CCSDSVER", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type OTHER/)
+      end
+
+      it "raises for a non-existant target" do
+        expect { TargetModel.packet_item("BLAH", "HEALTH_STATUS", "CCSDSVER", scope: "DEFAULT") }.to raise_error("Packet 'BLAH HEALTH_STATUS' does not exist")
+      end
+
+      it "raises for a non-existant packet" do
+        expect { TargetModel.packet_item("INST", "BLAH", "CCSDSVER", scope: "DEFAULT") }.to raise_error("Packet 'INST BLAH' does not exist")
+      end
+
+      it "raises for a non-existant item" do
+        expect { TargetModel.packet_item("INST", "HEALTH_STATUS", "BLAH", scope: "DEFAULT") }.to raise_error("Item 'INST HEALTH_STATUS BLAH' does not exist")
+      end
+
+      it "returns item hash if the telemetry item exists" do
+        item = TargetModel.packet_item("INST", "HEALTH_STATUS", "CCSDSVER", scope: "DEFAULT")
+        expect(item['name']).to eql "CCSDSVER"
+        expect(item['bit_offset']).to eql 0
+      end
+
+      it "returns item hash if the command item exists" do
+        item = TargetModel.packet_item("INST", "ABORT", "CCSDSVER", type: :CMD, scope: "DEFAULT")
+        expect(item['name']).to eql "CCSDSVER"
+        expect(item['bit_offset']).to eql 0
+      end
+    end
+
+    describe "self.packet_items" do
+      before(:each) do
+        setup_system()
+        model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+      end
+
+      it "raises for an unknown type" do
+        expect { TargetModel.packet_items("INST", "HEALTH_STATUS", ["CCSDSVER"], type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type OTHER/)
+      end
+
+      it "raises for a non-existant target" do
+        expect { TargetModel.packet_items("BLAH", "HEALTH_STATUS", ["CCSDSVER"], scope: "DEFAULT") }.to raise_error("Packet 'BLAH HEALTH_STATUS' does not exist")
+      end
+
+      it "raises for a non-existant packet" do
+        expect { TargetModel.packet_items("INST", "BLAH", ["CCSDSVER"], scope: "DEFAULT") }.to raise_error("Packet 'INST BLAH' does not exist")
+      end
+
+      it "raises for non-existant items" do
+        expect { TargetModel.packet_items("INST", "HEALTH_STATUS", ["BLAH"], scope: "DEFAULT") }.to \
+          raise_error("Item(s) 'INST HEALTH_STATUS BLAH' does not exist")
+        expect { TargetModel.packet_items("INST", "HEALTH_STATUS", ["CCSDSVER", "BLAH"], scope: "DEFAULT") }.to \
+          raise_error("Item(s) 'INST HEALTH_STATUS BLAH' does not exist")
+        expect { TargetModel.packet_items("INST", "HEALTH_STATUS", [:BLAH, :NOPE], scope: "DEFAULT") }.to \
+          raise_error("Item(s) 'INST HEALTH_STATUS BLAH', 'INST HEALTH_STATUS NOPE' does not exist")
+      end
+
+      it "returns item hash array if the telemetry items exists" do
+        items = TargetModel.packet_items("INST", "HEALTH_STATUS", ["CCSDSVER", "CCSDSTYPE"], scope: "DEFAULT")
+        expect(items.length).to eql 2
+        expect(items[0]['name']).to eql "CCSDSVER"
+        expect(items[0]['bit_offset']).to eql 0
+        expect(items[1]['name']).to eql "CCSDSTYPE"
+
+        # Verify it also works with symbols
+        items = TargetModel.packet_items("INST", "HEALTH_STATUS", [:CCSDSVER, :CCSDSTYPE], scope: "DEFAULT")
+        expect(items.length).to eql 2
+        expect(items[0]['name']).to eql "CCSDSVER"
+        expect(items[0]['bit_offset']).to eql 0
+        expect(items[1]['name']).to eql "CCSDSTYPE"
+      end
+
+      it "returns item hash array if the command items exists" do
+        items = TargetModel.packet_items("INST", "ABORT", ["CCSDSVER", "CCSDSTYPE"], type: :CMD, scope: "DEFAULT")
+        expect(items.length).to eql 2
+        expect(items[0]['name']).to eql "CCSDSVER"
+        expect(items[0]['bit_offset']).to eql 0
+        expect(items[1]['name']).to eql "CCSDSTYPE"
       end
     end
 
@@ -178,11 +361,11 @@ module Cosmos
         expect(Store.hkeys("DEFAULT__cosmoscmd__INST")).to include("ABORT", "COLLECT", "CLEAR") #... etc
 
         # Spot check a telemetry packet and a command
-        telemetry = Store.instance.get_packet(@target, "HEALTH_STATUS", scope: @scope)
+        telemetry = TargetModel.packet(@target, "HEALTH_STATUS", type: :TLM, scope: @scope)
         expect(telemetry['target_name']).to eql @target
         expect(telemetry['packet_name']).to eql "HEALTH_STATUS"
         expect(telemetry['items'].length).to be > 10
-        command = Store.instance.get_packet(@target, "ABORT", scope: @scope, type: 'cmd')
+        command = TargetModel.packet(@target, "ABORT", type: :CMD, scope: @scope)
         expect(command['target_name']).to eql @target
         expect(command['packet_name']).to eql "ABORT"
         expect(command['items'].length).to be > 10

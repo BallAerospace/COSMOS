@@ -17,6 +17,8 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/api/target_api'
+
 module Cosmos
   module Api
     WHITELIST ||= []
@@ -146,7 +148,7 @@ module Cosmos
     def limits_enabled?(*args, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name = tlm_process_args(args, 'limits_enabled?', scope: scope)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      return Store.instance.get_item(target_name, packet_name, item_name, scope: scope)['limits']['enabled'] ? true : false
+      return TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)['limits']['enabled'] ? true : false
     end
 
     # Enable limits checking for a telemetry item
@@ -161,8 +163,7 @@ module Cosmos
     def enable_limits(*args, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name = tlm_process_args(args, 'enable_limits', scope: scope)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
-      item = Store.instance.get_item_from_packet_hash(packet, item_name, scope: scope)
+      item = TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
       item['limits']['enabled'] = true
       Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
     end
@@ -179,8 +180,7 @@ module Cosmos
     def disable_limits(*args, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name = tlm_process_args(args, 'disable_limits', scope: scope)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
-      item = Store.instance.get_item_from_packet_hash(packet, item_name, scope: scope)
+      item = TargetModel.packet_item(target_name, packet_name, scope: scope)
       item['limits'].delete('enabled')
       Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
     end
@@ -198,7 +198,7 @@ module Cosmos
     def get_limits(target_name, packet_name, item_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       limits = {}
-      item = Store.instance.get_item(target_name, packet_name, item_name, scope: scope)
+      item = TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
       item['limits'].each do |key, vals|
         next unless vals.is_a?(Hash)
         limits[key] = [vals['red_low'], vals['yellow_low'], vals['yellow_high'], vals['red_high']]
@@ -209,8 +209,7 @@ module Cosmos
 
     def set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
-      item = Store.instance.get_item_from_packet_hash(packet, item_name, scope: scope)
+      item = TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
       item['limits']['persistence_setting'] = persistence
       if enabled
         item['limits']['enabled'] = true
@@ -258,8 +257,7 @@ module Cosmos
       raise "LIMITS_GROUP #{group_name} undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP #{group_name}" unless group
       Logger.info("Disabling Limits Group: #{group_name}")
       group.each do |target_name, packet_name, item_name|
-        packet = Store.instance.get_packet(target_name, packet_name, scope: scope)
-        item = Store.instance.get_item_from_packet_hash(packet, item_name, scope: scope)
+        item = TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
         if action == :enable
           item['limits']['enabled'] = true
         elsif action == :disable

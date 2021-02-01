@@ -47,7 +47,7 @@ module Cosmos
       end
     end
 
-    def extract_fields_from_cmd_text(text)
+    def extract_fields_from_cmd_text(text, scope: $cosmos_scope)
       split_string = text.split(/\s+with\s+/i, 2)
       raise "ERROR: text must not be empty" if split_string.length == 0
       raise "ERROR: 'with' must be followed by parameters : #{text}" if (split_string.length == 1 and text =~ /\s*with\s*/i) or (split_string.length == 2 and split_string[1].empty?)
@@ -62,7 +62,7 @@ module Cosmos
 
       begin
         # Returns the packet JSON representation
-        packet = Store.instance.get_packet(target_name, cmd_name)
+        packet = TargetModel.packet(target_name, cmd_name, type: :CMD, scope: scope)
       rescue
         packet = {}
       end
