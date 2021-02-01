@@ -21,6 +21,32 @@ require 'rails_helper'
 
 RSpec.describe StreamingApi, type: :model do
   before(:each) do
+    mock_redis()
+    setup_system()
+
+    @start_time = Time.now
+    @time = @start_time
+    @max_time = @start_time + 1_000_000
+    msg = {}
+    msg['target_name'] = 'TGT'
+    msg['packet_name'] = 'PKT'
+    msg['time'] = @time.to_i * 1_000_000_000
+    packet_data = {}
+    packet_data['PACKET_TIMESECONDS'] = @time.to_f
+    packet_data['PACKET_TIMEFORMATTED'] = @time.formatted
+    packet_data['ITEM1__R'] = 1
+    msg['json_data'] = JSON.generate(packet_data.to_json)
+    allow(Cosmos::Store.instance).to receive(:read_topics) do |_, &block|
+      sleep 0.1 # Simulate a little blocking time
+      @time += 1
+      msg['time'] = @time.to_i * 1_000_000_000 # Convert to nsec
+      if @time < @max_time
+        block.call('DEFAULT__DECOM__TGT__PKT', "#{@time.to_i * 1000}-0", msg, nil)
+      else
+        {} # Return an empty result like the real store code
+      end
+    end
+
     @messages = []
     @channel = double('channel')
     allow(@channel).to receive(:transmit) { |msg| @messages << msg }
@@ -36,32 +62,6 @@ RSpec.describe StreamingApi, type: :model do
 
   context 'streaming with Redis' do
     let(:data) { { 'scope' => 'DEFAULT', 'items' => ['TLM__TGT__PKT__ITEM1__CONVERTED'] } }
-
-    before do
-      configure_store()
-      @start_time = Time.now
-      @time = @start_time
-      @max_time = @start_time + 1_000_000
-      msg = {}
-      msg['target_name'] = 'TGT'
-      msg['packet_name'] = 'PKT'
-      msg['time'] = @time.to_i * 1_000_000_000
-      packet_data = {}
-      packet_data['PACKET_TIMESECONDS'] = @time.to_f
-      packet_data['PACKET_TIMEFORMATTED'] = @time.formatted
-      packet_data['ITEM1__R'] = 1
-      msg['json_data'] = JSON.generate(packet_data.to_json)
-      allow(Cosmos::Store.instance).to receive(:read_topics) do |_, &block|
-        sleep 0.1 # Simulate a little blocking time
-        @time += 1
-        msg['time'] = @time.to_i * 1_000_000_000 # Convert to nsec
-        if @time < @max_time
-          block.call('DEFAULT__DECOM__TGT__PKT', "#{@time.to_i * 1000}-0", msg, nil)
-        else
-          {} # Return an empty result like the real store code
-        end
-      end
-    end
 
     it 'has no data in time range' do
       msg1 = {'time' => (@start_time.to_i - 10) * 1_000_000_000 } # newest is 10s ago
