@@ -218,27 +218,60 @@ module Cosmos
       end
     end
 
-    # describe "subscribe_limits_events" do
-    #   xit "calls CmdTlmServer" do
-    #     stub_const("Cosmos::CmdTlmServer::DEFAULT_LIMITS_EVENT_QUEUE_SIZE", 100)
-    #     expect(CmdTlmServer).to receive(:subscribe_limits_events)
-    #     @api.subscribe_limits_events
-    #   end
-    # end
+    describe "get_limits_events" do
+      context "with no events" do
+        it "returns empty array" do
+          events = @api.get_limits_events()
+          expect(events).to eql([])
+        end
+      end
 
-    # describe "unsubscribe_limits_events" do
-    #   xit "calls CmdTlmServer" do
-    #     expect(CmdTlmServer).to receive(:unsubscribe_limits_events)
-    #     @api.unsubscribe_limits_events(0)
-    #   end
-    # end
+      context "with events" do
+        it "returns a limits event and offset" do
+          # Load the events topic with two events ... only the last should be returned
+          LimitsEventTopic.write("BLAH", "BLAH", "BLAH", :RED_LOW, :RED_HIGH, 0, "nope",
+            type: "LIMITS_CHANGE", scope: "DEFAULT")
+          time = Time.now.to_nsec_from_epoch
+          LimitsEventTopic.write("TGT", "PKT", "ITEM", :GREEN, :YELLOW_LOW, time, "message",
+            type: "LIMITS_CHANGE", scope: "DEFAULT")
+          events = @api.get_limits_events()
+          expect(events).to be_a Array
+          offset = events[0][0]
+          event = events[0][1]
+          expect(offset).to match(/\d{13}-\d/)
+          expect(event).to be_a Hash
+          expect(event['type']).to eql "LIMITS_CHANGE"
+          expect(event['target_name']).to eql "TGT"
+          expect(event['packet_name']).to eql "PKT"
+          expect(event['old_limits_state']).to eql "GREEN"
+          expect(event['new_limits_state']).to eql "YELLOW_LOW"
+          expect(event['time_nsec']).to eql time.to_s
+          expect(event['message']).to eql "message"
+        end
 
-    # describe "get_limits_event" do
-    #   xit "gets a limits event" do
-    #     expect(CmdTlmServer).to receive(:get_limits_event)
-    #     @api.get_limits_event(0)
-    #   end
-    # end
+        it "returns multiple events with multiple calls" do
+          LimitsEventTopic.write("TGT", "PKT", "ITEM", :GREEN, :YELLOW_LOW, 0, "message",
+            type: "LIMITS_CHANGE", scope: "DEFAULT")
+          events = @api.get_limits_events()
+          puts events
+          # expect(offset).to match(/\d{13}-\d/)
+
+          # Load additional events
+          LimitsEventTopic.write("TGT", "PKT", "ITEM", :YELLOW_LOW, :RED_LOW, 1, "message",
+            type: "LIMITS_CHANGE", scope: "DEFAULT")
+          LimitsEventTopic.write("TGT", "PKT", "ITEM", :RED_LOW, :YELLOW_LOW, 2, "message",
+            type: "LIMITS_CHANGE", scope: "DEFAULT")
+          events = @api.get_limits_events(offset)
+          # expect(offset2).to match(/\d{13}-\d/)
+          # expect(offset2).to_not eql(offset)
+          puts events
+
+          events = @api.get_limits_events(offset2)
+          puts events
+          expect(events).to be_nil
+        end
+      end
+    end
 
     describe "get_out_of_limits" do
       it "returns all out of limits items" do

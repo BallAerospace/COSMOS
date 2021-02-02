@@ -182,6 +182,9 @@ module Cosmos
       end
     end
 
+    def self.get_last_offset(topic)
+      self.instance.get_last_offset(topic)
+    end
     def get_last_offset(topic)
       @redis_pool.with do |redis|
         result = redis.xrevrange(topic, count: 1)
@@ -193,9 +196,15 @@ module Cosmos
       end
     end
 
+    def self.read_topic_last(topic)
+      self.instance.read_topic_last(topic)
+    end
     def read_topic_last(topic)
       @redis_pool.with do |redis|
-        result = redis.xrevrange(topic, '+', '-', count: 1)
+        # Default in xrevrange is range end '+', start '-' which means get all
+        # elements from higher ID to lower ID and since we're limiting to 1
+        # we get the last element. See https://redis.io/commands/xrevrange.
+        result = redis.xrevrange(topic, count: 1)
         if result and result.length > 0
           return result[0]
         else
@@ -218,23 +227,21 @@ module Cosmos
       self.instance.update_topic_offsets(topics)
     end
     def update_topic_offsets(topics)
-      @redis_pool.with do |redis|
-        offsets = []
-        topics.each do |topic|
-          # Normally we will just be grabbing the topic offset
-          # this allows xread to get everything past this point
-          last_id = @topic_offsets[topic]
-          if last_id
-            offsets << last_id
-          else
-            # If there is no topic offset this is the first call.
-            # Get the last offset ID so we'll start getting everything from now on
-            offsets << get_last_offset(topic)
-            @topic_offsets[topic] = offsets[-1]
-          end
+      offsets = []
+      topics.each do |topic|
+        # Normally we will just be grabbing the topic offset
+        # this allows xread to get everything past this point
+        last_id = @topic_offsets[topic]
+        if last_id
+          offsets << last_id
+        else
+          # If there is no topic offset this is the first call.
+          # Get the last offset ID so we'll start getting everything from now on
+          offsets << get_last_offset(topic)
+          @topic_offsets[topic] = offsets[-1]
         end
-        return offsets
       end
+      return offsets
     end
 
     def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)

@@ -65,7 +65,7 @@ module Cosmos
       targets.each do |target_name|
         get_all_telemetry(target_name, scope: scope).each do |packet|
           topic = "#{scope}__TELEMETRY__#{target_name}__#{packet['packet_name']}"
-          _, msg_hash = Store.instance.get_newest_message(topic)
+          _, msg_hash = Store.get_newest_message(topic)
           unless msg_hash && msg_hash['time'].to_i > stale_time
             next if with_limits_only && packet['items'].find { |item| item['limits'] }.nil?
             stale << [packet['target_name'], packet['packet_name']]
@@ -82,7 +82,7 @@ module Cosmos
     def get_out_of_limits(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
       out_of_limits = []
-      limits = Store.instance.hgetall("#{scope}__current_limits")
+      limits = Store.hgetall("#{scope}__current_limits")
       limits.each do |item, limits_state|
         if %w(RED RED_HIGH RED_LOW YELLOW YELLOW_HIGH YELLOW_LOW).include?(limits_state)
           target_name, packet_name, item_name = item.split('__')
@@ -176,7 +176,7 @@ module Cosmos
         end
       end
       raise "Item '#{target_name} #{packet_name} #{item_name}' does not exist" unless found_item
-      Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
+      Store.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
     end
 
     # Disable limit checking for a telemetry item
@@ -201,7 +201,7 @@ module Cosmos
         end
       end
       raise "Item '#{target_name} #{packet_name} #{item_name}' does not exist" unless found_item
-      Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
+      Store.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
     end
 
     # Get a Hash of all the limits sets defined for an item. Hash keys are the limit
@@ -253,7 +253,7 @@ module Cosmos
         end
       end
       raise "Item '#{target_name} #{packet_name} #{item_name}' does not exist" unless found_item
-      Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
+      Store.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
 
       limits_settings = [target_name, packet_name, item_name].concat(found_item.to_a)
       # TODO: Notify system that limits changed
@@ -266,7 +266,7 @@ module Cosmos
     # @return [Hash{String => Array<Array<String, String, String>>]
     def get_limits_groups(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      groups = Store.instance.hget("#{scope}__cosmos_system", 'limits_groups')
+      groups = Store.hget("#{scope}__cosmos_system", 'limits_groups')
       if groups
         JSON.parse(groups)
       else
@@ -296,7 +296,7 @@ module Cosmos
       group.sort.each do |target_name, packet_name, item_name|
         if (last_target_name != target_name || last_packet_name != packet_name)
           if last_target_name && last_packet_name
-            Store.instance.hset("#{scope}__cosmostlm__#{last_target_name}", last_packet_name, JSON.generate(packet))
+            Store.hset("#{scope}__cosmostlm__#{last_target_name}", last_packet_name, JSON.generate(packet))
           end
           packet = TargetModel.packet(target_name, packet_name, scope: scope)
         end
@@ -316,7 +316,7 @@ module Cosmos
         last_packet_name = packet_name
       end
       if last_target_name && last_packet_name
-        Store.instance.hset("#{scope}__cosmostlm__#{last_target_name}", last_packet_name, JSON.generate(packet))
+        Store.hset("#{scope}__cosmostlm__#{last_target_name}", last_packet_name, JSON.generate(packet))
       end
     end
 
@@ -325,7 +325,7 @@ module Cosmos
     # @return [Array<String>] All defined limits sets
     def get_limits_sets(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      JSON.parse(Store.instance.hget("#{scope}__cosmos_system", 'limits_sets'))
+      JSON.parse(Store.hget("#{scope}__cosmos_system", 'limits_sets'))
     end
 
     # Changes the active limits set that applies to all telemetry
@@ -334,7 +334,7 @@ module Cosmos
     def set_limits_set(limits_set, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', scope: scope, token: token)
       Logger.info("Setting Limits Set: #{limits_set}")
-      Store.instance.hset("#{scope}__cosmos_system", 'limits_set', limits_set)
+      Store.hset("#{scope}__cosmos_system", 'limits_set', limits_set)
     end
 
     # Returns the active limits set that applies to all telemetry
@@ -342,26 +342,20 @@ module Cosmos
     # @return [String] The current limits set
     def get_limits_set(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      Store.instance.hget("#{scope}__cosmos_system", 'limits_set')
+      Store.hget("#{scope}__cosmos_system", 'limits_set')
     end
 
-    # @see CmdTlmServer.subscribe_limits_events
-    def subscribe_limits_events(queue_size = CmdTlmServer::DEFAULT_LIMITS_EVENT_QUEUE_SIZE, scope: $cosmos_scope, token: $cosmos_token)
+    # Returns limits events starting at the provided offset. Passing nil for an
+    # offset will return the last received limits event and associated offset.
+    #
+    # @param offset [Integer] Offset to start reading limits events. Nil to return
+    #   the last received limits event (if any).
+    # @param count [Integer] The total number of events returned. Default is 100.
+    # @return [Hash, Integer] Event hash followed by the offset. The offset can
+    #   be used in subsequent calls to return events from where the last call left off.
+    def get_limits_events(offset = nil, count: 100, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      CmdTlmServer.subscribe_limits_events(queue_size, scope: scope)
+      LimitsEventTopic.read(offset, count: count, scope: scope)
     end
-
-    # @see CmdTlmServer.unsubscribe_limits_events
-    def unsubscribe_limits_events(id, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'tlm', scope: scope, token: token)
-      CmdTlmServer.unsubscribe_limits_events(id)
-    end
-
-    # @see CmdTlmServer.get_limits_event
-    def get_limits_event(id, non_block = false, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'tlm', scope: scope, token: token)
-      CmdTlmServer.get_limits_event(id, non_block)
-    end
-
   end
 end

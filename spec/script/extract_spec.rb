@@ -29,10 +29,6 @@ module Cosmos
       @packet.append_item('STRING', 2048, :STRING)
     end
 
-    before(:each) do
-      allow(Store.instance).to receive(:get_packet).and_raise("Nope!")
-    end
-
     describe "add_cmd_parameter" do
       it "should remove quotes and preserve quoted strings" do
         cmd_params = {}

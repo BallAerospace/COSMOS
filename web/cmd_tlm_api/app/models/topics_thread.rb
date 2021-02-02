@@ -64,7 +64,7 @@ class TopicsThread
 
   def thread_setup
     @topics.each do |topic|
-      results = Cosmos::Store.instance.xrevrange(topic, '+', '-', count: @history_count)
+      results = Cosmos::Store.xrevrange(topic, '+', '-', count: @history_count)
       batch = []
       results.reverse.each do |msg_id, msg_hash|
         @offsets[@offset_index_by_topic[topic]] = msg_id
@@ -80,7 +80,7 @@ class TopicsThread
 
   def thread_body
     results = []
-    Cosmos::Store.instance.read_topics(@topics, @offsets) do |topic, msg_id, msg_hash, redis|
+    Cosmos::Store.read_topics(@topics, @offsets) do |topic, msg_id, msg_hash, redis|
       @offsets[@offset_index_by_topic[topic]] = msg_id
       results << msg_hash
       if results.length > @max_batch_size

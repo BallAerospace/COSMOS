@@ -25,18 +25,18 @@ module Cosmos
     def initialize(system_config, cts_config, scope:, url: nil, logger: Logger.new(Logger::INFO, true))
       ScopeModel.new(name: 'DEFAULT').create
 
-      Store.instance.del("cosmos_microservices")
+      Store.del("cosmos_microservices")
 
       # Save configuration to redis
-      Store.instance.del("#{scope}__cosmos_system")
-      Store.instance.hset("#{scope}__cosmos_system", 'limits_set', 'DEFAULT') # Current
-      Store.instance.hset("#{scope}__cosmos_system", 'target_names', JSON.generate([]))
-      Store.instance.hset("#{scope}__cosmos_system", 'limits_sets', JSON.generate({}))
-      Store.instance.hset("#{scope}__cosmos_system", 'limits_groups', JSON.generate({}))
+      Store.del("#{scope}__cosmos_system")
+      Store.hset("#{scope}__cosmos_system", 'limits_set', 'DEFAULT') # Current
+      Store.hset("#{scope}__cosmos_system", 'target_names', JSON.generate([]))
+      Store.hset("#{scope}__cosmos_system", 'limits_sets', JSON.generate({}))
+      Store.hset("#{scope}__cosmos_system", 'limits_groups', JSON.generate({}))
       return
 
-      Store.instance.hset("#{scope}__cosmos_system", 'limits_sets', JSON.generate(System.packet_config.limits_sets))
-      Store.instance.hset("#{scope}__cosmos_system", 'limits_groups', JSON.generate(System.packet_config.limits_groups))
+      Store.hset("#{scope}__cosmos_system", 'limits_sets', JSON.generate(System.packet_config.limits_sets))
+      Store.hset("#{scope}__cosmos_system", 'limits_groups', JSON.generate(System.packet_config.limits_groups))
     end
   end
 end

@@ -181,7 +181,7 @@ module Cosmos
     # @param data [String] The raw binary data
     def send_raw(interface_name, data, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_raw', interface_name: interface_name, scope: scope, token: token)
-      Store.instance.write_interface(interface_name, { 'raw' => data }, scope: scope)
+      raise 'unimplemented'
       nil
     end
 

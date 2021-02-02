@@ -199,8 +199,8 @@ module Cosmos
         rubys3_client.delete_object(bucket: 'config', key: object.key)
       end
 
-      Store.instance.del("#{@scope}__cosmostlm__#{@name}")
-      Store.instance.del("#{@scope}__cosmoscmd__#{@name}")
+      Store.del("#{@scope}__cosmostlm__#{@name}")
+      Store.del("#{@scope}__cosmoscmd__#{@name}")
 
       model = MicroserviceModel.get_model(name: "#{@scope}__DECOM__#{@name}", scope: @scope)
       model.destroy if model
@@ -268,27 +268,27 @@ module Cosmos
 
       # Store Packet Definitions
       system.telemetry.all.each do |target_name, packets|
-        Store.instance.del("#{@scope}__cosmostlm__#{target_name}")
+        Store.del("#{@scope}__cosmostlm__#{target_name}")
         packets.each do |packet_name, packet|
           Logger.info "Configuring tlm packet: #{target_name} #{packet_name}"
-          Store.instance.hset("#{@scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          Store.hset("#{@scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
         end
       end
       system.commands.all.each do |target_name, packets|
-        Store.instance.del("#{@scope}__cosmoscmd__#{target_name}")
+        Store.del("#{@scope}__cosmoscmd__#{target_name}")
         packets.each do |packet_name, packet|
           Logger.info "Configuring cmd packet: #{target_name} #{packet_name}"
-          Store.instance.hset("#{@scope}__cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          Store.hset("#{@scope}__cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
         end
       end
       # Store Limits Groups (which are already a Hash)
-      Store.instance.hset("#{@scope}__cosmos_system", 'limits_groups', JSON.generate(system.limits.groups))
+      Store.hset("#{@scope}__cosmos_system", 'limits_groups', JSON.generate(system.limits.groups))
       # Merge in Limits Sets
-      sets = Store.instance.hget("#{@scope}__cosmos_system", 'limits_sets')
+      sets = Store.hget("#{@scope}__cosmos_system", 'limits_sets')
       sets = JSON.parse(sets) if sets
       sets ||= []
       sets.concat(system.limits.sets.map(&:to_s)) # Convert the symbols to strings
-      Store.instance.hset("#{@scope}__cosmos_system", 'limits_sets', JSON.generate(sets.uniq)) # Ensure uniq set
+      Store.hset("#{@scope}__cosmos_system", 'limits_sets', JSON.generate(sets.uniq)) # Ensure uniq set
 
       return system
     end
@@ -313,11 +313,11 @@ module Cosmos
         # No telemetry packets for this target
       end
       # It's ok to call this with an empty array
-      Store.instance.initialize_streams(command_topic_list)
+      Store.initialize_streams(command_topic_list)
       # Might as well return if there are no packets
       return unless packet_topic_list.length > 0
-      Store.instance.initialize_streams(packet_topic_list)
-      Store.instance.initialize_streams(decom_topic_list)
+      Store.initialize_streams(packet_topic_list)
+      Store.initialize_streams(decom_topic_list)
 
       # Decom Microservice
       microservice_name = "#{@scope}__DECOM__#{@name}"

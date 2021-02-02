@@ -97,9 +97,8 @@ module Cosmos
       end
 
       # The cosmos_limits_events topic can be listened to for all limits events, it is a continuous stream
-      LimitsEventTopic.write(type: 'LIMITS_CHANGE', target_name: packet.target_name, packet_name: packet.packet_name,
-        item_name: item.name, old_limits_state: old_limits_state, new_limits_state: item.limits.state,
-        time_nsec: packet_time ? packet_time.to_nsec_from_epoch : Time.now.to_nsec_from_epoch, message: message, scope: @scope)
+      LimitsEventTopic.write(packet.target_name, packet.packet_name, item.name, old_limits_state, item.limits.state,
+        packet_time ? packet_time.to_nsec_from_epoch : Time.now.to_nsec_from_epoch, message, type: 'LIMITS_CHANGE', scope: @scope)
 
       if item.limits.response
         begin
