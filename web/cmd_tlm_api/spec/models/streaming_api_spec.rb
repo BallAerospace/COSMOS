@@ -35,7 +35,7 @@ RSpec.describe StreamingApi, type: :model do
     packet_data['PACKET_TIMESECONDS'] = @time.to_f
     packet_data['PACKET_TIMEFORMATTED'] = @time.formatted
     packet_data['ITEM1__R'] = 1
-    msg['json_data'] = JSON.generate(packet_data.to_json)
+    msg['json_data'] = JSON.generate(packet_data)
     allow(Cosmos::Store.instance).to receive(:read_topics) do |_, &block|
       sleep 0.1 # Simulate a little blocking time
       @time += 1
@@ -61,7 +61,15 @@ RSpec.describe StreamingApi, type: :model do
   end
 
   context 'streaming with Redis' do
-    let(:data) { { 'scope' => 'DEFAULT', 'items' => ['TLM__TGT__PKT__ITEM1__CONVERTED'] } }
+    base_data = { 'scope' => 'DEFAULT' }
+    modes = [
+      { 'description' => 'items in decom mode', 'data' => { 'items' => ['TLM__TGT__PKT__ITEM1__CONVERTED'], 'mode' => 'DECOM' } },
+      { 'description' => 'packets in decom mode', 'data' => { 'packets' => ['TLM__TGT__PKT__CONVERTED'], 'mode' => 'DECOM' } },
+    ]
+
+    modes.each do |mode|
+      context "for #{mode['description']}" do
+        let(:data) { mode['data'].dup.merge(base_data) }
 
     it 'has no data in time range' do
       msg1 = {'time' => ((@start_time.to_i - 10) * 1_000_000_000) - LoggedStreamingThread::ALLOWABLE_START_TIME_OFFSET_NSEC } # newest is 10s before the allowable offset
@@ -205,5 +213,7 @@ RSpec.describe StreamingApi, type: :model do
         expect(logged[0].alive?).to be false
       end
     end
+  end
+end
   end
 end
