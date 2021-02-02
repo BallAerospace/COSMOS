@@ -25,10 +25,14 @@ class ModelController < ApplicationController
     render :json => @model_class.names(scope: params[:scope])
   end
 
-  def create
+  def create(update_model = false)
     authorize(permission: 'admin', scope: params[:scope], token: params[:token])
     model = @model_class.from_json(params[:json], scope: params[:scope])
-    model.update
+    if update_model
+      model.update
+    else
+      model.create
+    end
     head :ok
   end
 
@@ -42,7 +46,7 @@ class ModelController < ApplicationController
   end
 
   def update
-    create()
+    create(true)
   end
 
   def destroy
