@@ -366,6 +366,11 @@ class StreamingThread
     first_object = objects[0]
     time = msg_hash['time'].to_i
     if @stream_mode == :RAW
+      if first_object.end_time and time > first_object.end_time
+        # These objects are done - and the thread is done
+        remove_object_keys(objects)
+        return nil
+      end
       return {
         packet: topic,
         buffer: Base64.encode64(msg_hash['buffer']),
@@ -383,11 +388,7 @@ class StreamingThread
     time = json_packet.packet_time
     if first_object.end_time and time.to_nsec_from_epoch > first_object.end_time
       # These objects are done - and the thread is done
-      keys = []
-      objects.each do |object|
-        keys << object.key
-      end
-      @collection.remove(keys)
+      remove_object_keys(objects)
       return nil
     end
     result = {}
@@ -401,6 +402,14 @@ class StreamingThread
     end
     result['time'] = time.to_nsec_from_epoch
     return result
+  end
+
+  def remove_object_keys(objects)
+    keys = []
+    objects.each do |object|
+      keys << object.key
+    end
+    @collection.remove(keys)
   end
 end
 
