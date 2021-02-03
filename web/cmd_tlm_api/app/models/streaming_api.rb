@@ -203,12 +203,13 @@ class FileCache
       dates << cur_date.strftime("%Y%m%d")
       cur_date += 1.day
     end
+    dates = ['temporary - remove this line']
     dates.each do |date|
       while true
         resp = rubys3_client.list_objects_v2({
           bucket: "logs",
           max_keys: 1000,
-          prefix: "#{scope}/#{type.to_s.downcase}logs/#{cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}/#{date}",
+          prefix: "#{scope}/#{type.to_s.downcase}logs/#{cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}", # /#{date}",
           continuation_token: token
         })
         total_resp.concat(resp.contents)
@@ -258,8 +259,10 @@ class FileCache
     timestamp_format = "%Y%m%d%S%N" # TODO: get from class constant elsewhere?
     basename = File.basename(s3_path)
     file_start_timestamp, file_end_timestamp, other = basename.split("__")
-    file_start_time_nsec = Time.strptime(file_start_timestamp, timestamp_format).to_f * Time::NSEC_PER_SECOND
-    file_end_time_nsec = Time.strptime(file_end_timestamp, timestamp_format).to_f * Time::NSEC_PER_SECOND
+    # file_start_time_nsec = Time.strptime(file_start_timestamp, timestamp_format).to_f * Time::NSEC_PER_SECOND
+    # file_end_time_nsec = Time.strptime(file_end_timestamp, timestamp_format).to_f * Time::NSEC_PER_SECOND
+    file_start_time_nsec = file_start_timestamp.to_i
+    file_end_time_nsec = file_end_timestamp.to_i
     if (start_time_nsec < file_end_time_nsec) and (end_time_nsec >= file_start_time_nsec)
       return true
     else
