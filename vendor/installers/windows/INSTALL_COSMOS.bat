@@ -80,6 +80,12 @@ IF [%1]==[] (
 ) else (
   set COSMOS_INSTALL=%~1
 )
+if "!COSMOS_INSTALL!"=="!COSMOS_INSTALL::\=!" (
+  echo ERROR: Installation folder must be absolute path: "!COSMOS_INSTALL!"
+  echo INSTALL FAILED
+  pause
+  exit /b 1
+)
 if not "!COSMOS_INSTALL!"=="!COSMOS_INSTALL: =!" (
   echo ERROR: Installation folder must not include spaces: "!COSMOS_INSTALL!"
   echo INSTALL FAILED
