@@ -37,9 +37,7 @@ module Cosmos
       'get_limits_sets',
       'set_limits_set',
       'get_limits_set',
-      'subscribe_limits_events',
-      'unsubscribe_limits_events',
-      'get_limits_event',
+      'get_limits_events',
     ])
 
     # Get the list of stale packets for a specific target or pass nil to list

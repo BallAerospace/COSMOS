@@ -35,8 +35,14 @@ module Cosmos
     def self.read(offset = nil, count: 100, scope:)
       topic = "#{scope}__cosmos_limits_events"
       if offset
-        puts "xread topic:#{topic} offset:#{offset} count:#{count}"
-        Store.xread(topic, offset, count: count).values
+        result = Store.xread(topic, offset, count: count)
+        if result.empty?
+          [] # We want to return an empty array rather than an empty hash
+        else
+          # result is a hash with the topic key followed by an array of results
+          # This returns just the array of arrays [[offset, hash], [offset, hash], ...]
+          result[topic]
+        end
       else
         Store.xrevrange(topic, count: 1)
       end
