@@ -200,7 +200,7 @@ class FileCache
     cur_date = Time.at(start_time_nsec / Time::NSEC_PER_SECOND).beginning_of_day
     end_date = Time.at(end_time_nsec / Time::NSEC_PER_SECOND).beginning_of_day
     while cur_date <= end_date
-      dates << cur_date.strftime "%Y%m%d"
+      dates << cur_date.strftime("%Y%m%d")
       cur_date += 1.day
     end
     dates.each do |date|
