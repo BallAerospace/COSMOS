@@ -196,24 +196,25 @@ class FileCache
     # Get List of Files from S3
     total_resp = []
     token = nil
-    prefix = "#{scope}/#{type.to_s.downcase}logs/#{cmd_or_tlm.to_s.downcase}/"
-    if type == :RAW
-      prefix << "TELEMETRY/"
+    dates = []
+    cur_date = Time.at(start_time_nsec / Time::NSEC_PER_SECOND).beginning_of_day
+    end_date = Time.at(end_time_nsec / Time::NSEC_PER_SECOND).beginning_of_day
+    while cur_date <= end_date
+      dates << cur_date.strftime "%Y%m%d"
+      cur_date += 1.day
     end
-    prefix << "#{target_name}/"
-    if type == :DECOM
-      prefix << "#{packet_name}/"
-    end
-    while true
-      resp = rubys3_client.list_objects_v2({
-        bucket: "logs",
-        max_keys: 1000,
-        prefix: prefix,
-        continuation_token: token
-      })
-      total_resp.concat(resp.contents)
-      break unless resp.is_truncated
-      token = resp.next_continuation_token
+    dates.each do |date|
+      while true
+        resp = rubys3_client.list_objects_v2({
+          bucket: "logs",
+          max_keys: 1000,
+          prefix: "#{scope}/#{type.to_s.downcase}logs/#{cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}/#{date}",
+          continuation_token: token
+        })
+        total_resp.concat(resp.contents)
+        break unless resp.is_truncated
+        token = resp.next_continuation_token
+      end
     end
 
     # Add to needed files
@@ -254,10 +255,11 @@ class FileCache
   # private
 
   def file_in_time_range(s3_path, start_time_nsec, end_time_nsec)
+    timestamp_format = "%Y%m%d%S%N" # TODO: get from class constant elsewhere?
     basename = File.basename(s3_path)
-    file_start_time_nsec, file_end_time_nsec, other = basename.split("__")
-    file_start_time_nsec = file_start_time_nsec.to_i
-    file_end_time_nsec = file_end_time_nsec.to_i
+    file_start_timestamp, file_end_timestamp, other = basename.split("__")
+    file_start_time_nsec = Time.strptime(file_start_timestamp, timestamp_format).to_f * Time::NSEC_PER_SECOND
+    file_end_time_nsec = Time.strptime(file_end_timestamp, timestamp_format).to_f * Time::NSEC_PER_SECOND
     if (start_time_nsec < file_end_time_nsec) and (end_time_nsec >= file_start_time_nsec)
       return true
     else
