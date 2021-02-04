@@ -43,7 +43,6 @@ docker run --network cosmos -p 127.0.0.1:24224:24224 -p 127.0.0.1:24224:24224/ud
 sleep 30
 curl -X POST http://localhost:5601/api/saved_objects/_import -H "kbn-xsrf:true" --form file=@kibana/export.ndjson -w "\n"
 
-
 docker volume create cosmos-redis-v
 docker container rm cosmos-redis
 docker run --network cosmos -p 127.0.0.1:6379:6379  -d --name cosmos-redis -v cosmos-redis-v:/data --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=redis.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true redis:6.0.6 redis-server --appendonly yes
@@ -52,6 +51,10 @@ docker volume create cosmos-minio-v
 docker container rm cosmos-minio
 docker run --network cosmos -p 127.0.0.1:9000:9000  -d --name cosmos-minio -v cosmos-minio-v:/data --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=minio.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true minio/minio:RELEASE.2020-08-25T00-21-20Z server /data
 sleep 30
+
+docker container rm cosmos-aggregator
+docker build -f aggregator/dockerfile -t cosmos-aggregator aggregator
+docker run --network cosmos -p 127.0.0.1:3113:3113 -d --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=aggregator.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true --name cosmos-aggregator cosmos-aggregator
 
 rm web/cmd_tlm_api/Gemfile.lock
 docker build -f Dockerfile.cmd_tlm_api -t cosmos-cmd-tlm-api .
