@@ -55,6 +55,58 @@ RSpec.describe StreamingApi, type: :model do
       end
     end
 
+    @file_start_time = 1612463470058728300 # these are from the file names in spec/fixtures/files
+    @file_end_time = 1612464450260392000
+    s3 = double("AwsS3Client").as_null_object
+    allow(Aws::S3::Client).to receive(:new).and_return(s3)
+    allow(s3).to receive(:list_objects_v2) do |args|
+      response = Object.new
+      if args[:prefix].split('/')[1].include? 'decom'
+        def response.contents
+          file_1 = Object.new
+          def file_1.key
+            "1612463822362371700__1612467424059768600__DEFAULT__TGT__PKT__decom.bin"
+          end
+          def file_1.size
+            63232544
+          end
+          file_2 = Object.new
+          def file_2.key
+            "1612463822362371700__1612467424059768600__DEFAULT__TGT__PKT__decom.idx"
+          end
+          def file_2.size
+            864504
+          end
+          [ file_1, file_2 ]
+        end
+      else
+        def response.contents
+          file_1 = Object.new
+          def file_1.key
+            "1612463470058728300__1612464450260392000__DEFAULT__TGT__PKT__raw.bin"
+          end
+          def file_1.size
+            999970
+          end
+          file_2 = Object.new
+          def file_2.key
+            "1612463470058728300__1612464450260392000__DEFAULT__TGT__PKT__raw.idx"
+          end
+          def file_2.size
+            235344
+          end
+          [ file_1, file_2 ]
+        end
+      end
+      def response.is_truncated
+        false
+      end
+      response
+    end
+    allow(s3).to receive(:get_object) do |args|
+      FileUtils.cp(file_fixture(args[:key]).realpath, args[:response_target])
+    end
+
     @messages = []
     @channel = double('channel')
     allow(@channel).to receive(:transmit) { |msg| @messages << msg }
@@ -223,6 +275,31 @@ RSpec.describe StreamingApi, type: :model do
             expect(logged[0].alive?).to be false
           end
         end
+
+        # context 'from files' do
+        #   it 'has start time very far in the past' do
+        #     msg1 = {'time' => @start_time.to_i * 1_000_000_000 } # newest is now
+        #     allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
+        #     msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+        #     allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
+
+        #     @time = Time.at(@start_time.to_i - 1.5)
+        #     data['start_time'] = @file_start_time # make it hit the files
+        #     data['end_time'] = @file_end_time
+        #     # data['end_time'] = @start_time.to_i * 1_000_000_000 # now
+        #     @api.add(data)
+        #     sleep 0.65 # Allow the threads to run
+        #     # We expect 3 messages because of batching
+        #     ##total time is 2.25s and we get a packet at 1, 2, then one more plus empty
+        #     expect(@messages.length).to eq(3)
+        #     expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
+        #     logged = @api.instance_variable_get('@logged_threads')
+        #     # TODO: Should the thread be cleaned up and removed?
+        #     expect(logged.length).to eq(1)
+        #     expect(logged[0].alive?).to be false
+        #     # @api.kill
+        #   end
+        # end
       end
     end
   end
