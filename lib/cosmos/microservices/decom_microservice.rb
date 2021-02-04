@@ -22,6 +22,7 @@ require 'cosmos/topics/telemetry_decom_topic'
 require 'cosmos/topics/limits_event_topic'
 
 module Cosmos
+
   class DecomMicroservice < Microservice
 
     def initialize(*args)
@@ -60,14 +61,9 @@ module Cosmos
       TelemetryDecomTopic.write_packet(packet, scope: @scope)
 
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
-      metric_data = {
-        "source" => "#{self.class.to_s}.#{self.__method__.to_s}",
-        "target" => target_name,
-        "packet" => packet_name,
-        "duration" => diff,
-        "description" => "duration: seconds as a float",
-      }
-      Logger.metric(metric_data) if ENV.has_key?("COSMOS_METRIC")
+      metric_name = "#{self.__method__.to_s}_duration_seconds".downcase
+      labels = {"packet" => packet_name, "target" => target_name}
+      @metric.add_sample(metric_name, diff, labels)
     end
 
     # Called when an item in any packet changes limits states.
@@ -79,6 +75,7 @@ module Cosmos
     # @param value [Object] The current value of the item
     # @param log_change [Boolean] Whether to log this limits change event
     def limits_change_callback(packet, item, old_limits_state, value, log_change)
+      start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       packet_time = packet.packet_time
       message = "#{packet.target_name} #{packet.packet_name} #{item.name} = #{value} is #{item.limits.state}"
       message << " (#{packet.packet_time.sys.formatted})" if packet_time
@@ -111,8 +108,15 @@ module Cosmos
           Logger.error err.formatted
         end
       end
+
+      diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
+      metric_name = "#{self.__method__.to_s}_duration_seconds".downcase
+      labels = {"packet" => packet.packet_name, "target" => packet.target_name}
+      @metric.add_sample(metric_name, diff, labels)
     end
+
   end
+
 end
 
 Cosmos::DecomMicroservice.run if __FILE__ == $0

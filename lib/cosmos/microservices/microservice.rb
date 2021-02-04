@@ -77,8 +77,8 @@ module Cosmos
       raise "Microservice names should be scope, type, and then name" if split_name.length != 3
       @scope = split_name[0]
       Logger.scope = @scope
-      @name = name
       @cancel_thread = false
+      @metric = Metric.new(@name, @scope)
       Logger.microservice_name = @name
       Logger.tag = @name + "__cosmos.log"
 
@@ -116,6 +116,7 @@ module Cosmos
       @microservice_status_period_seconds = 5
       @microservice_status_thread = Thread.new do
         until @cancel_thread
+          @metric.output
           MicroserviceStatusModel.set(as_json(), scope: @scope) unless @cancel_thread
           break if @microservice_sleeper.sleep(@microservice_status_period_seconds)
         end
