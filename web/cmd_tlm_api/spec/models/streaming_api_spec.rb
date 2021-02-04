@@ -29,7 +29,6 @@ RSpec.describe StreamingApi, type: :model do
 
     @start_time = Time.now
     @time = @start_time
-    @max_time = @start_time + 1_000_000
     msg = {}
     msg['target_name'] = 'TGT'
     msg['packet_name'] = 'PKT'
@@ -40,11 +39,16 @@ RSpec.describe StreamingApi, type: :model do
     packet_data['ITEM1__R'] = 1
     msg['json_data'] = JSON.generate(packet_data)
     msg['buffer'] = '\x01\x02\x03\x04'
+    # Send count is how many times we return a message from read_topics
+    # We can limit this to simulate no packets being available from read_topics
+    @send_count = 100
+
     allow(Cosmos::Store.instance).to receive(:read_topics) do |params, &block|
-      sleep 0.1 # Simulate a little blocking time
+      sleep 0.1 # Simulate a little blocking time, all test cases use 0.1 as a multiple
       @time += 1
       msg['time'] = @time.to_i * 1_000_000_000 # Convert to nsec
-      if @time < @max_time
+      if @send_count > 0
+        @send_count -= 1
         block.call(params[0], "#{@time.to_i * 1000}-0", msg, nil)
       else
         {} # Return an empty result like the real store code
@@ -198,12 +202,13 @@ RSpec.describe StreamingApi, type: :model do
             msg1 = {'time' => @start_time.to_i * 1_000_000_000 } # newest is now
             allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
             msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+            # Construct a valid redis message ID which is used to calculate the offset
             allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
 
-            # Set a max time so we stop sending out packets past this time
+            # Reduce send_count to 1 so we only get 1 packet
             # This simulates a command log which isn't going to constantly spit out packets to force the final processing
             # The streaming api logic must determine we've waited long enough and stop the stream
-            @max_time = @start_time - 1.25 # We won't reach the end time
+            @send_count = 1
             @time = Time.at(@start_time.to_i - 2.5)
             data['start_time'] = @time.to_i * 1_000_000_000 # 2.5s in the past
             data['end_time'] = (@start_time.to_i - 0.25) * 1_000_000_000 # 0.25s in the past

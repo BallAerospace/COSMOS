@@ -115,7 +115,7 @@ spec = Gem::Specification.new do |s|
   # s.add_development_dependency 'guard-bundler', '~> 2.0'
   # s.add_development_dependency 'guard-rspec', '~> 4.0'
   s.add_development_dependency 'simplecov', '~> 0.20'
-  s.add_development_dependency 'codecov', '~> 0.2'
+  s.add_development_dependency 'codecov', '~> 0.4'
   s.add_development_dependency 'benchmark-ips', '~> 2.0'
   s.add_development_dependency 'ruby-prof', ['~> 1.0', '< 1.3'] if RUBY_ENGINE == 'ruby' # MRI Only
   s.add_development_dependency 'rspec_junit_formatter'
