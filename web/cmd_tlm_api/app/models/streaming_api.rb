@@ -381,7 +381,7 @@ class StreamingThread
 
   def handle_json_packet(json_packet, objects)
     time = json_packet.packet_time
-    keys_remain = remove_object_keys(objects, time)
+    keys_remain = remove_object_keys(objects, time.to_nsec_from_epoch)
     return nil unless keys_remain
     result = {}
     objects.each do |object|
@@ -408,7 +408,7 @@ class StreamingThread
 
   def remove_object_keys(objects, time)
     first_object = objects[0]
-    if first_object.end_time and time.to_nsec_from_epoch > first_object.end_time
+    if first_object.end_time and time > first_object.end_time
       # These objects are done - and the thread is done
       keys = []
       objects.each do |object|
