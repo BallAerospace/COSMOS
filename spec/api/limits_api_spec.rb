@@ -19,6 +19,7 @@
 
 require 'spec_helper'
 require 'cosmos/api/limits_api'
+require 'cosmos/api/target_api'
 require 'cosmos/script/extract'
 require 'cosmos/utilities/authorization'
 require 'cosmos/microservices/interface_microservice'
@@ -87,6 +88,17 @@ module Cosmos
     describe "get_stale" do
       it "complains about non-existant targets" do
         expect { @api.get_stale(false, "BLAH") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
+      end
+
+      it "gets stale packets for all targets" do
+        packets = []
+        @api.get_target_list().each do |target_name|
+          all = @api.get_all_telemetry(target_name)
+          all.each {|item| packets << [item['target_name'], item['packet_name']] }
+        end
+        stale = @api.get_stale().sort
+        # Initially all packets are stale
+        expect(stale).to eql packets.sort
       end
 
       it "gets stale packets for the specified target" do
@@ -297,9 +309,29 @@ module Cosmos
 
     describe "get_overall_limits_state" do
       it "returns the overall system limits state" do
-        @api.inject_tlm("INST", "HEALTH_STATUS",{TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
+        @api.inject_tlm("INST", "HEALTH_STATUS",
+          { 'TEMP1' => 0, 'TEMP2' => 0, 'TEMP3' => 0, 'TEMP4' => 0, 'GROUND1STATUS' => 1, 'GROUND2STATUS' => 1 })
         sleep(0.1)
-        expect(@api.get_overall_limits_state).to eq "RED"
+        expect(@api.get_overall_limits_state).to eql "GREEN"
+        # TEMP1 limits: -80.0 -70.0 60.0 80.0 -20.0 20.0
+        # TEMP2 limits: -60.0 -55.0 30.0 35.0
+        @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP1' => 70, 'TEMP2' => 32 }) # Both YELLOW
+        sleep(0.1)
+        expect(@api.get_overall_limits_state).to eql "YELLOW"
+        @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP2' => 40 })
+        sleep(0.1)
+        expect(@api.get_overall_limits_state).to eql "RED"
+        expect(@api.get_overall_limits_state([])).to eql "RED"
+
+        # Ignoring all now yields GREEN
+        expect(@api.get_overall_limits_state([["INST", "HEALTH_STATUS", nil]])).to eql "GREEN"
+        # Ignoring just TEMP2 yields YELLOW due to TEMP1
+        expect(@api.get_overall_limits_state([["INST", "HEALTH_STATUS", "TEMP2"]])).to eql "YELLOW"
+      end
+
+      it "raise on invalid ignored_items" do
+        expect { @api.get_overall_limits_state(["BLAH"]) }.to raise_error(/Invalid ignored item: BLAH/)
+        expect { @api.get_overall_limits_state([["INST", "HEALTH_STATUS"]]) }.to raise_error(/Invalid ignored item: \["INST", "HEALTH_STATUS"\]/)
       end
     end
 

@@ -273,49 +273,17 @@ module Cosmos
     end
 
     # Enables limits for all the items in the group
+    #
+    # @param group_name [String] Name of the group to enable
     def enable_limits_group(group_name, scope: $cosmos_scope, token: $cosmos_token)
       _limits_group(group_name, action: :enable, scope: scope, token: token)
     end
 
     # Disables limits for all the items in the group
+    #
+    # @param group_name [String] Name of the group to disable
     def disable_limits_group(group_name, scope: $cosmos_scope, token: $cosmos_token)
       _limits_group(group_name, action: :disable, scope: scope, token: token)
-    end
-
-    def _limits_group(group_name, action:, scope:, token:)
-      authorize(permission: 'tlm_set', scope: scope, token: token)
-      group_name.upcase!
-      group = get_limits_groups()[group_name]
-      raise "LIMITS_GROUP #{group_name} undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP #{group_name}" unless group
-      Logger.info("Disabling Limits Group: #{group_name}")
-      last_target_name = nil
-      last_packet_name = nil
-      packet = nil
-      group.sort.each do |target_name, packet_name, item_name|
-        if (last_target_name != target_name || last_packet_name != packet_name)
-          if last_target_name && last_packet_name
-            Store.hset("#{scope}__cosmostlm__#{last_target_name}", last_packet_name, JSON.generate(packet))
-          end
-          packet = TargetModel.packet(target_name, packet_name, scope: scope)
-        end
-        packet['items'].each do |item|
-          if item['name'] == item_name
-            if action == :enable
-              item['limits']['enabled'] = true
-            elsif action == :disable
-              item['limits'].delete('enabled')
-            else
-              raise "Unknown action #{action}"
-            end
-            break
-          end
-        end
-        last_target_name = target_name
-        last_packet_name = packet_name
-      end
-      if last_target_name && last_packet_name
-        Store.hset("#{scope}__cosmostlm__#{last_target_name}", last_packet_name, JSON.generate(packet))
-      end
     end
 
     # Returns all defined limits sets
@@ -354,6 +322,44 @@ module Cosmos
     def get_limits_events(offset = nil, count: 100, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
       LimitsEventTopic.read(offset, count: count, scope: scope)
+    end
+
+    ###########################################################################
+    # PRIVATE implementation details
+    ###########################################################################
+
+    def _limits_group(group_name, action:, scope:, token:)
+      authorize(permission: 'tlm_set', scope: scope, token: token)
+      group_name.upcase!
+      group = get_limits_groups()[group_name]
+      raise "LIMITS_GROUP #{group_name} undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP #{group_name}" unless group
+      Logger.info("Disabling Limits Group: #{group_name}")
+      last_target_name = nil
+      last_packet_name = nil
+      packet = nil
+      group.sort.each do |target_name, packet_name, item_name|
+        if (last_target_name != target_name || last_packet_name != packet_name)
+          if last_target_name && last_packet_name
+            Store.hset("#{scope}__cosmostlm__#{last_target_name}", last_packet_name, JSON.generate(packet))
+          end
+          packet = TargetModel.packet(target_name, packet_name, scope: scope)
+        end
+        packet['items'].each do |item|
+          if item['name'] == item_name
+            if action == :enable
+              item['limits']['enabled'] = true
+            elsif action == :disable
+              item['limits'].delete('enabled')
+            end
+            break
+          end
+        end
+        last_target_name = target_name
+        last_packet_name = packet_name
+      end
+      if last_target_name && last_packet_name
+        Store.hset("#{scope}__cosmostlm__#{last_target_name}", last_packet_name, JSON.generate(packet))
+      end
     end
   end
 end
