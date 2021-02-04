@@ -147,6 +147,7 @@ end
 
 class FileCache
   MAX_DISK_USAGE = 20_000_000_000 # 20 GB
+  TIMESTAMP_FORMAT = "%Y%m%d%S%N" # TODO: get from different class?
 
   attr_reader :cache_dir
 
@@ -256,11 +257,10 @@ class FileCache
   # private
 
   def file_in_time_range(s3_path, start_time_nsec, end_time_nsec)
-    timestamp_format = "%Y%m%d%S%N" # TODO: get from class constant elsewhere?
     basename = File.basename(s3_path)
     file_start_timestamp, file_end_timestamp, other = basename.split("__")
-    # file_start_time_nsec = Time.strptime(file_start_timestamp, timestamp_format).to_f * Time::NSEC_PER_SECOND
-    # file_end_time_nsec = Time.strptime(file_end_timestamp, timestamp_format).to_f * Time::NSEC_PER_SECOND
+    # file_start_time_nsec = Time.strptime(file_start_timestamp, TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND
+    # file_end_time_nsec = Time.strptime(file_end_timestamp, TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND
     file_start_time_nsec = file_start_timestamp.to_i
     file_end_time_nsec = file_end_timestamp.to_i
     if (start_time_nsec < file_end_time_nsec) and (end_time_nsec >= file_start_time_nsec)
@@ -371,16 +371,7 @@ class StreamingThread
     first_object = objects[0]
     time = msg_hash['time'].to_i
     if @stream_mode == :RAW
-      if first_object.end_time and time > first_object.end_time
-        # These objects are done - and the thread is done
-        remove_object_keys(objects)
-        return nil
-      end
-      return {
-        packet: topic,
-        buffer: Base64.encode64(msg_hash['buffer']),
-        time: time
-      }
+      return handle_raw_packet(msg_hash['buffer'], objects, time, first_object.topic)
     else # @stream_mode == :DECOM
       json_packet = Cosmos::JsonPacket.new(first_object.cmd_or_tlm, first_object.target_name, first_object.packet_name,
         time, Cosmos::ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["json_data"])
@@ -389,13 +380,9 @@ class StreamingThread
   end
 
   def handle_json_packet(json_packet, objects)
-    first_object = objects[0]
     time = json_packet.packet_time
-    if first_object.end_time and time.to_nsec_from_epoch > first_object.end_time
-      # These objects are done - and the thread is done
-      remove_object_keys(objects)
-      return nil
-    end
+    keys_remain = remove_object_keys(objects, time)
+    return nil unless keys_remain
     result = {}
     objects.each do |object|
       if object.item_name
@@ -409,12 +396,28 @@ class StreamingThread
     return result
   end
 
-  def remove_object_keys(objects)
-    keys = []
-    objects.each do |object|
-      keys << object.key
+  def handle_raw_packet(buffer, objects, time, topic)
+    keys_remain = remove_object_keys(objects, time)
+    return nil unless keys_remain
+    return {
+      packet: topic,
+      buffer: Base64.encode64(buffer),
+      time: time
+    }
+  end
+
+  def remove_object_keys(objects, time)
+    first_object = objects[0]
+    if first_object.end_time and time.to_nsec_from_epoch > first_object.end_time
+      # These objects are done - and the thread is done
+      keys = []
+      objects.each do |object|
+        keys << object.key
+      end
+      @collection.remove(keys)
+      return nil
     end
-    @collection.remove(keys)
+    return true
   end
 end
 
@@ -477,15 +480,21 @@ class LoggedStreamingThread < StreamingThread
       # puts file_path
       if file_path
         file_path_split = File.basename(file_path).split("__")
-        file_end_time = file_path_split[1].to_i
+        file_end_time = file_path_split[1].to_i # TODO: replace with the line below for new file name convention
+        # file_end_time = Time.strptime(file_path_split[1], FileCache::TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND # TODO: get format from different class' constant?
         # Cosmos::Logger.debug("file:#{file_path} end:#{file_end_time}")
 
         # Scan forward to find first packet needed
         # Stream forward until packet > end_time or no more packets
         results = []
         plr = Cosmos::PacketLogReader.new()
-        plr.each(file_path, true, Time.from_nsec_from_epoch(first_object.start_time), Time.from_nsec_from_epoch(first_object.end_time)) do |json_packet|
-          result = handle_json_packet(json_packet, objects)
+        plr.each(file_path, false, Time.from_nsec_from_epoch(first_object.start_time), Time.from_nsec_from_epoch(first_object.end_time)) do |packet|
+          result = nil
+          if @stream_mode == :RAW
+            result = handle_raw_packet(packet.buffer, objects, packet.received_time.to_nsec_from_epoch, first_object.topic)
+          else # @stream_mode == :DECOM
+            result = handle_json_packet(packet, objects)
+          end
           if result
             results << result
           else
