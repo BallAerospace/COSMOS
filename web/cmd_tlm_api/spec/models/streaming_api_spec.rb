@@ -117,6 +117,10 @@ RSpec.describe StreamingApi, type: :model do
     @api = StreamingApi.new(123, @channel, scope: 'DEFAULT')
   end
 
+  after(:each) do
+    @api.kill
+  end
+
   it 'creates a collection and stores the channel' do
     expect(@api.instance_variable_get('@realtime_thread')).to be_nil
     expect(@api.instance_variable_get('@logged_threads')).to be_empty
@@ -227,7 +231,6 @@ RSpec.describe StreamingApi, type: :model do
             expect(@messages.length).to eq(3)
             expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
             logged = @api.instance_variable_get('@logged_threads')
-            # TODO: Should the thread be cleaned up and removed?
             expect(logged.length).to eq(1)
             expect(logged[0].alive?).to be false
           end
@@ -249,7 +252,6 @@ RSpec.describe StreamingApi, type: :model do
             expect(@messages.length).to eq(3)
             expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
             logged = @api.instance_variable_get('@logged_threads')
-            # TODO: Should the thread be cleaned up and removed?
             expect(logged.length).to eq(1)
             expect(logged[0].alive?).to be false
           end
@@ -274,7 +276,6 @@ RSpec.describe StreamingApi, type: :model do
             expect(@messages.length).to eq(2)
             expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
             logged = @api.instance_variable_get('@logged_threads')
-            # TODO: Should the thread be cleaned up and removed?
             expect(logged.length).to eq(1)
             expect(logged[0].alive?).to be false
           end
@@ -298,10 +299,8 @@ RSpec.describe StreamingApi, type: :model do
             expect(@messages.length).to eq(3)
             expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
             logged = @api.instance_variable_get('@logged_threads')
-            # TODO: Should the thread be cleaned up and removed?
             expect(logged.length).to eq(1)
             expect(logged[0].alive?).to be false
-            # @api.kill
           end
         end
       end
