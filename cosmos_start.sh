@@ -37,6 +37,11 @@ docker pull prom/prometheus:v2.24.1
 docker build -f prometheus/dockerfile -t cosmos-prometheus prometheus
 docker run --network cosmos -p 127.0.0.1:9090:9090 -d --name cosmos-prometheus cosmos-prometheus
 
+docker volume create cosmos-grafana-v
+docker container rm cosmos-grafana
+docker build -f grafana/dockerfile -t cosmos-grafana grafana
+docker run --network cosmos -p 0.0.0.0:3000:3000 -d --name cosmos-grafana -v cosmos-grafana-v:/var/lib/grafana --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=grafana.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true cosmos-grafana
+
 docker container rm cosmos-fluentd
 docker build -f fluentd/dockerfile -t cosmos-fluentd fluentd
 docker run --network cosmos -p 127.0.0.1:24224:24224 -p 127.0.0.1:24224:24224/udp -d --name cosmos-fluentd cosmos-fluentd

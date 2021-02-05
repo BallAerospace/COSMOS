@@ -28,7 +28,7 @@ module Cosmos
         break if @cancel_thread
         Topic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
           begin
-            cvt_data(topic, msg_id, msg_hash, redis)
+            self.cvt_data(topic, msg_id, msg_hash, redis)
             @count += 1
             break if @cancel_thread
           rescue => err
@@ -40,6 +40,7 @@ module Cosmos
     end
 
     def cvt_data(topic, msg_id, msg_hash, redis)
+      start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       target_name = msg_hash["target_name"]
       packet_name = msg_hash["packet_name"]
       json_hash = JSON.parse(msg_hash['json_data'])
@@ -49,7 +50,12 @@ module Cosmos
         updated_json_hash[key] = JSON.generate(value.as_json)
       end
       CvtModel.set(updated_json_hash, target_name: target_name, packet_name: packet_name, scope: @scope)
+      diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
+      metric_name = "#{self.__method__.to_s}_duration_seconds".downcase
+      labels = {"packet" => packet_name, "target" => target_name}
+      @metric.add_sample(metric_name, diff, labels)
     end
+
   end
 end
 

@@ -21,8 +21,21 @@ require 'cosmos/microservices/microservice'
 require 'cosmos/topics/topic'
 
 module Cosmos
+
   class DecomLogMicroservice < Microservice
+
     def run
+      plws = self.setup_plws
+      while true
+        break if @cancel_thread
+        Topic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
+          break if @cancel_thread
+          self.decom_log_data(plws, topic, msg_id, msg_hash, redis)
+        end
+      end
+    end
+
+    def setup_plws()
       plws = {}
       @topics.each do |topic|
         topic_split = topic.split("__")
@@ -36,25 +49,31 @@ module Cosmos
         # when switching between a closed log file and the active Redis stream.
         plws[topic] = PacketLogWriter.new(remote_log_directory, label, true, 3600, nil)
       end
-      while true
-        break if @cancel_thread
-        Topic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
-          begin
-            break if @cancel_thread
-            topic_split = topic.split("__")
-            target_name = topic_split[2]
-            packet_name = topic_split[3]
+      return plws
+    end
 
-            plws[topic].write(:JSON_PACKET, :TLM, target_name, packet_name, msg_hash["time"].to_i, ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["json_data"], nil)
-            @count += 1
-          rescue => err
-            @error = err
-            Logger.error("DecomLog error: #{err.formatted}")
-          end
-        end
+    def decom_log_data(plws, topic, msg_id, msg_hash, redis)
+      begin
+        start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        topic_split = topic.split("__")
+        target_name = topic_split[2]
+        packet_name = topic_split[3]
+
+        plws[topic].write(:JSON_PACKET, :TLM, target_name, packet_name, msg_hash["time"].to_i, ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["json_data"], nil)
+        @count += 1
+        diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
+        metric_name = "#{self.__method__.to_s}_duration_seconds".downcase
+        metric_labels = {"packet" => packet_name, "target" => target_name}
+        @metric.add_sample(metric_name, diff, metric_labels)
+      rescue => err
+        @error = err
+        Logger.error("DecomLog error: #{err.formatted}")
       end
     end
+
   end
 end
+
+
 
 Cosmos::DecomLogMicroservice.run if __FILE__ == $0

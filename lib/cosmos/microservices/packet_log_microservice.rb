@@ -23,6 +23,17 @@ require 'cosmos/topics/topic'
 module Cosmos
   class PacketLogMicroservice < Microservice
     def run
+      plws = self.setup_plws
+      while true
+        break if @cancel_thread
+        Topic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
+          break if @cancel_thread
+          self.packet_log_data(plws, topic, msg_id, msg_hash, redis)
+        end
+      end
+    end
+
+    def setup_plws()
       plws = {}
       @topics.each do |topic|
         topic_split = topic.split("__")
@@ -32,23 +43,27 @@ module Cosmos
         label = "#{@scope}__#{target_name}__#{packet_name}__raw"
         plws[topic] = PacketLogWriter.new(remote_log_directory, label, true, nil, 1000000, 0, 0)
       end
-      while true
-        break if @cancel_thread
-        Topic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
-          begin
-            break if @cancel_thread
-            topic_split = topic.split("__")
-            target_name = topic_split[2]
-            packet_name = topic_split[3]
-            plws[topic].write(:RAW_PACKET, :TLM, target_name, packet_name, msg_hash["time"].to_i, ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["buffer"], nil)
-            @count += 1
-          rescue => err
-            @error = err
-            Logger.error("PacketLog error: #{err.formatted}")
-          end
-        end
+      return plws
+    end
+
+    def packet_log_data(plws, topic, msg_id, msg_hash, redis)
+      begin
+        start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+        topic_split = topic.split("__")
+        target_name = topic_split[2]
+        packet_name = topic_split[3]
+        plws[topic].write(:RAW_PACKET, :TLM, target_name, packet_name, msg_hash["time"].to_i, ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["buffer"], nil)
+        @count += 1
+        diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
+        metric_name = "#{self.__method__.to_s}_duration_seconds".downcase
+        metric_labels = {"packet" => packet_name, "target" => target_name}
+        @metric.add_sample(metric_name, diff, metric_labels)
+      rescue => err
+        @error = err
+        Logger.error("PacketLog error: #{err.formatted}")
       end
     end
+
   end
 end
 
