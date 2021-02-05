@@ -25,27 +25,26 @@ module Cosmos
   module Api
     WHITELIST ||= []
     WHITELIST.concat([
-      'get_interface_targets',
+      'get_interface',
       'get_interface_names',
       'connect_interface',
       'disconnect_interface',
+      # DEPRECATED:
       'interface_state',
-      'map_target_to_interface',
+      'get_interface_targets',
       'get_interface_info',
-      'get_interface',
       'get_all_interface_info',
     ])
 
-    # @deprecated Use #get_interface
-    # @return [Array<String>] All the targets mapped to the given interface
-    def get_interface_targets(interface_name, scope: $cosmos_scope, token: $cosmos_token)
+    # Get information about an interface
+    #
+    # @param interface_name [String] Interface name
+    # @return [Hash] Hash of all the interface information
+    def get_interface(interface_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', interface_name: interface_name, scope: scope, token: token)
-      interface = JSON.parse(Store.instance.hget("#{scope}__cosmos_microservices", "INTERFACE__#{interface_name}"))
-      targets = []
-      interface['target_list'].each do |target|
-        targets << target['target_name']
-      end
-      targets
+      interface = InterfaceModel.get(name: interface_name, scope: scope)
+      raise "Interface '#{interface_name}' does not exist" unless interface
+      interface.merge(InterfaceStatusModel.get(name: interface_name, scope: scope))
     end
 
     # @return [Array<String>] All the interface names
@@ -54,14 +53,10 @@ module Cosmos
       InterfaceModel.names(scope: scope)
     end
 
-    # Connects to an interface and starts its telemetry gathering thread. If
-    # optional parameters are given, the interface is recreated with new
-    # parameters.
+    # Connects an interface and starts its telemetry gathering thread
     #
     # @param interface_name [String] The name of the interface
-    # TODO: Should we deprecate this params? No one seems to use it?
-    # @param params [Array] Parameters to pass to the interface.
-    def connect_interface(interface_name, *params, scope: $cosmos_scope, token: $cosmos_token)
+    def connect_interface(interface_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
       InterfaceTopics.connect_interface(interface_name, scope: scope)
     end
@@ -74,31 +69,18 @@ module Cosmos
       InterfaceTopics.disconnect_interface(interface_name, scope: scope)
     end
 
+    # @deprecated Use #get_interface
     # @param interface_name (see #connect_interface)
     # @return [String] The state of the interface which is one of 'CONNECTED',
     #   'ATTEMPTING' or 'DISCONNECTED'.
     def interface_state(interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'system', interface_name: interface_name, scope: scope, token: token)
-      InterfaceStatusModel.get(name: interface_name, scope: scope)['state']
+      get_interface(interface_name, scope: scope)['state']
     end
 
-    # Associates a target and all its commands and telemetry with a particular
-    # interface. All the commands will go out over and telemetry be received
-    # from that interface.
-    #
-    # @param target_name [String] The name of the target
-    # @param interface_name (see #connect_interface)
-    def map_target_to_interface(target_name, interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      raise "Not supported in COSMOS 5 - Targets cannot be dynamically remapped"
-    end
-
-    # Get information about an interface
-    #
-    # @param interface_name [String] Interface name
-    # @return [Hash] Hash of all the interface information
-    def get_interface(interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'system', interface_name: interface_name, scope: scope, token: token)
-      InterfaceStatusModel.get(name: interface_name, scope: scope)
+    # @deprecated Use #get_interface
+    # @return [Array<String>] All the targets mapped to the given interface
+    def get_interface_targets(interface_name, scope: $cosmos_scope, token: $cosmos_token)
+      get_interface(interface_name, scope: scope)['target_names']
     end
 
     # Get information about an interface
@@ -110,14 +92,14 @@ module Cosmos
     #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
     #   Telemetry count] for the interface
     def get_interface_info(interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'system', interface_name: interface_name, scope: scope, token: token)
-      int = InterfaceStatusModel.get(name: interface_name, scope: scope)
+      int = get_interface(interface_name, scope: scope)
       return [int['state'], int['clients'], int['txsize'], int['rxsize'],
               int['txbytes'], int['rxbytes'], int['txcnt'], int['rxcnt']]
     end
 
     # Get information about all interfaces
     #
+    # @deprecated Use get_interface_names and get_interface
     # @return [Array<Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
     #   Numeric, Numeric>>] Array of Arrays containing \[name, state, num clients,
     #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
@@ -132,6 +114,5 @@ module Cosmos
       info.sort! {|a,b| a[0] <=> b[0] }
       info
     end
-
   end
 end
