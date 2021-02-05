@@ -95,7 +95,7 @@ module Cosmos
       it "empty value generate summary metrics based on samples" do
         expect(@metric.items.empty?).to eql(true)
         @metric.output
-        expect(@redis.hget("foo__cosmos__metric", "")).to eql(nil)
+        expect(@redis.hget("bar__cosmos__metric", "")).to eql(nil)
       end
 
       it "single value generate summary metrics based on samples" do
@@ -103,7 +103,7 @@ module Cosmos
         expect(@metric.items.empty?).to eql(false)
         @metric.output
         expect(@metric.items.empty?).to eql(false)
-        #expect(@redis.hget("foo__cosmos__metric", "test|foo|bar")).not_to eql(nil)
+        expect(@redis.hget("bar__cosmos__metric", "test|foo|bar")).not_to eql(nil)
       end
 
       it "multivalue generate summary metrics based on samples" do
@@ -111,7 +111,7 @@ module Cosmos
         @metric.add_sample("test", 2, {"is" => false})
         expect(@metric.items.empty?).to eql(false)
         @metric.output
-        #expect(@redis.hget("foo__cosmos__metric", "test|foo|bar")).not_to eql(nil)
+        expect(@redis.hget("bar__cosmos__metric", "test|foo|bar")).not_to eql(nil)
       end
 
     end
