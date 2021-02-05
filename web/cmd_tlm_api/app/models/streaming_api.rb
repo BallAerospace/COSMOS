@@ -489,9 +489,11 @@ class LoggedStreamingThread < StreamingThread
         results = []
         plr = Cosmos::PacketLogReader.new()
         plr.each(file_path, false, Time.from_nsec_from_epoch(first_object.start_time), Time.from_nsec_from_epoch(first_object.end_time)) do |packet|
+          time = packet.received_time if packet.respond_to? :received_time
+          time ||= packet.packet_time
           result = nil
           if @stream_mode == :RAW
-            result = handle_raw_packet(packet.buffer, objects, packet.received_time.to_nsec_from_epoch, first_object.topic)
+            result = handle_raw_packet(packet.buffer, objects, time.to_nsec_from_epoch, first_object.topic)
           else # @stream_mode == :DECOM
             result = handle_json_packet(packet, objects)
           end
