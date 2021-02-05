@@ -30,13 +30,13 @@ RSpec.describe StreamingApi, type: :model do
     @start_time = Time.now
     @time = @start_time
     msg = {}
-    msg['target_name'] = 'TGT'
-    msg['packet_name'] = 'PKT'
+    msg['target_name'] = 'INST'
+    msg['packet_name'] = 'PARAMS'
     msg['time'] = @time.to_i * 1_000_000_000
     packet_data = {}
     packet_data['PACKET_TIMESECONDS'] = @time.to_f
     packet_data['PACKET_TIMEFORMATTED'] = @time.formatted
-    packet_data['ITEM1__R'] = 1
+    packet_data['VALUE1__R'] = 1
     msg['json_data'] = JSON.generate(packet_data)
     msg['buffer'] = '\x01\x02\x03\x04'
     # Send count is how many times we return a message from read_topics
@@ -58,8 +58,8 @@ RSpec.describe StreamingApi, type: :model do
     # Ensure the FileCache is clear so we don't leak the s3 mock
     FileCache.class_variable_set(:@@instance, nil)
 
-    @file_start_time = 1612463470058728300 # these are from the file names in spec/fixtures/files
-    @file_end_time = 1612464450260392000
+    @file_start_time = 1612507048486161200 # these are from the file names in spec/fixtures/files
+    @file_end_time = 1612510649489137500
     s3 = double("AwsS3Client").as_null_object
     allow(Aws::S3::Client).to receive(:new).and_return(s3)
     allow(s3).to receive(:list_objects_v2) do |args|
@@ -68,17 +68,17 @@ RSpec.describe StreamingApi, type: :model do
         def response.contents
           file_1 = Object.new
           def file_1.key
-            "1612463822362371700__1612467424059768600__DEFAULT__TGT__PKT__decom.bin"
+            "1612507048486161200__1612510649489137500__DEFAULT__INST__PARAMS__decom.bin"
           end
           def file_1.size
-            63232544
+            4221512
           end
           file_2 = Object.new
           def file_2.key
-            "1612463822362371700__1612467424059768600__DEFAULT__TGT__PKT__decom.idx"
+            "1612507048486161200__1612510649489137500__DEFAULT__INST__PARAMS__decom.idx"
           end
           def file_2.size
-            864504
+            86522
           end
           [ file_1, file_2 ]
         end
@@ -86,17 +86,17 @@ RSpec.describe StreamingApi, type: :model do
         def response.contents
           file_1 = Object.new
           def file_1.key
-            "1612463470058728300__1612464450260392000__DEFAULT__TGT__PKT__raw.bin"
+            "1612507011488049700__1612530822029552800__DEFAULT__INST__PARAMS__raw.bin"
           end
           def file_1.size
-            999970
+            1000002
           end
           file_2 = Object.new
           def file_2.key
-            "1612463470058728300__1612464450260392000__DEFAULT__TGT__PKT__raw.idx"
+            "1612507011488049700__1612530822029552800__DEFAULT__INST__PARAMS__raw.idx"
           end
           def file_2.size
-            235344
+            571466
           end
           [ file_1, file_2 ]
         end
@@ -107,7 +107,6 @@ RSpec.describe StreamingApi, type: :model do
       response
     end
     allow(s3).to receive(:get_object) do |args|
-      # TODO: Check in the fixture files
       FileUtils.cp(file_fixture(args[:key]).realpath, args[:response_target])
     end
 
@@ -131,9 +130,9 @@ RSpec.describe StreamingApi, type: :model do
   context 'streaming with Redis' do
     base_data = { 'scope' => 'DEFAULT' }
     modes = [
-      { 'description' => 'items in decom mode', 'data' => { 'items' => ['TLM__TGT__PKT__ITEM1__CONVERTED'], 'mode' => 'DECOM' } },
-      { 'description' => 'packets in decom mode', 'data' => { 'packets' => ['TLM__TGT__PKT__CONVERTED'], 'mode' => 'DECOM' } },
-      { 'description' => 'packets in raw mode', 'data' => { 'packets' => ['TLM__TGT__PKT'], 'mode' => 'RAW' } },
+      { 'description' => 'items in decom mode', 'data' => { 'items' => ['TLM__INST__PARAMS__VALUE1__CONVERTED'], 'mode' => 'DECOM' } },
+      { 'description' => 'packets in decom mode', 'data' => { 'packets' => ['TLM__INST__PARAMS__CONVERTED'], 'mode' => 'DECOM' } },
+      { 'description' => 'packets in raw mode', 'data' => { 'packets' => ['TLM__INST__PARAMS'], 'mode' => 'RAW' } },
     ]
 
     modes.each do |mode|
