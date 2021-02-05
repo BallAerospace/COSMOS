@@ -281,7 +281,7 @@ RSpec.describe StreamingApi, type: :model do
         end
 
         context 'from files' do
-          it 'has start time very far in the past' do
+          it 'has start time and end time within the file\'s time range' do
             msg1 = {'time' => @start_time.to_i * 1_000_000_000 } # newest is now
             allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
             msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
@@ -289,17 +289,28 @@ RSpec.describe StreamingApi, type: :model do
 
             @time = Time.at(@start_time.to_i - 1.5)
             data['start_time'] = @file_start_time # make it hit the files
-            data['end_time'] = @file_end_time
-            # data['end_time'] = @start_time.to_i * 1_000_000_000 # now
+            data['end_time'] = @file_start_time + 1 # 1 nsec after the beginning of the file so it only has one message to read
             @api.add(data)
-            sleep 0.65 # Allow the threads to run
-            # We expect 3 messages because of batching
-            ##total time is 2.25s and we get a packet at 1, 2, then one more plus empty
-            expect(@messages.length).to eq(3)
+            sleep 1.65 # Allow the threads to run (files need a long time)
+            # We expect 2 messages, the one from the file and the empty one
+            expect(@messages.length).to eq(2)
             expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
-            logged = @api.instance_variable_get('@logged_threads')
-            expect(logged.length).to eq(1)
-            expect(logged[0].alive?).to be false
+          end
+
+          it 'has start time within the file\'s time range and end time after the file' do
+            msg1 = {'time' => @start_time.to_i * 1_000_000_000 } # newest is now
+            allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
+            msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+            allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
+
+            @time = Time.at(@start_time.to_i - 1.5)
+            data['start_time'] = @file_start_time # make it hit the files
+            data['end_time'] = @start_time.to_i * 1_000_000_000 # now
+            @api.add(data)
+            sleep 2.65 # Allow the threads to run (files need a long time)
+            # We expect at least 38 messages: 36 from the fixture file, at least one from redis, and the empty one at the end
+            expect(@messages.length).to be >= 38
+            expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
           end
         end
       end
