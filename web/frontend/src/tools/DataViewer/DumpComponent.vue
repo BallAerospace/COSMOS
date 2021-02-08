@@ -22,9 +22,10 @@
     <v-row>
       <v-col>
         <packet-summary-component
-          :key="packet.time"
-          :packet="packet"
-          :received-count="history.length"
+          v-if="latestPacket"
+          :key="latestPacket.time"
+          :packet="latestPacket"
+          :received-count="receivedCount"
         />
       </v-col>
     </v-row>
@@ -88,15 +89,10 @@ export default {
   components: {
     PacketSummaryComponent,
   },
-  props: {
-    packet: {
-      type: Object,
-      required: true,
-    },
-  },
   data: function () {
     return {
-      history: [this.packet], // Note: history doesn't start working until this component is mounted
+      history: [],
+      receivedCount: 0,
       format: 'hex',
       showLineAddress: true,
       bytesPerLine: 16,
@@ -106,10 +102,6 @@ export default {
     }
   },
   watch: {
-    packet: function (val) {
-      this.history.push(val)
-      if (!this.paused) this.playPosition++
-    },
     paused: function (val) {
       if (val) {
         this.pausedAt = this.playPosition
@@ -119,6 +111,26 @@ export default {
     },
   },
   methods: {
+    receive: function (data) {
+      // This is called by the parent to feed this component data. A function is used instead
+      // of a prop to ensure each message gets handled, regardless of how fast they come in
+      data.forEach((packet) => {
+        this.history.push({
+          buffer: atob(packet.buffer)
+            .split('')
+            .map((c) => c.charCodeAt(0)),
+          time: packet.time,
+        })
+      })
+      this.receivedCount += data.length
+      // Future enhancement: use a ring buffer instead
+      if (this.history.length > 1000) {
+        this.history = this.history.slice(-1000)
+      }
+      if (!this.paused) {
+        this.playPosition = this.history.length - 1
+      }
+    },
     pause: function () {
       this.paused = true
     },
@@ -138,7 +150,14 @@ export default {
     historyMax: function () {
       return this.paused ? this.pausedAt : this.history.length - 1
     },
+    latestPacket: function () {
+      if (this.history.length) {
+        return this.history[this.history.length - 1]
+      }
+      return null
+    },
     currentBytes: function () {
+      if (this.history.length == 0) return []
       const buffer = this.history[this.playPosition].buffer
       if (this.format === 'ascii') {
         return buffer.map((byte) =>

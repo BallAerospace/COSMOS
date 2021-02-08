@@ -44,10 +44,12 @@
           >
             <v-card-title>{{ packet.target }} {{ packet.packet }}</v-card-title>
             <dump-component
-              v-if="packetData[packet.key]"
-              :packet="packetData[packet.key]"
+              v-show="receivedPackets[packet.key]"
+              :ref="`${packet.key}-display`"
             />
-            <v-card-text v-else>No data</v-card-text>
+            <v-card-text v-if="!receivedPackets[packet.key]">
+              No data
+            </v-card-text>
           </v-card>
         </v-tab-item>
       </v-tabs-items>
@@ -77,7 +79,7 @@ export default {
       configParser: null,
       curTab: null,
       tabs: [],
-      packetData: {},
+      receivedPackets: {},
       updater: null,
       refreshInterval: 1000,
       optionsDialog: false,
@@ -223,17 +225,13 @@ COMPONENT "Other Packets" data_viewer_component.rb
         this.error = true
         return
       }
-      JSON.parse(json_data).forEach((data) => {
-        this.packetData[data.packet] = {
-          buffer: atob(data.buffer)
-            .split('')
-            .map((c) => c.charCodeAt(0)),
-          time: data.time,
-        }
-        // TODO: this causes every component to update instead of just the ones with a new packet
-        // which is less than ideal, but it works for now
-        this.packetData = { ...this.packetData }
+      const parsed = JSON.parse(json_data)
+      const packetName = parsed[0].packet // everything in this message will be for the same packet
+      this.$refs[`${packetName}-display`].forEach((component) => {
+        component.receive(parsed)
       })
+      this.receivedPackets[packetName] = true
+      this.receivedPackets = { ...this.receivedPackets } // TODO: why is reactivity broken?
     },
   },
 }
