@@ -31,6 +31,7 @@ $cmd_tlm_server = nil
 $disconnect = nil
 $cmd_tlm_replay_mode = false
 $cosmos_scope = 'DEFAULT'
+$cosmos_token = nil
 
 module Cosmos
   # Provides a proxy to the JsonDRbObject which communicates with the API server

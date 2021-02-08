@@ -151,8 +151,7 @@ module Cosmos
         expect(i.raw_logger_pair.read_logger.logging_enabled).to be false
         i.start_raw_logging
         expect(i.raw_logger_pair.read_logger.logging_enabled).to be true
-        packet = nil
-        t = Thread.new { packet = i.read }
+        t = Thread.new { i.read }
         write.write("\x00\x01\x02\x03")
         t.join
         filename = i.raw_logger_pair.read_logger.filename

@@ -38,7 +38,7 @@ class PluginsController < ModelController
       rescue
         head :internal_server_error
       ensure
-        FileUtils.remove_entry(temp_dir) if temp_dir and File.exists?(temp_dir)
+        FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
       end
     else
       head :internal_server_error

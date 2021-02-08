@@ -89,14 +89,14 @@ export default {
     sortChanged(evt) {
       axios
         .post(
-          'http://localhost:7777/tools/order/' + this.tools[evt.oldIndex - 1],
+          'http://localhost:7777/tools/position/' + this.tools[evt.oldIndex],
           {
-            order: evt.newIndex - 1,
+            position: evt.newIndex,
             scope: 'DEFAULT',
           }
         )
         .then((response) => {
-          this.alert = 'Reordered tool ' + this.tools[evt.oldIndex - 1]
+          this.alert = 'Reordered tool ' + this.tools[evt.oldIndex]
           this.alertType = 'success'
           this.showAlert = true
           setTimeout(() => {

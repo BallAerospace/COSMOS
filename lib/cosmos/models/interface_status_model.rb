@@ -20,6 +20,9 @@
 require 'cosmos/models/model'
 
 module Cosmos
+  # Stores the status about an interface. This class also implements logic
+  # to handle status for a router since the functionality is identical
+  # (only difference is the Redis key used).
   class InterfaceStatusModel < Model
     INTERFACES_PRIMARY_KEY = 'cosmos_interface_status'
     ROUTERS_PRIMARY_KEY = 'cosmos_router_status'
@@ -32,6 +35,39 @@ module Cosmos
     attr_accessor :rxbytes
     attr_accessor :txcnt
     attr_accessor :rxcnt
+
+    # NOTE: The following three class methods are used by the ModelController
+    # and are reimplemented to enable various Model class methods to work
+    def self.get(name:, scope:)
+      super("#{scope}__#{_get_key}", name: name)
+    end
+
+    def self.names(scope:)
+      super("#{scope}__#{_get_key}")
+    end
+
+    def self.all(scope:)
+      super("#{scope}__#{_get_key}")
+    end
+    # END NOTE
+
+    # Helper method to return the correct type based on class name
+    def self._get_type
+      self.name.to_s.split("Model")[0].upcase.split("::")[-1]
+    end
+
+    # Helper method to return the correct primary key based on class name
+    def self._get_key
+      type = _get_type
+      case type
+      when 'INTERFACESTATUS'
+        INTERFACES_PRIMARY_KEY
+      when 'ROUTERSTATUS'
+        ROUTERS_PRIMARY_KEY
+      else
+        raise "Unknown type #{type} from class #{self.name}"
+      end
+    end
 
     def initialize(
       name:,
@@ -46,8 +82,7 @@ module Cosmos
       updated_at: nil,
       plugin: nil,
       scope:)
-      interface_or_router = self.class.name.to_s.split("Model")[0].upcase.split("::")[-1]
-      if interface_or_router == 'INTERFACESTATUS'
+      if self.class._get_type == 'INTERFACESTATUS'
         super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name, updated_at: updated_at, plugin: plugin, scope: scope)
       else
         super("#{scope}__#{ROUTERS_PRIMARY_KEY}", name: name, updated_at: updated_at, plugin: plugin, scope: scope)
@@ -77,33 +112,5 @@ module Cosmos
         'updated_at' => @updated_at
       }
     end
-
-    def self.get(name:, scope:)
-      interface_or_router = self.name.to_s.split("Model")[0].upcase.split("::")[-1]
-      if interface_or_router == 'INTERFACESTATUS'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name)
-      else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}", name: name)
-      end
-    end
-
-    def self.names(scope:)
-      interface_or_router = self.name.to_s.split("Model")[0].upcase.split("::")[-1]
-      if interface_or_router == 'INTERFACESTATUS'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}")
-      else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}")
-      end
-    end
-
-    def self.all(scope:)
-      interface_or_router = self.name.to_s.split("Model")[0].upcase.split("::")[-1]
-      if interface_or_router == 'INTERFACESTATUS'
-        super("#{scope}__#{INTERFACES_PRIMARY_KEY}")
-      else
-        super("#{scope}__#{ROUTERS_PRIMARY_KEY}")
-      end
-    end
-
   end
 end

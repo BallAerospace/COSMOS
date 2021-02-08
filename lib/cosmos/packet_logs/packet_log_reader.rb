@@ -293,7 +293,7 @@ module Cosmos
             packet = System.telemetry.packet(target_name, packet_name)
           end
           packet.buffer = packet_data
-        rescue Exception => error
+        rescue
           # Could not find a definition for this packet
           Logger.instance.error "Unknown packet #{target_name} #{packet_name}"
           packet = Packet.new(target_name, packet_name, :BIG_ENDIAN, nil, packet_data)

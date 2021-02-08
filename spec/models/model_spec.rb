@@ -41,9 +41,7 @@ module Cosmos
     end
 
     before(:each) do
-      @redis = MockRedis.new
-      allow(Redis).to receive(:new).and_return(@redis)
-      Cosmos::Store.class_variable_set(:@@instance, nil)
+      mock_redis()
     end
 
     describe "create" do
@@ -128,6 +126,12 @@ module Cosmos
         saved = TestModel.get(name: "TEST1", scope: "DEFAULT")
         expect(saved["name"]).to eq "TEST1"
         expect(saved["plugin"]).to eq "TWO"
+      end
+    end
+
+    describe "self.get" do
+      it "returns nil if the name can't be found" do
+        expect(TestModel.get(name: "BLAH", scope: "DEFAULT")).to be_nil
       end
     end
 

@@ -71,7 +71,7 @@ module Cosmos
         loop { sleep 1 }
       rescue SystemExit, Interrupt
         target.stop
-        FileUtils.remove_entry(temp_dir) if File.exists?(temp_dir)
+        FileUtils.remove_entry(temp_dir) if File.exist?(temp_dir)
       end
     end
   end

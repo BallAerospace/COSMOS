@@ -18,19 +18,20 @@
 # copyright holder
 
 require 'spec_helper'
-require 'mock_redis'
 require 'cosmos/operators/microservice_operator'
 
 # Override at_exit to do nothing for testing
+saved_verbose = $VERBOSE; $VERBOSE = nil;
 def at_exit(*args, &block)
 end
+$VERBOSE = saved_verbose
 
 module Cosmos
   describe MicroserviceOperator do
     describe "initialize" do
       it "should call OperatorProcess.setup" do
         expect(OperatorProcess).to receive(:setup)
-        op = MicroserviceOperator.new
+        MicroserviceOperator.new
       end
 
       it "should cycle every ENV['OPERATOR_CYCLE_TIME'] seconds" do
@@ -54,8 +55,7 @@ module Cosmos
       end
 
       before(:each) do
-        @redis = MockRedis.new
-        allow(Redis).to receive(:new).and_return(@redis)
+        @redis = mock_redis()
         allow(Process).to receive(:kill) do |type, pid|
           # Override SIGINT to just kill the process
           Process.kill("KILL", pid) if type == "SIGINT"

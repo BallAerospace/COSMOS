@@ -40,9 +40,7 @@ module Cosmos
     # PRIVATE - Shared by cmd_api and tlm_api
 
     def _get_cnt(topic)
-      _, _, target_name, packet_name = topic.split('__') # split off scope and type
-      raise "Packet '#{target_name} #{packet_name}' does not exist" unless Store.instance.exists?(topic)
-      id, packet = Store.instance.read_topic_last(topic)
+      _, packet = Store.instance.read_topic_last(topic)
       packet ? packet["received_count"].to_i : 0
     end
 

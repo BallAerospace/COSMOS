@@ -332,9 +332,8 @@ module Cosmos
         packet.get_item("RSP_PACKET").default = "READ_VOLTAGE"
         packet.restore_defaults
         @interface.connect
-        read_result = nil
         $read_buffer = "\x31\x30\xAB\xCD" # ASCII 31, 30 is '10'
-        Thread.new { sleep(0.5); read_result = @interface.read }
+        Thread.new { sleep(0.5); @interface.read }
         logger = class_double("Cosmos::Logger").as_stubbed_const(:transfer_nested_constants => true)
         expect(logger).to receive(:error) do |arg|
           expect(arg).to match(/Unexpected response: 10/)
@@ -371,9 +370,8 @@ module Cosmos
         packet.get_item("RSP_PACKET").default = "READ_VOLTAGE"
         packet.restore_defaults
         @interface.connect
-        read_result = nil
         $read_buffer = "\x31\x30\x3B\x31\x31\xAB\xCD" # ASCII is '10;11'
-        Thread.new { sleep(0.5); read_result = @interface.read }
+        Thread.new { sleep(0.5); @interface.read }
         logger = class_double("Cosmos::Logger").as_stubbed_const(:transfer_nested_constants => true)
         expect(logger).to receive(:error) do |arg|
           expect(arg).to match(/Could not write value 10;11/)

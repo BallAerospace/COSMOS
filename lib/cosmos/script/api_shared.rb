@@ -501,7 +501,7 @@ module Cosmos
       file_text = nil
       instrumented_script = nil
       cached = true
-      use_file_cache = true
+      # use_file_cache = true
 
       # TODO
       # Cosmos.set_working_dir do

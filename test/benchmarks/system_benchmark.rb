@@ -1,5 +1,5 @@
-require 'benchmark'
 require 'cosmos'
+require 'benchmark'
 ENV['NO_STORE'] = 'true'
 ENV['NO_FLUENTD'] = 'true'
 
@@ -9,6 +9,7 @@ targets = ["SYSTEM", "INST", "EMPTY"]
 n = 5000000
 Benchmark.bm do |x|
   x.report("system") do
+    Cosmos::System.class_variable_set(:@@instance, nil)
     Cosmos::System.instance(targets, dir)
   end
 end

@@ -17,6 +17,8 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/models/target_model'
+
 module Cosmos
   module Api
     WHITELIST ||= []
@@ -53,7 +55,8 @@ module Cosmos
     #
     # @param args [String|Array<String>] See the description for calling style
     # @return [Array<String, String, Hash>] target_name, command_name, parameters
-    def cmd(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(true, true, false, 'cmd', *args, scope: scope, token: token)
     end
 
@@ -69,7 +72,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_no_range_check(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_no_range_check(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(false, true, false, 'cmd_no_range_check', *args, scope: scope, token: token)
     end
 
@@ -85,7 +89,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_no_hazardous_check(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_no_hazardous_check(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(true, false, false, 'cmd_no_hazardous_check', *args, scope: scope, token: token)
     end
 
@@ -100,7 +105,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_no_checks(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_no_checks(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(false, false, false, 'cmd_no_checks', *args, scope: scope, token: token)
     end
 
@@ -114,7 +120,8 @@ module Cosmos
     #
     # @param args [String|Array<String>] See the description for calling style
     # @return [Array<String, String, Hash>] target_name, command_name, parameters
-    def cmd_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_raw(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(true, true, true, 'cmd_raw', *args, scope: scope, token: token)
     end
 
@@ -130,7 +137,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_raw_no_range_check(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_raw_no_range_check(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(false, true, true, 'cmd_raw_no_range_check', *args, scope: scope, token: token)
     end
 
@@ -146,7 +154,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_raw_no_hazardous_check(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_raw_no_hazardous_check(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(true, false, true, 'cmd_raw_no_hazardous_check', *args, scope: scope, token: token)
     end
 
@@ -161,7 +170,8 @@ module Cosmos
     #
     # @param (see #cmd)
     # @return (see #cmd)
-    def cmd_raw_no_checks(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def cmd_raw_no_checks(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       cmd_implementation(false, false, true, 'cmd_raw_no_checks', *args, scope: scope, token: token)
     end
 
@@ -182,7 +192,7 @@ module Cosmos
     # @return [String] last command buffer packet
     def get_cmd_buffer(target_name, command_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
-      Store.instance.cmd_packet_exist?(target_name, command_name, scope: scope)
+      TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
       topic = "#{scope}__COMMAND__#{target_name}__#{command_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       return msg_hash['buffer'].b if msg_id # Return as binary
@@ -199,7 +209,7 @@ module Cosmos
     def get_cmd_list(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, scope: scope, token: token)
       list = []
-      commands = Store.instance.get_commands(target_name, scope: scope)
+      commands = TargetModel.packets(target_name, type: :CMD, scope: scope)
       commands.each do |command|
         list << [command['packet_name'], command['description']]
       end
@@ -213,7 +223,7 @@ module Cosmos
     # @return [Array<Hash>] Array of all commands as a hash
     def get_all_commands(target_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, scope: scope, token: token)
-      Store.instance.get_commands(target_name, scope: scope)
+      TargetModel.packets(target_name, type: :CMD, scope: scope)
     end
 
     # Returns a hash of the given command
@@ -224,7 +234,7 @@ module Cosmos
     # @return [Hash] Command as a hash
     def get_command(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, scope: scope, token: token)
-      Store.instance.get_packet(target_name, packet_name, type: 'cmd', scope: scope)
+      TargetModel.packet(target_name, packet_name, type: :CMD, scope: scope)
     end
 
     # Returns a hash of the given command parameter
@@ -236,7 +246,7 @@ module Cosmos
     # @return [Hash] Command parameter as a hash
     def get_parameter(target_name, packet_name, param_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      Store.instance.get_item(target_name, packet_name, param_name, type: 'cmd', scope: scope)
+      TargetModel.packet_item(target_name, packet_name, param_name, type: :CMD, scope: scope)
     end
 
     # Returns the list of all the parameters for the given command.
@@ -251,8 +261,7 @@ module Cosmos
     def get_cmd_param_list(target_name, command_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
       list = []
-      packet_json = nil
-      packet = Store.instance.get_packet(target_name, command_name, type: 'cmd', scope: scope)
+      packet = TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
       packet['items'].each do |item|
         states = nil
         if item['states']
@@ -283,10 +292,11 @@ module Cosmos
     #
     # @param args [String|Array<String>] See the description for calling style
     # @return [Boolean] Whether the command is hazardous
-    def get_cmd_hazardous(*args, scope: $cosmos_scope, token: $cosmos_token)
+    def get_cmd_hazardous(*args, scope: $cosmos_scope, token: $cosmos_token, **kwargs)
+      args << kwargs unless kwargs.empty?
       case args.length
       when 1
-        target_name, command_name, params = extract_fields_from_cmd_text(args[0])
+        target_name, command_name, params = extract_fields_from_cmd_text(args[0], scope: scope)
       when 2, 3
         target_name = args[0]
         command_name = args[1]
@@ -301,7 +311,7 @@ module Cosmos
       end
 
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
-      packet = Store.instance.get_packet(target_name, command_name, type: 'cmd', scope: scope)
+      packet = TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
       return true if packet['hazardous']
 
       packet['items'].each do |item|
@@ -354,7 +364,7 @@ module Cosmos
         targets.each do |target_name|
           time = 0
           command_name = nil
-          Store.instance.get_commands(target_name, scope: scope).each do |packet|
+          TargetModel.packets(target_name, type: :CMD, scope: scope).each do |packet|
             cur_time = Store.instance.get_cmd_item(target_name, packet["packet_name"], 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
             next unless cur_time
             if cur_time > time
@@ -375,6 +385,7 @@ module Cosmos
     # @return [Numeric] Transmit count for the command
     def get_cmd_cnt(target_name, command_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, packet_name: command_name, scope: scope, token: token)
+      TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
       _get_cnt("#{scope}__COMMAND__#{target_name}__#{command_name}")
     end
 
@@ -385,12 +396,14 @@ module Cosmos
       get_all_cmd_tlm_info("COMMAND", scope: scope, token: token)
     end
 
-    # PRIVATE
+    ###########################################################################
+    # PRIVATE implementation details
+    ###########################################################################
 
     def cmd_implementation(range_check, hazardous_check, raw, method_name, *args, scope:, token:)
       case args.length
       when 1
-        target_name, cmd_name, cmd_params = extract_fields_from_cmd_text(args[0])
+        target_name, cmd_name, cmd_params = extract_fields_from_cmd_text(args[0], scope: scope)
       when 2, 3
         target_name = args[0]
         cmd_name    = args[1]
@@ -404,9 +417,48 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{method_name}()"
       end
       authorize(permission: 'cmd', target_name: target_name, packet_name: cmd_name, scope: scope, token: token)
-      Store.instance.cmd_target(target_name, cmd_name, cmd_params, range_check, hazardous_check, raw, scope: scope)
-      [target_name, cmd_name, cmd_params]
+      TargetModel.packet(target_name, cmd_name, type: :CMD, scope: scope)
+
+      timeout_ms = 5000  # TODO: This 5 second timeout is arbitrary ... what should it be
+      ack_topic = "#{scope}__ACKCMDTARGET__#{target_name}"
+      Store.update_topic_offsets([ack_topic])
+      cmd_id = Store.write_topic("#{scope}__CMDTARGET__#{target_name}", {
+        'target_name' => target_name,
+        'cmd_name' => cmd_name,
+        'cmd_params' => JSON.generate(cmd_params.as_json),
+        'range_check' => range_check,
+        'hazardous_check' => hazardous_check,
+        'raw' => raw })
+      (timeout_ms / 100).times do
+        Topic.read_topics([ack_topic]) do |topic, msg_id, msg_hash, redis|
+          # Logger.debug("topic:#{topic} id:#{msg_id} hash:#{msg_hash.inspect}")
+          if msg_hash["id"] == cmd_id
+            # Logger.debug "Ack Received topic:#{topic} id:#{msg_id} msg:#{msg_hash.inspect}"
+            if msg_hash["result"] == "SUCCESS"
+              return [target_name, cmd_name, cmd_params]
+            # Check for HazardousError which is a special case
+            elsif msg_hash["result"].include?("HazardousError")
+              raise_hazardous_error(msg_hash, target_name, cmd_name, cmd_params)
+            else
+              raise msg_hash["result"]
+            end
+          end
+        end
+      end
+      raise "Timeout waiting for cmd ack"
     end
 
+    def raise_hazardous_error(msg_hash, target_name, cmd_name, cmd_params)
+      _, description, _ = msg_hash["result"].split("\n")
+      # Create and populate a new HazardousError and raise it up
+      # The _cmd method in script/commands.rb rescues this and calls prompt_for_hazardous
+      error = HazardousError.new
+      error.target_name = target_name
+      error.cmd_name = cmd_name
+      error.cmd_params = cmd_params
+      error.hazardous_description = description
+      # No Logger.info because the error is already logged by the Logger.info "Ack Received ...
+      raise error
+    end
   end
 end

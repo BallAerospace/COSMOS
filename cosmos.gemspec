@@ -91,7 +91,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'uuidtools', '~> 2.1'
   s.add_runtime_dependency 'snmp', '~> 1.0'
   s.add_runtime_dependency 'rubyzip', '~> 2.0'
-  s.add_runtime_dependency 'nokogiri', '~> 1.10'
+  s.add_runtime_dependency 'nokogiri', '~> 1.11'
   s.add_runtime_dependency 'puma', '~> 4.3'
   s.add_runtime_dependency 'rack', '~> 2.0'
   s.add_runtime_dependency 'httpclient', '~> 2.8'
@@ -101,6 +101,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'connection_pool', '~> 2.2'
   s.add_runtime_dependency 'aws-sdk-s3', '~> 1.67'
   s.add_runtime_dependency 'geminabox', '~> 1.2'
+  s.add_runtime_dependency 'ruby2_keywords', '~> 0.0.4'
 
   # Development Dependencies
   s.add_development_dependency 'diff-lcs', '~> 1.3' if RUBY_ENGINE == 'ruby' # Get latest for MRI
@@ -113,8 +114,8 @@ spec = Gem::Specification.new do |s|
   # s.add_development_dependency 'guard', '~> 2.0'
   # s.add_development_dependency 'guard-bundler', '~> 2.0'
   # s.add_development_dependency 'guard-rspec', '~> 4.0'
-  s.add_development_dependency 'simplecov', '~> 0.15'
-  s.add_development_dependency 'codecov', '~> 0.2'
+  s.add_development_dependency 'simplecov', '~> 0.20'
+  s.add_development_dependency 'codecov', '~> 0.4'
   s.add_development_dependency 'benchmark-ips', '~> 2.0'
   s.add_development_dependency 'ruby-prof', ['~> 1.0', '< 1.3'] if RUBY_ENGINE == 'ruby' # MRI Only
   s.add_development_dependency 'rspec_junit_formatter'

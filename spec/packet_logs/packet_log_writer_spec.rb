@@ -52,7 +52,7 @@ module Cosmos
           plw.write(:BLAH, :CMD, 'TGT', 'CMD', 0, true, "\x01\x02", nil)
           expect(stdout.string).to match("Unknown entry_type: BLAH")
           plw.shutdown
-          sleep(0.1)
+          sleep 0.1
         end
       end
 
@@ -67,7 +67,7 @@ module Cosmos
         expect(plw.instance_variable_get(:@file_size)).to_not eq 0
         plw.write(:RAW_PACKET, :TLM, 'TGT2', 'PKT2', last_time, false, "\x03\x04", nil)
         plw.shutdown
-        sleep(0.1) # Allow for shutdown thread "copy" to S3
+        sleep 0.1 # Allow for shutdown thread "copy" to S3
 
         # Files copied to S3 are named via the first_time, last_time, label
         expect(@files.keys).to contain_exactly("#{first_time}__#{last_time}__#{label}.bin",
@@ -133,6 +133,7 @@ module Cosmos
         time += 1_000_000_000
         plw.write(:RAW_PACKET, :TLM, target_name, packet_name, time, false, pkt.buffer, nil)
         time += 1_000_000_000
+        sleep 0.1
 
         # At this point we've written two packets ... our file should be full but not closed
         expect(plw.instance_variable_get(:@file_size)).to eq file_size
@@ -140,10 +141,11 @@ module Cosmos
 
         # One more write should cause the first file to close and new one to open
         plw.write(:RAW_PACKET, :TLM, target_name, packet_name, time, false, pkt.buffer, nil)
+        sleep 0.1
         expect(@files.keys.length).to eq 2 # Initial files (binary and index)
 
         plw.shutdown
-        sleep(0.1)
+        sleep 0.1
         expect(@files.keys.length).to eq 4
       end
 
@@ -161,7 +163,7 @@ module Cosmos
           sleep 0.2
         end
         plw.shutdown
-        sleep(0.1)
+        sleep 0.1
         # Since we wrote about 5s we should see 3 separate cycles
         expect(@files.keys.length).to eq 6
 
@@ -179,7 +181,7 @@ module Cosmos
           plw.stop
           expect(stdout.string).to match("Error opening")
           plw.shutdown
-          sleep(0.1)
+          sleep 0.1
         end
       end
 
@@ -192,7 +194,7 @@ module Cosmos
           plw.stop
           expect(stdout.string).to match("Error closing")
           plw.shutdown
-          sleep(0.1)
+          sleep 0.1
         end
       end
 
@@ -205,7 +207,7 @@ module Cosmos
           end
           expect(stdout.string).to match("Target Index Overflow")
           plw.shutdown
-          sleep(0.1)
+          sleep 0.1
         end
       end
 
@@ -218,7 +220,7 @@ module Cosmos
           end
           expect(stdout.string).to match("Packet Index Overflow")
           plw.shutdown
-          sleep(0.1)
+          sleep 0.1
         end
       end
     end
@@ -234,7 +236,7 @@ module Cosmos
         expect(plw.instance_variable_get(:@file_size)).to_not eq 0
 
         plw.shutdown
-        sleep(0.1)
+        sleep 0.1
         expect(@files.keys.length).to eq 2
       end
     end

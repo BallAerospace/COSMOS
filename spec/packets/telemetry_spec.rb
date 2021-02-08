@@ -518,7 +518,7 @@ module Cosmos
 
     describe "values_and_limits_states" do
       before(:each) do
-        redis = MockRedis.new
+        redis = mock_redis()
         redis.hset("DEFAULT__cosmos_system", 'limits_set', 'DEFAULT')
         allow(Redis).to receive(:new).and_return(redis)
       end
