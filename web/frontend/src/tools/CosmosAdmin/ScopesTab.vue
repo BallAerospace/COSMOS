@@ -96,6 +96,7 @@ export default {
         axios
           .post('http://localhost:7777/scopes', {
             scope: this.scope,
+            json: JSON.stringify({ name: this.scope }),
           })
           .then((response) => {
             this.alert = 'Added scope ' + this.scope
