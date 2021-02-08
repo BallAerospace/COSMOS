@@ -79,15 +79,7 @@ module Cosmos
     # @return [Array<Array<String, String, String, String>>]
     def get_out_of_limits(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      out_of_limits = []
-      limits = Store.hgetall("#{scope}__current_limits")
-      limits.each do |item, limits_state|
-        if %w(RED RED_HIGH RED_LOW YELLOW YELLOW_HIGH YELLOW_LOW).include?(limits_state)
-          target_name, packet_name, item_name = item.split('__')
-          out_of_limits << [target_name, packet_name, item_name, limits_state]
-        end
-      end
-      out_of_limits
+      LimitsEventTopic.out_of_limits(scope: scope)
     end
 
     # Get the overall limits state which is the worse case of all limits items.

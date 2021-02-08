@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/models/model'
+require 'cosmos/topics/limits_event_topic'
 require 'cosmos/system'
 require 'cosmos/utilities/s3'
 require 'zip'
@@ -26,6 +27,13 @@ require 'fileutils'
 require 'tempfile'
 
 module Cosmos
+  # Manages the target in Redis. It stores the target itself under the
+  # <SCOPE>__cosmos_targets key under the target name field. All the command packets
+  # in the target are stored under the <SCOPE>__cosmoscmd__<TARGET NAME> key and the
+  # telemetry under the <SCOPE>__cosmostlm__<TARGET NAME> key. Any new limits sets
+  # are merged into the <SCOPE>__limits_sets key as fields. Any new limits groups are
+  # created under <SCOPE>__limits_groups with field name. These Redis key/fields are
+  # all removed when the undeploy method is called.
   class TargetModel < Model
     PRIMARY_KEY = 'cosmos_targets'
     VALID_TYPES = %i(CMD TLM)
@@ -34,6 +42,7 @@ module Cosmos
     attr_accessor :requires
     attr_accessor :ignored_parameters
     attr_accessor :ignored_items
+    attr_accessor :limits_groups
     attr_accessor :cmd_tlm_files
     attr_accessor :cmd_unique_id_mode
     attr_accessor :tlm_unique_id_mode
@@ -41,15 +50,15 @@ module Cosmos
 
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
-    def self.get(name:, scope: nil)
+    def self.get(name:, scope:)
       super("#{scope}__#{PRIMARY_KEY}", name: name)
     end
 
-    def self.names(scope: nil)
+    def self.names(scope:)
       super("#{scope}__#{PRIMARY_KEY}")
     end
 
-    def self.all(scope: nil)
+    def self.all(scope:)
       super("#{scope}__#{PRIMARY_KEY}")
     end
 
@@ -116,6 +125,7 @@ module Cosmos
       requires: [],
       ignored_parameters: [],
       ignored_items: [],
+      limits_groups: [],
       cmd_tlm_files: [],
       cmd_unique_id_mode: false,
       tlm_unique_id_mode: false,
@@ -128,6 +138,7 @@ module Cosmos
       @requires = requires
       @ignored_parameters = ignored_parameters
       @ignored_items = ignored_items
+      @limits_groups = limits_groups
       @cmd_tlm_files = cmd_tlm_files
       @cmd_unique_id_mode = cmd_unique_id_mode
       @tlm_unique_id_mode = tlm_unique_id_mode
@@ -141,12 +152,13 @@ module Cosmos
         'requires' => @requires,
         'ignored_parameters' => @ignored_parameters,
         'ignored_items' => @ignored_items,
+        'limits_groups' => @limits_groups,
         'cmd_tlm_files' => @cmd_tlm_files,
         'cmd_unique_id_mode' => cmd_unique_id_mode,
         'tlm_unique_id_mode' => @tlm_unique_id_mode,
         'id' => @id,
         'updated_at' => @updated_at,
-        'plugin' => @plugin
+        'plugin' => @plugin,
       }
     end
 
@@ -199,6 +211,17 @@ module Cosmos
         rubys3_client.delete_object(bucket: 'config', key: object.key)
       end
 
+      self.class.get_model(name: @name, scope: @scope).limits_groups.each do |group|
+        Store.hdel("#{@scope}__limits_groups", group)
+      end
+      self.class.packets(@name, type: :CMD, scope: @scope).each do |packet|
+        Store.del("#{@scope}__COMMAND__#{@name}__#{packet['packet_name']}")
+      end
+      self.class.packets(@name, scope: @scope).each do |packet|
+        Store.del("#{@scope}__TELEMETRY__#{@name}__#{packet['packet_name']}")
+        Store.del("#{@scope}__DECOM__#{@name}__#{packet['packet_name']}")
+        LimitsEventTopic.delete(@name, packet['packet_name'], scope: @scope)
+      end
       Store.del("#{@scope}__cosmostlm__#{@name}")
       Store.del("#{@scope}__cosmoscmd__#{@name}")
 
@@ -264,6 +287,7 @@ module Cosmos
       @cmd_unique_id_mode = target.cmd_unique_id_mode
       @tlm_unique_id_mode = target.tlm_unique_id_mode
       @id = target.id
+      @limits_groups = system.limits.groups.keys
       update()
 
       # Store Packet Definitions
@@ -281,14 +305,17 @@ module Cosmos
           Store.hset("#{@scope}__cosmoscmd__#{target_name}", packet_name, JSON.generate(packet.as_json))
         end
       end
-      # Store Limits Groups (which are already a Hash)
-      Store.hset("#{@scope}__cosmos_system", 'limits_groups', JSON.generate(system.limits.groups))
+      # Store Limits Groups
+      system.limits.groups.each do |group, items|
+        Store.hset("#{@scope}__limits_groups", group, JSON.generate(items))
+      end
       # Merge in Limits Sets
-      sets = Store.hget("#{@scope}__cosmos_system", 'limits_sets')
-      sets = JSON.parse(sets) if sets
-      sets ||= []
-      sets.concat(system.limits.sets.map(&:to_s)) # Convert the symbols to strings
-      Store.hset("#{@scope}__cosmos_system", 'limits_sets', JSON.generate(sets.uniq)) # Ensure uniq set
+      sets = Store.hgetall("#{@scope}__limits_sets")
+      sets ||= {}
+      system.limits.sets.each do |set|
+        sets[set.to_s] = false unless sets.key?(set)
+      end
+      Store.hset("#{@scope}__limits_sets", sets)
 
       return system
     end

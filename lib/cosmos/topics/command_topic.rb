@@ -42,6 +42,7 @@ module Cosmos
       cmd_params = command['cmd_params']
       command['cmd_params'] = JSON.generate(command['cmd_params'].as_json)
       cmd_id = Store.write_topic("#{scope}__CMDTARGET__#{command['target_name']}", command)
+      # TODO: This timeout is fine for most but can we get the write_timeout from the interface here?
       (COMMAND_ACK_TIMEOUT_MS / COMMAND_ACK_RETRY_MS).times do
         Topic.read_topics([ack_topic]) do |topic, msg_id, msg_hash, redis|
           if msg_hash["id"] == cmd_id

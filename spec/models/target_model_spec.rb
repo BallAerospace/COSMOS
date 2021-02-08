@@ -405,21 +405,52 @@ module Cosmos
       end
     end
 
-    describe "undeploy" do
+    describe "destroy" do
       before(:each) do
         @s3 = instance_double("Aws::S3::Client")
         allow(@s3).to receive(:put_object)
         objs = double("Object", :contents => [])
         allow(@s3).to receive(:list_objects).and_return(objs)
         allow(Aws::S3::Client).to receive(:new).and_return(@s3)
+        @target_dir = File.join(SPEC_DIR, "install", "config")
       end
 
       it "destroys any deployed Target microservices" do
+        orig_keys = get_all_redis_keys()
+        # Add in the keys that remain when a target is destroyed
+        orig_keys << "DEFAULT__cosmoscmd__UNKNOWN"
+        orig_keys << "DEFAULT__cosmostlm__UNKNOWN"
+        orig_keys << "DEFAULT__limits_sets"
+        orig_keys << "cosmos_microservices"
+
         umodel = double(MicroserviceModel)
-        expect(umodel).to receive(:destroy).exactly(4).times
-        expect(MicroserviceModel).to receive(:get_model).and_return(umodel).exactly(4).times
-        model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT", plugin: "INST")
-        model.undeploy
+        expect(umodel).to receive(:destroy).exactly(8).times
+        expect(MicroserviceModel).to receive(:get_model).and_return(umodel).exactly(8).times
+        inst_model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT", plugin: "INST")
+        inst_model.create
+        inst_model.deploy(@target_dir, {})
+        sys_model = TargetModel.new(folder_name: "SYSTEM", name: "SYSTEM", scope: "DEFAULT", plugin: "SYSTEM")
+        sys_model.create
+        sys_model.deploy(@target_dir, {})
+
+        keys = get_all_redis_keys()
+        # Spot check some keys
+        expect(keys).to include("DEFAULT__COMMAND__INST__ABORT")
+        expect(keys).to include("DEFAULT__COMMAND__INST__COLLECT")
+        expect(keys).to include("DEFAULT__TELEMETRY__INST__ADCS")
+        expect(keys).to include("DEFAULT__TELEMETRY__INST__HEALTH_STATUS")
+        expect(keys).to include("DEFAULT__cosmoscmd__INST")
+        expect(keys).to include("DEFAULT__cosmostlm__INST")
+        targets = Store.hgetall("DEFAULT__cosmos_targets")
+        expect(targets.keys).to include("INST")
+
+        inst_model.destroy
+        sys_model.destroy
+
+        targets = Store.hgetall("DEFAULT__cosmos_targets")
+        expect(targets.keys).to_not include("INST")
+        keys = get_all_redis_keys()
+        expect(orig_keys.sort).to eql keys.sort
       end
     end
   end

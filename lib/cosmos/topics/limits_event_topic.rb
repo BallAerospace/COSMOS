@@ -47,5 +47,26 @@ module Cosmos
         Store.xrevrange(topic, count: 1)
       end
     end
+
+    def self.out_of_limits(scope:)
+      out_of_limits = []
+      limits = Store.hgetall("#{scope}__current_limits")
+      limits.each do |item, limits_state|
+        if %w(RED RED_HIGH RED_LOW YELLOW YELLOW_HIGH YELLOW_LOW).include?(limits_state)
+          target_name, packet_name, item_name = item.split('__')
+          out_of_limits << [target_name, packet_name, item_name, limits_state]
+        end
+      end
+      out_of_limits
+    end
+
+    def self.delete(target_name, packet_name, scope:)
+      fields = []
+      limits = Store.hgetall("#{scope}__current_limits")
+      limits.each do |item, limits_state|
+        fields << item if item.include?("#{target_name}__#{packet_name}")
+      end
+      Store.hdel(fields)
+    end
   end
 end
