@@ -46,6 +46,20 @@
           type="number"
         ></v-text-field>
       </v-col>
+      <v-col>
+        <v-radio-group v-model="showAllPackets" label="Packets to show">
+          <v-radio label="All" :value="true" />
+          <v-radio :value="false">
+            <template v-slot:label>
+              <v-text-field
+                v-model="packetsToShow"
+                type="number"
+                dense
+              ></v-text-field>
+            </template>
+          </v-radio>
+        </v-radio-group>
+      </v-col>
     </v-row>
     <v-row>
       <v-col>
@@ -64,7 +78,13 @@
     <v-row>
       <v-col class="pl-0 pr-0">
         <div class="text-area-container">
-          <v-textarea :value="displayText" auto-grow readonly solo flat />
+          <v-textarea
+            :value="displayText"
+            :auto-grow="!showAllPackets && packetsToShow == 1"
+            readonly
+            solo
+            flat
+          />
           <v-btn
             class="play-control"
             :class="{ pulse: paused }"
@@ -96,6 +116,8 @@ export default {
       format: 'hex',
       showLineAddress: true,
       bytesPerLine: 16,
+      showAllPackets: true,
+      packetsToShow: 1,
       paused: false,
       pausedAt: 0,
       playPosition: 0,
@@ -156,36 +178,57 @@ export default {
       }
       return null
     },
-    currentBytes: function () {
+    currentSlice: function () {
+      // The packets to be shown in the text area based on playPosition and "packets to show" selection (array of objects)
       if (this.history.length == 0) return []
-      const buffer = this.history[this.playPosition].buffer
-      if (this.format === 'ascii') {
-        return buffer.map((byte) =>
-          String.fromCharCode(byte)
-            .replace(/\n/, '\\n')
-            .replace(/\r/, '\\r')
-            .padStart(2, ' ')
-        )
-      } else {
-        return buffer.map((byte) => byte.toString(16).padStart(2, '0'))
-      }
+      const start = this.showAllPackets
+        ? 0
+        : this.playPosition - this.packetsToShow + 1
+      return this.history.slice(start, this.playPosition + 1).reverse()
     },
-    currentLines: function () {
-      return _.chunk(this.currentBytes, this.bytesPerLine).map(
-        (chunk, index) => {
-          const line = chunk.join(' ')
-          if (this.showLineAddress) {
-            const address = (index * this.bytesPerLine)
-              .toString(16)
-              .padStart(8, '0')
-            return `${address}: ${line}`
-          }
-          return line
+    currentBuffers: function () {
+      // currentSlice's data converted to either ASCII or hex codes (array of strings)
+      return this.currentSlice.map((packet) => {
+        if (this.format === 'ascii') {
+          return packet.buffer.map((byte) =>
+            String.fromCharCode(byte)
+              .replace(/\n/, '\\n')
+              .replace(/\r/, '\\r')
+              .padStart(2, ' ')
+          )
+        } else {
+          return packet.buffer.map((byte) => byte.toString(16).padStart(2, '0'))
         }
+      })
+    },
+    currentLineGroups: function () {
+      // currentBuffers but each one is broken up into lines (2D array)
+      return this.currentBuffers.map((buffer) =>
+        _.chunk(buffer, this.bytesPerLine)
       )
     },
     displayText: function () {
-      return this.currentLines.join('\n')
+      return this.currentLineGroups
+        .map(
+          // For each buffer
+          (buffer) =>
+            buffer
+              // For each line in this buffer
+              .map((lineBytes, index) => {
+                // Combine the line's bytes into a string
+                let line = lineBytes.join(' ')
+                if (this.showLineAddress) {
+                  // with the line address if needed
+                  const address = (index * this.bytesPerLine)
+                    .toString(16)
+                    .padStart(8, '0')
+                  line = `${address}: ${line}`
+                }
+                return line
+              })
+              .join('\n') // end of one line
+        )
+        .join('\n\n') // end of one buffer
     },
   },
 }
