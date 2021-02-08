@@ -74,13 +74,13 @@ module Cosmos
     # @return [String] The state of the interface which is one of 'CONNECTED',
     #   'ATTEMPTING' or 'DISCONNECTED'.
     def interface_state(interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      get_interface(interface_name, scope: scope)['state']
+      get_interface(interface_name, scope: scope, token: token)['state']
     end
 
     # @deprecated Use #get_interface
     # @return [Array<String>] All the targets mapped to the given interface
     def get_interface_targets(interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      get_interface(interface_name, scope: scope)['target_names']
+      get_interface(interface_name, scope: scope, token: token)['target_names']
     end
 
     # Get information about an interface
@@ -92,7 +92,7 @@ module Cosmos
     #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
     #   Telemetry count] for the interface
     def get_interface_info(interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      int = get_interface(interface_name, scope: scope)
+      int = get_interface(interface_name, scope: scope, token: token)
       return [int['state'], int['clients'], int['txsize'], int['rxsize'],
               int['txbytes'], int['rxbytes'], int['txcnt'], int['rxcnt']]
     end
