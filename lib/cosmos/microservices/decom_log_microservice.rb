@@ -52,9 +52,8 @@ module Cosmos
       return plws
     end
 
-    decom_log_metric_name = "decom_log_duration_seconds"
-
     def decom_log_data(plws, topic, msg_id, msg_hash, redis)
+      decom_log_metric_name = "decom_log_duration_seconds"
       begin
         start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         topic_split = topic.split("__")

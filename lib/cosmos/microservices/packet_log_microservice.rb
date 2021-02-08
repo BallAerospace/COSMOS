@@ -48,9 +48,8 @@ module Cosmos
       return plws
     end
 
-    packet_log_metric_name = "packet_log_duration_seconds"
-
     def packet_log_data(plws, topic, msg_id, msg_hash, redis)
+      packet_log_metric_name = "packet_log_duration_seconds"
       begin
         start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         topic_split = topic.split("__")

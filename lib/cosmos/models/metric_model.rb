@@ -21,24 +21,24 @@ require 'cosmos/models/model'
 
 module Cosmos
   class MetricModel < Model
-    PRIMARY_KEY = 'cosmos__metric'
+    PRIMARY_KEY = '__cosmos__metric'
 
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
     def self.get(name:, scope:)
-      super("#{scope}__#{PRIMARY_KEY}", name: name)
+      super("#{scope}#{PRIMARY_KEY}", name: name)
     end
 
     def self.names(scope:)
-      super("#{scope}__#{PRIMARY_KEY}")
+      super("#{scope}#{PRIMARY_KEY}")
     end
 
     def self.all(scope:)
-      super("#{scope}__#{PRIMARY_KEY}")
+      super("#{scope}#{PRIMARY_KEY}")
     end
 
     def initialize(name:, scope:, metric_name:, label_list:)
-      super("#{scope}__#{PRIMARY_KEY}", name: name, scope: scope)
+      super("#{scope}#{PRIMARY_KEY}", name: name, scope: scope)
       @metric_name = metric_name
       @label_list = label_list
     end

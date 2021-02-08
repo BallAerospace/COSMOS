@@ -111,7 +111,7 @@ module Cosmos
       @error = nil
       @custom = nil
       @state = 'INITIALIZED'
-      metric_name = "#{name}_metric_output_duration_seconds"
+      metric_name = "metric_output_duration_seconds"
 
       @microservice_sleeper = Sleeper.new
       @microservice_status_period_seconds = 5

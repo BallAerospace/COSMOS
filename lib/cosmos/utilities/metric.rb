@@ -102,11 +102,10 @@ module Cosmos
       # array. to store the array as the value with the metric name again joined
       # with the @microservice and @scope.
       Logger.debug("#{@microservice} #{@scope} sending metrics to redis, #{@items.length}") if @items.length > 0
-      redis_key = "#{@scope}__cosmos__metric"
       @items.each do |key, values|
         label_list = []
         name, labels = key.split("|")
-        metric_labels = labels.split(',').map{|x| x.split('=')}.map{|k, v| {k=>v}}.reduce({}, :merge)
+        metric_labels = labels.nil? ? {} : labels.split(',').map{|x| x.split('=')}.map{|k, v| {k=>v}}.reduce({}, :merge)
         sorted_values = values["values"].compact.sort
         for percentile_value in [10, 50, 90, 95, 99]
           percentile_result = percentile(sorted_values, percentile_value)
@@ -116,8 +115,8 @@ module Cosmos
           label_list.append(labels)
         end
         begin
-          Logger.debug("sending metrics summary to redis key: #{redis_key}, #{name}")
-          metric = MetricModel.new(name: @microservice, metric_name: name, scope: @scope, label_list: label_list)
+          Logger.debug("sending metrics summary to redis key: #{@microservice}")
+          metric = MetricModel.new(name: @microservice, scope: @scope, metric_name: name, label_list: label_list)
           metric.create(force: true)
         rescue RuntimeError
           Logger.error("failed attempt to update metric, #{key}, #{name} #{@scope}")

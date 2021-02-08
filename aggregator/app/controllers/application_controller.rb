@@ -49,22 +49,21 @@ class ApplicationController < ActionController::Base
         scopes.each do |scope|
             Cosmos::Logger.debug("search metrics for scope: #{scope}")
             begin
-                scope_resp = Cosmos::MetricModel.all(scope)
+                scope_resp = Cosmos::MetricModel.all(scope: scope)
             rescue RuntimeError
                 Cosmos::Logger.error("failed to connect to redis to pull metrics")
                 render plain: "failed to access datastore", :status => 500
             end
             Cosmos::Logger.debug("metrics search for scope: #{scope}, returned: #{scope_resp}")
             scope_resp.each do |key, label_json|
-                label_hash = JSON.parse(label_json)
-                name = label_hash.delete("metric_name")
+                name = label_json.delete("metric_name")
                 if not data_hash.has_key?(name)
                     data_hash[name] = [
                         "# TYPE #{name} histogram",
                         "# HELP #{name} internal metric generated from cosmos/utilities/metric.rb."
                     ]
                 end
-                label_list.each do |labels|
+                label_json["label_list"].each do |labels|
                     value = labels.delete("metric__value")
                     label_str = labels.map{|k,v| "#{k}=\"#{v}\""}.join(",")
                     data_hash[name].append("#{name}{#{label_str}} #{value}")
