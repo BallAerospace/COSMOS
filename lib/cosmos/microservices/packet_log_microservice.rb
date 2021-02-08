@@ -21,14 +21,16 @@ require 'cosmos/microservices/microservice'
 require 'cosmos/topics/topic'
 
 module Cosmos
+
   class PacketLogMicroservice < Microservice
+
     def run
-      plws = self.setup_plws
+      plws = setup_plws
       while true
         break if @cancel_thread
         Topic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
           break if @cancel_thread
-          self.packet_log_data(plws, topic, msg_id, msg_hash, redis)
+          packet_log_data(plws, topic, msg_id, msg_hash, redis)
         end
       end
     end
@@ -46,6 +48,8 @@ module Cosmos
       return plws
     end
 
+    packet_log_metric_name = "packet_log_duration_seconds"
+
     def packet_log_data(plws, topic, msg_id, msg_hash, redis)
       begin
         start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -55,9 +59,8 @@ module Cosmos
         plws[topic].write(:RAW_PACKET, :TLM, target_name, packet_name, msg_hash["time"].to_i, ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["buffer"], nil)
         @count += 1
         diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
-        metric_name = "#{self.__method__.to_s}_duration_seconds".downcase
         metric_labels = {"packet" => packet_name, "target" => target_name}
-        @metric.add_sample(metric_name, diff, metric_labels)
+        @metric.add_sample(name: packet_log_metric_name, value: diff, labels: metric_labels)
       rescue => err
         @error = err
         Logger.error("PacketLog error: #{err.formatted}")

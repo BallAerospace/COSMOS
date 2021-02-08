@@ -17,7 +17,7 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'redis'
+require 'cosmos/models/metric_model'
 
 module Cosmos
 
@@ -37,7 +37,7 @@ module Cosmos
     attr_reader :scope
     attr_reader :microservice
 
-    def initialize(microservice, scope)
+    def initialize(microservice:, scope:)
       if microservice.include? "|" or scope.include? "|"
         raise ArgumentError.new("invalid input must not contain '|'")
       end
@@ -47,7 +47,7 @@ module Cosmos
       @size = 5000
     end
 
-    def add_sample(name, value, labels)
+    def add_sample(name:, value:, labels:)
       # add a value to the metric to report out later or a seperate thread
       # name is a string often function_name_duration_seconds
       #    name: debug_duration_seconds
@@ -68,7 +68,7 @@ module Cosmos
       # count back to zero and the array will over write older data.
       key = "#{name}|" + labels.map{|k,v| "#{k}=#{v}"}.join(",")
       if not @items.has_key?(key)
-        Logger.info("new data for #{@scope}, #{key}")
+        Logger.debug("new data for #{@scope}, #{key}")
         @items[key] = {"values" => Array.new(@size), "count" => 0}
       end
       count = @items[key]["count"]
@@ -86,7 +86,7 @@ module Cosmos
       return sorted_values[k] + (f * (sorted_values[k+1] - sorted_values[k]))
     end
 
-    def output()
+    def output
       # Output percentile based metrics to Redis under the key of the
       # #{@scope}__cosmos__metric we will use hset with a subkey.
       # internal:
@@ -101,7 +101,7 @@ module Cosmos
       # to add the percentile and percentile value. this hash is added to an
       # array. to store the array as the value with the metric name again joined
       # with the @microservice and @scope.
-      Logger.info("#{@microservice} #{@scope} sending metrics to redis, #{@items.length}") if @items.length > 0
+      Logger.debug("#{@microservice} #{@scope} sending metrics to redis, #{@items.length}") if @items.length > 0
       redis_key = "#{@scope}__cosmos__metric"
       @items.each do |key, values|
         label_list = []
@@ -115,10 +115,10 @@ module Cosmos
           labels["metric__value"] = percentile_result
           label_list.append(labels)
         end
-        name = "#{name}|#{@microservice}|#{@scope}"
         begin
-          Logger.info("sending metrics summary to redis key: #{redis_key}, #{name}")
-          Store.hset(redis_key, name, JSON.generate(label_list))
+          Logger.debug("sending metrics summary to redis key: #{redis_key}, #{name}")
+          metric = MetricModel.new(name: @microservice, metric_name: name, scope: @scope, label_list: label_list)
+          metric.create(force: true)
         rescue RuntimeError
           Logger.error("failed attempt to update metric, #{key}, #{name} #{@scope}")
         end

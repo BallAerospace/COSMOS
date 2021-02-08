@@ -22,13 +22,15 @@ require 'cosmos/models/cvt_model'
 require 'cosmos/topics/topic'
 
 module Cosmos
+
   class CvtMicroservice < Microservice
+
     def run
       while true
         break if @cancel_thread
         Topic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
           begin
-            self.cvt_data(topic, msg_id, msg_hash, redis)
+            cvt_data(topic, msg_id, msg_hash, redis)
             @count += 1
             break if @cancel_thread
           rescue => err
@@ -38,6 +40,8 @@ module Cosmos
         end
       end
     end
+
+    cvt_metric_name = "cvt_data_duration_seconds"
 
     def cvt_data(topic, msg_id, msg_hash, redis)
       start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -51,9 +55,8 @@ module Cosmos
       end
       CvtModel.set(updated_json_hash, target_name: target_name, packet_name: packet_name, scope: @scope)
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
-      metric_name = "#{self.__method__.to_s}_duration_seconds".downcase
-      labels = {"packet" => packet_name, "target" => target_name}
-      @metric.add_sample(metric_name, diff, labels)
+      metric_labels = {"packet" => packet_name, "target" => target_name}
+      @metric.add_sample(name: cvt_metric_name, value: diff, labels: metric_labels)
     end
 
   end

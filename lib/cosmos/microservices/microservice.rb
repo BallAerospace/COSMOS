@@ -78,7 +78,7 @@ module Cosmos
       @scope = split_name[0]
       Logger.scope = @scope
       @cancel_thread = false
-      @metric = Metric.new(@name, @scope)
+      @metric = Metric.new(microservice: @name, scope: @scope)
       Logger.microservice_name = @name
       Logger.tag = @name + "__cosmos.log"
 
@@ -111,12 +111,16 @@ module Cosmos
       @error = nil
       @custom = nil
       @state = 'INITIALIZED'
+      metric_name = "#{name}_metric_output_duration_seconds"
 
       @microservice_sleeper = Sleeper.new
       @microservice_status_period_seconds = 5
       @microservice_status_thread = Thread.new do
         until @cancel_thread
+          start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
           @metric.output
+          diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
+          @metric.add_sample(name: metric_name, value: diff, labels: {})
           MicroserviceStatusModel.set(as_json(), scope: @scope) unless @cancel_thread
           break if @microservice_sleeper.sleep(@microservice_status_period_seconds)
         end
@@ -133,6 +137,7 @@ module Cosmos
       @microservice_sleeper.cancel
       MicroserviceStatusModel.set(as_json(), scope: @scope)
       FileUtils.remove_entry(@temp_dir) if File.exist?(@temp_dir)
+      @metric.destroy
     end
   end
 end

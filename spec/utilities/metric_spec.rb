@@ -25,7 +25,7 @@ module Cosmos
   describe Metric do
 
     before(:each) do
-      @metric = Metric.new("foo", "bar")
+      @metric = Metric.new(microservice: "foo", scope: "bar")
       @redis = mock_redis()
     end
 
@@ -41,23 +41,23 @@ module Cosmos
     describe "add_sample" do
 
       it "adds a sample to the metric" do
-        @metric.add_sample("test", 2, {"is" => true})
+        @metric.add_sample(name: "test", value: 2, labels: {"is" => true})
         expect(@metric.items.empty?).to eql(false)
         expect(@metric.items.has_key?("test|is=true")).to eql(true)
         expect(@metric.items["test|is=true"]["count"] == 1)
       end
 
       it "adds two of the same sample to the metric" do
-        @metric.add_sample("test", 2, {"is" => true})
-        @metric.add_sample("test", 1, {"is" => true})
+        @metric.add_sample(name: "test", value: 2, labels: {"is" => true})
+        @metric.add_sample(name: "test", value: 1, labels: {"is" => true})
         expect(@metric.items.empty?).to eql(false)
         expect(@metric.items.has_key?("test|is=true")).to eql(true)
         expect(@metric.items["test|is=true"]["count"]).to eql(2)
       end
 
       it "adds two different named samples to the metric" do
-        @metric.add_sample("test", 2, {"is" => true})
-        @metric.add_sample("pest", 1, {"is" => true})
+        @metric.add_sample(name: "test", value: 2, labels: {"is" => true})
+        @metric.add_sample(name: "pest", value: 1, labels: {"is" => true})
         expect(@metric.items.empty?).to eql(false)
         expect(@metric.items.has_key?("test|is=true")).to eql(true)
         expect(@metric.items.has_key?("pest|is=true")).to eql(true)
@@ -65,11 +65,11 @@ module Cosmos
         expect(@metric.items["pest|is=true"]["count"]).to eql(1)
       end
 
-      it "" do
-        @metric.add_sample("test", 1, {"is" => true})
-        @metric.add_sample("test", 1, {"is" => false})
-        @metric.add_sample("test", 1, {"is" => true, "not" => 3})
-        @metric.add_sample("test", 1, {"is" => true, "cat" => "tacocat"})
+      it "adds four different named samples to the metric" do
+        @metric.add_sample(name: "test", value: 1, labels: {"is" => true})
+        @metric.add_sample(name: "test", value: 1, labels: {"is" => false})
+        @metric.add_sample(name: "test", value: 1, labels: {"is" => true, "not" => 3})
+        @metric.add_sample(name: "test", value: 1, labels: {"is" => true, "cat" => "tacocat"})
         expect(@metric.items.has_key?("test|is=true")).to eql(true)
         expect(@metric.items.has_key?("test|is=false")).to eql(true)
         expect(@metric.items.has_key?("test|is=true,not=3")).to eql(true)
@@ -78,12 +78,12 @@ module Cosmos
 
       it "will add to the end of the item value array" do
         @metric.size = 3
-        @metric.add_sample("test", 2, {"is" => true})
+        @metric.add_sample(name: "test", value: 2, labels: {"is" => true})
         expect(@metric.items["test|is=true"]["values"].length).to eql(@metric.size)
         expect(@metric.items.empty?).to eql(false)
-        @metric.add_sample("test", 3, {"is" => true})
-        @metric.add_sample("test", 3, {"is" => true})
-        @metric.add_sample("test", 3, {"is" => true})
+        @metric.add_sample(name: "test", value: 3, labels: {"is" => true})
+        @metric.add_sample(name: "test", value: 3, labels: {"is" => true})
+        @metric.add_sample(name: "test", value: 3, labels: {"is" => true})
         expect(@metric.items["test|is=true"]["values"].length).to eql(@metric.size)
         expect(@metric.items["test|is=true"]["count"]).to eql(1)
       end
@@ -99,19 +99,19 @@ module Cosmos
       end
 
       it "single value generate summary metrics based on samples" do
-        @metric.add_sample("test", 2, {"is" => true})
+        @metric.add_sample(name: "test", value: 2, labels: {"is" => true})
         expect(@metric.items.empty?).to eql(false)
         @metric.output
         expect(@metric.items.empty?).to eql(false)
-        expect(@redis.hget("bar__cosmos__metric", "test|foo|bar")).not_to eql(nil)
+        expect(@redis.hget("bar__cosmos__metric", "foo")).not_to eql(nil)
       end
 
       it "multivalue generate summary metrics based on samples" do
-        @metric.add_sample("test", 2, {"is" => true})
-        @metric.add_sample("test", 2, {"is" => false})
+        @metric.add_sample(name: "test", value: 2, labels: {"is" => true})
+        @metric.add_sample(name: "test", value: 2, labels: {"is" => false})
         expect(@metric.items.empty?).to eql(false)
         @metric.output
-        expect(@redis.hget("bar__cosmos__metric", "test|foo|bar")).not_to eql(nil)
+        expect(@redis.hget("bar__cosmos__metric", "foo")).not_to eql(nil)
       end
 
     end
