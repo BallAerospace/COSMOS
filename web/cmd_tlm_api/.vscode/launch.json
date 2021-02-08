@@ -10,7 +10,6 @@
             "request": "launch",
             "cwd": "${workspaceRoot}",
             "program": "${workspaceRoot}/bin/rails",
-            "postDebugTask": "Delete server.pid",
             "args": [
                 "server"
             ]
