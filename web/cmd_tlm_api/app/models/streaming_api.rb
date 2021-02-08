@@ -381,7 +381,7 @@ class StreamingThread
 
   def handle_json_packet(json_packet, objects)
     time = json_packet.packet_time
-    keys_remain = remove_object_keys(objects, time.to_nsec_from_epoch)
+    keys_remain = objects_active?(objects, time.to_nsec_from_epoch)
     return nil unless keys_remain
     result = {}
     objects.each do |object|
@@ -397,7 +397,7 @@ class StreamingThread
   end
 
   def handle_raw_packet(buffer, objects, time, topic)
-    keys_remain = remove_object_keys(objects, time)
+    keys_remain = objects_active?(objects, time)
     return nil unless keys_remain
     return {
       packet: topic,
@@ -406,16 +406,16 @@ class StreamingThread
     }
   end
 
-  def remove_object_keys(objects, time)
+  def objects_active?(objects, time)
     first_object = objects[0]
     if first_object.end_time and time > first_object.end_time
-      # These objects are done - and the thread is done
+      # These objects have expired and are removed from the collection
       keys = []
       objects.each do |object|
         keys << object.key
       end
       @collection.remove(keys)
-      return nil
+      return false
     end
     return true
   end
@@ -443,7 +443,9 @@ class LoggedStreamingThread < StreamingThread
       # Get the newest message because we only stream if there is data after our start time
       _, msg_hash_new = Cosmos::Store.instance.get_newest_message(first_object.topic)
       # Cosmos::Logger.debug "first time:#{first_object.start_time} newest:#{msg_hash_new['time']}"
-      # Allow 1 minute in the future to account for big time discrepancies
+      # Allow 1 minute in the future to account for big time discrepancies, which may be caused by:
+      #   - the JavaScript client using the machine's local time, which might not be set with NTP
+      #   - browser security settings rounding the value within a few milliseconds
       allowable_start_time = first_object.start_time - ALLOWABLE_START_TIME_OFFSET_NSEC
       if msg_hash_new && msg_hash_new['time'].to_i > allowable_start_time
         # Determine oldest timestamp in stream to determine if we need to go to file
