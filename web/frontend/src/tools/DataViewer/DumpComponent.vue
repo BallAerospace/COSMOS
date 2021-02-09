@@ -47,18 +47,14 @@
         ></v-text-field>
       </v-col>
       <v-col>
-        <v-radio-group v-model="showAllPackets" label="Packets to show">
-          <v-radio label="All" :value="true" />
-          <v-radio :value="false">
-            <template v-slot:label>
               <v-text-field
                 v-model="packetsToShow"
+          label="Packets to show"
                 type="number"
-                dense
+          :min="1"
+          :max="this.history.length"
+          v-on:change="validatePacketsToShow"
               ></v-text-field>
-            </template>
-          </v-radio>
-        </v-radio-group>
       </v-col>
       <v-col>
         <v-radio-group
@@ -115,7 +111,7 @@
 import _ from 'lodash'
 import PacketSummaryComponent from './PacketSummaryComponent'
 
-const HISTORY_MAX_SIZE = 75
+const HISTORY_MAX_SIZE = 100
 
 export default {
   components: {
@@ -129,7 +125,6 @@ export default {
       format: 'hex',
       showLineAddress: true,
       bytesPerLine: 16,
-      showAllPackets: false,
       packetsToShow: 1,
       newestAtTop: false,
       paused: false,
@@ -184,11 +179,11 @@ export default {
       if (this.newestAtTop) {
         this.displayText = this.displayText.substring(
           0,
-          this.packetSize * HISTORY_MAX_SIZE
+          this.packetSize * this.packetsToShow
         )
       } else {
         this.displayText = this.displayText.substring(
-          this.displayText.length - (this.packetSize + 2) * HISTORY_MAX_SIZE + 2
+          this.displayText.length - (this.packetSize + 2) * this.packetsToShow + 2
         )
       }
     },
@@ -243,6 +238,10 @@ export default {
         .join('\n') // end of one line
       this.packetSize = this.packetSize || text.length
       return text
+    },
+    validatePacketsToShow: function () {
+      if (this.packetsToShow > HISTORY_MAX_SIZE) this.packetsToShow = HISTORY_MAX_SIZE
+      else if (this.packetsToShow < 1) this.packetsToShow = 1
     },
   },
   computed: {
