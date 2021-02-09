@@ -181,7 +181,7 @@ module Cosmos
     # @param data [String] The raw binary data
     def send_raw(interface_name, data, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_raw', interface_name: interface_name, scope: scope, token: token)
-      Store.instance.write_interface(interface_name, { 'raw' => data }, scope: scope)
+      raise 'unimplemented'
       nil
     end
 
@@ -419,46 +419,14 @@ module Cosmos
       authorize(permission: 'cmd', target_name: target_name, packet_name: cmd_name, scope: scope, token: token)
       TargetModel.packet(target_name, cmd_name, type: :CMD, scope: scope)
 
-      timeout_ms = 5000  # TODO: This 5 second timeout is arbitrary ... what should it be
-      ack_topic = "#{scope}__ACKCMDTARGET__#{target_name}"
-      Store.update_topic_offsets([ack_topic])
-      cmd_id = Store.write_topic("#{scope}__CMDTARGET__#{target_name}", {
+      command = {
         'target_name' => target_name,
         'cmd_name' => cmd_name,
-        'cmd_params' => JSON.generate(cmd_params.as_json),
+        'cmd_params' => cmd_params,
         'range_check' => range_check,
         'hazardous_check' => hazardous_check,
-        'raw' => raw })
-      (timeout_ms / 100).times do
-        Topic.read_topics([ack_topic]) do |topic, msg_id, msg_hash, redis|
-          # Logger.debug("topic:#{topic} id:#{msg_id} hash:#{msg_hash.inspect}")
-          if msg_hash["id"] == cmd_id
-            # Logger.debug "Ack Received topic:#{topic} id:#{msg_id} msg:#{msg_hash.inspect}"
-            if msg_hash["result"] == "SUCCESS"
-              return [target_name, cmd_name, cmd_params]
-            # Check for HazardousError which is a special case
-            elsif msg_hash["result"].include?("HazardousError")
-              raise_hazardous_error(msg_hash, target_name, cmd_name, cmd_params)
-            else
-              raise msg_hash["result"]
-            end
-          end
-        end
-      end
-      raise "Timeout waiting for cmd ack"
-    end
-
-    def raise_hazardous_error(msg_hash, target_name, cmd_name, cmd_params)
-      _, description, _ = msg_hash["result"].split("\n")
-      # Create and populate a new HazardousError and raise it up
-      # The _cmd method in script/commands.rb rescues this and calls prompt_for_hazardous
-      error = HazardousError.new
-      error.target_name = target_name
-      error.cmd_name = cmd_name
-      error.cmd_params = cmd_params
-      error.hazardous_description = description
-      # No Logger.info because the error is already logged by the Logger.info "Ack Received ...
-      raise error
+        'raw' => raw }
+      CommandTopic.send_command(command, scope: scope)
     end
   end
 end

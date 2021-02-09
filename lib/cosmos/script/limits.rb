@@ -115,16 +115,8 @@ module Cosmos
       result.to_s.intern
     end
 
-    def subscribe_limits_events(queue_size = 1000)
-      return $cmd_tlm_server.subscribe_limits_events(queue_size)
-    end
-
-    def unsubscribe_limits_events(id)
-      return $cmd_tlm_server.unsubscribe_limits_events(id)
-    end
-
-    def get_limits_event(id, non_block = false)
-      result = $cmd_tlm_server.get_limits_event(id, non_block)
+    def get_limits_events(offset = nil, count: 100)
+      result = $cmd_tlm_server.get_limits_events(offset, count: count)
       if result
         result[0] = result[0].to_s.intern
         if result[0] == :LIMITS_CHANGE

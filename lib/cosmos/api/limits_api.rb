@@ -37,9 +37,7 @@ module Cosmos
       'get_limits_sets',
       'set_limits_set',
       'get_limits_set',
-      'subscribe_limits_events',
-      'unsubscribe_limits_events',
-      'get_limits_event',
+      'get_limits_events',
     ])
 
     # Get the list of stale packets for a specific target or pass nil to list
@@ -50,10 +48,12 @@ module Cosmos
     #   state of the system
     # @param target_name [String] The target to find stale packets for or nil to list
     #   all stale packets in the system
+    # @param staleness_sec [Integer] The amount of time to pass before a packet is marked stale
     # @return [Array<Array<String, String>>] Array of arrays listing the target
     #   name and packet name
-    def get_stale(with_limits_only = false, target_name = nil, scope: $cosmos_scope, token: $cosmos_token)
+    def get_stale(with_limits_only: false, target_name: nil, staleness_sec: 30, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, scope: scope, token: token)
+      stale_time = Time.now.sys.to_nsec_from_epoch - (staleness_sec * Time::NSEC_PER_SECOND)
       stale = []
       targets = []
       if target_name
@@ -61,9 +61,11 @@ module Cosmos
       else
         targets = get_target_list()
       end
-      targets.each do |target|
-        get_all_telemetry(target, scope: scope).each do |packet|
-          if packet['stale']
+      targets.each do |target_name|
+        get_all_telemetry(target_name, scope: scope).each do |packet|
+          topic = "#{scope}__TELEMETRY__#{target_name}__#{packet['packet_name']}"
+          _, msg_hash = Store.get_newest_message(topic)
+          unless msg_hash && msg_hash['time'].to_i > stale_time
             next if with_limits_only && packet['items'].find { |item| item['limits'] }.nil?
             stale << [packet['target_name'], packet['packet_name']]
           end
@@ -78,15 +80,7 @@ module Cosmos
     # @return [Array<Array<String, String, String, String>>]
     def get_out_of_limits(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      out_of_limits = []
-      limits = Store.instance.hgetall("#{scope}__current_limits")
-      limits.each do |item, limits_state|
-        if %w(RED RED_HIGH RED_LOW YELLOW YELLOW_HIGH YELLOW_LOW).include?(limits_state)
-          target_name, packet_name, item_name = item.split('__')
-          out_of_limits << [target_name, packet_name, item_name, limits_state]
-        end
-      end
-      out_of_limits
+      LimitsEventTopic.out_of_limits(scope: scope)
     end
 
     # Get the overall limits state which is the worse case of all limits items.
@@ -163,9 +157,17 @@ module Cosmos
     def enable_limits(*args, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name = tlm_process_args(args, 'enable_limits', scope: scope)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      item = TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
-      item['limits']['enabled'] = true
-      Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
+      packet = TargetModel.packet(target_name, packet_name, scope: scope)
+      found_item = nil
+      packet['items'].each do |item|
+        if item['name'] == item_name
+          item['limits']['enabled'] = true
+          found_item = item
+          break
+        end
+      end
+      raise "Item '#{target_name} #{packet_name} #{item_name}' does not exist" unless found_item
+      TargetModel.set_packet(target_name, packet_name, packet, scope: scope)
     end
 
     # Disable limit checking for a telemetry item
@@ -180,9 +182,17 @@ module Cosmos
     def disable_limits(*args, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name = tlm_process_args(args, 'disable_limits', scope: scope)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      item = TargetModel.packet_item(target_name, packet_name, scope: scope)
-      item['limits'].delete('enabled')
-      Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
+      packet = TargetModel.packet(target_name, packet_name, scope: scope)
+      found_item = nil
+      packet['items'].each do |item|
+        if item['name'] == item_name
+          item['limits'].delete('enabled')
+          found_item = item
+          break
+        end
+      end
+      raise "Item '#{target_name} #{packet_name} #{item_name}' does not exist" unless found_item
+      TargetModel.set_packet(target_name, packet_name, packet, scope: scope)
     end
 
     # Get a Hash of all the limits sets defined for an item. Hash keys are the limit
@@ -207,29 +217,16 @@ module Cosmos
       return limits
     end
 
-    def set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high, green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true, scope: $cosmos_scope, token: $cosmos_token)
+    # Change the limits settings for a given item. By default, a new limits set called 'CUSTOM'
+    # is created to avoid overriding existing limits.
+    def set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high,
+        green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true,
+        scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      item = TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
-      item['limits']['persistence_setting'] = persistence
-      if enabled
-        item['limits']['enabled'] = true
-      else
-        item['limits'].delete('enabled')
-      end
-      limits = {}
-      limits['red_low'] = red_low
-      limits['yellow_low'] = yellow_low
-      limits['yellow_high'] = yellow_high
-      limits['red_high'] = red_high
-      limits['green_low'] = green_low if green_low
-      limits['green_high'] = green_high if green_high
-      item['limits'][limits_set] = limits
-      Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
-
-      limits_settings = [target_name, packet_name, item_name].concat(item.to_a)
-      # TODO: Notify system taht limits changed
-      # CmdTlmServer.instance.post_limits_event(:LIMITS_SETTINGS, limits_settings)
-      Logger.info("Limits Settings Changed: #{limits_settings}")
+      event = {type: :LIMITS_SETTINGS, target_name: target_name, packet_name: packet_name,
+        item_name: item_name, red_low: red_low, yellow_low: yellow_low, yellow_high: yellow_high, red_high: red_high,
+        green_low: green_low, green_high: green_high, limits_set: limits_set, persistence: persistence, enabled: enabled }
+      LimitsEventTopic.write(event, scope: scope)
     end
 
     # Returns all limits_groups and their members
@@ -237,44 +234,29 @@ module Cosmos
     # @return [Hash{String => Array<Array<String, String, String>>]
     def get_limits_groups(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      JSON.parse(Store.instance.hget("#{scope}__cosmos_system", 'limits_groups'))
+      TargetModel.limits_groups(scope: scope)
     end
 
     # Enables limits for all the items in the group
+    #
+    # @param group_name [String] Name of the group to enable
     def enable_limits_group(group_name, scope: $cosmos_scope, token: $cosmos_token)
-      _limits_group(group_name, action: :enable, scope: scope)
+      _limits_group(group_name, action: :enable, scope: scope, token: token)
     end
 
     # Disables limits for all the items in the group
+    #
+    # @param group_name [String] Name of the group to disable
     def disable_limits_group(group_name, scope: $cosmos_scope, token: $cosmos_token)
-      _limits_group(group_name, action: :disable, scope: scope)
-    end
-
-    def _limits_group(group_name, action:, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'tlm_set', scope: scope, token: token)
-      group_name.upcase!
-      group = get_limits_groups()[group_name]
-      raise "LIMITS_GROUP #{group_name} undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP #{group_name}" unless group
-      Logger.info("Disabling Limits Group: #{group_name}")
-      group.each do |target_name, packet_name, item_name|
-        item = TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
-        if action == :enable
-          item['limits']['enabled'] = true
-        elsif action == :disable
-          item['limits'].delete('enabled')
-        else
-          raise "Unknown action #{action}"
-        end
-        Store.instance.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet))
-      end
+      _limits_group(group_name, action: :disable, scope: scope, token: token)
     end
 
     # Returns all defined limits sets
     #
-    # @return [Array<Symbol>] All defined limits sets
+    # @return [Array<String>] All defined limits sets
     def get_limits_sets(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      JSON.parse(Store.instance.hget("#{scope}__cosmos_system", 'limits_sets'))
+      LimitsEventTopic.sets(scope: scope).keys
     end
 
     # Changes the active limits set that applies to all telemetry
@@ -283,7 +265,7 @@ module Cosmos
     def set_limits_set(limits_set, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', scope: scope, token: token)
       Logger.info("Setting Limits Set: #{limits_set}")
-      Store.instance.hset("#{scope}__cosmos_system", 'limits_set', limits_set)
+      LimitsEventTopic.write({ type: :LIMITS_SET, set: limits_set.to_s }, scope: scope)
     end
 
     # Returns the active limits set that applies to all telemetry
@@ -291,26 +273,62 @@ module Cosmos
     # @return [String] The current limits set
     def get_limits_set(scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      Store.instance.hget("#{scope}__cosmos_system", 'limits_set')
+      sets = LimitsEventTopic.sets(scope: scope)
+      sets.each do |set, active|
+        return set if active == 'true'
+      end
+      raise 'No current limits set'
     end
 
-    # @see CmdTlmServer.subscribe_limits_events
-    def subscribe_limits_events(queue_size = CmdTlmServer::DEFAULT_LIMITS_EVENT_QUEUE_SIZE, scope: $cosmos_scope, token: $cosmos_token)
+    # Returns limits events starting at the provided offset. Passing nil for an
+    # offset will return the last received limits event and associated offset.
+    #
+    # @param offset [Integer] Offset to start reading limits events. Nil to return
+    #   the last received limits event (if any).
+    # @param count [Integer] The total number of events returned. Default is 100.
+    # @return [Hash, Integer] Event hash followed by the offset. The offset can
+    #   be used in subsequent calls to return events from where the last call left off.
+    def get_limits_events(offset = nil, count: 100, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
-      CmdTlmServer.subscribe_limits_events(queue_size, scope: scope)
+      LimitsEventTopic.read(offset, count: count, scope: scope)
     end
 
-    # @see CmdTlmServer.unsubscribe_limits_events
-    def unsubscribe_limits_events(id, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'tlm', scope: scope, token: token)
-      CmdTlmServer.unsubscribe_limits_events(id)
-    end
+    ###########################################################################
+    # PRIVATE implementation details
+    ###########################################################################
 
-    # @see CmdTlmServer.get_limits_event
-    def get_limits_event(id, non_block = false, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'tlm', scope: scope, token: token)
-      CmdTlmServer.get_limits_event(id, non_block)
+    def _limits_group(group_name, action:, scope:, token:)
+      authorize(permission: 'tlm_set', scope: scope, token: token)
+      group_name.upcase!
+      group = get_limits_groups()[group_name]
+      raise "LIMITS_GROUP #{group_name} undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP #{group_name}" unless group
+      Logger.info("Disabling Limits Group: #{group_name}")
+      last_target_name = nil
+      last_packet_name = nil
+      packet = nil
+      group.sort.each do |target_name, packet_name, item_name|
+        if (last_target_name != target_name || last_packet_name != packet_name)
+          if last_target_name && last_packet_name
+            TargetModel.set_packet(last_target_name, last_packet_name, packet, scope: scope)
+          end
+          packet = TargetModel.packet(target_name, packet_name, scope: scope)
+        end
+        packet['items'].each do |item|
+          if item['name'] == item_name
+            if action == :enable
+              item['limits']['enabled'] = true
+            elsif action == :disable
+              item['limits'].delete('enabled')
+            end
+            break
+          end
+        end
+        last_target_name = target_name
+        last_packet_name = packet_name
+      end
+      if last_target_name && last_packet_name
+        TargetModel.set_packet(last_target_name, last_packet_name, packet, scope: scope)
+      end
     end
-
   end
 end

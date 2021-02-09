@@ -53,7 +53,7 @@ module Cosmos
       # to write and close the previous log file and still have data available
       # for the streaming_api to switch between a closed log file and the active Redis stream.
       # TODO: How do we handle various data rates?
-      Store.instance.write_topic("#{scope}__DECOM__#{packet.target_name}__#{packet.packet_name}", msg_hash, nil, 4000)
+      Store.write_topic("#{scope}__DECOM__#{packet.target_name}__#{packet.packet_name}", msg_hash, nil, 4000)
     end
   end
 end
