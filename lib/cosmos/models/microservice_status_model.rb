@@ -54,6 +54,7 @@ module Cosmos
       super("#{scope}__#{PRIMARY_KEY}", name: name, updated_at: updated_at, plugin: plugin, scope: scope)
       @state = state
       @count = count
+      @error = error
       @custom = custom
     end
 

@@ -696,7 +696,7 @@ module Cosmos
         packet = System.telemetry.packet("INST", "HEALTH_STATUS")
         packet.received_time = Time.now.sys
         packet.write("DURATION", 1.0)
-        TelemetryDecomTopic.write_packet(packet, scope: @scope)
+        TelemetryDecomTopic.write_packet(packet, scope: "DEFAULT")
         sleep(0.01)
 
         id = @api.subscribe_packet_data([["INST","HEALTH_STATUS"],["INST","ADCS"]])
@@ -704,19 +704,19 @@ module Cosmos
         # Write some packets that should be returned and one that will not
         packet.received_time = Time.now.sys
         packet.write("DURATION", 2.0)
-        TelemetryDecomTopic.write_packet(packet, scope: @scope)
+        TelemetryDecomTopic.write_packet(packet, scope: "DEFAULT")
         packet.received_time = Time.now.sys
         packet.write("DURATION", 3.0)
-        TelemetryDecomTopic.write_packet(packet, scope: @scope)
+        TelemetryDecomTopic.write_packet(packet, scope: "DEFAULT")
         packet = System.telemetry.packet("INST", "ADCS")
         packet.received_time = Time.now.sys
-        TelemetryDecomTopic.write_packet(packet, scope: @scope)
+        TelemetryDecomTopic.write_packet(packet, scope: "DEFAULT")
         packet = System.telemetry.packet("INST", "IMAGE") # Not subscribed
         packet.received_time = Time.now.sys
-        TelemetryDecomTopic.write_packet(packet, scope: @scope)
+        TelemetryDecomTopic.write_packet(packet, scope: "DEFAULT")
 
         index = 0
-        pkt = @api.get_packet(id) do |target, packet, hash|
+        @api.get_packet(id) do |target, packet, hash|
           expect(target).to eql "INST"
           case index
           when 0
