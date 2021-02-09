@@ -69,6 +69,10 @@ module Cosmos
       InterfaceTopics.disconnect_interface(interface_name, scope: scope)
     end
 
+    ###########################################################################
+    # DEPRECATED METHODS
+    ###########################################################################
+
     # @deprecated Use #get_interface
     # @param interface_name (see #connect_interface)
     # @return [String] The state of the interface which is one of 'CONNECTED',
