@@ -87,7 +87,7 @@ module Cosmos
 
     describe "get_stale" do
       it "complains about non-existant targets" do
-        expect { @api.get_stale(false, "BLAH") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
+        expect { @api.get_stale(target_name: "BLAH") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
       end
 
       it "gets stale packets for all targets" do
@@ -105,7 +105,7 @@ module Cosmos
         inst_packets = []
         all = @api.get_all_telemetry("INST")
         all.each {|item| inst_packets << [item['target_name'], item['packet_name']] }
-        stale = @api.get_stale(false, "INST").sort
+        stale = @api.get_stale(target_name: "INST").sort
         # Initially all packets are stale
         expect(stale).to eql inst_packets.sort
         # Explitly check for this since we check below that it is NOT there
@@ -115,12 +115,12 @@ module Cosmos
         packet.received_time = Time.now.sys
         TelemetryTopic.write_packet(packet, scope: "DEFAULT")
         sleep(0.1)
-        updated = @api.get_stale(false, "INST").sort
+        updated = @api.get_stale(target_name: "INST").sort
         expect(updated).to_not include(["INST", "HEALTH_STATUS"])
       end
 
       it "only gets stale packets with limits items" do
-        stale = @api.get_stale(true, "INST").sort
+        stale = @api.get_stale(target_name: "INST", with_limits_only: true).sort
         expect(stale).to eq [["INST", "HEALTH_STATUS"]]
       end
     end
@@ -176,10 +176,10 @@ module Cosmos
     end
 
     describe "get_limits_groups" do
-      it "returns an empty array with no groups" do
+      it "returns an empty hash with no groups" do
         # Remove all limits_groups
-        @redis.hdel("DEFAULT__cosmos_system", 'limits_groups')
-        expect(@api.get_limits_groups).to eql([])
+        @redis.del("DEFAULT__limits_groups")
+        expect(@api.get_limits_groups).to eql({})
       end
 
       it "returns all the limits groups" do
@@ -227,6 +227,8 @@ module Cosmos
         expect(@api.get_limits_set).to eql "TVAC"
         @api.set_limits_set("DEFAULT")
         expect(@api.get_limits_set).to eql "DEFAULT"
+        @api.set_limits_set("TVAC")
+        expect(@api.get_limits_set).to eql "TVAC"
       end
     end
 
@@ -238,11 +240,13 @@ module Cosmos
 
       it "returns an offset and limits event hash" do
         # Load the events topic with two events ... only the last should be returned
-        LimitsEventTopic.write("BLAH", "BLAH", "BLAH", :RED_LOW, :RED_HIGH, 0, "nope",
-          type: "LIMITS_CHANGE", scope: "DEFAULT")
+        event = {type: :LIMITS_CHANGE, target_name: "BLAH", packet_name: "BLAH", item_name: "BLAH",
+          old_limits_state: :RED_LOW, new_limits_state: :RED_HIGH, time_nsec: 0, message: "nope"}
+        LimitsEventTopic.write(event, scope: "DEFAULT")
         time = Time.now.to_nsec_from_epoch
-        LimitsEventTopic.write("TGT", "PKT", "ITEM", :GREEN, :YELLOW_LOW, time, "message",
-          type: "LIMITS_CHANGE", scope: "DEFAULT")
+        event = {type: :LIMITS_CHANGE, target_name: "TGT", packet_name: "PKT", item_name: "ITEM",
+          old_limits_state: :GREEN, new_limits_state: :YELLOW_LOW, time_nsec: time, message: "message"}
+        LimitsEventTopic.write(event, scope: "DEFAULT")
         events = @api.get_limits_events()
         expect(events).to be_a Array
         offset = events[0][0]
@@ -259,20 +263,27 @@ module Cosmos
       end
 
       it "returns multiple offsets/events with multiple calls" do
-        LimitsEventTopic.write("TGT", "PKT", "ITEM", :GREEN, :YELLOW_LOW, 0, "message",
-          type: "LIMITS_CHANGE", scope: "DEFAULT")
+        event = {type: :LIMITS_CHANGE, target_name: "TGT", packet_name: "PKT", item_name: "ITEM",
+          old_limits_state: :GREEN, new_limits_state: :YELLOW_LOW, time_nsec: 0, message: "message"}
+        LimitsEventTopic.write(event, scope: "DEFAULT")
         events = @api.get_limits_events()
         expect(events[0][0]).to match(/\d{13}-\d/)
         expect(events[0][1]['time_nsec']).to eql "0"
         last_offset = events[-1][0]
 
         # Load additional events
-        LimitsEventTopic.write("TGT", "PKT", "ITEM", :YELLOW_LOW, :RED_LOW, 1, "message",
-          type: "LIMITS_CHANGE", scope: "DEFAULT")
-        LimitsEventTopic.write("TGT", "PKT", "ITEM", :RED_LOW, :YELLOW_LOW, 2, "message",
-          type: "LIMITS_CHANGE", scope: "DEFAULT")
-        LimitsEventTopic.write("TGT", "PKT", "ITEM", :YELLOW_LOW, :GREEN, 3, "message",
-          type: "LIMITS_CHANGE", scope: "DEFAULT")
+        event[:old_limits_state] = :YELLOW_LOW
+        event[:new_limits_state] = :RED_LOW
+        event[:time_nsec] = 1
+        LimitsEventTopic.write(event, scope: "DEFAULT")
+        event[:old_limits_state] = :RED_LOW
+        event[:new_limits_state] = :YELLOW_LOW
+        event[:time_nsec] = 2
+        LimitsEventTopic.write(event, scope: "DEFAULT")
+        event[:old_limits_state] = :YELLOW_LOW
+        event[:new_limits_state] = :GREEN
+        event[:time_nsec] = 3
+        LimitsEventTopic.write(event, scope: "DEFAULT")
         # Limit the count to 2
         events = @api.get_limits_events(last_offset, count: 2)
         expect(events.length).to eql 2

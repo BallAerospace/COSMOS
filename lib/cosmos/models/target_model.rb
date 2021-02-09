@@ -83,6 +83,11 @@ module Cosmos
       result
     end
 
+    def self.set_packet(target_name, packet_name, packet, type: :TLM, scope:)
+      raise "Unknown type #{type} for #{target_name} #{packet_name}" unless VALID_TYPES.include?(type)
+      Store.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+    end
+
     # @return [Hash] Item hash or raises an exception
     def self.packet_item(target_name, packet_name, item_name, type: :TLM, scope:)
       packet = packet(target_name, packet_name, type: type, scope: scope)
@@ -105,6 +110,16 @@ module Cosmos
         raise "Item(s) #{not_found.join(', ')} does not exist"
       end
       found
+    end
+
+    # @return [Hash{String => Array<Array<String, String, String>>}]
+    def self.limits_groups(scope:)
+      groups = Store.hgetall("#{scope}__limits_groups")
+      if groups
+        groups.map { |group, items| [group, JSON.parse(items)] }.to_h
+      else
+        {}
+      end
     end
 
     # Called by the PluginModel to allow this class to validate it's top-level keyword: "TARGET"
@@ -313,9 +328,9 @@ module Cosmos
       sets = Store.hgetall("#{@scope}__limits_sets")
       sets ||= {}
       system.limits.sets.each do |set|
-        sets[set.to_s] = false unless sets.key?(set)
+        sets[set.to_s] = "false" unless sets.key?(set.to_s)
       end
-      Store.hset("#{@scope}__limits_sets", sets)
+      Store.hmset("#{@scope}__limits_sets", *sets)
 
       return system
     end

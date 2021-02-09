@@ -18,18 +18,62 @@
 # copyright holder
 
 require 'cosmos/topics/topic'
+require 'cosmos/models/target_model'
 
 module Cosmos
+  # LimitsEventTopic keeps track of not only the <SCOPE>__cosmos_limits_events topic
+  # but also the ancillary key value stores. The LIMITS_CHANGE event updates the
+  # <SCOPE>__current_limits key. The LIMITS_SETTINGS event changes the limits
+  # settings on a particular item. The LIMITS_SET event updates the <SCOPE>__limits_sets.
+  # While this isn't a clean separation of topics (streams) and models (key-value)
+  # it helps maintain consistency as the topic and model are linked.
   class LimitsEventTopic < Topic
-    def self.write(target_name, packet_name, item_name, old_limits_state, new_limits_state, time_nsec, message, type:, scope:)
-      Store.write_topic("#{scope}__cosmos_limits_events",
-        {type: type, target_name: target_name, packet_name: packet_name,
-          item_name: item_name, old_limits_state: old_limits_state, new_limits_state: new_limits_state,
-          time_nsec: time_nsec, message: message})
-      # The current_limits hash keeps only the current limits state of items
-      # It is used by the API to determine the overall limits state
-      # TODO: How do we maintain / clean this hash?
-      Store.hset("#{scope}__current_limits","#{target_name}__#{packet_name}__#{item_name}", new_limits_state)
+    def self.write(event, scope:)
+      case event[:type]
+      when :LIMITS_CHANGE
+        # The current_limits hash keeps only the current limits state of items
+        # It is used by the API to determine the overall limits state
+        field = "#{event[:target_name]}__#{event[:packet_name]}__#{event[:item_name]}"
+        Store.hset("#{scope}__current_limits", field, event[:new_limits_state])
+
+      when :LIMITS_SETTINGS
+        packet = TargetModel.packet(event[:target_name], event[:packet_name], scope: scope)
+        found_item = nil
+        packet['items'].each do |item|
+          if item['name'] == event[:item_name]
+            item['limits']['persistence_setting'] = event[:persistence]
+            if event[:enabled]
+              item['limits']['enabled'] = true
+            else
+              item['limits'].delete('enabled')
+            end
+            limits = {}
+            limits['red_low'] = event[:red_low]
+            limits['yellow_low'] = event[:yellow_low]
+            limits['yellow_high'] = event[:yellow_high]
+            limits['red_high'] = event[:red_high]
+            limits['green_low'] = event[:green_low] if event[:green_low]
+            limits['green_high'] = event[:green_high] if event[:green_high]
+            item['limits'][event[:limits_set]] = limits
+            found_item = item
+            break
+          end
+        end
+        raise "Item '#{event[:target_name]} #{event[:packet_name]} #{event[:item_name]}' does not exist" unless found_item
+        TargetModel.set_packet(event[:target_name], event[:packet_name], packet, scope: scope)
+
+      when :LIMITS_SET
+        sets = sets(scope: scope)
+        raise "Set '#{event[:set]}' does not exist!" unless sets.key?(event[:set])
+        # Set all existing sets to "false"
+        sets = sets.transform_values!{ |key, value| "false" }
+        sets[event[:set]] = "true" # Enable the requested set
+        Store.hmset("#{scope}__limits_sets", *sets)
+      else
+        raise "Invalid limits event type '#{event[:type]}'"
+      end
+
+      Store.write_topic("#{scope}__cosmos_limits_events", event)
     end
 
     def self.read(offset = nil, count: 100, scope:)
@@ -58,6 +102,14 @@ module Cosmos
         end
       end
       out_of_limits
+    end
+
+    # Returns all the limits sets as keys with the value 'true' or 'false'
+    # where only the active set is 'true'
+    #
+    # @return [Hash{String => String}] Set name followed by 'true' if enabled else 'false'
+    def self.sets(scope:)
+      Store.hgetall("#{scope}__limits_sets")
     end
 
     def self.delete(target_name, packet_name, scope:)
