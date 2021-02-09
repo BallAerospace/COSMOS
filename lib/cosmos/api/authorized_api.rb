@@ -26,6 +26,5 @@ module Cosmos
     def self.included(base)
       $cosmos_authorize = true
     end
-
   end
 end

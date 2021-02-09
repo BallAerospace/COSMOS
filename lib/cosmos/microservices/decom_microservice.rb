@@ -55,7 +55,7 @@ module Cosmos
       packet.received_time = Time.from_nsec_from_epoch(msg_hash["time"].to_i)
       packet.received_count = msg_hash["received_count"].to_i
       packet.buffer = msg_hash["buffer"]
-      packet.check_limits
+      packet.check_limits # Process all the limits and call the limits_change_callback (as necessary)
 
       TelemetryDecomTopic.write_packet(packet, scope: @scope)
 
@@ -97,9 +97,11 @@ module Cosmos
       end
 
       # The cosmos_limits_events topic can be listened to for all limits events, it is a continuous stream
-      LimitsEventTopic.write(type: 'LIMITS_CHANGE', target_name: packet.target_name, packet_name: packet.packet_name,
+      time_nsec = packet_time ? packet_time.to_nsec_from_epoch : Time.now.to_nsec_from_epoch
+      event = {type: :LIMITS_CHANGE, target_name: packet.target_name, packet_name: packet.packet_name,
         item_name: item.name, old_limits_state: old_limits_state, new_limits_state: item.limits.state,
-        time_nsec: packet_time ? packet_time.to_nsec_from_epoch : Time.now.to_nsec_from_epoch, message: message, scope: @scope)
+        time_nsec: time_nsec, message: message}
+      LimitsEventTopic.write(event, scope: @scope)
 
       if item.limits.response
         begin

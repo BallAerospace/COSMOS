@@ -78,6 +78,18 @@ def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
   Cosmos::System.instance(targets, dir)
 end
 
+def get_all_redis_keys
+  cursor = 0
+  keys = []
+  loop do
+    cursor, result = Cosmos::Store.scan(cursor)
+    keys.concat(result)
+    cursor = cursor.to_i # cursor is returned as a string
+    break if cursor == 0
+  end
+  keys
+end
+
 def mock_redis
   require 'mock_redis'
   redis = MockRedis.new

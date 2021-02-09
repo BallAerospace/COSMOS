@@ -54,7 +54,7 @@ module Cosmos
 
     # @return [Symbol] The current limits_set of the system returned from Redis
     def self.limits_set
-      Store.instance.hget("#{$cosmos_scope}__cosmos_system", 'limits_set').intern
+      Store.hget("#{$cosmos_scope}__cosmos_system", 'limits_set').intern
     end
 
     def self.setup_targets(target_names, base_dir, scope:)

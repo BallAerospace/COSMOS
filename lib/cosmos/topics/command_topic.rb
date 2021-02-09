@@ -21,6 +21,9 @@ require 'cosmos/topics/topic'
 
 module Cosmos
   class CommandTopic < Topic
+    COMMAND_ACK_TIMEOUT_MS = 5000
+    COMMAND_ACK_RETRY_MS = 250 # How much time to wait between ACK checks
+
     def self.write_packet(packet, scope:)
       topic = "#{scope}__COMMAND__#{packet.target_name}__#{packet.packet_name}"
       msg_hash = { time: packet.received_time.to_nsec_from_epoch,
@@ -29,6 +32,49 @@ module Cosmos
                   received_count: packet.received_count,
                   buffer: packet.buffer(false) }
       Store.write_topic(topic, msg_hash)
+    end
+
+    # @param command [Hash] Command hash structure read to be written to a topic
+    def self.send_command(command, scope:)
+      ack_topic = "#{scope}__ACKCMDTARGET__#{command['target_name']}"
+      Store.update_topic_offsets([ack_topic])
+      # Save the existing cmd_params Hash and JSON generate before writing to the topic
+      cmd_params = command['cmd_params']
+      command['cmd_params'] = JSON.generate(command['cmd_params'].as_json)
+      cmd_id = Store.write_topic("#{scope}__CMDTARGET__#{command['target_name']}", command)
+      # TODO: This timeout is fine for most but can we get the write_timeout from the interface here?
+      (COMMAND_ACK_TIMEOUT_MS / COMMAND_ACK_RETRY_MS).times do
+        Topic.read_topics([ack_topic]) do |topic, msg_id, msg_hash, redis|
+          if msg_hash["id"] == cmd_id
+            if msg_hash["result"] == "SUCCESS"
+              return [command['target_name'], command['cmd_name'], cmd_params]
+            # Check for HazardousError which is a special case
+            elsif msg_hash["result"].include?("HazardousError")
+              raise_hazardous_error(msg_hash, command['target_name'], command['cmd_name'], cmd_params)
+            else
+              raise msg_hash["result"]
+            end
+          end
+        end
+      end
+      raise "Timeout waiting for cmd ack"
+    end
+
+    ###########################################################################
+    # PRIVATE implementation details
+    ###########################################################################
+
+    def self.raise_hazardous_error(msg_hash, target_name, cmd_name, cmd_params)
+      _, description, _ = msg_hash["result"].split("\n")
+      # Create and populate a new HazardousError and raise it up
+      # The _cmd method in script/commands.rb rescues this and calls prompt_for_hazardous
+      error = HazardousError.new
+      error.target_name = target_name
+      error.cmd_name = cmd_name
+      error.cmd_params = cmd_params
+      error.hazardous_description = description
+      # No Logger.info because the error is already logged by the Logger.info "Ack Received ...
+      raise error
     end
   end
 end

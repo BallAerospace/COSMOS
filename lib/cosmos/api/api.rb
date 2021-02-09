@@ -50,7 +50,7 @@ module Cosmos
       keys = []
       count = 0
       loop do
-        count, part = Store.instance.scan(0, :match => "#{scope}__#{type}__*", :count => 1000)
+        count, part = Store.scan(0, :match => "#{scope}__#{type}__*", :count => 1000)
         keys.concat(part)
         break if count.to_i == 0
       end

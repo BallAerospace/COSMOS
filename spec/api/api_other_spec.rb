@@ -61,12 +61,6 @@ module Cosmos
       end
     end
 
-    describe "get_interface_targets" do
-      xit "returns the targets associated with an interface" do
-        expect(@api.get_interface_targets("INST_INT")).to eql ["INST"]
-      end
-    end
-
     describe "get_background_tasks" do
       xit "gets background task details" do
         sleep 0.1
@@ -100,24 +94,6 @@ module Cosmos
       end
     end
 
-    describe "get_interface_info" do
-      it "complains about non-existant interfaces" do
-        expect { @api.get_interface_info("BLAH") }.to raise_error(RuntimeError, "Interface 'BLAH' does not exist")
-      end
-
-      xit "gets interface info" do
-        info = @api.get_interface_info("INST_INT")
-        expect(info[0]).to eq "ATTEMPTING"
-        expect(info[1..-1]).to eq [0,0,0,0,0,0,0]
-      end
-    end
-
-    describe "get_all_interface_info" do
-      xit "gets interface name and all info" do
-        info = @api.get_all_interface_info.sort
-        expect(info[0][0]).to eq "INST_INT"
-      end
-    end
 
     describe "get_router_names" do
       xit "returns all router names" do
@@ -188,10 +164,6 @@ module Cosmos
     # TODO: We need to evaluate each of these in the new system
     describe "CmdTlmServer pass-throughs" do
       xit "calls through to the CmdTlmServer" do
-        @api.get_interface_names
-        @api.connect_interface("INST_INT")
-        @api.disconnect_interface("INST_INT")
-        @api.interface_state("INST_INT")
         @api.map_target_to_interface("INST", "INST_INT")
         @api.get_packet_loggers
         @api.connect_router("ROUTE")
