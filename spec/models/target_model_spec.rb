@@ -263,6 +263,7 @@ module Cosmos
         expect { TargetModel.new(name: "TEST", scope: "DEFAULT") }.to raise_error(ArgumentError)
         expect { TargetModel.new(folder_name: "TEST", scope: "DEFAULT") }.to raise_error(ArgumentError)
         model = TargetModel.new(folder_name: "TEST", name: "TEST", scope: "DEFAULT")
+        expect(model).to_not be_nil
       end
     end
 

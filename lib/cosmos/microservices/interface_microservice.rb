@@ -47,6 +47,10 @@ module Cosmos
       end
     end
 
+    def stop
+      @thread.kill
+    end
+
     def run
       InterfaceTopics.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
         # Check for a raw write to the interface
@@ -156,6 +160,10 @@ module Cosmos
       end
     end
 
+    def stop
+      @thread.kill
+    end
+
     def run
       RouterTopics.receive_telemetry(@router, scope: @scope) do |topic, msg_hash|
         # Check for commands to the router itself
@@ -230,11 +238,11 @@ module Cosmos
       @connection_lost_messages = []
       @mutex = Mutex.new
       if @interface_or_router == 'INTERFACE'
-        @thread = InterfaceCmdHandlerThread.new(@interface, self, scope: @scope)
+        @handler_thread = InterfaceCmdHandlerThread.new(@interface, self, scope: @scope)
       else
-        @thread = RouterTlmHandlerThread.new(@interface, self, scope: @scope)
+        @handler_thread = RouterTlmHandlerThread.new(@interface, self, scope: @scope)
       end
-      @thread.start
+      @handler_thread.start
     end
 
     # External method to be called by the InterfaceCmdHandlerThread to connect
@@ -456,6 +464,7 @@ module Cosmos
       @mutex.synchronize do
         # Need to make sure that @cancel_thread is set and the interface disconnected within
         # mutex to ensure that connect() is not called when we want to stop()
+        @handler_thread.stop
         @cancel_thread = true
         @interface_thread_sleeper.cancel
         @interface.disconnect
@@ -466,7 +475,6 @@ module Cosmos
           RouterStatusModel.set(@interface.as_json, scope: @scope)
         end
       end
-      Cosmos.kill_thread(self, @interface_thread) if @interface_thread and @interface_thread != Thread.current
     end
 
     def shutdown(sig = nil)
