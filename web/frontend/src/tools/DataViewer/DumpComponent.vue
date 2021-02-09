@@ -60,8 +60,17 @@
           </v-radio>
         </v-radio-group>
       </v-col>
+      <v-col>
+        <v-radio-group
+          v-model="newestAtTop"
+          label="Print newest packets to the"
+        >
+          <v-radio label="Top" :value="true" />
+          <v-radio label="Bottom" :value="false" />
+        </v-radio-group>
+      </v-col>
     </v-row>
-    <v-row>
+    <!-- <v-row>
       <v-col>
         <v-slider
           v-model="playPosition"
@@ -74,14 +83,14 @@
           :max="historyMax"
         />
       </v-col>
-    </v-row>
+    </v-row> -->
     <v-row>
       <v-col class="pl-0 pr-0">
         <div class="text-area-container">
           <v-textarea
             ref="textarea"
             :value="displayText"
-            :auto-grow="(!showAllPackets && packetsToShow == 1) || history.length == 1"
+            :auto-grow="receivedCount == 1"
             readonly
             solo
             flat
@@ -106,23 +115,29 @@
 import _ from 'lodash'
 import PacketSummaryComponent from './PacketSummaryComponent'
 
+const HISTORY_MAX_SIZE = 75
+
 export default {
   components: {
     PacketSummaryComponent,
   },
   data: function () {
     return {
-      history: [],
+      history: new Array(HISTORY_MAX_SIZE),
+      historyPointer: -1,
       receivedCount: 0,
       format: 'hex',
       showLineAddress: true,
       bytesPerLine: 16,
-      showAllPackets: true,
+      showAllPackets: false,
       packetsToShow: 1,
+      newestAtTop: false,
       paused: false,
       pausedAt: 0,
       playPosition: 0,
       textarea: null,
+      displayText: null,
+      packetSize: 0,
     }
   },
   watch: {
@@ -130,7 +145,7 @@ export default {
       if (val) {
         this.pausedAt = this.playPosition
       } else {
-        this.playPosition = this.history.length - 1
+        this.playPosition = Math.min(this.receivedCount, HISTORY_MAX_SIZE)
       }
     },
   },
@@ -142,19 +157,34 @@ export default {
       // This is called by the parent to feed this component data. A function is used instead
       // of a prop to ensure each message gets handled, regardless of how fast they come in
       data.forEach((packet) => {
-        this.history.push({
+        const decoded = {
           buffer: atob(packet.buffer),
           time: packet.time,
+        }
+        this.historyPointer = ++this.historyPointer % HISTORY_MAX_SIZE
+        this.history[this.historyPointer] = decoded
+
+        const packetText = this.calculatePacketText(decoded)
+        if (!this.displayText) {
+          this.displayText = packetText
+        } else if (this.newestAtTop) {
+          this.displayText = `${packetText}\n\n${this.displayText}`
+        } else {
+          this.displayText += `\n\n${packetText}`
+        }
         })
-      })
       this.receivedCount += data.length
-      // Future enhancement: use a ring buffer instead
-      if (this.history.length > 1000) {
-        this.history = this.history.slice(-1000)
-      }
+      this.trimDisplayText()
       if (!this.paused) {
-        this.playPosition = this.history.length - 1
-        this.updateScrollPosition()
+        this.playPosition += data.length
+        !this.newestAtTop && this.updateScrollPosition()
+      }
+    },
+    trimDisplayText: function () {
+      if (this.newestAtTop) {
+        this.displayText = this.displayText.substring(0, this.packetSize * HISTORY_MAX_SIZE)
+      } else {
+        this.displayText = this.displayText.substring(this.displayText.length - ((this.packetSize + 2) * HISTORY_MAX_SIZE) + 2)
       }
     },
     updateScrollPosition: function () {
@@ -178,37 +208,20 @@ export default {
       this.pause()
       this.playPosition++
     },
-  },
-  computed: {
-    historyMax: function () {
-      return this.paused ? this.pausedAt : this.history.length - 1
-    },
-    latestPacket: function () {
-      if (this.history.length) {
-        return this.history[this.history.length - 1]
-      }
-      return null
-    },
-    displayText: function () {
-      if (this.history.length == 0) return 'No data'
-      const start = this.showAllPackets
-        ? 0
-        : this.playPosition - this.packetsToShow + 1
-      // For each packet in the slice we need to show
-      return this.history.slice(start, this.playPosition + 1).map((packet) =>
+    calculatePacketText: function (packet) {
         // Split its buffer into lines of the selected length
-        _.chunk(packet.buffer.split(''), this.bytesPerLine).map((lineBytes, index) => {
+      const text = _.chunk(packet.buffer.split(''), this.bytesPerLine)
+        .map((lineBytes, index) => {
           // Map each line into ASCII or hex values
           let mappedBytes = []
         if (this.format === 'ascii') {
             mappedBytes = lineBytes.map((byte) =>
-              byte
-              .replace(/\n/, '\\n')
-              .replace(/\r/, '\\r')
-              .padStart(2, ' ')
+              byte.replace(/\n/, '\\n').replace(/\r/, '\\r').padStart(2, ' ')
           )
         } else {
-            mappedBytes = lineBytes.map((byte) => byte.charCodeAt(0).toString(16).padStart(2, '0'))
+            mappedBytes = lineBytes.map((byte) =>
+              byte.charCodeAt(0).toString(16).padStart(2, '0')
+            )
         }
           let line = mappedBytes.join(' ')
           // Prepend the line address if needed
@@ -221,9 +234,18 @@ export default {
                 return line
               })
               .join('\n') // end of one line
-        )
-        .join('\n\n') // end of one buffer
-    }
+      this.packetSize = this.packetSize || text.length
+      return text
+    },
+  },
+  computed: {
+    historyMax: function () {
+      return this.paused ? this.pausedAt : Math.min(this.receivedCount, HISTORY_MAX_SIZE)
+    },
+    latestPacket: function () {
+      if (this.receivedCount == 0) return null
+      return this.history[this.historyPointer]
+    },
   },
 }
 </script>
