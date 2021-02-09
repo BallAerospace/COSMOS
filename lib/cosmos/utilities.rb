@@ -26,6 +26,7 @@ module Cosmos
   autoload(:Crc64, 'cosmos/utilities/crc.rb')
   autoload(:Csv, 'cosmos/utilities/csv.rb')
   autoload(:Logger, 'cosmos/utilities/logger.rb')
+  autoload(:Metric, 'cosmos/utilities/metric.rb')
   autoload(:MessageLog, 'cosmos/utilities/message_log.rb')
   autoload(:Quaternion, 'cosmos/utilities/quaternion.rb')
   autoload(:SimulatedTarget, 'cosmos/utilities/simulated_target.rb')

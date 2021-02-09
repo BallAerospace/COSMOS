@@ -22,7 +22,9 @@ require 'cosmos/models/cvt_model'
 require 'cosmos/topics/topic'
 
 module Cosmos
+
   class CvtMicroservice < Microservice
+
     def run
       while true
         break if @cancel_thread
@@ -39,7 +41,10 @@ module Cosmos
       end
     end
 
+
     def cvt_data(topic, msg_id, msg_hash, redis)
+      cvt_metric_name = "cvt_data_duration_seconds"
+      start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       target_name = msg_hash["target_name"]
       packet_name = msg_hash["packet_name"]
       json_hash = JSON.parse(msg_hash['json_data'])
@@ -49,7 +54,11 @@ module Cosmos
         updated_json_hash[key] = JSON.generate(value.as_json)
       end
       CvtModel.set(updated_json_hash, target_name: target_name, packet_name: packet_name, scope: @scope)
+      diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
+      metric_labels = {"packet" => packet_name, "target" => target_name}
+      @metric.add_sample(name: cvt_metric_name, value: diff, labels: metric_labels)
     end
+
   end
 end
 

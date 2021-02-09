@@ -29,6 +29,9 @@ docker tag cosmos-script-runner-api localhost:5000/cosmos-script-runner-api:late
 docker build -f Dockerfile.frontend -t cosmos-frontend .
 docker tag cosmos-frontend localhost:5000/cosmos-frontend:latest
 
+docker build -f aggregator/dockerfile -t cosmos-aggregator aggregator
+docker tag cosmos-aggregator localhost:5000/cosmos-aggregator:latest
+
 docker build -f Dockerfile.operator -t cosmos-operator .
 docker tag cosmos-operator localhost:5000/cosmos-operator:latest
 
@@ -41,5 +44,6 @@ docker push localhost:5000/cosmos-gems:latest
 docker push localhost:5000/cosmos-cmd-tlm-api:latest
 docker push localhost:5000/cosmos-script-runner-api:latest
 docker push localhost:5000/cosmos-frontend:latest
+docker push localhost:5000/cosmos-aggregator:latest
 docker push localhost:5000/cosmos-operator:latest
 docker push localhost:5000/cosmos-init:latest
