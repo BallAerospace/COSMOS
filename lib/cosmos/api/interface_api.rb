@@ -29,6 +29,8 @@ module Cosmos
       'get_interface_names',
       'connect_interface',
       'disconnect_interface',
+      'start_raw_logging_interface',
+      'stop_raw_logging_interface',
       # DEPRECATED:
       'interface_state',
       'get_interface_targets',
@@ -63,10 +65,38 @@ module Cosmos
 
     # Disconnects from an interface and kills its telemetry gathering thread
     #
-    # @param interface_name (see #connect_interface)
+    # @param interface_name [String] The name of the interface
     def disconnect_interface(interface_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
       InterfaceTopics.disconnect_interface(interface_name, scope: scope)
+    end
+
+    # Starts raw logging for an interface
+    #
+    # @param interface_name [String] The name of the interface
+    def start_raw_logging_interface(interface_name = 'ALL', scope: $cosmos_scope, token: $cosmos_token)
+      authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
+      if interface_name == 'ALL'
+        get_interface_names().each do |interface_name|
+          InterfaceTopics.start_raw_logging(interface_name, scope: scope)
+        end
+      else
+        InterfaceTopics.start_raw_logging(interface_name, scope: scope)
+      end
+    end
+
+    # Stop raw logging for an interface
+    #
+    # @param interface_name [String] The name of the interface
+    def stop_raw_logging_interface(interface_name = 'ALL', scope: $cosmos_scope, token: $cosmos_token)
+      authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
+      if interface_name == 'ALL'
+        get_interface_names().each do |interface_name|
+          InterfaceTopics.stop_raw_logging(interface_name, scope: scope)
+        end
+      else
+        InterfaceTopics.stop_raw_logging(interface_name, scope: scope)
+      end
     end
 
     ###########################################################################

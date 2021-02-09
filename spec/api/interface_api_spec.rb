@@ -101,6 +101,34 @@ module Cosmos
       end
     end
 
+    describe "start_raw_logging_interface" do
+      it "should start raw logging on the interface" do
+        expect_any_instance_of(Cosmos::Interface).to receive(:start_raw_logging)
+        @api.start_raw_logging_interface("INST_INT")
+        sleep(0.1)
+      end
+
+      it "should start raw logging on all interfaces" do
+        expect_any_instance_of(Cosmos::Interface).to receive(:start_raw_logging)
+        @api.start_raw_logging_interface("ALL")
+        sleep(0.1)
+      end
+    end
+
+    describe "stop_raw_logging_interface" do
+      it "should stop raw logging on the interface" do
+        expect_any_instance_of(Cosmos::Interface).to receive(:stop_raw_logging)
+        @api.stop_raw_logging_interface("INST_INT")
+        sleep(0.1)
+      end
+
+      it "should stop raw logging on all interfaces" do
+        expect_any_instance_of(Cosmos::Interface).to receive(:stop_raw_logging)
+        @api.stop_raw_logging_interface("ALL")
+        sleep(0.1)
+      end
+    end
+
     describe "get_interface_targets" do
       it "raises for a non-existant interface" do
         expect { @api.get_interface_targets("BLAH") }.to raise_error("Interface 'BLAH' does not exist")

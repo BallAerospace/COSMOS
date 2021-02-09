@@ -75,6 +75,16 @@ module Cosmos
             @tlm.inject_tlm(msg_hash)
             next 'SUCCESS'
           end
+          if msg_hash.key?('log_raw')
+            if msg_hash['log_raw'] == 'true'
+              Logger.info "#{@interface.name}: Enable raw logging"
+              @interface.start_raw_logging
+            else
+              Logger.info "#{@interface.name}: Disable raw logging"
+              @interface.stop_raw_logging
+            end
+            next 'SUCCESS'
+          end
         end
 
         target_name = msg_hash['target_name']
