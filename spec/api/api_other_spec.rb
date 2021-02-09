@@ -82,46 +82,6 @@ module Cosmos
       end
     end
 
-    describe "get_server_status" do
-      it "gets server details" do
-        status = @api.get_server_status
-        expect(status[0]).to eql 'DEFAULT'
-        expect(status[1]).to eql 0 # TODO: this was the old port value 7777
-        expect(status[2]).to eql 0
-        expect(status[3]).to eql 0
-        expect(status[4]).to eql 0
-        expect(status[5]).to be > 0
-      end
-    end
-
-
-    describe "get_router_names" do
-      xit "returns all router names" do
-        expect(@api.get_router_names.sort).to eq %w(PREIDENTIFIED_CMD_ROUTER PREIDENTIFIED_ROUTER ROUTE)
-      end
-    end
-
-    describe "get_router_info" do
-      it "complains about non-existant routers" do
-        expect { @api.get_router_info("BLAH") }.to raise_error(RuntimeError, "Interface 'BLAH' does not exist")
-      end
-
-      xit "gets router info" do
-        info = @api.get_router_info("ROUTE")
-        expect(info[0]).to eq "ATTEMPTING"
-        expect(info[1..-1]).to eq [0,0,0,0,0,0,0]
-      end
-    end
-
-    describe "get_all_router_info" do
-      xit "gets router name and all info" do
-        info = @api.get_all_router_info.sort
-        expect(info[0][0]).to eq "PREIDENTIFIED_CMD_ROUTER"
-        expect(info[1][0]).to eq "PREIDENTIFIED_ROUTER"
-        expect(info[2][0]).to eq "ROUTE"
-      end
-    end
-
     describe "get_packet_logger_info" do
       xit "complains about non-existant loggers" do
         expect { @api.get_packet_logger_info("BLAH") }.to raise_error(RuntimeError, "Unknown packet log writer: BLAH")

@@ -96,6 +96,5 @@ module Cosmos
       info.sort! {|a,b| a[0] <=> b[0] }
       info
     end
-
   end
 end
