@@ -40,6 +40,9 @@
         <v-switch v-model="showLineAddress" label="Show line address" />
       </v-col>
       <v-col>
+        <v-switch v-model="showTimestamp" label="Show timestamp" />
+      </v-col>
+      <v-col>
         <v-text-field
           v-model="bytesPerLine"
           label="Bytes per line"
@@ -47,14 +50,14 @@
         ></v-text-field>
       </v-col>
       <v-col>
-              <v-text-field
-                v-model="packetsToShow"
+        <v-text-field
+          v-model="packetsToShow"
           label="Packets to show"
-                type="number"
+          type="number"
           :min="1"
           :max="this.history.length"
           v-on:change="validatePacketsToShow"
-              ></v-text-field>
+        ></v-text-field>
       </v-col>
       <v-col>
         <v-radio-group
@@ -124,6 +127,7 @@ export default {
       receivedCount: 0,
       format: 'hex',
       showLineAddress: true,
+      showTimestamp: true,
       bytesPerLine: 16,
       packetsToShow: 1,
       newestAtTop: false,
@@ -196,23 +200,9 @@ export default {
           this.textarea.scrollHeight + currentScrollOffset
       })
     },
-    pause: function () {
-      this.paused = true
-    },
-    togglePlayPause: function () {
-      this.paused = !this.paused
-    },
-    stepBackward: function () {
-      this.pause()
-      this.playPosition--
-    },
-    stepForward: function () {
-      this.pause()
-      this.playPosition++
-    },
     calculatePacketText: function (packet) {
       // Split its buffer into lines of the selected length
-      const text = _.chunk(packet.buffer.split(''), this.bytesPerLine)
+      let text = _.chunk(packet.buffer.split(''), this.bytesPerLine)
         .map((lineBytes, index) => {
           // Map each line into ASCII or hex values
           let mappedBytes = []
@@ -236,12 +226,35 @@ export default {
           return line
         })
         .join('\n') // end of one line
+      if (this.showTimestamp) {
+        const milliseconds = packet.time / 1000000
+        let timestamp = '********************************************\n'
+        timestamp += `* Received seconds: ${(milliseconds / 1000).toFixed(7)}\n`
+        timestamp += `* Received time: ${new Date(milliseconds).toISOString()}\n`
+        timestamp += `* Received count: ${this.receivedCount}\n` // TODO: is this right?
+        timestamp += '********************************************\n'
+        text = `${timestamp}${text}`
+      }
       this.packetSize = this.packetSize || text.length
       return text
     },
     validatePacketsToShow: function () {
       if (this.packetsToShow > HISTORY_MAX_SIZE) this.packetsToShow = HISTORY_MAX_SIZE
       else if (this.packetsToShow < 1) this.packetsToShow = 1
+    },
+    pause: function () {
+      this.paused = true
+    },
+    togglePlayPause: function () {
+      this.paused = !this.paused
+    },
+    stepBackward: function () {
+      this.pause()
+      this.playPosition--
+    },
+    stepForward: function () {
+      this.pause()
+      this.playPosition++
     },
   },
   computed: {
