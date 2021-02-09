@@ -31,7 +31,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-radio-group v-model="format" row hide-details>
+        <v-radio-group v-model="format" label="Display format">
           <v-radio label="Hex" value="hex" />
           <v-radio label="ASCII" value="ascii" />
         </v-radio-group>
@@ -172,7 +172,7 @@ export default {
         } else {
           this.displayText += `\n\n${packetText}`
         }
-        })
+      })
       this.receivedCount += data.length
       this.trimDisplayText()
       if (!this.paused) {
@@ -182,16 +182,23 @@ export default {
     },
     trimDisplayText: function () {
       if (this.newestAtTop) {
-        this.displayText = this.displayText.substring(0, this.packetSize * HISTORY_MAX_SIZE)
+        this.displayText = this.displayText.substring(
+          0,
+          this.packetSize * HISTORY_MAX_SIZE
+        )
       } else {
-        this.displayText = this.displayText.substring(this.displayText.length - ((this.packetSize + 2) * HISTORY_MAX_SIZE) + 2)
+        this.displayText = this.displayText.substring(
+          this.displayText.length - (this.packetSize + 2) * HISTORY_MAX_SIZE + 2
+        )
       }
     },
     updateScrollPosition: function () {
       // Alternatively, only set if it's at the bottom already?
-      const currentScrollOffset = this.textarea.scrollTop - this.textarea.scrollHeight
+      const currentScrollOffset =
+        this.textarea.scrollTop - this.textarea.scrollHeight
       this.$nextTick(() => {
-        this.textarea.scrollTop = this.textarea.scrollHeight + currentScrollOffset
+        this.textarea.scrollTop =
+          this.textarea.scrollHeight + currentScrollOffset
       })
     },
     pause: function () {
@@ -209,41 +216,43 @@ export default {
       this.playPosition++
     },
     calculatePacketText: function (packet) {
-        // Split its buffer into lines of the selected length
+      // Split its buffer into lines of the selected length
       const text = _.chunk(packet.buffer.split(''), this.bytesPerLine)
         .map((lineBytes, index) => {
           // Map each line into ASCII or hex values
           let mappedBytes = []
-        if (this.format === 'ascii') {
+          if (this.format === 'ascii') {
             mappedBytes = lineBytes.map((byte) =>
               byte.replace(/\n/, '\\n').replace(/\r/, '\\r').padStart(2, ' ')
-          )
-        } else {
+            )
+          } else {
             mappedBytes = lineBytes.map((byte) =>
               byte.charCodeAt(0).toString(16).padStart(2, '0')
             )
-        }
+          }
           let line = mappedBytes.join(' ')
           // Prepend the line address if needed
-                if (this.showLineAddress) {
-                  const address = (index * this.bytesPerLine)
-                    .toString(16)
-                    .padStart(8, '0')
-                  line = `${address}: ${line}`
-                }
-                return line
-              })
-              .join('\n') // end of one line
+          if (this.showLineAddress) {
+            const address = (index * this.bytesPerLine)
+              .toString(16)
+              .padStart(8, '0')
+            line = `${address}: ${line}`
+          }
+          return line
+        })
+        .join('\n') // end of one line
       this.packetSize = this.packetSize || text.length
       return text
     },
   },
   computed: {
     historyMax: function () {
-      return this.paused ? this.pausedAt : Math.min(this.receivedCount, HISTORY_MAX_SIZE)
+      return this.paused
+        ? this.pausedAt
+        : Math.min(this.receivedCount, HISTORY_MAX_SIZE)
     },
     latestPacket: function () {
-      if (this.receivedCount == 0) return null
+      if (this.historyPointer < 0) return null
       return this.history[this.historyPointer]
     },
   },
