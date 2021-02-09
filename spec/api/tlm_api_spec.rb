@@ -716,17 +716,17 @@ module Cosmos
         TelemetryDecomTopic.write_packet(packet, scope: "DEFAULT")
 
         index = 0
-        @api.get_packet(id) do |target, packet, hash|
-          expect(target).to eql "INST"
+        @api.get_packet(id) do |hash|
+          expect(hash['target_name']).to eql "INST"
           case index
           when 0
-            expect(packet).to eql "HEALTH_STATUS"
+            expect(hash['packet_name']).to eql "HEALTH_STATUS"
             expect(hash['DURATION']).to eql 2.0
           when 1
-            expect(packet).to eql "HEALTH_STATUS"
-            expect(hash['DURATION']).to eql 2.0
+            expect(hash['packet_name']).to eql "HEALTH_STATUS"
+            expect(hash['DURATION']).to eql 3.0
           when 2
-            expect(packet).to eql "ADCS"
+            expect(hash['packet_name']).to eql "ADCS"
           else
             raise "Found too many packets"
           end

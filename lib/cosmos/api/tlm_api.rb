@@ -472,17 +472,19 @@ module Cosmos
     # and will return nil when no more packets are buffered (assuming non_block
     # is false).
     # Usage:
-    #   get_packet(id, <true or false to block>)
-    def get_packet(id, non_block = false, scope: $cosmos_scope, token: $cosmos_token)
+    #   get_packet(id, non_block: true)
+    def get_packet(id, non_block: false, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
       offset, *topics = id.split("\n")
       offsets = []
-      topics.each do |topic|
+      # Create a common array of offsets for each of the topics
+      topics.length.times do
         offsets << (offset.to_i / 1_000_000).to_s + '-0'
       end
       Topic.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
-        _, _, target_name, packet_name = topic.split('__')
-        yield target_name, packet_name, msg_hash
+        json_hash = JSON.parse(msg_hash['json_data'])
+        msg_hash.delete('json_data')
+        yield msg_hash.merge(json_hash)
       end
     end
 
