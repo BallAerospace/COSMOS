@@ -54,7 +54,7 @@ module Cosmos
     def run
       InterfaceTopics.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
         # Check for a raw write to the interface
-        if topic =~ /CMDINTERFACE/ or topic =~ /CMDROUTER/
+        if topic =~ /CMDINTERFACE/
           if msg_hash['connect']
             Logger.info "#{@interface.name}: Connect requested"
             @tlm.attempting()
@@ -185,6 +185,15 @@ module Cosmos
           if msg_hash['disconnect']
             Logger.info "#{@router.name}: Disconnect requested"
             @tlm.disconnect(false)
+          end
+          if msg_hash.key?('log_raw')
+            if msg_hash['log_raw'] == 'true'
+              Logger.info "#{@router.name}: Enable raw logging"
+              @router.start_raw_logging
+            else
+              Logger.info "#{@router.name}: Disable raw logging"
+              @router.stop_raw_logging
+            end
           end
           next 'SUCCESS'
         end

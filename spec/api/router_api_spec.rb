@@ -101,6 +101,34 @@ module Cosmos
       end
     end
 
+    describe "start_raw_logging_router" do
+      it "should start raw logging on the router" do
+        expect_any_instance_of(Cosmos::Interface).to receive(:start_raw_logging)
+        @api.start_raw_logging_router("ROUTE_INT")
+        sleep(0.1)
+      end
+
+      it "should start raw logging on all routers" do
+        expect_any_instance_of(Cosmos::Interface).to receive(:start_raw_logging)
+        @api.start_raw_logging_router("ALL")
+        sleep(0.1)
+      end
+    end
+
+    describe "stop_raw_logging_router" do
+      it "should stop raw logging on the router" do
+        expect_any_instance_of(Cosmos::Interface).to receive(:stop_raw_logging)
+        @api.stop_raw_logging_router("ROUTE_INT")
+        sleep(0.1)
+      end
+
+      it "should stop raw logging on all routers" do
+        expect_any_instance_of(Cosmos::Interface).to receive(:stop_raw_logging)
+        @api.stop_raw_logging_router("ALL")
+        sleep(0.1)
+      end
+    end
+
     describe "get_router_targets" do
       it "raises for a non-existant router" do
         expect { @api.get_router_targets("BLAH") }.to raise_error("Router 'BLAH' does not exist")

@@ -29,6 +29,8 @@ module Cosmos
       'get_router_names',
       'connect_router',
       'disconnect_router',
+      'start_raw_logging_router',
+      'stop_raw_logging_router',
       # DEPRECATED:
       'router_state',
       'get_router_info',
@@ -67,6 +69,34 @@ module Cosmos
     def disconnect_router(router_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', router_name: router_name, scope: scope, token: token)
       RouterTopics.disconnect_router(router_name, scope: scope)
+    end
+
+    # Starts raw logging for a router
+    #
+    # @param router_name [String] The name of the interface
+    def start_raw_logging_router(router_name = 'ALL', scope: $cosmos_scope, token: $cosmos_token)
+      authorize(permission: 'system_set', router_name: router_name, scope: scope, token: token)
+      if router_name == 'ALL'
+        get_router_names().each do |router_name|
+          RouterTopics.start_raw_logging(router_name, scope: scope)
+        end
+      else
+        RouterTopics.start_raw_logging(router_name, scope: scope)
+      end
+    end
+
+    # Stop raw logging for a router
+    #
+    # @param router_name [String] The name of the interface
+    def stop_raw_logging_router(router_name = 'ALL', scope: $cosmos_scope, token: $cosmos_token)
+      authorize(permission: 'system_set', router_name: router_name, scope: scope, token: token)
+      if router_name == 'ALL'
+        get_router_names().each do |router_name|
+          RouterTopics.stop_raw_logging(router_name, scope: scope)
+        end
+      else
+        RouterTopics.stop_raw_logging(router_name, scope: scope)
+      end
     end
 
     ###########################################################################
