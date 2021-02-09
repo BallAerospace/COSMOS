@@ -10,3 +10,24 @@ scrape_configs:
   - job_name: prometheus
     static_configs:
       - targets: ['localhost:9090']
+
+  - job_name: fluentd
+    static_configs:
+      - targets: ['cosmos-fluentd:24231']
+
+  - job_name: cosmos-cmd-tlm-api
+    static_configs:
+      - targets: ['cosmos-cmd-tlm-api:7777']
+
+  - job_name: cosmos-script-runner-api
+    static_configs:
+      - targets: ['cosmos-script-runner-api:3001']
+
+  - job_name: cosmos-aggregator-api
+    static_configs:
+      - targets: ['cosmos-aggregator:3113']
+
+  - job_name: cosmos-aggregator
+    metrics_path: '/'
+    static_configs:
+      - targets: ['cosmos-aggregator:3113']
