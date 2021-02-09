@@ -600,7 +600,7 @@ module Cosmos
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
         @p.buffer = "\x04"
-        cache = p.instance_variable_get(:@read_conversion_cache)
+        cache = @p.instance_variable_get(:@read_conversion_cache)
         i.read_conversion = GenericConversion.new("value / 2")
         expect(cache).to be nil
         expect(@p.read("ITEM")).to be 2

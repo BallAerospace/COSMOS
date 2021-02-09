@@ -223,6 +223,31 @@ module Cosmos
         green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true,
         scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
+      packet = TargetModel.packet(target_name, packet_name, scope: scope)
+      found_item = nil
+      packet['items'].each do |item|
+        if item['name'] == item_name
+          item['limits']['persistence_setting'] = persistence
+          if enabled
+            item['limits']['enabled'] = true
+          else
+            item['limits'].delete('enabled')
+          end
+          limits = {}
+          limits['red_low'] = red_low
+          limits['yellow_low'] = yellow_low
+          limits['yellow_high'] = yellow_high
+          limits['red_high'] = red_high
+          limits['green_low'] = green_low if green_low
+          limits['green_high'] = green_high if green_high
+          item['limits'][limits_set] = limits
+          found_item = item
+          break
+        end
+      end
+      raise "Item '#{target_name} #{packet_name} #{item_name}' does not exist" unless found_item
+      TargetModel.set_packet(target_name, packet_name, packet, scope: scope)
+
       event = {type: :LIMITS_SETTINGS, target_name: target_name, packet_name: packet_name,
         item_name: item_name, red_low: red_low, yellow_low: yellow_low, yellow_high: yellow_high, red_high: red_high,
         green_low: green_low, green_high: green_high, limits_set: limits_set, persistence: persistence, enabled: enabled }
