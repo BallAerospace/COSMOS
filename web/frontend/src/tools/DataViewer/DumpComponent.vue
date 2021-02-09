@@ -79,8 +79,9 @@
       <v-col class="pl-0 pr-0">
         <div class="text-area-container">
           <v-textarea
+            ref="textarea"
             :value="displayText"
-            :auto-grow="!showAllPackets && packetsToShow == 1"
+            :auto-grow="(!showAllPackets && packetsToShow == 1) || history.length == 1"
             readonly
             solo
             flat
@@ -121,6 +122,7 @@ export default {
       paused: false,
       pausedAt: 0,
       playPosition: 0,
+      textarea: null,
     }
   },
   watch: {
@@ -131,6 +133,9 @@ export default {
         this.playPosition = this.history.length - 1
       }
     },
+  },
+  mounted: function () {
+    this.textarea = this.$refs.textarea.$el.querySelectorAll('textarea')[0]
   },
   methods: {
     receive: function (data) {
@@ -151,7 +156,15 @@ export default {
       }
       if (!this.paused) {
         this.playPosition = this.history.length - 1
+        this.updateScrollPosition()
       }
+    },
+    updateScrollPosition: function () {
+      // Alternatively, only set if it's at the bottom already?
+      const currentScrollOffset = this.textarea.scrollTop - this.textarea.scrollHeight
+      this.$nextTick(() => {
+        this.textarea.scrollTop = this.textarea.scrollHeight + currentScrollOffset
+      })
     },
     pause: function () {
       this.paused = true
@@ -245,7 +258,7 @@ export default {
   .play-control {
     position: absolute;
     top: 12px;
-    right: 12px;
+    right: 24px;
 
     &.pulse {
       animation: pulse 1s infinite;
