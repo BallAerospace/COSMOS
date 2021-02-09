@@ -143,9 +143,7 @@ export default {
       // of a prop to ensure each message gets handled, regardless of how fast they come in
       data.forEach((packet) => {
         this.history.push({
-          buffer: atob(packet.buffer)
-            .split('')
-            .map((c) => c.charCodeAt(0)),
+          buffer: atob(packet.buffer),
           time: packet.time,
         })
       })
@@ -191,47 +189,30 @@ export default {
       }
       return null
     },
-    currentSlice: function () {
-      // The packets to be shown in the text area based on playPosition and "packets to show" selection (array of objects)
-      if (this.history.length == 0) return []
+    displayText: function () {
+      if (this.history.length == 0) return 'No data'
       const start = this.showAllPackets
         ? 0
         : this.playPosition - this.packetsToShow + 1
-      return this.history.slice(start, this.playPosition + 1).reverse()
-    },
-    currentBuffers: function () {
-      // currentSlice's data converted to either ASCII or hex codes (array of strings)
-      return this.currentSlice.map((packet) => {
+      // For each packet in the slice we need to show
+      return this.history.slice(start, this.playPosition + 1).map((packet) =>
+        // Split its buffer into lines of the selected length
+        _.chunk(packet.buffer.split(''), this.bytesPerLine).map((lineBytes, index) => {
+          // Map each line into ASCII or hex values
+          let mappedBytes = []
         if (this.format === 'ascii') {
-          return packet.buffer.map((byte) =>
-            String.fromCharCode(byte)
+            mappedBytes = lineBytes.map((byte) =>
+              byte
               .replace(/\n/, '\\n')
               .replace(/\r/, '\\r')
               .padStart(2, ' ')
           )
         } else {
-          return packet.buffer.map((byte) => byte.toString(16).padStart(2, '0'))
+            mappedBytes = lineBytes.map((byte) => byte.charCodeAt(0).toString(16).padStart(2, '0'))
         }
-      })
-    },
-    currentLineGroups: function () {
-      // currentBuffers but each one is broken up into lines (2D array)
-      return this.currentBuffers.map((buffer) =>
-        _.chunk(buffer, this.bytesPerLine)
-      )
-    },
-    displayText: function () {
-      return this.currentLineGroups
-        .map(
-          // For each buffer
-          (buffer) =>
-            buffer
-              // For each line in this buffer
-              .map((lineBytes, index) => {
-                // Combine the line's bytes into a string
-                let line = lineBytes.join(' ')
+          let line = mappedBytes.join(' ')
+          // Prepend the line address if needed
                 if (this.showLineAddress) {
-                  // with the line address if needed
                   const address = (index * this.bytesPerLine)
                     .toString(16)
                     .padStart(8, '0')
@@ -242,7 +223,7 @@ export default {
               .join('\n') // end of one line
         )
         .join('\n\n') // end of one buffer
-    },
+    }
   },
 }
 </script>
