@@ -57,7 +57,7 @@ module Cosmos
       CvtModel.set(updated_json_hash, target_name: target_name, packet_name: packet_name, scope: @scope)
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
       metric_labels = {"packet" => packet_name, "target" => target_name}
-      @metric.add_sample(name: cvt_metric_name, value: diff, labels: metric_labels)
+      @metric.add_sample(name: METRIC_NAME, value: diff, labels: metric_labels)
     end
 
   end
