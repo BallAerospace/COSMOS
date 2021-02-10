@@ -54,6 +54,8 @@
           v-model="packetsToShow"
           label="Packets to show"
           type="number"
+          :hint="`Maximum: ${this.history.length}`"
+          persistent-hint
           :min="1"
           :max="this.history.length"
           v-on:change="validatePacketsToShow"
@@ -67,6 +69,17 @@
           <v-radio label="Top" :value="true" />
           <v-radio label="Bottom" :value="false" />
         </v-radio-group>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-text-field
+          v-model="filterText"
+          label="Search"
+          append-icon="mdi-magnify"
+          single-line
+          hide-details
+        ></v-text-field>
       </v-col>
     </v-row>
     <!-- <v-row>
@@ -131,6 +144,7 @@ export default {
       bytesPerLine: 16,
       packetsToShow: 1,
       newestAtTop: false,
+      filterText: '',
       paused: false,
       pausedAt: 0,
       playPosition: 0,
@@ -165,12 +179,14 @@ export default {
         this.history[this.historyPointer] = decoded
 
         const packetText = this.calculatePacketText(decoded)
-        if (!this.displayText) {
-          this.displayText = packetText
-        } else if (this.newestAtTop) {
-          this.displayText = `${packetText}\n\n${this.displayText}`
-        } else {
-          this.displayText += `\n\n${packetText}`
+        if (this.matchesSearch(packetText)) {
+          if (!this.displayText) {
+            this.displayText = packetText
+          } else if (this.newestAtTop) {
+            this.displayText = `${packetText}\n\n${this.displayText}`
+          } else {
+            this.displayText += `\n\n${packetText}`
+          }
         }
       })
       this.trimDisplayText()
@@ -203,13 +219,23 @@ export default {
       })
     },
     rebuildDisplayText: function () {
+      const packetsSinceRollover = this.history.slice(
+        0,
+        this.historyPointer + 1
+      )
       let packets = this.history
         .slice(this.historyPointer + 1)
-        .concat(this.history.slice(0, this.historyPointer + 1))
+        .concat(packetsSinceRollover)
         .filter((packet) => packet !== undefined)
         .slice(-this.packetsToShow)
       if (this.newestAtTop) packets = packets.reverse()
-      this.displayText = packets.map(this.calculatePacketText).join('\n\n')
+      this.displayText = packets
+        .map(this.calculatePacketText)
+        .filter(this.matchesSearch)
+        .join('\n\n')
+    },
+    matchesSearch: function (text) {
+      return text.toLowerCase().includes(this.filterText.toLowerCase())
     },
     calculatePacketText: function (packet) {
       // Split its buffer into lines of the selected length
