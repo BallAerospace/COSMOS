@@ -63,17 +63,12 @@ module Cosmos
       @dm = DecomMicroservice.new("DEFAULT__DECOM__INST_INT")
       @dm_thread = Thread.new { @dm.run }
 
-      # model = MicroserviceModel.new(name: "DEFAULT__CVT__INST_INT", scope: "DEFAULT", topics: ["DEFAULT__DECOM__INST__HEALTH_STATUS"])
-      # model.create
-      # @cm = CvtMicroservice.new("DEFAULT__CVT__INST_INT")
-      # @cm_thead = Thread.new { @cm.run }
-      sleep(0.01) # Allow the thread to run
+      sleep(0.01) # Allow the threads to run
 
       @api = ApiTest.new
     end
 
     after(:each) do
-      # @cm.shutdown
       @dm.shutdown
       @im.shutdown
       sleep(0.01)
