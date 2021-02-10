@@ -45,7 +45,7 @@ timeout 30 >nul
 
 docker container rm cosmos-aggregator
 docker build -f aggregator/Dockerfile -t cosmos-aggregator aggregator
-docker run --network cosmos -p 127.0.0.1:3113:3113 -d --name cosmos-aggregato --env NO_FLUENTD=1 cosmos-aggregator
+docker run --network cosmos -p 127.0.0.1:3113:3113 -d --name cosmos-aggregator --env NO_FLUENTD=1 cosmos-aggregator
 
 docker container rm cosmos-cmd-tlm-api
 docker build -f cmd_tlm_api\Dockerfile -t cosmos-cmd-tlm-api cmd_tlm_api
