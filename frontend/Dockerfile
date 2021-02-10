@@ -1,4 +1,5 @@
-FROM ubuntu:20.04
+# build stage
+FROM ubuntu:20.04 as build-stage
 
 # We require a local certificate file so set that up.
 # You must place a valid cert.pem file in your COSMOS development folder for this work
@@ -7,6 +8,7 @@ COPY cacert.pem /devel/cacert.pem
 ENV SSL_CERT_FILE /devel/cacert.pem
 ENV CURL_CA_BUNDLE /devel/cacert.pem
 ENV REQUESTS_CA_BUNDLE /devel/cacert.pem
+ENV NODE_EXTRA_CA_CERTS /devel/cacert.pem
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
@@ -15,28 +17,29 @@ RUN apt-get update -y && apt-get install -y \
   --option "Acquire:http::No-Cache=true" \
   --option "Acquire:http::Pipeline-Depth=0" \
   curl \
-  build-essential \
-  ruby \
-  ruby-dev \
   git \
   netbase \
-  zlib1g \
-  zlib1g-dev
+  nodejs \
+  npm \
+  libgtk2.0-0 \
+  libnotify-dev \
+  libgconf-2-4 \
+  libnss3 \
+  libxss1 \
+  libasound2 \
+  xvfb
 
 RUN git config --global http.sslCAinfo /devel/cacert.pem
 
-RUN gem install bundler
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
 
-COPY cosmos.gemspec /cosmos/cosmos.gemspec
-COPY Gemfile /cosmos/Gemfile
-RUN cd /cosmos && bundle install --without=development
-COPY Rakefile /cosmos/Rakefile
-COPY tasks /cosmos/tasks
-COPY ext /cosmos/ext
-RUN cd /cosmos && mkdir lib && cd lib && mkdir cosmos && cd cosmos && mkdir ext
-RUN cd /cosmos && bundle exec rake build
-COPY bin /cosmos/bin
-COPY data /cosmos/data
-COPY lib /cosmos/lib
-
-ENV COSMOS_PATH="/cosmos"
+# production stage
+FROM nginx:stable-alpine as production-stage
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+COPY --from=build-stage /app/default.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

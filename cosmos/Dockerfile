@@ -1,5 +1,4 @@
-# build stage
-FROM ubuntu:20.04 as build-stage
+FROM ubuntu:20.04
 
 # We require a local certificate file so set that up.
 # You must place a valid cert.pem file in your COSMOS development folder for this work
@@ -8,7 +7,6 @@ COPY cacert.pem /devel/cacert.pem
 ENV SSL_CERT_FILE /devel/cacert.pem
 ENV CURL_CA_BUNDLE /devel/cacert.pem
 ENV REQUESTS_CA_BUNDLE /devel/cacert.pem
-ENV NODE_EXTRA_CA_CERTS /devel/cacert.pem
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
@@ -17,29 +15,23 @@ RUN apt-get update -y && apt-get install -y \
   --option "Acquire:http::No-Cache=true" \
   --option "Acquire:http::Pipeline-Depth=0" \
   curl \
+  build-essential \
+  ruby \
+  ruby-dev \
   git \
   netbase \
-  nodejs \
-  npm \
-  libgtk2.0-0 \
-  libnotify-dev \
-  libgconf-2-4 \
-  libnss3 \
-  libxss1 \
-  libasound2 \
-  xvfb
+  zlib1g \
+  zlib1g-dev
 
 RUN git config --global http.sslCAinfo /devel/cacert.pem
 
-WORKDIR /app
-COPY web/frontend/package*.json ./
-RUN npm install
-COPY web/frontend/. .
-RUN npm run build
+RUN ["gem", "install", "bundler"]
 
-# production stage
-FROM nginx:stable-alpine as production-stage
-COPY --from=build-stage /app/dist /usr/share/nginx/html
-COPY --from=build-stage /app/default.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+WORKDIR /cosmos/
+
+COPY . .
+RUN ["bundle", "install", "--quiet"]
+RUN ["mkdir", "-p", "lib/cosmos/ext"]
+RUN ["bundle", "exec", "rake", "build"]
+
+ENV COSMOS_PATH="/cosmos"

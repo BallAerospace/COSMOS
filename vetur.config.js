@@ -11,6 +11,6 @@ module.exports = {
   // **optional** default: `[{ root: './' }]`
   // support monorepos
   projects: [
-    './web/frontend', // shorthand for only root.
+    './frontend', // shorthand for only root.
   ]
 }

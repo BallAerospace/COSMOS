@@ -25,32 +25,29 @@ docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "e
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/defrag"
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "sysctl -w vm.max_map_count=262144"
 
-docker build -f Dockerfile.cosmos_base -t cosmos-base .
+docker build -f cosmos\Dockerfile -t cosmos-base cosmos
 docker push cosmos-base
 docker tag cosmos-base localhost:5000/cosmos-base:latest
 
-cd web\geminabox && docker build -t cosmos-gems .
+docker build -f geminabox\Dockerfile -t cosmos-gems geminabox
 docker tag cosmos-gems localhost:5000/cosmos-gems:latest
 
-cd ..\..
-del web\cmd_tlm_api\Gemfile.lock
-docker build -f Dockerfile.cmd_tlm_api -t cosmos-cmd-tlm-api .
+docker build -f cmd_tlm_api\Dockerfile -t cosmos-cmd-tlm-api cmd_tlm_api
 docker tag cosmos-cmd-tlm-api localhost:5000/cosmos-cmd-tlm-api:latest
 
-del web\script_runner_api\Gemfile.lock
-docker build -f Dockerfile.script_runner_api -t cosmos-script-runner-api .
+docker build -f script_runner_api\Dockerfile -t cosmos-script-runner-api script_runner_api
 docker tag cosmos-script-runner-api localhost:5000/cosmos-script-runner-api:latest
 
-docker build -f Dockerfile.frontend -t cosmos-frontend .
+docker build -f frontend\Dockerfile -t cosmos-frontend frontend
 docker tag cosmos-frontend localhost:5000/cosmos-frontend:latest
 
-docker build -f aggregator/dockerfile -t cosmos-aggregator aggregator
+docker build -f aggregator\Dockerfile -t cosmos-aggregator aggregator
 docker tag cosmos-aggregator localhost:5000/cosmos-aggregator:latest
 
-docker build -f Dockerfile.operator -t cosmos-operator .
+docker build -f operator\Dockerfile -t cosmos-operator operator
 docker tag cosmos-operator localhost:5000/cosmos-operator:latest
 
-docker build -f Dockerfile.init -t cosmos-init .
+docker build -f init\Dockerfile -t cosmos-init init
 docker tag cosmos-init localhost:5000/cosmos-init:latest
 
 REM Push all the images to the local repository

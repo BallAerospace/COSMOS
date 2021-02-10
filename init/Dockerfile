@@ -1,0 +1,11 @@
+FROM cosmos-base
+
+ENV RUBYLIB /cosmos/lib
+
+COPY plugins /cosmos/plugins
+
+WORKDIR /cosmos/plugins/cosmos-demo
+
+RUN ["rake", "build", "VERSION=5.0.0", "--quiet"]
+
+CMD ["ruby", "/cosmos/bin/cosmos", "load", "cosmos-demo-5.0.0.*.gem"]
