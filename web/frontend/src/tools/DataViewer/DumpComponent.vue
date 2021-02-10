@@ -123,7 +123,7 @@ export default {
   data: function () {
     return {
       history: new Array(HISTORY_MAX_SIZE),
-      historyPointer: -1,
+      historyPointer: -1, // index of the newest packet in history
       receivedCount: 0,
       format: 'hex',
       showLineAddress: true,
@@ -144,7 +144,7 @@ export default {
       if (val) {
         this.pausedAt = this.playPosition
       } else {
-        this.playPosition = Math.min(this.receivedCount, HISTORY_MAX_SIZE)
+        this.playPosition = Math.min(this.receivedCount, this.history.length)
       }
     },
   },
@@ -159,8 +159,9 @@ export default {
         const decoded = {
           buffer: atob(packet.buffer),
           time: packet.time,
+          receivedCount: ++this.receivedCount, // TODO: is this the right value for received count? Is it supposed to come from the API?
         }
-        this.historyPointer = ++this.historyPointer % HISTORY_MAX_SIZE
+        this.historyPointer = ++this.historyPointer % this.history.length
         this.history[this.historyPointer] = decoded
 
         const packetText = this.calculatePacketText(decoded)
@@ -172,7 +173,6 @@ export default {
           this.displayText += `\n\n${packetText}`
         }
       })
-      this.receivedCount += data.length
       this.trimDisplayText()
       if (!this.paused) {
         this.playPosition += data.length
@@ -187,7 +187,9 @@ export default {
         )
       } else {
         this.displayText = this.displayText.substring(
-          this.displayText.length - (this.packetSize + 2) * this.packetsToShow + 2
+          this.displayText.length -
+            (this.packetSize + 2) * this.packetsToShow +
+            2
         )
       }
     },
@@ -199,6 +201,15 @@ export default {
         this.textarea.scrollTop =
           this.textarea.scrollHeight + currentScrollOffset
       })
+    },
+    rebuildDisplayText: function () {
+      let packets = this.history
+        .slice(this.historyPointer + 1)
+        .concat(this.history.slice(0, this.historyPointer + 1))
+        .filter((packet) => packet !== undefined)
+        .slice(-this.packetsToShow)
+      if (this.newestAtTop) packets = packets.reverse()
+      this.displayText = packets.map(this.calculatePacketText).join('\n\n')
     },
     calculatePacketText: function (packet) {
       // Split its buffer into lines of the selected length
@@ -228,10 +239,13 @@ export default {
         .join('\n') // end of one line
       if (this.showTimestamp) {
         const milliseconds = packet.time / 1000000
+        const receivedSeconds = (milliseconds / 1000).toFixed(7)
+        const receivedDate = new Date(milliseconds).toISOString()
+        const receivedCt = packet.receivedCount.toString().padEnd(20, ' ') // Padding fixes issue where opening asterisks would get deleted by trimDisplayText
         let timestamp = '********************************************\n'
-        timestamp += `* Received seconds: ${(milliseconds / 1000).toFixed(7)}\n`
-        timestamp += `* Received time: ${new Date(milliseconds).toISOString()}\n`
-        timestamp += `* Received count: ${this.receivedCount}\n` // TODO: is this right?
+        timestamp += `* Received seconds: ${receivedSeconds}\n`
+        timestamp += `* Received time: ${receivedDate}\n`
+        timestamp += `* Received count: ${receivedCt}\n`
         timestamp += '********************************************\n'
         text = `${timestamp}${text}`
       }
@@ -239,8 +253,11 @@ export default {
       return text
     },
     validatePacketsToShow: function () {
-      if (this.packetsToShow > HISTORY_MAX_SIZE) this.packetsToShow = HISTORY_MAX_SIZE
-      else if (this.packetsToShow < 1) this.packetsToShow = 1
+      if (this.packetsToShow > this.history.length) {
+        this.packetsToShow = this.history.length
+      } else if (this.packetsToShow < 1) {
+        this.packetsToShow = 1
+      }
     },
     pause: function () {
       this.paused = true
@@ -261,7 +278,7 @@ export default {
     historyMax: function () {
       return this.paused
         ? this.pausedAt
-        : Math.min(this.receivedCount, HISTORY_MAX_SIZE)
+        : Math.min(this.receivedCount, this.history.length)
     },
     latestPacket: function () {
       if (this.historyPointer < 0) return null
