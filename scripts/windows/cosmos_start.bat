@@ -29,10 +29,9 @@ docker network create cosmos
 
 docker build -f cosmos/Dockerfile -t cosmos-base cosmos
 
-cd web\geminabox && docker build -t cosmos-gems .
-cd ..\..
 docker volume create cosmos-gems-v
 docker container rm cosmos-gems
+docker build -f geminabox\Dockerfile -t cosmos-gems geminabox
 docker run --network cosmos -p 127.0.0.1:9292:9292 -d --name cosmos-gems -v cosmos-gems-v:/data cosmos-gems
 
 docker volume create cosmos-elasticsearch-v
@@ -77,12 +76,10 @@ docker build -f aggregator/Dockerfile -t cosmos-aggregator aggregator
 docker run --network cosmos -p 127.0.0.1:3113:3113 -d --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=aggregator.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true --name cosmos-aggregator cosmos-aggregator
 
 docker container rm cosmos-cmd-tlm-api
-del web\cmd_tlm_api\Gemfile.lock
 docker build -f cmd_tlm_api\Dockerfile -t cosmos-cmd-tlm-api cmd_tlm_api
 docker run --network cosmos -p 127.0.0.1:7777:7777 -d --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=cmd_tlm_api.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true --name cosmos-cmd-tlm-api cosmos-cmd-tlm-api
 
 docker container rm cosmos-script-runner-api
-del web\script_runner_api\Gemfile.lock
 docker build -f script_runner_api\Dockerfile -t cosmos-script-runner-api script_runner_api
 docker run --network cosmos -p 127.0.0.1:3001:3001 -d --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=script_runner_api.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true --name cosmos-script-runner-api cosmos-script-runner-api
 

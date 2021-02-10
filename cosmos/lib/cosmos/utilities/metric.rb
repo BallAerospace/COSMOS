@@ -125,6 +125,10 @@ module Cosmos
       end
     end
 
+    def destroy
+      MetricModel.destroy(scope: @scope, name: @microservice)
+    end
+
   end
 
 end

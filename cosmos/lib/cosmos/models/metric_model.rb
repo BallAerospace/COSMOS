@@ -37,6 +37,10 @@ module Cosmos
       super("#{scope}#{PRIMARY_KEY}")
     end
 
+    def self.destroy(scope:, name:)
+      Store.hdel("#{scope}#{PRIMARY_KEY}", @name)
+    end
+
     def initialize(name:, scope:, metric_name:, label_list:)
       super("#{scope}#{PRIMARY_KEY}", name: name, scope: scope)
       @metric_name = metric_name

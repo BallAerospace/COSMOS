@@ -24,6 +24,8 @@ module Cosmos
 
   class DecomLogMicroservice < Microservice
 
+    METRIC_NAME = "decom_log_duration_seconds"
+
     def run
       plws = setup_plws
       while true
@@ -53,7 +55,6 @@ module Cosmos
     end
 
     def decom_log_data(plws, topic, msg_id, msg_hash, redis)
-      decom_log_metric_name = "decom_log_duration_seconds"
       begin
         start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         topic_split = topic.split("__")
@@ -64,7 +65,7 @@ module Cosmos
         @count += 1
         diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
         metric_labels = {"packet" => packet_name, "target" => target_name}
-        @metric.add_sample(name: decom_log_metric_name, value: diff, labels: metric_labels)
+        @metric.add_sample(name: METRIC_NAME, value: diff, labels: metric_labels)
       rescue => err
         @error = err
         Logger.error("DecomLog error: #{err.formatted}")

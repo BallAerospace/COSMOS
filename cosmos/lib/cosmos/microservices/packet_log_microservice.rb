@@ -24,6 +24,8 @@ module Cosmos
 
   class PacketLogMicroservice < Microservice
 
+    METRIC_NAME = "packet_log_duration_seconds"
+
     def run
       plws = setup_plws
       while true
@@ -49,7 +51,6 @@ module Cosmos
     end
 
     def packet_log_data(plws, topic, msg_id, msg_hash, redis)
-      packet_log_metric_name = "packet_log_duration_seconds"
       begin
         start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         topic_split = topic.split("__")
@@ -59,7 +60,7 @@ module Cosmos
         @count += 1
         diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
         metric_labels = {"packet" => packet_name, "target" => target_name}
-        @metric.add_sample(name: packet_log_metric_name, value: diff, labels: metric_labels)
+        @metric.add_sample(name: METRIC_NAME, value: diff, labels: metric_labels)
       rescue => err
         @error = err
         Logger.error("PacketLog error: #{err.formatted}")

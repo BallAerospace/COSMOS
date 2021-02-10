@@ -25,6 +25,9 @@ module Cosmos
 
   class DecomMicroservice < Microservice
 
+    DECOM_METRIC_NAME = "decom_packet_duration_seconds"
+    LIMIT_METRIC_NAME = "limits_change_callback_duration_seconds"
+
     def initialize(*args)
       super(*args)
       System.telemetry.limits_change_callback = method(:limits_change_callback)
@@ -46,8 +49,6 @@ module Cosmos
       end
     end
 
-    decom_packet_metric_name = "decom_packet_duration_seconds"
-
     def decom_packet(topic, msg_id, msg_hash, redis)
       start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       target_name = msg_hash["target_name"]
@@ -63,7 +64,7 @@ module Cosmos
       TelemetryDecomTopic.write_packet(packet, scope: @scope)
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
       metric_labels = {"packet" => packet_name, "target" => target_name}
-      @metric.add_sample(name: decom_packet_metric_name, value: diff, labels: metric_labels)
+      @metric.add_sample(name: DECOM_METRIC_NAME, value: diff, labels: metric_labels)
     end
 
     # Called when an item in any packet changes limits states.
@@ -112,9 +113,8 @@ module Cosmos
       end
 
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
-      metric_name = "#{self.__method__.to_s}_duration_seconds".downcase
       labels = {"packet" => packet.packet_name, "target" => packet.target_name}
-      @metric.add_sample(metric_name, diff, labels)
+      @metric.add_sample(name: LIMIT_METRIC_NAME, value: diff, labels: labels)
     end
 
   end
