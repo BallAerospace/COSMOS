@@ -161,6 +161,9 @@ export default {
         this.playPosition = Math.min(this.receivedCount, this.history.length)
       }
     },
+    allSettings: _.debounce(function () {
+      this.rebuildDisplayText()
+    }, 300),
   },
   mounted: function () {
     this.textarea = this.$refs.textarea.$el.querySelectorAll('textarea')[0]
@@ -309,6 +312,11 @@ export default {
     latestPacket: function () {
       if (this.historyPointer < 0) return null
       return this.history[this.historyPointer]
+    },
+    allSettings: function () {
+      // This watches all the settings that change the output text, to trigger the watch above
+      // There's a better solution to this in Vue 3 v3.vuejs.org/api/computed-watch-api.html#watching-multiple-sources
+      return `${this.format}|${this.showLineAddress}|${this.showTimestamp}|${this.bytesPerLine}|${this.packetsToShow}|${this.newestAtTop}|${this.filterText}`
     },
   },
 }
