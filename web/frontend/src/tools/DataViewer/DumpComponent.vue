@@ -84,20 +84,20 @@
         ></v-text-field>
       </v-col>
     </v-row>
-    <!-- <v-row>
+    <v-row>
       <v-col>
         <v-slider
-          v-model="playPosition"
+          v-model="pauseOffset"
           v-on:mousedown="pause"
           @click:prepend="stepBackward"
           @click:append="stepForward"
           prepend-icon="mdi-step-backward"
           append-icon="mdi-step-forward"
-          :min="0"
-          :max="historyMax"
+          :min="1 - history.length"
+          :max="0"
         />
       </v-col>
-    </v-row> -->
+    </v-row>
     <v-row>
       <v-col class="pl-0 pr-0">
         <div class="text-area-container">
@@ -119,7 +119,7 @@
             >
               <v-icon>mdi-file-download</v-icon>
             </v-btn>
-            <!-- <v-btn
+            <v-btn
               class="ml-2"
               :class="{ pulse: paused }"
               v-on:click="togglePlayPause"
@@ -128,7 +128,7 @@
             >
               <v-icon large v-if="paused">mdi-play</v-icon>
               <v-icon large v-else>mdi-pause</v-icon>
-            </v-btn> -->
+            </v-btn>
           </div>
         </div>
       </v-col>
@@ -161,7 +161,8 @@ export default {
       filterText: '',
       paused: false,
       pausedAt: 0,
-      playPosition: 0,
+      pauseOffset: 0,
+      pausedHistory: [],
       textarea: null,
       displayText: null,
       packetSize: 0,
@@ -170,12 +171,17 @@ export default {
   watch: {
     paused: function (val) {
       if (val) {
-        this.pausedAt = this.playPosition
+        this.pausedAt = this.historyPointer
+        this.pausedHistory = this.history.slice()
       } else {
-        this.playPosition = Math.min(this.receivedCount, this.history.length)
+        this.pauseOffset = 0
+        this.rebuildDisplayText()
       }
     },
-    allSettings: _.debounce(function () {
+    allInstantSettings: function () {
+      this.rebuildDisplayText()
+    },
+    allDebouncedSettings: _.debounce(function () {
       this.rebuildDisplayText()
     }, 300),
   },
@@ -194,25 +200,26 @@ export default {
         }
         this.historyPointer = ++this.historyPointer % this.history.length
         this.history[this.historyPointer] = decoded
-
-        const packetText = this.calculatePacketText(decoded)
-        if (this.matchesSearch(packetText)) {
-          if (!this.displayText) {
-            this.displayText = packetText
-          } else if (this.newestAtTop) {
-            this.displayText = `${packetText}\n\n${this.displayText}`
-          } else {
-            this.displayText += `\n\n${packetText}`
+        if (!this.paused) {
+          const packetText = this.calculatePacketText(decoded)
+          if (this.matchesSearch(packetText)) {
+            if (!this.displayText) {
+              this.displayText = packetText
+            } else if (this.newestAtTop) {
+              this.displayText = `${packetText}\n\n${this.displayText}`
+            } else {
+              this.displayText += `\n\n${packetText}`
+            }
           }
         }
       })
       this.trimDisplayText()
-      if (!this.paused) {
-        this.playPosition += data.length
-        !this.newestAtTop && this.updateScrollPosition()
+      if (!this.paused && !this.newestAtTop) {
+        this.updateScrollPosition()
       }
     },
     trimDisplayText: function () {
+      // Could make this more robust by counting lines instead, but that's slower
       if (this.newestAtTop) {
         this.displayText = this.displayText.substring(
           0,
@@ -236,15 +243,29 @@ export default {
       })
     },
     rebuildDisplayText: function () {
-      const packetsSinceRollover = this.history.slice(
-        0,
-        this.historyPointer + 1
-      )
-      let packets = this.history
-        .slice(this.historyPointer + 1)
-        .concat(packetsSinceRollover)
-        .filter((packet) => packet !== undefined)
-        .slice(-this.packetsToShow)
+      let pausedPlusOffset = this.pausedAt + this.pauseOffset
+      if (pausedPlusOffset < 0) {
+        if (this.pausedHistory[this.pausedHistory.length - 1]) {
+          pausedPlusOffset += this.pausedHistory.length
+        } else {
+          pausedPlusOffset = 0
+        }
+      }
+      const firstSlice = this.paused ? this.pausedAt : this.historyPointer
+      const secondSlice = this.paused ? pausedPlusOffset : this.historyPointer
+      const thirdSlice = this.paused
+        ? Math.min(
+            this.packetsToShow,
+            this.pausedHistory.length + this.pauseOffset
+          )
+        : this.packetsToShow
+
+      let packets = this.paused ? this.pausedHistory : this.history
+      packets = packets
+        .slice(firstSlice + 1)
+        .concat(packets.slice(0, secondSlice + 1))
+        .filter((packet) => packet)
+        .slice(-thirdSlice)
       if (this.newestAtTop) packets = packets.reverse()
       this.displayText = packets
         .map(this.calculatePacketText)
@@ -330,27 +351,26 @@ export default {
     },
     stepBackward: function () {
       this.pause()
-      this.playPosition--
+      this.pauseOffset--
     },
     stepForward: function () {
       this.pause()
-      this.playPosition++
+      this.pauseOffset++
     },
   },
   computed: {
-    historyMax: function () {
-      return this.paused
-        ? this.pausedAt
-        : Math.min(this.receivedCount, this.history.length)
-    },
     latestPacket: function () {
       if (this.historyPointer < 0) return null
       return this.history[this.historyPointer]
     },
-    allSettings: function () {
-      // This watches all the settings that change the output text, to trigger the watch above
-      // There's a better solution to this in Vue 3 v3.vuejs.org/api/computed-watch-api.html#watching-multiple-sources
-      return `${this.format}|${this.showLineAddress}|${this.showTimestamp}|${this.bytesPerLine}|${this.packetsToShow}|${this.newestAtTop}|${this.filterText}`
+
+    // These are just here to trigger their respective watch functions above
+    // There's a better solution to this in Vue 3 v3.vuejs.org/api/computed-watch-api.html#watching-multiple-sources
+    allInstantSettings: function () {
+      return `${this.format}|${this.showLineAddress}|${this.showTimestamp}|${this.newestAtTop}|${this.pauseOffset}`
+    },
+    allDebouncedSettings: function () {
+      return `${this.bytesPerLine}|${this.packetsToShow}|${this.filterText}`
     },
   },
 }
@@ -368,11 +388,11 @@ export default {
     position: absolute;
     top: 12px;
     right: 24px;
-
-    &.pulse {
-      animation: pulse 1s infinite;
-    }
   }
+}
+
+.pulse {
+  animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
