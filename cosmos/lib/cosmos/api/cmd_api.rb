@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/models/target_model'
+require 'cosmos/topics/command_topic'
 
 module Cosmos
   module Api
