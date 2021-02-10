@@ -109,16 +109,27 @@
             solo
             flat
           />
-          <!-- <v-btn
-            class="play-control"
-            :class="{ pulse: paused }"
-            v-on:click="togglePlayPause"
-            color="primary"
-            fab
-          >
-            <v-icon large v-if="paused">mdi-play</v-icon>
-            <v-icon large v-else>mdi-pause</v-icon>
-          </v-btn> -->
+          <div class="floating-buttons">
+            <v-btn
+              class="ml-2"
+              v-on:click="download"
+              color="secondary"
+              fab
+              small
+            >
+              <v-icon>mdi-file-download</v-icon>
+            </v-btn>
+            <!-- <v-btn
+              class="ml-2"
+              :class="{ pulse: paused }"
+              v-on:click="togglePlayPause"
+              color="primary"
+              fab
+            >
+              <v-icon large v-if="paused">mdi-play</v-icon>
+              <v-icon large v-else>mdi-pause</v-icon>
+            </v-btn> -->
+          </div>
         </div>
       </v-col>
     </v-row>
@@ -127,6 +138,7 @@
 
 <script>
 import _ from 'lodash'
+import { format } from 'date-fns'
 import PacketSummaryComponent from './PacketSummaryComponent'
 
 const HISTORY_MAX_SIZE = 100
@@ -295,6 +307,21 @@ export default {
         this.packetsToShow = 1
       }
     },
+    download: function () {
+      const blob = new Blob([this.displayText], {
+        type: 'text/plain',
+      })
+      // Make a link and then 'click' on it to start the download
+      const link = document.createElement('a')
+      let url = URL.createObjectURL(blob)
+      link.href = url
+      link.setAttribute(
+        'download',
+        `${format(new Date(), 'yyyy_MM_dd_HH_mm_ss')}.txt`
+      )
+      link.click()
+      window.URL.revokeObjectURL(url)
+    },
     pause: function () {
       this.paused = true
     },
@@ -337,7 +364,7 @@ export default {
     font-family: 'Courier New', Courier, monospace;
   }
 
-  .play-control {
+  .floating-buttons {
     position: absolute;
     top: 12px;
     right: 24px;
