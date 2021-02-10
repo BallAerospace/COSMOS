@@ -47,6 +47,8 @@
           v-model="bytesPerLine"
           label="Bytes per line"
           type="number"
+          min="1"
+          v-on:change="validateBytesPerLine"
         ></v-text-field>
       </v-col>
       <v-col>
@@ -107,7 +109,7 @@
             solo
             flat
           />
-          <v-btn
+          <!-- <v-btn
             class="play-control"
             :class="{ pulse: paused }"
             v-on:click="togglePlayPause"
@@ -116,7 +118,7 @@
           >
             <v-icon large v-if="paused">mdi-play</v-icon>
             <v-icon large v-else>mdi-pause</v-icon>
-          </v-btn>
+          </v-btn> -->
         </div>
       </v-col>
     </v-row>
@@ -242,7 +244,7 @@ export default {
     },
     calculatePacketText: function (packet) {
       // Split its buffer into lines of the selected length
-      let text = _.chunk(packet.buffer.split(''), this.bytesPerLine)
+      let text = _.chunk([...packet.buffer], this.bytesPerLine)
         .map((lineBytes, index) => {
           // Map each line into ASCII or hex values
           let mappedBytes = []
@@ -278,8 +280,13 @@ export default {
         timestamp += '********************************************\n'
         text = `${timestamp}${text}`
       }
-      this.packetSize = this.packetSize || text.length
+      this.packetSize = text.length // Set this every time in case it changes with rebuildDisplayText
       return text
+    },
+    validateBytesPerLine: function () {
+      if (this.bytesPerLine < 1) {
+        this.bytesPerLine = 1
+      }
     },
     validatePacketsToShow: function () {
       if (this.packetsToShow > this.history.length) {
