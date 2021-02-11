@@ -25,6 +25,10 @@ if "%1" == "setup" (
   GOTO setup
 )
 
+if "%1" == "start_dev" (
+  GOTO start_dev
+)
+
 GOTO usage
 
 :setup
@@ -61,7 +65,21 @@ GOTO :EOF
   @echo off
 GOTO :EOF
 
+:start_dev
+  CALL scripts/windows/cosmos_setup
+  @echo off
+  CALL scripts/windows/cosmos_start
+  @echo off
+GOTO :EOF
+
 :usage
-  @echo Usage: %0 [start, stop, build, cleanup, deploy, setup] 1>&2
+  @echo Usage: %0 [start, stop, build, cleanup, deploy, setup, start_dev] 1>&2
+  @echo *  start: run the minimal docker containers for cosmos 1>&2
+  @echo *  stop: stop the running docker containers for cosmos 1>&2
+  @echo *  build: build the containers for cosmos 1>&2
+  @echo *  cleanup: cleanup network and volumes for cosmos 1>&2
+  @echo *  deploy: deploy the containers to localhost repository 1>&2
+  @echo *  setup: setup containers to build and run 1>&2
+  @echo *  start_dev: run all docker containers for cosmos 1>&2
 
 @echo on

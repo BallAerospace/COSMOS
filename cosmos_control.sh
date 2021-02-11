@@ -1,14 +1,29 @@
 #!/usr/bin/env bash
 
-if [ $# -ne 1 ]; then
-  echo "Usage: $0 [start, stop, build, cleanup, deploy, setup]" >&2
+usage() {
+  echo "Usage: $0 [start, stop, build, cleanup, deploy, setup, start_dev]" >&2
+  echo "*  start: start the minimal docker run for cosmos" >&2
+  echo "*  stop: stop the running dockers for cosmos" >&2
+  echo "*  build: build the containers for cosmos" >&2
+  echo "*  cleanup: cleanup network and volumes for cosmos" >&2
+  echo "*  deploy: deploy the containers to localhost repository" >&2
+  echo "*  setup: setup containers to build and run" >&2
+  echo "*  start_dev: start all dockers for cosmos" >&2
   exit 1
+}
+
+if [ $# -ne 1 ]; then
+  usage
 fi
 
 case $1 in
 start)
   scripts/linux/cosmos_setup.sh
   scripts/linux/cosmos_minimal_start.sh
+  ;;
+start_dev)
+  scripts/linux/cosmos_setup.sh
+  scripts/linux/cosmos_start.sh
   ;;
 stop)
   scripts/linux/cosmos_stop.sh
@@ -27,7 +42,6 @@ setup)
   scripts/linux/cosmos_setup.sh
   ;;
 *)
-  echo "Usage: $0 [start, stop, build, cleanup, deploy, setup]" >&2
-  exit 1
+  usage
   ;;
 esac
