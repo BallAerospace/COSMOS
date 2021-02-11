@@ -296,16 +296,16 @@ module Cosmos
       end
 
       it "complains about non-existant items" do
-        expect { @api.inject_tlm("INST", "HEALTH_STATUS",{'BLAH' => 0}) }.to raise_error("Item(s) 'INST HEALTH_STATUS BLAH' does not exist")
+        expect { @api.inject_tlm("INST", "HEALTH_STATUS",{ 'BLAH' => 0 }) }.to raise_error("Item(s) 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
       it "injects a packet into the system" do
-        @api.inject_tlm("INST", "HEALTH_STATUS",{TEMP1: 10, TEMP2: 20}, :CONVERTED, true, true, false)
+        @api.inject_tlm("INST", "HEALTH_STATUS",{ TEMP1: 10, TEMP2: 20 }, :CONVERTED, true, true, false)
         sleep 0.5
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to be_within(0.1).of(20.0)
 
-        @api.inject_tlm("INST", "HEALTH_STATUS",{TEMP1: 0, TEMP2: 0}, :RAW, true, true, false)
+        @api.inject_tlm("INST", "HEALTH_STATUS",{ TEMP1: 0, TEMP2: 0 }, :RAW, true, true, false)
         sleep 0.5
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(-100.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql(-100.0)

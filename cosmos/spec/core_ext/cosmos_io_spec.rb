@@ -25,7 +25,6 @@ class StringIO
 end
 
 describe StringIO do
-
   describe "read_length_bytes" do
     it "returns nil if length field is not 1, 2 or 4" do
       io = StringIO.new

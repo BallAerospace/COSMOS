@@ -21,7 +21,7 @@ require 'cosmos'
 require 'thread'
 require 'socket'
 require 'json'
-#require 'drb/acl'
+# require 'drb/acl'
 require 'drb/drb'
 require 'cosmos/io/json_drb'
 require 'uri'
@@ -48,11 +48,11 @@ module Cosmos
     #   the JSON service
     # @param port [Integer] The port number of the JSON service
     def initialize(hostname, port, connect_timeout = 1.0)
-      hostname = '127.0.0.1' if (hostname.to_s.upcase == 'LOCALHOST')
+      hostname = '127.0.0.1' if hostname.to_s.upcase == 'LOCALHOST'
       begin
         Socket.pack_sockaddr_in(port, hostname)
       rescue => error
-        if error.message =~ /getaddrinfo/
+        if /getaddrinfo/.match?(error.message)
           raise "Invalid hostname: #{hostname}"
         else
           raise error
@@ -111,7 +111,6 @@ module Cosmos
     end
 
     private
-
     def connect
       if @request_in_progress
         disconnect()
@@ -137,7 +136,7 @@ module Cosmos
         STDOUT.puts "\nRequest:\n" if JsonDRb.debug?
         STDOUT.puts @request_data if JsonDRb.debug?
         @request_in_progress = true
-        headers = {'Content-Type' => 'application/json-rpc'}
+        headers = { 'Content-Type' => 'application/json-rpc' }
         res = @http.post(@uri,
                          :body   => @request_data,
                          :header => headers)

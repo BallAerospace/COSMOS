@@ -32,10 +32,8 @@ class Socket
   # @return [String] The hostname of the given IP address or 'UNKNOWN' if the
   #   lookup fails
   def self.lookup_hostname_from_ip(ip_address)
-    begin
-      return Resolv.getname(ip_address)
-    rescue
-      return 'UNKNOWN'
-    end
+    return Resolv.getname(ip_address)
+  rescue
+    return 'UNKNOWN'
   end
 end

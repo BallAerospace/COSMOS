@@ -50,7 +50,7 @@ module Cosmos
 
     describe "remove_comments" do
       it "removes comments" do
-text = <<DOC
+        text = <<DOC
 # This is a comment
 blah = 5 # Inline comment
 # Another
@@ -61,7 +61,7 @@ DOC
 
     describe "each_lexed_segment" do
       it "yields each segment" do
-text = <<DOC
+        text = <<DOC
 begin
   x = 0
 end
@@ -73,7 +73,7 @@ DOC
       end
 
       it "handles multiple begins" do
-text = <<DOC
+        text = <<DOC
 z = 5
 begin
   a = 0
@@ -97,7 +97,7 @@ DOC
       end
 
       it "handles multiline segments" do
-text = <<DOC
+        text = <<DOC
 a = [10,
 11,
 12,
@@ -109,7 +109,7 @@ DOC
       end
 
       it "handles complex hash segments" do
-text = <<DOC
+        text = <<DOC
 { :X1 => 1,
   :X2 => 2
 }.each {|x, y| puts x}
@@ -120,7 +120,7 @@ DOC
       end
 
       it "yields each segment" do
-text = <<DOC
+        text = <<DOC
 
 if x
 y

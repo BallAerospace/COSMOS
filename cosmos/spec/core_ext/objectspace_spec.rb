@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/core_ext/objectspace'
 
 describe ObjectSpace do
-
   if RUBY_ENGINE == 'ruby'
     describe "find" do
       it "finds a class in the Ruby object space" do
@@ -37,5 +36,4 @@ describe ObjectSpace do
       end
     end
   end
-
 end

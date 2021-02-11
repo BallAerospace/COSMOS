@@ -21,7 +21,6 @@ module Cosmos
 
   module Script
     private
-
     #######################################
     # Methods accessing script runner
     #######################################

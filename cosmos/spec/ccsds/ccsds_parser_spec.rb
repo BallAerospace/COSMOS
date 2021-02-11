@@ -150,7 +150,6 @@ module Cosmos
         expect(@parser.unsegment_packet(pkt1)).to eql nil
         expect { @parser.unsegment_packet(pkt2) }.to raise_error(CcsdsParser::CcsdsSegmentationError, "Unexpected standalone packet")
       end
-
     end
   end
 end

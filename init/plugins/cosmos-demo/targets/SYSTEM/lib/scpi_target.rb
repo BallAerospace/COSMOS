@@ -38,7 +38,6 @@ module Cosmos
       end
 
       protected
-
       def handle_packet(packet)
         Logger.info "Received command: #{packet.buffer}"
         if packet.buffer.include?('?')

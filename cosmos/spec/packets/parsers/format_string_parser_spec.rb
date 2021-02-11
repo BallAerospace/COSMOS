@@ -66,7 +66,7 @@ module Cosmos
         tf.puts '  ITEM item1 0 8 INT'
         tf.puts '    FORMAT_STRING "%*s"'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid FORMAT_STRING specified for type INT: \%\*s/)
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid FORMAT_STRING specified for type INT: %\*s/)
         tf.unlink
 
         tf = Tempfile.new('unittest')
@@ -74,7 +74,7 @@ module Cosmos
         tf.puts '  ITEM item1 0 8 STRING'
         tf.puts '    FORMAT_STRING "%d"'
         tf.close
-        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid FORMAT_STRING specified for type STRING: \%d/)
+        expect { @pc.process_file(tf.path, "TGT1") }.to raise_error(ConfigParser::Error, /Invalid FORMAT_STRING specified for type STRING: %d/)
         tf.unlink
       end
 

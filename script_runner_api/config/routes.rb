@@ -1,11 +1,11 @@
 Rails.application.routes.draw do
   get  "/scripts" => "scripts#index"
   post "/scripts/syntax" => "scripts#syntax"
-  get  "/scripts/*name" => "scripts#body", format: false, defaults: {format: 'html'}
-  post "/scripts/*name/run(/:disconnect)" => "scripts#run", format: false, defaults: {format: 'html'}
-  post "/scripts/*name/delete" => "scripts#destroy", format: false, defaults: {format: 'html'}
+  get  "/scripts/*name" => "scripts#body", format: false, defaults: { format: 'html' }
+  post "/scripts/*name/run(/:disconnect)" => "scripts#run", format: false, defaults: { format: 'html' }
+  post "/scripts/*name/delete" => "scripts#destroy", format: false, defaults: { format: 'html' }
   # Must be last so /run and /delete will match first
-  post "/scripts/*name" => "scripts#create", format: false, defaults: {format: 'html'}
+  post "/scripts/*name" => "scripts#create", format: false, defaults: { format: 'html' }
 
   get  "/running-script" => "running_script#index"
   get  "/running-script/:id" => "running_script#show"

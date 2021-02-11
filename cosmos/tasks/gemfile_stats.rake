@@ -60,7 +60,7 @@ task :gemfile_stats do
   index = 0
   start_date = gem_data[0][0]
   end_date = gem_data[-1][0]
-  while (start_date <= end_date)
+  while start_date <= end_date
     labels[index] = start_date.strftime("%m/%y")
     index += 1
     start_date = start_date >> 1
@@ -88,7 +88,7 @@ task :gemfile_stats do
   # Force the date column to be text
   sheet.Columns(1).NumberFormat = "\@"
   labels.values.each_with_index do |val, x|
-    sheet.Cells((x+2), 1).Value = val
+    sheet.Cells((x + 2), 1).Value = val
   end
 
   col = 2
@@ -97,7 +97,7 @@ task :gemfile_stats do
     sheet.Cells(1, col).Value = version
     # The download values by date appear below the version in the same column
     data.each_with_index do |val, x|
-      sheet.Cells((x+2), col).Value = val
+      sheet.Cells((x + 2), col).Value = val
     end
     col += 1
   end
@@ -105,7 +105,7 @@ task :gemfile_stats do
   letters = ('A'..'Z').to_a.concat(('AA'..'AZ').to_a).concat(('BA'..'BZ').to_a).concat(('CA'..'CZ').to_a)
   chart = book.Charts.Add
   chart.Name = "COSMOS Downloads"
-  chart.SetSourceData(sheet.Range("A1:#{letters[dataset.length]}#{labels.length+1}"))
+  chart.SetSourceData(sheet.Range("A1:#{letters[dataset.length]}#{labels.length + 1}"))
   chart.HasTitle = true
   chart.ChartTitle.Characters.Text = "COSMOS Downloads"
   chart.ChartType = 76 # AreaStacked

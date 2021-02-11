@@ -49,7 +49,7 @@ module Cosmos
       # Configuration Settings
       @handshake_enabled = ConfigParser.handle_true_false(handshake_enabled)
       @handshake_enableds = nil
-      @response_timeout  = response_timeout.to_f
+      @response_timeout = response_timeout.to_f
       @length_value_offset = Integer(length_value_offset)
       @fieldname_guid = ConfigParser.handle_nil(fieldname_guid)
       @fieldname_cmd_length = ConfigParser.handle_nil(fieldname_cmd_length)

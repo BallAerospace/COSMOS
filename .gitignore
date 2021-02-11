@@ -10,6 +10,7 @@ desktop.ini
 cert.pem
 cacert.pem
 .idea
+.rubocop-http*
 cosmos/spec/install/outputs
 cosmos/spec/examples.txt
 coverage/

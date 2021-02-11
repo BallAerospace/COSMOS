@@ -142,7 +142,6 @@ module Cosmos
     end
 
     protected
-
     def first_pending_packet
       packet = nil
       unless @pending_packets.empty?

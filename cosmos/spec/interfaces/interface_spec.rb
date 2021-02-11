@@ -510,6 +510,5 @@ module Cosmos
         expect(i2.protocol_info).to eql [[Protocol, [], :READ_WRITE]]
       end
     end
-
   end
 end

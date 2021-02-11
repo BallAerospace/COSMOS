@@ -20,8 +20,8 @@
 # A sample Guardfile
 # More info at https://github.com/guard/guard#readme
 
-ignore /~$/
-ignore /^(?:.*[\\\/])?\.[^\\\/]+\.sw[p-z]$/
+ignore(/~$/)
+ignore(/^(?:.*[\\\/])?\.[^\\\/]+\.sw[p-z]$/)
 
 guard :bundler do
   watch('Gemfile')

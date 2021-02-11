@@ -248,7 +248,7 @@ module Cosmos
       raise "Item '#{target_name} #{packet_name} #{item_name}' does not exist" unless found_item
       TargetModel.set_packet(target_name, packet_name, packet, scope: scope)
 
-      event = {type: :LIMITS_SETTINGS, target_name: target_name, packet_name: packet_name,
+      event = { type: :LIMITS_SETTINGS, target_name: target_name, packet_name: packet_name,
         item_name: item_name, red_low: red_low, yellow_low: yellow_low, yellow_high: yellow_high, red_high: red_high,
         green_low: green_low, green_high: green_high, limits_set: limits_set, persistence: persistence, enabled: enabled }
       LimitsEventTopic.write(event, scope: scope)
@@ -332,7 +332,7 @@ module Cosmos
       last_packet_name = nil
       packet = nil
       group.sort.each do |target_name, packet_name, item_name|
-        if (last_target_name != target_name || last_packet_name != packet_name)
+        if last_target_name != target_name || last_packet_name != packet_name
           if last_target_name && last_packet_name
             TargetModel.set_packet(last_target_name, last_packet_name, packet, scope: scope)
           end

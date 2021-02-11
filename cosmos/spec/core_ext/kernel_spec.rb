@@ -21,11 +21,10 @@ require 'spec_helper'
 require 'cosmos/core_ext/kernel'
 
 describe Kernel do
-
   describe "is_windows?" do
     it "returns true if running on Windows" do
       # Check for a letter drive to determine Windows
-      if $:[0] =~ /[a-zA-Z]:/
+      if /[a-zA-Z]:/.match?($:[0])
         expect(is_windows?).to be true
       else
         expect(is_windows?).to be false
@@ -36,10 +35,10 @@ describe Kernel do
   describe "is_mac?" do
     it "returns true if running on Mac OS X" do
       # Check for a letter drive to determine Windows
-      if $:[0] =~ /[a-zA-Z]:/
+      if /[a-zA-Z]:/.match?($:[0])
         expect(is_mac?).to be false
       else
-        if RUBY_PLATFORM =~/darwin/
+        if RUBY_PLATFORM.match?(/darwin/)
           expect(is_mac?).to be true
         else
           expect(is_mac?).to be false

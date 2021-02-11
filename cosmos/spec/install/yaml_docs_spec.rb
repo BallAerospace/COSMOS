@@ -104,7 +104,7 @@ module Cosmos
       @src_keywords.uniq!
       @src_keywords -= (DEPRECATED + EXCEPTIONS)
 
-      #puts "Total source keywords: #{@src_keywords.length}"
+      # puts "Total source keywords: #{@src_keywords.length}"
       expect(@src_keywords.length > 100) # Sanity check
     end
 
@@ -129,7 +129,7 @@ module Cosmos
         meta = Cosmos::MetaConfigParser.load(filename)
         process_meta(@yaml_keywords, meta)
       end
-      #puts "Total yaml keywords: #{@yaml_keywords.length}"
+      # puts "Total yaml keywords: #{@yaml_keywords.length}"
       expect(@yaml_keywords.length > 100) # Sanity check
     end
 

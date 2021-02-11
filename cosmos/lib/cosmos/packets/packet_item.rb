@@ -111,7 +111,7 @@ module Cosmos
     def format_string=(format_string)
       if format_string
         raise ArgumentError, "#{@name}: format_string must be a String but is a #{format_string.class}" unless String === format_string
-        raise ArgumentError, "#{@name}: format_string invalid '#{format_string}'" unless format_string =~ /%.*(b|B|d|i|o|u|x|X|e|E|f|g|G|a|A|c|p|s|%)/
+        raise ArgumentError, "#{@name}: format_string invalid '#{format_string}'" unless /%.*(b|B|d|i|o|u|x|X|e|E|f|g|G|a|A|c|p|s|%)/.match?(format_string)
         @format_string = format_string.clone.freeze
       else
         @format_string = nil
@@ -362,7 +362,7 @@ module Cosmos
           config << parameter_config()
         end
       end
-      config << " #{self.endianness}" if (self.endianness != default_endianness && self.data_type != :STRING && self.data_type != :BLOCK)
+      config << " #{self.endianness}" if self.endianness != default_endianness && self.data_type != :STRING && self.data_type != :BLOCK
       config << "\n"
 
       config << "    REQUIRED\n" if self.required
@@ -472,7 +472,6 @@ module Cosmos
     end
 
     protected
-
     def parameter_config
       if @id_value
         value = @id_value

@@ -109,7 +109,7 @@ module Cosmos
       it "returns the targets associated with an interface" do
         # Preload a fake InterfaceStatusModel so the api succeeds ...
         # this automatically happens when you create a new InterfaceMicroservice
-        InterfaceStatusModel.set({'name' => "TEST_INT", 'state' => "DISCONNECTED"}, scope: "DEFAULT")
+        InterfaceStatusModel.set({ 'name' => "TEST_INT", 'state' => "DISCONNECTED" }, scope: "DEFAULT")
         model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", target_names: ["TGT1", "TGT2"])
         model.create
         expect(@api.get_interface_targets("TEST_INT")).to eql ["TGT1", "TGT2"]

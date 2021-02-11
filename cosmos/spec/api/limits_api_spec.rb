@@ -240,12 +240,12 @@ module Cosmos
 
       it "returns an offset and limits event hash" do
         # Load the events topic with two events ... only the last should be returned
-        event = {type: :LIMITS_CHANGE, target_name: "BLAH", packet_name: "BLAH", item_name: "BLAH",
-          old_limits_state: :RED_LOW, new_limits_state: :RED_HIGH, time_nsec: 0, message: "nope"}
+        event = { type: :LIMITS_CHANGE, target_name: "BLAH", packet_name: "BLAH", item_name: "BLAH",
+          old_limits_state: :RED_LOW, new_limits_state: :RED_HIGH, time_nsec: 0, message: "nope" }
         LimitsEventTopic.write(event, scope: "DEFAULT")
         time = Time.now.to_nsec_from_epoch
-        event = {type: :LIMITS_CHANGE, target_name: "TGT", packet_name: "PKT", item_name: "ITEM",
-          old_limits_state: :GREEN, new_limits_state: :YELLOW_LOW, time_nsec: time, message: "message"}
+        event = { type: :LIMITS_CHANGE, target_name: "TGT", packet_name: "PKT", item_name: "ITEM",
+          old_limits_state: :GREEN, new_limits_state: :YELLOW_LOW, time_nsec: time, message: "message" }
         LimitsEventTopic.write(event, scope: "DEFAULT")
         events = @api.get_limits_events()
         expect(events).to be_a Array
@@ -263,8 +263,8 @@ module Cosmos
       end
 
       it "returns multiple offsets/events with multiple calls" do
-        event = {type: :LIMITS_CHANGE, target_name: "TGT", packet_name: "PKT", item_name: "ITEM",
-          old_limits_state: :GREEN, new_limits_state: :YELLOW_LOW, time_nsec: 0, message: "message"}
+        event = { type: :LIMITS_CHANGE, target_name: "TGT", packet_name: "PKT", item_name: "ITEM",
+          old_limits_state: :GREEN, new_limits_state: :YELLOW_LOW, time_nsec: 0, message: "message" }
         LimitsEventTopic.write(event, scope: "DEFAULT")
         events = @api.get_limits_events()
         expect(events[0][0]).to match(/\d{13}-\d/)
@@ -306,13 +306,13 @@ module Cosmos
 
     describe "get_out_of_limits" do
       it "returns all out of limits items" do
-        @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
+        @api.inject_tlm("INST", "HEALTH_STATUS", { TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0 }, :RAW)
         sleep(0.1)
         items = @api.get_out_of_limits
         (0..3).each do |i|
           expect(items[i][0]).to eql "INST"
           expect(items[i][1]).to eql "HEALTH_STATUS"
-          expect(items[i][2]).to eql "TEMP#{i+1}"
+          expect(items[i][2]).to eql "TEMP#{i + 1}"
           expect(items[i][3]).to eql "RED_LOW"
         end
       end

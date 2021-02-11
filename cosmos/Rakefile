@@ -75,13 +75,12 @@ class RakeCrc32
   end
 
   protected
-
   # Compute a single entry in the 32-bit crc lookup table
   def compute_crc32_table_entry(index)
     crc = index << 24
 
     8.times do
-      if ((crc & 0x80000000) != 0)
+      if (crc & 0x80000000) != 0
         crc = (crc << 1) ^ @crc32_poly
       else
         crc = crc << 1
@@ -113,12 +112,12 @@ task :devkit do
     msys64_path = File.expand_path(File.join(File.dirname(`where ruby`.split("\n")[0]), '..', 'msys64'))
     if File.exist?(msys64_path)
       ENV['RI_DEVKIT'] = msys64_path
-      ENV['MSYSTEM']="MINGW64"
-      ENV['PKG_CONFIG_PATH']="/mingw64/lib/pkgconfig"
-      ENV['ACLOCAL_PATH']="/mingw64/share/aclocal:/usr/share/aclocal"
-      ENV['MANPATH']="/mingw64/share/man"
-      ENV['MINGW_PACKAGE_PREFIX']="mingw-w64-x86_64"
-      ENV['LANG']="en_US.UTF-8"
+      ENV['MSYSTEM'] = "MINGW64"
+      ENV['PKG_CONFIG_PATH'] = "/mingw64/lib/pkgconfig"
+      ENV['ACLOCAL_PATH'] = "/mingw64/share/aclocal:/usr/share/aclocal"
+      ENV['MANPATH'] = "/mingw64/share/man"
+      ENV['MINGW_PACKAGE_PREFIX'] = "mingw-w64-x86_64"
+      ENV['LANG'] = "en_US.UTF-8"
       ENV['PATH'] = "#{File.join(msys64_path, "mingw64", "bin").gsub("/", "\\")};#{File.join(msys64_path, "usr", "bin").gsub("/", "\\")};" + ENV['PATH']
     end
   end
@@ -129,7 +128,7 @@ task :build => [:devkit] do
     _, platform, *_ = RUBY_PLATFORM.split("-")
     saved = Dir.pwd
     shared_extension = 'so'
-    shared_extension = 'bundle' if platform =~ /darwin/
+    shared_extension = 'bundle' if /darwin/.match?(platform)
 
     extensions = [
       'crc',
@@ -253,7 +252,7 @@ task :stress do
     output, status = Open3.capture2e("rspec #{spec_file}")
     if status.success?
       puts "  success (#{status}):"
-      #puts output
+      # puts output
       puts
     else
       puts "  error (#{status}):"

@@ -31,13 +31,12 @@ module SNMP
     def recv(max_bytes)
       # Implement blocking using recvfrom_nonblock to prevent potential
       # ruby thread deadlock
-      begin
-        data, host_info = @socket.recvfrom_nonblock(max_bytes)
-        return data
-      rescue Errno::EAGAIN, Errno::EWOULDBLOCK
-        IO.fast_select([@socket])
-        retry
-      end
+
+      data, host_info = @socket.recvfrom_nonblock(max_bytes)
+      return data
+    rescue Errno::EAGAIN, Errno::EWOULDBLOCK
+      IO.fast_select([@socket])
+      retry
     end
   end
 

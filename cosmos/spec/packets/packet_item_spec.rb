@@ -128,7 +128,7 @@ module Cosmos
 
     describe "states=" do
       it "accepts states as a Hash" do
-        states = {"TRUE"=>1, "FALSE"=>0}
+        states = { "TRUE" => 1, "FALSE" => 0 }
         @pi.states = states
         expect(@pi.states).to eql states
         config = @pi.to_config(:TELEMETRY, :BIG_ENDIAN)
@@ -306,14 +306,14 @@ module Cosmos
 
     describe "hazardous=" do
       it "accepts hazardous as a Hash" do
-        hazardous = {"TRUE"=>nil,"FALSE"=>"NO FALSE ALLOWED"}
+        hazardous = { "TRUE" => nil,"FALSE" => "NO FALSE ALLOWED" }
         @pi.hazardous = hazardous
         expect(@pi.hazardous).to eql hazardous
         expect(@pi.hazardous["TRUE"]).to eql hazardous["TRUE"]
         expect(@pi.hazardous["FALSE"]).to eql hazardous["FALSE"]
 
         @pi.range = (0..1)
-        @pi.states = {"TRUE"=>1, "FALSE"=>0}
+        @pi.states = { "TRUE" => 1, "FALSE" => 0 }
         config = @pi.to_config(:COMMAND, :BIG_ENDIAN)
         expect(config).to match(/STATE TRUE 1/)
         expect(config).to match(/STATE FALSE 0 HAZARDOUS "NO FALSE ALLOWED"/)
@@ -331,12 +331,12 @@ module Cosmos
 
     describe "state_colors=" do
       it "accepts state_colors as a Hash" do
-        state_colors = {"TRUE"=>:GREEN, "FALSE"=>:RED}
+        state_colors = { "TRUE" => :GREEN, "FALSE" => :RED }
         @pi.state_colors = state_colors
         expect(@pi.state_colors).to eql state_colors
 
         @pi.range = (0..1)
-        @pi.states = {"TRUE"=>1, "FALSE"=>0}
+        @pi.states = { "TRUE" => 1, "FALSE" => 0 }
         config = @pi.to_config(:TELEMETRY, :BIG_ENDIAN)
         expect(config).to match(/STATE TRUE 1 GREEN/)
         expect(config).to match(/STATE FALSE 0 RED/)
@@ -355,7 +355,7 @@ module Cosmos
     describe "limits=" do
       it "accepts limits as a PacketItemLimits" do
         limits = PacketItemLimits.new
-        limits.values = {DEFAULT: [10, 20, 80, 90, 40, 50], TVAC: [100, 200, 800, 900]}
+        limits.values = { DEFAULT: [10, 20, 80, 90, 40, 50], TVAC: [100, 200, 800, 900] }
         @pi.limits = limits
         config = @pi.to_config(:TELEMETRY, :BIG_ENDIAN)
         expect(config).to match(/LIMITS DEFAULT 1 DISABLED 10 20 80 90 40 50/)
@@ -405,7 +405,7 @@ module Cosmos
       it "converts to a Hash" do
         @pi.format_string = "%5.1f"
         @pi.id_value = 10
-        @pi.states = {"TRUE"=>1, "FALSE"=>0}
+        @pi.states = { "TRUE" => 1, "FALSE" => 0 }
         @pi.read_conversion = GenericConversion.new("value / 2")
         @pi.write_conversion = GenericConversion.new("value * 2")
         @pi.description = "description"
@@ -414,8 +414,8 @@ module Cosmos
         @pi.default = 0
         @pi.range = (0..100)
         @pi.required = true
-        @pi.hazardous = {"TRUE"=>nil,"FALSE"=>"NO!"}
-        @pi.state_colors = {"TRUE"=>:GREEN, "FALSE"=>:RED}
+        @pi.hazardous = { "TRUE" => nil,"FALSE" => "NO!" }
+        @pi.state_colors = { "TRUE" => :GREEN, "FALSE" => :RED }
         @pi.limits = PacketItemLimits.new
 
         hash = @pi.to_hash
@@ -435,15 +435,15 @@ module Cosmos
         expect(hash["read_conversion"]).to match("value / 2")
         expect(hash["write_conversion"]).to match(/value \* 2/)
         expect(hash["id_value"]).to eql 10
-        expect(hash["states"]).to include("TRUE"=>1,"FALSE"=>0)
+        expect(hash["states"]).to include("TRUE" => 1,"FALSE" => 0)
         expect(hash["description"]).to eql "description"
         expect(hash["units_full"]).to eql "Celsius"
         expect(hash["units"]).to eql "C"
         expect(hash["default"]).to eql 0
         expect(hash["range"]).to eql (0..100)
         expect(hash["required"]).to be true
-        expect(hash["hazardous"]).to include("TRUE"=>nil,"FALSE"=>"NO!")
-        expect(hash["state_colors"]).to include("TRUE"=>:GREEN,"FALSE"=>:RED)
+        expect(hash["hazardous"]).to include("TRUE" => nil,"FALSE" => "NO!")
+        expect(hash["state_colors"]).to include("TRUE" => :GREEN,"FALSE" => :RED)
         expect(hash["limits"]).to eql PacketItemLimits.new.to_hash
         expect(hash["meta"]).to be_nil
       end
@@ -454,6 +454,5 @@ module Cosmos
         expect(hash["write_conversion"]).to be_nil
       end
     end
-
   end
 end

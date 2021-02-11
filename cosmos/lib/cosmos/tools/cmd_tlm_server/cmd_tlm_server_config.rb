@@ -46,9 +46,9 @@ module Cosmos
       @interfaces = {}
       @routers = {}
       @packet_log_writer_pairs = {}
-      #cmd_log_writer = System.default_packet_log_writer.new(:CMD, *System.default_packet_log_writer_params)
-      #tlm_log_writer = System.default_packet_log_writer.new(:TLM, *System.default_packet_log_writer_params)
-      #@packet_log_writer_pairs['DEFAULT'] = PacketLogWriterPair.new(cmd_log_writer, tlm_log_writer)
+      # cmd_log_writer = System.default_packet_log_writer.new(:CMD, *System.default_packet_log_writer_params)
+      # tlm_log_writer = System.default_packet_log_writer.new(:TLM, *System.default_packet_log_writer_params)
+      # @packet_log_writer_pairs['DEFAULT'] = PacketLogWriterPair.new(cmd_log_writer, tlm_log_writer)
       @background_tasks = []
       @title = nil
       @metadata = false
@@ -56,7 +56,6 @@ module Cosmos
     end
 
     protected
-
     def get_target_interface_name(target_name)
       @interfaces.each do |interface_name, interface|
         return interface_name if interface.target_names.include?(target_name)
@@ -164,7 +163,7 @@ module Cosmos
             current_interface_or_router = setup_interface_or_router()
             current_type = :INTERFACE
             current_interface_log_added = false
-            #current_interface_or_router.packet_log_writer_pairs << @packet_log_writer_pairs['DEFAULT']
+            # current_interface_or_router.packet_log_writer_pairs << @packet_log_writer_pairs['DEFAULT']
             current_interface_or_router.name = interface_name
             current_interface_or_router.config_params = params[1..-1]
             @interfaces[interface_name] = current_interface_or_router
@@ -176,21 +175,21 @@ module Cosmos
 
             when 'LOG'
               parser.verify_num_parameters(1, 1, "#{keyword} <Packet Log Writer Name>")
-              #packet_log_writer_pair = @packet_log_writer_pairs[params[0].upcase]
-              #raise parser.error("Unknown packet log writer: #{params[0].upcase}") unless packet_log_writer_pair
-              #current_interface_or_router.packet_log_writer_pairs.delete(@packet_log_writer_pairs['DEFAULT']) unless current_interface_log_added
+              # packet_log_writer_pair = @packet_log_writer_pairs[params[0].upcase]
+              # raise parser.error("Unknown packet log writer: #{params[0].upcase}") unless packet_log_writer_pair
+              # current_interface_or_router.packet_log_writer_pairs.delete(@packet_log_writer_pairs['DEFAULT']) unless current_interface_log_added
               current_interface_log_added = true
-              #current_interface_or_router.packet_log_writer_pairs << packet_log_writer_pair unless current_interface_or_router.packet_log_writer_pairs.include?(packet_log_writer_pair)
+              # current_interface_or_router.packet_log_writer_pairs << packet_log_writer_pair unless current_interface_or_router.packet_log_writer_pairs.include?(packet_log_writer_pair)
 
             when 'LOG_STORED'
               parser.verify_num_parameters(1, 1, "#{keyword} <Packet Log Writer Name>")
-              #packet_log_writer_pair = @packet_log_writer_pairs[params[0].upcase]
-              #raise parser.error("Unknown packet log writer: #{params[0].upcase}") unless packet_log_writer_pair
-              #current_interface_or_router.stored_packet_log_writer_pairs << packet_log_writer_pair unless current_interface_or_router.stored_packet_log_writer_pairs.include?(packet_log_writer_pair)
+              # packet_log_writer_pair = @packet_log_writer_pairs[params[0].upcase]
+              # raise parser.error("Unknown packet log writer: #{params[0].upcase}") unless packet_log_writer_pair
+              # current_interface_or_router.stored_packet_log_writer_pairs << packet_log_writer_pair unless current_interface_or_router.stored_packet_log_writer_pairs.include?(packet_log_writer_pair)
 
             when 'DONT_LOG'
               parser.verify_num_parameters(0, 0, "#{keyword}")
-              #current_interface_or_router.packet_log_writer_pairs = []
+              # current_interface_or_router.packet_log_writer_pairs = []
 
             when 'TARGET'
               parser.verify_num_parameters(1, 1, "#{keyword} <Target Name>")
@@ -230,12 +229,12 @@ module Cosmos
 
             when 'LOG_RAW',
               parser.verify_num_parameters(0, nil, "#{keyword} <Raw Logger Class File (optional)> <Raw Logger Parameters (optional)>")
-              #current_interface_or_router.raw_logger_pair = RawLoggerPair.new(current_interface_or_router.name, params)
-              #current_interface_or_router.start_raw_logging
+              # current_interface_or_router.raw_logger_pair = RawLoggerPair.new(current_interface_or_router.name, params)
+              # current_interface_or_router.start_raw_logging
 
             when 'OPTION'
               parser.verify_num_parameters(2, nil, "#{keyword} <Option Name> <Option Value 1> <Option Value 2 (optional)> <etc>")
-              #current_interface_or_router.set_option(params[0], params[1..-1])
+              # current_interface_or_router.set_option(params[0], params[1..-1])
 
             when 'PROTOCOL'
               usage = "#{keyword} <READ WRITE READ_WRITE> <protocol filename or classname> <Protocol specific parameters>"
@@ -244,8 +243,8 @@ module Cosmos
                 raise parser.error("Invalid protocol type: #{params[0]}", usage)
               end
               begin
-                #klass = Cosmos.require_class(params[1])
-                #current_interface_or_router.add_protocol(klass, params[2..-1], params[0].upcase.intern)
+                # klass = Cosmos.require_class(params[1])
+                # current_interface_or_router.add_protocol(klass, params[2..-1], params[0].upcase.intern)
               rescue LoadError, StandardError => error
                 raise parser.error(error.message, usage)
               end
@@ -257,12 +256,12 @@ module Cosmos
             parser.verify_num_parameters(2, nil, usage)
             router_name = params[0].upcase
             raise parser.error("Router '#{router_name}' defined twice") if @routers[router_name]
-            #router_class = Cosmos.require_class(params[1])
-            #if params[2]
+            # router_class = Cosmos.require_class(params[1])
+            # if params[2]
             #  current_interface_or_router = router_class.new(*params[2..-1])
-            #else
+            # else
             #  current_interface_or_router = router_class.new
-            #end
+            # end
             current_interface_or_router = setup_interface_or_router()
             current_type = :ROUTER
             current_interface_or_router.name = router_name
@@ -283,7 +282,7 @@ module Cosmos
           when 'BACKGROUND_TASK'
             usage = "#{keyword} <Filename> <Specific Parameters>"
             parser.verify_num_parameters(1, nil, usage)
-            #background_task = Cosmos.require_class(params[0])
+            # background_task = Cosmos.require_class(params[0])
             if params[1]
               @background_tasks << params
             else
@@ -293,7 +292,7 @@ module Cosmos
           when 'STOPPED'
             parser.verify_num_parameters(0, 0, "#{keyword}")
             raise parser.error("No BACKGROUND_TASK defined") if @background_tasks.empty?
-            #@background_tasks[-1].stopped = true
+            # @background_tasks[-1].stopped = true
 
           when 'COLLECT_METADATA'
             parser.verify_num_parameters(0, 0, "#{keyword}")

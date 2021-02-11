@@ -84,7 +84,7 @@ module Cosmos
       @ignored_parameters = []
       @ignored_items = []
       @cmd_tlm_files = []
-      #@auto_screen_substitute = false
+      # @auto_screen_substitute = false
       @interface = nil
       @routers = []
       @cmd_cnt = 0
@@ -161,7 +161,7 @@ module Cosmos
           raise parser.error("#{filename} not found") unless File.exist?(filename)
           @cmd_tlm_files << filename
 
-        # when 'AUTO_SCREEN_SUBSTITUTE'
+          # when 'AUTO_SCREEN_SUBSTITUTE'
           # usage = "#{keyword}"
           # parser.verify_num_parameters(0, 0, usage)
           # @auto_screen_substitute = true
@@ -203,7 +203,6 @@ module Cosmos
     end
 
     protected
-
     # Get the target directory and add the target's lib folder to the
     # search path if it exists
     def get_target_dir(path, gem_path)

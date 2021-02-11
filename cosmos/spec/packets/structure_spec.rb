@@ -24,7 +24,6 @@ require 'cosmos/packets/structure'
 module Cosmos
 
   describe Structure do
-
     describe "initialize" do
       it "complains about non string buffers" do
         expect { Structure.new(:BIG_ENDIAN, Array.new) }.to raise_error(TypeError, "wrong argument type Array (expected String)")

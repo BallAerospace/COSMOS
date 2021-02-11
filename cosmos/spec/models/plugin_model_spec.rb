@@ -98,7 +98,7 @@ module Cosmos
         end
         expect(Gem::Package).to receive(:new).and_return(gem)
 
-        variables = {"folder" => "THE_FOLDER", "name" => "THE_NAME"}
+        variables = { "folder" => "THE_FOLDER", "name" => "THE_NAME" }
         # Just stub the instance deploy method
         expect_any_instance_of(ToolModel).to receive(:deploy).with(anything, variables).and_return(nil)
         expect_any_instance_of(TargetModel).to receive(:deploy).with(anything, variables).and_return(nil)

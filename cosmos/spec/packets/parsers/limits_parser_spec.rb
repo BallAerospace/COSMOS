@@ -297,8 +297,6 @@ module Cosmos
         expect(item.limits.values[:TVAC]).to_not be_nil
         tf.unlink
       end
-
     end
-
   end
 end

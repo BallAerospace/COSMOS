@@ -38,12 +38,10 @@ module Cosmos
 
     def start
       @thread = Thread.new do
-        begin
-          run()
-        rescue Exception => err
-          Logger.error "#{@interface.name}: Command handler thread died: #{err.formatted}"
-          raise err
-        end
+        run()
+      rescue Exception => err
+        Logger.error "#{@interface.name}: Command handler thread died: #{err.formatted}"
+        raise err
       end
     end
 
@@ -151,12 +149,10 @@ module Cosmos
 
     def start
       @thread = Thread.new do
-        begin
-          run()
-        rescue Exception => err
-          Logger.error "#{@router.name}: Telemetry handler thread died: #{err.formatted}"
-          raise err
-        end
+        run()
+      rescue Exception => err
+        Logger.error "#{@router.name}: Telemetry handler thread died: #{err.formatted}"
+        raise err
       end
     end
 
@@ -167,7 +163,7 @@ module Cosmos
     def run
       RouterTopics.receive_telemetry(@router, scope: @scope) do |topic, msg_hash|
         # Check for commands to the router itself
-        if topic =~ /CMDROUTER/
+        if /CMDROUTER/.match?(topic)
           if msg_hash['connect']
             Logger.info "#{@router.name}: Connect requested"
             @tlm.attempting()
@@ -247,7 +243,7 @@ module Cosmos
 
     # External method to be called by the InterfaceCmdHandlerThread to connect
     # Thus we just set the state and allow the run method to handle the action
-    def attempting()
+    def attempting
       @interface.state = 'ATTEMPTING'
       if @interface_or_router == 'INTERFACE'
         InterfaceStatusModel.set(@interface.as_json, scope: @scope)
@@ -427,7 +423,7 @@ module Cosmos
       disconnect(reconnect) # Ensure we do a clean disconnect
     end
 
-    def connect()
+    def connect
       Logger.info "#{@interface.name}: Connecting ..."
       @interface.connect
       @interface.state = 'CONNECTED'

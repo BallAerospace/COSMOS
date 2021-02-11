@@ -50,14 +50,13 @@ module Cosmos
         cmd_or_tlm_hash[target_name].length.times do |i|
           cmd_or_tlm_hash[target_name].delete(names_to_remove[i])
         end
-        packets.reverse.each do |packet|
+        packets.reverse_each do |packet|
           cmd_or_tlm_hash[target_name][packet.packet_name] = packet
         end
       end
     end
 
     private
-
     def initialize(commands, telemetry, warnings, filename, target_name = nil)
       reset_processing_variables()
       @commands = commands
@@ -95,7 +94,7 @@ module Cosmos
     end
 
     # Add current packet into hash if it exists
-    def finish_packet()
+    def finish_packet
       if @current_packet
         @warnings += @current_packet.check_bit_offsets
         set_packet_endianness()
@@ -114,7 +113,7 @@ module Cosmos
         # Ignore COSMOS reserved items
         next if Packet::RESERVED_ITEM_NAMES.include?(item.name)
         # Strings and Blocks endianness don't matter so ignore them
-        item.endianness if (item.data_type != :STRING && item.data_type != :BLOCK)
+        item.endianness if item.data_type != :STRING && item.data_type != :BLOCK
       end
       # Compact to get rid of nils from skipping Strings and Blocks
       # Uniq to get rid of duplicates which results in an array of 1 or 2 items
@@ -145,7 +144,7 @@ module Cosmos
       element.attributes.each do |att_name, att|
         current_type[att.name] = att.value
       end
-      if element.name =~ /Argument/
+      if /Argument/.match?(element.name)
         @argument_types[element["name"]] = current_type
       else
         @parameter_types[element["name"]] = current_type
@@ -454,7 +453,7 @@ module Cosmos
 
     def get_object_types(element)
       array_type = nil
-      if element.name =~ /Parameter/
+      if /Parameter/.match?(element.name)
         # Look up the parameter and parameter type
         parameter = @parameters[element['parameterRef']]
         raise "parameterRef #{element['parameterRef']} not found" unless parameter
@@ -567,12 +566,12 @@ module Cosmos
 
     def set_min_max_default(item, type, data_type)
       return unless @current_cmd_or_tlm == PacketConfig::COMMAND
-        # Need to set min, max, and default
+      # Need to set min, max, and default
       if data_type == :INT || data_type == :UINT
         if data_type == :INT
-          item.range = (-(2 ** (Integer(type.sizeInBits) - 1)))..((2 ** (Integer(type.sizeInBits) - 1)) - 1)
+          item.range = (-(2**(Integer(type.sizeInBits) - 1)))..((2**(Integer(type.sizeInBits) - 1)) - 1)
         else
-          item.range = 0..((2 ** Integer(type.sizeInBits)) - 1)
+          item.range = 0..((2**Integer(type.sizeInBits)) - 1)
         end
         if type.minInclusive && type.maxInclusive
           item.range = Integer(type.minInclusive)..Integer(type.maxInclusive)

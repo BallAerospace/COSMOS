@@ -192,7 +192,7 @@ module Cosmos
 
       it "doesn't raise errors on comparing incompatible items" do
         si1 = StructureItem.new("si1", 16, 8, :UINT, :BIG_ENDIAN, nil)
-        expect{ (si1 > 5) }.to raise_error(StandardError)
+        expect { (si1 > 5) }.to raise_error(StandardError)
         expect(si1 <=> 5).to be nil
       end
     end
@@ -220,6 +220,5 @@ module Cosmos
         expect(hash["overflow"]).to eql :ERROR
       end
     end
-
   end
 end

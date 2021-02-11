@@ -49,7 +49,7 @@ module Cosmos
 
     # Ensure we have some data in case this is the only protocol
     def read_data(data)
-      if (data.length <= 0)
+      if data.length <= 0
         if @allow_empty_data.nil?
           if @interface and @interface.read_protocols[-1] == self
             # Last read interface in chain with auto @allow_empty_data

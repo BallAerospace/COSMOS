@@ -24,9 +24,7 @@ require 'cosmos/packets/binary_accessor'
 module Cosmos
 
   describe BinaryAccessor do
-
     describe "read only" do
-
       before(:each) do
         @data = "\x80\x81\x82\x83\x84\x85\x86\x87\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F"
       end
@@ -126,7 +124,6 @@ module Cosmos
       end
 
       describe "given big endian data" do
-
         it "reads 1-bit unsigned integers" do
           expected = [0x1, 0x0]
           bit_size = 1
@@ -297,11 +294,9 @@ module Cosmos
         it "complains about mis-sized floats" do
           expect { BinaryAccessor.read(0, 33, :FLOAT, @data, :BIG_ENDIAN) }.to raise_error(ArgumentError, "bit_size is 33 but must be 32 or 64 for data_type FLOAT")
         end
-
       end # given big endian data
 
       describe "given little endian data" do
-
         it "complains about ill-defined little endian bitfields" do
           expect { BinaryAccessor.read(3, 7, :UINT, @data, :LITTLE_ENDIAN) }.to raise_error(ArgumentError, "LITTLE_ENDIAN bitfield with bit_offset 3 and bit_size 7 is invalid")
         end
@@ -474,24 +469,21 @@ module Cosmos
         it "complains about mis-sized floats" do
           expect { BinaryAccessor.read(0, 65, :FLOAT, @data, :LITTLE_ENDIAN) }.to raise_error(ArgumentError, "bit_size is 65 but must be 32 or 64 for data_type FLOAT")
         end
-
       end # little endian
     end # describe 'read'
 
     describe "read_array" do
-
       before(:each) do
         @data = "\x80\x81\x82\x83\x84\x85\x86\x87\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F"
       end
 
       it "complains with unknown data_type" do
-          expect { BinaryAccessor.read_array(0, 8, :BLAH, 0, @data, :LITTLE_ENDIAN) }.to raise_error(ArgumentError, "data_type BLAH is not recognized")
+        expect { BinaryAccessor.read_array(0, 8, :BLAH, 0, @data, :LITTLE_ENDIAN) }.to raise_error(ArgumentError, "data_type BLAH is not recognized")
       end
 
       describe "given little endian data" do
-
         it "complains about negative bit sizes" do
-          expect { BinaryAccessor.read_array(0, -8, :UINT, @data.length*8, @data, :LITTLE_ENDIAN) }.to raise_error(ArgumentError, "bit_size -8 must be positive for arrays")
+          expect { BinaryAccessor.read_array(0, -8, :UINT, @data.length * 8, @data, :LITTLE_ENDIAN) }.to raise_error(ArgumentError, "bit_size -8 must be positive for arrays")
         end
 
         context "when positive or zero bit_offset" do
@@ -508,7 +500,7 @@ module Cosmos
           it "reads the total buffer given array_size = buffer size" do
             data = @data.unpack('c*')
 
-            expect(BinaryAccessor.read_array(0, 8, :INT, @data.length*8, @data, :LITTLE_ENDIAN)).to eql(data)
+            expect(BinaryAccessor.read_array(0, 8, :INT, @data.length * 8, @data, :LITTLE_ENDIAN)).to eql(data)
           end
 
           it "complains with an array_size not a multiple of bit_size" do
@@ -528,7 +520,7 @@ module Cosmos
 
           it "returns an empty array if the offset equals the negative array size" do
             @data.unpack('C*')
-            expect(BinaryAccessor.read_array(@data.length*8-32, 8, :UINT, -32, @data, :LITTLE_ENDIAN)).to eql([])
+            expect(BinaryAccessor.read_array(@data.length * 8 - 32, 8, :UINT, -32, @data, :LITTLE_ENDIAN)).to eql([])
           end
 
           it "complains if the offset is greater than the negative array size" do
@@ -546,11 +538,11 @@ module Cosmos
 
           it "reads an array if the negative offset is the size of the array" do
             data = @data.unpack('C*')
-            expect(BinaryAccessor.read_array(-(@data.length*8), 8, :UINT, @data.length*8, @data, :LITTLE_ENDIAN)).to eql(data)
+            expect(BinaryAccessor.read_array(-(@data.length * 8), 8, :UINT, @data.length * 8, @data, :LITTLE_ENDIAN)).to eql(data)
           end
 
           it "complains if the offset is larger than the buffer" do
-            expect { BinaryAccessor.read_array(-(@data.length*8+1), 8, :UINT, @data.length*8, @data, :LITTLE_ENDIAN) }.to raise_error(ArgumentError, "#{@data.length} byte buffer insufficient to read #{:UINT} at bit_offset -#{@data.length*8+1} with bit_size 8")
+            expect { BinaryAccessor.read_array(-(@data.length * 8 + 1), 8, :UINT, @data.length * 8, @data, :LITTLE_ENDIAN) }.to raise_error(ArgumentError, "#{@data.length} byte buffer insufficient to read #{:UINT} at bit_offset -#{@data.length * 8 + 1} with bit_size 8")
           end
 
           it "complains with zero array_size" do
@@ -656,7 +648,6 @@ module Cosmos
       end # given little endian data
 
       describe "given big endian data" do
-
         it "reads 7-bit unsigned integers" do
           expected = [0x40, 0x60, 0x50]
           bit_size = 7
@@ -715,7 +706,6 @@ module Cosmos
     end # describe "read_array"
 
     describe "write only" do
-
       before(:each) do
         @data = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
         @baseline_data = "\x80\x81\x82\x83\x84\x85\x86\x87\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F"
@@ -834,7 +824,7 @@ module Cosmos
           BinaryAccessor.write(data, 0, -16, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
           expect(buffer[0..-3]).to eql data
           expect(buffer[-2..-1]).to eql preserve
-          data = BinaryAccessor.read(0, data.length*8 + 16, :BLOCK, buffer, :BIG_ENDIAN)
+          data = BinaryAccessor.read(0, data.length * 8 + 16, :BLOCK, buffer, :BIG_ENDIAN)
           expect(data).to eql buffer
         end
 
@@ -849,7 +839,7 @@ module Cosmos
           expect(buffer[0..1]).to eql "\x00\x01"
           expect(buffer[2..-5]).to eql data
           expect(buffer[-4..-1]).to eql preserve
-          data = BinaryAccessor.read(0, 16 + data.length*8 + 32, :BLOCK, buffer, :BIG_ENDIAN)
+          data = BinaryAccessor.read(0, 16 + data.length * 8 + 32, :BLOCK, buffer, :BIG_ENDIAN)
           expect(data).to eql buffer
         end
 
@@ -864,7 +854,7 @@ module Cosmos
           BinaryAccessor.write(data, 0, -16, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
           expect(buffer[0..-3]).to eql data
           expect(buffer[-2..-1]).to eql preserve
-          data = BinaryAccessor.read(0, data.length*8 + 16, :BLOCK, buffer, :BIG_ENDIAN)
+          data = BinaryAccessor.read(0, data.length * 8 + 16, :BLOCK, buffer, :BIG_ENDIAN)
           expect(data).to eql buffer
         end
 
@@ -878,7 +868,7 @@ module Cosmos
             buffer << [0xDEAD].pack("n")
           end
           expected = buffer.clone
-          BinaryAccessor.write(data, 128*8, -128*8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
+          BinaryAccessor.write(data, 128 * 8, -128 * 8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
           expect(buffer.length).to eql (128 + 512 + 128)
           expect(buffer[0...128]).to eql expected[0...128]
           expect(buffer[128...-128]).to eql data
@@ -895,7 +885,7 @@ module Cosmos
             buffer << [0xDEAD].pack("n")
           end
           expected = buffer.clone
-          BinaryAccessor.write(data, 384*8, -384*8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
+          BinaryAccessor.write(data, 384 * 8, -384 * 8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR)
           expect(buffer.length).to eql (384 + 512 + 384)
           expect(buffer[0...384]).to eql expected[0...384]
           expect(buffer[384...-384]).to eql data
@@ -908,7 +898,7 @@ module Cosmos
           16.times do
             buffer << [0xDEAD].pack("n")
           end
-          expect { BinaryAccessor.write(data, 0, -2024*8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "32 byte buffer insufficient to write BLOCK at bit_offset 0 with bit_size -16192")
+          expect { BinaryAccessor.write(data, 0, -2024 * 8, :BLOCK, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "32 byte buffer insufficient to write BLOCK at bit_offset 0 with bit_size -16192")
         end
       end
 
@@ -975,7 +965,7 @@ module Cosmos
         buffer = "BLANKxxxWORLD"
         string = "HELLO".freeze
         # Specify 3 more bytes than given to exercise the padding logic
-        string = BinaryAccessor.write(string, 0, (string.length + 3)*8, :STRING, buffer, :BIG_ENDIAN, :ERROR)
+        string = BinaryAccessor.write(string, 0, (string.length + 3) * 8, :STRING, buffer, :BIG_ENDIAN, :ERROR)
         expect(buffer).to eql("HELLO\x00\x00\x00WORLD")
         expect(string).to eql("HELLO")
         expect(string.frozen?).to be true
@@ -984,7 +974,7 @@ module Cosmos
       it "complains about writing a frozen buffer" do
         buffer = "BLANK WORLD".freeze
         string = "HELLO"
-        expect {BinaryAccessor.write(string, 0, string.length*8, :STRING, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(RuntimeError, /can't modify frozen String/)
+        expect {BinaryAccessor.write(string, 0, string.length * 8, :STRING, buffer, :BIG_ENDIAN, :ERROR) }.to raise_error(RuntimeError, /can't modify frozen String/)
       end
 
       it "writes aligned 8-bit unsigned integers" do
@@ -1029,7 +1019,6 @@ module Cosmos
       end
 
       describe "given big endian data" do
-
         it "writes 1-bit unsigned integers" do
           BinaryAccessor.write(0x1, 8, 1, :UINT, @data, :BIG_ENDIAN, :ERROR)
           BinaryAccessor.write(0x0, 9, 1, :UINT, @data, :BIG_ENDIAN, :ERROR)
@@ -1239,11 +1228,9 @@ module Cosmos
         it "complains about mis-sized floats" do
           expect { BinaryAccessor.write(0.0, 0, 33, :FLOAT, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "bit_size is 33 but must be 32 or 64 for data_type FLOAT")
         end
-
       end # given big endian data
 
       describe "given little endian data" do
-
         it "complains about ill-defined little endian bitfields" do
           expect { BinaryAccessor.write(0x1, 3, 7, :UINT, @data, :LITTLE_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "LITTLE_ENDIAN bitfield with bit_offset 3 and bit_size 7 is invalid")
         end
@@ -1423,7 +1410,6 @@ module Cosmos
         it "complains about mis-sized floats" do
           expect { BinaryAccessor.write(0.0, 0, 65, :FLOAT, @data, :LITTLE_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "bit_size is 65 but must be 32 or 64 for data_type FLOAT")
         end
-
       end # given little endian data
 
       describe "should support overflow types" do
@@ -1440,70 +1426,70 @@ module Cosmos
         end
 
         it "prevents overflow of 8-bit INT" do
-          bit_size = 8; data_type = :INT; value = 2 ** (bit_size - 1)
+          bit_size = 8; data_type = :INT; value = 2**(bit_size - 1)
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
           value = -(value + 1)
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 16-bit INT" do
-          bit_size = 16; data_type = :INT; value = 2 ** (bit_size - 1)
+          bit_size = 16; data_type = :INT; value = 2**(bit_size - 1)
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
           value = -(value + 1)
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 32-bit INT" do
-          bit_size = 32; data_type = :INT; value = 2 ** (bit_size - 1)
+          bit_size = 32; data_type = :INT; value = 2**(bit_size - 1)
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
           value = -(value + 1)
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 64-bit INT" do
-          bit_size = 64; data_type = :INT; value = 2 ** (bit_size - 1)
+          bit_size = 64; data_type = :INT; value = 2**(bit_size - 1)
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
           value = -(value + 1)
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 3-bit INT" do
-          bit_size = 3; data_type = :INT; value = 2 ** (bit_size - 1)
+          bit_size = 3; data_type = :INT; value = 2**(bit_size - 1)
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
           value = -(value + 1)
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 8-bit UINT" do
-          bit_size = 8; data_type = :UINT; value = 2 ** bit_size
+          bit_size = 8; data_type = :UINT; value = 2**bit_size
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
           value = -1
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 16-bit UINT" do
-          bit_size = 16; data_type = :UINT; value = 2 ** bit_size
+          bit_size = 16; data_type = :UINT; value = 2**bit_size
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
           value = -1
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 32-bit UINT" do
-          bit_size = 32; data_type = :UINT; value = 2 ** bit_size
+          bit_size = 32; data_type = :UINT; value = 2**bit_size
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
           value = -1
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 64-bit UINT" do
-          bit_size = 64; data_type = :UINT; value = 2 ** bit_size
+          bit_size = 64; data_type = :UINT; value = 2**bit_size
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
           value = -1
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 3-bit UINT" do
-          bit_size = 3; data_type = :UINT; value = 2 ** bit_size
+          bit_size = 3; data_type = :UINT; value = 2**bit_size
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
           value = -1
           expect { BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
@@ -1520,67 +1506,67 @@ module Cosmos
         end
 
         it "truncates 8-bit INT" do
-          bit_size = 8; data_type = :INT; value = 2 ** (bit_size - 1); truncated_value = -value
+          bit_size = 8; data_type = :INT; value = 2**(bit_size - 1); truncated_value = -value
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 16-bit INT" do
-          bit_size = 16; data_type = :INT; value = 2 ** (bit_size - 1); truncated_value = -value
+          bit_size = 16; data_type = :INT; value = 2**(bit_size - 1); truncated_value = -value
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 32-bit INT" do
-          bit_size = 32; data_type = :INT; value = 2 ** (bit_size - 1); truncated_value = -value
+          bit_size = 32; data_type = :INT; value = 2**(bit_size - 1); truncated_value = -value
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 64-bit INT" do
-          bit_size = 64; data_type = :INT; value = 2 ** (bit_size - 1); truncated_value = -value
+          bit_size = 64; data_type = :INT; value = 2**(bit_size - 1); truncated_value = -value
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 3-bit INT" do
-          bit_size = 3; data_type = :INT; value = 2 ** (bit_size - 1); truncated_value = -value
+          bit_size = 3; data_type = :INT; value = 2**(bit_size - 1); truncated_value = -value
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 8-bit UINT" do
-          bit_size = 8; data_type = :UINT; value = 2 ** bit_size + 1; truncated_value = 1
+          bit_size = 8; data_type = :UINT; value = 2**bit_size + 1; truncated_value = 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 16-bit UINT" do
-          bit_size = 16; data_type = :UINT; value = 2 ** bit_size + 1; truncated_value = 1
+          bit_size = 16; data_type = :UINT; value = 2**bit_size + 1; truncated_value = 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 32-bit UINT" do
-          bit_size = 32; data_type = :UINT; value = 2 ** bit_size + 1; truncated_value = 1
+          bit_size = 32; data_type = :UINT; value = 2**bit_size + 1; truncated_value = 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 64-bit UINT" do
-          bit_size = 64; data_type = :UINT; value = 2 ** bit_size + 1; truncated_value = 1
+          bit_size = 64; data_type = :UINT; value = 2**bit_size + 1; truncated_value = 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 3-bit UINT" do
-          bit_size = 3; data_type = :UINT; value = 2 ** bit_size + 1; truncated_value = 1
+          bit_size = 3; data_type = :UINT; value = 2**bit_size + 1; truncated_value = 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "saturates 8-bit INT" do
-          bit_size = 8; data_type = :INT; value = 2 ** (bit_size - 1); saturated_value = value - 1
+          bit_size = 8; data_type = :INT; value = 2**(bit_size - 1); saturated_value = value - 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
           value = -(value + 1); saturated_value = value + 1
@@ -1589,7 +1575,7 @@ module Cosmos
         end
 
         it "saturates 16-bit INT" do
-          bit_size = 16; data_type = :INT; value = 2 ** (bit_size - 1); saturated_value = value - 1
+          bit_size = 16; data_type = :INT; value = 2**(bit_size - 1); saturated_value = value - 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
           value = -(value + 1); saturated_value = value + 1
@@ -1598,7 +1584,7 @@ module Cosmos
         end
 
         it "saturates 32-bit INT" do
-          bit_size = 32; data_type = :INT; value = 2 ** (bit_size - 1); saturated_value = value - 1
+          bit_size = 32; data_type = :INT; value = 2**(bit_size - 1); saturated_value = value - 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
           value = -(value + 1); saturated_value = value + 1
@@ -1607,7 +1593,7 @@ module Cosmos
         end
 
         it "saturates 64-bit INT" do
-          bit_size = 64; data_type = :INT; value = 2 ** (bit_size - 1); saturated_value = value - 1
+          bit_size = 64; data_type = :INT; value = 2**(bit_size - 1); saturated_value = value - 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
           value = -(value + 1); saturated_value = value + 1
@@ -1616,7 +1602,7 @@ module Cosmos
         end
 
         it "saturates 3-bit INT" do
-          bit_size = 3; data_type = :INT; value = 2 ** (bit_size - 1); saturated_value = value - 1
+          bit_size = 3; data_type = :INT; value = 2**(bit_size - 1); saturated_value = value - 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
           value = -(value + 1); saturated_value = value + 1
@@ -1625,7 +1611,7 @@ module Cosmos
         end
 
         it "saturates 8-bit UINT" do
-          bit_size = 8; data_type = :UINT; value = 2 ** bit_size; saturated_value = value - 1
+          bit_size = 8; data_type = :UINT; value = 2**bit_size; saturated_value = value - 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
           value = -1; saturated_value = 0
@@ -1634,7 +1620,7 @@ module Cosmos
         end
 
         it "saturates 16-bit UINT" do
-          bit_size = 16; data_type = :UINT; value = 2 ** bit_size; saturated_value = value - 1
+          bit_size = 16; data_type = :UINT; value = 2**bit_size; saturated_value = value - 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
           value = -1; saturated_value = 0
@@ -1643,7 +1629,7 @@ module Cosmos
         end
 
         it "saturates 32-bit UINT" do
-          bit_size = 32; data_type = :UINT; value = 2 ** bit_size; saturated_value = value - 1
+          bit_size = 32; data_type = :UINT; value = 2**bit_size; saturated_value = value - 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
           value = -1; saturated_value = 0
@@ -1652,7 +1638,7 @@ module Cosmos
         end
 
         it "saturates 64-bit UINT" do
-          bit_size = 64; data_type = :UINT; value = 2 ** bit_size; saturated_value = value - 1
+          bit_size = 64; data_type = :UINT; value = 2**bit_size; saturated_value = value - 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
           value = -1; saturated_value = 0
@@ -1661,7 +1647,7 @@ module Cosmos
         end
 
         it "saturates 3-bit UINT" do
-          bit_size = 3; data_type = :UINT; value = 2 ** bit_size; saturated_value = value - 1
+          bit_size = 3; data_type = :UINT; value = 2**bit_size; saturated_value = value - 1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
           value = -1; saturated_value = 0
@@ -1670,37 +1656,35 @@ module Cosmos
         end
 
         it "allows hex value entry of 8-bit INT" do
-          bit_size = 8; data_type = :INT; value = 2 ** bit_size - 1; allowed_value = -1
+          bit_size = 8; data_type = :INT; value = 2**bit_size - 1; allowed_value = -1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR_ALLOW_HEX)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql allowed_value
         end
 
         it "allows hex value entry of 16-bit INT" do
-          bit_size = 16; data_type = :INT; value = 2 ** bit_size - 1; allowed_value = -1
+          bit_size = 16; data_type = :INT; value = 2**bit_size - 1; allowed_value = -1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR_ALLOW_HEX)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql allowed_value
         end
 
         it "allows hex value entry of 32-bit INT" do
-          bit_size = 32; data_type = :INT; value = 2 ** bit_size - 1; allowed_value = -1
+          bit_size = 32; data_type = :INT; value = 2**bit_size - 1; allowed_value = -1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR_ALLOW_HEX)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql allowed_value
         end
 
         it "allows hex value entry of 64-bit INT" do
-          bit_size = 64; data_type = :INT; value = 2 ** bit_size - 1; allowed_value = -1
+          bit_size = 64; data_type = :INT; value = 2**bit_size - 1; allowed_value = -1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR_ALLOW_HEX)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql allowed_value
         end
 
         it "allows hex value entry of 3-bit INT" do
-          bit_size = 3; data_type = :INT; value = 2 ** bit_size - 1; allowed_value = -1
+          bit_size = 3; data_type = :INT; value = 2**bit_size - 1; allowed_value = -1
           BinaryAccessor.write(value, 0, bit_size, data_type, @data, :BIG_ENDIAN, :ERROR_ALLOW_HEX)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql allowed_value
         end
-
       end
-
     end # describe "write"
 
     describe "write_array" do
@@ -1726,7 +1710,7 @@ module Cosmos
       end
 
       it "writes if a negative bit_offset is equal to length of buffer" do
-        BinaryAccessor.write_array(@baseline_data_array, -(@data.length * 8), 8, :BLOCK, @baseline_data_array.length*8, @data, :BIG_ENDIAN, :ERROR)
+        BinaryAccessor.write_array(@baseline_data_array, -(@data.length * 8), 8, :BLOCK, @baseline_data_array.length * 8, @data, :BIG_ENDIAN, :ERROR)
         expect(@data).to eql @baseline_data
       end
 
@@ -1737,7 +1721,7 @@ module Cosmos
 
       it "writes aligned strings with fixed array_size" do
         data = @data.clone
-        BinaryAccessor.write_array(@baseline_data_array, 0, 8, :STRING, @baseline_data_array.length*8, data, :BIG_ENDIAN, :ERROR)
+        BinaryAccessor.write_array(@baseline_data_array, 0, 8, :STRING, @baseline_data_array.length * 8, data, :BIG_ENDIAN, :ERROR)
         expect(data).to eql(@baseline_data)
       end
 
@@ -1760,7 +1744,7 @@ module Cosmos
       end
 
       it "writes blocks with fixed array_size" do
-        BinaryAccessor.write_array(@baseline_data_array, 0, 8, :BLOCK, @baseline_data_array.length*8, @data, :BIG_ENDIAN, :ERROR)
+        BinaryAccessor.write_array(@baseline_data_array, 0, 8, :BLOCK, @baseline_data_array.length * 8, @data, :BIG_ENDIAN, :ERROR)
         expect(@data).to eql(@baseline_data)
       end
 
@@ -1771,7 +1755,7 @@ module Cosmos
       end
 
       it "writes blocks with fixed array_size at non zero offset" do
-        BinaryAccessor.write_array(@baseline_data_array[0..-5], 32, 8, :BLOCK, @baseline_data_array.length*8-32, @data, :BIG_ENDIAN, :ERROR)
+        BinaryAccessor.write_array(@baseline_data_array[0..-5], 32, 8, :BLOCK, @baseline_data_array.length * 8 - 32, @data, :BIG_ENDIAN, :ERROR)
         expect(@data).to eql(("\x00" * 4) + @baseline_data[0..-5])
       end
 
@@ -1803,7 +1787,7 @@ module Cosmos
 
       it "does not write if the offset equals the negative array size" do
         data = @data.clone
-        BinaryAccessor.write_array([], @data.length*8-32, 8, :BLOCK, -32, @data, :LITTLE_ENDIAN, :ERROR)
+        BinaryAccessor.write_array([], @data.length * 8 - 32, 8, :BLOCK, -32, @data, :LITTLE_ENDIAN, :ERROR)
         expect(@data).to eql(data)
       end
 
@@ -1938,7 +1922,6 @@ module Cosmos
       end
 
       describe "given big endian data" do
-
         it "writes 1-bit unsigned integers" do
           BinaryAccessor.write_array([1,0,1], 8, 1, :UINT, 3, @data, :BIG_ENDIAN, :ERROR)
           expect(@data).to eql("\x00\xA0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
@@ -2016,11 +1999,9 @@ module Cosmos
         it "complains about mis-sized floats" do
           expect { BinaryAccessor.write_array([0.0], 0, 33, :FLOAT, 33, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "bit_size is 33 but must be 32 or 64 for data_type FLOAT")
         end
-
       end # given big endian data
 
       describe "given little endian data" do
-
         it "writes 1-bit unsigned integers" do
           BinaryAccessor.write_array([1,0,1], 8, 1, :UINT, 3, @data, :LITTLE_ENDIAN, :ERROR)
           expect(@data).to eql("\x00\xA0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00")
@@ -2055,7 +2036,7 @@ module Cosmos
         end
 
         it "writes aligned 32-bit signed integers" do
-          data= [0x83828180, 0x87868584, 0x0B0A0900, 0x0F0E0D0C]
+          data = [0x83828180, 0x87868584, 0x0B0A0900, 0x0F0E0D0C]
           data.map! {|x| (x & ~(1 << 31)) - (x & (1 << 31)) } # convert to negative
           BinaryAccessor.write_array(data, 0, 32, :INT, 0, @data, :LITTLE_ENDIAN, :ERROR)
           expect(@data).to eql(@baseline_data)
@@ -2097,7 +2078,6 @@ module Cosmos
         it "complains about mis-sized floats" do
           expect { BinaryAccessor.write_array([0.0], 0, 65, :FLOAT, 65, @data, :LITTLE_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "bit_size is 65 but must be 32 or 64 for data_type FLOAT")
         end
-
       end # given little endian data
 
       describe "should support overflow types" do
@@ -2114,52 +2094,52 @@ module Cosmos
         end
 
         it "prevents overflow of 8-bit INT" do
-          bit_size = 8; data_type = :INT; value = 2 ** (bit_size - 1)
+          bit_size = 8; data_type = :INT; value = 2**(bit_size - 1)
           expect { BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 16-bit INT" do
-          bit_size = 16; data_type = :INT; value = 2 ** (bit_size - 1)
+          bit_size = 16; data_type = :INT; value = 2**(bit_size - 1)
           expect { BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 32-bit INT" do
-          bit_size = 32; data_type = :INT; value = 2 ** (bit_size - 1)
+          bit_size = 32; data_type = :INT; value = 2**(bit_size - 1)
           expect { BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 64-bit INT" do
-          bit_size = 64; data_type = :INT; value = 2 ** (bit_size - 1)
+          bit_size = 64; data_type = :INT; value = 2**(bit_size - 1)
           expect { BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 3-bit INT" do
-          bit_size = 3; data_type = :INT; value = 2 ** (bit_size - 1)
+          bit_size = 3; data_type = :INT; value = 2**(bit_size - 1)
           expect { BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 8-bit UINT" do
-          bit_size = 8; data_type = :UINT; value = 2 ** bit_size
+          bit_size = 8; data_type = :UINT; value = 2**bit_size
           expect { BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 16-bit UINT" do
-          bit_size = 16; data_type = :UINT; value = 2 ** bit_size
+          bit_size = 16; data_type = :UINT; value = 2**bit_size
           expect { BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 32-bit UINT" do
-          bit_size = 32; data_type = :UINT; value = 2 ** bit_size
+          bit_size = 32; data_type = :UINT; value = 2**bit_size
           expect { BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 64-bit UINT" do
-          bit_size = 64; data_type = :UINT; value = 2 ** bit_size
+          bit_size = 64; data_type = :UINT; value = 2**bit_size
           expect { BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
         it "prevents overflow of 3-bit UINT" do
-          bit_size = 3; data_type = :UINT; value = 2 ** bit_size
+          bit_size = 3; data_type = :UINT; value = 2**bit_size
           expect { BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "value of #{value} invalid for #{bit_size}-bit #{data_type}")
         end
 
@@ -2174,159 +2154,156 @@ module Cosmos
         end
 
         it "truncates 8-bit INT" do
-          bit_size = 8; data_type = :INT; value = 2 ** (bit_size - 1); truncated_value = -value
+          bit_size = 8; data_type = :INT; value = 2**(bit_size - 1); truncated_value = -value
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 16-bit INT" do
-          bit_size = 16; data_type = :INT; value = 2 ** (bit_size - 1); truncated_value = -value
+          bit_size = 16; data_type = :INT; value = 2**(bit_size - 1); truncated_value = -value
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 32-bit INT" do
-          bit_size = 32; data_type = :INT; value = 2 ** (bit_size - 1); truncated_value = -value
+          bit_size = 32; data_type = :INT; value = 2**(bit_size - 1); truncated_value = -value
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 64-bit INT" do
-          bit_size = 64; data_type = :INT; value = 2 ** (bit_size - 1); truncated_value = -value
+          bit_size = 64; data_type = :INT; value = 2**(bit_size - 1); truncated_value = -value
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 3-bit INT" do
-          bit_size = 3; data_type = :INT; value = 2 ** (bit_size - 1); truncated_value = -value
+          bit_size = 3; data_type = :INT; value = 2**(bit_size - 1); truncated_value = -value
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 8-bit UINT" do
-          bit_size = 8; data_type = :UINT; value = 2 ** bit_size + 1; truncated_value = 1
+          bit_size = 8; data_type = :UINT; value = 2**bit_size + 1; truncated_value = 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 16-bit UINT" do
-          bit_size = 16; data_type = :UINT; value = 2 ** bit_size + 1; truncated_value = 1
+          bit_size = 16; data_type = :UINT; value = 2**bit_size + 1; truncated_value = 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 32-bit UINT" do
-          bit_size = 32; data_type = :UINT; value = 2 ** bit_size + 1; truncated_value = 1
+          bit_size = 32; data_type = :UINT; value = 2**bit_size + 1; truncated_value = 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 64-bit UINT" do
-          bit_size = 64; data_type = :UINT; value = 2 ** bit_size + 1; truncated_value = 1
+          bit_size = 64; data_type = :UINT; value = 2**bit_size + 1; truncated_value = 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "truncates 3-bit UINT" do
-          bit_size = 3; data_type = :UINT; value = 2 ** bit_size + 1; truncated_value = 1
+          bit_size = 3; data_type = :UINT; value = 2**bit_size + 1; truncated_value = 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :TRUNCATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql truncated_value
         end
 
         it "saturates 8-bit INT" do
-          bit_size = 8; data_type = :INT; value = 2 ** (bit_size - 1); saturated_value = value - 1
+          bit_size = 8; data_type = :INT; value = 2**(bit_size - 1); saturated_value = value - 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
         end
 
         it "saturates 16-bit INT" do
-          bit_size = 16; data_type = :INT; value = 2 ** (bit_size - 1); saturated_value = value - 1
+          bit_size = 16; data_type = :INT; value = 2**(bit_size - 1); saturated_value = value - 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
         end
 
         it "saturates 32-bit INT" do
-          bit_size = 32; data_type = :INT; value = 2 ** (bit_size - 1); saturated_value = value - 1
+          bit_size = 32; data_type = :INT; value = 2**(bit_size - 1); saturated_value = value - 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
         end
 
         it "saturates 64-bit INT" do
-          bit_size = 64; data_type = :INT; value = 2 ** (bit_size - 1); saturated_value = value - 1
+          bit_size = 64; data_type = :INT; value = 2**(bit_size - 1); saturated_value = value - 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
         end
 
         it "saturates 3-bit INT" do
-          bit_size = 3; data_type = :INT; value = 2 ** (bit_size - 1); saturated_value = value - 1
+          bit_size = 3; data_type = :INT; value = 2**(bit_size - 1); saturated_value = value - 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
         end
 
         it "saturates 8-bit UINT" do
-          bit_size = 8; data_type = :UINT; value = 2 ** bit_size; saturated_value = value - 1
+          bit_size = 8; data_type = :UINT; value = 2**bit_size; saturated_value = value - 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
         end
 
         it "saturates 16-bit UINT" do
-          bit_size = 16; data_type = :UINT; value = 2 ** bit_size; saturated_value = value - 1
+          bit_size = 16; data_type = :UINT; value = 2**bit_size; saturated_value = value - 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
         end
 
         it "saturates 32-bit UINT" do
-          bit_size = 32; data_type = :UINT; value = 2 ** bit_size; saturated_value = value - 1
+          bit_size = 32; data_type = :UINT; value = 2**bit_size; saturated_value = value - 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
         end
 
         it "saturates 64-bit UINT" do
-          bit_size = 64; data_type = :UINT; value = 2 ** bit_size; saturated_value = value - 1
+          bit_size = 64; data_type = :UINT; value = 2**bit_size; saturated_value = value - 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
         end
 
         it "saturates 3-bit UINT" do
-          bit_size = 3; data_type = :UINT; value = 2 ** bit_size; saturated_value = value - 1
+          bit_size = 3; data_type = :UINT; value = 2**bit_size; saturated_value = value - 1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :SATURATE)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql saturated_value
         end
 
         it "allows hex value entry of 8-bit INT" do
-          bit_size = 8; data_type = :INT; value = 2 ** bit_size - 1; allowed_value = -1
+          bit_size = 8; data_type = :INT; value = 2**bit_size - 1; allowed_value = -1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR_ALLOW_HEX)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql allowed_value
         end
 
         it "allows hex value entry of 16-bit INT" do
-          bit_size = 16; data_type = :INT; value = 2 ** bit_size - 1; allowed_value = -1
+          bit_size = 16; data_type = :INT; value = 2**bit_size - 1; allowed_value = -1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR_ALLOW_HEX)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql allowed_value
         end
 
         it "allows hex value entry of 32-bit INT" do
-          bit_size = 32; data_type = :INT; value = 2 ** bit_size - 1; allowed_value = -1
+          bit_size = 32; data_type = :INT; value = 2**bit_size - 1; allowed_value = -1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR_ALLOW_HEX)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql allowed_value
         end
 
         it "allows hex value entry of 64-bit INT" do
-          bit_size = 64; data_type = :INT; value = 2 ** bit_size - 1; allowed_value = -1
+          bit_size = 64; data_type = :INT; value = 2**bit_size - 1; allowed_value = -1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR_ALLOW_HEX)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql allowed_value
         end
 
         it "allows hex value entry of 3-bit INT" do
-          bit_size = 3; data_type = :INT; value = 2 ** bit_size - 1; allowed_value = -1
+          bit_size = 3; data_type = :INT; value = 2**bit_size - 1; allowed_value = -1
           BinaryAccessor.write_array([value], 0, bit_size, data_type, bit_size, @data, :BIG_ENDIAN, :ERROR_ALLOW_HEX)
           expect(BinaryAccessor.read(0, bit_size, data_type, @data, :BIG_ENDIAN)).to eql allowed_value
         end
-
       end
-
     end # describe "write_array"
-
   end # describe BinaryAccessor
 
 end # module Cosmos

@@ -21,7 +21,6 @@ module Cosmos
 
   module Script
     private
-
     def replay_select_file(filename, packet_log_reader = "DEFAULT")
       $cmd_tlm_server.replay_select_file(filename, packet_log_reader)
     end

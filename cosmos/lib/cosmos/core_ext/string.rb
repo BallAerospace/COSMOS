@@ -154,7 +154,7 @@ class String
   # @param separator [String] The record separator to pass to #each_line
   #   ($/ by default is the newline character)
   # @return [String] A new string with the line removed
-  def remove_line(line_number, separator=$/)
+  def remove_line(line_number, separator = $/)
     new_string = ''
     index = 1
     self.each_line(separator) do |line|
@@ -173,7 +173,7 @@ class String
   end
 
   if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
-   # @return [String] The string with leading and trailing quotes removed
+    # @return [String] The string with leading and trailing quotes removed
     def remove_quotes
       return self if self.length < 2
       first_char = self[0]
@@ -191,22 +191,22 @@ class String
 
   # @return [Boolean] Whether the String represents an integer
   def is_int?
-    if self =~ INT_CHECK_REGEX then true else false end
+    if INT_CHECK_REGEX.match?(self) then true else false end
   end
 
   # @return [Boolean] Whether the String represents a hexadecimal number
   def is_hex?
-    if self =~ HEX_CHECK_REGEX then true else false end
+    if HEX_CHECK_REGEX.match?(self) then true else false end
   end
 
   # @return [Boolean] Whether the String represents an Array
   def is_array?
-    if self =~ ARRAY_CHECK_REGEX then true else false end
+    if ARRAY_CHECK_REGEX.match?(self) then true else false end
   end
 
   # @return [Boolean] Whether the string contains only printable characters
   def is_printable?
-    if self =~ NON_PRINTABLE_REGEX then false else true end
+    if NON_PRINTABLE_REGEX.match?(self) then false else true end
   end
 
   # @return Converts the String into either a Float, Integer, or Array
@@ -350,7 +350,7 @@ class String
   # @param quote_char [String] The quote character to add if necessary
   # @return [String] quoted string if necessary
   def quote_if_necessary(quote_char = '"')
-    if self =~ /\s/
+    if /\s/.match?(self)
       return quote_char + self + quote_char
     else
       return self

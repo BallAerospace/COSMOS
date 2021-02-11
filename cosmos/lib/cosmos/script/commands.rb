@@ -25,7 +25,6 @@ module Cosmos
     include Extract
 
     private
-
     # Format the command like it appears in a script
     def _cmd_string(target_name, cmd_name, cmd_params, raw)
       output_string = $disconnect ? 'DISCONNECT: ' : ''

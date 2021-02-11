@@ -85,7 +85,7 @@ module Cosmos
       PacketParser.finish_create_telemetry(packet, telemetry, latest_data, warnings)
     end
 
-    #private
+    # private
 
     def create_packet(target_name)
       params = @parser.parameters

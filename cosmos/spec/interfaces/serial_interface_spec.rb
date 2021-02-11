@@ -25,7 +25,6 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
   module Cosmos
 
     describe SerialInterface do
-
       describe "initialize" do
         it "initializes the instance variables" do
           i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')

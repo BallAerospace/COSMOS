@@ -63,7 +63,7 @@ module Cosmos
 
       TelemetryDecomTopic.write_packet(packet, scope: @scope)
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
-      metric_labels = {"packet" => packet_name, "target" => target_name}
+      metric_labels = { "packet" => packet_name, "target" => target_name }
       @metric.add_sample(name: DECOM_METRIC_NAME, value: diff, labels: metric_labels)
     end
 
@@ -96,9 +96,9 @@ module Cosmos
 
       # The cosmos_limits_events topic can be listened to for all limits events, it is a continuous stream
       time_nsec = packet_time ? packet_time.to_nsec_from_epoch : Time.now.to_nsec_from_epoch
-      event = {type: :LIMITS_CHANGE, target_name: packet.target_name, packet_name: packet.packet_name,
+      event = { type: :LIMITS_CHANGE, target_name: packet.target_name, packet_name: packet.packet_name,
         item_name: item.name, old_limits_state: old_limits_state, new_limits_state: item.limits.state,
-        time_nsec: time_nsec, message: message}
+        time_nsec: time_nsec, message: message }
       LimitsEventTopic.write(event, scope: @scope)
 
       if item.limits.response
@@ -113,7 +113,7 @@ module Cosmos
       end
 
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
-      labels = {"packet" => packet.packet_name, "target" => packet.target_name}
+      labels = { "packet" => packet.packet_name, "target" => packet.target_name }
       @metric.add_sample(name: LIMIT_METRIC_NAME, value: diff, labels: labels)
     end
 

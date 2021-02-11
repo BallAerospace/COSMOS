@@ -51,7 +51,6 @@ class ExampleTest < Cosmos::Test
   end
 
   def helper_method
-
   end
 end
 
@@ -118,9 +117,9 @@ class ExampleTestSuite3 < Cosmos::TestSuite
     super()
     add_test_setup('ExampleTest')
     # This line raises a runtime error because ExampleTest3 has no setup method
-    #add_test_setup('ExampleTest3')
+    # add_test_setup('ExampleTest3')
     # This line raises a runtime error because ExampleTest3 has no test_50 method
-    #add_test_case('ExampleTest3', 'test_50')
+    # add_test_case('ExampleTest3', 'test_50')
     add_test('ExampleTest')
     add_test('ExampleTest2')
     add_test_teardown('ExampleTest')

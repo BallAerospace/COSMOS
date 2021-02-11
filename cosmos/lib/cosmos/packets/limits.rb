@@ -49,9 +49,7 @@ module Cosmos
 
     # @param config [PacketConfig] Set the packet configuration to a new
     #   configuration. This will change everything this class returns!
-    def config=(config)
-      @config = config
-    end
+    attr_writer :config
 
     # (see Cosmos::Packet#out_of_limits)
     def out_of_limits
@@ -219,7 +217,7 @@ module Cosmos
       end
       if !limits.values
         if limits_set == :DEFAULT
-          limits.values = {:DEFAULT => []}
+          limits.values = { :DEFAULT => [] }
         else
           raise "DEFAULT limits must be defined for #{target_name} #{packet_name} #{item_name} before setting limits set #{limits_set}"
         end
@@ -248,7 +246,6 @@ module Cosmos
     end
 
     protected
-
     def get_packet(target_name, packet_name)
       raise "LATEST packet not valid" if packet_name.upcase == LATEST_PACKET_NAME
       packets = @config.telemetry[target_name.to_s.upcase]
@@ -260,10 +257,10 @@ module Cosmos
 
     def includes_item?(ignored_items, target_name, packet_name, item_name)
       ignored_items.each do |array_target_name, array_packet_name, array_item_name|
-        if ((array_target_name == target_name) &&
+        if (array_target_name == target_name) &&
             (array_packet_name == packet_name) &&
             # If the item name is nil we're ignoring an entire packet
-            (array_item_name == item_name || array_item_name.nil?))
+            (array_item_name == item_name || array_item_name.nil?)
           return true
         end
       end

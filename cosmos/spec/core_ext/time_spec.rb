@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/core_ext/time'
 
 describe Time do
-
   describe "CONSTANTS" do
     it "is correct" do
       expect(Time::JULIAN_DATE_OF_MJD_EPOCH).to eql DateTime.new(1858,11,17).ajd.to_f
@@ -40,10 +39,10 @@ describe Time do
       expect(Time.format_seconds(3600)).to eql "1 hour"
       expect(Time.format_seconds(7201)).to eql "2 hours, 1.00 seconds"
       expect(Time.format_seconds(7261)).to eql "2 hours, 1 minute, 1.00 seconds"
-      expect(Time.format_seconds(3600*24)).to eql "1 day"
-      expect(Time.format_seconds(3600*24+1)).to eql "1 day, 1.00 seconds"
-      expect(Time.format_seconds(3600*48+61)).to eql "2 days, 1 minute, 1.00 seconds"
-      expect(Time.format_seconds(3600*25+61)).to eql "1 day, 1 hour, 1 minute, 1.00 seconds"
+      expect(Time.format_seconds(3600 * 24)).to eql "1 day"
+      expect(Time.format_seconds(3600 * 24 + 1)).to eql "1 day, 1.00 seconds"
+      expect(Time.format_seconds(3600 * 48 + 61)).to eql "2 days, 1 minute, 1.00 seconds"
+      expect(Time.format_seconds(3600 * 25 + 61)).to eql "1 day, 1 hour, 1 minute, 1.00 seconds"
     end
   end
 
@@ -204,14 +203,14 @@ describe Time do
 
   describe "Time.yds2julian" do
     it "converts year, day, seconds to julian" do
-      expect(Time.yds2julian(2000,1,12*60*60)).to eql Time::JULIAN_DATE_OF_J2000_EPOCH
+      expect(Time.yds2julian(2000,1,12 * 60 * 60)).to eql Time::JULIAN_DATE_OF_J2000_EPOCH
     end
   end
 
   describe "Time.unix_epoch_delta" do
     it "returns a delta to the unix epoch" do
       expect(Time.init_epoch_delta("1970/01/01 00:00:00")).to eql 0
-      expect(Time.init_epoch_delta("1969/12/31 12:00:00")).to eql 60*60*12
+      expect(Time.init_epoch_delta("1969/12/31 12:00:00")).to eql 60 * 60 * 12
     end
   end
 
@@ -223,5 +222,4 @@ describe Time do
       expect(Time.now.sys.utc?).to eql false
     end
   end
-
 end

@@ -12,7 +12,7 @@ require 'spec_helper'
 require 'cosmos/tools/test_runner/test'
 
 # Stub out RunningScript.instance
-saved_verbose = $VERBOSE; $VERBOSE = nil;
+saved_verbose = $VERBOSE; $VERBOSE = nil
 class RunningScript
   def self.instance
     false
