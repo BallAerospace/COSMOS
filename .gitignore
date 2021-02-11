@@ -3,14 +3,15 @@
 *.so
 *.bundle
 Makefile
-Gemfile.lock
+*Gemfile.lock
 .yardoc
 .DS_Store
 desktop.ini
 cert.pem
 cacert.pem
-spec/install/outputs
-spec/examples.txt
+.idea
+cosmos/spec/install/outputs
+cosmos/spec/examples.txt
 coverage/
 profile/
 
