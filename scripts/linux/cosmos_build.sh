@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-# Please download cacert.pem from https://curl.haxx.se/docs/caextract.html and place in this folder before running
-# Alternatively, if your org requires a different certificate authority file, please place that here as cacert.pem before running
-# This will allow docker to work through local SSL infrastructure such as decryption devices
-touch cacert.pem
 
 # You may need to comment out the below three lines if you are on linux host (as opposed to mac)
 # These lines configure the host OS properly for Redis
