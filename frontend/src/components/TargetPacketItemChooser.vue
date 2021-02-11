@@ -190,87 +190,64 @@ export default {
   methods: {
     updatePackets() {
       this.internalDisabled = true
+      let cmd = 'get_all_telemetry'
       if (this.mode == 'cmd') {
-        this.api['get_all_commands'](this.selectedTargetName).then(
-          (commands) => {
-            this.packet_list_items = []
-            this.packetNames = []
-            if (this.allowAll) {
-              this.packetNames.push(this.ALL)
-            }
-            commands.forEach((command) => {
-              this.packet_list_items.push([
-                command.packet_name,
-                command.description,
-              ])
-              this.packetNames.push({
-                label: command.packet_name,
-                value: command.packet_name,
-              })
-            })
-            if (!this.selectedPacketName) {
-              this.selectedPacketName = this.packetNames[0].value
-              this.packetNameChanged(this.selectedPacketName)
-            }
-            for (const item of this.packet_list_items) {
-              if (this.selectedPacketName === item[0]) {
-                this.description = item[1]
-                break
-              }
-            }
-            this.internalDisabled = false
-          }
-        )
-      } else {
-        this.api['get_tlm_list'](this.selectedTargetName).then((packets) => {
-          this.packet_list_items = packets
-          this.packetNames = []
-          if (this.allowAll) {
-            this.packetNames.push(this.ALL)
-          }
-          var arrayLength = packets.length
-          for (var i = 0; i < arrayLength; i++) {
-            this.packetNames.push({
-              label: packets[i][0],
-              value: packets[i][0],
-            })
-          }
-          if (!this.selectedPacketName) {
-            this.selectedPacketName = this.packetNames[0].value
-            this.packetNameChanged(this.selectedPacketName)
-          }
-          for (const item of this.packet_list_items) {
-            if (this.selectedPacketName === item[0]) {
-              this.description = item[1]
-              break
-            }
-          }
-          this.internalDisabled = false
-        })
+        cmd = 'get_all_commands'
       }
+      this.api[cmd](this.selectedTargetName).then((packets) => {
+        this.packet_list_items = []
+        this.packetNames = []
+        if (this.allowAll) {
+          this.packetNames.push(this.ALL)
+        }
+        packets.forEach((packet) => {
+          this.packet_list_items.push([
+            packet['packet_name'],
+            packet['description'],
+          ])
+          this.packetNames.push({
+            label: packet['packet_name'],
+            value: packet['packet_name'],
+          })
+        })
+        if (!this.selectedPacketName) {
+          this.selectedPacketName = this.packetNames[0].value
+          this.packetNameChanged(this.selectedPacketName)
+        }
+        for (const item of this.packet_list_items) {
+          if (this.selectedPacketName === item[0]) {
+            this.description = item[1]
+            break
+          }
+        }
+        this.internalDisabled = false
+      })
     },
 
     updateItems() {
       this.internalDisabled = true
-      let cmd = 'get_tlm_item_list'
+      let cmd = 'get_telemetry'
       if (this.mode == 'cmd') {
-        cmd = 'get_cmd_param_list'
+        cmd = 'get_command'
       }
       this.api[cmd](this.selectedTargetName, this.selectedPacketName).then(
-        (items) => {
-          this.tlm_item_list_items = items
+        (packet) => {
+          this.tlm_item_list_items = packet.items
           this.itemNames = []
           if (this.allowAll) {
             this.itemNames.push(this.ALL)
           }
-          var arrayLength = items.length
+          var arrayLength = packet.items.length
           for (var i = 0; i < arrayLength; i++) {
-            this.itemNames.push({ label: items[i][0], value: items[i][0] })
+            this.itemNames.push({
+              label: packet.items[i]['name'],
+              value: packet.items[i]['name'],
+            })
           }
           if (!this.selectedItemName) {
             this.selectedItemName = this.itemNames[0].value
           }
-          this.description = this.tlm_item_list_items[0][2]
+          this.description = this.tlm_item_list_items[0]['description']
           this.internalDisabled = false
           this.$emit('on-set', {
             targetName: this.selectedTargetName,
@@ -296,9 +273,9 @@ export default {
         this.itemsDisabled = false
         var arrayLength = this.packet_list_items.length
         for (var i = 0; i < arrayLength; i++) {
-          if (value === this.packet_list_items[i][0]) {
-            this.selectedPacketName = this.packet_list_items[i][0]
-            this.description = this.packet_list_items[i][1]
+          if (value === this.packet_list_items[i]['packet_name']) {
+            this.selectedPacketName = this.packet_list_items[i]['packet_name']
+            this.description = this.packet_list_items[i]['description']
             break
           }
         }
@@ -318,9 +295,9 @@ export default {
     itemNameChanged(value) {
       var arrayLength = this.tlm_item_list_items.length
       for (var i = 0; i < arrayLength; i++) {
-        if (value === this.tlm_item_list_items[i][0]) {
-          this.selectedItemName = this.tlm_item_list_items[i][0]
-          this.description = this.tlm_item_list_items[i][2]
+        if (value === this.tlm_item_list_items[i]['packet_name']) {
+          this.selectedItemName = this.tlm_item_list_items[i]['packet_name']
+          this.description = this.tlm_item_list_items[i]['description']
           break
         }
       }
@@ -333,21 +310,24 @@ export default {
 
     buttonPressed() {
       if (this.selectedPacketName === 'ALL') {
-        this.packetNames.forEach((packet) => {
-          if (packet === this.ALL) return
-          let cmd = 'get_tlm_item_list'
+        this.packetNames.forEach((packetName) => {
+          console.log(packetName)
+          if (packetName === this.ALL) return
+          let cmd = 'get_telemetry'
           if (this.mode == 'cmd') {
-            cmd = 'get_cmd_param_list'
+            cmd = 'get_command'
           }
-          this.api[cmd](this.selectedTargetName, packet.value).then((items) => {
-            items.forEach((item) => {
-              this.$emit('click', {
-                targetName: this.selectedTargetName,
-                packetName: packet.value,
-                itemName: item[0],
+          this.api[cmd](this.selectedTargetName, packetName.value).then(
+            (packet) => {
+              packet.items.forEach((item) => {
+                this.$emit('click', {
+                  targetName: this.selectedTargetName,
+                  packetName: packetName.value,
+                  itemName: item['name'],
+                })
               })
-            })
-          })
+            }
+          )
         })
       } else if (this.selectedItemName === 'ALL') {
         this.itemNames.forEach((item) => {

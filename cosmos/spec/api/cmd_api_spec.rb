@@ -45,8 +45,10 @@ module Cosmos
       interface = Interface.new
       interface.name = "INST_INT"
       interface.target_names = %w[INST]
-      # Stub out write to make the InterfaceCmdHandlerThread happy
-      allow(interface).to receive(:write) { |data| @interface_data = data }
+      # Stub to make the InterfaceCmdHandlerThread happy
+      @interface_data = ''
+      allow(interface).to receive(:connected?).and_return(true)
+      allow(interface).to receive(:write_interface) { |data| @interface_data = data }
       @thread = InterfaceCmdHandlerThread.new(interface, nil, scope: 'DEFAULT')
       @process = true # Allow the command to be processed or not
 
@@ -443,43 +445,11 @@ module Cosmos
       end
     end
 
-    # describe "send_raw" do
-    #   it "sends raw data to an interface" do
-    #     @api.send_raw("INST_INT", "\x00\x01\x02\x03")
-    #     sleep 0.1
-    #     expect(@interface_data).to eql "\x00\x01\x02\x03"
-    #   end
-    # end
-
-    # DEPRECATED: use get_all_commands
-    describe "get_cmd_list" do
-      it "returns command names sorted" do
-        result = @api.get_cmd_list("INST")
-        expect(result.sort).to eql result
-      end
-
-      it "complains with a unknown target" do
-        expect { @api.get_cmd_list("BLAH") }.to raise_error(/does not exist/)
-      end
-
-      it "returns command names and descriptions for a given target" do
-        result = @api.get_cmd_list("INST")
-        expect(result[0][0]).to eql "ABORT"
-        # The second parameter is the description ... only test one
-        expect(result[0][1]).to eql "Aborts a collect on the instrument"
-        expect(result[1][0]).to eql "ARYCMD"
-        expect(result[2][0]).to eql "ASCIICMD"
-        expect(result[3][0]).to eql "CLEAR"
-        expect(result[4][0]).to eql "COLLECT"
-        expect(result[5][0]).to eql "COSMOS_ERROR_HANDLE"
-        expect(result[6][0]).to eql "COSMOS_ERROR_IGNORE"
-        expect(result[7][0]).to eql "COSMOS_HANDSHAKE_DS"
-        expect(result[8][0]).to eql "COSMOS_HANDSHAKE_EN"
-        expect(result[9][0]).to eql "FLTCMD"
-        expect(result[10][0]).to eql "LINC_COMMAND"
-        expect(result[11][0]).to eql "SETPARAMS"
-        expect(result[12][0]).to eql "SLRPNLDEPLOY"
-        expect(result[13][0]).to eql "SLRPNLRESET"
+    describe "send_raw" do
+      it "sends raw data to an interface" do
+        @api.send_raw("INST_INT", "\x00\x01\x02\x03")
+        sleep 0.1
+        expect(@interface_data).to eql "\x00\x01\x02\x03"
       end
     end
 
@@ -496,26 +466,6 @@ module Cosmos
           expect(command['target_name']).to eql("INST")
           expect(command.keys).to include(*%w(target_name packet_name description endianness items))
         end
-      end
-    end
-
-    # DEPRECATED: use get_command_parameters
-    describe "get_cmd_param_list" do
-      it "returns parameters for the command" do
-        result = @api.get_cmd_param_list("INST","COLLECT")
-        # Each element in the results array contains:
-        #   name, default, states, description, full units, units, required
-        expect(result).to include ['TYPE',0,{"NORMAL"=>0,"SPECIAL"=>1},'Collect type',nil,nil,true,"UINT"]
-        expect(result).to include ['TEMP',0.0,nil,'Collect temperature','Celsius','C',false,"FLOAT"]
-      end
-
-      it "returns array parameters for the command" do
-        result = @api.get_cmd_param_list("INST","ARYCMD")
-        # Each element in the results array contains:
-        #   name, default, states, description, full units, units, required
-        expect(result).to include ['ARRAY',[],nil,'Array parameter',nil,nil,false,"FLOAT"]
-        # Since ARRAY2 has a format string the default is in quotes
-        expect(result).to include ['ARRAY2',"[]",nil,'Array parameter',nil,nil,false,"UINT"]
       end
     end
 
@@ -538,7 +488,7 @@ module Cosmos
     end
 
     describe 'get_command' do
-      it "returns hash for the command" do
+      it "returns hash for the command and parameters" do
         result = @api.get_command("INST","COLLECT")
         expect(result).to be_a Hash
         expect(result['target_name']).to eql "INST"
@@ -550,6 +500,25 @@ module Cosmos
             expect(parameter.keys).to include(*%w(name bit_offset bit_size data_type description endianness overflow))
           else
             expect(parameter.keys).to include(*%w(name bit_offset bit_size data_type description default minimum maximum endianness overflow))
+          end
+
+          # Check a few of the parameters
+          if parameter['name'] == 'TYPE'
+            expect(parameter['default']).to eql 0
+            expect(parameter['data_type']).to eql "UINT"
+            expect(parameter['states']).to eql({ "NORMAL" => { "value" => 0 }, "SPECIAL" => { "value" => 1, "hazardous" => "" }})
+            expect(parameter['description']).to eql "Collect type"
+            expect(parameter['required']).to be true
+            expect(parameter['units']).to be_nil
+          end
+          if parameter['name'] == 'TEMP'
+            expect(parameter['default']).to eql 0.0
+            expect(parameter['data_type']).to eql "FLOAT"
+            expect(parameter['states']).to be_nil
+            expect(parameter['description']).to eql "Collect temperature"
+            expect(parameter['units_full']).to eql "Celsius"
+            expect(parameter['units']).to eql "C"
+            expect(parameter['required']).to be false
           end
         end
       end

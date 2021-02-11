@@ -108,27 +108,5 @@ module Cosmos
         expect(info[1][3]).to eql 2 # tlm count
       end
     end
-
-    describe "get_target_ignored_parameters" do
-      it "raises for unknown targets" do
-        expect { @api.get_target_ignored_parameters("BLAH")}.to raise_error("Target 'BLAH' does not exist")
-      end
-
-      it "returns the target ignored parameters" do
-        params = @api.get_target_ignored_parameters("INST")
-        expect(params).to include("CCSDSVER", "CCSDSTYPE", "CCSDSLENGTH", "PKTID") # Spot check
-      end
-    end
-
-    describe "get_target_ignored_items" do
-      it "raises for unknown targets" do
-        expect { @api.get_target_ignored_items("BLAH")}.to raise_error("Target 'BLAH' does not exist")
-      end
-
-      it "returns the target ignored items" do
-        items = @api.get_target_ignored_items("INST")
-        expect(items).to include("CCSDSVER", "CCSDSTYPE", "CCSDSLENGTH", "RECEIVED_COUNT") # Spot check
-      end
-    end
   end
 end

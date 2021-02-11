@@ -36,7 +36,7 @@
       </v-container>
     </v-card>
 
-    <v-card flat>
+    <!-- v-card flat>
       <v-card-title>API Status</v-card-title>
       <v-data-table
         :headers="apiHeaders"
@@ -65,7 +65,7 @@
           >
         </template>
       </v-data-table>
-    </v-card>
+    </v-card -->
   </div>
 </template>
 
@@ -105,38 +105,38 @@ export default {
     })
   },
   methods: {
-    update() {
-      if (this.tabId != this.curTab) return
-      this.api.get_server_status().then((status) => {
-        this.currentLimitsSet = status[0]
-        this.apiStatus = [
-          {
-            port: status[1],
-            clients: status[2],
-            requests: status[3],
-            avgTime: (Math.round(status[4] * 1000000) / 1000000).toFixed(6),
-            threads: status[5],
-          },
-        ]
-      })
-      this.api.get_background_tasks().then((tasks) => {
-        this.backgroundTasks = []
-        for (let x of tasks) {
-          var control = ''
-          if (x[1] == 'no thread' || x[1] == 'complete') {
-            control = 'Start'
-          } else {
-            control = 'Stop'
-          }
-          this.backgroundTasks.push({
-            name: x[0],
-            state: x[1],
-            status: x[2],
-            control: control,
-          })
-        }
-      })
-    },
+    // update() {
+    //   if (this.tabId != this.curTab) return
+    //   this.api.get_server_status().then((status) => {
+    //     this.currentLimitsSet = status[0]
+    //     this.apiStatus = [
+    //       {
+    //         port: status[1],
+    //         clients: status[2],
+    //         requests: status[3],
+    //         avgTime: (Math.round(status[4] * 1000000) / 1000000).toFixed(6),
+    //         threads: status[5],
+    //       },
+    //     ]
+    //   })
+    //   this.api.get_background_tasks().then((tasks) => {
+    //     this.backgroundTasks = []
+    //     for (let x of tasks) {
+    //       var control = ''
+    //       if (x[1] == 'no thread' || x[1] == 'complete') {
+    //         control = 'Start'
+    //       } else {
+    //         control = 'Stop'
+    //       }
+    //       this.backgroundTasks.push({
+    //         name: x[0],
+    //         state: x[1],
+    //         status: x[2],
+    //         control: control,
+    //       })
+    //     }
+    //   })
+    // },
     limitsChange(value) {
       this.api.set_limits_set(value)
     },

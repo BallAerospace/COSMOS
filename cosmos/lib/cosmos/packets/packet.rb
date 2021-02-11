@@ -772,7 +772,7 @@ module Cosmos
 
     # Add an item to the limits items cache if necessary.
     # You MUST call this after adding limits to an item
-    #This is an optimization so we don't have to iterate through all the items when
+    # This is an optimization so we don't have to iterate through all the items when
     # checking for limits.
     def update_limits_items_cache(item)
       if item.limits.values || item.state_colors

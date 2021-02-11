@@ -250,22 +250,6 @@ module Cosmos
       end
     end
 
-    describe "get_cmd_list" do
-      it "returns all the target commands" do
-        list = get_cmd_list("INST")
-        # Only check for the collect command to make this test list dependent
-        # on the demo INST command definition file
-        expect(list).to include(["COLLECT", "Starts a collect on the instrument"])
-      end
-    end
-
-    describe "get_cmd_param_list" do
-      it "returns all the parameters for a command" do
-        list = get_cmd_param_list("INST", "COLLECT")
-        expect(list).to include(["TYPE", 0, {"NORMAL"=>0, "SPECIAL"=>1}, "Collect type", nil, nil, true, "UINT"])
-      end
-    end
-
     describe "get_cmd_hazardous" do
       it "returns whether a command is hazardous" do
         expect(get_cmd_hazardous("INST", "COLLECT", {"TYPE"=>"NORMAL"})).to be false

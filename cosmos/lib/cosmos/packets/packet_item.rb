@@ -426,7 +426,7 @@ module Cosmos
         config['maximum'] = self.range.last.as_json
       end
       config['endianness'] = self.endianness.to_s
-      config['required'] = true if self.required
+      config['required'] = self.required
       config['format_string'] = self.format_string if self.format_string
       if self.units
         config['units'] = self.units

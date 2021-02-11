@@ -30,8 +30,8 @@ module Cosmos
         expect { Structure.new(:BIG_ENDIAN, Array.new) }.to raise_error(TypeError, "wrong argument type Array (expected String)")
       end
 
-      it "complains about unrecognized data types" do
-        expect { Structure.new(:BLAH) }.to raise_error(ArgumentError, "Unrecognized endianness: BLAH - Must be :BIG_ENDIAN or :LITTLE_ENDIAN")
+      it "complains about unknown data types" do
+        expect { Structure.new(:BLAH) }.to raise_error(ArgumentError, "Unknown endianness 'BLAH', must be :BIG_ENDIAN or :LITTLE_ENDIAN")
       end
 
       it "creates BIG_ENDIAN structures" do

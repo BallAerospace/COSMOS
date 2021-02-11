@@ -33,10 +33,6 @@ module Cosmos
       Cosmos.play_wav_file(wav_filename)
     end
 
-    # @deprecated
-    def status_bar(message)
-    end
-
     def ask_string(question, blank_or_default = false, password = false)
       answer = ''
       default = ''

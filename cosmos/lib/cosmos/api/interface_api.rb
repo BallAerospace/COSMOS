@@ -29,10 +29,8 @@ module Cosmos
       'get_interface_names',
       'connect_interface',
       'disconnect_interface',
-      # DEPRECATED:
-      'interface_state',
-      'get_interface_targets',
-      'get_interface_info',
+      'start_raw_logging_interface',
+      'stop_raw_logging_interface',
       'get_all_interface_info',
     ])
 
@@ -63,43 +61,42 @@ module Cosmos
 
     # Disconnects from an interface and kills its telemetry gathering thread
     #
-    # @param interface_name (see #connect_interface)
+    # @param interface_name [String] The name of the interface
     def disconnect_interface(interface_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
       InterfaceTopics.disconnect_interface(interface_name, scope: scope)
     end
 
-    # @deprecated Use #get_interface
-    # @param interface_name (see #connect_interface)
-    # @return [String] The state of the interface which is one of 'CONNECTED',
-    #   'ATTEMPTING' or 'DISCONNECTED'.
-    def interface_state(interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      get_interface(interface_name, scope: scope, token: token)['state']
-    end
-
-    # @deprecated Use #get_interface
-    # @return [Array<String>] All the targets mapped to the given interface
-    def get_interface_targets(interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      get_interface(interface_name, scope: scope, token: token)['target_names']
-    end
-
-    # Get information about an interface
+    # Starts raw logging for an interface
     #
-    # @deprecated Use #get_interface
-    # @param interface_name [String] Interface name
-    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
-    #   Numeric, Numeric>] Array containing \[state, num clients,
-    #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
-    #   Telemetry count] for the interface
-    def get_interface_info(interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      int = get_interface(interface_name, scope: scope, token: token)
-      return [int['state'], int['clients'], int['txsize'], int['rxsize'],
-              int['txbytes'], int['rxbytes'], int['txcnt'], int['rxcnt']]
+    # @param interface_name [String] The name of the interface
+    def start_raw_logging_interface(interface_name = 'ALL', scope: $cosmos_scope, token: $cosmos_token)
+      authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
+      if interface_name == 'ALL'
+        get_interface_names().each do |interface_name|
+          InterfaceTopics.start_raw_logging(interface_name, scope: scope)
+        end
+      else
+        InterfaceTopics.start_raw_logging(interface_name, scope: scope)
+      end
+    end
+
+    # Stop raw logging for an interface
+    #
+    # @param interface_name [String] The name of the interface
+    def stop_raw_logging_interface(interface_name = 'ALL', scope: $cosmos_scope, token: $cosmos_token)
+      authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
+      if interface_name == 'ALL'
+        get_interface_names().each do |interface_name|
+          InterfaceTopics.stop_raw_logging(interface_name, scope: scope)
+        end
+      else
+        InterfaceTopics.stop_raw_logging(interface_name, scope: scope)
+      end
     end
 
     # Get information about all interfaces
     #
-    # @deprecated Use get_interface_names and get_interface
     # @return [Array<Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
     #   Numeric, Numeric>>] Array of Arrays containing \[name, state, num clients,
     #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
