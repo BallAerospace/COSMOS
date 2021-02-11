@@ -9,17 +9,16 @@ name: build
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby-version: ['2.6', '2.7', '3.0']
+        ruby-version: ["2.7", "3.0"]
 
     steps:
       - uses: actions/checkout@v2
@@ -30,5 +29,6 @@ jobs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Run tests
         run: bundle exec rake build spec
+        working-directory: cosmos
         env:
-          COSMOS_DEVEL: true 
+          COSMOS_DEVEL: true
