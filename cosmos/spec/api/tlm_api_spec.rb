@@ -191,11 +191,11 @@ module Cosmos
       end
 
       it "complains with too many parameters" do
-        expect { @api.tlm_variable("INST", "HEALTH_STATUS", "TEMP1", "TEMP2",:CONVERTED) }.to raise_error(/Invalid number of arguments/)
+        expect { @api.tlm_variable("INST", "HEALTH_STATUS", "TEMP1", "TEMP2", :CONVERTED) }.to raise_error(/Invalid number of arguments/)
       end
 
       it "complains with an unknown conversion" do
-        expect { @api.tlm_variable("INST", "HEALTH_STATUS", "TEMP1",:NOPE) }.to raise_error(/Invalid type 'NOPE'/)
+        expect { @api.tlm_variable("INST", "HEALTH_STATUS", "TEMP1", :NOPE) }.to raise_error(/Unknown type 'NOPE'/)
       end
     end
 
@@ -207,6 +207,14 @@ module Cosmos
         expect { @api.set_tlm("BLAH", "HEALTH_STATUS", "COLLECTS",1) }.to raise_error(/does not exist/)
         expect { @api.set_tlm("INST", "UNKNOWN", "COLLECTS",1) }.to raise_error(/does not exist/)
         expect { @api.set_tlm("INST", "HEALTH_STATUS", "BLAH",1) }.to raise_error(/does not exist/)
+      end
+
+      it "complains with too many parameters" do
+        expect { @api.set_tlm("INST", "HEALTH_STATUS", "TEMP1", "TEMP2", 0.0) }.to raise_error(/Invalid number of arguments/)
+      end
+
+      it "complains with unknown types" do
+        expect { @api.set_tlm("INST", "HEALTH_STATUS", "TEMP1", 0.0, type: :BLAH) }.to raise_error(/Unknown type 'BLAH'/)
       end
 
       it "processes a string" do
@@ -223,33 +231,25 @@ module Cosmos
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(-50.0)
       end
 
-      it "complains with too many parameters" do
-        expect { @api.set_tlm("INST", "HEALTH_STATUS", "TEMP1", "TEMP2",0.0) }.to raise_error(/Invalid number of arguments/)
-      end
-    end
-
-    describe "set_tlm_raw" do
-      it "complains about unknown targets, packets, and parameters" do
-        expect { @api.set_tlm_raw("BLAH HEALTH_STATUS COLLECTS = 1") }.to raise_error(/does not exist/)
-        expect { @api.set_tlm_raw("INST UNKNOWN COLLECTS = 1") }.to raise_error(/does not exist/)
-        expect { @api.set_tlm_raw("INST HEALTH_STATUS BLAH = 1") }.to raise_error(/does not exist/)
-        expect { @api.set_tlm_raw("BLAH", "HEALTH_STATUS", "COLLECTS",1) }.to raise_error(/does not exist/)
-        expect { @api.set_tlm_raw("INST", "UNKNOWN", "COLLECTS",1) }.to raise_error(/does not exist/)
-        expect { @api.set_tlm_raw("INST", "HEALTH_STATUS", "BLAH",1) }.to raise_error(/does not exist/)
-      end
-
-      it "processes a string" do
-        @api.set_tlm_raw("INST HEALTH_STATUS TEMP1 = 10.0")
+      it "sets raw telemetry" do
+        @api.set_tlm("INST HEALTH_STATUS TEMP1 = 10.0", type: :RAW)
         expect(@api.tlm_raw("INST HEALTH_STATUS TEMP1")).to eql 10.0
-        @api.set_tlm_raw("INST HEALTH_STATUS TEMP1 = 0.0")
+        @api.set_tlm("INST", "HEALTH_STATUS", "TEMP1", 0.0, type: 'RAW')
         expect(@api.tlm_raw("INST HEALTH_STATUS TEMP1")).to eql 0.0
       end
 
-      it "processes parameters" do
-        @api.set_tlm_raw("INST", "HEALTH_STATUS", "TEMP1", 20.0)
-        expect(@api.tlm_raw("INST HEALTH_STATUS TEMP1")).to eql 20.0
-        @api.set_tlm_raw("INST", "HEALTH_STATUS", "TEMP1", 0.0)
-        expect(@api.tlm_raw("INST HEALTH_STATUS TEMP1")).to eql 0.0
+      it "sets formatted telemetry" do
+        @api.set_tlm("INST HEALTH_STATUS TEMP1 = '10.000'", type: :FORMATTED)
+        expect(@api.tlm_formatted("INST HEALTH_STATUS TEMP1")).to eql "10.000"
+        @api.set_tlm("INST", "HEALTH_STATUS", "TEMP1", "0.000", type: 'FORMATTED')
+        expect(@api.tlm_formatted("INST HEALTH_STATUS TEMP1")).to eql "0.000"
+      end
+
+      it "sets with_units telemetry" do
+        @api.set_tlm("INST HEALTH_STATUS TEMP1 = '10.0 C'", type: :WITH_UNITS)
+        expect(@api.tlm_with_units("INST HEALTH_STATUS TEMP1")).to eql "10.0 C"
+        @api.set_tlm("INST", "HEALTH_STATUS", "TEMP1", "0.0 F", type: 'WITH_UNITS')
+        expect(@api.tlm_with_units("INST HEALTH_STATUS TEMP1")).to eql "0.0 F"
       end
     end
 
@@ -296,17 +296,17 @@ module Cosmos
       end
 
       it "complains about non-existant items" do
-        expect { @api.inject_tlm("INST", "HEALTH_STATUS",{'BLAH' => 0}) }.to raise_error("Item(s) 'INST HEALTH_STATUS BLAH' does not exist")
+        expect { @api.inject_tlm("INST", "HEALTH_STATUS", {'BLAH' => 0}) }.to raise_error("Item(s) 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
       it "injects a packet into the system" do
-        @api.inject_tlm("INST", "HEALTH_STATUS",{TEMP1: 10, TEMP2: 20}, :CONVERTED, true, true, false)
-        sleep 0.5
+        @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 10, TEMP2: 20}, type: :CONVERTED)
+        sleep 0.2
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to be_within(0.1).of(20.0)
 
-        @api.inject_tlm("INST", "HEALTH_STATUS",{TEMP1: 0, TEMP2: 0}, :RAW, true, true, false)
-        sleep 0.5
+        @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 0, TEMP2: 0}, type: :RAW)
+        sleep 0.2
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(-100.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql(-100.0)
       end
@@ -326,35 +326,38 @@ module Cosmos
         expect { @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", "TEMP2",0.0) }.to raise_error(/Invalid number of arguments/)
       end
 
-      it "returns the new value and ignores updates" do
+      it "overrides raw values" do
+        expect(@api.tlm_raw("INST", "HEALTH_STATUS", "TEMP1")).to eql(0)
+        @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", 5.0, type: :RAW)
+        expect(@api.tlm_raw("INST", "HEALTH_STATUS", "TEMP1")).to eql(5.0)
+        @api.set_tlm("INST", "HEALTH_STATUS", "TEMP1", 10.0, type: :RAW)
+        expect(@api.tlm_raw("INST", "HEALTH_STATUS", "TEMP1")).to eql(5.0)
+      end
+
+      it "overrides converted values" do
         expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1")).to eql(-100.0)
-        @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", 50.0)
+        @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", 60.0)
+        expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1")).to eql(60.0)
+        @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", 50.0, type: :CONVERTED)
         expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1")).to eql(50.0)
         @api.set_tlm("INST", "HEALTH_STATUS", "TEMP1", 10.0)
         expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1")).to eql(50.0)
       end
-    end
 
-    describe "override_tlm_raw" do
-      it "complains about unknown targets, commands, and parameters" do
-        expect { @api.override_tlm_raw("BLAH HEALTH_STATUS COLLECTS = 1") }.to raise_error(/does not exist/)
-        expect { @api.override_tlm_raw("INST UNKNOWN COLLECTS = 1") }.to raise_error(/does not exist/)
-        expect { @api.override_tlm_raw("INST HEALTH_STATUS BLAH = 1") }.to raise_error(/does not exist/)
-        expect { @api.override_tlm_raw("BLAH", "HEALTH_STATUS", "COLLECTS",1) }.to raise_error(/does not exist/)
-        expect { @api.override_tlm_raw("INST", "UNKNOWN", "COLLECTS",1) }.to raise_error(/does not exist/)
-        expect { @api.override_tlm_raw("INST", "HEALTH_STATUS", "BLAH",1) }.to raise_error(/does not exist/)
+      it "overrides formatted values" do
+        expect(@api.tlm_formatted("INST", "HEALTH_STATUS", "TEMP1")).to eql('-100.000')
+        @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", '5.000', type: :FORMATTED)
+        expect(@api.tlm_formatted("INST", "HEALTH_STATUS", "TEMP1")).to eql('5.000')
+        @api.set_tlm("INST", "HEALTH_STATUS", "TEMP1", '10.000', type: :FORMATTED)
+        expect(@api.tlm_formatted("INST", "HEALTH_STATUS", "TEMP1")).to eql('5.000')
       end
 
-      it "complains with too many parameters" do
-        expect { @api.override_tlm_raw("INST", "HEALTH_STATUS", "TEMP1", "TEMP2",0.0) }.to raise_error(/Invalid number of arguments/)
-      end
-
-      it "returns the new value and ignores updates" do
-        expect(@api.tlm_raw("INST", "HEALTH_STATUS", "TEMP1")).to eql(0)
-        @api.override_tlm_raw("INST", "HEALTH_STATUS", "TEMP1", 5.0)
-        expect(@api.tlm_raw("INST", "HEALTH_STATUS", "TEMP1")).to eql(5.0)
-        @api.set_tlm_raw("INST", "HEALTH_STATUS", "TEMP1", 10.0)
-        expect(@api.tlm_raw("INST", "HEALTH_STATUS", "TEMP1")).to eql(5.0)
+      it "overrides with_units values" do
+        expect(@api.tlm_with_units("INST", "HEALTH_STATUS", "TEMP1")).to eql('-100.000 C')
+        @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", '5.00 C', type: :WITH_UNITS)
+        expect(@api.tlm_with_units("INST", "HEALTH_STATUS", "TEMP1")).to eql('5.00 C')
+        @api.set_tlm("INST", "HEALTH_STATUS", "TEMP1", 10.0, type: :WITH_UNITS)
+        expect(@api.tlm_with_units("INST", "HEALTH_STATUS", "TEMP1")).to eql('5.00 C')
       end
     end
 
@@ -373,13 +376,19 @@ module Cosmos
       end
 
       it "clears all overrides" do
-        @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", 50.0)
-        @api.override_tlm_raw("INST", "HEALTH_STATUS", "TEMP1", 5.0)
-        expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1")).to eql(50.0)
-        expect(@api.tlm_raw("INST", "HEALTH_STATUS", "TEMP1")).to eql(5.0)
+        @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", 5.0, type: 'RAW')
+        @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", 50.0, type: 'CONVERTED')
+        @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", '50.00', type: 'FORMATTED')
+        @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", '50.00 F', type: 'WITH_UNITS')
+        expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1", type: 'RAW')).to eql(5.0)
+        expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1", type: 'CONVERTED')).to eql(50.0)
+        expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1", type: 'FORMATTED')).to eql('50.00')
+        expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1", type: 'WITH_UNITS')).to eql('50.00 F')
         @api.normalize_tlm("INST", "HEALTH_STATUS", "TEMP1")
-        expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1")).to eql(-100.0)
-        expect(@api.tlm_raw("INST", "HEALTH_STATUS", "TEMP1")).to eql(0)
+        expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1", type: 'RAW')).to eql(0)
+        expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1", type: 'CONVERTED')).to eql(-100.0)
+        expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1", type: 'FORMATTED')).to eql('-100.000')
+        expect(@api.tlm("INST", "HEALTH_STATUS", "TEMP1", type: 'WITH_UNITS')).to eql('-100.000 C')
       end
     end
 
@@ -454,7 +463,7 @@ module Cosmos
       end
 
       it "complains about non-existant value_types" do
-        expect { @api.get_tlm_packet("INST", "HEALTH_STATUS",:MINE) }.to raise_error(RuntimeError, "Unknown value type on read: MINE")
+        expect { @api.get_tlm_packet("INST", "HEALTH_STATUS", type: :MINE) }.to raise_error(/Unknown type 'MINE'/)
       end
 
       it "reads all telemetry items as CONVERTED with their limits states" do
@@ -490,7 +499,7 @@ module Cosmos
       end
 
       it "reads all telemetry items as RAW" do
-        vals = @api.get_tlm_packet("INST", "HEALTH_STATUS", :RAW)
+        vals = @api.get_tlm_packet("INST", "HEALTH_STATUS", type: :RAW)
         expect(vals[24][0]).to eql "TEMP1"
         expect(vals[24][1]).to eql 0
         expect(vals[24][2]).to eql "RED_LOW"
@@ -506,7 +515,7 @@ module Cosmos
       end
 
       it "reads all telemetry items as FORMATTED" do
-        vals = @api.get_tlm_packet("INST", "HEALTH_STATUS", :FORMATTED)
+        vals = @api.get_tlm_packet("INST", "HEALTH_STATUS", type: :FORMATTED)
         expect(vals[24][0]).to eql "TEMP1"
         expect(vals[24][1]).to eql "-100.000"
         expect(vals[24][2]).to eql "RED_LOW"
@@ -522,7 +531,7 @@ module Cosmos
       end
 
       it "reads all telemetry items as WITH_UNITS" do
-        vals = @api.get_tlm_packet("INST", "HEALTH_STATUS", :WITH_UNITS)
+        vals = @api.get_tlm_packet("INST", "HEALTH_STATUS", type: :WITH_UNITS)
         expect(vals[24][0]).to eql "TEMP1"
         expect(vals[24][1]).to eql "-100.000 C"
         expect(vals[24][2]).to eql "RED_LOW"
@@ -614,83 +623,7 @@ module Cosmos
       end
     end
 
-    describe "get_tlm_list" do
-      it "complains about non-existant targets" do
-        expect { @api.get_tlm_list("BLAH") }.to raise_error(RuntimeError, "Target 'BLAH' does not exist")
-      end
-
-      it "returns the sorted packet names for a target" do
-        pkts = @api.get_tlm_list("INST")
-        expect(pkts[0][0]).to eql "ADCS"
-        expect(pkts[1][0]).to eql "ERROR"
-        expect(pkts[2][0]).to eql "HANDSHAKE"
-        expect(pkts[3][0]).to eql "HEALTH_STATUS"
-        expect(pkts[4][0]).to eql "IMAGE"
-        expect(pkts[5][0]).to eql "MECH"
-        expect(pkts[6][0]).to eql "PARAMS"
-      end
-    end
-
-    describe "get_tlm_item_list" do
-      it "complains about non-existant targets" do
-        expect { @api.get_tlm_item_list("BLAH", "HEALTH_STATUS") }.to raise_error(RuntimeError, "Packet 'BLAH HEALTH_STATUS' does not exist")
-      end
-
-      it "complains about non-existant packets" do
-        expect { @api.get_tlm_item_list("INST", "BLAH") }.to raise_error(RuntimeError, "Packet 'INST BLAH' does not exist")
-      end
-
-      it "returns all the items for a target/packet" do
-        items = @api.get_tlm_item_list("INST", "HEALTH_STATUS")
-        # expect(items[0][0]).to eql "PACKET_TIMESECONDS"
-        # expect(items[1][0]).to eql "PACKET_TIMEFORMATTED"
-        # expect(items[2][0]).to eql "RECEIVED_TIMESECONDS"
-        # expect(items[3][0]).to eql "RECEIVED_TIMEFORMATTED"
-        # expect(items[4][0]).to eql "RECEIVED_COUNT"
-        # Spot check a few more
-        expect(items[11][0]).to eql "TEMP1"
-        expect(items[11][1]).to be_nil
-        expect(items[11][2]).to eql "Temperature #1"
-        expect(items[17][0]).to eql "COLLECT_TYPE"
-        expect(items[17][1]).to include("NORMAL" => { "value" => 0 }, "SPECIAL" => { "value" => 1 })
-        expect(items[17][2]).to eql "Most recent collect type"
-      end
-    end
-
-    describe "get_tlm_details" do
-      it "complains about non-existant targets" do
-        expect { @api.get_tlm_details([["BLAH", "HEALTH_STATUS", "TEMP1"]]) }.to raise_error(RuntimeError, "Packet 'BLAH HEALTH_STATUS' does not exist")
-      end
-
-      it "complains about non-existant packets" do
-        expect { @api.get_tlm_details([["INST", "BLAH", "TEMP1"]]) }.to raise_error(RuntimeError, "Packet 'INST BLAH' does not exist")
-      end
-
-      it "complains about non-existant items" do
-        expect { @api.get_tlm_details([["INST", "HEALTH_STATUS", "BLAH"]]) }.to raise_error(RuntimeError, "Item 'INST HEALTH_STATUS BLAH' does not exist")
-      end
-
-      it "complains about bad parameters" do
-        expect { @api.get_tlm_details("INST") }.to raise_error(ArgumentError, /item_array must be nested array/)
-        expect { @api.get_tlm_details(["INST", "HEALTH_STATUS", "BLAH"]) }.to raise_error(ArgumentError, /item_array must be nested array/)
-      end
-
-      it "reads all the specified items" do
-        items = []
-        items << %w(INST HEALTH_STATUS TEMP1)
-        items << %w(INST HEALTH_STATUS TEMP2)
-        items << %w(INST HEALTH_STATUS TEMP3)
-        items << %w(INST HEALTH_STATUS TEMP4)
-        details = @api.get_tlm_details(items)
-        expect(details.length).to eql 4
-        expect(details[0]["name"]).to eql "TEMP1"
-        expect(details[1]["name"]).to eql "TEMP2"
-        expect(details[2]["name"]).to eql "TEMP3"
-        expect(details[3]["name"]).to eql "TEMP4"
-      end
-    end
-
-    describe "subscribe_packet, get_packet" do
+    describe "subscribe_packets, get_packet" do
       it "streams packets since the subscription was created" do
         # Write an initial packet that should not be returned
         packet = System.telemetry.packet("INST", "HEALTH_STATUS")
@@ -699,7 +632,7 @@ module Cosmos
         TelemetryDecomTopic.write_packet(packet, scope: "DEFAULT")
         sleep(0.01)
 
-        id = @api.subscribe_packet_data([["INST","HEALTH_STATUS"],["INST","ADCS"]])
+        id = @api.subscribe_packets([["INST","HEALTH_STATUS"],["INST","ADCS"]])
 
         # Write some packets that should be returned and one that will not
         packet.received_time = Time.now.sys
@@ -716,17 +649,17 @@ module Cosmos
         TelemetryDecomTopic.write_packet(packet, scope: "DEFAULT")
 
         index = 0
-        @api.get_packet(id) do |target, packet, hash|
-          expect(target).to eql "INST"
+        @api.get_packet(id) do |hash|
+          expect(hash['target_name']).to eql "INST"
           case index
           when 0
-            expect(packet).to eql "HEALTH_STATUS"
+            expect(hash['packet_name']).to eql "HEALTH_STATUS"
             expect(hash['DURATION']).to eql 2.0
           when 1
-            expect(packet).to eql "HEALTH_STATUS"
-            expect(hash['DURATION']).to eql 2.0
+            expect(hash['packet_name']).to eql "HEALTH_STATUS"
+            expect(hash['DURATION']).to eql 3.0
           when 2
-            expect(packet).to eql "ADCS"
+            expect(hash['packet_name']).to eql "ADCS"
           else
             raise "Found too many packets"
           end

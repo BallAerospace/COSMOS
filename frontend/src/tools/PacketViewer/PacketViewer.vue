@@ -232,8 +232,8 @@ export default {
       ) {
         return
       }
-      this.api.get_target_ignored_items(event.targetName).then((ignored) => {
-        this.ignoredItems = ignored
+      this.api.get_target(event.targetName).then((target) => {
+        this.ignoredItems = target.ignored_items
       })
       this.api
         .get_packet_derived_items(event.targetName, event.packetName)

@@ -30,34 +30,23 @@ module Cosmos
       'tlm_with_units',
       'tlm_variable',
       'set_tlm',
-      'set_tlm_raw',
-      'set_tlm_formatted',
-      'set_tlm_with_units',
       'inject_tlm',
       'override_tlm',
-      'override_tlm_raw',
-      'override_tlm_formatted',
-      'override_tlm_with_units',
       'normalize_tlm',
       'get_tlm_buffer',
       'get_tlm_packet',
       'get_tlm_values',
-      'get_tlm_list',
       'get_all_telemetry',
       'get_telemetry',
       'get_item',
-      'get_tlm_item_list',
-      'get_tlm_details',
-      'subscribe_packet_data',
-      'unsubscribe_packet_data',
-      'get_packet_data',
+      'subscribe_packets',
       'get_packet',
       'get_all_tlm_info',
       'get_tlm_cnt',
       'get_packet_derived_items',
     ])
 
-    # Request a converted telemetry item from a packet.
+    # Request a telemetry item from a packet.
     #
     # Accepts two different calling styles:
     #   tlm("TGT PKT ITEM")
@@ -66,90 +55,30 @@ module Cosmos
     # Favor the first syntax where possible as it is more succinct.
     #
     # @param args [String|Array<String>] See the description for calling style
-    # @return [Numeric] The converted telemetry value without formatting or
-    #   units
-    def tlm(*args, scope: $cosmos_scope, token: $cosmos_token)
+    # @param type [Symbol] Telemetry type, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
+    # @return [Object] The telemetry value formatted as requested
+    def tlm(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name = tlm_process_args(args, 'tlm', scope: scope)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      CvtModel.get_item(target_name, packet_name, item_name, type: :CONVERTED, scope: scope)
+      CvtModel.get_item(target_name, packet_name, item_name, type: type.intern, scope: scope)
     end
 
     # Request a raw telemetry item from a packet.
-    #
-    # Accepts two different calling styles:
-    #   tlm_raw("TGT PKT ITEM")
-    #   tlm_raw('TGT','PKT','ITEM')
-    #
-    # Favor the first syntax where possible as it is more succinct.
-    #
-    # @param args (see #tlm)
-    # @return [Numeric] The unconverted telemetry value without formatting or
-    #   units
     def tlm_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      target_name, packet_name, item_name = tlm_process_args(args, 'tlm_raw', scope: scope)
-      authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      CvtModel.get_item(target_name, packet_name, item_name, type: :RAW, scope: scope)
+      tlm(*args, type: :RAW)
     end
-
     # Request a formatted telemetry item from a packet.
-    #
-    # Accepts two different calling styles:
-    #   tlm_formatted("TGT PKT ITEM")
-    #   tlm_formatted('TGT','PKT','ITEM')
-    #
-    # Favor the first syntax where possible as it is more succinct.
-    #
-    # @param args (see #tlm)
-    # @return [String] The converted telemetry value with formatting but
-    #   without units
     def tlm_formatted(*args, scope: $cosmos_scope, token: $cosmos_token)
-      target_name, packet_name, item_name = tlm_process_args(args, 'tlm_formatted', scope: scope)
-      authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      CvtModel.get_item(target_name, packet_name, item_name, type: :FORMATTED, scope: scope)
+      tlm(*args, type: :FORMATTED)
     end
-
     # Request a telemetry item with units from a packet.
-    #
-    # Accepts two different calling styles:
-    #   tlm_with_units("TGT PKT ITEM")
-    #   tlm_with_units('TGT','PKT','ITEM')
-    #
-    # Favor the first syntax where possible as it is more succinct.
-    #
-    # @param args (see #tlm)
-    # @return [String] The converted, formatted telemetry value with units
     def tlm_with_units(*args, scope: $cosmos_scope, token: $cosmos_token)
-      target_name, packet_name, item_name = tlm_process_args(args, 'tlm_with_units', scope: scope)
-      authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      CvtModel.get_item(target_name, packet_name, item_name, type: :WITH_UNITS, scope: scope)
+      tlm(*args, type: :WITH_UNITS)
     end
-
-    # Request a telemetry item from a packet with the specified conversion
-    # applied. This method is equivalent to calling the other tlm_xxx methods.
-    #
-    # Accepts two different calling styles:
-    #   tlm_variable("TGT PKT ITEM", :RAW)
-    #   tlm_variable('TGT','PKT','ITEM', :RAW)
-    #
-    # Favor the first syntax where possible as it is more succinct.
-    #
-    # @param args The args must either be a string followed by a symbol or
-    #   three strings followed by a symbol (see the calling style in the
-    #   description). The symbol must be one of {Packet::VALUE_TYPES}.
-    # @return [Object] The converted telemetry value
+    # Request a telemetry item with units from a packet.
+    # @deprecated Use tlm() with type keyword
     def tlm_variable(*args, scope: $cosmos_scope, token: $cosmos_token)
-      case args[-1].intern
-      when :RAW
-        return tlm_raw(*args[0..-2], scope: scope)
-      when :CONVERTED
-        return tlm(*args[0..-2], scope: scope)
-      when :FORMATTED
-        return tlm_formatted(*args[0..-2], scope: scope)
-      when :WITH_UNITS
-        return tlm_with_units(*args[0..-2], scope: scope)
-      else
-        raise "Invalid type '#{args[-1]}'. Must be :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS."
-      end
+      tlm(*args[0..-2], type: args[-1].intern, scope: scope, token: token)
     end
 
     # Set a telemetry item in the current value table.
@@ -165,38 +94,26 @@ module Cosmos
     #
     # Favor the first syntax where possible as it is more succinct.
     #
-    # @param args The args must either be a string followed by a value or
-    #   three strings followed by a value (see the calling style in the
-    #   description).
+    # @param args [String|Array<String>] See the description for calling style
+    # @param type [Symbol] Telemetry type, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
     def set_tlm(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__, scope: scope)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      CvtModel.set_item(target_name, packet_name, item_name, value, type: type, scope: scope)
-      nil
+      CvtModel.set_item(target_name, packet_name, item_name, value, type: type.intern, scope: scope)
     end
-
-    # @deprecated Use #set_tlm with type: :RAW
-    # @param args The args must either be a string followed by a value or
-    #   three strings followed by a value (see the calling style in the
-    #   description).
-    def set_tlm_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      set_tlm(*args, type: :RAW, scope: scope, token: token)
-    end
-
-    # TODO: Need to add new set_tlm_formatted and set_tlm_with_units
 
     # Injects a packet into the system as if it was received from an interface
     #
     # @param target_name[String] Target name of the packet
     # @param packet_name[String] Packet name of the packet
     # @param item_hash[Hash] Hash of item_name and value for each item you want to change from the current value table
-    # @param value_type[Symbol/String] Type of the values in the item_hash (RAW or CONVERTED)
-    # @param send_routers[Boolean] Whether or not to send to routers for the target's interface
-    # @param send_packet_log_writers[Boolean] Whether or not to send to the packet log writers for the target's interface
-    # @param create_new_logs[Boolean] Whether or not to create new log files before writing this packet to logs
-    def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true,
-      send_packet_log_writers = true, create_new_logs = false, scope: $cosmos_scope, token: $cosmos_token)
+    # @param type [Symbol] Telemetry type, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
+    def inject_tlm(target_name, packet_name, item_hash = nil, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
+      unless CvtModel::VALUE_TYPES.include?(type.intern)
+        raise "Unknown type '#{type}' for #{target_name} #{packet_name}"
+      end
+
       if item_hash
         # Check that the items exist ... exceptions are raised if not
         TargetModel.packet_items(target_name, packet_name, item_hash.keys, scope: scope)
@@ -209,16 +126,13 @@ module Cosmos
       inject['target_name'] = target_name
       inject['packet_name'] = packet_name
       inject['item_hash'] = JSON.generate(item_hash) if item_hash
-      inject['value_type'] = value_type
-      # TODO: Handle the rest of the parameters
-      # inject['send_routers'] = true if send_routers
+      inject['type'] = type
 
       InterfaceModel.all(scope: scope).each do |name, interface|
         if interface['target_names'].include? target_name
           Store.write_topic("#{scope}__CMDINTERFACE__#{interface['name']}", inject)
         end
       end
-      nil
     end
 
     # Override the current value table such that a particular item always
@@ -234,35 +148,15 @@ module Cosmos
     # @param args The args must either be a string followed by a value or
     #   three strings followed by a value (see the calling style in the
     #   description).
-    # @param type One of :CONVERTED (default), :RAW, :FORMATTED, or :WITH_UNITS
+    # @param type [Symbol] Telemetry type, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
     def override_tlm(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__, scope: scope)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      CvtModel.override(target_name, packet_name, item_name, value, type: type, scope: scope)
-    end
-
-    # Override a telemetry item in a packet to a particular value such that it
-    # is always returned even when new telemetry packets are received from the
-    # target. This only accepts RAW data items and any conversions are applied
-    # to the raw data when the packet is read.
-    #
-    # Accepts two different calling styles:
-    #   override_tlm_raw("TGT PKT ITEM = 1.0")
-    #   override_tlm_raw('TGT','PKT','ITEM', 10.0)
-    #
-    # Favor the first syntax where possible as it is more succinct.
-    #
-    # @param args The args must either be a string followed by a value or
-    #   three strings followed by a value (see the calling style in the
-    #   description).
-    def override_tlm_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      target_name, packet_name, item_name, value = set_tlm_process_args(args, __method__, scope: scope)
-      authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      CvtModel.override(target_name, packet_name, item_name, value, type: :RAW, scope: scope)
+      CvtModel.override(target_name, packet_name, item_name, value, type: type.intern, scope: scope)
     end
 
     # Normalize a telemetry item in a packet to its default behavior. Called
-    # after override_tlm and override_tlm_raw to restore standard processing.
+    # after override_tlm to restore standard processing.
     #
     # Accepts two different calling styles:
     #   normalize_tlm("TGT PKT ITEM")
@@ -272,10 +166,12 @@ module Cosmos
     #
     # @param args The args must either be a string or three strings
     #   (see the calling style in the description).
-    def normalize_tlm(*args, scope: $cosmos_scope, token: $cosmos_token)
+    # @param type [Symbol] Telemetry type, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
+    #   Also takes :ALL which means to normalize all telemetry types
+    def normalize_tlm(*args, type: :ALL, scope: $cosmos_scope, token: $cosmos_token)
       target_name, packet_name, item_name = tlm_process_args(args, __method__, scope: scope)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      CvtModel.normalize(target_name, packet_name, item_name, scope: scope)
+      CvtModel.normalize(target_name, packet_name, item_name, type: type.intern, scope: scope)
     end
 
     # Returns the raw buffer for a telemetry packet.
@@ -296,14 +192,12 @@ module Cosmos
     #
     # @param target_name [String] Name of the target
     # @param packet_name [String] Name of the packet
-    # @param value_type [Symbol] How the values should be converted. Must be
-    #   one of {Packet::VALUE_TYPES}
+    # @param type [Symbol] Types returned, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
     # @return (see Cosmos::Packet#read_all_with_limits_states)
-    def get_tlm_packet(target_name, packet_name, value_type = :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
+    def get_tlm_packet(target_name, packet_name, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       TargetModel.packet(target_name, packet_name, scope: scope)
-      value_type = value_type.intern
-      case value_type
+      case type.intern
       when :RAW
         desired_item_type = ''
       when :CONVERTED
@@ -313,7 +207,7 @@ module Cosmos
       when :WITH_UNITS
         desired_item_type = 'U'
       else
-        raise "Unknown value type on read: #{value_type}"
+        raise "Unknown type '#{type}' for #{target_name} #{packet_name}"
       end
       result_hash = {}
       topic = "#{scope}__DECOM__#{target_name}__#{packet_name}"
@@ -398,56 +292,12 @@ module Cosmos
       TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
     end
 
-    # Returns the sorted packet names and their descriptions for a particular
-    # target.
+    # Subscribe to a list of packets. An ID is returned which is passed to
+    # get_packet(id) to yield packets back to a block.
     #
-    # @deprecated Use #get_all_telemetry
-    # @param target_name (see #get_tlm_packet)
-    # @return [Array<String, String>] Array of \[packet name, packet
-    #   description] sorted by packet name
-    def get_tlm_list(target_name, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'tlm', target_name: target_name, scope: scope, token: token)
-      list = []
-      TargetModel.packets(target_name, scope: scope).each do |packet|
-        list << [packet['packet_name'], packet['description']]
-      end
-      list.sort
-    end
-
-    # Returns the item names and their states and descriptions for a particular
-    # packet.
-    #
-    # @deprecated Use #get_telemetry
-    # @param target_name (see #get_tlm_packet)
-    # @param packet_name (see #get_tlm_packet)
-    # @return [Array<String, Hash, String>] Array of \[item name, item states,
-    #   item description]
-    def get_tlm_item_list(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-      packet = TargetModel.packet(target_name, packet_name, scope: scope)
-      return packet['items'].map {|item| [item['name'], item['states'], item['description']] }
-    end
-
-    # Returns an array of Hashes with all the attributes of the item.
-    #
-    # @deprecated Use #get_telemetry
-    # @return [Array<Hash>] Array of hashes describing the items. All the
-    #   attributes in {Cosmos::PacketItem} and {Cosmos::StructItem} are
-    #   present in the Hash.
-    def get_tlm_details(item_array, scope: $cosmos_scope, token: $cosmos_token)
-      if !item_array.is_a?(Array) || !item_array[0].is_a?(Array)
-        raise ArgumentError, "item_array must be nested array: [['TGT','PKT','ITEM'],...]"
-      end
-      details = []
-      item_array.each do |target_name, packet_name, item_name|
-        authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-        details << TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
-      end
-      details
-    end
-
     # @param packets [Array<Array<String, String>>] Array of arrays consisting of target name, packet name
-    def subscribe_packet(packets, scope: $cosmos_scope, token: $cosmos_token)
+    # @return [String] ID which should be passed to get_packet
+    def subscribe_packets(packets, scope: $cosmos_scope, token: $cosmos_token)
       if !packets.is_a?(Array) || !packets[0].is_a?(Array)
         raise ArgumentError, "packets must be nested array: [['TGT','PKT'],...]"
       end
@@ -455,34 +305,26 @@ module Cosmos
       packets.each do |target_name, packet_name|
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
         result << "#{scope}__DECOM__#{target_name}__#{packet_name}"
-        # result << "#{topic}__#{Store.get_last_offset(topic)}"
       end
       result.join("\n")
     end
-    alias subscribe_packet_data subscribe_packet
+    # Alias the singular as well since that matches COSMOS 4
+    alias subscribe_packet subscribe_packets
 
-    # @deprecated No need to unsubscribe
-    def unsubscribe_packet_data(id, scope: $cosmos_scope, token: $cosmos_token)
-      # No-op in the new system
-    end
-
-    # Get a packet which was previously subscribed to by
-    # subscribe_packet. This method can block waiting for new packets or
-    # not based on the second parameter. It returns a single Cosmos::Packet instance
-    # and will return nil when no more packets are buffered (assuming non_block
-    # is false).
-    # Usage:
-    #   get_packet(id, <true or false to block>)
-    def get_packet(id, non_block = false, scope: $cosmos_scope, token: $cosmos_token)
+    # Get a packet which was previously subscribed to by subscribe_packet.
+    # This method takes a block and yields back packet hashes.
+    def get_packet(id, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
       offset, *topics = id.split("\n")
       offsets = []
-      topics.each do |topic|
+      # Create a common array of offsets for each of the topics
+      topics.length.times do
         offsets << (offset.to_i / 1_000_000).to_s + '-0'
       end
       Topic.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
-        _, _, target_name, packet_name = topic.split('__')
-        yield target_name, packet_name, msg_hash
+        json_hash = JSON.parse(msg_hash['json_data'])
+        msg_hash.delete('json_data')
+        yield msg_hash.merge(json_hash)
       end
     end
 

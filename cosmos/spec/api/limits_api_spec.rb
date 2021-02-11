@@ -63,17 +63,12 @@ module Cosmos
       @dm = DecomMicroservice.new("DEFAULT__DECOM__INST_INT")
       @dm_thread = Thread.new { @dm.run }
 
-      # model = MicroserviceModel.new(name: "DEFAULT__CVT__INST_INT", scope: "DEFAULT", topics: ["DEFAULT__DECOM__INST__HEALTH_STATUS"])
-      # model.create
-      # @cm = CvtMicroservice.new("DEFAULT__CVT__INST_INT")
-      # @cm_thead = Thread.new { @cm.run }
-      sleep(0.01) # Allow the thread to run
+      sleep(0.01) # Allow the threads to run
 
       @api = ApiTest.new
     end
 
     after(:each) do
-      # @cm.shutdown
       @dm.shutdown
       @im.shutdown
       sleep(0.01)
@@ -306,8 +301,8 @@ module Cosmos
 
     describe "get_out_of_limits" do
       it "returns all out of limits items" do
-        @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
-        sleep(0.1)
+        @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, type: :RAW)
+        sleep(0.2)
         items = @api.get_out_of_limits
         (0..3).each do |i|
           expect(items[i][0]).to eql "INST"
@@ -322,15 +317,15 @@ module Cosmos
       it "returns the overall system limits state" do
         @api.inject_tlm("INST", "HEALTH_STATUS",
           { 'TEMP1' => 0, 'TEMP2' => 0, 'TEMP3' => 0, 'TEMP4' => 0, 'GROUND1STATUS' => 1, 'GROUND2STATUS' => 1 })
-        sleep(0.1)
+        sleep(0.2)
         expect(@api.get_overall_limits_state).to eql "GREEN"
         # TEMP1 limits: -80.0 -70.0 60.0 80.0 -20.0 20.0
         # TEMP2 limits: -60.0 -55.0 30.0 35.0
         @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP1' => 70, 'TEMP2' => 32 }) # Both YELLOW
-        sleep(0.1)
+        sleep(0.2)
         expect(@api.get_overall_limits_state).to eql "YELLOW"
         @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP2' => 40 })
-        sleep(0.1)
+        sleep(0.2)
         expect(@api.get_overall_limits_state).to eql "RED"
         expect(@api.get_overall_limits_state([])).to eql "RED"
 

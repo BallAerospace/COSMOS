@@ -218,13 +218,6 @@ module Cosmos
       return $cmd_tlm_server.get_cmd_list(target_name)
     end
 
-    # Returns all the parameters for given command as an array of arrays
-    # containing the parameter name, default value, states, description, units
-    # full name, units abbreviation, and whether it is required.
-    def get_cmd_param_list(target_name, cmd_name)
-      return $cmd_tlm_server.get_cmd_param_list(target_name, cmd_name)
-    end
-
     # Returns whether a command is hazardous (true or false)
     def get_cmd_hazardous(target_name, cmd_name, cmd_params = {})
       return $cmd_tlm_server.get_cmd_hazardous(target_name, cmd_name, cmd_params)

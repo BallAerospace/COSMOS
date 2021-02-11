@@ -55,12 +55,19 @@ module Cosmos
     end
 
     def self.connect_router(router_name, scope:)
-      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", {'connect' => true})
+      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", {'connect' => 'true'})
     end
 
     def self.disconnect_router(router_name, scope:)
-      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", {'disconnect' => true})
+      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", {'disconnect' => 'true'})
     end
 
+    def self.start_raw_logging(router_name, scope:)
+      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", {'log_raw' => 'true'})
+    end
+
+    def self.stop_raw_logging(router_name, scope:)
+      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", {'log_raw' => 'false'})
+    end
   end
 end

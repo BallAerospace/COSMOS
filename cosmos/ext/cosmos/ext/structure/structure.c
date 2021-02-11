@@ -1556,7 +1556,7 @@ static VALUE structure_initialize(int argc, VALUE *argv, VALUE self)
   }
   else
   {
-    rb_raise(rb_eArgError, "Unrecognized endianness: %s - Must be :BIG_ENDIAN or :LITTLE_ENDIAN", RSTRING_PTR(rb_funcall(default_endianness, id_method_to_s, 0)));
+    rb_raise(rb_eArgError, "Unknown endianness '%s', must be :BIG_ENDIAN or :LITTLE_ENDIAN", RSTRING_PTR(rb_funcall(default_endianness, id_method_to_s, 0)));
   }
 
   return self;

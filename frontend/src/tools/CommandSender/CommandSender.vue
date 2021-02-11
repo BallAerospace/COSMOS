@@ -487,9 +487,9 @@ export default {
       this.sendDisabled = true
       this.ignoredParams = []
       this.rows = []
-      this.api.get_target_ignored_parameters(this.targetName).then(
-        (ignoredParams) => {
-          this.ignoredParams = ignoredParams
+      this.api.get_target(this.targetName).then(
+        (target) => {
+          this.ignoredParams = target.ignored_parameters
           this.api.get_command(this.targetName, this.commandName).then(
             (command) => {
               command.items.forEach((parameter) => {
