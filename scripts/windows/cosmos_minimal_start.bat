@@ -1,23 +1,3 @@
-@echo off
-REM If necessary, before running please copy a local certificate authority .pem file as cacert.pem to this folder
-REM This will allow docker to work through local SSL infrastructure such as decryption devices
-if not exist cacert.pem (
-  if exist C:\ProgramData\BATC\GlobalSign.pem (
-    copy C:\ProgramData\BATC\GlobalSign.pem cacert.pem
-    echo Using existing Ball GlobalSign.pem as cacert.pem
-  ) else (
-    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('https://curl.haxx.se/ca/cacert.pem', 'cacert.pem')"
-    if errorlevel 1 (
-      echo ERROR: Problem downloading cacert.pem file from https://curl.haxx.se/ca/cacert.pem
-      echo cosmos_start FAILED
-      exit /b 1
-    ) else (
-      echo Successfully downloaded cacert.pem file from: https://curl.haxx.se/ca/cacert.pem
-    )
-  )
-) else (
-  echo Using existing cacert.pem
-)
 @echo on
 
 REM These lines configure the host OS properly for Redis
