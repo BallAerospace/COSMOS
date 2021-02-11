@@ -7,12 +7,14 @@ fi
 
 case $1 in
 start)
+  scripts/linux/cosmos_setup.sh
   scripts/linux/cosmos_minimal_start.sh
   ;;
 stop)
   scripts/linux/cosmos_stop.sh
   ;;
 build)
+  scripts/linux/cosmos_setup.sh
   scripts/linux/cosmos_build.sh
   ;;
 cleanup)
