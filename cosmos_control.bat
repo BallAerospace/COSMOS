@@ -74,12 +74,12 @@ GOTO :EOF
 
 :usage
   @echo Usage: %0 [setup, start, stop, cleanup, build, deploy, start_dev] 1>&2
+  @echo *  setup: setup containers to build and run 1>&2
   @echo *  start: run the minimal docker containers for cosmos 1>&2
   @echo *  stop: stop the running docker containers for cosmos 1>&2
-  @echo *  build: build the containers for cosmos 1>&2
   @echo *  cleanup: cleanup network and volumes for cosmos 1>&2
+  @echo *  build: build the containers for cosmos 1>&2
   @echo *  deploy: deploy the containers to localhost repository 1>&2
-  @echo *  setup: setup containers to build and run 1>&2
   @echo *  start_dev: run all docker containers for cosmos 1>&2
 
 @echo on
