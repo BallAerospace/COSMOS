@@ -13,7 +13,7 @@ usage() {
 }
 
 if [ $# -ne 1 ]; then
-  usage
+  usage $0
 fi
 
 case $1 in
@@ -42,6 +42,6 @@ setup)
   scripts/linux/cosmos_setup.sh
   ;;
 *)
-  usage
+  usage $0
   ;;
 esac
