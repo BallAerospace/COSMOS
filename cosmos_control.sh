@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 usage() {
-  echo "Usage: $1 [start, stop, build, cleanup, deploy, setup, start_dev]" >&2
+  echo "Usage: $1 [setup, start, stop, cleanup, build, deploy, start_dev]" >&2
   echo "*  start: start the minimal docker run for cosmos" >&2
   echo "*  stop: stop the running dockers for cosmos" >&2
   echo "*  build: build the containers for cosmos" >&2
