@@ -31,20 +31,26 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-radio-group v-model="format" label="Display format">
+        <v-radio-group v-model="currentConfig.format" label="Display format">
           <v-radio label="Hex" value="hex" />
           <v-radio label="ASCII" value="ascii" />
         </v-radio-group>
       </v-col>
       <v-col>
-        <v-switch v-model="showLineAddress" label="Show line address" />
+        <v-switch
+          v-model="currentConfig.showLineAddress"
+          label="Show line address"
+        />
       </v-col>
       <v-col>
-        <v-switch v-model="showTimestamp" label="Show timestamp" />
+        <v-switch
+          v-model="currentConfig.showTimestamp"
+          label="Show timestamp"
+        />
       </v-col>
       <v-col>
         <v-text-field
-          v-model="bytesPerLine"
+          v-model="currentConfig.bytesPerLine"
           label="Bytes per line"
           type="number"
           min="1"
@@ -53,7 +59,7 @@
       </v-col>
       <v-col>
         <v-text-field
-          v-model="packetsToShow"
+          v-model="currentConfig.packetsToShow"
           label="Packets to show"
           type="number"
           :hint="`Maximum: ${this.history.length}`"
@@ -65,7 +71,7 @@
       </v-col>
       <v-col>
         <v-radio-group
-          v-model="newestAtTop"
+          v-model="currentConfig.newestAtTop"
           label="Print newest packets to the"
         >
           <v-radio label="Top" :value="true" />
@@ -147,17 +153,24 @@ export default {
   components: {
     PacketSummaryComponent,
   },
+  props: {
+    config: {
+      type: Object,
+    },
+  },
   data: function () {
     return {
+      currentConfig: {
+        format: 'hex',
+        showLineAddress: true,
+        showTimestamp: true,
+        bytesPerLine: 16,
+        packetsToShow: 1,
+        newestAtTop: false,
+      },
       history: new Array(HISTORY_MAX_SIZE),
       historyPointer: -1, // index of the newest packet in history
       receivedCount: 0,
-      format: 'hex',
-      showLineAddress: true,
-      showTimestamp: true,
-      bytesPerLine: 16,
-      packetsToShow: 1,
-      newestAtTop: false,
       filterText: '',
       paused: false,
       pausedAt: 0,
@@ -185,6 +198,14 @@ export default {
       this.rebuildDisplayText()
     }, 300),
   },
+  created: function () {
+    if (this.config) {
+      this.currentConfig = {
+        ...this.currentConfig, // In case anything isn't defined in this.config
+        ...this.config,
+      }
+    }
+  },
   mounted: function () {
     this.textarea = this.$refs.textarea.$el.querySelectorAll('textarea')[0]
   },
@@ -205,7 +226,7 @@ export default {
           if (this.matchesSearch(packetText)) {
             if (!this.displayText) {
               this.displayText = packetText
-            } else if (this.newestAtTop) {
+            } else if (this.currentConfig.newestAtTop) {
               this.displayText = `${packetText}\n\n${this.displayText}`
             } else {
               this.displayText += `\n\n${packetText}`
@@ -214,21 +235,21 @@ export default {
         }
       })
       this.trimDisplayText()
-      if (!this.paused && !this.newestAtTop) {
+      if (!this.paused && !this.currentConfig.newestAtTop) {
         this.updateScrollPosition()
       }
     },
     trimDisplayText: function () {
       // Could make this more robust by counting lines instead, but that's slower
-      if (this.newestAtTop) {
+      if (this.currentConfig.newestAtTop) {
         this.displayText = this.displayText.substring(
           0,
-          this.packetSize * this.packetsToShow
+          this.packetSize * this.currentConfig.packetsToShow
         )
       } else {
         this.displayText = this.displayText.substring(
           this.displayText.length -
-            (this.packetSize + 2) * this.packetsToShow +
+            (this.packetSize + 2) * this.currentConfig.packetsToShow +
             2
         )
       }
@@ -255,10 +276,10 @@ export default {
       const secondSlice = this.paused ? pausedPlusOffset : this.historyPointer
       const thirdSlice = this.paused
         ? Math.min(
-            this.packetsToShow,
+            this.currentConfig.packetsToShow,
             this.pausedHistory.length + this.pauseOffset
           )
-        : this.packetsToShow
+        : this.currentConfig.packetsToShow
 
       let packets = this.paused ? this.pausedHistory : this.history
       packets = packets
@@ -266,7 +287,7 @@ export default {
         .concat(packets.slice(0, secondSlice + 1))
         .filter((packet) => packet)
         .slice(-thirdSlice)
-      if (this.newestAtTop) packets = packets.reverse()
+      if (this.currentConfig.newestAtTop) packets = packets.reverse()
       this.displayText = packets
         .map(this.calculatePacketText)
         .filter(this.matchesSearch)
@@ -277,11 +298,11 @@ export default {
     },
     calculatePacketText: function (packet) {
       // Split its buffer into lines of the selected length
-      let text = _.chunk([...packet.buffer], this.bytesPerLine)
+      let text = _.chunk([...packet.buffer], this.currentConfig.bytesPerLine)
         .map((lineBytes, index) => {
           // Map each line into ASCII or hex values
           let mappedBytes = []
-          if (this.format === 'ascii') {
+          if (this.currentConfig.format === 'ascii') {
             mappedBytes = lineBytes.map((byte) =>
               byte.replace(/\n/, '\\n').replace(/\r/, '\\r').padStart(2, ' ')
             )
@@ -292,8 +313,8 @@ export default {
           }
           let line = mappedBytes.join(' ')
           // Prepend the line address if needed
-          if (this.showLineAddress) {
-            const address = (index * this.bytesPerLine)
+          if (this.currentConfig.showLineAddress) {
+            const address = (index * this.currentConfig.bytesPerLine)
               .toString(16)
               .padStart(8, '0')
             line = `${address}: ${line}`
@@ -301,7 +322,7 @@ export default {
           return line
         })
         .join('\n') // end of one line
-      if (this.showTimestamp) {
+      if (this.currentConfig.showTimestamp) {
         const milliseconds = packet.time / 1000000
         const receivedSeconds = (milliseconds / 1000).toFixed(7)
         const receivedDate = new Date(milliseconds).toISOString()
@@ -317,15 +338,15 @@ export default {
       return text
     },
     validateBytesPerLine: function () {
-      if (this.bytesPerLine < 1) {
-        this.bytesPerLine = 1
+      if (this.currentConfig.bytesPerLine < 1) {
+        this.currentConfig.bytesPerLine = 1
       }
     },
     validatePacketsToShow: function () {
-      if (this.packetsToShow > this.history.length) {
-        this.packetsToShow = this.history.length
-      } else if (this.packetsToShow < 1) {
-        this.packetsToShow = 1
+      if (this.currentConfig.packetsToShow > this.history.length) {
+        this.currentConfig.packetsToShow = this.history.length
+      } else if (this.currentConfig.packetsToShow < 1) {
+        this.currentConfig.packetsToShow = 1
       }
     },
     download: function () {
@@ -367,10 +388,10 @@ export default {
     // These are just here to trigger their respective watch functions above
     // There's a better solution to this in Vue 3 v3.vuejs.org/api/computed-watch-api.html#watching-multiple-sources
     allInstantSettings: function () {
-      return `${this.format}|${this.showLineAddress}|${this.showTimestamp}|${this.newestAtTop}|${this.pauseOffset}`
+      return `${this.currentConfig.format}|${this.currentConfig.showLineAddress}|${this.currentConfig.showTimestamp}|${this.currentConfig.newestAtTop}|${this.pauseOffset}`
     },
     allDebouncedSettings: function () {
-      return `${this.bytesPerLine}|${this.packetsToShow}|${this.filterText}`
+      return `${this.currentConfig.bytesPerLine}|${this.currentConfig.packetsToShow}|${this.filterText}`
     },
   },
 }
