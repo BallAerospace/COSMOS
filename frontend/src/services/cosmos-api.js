@@ -27,7 +27,7 @@ export class CosmosApi {
   constructor() {}
 
   // This is hacky Json-rpc for now.  Should probably use a jsonrpc library.
-  async exec(method, params) {
+  async exec(method, params, kwparams = {}) {
     try {
       await auth.updateToken(30)
     } catch (error) {
@@ -35,15 +35,14 @@ export class CosmosApi {
     }
     this.id = this.id + 1
     try {
+      kwparams['scope'] = 'DEFAULT'
+      kwparams['token'] = localStorage.getItem('token')
       const response = await axios.post(this.host + '/api', {
         jsonrpc: '2.0',
         method: method,
         params: params,
         id: this.id,
-        keyword_params: {
-          scope: 'DEFAULT',
-          token: localStorage.getItem('token'),
-        },
+        keyword_params: kwparams,
       })
       // var data = response.data
       // if (data.error) {
@@ -217,17 +216,15 @@ export class CosmosApi {
     return this.exec('get_telemetry', [target_name, packet_name])
   }
 
-  get_all_telemetry(target_name, packet_name) {
-    return this.exec('get_telemetry', [target_name, packet_name])
+  get_all_telemetry(target_name) {
+    return this.exec('get_all_telemetry', [target_name])
   }
 
   // Called by PacketViewerComponent
   async get_tlm_packet(target_name, packet_name, value_type) {
-    const data = await this.exec('get_tlm_packet', [
-      target_name,
-      packet_name,
-      value_type,
-    ])
+    const data = await this.exec('get_tlm_packet', [target_name, packet_name], {
+      type: value_type,
+    })
     var len = data.length
     var converted = null
     for (var i = 0; i < len; i++) {
@@ -278,7 +275,6 @@ export class CosmosApi {
     return data
   }
 
-  // Called by CmdSenderComponent
   get_all_commands(target_name) {
     return this.exec('get_all_commands', [target_name])
   }
@@ -287,7 +283,6 @@ export class CosmosApi {
     return this.exec('get_command', [target_name, command_name])
   }
 
-  // Called by CmdTlmServer Cmd Packets tab
   get_cmd_value(
     target_name,
     packet_name,
