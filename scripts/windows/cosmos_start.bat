@@ -1,24 +1,5 @@
-@echo off
-REM If necessary, before running please copy a local certificate authority .pem file as cacert.pem to this folder
-REM This will allow docker to work through local SSL infrastructure such as decryption devices
-if not exist cacert.pem (
-  if exist C:\ProgramData\BATC\GlobalSign.pem (
-    copy C:\ProgramData\BATC\GlobalSign.pem cacert.pem
-    echo Using existing Ball GlobalSign.pem as cacert.pem
-  ) else (
-    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; (New-Object Net.WebClient).DownloadFile('https://curl.haxx.se/ca/cacert.pem', 'cacert.pem')"
-    if errorlevel 1 (
-      echo ERROR: Problem downloading cacert.pem file from https://curl.haxx.se/ca/cacert.pem
-      echo cosmos_start FAILED
-      exit /b 1
-    ) else (
-      echo Successfully downloaded cacert.pem file from: https://curl.haxx.se/ca/cacert.pem
-    )
-  )
-) else (
-  echo Using existing cacert.pem
-)
 @echo on
+REM Please see cosmos_setup.bat
 
 REM These lines configure the host OS properly for Redis
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
@@ -39,7 +20,6 @@ docker container rm cosmos-elasticsearch
 docker pull amazon/opendistro-for-elasticsearch:1.12.0
 docker build -f elasticsearch\Dockerfile -t cosmos-elasticsearch elasticsearch
 docker run --network cosmos -p 127.0.0.1:9200:9200 -d --name cosmos-elasticsearch -v cosmos-elasticsearch-v:/usr/share/elasticsearch/data -e "bootstrap.memory_lock=true" --ulimit memlock=-1:-1 --env discovery.type="single-node" --env ES_JAVA_OPTS="-Xms1g -Xmx1g" --env MALLOC_ARENA_MAX=4  cosmos-elasticsearch
-timeout 30 >nul
 
 docker container rm cosmos-kibana
 docker pull amazon/opendistro-for-elasticsearch-kibana:1.12.0

@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
-# Please download cacert.pem from https://curl.haxx.se/docs/caextract.html and place in this folder before running
-# Alternatively, if your org requires a different certificate authority file, please place that here as cacert.pem before running
-# This will allow docker to work through local SSL infrastructure such as decryption devices
-# You may need to comment out the below three lines if you are on linux host (as opposed to mac)
-touch cacert.pem
+# Please see cosmos_setup.sh
+
 
 # These lines configure the host OS properly for Redis
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
@@ -23,7 +20,6 @@ docker container rm cosmos-elasticsearch
 docker pull amazon/opendistro-for-elasticsearch:1.12.0
 docker build -f elasticsearch/Dockerfile -t cosmos-elasticsearch elasticsearch
 docker run --network cosmos -p 127.0.0.1:9200:9200 -d --name cosmos-elasticsearch -v cosmos-elasticsearch-v:/usr/share/elasticsearch/data -e "bootstrap.memory_lock=true" --ulimit memlock=-1:-1 --env discovery.type="single-node" --env ES_JAVA_OPTS="-Xms1g -Xmx1g" --env MALLOC_ARENA_MAX=4  cosmos-elasticsearch
-sleep 30
 
 docker container rm cosmos-kibana
 docker pull amazon/opendistro-for-elasticsearch-kibana:1.12.0
