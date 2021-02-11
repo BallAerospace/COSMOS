@@ -8,6 +8,8 @@ toc: true
 
 This guide aims to provide the best practices for using the scripting capabilities provided by COSMOS. Scripts are used to automate a series of activities for operations or testing. The goal of this document is to ensure scripts are written that are simple, easy to understand, maintainable, and correct. Guidance on some of the key details of using COSMOS's Script Runner is also provided.
 
+<div style="clear:both;"></div>
+
 ## Scripting Philosophy
 
 ### A Super Basic Script Example

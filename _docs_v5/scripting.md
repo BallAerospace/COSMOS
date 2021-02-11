@@ -4,10 +4,6 @@ title: Scripting Guide
 toc: true
 ---
 
-<div class="note unreleased">
-  <p>Unimplemented COSMOS 5 have been noted. COSMOS 5 APIs are subject to change. The User Input, Command, and Telemetry APIs are stable.</p>
-</div>
-
 This document provides the information necessary to write test procedures using the COSMOS scripting API. Scripting in COSMOS is designed to be simple and intuitive. The code completion ability for command and telemetry mnemonics makes Script Runner the ideal place to write your procedures, however any text editor will do. If there is functionality that you don't see here or perhaps an easier syntax for doing something, please submit a ticket.
 
 ## Concepts
@@ -579,10 +575,6 @@ cmd_raw_no_checks("INST", "COLLECT", "DURATION" => 11, "TYPE" => 1)
 
 ### send_raw
 
-<div class="note unreleased">
-  <p>send_raw not yet implemented in COSMOS 5</p>
-</div>
-
 The send_raw method sends raw data on an interface.
 
 Syntax:
@@ -599,32 +591,105 @@ send_raw(<Interface Name>, <data>)
 Example:
 
 ```ruby
-send_raw("INST1INT", data)
+send_raw("INST_INT", data)
 ```
 
-### send_raw_file
+### get_all_commands (since 5.0.0)
 
-<div class="note unreleased">
-  <p>send_raw_file not yet implemented in COSMOS 5</p>
-</div>
-
-The send_raw_file method sends raw data on an interface from a file.
+The get_all_commands method returns an array of the commands that are available for a particular target. The returned array is an array of hashes which fully describe the command packet.
 
 Syntax:
 
 ```ruby
-send_raw_file(<Interface Name>, <filename>)
+get_all_commands("<Target Name>")
 ```
 
-| Parameter      | Description                                    |
-| -------------- | ---------------------------------------------- |
-| Interface Name | Name of the interface to send the raw data on. |
-| filename       | Full path to the file with the data to send.   |
+| Parameter   | Description         |
+| ----------- | ------------------- |
+| Target Name | Name of the target. |
 
 Example:
 
 ```ruby
-send_raw_file("INST1INT", "/home/user/data_to_send.bin")
+cmd_list = get_all_commands("INST")
+pp cmd_list
+#[{"target_name"=>"INST",
+#  "packet_name"=>"ABORT",
+#  "endianness"=>"BIG_ENDIAN",
+#  "description"=>"Aborts a collect on the instrument",
+#  "stale"=>true,
+#  "items"=>
+#   [{"name"=>"CCSDSVER",
+#     "bit_offset"=>0,
+#     "bit_size"=>3,
+#     ...
+```
+
+### get_command (since 5.0.0)
+
+The get_command method returns a command hash which fully describes the command packet.
+
+Syntax:
+
+```ruby
+get_command("<Target Name>", "<Packet Name>")
+```
+
+| Parameter   | Description         |
+| ----------- | ------------------- |
+| Target Name | Name of the target. |
+| Packet Name | Name of the packet. |
+
+Example:
+
+```ruby
+cmd = get_command("INST", "ABORT")
+pp cmd
+#[{"target_name"=>"INST",
+#  "packet_name"=>"ABORT",
+#  "endianness"=>"BIG_ENDIAN",
+#  "description"=>"Aborts a collect on the instrument",
+#  "stale"=>true,
+#  "items"=>
+#   [{"name"=>"CCSDSVER",
+#     "bit_offset"=>0,
+#     "bit_size"=>3,
+#     ...
+```
+
+### get_parameter (since 5.0.0)
+
+The get_parameter method returns a hash of the given command parameter
+
+Syntax:
+
+```ruby
+get_parameter("<Target Name>", "<Command Name>", "<Parameter Name>")
+```
+
+| Parameter      | Description            |
+| -------------- | ---------------------- |
+| Target Name    | Name of the target.    |
+| Command Name   | Name of the command.   |
+| Parameter Name | Name of the parameter. |
+
+Example:
+
+```ruby
+param = get_parameter("INST", "COLLECT", "TYPE")
+pp param
+# {"name"=>"TYPE",
+# "bit_offset"=>64,
+# "bit_size"=>16,
+# "data_type"=>"UINT",
+# "description"=>"Collect type",
+# "default"=>0,
+# "minimum"=>0,
+# "maximum"=>65535,
+# "endianness"=>"BIG_ENDIAN",
+# "required"=>true,
+# "overflow"=>"ERROR",
+# "states"=>{"NORMAL"=>{"value"=>0}, "SPECIAL"=>{"value"=>1, "hazardous"=>""}}}
 ```
 
 ### get_cmd_buffer
@@ -647,49 +712,6 @@ Example:
 ```ruby
 buffer = get_cmd_buffer("INST", "COLLECT")
 buffer.unpack('C*') # See the Ruby documentation for class String method unpack
-```
-
-### get_cmd_list
-
-The get_cmd_list method returns an array of the commands that are available for a particular target. The returned array is an array of array swhere each subarray contains the command name and description.
-
-Syntax:
-
-```ruby
-get_cmd_list("<Target Name>")
-```
-
-| Parameter   | Description         |
-| ----------- | ------------------- |
-| Target Name | Name of the target. |
-
-Example:
-
-```ruby
-cmd_list = get_cmd_list("INST")
-puts cmd_list.inspect # [['TARGET_NAME', 'DESCRIPTION'], ...]
-```
-
-### get_cmd_param_list
-
-The get_cmd_param_list method returns an array of the command parameters that are available for a particular command. The returned array is an array of arrays where each subarray contains [parameter_name, default_value, states_hash, description, units_full, units, required_flag]
-
-Syntax:
-
-```ruby
-get_cmd_param_list("<Target Name>", "<Command Name>")
-```
-
-| Parameter    | Description          |
-| ------------ | -------------------- |
-| Target Name  | Name of the target.  |
-| Command Name | Name of the command. |
-
-Example:
-
-```ruby
-cmd_param_list = get_cmd_param_list("INST", "COLLECT")
-puts cmd_param_list.inspect # [["CCSDSVER", 0, nil, "CCSDS primary header version number", nil, nil, false], ...]
 ```
 
 ### get_cmd_hazardous
@@ -721,7 +743,7 @@ The get_cmd_value method returns reads a value from the most recently sent comma
 Syntax:
 
 ```ruby
-get_cmd_value("<Target Name>", "<Command Name>", "<Parameter Name>", <Value Type - optional>) # Since COSMOS 3.5.0
+get_cmd_value("<Target Name>", "<Command Name>", "<Parameter Name>", <Value Type - optional>)
 ```
 
 | Parameter      | Description                                                      |
@@ -744,7 +766,7 @@ The get_cmd_time method returns the time of the most recent command sent.
 Syntax:
 
 ```ruby
-get_cmd_time("<Target Name - optional>", "<Command Name - optional>") # Since COSMOS 3.5.0
+get_cmd_time("<Target Name - optional>", "<Command Name - optional>")
 ```
 
 | Parameter    | Description                                                                                               |
@@ -760,7 +782,7 @@ target_name, command_name, time = get_cmd_time("INST") # Name of the most recent
 target_name, command_name, time = get_cmd_time("INST", "COLLECT") # Name of the most recent INST COLLECT command and time
 ```
 
-### get_cmd_cnt (since 3.9.2)
+### get_cmd_cnt
 
 The get_cmd_cnt method returns the number of times a specified command has been sent.
 
@@ -776,21 +798,23 @@ get_cmd_cnt("<Target Name>", "<Command Name>")
 | Command Name | Name of the command. |
 
 Example:
-{% highlight ruby %}
-cmd_cnt = get_cmd_cnt("INST", "COLLECT") # Number of times the INST COLLECT command has been sent
-{% endhighlight %}
 
-### get_all_cmd_info (since 4.1.0)
+```ruby
+cmd_cnt = get_cmd_cnt("INST", "COLLECT") # Number of times the INST COLLECT command has been sent
+```
+
+### get_all_cmd_info
 
 The get_all_cmd_info method returns the number of times each command has been sent. The return value is an array of arrays where each subarray contains the target name, command name, and packet count for a command.
 
 Syntax / Example:
-{% highlight ruby %}
+
+```ruby
 cmd_info = get_all_cmd_info()
 cmd_info.each do |target_name, cmd_name, pkt_count|
-puts "Target: #{target_name}, Command: #{cmd_name}, Packet count: #{pkt_count}"
+  puts "Target: #{target_name}, Command: #{cmd_name}, Packet count: #{pkt_count}"
 end
-{% endhighlight %}
+```
 
 ## Handling Telemetry
 
@@ -966,7 +990,7 @@ Example:
 check_expression("tlm('INST HEALTH_STATUS COLLECTS') > 5 and tlm('INST HEALTH_STATUS TEMP1') > 25.0")
 ```
 
-### check_exception (since 4.1.0)
+### check_exception
 
 The check_exception method executes a method and expects an exception to be raised. If the method does not raise an exception, a CheckError is raised.
 
@@ -997,16 +1021,18 @@ Syntax:
 tlm("<Target Name> <Packet Name> <Item Name>")
 ```
 
-| Parameter   | Description                                         |
-| ----------- | --------------------------------------------------- |
-| Target Name | Name of the target of the telemetry item.           |
-| Packet Name | Name of the telemetry packet of the telemetry item. |
-| Item Name   | Name of the telemetry item.                         |
+| Parameter   | Description                                                                               |
+| ----------- | ----------------------------------------------------------------------------------------- |
+| Target Name | Name of the target of the telemetry item.                                                 |
+| Packet Name | Name of the telemetry packet of the telemetry item.                                       |
+| Item Name   | Name of the telemetry item.                                                               |
+| type:       | Named parameter specifying the type. :RAW, :FORMATTED, :CONVERTED (default), :WITH_UNITS. |
 
 Example:
 
 ```ruby
 value = tlm("INST HEALTH_STATUS COLLECTS")
+raw_value = tlm("INST HEALTH_STATUS COLLECTS", type: :RAW)
 ```
 
 ### tlm_raw
@@ -1077,7 +1103,7 @@ value = tlm_with_units("INST HEALTH_STATUS COLLECTS")
 
 ### tlm_variable
 
-The tlm_variable method reads a specified telemetry item with a variable value type.
+The tlm_variable method reads a specified telemetry item with a variable value type. This method is deprecated now that tlm() itself takes a type keyword to request the type of telemetry.
 
 Syntax:
 
@@ -1127,50 +1153,48 @@ The get_tlm_packet method returns the names, values, and limits states of all te
 Syntax:
 
 ```ruby
-get_tlm_packet("<Target Name>", "<Packet Name>", value_type)
+get_tlm_packet("<Target Name>", "<Packet Name>", type: :CONVERTED)
 ```
 
-| Parameter   | Description                                                                                                |
-| ----------- | ---------------------------------------------------------------------------------------------------------- |
-| Target Name | Name of the target.                                                                                        |
-| Packet Name | Name of the packet.                                                                                        |
-| value_type  | Telemetry Type to read the values in. :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS. Defaults to :CONVERTED |
+| Parameter   | Description                                                                                  |
+| ----------- | -------------------------------------------------------------------------------------------- |
+| Target Name | Name of the target.                                                                          |
+| Packet Name | Name of the packet.                                                                          |
+| type:       | Named parameter specifying the type. :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS. |
 
 Example:
 
 ```ruby
-names_values_and_limits_states = get_tlm_packet("INST", "HEALTH_STATUS", :FORMATTED)
+names_values_and_limits_states = get_tlm_packet("INST", "HEALTH_STATUS", type: :FORMATTED)
 ```
 
-### get_tlm_values
+### get_tlm_values (modified in 5.0.0)
 
-The get_tlm_values method returns the values, limits_states, limits_settings, and current limits_set for a specified set of telemetry items. Items can be in any telemetry packet in the system. They can all be retrieved using the same value type or a specific value type can be specified for each item.
+The get_tlm_values method returns the values and current limits state for a specified set of telemetry items. Items can be in any telemetry packet in the system. They can all be retrieved using the same value type or a specific value type can be specified for each item.
 
 Syntax:
 
 ```ruby
-values, limits_states, limits_settings, limits_set = get_tlm_values(<items>, <value_types>)
+values, limits_states, limits_settings, limits_set = get_tlm_values(<items>)
 ```
 
-| Parameter   | Description                                                                                                                                                                                                           |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| items       | Array of item arrays of the form [[Target Name #1, Packet Name #1, Item Name #1], ... ]                                                                                                                               |
-| value_types | Telemetry Type to read the values in. :RAW, :CONVERTED, :FORMATTED, or :WITH_UNITS. Defaults to :CONVERTED . May be specified as a single symbol that applies to all items or an array of symbols, one for each item. |
-
-Example:
+| Parameter | Description                                                 |
+| --------- | ----------------------------------------------------------- |
+| items     | Array of strings of the form ['TGT__PKT__ITEM__TYPE', ... ] |
 
 ```ruby
-values, limits_states, limits_settings, limits_set = get_tlm_values([[INST", "ADCS", "Q1"], ["INST", "ADCS", "Q2"]], [:FORMATTED, :WITH_UNITS])
+values = get_tlm_values(["INST__HEALTH_STATUS__TEMP1__CONVERTED", "INST__HEALTH_STATUS__TEMP2__RAW"])
+pp values # [[-100.0, :RED_LOW], [0, :RED_LOW]]
 ```
 
-### get_tlm_list
+### get_all_telemetry (since 5.0.0)
 
-The get_tlm_list method returns an array of the telemetry packets and their descriptions that are available for a particular target.
+The get_all_telemetry method returns an array of all target packet hashes.
 
 Syntax:
 
 ```ruby
-packet_names_and_descriptions = get_tlm_list("<Target Name>")
+get_all_telemetry("<Target Name>")
 ```
 
 | Parameter   | Description         |
@@ -1180,58 +1204,99 @@ packet_names_and_descriptions = get_tlm_list("<Target Name>")
 Example:
 
 ```ruby
-packet_names_and_descriptions = = get_tlm_list("INST")
+packets = get_all_telemetry("INST")
+pp packets
+#[{"target_name"=>"INST",
+#  "packet_name"=>"ADCS",
+#  "endianness"=>"BIG_ENDIAN",
+#  "description"=>"Position and attitude data",
+#  "stale"=>true,
+#  "items"=>
+#   [{"name"=>"CCSDSVER",
+#     "bit_offset"=>0,
+#     "bit_size"=>3,
+#     ...
 ```
 
-### get_tlm_item_list
+### get_telemetry (since 5.0.0)
 
-The get_tlm_item_list method returns an array of the telemetry items that are available for a particular telemetry packet. The returned value is an array of arrays where each subarray contains [item_name, item_states_hash, description]
+The get_telemetry method returns a packet hash.
 
 Syntax:
 
 ```ruby
-get_tlm_item_list("<Target Name>", "<Packet Name>")
+get_telemetry("<Target Name>", "<Packet Name>")
 ```
 
-| Parameter   | Description                   |
-| ----------- | ----------------------------- |
-| Target Name | Name of the target.           |
-| Packet Name | Name of the telemetry packet. |
+| Parameter   | Description         |
+| ----------- | ------------------- |
+| Target Name | Name of the target. |
+| Packet Name | Name of the packet. |
 
 Example:
 
 ```ruby
-item_names_states_and_descriptions = get_tlm_item_list("INST", "HEALTH_STATUS")
+packet = get_telemetry("INST", "HEALTH_STATUS")
+pp packet
+#{"target_name"=>"INST",
+# "packet_name"=>"HEALTH_STATUS",
+# "endianness"=>"BIG_ENDIAN",
+# "description"=>"Health and status from the instrument",
+# "stale"=>true,
+# "processors"=>
+#  [{"name"=>"TEMP1STAT",
+#    "class"=>"Cosmos::StatisticsProcessor",
+#    "params"=>["TEMP1", 100, "CONVERTED"]},
+#   {"name"=>"TEMP1WATER",
+#    "class"=>"Cosmos::WatermarkProcessor",
+#    "params"=>["TEMP1", "CONVERTED"]}],
+# "items"=>
+#  [{"name"=>"CCSDSVER",
+#    "bit_offset"=>0,
+#    "bit_size"=>3,
+#    ...
 ```
 
-### get_tlm_details
+### get_item (since 5.0.0)
 
-The get_tlm_details method returns an array with details about the specified telemetry items such as their limits and states.
+The get_item method returns an item hash.
 
 Syntax:
 
 ```ruby
-get_tlm_details(<items>)
+get_item("<Target Name>", "<Packet Name>", "<Item Name>")
 ```
 
-| Parameter | Description                                                                             |
-| --------- | --------------------------------------------------------------------------------------- |
-| items     | Array of item arrays of the form [[Target Name #1, Packet Name #1, Item Name #1], ... ] |
+| Parameter   | Description         |
+| ----------- | ------------------- |
+| Target Name | Name of the target. |
+| Packet Name | Name of the packet. |
+| Item Name   | Name of the item.   |
 
 Example:
 
 ```ruby
-details = get_tlm_details([["INST", "HEALTH_STATUS", "COLLECTS"]])
+item = get_item("INST", "HEALTH_STATUS", "CCSDSVER")
+pp item
+#{"name"=>"CCSDSVER",
+# "bit_offset"=>0,
+# "bit_size"=>3,
+# "data_type"=>"UINT",
+# "description"=>"CCSDS packet version number (See CCSDS 133.0-B-1)",
+# "endianness"=>"BIG_ENDIAN",
+# "required"=>false,
+# "overflow"=>"ERROR"}
 ```
 
-### get_tlm_cnt (since 3.9.2)
+### get_tlm_cnt
 
 The get_tlm_cnt method returns the number of times a specified telemetry packet has been received.
 
 Syntax:
-{% highlight ruby %}
+
+```ruby
 get_tlm_cnt("<Target Name>", "<Packet Name>")
-{% endhighlight %}
+```
 
 | Parameter   | Description                   |
 | ----------- | ----------------------------- |
@@ -1239,25 +1304,27 @@ get_tlm_cnt("<Target Name>", "<Packet Name>")
 | Packet Name | Name of the telemetry packet. |
 
 Example:
-{% highlight ruby %}
-tlm_cnt = get_tlm_cnt("INST", "HEALTH_STATUS") # Number of times the INST HEALTH_STATUS telemetry packet has been received.
-{% endhighlight %}
 
-### get_all_tlm_info (since 4.1.0)
+```ruby
+tlm_cnt = get_tlm_cnt("INST", "HEALTH_STATUS") # Number of times the INST HEALTH_STATUS telemetry packet has been received.
+```
+
+### get_all_tlm_info
 
 The get_all_tlm_info method returns the number of times each telemetry packet has been received. The return value is an array of arrays where each subarray contains the target name, telemetry packet name, and packet count for a telemetry packet.
 
 Syntax / Example:
-{% highlight ruby %}
+
+```ruby
 tlm_info = get_all_tlm_info()
 tlm_info.each do |target_name, pkt_name, pkt_count|
-puts "Target: #{target_name}, Packet: #{pkt_name}, Packet count: #{pkt_count}"
+  puts "Target: #{target_name}, Packet: #{pkt_name}, Packet count: #{pkt_count}"
 end
-{% endhighlight %}
+```
 
 ### set_tlm
 
-The set_tlm method sets a telemetry item value in the Command and Telemetry Server. This value will be overwritten if a new packet is received from an interface. For that reason this method is most useful if interfaces are disconnected or for testing via the Script Runner disconnect mode. (Note that in disconnect mode it will only set telemetry within ScriptRunner. Other tools like TlmViewer will not reflect any changes) Manually setting telemetry values allows for the execution of many logical paths in scripts.
+The set_tlm method sets a telemetry item value in the Command and Telemetry Server. This value will be overwritten if a new packet is received from an interface. For that reason this method is most useful if interfaces are disconnected or for testing via the Script Runner disconnect mode. Manually setting telemetry values allows for the execution of many logical paths in scripts.
 
 Syntax:
 
@@ -1265,45 +1332,21 @@ Syntax:
 set_tlm("<Target> <Packet> <Item> = <Value>")
 ```
 
-| Parameter | Description  |
-| --------- | ------------ |
-| Target    | Target name  |
-| Packet    | Packet name  |
-| Item      | Item name    |
-| Value     | Value to set |
+| Parameter | Description                                                    |
+| --------- | -------------------------------------------------------------- |
+| Target    | Target name                                                    |
+| Packet    | Packet name                                                    |
+| Item      | Item name                                                      |
+| Value     | Value to set                                                   |
+| type:     | Value type :RAW, :CONVERTED (default), :FORMATTED, :WITH_UNITS |
 
 Example:
 
 ```ruby
-set_tlm("INST HEALTH_STATUS COLLECTS = 5")
-check("INST HEALTH_STATUS COLLECTS == 5") # This will pass since we just set it to 5
-```
-
-### set_tlm_raw
-
-The set_tlm_raw method sets a raw telemetry item value in the Command and Telemetry Server. This value will be overwritten if a new packet is received from an interface. For that reason this method is most useful if interfaces are disconnected or for testing via the Script Runner disconnect mode. (Note that in disconnect mode it will only set telemetry within ScriptRunner. Other tools like TlmViewer will not reflect any changes) Manually setting telemetry values allows for the execution of many logical paths in scripts.
-
-Syntax:
-
-```ruby
-set_tlm_raw("<Target> <Packet> <Item> = <Value>")
-```
-
-| Parameter | Description  |
-| --------- | ------------ |
-| Target    | Target name  |
-| Packet    | Packet name  |
-| Item      | Item name    |
-| Value     | Value to set |
-
-Example:
-
-```ruby
-# Assuming TEMP1 is defined with a conversion (as it is in the COSMOS demo)
-set_tlm("INST HEALTH_STATUS TEMP1 = 5")
-check_tolerance("INST HEALTH_STATUS TEMP1", 5, 0.5) # Pass
-set_tlm_raw("INST HEALTH_STATUS TEMP1 = 5")
-check_tolerance("INST HEALTH_STATUS TEMP1", 5, 0.5) # Fail because we set the raw value not the converted value
+set_tlm("INST HEALTH_STATUS COLLECTS = 5") # type is :CONVERTED by default
+check("INST HEALTH_STATUS COLLECTS == 5")
+set_tlm("INST HEALTH_STATUS COLLECTS = 10", type: :RAW)
+check_raw("INST HEALTH_STATUS COLLECTS == 10")
 ```
 
 ### inject_tlm
@@ -1313,28 +1356,25 @@ The inject_tlm method injects a packet into the system as if it was received fro
 Syntax:
 
 ```ruby
-inject_tlm("<target_name>", "<packet_name>", <item_hash>, <value_type>, <send_routers>, <send_packet_log_writers>, <create_new_logs>)
+inject_tlm("<target_name>", "<packet_name>", <item_hash>, type: :CONVERTED)
 ```
 
-| Parameter               | Description                                                                                                                                                      |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Target                  | Target name                                                                                                                                                      |
-| Packet                  | Packet name                                                                                                                                                      |
-| Item Hash               | Hash of item name/value for each item. If an item is not specified in the hash, the current value table value will be used. Optional parameter, defaults to nil. |
-| Value Type              | Type of values in the item hash (:RAW or :CONVERTED). Optional parameter, defaults to :CONVERTED.                                                                |
-| Send Routers            | Whether or not to send to routers for the target's interface. Optional parameter, defaults to true.                                                              |
-| Send Packet Log Writers | Whether or not to send to the packet log writers for the target's interface. Optional parameter, defaults to true.                                               |
-| Create New Logs         | Whether or not to create new log files before writing this packet to logs. Optional parameter, defaults to false.                                                |
+| Parameter | Description                                                                                                                                                      |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Target    | Target name                                                                                                                                                      |
+| Packet    | Packet name                                                                                                                                                      |
+| Item Hash | Hash of item name/value for each item. If an item is not specified in the hash, the current value table value will be used. Optional parameter, defaults to nil. |
+| type:     | Type of values in the item hash, :RAW, :CONVERTED (default), :FORMATTED, :WITH_UNITS                                                                             |
 
 Example:
 
 ```ruby
-inject_tlm("INST", "PARAMS", {'VALUE1'=>5.0, 'VALUE2'=>7.0})
+inject_tlm("INST", "PARAMS", {'VALUE1' => 5.0, 'VALUE2' => 7.0})
 ```
 
 ### override_tlm
 
-The override_tlm method sets the converted value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method. Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the [override protocol](http://cosmosrb.com/docs/protocols/#override-protocol)).
+The override_tlm method sets the converted value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method.
 
 Syntax:
 
@@ -1342,45 +1382,24 @@ Syntax:
 override_tlm("<Target> <Packet> <Item> = <Value>")
 ```
 
-| Parameter | Description  |
-| --------- | ------------ |
-| Target    | Target name  |
-| Packet    | Packet name  |
-| Item      | Item name    |
-| Value     | Value to set |
+| Parameter | Description                                                           |
+| --------- | --------------------------------------------------------------------- |
+| Target    | Target name                                                           |
+| Packet    | Packet name                                                           |
+| Item      | Item name                                                             |
+| Value     | Value to set                                                          |
+| type:     | Type to override, :RAW, :CONVERTED (default), :FORMATTED, :WITH_UNITS |
 
 Example:
 
 ```ruby
 override_tlm("INST HEALTH_STATUS TEMP1 = 5")
-```
-
-### override_tlm_raw
-
-The override_tlm_raw method sets the raw value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method. Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the [override protocol](http://cosmosrb.com/docs/protocols/#override-protocol)).
-
-Syntax:
-
-```ruby
-override_tlm_raw("<Target> <Packet> <Item> = <Value>")
-```
-
-| Parameter | Description  |
-| --------- | ------------ |
-| Target    | Target name  |
-| Packet    | Packet name  |
-| Item      | Item name    |
-| Value     | Value to set |
-
-Example:
-
-```ruby
-override_tlm_raw("INST HEALTH_STATUS TEMP1 = 5")
+override_tlm("INST HEALTH_STATUS TEMP2 = 0", type: :RAW)
 ```
 
 ### normalize_tlm
 
-The normalize_tlm method clears the override of a telmetry point in the Command and Telemetry Server. Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the [override protocol](http://cosmosrb.com/docs/protocols/#override-protocol)).
+The normalize_tlm method clears the override of a telmetry point in the Command and Telemetry Server.
 
 Syntax:
 
@@ -1388,88 +1407,71 @@ Syntax:
 normalize_tlm("<Target> <Packet> <Item>")
 ```
 
-| Parameter | Description |
-| --------- | ----------- |
-| Target    | Target name |
-| Packet    | Packet name |
-| Item      | Item name   |
+| Parameter | Description                                                                  |
+| --------- | ---------------------------------------------------------------------------- |
+| Target    | Target name                                                                  |
+| Packet    | Packet name                                                                  |
+| Item      | Item name                                                                    |
+| type:     | Type to normalize, :ALL (default), :RAW, :CONVERTED, :FORMATTED, :WITH_UNITS |
 
 Example:
 
 ```ruby
-normalize_tlm("INST HEALTH_STATUS TEMP1")
+normalize_tlm("INST HEALTH_STATUS TEMP1") # clear all overrides
+normalize_tlm("INST HEALTH_STATUS TEMP1", type: :RAW) # clear only the :RAW override
 ```
 
 ## Packet Data Subscriptions
 
 Methods for subscribing to specific packets of data. This provides an interface to ensure that each telemetry packet is received and handled rather than relying on polling where some data may be missed.
 
-### subscribe_packet_data
+### subscribe_packets (since 5.0.0)
 
-The subscribe_packet_data method allows the user to listen for one or more telemetry packets of data to arrive. A unique id is returned to the tool which is used to retrieve the data. The subscribed packets are placed into a queue where they can then be processed one at a time.
-
-Syntax:
-
-```ruby
-subscribe_packet_data(packets, queue_size)
-```
-
-| Parameter  | Description                                                                         |
-| ---------- | ----------------------------------------------------------------------------------- |
-| packets    | Nested array of target name/packet name pairs that the user wishes to subscribe to. |
-| queue_size | Number of packets to let queue up before dropping the connection. Defaults to 1000. |
-
-Example:
-
-```ruby
-id = subscribe_packet_data([['INST', 'HEALTH_STATUS'], ['INST', 'ADCS']], 2000)
-```
-
-### unsubscribe_packet_data
-
-The unsubscribe_packet_data method allows the user to stop listening for packet_data. This should be called to reduce the server's load if the subscription is no longer needed.
+The subscribe_packets method allows the user to listen for one or more telemetry packets of data to arrive. A unique id is returned which is used to retrieve the data.
 
 Syntax:
 
 ```ruby
-unsubscribe_packet_data(id)
+subscribe_packets(packets)
 ```
 
-| Parameter | Description                                           |
-| --------- | ----------------------------------------------------- |
-| id        | Unique id given to the tool by subscribe_packet_data. |
+| Parameter | Description                                                                         |
+| --------- | ----------------------------------------------------------------------------------- |
+| packets   | Nested array of target name/packet name pairs that the user wishes to subscribe to. |
 
 Example:
 
 ```ruby
-unsubscribe_packet_data(id)
+id = subscribe_packets([['INST', 'HEALTH_STATUS'], ['INST', 'ADCS']])
 ```
 
-### get_packet
+### get_packet (modified in 5.0.0)
 
-Receives a subscribed telemetry packet. If get_packet is called non-blocking <non_block> = true, get_packet will raise an error if the queue is empty.
-
-<div class="note warning">
-  <p><b>Overflown Queues Are Deleted</b></p>
-  <p>By default the packet queue is 1000 packets deep. If you don't call get_packet fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_packet you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_packet_data method.</p>
-</div>
+Streams packet data from a previous subscription.
 
 Syntax:
 
 ```ruby
-get_packet(id, non_block (optional))
+get_packet(id) do |packet|
+  puts packet['target_name']
+  puts packet['packet_name']
+  # Many other fields
+end
 ```
 
-| Parameter | Description                                                                                                                                  |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| id        | Unique id given to the tool by subscribe_packet_data.                                                                                        |
-| non_block | Boolean to indicate if the method should block until a packet of data is received or not. Defaults to false, blocks reading data from queue. |
+| Parameter | Description                             |
+| --------- | --------------------------------------- |
+| id        | Unique id returned by subscribe_packets |
 
 Example:
 
 ```ruby
-packet = get_packet(id)
-value = packet.read('ITEM_NAME')
+id = subscribe_packets([['INST', 'HEALTH_STATUS'], ['INST', 'ADCS']])
+get_packet(id) do |packet|
+  puts packet['target_name']
+  puts packet['packet_name']
+  # Many other fields
+end
 ```
 
 ## Delays
@@ -1962,21 +1964,22 @@ The get_limits method returns limits settings for a telemetry point.
 
 Syntax:
 
-````ruby
+```ruby
 get_limits(<Target Name>, <Packet Name>, <Item Name>, <Limits Set (optional)>)
-```e
+```
 
-| Parameter | Description |
-| -------- | --------------------------------- |
-| Target Name | Name of the target of the telemetry item. |
-| Packet Name | Name of the telemetry packet of the telemetry item. |
-| Item Name | Name of the telemetry item. |
-| Limits Set | Get the limits for a specific limits set. If not given then it defaults to returning the settings for the current limits set. |
+| Parameter   | Description                                                                                                                   |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Target Name | Name of the target of the telemetry item.                                                                                     |
+| Packet Name | Name of the telemetry packet of the telemetry item.                                                                           |
+| Item Name   | Name of the telemetry item.                                                                                                   |
+| Limits Set  | Get the limits for a specific limits set. If not given then it defaults to returning the settings for the current limits set. |
 
 Example:
+
 ```ruby
 limits_set, persistence_setting, enabled, red_low, yellow_low, yellow_high, red_high, green_low, green_high = get_limits('INST', 'HEALTH_STATUS', 'TEMP1')
-````
+```
 
 ### set_limits
 
@@ -2047,13 +2050,14 @@ The get_stale method returns a list of stale packets. The return value is an arr
 Syntax:
 
 ```ruby
-get_stale(<with_limits_only> (optional), <target> (optional))
+get_stale(with_limits_only: false, target_name: nil, staleness_sec: 30)
 ```
 
-| Parameter        | Description                                                                                                                                            |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| With Limits Only | If true, return only the packets that have limits items and thus affect the overall limits state of the system. Optional parameter, defaults to false. |
-| Target           | If specified, return only the packets associated with the given target. Optional parameter, defaults to nil.                                           |
+| Parameter         | Description                                                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| with_limits_only: | If true, return only the packets that have limits items and thus affect the overall limits state of the system. Defaults to false. |
+| target_name:      | If specified, return only the packets associated with the given target. Defaults to nil.                                           |
+| staleness_sec:    | Return packets that haven't been received since X seconds ago. Defaults to 30.                                                     |
 
 Example:
 
@@ -2062,79 +2066,53 @@ stale_packets = get_stale()
 stale_packets.each do |target, packet|
   puts "Stale packet: #{target} #{packet}"
 end
+inst_stale_packets = get_stale(target_name: "INST")
 ```
 
-## Limits Events
+### get_limits_events
 
-Methods for handling limits events.
-
-### subscribe_limits_events
-
-The subscribe_limits_events method allows the user to listen for events regarding telemetry items going out of limits or changes in limits set. A unique id is returned to the tool which is used to retrieve the events.
+The get_limits_events method returns limits events based on an offset returned from the last time it was called.
 
 Syntax:
 
 ```ruby
-subscribe_limits_events(<Queue Size (optional)>)
+get_limits_event(offset, count: 100)
 ```
 
-| Parameter  | Description                                                                                   |
-| ---------- | --------------------------------------------------------------------------------------------- |
-| Queue Size | How many limits events to queue up before dropping the client. Defaults to 1000 if not given. |
+| Parameter | Description                                                                                   |
+| --------- | --------------------------------------------------------------------------------------------- |
+| offset    | Offset returned by the previous call to get_limits_event. Default is nil for the initial call |
+| count:    | Maximum number of limits events to return. Default is 100                                     |
 
 Example:
 
 ```ruby
-id = subscribe_limits_events()
-```
-
-### unsubscribe_limits_events
-
-The unsubscribe_limits_events method allows the user to stop listening for events regarding telemetry items going out of limits or changes in limits set.
-
-Syntax:
-
-```ruby
-unsubscribe_limits_events(<id>)
-```
-
-| Parameter | Description                                             |
-| --------- | ------------------------------------------------------- |
-| id        | Unique id given to the user by subscribe_limits_events. |
-
-Example:
-
-```ruby
-unsubscribe_limits_events(id)
-```
-
-### get_limits_event
-
-The get_limits_event method returns a limits event to the user who has already subscribed to limits event. Can be run in a non-blocking or blocking manner.
-
-<div class="note warning">
-  <p><b>Overflown Queues Are Deleted</b></p>
-  <p>By default the limits queue is 1000 events deep. If you don't call get_limits_event fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_limits_event you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_limits_events method.</p>
-</div>
-
-Syntax:
-
-```ruby
-get_limits_event(<id>, <non_block (optional)>)
-```
-
-| Parameter | Description                                                                                          |
-| --------- | ---------------------------------------------------------------------------------------------------- |
-| id        | Unique id given to the tool by subscribe_limits_events.                                              |
-| non_block | Boolean to indicate if the method should block until an event is received or not. Defaults to false. |
-
-Example:
-
-```ruby
-event = get_limits_event(id, true)
-puts event.inspect # [:LIMITS_CHANGE, "TARGET_NAME", "PACKET_NAME", "ITEM_NAME", :OLD_STATE, :NEW_STATE)
-puts event.inspect # [:LIMITS_SET, :NEW_LIMITS_SET)
-puts event.inspect # [:LIMITS_SETTINGS, "TARGET_NAME", "PACKET_NAME", "ITEM_NAME", :LIMITS_SET, persistence_setting, enabled_flag, red_low, yellow_low, yellow_high, red_high, green_low, green_high)
+events = get_limits_event()
+pp events
+#[["1613077715557-0",
+#  {"type"=>"LIMITS_CHANGE",
+#   "target_name"=>"TGT",
+#   "packet_name"=>"PKT",
+#   "item_name"=>"ITEM",
+#   "old_limits_state"=>"YELLOW_LOW",
+#   "new_limits_state"=>"RED_LOW",
+#   "time_nsec"=>"1",
+#   "message"=>"message"}],
+# ["1613077715557-1",
+#  {"type"=>"LIMITS_CHANGE",
+#   "target_name"=>"TGT",
+#   "packet_name"=>"PKT",
+#   "item_name"=>"ITEM",
+#   "old_limits_state"=>"RED_LOW",
+#   "new_limits_state"=>"YELLOW_LOW",
+#   "time_nsec"=>"2",
+#   "message"=>"message"}]]
+# The last offset is the first item ([0]) in the last event ([-1])
+events = get_limits_event(events[-1][0])
+pp events
+#[["1613077715657-0",
+#  {"type"=>"LIMITS_CHANGE",
+#   ...
 ```
 
 ## Targets
@@ -2151,65 +2129,68 @@ Syntax / Example:
 targets = get_target_list()
 ```
 
-### get_target_info (since 3.9.2)
+### get_target
 
-The get_target_info method returns information about a target. The information includes the number of commands sent to the target and the number of telemetry packets received from the target.
+The get_target method returns a target hash containing all the information about the target.
 
 Syntax:
-`get_target_info("<Target Name>")`
+`get_target("<Target Name>")`
 
 | Parameter   | Description         |
 | ----------- | ------------------- |
 | Target Name | Name of the target. |
 
 Example:
-{% highlight ruby %}
-cmd_cnt, tlm_cnt = get_target_info("INST")
-{% endhighlight %}
 
-### get_all_target_info (since 4.1.0)
+```ruby
+target = get_target("INST")
+pp target
+#{"name"=>"INST",
+# "folder_name"=>"INST",
+# "requires"=>[],
+# "ignored_parameters"=>
+#  ["CCSDSVER",
+#   "CCSDSTYPE",
+#   "CCSDSSHF",
+#   "CCSDSAPID",
+#   "CCSDSSEQFLAGS",
+#   "CCSDSSEQCNT",
+#   "CCSDSLENGTH",
+#   "PKTID"],
+# "ignored_items"=>
+#  ["CCSDSVER",
+#   "CCSDSTYPE",
+#   "CCSDSSHF",
+#   "CCSDSAPID",
+#   "CCSDSSEQFLAGS",
+#   "CCSDSSEQCNT",
+#   "CCSDSLENGTH",
+#   "RECEIVED_COUNT",
+#   "RECEIVED_TIMESECONDS",
+#   "RECEIVED_TIMEFORMATTED"],
+# "limits_groups"=>[],
+# "cmd_tlm_files"=>
+#  [".../targets/INST/cmd_tlm/inst_cmds.txt",
+#   ".../targets/INST/cmd_tlm/inst_tlm.txt"],
+# "cmd_unique_id_mode"=>false,
+# "tlm_unique_id_mode"=>false,
+# "id"=>nil,
+# "updated_at"=>1613077058266815900,
+# "plugin"=>nil}
+```
+
+### get_all_target_info
 
 The get_all_target_info method returns information about all targets. The return value is an array of arrays where each subarray contains the target name, interface name, command count, and telemetry count for a target.
 
 Syntax / Example:
-{% highlight ruby %}
+
+```ruby
 target_info = get_all_target_info()
 target_info.each do |target_name, interface_name, cmd_count, tlm_count|
-puts "Target: #{target_name}, Interface: #{interface_name}, Cmd count: #{cmd_count}, Tlm count: #{tlm_count}"
+  puts "Target: #{target_name}, Interface: #{interface_name}, Cmd count: #{cmd_count}, Tlm count: #{tlm_count}"
 end
-{% endhighlight %}
-
-### get_target_ignored_parameters (since 4.1.0)
-
-The get_target_ignored_parameters method returns a list of ignored command parameters for the specified target. Ignored command parameters are those specified by the IGNORE_PARAMETER keyword in the target configuration.
-
-Syntax:
-`get_target_ignored_parameters("<Target Name>")`
-
-| Parameter   | Description         |
-| ----------- | ------------------- |
-| Target Name | Name of the target. |
-
-Example:
-{% highlight ruby %}
-ignored_params = get_target_ignored_parameters("INST")
-{% endhighlight %}
-
-### get_target_ignored_items (since 4.1.0)
-
-The get_target_ignored_items method returns a list of ignored telemetry items for the specified target. Ignored telemetry items are those specified by the IGNORE_ITEM keyword in the target configuration.
-
-Syntax:
-`get_target_ignored_items("<Target Name>")`
-
-| Parameter   | Description         |
-| ----------- | ------------------- |
-| Target Name | Name of the target. |
-
-Example:
-{% highlight ruby %}
-ignored_items = get_target_ignored_items("INST")
-{% endhighlight %}
+```
 
 ## Interfaces
 
@@ -2256,47 +2237,6 @@ Example:
 disconnect_interface("INT1")
 ```
 
-### interface_state
-
-The interface_state method retrieves the current state of a COSMOS interface. Returns either 'CONNECTED', 'DISCONNECTED', or 'ATTEMPTING'.
-
-Syntax:
-
-```ruby
-interface_state("<Interface Name>")
-```
-
-| Parameter      | Description            |
-| -------------- | ---------------------- |
-| Interface Name | Name of the interface. |
-
-Example:
-
-```ruby
-interface_state("INT1")
-```
-
-### map_target_to_interface
-
-The map_target_to_interface method allows a target to be mapped to an interface in realtime. If the target is already mapped to an interface it will be unmapped from the existing interface before being mapped to the new interface.
-
-Syntax:
-
-```ruby
-map_target_to_interface("<Target Name>", "<Interface Name>")
-```
-
-| Parameter      | Description            |
-| -------------- | ---------------------- |
-| Target Name    | Name of the target.    |
-| Interface Name | Name of the interface. |
-
-Example:
-
-```ruby
-map_target_to_interface("INST", "INT2")
-```
-
 ### get_interface_names
 
 The get_interface_names method returns a list of the interfaces in the system in an array.
@@ -2307,15 +2247,12 @@ Syntax / Example:
 interface_names = get_interface_names()
 ```
 
-### get_interface_targets (since 3.9.2)
+### get_interface (since 5.0.0)
 
-The get_interface_targets method returns the list of targets which are mapped to the given interface.
+The get_interface method returns an interface status including the as built interface and its current status (cmd/tlm counters, etc).
 
 Syntax:
-
-```ruby
-get_interface_targets("<Interface Name>")
-```
+`get_interface("<Interface Name>")`
 
 | Parameter      | Description            |
 | -------------- | ---------------------- |
@@ -2324,38 +2261,85 @@ get_interface_targets("<Interface Name>")
 Example:
 
 ```ruby
-targets = get_interface_targets("INST_INT")
+interface = get_interface("INST_INT")
+pp interface
+#{"name"=>"INST_INT",
+# "config_params"=>["interface.rb"],
+# "target_names"=>["INST"],
+# "connect_on_startup"=>true,
+# "auto_reconnect"=>true,
+# "reconnect_delay"=>5.0,
+# "disable_disconnect"=>false,
+# "options"=>[],
+# "protocols"=>[],
+# "log"=>true,
+# "log_raw"=>false,
+# "plugin"=>nil,
+# "updated_at"=>1613076213535979900,
+# "state"=>"CONNECTED",
+# "clients"=>0,
+# "txsize"=>0,
+# "rxsize"=>0,
+# "txbytes"=>0,
+# "rxbytes"=>0,
+# "txcnt"=>0,
+# "rxcnt"=>0}
 ```
 
-### get_interface_info (since 3.9.2)
+### start_raw_logging_interface
 
-The get_interface_info method returns information about an interface. The information includes the connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, command count, and telemetry count.
+The start_raw_logging_interface method starts logging of raw data on one or all interfaces. This is for debugging purposes only.
 
 Syntax:
-`get_interface_info("<Interface Name>")`
 
-| Parameter      | Description            |
-| -------------- | ---------------------- |
-| Interface Name | Name of the interface. |
+```ruby
+start_raw_logging_interface("<Interface Name (optional)>")
+```
+
+| Parameter      | Description                                                                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Interface Name | Name of the Interface to command to start raw data logging. Defaults to 'ALL' which causes all interfaces that support raw data logging to start logging raw data. |
 
 Example:
-{% highlight ruby %}
-state, clients, tx_q_size, rx_q_size, bytes_tx, bytes_rx, cmd_cnt, tlm_cnt = get_interface_info("INST_INT")
-{% endhighlight %}
 
-### get_all_interface_info (since 4.1.0)
+```ruby
+start_raw_logging_interface("int1")
+```
+
+### stop_raw_logging_interface
+
+The stop_raw_logging_interface method stops logging of raw data on one or all interfaces. This is for debugging purposes only.
+
+Syntax:
+
+```ruby
+stop_raw_logging_interface("<Interface Name (optional)>")
+```
+
+| Parameter      | Description                                                                                                                                                      |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Interface Name | Name of the Interface to command to stop raw data logging. Defaults to 'ALL' which causes all interfaces that support raw data logging to stop logging raw data. |
+
+Example:
+
+```ruby
+stop_raw_logging_interface("int1")
+```
+
+### get_all_interface_info
 
 The get_all_interface_info method returns information about all interfaces. The return value is an array of arrays where each subarray contains the interface name, connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, command count, and telemetry count.
 
 Syntax / Example:
-{% highlight ruby %}
+
+```ruby
 interface_info = get_all_interface_info()
 interface_info.each do |interface_name, connection_state, num_clients, tx_q_size, rx_q_size, tx_bytes, rx_bytes, cmd_count, tlm_count|
-puts "Interface: #{interface_name}, Connection state: #{connection_state}, Num connected clients: #{num_clients}"
-puts "Transmit queue size: #{tx_q_size}, Receive queue size: #{rx_q_size}, Bytes transmitted: #{tx_bytes}, Bytes received: #{rx_bytes}"
-puts "Cmd count: #{cmd_count}, Tlm count: #{tlm_count}"
+  puts "Interface: #{interface_name}, Connection state: #{connection_state}, Num connected clients: #{num_clients}"
+  puts "Transmit queue size: #{tx_q_size}, Receive queue size: #{rx_q_size}, Bytes transmitted: #{tx_bytes}, Bytes received: #{rx_bytes}"
+  puts "Cmd count: #{cmd_count}, Tlm count: #{tlm_count}"
 end
-{% endhighlight %}
+```
 
 ## Routers
 
@@ -2402,26 +2386,6 @@ Example:
 disconnect_router("INT1_ROUTER")
 ```
 
-### router_state
-
-The router_state method retrieves the current state of a COSMOS router. Returns either 'CONNECTED', 'DISCONNECTED', or 'ATTEMPTING'.
-
-Syntax:
-
-```ruby
-router_state("<Router Name>")
-```
-
-| Parameter   | Description         |
-| ----------- | ------------------- |
-| Router Name | Name of the router. |
-
-Example:
-
-```ruby
-router_state("INT1_ROUTER")
-```
-
 ### get_router_names
 
 The get_router_names method returns a list of the routers in the system in an array.
@@ -2432,261 +2396,19 @@ Syntax / Example:
 router_names = get_router_names()
 ```
 
-### get_router_info (since 3.9.2)
-
-The get_router_info method returns information about a router. The information includes the connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, packets received, and packets sent.
-
-Syntax:
-`get_router_info("<Router Name>")`
-
-| Parameter   | Description         |
-| ----------- | ------------------- |
-| Router Name | Name of the router. |
-
-Example:
-{% highlight ruby %}
-state, clients, tx_q_size, rx_q_size, bytes_tx, bytes_rx, pkts_rcvd, pkts_sent = get_router_info("INST_ROUTER")
-{% endhighlight %}
-
-### get_all_router_info (since 4.1.0)
+### get_all_router_info
 
 The get_all_router_info method returns information about all routers. The return value is an array of arrays where each subarray contains the router name, connection state, number of connected clients, transmit queue size, receive queue size, bytes transmitted, bytes received, packets received, and packets sent.
 
 Syntax / Example:
-{% highlight ruby %}
+
+```ruby
 router_info = get_all_router_info()
 router_info.each do |router_name, connection_state, num_clients, tx_q_size, rx_q_size, tx_bytes, rx_bytes, pkts_rcvd, pkts_sent|
-puts "Router: #{router_name}, Connection state: #{connection_state}, Num connected clients: #{num_clients}"
-puts "Transmit queue size: #{tx_q_size}, Receive queue size: #{rx_q_size}, Bytes transmitted: #{tx_bytes}, Bytes received: #{rx_bytes}"
-puts "Packets received: #{pkts_rcvd}, Packets sent: #{pkts_sent}"
+  puts "Router: #{router_name}, Connection state: #{connection_state}, Num connected clients: #{num_clients}"
+  puts "Transmit queue size: #{tx_q_size}, Receive queue size: #{rx_q_size}, Bytes transmitted: #{tx_bytes}, Bytes received: #{rx_bytes}"
+  puts "Packets received: #{pkts_rcvd}, Packets sent: #{pkts_sent}"
 end
-{% endhighlight %}
-
-## Logging
-
-These methods control command and telemetry logging.
-
-### get_cmd_log_filename
-
-The get_cmd_log_filename method retrieves the current command log file for the specified log writer. Returns nil if not logging.
-
-Syntax:
-
-```ruby
-get_cmd_log_filename("<Packet Log Writer Name (optional)>")
-```
-
-| Parameter              | Description                                          |
-| ---------------------- | ---------------------------------------------------- |
-| Packet Log Writer Name | Name of the packet log writer. Defaults to "DEFAULT" |
-
-Example:
-
-```ruby
-get_cmd_log_filename("INT1")
-```
-
-### get_tlm_log_filename
-
-The get_tlm_log_filename method retrieves the current telemetry log file for the specified log writer. Returns nil if not logging.
-
-Syntax:
-
-```ruby
-get_tlm_log_filename("<Packet Log Writer Name (optional)>")
-```
-
-| Parameter      | Description            |
-| -------------- | ---------------------- |
-| Interface Name | Name of the interface. |
-
-Example:
-
-```ruby
-get_tlm_log_filename("INT1")
-```
-
-### start_logging
-
-The start_logging method starts logging of commands sent and telemetry received for a packet log writer. If a log writer is already logging, this will start a new log file.
-
-Syntax:
-
-```ruby
-start_logging("<Packet Log Writer Name (optional)>", "<Label (optional)>")
-```
-
-| Parameter              | Description                                                                                                                                                                                                            |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Packet Log Writer Name | Name of the packet log writer to command to start logging. Defaults to 'ALL' which causes all packet log writers to start logging commands and telemetry. If a log writer is already logging it will start a new file. |
-| Label                  | Label to place on log files. Defaults to nil which means no label. Labels must consist of only letters and numbers (no underscores, hyphens, etc).                                                                     |
-
-Example:
-
-```ruby
-start_logging("int1")
-```
-
-### start_cmd_log
-
-The start_cmd_log method starts logging of commands sent. If a log writer is already logging, this will start a new log file.
-
-Syntax:
-
-```ruby
-start_cmd_log("<Packet Log Writer Name (optional)>")
-```
-
-| Parameter              | Description                                                                                                                                                                                              |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Packet Log Writer Name | Name of the packet log writer to command to start logging. Defaults to 'ALL' which causes all packet log writers to start logging commands. If a log writer is already logging it will start a new file. |
-| Label                  | Label to place on log files. Defaults to nil which means no label.                                                                                                                                       |
-
-Example:
-
-```ruby
-start_cmd_log("int1")
-```
-
-### start_tlm_log
-
-The start_tlm_log method starts logging of telemetry received. If a log writer is already logging, this will start a new log file.
-
-Syntax:
-
-```ruby
-start_tlm_log("<Packet Log Writer Name (optional)>")
-```
-
-| Parameter              | Description                                                                                                                                                                                               |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Packet Log Writer Name | Name of the packet log writer to command to start logging. Defaults to 'ALL' which causes all packet log writers to start logging telemetry. If a log writer is already logging it will start a new file. |
-| Label                  | Label to place on log files. Defaults to nil which means no label.                                                                                                                                        |
-
-Example:
-
-```ruby
-start_tlm_log("int1")
-```
-
-### stop_logging
-
-The stop_logging method stops logging of commands sent and telemetry received for a packet log writer.
-
-Syntax:
-
-```ruby
-stop_logging("<Packet Log Writer Name (optional)>")
-```
-
-| Parameter              | Description                                                                                                                                             |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Packet Log Writer Name | Name of the packet log writer to command to stop logging. Defaults to 'ALL' which causes all packet log writers to stop logging commands and telemetry. |
-
-Example:
-
-```ruby
-stop_logging("int1")
-```
-
-### stop_cmd_log
-
-The stop_cmd_log method stops logging of commands sent.
-
-Syntax:
-
-```ruby
-stop_cmd_log("<Packet Log Writer Name (optional)>")
-```
-
-| Parameter              | Description                                                                                                                               |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Packet Log Writer Name | Name of the packet log writer to command to stop logging. Defaults to 'ALL' which causes all packet log writers to stop logging commands. |
-
-Example:
-
-```ruby
-stop_cmd_log()
-```
-
-### stop_tlm_log
-
-The stop_tlm_log method stops logging of telemetry received.
-
-Syntax:
-
-```ruby
-stop_tlm_log("<Packet Log Writer Name (optional)>")
-```
-
-| Parameter              | Description                                                                                                                                |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Packet Log Writer Name | Name of the packet log writer to command to stop logging. Defaults to 'ALL' which causes all packet log writers to stop logging telemetry. |
-
-Example:
-
-```ruby
-stop_tlm_log()
-```
-
-### get_server_message_log_filename
-
-Returns the filename of the COSMOS Command and Telemetry Server message log.
-
-Syntax / Example:
-
-```ruby
-filename = get_server_message_log_filename()
-```
-
-### start_new_server_message_log
-
-Starts a new COSMOS Command and Telemetry Server message log.
-
-Syntax / Example:
-
-```ruby
-start_new_server_message_log()
-```
-
-### start_raw_logging_interface
-
-The start_raw_logging_interface method starts logging of raw data on one or all interfaces. This is for debugging purposes only.
-
-Syntax:
-
-```ruby
-start_raw_logging_interface("<Interface Name (optional)>")
-```
-
-| Parameter      | Description                                                                                                                                                        |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Interface Name | Name of the Interface to command to start raw data logging. Defaults to 'ALL' which causes all interfaces that support raw data logging to start logging raw data. |
-
-Example:
-
-```ruby
-start_raw_logging_interface ("int1")
-```
-
-### stop_raw_logging_interface
-
-The stop_raw_logging_interface method stops logging of raw data on one or all interfaces. This is for debugging purposes only.
-
-Syntax:
-
-```ruby
-stop_raw_logging_interface("<Interface Name (optional)>")
-```
-
-| Parameter      | Description                                                                                                                                                      |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Interface Name | Name of the Interface to command to stop raw data logging. Defaults to 'ALL' which causes all interfaces that support raw data logging to stop logging raw data. |
-
-Example:
-
-```ruby
-stop_raw_logging_interface ("int1")
 ```
 
 ### start_raw_logging_router
@@ -2728,205 +2450,6 @@ Example:
 ```ruby
 stop_raw_logging_router("router1")
 ```
-
-### get_packet_loggers (since 4.1.0)
-
-The get_packet_loggers method returns a list of the packet loggers in the system.
-
-Syntax / Example:
-{% highlight ruby %}
-packet_loggers = get_packet_loggers()
-{% endhighlight %}
-
-### get_packet_logger_info (since 3.9.2)
-
-The get_packet_logger_info method returns information about a packet logger. The information includes the interfaces associated with the logger, command log enable flag, command queue size, command filename, command file size, telemetry log enable flag, telemetry queue size, telemetry filename, and telemetry file size.
-
-Syntax:
-`get_packet_logger_info("<Packet logger name>")`
-
-| Parameter          | Description                                       |
-| ------------------ | ------------------------------------------------- |
-| Packet Logger name | Name of the packet logger to get information for. |
-
-Example:
-{% highlight ruby %}
-interfaces, cmd_logging, cmd_q_size, cmd_filename, cmd_file_size, tlm_logging, tlm_q_size, tlm_filename, tlm_file_size = get_packet_logger_info("DEFAULT")
-{% endhighlight %}
-
-### get_all_packet_logger_info (since 4.1.0)
-
-The get_all_packet_logger_info method returns information about all packet loggers. The return value is an array of arrays where each subarray contains the name, associated interfaces, command log enable flag, command queue size, command filename, command file size, telemetry log enable flag, telemetry queue size, telemetry filename, and telemetry file size for a packet logger.
-
-Syntax / Example:
-{% highlight ruby %}
-packet_logger_info = get_all_packet_logger_info()
-packet_logger_info.each do |packet_logger_name, interfaces, cmd_logging, cmd_q_size, cmd_filename, cmd_file_size, tlm_logging, tlm_q_size, tlm_filename, tlm_file_size|
-puts "Packet logger: #{packet_logger_name}"
-puts "Associated interfaces: #{interfaces}"
-puts "Cmd logging - enable: #{cmd_logging}, queue size: #{cmd_q_size}, filename: #{cmd_filename}, file size: #{cmd_file_size}"
-puts "Tlm logging - enable: #{tlm_logging}, queue size: #{tlm_q_size}, filename: #{tlm_filename}, file size: #{tlm_file_size}"
-end
-{% endhighlight %}
-
-### get_output_logs_filenames (since 4.1.0)
-
-The get_output_logs_filenames method returns a list of files in the output logs directory.
-
-Syntax:
-{% highlight ruby %}
-get_output_logs_filenames("<filter>")
-{% endhighlight %}
-
-| Parameter | Description                                                                                                                       |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Filter    | String that can be used to filter the files returned. Defaults to '\*tlm.bin', which will return only binary telemetry log files. |
-
-Example:
-{% highlight ruby %}
-tlm*logs = get_output_logs_filenames()
-cmd_logs = get_output_logs_filenames('*\_cmd.bin')
-server*msg_logs = get_output_logs_filenames('*\_server_messages.txt')
-{% endhighlight %}
-
-## Command and Telemetry Server
-
-These methods allow the user to interact with Command and Telemetry Server.
-
-### get_server_status (since 4.1.0)
-
-The get_server_status method returns status information for the Command and Telemetry Server. The information includes the active limits set, API port number, JSON DRB number of clients, JSON DRB average request count, JSON DRB average request time, and number of server threads.
-
-Syntax / Example:
-{% highlight ruby %}
-limits_set, api_port, json_drb_num_clients, json_drb_req_count, json_drb_avg_req_time, num_threads = get_server_status()
-{% endhighlight %}
-
-### cmd_tlm_reload (since 4.1.0)
-
-The cmd_tlm_reload method reloads the default configuration in the Command and Telemetry Server.
-
-Syntax / Example:
-{% highlight ruby %}
-cmd_tlm_reload()
-{% endhighlight %}
-
-### cmd_tlm_clear_counters (since 4.1.0)
-
-The cmd_tlm_clear_counters method resets the counters in the Command and Telemetry Server back to zero.
-
-Syntax / Example:
-{% highlight ruby %}
-cmd_tlm_clear_counters()
-{% endhighlight %}
-
-### subscribe_server_messages (since 4.1.0)
-
-The subscribe_server_messages method allows the user to listen for server messages. A unique id is returned to the tool which is used to retrieve the messages. The messages are placed into a queue where they can then be processed one at a time.
-
-Syntax:
-{% highlight ruby %}
-subscribe_server_messages(queue_size)
-{% endhighlight %}
-
-| Parameter  | Description                                                                          |
-| ---------- | ------------------------------------------------------------------------------------ |
-| queue_size | Number of messages to let queue up before dropping the connection. Defaults to 1000. |
-
-Example:
-{% highlight ruby %}
-id = subscribe_server_messages(2000)
-{% endhighlight %}
-
-### unsubscribe_server_messages (since 4.1.0)
-
-The unsubscribe_server_messages method allows the user to stop listening for server messages. This should be called to reduce the server's load if the subscription is no longer needed.
-
-Syntax:
-{% highlight ruby %}
-unsubscribe_server_messages(id)
-{% endhighlight %}
-
-| Parameter | Description                                               |
-| --------- | --------------------------------------------------------- |
-| id        | Unique id given to the tool by subscribe_server_messages. |
-
-Example:
-{% highlight ruby %}
-unsubscribe_server_messages(id)
-{% endhighlight %}
-
-### get_server_message (since 4.1.0)
-
-Receives a subscribed server message. If this method is called non-blocking <non_block> = true, this method will raise an error if the queue is empty. The return value is an array where the first element is the message and the second element is the color associated with the message (BLACK, RED, YELLOW, GREEN).
-
-<div class="note warning">
-  <p><b>Overflown Queues Are Deleted</b></p>
-  <p>By default the message queue is 1000 messages deep. If you don't call get_server_message fast enough to keep up with the population of this queue and it overflows, COSMOS will clean up the resources and delete the queue. At this point when you call get_server_message you will get a "RuntimeError : Packet data queue with id X not found." Note you can pass a larger queue size to the subscribe_server_messages method.</p>
-</div>
-
-Syntax:
-{% highlight ruby %}
-get_server_message(id, non_block (optional))
-{% endhighlight %}
-
-| Parameter | Description                                                                                                                           |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| id        | Unique id given to the tool by subscribe_server_messages.                                                                             |
-| non_block | Boolean to indicate if the method should block until a message is received or not. Defaults to false, blocks reading data from queue. |
-
-Example:
-{% highlight ruby %}
-msg, color = get_server_message(id)
-{% endhighlight %}
-
-### get_background_tasks (since 4.1.0)
-
-The get_background_tasks method returns information about all background tasks. The return value is an array of arrays where each subarray contains the name, state, and status string for a background task.
-
-Syntax / Example:
-{% highlight ruby %}
-background_tasks = get_background_tasks()
-background_tasks.each do |background_task_name, state, status_string|
-puts "Background task: #{background_task_name}, state: #{state}, status: #{status_string}"
-end
-{% endhighlight %}
-
-### start_background_task (since 4.1.0)
-
-The start_background_task method starts a background task.
-
-Syntax:
-{% highlight ruby %}
-start_background_task("<Background Task Name>")
-{% endhighlight %}
-
-| Parameter            | Description                  |
-| -------------------- | ---------------------------- |
-| Background Task Name | Name of the background task. |
-
-Example:
-{% highlight ruby %}
-start_background_task("Example Background Task")
-{% endhighlight %}
-
-### stop_background_task (since 4.1.0)
-
-The stop_background_task method stops a background task.
-
-Syntax:
-{% highlight ruby %}
-stop_background_task("<Background Task Name>")
-{% endhighlight %}
-
-| Parameter            | Description                  |
-| -------------------- | ---------------------------- |
-| Background Task Name | Name of the background task. |
-
-Example:
-{% highlight ruby %}
-stop_background_task("Example Background Task")
-{% endhighlight %}
 
 ## Executing Other Procedures
 
@@ -3022,7 +2545,7 @@ Example:
 clear("INST ADCS")
 ```
 
-### clear_all (since 3.9.2)
+### clear_all
 
 The clear_all method closes all open screens or all screens of a particular target.
 
@@ -3043,7 +2566,7 @@ clear_all("INST") # Clear all INST screens
 clear_all() # Clear all screens
 ```
 
-### get_screen_list (since 4.1.0)
+### get_screen_list
 
 The get_screen_list returns a list of available telemetry screens.
 
@@ -3064,7 +2587,7 @@ Example:
 screen_list = get_screen_list()
 ```
 
-### get_screen_definition (since 4.1.0)
+### get_screen_definition
 
 The get_screen_definition returns the text file contents of a telemetry screen definition.
 
@@ -3086,7 +2609,7 @@ Example:
 screen_definition = get_screen_definition("INST HS")
 ```
 
-### local_screen (since 4.3.0)
+### local_screen
 
 The local_screen allows you to create a temporary screen directly from a script. This also has the ability to use local variables from within your script in your screen.
 
@@ -3146,7 +2669,7 @@ end
 close_local_screens() # Close all open local screens
 ```
 
-### close_local_screens (since 4.3.0)
+### close_local_screens
 
 The close_local_screens closes all temporary screens which were opened using local_screen.
 

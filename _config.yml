@@ -37,7 +37,7 @@ keep_files:
   - docs/v4 # Thus we keep the existing content
 
 # These are used by the COSMOS plugins to generate content
-cosmos_root_v4: ../COSMOS4
-cosmos_root_v5: ../COSMOS
+cosmos_root_v4: ../cosmos/COSMOS4
+cosmos_root_v5: ../cosmos/COSMOS
 cosmos_meta_path: data/config
 cosmos_tool_path: install/tools
