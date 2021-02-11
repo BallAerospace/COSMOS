@@ -19,64 +19,82 @@
 
 <template>
   <v-container>
-    <v-row>
+    <v-row no-gutters>
       <v-col>
-        <packet-summary-component
-          v-if="latestPacket"
-          :key="latestPacket.time"
-          :packet="latestPacket"
-          :received-count="receivedCount"
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-radio-group v-model="currentConfig.format" label="Display format">
-          <v-radio label="Hex" value="hex" />
-          <v-radio label="ASCII" value="ascii" />
-        </v-radio-group>
-      </v-col>
-      <v-col>
-        <v-switch
-          v-model="currentConfig.showLineAddress"
-          label="Show line address"
-        />
-      </v-col>
-      <v-col>
-        <v-switch
-          v-model="currentConfig.showTimestamp"
-          label="Show timestamp"
-        />
-      </v-col>
-      <v-col>
-        <v-text-field
-          v-model="currentConfig.bytesPerLine"
-          label="Bytes per line"
-          type="number"
-          min="1"
-          v-on:change="validateBytesPerLine"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-text-field
-          v-model="currentConfig.packetsToShow"
-          label="Packets to show"
-          type="number"
-          :hint="`Maximum: ${this.history.length}`"
-          persistent-hint
-          :min="1"
-          :max="this.history.length"
-          v-on:change="validatePacketsToShow"
-        ></v-text-field>
-      </v-col>
-      <v-col>
-        <v-radio-group
-          v-model="currentConfig.newestAtTop"
-          label="Print newest packets to the"
-        >
-          <v-radio label="Top" :value="true" />
-          <v-radio label="Bottom" :value="false" />
-        </v-radio-group>
+        <v-expansion-panels>
+          <!-- TODO: is this even useful? -->
+          <!-- <v-expansion-panel>
+            <v-expansion-panel-header>
+              Latest packet summary
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <packet-summary-component
+                v-if="latestPacket"
+                :key="latestPacket.time"
+                :packet="latestPacket"
+                :received-count="receivedCount"
+              />
+            </v-expansion-panel-content>
+          </v-expansion-panel> -->
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              Display Settings
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-container>
+                <v-row no-gutters>
+                  <v-col>
+                    <v-radio-group
+                      v-model="currentConfig.format"
+                      label="Display format"
+                    >
+                      <v-radio label="Hex" value="hex" />
+                      <v-radio label="ASCII" value="ascii" />
+                    </v-radio-group>
+                  </v-col>
+                  <v-col>
+                    <v-radio-group
+                      v-model="currentConfig.newestAtTop"
+                      label="Print newest packets to the"
+                    >
+                      <v-radio label="Top" :value="true" />
+                      <v-radio label="Bottom" :value="false" />
+                    </v-radio-group>
+                  </v-col>
+                  <v-col>
+                    <v-switch
+                      v-model="currentConfig.showLineAddress"
+                      label="Show line address"
+                    />
+                    <v-switch
+                      v-model="currentConfig.showTimestamp"
+                      label="Show timestamp"
+                    />
+                  </v-col>
+                  <v-col>
+                    <v-text-field
+                      v-model="currentConfig.bytesPerLine"
+                      label="Bytes per line"
+                      type="number"
+                      min="1"
+                      v-on:change="validateBytesPerLine"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="currentConfig.packetsToShow"
+                      label="Packets to show"
+                      type="number"
+                      :hint="`Maximum: ${this.history.length}`"
+                      persistent-hint
+                      :min="1"
+                      :max="this.history.length"
+                      v-on:change="validatePacketsToShow"
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </v-col>
     </v-row>
     <v-row>
@@ -90,7 +108,7 @@
         ></v-text-field>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row class="pb-0">
       <v-col>
         <v-slider
           v-model="pauseOffset"
@@ -104,7 +122,7 @@
         />
       </v-col>
     </v-row>
-    <v-row>
+    <v-row no-gutters>
       <v-col class="pl-0 pr-0">
         <div class="text-area-container">
           <v-textarea
@@ -156,7 +174,7 @@ const HISTORY_MAX_SIZE = 100
 //  - emit: 'config-change'
 export default {
   components: {
-    PacketSummaryComponent,
+    // PacketSummaryComponent,
   },
   props: {
     config: {

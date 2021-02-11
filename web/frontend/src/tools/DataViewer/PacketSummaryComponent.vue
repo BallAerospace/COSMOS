@@ -20,6 +20,11 @@
 <template>
   <v-simple-table dense>
     <template v-slot:default>
+      <thead>
+        <tr>
+          <td>{{ header }}</td>
+        </tr>
+      </thead>
       <tbody>
         <tr v-for="item in rows" :key="item.name">
           <td>{{ item.name }}</td>
@@ -40,6 +45,10 @@ export default {
     receivedCount: {
       type: Number,
       required: true,
+    },
+    header: {
+      type: String,
+      default: 'Latest packet:',
     },
   },
   computed: {
