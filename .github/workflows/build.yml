@@ -20,6 +20,10 @@ jobs:
       matrix:
         ruby-version: ["2.7", "3.0"]
 
+    defaults:
+      run:
+        working-directory: cosmos
+
     steps:
       - uses: actions/checkout@v2
       - name: Set up Ruby
@@ -29,6 +33,5 @@ jobs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Run tests
         run: bundle exec rake build spec
-        working-directory: cosmos
         env:
           COSMOS_DEVEL: true
