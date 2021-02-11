@@ -394,7 +394,7 @@ module Cosmos
       packet = System.telemetry.packet(hash['target_name'], hash['packet_name']).clone
       if hash['item_hash']
         JSON.parse(hash['item_hash']).each do |item, value|
-          packet.write(item.to_s, value, hash['value_type'].to_sym)
+          packet.write(item.to_s, value, hash['type'].to_sym)
         end
       end
       handle_packet(packet)

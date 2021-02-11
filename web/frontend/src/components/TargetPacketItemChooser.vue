@@ -222,39 +222,41 @@ export default {
           }
         )
       } else {
-        this.api['get_tlm_list'](this.selectedTargetName).then((packets) => {
-          this.packet_list_items = packets
-          this.packetNames = []
-          if (this.allowAll) {
-            this.packetNames.push(this.ALL)
-          }
-          var arrayLength = packets.length
-          for (var i = 0; i < arrayLength; i++) {
-            this.packetNames.push({
-              label: packets[i][0],
-              value: packets[i][0],
-            })
-          }
-          if (!this.selectedPacketName) {
-            this.selectedPacketName = this.packetNames[0].value
-            this.packetNameChanged(this.selectedPacketName)
-          }
-          for (const item of this.packet_list_items) {
-            if (this.selectedPacketName === item[0]) {
-              this.description = item[1]
-              break
+        this.api['get_all_telemetry'](this.selectedTargetName).then(
+          (packets) => {
+            this.packet_list_items = packets
+            this.packetNames = []
+            if (this.allowAll) {
+              this.packetNames.push(this.ALL)
             }
+            var arrayLength = packets.length
+            for (var i = 0; i < arrayLength; i++) {
+              this.packetNames.push({
+                label: packets[i]['packet_name'],
+                value: packets[i]['packet_name'],
+              })
+            }
+            if (!this.selectedPacketName) {
+              this.selectedPacketName = this.packetNames[0].value
+              this.packetNameChanged(this.selectedPacketName)
+            }
+            for (const item of this.packet_list_items) {
+              if (this.selectedPacketName === item['packet_name']) {
+                this.description = item['description']
+                break
+              }
+            }
+            this.internalDisabled = false
           }
-          this.internalDisabled = false
-        })
+        )
       }
     },
 
     updateItems() {
       this.internalDisabled = true
-      let cmd = 'get_tlm_item_list'
+      let cmd = 'get_telemetry'
       if (this.mode == 'cmd') {
-        cmd = 'get_cmd_param_list'
+        cmd = 'get_command'
       }
       this.api[cmd](this.selectedTargetName, this.selectedPacketName).then(
         (items) => {
@@ -296,9 +298,9 @@ export default {
         this.itemsDisabled = false
         var arrayLength = this.packet_list_items.length
         for (var i = 0; i < arrayLength; i++) {
-          if (value === this.packet_list_items[i][0]) {
-            this.selectedPacketName = this.packet_list_items[i][0]
-            this.description = this.packet_list_items[i][1]
+          if (value === this.packet_list_items[i]['packet_name']) {
+            this.selectedPacketName = this.packet_list_items[i]['packet_name']
+            this.description = this.packet_list_items[i]['description']
             break
           }
         }
@@ -335,9 +337,9 @@ export default {
       if (this.selectedPacketName === 'ALL') {
         this.packetNames.forEach((packet) => {
           if (packet === this.ALL) return
-          let cmd = 'get_tlm_item_list'
+          let cmd = 'get_telemetry'
           if (this.mode == 'cmd') {
-            cmd = 'get_cmd_param_list'
+            cmd = 'get_command'
           }
           this.api[cmd](this.selectedTargetName, packet.value).then((items) => {
             items.forEach((item) => {

@@ -87,17 +87,15 @@ module Cosmos
       end
     end
 
-    describe "connect_interface, disconnect_interface, interface_state" do
+    describe "connect_interface, disconnect_interface" do
       it "connects the interface" do
-        interface = @api.get_interface("INST_INT")
-        expect(interface['state']).to eql "CONNECTED"
-        expect(@api.interface_state("INST_INT")).to eql "CONNECTED"
+        expect(@api.get_interface("INST_INT")['state']).to eql "CONNECTED"
         @api.disconnect_interface("INST_INT")
         sleep(0.1)
-        expect(@api.interface_state("INST_INT")).to eql "DISCONNECTED"
+        expect(@api.get_interface("INST_INT")['state']).to eql "DISCONNECTED"
         @api.connect_interface("INST_INT")
         sleep(0.1)
-        expect(@api.interface_state("INST_INT")).to eql "ATTEMPTING"
+        expect(@api.get_interface("INST_INT")['state']).to eql "ATTEMPTING"
       end
     end
 
@@ -126,33 +124,6 @@ module Cosmos
         expect_any_instance_of(Cosmos::Interface).to receive(:stop_raw_logging)
         @api.stop_raw_logging_interface("ALL")
         sleep(0.1)
-      end
-    end
-
-    describe "get_interface_targets" do
-      it "raises for a non-existant interface" do
-        expect { @api.get_interface_targets("BLAH") }.to raise_error("Interface 'BLAH' does not exist")
-      end
-
-      it "returns the targets associated with an interface" do
-        # Preload a fake InterfaceStatusModel so the api succeeds ...
-        # this automatically happens when you create a new InterfaceMicroservice
-        InterfaceStatusModel.set({'name' => "TEST_INT", 'state' => "DISCONNECTED"}, scope: "DEFAULT")
-        model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", target_names: ["TGT1", "TGT2"])
-        model.create
-        expect(@api.get_interface_targets("TEST_INT")).to eql ["TGT1", "TGT2"]
-      end
-    end
-
-    describe "get_interface_info" do
-      it "complains about non-existant interfaces" do
-        expect { @api.get_interface_info("BLAH") }.to raise_error(RuntimeError, "Interface 'BLAH' does not exist")
-      end
-
-      it "gets interface info" do
-        info = @api.get_interface_info("INST_INT")
-        expect(info[0]).to eq "CONNECTED"
-        expect(info[1..-1]).to eq [0,0,0,0,0,0,0]
       end
     end
 

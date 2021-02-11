@@ -301,7 +301,7 @@ module Cosmos
 
     describe "get_out_of_limits" do
       it "returns all out of limits items" do
-        @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, :RAW)
+        @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, type: :RAW)
         sleep(0.1)
         items = @api.get_out_of_limits
         (0..3).each do |i|

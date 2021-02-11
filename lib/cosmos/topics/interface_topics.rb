@@ -38,6 +38,10 @@ module Cosmos
       end
     end
 
+    def self.write_raw(interface_name, data, scope:)
+      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", {'raw' => data})
+    end
+
     def self.connect_interface(interface_name, scope:)
       Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", {'connect' => 'true'})
     end

@@ -144,26 +144,6 @@ module Cosmos
     #   end
     # end
 
-    describe "get_tlm_list" do
-      it "gets packets for a given target" do
-        expect(get_tlm_list("INST")).to include(["HEALTH_STATUS", "Health and status from the instrument"])
-      end
-    end
-
-    describe "get_tlm_item_list" do
-      it "gets telemetry for a given packet" do
-        expect(get_tlm_item_list("INST", "HEALTH_STATUS")).to include(["TEMP1",nil,"Temperature #1"])
-      end
-    end
-
-    describe "get_tlm_details" do
-      it "gets telemetry for a given packet" do
-        details = get_tlm_details([["INST", "HEALTH_STATUS", "TEMP1"], ["INST", "HEALTH_STATUS", "TEMP2"]])
-        expect(details[0]["name"]).to eql "TEMP1"
-        expect(details[1]["name"]).to eql "TEMP2"
-      end
-    end
-
     describe "get_target_list" do
       it "returns the list of targets" do
         expect(get_target_list).to include("INST")

@@ -87,17 +87,15 @@ module Cosmos
       end
     end
 
-    describe "connect_router, disconnect_router, router_state" do
+    describe "connect_router, disconnect_router" do
       it "connects the router" do
-        router = @api.get_router("ROUTE_INT")
-        expect(router['state']).to eql "CONNECTED"
-        expect(@api.router_state("ROUTE_INT")).to eql "CONNECTED"
+        expect(@api.get_router("ROUTE_INT")['state']).to eql "CONNECTED"
         @api.disconnect_router("ROUTE_INT")
         sleep(0.1)
-        expect(@api.router_state("ROUTE_INT")).to eql "DISCONNECTED"
+        expect(@api.get_router("ROUTE_INT")['state']).to eql "DISCONNECTED"
         @api.connect_router("ROUTE_INT")
         sleep(0.1)
-        expect(@api.router_state("ROUTE_INT")).to eql "ATTEMPTING"
+        expect(@api.get_router("ROUTE_INT")['state']).to eql "ATTEMPTING"
       end
     end
 
@@ -126,33 +124,6 @@ module Cosmos
         expect_any_instance_of(Cosmos::Interface).to receive(:stop_raw_logging)
         @api.stop_raw_logging_router("ALL")
         sleep(0.1)
-      end
-    end
-
-    describe "get_router_targets" do
-      it "raises for a non-existant router" do
-        expect { @api.get_router_targets("BLAH") }.to raise_error("Router 'BLAH' does not exist")
-      end
-
-      it "returns the targets associated with an router" do
-        # Preload a fake RouterStatusModel so the api succeeds ...
-        # this automatically happens when you create a new RouterMicroservice
-        RouterStatusModel.set({'name' => "TEST_INT", 'state' => "DISCONNECTED"}, scope: "DEFAULT")
-        model = RouterModel.new(name: "TEST_INT", scope: "DEFAULT", target_names: ["TGT1", "TGT2"])
-        model.create
-        expect(@api.get_router_targets("TEST_INT")).to eql ["TGT1", "TGT2"]
-      end
-    end
-
-    describe "get_router_info" do
-      it "complains about non-existant routers" do
-        expect { @api.get_router_info("BLAH") }.to raise_error(RuntimeError, "Router 'BLAH' does not exist")
-      end
-
-      it "gets router info" do
-        info = @api.get_router_info("ROUTE_INT")
-        expect(info[0]).to eq "CONNECTED"
-        expect(info[1..-1]).to eq [0,0,0,0,0,0,0]
       end
     end
 

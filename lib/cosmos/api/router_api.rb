@@ -31,9 +31,6 @@ module Cosmos
       'disconnect_router',
       'start_raw_logging_router',
       'stop_raw_logging_router',
-      # DEPRECATED:
-      'router_state',
-      'get_router_info',
       'get_all_router_info',
     ])
 
@@ -99,37 +96,8 @@ module Cosmos
       end
     end
 
-    ###########################################################################
-    # DEPRECATED METHODS
-    ###########################################################################
-
-    # @deprecated Use #get_router
-    # @param router_name [String] Name of router
-    # @return [String] The state of the router which is one of 'CONNECTED',
-    #   'ATTEMPTING' or 'DISCONNECTED'.
-    def router_state(router_name, scope: $cosmos_scope, token: $cosmos_token)
-      get_router(router_name, scope: scope, token: token)['state']
-    end
-
-    # @deprecated Use #get_interface
-    # @return [Array<String>] All the targets mapped to the given router
-    def get_router_targets(router_name, scope: $cosmos_scope, token: $cosmos_token)
-      get_router(router_name, scope: scope, token: token)['target_names']
-    end
-
-    # @deprecated Use #get_router
-    # @param router_name [String] Router name
-    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
-    #   Numeric, Numeric>] Array containing \[state, num clients,
-    #   TX queue size, RX queue size, TX bytes, RX bytes, Pkts received,
-    #   Pkts sent] for the router
-    def get_router_info(router_name, scope: $cosmos_scope, token: $cosmos_token)
-      router = get_router(router_name, scope: scope, token: token)
-      return [router['state'], router['clients'], router['txsize'], router['rxsize'],
-              router['txbytes'], router['rxbytes'], router['rxcnt'], router['txcnt']]
-    end
-
-    # @deprecated Use #get_router_names and #get_router
+    # Consolidate all router info into a single API call
+    #
     # @return [Array<Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
     #   Numeric, Numeric>>] Array of Arrays containing \[name, state, num clients,
     #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,

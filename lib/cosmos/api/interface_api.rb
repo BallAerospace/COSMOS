@@ -31,10 +31,6 @@ module Cosmos
       'disconnect_interface',
       'start_raw_logging_interface',
       'stop_raw_logging_interface',
-      # DEPRECATED:
-      'interface_state',
-      'get_interface_targets',
-      'get_interface_info',
       'get_all_interface_info',
     ])
 
@@ -99,41 +95,8 @@ module Cosmos
       end
     end
 
-    ###########################################################################
-    # DEPRECATED METHODS
-    ###########################################################################
-
-    # @deprecated Use #get_interface
-    # @param interface_name (see #connect_interface)
-    # @return [String] The state of the interface which is one of 'CONNECTED',
-    #   'ATTEMPTING' or 'DISCONNECTED'.
-    def interface_state(interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      get_interface(interface_name, scope: scope, token: token)['state']
-    end
-
-    # @deprecated Use #get_interface
-    # @return [Array<String>] All the targets mapped to the given interface
-    def get_interface_targets(interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      get_interface(interface_name, scope: scope, token: token)['target_names']
-    end
-
-    # Get information about an interface
-    #
-    # @deprecated Use #get_interface
-    # @param interface_name [String] Interface name
-    # @return [Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
-    #   Numeric, Numeric>] Array containing \[state, num clients,
-    #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
-    #   Telemetry count] for the interface
-    def get_interface_info(interface_name, scope: $cosmos_scope, token: $cosmos_token)
-      int = get_interface(interface_name, scope: scope, token: token)
-      return [int['state'], int['clients'], int['txsize'], int['rxsize'],
-              int['txbytes'], int['rxbytes'], int['txcnt'], int['rxcnt']]
-    end
-
     # Get information about all interfaces
     #
-    # @deprecated Use get_interface_names and get_interface
     # @return [Array<Array<String, Numeric, Numeric, Numeric, Numeric, Numeric,
     #   Numeric, Numeric>>] Array of Arrays containing \[name, state, num clients,
     #   TX queue size, RX queue size, TX bytes, RX bytes, Command count,
