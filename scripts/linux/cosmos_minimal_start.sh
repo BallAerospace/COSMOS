@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Please see cosmos_setup. sh
+# Please see cosmos_setup.sh
 
 # These lines configure the host OS properly for Redis
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled"

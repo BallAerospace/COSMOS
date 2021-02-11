@@ -1,4 +1,5 @@
 @echo on
+REM Please see cosmos_setup.bat
 
 REM These lines configure the host OS properly for Redis
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
@@ -19,8 +20,6 @@ docker container rm cosmos-elasticsearch
 docker pull amazon/opendistro-for-elasticsearch:1.12.0
 docker build -f elasticsearch\Dockerfile -t cosmos-elasticsearch elasticsearch
 docker run --network cosmos -p 127.0.0.1:9200:9200 -d --name cosmos-elasticsearch -v cosmos-elasticsearch-v:/usr/share/elasticsearch/data -e "bootstrap.memory_lock=true" --ulimit memlock=-1:-1 --env discovery.type="single-node" --env ES_JAVA_OPTS="-Xms1g -Xmx1g" --env MALLOC_ARENA_MAX=4  cosmos-elasticsearch
-timeout 30 >nul
-curl -X POST http://localhost:5601/api/saved_objects/_import -H "kbn-xsrf:true" --form file=@kibana\export.ndjson -w "\n"
 
 docker container rm cosmos-kibana
 docker pull amazon/opendistro-for-elasticsearch-kibana:1.12.0
@@ -41,6 +40,7 @@ docker container rm cosmos-fluentd
 docker build -f fluentd\Dockerfile -t cosmos-fluentd fluentd
 docker run --network cosmos -p 127.0.0.1:24224:24224 -p 127.0.0.1:24224:24224/udp -d --name cosmos-fluentd cosmos-fluentd
 timeout 30 >nul
+curl -X POST http://localhost:5601/api/saved_objects/_import -H "kbn-xsrf:true" --form file=@kibana\export.ndjson -w "\n"
 
 docker volume create cosmos-redis-v
 docker container rm cosmos-redis
