@@ -28,27 +28,27 @@ if "%1" == "setup" (
 GOTO usage
 
 :setup
-  scripts/windows/cosmos_setup
+  CALL scripts/windows/cosmos_setup
 GOTO :EOF
 
 :deploy
-  scripts/windows/cosmos_deploy
+  CALL scripts/windows/cosmos_deploy
 GOTO :EOF
 
 :cleanup
-  scripts/windows/cosmos_cleanup
+  CALL scripts/windows/cosmos_cleanup
 GOTO :EOF
 
 :build
-  scripts/windows/cosmos_build
+  CALL scripts/windows/cosmos_build
 GOTO :EOF
 
 :stop
-  scripts/windows/cosmos_stop
+  CALL scripts/windows/cosmos_stop
 GOTO :EOF
 
 :startup
-  scripts/windows/cosmos_minimal_start
+  CALL scripts/windows/cosmos_minimal_start
 GOTO :EOF
 
 :usage
