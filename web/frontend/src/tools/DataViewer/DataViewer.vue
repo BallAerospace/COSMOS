@@ -20,7 +20,7 @@
 <template>
   <div>
     <app-nav app :menus="menus" />
-    <v-card>
+    <v-card :key="renderKey">
       <div class="mb-1">
         <v-alert type="warning" v-model="warning" dismissible>
           {{ warningText }}
@@ -33,10 +33,12 @@
         </v-alert>
       </div>
       <v-tabs ref="tabs" v-model="curTab">
-        <v-tab v-for="(tab, index) in tabs" :key="index">{{ tab.name }}</v-tab>
+        <v-tab v-for="(tab, index) in config.tabs" :key="index">
+          {{ tab.name }}
+        </v-tab>
       </v-tabs>
       <v-tabs-items v-model="curTab">
-        <v-tab-item v-for="(tab, index) in tabs" :key="index" eager>
+        <v-tab-item v-for="(tab, index) in config.tabs" :key="index" eager>
           <v-card
             v-for="(packet, packetIndex) in tab.packets"
             :key="`${index}-${packetIndex}`"
@@ -44,55 +46,72 @@
           >
             <v-card-title>{{ packet.target }} {{ packet.packet }}</v-card-title>
             <dump-component
-              v-show="receivedPackets[packet.key]"
-              :ref="`${packet.key}-display`"
+              v-show="receivedPackets[subscriptionKey(packet)]"
+              :ref="`${subscriptionKey(packet)}-display`"
+              :config="packet.config"
+              v-on:config-change="(newConfig) => (packet.config = newConfig)"
             />
-            <v-card-text v-if="!receivedPackets[packet.key]">
+            <v-card-text v-if="!receivedPackets[subscriptionKey(packet)]">
               No data
             </v-card-text>
           </v-card>
         </v-tab-item>
       </v-tabs-items>
     </v-card>
+    <OpenConfigDialog
+      v-if="openConfig"
+      v-model="openConfig"
+      :tool="toolName"
+      @success="openConfiguration($event)"
+    />
+    <SaveConfigDialog
+      v-if="saveConfig"
+      v-model="saveConfig"
+      :tool="toolName"
+      @success="saveConfiguration($event)"
+    />
   </div>
 </template>
 
 <script>
 import AppNav from '@/AppNav'
-import { ConfigParserService } from '@/services/config-parser'
-import { CosmosApi } from '@/services/cosmos-api'
 import * as ActionCable from 'actioncable'
-import upperFirst from 'lodash/upperFirst'
-import camelCase from 'lodash/camelCase'
+import { CosmosApi } from '@/services/cosmos-api'
+import OpenConfigDialog from '@/components/OpenConfigDialog'
+import SaveConfigDialog from '@/components/SaveConfigDialog'
 import DumpComponent from './DumpComponent.vue'
 
 export default {
   components: {
     AppNav,
+    OpenConfigDialog,
+    SaveConfigDialog,
     DumpComponent,
   },
   data() {
     return {
+      toolName: 'data-viewer',
+      openConfig: false,
+      saveConfig: false,
       api: null,
       cable: ActionCable.Cable,
       subscription: ActionCable.Channel,
-      configParser: null,
       curTab: null,
-      tabs: [],
       receivedPackets: {},
-      updater: null,
-      refreshInterval: 1000,
-      optionsDialog: false,
       menus: [
         {
           label: 'File',
           items: [
             {
-              label: 'Reset',
+              label: 'Open Configuration',
               command: () => {
-                this.$refs.component.forEach((child) => {
-                  child.reset()
-                })
+                this.openConfig = true
+              },
+            },
+            {
+              label: 'Save Configuration',
+              command: () => {
+                this.saveConfig = true
               },
             },
           ],
@@ -103,10 +122,33 @@ export default {
       error: false,
       errorText: '',
       connectionFailure: false,
+      renderKey: 0,
+      config: {
+        tabs: [
+          {
+            name: 'Health Status',
+            packets: [
+              {
+                target: 'INST',
+                packet: 'HEALTH_STATUS',
+                component: 'DumpComponent',
+                config: {
+                  format: 'hex',
+                  showLineAddress: false,
+                  showTimestamp: false,
+                  bytesPerLine: 17,
+                  packetsToShow: 2,
+                  newestAtTop: true,
+                },
+              },
+            ],
+          },
+        ],
+      },
     }
   },
   watch: {
-    'tabs.length': function () {
+    'config.tabs.length': function () {
       this.resizeTabs()
     },
     'cable.connection.disconnected': function (val) {
@@ -115,61 +157,7 @@ export default {
   },
   created() {
     this.api = new CosmosApi()
-    this.config = `
-COMPONENT "Health Status" dump_component.rb
-  PACKET INST HEALTH_STATUS
-
-COMPONENT "ADCS" data_viewer_component.rb
-  PACKET INST ADCS
-
-COMPONENT "Other Packets" data_viewer_component.rb
-  PACKET INST PARAMS
-  PACKET INST IMAGE
-
-`
-    // COMPONENT "Operators" text_component.rb "OPERATOR_NAME"
-    //   PACKET SYSTEM META
-    this.configParser = new ConfigParserService()
-    this.configParser.parse_string(
-      this.config,
-      '',
-      false,
-      true,
-      (keyword, parameters) => {
-        if (keyword) {
-          switch (keyword) {
-            case 'COMPONENT':
-              this.configParser.verify_num_parameters(
-                2,
-                null,
-                `${keyword} <tab name> <component class> <component options ...>`
-              )
-              let componentName = parameters[1]
-              if (componentName.includes('.rb')) {
-                componentName = upperFirst(
-                  camelCase(componentName.slice(0, -3))
-                )
-              }
-              this.tabs.push({
-                name: parameters[0],
-                component: componentName,
-                options: parameters.slice(2),
-                packets: [],
-              })
-              break
-            case 'PACKET':
-              if (this.tabs.length === 0) throw 'Invalid configuration string'
-              this.tabs[this.tabs.length - 1].packets.push({
-                target: parameters[0],
-                packet: parameters[1],
-                key: `DEFAULT__TELEMETRY__${parameters[0]}__${parameters[1]}`,
-              })
-              break
-          }
-        }
-      }
-    )
-    this.cable = ActionCable.createConsumer('ws://localhost:7777/cable') // TODO: handle failed connection? Seems to be a missing callback in ActionCable API
+    this.cable = ActionCable.createConsumer('ws://localhost:7777/cable')
     this.subscribe()
     setTimeout(() => {
       this.connectionFailure = this.cable.connection.disconnected
@@ -193,21 +181,7 @@ COMPONENT "Other Packets" data_viewer_component.rb
         },
         {
           received: (data) => this.received(data),
-          connected: () => {
-            const packets = this.tabs.flatMap((tab) => {
-              return tab.packets.map(
-                (packet) => 'TLM__' + packet.target + '__' + packet.packet
-              )
-            })
-            this.subscription.perform('add', {
-              scope: 'DEFAULT',
-              packets: packets,
-              // start_time: 1609532973000000000, // use to hit the file cache
-              start_time: Date.now() * 1000000,
-              end_time: null,
-              mode: 'RAW',
-            })
-          },
+          connected: () => this.addPacketsToSubscription(),
           disconnected: () => {
             this.warningText = 'COSMOS backend connection disconnected.'
             this.warning = true
@@ -218,6 +192,22 @@ COMPONENT "Other Packets" data_viewer_component.rb
           },
         }
       )
+    },
+    addPacketsToSubscription: function () {
+      this.subscription.perform('add', {
+        scope: 'DEFAULT',
+        packets: this.subscriptionPackets,
+        // start_time: 1609532973000000000, // use to hit the file cache
+        start_time: Date.now() * 1000000,
+        end_time: null,
+        mode: 'RAW',
+      })
+    },
+    removePacketsFromSubscription: function () {
+      this.subscription.perform('remove', {
+        scope: 'DEFAULT',
+        packets: this.subscriptionPackets,
+      })
     },
     received: function (json_data) {
       if (json_data['error']) {
@@ -232,6 +222,29 @@ COMPONENT "Other Packets" data_viewer_component.rb
       })
       this.receivedPackets[packetName] = true
       this.receivedPackets = { ...this.receivedPackets } // TODO: why is reactivity broken?
+    },
+    subscriptionKey: function (packet) {
+      return `DEFAULT__TELEMETRY__${packet.target}__${packet.packet}`
+    },
+    async openConfiguration(name) {
+      this.removePacketsFromSubscription()
+      this.receivedPackets = {}
+      let response = await this.api.load_config(this.toolName, name)
+      this.config = JSON.parse(response)
+      this.renderKey++ // Trigger re-render
+      this.addPacketsToSubscription()
+    },
+    saveConfiguration(name) {
+      this.api.save_config(this.toolName, name, JSON.stringify(this.config))
+    },
+  },
+  computed: {
+    subscriptionPackets: function () {
+      return this.config.tabs.flatMap((tab) => {
+        return tab.packets.map(
+          (packet) => 'TLM__' + packet.target + '__' + packet.packet
+        )
+      })
     },
   },
 }

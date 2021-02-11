@@ -149,6 +149,11 @@ import PacketSummaryComponent from './PacketSummaryComponent'
 
 const HISTORY_MAX_SIZE = 100
 
+// NOTE FOR MAKING ANOTHER DATA VIEWER COMPONENT:
+// Things that must be here for DataViewer.vue to work properly:
+//  - props: config
+//  - methods: receive
+//  - emit: 'config-change'
 export default {
   components: {
     PacketSummaryComponent,
@@ -161,6 +166,7 @@ export default {
   data: function () {
     return {
       currentConfig: {
+        // These are just defaults
         format: 'hex',
         showLineAddress: true,
         showTimestamp: true,
@@ -190,6 +196,12 @@ export default {
         this.pauseOffset = 0
         this.rebuildDisplayText()
       }
+    },
+    currentConfig: {
+      deep: true,
+      handler: function (val) {
+        this.$emit('config-change', val)
+      },
     },
     allInstantSettings: function () {
       this.rebuildDisplayText()
