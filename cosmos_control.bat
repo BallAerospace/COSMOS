@@ -44,6 +44,7 @@ GOTO :EOF
 
 :build
   CALL scripts/windows/cosmos_setup
+  @echo off
   CALL scripts/windows/cosmos_build
   @echo off
 GOTO :EOF
@@ -55,6 +56,7 @@ GOTO :EOF
 
 :startup
   CALL scripts/windows/cosmos_setup
+  @echo off
   CALL scripts/windows/cosmos_minimal_start
   @echo off
 GOTO :EOF
