@@ -28,7 +28,6 @@ if "%1" == "setup" (
 GOTO usage
 
 :setup
-  echo HELLO
   scripts/windows/cosmos_setup
 GOTO :EOF
 
@@ -41,8 +40,8 @@ GOTO :EOF
 GOTO :EOF
 
 :build
-    scripts/windows/cosmos_build
-  GOTO :EOF
+  scripts/windows/cosmos_build
+GOTO :EOF
 
 :stop
   scripts/windows/cosmos_stop
