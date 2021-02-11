@@ -29,26 +29,32 @@ GOTO usage
 
 :setup
   CALL scripts/windows/cosmos_setup
+  @echo off
 GOTO :EOF
 
 :deploy
   CALL scripts/windows/cosmos_deploy
+  @echo off
 GOTO :EOF
 
 :cleanup
   CALL scripts/windows/cosmos_cleanup
+  @echo off
 GOTO :EOF
 
 :build
   CALL scripts/windows/cosmos_build
+  @echo off
 GOTO :EOF
 
 :stop
   CALL scripts/windows/cosmos_stop
+  @echo off
 GOTO :EOF
 
 :startup
   CALL scripts/windows/cosmos_minimal_start
+  @echo off
 GOTO :EOF
 
 :usage
