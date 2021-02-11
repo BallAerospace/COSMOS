@@ -23,8 +23,6 @@ require 'cosmos/topics/limits_event_topic'
 
 module Cosmos
   class DecomMicroservice < Microservice
-    METRIC_NAME = "decom_packet_duration_seconds"
-
     DECOM_METRIC_NAME = "decom_packet_duration_seconds"
     LIMIT_METRIC_NAME = "limits_change_callback_duration_seconds"
 
@@ -114,11 +112,7 @@ module Cosmos
 
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
       labels = {"packet" => packet.packet_name, "target" => packet.target_name}
-<<<<<<< HEAD:lib/cosmos/microservices/decom_microservice.rb
-      @metric.add_sample(name: metric_name, value: diff, labels: labels)
-=======
       @metric.add_sample(name: LIMIT_METRIC_NAME, value: diff, labels: labels)
->>>>>>> master:cosmos/lib/cosmos/microservices/decom_microservice.rb
     end
   end
 end

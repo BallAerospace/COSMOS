@@ -292,7 +292,11 @@ module Cosmos
       TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
     end
 
+    # Subscribe to a list of packets. An ID is returned which is passed to
+    # get_packet(id) to yield packets back to a block.
+    #
     # @param packets [Array<Array<String, String>>] Array of arrays consisting of target name, packet name
+    # @return [String] ID which should be passed to get_packet
     def subscribe_packets(packets, scope: $cosmos_scope, token: $cosmos_token)
       if !packets.is_a?(Array) || !packets[0].is_a?(Array)
         raise ArgumentError, "packets must be nested array: [['TGT','PKT'],...]"
@@ -304,15 +308,12 @@ module Cosmos
       end
       result.join("\n")
     end
+    # Alias the singular as well since that matches COSMOS 4
+    alias subscribe_packet subscribe_packets
 
-    # Get a packet which was previously subscribed to by
-    # subscribe_packet. This method can block waiting for new packets or
-    # not based on the second parameter. It returns a single Cosmos::Packet instance
-    # and will return nil when no more packets are buffered (assuming non_block
-    # is false).
-    # Usage:
-    #   get_packet(id, non_block: true)
-    def get_packet(id, non_block: false, scope: $cosmos_scope, token: $cosmos_token)
+    # Get a packet which was previously subscribed to by subscribe_packet.
+    # This method takes a block and yields back packet hashes.
+    def get_packet(id, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', scope: scope, token: token)
       offset, *topics = id.split("\n")
       offsets = []
