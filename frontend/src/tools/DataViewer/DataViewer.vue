@@ -22,7 +22,7 @@
     <app-nav app :menus="menus" />
     <v-row>
       <v-col>
-        <v-menu 
+        <v-menu
           :close-on-content-click="true"
           :nudge-right="40"
           transition="scale-transition"
@@ -73,7 +73,9 @@
               label="End Date"
               v-on="on"
               prepend-icon="mdi-calendar"
-              :rules="endTime ? [rules.required, rules.calendar] : [rules.calendar]"
+              :rules="
+                endTime ? [rules.required, rules.calendar] : [rules.calendar]
+              "
               data-test="endDate"
             ></v-text-field>
           </template>
@@ -97,8 +99,10 @@
     </v-row>
     <v-row no-gutters>
       <v-spacer />
-      <v-btn v-if="running" color="red" @click="stop">Stop</v-btn>
-      <v-btn v-else color="green" :disabled="!canStart" @click="start">Start</v-btn>
+      <v-btn v-if="running" color="red" @click="stop"> Stop </v-btn>
+      <v-btn v-else color="green" :disabled="!canStart" @click="start">
+        Start
+      </v-btn>
     </v-row>
     <div class="mt-3">
       <v-alert type="warning" v-model="warning" dismissible>
@@ -423,7 +427,11 @@ export default {
       packets = packets || this.allPackets
       // Group by mode
       const modeGroups = packets.reduce((groups, packet) => {
-        (groups[packet.mode] = groups[packet.mode] || []).push(packet)
+        if (groups[packet.mode]) {
+          groups[packet.mode].push(packet)
+        } else {
+          groups[packet.mode] = [packet]
+        }
         return groups
       }, {})
       Object.keys(modeGroups).forEach((mode) => {
@@ -461,7 +469,8 @@ export default {
       this.receivedPackets = { ...this.receivedPackets } // TODO: why is reactivity broken?
     },
     topicKey: function (packet) {
-      return `DEFAULT__${packet.mode === 'DECOM' ? 'DECOM' : 'TELEMETRY'}__${packet.target}__${packet.packet}`
+      const secondKey = packet.mode === 'DECOM' ? 'DECOM' : 'TELEMETRY'
+      return `DEFAULT__${secondKey}__${packet.target}__${packet.packet}`
     },
     subscriptionKey: function (packet) {
       let key = `TLM__${packet.target}__${packet.packet}`
@@ -523,7 +532,10 @@ export default {
       const packet = {
         ...this.newPacket,
         mode: this.newPacketMode,
-        component: this.newPacketMode === 'RAW' ? 'DumpComponent' : 'DecomTableComponent',
+        component:
+          this.newPacketMode === 'RAW'
+            ? 'DumpComponent'
+            : 'DecomTableComponent',
         config: {},
       }
       this.config.tabs[this.activeTab].packets.push(packet)
@@ -545,8 +557,11 @@ export default {
   computed: {
     startEndTime: function () {
       return {
-        start_time: new Date(this.startDate + ' ' + this.startTime).getTime() * 1_000_000,
-        end_time: this.endDate ? new Date(this.endDate + ' ' + this.endTime).getTime() * 1_000_000 : null
+        start_time:
+          new Date(this.startDate + ' ' + this.startTime).getTime() * 1_000_000,
+        end_time: this.endDate
+          ? new Date(this.endDate + ' ' + this.endTime).getTime() * 1_000_000
+          : null,
       }
     },
     allPackets: function () {
