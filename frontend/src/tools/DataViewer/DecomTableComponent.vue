@@ -19,7 +19,7 @@
 
 <template>
   <v-container>
-    <v-row no-gutters>
+    <!-- <v-row no-gutters>
       <v-col>
         <v-expansion-panels>
           <v-expansion-panel>
@@ -38,9 +38,8 @@
           </v-expansion-panel>
         </v-expansion-panels>
       </v-col>
-    </v-row>
-    
-    <!-- <v-row>
+    </v-row> -->
+    <v-row>
       <v-col>
         <v-text-field
           v-model="filterText"
@@ -84,13 +83,14 @@
           </template>
         </v-data-table>
       </v-col>
-    </v-row> -->
+    </v-row>
   </v-container>
 </template>
 
 <script>
 import _ from 'lodash'
 import { format } from 'date-fns'
+import ValueWidget from '@/components/widgets/ValueWidget'
 
 const HISTORY_MAX_SIZE = 100 // TODO: put in config
 
@@ -100,6 +100,9 @@ const HISTORY_MAX_SIZE = 100 // TODO: put in config
 //  - methods: receive
 //  - emit: 'config-change'
 export default {
+  components: {
+    ValueWidget,
+  },
   props: {
     config: {
       type: Object,
@@ -114,6 +117,13 @@ export default {
       historyPointer: -1, // index of the newest packet in history
       receivedCount: 0,
       filterText: '',
+      headers: [
+        { text: 'Index', value: 'index' },
+        { text: 'Name', value: 'name' },
+        { text: 'Value', value: 'value' },
+      ],
+      targetName: '',
+      packetName: '',
     }
   },
   watch: {
@@ -136,31 +146,44 @@ export default {
     receive: function (data) {
       // This is called by the parent to feed this component data. A function is used instead
       // of a prop to ensure each message gets handled, regardless of how fast they come in
+      if (!this.targetName) {
+        const split = data[0].packet.split('__')
+        this.targetName = split[2]
+        this.packetName = split[3]
+      }
       data.forEach((packet) => {
-        console.log('receive', packet)
-        // const decoded = {
-        //   buffer: atob(packet.buffer),
-        //   time: packet.time,
-        //   receivedCount: ++this.receivedCount,
-        // }
-        // this.historyPointer = ++this.historyPointer % this.history.length
-        // this.history[this.historyPointer] = decoded
-        // if (!this.paused) {
-        //   const packetText = this.calculatePacketText(decoded)
-        //   if (this.matchesSearch(packetText)) {
-        //     if (!this.displayText) {
-        //       this.displayText = packetText
-        //     } else if (this.currentConfig.newestAtTop) {
-        //       this.displayText = `${packetText}\n\n${this.displayText}`
-        //     } else {
-        //       this.displayText += `\n\n${packetText}`
-        //     }
-        //   }
-        // }
+        delete packet.time
+        delete packet.packet
+        this.historyPointer = ++this.historyPointer % this.history.length
+        this.history[this.historyPointer] = packet
       })
     },
-    matchesSearch: function (text) {
-      return text.toLowerCase().includes(this.filterText.toLowerCase())
+  },
+  computed: {
+    rows: function () {
+      if (this.historyPointer === -1) return []
+      const packet = this.history[this.historyPointer]
+      return Object.keys(packet).map((key, index) => {
+        return {
+          index: index,
+          name: key,
+          value: packet[key],
+        }
+      })
+      // return this.history
+      //   .slice(this.historyPointer + 1)
+      //   .concat(this.history.slice(0, this.historyPointer + 1))
+      //   .filter((packet) => packet)
+      //   .reverse()
+      //   .flatMap((packet) =>
+      //     Object.keys(packet).map((key, index) => {
+      //       return {
+      //         index: index,
+      //         name: key,
+      //         value: packet[key],
+      //       }
+      //     })
+      //   )
     },
   },
 }
