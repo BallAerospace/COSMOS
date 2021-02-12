@@ -311,7 +311,6 @@ export default {
     buttonPressed() {
       if (this.selectedPacketName === 'ALL') {
         this.packetNames.forEach((packetName) => {
-          console.log(packetName)
           if (packetName === this.ALL) return
           let cmd = 'get_telemetry'
           if (this.mode == 'cmd') {
