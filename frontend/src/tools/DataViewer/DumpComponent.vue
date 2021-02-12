@@ -294,34 +294,27 @@ export default {
       })
     },
     rebuildDisplayText: function () {
-      let pausedPlusOffset = this.pausedAt + this.pauseOffset
-      if (pausedPlusOffset < 0) {
-        if (this.pausedHistory[this.pausedHistory.length - 1]) {
-          pausedPlusOffset += this.pausedHistory.length
-        } else {
-          pausedPlusOffset = 0
-        }
-      }
-      const firstSlice = this.paused ? this.pausedAt : this.historyPointer
-      const secondSlice = this.paused ? pausedPlusOffset : this.historyPointer
-      const thirdSlice = this.paused
-        ? Math.min(
-            this.currentConfig.packetsToShow,
-            this.pausedHistory.length + this.pauseOffset
-          )
-        : this.currentConfig.packetsToShow
-
       let packets = this.paused ? this.pausedHistory : this.history
+      // Order packets chronologically and filter out the ones that aren't needed
+      const breakpoint = this.paused ? this.pausedAt : this.historyPointer
       packets = packets
-        .slice(firstSlice + 1)
-        .concat(packets.slice(0, secondSlice + 1))
-        .filter((packet) => packet)
-        .slice(-thirdSlice)
-      if (this.currentConfig.newestAtTop) packets = packets.reverse()
-      this.displayText = packets
-        .map(this.calculatePacketText)
+        .filter((packet) => packet) // in case history hasn't been filled yet
+        .slice(breakpoint + 1)
+        .concat(packets.slice(0, breakpoint + 1))
+        .map(this.calculatePacketText) // convert to display text
         .filter(this.matchesSearch)
-        .join('\n\n')
+      if (this.paused) {
+        // Remove any that are after the slider (offset)
+        const sliderPosition = Math.max(packets.length + this.pauseOffset, 1) // Always show at least one
+        packets = packets.slice(0, sliderPosition)
+      }
+      // Take however many are supposed to be shown
+      const end = Math.max(this.currentConfig.packetsToShow, 1) // Always show at least one
+      packets = packets.slice(-end)
+      if (this.currentConfig.newestAtTop) {
+        packets = packets.reverse()
+      }
+      this.displayText = packets.join('\n\n')
     },
     matchesSearch: function (text) {
       return text.toLowerCase().includes(this.filterText.toLowerCase())
