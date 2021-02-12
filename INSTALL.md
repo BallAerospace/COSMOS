@@ -1,6 +1,6 @@
 # Install
 
-This document describes how to install Cosmos.
+This document describes how to install Cosmos using the cosmos_control and scripts directory.
 
 - [Requirements](#Requirements)
 - [Setup](#Setup)
@@ -109,7 +109,7 @@ $ cosmos_control.sh build
 
 ## Deploy
 
-Use if you have a local docker repository that you can publish docker containers to for being pulled via addtional users.
+Deploy built docker containers into a local docker repository.
 
 ### Windows
 
