@@ -20,18 +20,98 @@
 <template>
   <div>
     <app-nav app :menus="menus" />
-    <v-card>
-      <div class="mb-1">
-        <v-alert type="warning" v-model="warning" dismissible>
-          {{ warningText }}
-        </v-alert>
-        <v-alert type="error" v-model="error" dismissible>
-          {{ errorText }}
-        </v-alert>
-        <v-alert type="error" v-model="connectionFailure">
-          COSMOS backend connection failed.
-        </v-alert>
-      </div>
+    <v-row>
+      <v-col>
+        <v-menu 
+          :close-on-content-click="true"
+          :nudge-right="40"
+          transition="scale-transition"
+          offset-y
+          max-width="290px"
+          min-width="290px"
+        >
+          <template v-slot:activator="{ on }">
+            <v-text-field
+              v-model="startDate"
+              label="Start Date"
+              v-on="on"
+              prepend-icon="mdi-calendar"
+              :rules="[rules.required, rules.calendar]"
+              data-test="startDate"
+            ></v-text-field>
+          </template>
+          <v-date-picker
+            v-model="startDate"
+            :max="endDate"
+            :show-current="false"
+            no-title
+          ></v-date-picker>
+        </v-menu>
+      </v-col>
+      <v-col>
+        <v-text-field
+          v-model="startTime"
+          label="Start Time"
+          prepend-icon="mdi-clock"
+          :rules="[rules.required, rules.time]"
+          data-test="startTime"
+        ></v-text-field>
+      </v-col>
+      <v-col>
+        <v-menu
+          ref="endDatemenu"
+          :close-on-content-click="true"
+          :nudge-right="40"
+          transition="scale-transition"
+          offset-y
+          max-width="290px"
+          min-width="290px"
+        >
+          <template v-slot:activator="{ on }">
+            <v-text-field
+              v-model="endDate"
+              label="End Date"
+              v-on="on"
+              prepend-icon="mdi-calendar"
+              :rules="endTime ? [rules.required, rules.calendar] : [rules.calendar]"
+              data-test="endDate"
+            ></v-text-field>
+          </template>
+          <v-date-picker
+            v-model="endDate"
+            :min="startDate"
+            :show-current="false"
+            no-title
+          ></v-date-picker>
+        </v-menu>
+      </v-col>
+      <v-col>
+        <v-text-field
+          v-model="endTime"
+          label="End Time"
+          prepend-icon="mdi-clock"
+          :rules="endDate ? [rules.required, rules.time] : [rules.time]"
+          data-test="endTime"
+        ></v-text-field>
+      </v-col>
+    </v-row>
+    <v-row no-gutters>
+      <v-spacer />
+      <v-btn v-if="started" color="red" @click="stop">Stop</v-btn>
+      <v-btn v-else color="green" :disabled="!canStart" @click="start">Start</v-btn>
+    </v-row>
+    <div class="mt-3">
+      <v-alert type="warning" v-model="warning" dismissible>
+        {{ warningText }}
+      </v-alert>
+      <v-alert type="error" v-model="error" dismissible>
+        {{ errorText }}
+      </v-alert>
+      <v-alert type="error" v-model="connectionFailure">
+        COSMOS backend connection failed.
+      </v-alert>
+    </div>
+    <v-card class="mt-3">
       <v-tabs ref="tabs" v-model="curTab">
         <v-tab
           v-for="(tab, index) in config.tabs"
@@ -142,6 +222,7 @@
 </template>
 
 <script>
+import { format, isValid, parse } from 'date-fns'
 import AppNav from '@/AppNav'
 import * as ActionCable from 'actioncable'
 import { CosmosApi } from '@/services/cosmos-api'
@@ -166,6 +247,37 @@ export default {
       api: null,
       cable: ActionCable.Cable,
       subscription: ActionCable.Channel,
+      startDate: format(new Date(), 'yyyy-MM-dd'),
+      startTime: format(new Date(), 'HH:mm:ss'),
+      endDate: '',
+      endTime: '',
+      rules: {
+        required: (value) => !!value || 'Required',
+        calendar: (value) => {
+          try {
+            return (
+              value === '' ||
+              isValid(parse(value, 'yyyy-MM-dd', new Date())) ||
+              'Invalid date (YYYY-MM-DD)'
+            )
+          } catch (e) {
+            return 'Invalid date (YYYY-MM-DD)'
+          }
+        },
+        time: (value) => {
+          try {
+            return (
+              value === '' ||
+              isValid(parse(value, 'HH:mm:ss', new Date())) ||
+              'Invalid time (HH:MM:SS)'
+            )
+          } catch (e) {
+            return 'Invalid time (HH:MM:SS)'
+          }
+        },
+      },
+      canStart: false,
+      started: false,
       curTab: null,
       receivedPackets: {},
       menus: [
@@ -237,6 +349,36 @@ export default {
     resizeTabs: function () {
       if (this.$refs.tabs) this.$refs.tabs.onResize()
     },
+    start: function () {
+      // Check for a future start time
+      if (new Date(this.startDate + ' ' + this.startTime) > Date.now()) {
+        this.warningText = 'Start date/time is in the future!'
+        this.warning = true
+        return
+      }
+      // Check for an empty time period
+      if (this.startEndTime.start_time === this.startEndTime.end_time) {
+        this.warningText = 'Start date/time is equal to end date/time!'
+        this.warning = true
+        return
+      }
+      // Check for a future End Time
+      if (new Date(this.endDate + ' ' + this.endTime) > Date.now()) {
+        this.warningText =
+          'Note: End date/time is greater than current date/time. Data will continue to stream in real-time until ' +
+          this.endDate +
+          ' ' +
+          this.endTime +
+          ' is reached.'
+        this.warning = true
+      }
+      this.started = true
+      this.addPacketsToSubscription()
+    },
+    stop: function () {
+      this.started = false
+      this.removePacketsFromSubscription()
+    },
     subscribe: function () {
       this.subscription = this.cable.subscriptions.create(
         {
@@ -245,8 +387,12 @@ export default {
         },
         {
           received: (data) => this.received(data),
-          connected: () => this.addPacketsToSubscription(),
+          connected: () => {
+            this.canStart = true
+          },
           disconnected: () => {
+            this.stop()
+            this.canStart = false
             this.warningText = 'COSMOS backend connection disconnected.'
             this.warning = true
           },
@@ -261,10 +407,8 @@ export default {
       this.subscription.perform('add', {
         scope: 'DEFAULT',
         packets: packets || this.allPacketSubscriptionKeys,
-        // start_time: 1609532973000000000, // use to hit the file cache
-        start_time: Date.now() * 1000000,
-        end_time: null,
         mode: 'RAW',
+        ...this.startEndTime,
       })
     },
     removePacketsFromSubscription: function (packets) {
@@ -280,6 +424,10 @@ export default {
         return
       }
       const parsed = JSON.parse(json_data)
+      if (!parsed.length) {
+        this.stop()
+        return
+      }
       const packetName = parsed[0].packet // everything in this message will be for the same packet
       this.$refs[`${packetName}-display`].forEach((component) => {
         component.receive(parsed)
@@ -363,6 +511,12 @@ export default {
     },
   },
   computed: {
+    startEndTime: function () {
+      return {
+        start_time: new Date(this.startDate + ' ' + this.startTime).getTime() * 1_000_000,
+        end_time: this.endDate ? new Date(this.endDate + ' ' + this.endTime).getTime() * 1_000_000 : null
+      }
+    },
     allPacketSubscriptionKeys: function () {
       return this.config.tabs.flatMap((tab) => {
         return tab.packets.map(this.subscriptionKey)
