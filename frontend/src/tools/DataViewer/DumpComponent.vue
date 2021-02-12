@@ -150,7 +150,7 @@
 import _ from 'lodash'
 import { format } from 'date-fns'
 
-const HISTORY_MAX_SIZE = 100
+const HISTORY_MAX_SIZE = 100 // TODO: put in config
 
 // NOTE FOR MAKING ANOTHER DATA VIEWER COMPONENT:
 // Things that must be here for DataViewer.vue to work properly:
@@ -385,11 +385,6 @@ export default {
     },
   },
   computed: {
-    latestPacket: function () {
-      if (this.historyPointer < 0) return null
-      return this.history[this.historyPointer]
-    },
-
     // These are just here to trigger their respective watch functions above
     // There's a better solution to this in Vue 3 v3.vuejs.org/api/computed-watch-api.html#watching-multiple-sources
     allInstantSettings: function () {

@@ -97,7 +97,7 @@
     </v-row>
     <v-row no-gutters>
       <v-spacer />
-      <v-btn v-if="started" color="red" @click="stop">Stop</v-btn>
+      <v-btn v-if="running" color="red" @click="stop">Stop</v-btn>
       <v-btn v-else color="green" :disabled="!canStart" @click="start">Start</v-btn>
     </v-row>
     <div class="mt-3">
@@ -131,6 +131,7 @@
             :key="`${index}-${packetIndex}`"
             flat
           >
+            <v-divider />
             <v-card-title>
               {{ packet.target }} {{ packet.packet }}
               <v-spacer />
@@ -139,6 +140,14 @@
               </v-btn>
             </v-card-title>
             <dump-component
+              v-if="packet.component === 'DumpComponent'"
+              v-show="receivedPackets[topicKey(packet)]"
+              :ref="`${topicKey(packet)}-display`"
+              :config="packet.config"
+              @config-change="(newConfig) => (packet.config = newConfig)"
+            />
+            <decom-table-component
+              v-else-if="packet.component === 'DecomTableComponent'"
               v-show="receivedPackets[topicKey(packet)]"
               :ref="`${topicKey(packet)}-display`"
               :config="packet.config"
@@ -208,6 +217,10 @@
         <v-card-title> Add a packet </v-card-title>
         <v-card-text>
           <TargetPacketItemChooser @on-set="packetSelected($event)" />
+          <v-radio-group v-model="newPacketMode" row>
+            <v-radio label="Raw" value="RAW" />
+            <v-radio label="Decom" value="DECOM" />
+          </v-radio-group>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
@@ -230,6 +243,7 @@ import OpenConfigDialog from '@/components/OpenConfigDialog'
 import SaveConfigDialog from '@/components/SaveConfigDialog'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
 import DumpComponent from './DumpComponent'
+import DecomTableComponent from './DecomTableComponent'
 
 export default {
   components: {
@@ -238,6 +252,7 @@ export default {
     SaveConfigDialog,
     TargetPacketItemChooser,
     DumpComponent,
+    DecomTableComponent,
   },
   data() {
     return {
@@ -277,7 +292,7 @@ export default {
         },
       },
       canStart: false,
-      started: false,
+      running: false,
       curTab: null,
       receivedPackets: {},
       menus: [
@@ -315,6 +330,7 @@ export default {
       adtiveTab: 0,
       addComponentDialog: false,
       newPacket: null,
+      newPacketMode: 'RAW',
     }
   },
   watch: {
@@ -372,11 +388,11 @@ export default {
           ' is reached.'
         this.warning = true
       }
-      this.started = true
+      this.running = true
       this.addPacketsToSubscription()
     },
     stop: function () {
-      this.started = false
+      this.running = false
       this.removePacketsFromSubscription()
     },
     subscribe: function () {
@@ -404,17 +420,26 @@ export default {
       )
     },
     addPacketsToSubscription: function (packets) {
-      this.subscription.perform('add', {
-        scope: 'DEFAULT',
-        packets: packets || this.allPacketSubscriptionKeys,
-        mode: 'RAW',
-        ...this.startEndTime,
+      packets = packets || this.allPackets
+      // Group by mode
+      const modeGroups = packets.reduce((groups, packet) => {
+        (groups[packet.mode] = groups[packet.mode] || []).push(packet)
+        return groups
+      }, {})
+      Object.keys(modeGroups).forEach((mode) => {
+        this.subscription.perform('add', {
+          scope: 'DEFAULT',
+          packets: modeGroups[mode].map(this.subscriptionKey),
+          mode: mode,
+          ...this.startEndTime,
+        })
       })
     },
     removePacketsFromSubscription: function (packets) {
+      packets = packets || this.allPackets
       this.subscription.perform('remove', {
         scope: 'DEFAULT',
-        packets: packets || this.allPacketSubscriptionKeys,
+        packets: packets.map(this.subscriptionKey),
       })
     },
     received: function (json_data) {
@@ -436,17 +461,21 @@ export default {
       this.receivedPackets = { ...this.receivedPackets } // TODO: why is reactivity broken?
     },
     topicKey: function (packet) {
-      return `DEFAULT__TELEMETRY__${packet.target}__${packet.packet}`
+      return `DEFAULT__${packet.mode === 'DECOM' ? 'DECOM' : 'TELEMETRY'}__${packet.target}__${packet.packet}`
     },
     subscriptionKey: function (packet) {
-      return `TLM__${packet.target}__${packet.packet}`
+      let key = `TLM__${packet.target}__${packet.packet}`
+      if (packet.mode === 'DECOM') key += '__CONVERTED'
+      return key
     },
     openConfiguration: async function (name) {
       localStorage.lastDataViewerConfig = name
       this.removePacketsFromSubscription()
       this.receivedPackets = {}
       let response = await this.api.load_config(this.toolName, name)
-      this.config = JSON.parse(response)
+      if (response) {
+        this.config = JSON.parse(response)
+      }
       this.addPacketsToSubscription()
     },
     saveConfiguration: function (name) {
@@ -493,11 +522,14 @@ export default {
     addComponent: function () {
       const packet = {
         ...this.newPacket,
-        component: 'DumpComponent',
+        mode: this.newPacketMode,
+        component: this.newPacketMode === 'RAW' ? 'DumpComponent' : 'DecomTableComponent',
         config: {},
       }
       this.config.tabs[this.activeTab].packets.push(packet)
-      this.addPacketsToSubscription([this.subscriptionKey(packet)])
+      if (this.running) {
+        this.addPacketsToSubscription([packet])
+      }
       this.cancelAddComponent()
     },
     cancelAddComponent: function () {
@@ -507,7 +539,7 @@ export default {
     deleteComponent: function (tabIndex, packetIndex) {
       const packet = this.config.tabs[tabIndex].packets[packetIndex]
       this.config.tabs[tabIndex].packets.splice(packetIndex, 1)
-      this.removePacketsFromSubscription([this.subscriptionKey(packet)])
+      this.removePacketsFromSubscription([packet])
     },
   },
   computed: {
@@ -517,9 +549,9 @@ export default {
         end_time: this.endDate ? new Date(this.endDate + ' ' + this.endTime).getTime() * 1_000_000 : null
       }
     },
-    allPacketSubscriptionKeys: function () {
+    allPackets: function () {
       return this.config.tabs.flatMap((tab) => {
-        return tab.packets.map(this.subscriptionKey)
+        return tab.packets
       })
     },
   },
