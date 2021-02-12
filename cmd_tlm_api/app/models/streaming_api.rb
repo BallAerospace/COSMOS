@@ -375,11 +375,11 @@ class StreamingThread
     else # @stream_mode == :DECOM
       json_packet = Cosmos::JsonPacket.new(first_object.cmd_or_tlm, first_object.target_name, first_object.packet_name,
         time, Cosmos::ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["json_data"])
-      return handle_json_packet(json_packet, objects)
+      return handle_json_packet(json_packet, objects, first_object.topic)
     end
   end
 
-  def handle_json_packet(json_packet, objects)
+  def handle_json_packet(json_packet, objects, topic)
     time = json_packet.packet_time
     keys_remain = objects_active?(objects, time.to_nsec_from_epoch)
     return nil unless keys_remain
@@ -390,6 +390,7 @@ class StreamingThread
       else # whole packet
         this_packet = json_packet.read_all(object.value_type)
         result = result.merge(this_packet)
+        result['packet'] = topic
       end
     end
     result['time'] = time.to_nsec_from_epoch
@@ -497,7 +498,7 @@ class LoggedStreamingThread < StreamingThread
           if @stream_mode == :RAW
             result = handle_raw_packet(packet.buffer, objects, time.to_nsec_from_epoch, first_object.topic)
           else # @stream_mode == :DECOM
-            result = handle_json_packet(packet, objects)
+            result = handle_json_packet(packet, objects, first_object.topic)
           end
           if result
             results << result
