@@ -37,7 +37,7 @@ $ cosmos_control.sh setup
 
 ## Start
 
-This will run the setup to make sure it has been run. It will then run the minimal requirements to start cosmos. This will create a docker network and volumes if they do not already exist, along with building the containers. Then run the containers.
+This will run the setup to make sure it has been run. It will build and run the minimal requirements for cosmos. This will create a docker network and volumes if they do not already exist. Then run the containers.
 
 ### Windows
 
@@ -55,7 +55,7 @@ $ cosmos_control.sh start
 
 ## Stop
 
-This will stop all cosmos containers. This will **NOT** remove the docker network or volumes.
+This will safely stop all cosmos containers and disconnect from all targets. This will **NOT** remove the docker network or volumes and thus all stored commands and telemetry are saved.
 
 ### Windows
 
@@ -73,7 +73,7 @@ $ cosmos_control.sh stop
 
 ## Cleanup
 
-This will **try to remove** all volumes and network. If these are currently in use then it will give errors. This will **NOT** stop running docker containers.
+Note this is destructive and if successful **ALL** stored commands and telemetry are **deleted**. This will remove all docker volumes which will delete ALL stored commands and telemetry! This will **NOT** stop running docker containers.
 
 ### Windows
 
@@ -109,7 +109,7 @@ $ cosmos_control.sh build
 
 ## Deploy
 
-Use if you have a local docker repository. That you can publish docker containers to.
+Use if you have a local docker repository that you can publish docker containers to for being pulled via addtional users.
 
 ### Windows
 
@@ -127,7 +127,7 @@ $ cosmos_control.sh deploy
 
 ## Start_Dev
 
-Use if you want to have more tools about what cosmos is doing. This will also build and run fluentd, opendistro elastic, opendistro kibana, prometheus, grafana. The memory footprint of these containers can cause some computers to not run Cosmos.
+This will run setup and start Cosmos but also build and run fluentd, opendistro elastic, opendistro kibana, prometheus, grafana. The memory footprint of these containers can cause some computers to not run Cosmos.
 
 ### Windows
 

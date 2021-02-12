@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-read -p "This will remove all files. Are you sure (y/[N])? " choice
+read -p "This will remove all docker volumes which will delete **ALL** stored commands and telemetry! Are you sure (Y/[N])? " choice
 case "$choice" in
   y|Y )
   docker volume rm cosmos-elasticsearch-v
