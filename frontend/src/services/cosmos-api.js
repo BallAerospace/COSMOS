@@ -27,7 +27,7 @@ export class CosmosApi {
   constructor() {}
 
   // This is hacky Json-rpc for now.  Should probably use a jsonrpc library.
-  async exec(method, params) {
+  async exec(method, params, kwparams = {}) {
     try {
       await auth.updateToken(30)
     } catch (error) {
@@ -35,15 +35,14 @@ export class CosmosApi {
     }
     this.id = this.id + 1
     try {
+      kwparams['scope'] = 'DEFAULT'
+      kwparams['token'] = localStorage.getItem('token')
       const response = await axios.post(this.host + '/api', {
         jsonrpc: '2.0',
         method: method,
         params: params,
         id: this.id,
-        keyword_params: {
-          scope: 'DEFAULT',
-          token: localStorage.getItem('token'),
-        },
+        keyword_params: kwparams,
       })
       // var data = response.data
       // if (data.error) {
@@ -205,28 +204,27 @@ export class CosmosApi {
   // End CmdTlmServer APIs
   // ***********************************************
 
-  // Called by TargetPacketChooserComponent and TargetPacketItemChooserComponent
+  get_target(target_name) {
+    return this.exec('get_target', [target_name])
+  }
+
   get_target_list() {
     return this.exec('get_target_list', [])
   }
 
-  // Called by TargetPacketChooserComponent and TargetPacketItemChooserComponent
-  get_tlm_list(target_name) {
-    return this.exec('get_tlm_list', [target_name])
+  get_telemetry(target_name, packet_name) {
+    return this.exec('get_telemetry', [target_name, packet_name])
   }
 
-  // Called by TargetPacketItemChooserComponent
-  get_tlm_item_list(target_name, packet_name) {
-    return this.exec('get_tlm_item_list', [target_name, packet_name])
+  get_all_telemetry(target_name) {
+    return this.exec('get_all_telemetry', [target_name])
   }
 
   // Called by PacketViewerComponent
   async get_tlm_packet(target_name, packet_name, value_type) {
-    const data = await this.exec('get_tlm_packet', [
-      target_name,
-      packet_name,
-      value_type,
-    ])
+    const data = await this.exec('get_tlm_packet', [target_name, packet_name], {
+      type: value_type,
+    })
     var len = data.length
     var converted = null
     for (var i = 0; i < len; i++) {
@@ -236,10 +234,6 @@ export class CosmosApi {
       }
     }
     return data
-  }
-  // Called by PacketViewerComponent
-  get_target_ignored_items(target_name) {
-    return this.exec('get_target_ignored_items', [target_name])
   }
 
   // Called by PacketViewerComponent
@@ -281,7 +275,6 @@ export class CosmosApi {
     return data
   }
 
-  // Called by CmdSenderComponent
   get_all_commands(target_name) {
     return this.exec('get_all_commands', [target_name])
   }
@@ -290,32 +283,6 @@ export class CosmosApi {
     return this.exec('get_command', [target_name, command_name])
   }
 
-  // get_command_parameters(target_name, command_name) {
-  //   return this.exec('get_command_parameters', [target_name, command_name])
-  // }
-
-  get_cmd_list(target_name) {
-    return this.exec('get_cmd_list', [target_name])
-  }
-
-  // Called by CmdSenderComponent
-  async get_cmd_param_list(target_name, command_name) {
-    const data = await this.exec('get_cmd_param_list', [
-      target_name,
-      command_name,
-    ])
-    var len = data.length
-    var converted = null
-    for (var i = 0; i < len; i++) {
-      converted = this.decode_cosmos_type(data[i][1])
-      if (converted !== null) {
-        data[i][1] = converted
-      }
-    }
-    return data
-  }
-
-  // Called by CmdTlmServer Cmd Packets tab
   get_cmd_value(
     target_name,
     packet_name,
@@ -333,11 +300,6 @@ export class CosmosApi {
   // Called by CmdTlmServer Cmd Packets tab
   get_cmd_buffer(target_name, packet_name) {
     return this.exec('get_cmd_buffer', [target_name, packet_name])
-  }
-
-  // Called by CmdSenderComponent
-  get_target_ignored_parameters(target_name) {
-    return this.exec('get_target_ignored_parameters', [target_name])
   }
 
   // Implementation of functionality shared by cmd methods with param_lists.

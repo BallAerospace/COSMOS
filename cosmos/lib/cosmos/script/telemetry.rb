@@ -88,12 +88,9 @@ module Cosmos
     # @param target_name[String] Target name of the packet
     # @param packet_name[String] Packet name of the packet
     # @param item_hash[Hash] Hash of item_name and value for each item you want to change from the current value table
-    # @param value_type[Symbol/String] Type of the values in the item_hash (RAW or CONVERTED)
-    # @param send_routers[Boolean] Whether or not to send to routers for the target's interface
-    # @param send_packet_log_writers[Boolean] Whether or not to send to the packet log writers for the target's interface
-    # @param create_new_logs[Boolean] Whether or not to create new log files before writing this packet to logs
-    def inject_tlm(target_name, packet_name, item_hash = nil, value_type = :CONVERTED, send_routers = true, send_packet_log_writers = true, create_new_logs = false)
-      $cmd_tlm_server.inject_tlm(target_name, packet_name, item_hash, value_type, send_routers, send_packet_log_writers, create_new_logs)
+    # @param type[Symbol|String] Type of the item_hash values (:RAW, :CONVERTED (default), :FORMATTED, :WITH_UNITS)
+    def inject_tlm(target_name, packet_name, item_hash = nil, type: :CONVERTED)
+      $cmd_tlm_server.inject_tlm(target_name, packet_name, item_hash, type: type)
     end
 
     # Permanently set the converted value of a telemetry point to a given value
@@ -152,25 +149,9 @@ module Cosmos
     #   result
     # end
 
-    # Gets the packets for a given target name. Returns an array of arrays
-    # consisting of packet names and packet descriptions.
-    def get_tlm_list(target_name)
-      $cmd_tlm_server.get_tlm_list(target_name)
-    end
-
-    # Gets all the telemetry mnemonics for a given target and packet. Returns an
-    # array of arrays consisting of item names, item states, and item descriptions.
-    def get_tlm_item_list(target_name, packet_name)
-      $cmd_tlm_server.get_tlm_item_list(target_name, packet_name)
-    end
-
     # Gets the list of all defined targets.
     def get_target_list
       $cmd_tlm_server.get_target_list
-    end
-
-    def get_tlm_details(items)
-      $cmd_tlm_server.get_tlm_details(items)
     end
 
     # Returns the buffer from the telemetry packet.

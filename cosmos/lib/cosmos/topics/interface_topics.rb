@@ -38,12 +38,24 @@ module Cosmos
       end
     end
 
+    def self.write_raw(interface_name, data, scope:)
+      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", { 'raw' => data })
+    end
+
     def self.connect_interface(interface_name, scope:)
-      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", { 'connect' => true })
+      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", { 'connect' => 'true' })
     end
 
     def self.disconnect_interface(interface_name, scope:)
-      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", { 'disconnect' => true })
+      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", { 'disconnect' => 'true' })
+    end
+
+    def self.start_raw_logging(interface_name, scope:)
+      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", { 'log_raw' => 'true' })
+    end
+
+    def self.stop_raw_logging(interface_name, scope:)
+      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", { 'log_raw' => 'false' })
     end
   end
 end

@@ -26,8 +26,6 @@ module Cosmos
       'get_target_list',
       'get_target',
       'get_all_target_info',
-      'get_target_ignored_parameters',
-      'get_target_ignored_items',
     ])
 
     # Returns the list of all target names
@@ -75,30 +73,6 @@ module Cosmos
         info << [target_name, interface_name, cmd_cnt, tlm_cnt]
       end
       info
-    end
-
-    # Get the list of ignored command parameters for a target
-    #
-    # @deprecated Use #get_target
-    # @param target_name [String] Target name
-    # @return [Array<String>] All of the ignored command parameters for a target.
-    def get_target_ignored_parameters(target_name, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'system', target_name: target_name, scope: scope, token: token)
-      target = TargetModel.get(name: target_name, scope: scope)
-      raise "Target '#{target_name}' does not exist" unless target
-      target['ignored_parameters']
-    end
-
-    # Get the list of ignored telemetry items for a target
-    #
-    # @deprecated Use get_target
-    # @param target_name [String] Target name
-    # @return [Array<String>] All of the ignored telemetry items for a target.
-    def get_target_ignored_items(target_name, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'system', target_name: target_name, scope: scope, token: token)
-      target = TargetModel.get(name: target_name, scope: scope)
-      raise "Target '#{target_name}' does not exist" unless target
-      target['ignored_items']
     end
   end
 end

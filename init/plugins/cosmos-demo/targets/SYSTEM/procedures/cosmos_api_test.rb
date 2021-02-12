@@ -145,43 +145,15 @@ send_raw("INT1")
 send_raw("INT1", "\x00\x00")
 send_raw("INT1", "\x00\x00", "\x00\x00")
 
-# get_cmd_list
-expected_list = [["ABORT", "Aborts a collect on the INST instrument"], ["ARYCMD", "Command with array parameter"], ["ASCIICMD", "Enumerated ASCII command"], ["CLEAR", "Clears counters on the INST instrument"], ["COLLECT", "Starts a collect on the INST target"], ["FLTCMD", "Command with float parameters"], ["SETPARAMS", "Sets numbered parameters"], ["SLRPNLDEPLOY", "Deploy solar array panels"], ["SLRPNLRESET", "Reset solar array panels"]]
-list = get_cmd_list("INST")
-puts list.inspect
-if list != expected_list
-  raise "Fail"
-end
+# get_all_commands
+expected_cmds = %w(ABORT ARYCMD ASCIICMD CLEAR COLLECT FLTCMD SETPARAMS SLRPNLDEPLOY SLRPNLRESET)
+commands = get_all_commands("INST")
+puts commands.inspect
 
-# get_cmd_list should fail
-get_cmd_list()
-get_cmd_list("BOB")
-get_cmd_list("BOB", "TED")
-
-# get_cmd_param_list
-expected_list = [["CCSDSVER", 0, nil, "CCSDS primary header version number", nil, nil, false, "UINT"],
-  ["CCSDSTYPE", 1, nil, "CCSDS primary header packet type", nil, nil, false, "UINT"],
-  ["CCSDSSHF", 0, nil, "CCSDS primary header secondary header flag", nil, nil, false, "UINT"],
-  ["CCSDSAPID", 999, nil, "CCSDS primary header application id", nil, nil, false, "UINT"],
-  ["CCSDSSEQFLAGS", 3, nil, "CCSDS primary header sequence flags", nil, nil, false, "UINT"],
-  ["CCSDSSEQCNT", 0, nil, "CCSDS primary header sequence count", nil, nil, false, "UINT"],
-  ["CCSDSLENGTH", 12, nil, "CCSDS primary header packet length", nil, nil, false, "UINT"],
-  ["PKTID", 1, nil, "Packet id", nil, nil, false, "UINT"],
-  ["TYPE", 0, { "NORMAL" => 0, "SPECIAL" => 1 }, "Collect type", nil, nil, true, "UINT"],
-  ["DURATION", 1.0, nil, "Collect duration", nil, nil, false, "FLOAT"],
-  ["OPCODE", "0xAB", nil, "Collect opcode", nil, nil, false, "UINT"],
-  ["TEMP", 0.0, nil, "Collect temperature", "Celsius", "C", false, "FLOAT"]]
-list = get_cmd_param_list("INST", "COLLECT")
-puts list.inspect(100)
-if list != expected_list
-  raise "Fail"
-end
-
-# get_cmd_param_list should fail
-get_cmd_param_list()
-get_cmd_param_list("INST")
-get_cmd_param_list("INST", "BOB")
-get_cmd_param_list("INST", "COLLECT", "DURATION")
+# get_all_commands should fail
+get_all_commands()
+get_all_commands("BOB")
+get_all_commands("BOB", "TED")
 
 # get_cmd_hazardous
 hazardous = get_cmd_hazardous("INST", "COLLECT", "TYPE" => "SPECIAL")

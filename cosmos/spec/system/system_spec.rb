@@ -755,7 +755,7 @@ module Cosmos
           tf.puts("HASHING_ALGORITHM BAD")
           tf.close
           expect(Logger).to receive(:error) do |msg|
-            expect(msg).to eql "Unrecognized hashing algorithm: BAD, using default algorithm MD5"
+            expect(msg).to eql "Unknown hashing algorithm: BAD, using default algorithm MD5"
           end
           System.instance.process_file(tf.path)
           expect(System.hashing_algorithm).to eql 'MD5'

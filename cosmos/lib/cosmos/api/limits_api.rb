@@ -203,7 +203,6 @@ module Cosmos
     # For example: {'DEFAULT' => [-80, -70, 60, 80, -20, 20],
     #               'TVAC' => [-25, -10, 50, 55] }
     #
-    # @deprecated Use #get_item
     # @return [Hash{String => Array<Number, Number, Number, Number, Number, Number>}]
     def get_limits(target_name, packet_name, item_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)

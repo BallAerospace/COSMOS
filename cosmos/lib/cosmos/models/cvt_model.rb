@@ -42,9 +42,9 @@ module Cosmos
       when :RAW
         field = item_name
       else
-        raise "Unrecognized type #{type} for #{target_name} #{packet_name} #{item_name}"
+        raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
       end
-      Store.hset("#{scope}__tlm__#{target_name}__#{packet_name}", field, value)
+      Store.hset("#{scope}__tlm__#{target_name}__#{packet_name}", field, JSON.generate(value.as_json))
     end
 
     # Get an item from the current value table
@@ -64,7 +64,7 @@ module Cosmos
       when :RAW
         types = [item_name]
       else
-        raise "Unrecognized type #{type} for #{target_name} #{packet_name} #{item_name}"
+        raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
       end
 
       results = Store.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *types)
@@ -80,7 +80,7 @@ module Cosmos
       if VALUE_TYPES.include?(type)
         @overrides["#{target_name}__#{packet_name}__#{item_name}__#{type}"] = value
       else
-        raise "Unrecognized type #{type} for #{target_name} #{packet_name} #{item_name}"
+        raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
       end
     end
 
@@ -94,7 +94,7 @@ module Cosmos
         if VALUE_TYPES.include?(type)
           @overrides.delete("#{target_name}__#{packet_name}__#{item_name}__#{type}")
         else
-          raise "Unrecognized type #{type} for #{target_name} #{packet_name} #{item_name}"
+          raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
         end
       end
     end

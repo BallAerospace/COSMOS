@@ -29,7 +29,7 @@ module Cosmos
         @data = "\x80\x81\x82\x83\x84\x85\x86\x87\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F"
       end
 
-      it "complains about unrecognized data types" do
+      it "complains about unknown data types" do
         expect { BinaryAccessor.read(0, 32, :BLOB, @data, :BIG_ENDIAN) }.to raise_error(ArgumentError, "data_type BLOB is not recognized")
       end
 
@@ -711,7 +711,7 @@ module Cosmos
         @baseline_data = "\x80\x81\x82\x83\x84\x85\x86\x87\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F"
       end
 
-      it "complains about unrecognized data types" do
+      it "complains about unknown data types" do
         expect { BinaryAccessor.write(0, 0, 32, :BLOB, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "data_type BLOB is not recognized")
       end
 
@@ -1701,7 +1701,7 @@ module Cosmos
         expect { BinaryAccessor.write_array("", 0, 32, :STRING, 0, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "values must be an Array type class is String")
       end
 
-      it "complains about unrecognized data types" do
+      it "complains about unknown data types" do
         expect { BinaryAccessor.write_array([0], 0, 32, :BLOB, 0, @data, :BIG_ENDIAN, :ERROR) }.to raise_error(ArgumentError, "data_type BLOB is not recognized")
       end
 

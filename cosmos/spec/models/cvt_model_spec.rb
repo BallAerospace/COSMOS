@@ -52,7 +52,7 @@ module Cosmos
 
     describe "self.set_item" do
       it "raises for an unknown type" do
-        expect { CvtModel.set_item("INST", "HEALTH_STATUS", "TEMP1", 0, type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unrecognized type OTHER/)
+        expect { CvtModel.set_item("INST", "HEALTH_STATUS", "TEMP1", 0, type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type 'OTHER'/)
       end
 
       it "temporarily sets a single value in the CVT" do
@@ -84,7 +84,7 @@ module Cosmos
 
     describe "self.get_item" do
       it "raises for an unknown type" do
-        expect { CvtModel.get_item("INST", "HEALTH_STATUS", "TEMP1", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unrecognized type OTHER/)
+        expect { CvtModel.get_item("INST", "HEALTH_STATUS", "TEMP1", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type 'OTHER'/)
       end
 
       it "falls down to the next type value if the requested type doesn't exist" do
@@ -120,7 +120,7 @@ module Cosmos
 
     describe "override" do
       it "raises for an unknown type" do
-        expect { CvtModel.override("INST", "HEALTH_STATUS", "TEMP1", 0, type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unrecognized type OTHER/)
+        expect { CvtModel.override("INST", "HEALTH_STATUS", "TEMP1", 0, type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type 'OTHER'/)
       end
 
       it "overrides a value in the CVT" do
@@ -137,7 +137,7 @@ module Cosmos
 
     describe "normalize" do
       it "raises for an unknown type" do
-        expect { CvtModel.normalize("INST", "HEALTH_STATUS", "TEMP1", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unrecognized type OTHER/)
+        expect { CvtModel.normalize("INST", "HEALTH_STATUS", "TEMP1", type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type 'OTHER'/)
       end
 
       it "normalizes an override value type in the CVT" do

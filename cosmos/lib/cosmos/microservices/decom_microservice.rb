@@ -22,9 +22,7 @@ require 'cosmos/topics/telemetry_decom_topic'
 require 'cosmos/topics/limits_event_topic'
 
 module Cosmos
-
   class DecomMicroservice < Microservice
-
     DECOM_METRIC_NAME = "decom_packet_duration_seconds"
     LIMIT_METRIC_NAME = "limits_change_callback_duration_seconds"
 
@@ -116,9 +114,7 @@ module Cosmos
       labels = { "packet" => packet.packet_name, "target" => packet.target_name }
       @metric.add_sample(name: LIMIT_METRIC_NAME, value: diff, labels: labels)
     end
-
   end
-
 end
 
 Cosmos::DecomMicroservice.run if __FILE__ == $0

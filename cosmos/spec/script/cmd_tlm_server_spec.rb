@@ -100,20 +100,6 @@ module Cosmos
       end
     end
 
-    describe "get_target_ignored_parameters" do
-      it "returns ignored parameters" do
-        params = get_target_ignored_parameters("INST")
-        expect(params.length).to be >= 0
-      end
-    end
-
-    describe "get_target_ignored_items" do
-      it "returns ignored items" do
-        items = get_target_ignored_items("INST")
-        expect(items.length).to be >= 0
-      end
-    end
-
     describe "get_cmd_cnt" do
       it "returns cmd count" do
         expect(get_cmd_cnt("INST", "COLLECT")).to be >= 0

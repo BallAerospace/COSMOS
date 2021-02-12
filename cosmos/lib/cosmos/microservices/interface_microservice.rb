@@ -52,7 +52,7 @@ module Cosmos
     def run
       InterfaceTopics.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
         # Check for a raw write to the interface
-        if topic =~ /CMDINTERFACE/ or topic =~ /CMDROUTER/
+        if topic =~ /CMDINTERFACE/
           if msg_hash['connect']
             Logger.info "#{@interface.name}: Connect requested"
             @tlm.attempting()
@@ -71,6 +71,16 @@ module Cosmos
           if msg_hash['inject_tlm']
             Logger.info "#{@interface.name}: Inject telemetry"
             @tlm.inject_tlm(msg_hash)
+            next 'SUCCESS'
+          end
+          if msg_hash.key?('log_raw')
+            if msg_hash['log_raw'] == 'true'
+              Logger.info "#{@interface.name}: Enable raw logging"
+              @interface.start_raw_logging
+            else
+              Logger.info "#{@interface.name}: Disable raw logging"
+              @interface.stop_raw_logging
+            end
             next 'SUCCESS'
           end
         end
@@ -171,6 +181,15 @@ module Cosmos
           if msg_hash['disconnect']
             Logger.info "#{@router.name}: Disconnect requested"
             @tlm.disconnect(false)
+          end
+          if msg_hash.key?('log_raw')
+            if msg_hash['log_raw'] == 'true'
+              Logger.info "#{@router.name}: Enable raw logging"
+              @router.start_raw_logging
+            else
+              Logger.info "#{@router.name}: Disable raw logging"
+              @router.stop_raw_logging
+            end
           end
           next 'SUCCESS'
         end
@@ -371,7 +390,7 @@ module Cosmos
       packet = System.telemetry.packet(hash['target_name'], hash['packet_name']).clone
       if hash['item_hash']
         JSON.parse(hash['item_hash']).each do |item, value|
-          packet.write(item.to_s, value, hash['value_type'].to_sym)
+          packet.write(item.to_s, value, hash['type'].to_sym)
         end
       end
       handle_packet(packet)

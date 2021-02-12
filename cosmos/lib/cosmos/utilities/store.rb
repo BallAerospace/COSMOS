@@ -281,9 +281,9 @@ module Cosmos
       # Logger.debug "write_topic topic:#{topic} id:#{id} hash:#{msg_hash}"
       @redis_pool.with do |redis|
         if id
-          return redis.xadd(topic, msg_hash, id: id, maxlen: maxlen, approximate: approximate)
+          return redis.xadd(topic, msg_hash, id: id, approximate: approximate)
         else
-          return redis.xadd(topic, msg_hash, maxlen: maxlen, approximate: approximate)
+          return redis.xadd(topic, msg_hash, approximate: approximate)
         end
       end
     end

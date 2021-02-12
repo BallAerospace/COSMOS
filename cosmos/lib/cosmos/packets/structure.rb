@@ -88,7 +88,7 @@ module Cosmos
           @short_buffer_allowed = false
           @mutex = nil
         else
-          raise(ArgumentError, "Unrecognized endianness: #{default_endianness} - Must be :BIG_ENDIAN or :LITTLE_ENDIAN")
+          raise(ArgumentError, "Unknown endianness '#{default_endianness}', must be :BIG_ENDIAN or :LITTLE_ENDIAN")
         end
       end
 

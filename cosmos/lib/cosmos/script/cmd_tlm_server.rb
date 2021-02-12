@@ -69,14 +69,6 @@ module Cosmos
       return $cmd_tlm_server.get_all_target_info
     end
 
-    def get_target_ignored_parameters(target_name)
-      return $cmd_tlm_server.get_target_ignored_parameters(target_name)
-    end
-
-    def get_target_ignored_items(target_name)
-      return $cmd_tlm_server.get_target_ignored_items(target_name)
-    end
-
     def get_packet_derived_items(target_name, packet_name)
       return $cmd_tlm_server.get_packet_derived_items(target_name, packet_name)
     end

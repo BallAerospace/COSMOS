@@ -37,8 +37,6 @@ module Cosmos
       'get_command',
       'get_parameter',
       'get_cmd_buffer',
-      'get_cmd_list',
-      'get_cmd_param_list',
       'get_cmd_hazardous',
       'get_cmd_value',
       'get_cmd_time',
@@ -182,8 +180,7 @@ module Cosmos
     # @param data [String] The raw binary data
     def send_raw(interface_name, data, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_raw', interface_name: interface_name, scope: scope, token: token)
-      raise 'unimplemented'
-      nil
+      InterfaceTopics.write_raw(interface_name, data, scope: scope)
     end
 
     # Returns the raw buffer from the most recent specified command packet.
@@ -198,23 +195,6 @@ module Cosmos
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       return msg_hash['buffer'].b if msg_id # Return as binary
       nil
-    end
-
-    # Returns the list of all the command names and their descriptions from the
-    # given target.
-    #
-    # @deprecated Use #get_all_commands
-    # @param target_name [String] Name of the target
-    # @return [Array<Array<String, String>>] Array containing \[command name,
-    #   command description] for all commands in the target
-    def get_cmd_list(target_name, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'cmd_info', target_name: target_name, scope: scope, token: token)
-      list = []
-      commands = TargetModel.packets(target_name, type: :CMD, scope: scope)
-      commands.each do |command|
-        list << [command['packet_name'], command['description']]
-      end
-      list.sort
     end
 
     # Returns an array of all the commands as a hash
@@ -248,41 +228,6 @@ module Cosmos
     def get_parameter(target_name, packet_name, param_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       TargetModel.packet_item(target_name, packet_name, param_name, type: :CMD, scope: scope)
-    end
-
-    # Returns the list of all the parameters for the given command.
-    #
-    # @deprecated Use #get_command
-    # @param target_name [String] Name of the target
-    # @param command_name [String] Name of the command
-    # @return [Array<Array<String, Object, nil|Array, nil|String, nil|String,
-    #   nil|String, Boolean>] Array containing \[name, default, states,
-    #   description, units_full, units, required] for all parameters in the
-    #   command
-    def get_cmd_param_list(target_name, command_name, scope: $cosmos_scope, token: $cosmos_token)
-      authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
-      list = []
-      packet = TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
-      packet['items'].each do |item|
-        states = nil
-        if item['states']
-          states = {}
-          item['states'].each do |key, values|
-            states[key] = values['value']
-          end
-        end
-        required = item['required'] ? true : false
-        if item['format_string'] and item['default']
-          unless item['default'].kind_of?(Array)
-            list << [item['name'], sprintf(item['format_string'], item['default']), states, item['description'], item['units_full'], item['units'], required, item['data_type']]
-          else
-            list << [item['name'], "[]", states, item['description'], item['units_full'], item['units'], required, item['data_type']]
-          end
-        else
-          list << [item['name'], item['default'], states, item['description'], item['units_full'], item['units'], required, item['data_type']]
-        end
-      end
-      list
     end
 
     # Returns whether the specified command is hazardous
@@ -345,7 +290,6 @@ module Cosmos
 
     # Returns the time the most recent command was sent
     #
-    # @deprecated Use get_cmd_value with RECEIVED_TIMESECONDS or RECEIVED_TIMEFORMATTED
     # @param target_name [String] Target name of the command. If not given then
     #    the most recent time from all commands will be returned
     # @param command_name [String] Packet name of the command. If not given then
