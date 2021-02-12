@@ -29,7 +29,7 @@
             <v-expansion-panel-content>
               <v-container>
                 <v-row no-gutters>
-                  <v-col>
+                  <v-col v-if="mode == 'RAW'">
                     <v-radio-group
                       v-model="currentConfig.format"
                       label="Display format"
@@ -59,6 +59,7 @@
                   </v-col>
                   <v-col>
                     <v-text-field
+                      v-if="mode == 'RAW'"
                       v-model="currentConfig.bytesPerLine"
                       label="Bytes per line"
                       type="number"
@@ -162,6 +163,10 @@ export default {
     config: {
       type: Object,
     },
+    mode: {
+      type: String,
+      default: 'RAW',
+    },
   },
   data: function () {
     return {
@@ -226,10 +231,13 @@ export default {
       // This is called by the parent to feed this component data. A function is used instead
       // of a prop to ensure each message gets handled, regardless of how fast they come in
       data.forEach((packet) => {
-        const decoded = {
-          buffer: atob(packet.buffer),
-          time: packet.time,
+        delete packet.packet
+        let decoded = {
+          ...packet,
           receivedCount: ++this.receivedCount,
+        }
+        if ('buffer' in packet) {
+          decoded.buffer = atob(packet.buffer)
         }
         this.historyPointer = ++this.historyPointer % this.history.length
         this.history[this.historyPointer] = decoded
@@ -302,31 +310,8 @@ export default {
       return text.toLowerCase().includes(this.filterText.toLowerCase())
     },
     calculatePacketText: function (packet) {
-      // Split its buffer into lines of the selected length
-      let text = _.chunk([...packet.buffer], this.currentConfig.bytesPerLine)
-        .map((lineBytes, index) => {
-          // Map each line into ASCII or hex values
-          let mappedBytes = []
-          if (this.currentConfig.format === 'ascii') {
-            mappedBytes = lineBytes.map((byte) =>
-              byte.replace(/\n/, '\\n').replace(/\r/, '\\r').padStart(2, ' ')
-            )
-          } else {
-            mappedBytes = lineBytes.map((byte) =>
-              byte.charCodeAt(0).toString(16).padStart(2, '0')
-            )
-          }
-          let line = mappedBytes.join(' ')
-          // Prepend the line address if needed
-          if (this.currentConfig.showLineAddress) {
-            const address = (index * this.currentConfig.bytesPerLine)
-              .toString(16)
-              .padStart(8, '0')
-            line = `${address}: ${line}`
-          }
-          return line
-        })
-        .join('\n') // end of one line
+      if (!('time' in packet)) console.log('ERRRRRROROROROROROOORRRR', packet)
+      let text = ''
       if (this.currentConfig.showTimestamp) {
         const milliseconds = packet.time / 1000000
         const receivedSeconds = (milliseconds / 1000).toFixed(7)
@@ -338,6 +323,38 @@ export default {
         // timestamp += `* Received count: ${receivedCt}\n`
         timestamp += '********************************************\n'
         text = `${timestamp}${text}`
+      }
+      if (this.mode == 'RAW') {
+        // Split its buffer into lines of the selected length
+        text += _.chunk([...packet.buffer], this.currentConfig.bytesPerLine)
+          .map((lineBytes, index) => {
+            // Map each line into ASCII or hex values
+            let mappedBytes = []
+            if (this.currentConfig.format === 'ascii') {
+              mappedBytes = lineBytes.map((byte) =>
+                byte.replace(/\n/, '\\n').replace(/\r/, '\\r').padStart(2, ' ')
+              )
+            } else {
+              mappedBytes = lineBytes.map((byte) =>
+                byte.charCodeAt(0).toString(16).padStart(2, '0')
+              )
+            }
+            let line = mappedBytes.join(' ')
+            // Prepend the line address if needed
+            if (this.currentConfig.showLineAddress) {
+              const address = (index * this.currentConfig.bytesPerLine)
+                .toString(16)
+                .padStart(8, '0')
+              line = `${address}: ${line}`
+            }
+            return line
+          })
+          .join('\n') // end of one line
+      } else {
+        text += Object.keys(packet)
+          .filter((item) => item != 'time')
+          .map((item) => `${item}: ${packet[item]}`)
+          .join('\n')
       }
       this.packetSize = text.length // Set this every time in case it changes with rebuildDisplayText
       return text

@@ -147,16 +147,18 @@
               v-if="packet.component === 'DumpComponent'"
               v-show="receivedPackets[topicKey(packet)]"
               :ref="`${topicKey(packet)}-display`"
+              :mode="packet.mode"
               :config="packet.config"
               @config-change="(newConfig) => (packet.config = newConfig)"
             />
-            <decom-table-component
-              v-else-if="packet.component === 'DecomTableComponent'"
-              v-show="receivedPackets[topicKey(packet)]"
-              :ref="`${topicKey(packet)}-display`"
-              :config="packet.config"
-              @config-change="(newConfig) => (packet.config = newConfig)"
-            />
+            <v-card-text v-else>
+              <v-alert type="error">
+                Component missing:
+                <span class="text-component-missing-name">
+                  {{ packet.component }}
+                </span>
+              </v-alert>
+            </v-card-text>
             <v-card-text v-if="!receivedPackets[topicKey(packet)]">
               No data
             </v-card-text>
@@ -247,7 +249,6 @@ import OpenConfigDialog from '@/components/OpenConfigDialog'
 import SaveConfigDialog from '@/components/SaveConfigDialog'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
 import DumpComponent from './DumpComponent'
-import DecomTableComponent from './DecomTableComponent'
 
 export default {
   components: {
@@ -256,7 +257,6 @@ export default {
     SaveConfigDialog,
     TargetPacketItemChooser,
     DumpComponent,
-    DecomTableComponent,
   },
   data() {
     return {
@@ -474,7 +474,7 @@ export default {
     },
     subscriptionKey: function (packet) {
       let key = `TLM__${packet.target}__${packet.packet}`
-      if (packet.mode === 'DECOM') key += '__CONVERTED'
+      if (packet.mode === 'DECOM') key += '__WITH_UNITS'
       return key
     },
     openConfiguration: async function (name) {
@@ -532,10 +532,7 @@ export default {
       const packet = {
         ...this.newPacket,
         mode: this.newPacketMode,
-        component:
-          this.newPacketMode === 'RAW'
-            ? 'DumpComponent'
-            : 'DecomTableComponent',
+        component: 'DumpComponent',
         config: {},
       }
       this.config.tabs[this.activeTab].packets.push(packet)
@@ -573,4 +570,8 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.text-component-missing-name {
+  font-family: 'Courier New', Courier, monospace;
+}
+</style>
