@@ -22,20 +22,6 @@
     <v-row no-gutters>
       <v-col>
         <v-expansion-panels>
-          <!-- Is this even useful? -->
-          <!-- <v-expansion-panel>
-            <v-expansion-panel-header>
-              Latest packet summary
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
-              <packet-summary-component
-                v-if="latestPacket"
-                :key="latestPacket.time"
-                :packet="latestPacket"
-                :received-count="receivedCount"
-              />
-            </v-expansion-panel-content>
-          </v-expansion-panel> -->
           <v-expansion-panel>
             <v-expansion-panel-header>
               Display Settings
@@ -163,7 +149,6 @@
 <script>
 import _ from 'lodash'
 import { format } from 'date-fns'
-import PacketSummaryComponent from './PacketSummaryComponent'
 
 const HISTORY_MAX_SIZE = 100
 
@@ -173,9 +158,6 @@ const HISTORY_MAX_SIZE = 100
 //  - methods: receive
 //  - emit: 'config-change'
 export default {
-  components: {
-    // PacketSummaryComponent,
-  },
   props: {
     config: {
       type: Object,

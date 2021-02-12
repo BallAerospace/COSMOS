@@ -229,7 +229,7 @@ import { CosmosApi } from '@/services/cosmos-api'
 import OpenConfigDialog from '@/components/OpenConfigDialog'
 import SaveConfigDialog from '@/components/SaveConfigDialog'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
-import DumpComponent from './DumpComponent.vue'
+import DumpComponent from './DumpComponent'
 
 export default {
   components: {
