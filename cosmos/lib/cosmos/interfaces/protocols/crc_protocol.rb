@@ -144,7 +144,7 @@ module Cosmos
     end
 
     def read_data(data)
-      return super(data) if (data.length <= 0)
+      return super(data) if data.length <= 0
 
       crc = BinaryAccessor.read(@bit_offset, @bit_size, :UINT, data, @endianness)
       calculated_crc = @crc.calc(data[0...(@bit_offset / 8)])

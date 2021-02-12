@@ -37,7 +37,7 @@ module Cosmos
         @data = array.clone
       elsif array.length == 3 and angle
         a = 0.5 * angle
-        s = sin(a) / sqrt(array[0]*array[0] + array[1]*array[1] + array[2]*array[2])
+        s = sin(a) / sqrt(array[0] * array[0] + array[1] * array[1] + array[2] * array[2])
         @data = []
         @data[0] = array[0] * s
         @data[1] = array[1] * s
@@ -74,9 +74,7 @@ module Cosmos
 
     # @param array [Array<Float, Float, Float, Float>] The entire quaternion
     # where the the last element is the scalar
-    def data=(array)
-      @data = array
-    end
+    attr_writer :data
 
     # @return [Float] The first element
     def q0
@@ -148,7 +146,7 @@ module Cosmos
 
     # @return [Quaternion] The normalized version of the current quaternion
     def normalize
-      t = @data[0]*@data[0] + @data[1]*@data[1] + @data[2]*@data[2] + @data[3]*@data[3]
+      t = @data[0] * @data[0] + @data[1] * @data[1] + @data[2] * @data[2] + @data[3] * @data[3]
       if t > 0.0
         f = 1.0 / sqrt(t)
         @data[0] *= f
@@ -169,7 +167,7 @@ module Cosmos
     end
 
     def self.arc(f, t)
-      dot = f[0]*t[0] + f[1]*t[1] + f[2]*t[2]
+      dot = f[0] * t[0] + f[1] * t[1] + f[2] * t[2]
       if dot > 0.999999
         x = 0.0
         y = 0.0
@@ -177,20 +175,20 @@ module Cosmos
         w = 1.0
       elsif dot < -0.999999
         if (f.z.abs < f.x.abs) && (f.z.abs < f.y.abs)
-          x = f[0]*f[2] - f[2]*f[1]
-          y = f[2]*f[0] + f[1]*f[2]
-          z = -f[1]*f[1] - f[0]*f[0]
+          x = f[0] * f[2] - f[2] * f[1]
+          y = f[2] * f[0] + f[1] * f[2]
+          z = -f[1] * f[1] - f[0] * f[0]
         elsif f.y.abs < f.x.abs
-          x = f[1]*f[2] - f[0]*f[1]
-          y = f[0]*f[0] + f[2]*f[2]
-          z = -f[2]*f[1] - f[1]*f[0]
+          x = f[1] * f[2] - f[0] * f[1]
+          y = f[0] * f[0] + f[2] * f[2]
+          z = -f[2] * f[1] - f[1] * f[0]
         else
-          x = -f[2]*f[2] - f[1]*f[1]
-          y = f[1]*f[0] - f[0]*f[2]
-          z = f[0]*f[1] + f[2]*f[0]
+          x = -f[2] * f[2] - f[1] * f[1]
+          y = f[1] * f[0] - f[0] * f[2]
+          z = f[0] * f[1] + f[2] * f[0]
         end
 
-        dot = x*x + y*y + z*z
+        dot = x * x + y * y + z * z
         div = sqrt(dot)
         x /= div
         y /= div
@@ -198,9 +196,9 @@ module Cosmos
         w = 0.0
       else
         div = sqrt((dot + 1.0) * 2.0)
-        x = (f[1]*t[2] - f[2]*t[1]) / div
-        y = (f[2]*t[0] - f[0]*t[2]) / div
-        z = (f[0]*t[1] - f[1]*t[0]) / div
+        x = (f[1] * t[2] - f[2] * t[1]) / div
+        y = (f[2] * t[0] - f[0] * t[2]) / div
+        z = (f[0] * t[1] - f[1] * t[0]) / div
         w = div * 0.5
       end
       return Quaternion.new([x,y,z,w])

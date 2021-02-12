@@ -23,7 +23,6 @@ include Math
 
 module Cosmos
   describe Quaternion do
-
     describe "initialize" do
       it "creates 0.0 elements" do
         expect(Quaternion.new.data).to eql [0.0,0.0,0.0,0.0]

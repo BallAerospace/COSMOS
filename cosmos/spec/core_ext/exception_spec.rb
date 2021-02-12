@@ -21,15 +21,12 @@ require 'spec_helper'
 require 'cosmos/core_ext/exception'
 
 describe Exception do
-
   describe "formatted" do
     it "formats an Exception" do
-      begin
-        raise "My message"
-      rescue => err
-        expect(err.formatted).to match(/RuntimeError : My message/)
-        expect(err.formatted).to match(/#{File.expand_path(__FILE__)}/)
-      end
+      raise "My message"
+    rescue => err
+      expect(err.formatted).to match(/RuntimeError : My message/)
+      expect(err.formatted).to match(/#{File.expand_path(__FILE__)}/)
     end
 
     it "formats an Exception without RuntimeError class" do
@@ -70,31 +67,27 @@ describe Exception do
 
   describe "source" do
     it "returns the file and line number of the exception" do
-      begin
-        line = __LINE__; raise "My message"
-      rescue => err
-        file, line = err.source
-        expect(file).to eql __FILE__
-        expect(line).to eql line
-      end
+      line = __LINE__; raise "My message"
+    rescue => err
+      file, line = err.source
+      expect(file).to eql __FILE__
+      expect(line).to eql line
     end
 
     it "returns the file and line number of the exception" do
-      begin
-        line = __LINE__; raise "My message"
-      rescue => err
-        # Check to simulate being on UNIX or Windows
-        if err.backtrace[0].include?(':') # windows
-          err.backtrace[0].gsub!(/[A-Z]:/,'')
-          file_name = __FILE__.gsub(/[A-Z]:/,'')
-        else
-          err.backtrace[0] = "C:" + err.backtrace[0]
-          file_name = "C:#{__FILE__}"
-        end
-        file, line = err.source
-        expect(file).to eql file_name
-        expect(line).to eql line
+      line = __LINE__; raise "My message"
+    rescue => err
+      # Check to simulate being on UNIX or Windows
+      if err.backtrace[0].include?(':') # windows
+        err.backtrace[0].gsub!(/[A-Z]:/,'')
+        file_name = __FILE__.gsub(/[A-Z]:/,'')
+      else
+        err.backtrace[0] = "C:" + err.backtrace[0]
+        file_name = "C:#{__FILE__}"
       end
+      file, line = err.source
+      expect(file).to eql file_name
+      expect(line).to eql line
     end
   end
 end

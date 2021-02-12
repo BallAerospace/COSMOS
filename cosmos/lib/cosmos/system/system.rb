@@ -114,12 +114,10 @@ module Cosmos
       target = Target.new(target_name, target_config_dir)
       @targets[target.name] = target
       target.cmd_tlm_files.each do |cmd_tlm_file|
-        begin
-          @packet_config.process_file(cmd_tlm_file, target.name)
-        rescue Exception => err
-          Logger.error "Problem processing #{cmd_tlm_file}."
-          raise err
-        end
+        @packet_config.process_file(cmd_tlm_file, target.name)
+      rescue Exception => err
+        Logger.error "Problem processing #{cmd_tlm_file}."
+        raise err
       end
     end
   end

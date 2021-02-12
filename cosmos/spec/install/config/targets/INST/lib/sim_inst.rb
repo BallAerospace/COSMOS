@@ -143,7 +143,7 @@ module Cosmos
         return if @solar_panel_thread and @solar_panel_thread.alive?
         @solar_panel_thread = Thread.new do
           @solar_panel_thread_cancel = false
-          (0..@solar_panel_positions.size-1).to_a.reverse.each do |i|
+          (0..@solar_panel_positions.size - 1).to_a.reverse_each do |i|
             while (@solar_panel_positions[i] > 0.1) or (@solar_panel_positions[i] < - 0.1)
               if @solar_panel_positions[i] > 3.0
                 @solar_panel_positions[i] -= 3.0
@@ -177,7 +177,7 @@ module Cosmos
       pending_packets.each do |packet|
         case packet.packet_name
         when 'ADCS'
-          #Read 44 Bytes for Position Data
+          # Read 44 Bytes for Position Data
           pos_data = nil
           begin
             pos_data = @position_file.read(44)
@@ -187,7 +187,7 @@ module Cosmos
           end
 
           if pos_data.nil? or pos_data.length == 0
-            #Assume end of file - close and reopen
+            # Assume end of file - close and reopen
             @position_file.close
             @position_file = File.open(File.join(::Cosmos::USERPATH, 'config', 'data', 'position.bin'), 'rb')
             pos_data = @position_file.read(44)
@@ -202,7 +202,7 @@ module Cosmos
           packet.vely = @pos_packet.vely
           packet.velz = @pos_packet.velz
 
-          #Read 40 Bytes for Attitude Data
+          # Read 40 Bytes for Attitude Data
           att_data = nil
           begin
             att_data = @attitude_file.read(40)

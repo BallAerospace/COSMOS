@@ -137,6 +137,5 @@ module Cosmos
         unsubscribe_limits_events(id)
       end
     end
-
   end
 end

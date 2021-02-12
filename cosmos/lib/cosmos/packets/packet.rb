@@ -241,11 +241,9 @@ module Cosmos
       values = []
 
       @id_items.each do |item|
-        begin
-          values << read_item(item, :RAW, buffer)
-        rescue Exception
-          values << nil
-        end
+        values << read_item(item, :RAW, buffer)
+      rescue Exception
+        values << nil
       end
 
       values
@@ -727,7 +725,7 @@ module Cosmos
       upcase_skip_item_names = skip_item_names.map(&:upcase) if skip_item_names
       @sorted_items.each do |item|
         next if RESERVED_ITEM_NAMES.include?(item.name)
-        write_item(item, item.default, :CONVERTED, buffer) unless (skip_item_names and upcase_skip_item_names.include?(item.name))
+        write_item(item, item.default, :CONVERTED, buffer) unless skip_item_names and upcase_skip_item_names.include?(item.name)
       end
     end
 
@@ -793,8 +791,8 @@ module Cosmos
       items = []
       return items unless @limits_items
       @limits_items.each do |item|
-        if (item.limits.enabled && item.limits.state &&
-          PacketItemLimits::OUT_OF_LIMITS_STATES.include?(item.limits.state))
+        if item.limits.enabled && item.limits.state &&
+          PacketItemLimits::OUT_OF_LIMITS_STATES.include?(item.limits.state)
           items << [@target_name, @packet_name, item.name, item.limits.state]
         end
       end
@@ -996,7 +994,6 @@ module Cosmos
     end
 
     protected
-
     # Performs packet specific processing on the packet.
     # Intended to only be run once for each packet received
     def process(buffer = @buffer)
@@ -1051,8 +1048,8 @@ module Cosmos
 
       # Determine the limits_state based on the limits values and the current
       # value of the item
-      if (value > yellow_low)
-        if (value < yellow_high)
+      if value > yellow_low
+        if value < yellow_high
           if green_low
             if value < green_high
               if value > green_low
@@ -1066,13 +1063,13 @@ module Cosmos
           else
             limits_state = :GREEN
           end
-        elsif (value < red_high)
+        elsif value < red_high
           limits_state = :YELLOW_HIGH
         else
           limits_state = :RED_HIGH
         end
       else # value <= yellow_low
-        if (value > red_low)
+        if value > red_low
           limits_state = :YELLOW_LOW
         else
           limits_state = :RED_LOW

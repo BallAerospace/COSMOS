@@ -66,12 +66,12 @@ module Cosmos
       MIN_INT16 = -32768
       MAX_INT16 = 32767
       MAX_UINT16 = 65535
-      MIN_INT32  = -(2 ** 31)
-      MAX_INT32  = (2 ** 31) - 1
-      MAX_UINT32 = (2 ** 32) - 1
-      MIN_INT64  = -(2 ** 63)
-      MAX_INT64  = (2 ** 63) - 1
-      MAX_UINT64 = (2 ** 64) - 1
+      MIN_INT32  = -(2**31)
+      MAX_INT32  = (2**31) - 1
+      MAX_UINT32 = (2**32) - 1
+      MIN_INT64  = -(2**63)
+      MAX_INT64  = (2**63) - 1
+      MAX_UINT64 = (2**64) - 1
     end
 
     # Additional Constants
@@ -84,7 +84,6 @@ module Cosmos
     OVERFLOW_TYPES = [:TRUNCATE, :SATURATE, :ERROR, :ERROR_ALLOW_HEX]
 
     protected
-
     # Determines the endianness of the host running this code
     #
     # This method is protected to force the use of the constant
@@ -230,9 +229,9 @@ module Cosmos
             # Handle :INT and :UINT Bitfields
             ##########################
 
-            #Extract Data for Bitfield
+            # Extract Data for Bitfield
             if endianness == :LITTLE_ENDIAN
-              #Bitoffset always refers to the most significant bit of a bitfield
+              # Bitoffset always refers to the most significant bit of a bitfield
               num_bytes = (((bit_offset % 8) + bit_size - 1) / 8) + 1
               upper_bound = bit_offset / 8
               lower_bound = upper_bound - num_bytes + 1
@@ -246,7 +245,7 @@ module Cosmos
               temp_data = buffer[lower_bound..upper_bound]
             end
 
-            #Determine temp upper bound
+            # Determine temp upper bound
             temp_upper = upper_bound - lower_bound
 
             # Handle Bitfield
@@ -255,11 +254,11 @@ module Cosmos
             total_bits = (temp_upper + 1) * 8
             right_shift = total_bits - start_bits - bit_size
 
-            #Mask off unwanted bits at beginning
+            # Mask off unwanted bits at beginning
             temp = temp_data.getbyte(0) & start_mask
 
             if upper_bound > lower_bound
-              #Combine bytes into a FixNum
+              # Combine bytes into a FixNum
               temp_data[1..temp_upper].each_byte {|temp_value| temp = temp << 8; temp = temp + temp_value }
             end
 
@@ -267,8 +266,8 @@ module Cosmos
             temp = temp >> right_shift
 
             if data_type == :INT
-              #Convert to negative if necessary
-              if ((bit_size > 1) && (temp[bit_size - 1] == 1))
+              # Convert to negative if necessary
+              if (bit_size > 1) && (temp[bit_size - 1] == 1)
                 temp = -((1 << bit_size) - temp)
               end
             end
@@ -503,7 +502,7 @@ module Cosmos
             temp = temp_data.getbyte(0) & start_mask
 
             # Adjust value to correct number of bits
-            temp_mask = (2 ** bit_size) - 1
+            temp_mask = (2**bit_size) - 1
             temp_value = value & temp_mask
 
             # Add in New Data
@@ -564,7 +563,6 @@ module Cosmos
       end
 
       protected
-
       # Check the bit size and bit offset for problems. Recalulate the bit offset
       # and return back through the passed in pointer.
       def self.check_bit_offset_and_size(read_or_write, given_bit_offset, given_bit_size, data_type, buffer)
@@ -600,10 +598,10 @@ module Cosmos
         # Sanity check buffer size
         if upper_bound >= buffer_length
           # If it's not the special case of little endian bit field then we fail and return false
-          if !( (endianness == :LITTLE_ENDIAN) &&
+          if !((endianness == :LITTLE_ENDIAN) &&
                  ((data_type == :INT) || (data_type == :UINT)) &&
                  # Not byte aligned with an even bit size
-                 (!( (byte_aligned(bit_offset)) && (even_bit_size(bit_size)) )) &&
+                 (!((byte_aligned(bit_offset)) && (even_bit_size(bit_size)))) &&
                  (lower_bound < buffer_length)
              )
             result = false
@@ -652,20 +650,20 @@ module Cosmos
           if data_type == :INT
             # Note signed integers must allow up to the maximum unsigned value to support values given in hex
             if bit_size > 1
-              max_value = 2 ** (bit_size - 1)
+              max_value = 2**(bit_size - 1)
               # min_value = -(2 ** bit_size - 1)
               min_value = -max_value
               # max_value = (2 ** bit_size - 1) - 1
               max_value -= 1
               # hex_max_value = (2 ** bit_size) - 1
-              hex_max_value = (2 ** bit_size) - 1
+              hex_max_value = (2**bit_size) - 1
             else # 1-bit signed
               min_value = -1
               max_value = 1
               hex_max_value = 1
             end
           else
-            max_value = (2 ** bit_size) - 1
+            max_value = (2**bit_size) - 1
             hex_max_value = max_value
           end
         end

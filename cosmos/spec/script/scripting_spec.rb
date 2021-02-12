@@ -281,7 +281,6 @@ module Cosmos
           tol_array[1] = 0.9
           expect { check_tolerance("INST HEALTH_STATUS ARY2", exp_array, tol_array) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS ARY2\[1\] failed to be within range/)
           stdout.rewind
-
         end
       end
 
@@ -295,8 +294,8 @@ module Cosmos
     describe "check_expression" do
       it "checks an arbitrary expression" do
         capture_io do |stdout|
-          check_expression("true == true")
-          expect(stdout.string).to match("CHECK: true == true is TRUE")
+        check_expression("true == true")
+        expect(stdout.string).to match("CHECK: true == true is TRUE")
       end
 
         expect { check_expression("true == false") }.to raise_error(CheckError, "CHECK: true == false is FALSE")
@@ -553,7 +552,6 @@ module Cosmos
         expect { wait_check_tolerance("INST HEALTH_STATUS TEMP1", -200.0, 1, 0.1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 failed to be within/)
 
         expect { wait_check_tolerance_raw("INST HEALTH_STATUS TEMP1", 100, 1, 0.1) }.to raise_error(CheckError, /CHECK: INST HEALTH_STATUS TEMP1 failed to be within/)
-
       end
 
       it "handles array items" do
@@ -707,7 +705,7 @@ module Cosmos
 
     describe "load_utility" do
       it "requires a script" do
-        class ScriptRunnerFrame; def self.instance; false; end; end;
+        class ScriptRunnerFrame; def self.instance; false; end; end
         expect { load_utility("example.rb") }.to raise_error(LoadError, /Procedure not found/)
       end
 
@@ -734,6 +732,5 @@ module Cosmos
         File.delete script
       end
     end
-
   end
 end

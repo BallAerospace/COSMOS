@@ -20,7 +20,6 @@
 module Cosmos
   module Script
     private
-
     def get_out_of_limits
       result = $cmd_tlm_server.get_out_of_limits
       result.each do |entry|

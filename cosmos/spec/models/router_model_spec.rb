@@ -95,7 +95,7 @@ module Cosmos
     describe "deploy" do
       it "creates and deploys a MicroserviceModel" do
         dir = Dir.pwd
-        variables = {"test"=>"example"}
+        variables = { "test" => "example" }
         # double MicroserviceModel because we're not testing that here
         umodel = double(MicroserviceModel)
         expect(umodel).to receive(:create)

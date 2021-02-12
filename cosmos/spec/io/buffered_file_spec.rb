@@ -49,7 +49,7 @@ module Cosmos
           expect(file.read(16)).to eql DATA
           expect(file.pos).to eql 32
           expected_pos = 32
-          while (expected_pos < (2 * BufferedFile::BUFFER_SIZE))
+          while expected_pos < (2 * BufferedFile::BUFFER_SIZE)
             expect(file.read(16)).to eql DATA
             expected_pos += 16
             expect(file.pos).to eql expected_pos
@@ -152,6 +152,5 @@ module Cosmos
         end
       end
     end
-
   end
 end

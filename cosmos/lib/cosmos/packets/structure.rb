@@ -216,7 +216,7 @@ module Cosmos
       # Add to the overall hash of defined items
       @items[item.name] = item
       # Update fixed size knowledge
-      @fixed_size = false if ((item.data_type != :DERIVED and item.bit_size <= 0) or (item.array_size and item.array_size <= 0))
+      @fixed_size = false if (item.data_type != :DERIVED and item.bit_size <= 0) or (item.array_size and item.array_size <= 0)
 
       # Recalculate the overall defined length of the structure
       update_needed = false
@@ -472,7 +472,6 @@ module Cosmos
     end
 
     protected
-
     MUTEX = Mutex.new
 
     def setup_mutex

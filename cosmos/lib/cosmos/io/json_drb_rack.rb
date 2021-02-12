@@ -42,7 +42,7 @@ module Cosmos
       # IPSocket.peeraddr.
       # req_addr = ["AF_INET", request.port, request.host.to_s, request.ip.to_s]
 
-      #if @drb.acl and !@drb.acl.allow_addr?(req_addr)
+      # if @drb.acl and !@drb.acl.allow_addr?(req_addr)
       #  status       = 403
       #  content_type = "text/plain"
       #  body         = "Forbidden"
@@ -54,7 +54,7 @@ module Cosmos
         body         = "Request not allowed"
       end
 
-      return status, {'Content-Type' => content_type}, [body]
+      return status, { 'Content-Type' => content_type }, [body]
     end
 
     # Handles an http post.
@@ -71,12 +71,12 @@ module Cosmos
       # see http://www.jsonrpc.org/historical/json-rpc-over-http.html#errors
       if error_code
         case error_code
-          when JsonRpcError::ErrorCode::PARSE_ERROR      then status = 500 # Internal server error
-          when JsonRpcError::ErrorCode::INVALID_REQUEST  then status = 400 # Bad request
-          when JsonRpcError::ErrorCode::METHOD_NOT_FOUND then status = 404 # Not found
-          when JsonRpcError::ErrorCode::INVALID_PARAMS   then status = 500 # Internal server error
-          when JsonRpcError::ErrorCode::INTERNAL_ERROR   then status = 500 # Internal server error
-          else status = 500 # Internal server error
+        when JsonRpcError::ErrorCode::PARSE_ERROR      then status = 500 # Internal server error
+        when JsonRpcError::ErrorCode::INVALID_REQUEST  then status = 400 # Bad request
+        when JsonRpcError::ErrorCode::METHOD_NOT_FOUND then status = 404 # Not found
+        when JsonRpcError::ErrorCode::INVALID_PARAMS   then status = 500 # Internal server error
+        when JsonRpcError::ErrorCode::INTERNAL_ERROR   then status = 500 # Internal server error
+        else status = 500 # Internal server error
         end
       else
         status = 200 # OK

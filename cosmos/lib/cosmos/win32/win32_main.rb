@@ -26,7 +26,7 @@ module Cosmos
       # Cache to hold already opened dll files
       DLL_CACHE = {}
 
-      VALUE_TYPEMAP = {"0" => Fiddle::TYPE_VOID, "S" => Fiddle::TYPE_VOIDP, "I" => Fiddle::TYPE_LONG}
+      VALUE_TYPEMAP = { "0" => Fiddle::TYPE_VOID, "S" => Fiddle::TYPE_VOIDP, "I" => Fiddle::TYPE_LONG }
 
       def initialize(dll_name, function_name, import, export = "0")
         # Convert all input parameters into either 0, S, or I
@@ -146,11 +146,11 @@ module Cosmos
     CBR_256000 = 256000
 
     BAUD_RATES = [
-	  CBR_110, CBR_300, CBR_600, CBR_1200, CBR_2400, CBR_4800, CBR_9600,
-	  CBR_14400, CBR_19200, CBR_38400, CBR_56000, CBR_57600, CBR_115200,
-	  CBR_128000, CBR_256000, 230400, 460800, 500000, 576000, 921600,
-	  1000000, 1152000, 1500000, 2000000, 3000000, 3500000, 4000000
-	]
+    CBR_110, CBR_300, CBR_600, CBR_1200, CBR_2400, CBR_4800, CBR_9600,
+    CBR_14400, CBR_19200, CBR_38400, CBR_56000, CBR_57600, CBR_115200,
+    CBR_128000, CBR_256000, 230400, 460800, 500000, 576000, 921600,
+    1000000, 1152000, 1500000, 2000000, 3000000, 3500000, 4000000
+  ]
 
     # Parity
     NOPARITY = 0

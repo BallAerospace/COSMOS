@@ -269,14 +269,12 @@ module Cosmos
     describe "process_file" do
       skip "TODO: process_file doesn't exist anymore ... how much of this do we keep" do
       before(:all) do
-        begin
-          # Move the targets directory out of the way so we can make our own
-          FileUtils.mv @config_targets, Cosmos::USERPATH
-          FileUtils.mkdir_p(@config_targets)
-        rescue
-          puts "Cannot move targets folder... probably due to open editor or explorer"
-          exit 1
-        end
+        # Move the targets directory out of the way so we can make our own
+        FileUtils.mv @config_targets, Cosmos::USERPATH
+        FileUtils.mkdir_p(@config_targets)
+      rescue
+        puts "Cannot move targets folder... probably due to open editor or explorer"
+        exit 1
       end
       after(:all) do
         # Restore the targets directory

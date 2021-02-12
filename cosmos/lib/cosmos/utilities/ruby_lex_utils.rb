@@ -200,15 +200,14 @@ if RUBY_VERSION >= "2.7"
         end
 
         loop do # loop to allow restarting for nested conditions
-
           # Yield blank lines and lonely else lines before the actual line
           while (index = lex.line.index("\n"))
             line = lex.line[0..index]
-            if line =~ BLANK_LINE_REGEX
+            if BLANK_LINE_REGEX.match?(line)
               yield line, true, inside_begin, lex.exp_line_no
               lex.exp_line_no += 1
               lex.line = lex.line[(index + 1)..-1]
-            elsif line =~ LONELY_ELSE_REGEX
+            elsif LONELY_ELSE_REGEX.match?(line)
               yield line, false, inside_begin, lex.exp_line_no
               lex.exp_line_no += 1
               lex.line = lex.line[(index + 1)..-1]
@@ -293,40 +292,38 @@ else
 
     # Monkey patch to keep this from looping forever if the string never is closed with a right brace
     def identify_string_dvar
-      begin
-        getc
+      getc
 
-        reserve_continue = @continue
-        reserve_ltype = @ltype
-        reserve_indent = @indent
-        reserve_indent_stack = @indent_stack
-        reserve_state = @lex_state
-        reserve_quoted = @quoted
+      reserve_continue = @continue
+      reserve_ltype = @ltype
+      reserve_indent = @indent
+      reserve_indent_stack = @indent_stack
+      reserve_state = @lex_state
+      reserve_quoted = @quoted
 
-        @ltype = nil
-        @quoted = nil
-        @indent = 0
-        @indent_stack = []
-        @lex_state = EXPR_BEG
+      @ltype = nil
+      @quoted = nil
+      @indent = 0
+      @indent_stack = []
+      @lex_state = EXPR_BEG
 
-        loop do
-          @continue = false
-          prompt
-          tk = token
-          break if tk.nil? # This is the patch
-          if @ltype or @continue or @indent >= 0
-            next
-          end
-          break if tk.kind_of?(TkRBRACE)
+      loop do
+        @continue = false
+        prompt
+        tk = token
+        break if tk.nil? # This is the patch
+        if @ltype or @continue or @indent >= 0
+          next
         end
-      ensure
-        @continue = reserve_continue
-        @ltype = reserve_ltype
-        @indent = reserve_indent
-        @indent_stack = reserve_indent_stack
-        @lex_state = reserve_state
-        @quoted = reserve_quoted
+        break if tk.kind_of?(TkRBRACE)
       end
+    ensure
+      @continue = reserve_continue
+      @ltype = reserve_ltype
+      @indent = reserve_indent
+      @indent_stack = reserve_indent_stack
+      @lex_state = reserve_state
+      @quoted = reserve_quoted
     end
 
   end
@@ -508,15 +505,14 @@ else
         end
 
         loop do # loop to allow restarting for nested conditions
-
           # Yield blank lines and lonely else lines before the actual line
           while (index = lexed.index("\n"))
             line = lexed[0..index]
-            if line =~ BLANK_LINE_REGEX
+            if BLANK_LINE_REGEX.match?(line)
               yield line, true, inside_begin, line_no
               line_no += 1
               lexed = lexed[(index + 1)..-1]
-            elsif line =~ LONELY_ELSE_REGEX
+            elsif LONELY_ELSE_REGEX.match?(line)
               yield line, false, inside_begin, line_no
               line_no += 1
               lexed = lexed[(index + 1)..-1]

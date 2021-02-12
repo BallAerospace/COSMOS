@@ -21,7 +21,7 @@ require 'spec_helper'
 require 'cosmos/operators/microservice_operator'
 
 # Override at_exit to do nothing for testing
-saved_verbose = $VERBOSE; $VERBOSE = nil;
+saved_verbose = $VERBOSE; $VERBOSE = nil
 def at_exit(*args, &block)
 end
 $VERBOSE = saved_verbose

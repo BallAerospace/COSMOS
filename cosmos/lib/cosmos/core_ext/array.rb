@@ -75,7 +75,7 @@ class Array
       previous_guess_value = nil
 
       # While in the valid range of indexes
-      while (guess_index >= 0 and guess_index <= last_index)
+      while guess_index >= 0 and guess_index <= last_index
 
         # Retrieve the value at our current guess index
         guess_value = self[guess_index]
@@ -110,7 +110,7 @@ class Array
           previous_guess_index = guess_index
           if guess_value > value
             guess_index -= 1
-          else #guess_value < value
+          else # guess_value < value
             guess_index += 1
           end
         end
@@ -156,7 +156,7 @@ class Array
     index = nearest_index(value)
 
     # Keep backing up if self[index - 1] == value to move past duplicates
-    while (index > 0 and self[index - 1] == value)
+    while index > 0 and self[index - 1] == value
       index -= 1
     end
 
@@ -178,7 +178,7 @@ class Array
     last_index = self.length - 1
 
     # Keep moving forward if self[index - 1] == value to move past duplicates
-    while (index < last_index and self[index + 1] == value)
+    while index < last_index and self[index + 1] == value
       index += 1
     end
 
@@ -327,7 +327,7 @@ class Array
         integers      = true if first_value.kind_of?(Integer) and last_value.kind_of?(Integer)
         if integers
           bucket_size = bucket_size.ceil
-          last_value = first_value + bucket_size*num_buckets - 1
+          last_value = first_value + bucket_size * num_buckets - 1
           delta = last_value - first_value
           (delta + 1).times do |index|
             buckets[first_value + index] ||= 0
@@ -360,7 +360,7 @@ class Array
           break if sorted_index > (sorted_buckets.length - 1)
           sum = 0
           bucket_range = bucket_ranges[bucket_index]
-          while (bucket_range.include?(sorted_buckets[sorted_index][0]))
+          while bucket_range.include?(sorted_buckets[sorted_index][0])
             sum += sorted_buckets[sorted_index][1]
             sorted_index += 1
             break if sorted_index > (sorted_buckets.length - 1)

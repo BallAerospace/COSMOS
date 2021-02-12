@@ -21,10 +21,9 @@ require 'cosmos/utilities/store'
 
 module Cosmos
   module Extract
-    SCANNING_REGULAR_EXPRESSION = %r{ (?:"(?:[^\\"]|\\.)*") | (?:'(?:[^\\']|\\.)*') | (?:\[(?:[^\\\[\]]|\\.)*\]) | \S+ }x #"
+    SCANNING_REGULAR_EXPRESSION = %r{ (?:"(?:[^\\"]|\\.)*") | (?:'(?:[^\\']|\\.)*') | (?:\[(?:[^\\\[\]]|\\.)*\]) | \S+ }x # "
 
     private
-
     def add_cmd_parameter(keyword, value, packet, cmd_params)
       quotes_removed = value.remove_quotes
       if value == quotes_removed

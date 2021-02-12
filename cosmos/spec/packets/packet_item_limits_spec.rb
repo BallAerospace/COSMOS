@@ -30,7 +30,7 @@ module Cosmos
 
     describe "values=" do
       it "sets the values Hash" do
-        @l.values = {:DEFAULT => [0,1,2,3,4,5]}
+        @l.values = { :DEFAULT => [0,1,2,3,4,5] }
         expect(@l.values[:DEFAULT]).to eql [0,1,2,3,4,5]
       end
 
@@ -103,7 +103,7 @@ module Cosmos
       end
 
       if 0.class == Integer
-      # Ruby version >= 2.4.0
+        # Ruby version >= 2.4.0
         it "complains about persistence_setting that aren't Integer" do
           expect { @l.persistence_setting = 5.5}.to raise_error(ArgumentError, "persistence_setting must be an Integer but is a Float")
         end
@@ -158,7 +158,7 @@ module Cosmos
     describe "to_hash" do
       it "creates a Hash" do
         @l.enabled = true
-        @l.values = {:DEFAULT => [0,1,2,3,4,5]}
+        @l.values = { :DEFAULT => [0,1,2,3,4,5] }
         @l.state = :RED_LOW
         r = LimitsResponse.new()
         @l.response = r
@@ -178,7 +178,7 @@ module Cosmos
 
       it "creates a Hash without a response" do
         @l.enabled = true
-        @l.values = {:DEFAULT => [0,1,2,3,4,5]}
+        @l.values = { :DEFAULT => [0,1,2,3,4,5] }
         @l.state = :RED_LOW
         @l.persistence_setting = 1
         @l.persistence_count = 2
@@ -192,6 +192,5 @@ module Cosmos
         expect(hash["persistence_count"]).to eql 2
       end
     end
-
   end
 end

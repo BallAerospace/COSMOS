@@ -22,7 +22,9 @@
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
     "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "ruby.rubocop.onSave": true,
+    "ruby.format": "rubocop",
   },
   "files.associations": {}
 }

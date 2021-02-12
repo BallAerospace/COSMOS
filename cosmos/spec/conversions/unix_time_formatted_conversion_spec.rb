@@ -24,7 +24,6 @@ require 'cosmos/packets/packet'
 module Cosmos
 
   describe UnixTimeFormattedConversion do
-
     describe "initialize" do
       it "initializes converted_type and converted_bit_size" do
         gc = UnixTimeFormattedConversion.new('TIME')
@@ -64,7 +63,6 @@ module Cosmos
         packet.append_item("TIME",32,:UINT)
         expect { gc.call(nil,packet,packet.buffer) }.to raise_error("Packet item 'TGT PKT TIME_US' does not exist")
       end
-
     end
 
     describe "to_s" do

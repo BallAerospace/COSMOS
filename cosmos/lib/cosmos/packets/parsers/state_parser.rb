@@ -68,7 +68,6 @@ module Cosmos
     end
 
     private
-
     def get_state_name
       @parser.parameters[0].upcase
     end

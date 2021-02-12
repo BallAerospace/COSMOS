@@ -88,7 +88,6 @@ module Cosmos
     end
 
     protected
-
     def self.build_dcb
       dcb = Structure.new(:LITTLE_ENDIAN)
       dcb.define_item('DCBlength', 0, 32, :UINT)
@@ -162,7 +161,7 @@ module QDA
       FORMAT_MESSAGE_ARGUMENT_ARRAY = 0x2000
 
       HANDLE_FLAG_INHERIT = 1
-      HANDLE_FLAG_PROTECT_FROM_CLOSE =2
+      HANDLE_FLAG_PROTECT_FROM_CLOSE = 2
 
       STARTF_USESHOWWINDOW = 0x00000001
       STARTF_USESTDHANDLES = 0x00000100
@@ -286,7 +285,7 @@ module QDA
             'P', # pointer to buffer that receives data
             'L', # number of bytes to read
             'P', # pointer to number of bytes read
-            'L'] #pointer to structure for data
+            'L'] # pointer to structure for data
 
           number = [0].pack('I')
           buffer = ' ' * 255
@@ -322,13 +321,13 @@ module QDA
           @hError = hError
         end
 
-        def write data
-          Win32Process::write_file(@hWrite, data.to_s)
+        def write(data)
+          Win32Process.write_file(@hWrite, data.to_s)
         end
 
         def read
-          sleep(0.01) while Win32Process::peek_named_pipe(@hRead).zero?
-          Win32Process::read_file(@hRead)
+          sleep(0.01) while Win32Process.peek_named_pipe(@hRead).zero?
+          Win32Process.read_file(@hRead)
         end
 
         def read_all
@@ -340,8 +339,8 @@ module QDA
         end
 
         def read_err
-          sleep(0.01) while Win32Process::peek_named_pipe(@hError).zero?
-          Win32Process::read_file(@hError)
+          sleep(0.01) while Win32Process.peek_named_pipe(@hError).zero?
+          Win32Process.read_file(@hError)
         end
 
         def read_all_err
@@ -386,5 +385,5 @@ module QDA
         return out, err
       end
     end # module Win32Process
-  end #module Filters
+  end # module Filters
 end # module QDA

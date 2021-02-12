@@ -123,9 +123,7 @@ class IO
 
   # Patch the close method so that it won't raise any exceptions
   def close
-    begin
-      __close__
-    rescue
-    end
+    __close__
+  rescue
   end
 end

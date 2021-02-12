@@ -66,7 +66,6 @@ module Cosmos
     end
 
     protected
-
     def set_rate(packet_name, rate)
       packet = @tlm_packets[packet_name.upcase]
       packet.packet_rate = rate if packet
@@ -78,7 +77,7 @@ module Cosmos
       # Determine if packets are due to be sent and add to pending
       @tlm_packets.each do |name, packet|
         if packet.packet_rate
-          if ((count_100hz % packet.packet_rate) == 0)
+          if (count_100hz % packet.packet_rate) == 0
             pending_packets << packet
           end
         end

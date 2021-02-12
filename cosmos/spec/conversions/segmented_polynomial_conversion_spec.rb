@@ -23,7 +23,6 @@ require 'cosmos/conversions/segmented_polynomial_conversion'
 module Cosmos
 
   describe SegmentedPolynomialConversion do
-
     describe "initialize" do
       it "initializes converted_type and converted_bit_size" do
         gc = SegmentedPolynomialConversion.new()

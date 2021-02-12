@@ -63,7 +63,6 @@ module Cosmos
     end
 
     protected
-
     def reduce_to_single_packet
       index = @data.index(@read_termination_characters)
 

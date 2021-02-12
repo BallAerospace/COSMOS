@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/core_ext/stringio'
 
 describe StringIO do
-
   describe "path" do
     it "returns nil" do
       expect(StringIO.new.path).to be_nil

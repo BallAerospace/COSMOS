@@ -23,7 +23,6 @@ require 'cosmos/io/udp_sockets'
 module Cosmos
 
   describe UdpWriteSocket do
-
     describe "initialize" do
       it "creates a socket" do
         udp = UdpWriteSocket.new('127.0.0.1', 8888)
@@ -68,11 +67,9 @@ module Cosmos
         expect(UdpWriteSocket.multicast?('224.0.1.1', 80)).to be true
       end
     end
-
   end
 
   describe UdpReadSocket do
-
     describe "initialize" do
       it "creates a socket" do
         udp = UdpReadSocket.new(8888)
@@ -104,11 +101,9 @@ module Cosmos
         expect { udp_read.read(2.0) }.to raise_error(Timeout::Error)
       end
     end
-
   end
 
   describe UdpReadWriteSocket do
-
     describe "initialize" do
       it "creates a socket" do
         udp = UdpReadWriteSocket.new(8888)
@@ -144,6 +139,5 @@ module Cosmos
         udp_write.close
       end
     end
-
   end
 end

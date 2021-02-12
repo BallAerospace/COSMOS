@@ -66,7 +66,7 @@ module Cosmos
       # Check Syntax on any ruby files
       ruby_filename = nil
       cmd_array.each do |part|
-        if part =~ /\.rb$/
+        if /\.rb$/.match?(part)
           ruby_filename = part
           break
         end
@@ -76,7 +76,7 @@ module Cosmos
           if File.exist?(ruby_filename)
             # Run ruby syntax so we can log those
             syntax_check, _ = Open3.capture2e("ruby -c #{ruby_filename}")
-            if syntax_check =~ /Syntax OK/
+            if /Syntax OK/.match?(syntax_check)
               Logger.info("Ruby microservice #{microservice_name} file #{ruby_filename} passed syntax check\n", scope: scope)
             else
               Logger.error("Ruby microservice #{microservice_name} file #{ruby_filename} failed syntax check\n#{syntax_check}", scope: scope)

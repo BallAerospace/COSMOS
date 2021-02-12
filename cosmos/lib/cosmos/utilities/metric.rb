@@ -66,10 +66,10 @@ module Cosmos
       # the value is added to @items and the count of the value is increased
       # if the count of the values exceed the size of the array it sets the
       # count back to zero and the array will over write older data.
-      key = "#{name}|" + labels.map{|k,v| "#{k}=#{v}"}.join(",")
+      key = "#{name}|" + labels.map {|k,v| "#{k}=#{v}"}.join(",")
       if not @items.has_key?(key)
         Logger.debug("new data for #{@scope}, #{key}")
-        @items[key] = {"values" => Array.new(@size), "count" => 0}
+        @items[key] = { "values" => Array.new(@size), "count" => 0 }
       end
       count = @items[key]["count"]
       # Logger.info("adding data for #{@scope}, #{count} #{key}, #{value}")
@@ -83,7 +83,7 @@ module Cosmos
       return sorted_values.first if len == 1
       k = ((percentile / 100.0) * (len - 1) + 1).floor - 1
       f = ((percentile / 100.0) * (len - 1) + 1).modulo(1)
-      return sorted_values[k] + (f * (sorted_values[k+1] - sorted_values[k]))
+      return sorted_values[k] + (f * (sorted_values[k + 1] - sorted_values[k]))
     end
 
     def output
@@ -105,11 +105,11 @@ module Cosmos
       @items.each do |key, values|
         label_list = []
         name, labels = key.split("|")
-        metric_labels = labels.nil? ? {} : labels.split(',').map{|x| x.split('=')}.map{|k, v| {k=>v}}.reduce({}, :merge)
+        metric_labels = labels.nil? ? {} : labels.split(',').map {|x| x.split('=')}.map {|k, v| { k => v }}.reduce({}, :merge)
         sorted_values = values["values"].compact.sort
         for percentile_value in [10, 50, 90, 95, 99]
           percentile_result = percentile(sorted_values, percentile_value)
-          labels = metric_labels.clone.merge({"scope" => @scope, "microservice" => @microservice})
+          labels = metric_labels.clone.merge({ "scope" => @scope, "microservice" => @microservice })
           labels["percentile"] = percentile_value
           labels["metric__value"] = percentile_result
           label_list.append(labels)
@@ -121,7 +121,6 @@ module Cosmos
         rescue RuntimeError
           Logger.error("failed attempt to update metric, #{key}, #{name} #{@scope}")
         end
-
       end
     end
 

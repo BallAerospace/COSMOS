@@ -23,12 +23,10 @@ require 'cosmos/core_ext/socket'
 describe Socket do
   describe "get_own_ip_address" do
     it "returns the ip address of the current machine" do
-      begin
-        Socket.get_own_ip_address
-        expect(Socket.get_own_ip_address).to match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/)
-      rescue Resolv::ResolvError
-        # Oh well
-      end
+      Socket.get_own_ip_address
+      expect(Socket.get_own_ip_address).to match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/)
+    rescue Resolv::ResolvError
+      # Oh well
     end
   end
 

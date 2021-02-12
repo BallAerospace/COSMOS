@@ -71,8 +71,8 @@ module Cosmos
     # they would be included on the $cmd_tlm_server global and would be
     # called directly instead of being forwarded over the JsonDrb connection to
     # the real server.
-    private
 
+    private
     # Called when this module is mixed in using "include Cosmos::Script"
     def self.included(base)
       $disconnect = nil

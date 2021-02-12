@@ -54,7 +54,7 @@ module Cosmos
     end
 
     def as_json
-      {'name' => @name, 'class' => self.class.name, 'params' => [@item_name, @value_type.to_s]}
+      { 'name' => @name, 'class' => self.class.name, 'params' => [@item_name, @value_type.to_s] }
     end
 
   end # class WatermarkProcessor

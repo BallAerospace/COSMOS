@@ -23,7 +23,6 @@ require 'cosmos/conversions/processor_conversion'
 module Cosmos
 
   describe PolynomialConversion do
-
     describe "initialize" do
       it "takes processor_name, result_name, converted_type, and converted_bit_size" do
         c = ProcessorConversion.new('TEST', 'TEST', 'FLOAT', '64')
@@ -39,7 +38,7 @@ module Cosmos
         c = ProcessorConversion.new('TEST', 'TEST', 'FLOAT', '64')
         packet = Packet.new("tgt","pkt")
         packet.append_item('ITEM1', 64, :FLOAT)
-        packet.processors['TEST'] = double("processor", :results => {:TEST => 6.0})
+        packet.processors['TEST'] = double("processor", :results => { :TEST => 6.0 })
         expect(c.call(1,packet,nil)).to eql 6.0
       end
     end

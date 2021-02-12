@@ -29,7 +29,7 @@ class File
     return_value = true
     File.open(filename) do |file|
       while buf = file.read(1024)
-        if buf =~ NON_ASCII_PRINTABLE
+        if NON_ASCII_PRINTABLE.match?(buf)
           return_value = false
           break
         end
@@ -70,15 +70,13 @@ class File
   #   search path. nil if the fild was not found.
   def self.find_in_search_path(filename)
     $:.each do |load_path|
-      begin
-        Find.find(load_path) do |path|
-          Find.prune if path =~ /\.svn/
-          return path if File.basename(path) == filename
-        end
-      rescue Errno::ENOENT
-        # Ignore non-existent folders
-        next
+      Find.find(load_path) do |path|
+        Find.prune if /\.svn/.match?(path)
+        return path if File.basename(path) == filename
       end
+    rescue Errno::ENOENT
+      # Ignore non-existent folders
+      next
     end
     return nil
   end
