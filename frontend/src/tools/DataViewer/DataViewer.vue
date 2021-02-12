@@ -41,7 +41,7 @@
           {{ tab.name }}
         </v-tab>
         <v-btn class="mt-2 ml-2" @click="openTabDialog" icon>
-          <v-icon>mdi-plus-circle</v-icon>
+          <v-icon>mdi-tab-plus</v-icon>
         </v-btn>
       </v-tabs>
       <v-tabs-items v-model="curTab">
@@ -69,10 +69,15 @@
             </v-card-text>
           </v-card>
           <v-btn block @click="() => openComponentDialog(index)">
-            <v-icon>mdi-plus-circle</v-icon>
+            <v-icon class="mr-2">mdi-plus-circle</v-icon>
+            Click here to add a packet
           </v-btn>
         </v-tab-item>
       </v-tabs-items>
+      <v-card v-if="!config.tabs.length">
+        <v-card-title>You're not viewing any packets</v-card-title>
+        <v-card-text>Click the new tab icon to start</v-card-text>
+      </v-card>
     </v-card>
     <!-- Dialogs for opening and saving configs -->
     <OpenConfigDialog
