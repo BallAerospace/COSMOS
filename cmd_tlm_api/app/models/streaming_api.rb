@@ -384,7 +384,7 @@ class StreamingThread
       else # whole packet
         this_packet = json_packet.read_all(object.value_type)
         result = result.merge(this_packet)
-        result['packet'] = topic
+        result['packet'] = topic + "__" + object.value_type.to_s
       end
     end
     result['time'] = time.to_nsec_from_epoch
