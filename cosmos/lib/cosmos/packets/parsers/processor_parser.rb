@@ -63,7 +63,6 @@ module Cosmos
     end
 
     private
-
     def get_processor_name
       @parser.parameters[0].to_s.upcase
     end

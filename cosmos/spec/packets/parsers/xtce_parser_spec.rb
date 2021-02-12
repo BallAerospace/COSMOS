@@ -22,7 +22,7 @@ require 'cosmos'
 require 'cosmos/packets/packet_config'
 require 'tempfile'
 
-XTCE_START =<<END
+XTCE_START = <<END
 <?xml version="1.0" encoding="UTF-8"?>
 <xtce:SpaceSystem xmlns:xtce="http://www.omg.org/space/xtce" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="INST" xsi:schemaLocation="http://www.omg.org/space/xtce http://www.omg.org/spec/XTCE/20061101/06-11-06.xsd">
   <xtce:TelemetryMetaData>
@@ -30,7 +30,7 @@ XTCE_START =<<END
       <xtce:IntegerParameterType name="A_Type" shortDescription="A" signed="false">
         <xtce:UnitSet/>
 END
-XTCE_END =<<END
+XTCE_END = <<END
       </xtce:IntegerParameterType>
     </xtce:ParameterTypeSet>
     <xtce:ParameterSet>

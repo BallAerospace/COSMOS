@@ -288,7 +288,7 @@ module Cosmos
       # Find all the script methods
       methods = []
       self.instance_methods.each do |method_name|
-        if method_name.to_s =~ /^test|^script|op_/
+        if /^test|^script|op_/.match?(method_name.to_s)
           methods << method_name.to_s
         end
       end

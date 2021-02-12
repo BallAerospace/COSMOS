@@ -47,7 +47,7 @@ module Cosmos
       super(discard_leading_bytes, sync_pattern, fill_fields, allow_empty_data)
       @min_id_size = Integer(min_id_size)
       @telemetry = telemetry
-      @unknown_raise = ConfigParser::handle_true_false(unknown_raise)
+      @unknown_raise = ConfigParser.handle_true_false(unknown_raise)
       @received_time = nil
       @target_name = nil
       @packet_name = nil
@@ -64,7 +64,6 @@ module Cosmos
     end
 
     protected
-
     # Identifies an unknown buffer of data as a Packet. The raw data is
     # returned but the packet that matched is recorded so it can be set in the
     # read_packet callback.

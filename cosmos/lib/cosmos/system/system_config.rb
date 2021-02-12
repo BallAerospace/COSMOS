@@ -138,15 +138,15 @@ module Cosmos
             else
               if parameters.length < 4
                 # We were given a named color, but it didn't exist in COSMOS already
-                color = Cosmos::getColor(parameters[1].upcase)
+                color = Cosmos.getColor(parameters[1].upcase)
               else
                 # We were given RGB values
-                color = Cosmos::getColor(parameters[1], parameters[2], parameters[3])
+                color = Cosmos.getColor(parameters[1], parameters[2], parameters[3])
               end
             end
 
-            @classificiation_banner = {'display_text' => parameters[0],
-                                       'color'        => color}
+            @classificiation_banner = { 'display_text' => parameters[0],
+                                       'color' => color }
 
           else
             # blank lines will have a nil keyword and should not raise an exception
@@ -163,7 +163,6 @@ module Cosmos
 
         # Second pass - Process targets
         process_targets(parser, filename, targets_config_dir)
-
       end # Cosmos.set_working_dir
     end # def process_file
 
@@ -278,7 +277,6 @@ module Cosmos
     end
 
     protected
-
     def unzip(zip_file_name)
       zip_dir = File.join(@paths['TMP'], File.basename(zip_file_name, ".*"))
       # Only unzip if we have to. We assume the unzipped directory structure is
@@ -340,9 +338,9 @@ module Cosmos
               curr_dir = spec.gem_dir
               target_name = spec_name_split[1..-1].join('-').to_s.upcase
             else
-              #check for targets in other directories 1 level deep
-              next if dir_filename[0] == '.'               #skip dot directories and ".."
-              next if dir_filename != dir_filename.upcase  #skip non uppercase directories
+              # check for targets in other directories 1 level deep
+              next if dir_filename[0] == '.'               # skip dot directories and ".."
+              next if dir_filename != dir_filename.upcase  # skip non uppercase directories
               curr_dir = File.join(spec.gem_dir, dir_filename)
               target_name = dir_filename
             end
@@ -354,7 +352,7 @@ module Cosmos
               next if @targets.select {|name, target| target.original_name == target_name }.length > 0
               target = Target.new(target_name,nil, nil, nil, spec.gem_dir)
               @targets[target.name] = target
-           end
+            end
           end
         end
       end

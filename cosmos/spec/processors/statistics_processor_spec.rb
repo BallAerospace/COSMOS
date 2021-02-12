@@ -24,7 +24,6 @@ require 'cosmos/processors/statistics_processor'
 module Cosmos
 
   describe StatisticsProcessor do
-
     describe "initialize" do
       it "takes an item_name, samples_to_average, and value_type" do
         p = StatisticsProcessor.new('TEST', '5', 'RAW')
@@ -39,19 +38,19 @@ module Cosmos
         p = StatisticsProcessor.new('TEST', '5', 'RAW')
         packet = Packet.new("tgt","pkt")
         packet.append_item("TEST", 8, :UINT)
-        packet.buffer= "\x01"
+        packet.buffer = "\x01"
         p.call(packet, packet.buffer)
         expect(p.results[:MAX]).to eql 1
         expect(p.results[:MIN]).to eql 1
         expect(p.results[:MEAN]).to be_within(0.001).of(1.0)
         expect(p.results[:STDDEV]).to be_within(0.001).of(0.0)
-        packet.buffer= "\x02"
+        packet.buffer = "\x02"
         p.call(packet, packet.buffer)
         expect(p.results[:MAX]).to eql 2
         expect(p.results[:MIN]).to eql 1
         expect(p.results[:MEAN]).to be_within(0.001).of(1.5)
         expect(p.results[:STDDEV]).to be_within(0.001).of(0.7071)
-        packet.buffer= "\x00"
+        packet.buffer = "\x00"
         p.call(packet, packet.buffer)
         expect(p.results[:MAX]).to eql 2
         expect(p.results[:MIN]).to eql 0

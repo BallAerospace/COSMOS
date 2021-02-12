@@ -74,7 +74,7 @@ module Cosmos
       if @length_endianness == :BIG_ENDIAN or ((@length_bit_offset % 8) == 0)
         length_bits_needed = @length_bit_offset + @length_bit_size
         length_bits_needed += 8 if (length_bits_needed % 8) != 0
-        @length_bytes_needed = ((length_bits_needed - 1)/ 8) + 1
+        @length_bytes_needed = ((length_bits_needed - 1) / 8) + 1
       else
         @length_bytes_needed = (length_bit_offset / 8) + 1
       end
@@ -123,7 +123,6 @@ module Cosmos
     end
 
     protected
-
     def calculate_length(buffer_length)
       length = (buffer_length / @length_bytes_per_count) - @length_value_offset
       if @max_length && length > @max_length

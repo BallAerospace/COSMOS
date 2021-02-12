@@ -22,7 +22,6 @@ require 'cosmos/core_ext/file'
 require 'tempfile'
 
 describe File do
-
   describe "is_ascii?" do
     it "returns true if a file only contains printable ASCII characters" do
       tf = Tempfile.new('unittest')

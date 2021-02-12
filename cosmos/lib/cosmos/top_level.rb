@@ -171,67 +171,63 @@ module Cosmos
   # @param marshal_filename [String] Name of the marshal file to create
   # @param obj [Object] The object to serialize to the file
   def self.marshal_dump(marshal_filename, obj)
+    Cosmos.set_working_dir do
+      File.open(marshal_filename, 'wb') do |file|
+        file.write(COSMOS_MARSHAL_HEADER)
+        file.write(Marshal.dump(obj))
+      end
+    end
+  rescue Exception => exception
     begin
       Cosmos.set_working_dir do
-        File.open(marshal_filename, 'wb') do |file|
-          file.write(COSMOS_MARSHAL_HEADER)
-          file.write(Marshal.dump(obj))
-        end
+        File.delete(marshal_filename)
       end
-    rescue Exception => exception
-      begin
-        Cosmos.set_working_dir do
-          File.delete(marshal_filename)
-        end
-      rescue Exception
-        # Oh well - we tried
-      end
-      if exception.class == TypeError and exception.message =~ /Thread::Mutex/
-        original_backtrace = exception.backtrace
-        exception = exception.exception("Mutex exists in a packet.  Note: Packets must not be read during class initializers for Conversions, Limits Responses, etc.: #{exception}")
-        exception.set_backtrace(original_backtrace)
-      end
-      self.handle_fatal_exception(exception)
+    rescue Exception
+      # Oh well - we tried
     end
+    if exception.class == TypeError and exception.message =~ /Thread::Mutex/
+      original_backtrace = exception.backtrace
+      exception = exception.exception("Mutex exists in a packet.  Note: Packets must not be read during class initializers for Conversions, Limits Responses, etc.: #{exception}")
+      exception.set_backtrace(original_backtrace)
+    end
+    self.handle_fatal_exception(exception)
   end
 
   # Loads the marshal file back into a Ruby object
   #
   # @param marshal_filename [String] Name of the marshal file to load
   def self.marshal_load(marshal_filename)
-    begin
-      cosmos_marshal_header = nil
-      data = nil
-      Cosmos.set_working_dir do
-        File.open(marshal_filename, 'rb') do |file|
-          cosmos_marshal_header = file.read(COSMOS_MARSHAL_HEADER.length)
-          data = file.read
-        end
+    cosmos_marshal_header = nil
+    data = nil
+    Cosmos.set_working_dir do
+      File.open(marshal_filename, 'rb') do |file|
+        cosmos_marshal_header = file.read(COSMOS_MARSHAL_HEADER.length)
+        data = file.read
       end
-      if cosmos_marshal_header == COSMOS_MARSHAL_HEADER
-        return Marshal.load(data)
-      else
-        Logger.warn "Marshal load failed with invalid marshal file: #{marshal_filename}"
-        return nil
-      end
-    rescue Exception => exception
-      Cosmos.set_working_dir do
-        if File.exist?(marshal_filename)
-          Logger.error "Marshal load failed with exception: #{marshal_filename}\n#{exception.formatted}"
-        else
-          Logger.info "Marshal file does not exist: #{marshal_filename}"
-        end
-
-        # Try to delete the bad marshal file
-        begin
-          File.delete(marshal_filename)
-        rescue Exception
-          # Oh well - we tried
-        end
-        self.handle_fatal_exception(exception) if File.exist?(marshal_filename)
-      end
+    end
+    if cosmos_marshal_header == COSMOS_MARSHAL_HEADER
+      return Marshal.load(data)
+    else
+      Logger.warn "Marshal load failed with invalid marshal file: #{marshal_filename}"
       return nil
     end
+  rescue Exception => exception
+    Cosmos.set_working_dir do
+      if File.exist?(marshal_filename)
+        Logger.error "Marshal load failed with exception: #{marshal_filename}\n#{exception.formatted}"
+      else
+        Logger.info "Marshal file does not exist: #{marshal_filename}"
+      end
+
+      # Try to delete the bad marshal file
+      begin
+        File.delete(marshal_filename)
+      rescue Exception
+        # Oh well - we tried
+      end
+      self.handle_fatal_exception(exception) if File.exist?(marshal_filename)
+    end
+    return nil
   end
 
   # Changes the current working directory to the USERPATH and then executes the
@@ -265,7 +261,7 @@ module Cosmos
           # Ignore modalSession messages on Mac Mavericks
           new_output = ''
           output.each_line do |line|
-            new_output << line if line !~ /modalSession/
+            new_output << line if !/modalSession/.match?(line)
           end
           output = new_output
 
@@ -365,13 +361,11 @@ module Cosmos
       end
       begin
         COSMOS_MUTEX.synchronize do
-          begin
-            file = File.open(log_file, 'w')
-            yield file
-          ensure
-            file.close unless file.closed?
-            File.chmod(0444, log_file) # Make file read only
-          end
+          file = File.open(log_file, 'w')
+          yield file
+        ensure
+          file.close unless file.closed?
+          File.chmod(0444, log_file) # Make file read only
         end
       rescue Exception
         # Ensure we always return
@@ -395,48 +389,46 @@ module Cosmos
   #   an error creating the log file.
   def self.write_exception_file(exception, filename = 'exception', log_dir = nil)
     log_file = create_log_file(filename, log_dir) do |file|
-      begin
-        file.puts "Exception:"
-        if exception
-          file.puts exception.formatted
-          file.puts
-        else
-          file.puts "No Exception Given"
-          file.puts caller.join("\n")
-          file.puts
-        end
-        file.puts "Caller Backtrace:"
-        file.puts caller().join("\n")
+      file.puts "Exception:"
+      if exception
+        file.puts exception.formatted
         file.puts
-
-        file.puts "Ruby Version: ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE} patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]"
-        file.puts "Rubygems Version: #{Gem::VERSION}"
-        file.puts "Cosmos Version: #{Cosmos::VERSION}"
-        file.puts "Cosmos::PATH: #{Cosmos::PATH}"
-        file.puts ""
-        file.puts "Environment:"
-        file.puts "RUBYOPT: #{ENV['RUBYOPT']}"
-        file.puts "RUBYLIB: #{ENV['RUBYLIB']}"
-        file.puts "GEM_PATH: #{ENV['GEM_PATH']}"
-        file.puts "GEMRC: #{ENV['GEMRC']}"
-        file.puts "RI_DEVKIT: #{ENV['RI_DEVKIT']}"
-        file.puts "GEM_HOME: #{ENV['GEM_HOME']}"
-        file.puts "PATH: #{ENV['PATH']}"
-        file.puts ""
-        file.puts "Ruby Path:\n  #{$:.join("\n  ")}\n\n"
-        file.puts "Gems:"
-        Gem.loaded_specs.values.map {|x| file.puts "#{x.name} #{x.version} #{x.platform}"}
-        file.puts ""
-        file.puts "All Threads Backtraces:"
-        Thread.list.each do |thread|
-          file.puts thread.backtrace.join("\n")
-          file.puts
-        end
-        file.puts ""
-        file.puts ""
-      ensure
-        file.close
+      else
+        file.puts "No Exception Given"
+        file.puts caller.join("\n")
+        file.puts
       end
+      file.puts "Caller Backtrace:"
+      file.puts caller().join("\n")
+      file.puts
+
+      file.puts "Ruby Version: ruby #{RUBY_VERSION} (#{RUBY_RELEASE_DATE} patchlevel #{RUBY_PATCHLEVEL}) [#{RUBY_PLATFORM}]"
+      file.puts "Rubygems Version: #{Gem::VERSION}"
+      file.puts "Cosmos Version: #{Cosmos::VERSION}"
+      file.puts "Cosmos::PATH: #{Cosmos::PATH}"
+      file.puts ""
+      file.puts "Environment:"
+      file.puts "RUBYOPT: #{ENV['RUBYOPT']}"
+      file.puts "RUBYLIB: #{ENV['RUBYLIB']}"
+      file.puts "GEM_PATH: #{ENV['GEM_PATH']}"
+      file.puts "GEMRC: #{ENV['GEMRC']}"
+      file.puts "RI_DEVKIT: #{ENV['RI_DEVKIT']}"
+      file.puts "GEM_HOME: #{ENV['GEM_HOME']}"
+      file.puts "PATH: #{ENV['PATH']}"
+      file.puts ""
+      file.puts "Ruby Path:\n  #{$:.join("\n  ")}\n\n"
+      file.puts "Gems:"
+      Gem.loaded_specs.values.map {|x| file.puts "#{x.name} #{x.version} #{x.platform}"}
+      file.puts ""
+      file.puts "All Threads Backtraces:"
+      Thread.list.each do |thread|
+        file.puts thread.backtrace.join("\n")
+        file.puts
+      end
+      file.puts ""
+      file.puts ""
+    ensure
+      file.close
     end
     return log_file
   end
@@ -453,12 +445,10 @@ module Cosmos
   #   an error creating the log file.
   def self.write_unexpected_file(text, filename = 'unexpected', log_dir = nil)
     log_file = create_log_file(filename, log_dir) do |file|
-      begin
-        file.puts "Unexpected Output:\n\n"
-        file.puts text
-      ensure
-        file.close
-      end
+      file.puts "Unexpected Output:\n\n"
+      file.puts text
+    ensure
+      file.close
     end
     return log_file
   end
@@ -466,13 +456,11 @@ module Cosmos
   # Catch fatal exceptions within the block
   # This is intended to catch exceptions before the GUI is available
   def self.catch_fatal_exception
-    begin
-      yield
-    rescue Exception => error
-      unless error.class == SystemExit or error.class == Interrupt
-        Logger.level = Logger::FATAL
-        Cosmos.handle_fatal_exception(error, false)
-      end
+    yield
+  rescue Exception => error
+    unless error.class == SystemExit or error.class == Interrupt
+      Logger.level = Logger::FATAL
+      Cosmos.handle_fatal_exception(error, false)
     end
   end
 
@@ -565,14 +553,12 @@ module Cosmos
   # @param filename [String] The name of the file to require
   # @param log_error [Boolean] Whether to log an error if we can't require the class
   def self.require_file(filename, log_error = true)
-    begin
-      require filename
-    rescue Exception => err
-      msg = "Unable to require #{filename} due to #{err.message}. "\
-        "Ensure #{filename} is in the COSMOS lib directory."
-      Logger.error msg if log_error
-      raise $!, msg, $!.backtrace
-    end
+    require filename
+  rescue Exception => err
+    msg = "Unable to require #{filename} due to #{err.message}. "\
+      "Ensure #{filename} is in the COSMOS lib directory."
+    Logger.error msg if log_error
+    raise $!, msg, $!.backtrace
   end
 
   # Open a platform specific file browser at the given path

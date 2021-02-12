@@ -23,7 +23,6 @@ require 'cosmos/processors/processor'
 module Cosmos
 
   describe Processor do
-
     describe "initialize" do
       it "stores an optional value_type" do
         a = Processor.new(:RAW)

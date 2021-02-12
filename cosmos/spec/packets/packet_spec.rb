@@ -25,7 +25,6 @@ require 'cosmos/conversions/generic_conversion'
 module Cosmos
 
   describe Packet do
-
     describe "buffer=" do
       it "sets the buffer" do
         p = Packet.new("tgt", "pkt")
@@ -257,7 +256,7 @@ module Cosmos
         pi.format_string = "%5.1f"
         pi.read_conversion = rc
         pi.write_conversion = wc
-        pi.state_colors = {'RED'=>0}
+        pi.state_colors = { 'RED' => 0 }
         pi.id_value = 5
         p.define(pi)
         i = p.get_item("ITEM1")
@@ -317,7 +316,7 @@ module Cosmos
         pi.format_string = "%5.1f"
         pi.read_conversion = rc
         pi.write_conversion = wc
-        pi.limits.values = {:DEFAULT => [0, 1, 2, 3]}
+        pi.limits.values = { :DEFAULT => [0, 1, 2, 3] }
         pi.id_value = 5
         p.append(pi)
         i = p.get_item("ITEM1")
@@ -427,7 +426,7 @@ module Cosmos
       it "reads the CONVERTED value with states" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
-        i.states = {"TRUE"=>1, "FALSE"=>2}
+        i.states = { "TRUE" => 1, "FALSE" => 2 }
         expect(@p.read("ITEM", :CONVERTED, "\x00")).to eql 0
         expect(@p.read_item(i, :CONVERTED, "\x00")).to eql 0
         expect(@p.read("ITEM", :CONVERTED, "\x01")).to eql "TRUE"
@@ -445,7 +444,7 @@ module Cosmos
         i.format_string = "0x%x"
         expect(@p.read("ITEM", :FORMATTED, "\x02")).to eql "0x2"
         expect(@p.read_item(i, :FORMATTED, "\x02")).to eql "0x2"
-        i.states = {"TRUE"=>1, "FALSE"=>2}
+        i.states = { "TRUE" => 1, "FALSE" => 2 }
         expect(@p.read("ITEM", :FORMATTED, "\x01")).to eql "TRUE"
         expect(@p.read_item(i, :FORMATTED, "\x01")).to eql "TRUE"
         expect(@p.read("ITEM", :FORMATTED, "\x02")).to eql "FALSE"
@@ -466,7 +465,7 @@ module Cosmos
         i.format_string = "0x%x"
         expect(@p.read("ITEM", :WITH_UNITS, "\x02")).to eql "0x2 V"
         expect(@p.read_item(i, :WITH_UNITS, "\x02")).to eql "0x2 V"
-        i.states = {"TRUE"=>1, "FALSE"=>2}
+        i.states = { "TRUE" => 1, "FALSE" => 2 }
         expect(@p.read("ITEM", :WITH_UNITS, "\x01")).to eql "TRUE"
         expect(@p.read_item(i, :WITH_UNITS, "\x01")).to eql "TRUE"
         expect(@p.read("ITEM", :WITH_UNITS, "\x02")).to eql "FALSE"
@@ -487,7 +486,7 @@ module Cosmos
         i.format_string = "0x%x"
         expect(@p.read("ITEM", :WITH_UNITS, "\x01\x02")).to eql ["0x1 V", "0x2 V"]
         expect(@p.read_item(i, :WITH_UNITS, "\x01\x02")).to eql ["0x1 V", "0x2 V"]
-        i.states = {"TRUE"=>1, "FALSE"=>2}
+        i.states = { "TRUE" => 1, "FALSE" => 2 }
         expect(@p.read("ITEM", :WITH_UNITS, "\x01\x02")).to eql ["TRUE", "FALSE"]
         expect(@p.read_item(i, :WITH_UNITS, "\x01\x02")).to eql ["TRUE", "FALSE"]
         expect(@p.read("ITEM", :WITH_UNITS, "\x00\x01")).to eql ["0x0 V", "TRUE"]
@@ -516,7 +515,7 @@ module Cosmos
           @p.append_item("item",0,:DERIVED)
           i = @p.get_item("ITEM")
           i.format_string = "0x%x"
-          i.states = {"TRUE"=>1, "FALSE"=>0}
+          i.states = { "TRUE" => 1, "FALSE" => 0 }
           i.units = "V"
           expect(@p.read("ITEM", :RAW, "")).to be_nil
           expect(@p.read_item(i, :RAW, "")).to be_nil
@@ -526,7 +525,7 @@ module Cosmos
           @p.append_item("item",0,:DERIVED)
           i = @p.get_item("ITEM")
           i.format_string = "0x%x"
-          i.states = {"TRUE"=>1, "FALSE"=>0}
+          i.states = { "TRUE" => 1, "FALSE" => 0 }
           i.units = "V"
           i.read_conversion = GenericConversion.new("0")
           expect(@p.read("ITEM", :RAW, "")).to eql 0
@@ -540,7 +539,7 @@ module Cosmos
           @p.append_item("item",0,:DERIVED)
           i = @p.get_item("ITEM")
           i.format_string = "0x%x"
-          i.states = {"TRUE"=>1, "FALSE"=>0}
+          i.states = { "TRUE" => 1, "FALSE" => 0 }
           i.units = "V"
           i.read_conversion = GenericConversion.new("0")
           expect(@p.read("ITEM", :CONVERTED, "")).to eql "FALSE"
@@ -554,7 +553,7 @@ module Cosmos
           @p.append_item("item",0,:DERIVED)
           i = @p.get_item("ITEM")
           i.format_string = "0x%x"
-          i.states = {"TRUE"=>1, "FALSE"=>0}
+          i.states = { "TRUE" => 1, "FALSE" => 0 }
           i.units = "V"
           i.read_conversion = GenericConversion.new("3")
           expect(@p.read("ITEM", :FORMATTED, "")).to eql "0x3"
@@ -565,7 +564,7 @@ module Cosmos
           @p.append_item("item",0,:DERIVED)
           i = @p.get_item("ITEM")
           i.format_string = "0x%x"
-          i.states = {"TRUE"=>1, "FALSE"=>0}
+          i.states = { "TRUE" => 1, "FALSE" => 0 }
           i.units = "V"
           i.read_conversion = GenericConversion.new("3")
           expect(@p.read("ITEM", :WITH_UNITS, "")).to eql "0x3 V"
@@ -630,7 +629,7 @@ module Cosmos
       it "writes the CONVERTED value with states" do
         @p.append_item("item",8,:UINT)
         i = @p.get_item("ITEM")
-        i.states = {"TRUE"=>1, "FALSE"=>2}
+        i.states = { "TRUE" => 1, "FALSE" => 2 }
         @p.write("ITEM", 3, :CONVERTED, @buffer)
         expect(@buffer).to eql "\x03\x00\x00\x00"
         @p.write_item(i, 4, :CONVERTED, @buffer)
@@ -670,7 +669,7 @@ module Cosmos
         p.append_item("test1", 8, :UINT, 16)
         p.append_item("test2", 16, :UINT)
         i = p.get_item("TEST2")
-        i.states = {"TRUE"=>0x0304}
+        i.states = { "TRUE" => 0x0304 }
         p.append_item("test3", 32, :UINT)
         i = p.get_item("TEST3")
         i.read_conversion = GenericConversion.new("value / 2")
@@ -692,14 +691,14 @@ module Cosmos
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
         i = p.get_item("TEST1")
-        i.states = {"TRUE"=>1,"FALSE"=>0}
-        i.state_colors = {"TRUE"=>:GREEN,"FALSE"=>:RED}
+        i.states = { "TRUE" => 1,"FALSE" => 0 }
+        i.state_colors = { "TRUE" => :GREEN,"FALSE" => :RED }
         p.update_limits_items_cache(i)
         p.write("TEST1",0)
         p.enable_limits("TEST1")
         p.append_item("test2", 16, :UINT)
         i = p.get_item("TEST2")
-        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        i.limits.values = { :DEFAULT => [1,2,4,5] }
         p.write("TEST2",3)
         p.enable_limits("TEST2")
         p.update_limits_items_cache(i)
@@ -722,7 +721,7 @@ module Cosmos
         p.write("test1", [1,2])
         p.append_item("test2", 16, :UINT)
         i = p.get_item("TEST2")
-        i.states = {"TRUE"=>0x0304}
+        i.states = { "TRUE" => 0x0304 }
         p.write("test2", 0x0304)
         p.append_item("test3", 32, :UINT)
         i = p.get_item("TEST3")
@@ -925,7 +924,7 @@ module Cosmos
         p.append_item("test2", 16, :UINT)
         i = p.get_item("TEST2")
         i.default = 0x0102
-        i.states = {"TRUE"=>0x0304}
+        i.states = { "TRUE" => 0x0304 }
         p.write("test2", 0x0304)
         p.append_item("test3", 32, :UINT)
         i = p.get_item("TEST3")
@@ -946,7 +945,7 @@ module Cosmos
         p.append_item("test2", 16, :UINT)
         i = p.get_item("TEST2")
         i.default = 0x0102
-        i.states = {"TRUE"=>0x0304}
+        i.states = { "TRUE" => 0x0304 }
         p.write("test2", 0x0304)
         p.append_item("test3", 32, :UINT)
         i = p.get_item("TEST3")
@@ -1002,11 +1001,11 @@ module Cosmos
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
         i = p.get_item("TEST1")
-        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        i.limits.values = { :DEFAULT => [1,2,4,5] }
         p.update_limits_items_cache(i)
         p.append_item("test2", 16, :UINT)
         i = p.get_item("TEST2")
-        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        i.limits.values = { :DEFAULT => [1,2,4,5] }
         p.update_limits_items_cache(i)
         p.write("TEST1",3)
         p.write("TEST2",3)
@@ -1035,11 +1034,11 @@ module Cosmos
         expect(p.limits_items).to eql []
 
         test1 = p.get_item("TEST1")
-        test1.limits.values = {:DEFAULT=>[1,2,4,5]}
+        test1.limits.values = { :DEFAULT => [1,2,4,5] }
         p.update_limits_items_cache(test1)
         expect(p.limits_items).to eql [test1]
         test2 = p.get_item("TEST2")
-        test2.limits.values = {:DEFAULT=>[1,2,4,5]}
+        test2.limits.values = { :DEFAULT => [1,2,4,5] }
         p.update_limits_items_cache(test2)
         expect(p.limits_items).to eql [test1, test2]
       end
@@ -1050,13 +1049,13 @@ module Cosmos
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
         i = p.get_item("TEST1")
-        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        i.limits.values = { :DEFAULT => [1,2,4,5] }
         p.update_limits_items_cache(i)
         p.enable_limits("TEST1")
         p.write("TEST1",3)
         p.append_item("test2", 16, :UINT)
         i = p.get_item("TEST2")
-        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        i.limits.values = { :DEFAULT => [1,2,4,5] }
         p.update_limits_items_cache(i)
         p.write("TEST2",3)
         p.enable_limits("TEST2")
@@ -1077,12 +1076,12 @@ module Cosmos
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
         i = p.get_item("TEST1")
-        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        i.limits.values = { :DEFAULT => [1,2,4,5] }
         p.update_limits_items_cache(i)
         p.enable_limits("TEST1")
         p.append_item("test2", 16, :UINT)
         i = p.get_item("TEST2")
-        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        i.limits.values = { :DEFAULT => [1,2,4,5] }
         p.update_limits_items_cache(i)
         p.enable_limits("TEST2")
         expect(p.out_of_limits).to eql []
@@ -1122,15 +1121,15 @@ module Cosmos
         it "calls the limits_change_callback" do
           test1 = @p.get_item("TEST1")
           expect(test1.limits.enabled).to be false
-          test1.states = {"TRUE"=>1,"FALSE"=>0}
-          test1.state_colors = {"TRUE"=>:GREEN,"FALSE"=>:RED}
+          test1.states = { "TRUE" => 1,"FALSE" => 0 }
+          test1.state_colors = { "TRUE" => :GREEN,"FALSE" => :RED }
           @p.update_limits_items_cache(test1)
           @p.write("TEST1", 0)
           @p.enable_limits("TEST1")
           test2 = @p.get_item("TEST2")
           expect(test2.limits.enabled).to be false
-          test2.states = {"TRUE"=>1,"FALSE"=>0}
-          test2.state_colors = {"TRUE"=>:RED,"FALSE"=>:GREEN}
+          test2.states = { "TRUE" => 1,"FALSE" => 0 }
+          test2.state_colors = { "TRUE" => :RED,"FALSE" => :GREEN }
           @p.write("TEST2", 0)
           @p.enable_limits("TEST2")
           @p.update_limits_items_cache(test2)
@@ -1160,19 +1159,19 @@ module Cosmos
         before(:each) do
           @test1 = @p.get_item("TEST1")
           expect(@test1.limits.enabled).to be false
-          @test1.limits.values = {:DEFAULT=>[1,2,4,5]} # red yellow
+          @test1.limits.values = { :DEFAULT => [1,2,4,5] } # red yellow
           @p.update_limits_items_cache(@test1)
           @p.enable_limits("TEST1")
 
           @test2 = @p.get_item("TEST2")
           expect(@test2.limits.enabled).to be false
-          @test2.limits.values = {:DEFAULT=>[1,2,6,7,3,5]} # red yellow and blue
+          @test2.limits.values = { :DEFAULT => [1,2,6,7,3,5] } # red yellow and blue
           @p.update_limits_items_cache(@test2)
           @p.enable_limits("TEST2")
 
           @test3 = @p.get_item("TEST3")
           expect(@test3.limits.enabled).to be false
-          @test3.limits.values = {:DEFAULT=>[1,1.5,2.5,3]} # red yellow
+          @test3.limits.values = { :DEFAULT => [1,1.5,2.5,3] } # red yellow
           @p.update_limits_items_cache(@test3)
           @p.enable_limits("TEST3")
 
@@ -1425,12 +1424,12 @@ module Cosmos
         p = Packet.new("tgt","pkt")
         p.append_item("test1", 8, :UINT)
         i = p.get_item("TEST1")
-        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        i.limits.values = { :DEFAULT => [1,2,4,5] }
         p.update_limits_items_cache(i)
         p.enable_limits("TEST1")
         p.append_item("test2", 16, :UINT)
         i = p.get_item("TEST2")
-        i.limits.values = {:DEFAULT=>[1,2,4,5]}
+        i.limits.values = { :DEFAULT => [1,2,4,5] }
         p.update_limits_items_cache(i)
         p.enable_limits("TEST2")
         expect(p.out_of_limits).to eql []
@@ -1511,7 +1510,6 @@ module Cosmos
         expect(json['items']).to eql []
       end
     end
-
   end # describe Packet
 
 end

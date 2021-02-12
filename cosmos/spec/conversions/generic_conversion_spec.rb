@@ -23,7 +23,6 @@ require 'cosmos/conversions/generic_conversion'
 module Cosmos
 
   describe GenericConversion do
-
     describe "initialize" do
       it "takes code_to_eval, converted_type and converted_bit_size" do
         gc = GenericConversion.new("10 / 2",:UINT,8)

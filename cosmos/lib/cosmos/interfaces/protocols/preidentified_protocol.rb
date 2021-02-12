@@ -96,7 +96,6 @@ module Cosmos
     end
 
     protected
-
     def read_length_field_followed_by_string(length_num_bytes)
       # Read bytes for string length
       return :STOP if @data.length < length_num_bytes

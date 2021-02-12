@@ -38,7 +38,6 @@ module Cosmos
     end
 
     private
-
     def initialize(commands, telemetry, output_dir)
       FileUtils.mkdir_p(output_dir)
 
@@ -410,7 +409,7 @@ module Cosmos
     def to_xtce_endianness(item, xml)
       if item.endianness == :LITTLE_ENDIAN and item.bit_size > 8
         xml['xtce'].ByteOrderList do
-          (((item.bit_size - 1)/ 8) + 1).times do |byte_significance|
+          (((item.bit_size - 1) / 8) + 1).times do |byte_significance|
             xml['xtce'].Byte(:byteSignificance => byte_significance)
           end
         end

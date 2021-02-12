@@ -163,7 +163,7 @@ class Time
   # @param second [Integer]
   # @param us [Integer]
   # @return [Float] The given time as a Julian date
-  def self.mdy2julian(year, month=1, day=1, hour=0, minute=0, second=0, us=0)
+  def self.mdy2julian(year, month = 1, day = 1, hour = 0, minute = 0, second = 0, us = 0)
     # Note DateTime does not support fractions of seconds
     date_time = DateTime.new(year, month, day, hour, minute, second)
     (date_time - DATE_TIME_MJD_EPOCH).to_f + JULIAN_DATE_OF_MJD_EPOCH + us / USEC_PER_DAY_FLOAT
@@ -187,7 +187,7 @@ class Time
   # @param second [Integer]
   # @param us [Integer]
   # @return [Time] The given time as a Julian date
-  def self.mdy2mjd(year, month=1, day=1, hour=0, minute=0, second=0, us=0)
+  def self.mdy2mjd(year, month = 1, day = 1, hour = 0, minute = 0, second = 0, us = 0)
     return Time.mdy2julian(year, month, day, hour, minute, second, us) - JULIAN_DATE_OF_MJD_EPOCH
   end
 

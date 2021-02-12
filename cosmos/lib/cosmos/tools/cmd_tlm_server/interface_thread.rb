@@ -146,7 +146,6 @@ module Cosmos
     end
 
     protected
-
     def handle_packet(packet)
       if packet.stored
         # Stored telemetry does not update the current value table
@@ -203,11 +202,9 @@ module Cosmos
 
       # Write to routers
       @interface.routers.each do |router|
-        begin
-          router.write(packet) if router.write_allowed? and router.connected?
-        rescue => err
-          Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
-        end
+        router.write(packet) if router.write_allowed? and router.connected?
+      rescue => err
+        Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
       end
 
       # Write to packet log writers

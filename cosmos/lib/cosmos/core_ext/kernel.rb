@@ -28,7 +28,7 @@ module Kernel
   def is_mac?
     _, platform, *_ = RUBY_PLATFORM.split("-")
     result = false
-    if platform =~ /darwin/
+    if /darwin/.match?(platform)
       result = true
     end
     return result

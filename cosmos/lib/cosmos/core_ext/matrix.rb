@@ -110,31 +110,31 @@ class Matrix
     tyz = tz * quaternion.y
     tzz = tz * quaternion.z
 
-    result[0][0] = 1.0 - tyy - tzz;
-    result[0][1] = txy + twz;
-    result[0][2] = txz - twy;
-    result[1][0] = txy - twz;
-    result[1][1] = 1.0 - txx - tzz;
-    result[1][2] = tyz + twx;
-    result[2][0] = txz + twy;
-    result[2][1] = tyz - twx;
-    result[2][2] = 1.0 - txx - tyy;
+    result[0][0] = 1.0 - tyy - tzz
+    result[0][1] = txy + twz
+    result[0][2] = txz - twy
+    result[1][0] = txy - twz
+    result[1][1] = 1.0 - txx - tzz
+    result[1][2] = tyz + twx
+    result[2][0] = txz + twy
+    result[2][1] = tyz - twx
+    result[2][2] = 1.0 - txx - tyy
 
     return result
   end
 
   def trans4(x, y, z)
-    @rows[3][0] += x*@rows[0][0] + y*@rows[1][0] + z*@rows[2][0]
-    @rows[3][1] += x*@rows[0][1] + y*@rows[1][1] + z*@rows[2][1]
-    @rows[3][2] += x*@rows[0][2] + y*@rows[1][2] + z*@rows[2][2]
-    @rows[3][3] += x*@rows[0][3] + y*@rows[1][3] + z*@rows[2][3]
+    @rows[3][0] += x * @rows[0][0] + y * @rows[1][0] + z * @rows[2][0]
+    @rows[3][1] += x * @rows[0][1] + y * @rows[1][1] + z * @rows[2][1]
+    @rows[3][2] += x * @rows[0][2] + y * @rows[1][2] + z * @rows[2][2]
+    @rows[3][3] += x * @rows[0][3] + y * @rows[1][3] + z * @rows[2][3]
     return self
   end
 
   def scale4(x, y, z)
-    @rows[0][0] *= x; @rows[0][1] *= x; @rows[0][2] *= x; @rows[0][3] *= x;
-    @rows[1][0] *= y; @rows[1][1] *= y; @rows[1][2] *= y; @rows[1][3] *= y;
-    @rows[2][0] *= z; @rows[2][1] *= z; @rows[2][2] *= z; @rows[2][3] *= z;
+    @rows[0][0] *= x; @rows[0][1] *= x; @rows[0][2] *= x; @rows[0][3] *= x
+    @rows[1][0] *= y; @rows[1][1] *= y; @rows[1][2] *= y; @rows[1][3] *= y
+    @rows[2][0] *= z; @rows[2][1] *= z; @rows[2][2] *= z; @rows[2][3] *= z
     return self
   end
 
@@ -147,7 +147,7 @@ class Matrix
       y = @rows[1][row]
       z = @rows[2][row]
       3.times do |i|
-        @rows[i][row] = x*r[i][0] + y*r[i][1] + z*r[i][2]
+        @rows[i][row] = x * r[i][0] + y * r[i][1] + z * r[i][2]
       end
     end
     # Ensure the final row is floating point for consistency

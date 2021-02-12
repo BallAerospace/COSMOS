@@ -3,7 +3,7 @@ require 'mkmf'
 unless $CFLAGS.gsub!(/ -O[\dsz]?/, ' -O3')
   $CFLAGS << ' -O3'
 end
-if CONFIG['CC'] =~ /gcc/
+if /gcc/.match?(CONFIG['CC'])
   $CFLAGS << ' -g -Wall'
   if $DEBUG && !$CFLAGS.gsub!(/ -O[\dsz]?/, ' -O0 -ggdb')
     $CFLAGS << ' -O0 -ggdb'

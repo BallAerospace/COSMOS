@@ -34,7 +34,7 @@ module Cosmos
       allow(@interface).to receive(:connected?) { true }
     end
 
-    saved_verbose = $VERBOSE; $VERBOSE = nil;
+    saved_verbose = $VERBOSE; $VERBOSE = nil
     class PreStream < Stream
       def connect; end
       def connected?; true; end
@@ -77,13 +77,13 @@ module Cosmos
         offset = 9
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'SYSTEM'
+        expect($buffer[offset...(offset + tgt_name_length)]).to eql 'SYSTEM'
         offset += tgt_name_length
         pkt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'META'
+        expect($buffer[offset...(offset + pkt_name_length)]).to eql 'META'
         offset += pkt_name_length
-        expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql pkt.buffer.length
+        expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql pkt.buffer.length
         offset += 4
         expect($buffer[offset..-1]).to eql pkt.buffer
       end
@@ -102,13 +102,13 @@ module Cosmos
         offset = 9
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'SYSTEM'
+        expect($buffer[offset...(offset + tgt_name_length)]).to eql 'SYSTEM'
         offset += tgt_name_length
         pkt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'META'
+        expect($buffer[offset...(offset + pkt_name_length)]).to eql 'META'
         offset += pkt_name_length
-        expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql pkt.buffer.length
+        expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql pkt.buffer.length
         offset += 4
         expect($buffer[offset..-1]).to eql pkt.buffer
       end
@@ -120,14 +120,14 @@ module Cosmos
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
         pkt.stored = false
-        extra_data = {"vcid" => 2}
+        extra_data = { "vcid" => 2 }
         pkt.extra = extra_data
         @interface.write(pkt)
         offset = 0
         expect($buffer[0..0].unpack('C')[0]).to eql 0x40
         json_extra = extra_data.to_json
         offset += 1
-        expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql json_extra.length
+        expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql json_extra.length
         offset += 4
         expect($buffer[offset..(offset + json_extra.length - 1)]).to eql json_extra
         offset += json_extra.length
@@ -136,13 +136,13 @@ module Cosmos
         offset = offset += 8 # time fields
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'SYSTEM'
+        expect($buffer[offset...(offset + tgt_name_length)]).to eql 'SYSTEM'
         offset += tgt_name_length
         pkt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'META'
+        expect($buffer[offset...(offset + pkt_name_length)]).to eql 'META'
         offset += pkt_name_length
-        expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql pkt.buffer.length
+        expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql pkt.buffer.length
         offset += 4
         expect($buffer[offset..-1]).to eql pkt.buffer
       end
@@ -154,14 +154,14 @@ module Cosmos
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
         pkt.stored = true
-        extra_data = {"vcid" => 2}
+        extra_data = { "vcid" => 2 }
         pkt.extra = extra_data
         @interface.write(pkt)
         offset = 0
         expect($buffer[0..0].unpack('C')[0]).to eql 0xC0
         json_extra = extra_data.to_json
         offset += 1
-        expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql json_extra.length
+        expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql json_extra.length
         offset += 4
         expect($buffer[offset..(offset + json_extra.length - 1)]).to eql json_extra
         offset += json_extra.length
@@ -170,13 +170,13 @@ module Cosmos
         offset = offset += 8 # time fields
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'SYSTEM'
+        expect($buffer[offset...(offset + tgt_name_length)]).to eql 'SYSTEM'
         offset += tgt_name_length
         pkt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'META'
+        expect($buffer[offset...(offset + pkt_name_length)]).to eql 'META'
         offset += pkt_name_length
-        expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql pkt.buffer.length
+        expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql pkt.buffer.length
         offset += 4
         expect($buffer[offset..-1]).to eql pkt.buffer
       end
@@ -195,13 +195,13 @@ module Cosmos
         offset = 11
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'SYSTEM'
+        expect($buffer[offset...(offset + tgt_name_length)]).to eql 'SYSTEM'
         offset += tgt_name_length
         pkt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'META'
+        expect($buffer[offset...(offset + pkt_name_length)]).to eql 'META'
         offset += pkt_name_length
-        expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql pkt.buffer.length
+        expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql pkt.buffer.length
         offset += 4
         expect($buffer[offset..-1]).to eql pkt.buffer
       end
@@ -213,7 +213,7 @@ module Cosmos
         time = Time.new(2020,1,31,12,15,30.5)
         pkt.received_time = time
         pkt.stored = true
-        extra_data = {"vcid" => 2}
+        extra_data = { "vcid" => 2 }
         pkt.extra = extra_data
         @interface.write(pkt)
         expect($buffer[0..1]).to eql("\xDE\xAD")
@@ -221,7 +221,7 @@ module Cosmos
         expect($buffer[2..2].unpack('C')[0]).to eql 0xC0
         json_extra = extra_data.to_json
         offset += 1
-        expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql json_extra.length
+        expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql json_extra.length
         offset += 4
         expect($buffer[offset..(offset + json_extra.length - 1)]).to eql json_extra
         offset += json_extra.length
@@ -230,13 +230,13 @@ module Cosmos
         offset = offset += 8 # time fields
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'SYSTEM'
+        expect($buffer[offset...(offset + tgt_name_length)]).to eql 'SYSTEM'
         offset += tgt_name_length
         pkt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'META'
+        expect($buffer[offset...(offset + pkt_name_length)]).to eql 'META'
         offset += pkt_name_length
-        expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql pkt.buffer.length
+        expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql pkt.buffer.length
         offset += 4
         expect($buffer[offset..-1]).to eql pkt.buffer
       end
@@ -299,13 +299,13 @@ module Cosmos
         offset = 8
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'SYSTEM'
+        expect($buffer[offset...(offset + tgt_name_length)]).to eql 'SYSTEM'
         offset += tgt_name_length
         pkt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'META'
+        expect($buffer[offset...(offset + pkt_name_length)]).to eql 'META'
         offset += pkt_name_length
-        expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql pkt.buffer.length
+        expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql pkt.buffer.length
         offset += 4
         expect($buffer[offset..-1]).to eql pkt.buffer
       end
@@ -323,13 +323,13 @@ module Cosmos
         offset = 10
         tgt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+tgt_name_length)]).to eql 'SYSTEM'
+        expect($buffer[offset...(offset + tgt_name_length)]).to eql 'SYSTEM'
         offset += tgt_name_length
         pkt_name_length = $buffer[offset].unpack('C')[0]
         offset += 1 # for the length field
-        expect($buffer[offset...(offset+pkt_name_length)]).to eql 'META'
+        expect($buffer[offset...(offset + pkt_name_length)]).to eql 'META'
         offset += pkt_name_length
-        expect($buffer[offset..(offset+3)].unpack('N')[0]).to eql pkt.buffer.length
+        expect($buffer[offset..(offset + 3)].unpack('N')[0]).to eql pkt.buffer.length
         offset += 4
         expect($buffer[offset..-1]).to eql pkt.buffer
       end
@@ -378,6 +378,5 @@ module Cosmos
         expect(pkt2.defined?).to be true
       end
     end
-
   end
 end

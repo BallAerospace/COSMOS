@@ -106,7 +106,7 @@ module Cosmos
     end
 
     def read_data(data)
-      return super(data) if (data.length <= 0)
+      return super(data) if data.length <= 0
 
       # Drop all data until the initial_read_delay is complete.
       # This gets rid of unused welcome messages,
@@ -158,12 +158,10 @@ module Cosmos
           handle_error("#{@interface ? @interface.name : ""}: Unexpected response: #{response_string}")
         else
           response_values.each_with_index do |value, i|
-            begin
-              result_packet.write(response_item_names[i], value)
-            rescue => error
-              handle_error("#{@interface ? @interface.name : ""}: Could not write value #{value} due to #{error.message}")
-              break
-            end
+            result_packet.write(response_item_names[i], value)
+          rescue => error
+            handle_error("#{@interface ? @interface.name : ""}: Could not write value #{value} due to #{error.message}")
+            break
           end
         end
 

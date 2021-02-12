@@ -114,7 +114,7 @@ module Cosmos
         items = @cmd.params("TGT1","PKT1")
         expect(items.length).to eql 9
         Packet::RESERVED_ITEM_NAMES.each do |reserved|
-          expect(items.map{|item| item.name }).to include(reserved)
+          expect(items.map {|item| item.name }).to include(reserved)
         end
         expect(items[5].name).to eql "ITEM1"
         expect(items[6].name).to eql "ITEM2"
@@ -254,7 +254,7 @@ module Cosmos
       end
 
       it "complains about non-existant items" do
-        expect { @cmd.build_cmd("tgt1","pkt1",{"itemX"=>1}) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
+        expect { @cmd.build_cmd("tgt1","pkt1",{ "itemX" => 1 }) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
       it "creates a populated command packet with default values" do
@@ -267,11 +267,11 @@ module Cosmos
       end
 
       it "complains about out of range item values" do
-        expect { @cmd.build_cmd("tgt1","pkt1",{"item2"=>1000}) }.to raise_error(RuntimeError, "Command parameter 'TGT1 PKT1 ITEM2' = 1000 not in valid range of 0 to 254")
+        expect { @cmd.build_cmd("tgt1","pkt1",{ "item2" => 1000 }) }.to raise_error(RuntimeError, "Command parameter 'TGT1 PKT1 ITEM2' = 1000 not in valid range of 0 to 254")
       end
 
       it "ignores out of range item values if requested" do
-        cmd = @cmd.build_cmd("tgt1","pkt1",{"item2"=>255}, false)
+        cmd = @cmd.build_cmd("tgt1","pkt1",{ "item2" => 255 }, false)
         cmd.enable_method_missing
         expect(cmd.item1).to eql 1
         expect(cmd.item2).to eql 255
@@ -280,7 +280,7 @@ module Cosmos
       end
 
       it "creates a command packet with override item values" do
-        items = {"ITEM2" => 10, "ITEM4" => 11}
+        items = { "ITEM2" => 10, "ITEM4" => 11 }
         cmd = @cmd.build_cmd("TGT1","PKT1",items)
         cmd.enable_method_missing
         expect(cmd.item1).to eql 1
@@ -290,7 +290,7 @@ module Cosmos
       end
 
       it "creates a command packet with override item value states" do
-        items = {"ITEM2" => "GOOD"}
+        items = { "ITEM2" => "GOOD" }
         cmd = @cmd.build_cmd("TGT1","PKT2",items)
         cmd.enable_method_missing
         expect(cmd.item1).to eql 2
@@ -303,11 +303,11 @@ module Cosmos
       end
 
       it "supports building raw commands" do
-        items = {"ITEM2" => 10}
+        items = { "ITEM2" => 10 }
         cmd = @cmd.build_cmd("TGT2","PKT5",items,false,false)
         expect(cmd.raw).to eql false
         expect(cmd.read("ITEM2")).to eql 20
-        items = {"ITEM2" => 10}
+        items = { "ITEM2" => 10 }
         cmd = @cmd.build_cmd("TGT1","PKT1",items,false,true)
         expect(cmd.raw).to eql true
         expect(cmd.read("ITEM2")).to eql 10
@@ -317,7 +317,7 @@ module Cosmos
         packet = @cmd.packet('TGT1', 'PKT1')
         packet.buffer = "\x00" * (packet.defined_length + 1)
         expect(packet.length).to eql 5
-        items = {"ITEM2" => 10}
+        items = { "ITEM2" => 10 }
         cmd = @cmd.build_cmd("TGT1","PKT1",items)
         expect(cmd.read("ITEM2")).to eql 10
         expect(cmd.length).to eql 4
@@ -345,7 +345,7 @@ module Cosmos
         pkt.write("ITEM2",string)
         pkt.raw = false
         result = @cmd.format(pkt)
-        expect(result).to match(/cmd\(\"TGT2 PKT4 with ITEM1 0, ITEM2 'AAAAAAAAAAA/)
+        expect(result).to match(/cmd\("TGT2 PKT4 with ITEM1 0, ITEM2 'AAAAAAAAAAA/)
         expect(result).to match(/AAAAAAAAAAA.../)
       end
 
@@ -365,7 +365,7 @@ module Cosmos
       end
 
       it "complains about non-existant items" do
-        expect { @cmd.cmd_hazardous?("tgt1","pkt1",{"itemX"=>1}) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
+        expect { @cmd.cmd_hazardous?("tgt1","pkt1",{ "itemX" => 1 }) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
       it "returns true if the command overall is hazardous" do
@@ -378,13 +378,13 @@ module Cosmos
       end
 
       it "returns true if a command parameter is hazardous" do
-        hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{"ITEM2"=>0})
+        hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{ "ITEM2" => 0 })
         expect(hazardous).to be true
         expect(description).to eql "Hazardous"
-        hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{"ITEM2"=>1})
+        hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{ "ITEM2" => 1 })
         expect(hazardous).to be true
         expect(description).to eql ""
-        hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{"ITEM2"=>2})
+        hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{ "ITEM2" => 2 })
         expect(hazardous).to be false
         expect(description).to be_nil
       end

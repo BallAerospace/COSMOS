@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/core_ext/string'
 
 describe String do
-
   describe "formatted" do
     before(:each) do
       @data = []

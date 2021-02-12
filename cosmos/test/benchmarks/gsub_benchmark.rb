@@ -46,7 +46,7 @@ AMP = '&amp;'.freeze
 BLANK = ''.freeze
 GT = '&gt;'.freeze
 LT = '&lt;'.freeze
-mapping = {'&'=>AMP,"\n"=>BLANK,'>'=>GT,'<'=>LT}
+mapping = { '&' => AMP,"\n" => BLANK,'>' => GT,'<' => LT }
 regex1 = Regexp.new('[&\n><]')
 regex2 = Regexp.union(mapping.keys)
 copy = data.dup

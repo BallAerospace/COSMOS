@@ -179,17 +179,16 @@ module Cosmos
     end
 
     protected
-
     # Compute a single entry in the crc lookup table
     def compute_table_entry(index, digits)
       # Start by shifting the index
       crc = index << (digits - 8)
 
       # The mask is 0x8000 for Crc16, 0x80000000 for Crc32, etc
-      mask = (1 << (digits-1))
+      mask = (1 << (digits - 1))
 
       8.times do
-        if ((crc & mask) != 0)
+        if (crc & mask) != 0
           crc = (crc << 1) ^ @poly
         else
           crc = crc << 1

@@ -48,23 +48,21 @@ class FileCacheFile
   end
 
   def retrieve
-    begin
-      rubys3_client = Aws::S3::Client.new
-      local_path = "#{FileCache.instance.cache_dir}/#{File.basename(@s3_path)}"
-      Cosmos::Logger.info("Retrieving #{@s3_path} from logs bucket")
-      #Cosmos::Logger.debug "Retrieving #{@s3_path} from logs bucket"
-      rubys3_client.get_object(bucket: "logs", key: @s3_path, response_target: local_path)
-      if File.exist?(local_path)
-        @size = File.size(local_path)
-        @local_path = local_path
-      end
-      Cosmos::Logger.info("Successfully retrieved #{@s3_path} from logs bucket")
-      #Cosmos::Logger.debug "Successfully retrieved #{@s3_path} from logs bucket"
-    rescue => err
-      @error = err
-      Cosmos::Logger.error("Failed to retreive #{@s3_path}\n#{err.formatted}")
-      #Cosmos::Logger.debug "Failed to retreive #{@s3_path}\n#{err.formatted}"
+    rubys3_client = Aws::S3::Client.new
+    local_path = "#{FileCache.instance.cache_dir}/#{File.basename(@s3_path)}"
+    Cosmos::Logger.info("Retrieving #{@s3_path} from logs bucket")
+    # Cosmos::Logger.debug "Retrieving #{@s3_path} from logs bucket"
+    rubys3_client.get_object(bucket: "logs", key: @s3_path, response_target: local_path)
+    if File.exist?(local_path)
+      @size = File.size(local_path)
+      @local_path = local_path
     end
+    Cosmos::Logger.info("Successfully retrieved #{@s3_path} from logs bucket")
+    # Cosmos::Logger.debug "Successfully retrieved #{@s3_path} from logs bucket"
+  rescue => err
+    @error = err
+    Cosmos::Logger.error("Failed to retreive #{@s3_path}\n#{err.formatted}")
+    # Cosmos::Logger.debug "Failed to retreive #{@s3_path}\n#{err.formatted}"
   end
 
   def reserve
@@ -175,19 +173,17 @@ class FileCache
     @cached_files = FileCacheFileCollection.new
 
     @thread = Thread.new do
-      begin
-        while true
-          file = @cached_files.get_next_to_retrieve
-          #Cosmos::Logger.debug "Next file: #{file}"
-          if file and (file.size + @cached_files.current_disk_usage()) <= @max_disk_usage
-            file.retrieve
-          else
-            sleep(1)
-          end
+      while true
+        file = @cached_files.get_next_to_retrieve
+        # Cosmos::Logger.debug "Next file: #{file}"
+        if file and (file.size + @cached_files.current_disk_usage()) <= @max_disk_usage
+          file.retrieve
+        else
+          sleep(1)
         end
-      rescue => err
-        Cosmos::Logger.error "FileCache thread unexpectedly died\n#{err.formatted}"
       end
+    rescue => err
+      Cosmos::Logger.error "FileCache thread unexpectedly died\n#{err.formatted}"
     end
   end
 
@@ -225,7 +221,7 @@ class FileCache
       s3_path = item.key
       if file_in_time_range(s3_path, start_time_nsec, end_time_nsec)
         file = @cached_files.add(s3_path, item.size, index)
-        #Cosmos::Logger.debug file.inspect
+        # Cosmos::Logger.debug file.inspect
         files << file
       end
     end
@@ -285,15 +281,13 @@ class StreamingThread
 
   def start
     @thread = Thread.new do
-      begin
-        while true
-          break if @cancel_thread
-          thread_body()
-          break if @cancel_thread
-        end
-      rescue => err
-        Cosmos::Logger.error "#{self.class.name} unexpectedly died\n#{err.formatted}"
+      while true
+        break if @cancel_thread
+        thread_body()
+        break if @cancel_thread
       end
+    rescue => err
+      Cosmos::Logger.error "#{self.class.name} unexpectedly died\n#{err.formatted}"
     end
   end
 
@@ -473,7 +467,7 @@ class LoggedStreamingThread < StreamingThread
         transmit_results([], force: true)
       end
     elsif @thread_mode == :STREAM
-      objects_by_topic = {objects[0].topic => objects}
+      objects_by_topic = { objects[0].topic => objects }
       redis_thread_body([first_object.topic], [first_object.offset], objects_by_topic)
     else # @thread_mode == :FILE
       # Get next file from file cache
@@ -741,7 +735,7 @@ class StreamingApi
     # Allow the threads a chance to stop (1.1s each)
     threads.each do |thread|
       i = 0
-      while (thread.alive? or i < 110) do
+      while thread.alive? or i < 110 do
         sleep 0.01
         i += 1
       end

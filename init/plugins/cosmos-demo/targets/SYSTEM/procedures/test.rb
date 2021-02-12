@@ -42,7 +42,7 @@ puts "brown cow"
 yep
 puts "howdy"
 
-if (yep)
+if yep
   puts "uh oh"
 end
 

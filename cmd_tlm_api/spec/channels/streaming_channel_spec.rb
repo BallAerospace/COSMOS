@@ -44,32 +44,32 @@ RSpec.describe StreamingChannel, :type => :channel do
   context "adds" do
     it "rejects without scope" do
       subscribe(scope: :DEFAULT)
-      subscription.add({items: ['TLM__TGT__PKT__ITEM__CONVERTED']})
+      subscription.add({ items: ['TLM__TGT__PKT__ITEM__CONVERTED'] })
       expect(subscription).to be_rejected
     end
 
     it "rejects without items" do
       subscribe(scope: :DEFAULT)
-      subscription.add({scope: 'DEFAULT'})
+      subscription.add({ scope: 'DEFAULT' })
       expect(subscription).to be_rejected
     end
 
     it "rejects with empty items" do
       subscribe(scope: :DEFAULT)
-      subscription.add({scope: 'DEFAULT', items: []})
+      subscription.add({ scope: 'DEFAULT', items: [] })
       expect(subscription).to be_rejected
     end
 
     it "rejects with start_time greater than now" do
       time = Time.now.to_nsec_from_epoch + 1_000_000_000
       subscribe(scope: :DEFAULT)
-      subscription.add({scope: 'DEFAULT', items: ['TLM__TGT__PKT__ITEM__CONVERTED'], start_time: time})
+      subscription.add({ scope: 'DEFAULT', items: ['TLM__TGT__PKT__ITEM__CONVERTED'], start_time: time })
       expect(subscription).to be_rejected
     end
 
     it "adds specified items" do
       subscribe(scope: :DEFAULT)
-      subscription.add({scope: 'DEFAULT', items: ['TLM__TGT__PKT__ITEM__CONVERTED']})
+      subscription.add({ scope: 'DEFAULT', items: ['TLM__TGT__PKT__ITEM__CONVERTED'] })
       expect(subscription).to be_confirmed
     end
   end

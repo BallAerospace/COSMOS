@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/core_ext/array'
 
 describe Array do
-
   describe "inspect" do
     it "limits the number of items to 10" do
       expect(Array.new([1,2,3,4,5,6,7,8,9,10]).inspect).to eql "[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
@@ -46,9 +45,9 @@ describe Array do
         expect(array.nearest_index(val,sorted)).to eql val
         # Ensure we always round up
         if val < 10
-          expect(array.nearest_index(val+0.1,sorted)).to eql val
-          expect(array.nearest_index(val+0.5,sorted)).to eql val + 1
-          expect(array.nearest_index(val+0.9,sorted)).to eql val + 1
+          expect(array.nearest_index(val + 0.1,sorted)).to eql val
+          expect(array.nearest_index(val + 0.5,sorted)).to eql val + 1
+          expect(array.nearest_index(val + 0.9,sorted)).to eql val + 1
         end
       end
       expect(array.nearest_index(5.5,sorted)).to eql 6

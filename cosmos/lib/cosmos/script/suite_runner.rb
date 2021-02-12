@@ -48,11 +48,11 @@ module Cosmos
         if suite.class == suite_class
           # @@started_success = @@suite_results.collect_metadata(@@instance)
           # if @@started_success
-            @@suite_results.start(result_string, suite_class, group_class, script, @@settings)
-            loop do
-              yield(suite)
-              break if not @@settings['Loop'] or (ScriptStatus.instance.fail_count > 0 and @@settings['Break Loop On Error'])
-            end
+          @@suite_results.start(result_string, suite_class, group_class, script, @@settings)
+          loop do
+            yield(suite)
+            break if not @@settings['Loop'] or (ScriptStatus.instance.fail_count > 0 and @@settings['Break Loop On Error'])
+          end
           # end
           break
         end
@@ -164,7 +164,7 @@ module Cosmos
       end
 
       @@suites.each do |suite|
-        cur_suite = OpenStruct.new(:setup=>false, :teardown=>false, :groups=>{})
+        cur_suite = OpenStruct.new(:setup => false, :teardown => false, :groups => {})
         cur_suite.setup = true if suite.class.method_defined?(:setup)
         cur_suite.teardown = true if suite.class.method_defined?(:teardown)
 
@@ -172,14 +172,14 @@ module Cosmos
           case type
           when :GROUP
             cur_suite.groups[group_class.name] ||=
-              OpenStruct.new(:setup=>false, :teardown=>false, :scripts=>[])
+              OpenStruct.new(:setup => false, :teardown => false, :scripts => [])
             cur_suite.groups[group_class.name].scripts.concat(group_class.scripts)
             cur_suite.groups[group_class.name].scripts.uniq!
             cur_suite.groups[group_class.name].setup = true if group_class.method_defined?(:setup)
             cur_suite.groups[group_class.name].teardown = true if group_class.method_defined?(:teardown)
           when :SCRIPT
             cur_suite.groups[group_class.name] ||=
-              OpenStruct.new(:setup=>false, :teardown=>false, :scripts=>[])
+              OpenStruct.new(:setup => false, :teardown => false, :scripts => [])
             # Explicitly check for this method and raise an error if it does not exist
             if group_class.method_defined?(script.intern)
               cur_suite.groups[group_class.name].scripts << script
@@ -191,7 +191,7 @@ module Cosmos
             cur_suite.groups[group_class.name].teardown = true if group_class.method_defined?(:teardown)
           when :GROUP_SETUP
             cur_suite.groups[group_class.name] ||=
-              OpenStruct.new(:setup=>false, :teardown=>false, :scripts=>[])
+              OpenStruct.new(:setup => false, :teardown => false, :scripts => [])
             # Explicitly check for the setup method and raise an error if it does not exist
             if group_class.method_defined?(:setup)
               cur_suite.groups[group_class.name].setup = true
@@ -200,7 +200,7 @@ module Cosmos
             end
           when :GROUP_TEARDOWN
             cur_suite.groups[group_class.name] ||=
-              OpenStruct.new(:setup=>false, :teardown=>false, :scripts=>[])
+              OpenStruct.new(:setup => false, :teardown => false, :scripts => [])
             # Explicitly check for the teardown method and raise an error if it does not exist
             if group_class.method_defined?(:teardown)
               cur_suite.groups[group_class.name].teardown = true

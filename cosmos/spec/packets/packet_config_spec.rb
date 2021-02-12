@@ -243,20 +243,20 @@ module Cosmos
             tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
             tf.close
             @pc.process_file(tf.path, "TGT1")
-            pkt = @pc.commands["TGT1"]["PKT1"] if keyword =~ /COMMAND/
-            pkt = @pc.telemetry["TGT1"]["PKT1"] if keyword =~ /TELEMETRY/
+            pkt = @pc.commands["TGT1"]["PKT1"] if /COMMAND/.match?(keyword)
+            pkt = @pc.telemetry["TGT1"]["PKT1"] if /TELEMETRY/.match?(keyword)
             expect(pkt.get_item("ITEM1").description).to eql "Item"
             tf.unlink
 
             tf = Tempfile.new('unittest')
             tf.puts keyword + ' tgt1 pkt1'
-            tf.puts 'SELECT_PARAMETER ITEM1' if keyword =~ /COMMAND/
-            tf.puts 'SELECT_ITEM ITEM1' if keyword =~ /TELEMETRY/
+            tf.puts 'SELECT_PARAMETER ITEM1' if /COMMAND/.match?(keyword)
+            tf.puts 'SELECT_ITEM ITEM1' if /TELEMETRY/.match?(keyword)
             tf.puts '  DESCRIPTION "New description"'
             tf.close
             @pc.process_file(tf.path, "TGT1")
-            pkt = @pc.commands["TGT1"]["PKT1"] if keyword =~ /COMMAND/
-            pkt = @pc.telemetry["TGT1"]["PKT1"] if keyword =~ /TELEMETRY/
+            pkt = @pc.commands["TGT1"]["PKT1"] if /COMMAND/.match?(keyword)
+            pkt = @pc.telemetry["TGT1"]["PKT1"] if /TELEMETRY/.match?(keyword)
             expect(pkt.get_item("ITEM1").description).to eql "New description"
             tf.unlink
           end
@@ -271,20 +271,20 @@ module Cosmos
             tf.puts '  APPEND_ITEM item1 16 UINT "Item"'
             tf.close
             @pc.process_file(tf.path, "NEW")
-            pkt = @pc.commands["NEW"]["PKT1"] if keyword =~ /COMMAND/
-            pkt = @pc.telemetry["NEW"]["PKT1"] if keyword =~ /TELEMETRY/
+            pkt = @pc.commands["NEW"]["PKT1"] if /COMMAND/.match?(keyword)
+            pkt = @pc.telemetry["NEW"]["PKT1"] if /TELEMETRY/.match?(keyword)
             expect(pkt.get_item("ITEM1").description).to eql "Item"
             tf.unlink
 
             tf = Tempfile.new('unittest')
             tf.puts keyword + ' tgt1 pkt1'
-            tf.puts 'SELECT_PARAMETER ITEM1' if keyword =~ /COMMAND/
-            tf.puts 'SELECT_ITEM ITEM1' if keyword =~ /TELEMETRY/
+            tf.puts 'SELECT_PARAMETER ITEM1' if /COMMAND/.match?(keyword)
+            tf.puts 'SELECT_ITEM ITEM1' if /TELEMETRY/.match?(keyword)
             tf.puts '  DESCRIPTION "New description"'
             tf.close
             @pc.process_file(tf.path, "NEW")
-            pkt = @pc.commands["NEW"]["PKT1"] if keyword =~ /COMMAND/
-            pkt = @pc.telemetry["NEW"]["PKT1"] if keyword =~ /TELEMETRY/
+            pkt = @pc.commands["NEW"]["PKT1"] if /COMMAND/.match?(keyword)
+            pkt = @pc.telemetry["NEW"]["PKT1"] if /TELEMETRY/.match?(keyword)
             expect(pkt.get_item("ITEM1").description).to eql "New description"
             tf.unlink
           end

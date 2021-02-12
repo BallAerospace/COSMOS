@@ -77,12 +77,12 @@ module Cosmos
             true,
             false) do |keyword, params|
             case keyword
-              when 'VARIABLE'
-                usage = "#{keyword} <Variable Name> <Default Value>"
-                parser.verify_num_parameters(2, nil, usage)
-                variable_name = params[0]
-                value = params[1..-1].join(" ")
-                variables[variable_name] = value
+            when 'VARIABLE'
+              usage = "#{keyword} <Variable Name> <Default Value>"
+              parser.verify_num_parameters(2, nil, usage)
+              variable_name = params[0]
+              value = params[1..-1].join(" ")
+              variables[variable_name] = value
               # Ignore everything else during phase 1
             end
           end

@@ -199,7 +199,7 @@ module Cosmos
         allow(Aws::S3::Client).to receive(:new).and_return(s3)
         options = OpenStruct.new
         options.key = "blah"
-        objs = double("Object", :contents => [options] )
+        objs = double("Object", :contents => [options])
 
         scope = "DEFAULT"
         folder = "DEMO"

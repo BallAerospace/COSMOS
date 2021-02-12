@@ -23,7 +23,6 @@ require 'cosmos/ccsds/ccsds_packet'
 module Cosmos
 
   describe CcsdsPacket do
-
     describe "constants" do
       it "defines COMMAND and TELEMETRY" do
         expect(CcsdsPacket::TELEMETRY).to eql 0

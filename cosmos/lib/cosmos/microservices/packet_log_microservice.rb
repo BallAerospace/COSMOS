@@ -37,7 +37,7 @@ module Cosmos
       end
     end
 
-    def setup_plws()
+    def setup_plws
       plws = {}
       @topics.each do |topic|
         topic_split = topic.split("__")
@@ -51,20 +51,18 @@ module Cosmos
     end
 
     def packet_log_data(plws, topic, msg_id, msg_hash, redis)
-      begin
-        start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-        topic_split = topic.split("__")
-        target_name = topic_split[2]
-        packet_name = topic_split[3]
-        plws[topic].write(:RAW_PACKET, :TLM, target_name, packet_name, msg_hash["time"].to_i, ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["buffer"], nil)
-        @count += 1
-        diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
-        metric_labels = {"packet" => packet_name, "target" => target_name}
-        @metric.add_sample(name: METRIC_NAME, value: diff, labels: metric_labels)
-      rescue => err
-        @error = err
-        Logger.error("PacketLog error: #{err.formatted}")
-      end
+      start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      topic_split = topic.split("__")
+      target_name = topic_split[2]
+      packet_name = topic_split[3]
+      plws[topic].write(:RAW_PACKET, :TLM, target_name, packet_name, msg_hash["time"].to_i, ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["buffer"], nil)
+      @count += 1
+      diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
+      metric_labels = { "packet" => packet_name, "target" => target_name }
+      @metric.add_sample(name: METRIC_NAME, value: diff, labels: metric_labels)
+    rescue => err
+      @error = err
+      Logger.error("PacketLog error: #{err.formatted}")
     end
 
   end

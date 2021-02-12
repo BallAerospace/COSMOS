@@ -402,6 +402,5 @@ module Cosmos
         expect(ConfigParser.handle_defined_constants(0.0)).to eql 0.0
       end
     end
-
   end
 end

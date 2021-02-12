@@ -36,7 +36,7 @@ module Cosmos
                    data_bits = 8)
 
       # Verify Parameters
-      port_name = '\\\\.\\' + port_name if port_name =~ /^COM[0-9]{2,3}$/
+      port_name = '\\\\.\\' + port_name if /^COM[0-9]{2,3}$/.match?(port_name)
 
       raise(ArgumentError, "Invalid baud rate: #{baud_rate}") unless baud_rate.between?(Win32::BAUD_RATES[0], Win32::BAUD_RATES[-1])
       raise(ArgumentError, "Invalid data bits: #{data_bits}") unless [5,6,7,8].include?(data_bits)
@@ -139,7 +139,7 @@ module Cosmos
       # Write the data
       time = Time.now.sys
       bytes_to_write = data.length
-      while (bytes_to_write > 0)
+      while bytes_to_write > 0
         bytes_written = Win32.write_file(@handle, data, data.length)
         raise "Error writing to comm port" if bytes_written <= 0
         bytes_to_write -= bytes_written

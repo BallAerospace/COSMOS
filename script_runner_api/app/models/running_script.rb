@@ -32,7 +32,6 @@ RAILS_ROOT = File.expand_path(File.join(__dir__, '..', '..'))
 module Cosmos
   module Script
     private
-
     # Define all the user input methods used in scripting which we need to broadcast to the frontend
     SCRIPT_METHODS = %i[ask_string prompt_dialog_box prompt_for_hazardous prompt_to_continue prompt_combo_box prompt_message_box prompt_vertical_message_box]
     SCRIPT_METHODS.each do |method|
@@ -65,12 +64,12 @@ module Cosmos
           # Use cached instrumentation
           instrumented_script = instrumented_cache
           cached = true
-          #ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
+          # ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
           Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text }))
         else
           # Retrieve file
           text = ::Script.body(RunningScript.instance.scope, procedure_name)
-          #ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
+          # ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :file, filename: procedure_name, text: text })
           Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text }))
 
           # Cache instrumentation into RAM
@@ -107,14 +106,14 @@ module Cosmos
 
       # sleep in a script - returns true if canceled mid sleep
       def cosmos_script_sleep(sleep_time = nil)
-        #ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}",
+        # ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}",
         #  { type: :line, filename: RunningScript.instance.current_filename, line_no: RunningScript.instance.current_line_number, state: :waiting })
         Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :line, filename: RunningScript.instance.current_filename, line_no: RunningScript.instance.current_line_number, state: :waiting }))
 
         sleep_time = 30000000 unless sleep_time # Handle infinite wait
         if sleep_time > 0.0
           end_time = Time.now.sys + sleep_time
-          until (Time.now.sys >= end_time)
+          until Time.now.sys >= end_time
             sleep(0.01)
             if RunningScript.instance.pause?
               RunningScript.instance.perform_pause
@@ -251,15 +250,15 @@ class RunningScript
     disconnect_script() if disconnect == 'true'
 
     # Get details from redis
-    begin
-      details = Cosmos::Store.get("running-script:#{id}")
-      if details
-        @details = JSON.parse(details)
-      else
-        # Create as much details as we know
-        @details = { id: @id, name: @filename, scope: @scope }
-      end
+
+    details = Cosmos::Store.get("running-script:#{id}")
+    if details
+      @details = JSON.parse(details)
+    else
+      # Create as much details as we know
+      @details = { id: @id, name: @filename, scope: @scope }
     end
+
 
     # Update details in redis
     @details[:hostname] = Socket.gethostname
@@ -338,7 +337,7 @@ class RunningScript
 
   # Clears step mode and lets the script continue
   def go
-    @step  = false
+    @step = false
     @go = true
     @pause = false
   end
@@ -426,9 +425,7 @@ class RunningScript
     mark_breakpoints(@filename)
   end
 
-  def allow_start=(value)
-    @allow_start = value
-  end
+  attr_writer :allow_start
 
   def self.instance
     @@instance
@@ -493,7 +490,7 @@ class RunningScript
   def self.show_backtrace=(value)
     @@show_backtrace = value
     if @@show_backtrace and @@error
-      puts Time.now.sys.formatted + " (SCRIPTRUNNER): "  + "Most recent exception:\n" + @@error.formatted
+      puts Time.now.sys.formatted + " (SCRIPTRUNNER): " + "Most recent exception:\n" + @@error.formatted
     end
   end
 
@@ -503,10 +500,10 @@ class RunningScript
 
   def set_text(text, filename = '')
     unless running?()
-      #@script.setPlainText(text)
-      #@script.stop_highlight
+      # @script.setPlainText(text)
+      # @script.stop_highlight
       @filename = filename
-      #@script.filename = unique_filename()
+      # @script.filename = unique_filename()
       mark_breakpoints(@filename)
       @body = text
     end
@@ -525,13 +522,13 @@ class RunningScript
   end
 
   def disable_retry
-    #@realtime_button_bar.start_button.setText('Skip')
-    #@realtime_button_bar.pause_button.setDisabled(true)
+    # @realtime_button_bar.start_button.setText('Skip')
+    # @realtime_button_bar.pause_button.setDisabled(true)
   end
 
   def enable_retry
-    #@realtime_button_bar.start_button.setText('Go')
-    #@realtime_button_bar.pause_button.setDisabled(false)
+    # @realtime_button_bar.start_button.setText('Go')
+    # @realtime_button_bar.pause_button.setDisabled(false)
   end
 
   def run
@@ -638,7 +635,7 @@ class RunningScript
 
       instrumented_text << instrumented_line
 
-      #progress_dialog.set_overall_progress(line_no / num_lines) if progress_dialog and line_no
+      # progress_dialog.set_overall_progress(line_no / num_lines) if progress_dialog and line_no
     end
     instrumented_text
   end
@@ -664,7 +661,7 @@ class RunningScript
       end
       Cosmos::Logger.detail_string = detail_string
 
-      #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :running })
+      # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :running })
       Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :running }))
 
       # Handle pausing the script
@@ -677,7 +674,7 @@ class RunningScript
 
   def post_line_instrumentation(filename, line_number)
     if @use_instrumentation
-      line_number = line_number + @line_offset #if @active_script.object_id == @script.object_id
+      line_number = line_number + @line_offset # if @active_script.object_id == @script.object_id
       handle_output_io(filename, line_number)
     end
   end
@@ -686,7 +683,7 @@ class RunningScript
     if error.class <= Cosmos::StopScript || error.class <= Cosmos::SkipScript || !@use_instrumentation
       raise error
     elsif !error.eql?(@@error)
-      line_number = line_number + @line_offset #if @active_script.object_id == @script.object_id
+      line_number = line_number + @line_offset # if @active_script.object_id == @script.object_id
       handle_exception(error, false, filename, line_number)
     end
   end
@@ -956,8 +953,8 @@ class RunningScript
   end
 
   def scriptrunner_puts(string, color = 'BLACK')
-    line_to_write = Time.now.sys.formatted + " (SCRIPTRUNNER): "  + string
-    #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :output, line: line_to_write, color: color })
+    line_to_write = Time.now.sys.formatted + " (SCRIPTRUNNER): " + string
+    # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :output, line: line_to_write, color: color })
     Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: color }))
   end
 
@@ -979,9 +976,9 @@ class RunningScript
           line_to_write = out_line
         else
           if filename
-            line_to_write = time_formatted + " (#{out_filename}:#{out_line_number}): "  + out_line
+            line_to_write = time_formatted + " (#{out_filename}:#{out_line_number}): " + out_line
           else
-            line_to_write = time_formatted + " (SCRIPTRUNNER): "  + out_line
+            line_to_write = time_formatted + " (SCRIPTRUNNER): " + out_line
             color = 'BLUE'
           end
         end
@@ -994,12 +991,12 @@ class RunningScript
         if line_count > @stdout_max_lines
           out_line = "ERROR: Too much written to stdout.  Truncating output to #{@stdout_max_lines} lines.\n"
           if filename
-            line_to_write = time_formatted + " (#{out_filename}:#{out_line_number}): "  + out_line
+            line_to_write = time_formatted + " (#{out_filename}:#{out_line_number}): " + out_line
           else
-            line_to_write = time_formatted + " (SCRIPTRUNNER): "  + out_line
+            line_to_write = time_formatted + " (SCRIPTRUNNER): " + out_line
           end
 
-          #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :output, line: line_to_write, color: 'RED' })
+          # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :output, line: line_to_write, color: 'RED' })
           Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: 'RED' }))
           lines_to_write << line_to_write
           break
@@ -1035,12 +1032,12 @@ class RunningScript
 
   def mark_running
     @state = :running
-    #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :running })
+    # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :running })
     Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :running }))
   end
 
   def mark_paused
-    #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :paused })
+    # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :paused })
     Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :paused }))
   end
 
@@ -1062,7 +1059,7 @@ class RunningScript
   end
 
   def mark_breakpoint
-    #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :breakpoint })
+    # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :breakpoint })
     Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :breakpoint }))
   end
 
@@ -1137,7 +1134,7 @@ class RunningScript
           handle_exception(error, true, filename, line_number)
           scriptrunner_puts "Exception in Control Statement - Script stopped: #{File.basename(@filename)}"
           handle_output_io()
-          #ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :fatal })
+          # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :line, filename: @current_filename, line_no: @current_line_number, state: :fatal })
           Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :fatal }))
         end
       ensure
@@ -1176,37 +1173,37 @@ class RunningScript
   def handle_potential_tab_change(filename)
     # Make sure the correct file is shown in script runner
     if @current_file != filename
-      #Qt.execute_in_main_thread(true) do
-        if @call_stack.include?(filename)
-          index = @call_stack.index(filename)
-          #select_tab_and_destroy_tabs_after_index(index)
-        else # new file
-          # Create new tab
-          #new_script = create_ruby_editor()
-          #new_script.filename = filename
-          #@tab_book.addTab(new_script, '  ' + File.basename(filename) + '  ')
+      # Qt.execute_in_main_thread(true) do
+      if @call_stack.include?(filename)
+        index = @call_stack.index(filename)
+        # select_tab_and_destroy_tabs_after_index(index)
+      else # new file
+        # Create new tab
+        # new_script = create_ruby_editor()
+        # new_script.filename = filename
+        # @tab_book.addTab(new_script, '  ' + File.basename(filename) + '  ')
 
-          @call_stack.push(filename.dup)
+        @call_stack.push(filename.dup)
 
-          # Switch to new tab
-          #@tab_book.setCurrentIndex(@tab_book.count - 1)
-          #@active_script = new_script
-          load_file_into_script(filename)
-          #new_script.setReadOnly(true)
-        end
+        # Switch to new tab
+        # @tab_book.setCurrentIndex(@tab_book.count - 1)
+        # @active_script = new_script
+        load_file_into_script(filename)
+        # new_script.setReadOnly(true)
+      end
 
-        @current_file = filename
-      #end
+      @current_file = filename
+      # end
     end
   end
 
   def show_active_tab
-    #@tab_book.setCurrentIndex(@call_stack.length - 1) if @tab_book_shown
+    # @tab_book.setCurrentIndex(@call_stack.length - 1) if @tab_book_shown
   end
 
   def handle_pause(filename, line_number)
     bkpt_filename = ''
-    #Qt.execute_in_main_thread(true) {bkpt_filename = @active_script.filename}
+    # Qt.execute_in_main_thread(true) {bkpt_filename = @active_script.filename}
     breakpoint = false
     breakpoint = true if @@breakpoints[bkpt_filename] and @@breakpoints[bkpt_filename][line_number]
 
@@ -1233,9 +1230,9 @@ class RunningScript
 
   def continue_without_pausing_on_errors?
     if !@@pause_on_error
-      #if Qt::MessageBox.warning(self, "Warning", "If an error occurs, the script will not pause and will run to completion. Continue?", Qt::MessageBox::Yes | Qt::MessageBox::No, Qt::MessageBox::Yes) == Qt::MessageBox::No
+      # if Qt::MessageBox.warning(self, "Warning", "If an error occurs, the script will not pause and will run to completion. Continue?", Qt::MessageBox::Yes | Qt::MessageBox::No, Qt::MessageBox::Yes) == Qt::MessageBox::No
       #  return false
-      #end
+      # end
     end
     true
   end
@@ -1322,7 +1319,7 @@ class RunningScript
   def load_file_into_script(filename)
     cached = @@file_cache[filename]
     if cached
-      #@active_script.setPlainText(cached.gsub("\r", ''))
+      # @active_script.setPlainText(cached.gsub("\r", ''))
       @body = cached
       # ActionCable.server.broadcast("running-script-channel:#{@id}", { type: :file, filename: filename, text: @body })
       Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: filename, text: @body }))
@@ -1335,14 +1332,14 @@ class RunningScript
     end
     mark_breakpoints(filename)
 
-    #@active_script.stop_highlight
+    # @active_script.stop_highlight
   end
 
   def mark_breakpoints(filename)
     breakpoints = @@breakpoints[filename]
     if breakpoints
       breakpoints.each do |line_number, present|
-        #@active_script.add_breakpoint(line_number) if present
+        # @active_script.add_breakpoint(line_number) if present
       end
     end
   end
@@ -1353,8 +1350,8 @@ class RunningScript
     $stderr = Cosmos::Stderr.instance
 
     # Disable outputting to default io file descriptors
-    #$stdout.remove_default_io
-    #$stderr.remove_default_io
+    # $stdout.remove_default_io
+    # $stderr.remove_default_io
 
     Cosmos::Logger.level = Cosmos::Logger::INFO
     Cosmos::Logger::INFO_SEVERITY_STRING.replace('')
@@ -1475,9 +1472,9 @@ class RunningScript
         break if @@output_sleeper.sleep(1.0)
       end # loop
     rescue => error
-      #Qt.execute_in_main_thread(true) do
+      # Qt.execute_in_main_thread(true) do
       #  ExceptionDialog.new(self, error, "Output Thread")
-      #end
+      # end
     end
   end
 
@@ -1517,7 +1514,7 @@ class RunningScript
                 (new_limits_state != :GREEN_LOW) &&
                 (new_limits_state != :GREEN_HIGH) &&
                 (new_limits_state != :BLUE)
-                msg = "#{target_name} #{packet_name} #{item_name} is #{new_limits_state.to_s}"
+                msg = "#{target_name} #{packet_name} #{item_name} is #{new_limits_state}"
                 case new_limits_state
                 when :YELLOW, :YELLOW_LOW, :YELLOW_HIGH
                   scriptrunner_puts(msg, 'YELLOW')
@@ -1529,7 +1526,7 @@ class RunningScript
                 handle_output_io()
               end
             else # changing from a color
-              msg = "#{target_name} #{packet_name} #{item_name} is #{new_limits_state.to_s}"
+              msg = "#{target_name} #{packet_name} #{item_name} is #{new_limits_state}"
               case new_limits_state
               when :BLUE
                 scriptrunner_puts(msg)
@@ -1561,12 +1558,11 @@ class RunningScript
           break if @@cancel_limits
           break if @@limits_sleeper.sleep(1)
         end
-
       end # loop
     rescue => error
-      #Qt.execute_in_main_thread(true) do
+      # Qt.execute_in_main_thread(true) do
       #  ExceptionDialog.new(self, error, "Limits Monitor Thread")
-      #end
+      # end
     end
   ensure
     begin
