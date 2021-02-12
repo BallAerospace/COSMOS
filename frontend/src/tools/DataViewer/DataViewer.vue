@@ -188,26 +188,7 @@ export default {
       errorText: '',
       connectionFailure: false,
       config: {
-        tabs: [
-          {
-            name: 'Health Status',
-            packets: [
-              {
-                target: 'INST',
-                packet: 'HEALTH_STATUS',
-                component: 'DumpComponent',
-                config: {
-                  format: 'hex',
-                  showLineAddress: false,
-                  showTimestamp: false,
-                  bytesPerLine: 17,
-                  packetsToShow: 2,
-                  newestAtTop: true,
-                },
-              },
-            ],
-          },
-        ],
+        tabs: [],
       },
       addTabDialog: false,
       newTabName: '',
@@ -234,6 +215,12 @@ export default {
     setTimeout(() => {
       this.connectionFailure = this.cable.connection.disconnected
     }, 1000)
+  },
+  mounted: function () {
+    const previousConfig = localStorage.lastDataViewerConfig // TODO: Do we want to use localStorage for this?
+    if (previousConfig) {
+      this.openConfiguration(previousConfig)
+    }
   },
   destroyed: function () {
     if (this.subscription) {
@@ -302,6 +289,7 @@ export default {
       return `TLM__${packet.target}__${packet.packet}`
     },
     openConfiguration: async function (name) {
+      localStorage.lastDataViewerConfig = name
       this.removePacketsFromSubscription()
       this.receivedPackets = {}
       let response = await this.api.load_config(this.toolName, name)
@@ -309,6 +297,7 @@ export default {
       this.addPacketsToSubscription()
     },
     saveConfiguration: function (name) {
+      localStorage.lastDataViewerConfig = name
       this.api.save_config(this.toolName, name, JSON.stringify(this.config))
     },
     openTabDialog: function () {
