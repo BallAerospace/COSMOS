@@ -22,7 +22,7 @@
     <v-row no-gutters>
       <v-col>
         <v-expansion-panels>
-          <!-- TODO: is this even useful? -->
+          <!-- Is this even useful? -->
           <!-- <v-expansion-panel>
             <v-expansion-panel-header>
               Latest packet summary
@@ -247,7 +247,7 @@ export default {
         const decoded = {
           buffer: atob(packet.buffer),
           time: packet.time,
-          receivedCount: ++this.receivedCount, // TODO: is this the right value for received count? Is it supposed to come from the API?
+          receivedCount: ++this.receivedCount,
         }
         this.historyPointer = ++this.historyPointer % this.history.length
         this.history[this.historyPointer] = decoded
@@ -349,11 +349,11 @@ export default {
         const milliseconds = packet.time / 1000000
         const receivedSeconds = (milliseconds / 1000).toFixed(7)
         const receivedDate = new Date(milliseconds).toISOString()
-        const receivedCt = packet.receivedCount.toString().padEnd(20, ' ') // Padding fixes issue where opening asterisks would get deleted by trimDisplayText
+        // const receivedCt = packet.receivedCount.toString().padEnd(20, ' ') // Padding fixes issue where opening asterisks would get deleted by trimDisplayText
         let timestamp = '********************************************\n'
         timestamp += `* Received seconds: ${receivedSeconds}\n`
         timestamp += `* Received time: ${receivedDate}\n`
-        timestamp += `* Received count: ${receivedCt}\n`
+        // timestamp += `* Received count: ${receivedCt}\n`
         timestamp += '********************************************\n'
         text = `${timestamp}${text}`
       }
