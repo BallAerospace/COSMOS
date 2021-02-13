@@ -491,13 +491,12 @@ export default {
         return groups
       }, {})
       Object.keys(groupedPackets).forEach((packetName) => {
-        console.log('received', packetName)
         this.$refs[`${packetName}-display`].forEach((component) => {
           component.receive(groupedPackets[packetName])
         })
         this.receivedPackets[packetName] = true
       })
-      this.receivedPackets = { ...this.receivedPackets } // TODO: why is reactivity broken?
+      this.receivedPackets = { ...this.receivedPackets }
     },
     topicKey: function (packet) {
       let key = 'DEFAULT__'

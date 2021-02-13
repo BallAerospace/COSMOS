@@ -151,7 +151,7 @@
 import _ from 'lodash'
 import { format } from 'date-fns'
 
-const HISTORY_MAX_SIZE = 100 // TODO: put in config
+const HISTORY_MAX_SIZE = 100 // TODO: put in config, or make the component learn it based on packet size, or something?
 
 // NOTE FOR MAKING ANOTHER DATA VIEWER COMPONENT:
 // Things that must be here for DataViewer.vue to work properly:
@@ -310,7 +310,6 @@ export default {
       return text.toLowerCase().includes(this.filterText.toLowerCase())
     },
     calculatePacketText: function (packet) {
-      if (!('time' in packet)) console.log('ERRRRRROROROROROROOORRRR', packet)
       let text = ''
       if (this.currentConfig.showTimestamp) {
         const milliseconds = packet.time / 1000000
