@@ -323,9 +323,13 @@ class StreamingThread
         objects.each do |object|
           object.offset = msg_id
         end
-        result = handle_message(topic, msg_id, msg_hash, redis, objects)
-        if result
-          results << result
+        results_by_value_type = []
+        value_types = objects.group_by { |object| object.value_type }
+        value_types.each_value do |value|
+          results_by_value_type << handle_message(topic, msg_id, msg_hash, redis, value)
+        end
+        if results_by_value_type
+          results.concat(results_by_value_type)
         else
           break results
         end

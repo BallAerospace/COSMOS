@@ -224,15 +224,15 @@
         <v-card-text>
           <v-row>
             <v-col>
-          <TargetPacketItemChooser @on-set="packetSelected($event)" />
+              <TargetPacketItemChooser @on-set="packetSelected($event)" />
             </v-col>
             <v-col>
               <v-row>
                 <v-col>
-          <v-radio-group v-model="newPacketMode" row>
-            <v-radio label="Raw" value="RAW" />
-            <v-radio label="Decom" value="DECOM" />
-          </v-radio-group>
+                  <v-radio-group v-model="newPacketMode" row>
+                    <v-radio label="Raw" value="RAW" />
+                    <v-radio label="Decom" value="DECOM" />
+                  </v-radio-group>
                 </v-col>
                 <v-col>
                   <v-select
@@ -482,11 +482,21 @@ export default {
         this.stop()
         return
       }
-      const packetName = parsed[0].packet // everything in this message will be for the same packet
-      this.$refs[`${packetName}-display`].forEach((component) => {
-        component.receive(parsed)
+      const groupedPackets = parsed.reduce((groups, packet) => {
+        if (groups[packet.packet]) {
+          groups[packet.packet].push(packet)
+        } else {
+          groups[packet.packet] = [packet]
+        }
+        return groups
+      }, {})
+      Object.keys(groupedPackets).forEach((packetName) => {
+        console.log('received', packetName)
+        this.$refs[`${packetName}-display`].forEach((component) => {
+          component.receive(groupedPackets[packetName])
+        })
+        this.receivedPackets[packetName] = true
       })
-      this.receivedPackets[packetName] = true
       this.receivedPackets = { ...this.receivedPackets } // TODO: why is reactivity broken?
     },
     topicKey: function (packet) {
