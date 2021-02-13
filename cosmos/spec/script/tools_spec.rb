@@ -31,14 +31,14 @@ module Cosmos
       allow_any_instance_of(Interface).to receive(:read)
 
       @server = CmdTlmServer.new
-      shutdown_cmd_tlm()
-      initialize_script_module()
+      shutdown_script()
+      initialize_script()
       sleep 0.1
     end
 
     after(:each) do
       @server.stop
-      shutdown_cmd_tlm()
+      shutdown_script()
       sleep(0.1)
     end
 

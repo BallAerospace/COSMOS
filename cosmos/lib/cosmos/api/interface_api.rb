@@ -19,7 +19,7 @@
 
 require 'cosmos/models/interface_model'
 require 'cosmos/models/interface_status_model'
-require 'cosmos/topics/interface_topics'
+require 'cosmos/topics/interface_topic'
 
 module Cosmos
   module Api
@@ -36,6 +36,7 @@ module Cosmos
 
     # Get information about an interface
     #
+    # @since 5.0.0
     # @param interface_name [String] Interface name
     # @return [Hash] Hash of all the interface information
     def get_interface(interface_name, scope: $cosmos_scope, token: $cosmos_token)
@@ -56,7 +57,7 @@ module Cosmos
     # @param interface_name [String] The name of the interface
     def connect_interface(interface_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
-      InterfaceTopics.connect_interface(interface_name, scope: scope)
+      InterfaceTopic.connect_interface(interface_name, scope: scope)
     end
 
     # Disconnects from an interface and kills its telemetry gathering thread
@@ -64,7 +65,7 @@ module Cosmos
     # @param interface_name [String] The name of the interface
     def disconnect_interface(interface_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
-      InterfaceTopics.disconnect_interface(interface_name, scope: scope)
+      InterfaceTopic.disconnect_interface(interface_name, scope: scope)
     end
 
     # Starts raw logging for an interface
@@ -74,10 +75,10 @@ module Cosmos
       authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
       if interface_name == 'ALL'
         get_interface_names().each do |interface_name|
-          InterfaceTopics.start_raw_logging(interface_name, scope: scope)
+          InterfaceTopic.start_raw_logging(interface_name, scope: scope)
         end
       else
-        InterfaceTopics.start_raw_logging(interface_name, scope: scope)
+        InterfaceTopic.start_raw_logging(interface_name, scope: scope)
       end
     end
 
@@ -88,10 +89,10 @@ module Cosmos
       authorize(permission: 'system_set', interface_name: interface_name, scope: scope, token: token)
       if interface_name == 'ALL'
         get_interface_names().each do |interface_name|
-          InterfaceTopics.stop_raw_logging(interface_name, scope: scope)
+          InterfaceTopic.stop_raw_logging(interface_name, scope: scope)
         end
       else
-        InterfaceTopics.stop_raw_logging(interface_name, scope: scope)
+        InterfaceTopic.stop_raw_logging(interface_name, scope: scope)
       end
     end
 

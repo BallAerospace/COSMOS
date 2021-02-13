@@ -32,7 +32,7 @@ module Cosmos
       end
 
       begin
-        RouterTopics.route_command(packet, @target_names, scope: @scope)
+        RouterTopic.route_command(packet, @target_names, scope: @scope)
         @count += 1
       rescue Exception => err
         @error = err

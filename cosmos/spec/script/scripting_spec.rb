@@ -23,7 +23,7 @@ require 'cosmos/script'
 require 'tempfile'
 
 module Cosmos
-  xdescribe Script do
+  describe Script do
     before(:each) do
       allow_any_instance_of(Interface).to receive(:connected?).and_return(true)
       allow_any_instance_of(Interface).to receive(:disconnect)
@@ -31,26 +31,15 @@ module Cosmos
       allow_any_instance_of(Interface).to receive(:read)
 
       @server = CmdTlmServer.new
-      shutdown_cmd_tlm()
-      initialize_script_module()
+      shutdown_script()
+      initialize_script()
       sleep 0.1
     end
 
     after(:each) do
       @server.stop
-      shutdown_cmd_tlm()
+      shutdown_script()
       sleep(0.1)
-    end
-
-    if RUBY_ENGINE == 'ruby'
-      describe "status_bar" do
-        it "sets the ScriptRunner status bar" do
-          class ScriptRunner; end
-          sc = ScriptRunner.new
-          expect(sc).to receive(:script_set_status).with("HI")
-          status_bar("HI")
-        end
-      end
     end
 
     describe "save_file_dialog, open_file_dialog, open_files_dialog, open_directory_dialog" do

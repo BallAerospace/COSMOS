@@ -20,7 +20,7 @@
 require 'cosmos/topics/topic'
 
 module Cosmos
-  class InterfaceTopics < Topic
+  class InterfaceTopic < Topic
     def self.receive_commands(interface, scope:)
       topics = []
       topics << "#{scope}__CMDINTERFACE__#{interface.name}"

@@ -172,6 +172,5 @@ module Cosmos
         expect(extract_fields_from_check_text("TARGET   PACKET  ITEM   ==    'This is  a test   '")).to eql(['TARGET', 'PACKET', 'ITEM', "  ==    'This is  a test   '"])
       end
     end
-
   end
 end
