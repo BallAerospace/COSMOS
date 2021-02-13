@@ -328,7 +328,8 @@ class StreamingThread
         value_types.each_value do |value|
           results_by_value_type << handle_message(topic, msg_id, msg_hash, redis, value)
         end
-        if results_by_value_type
+        results_by_value_type.compact!
+        if results_by_value_type.length > 0
           results.concat(results_by_value_type)
         else
           break results
