@@ -218,15 +218,34 @@
       </v-list>
     </v-menu>
     <!-- Dialog for adding a new component to a tab -->
-    <v-dialog v-model="addComponentDialog">
+    <v-dialog v-model="addComponentDialog" width="900">
       <v-card>
         <v-card-title> Add a packet </v-card-title>
         <v-card-text>
+          <v-row>
+            <v-col>
           <TargetPacketItemChooser @on-set="packetSelected($event)" />
+            </v-col>
+            <v-col>
+              <v-row>
+                <v-col>
           <v-radio-group v-model="newPacketMode" row>
             <v-radio label="Raw" value="RAW" />
             <v-radio label="Decom" value="DECOM" />
           </v-radio-group>
+                </v-col>
+                <v-col>
+                  <v-select
+                    v-if="newPacketMode === 'DECOM'"
+                    hide-details
+                    :items="valueTypes"
+                    label="Value Type"
+                    v-model="newPacketValueType"
+                  ></v-select>
+                </v-col>
+              </v-row>
+            </v-col>
+          </v-row>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
@@ -335,6 +354,8 @@ export default {
       addComponentDialog: false,
       newPacket: null,
       newPacketMode: 'RAW',
+      valueTypes: ['CONVERTED', 'RAW', 'FORMATTED', 'WITH_UNITS'],
+      newPacketValueType: 'WITH_UNITS',
     }
   },
   watch: {
@@ -469,12 +490,15 @@ export default {
       this.receivedPackets = { ...this.receivedPackets } // TODO: why is reactivity broken?
     },
     topicKey: function (packet) {
-      const secondKey = packet.mode === 'DECOM' ? 'DECOM' : 'TELEMETRY'
-      return `DEFAULT__${secondKey}__${packet.target}__${packet.packet}`
+      let key = 'DEFAULT__'
+      key += packet.mode === 'DECOM' ? 'DECOM' : 'TELEMETRY'
+      key += `__${packet.target}__${packet.packet}`
+      if (packet.mode === 'DECOM') key += `__${packet.valueType}`
+      return key
     },
     subscriptionKey: function (packet) {
       let key = `TLM__${packet.target}__${packet.packet}`
-      if (packet.mode === 'DECOM') key += '__WITH_UNITS'
+      if (packet.mode === 'DECOM') key += `__${packet.valueType}`
       return key
     },
     openConfiguration: async function (name) {
@@ -529,11 +553,14 @@ export default {
       }
     },
     addComponent: function () {
-      const packet = {
+      let packet = {
         ...this.newPacket,
         mode: this.newPacketMode,
         component: 'DumpComponent',
         config: {},
+      }
+      if (this.newPacketMode !== 'RAW') {
+        packet.valueType = this.newPacketValueType
       }
       this.config.tabs[this.activeTab].packets.push(packet)
       if (this.running) {
@@ -543,7 +570,6 @@ export default {
     },
     cancelAddComponent: function () {
       this.addComponentDialog = false
-      this.newPacket = null
     },
     deleteComponent: function (tabIndex, packetIndex) {
       const packet = this.config.tabs[tabIndex].packets[packetIndex]
