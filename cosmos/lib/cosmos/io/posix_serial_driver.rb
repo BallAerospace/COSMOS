@@ -59,7 +59,7 @@ module Cosmos
       @handle.extend Termios
 
       # Configure the serial Port
-      tio = Termios::new_termios()
+      tio = Termios.new_termios()
       iflags = 0
       iflags |= Termios::IGNPAR unless parity
       cflags = 0

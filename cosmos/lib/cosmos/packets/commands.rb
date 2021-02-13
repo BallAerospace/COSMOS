@@ -321,7 +321,6 @@ module Cosmos
     end
 
     protected
-
     def set_parameters(command, params, range_checking)
       given_item_names = []
       params.each do |item_name, value|

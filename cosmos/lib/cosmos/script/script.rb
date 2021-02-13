@@ -39,7 +39,6 @@ module Cosmos
     # they would be included on the $api_server global and would be
     # called directly instead of being forwarded over the JsonDrb connection to
     # the real server.
-    private
 
     # For each of the Api methods determine if they haven't previously been defined by
     # one of the script files. If not define them and proxy to the $api_server.

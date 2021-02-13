@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/core_ext/range'
 
 describe Range do
-
   describe "to_a_to_f" do
     it "converts a Range to an array of floats" do
       expect((1..5).to_a_to_f).to eql [1.0,2.0,3.0,4.0,5.0]

@@ -280,7 +280,7 @@ module Cosmos
         target_packets = nil
         begin
           target_packets = packets(target_name)
-          #puts target_packets.length
+          # puts target_packets.length
         rescue RuntimeError
           # No telemetry for this target
           next
@@ -394,11 +394,11 @@ module Cosmos
       end
       stale = []
       @config.telemetry.each do |target_name, target_packets|
-        next if (target && target != target_name)
+        next if target && target != target_name
         next if target_name == 'UNKNOWN'
         target_packets.each do |packet_name, packet|
           if packet.stale
-            next if (with_limits_only && packet.limits_items.empty?)
+            next if with_limits_only && packet.limits_items.empty?
             stale << packet
           end
         end

@@ -76,7 +76,7 @@ module Cosmos
         plw = PacketLogWriter.new(@log_path, 'spec')
         time = Time.now.to_nsec_from_epoch
         @times = [time, time + 1, time + 2]
-        if (cmd_or_tlm == :CMD)
+        if cmd_or_tlm == :CMD
           @pkt = System.commands.packet("INST", "COLLECT")
           @pkt.write("DURATION", 10.0)
         else

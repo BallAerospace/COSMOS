@@ -42,14 +42,14 @@ module Cosmos
 
     # This spec fails when run after all the rest. Is someone opening something
     # that we're connecting to? When run stand alone it works.
-    #describe "connect" do
+    # describe "connect" do
     #  it "raises a timeout when unable to connect" do
     #    i = TcpipClientInterface.new('localhost','8888','8889','5','5','burst')
     #    expect(i.connected?).to be false
     #    i.connect
     #    expect { i.connect }.to raise_error(/Connect timeout/)
     #  end
-    #end
+    # end
 
     describe "connected?" do
       it "initially returns false" do

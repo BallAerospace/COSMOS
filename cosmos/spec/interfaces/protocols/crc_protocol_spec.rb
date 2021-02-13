@@ -75,7 +75,7 @@ module Cosmos
             'ERROR', # bad strategy
             128, # bit offset
             bit_size], # bit size
-            :READ_WRITE) }.to raise_error( /Invalid bit size/)
+            :READ_WRITE) }.to raise_error(/Invalid bit size/)
         end
       end
 

@@ -66,7 +66,7 @@ module Cosmos
       def calculate(value)
         converted = 0.0
         @coeffs.length.times do |index|
-          converted += @coeffs[index].to_f * (value ** index)
+          converted += @coeffs[index].to_f * (value**index)
         end
         return converted
       end

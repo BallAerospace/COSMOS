@@ -40,7 +40,7 @@ module Cosmos
       loop do
         # Start up with at least 3 collects
         count = tlm('INST', 'HEALTH_STATUS', 'COLLECTS')
-        if (count < (initial_count + 3))
+        if count < (initial_count + 3)
           begin
             cmd('INST', 'COLLECT', 'TYPE' => 'NORMAL', 'DURATION' => 1)
             sent_count += 1

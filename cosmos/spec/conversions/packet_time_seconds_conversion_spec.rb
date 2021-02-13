@@ -24,7 +24,6 @@ require 'cosmos/packets/packet'
 module Cosmos
 
   describe PacketTimeSecondsConversion do
-
     describe "initialize" do
       it "initializes converted_type and converted_bit_size" do
         gc = PacketTimeSecondsConversion.new()

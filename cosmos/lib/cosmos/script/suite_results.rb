@@ -68,7 +68,7 @@ module Cosmos
         self.puts("#{result.group}:#{result.script}:#{result.result}")
         if result.message
           result.message.each_line do |line|
-            if line =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
+            if /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/.match?(line)
               line.chomp!
               line = line.inspect.remove_quotes
             end
@@ -79,10 +79,10 @@ module Cosmos
           @report << "  Exceptions:"
           result.exceptions.each_with_index do |error, index|
             error.formatted().each_line do |line|
-              next if line =~ /in run_text/
-              next if line =~ /running_script.rb/
-              next if line =~ cosmos_lib
-              if line =~ /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/
+              next if /in run_text/.match?(line)
+              next if /running_script.rb/.match?(line)
+              next if line&.match?(cosmos_lib)
+              if /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/.match?(line)
                 line.chomp!
                 line = line.inspect.remove_quotes
               end
@@ -154,7 +154,7 @@ module Cosmos
         end
       end
       run_time = Time.format_seconds(@stop_time - @start_time)
-      run_time << " (#{@stop_time - @start_time} seconds)" if @stop_time-@start_time > 60
+      run_time << " (#{@stop_time - @start_time} seconds)" if @stop_time - @start_time > 60
       @report << "Run Time : #{run_time}"
       @report << "Total Tests : #{@results.length}"
       @report << "Pass : #{pass_count}"

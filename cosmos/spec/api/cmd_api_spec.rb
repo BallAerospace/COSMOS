@@ -72,7 +72,7 @@ module Cosmos
     after(:each) do
       @int_thread.kill
       count = 0
-      while (@int_thread.alive? or count < 100) do
+      while @int_thread.alive? or count < 100 do
         sleep 0.01
         count += 1
       end
@@ -82,8 +82,8 @@ module Cosmos
       expect { @api.send(method, "BLAH COLLECT with TYPE NORMAL") }.to raise_error(/does not exist/)
       expect { @api.send(method, "INST UNKNOWN with TYPE NORMAL") }.to raise_error(/does not exist/)
       # expect { @api.send(method, "INST COLLECT with BLAH NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method, "BLAH", "COLLECT", "TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method, "INST", "UNKNOWN", "TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.send(method, "BLAH", "COLLECT", "TYPE" => "NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.send(method, "INST", "UNKNOWN", "TYPE" => "NORMAL") }.to raise_error(/does not exist/)
       # expect { @api.send(method, "INST", "COLLECT", "BLAH"=>"NORMAL") }.to raise_error(/does not exist/)
     end
 
@@ -96,7 +96,7 @@ module Cosmos
         target_name, cmd_name, params = @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 5")
         expect(target_name).to eql 'INST'
         expect(cmd_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(params).to include('TYPE' => 'NORMAL', 'DURATION' => 5)
       end
 
       it "complains if parameters are not separated by commas" do
@@ -108,10 +108,10 @@ module Cosmos
       end
 
       it "processes parameters" do
-        target_name, cmd_name, params = @api.cmd("INST","COLLECT","TYPE"=>"NORMAL","DURATION"=>5)
+        target_name, cmd_name, params = @api.cmd("INST","COLLECT","TYPE" => "NORMAL","DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(params).to include('TYPE' => 'NORMAL', 'DURATION' => 5)
       end
 
       it "processes commands without parameters" do
@@ -156,14 +156,14 @@ module Cosmos
         target_name, cmd_no_range_check_name, params = @api.cmd_no_range_check("INST COLLECT with TYPE NORMAL, DURATION 5")
         expect(target_name).to eql 'INST'
         expect(cmd_no_range_check_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(params).to include('TYPE' => 'NORMAL', 'DURATION' => 5)
       end
 
       it "processes parameters" do
-        target_name, cmd_no_range_check_name, params = @api.cmd_no_range_check("INST","COLLECT","TYPE"=>"NORMAL","DURATION"=>5)
+        target_name, cmd_no_range_check_name, params = @api.cmd_no_range_check("INST","COLLECT","TYPE" => "NORMAL","DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_no_range_check_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(params).to include('TYPE' => 'NORMAL', 'DURATION' => 5)
       end
 
       it "warns about required parameters" do
@@ -192,21 +192,21 @@ module Cosmos
         target_name, cmd_no_hazardous_check_name, params = @api.cmd_no_hazardous_check("INST COLLECT with TYPE NORMAL, DURATION 5")
         expect(target_name).to eql 'INST'
         expect(cmd_no_hazardous_check_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(params).to include('TYPE' => 'NORMAL', 'DURATION' => 5)
       end
 
       it "processes parameters" do
-        target_name, cmd_no_hazardous_check_name, params = @api.cmd_no_hazardous_check("INST","COLLECT","TYPE"=>"NORMAL","DURATION"=>5)
+        target_name, cmd_no_hazardous_check_name, params = @api.cmd_no_hazardous_check("INST","COLLECT","TYPE" => "NORMAL","DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_no_hazardous_check_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(params).to include('TYPE' => 'NORMAL', 'DURATION' => 5)
       end
 
       it "processes parameters that are strings" do
         target_name, cmd_name, params = @api.cmd_no_hazardous_check("INST ASCIICMD with STRING 'ARM LASER'")
         expect(target_name).to eql 'INST'
         expect(cmd_name).to eql 'ASCIICMD'
-        expect(params).to include('STRING'=>'ARM LASER')
+        expect(params).to include('STRING' => 'ARM LASER')
       end
 
       it "warns about required parameters" do
@@ -235,14 +235,14 @@ module Cosmos
         target_name, cmd_no_checks_name, params = @api.cmd_no_checks("INST COLLECT with TYPE NORMAL, DURATION 5")
         expect(target_name).to eql 'INST'
         expect(cmd_no_checks_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(params).to include('TYPE' => 'NORMAL', 'DURATION' => 5)
       end
 
       it "processes parameters" do
-        target_name, cmd_no_checks_name, params = @api.cmd_no_checks("INST","COLLECT","TYPE"=>"NORMAL","DURATION"=>5)
+        target_name, cmd_no_checks_name, params = @api.cmd_no_checks("INST","COLLECT","TYPE" => "NORMAL","DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_no_checks_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>'NORMAL', 'DURATION'=>5)
+        expect(params).to include('TYPE' => 'NORMAL', 'DURATION' => 5)
       end
 
       it "warns about required parameters" do
@@ -271,7 +271,7 @@ module Cosmos
         target_name, cmd_name, params = @api.cmd_raw("INST COLLECT with TYPE 0, DURATION 5")
         expect(target_name).to eql 'INST'
         expect(cmd_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
+        expect(params).to include('TYPE' => 0, 'DURATION' => 5)
       end
 
       it "complains if parameters are not separated by commas" do
@@ -283,10 +283,10 @@ module Cosmos
       end
 
       it "processes parameters" do
-        target_name, cmd_name, params = @api.cmd_raw("INST","COLLECT","TYPE"=>0,"DURATION"=>5)
+        target_name, cmd_name, params = @api.cmd_raw("INST","COLLECT","TYPE" => 0,"DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
+        expect(params).to include('TYPE' => 0, 'DURATION' => 5)
       end
 
       it "processes commands without parameters" do
@@ -326,14 +326,14 @@ module Cosmos
         target_name, cmd_no_range_check_name, params = @api.cmd_raw_no_range_check("INST COLLECT with TYPE 0, DURATION 5")
         expect(target_name).to eql 'INST'
         expect(cmd_no_range_check_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
+        expect(params).to include('TYPE' => 0, 'DURATION' => 5)
       end
 
       it "processes parameters" do
-        target_name, cmd_no_range_check_name, params = @api.cmd_raw_no_range_check("INST","COLLECT","TYPE"=>0,"DURATION"=>5)
+        target_name, cmd_no_range_check_name, params = @api.cmd_raw_no_range_check("INST","COLLECT","TYPE" => 0,"DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_no_range_check_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
+        expect(params).to include('TYPE' => 0, 'DURATION' => 5)
       end
 
       it "warns about required parameters" do
@@ -362,21 +362,21 @@ module Cosmos
         target_name, cmd_no_hazardous_check_name, params = @api.cmd_raw_no_hazardous_check("INST COLLECT with TYPE 0, DURATION 5")
         expect(target_name).to eql 'INST'
         expect(cmd_no_hazardous_check_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
+        expect(params).to include('TYPE' => 0, 'DURATION' => 5)
       end
 
       it "processes parameters" do
-        target_name, cmd_no_hazardous_check_name, params = @api.cmd_raw_no_hazardous_check("INST","COLLECT","TYPE"=>0,"DURATION"=>5)
+        target_name, cmd_no_hazardous_check_name, params = @api.cmd_raw_no_hazardous_check("INST","COLLECT","TYPE" => 0,"DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_no_hazardous_check_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
+        expect(params).to include('TYPE' => 0, 'DURATION' => 5)
       end
 
       it "processes parameters that are strings" do
         target_name, cmd_name, params = @api.cmd_raw_no_hazardous_check("INST ASCIICMD with STRING 'ARM LASER'")
         expect(target_name).to eql 'INST'
         expect(cmd_name).to eql 'ASCIICMD'
-        expect(params).to include('STRING'=>'ARM LASER')
+        expect(params).to include('STRING' => 'ARM LASER')
       end
 
       it "warns about required parameters" do
@@ -405,14 +405,14 @@ module Cosmos
         target_name, cmd_no_checks_name, params = @api.cmd_raw_no_checks("INST COLLECT with TYPE 0, DURATION 5")
         expect(target_name).to eql 'INST'
         expect(cmd_no_checks_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
+        expect(params).to include('TYPE' => 0, 'DURATION' => 5)
       end
 
       it "processes parameters" do
-        target_name, cmd_no_checks_name, params = @api.cmd_raw_no_checks("INST","COLLECT","TYPE"=>0,"DURATION"=>5)
+        target_name, cmd_no_checks_name, params = @api.cmd_raw_no_checks("INST","COLLECT","TYPE" => 0,"DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_no_checks_name).to eql 'COLLECT'
-        expect(params).to include('TYPE'=>0, 'DURATION'=>5)
+        expect(params).to include('TYPE' => 0, 'DURATION' => 5)
       end
 
       it "warns about required parameters" do
@@ -537,10 +537,10 @@ module Cosmos
         expect(@api.get_cmd_hazardous("INST COLLECT with TYPE NORMAL")).to be false
         expect(@api.get_cmd_hazardous("INST COLLECT with TYPE SPECIAL")).to be true
 
-        expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"NORMAL"})).to be false
-        expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>"SPECIAL"})).to be true
-        expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>0})).to be false
-        expect(@api.get_cmd_hazardous("INST","COLLECT",{"TYPE"=>1})).to be true
+        expect(@api.get_cmd_hazardous("INST","COLLECT",{ "TYPE" => "NORMAL" })).to be false
+        expect(@api.get_cmd_hazardous("INST","COLLECT",{ "TYPE" => "SPECIAL" })).to be true
+        expect(@api.get_cmd_hazardous("INST","COLLECT",{ "TYPE" => 0 })).to be false
+        expect(@api.get_cmd_hazardous("INST","COLLECT",{ "TYPE" => 1 })).to be true
       end
 
       it "returns whether the command is hazardous" do

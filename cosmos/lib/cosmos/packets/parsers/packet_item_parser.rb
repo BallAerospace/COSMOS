@@ -54,7 +54,7 @@ module Cosmos
       # count the number of open brackets to determine the number of options
       max_options = @usage.count("<")
       # The last two options (description and endianness) are optional
-      @parser.verify_num_parameters(max_options-2, max_options, @usage)
+      @parser.verify_num_parameters(max_options - 2, max_options, @usage)
     end
 
     def create_packet_item(packet, cmd_or_tlm)
@@ -88,7 +88,6 @@ module Cosmos
     end
 
     private
-
     def append?
       @parser.keyword.include?("APPEND")
     end
@@ -113,7 +112,7 @@ module Cosmos
     end
 
     def get_array_size
-      return nil unless (@parser.keyword.include?('ARRAY'))
+      return nil unless @parser.keyword.include?('ARRAY')
       index = append? ? 3 : 4
       array_bit_size = Integer(@parser.parameters[index])
       items = array_bit_size / get_bit_size()
@@ -133,8 +132,8 @@ module Cosmos
     def get_endianness(packet)
       params = @parser.parameters
       max_options = @usage.count("<")
-      if params[max_options-1]
-        endianness = params[max_options-1].to_s.upcase.intern
+      if params[max_options - 1]
+        endianness = params[max_options - 1].to_s.upcase.intern
         if endianness != :BIG_ENDIAN and endianness != :LITTLE_ENDIAN
           raise @parser.error("Invalid endianness #{endianness}. Must be BIG_ENDIAN or LITTLE_ENDIAN.", @usage)
         end
@@ -153,7 +152,7 @@ module Cosmos
       min = ConfigParser.handle_defined_constants(
         @parser.parameters[index].convert_to_value, get_data_type(), get_bit_size())
       max = ConfigParser.handle_defined_constants(
-        @parser.parameters[index+1].convert_to_value, get_data_type(), get_bit_size())
+        @parser.parameters[index + 1].convert_to_value, get_data_type(), get_bit_size())
       min..max
     end
 
@@ -165,16 +164,16 @@ module Cosmos
       if data_type == :STRING or data_type == :BLOCK
         # If the default value is 0x<data> (no quotes), it is treated as
         # binary data.  Otherwise, the default value is considered to be a string.
-        if (@parser.parameters[index].upcase.start_with?("0X")         and
+        if @parser.parameters[index].upcase.start_with?("0X") and
             !@parser.line.include?("\"#{@parser.parameters[index]}\"") and
-            !@parser.line.include?("\'#{@parser.parameters[index]}\'"))
+            !@parser.line.include?("\'#{@parser.parameters[index]}\'")
           return @parser.parameters[index].hex_to_byte_string
         else
           return @parser.parameters[index]
         end
       else
         return ConfigParser.handle_defined_constants(
-          @parser.parameters[index+2].convert_to_value, get_data_type(), get_bit_size())
+          @parser.parameters[index + 2].convert_to_value, get_data_type(), get_bit_size())
       end
     end
 
@@ -196,7 +195,7 @@ module Cosmos
 
     def get_description
       max_options = @usage.count("<")
-      @parser.parameters[max_options-2] if @parser.parameters[max_options-2]
+      @parser.parameters[max_options - 2] if @parser.parameters[max_options - 2]
     end
 
     # There are many different usages of the ITEM and PARAMETER keywords so

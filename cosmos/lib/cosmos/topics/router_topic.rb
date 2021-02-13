@@ -32,7 +32,7 @@ module Cosmos
       while true
         Store.read_topics(topics) do |topic, msg_id, msg_hash, redis|
           result = yield topic, msg_hash
-          if topic =~ /CMDROUTER/
+          if /CMDROUTER/.match?(topic)
             ack_topic = topic.split("__")
             ack_topic[1] = 'ACK' + ack_topic[1]
             ack_topic = ack_topic.join("__")
@@ -55,19 +55,19 @@ module Cosmos
     end
 
     def self.connect_router(router_name, scope:)
-      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", {'connect' => 'true'})
+      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", { 'connect' => true })
     end
 
     def self.disconnect_router(router_name, scope:)
-      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", {'disconnect' => 'true'})
+      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", { 'disconnect' => true })
     end
 
     def self.start_raw_logging(router_name, scope:)
-      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", {'log_raw' => 'true'})
+      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", { 'log_raw' => 'true' })
     end
 
     def self.stop_raw_logging(router_name, scope:)
-      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", {'log_raw' => 'false'})
+      Store.write_topic("#{scope}__CMDROUTER__#{router_name}", { 'log_raw' => 'false' })
     end
   end
 end

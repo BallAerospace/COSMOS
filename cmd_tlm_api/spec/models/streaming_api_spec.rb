@@ -140,9 +140,9 @@ RSpec.describe StreamingApi, type: :model do
         let(:data) { mode['data'].dup.merge(base_data) }
 
         it 'has no data in time range' do
-          msg1 = {'time' => ((@start_time.to_i - 10) * 1_000_000_000) - LoggedStreamingThread::ALLOWABLE_START_TIME_OFFSET_NSEC } # newest is 10s before the allowable offset
+          msg1 = { 'time' => ((@start_time.to_i - 10) * 1_000_000_000) - LoggedStreamingThread::ALLOWABLE_START_TIME_OFFSET_NSEC } # newest is 10s before the allowable offset
           allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
-          msg2 = {'time' => ((@start_time.to_i - 100) * 1_000_000_000) - LoggedStreamingThread::ALLOWABLE_START_TIME_OFFSET_NSEC } # oldest is 100s before the allowable offset
+          msg2 = { 'time' => ((@start_time.to_i - 100) * 1_000_000_000) - LoggedStreamingThread::ALLOWABLE_START_TIME_OFFSET_NSEC } # oldest is 100s before the allowable offset
           allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
 
           @time = Time.at(@start_time.to_i - 5.5)
@@ -199,9 +199,9 @@ RSpec.describe StreamingApi, type: :model do
 
         context 'logging plus realtime' do
           it 'has past start time and no end time' do
-            msg1 = {'time' => @start_time.to_i * 1_000_000_000 } # newest is now
+            msg1 = { 'time' => @start_time.to_i * 1_000_000_000 } # newest is now
             allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
-            msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+            msg2 = { 'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
             allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
 
             @time = Time.at(@start_time.to_i - 1.5)
@@ -216,9 +216,9 @@ RSpec.describe StreamingApi, type: :model do
           end
 
           it 'has past start time and future end time' do
-            msg1 = {'time' => @start_time.to_i * 1_000_000_000 } # newest is now
+            msg1 = { 'time' => @start_time.to_i * 1_000_000_000 } # newest is now
             allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
-            msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+            msg2 = { 'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
             allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
 
             @time = Time.at(@start_time.to_i - 1.5)
@@ -237,9 +237,9 @@ RSpec.describe StreamingApi, type: :model do
 
         context 'logging only' do
           it 'has past start time and past end time' do
-            msg1 = {'time' => @start_time.to_i * 1_000_000_000 } # newest is now
+            msg1 = { 'time' => @start_time.to_i * 1_000_000_000 } # newest is now
             allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
-            msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+            msg2 = { 'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
             allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
 
             @time = Time.at(@start_time.to_i - 2.5)
@@ -256,9 +256,9 @@ RSpec.describe StreamingApi, type: :model do
           end
 
           it 'has past start time and past end time with limit' do
-            msg1 = {'time' => @start_time.to_i * 1_000_000_000 } # newest is now
+            msg1 = { 'time' => @start_time.to_i * 1_000_000_000 } # newest is now
             allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
-            msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+            msg2 = { 'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
             # Construct a valid redis message ID which is used to calculate the offset
             allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
 
@@ -282,9 +282,9 @@ RSpec.describe StreamingApi, type: :model do
 
         context 'from files' do
           it 'has start time and end time within the file\'s time range' do
-            msg1 = {'time' => @start_time.to_i * 1_000_000_000 } # newest is now
+            msg1 = { 'time' => @start_time.to_i * 1_000_000_000 } # newest is now
             allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
-            msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+            msg2 = { 'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
             allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
 
             @time = Time.at(@start_time.to_i - 1.5)
@@ -298,9 +298,9 @@ RSpec.describe StreamingApi, type: :model do
           end
 
           it 'has start time within the file\'s time range and end time after the file' do
-            msg1 = {'time' => @start_time.to_i * 1_000_000_000 } # newest is now
+            msg1 = { 'time' => @start_time.to_i * 1_000_000_000 } # newest is now
             allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
-            msg2 = {'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
+            msg2 = { 'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
             allow(Cosmos::Store.instance).to receive(:get_oldest_message).and_return(["#{@start_time.to_i - 100}000-0", msg2])
 
             @time = Time.at(@start_time.to_i - 1.5)

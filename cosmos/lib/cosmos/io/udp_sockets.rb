@@ -51,10 +51,10 @@ module Cosmos
       @socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, 1)
 
       # Bind to local address and port - This sets recv port, write_src port, recv_address, and write_src_address
-      @socket.bind(bind_address, bind_port) if (bind_address and bind_port)
+      @socket.bind(bind_address, bind_port) if bind_address and bind_port
 
       # Default send to the specified address and port
-      @socket.connect(external_address, external_port) if (external_address and external_port)
+      @socket.connect(external_address, external_port) if external_address and external_port
 
       # Handle multicast
       if UdpReadWriteSocket.multicast?(external_address, external_port)

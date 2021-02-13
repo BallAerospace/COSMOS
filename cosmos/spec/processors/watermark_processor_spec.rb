@@ -24,7 +24,6 @@ require 'cosmos/processors/watermark_processor'
 module Cosmos
 
   describe WatermarkProcessor do
-
     describe "initialize" do
       it "takes an item_name and value_type" do
         p = WatermarkProcessor.new('TEST', 'RAW')
@@ -38,15 +37,15 @@ module Cosmos
         p = WatermarkProcessor.new('TEST', 'RAW')
         packet = Packet.new("tgt","pkt")
         packet.append_item("TEST", 8, :UINT)
-        packet.buffer= "\x01"
+        packet.buffer = "\x01"
         p.call(packet, packet.buffer)
         expect(p.results[:HIGH_WATER]).to eql 1
         expect(p.results[:LOW_WATER]).to eql 1
-        packet.buffer= "\x02"
+        packet.buffer = "\x02"
         p.call(packet, packet.buffer)
         expect(p.results[:HIGH_WATER]).to eql 2
         expect(p.results[:LOW_WATER]).to eql 1
-        packet.buffer= "\x00"
+        packet.buffer = "\x00"
         p.call(packet, packet.buffer)
         expect(p.results[:HIGH_WATER]).to eql 2
         expect(p.results[:LOW_WATER]).to eql 0

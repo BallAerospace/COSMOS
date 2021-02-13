@@ -23,7 +23,6 @@ require 'cosmos/conversions/conversion'
 module Cosmos
 
   describe Conversion do
-
     describe "call" do
       it "raises an exception" do
         expect { Conversion.new.call(0, 0, 0) }.to raise_error("call method must be defined by subclass")

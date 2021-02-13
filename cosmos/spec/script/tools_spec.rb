@@ -115,6 +115,5 @@ module Cosmos
         show_backtrace
       end
     end
-
   end
 end

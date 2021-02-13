@@ -19,7 +19,7 @@
 
 module ApplicationCable
   class Connection < ActionCable::Connection::Base
-    identified_by :uuid #, :token
+    identified_by :uuid # , :token
 
     def connect
       # We don't have user accounts so use a random UUID

@@ -22,7 +22,6 @@ require 'cosmos/core_ext/matrix'
 require 'ostruct'
 
 describe Matrix do
-
   describe "[]" do
     it "returns an entire row" do
       matrix = Matrix[[1,2,3],[4,5,6],[7,8,9]]

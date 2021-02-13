@@ -47,7 +47,6 @@ module Cosmos
     end
 
     private
-
     def test_format_string(item)
       case item.data_type
       when :INT, :UINT

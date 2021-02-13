@@ -74,3 +74,9 @@ docker run --network cosmos -d --log-driver=fluentd --log-opt fluentd-address=12
 docker build -f init\Dockerfile -t cosmos-init init
 docker container rm cosmos-init
 docker run --network cosmos --name cosmos-init --rm cosmos-init
+
+REM Grafana http://localhost:3000/
+REM Kibana at http://localhost:5601/
+REM Prometheus at http://localhost:9090/
+REM
+REM Cosmos at http://localhost:8080/

@@ -22,7 +22,6 @@ require 'cosmos/core_ext/math'
 include Math
 
 describe Math do
-
   describe "sin_squared" do
     it "calculates sin squared" do
       expect(sin_squared(10)).to be_within(0.00000001).of(sin(10)**2)
@@ -45,7 +44,7 @@ describe Math do
     it "returns population variance" do
       mean, var = variance_population([1,2,3])
       expect(mean).to eql 2.0
-      expect(var).to eql 2.0/3.0
+      expect(var).to eql 2.0 / 3.0
     end
 
     it "handles an empty data set" do
@@ -91,7 +90,7 @@ describe Math do
     it "returns population stddev" do
       mean, var = stddev_population([1,2,3])
       expect(mean).to eql 2.0
-      expect(var).to eql sqrt(2.0/3.0)
+      expect(var).to eql sqrt(2.0 / 3.0)
     end
   end
 

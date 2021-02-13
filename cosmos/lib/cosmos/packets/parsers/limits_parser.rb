@@ -62,13 +62,12 @@ module Cosmos
     end
 
     private
-
     def initialize_limits_values(packet, item)
       limits_set = get_limits_set()
       # Values must be initialized with a :DEFAULT key
       if !item.limits.values
         if limits_set == :DEFAULT
-          item.limits.values = {:DEFAULT => []}
+          item.limits.values = { :DEFAULT => [] }
         else
           raise @parser.error("DEFAULT limits set must be defined for #{packet.target_name} #{packet.packet_name} #{item.name} before setting limits set #{limits_set}")
         end
@@ -82,7 +81,7 @@ module Cosmos
       msg = "TELEMETRY Item #{packet.target_name} #{packet.packet_name} #{item.name} #{get_limits_set()} limits _TYPE_ setting conflict with DEFAULT"
       # XOR our setting with the items current setting
       # If it returns true then we have a mismatch and log the error
-      if (get_enabled() ^ item.limits.enabled)
+      if get_enabled() ^ item.limits.enabled
         warnings << msg.sub('_TYPE_', 'enable')
         Logger.instance.warn warnings[-1]
       end

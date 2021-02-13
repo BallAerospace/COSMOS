@@ -23,7 +23,6 @@ require 'cosmos/io/stderr'
 module Cosmos
 
   describe Stderr do
-
     describe "instance" do
       it "returns a single instance" do
         expect(Stderr.instance).to eq(Stderr.instance)

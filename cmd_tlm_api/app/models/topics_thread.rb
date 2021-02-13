@@ -37,18 +37,16 @@ class TopicsThread
 
   def start
     @thread = Thread.new do
-      begin
-        thread_setup()
-        while true
-          break if @cancel_thread
-          thread_body()
-          break if @cancel_thread
-        end
-      rescue => err
-        Cosmos::Logger.error "#{self.class.name} unexpectedly died\n#{err.formatted}"
-      ensure
-        thread_teardown()
+      thread_setup()
+      while true
+        break if @cancel_thread
+        thread_body()
+        break if @cancel_thread
       end
+    rescue => err
+      Cosmos::Logger.error "#{self.class.name} unexpectedly died\n#{err.formatted}"
+    ensure
+      thread_teardown()
     end
   end
 
@@ -66,7 +64,7 @@ class TopicsThread
     @topics.each do |topic|
       results = Cosmos::Store.xrevrange(topic, '+', '-', count: @history_count)
       batch = []
-      results.reverse.each do |msg_id, msg_hash|
+      results.reverse_each do |msg_id, msg_hash|
         @offsets[@offset_index_by_topic[topic]] = msg_id
         batch << msg_hash
         if batch.length > @max_batch_size

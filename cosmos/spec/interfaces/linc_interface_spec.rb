@@ -22,7 +22,7 @@ require 'cosmos/interfaces/linc_interface'
 
 module Cosmos
   xdescribe LincInterface do
-    saved_verbose = $VERBOSE; $VERBOSE = nil;
+    saved_verbose = $VERBOSE; $VERBOSE = nil
     class TcpipClientStream < TcpipSocketStream
       # Allow the connect_nonblock method to simply return
       def connect_nonblock(socket, addr); end
@@ -121,7 +121,7 @@ module Cosmos
           @buffer << "BAD"
           @handshake.write("DATA", @buffer)
           # LincInterface has a length offset of 4
-          @handshake.write("GSE_HDR_LEN", @handshake.buffer(false).length-4)
+          @handshake.write("GSE_HDR_LEN", @handshake.buffer(false).length - 4)
         end
 
         it "does not timeout if the handshake is received" do
@@ -150,7 +150,7 @@ module Cosmos
           buffer << [3].pack("N")
           buffer << "BAD"
           handshake2.write("DATA", buffer)
-          handshake2.write("GSE_HDR_LEN", handshake2.buffer(false).length-4)
+          handshake2.write("GSE_HDR_LEN", handshake2.buffer(false).length - 4)
 
           read_cnt = 0
           write_cnt = 0
@@ -239,7 +239,7 @@ module Cosmos
         buffer << "BAD"
         @handshake.write("DATA", buffer)
         # LincInterface has a length offset of 4
-        @handshake.write("GSE_HDR_LEN", @handshake.buffer(false).length-4)
+        @handshake.write("GSE_HDR_LEN", @handshake.buffer(false).length - 4)
 
         allow_any_instance_of(TcpipClientStream).to receive(:read).and_return @handshake.buffer(false)
 

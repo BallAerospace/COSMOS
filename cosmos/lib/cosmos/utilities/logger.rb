@@ -190,7 +190,6 @@ module Cosmos
     end
 
     protected
-
     def log_metric(data, scope:, &block)
       @mutex.synchronize do
         data[:@timestamp] = Time.now.xmlschema(3)

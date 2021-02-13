@@ -114,10 +114,8 @@ module Cosmos
     # Gracefully kill the thread
     def graceful_kill
       @server_mutex.synchronize do
-        begin
-          @server.stop if @server and @server.running
-        rescue
-        end
+        @server.stop if @server and @server.running
+      rescue
       end
     end
 
@@ -133,59 +131,57 @@ module Cosmos
 
       if hostname and port and object
         @object = object
-        hostname = '127.0.0.1'.freeze if (hostname.to_s.upcase == 'LOCALHOST'.freeze)
+        hostname = '127.0.0.1'.freeze if hostname.to_s.upcase == 'LOCALHOST'.freeze
 
         @thread = Thread.new do
-
           # Create an http server to accept requests from clients
-          begin
-            server_config = {
-              :Host   => hostname,
-              :Port   => port,
-              :Silent => true,
-              :Verbose => false,
-              :Threads => "0:#{max_threads}",
-            }
 
-            # The run call will block until the server is stopped.
-            Rack::Handler::Puma.run(JsonDrbRack.new(self), server_config) do |server|
-              @server_mutex.synchronize do
-                @server = server
-              end
-            end
+          server_config = {
+            :Host   => hostname,
+            :Port   => port,
+            :Silent => true,
+            :Verbose => false,
+            :Threads => "0:#{max_threads}",
+          }
 
-            # Wait for all puma threads to stop before trying to close
-            # the sockets
-            start_time = Time.now
-            while true
-              puma_threads = false
-              Thread.list.each {|thread| puma_threads = true if thread.inspect.match(/puma/)}
-              break if !puma_threads
-              break if (Time.now - start_time) > PUMA_THREAD_TIMEOUT
-              sleep 0.25
-            end
-
-            # Puma doesn't clean up it's own sockets after shutting down,
-            # so we'll do that here.
+          # The run call will block until the server is stopped.
+          Rack::Handler::Puma.run(JsonDrbRack.new(self), server_config) do |server|
             @server_mutex.synchronize do
-              @server.binder.close() if @server
+              @server = server
             end
-
-          # The address in use error is pretty typical if an existing
-          # server is running so explicitly rescue this
-          rescue Errno::EADDRINUSE
-            @server = nil
-            raise "Error binding to port #{port}.\n" +
-                  "Either another application is using this port\n" +
-                  "or the operating system is being slow cleaning up.\n" +
-                  "Make sure all sockets/streams are closed in all applications,\n" +
-                  "wait 1 minute and try again."
-          # Something else went wrong which is fatal
-          rescue => error
-            @server = nil
-            Logger.error "JsonDRb http server could not be started or unexpectedly died.\n#{error.formatted}"
-            Cosmos.handle_fatal_exception(error)
           end
+
+          # Wait for all puma threads to stop before trying to close
+          # the sockets
+          start_time = Time.now
+          while true
+            puma_threads = false
+            Thread.list.each {|thread| puma_threads = true if thread.inspect.match?(/puma/)}
+            break if !puma_threads
+            break if (Time.now - start_time) > PUMA_THREAD_TIMEOUT
+            sleep 0.25
+          end
+
+          # Puma doesn't clean up it's own sockets after shutting down,
+          # so we'll do that here.
+          @server_mutex.synchronize do
+            @server.binder.close() if @server
+          end
+
+        # The address in use error is pretty typical if an existing
+        # server is running so explicitly rescue this
+        rescue Errno::EADDRINUSE
+          @server = nil
+          raise "Error binding to port #{port}.\n" +
+                "Either another application is using this port\n" +
+                "or the operating system is being slow cleaning up.\n" +
+                "Make sure all sockets/streams are closed in all applications,\n" +
+                "wait 1 minute and try again."
+        # Something else went wrong which is fatal
+        rescue => error
+          @server = nil
+          Logger.error "JsonDRb http server could not be started or unexpectedly died.\n#{error.formatted}"
+          Cosmos.handle_fatal_exception(error)
         end
 
         # Wait for the server to be started in the thread before returning.
@@ -206,9 +202,7 @@ module Cosmos
     end
 
     # @return [Thread] The server thread listening for incoming requests
-    def thread
-      @thread
-    end
+    attr_reader :thread
 
     # Adds a request time to the list. A request time consists of the amount of
     # time to receive the request, process it, and send the response. These
@@ -315,7 +309,6 @@ module Cosmos
     end
 
     protected
-
     def process_response(response, start_time)
       response_data = response.to_json(:allow_nan => true)
       STDOUT.puts response_data if JsonDRb.debug?

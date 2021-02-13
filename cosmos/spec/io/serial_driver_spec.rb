@@ -26,7 +26,6 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
   module Cosmos
 
     describe SerialDriver do
-
       describe "instance" do
         it "enforces the parity to a known value" do
           expect { SerialDriver.new('COM1',9600,:BLAH) }.to raise_error(ArgumentError, "Invalid parity: BLAH")

@@ -120,9 +120,9 @@ total_comments = 0
 total_slocs    = 0
 total_ratio    = 0
 
-puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-"*longest_path)
+puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-" * longest_path)
 puts sprintf("| %-#{longest_path}s |  Lines   | Comments |  SLOCs   |  Ratio |", "Filename")
-puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-"*longest_path)
+puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-" * longest_path)
 results.each do |filename, lines, comments, slocs, ratio|
   # filename = filename[0..32] if filename.length > 33
   puts sprintf("| %-#{longest_path}s | %8d | %8d | %8d | %6.2f |",
@@ -133,7 +133,7 @@ results.each do |filename, lines, comments, slocs, ratio|
   total_slocs    += slocs
 end
 total_ratio = total_comments.to_f / total_slocs.to_f if total_slocs != 0
-puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-"*longest_path)
+puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-" * longest_path)
 puts sprintf("| %-#{longest_path}s | %8d | %8d | %8d | %6.2f |",
   "Totals - #{total_files} Files", total_lines, total_comments, total_slocs, total_ratio)
-puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-"*longest_path)
+puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-" * longest_path)

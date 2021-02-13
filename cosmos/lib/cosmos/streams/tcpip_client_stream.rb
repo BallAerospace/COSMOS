@@ -39,7 +39,7 @@ module Cosmos
     # @param read_timeout (see TcpipSocketStream#initialize)
     def initialize(hostname, write_port, read_port, write_timeout, read_timeout, connect_timeout = 5.0)
       @hostname = hostname
-      if (@hostname.to_s.upcase == 'LOCALHOST')
+      if @hostname.to_s.upcase == 'LOCALHOST'
         @hostname = '127.0.0.1'
       end
       @write_port = ConfigParser.handle_nil(write_port)
@@ -53,7 +53,7 @@ module Cosmos
         @write_addr = Socket.pack_sockaddr_in(@write_port, @hostname) if @write_port
         @read_addr = Socket.pack_sockaddr_in(@read_port, @hostname) if @read_port
       rescue => error
-        if error.message =~ /getaddrinfo/
+        if /getaddrinfo/.match?(error.message)
           raise "Invalid hostname: #{@hostname}"
         else
           raise error
@@ -90,31 +90,28 @@ module Cosmos
     end
 
     protected
-
     def connect_nonblock(socket, addr)
+      socket.connect_nonblock(addr)
+    rescue IO::WaitWritable
       begin
-        socket.connect_nonblock(addr)
-      rescue IO::WaitWritable
-        begin
-          _, sockets, _ = IO.select(nil, [socket], nil, @connect_timeout) # wait 3-way handshake completion
-        rescue IOError, Errno::ENOTSOCK
-          raise "Connect canceled"
-        end
-        if sockets and !sockets.empty?
-          begin
-            socket.connect_nonblock(addr) # check connection failure
-          rescue IOError, Errno::ENOTSOCK
-            raise "Connect canceled"
-          rescue Errno::EINPROGRESS
-            retry
-          rescue Errno::EISCONN, Errno::EALREADY
-          end
-        else
-          raise "Connect timeout"
-        end
+        _, sockets, _ = IO.select(nil, [socket], nil, @connect_timeout) # wait 3-way handshake completion
       rescue IOError, Errno::ENOTSOCK
         raise "Connect canceled"
       end
+      if sockets and !sockets.empty?
+        begin
+          socket.connect_nonblock(addr) # check connection failure
+        rescue IOError, Errno::ENOTSOCK
+          raise "Connect canceled"
+        rescue Errno::EINPROGRESS
+          retry
+        rescue Errno::EISCONN, Errno::EALREADY
+        end
+      else
+        raise "Connect timeout"
+      end
+    rescue IOError, Errno::ENOTSOCK
+      raise "Connect canceled"
     end
 
   end # class TcpipClientStream

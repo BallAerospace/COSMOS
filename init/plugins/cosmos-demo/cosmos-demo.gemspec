@@ -21,7 +21,7 @@
 spec = Gem::Specification.new do |s|
   s.name = 'cosmos-demo'
   s.summary = 'Ball Aerospace COSMOS'
-  s.description =  <<-EOF
+  s.description = <<-EOF
     This plugin adds the COSMOS demo configuration to a base COSMOS installation.
     Install this to experiment with a configured COSMOS system.
   EOF

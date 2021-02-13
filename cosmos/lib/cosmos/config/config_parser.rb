@@ -93,7 +93,7 @@ module Cosmos
 
     # Regular expression used to break up an individual line into a keyword and
     # comma delimited parameters. Handles parameters in single or double quotes.
-    PARSING_REGEX = %r{ (?:"(?:[^\\"]|\\.)*") | (?:'(?:[^\\']|\\.)*') | \S+ }x #"
+    PARSING_REGEX = %r{ (?:"(?:[^\\"]|\\.)*") | (?:'(?:[^\\']|\\.)*') | \S+ }x # "
 
     # Error which gets raised by ConfigParser in #verify_num_parameters. This
     # is also the error that classes using ConfigParser should raise when they
@@ -355,7 +355,6 @@ module Cosmos
     end
 
     protected
-
     # Writes the ERB parsed results
     def create_parsed_output_file(filename, run_erb, variables)
       begin
@@ -477,7 +476,7 @@ module Cosmos
           end
 
           length = data.length
-          if (length > 1)
+          if length > 1
             (1..(length - 1)).each do |index|
               string = data[index]
 

@@ -160,6 +160,5 @@ module Cosmos
         expect(i.instance_variable_get(:@listen_address)).to eq '127.0.0.1'
       end
     end
-
   end
 end

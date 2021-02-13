@@ -23,7 +23,6 @@ require 'cosmos/streams/stream'
 module Cosmos
 
   describe Stream do
-
     describe "read, write, connected?, disconnect" do
       it "raises an error" do
         expect { Stream.new.read       }.to raise_error(/not defined/)
@@ -33,6 +32,5 @@ module Cosmos
         expect { Stream.new.disconnect }.to raise_error(/not defined/)
       end
     end
-
   end
 end

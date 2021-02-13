@@ -41,7 +41,7 @@ module Cosmos
         sets = sets(scope: scope)
         raise "Set '#{event[:set]}' does not exist!" unless sets.key?(event[:set])
         # Set all existing sets to "false"
-        sets = sets.transform_values!{ |key, value| "false" }
+        sets = sets.transform_values! { |key, value| "false" }
         sets[event[:set]] = "true" # Enable the requested set
         Store.hmset("#{scope}__limits_sets", *sets)
       else

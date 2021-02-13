@@ -25,7 +25,6 @@ module Cosmos
     DEFAULT_TLM_POLLING_RATE = 0.25
 
     private
-
     # Creates a string with the parameters upcased
     def _upcase(target_name, packet_name, item_name)
       "#{target_name.upcase} #{packet_name.upcase} #{item_name.upcase}"
@@ -94,13 +93,11 @@ module Cosmos
     # Usage:
     #   check_exception(method_name, method_params}
     def check_exception(method_name, *method_params, scope: $cosmos_scope, token: $cosmos_token)
-      begin
-        send(method_name, *method_params, scope: scope, token: token)
-      rescue Exception => error
-        Logger.info "CHECK: #{method_name}(#{method_params.join(", ")}) raised #{error.class}:#{error.message}"
-      else
-        raise(CheckError, "#{method_name}(#{method_params.join(", ")}) should have raised an exception but did not.")
-      end
+      send(method_name, *method_params, scope: scope, token: token)
+    rescue Exception => error
+      Logger.info "CHECK: #{method_name}(#{method_params.join(", ")}) raised #{error.class}:#{error.message}"
+    else
+      raise(CheckError, "#{method_name}(#{method_params.join(", ")}) should have raised an exception but did not.")
     end
 
     def _check_tolerance(*args, scope: $cosmos_scope, token: $cosmos_token)
@@ -113,7 +110,7 @@ module Cosmos
         message = ""
         all_checks_ok = true
         value.size.times do |i|
-          range = (expected_value[i]-tolerance[i]..expected_value[i]+tolerance[i])
+          range = (expected_value[i] - tolerance[i]..expected_value[i] + tolerance[i])
           check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)}[#{i}]"
           range_str = "range #{range.first} to #{range.last} with value == #{value[i]}"
           if range.include?(value[i])
@@ -221,7 +218,7 @@ module Cosmos
 
         message = ""
         value.size.times do |i|
-          range = (expected_value[i]-tolerance[i]..expected_value[i]+tolerance[i])
+          range = (expected_value[i] - tolerance[i]..expected_value[i] + tolerance[i])
           wait_str = "WAIT: #{_upcase(target_name, packet_name, item_name)}[#{i}]"
           range_str = "range #{range.first} to #{range.last} with value == #{value[i]} after waiting #{time} seconds"
           if range.include?(value[i])
@@ -336,7 +333,7 @@ module Cosmos
 
         message = ""
         value.size.times do |i|
-          range = (expected_value[i]-tolerance[i]..expected_value[i]+tolerance[i])
+          range = (expected_value[i] - tolerance[i]..expected_value[i] + tolerance[i])
           check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)}[#{i}]"
           range_str = "range #{range.first} to #{range.last} with value == #{value[i]} after waiting #{time} seconds"
           if range.include?(value[i])
@@ -607,7 +604,7 @@ module Cosmos
       #     ScriptRunnerFrame.instance.use_instrumentation = saved
       #   end
       # else # Just call start
-        not_cached = start(procedure_name)
+      not_cached = start(procedure_name)
       # end
       # Return whether we had to load and instrument this file, i.e. it was not cached
       # This is designed to match the behavior of Ruby's require and load keywords
@@ -918,23 +915,23 @@ module Cosmos
 
     def display(display_name, x_pos = nil, y_pos = nil)
       # TODO
-      #run_tlm_viewer("display", display_name) do |tlm_viewer|
+      # run_tlm_viewer("display", display_name) do |tlm_viewer|
       #  tlm_viewer.display(display_name, x_pos, y_pos)
-      #end
+      # end
     end
 
     def clear(display_name)
       # TODO
-      #run_tlm_viewer("clear", display_name) do |tlm_viewer|
+      # run_tlm_viewer("clear", display_name) do |tlm_viewer|
       #  tlm_viewer.clear(display_name)
-      #end
+      # end
     end
 
     def clear_all(target = nil)
       # TODO
-      #run_tlm_viewer("clear_all") do |tlm_viewer|
+      # run_tlm_viewer("clear_all") do |tlm_viewer|
       #  tlm_viewer.clear_all(target)
-      #end
+      # end
     end
   end
 end

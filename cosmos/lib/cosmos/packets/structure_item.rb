@@ -187,7 +187,7 @@ module Cosmos
           # Ruby version < 2.4.0
           raise ArgumentError, "#{@name}: array_size must be a Fixnum" unless Fixnum === array_size
         end
-        raise ArgumentError, "#{@name}: array_size must be a multiple of bit_size" unless (@bit_size == 0 or (array_size % @bit_size == 0) or array_size < 0)
+        raise ArgumentError, "#{@name}: array_size must be a multiple of bit_size" unless @bit_size == 0 or (array_size % @bit_size == 0) or array_size < 0
         raise ArgumentError, "#{@name}: bit_size cannot be negative or zero for array items" if @bit_size <= 0
       end
       @array_size = array_size
@@ -303,7 +303,7 @@ module Cosmos
 
     def little_endian_bit_field?
       return false unless @endianness == :LITTLE_ENDIAN
-      return false unless (@data_type == :INT || @data_type == :UINT)
+      return false unless @data_type == :INT || @data_type == :UINT
       # If we're not byte aligned we're a bit field
       return true unless (@bit_offset % 8) == 0
       # If we don't have an even number of bytes we're a bit field
@@ -312,7 +312,6 @@ module Cosmos
     end
 
     protected
-
     # Verifies overall integrity of the StructureItem by checking for correct
     # LITTLE_ENDIAN bit fields
     def verify_overall

@@ -34,7 +34,7 @@ begin
 end
 inst = Gem::DependencyInstaller.new
 begin
-  if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i
+  if !/mswin|mingw|cygwin/i.match?(RbConfig::CONFIG['target_os'])
     unless gem_installed?("ruby-termios", ">= 0.9")
       STDOUT.puts "Attempting to install ruby-termios... If this fails please manually \"gem install ruby-termios\" and try again."
       inst.install "ruby-termios", ">= 0.9"

@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/core_ext/io'
 
 describe IO do
-
   describe "fast_select" do
     before(:all) do
       @server = TCPServer.new('127.0.0.1', 23456)

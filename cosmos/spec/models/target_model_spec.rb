@@ -311,7 +311,7 @@ module Cosmos
       before(:each) do
         @scope = "DEFAULT"
         @target = "INST"
-        @s3 = instance_double("Aws::S3::Client")#.as_null_object
+        @s3 = instance_double("Aws::S3::Client") # .as_null_object
         allow(@s3).to receive(:put_object)
         allow(Aws::S3::Client).to receive(:new).and_return(@s3)
         @target_dir = File.join(SPEC_DIR, "install", "config")
@@ -319,7 +319,7 @@ module Cosmos
 
       it "raises if the target can't be found" do
         @target_dir = Dir.pwd
-        variables = {"test"=>"example"}
+        variables = { "test" => "example" }
         model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
         model.create
         expect { model.deploy(@target_dir, variables) }.to raise_error(/No target files found/)
@@ -359,7 +359,7 @@ module Cosmos
         model.create
         model.deploy(@target_dir, {})
         expect(Store.hkeys("DEFAULT__cosmostlm__INST")).to include("HEALTH_STATUS", "ADCS", "PARAMS", "IMAGE", "MECH")
-        expect(Store.hkeys("DEFAULT__cosmoscmd__INST")).to include("ABORT", "COLLECT", "CLEAR") #... etc
+        expect(Store.hkeys("DEFAULT__cosmoscmd__INST")).to include("ABORT", "COLLECT", "CLEAR") # ... etc
 
         # Spot check a telemetry packet and a command
         telemetry = TargetModel.packet(@target, "HEALTH_STATUS", type: :TLM, scope: @scope)
@@ -379,16 +379,16 @@ module Cosmos
         expect(umodel).to receive(:deploy).with(@target_dir, variables).exactly(4).times
         # Verify the microservices that are started
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-          name: "#{@scope}__DECOM__#{@target}")
+                                                          name: "#{@scope}__DECOM__#{@target}")
         ).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-          name: "#{@scope}__CVT__#{@target}")
+                                                          name: "#{@scope}__CVT__#{@target}")
         ).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-          name: "#{@scope}__PACKETLOG__#{@target}")
+                                                          name: "#{@scope}__PACKETLOG__#{@target}")
         ).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-          name: "#{@scope}__DECOMLOG__#{@target}")
+                                                          name: "#{@scope}__DECOMLOG__#{@target}")
         ).and_return(umodel)
         model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
         model.create

@@ -265,7 +265,6 @@ module Cosmos
     end
 
     protected
-
     def reset
       @file = nil
       @filename = nil
@@ -279,7 +278,7 @@ module Cosmos
     # This is best effort. May return unidentified/undefined packets
     def identify_and_define_packet_data(cmd_or_tlm, target_name, packet_name, received_time, packet_data)
       packet = nil
-      unless (target_name and packet_name)
+      unless target_name and packet_name
         if cmd_or_tlm == :CMD
           packet = System.commands.identify(packet_data)
         else

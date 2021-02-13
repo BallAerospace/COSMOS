@@ -53,7 +53,7 @@ module Cosmos
       $stderr = stderr
       save = Cosmos::PATH
       Cosmos::PATH = "HI"
-      expect(stderr.string).to match(/warning\: already initialized constant/)
+      expect(stderr.string).to match(/warning: already initialized constant/)
       Cosmos::PATH = save
 
       save_mutex = Cosmos::COSMOS_MUTEX

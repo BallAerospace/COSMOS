@@ -132,7 +132,6 @@ module Cosmos
       parser = ConfigParser.new("http://cosmosrb.com/docs/cmdtlm")
       parser.instance_variable_set(:@target_name, process_target_name)
       parser.parse_file(filename) do |keyword, params|
-
         if @building_generic_conversion
           case keyword
           # Complete a generic conversion
@@ -296,7 +295,7 @@ module Cosmos
     end
 
     # Add current packet into hash if it exists
-    def finish_packet()
+    def finish_packet
       finish_item()
       if @current_packet
         @warnings += @current_packet.check_bit_offsets
@@ -320,7 +319,6 @@ module Cosmos
     end
 
     protected
-
     def update_id_value_hash(hash)
       if @current_packet.id_items.length > 0
         key = []
@@ -567,8 +565,8 @@ module Cosmos
         end
         usage = "DEFAULT_VALUE <DEFAULT VALUE>"
         parser.verify_num_parameters(1, 1, usage)
-        if ((@current_item.data_type == :STRING) ||
-            (@current_item.data_type == :BLOCK))
+        if (@current_item.data_type == :STRING) ||
+            (@current_item.data_type == :BLOCK)
           @current_item.default = params[0]
         else
           @current_item.default = ConfigParser.handle_defined_constants(

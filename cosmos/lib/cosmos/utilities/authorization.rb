@@ -37,7 +37,6 @@ module Cosmos
   module Authorization
 
     private
-
     unless $cosmos_enterprise
       # Raises an exception if unauthorized, otherwise does nothing
       def authorize(permission: nil, target_name: nil, packet_name: nil, interface_name: nil, router_name: nil, scope: nil, token: nil)

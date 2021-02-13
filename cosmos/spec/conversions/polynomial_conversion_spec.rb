@@ -23,7 +23,6 @@ require 'cosmos/conversions/polynomial_conversion'
 module Cosmos
 
   describe PolynomialConversion do
-
     describe "initialize" do
       it "takes a coefficents array" do
         gc = PolynomialConversion.new([1,2,3])

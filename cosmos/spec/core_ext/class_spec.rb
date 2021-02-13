@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/core_ext/class'
 
 describe Class do
-
   describe "instance_attr_reader" do
     it "adds instance attribute readers for class variables" do
       class MyClass

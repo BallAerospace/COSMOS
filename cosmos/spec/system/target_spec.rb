@@ -373,6 +373,5 @@ module Cosmos
         end
       end
     end
-
   end
 end

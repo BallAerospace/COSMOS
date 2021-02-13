@@ -54,7 +54,7 @@ class String
   NON_ASCII_PRINTABLE = /[^\x21-\x7e\s]/
 
   def as_json(options = nil)
-    if self =~ NON_ASCII_PRINTABLE
+    if NON_ASCII_PRINTABLE.match?(self)
       self.to_json_raw_object
     else
       self
@@ -73,16 +73,16 @@ end
 class Float
   def self.json_create(object)
     case object['raw']
-      when "Infinity"  then  Float::INFINITY
-      when "-Infinity" then -Float::INFINITY
-      when "NaN"       then  Float::NAN
+    when "Infinity"  then  Float::INFINITY
+    when "-Infinity" then -Float::INFINITY
+    when "NaN"       then  Float::NAN
     end
   end
 
   def as_json(options = nil)
-    return {"json_class"=>Float, "raw"=>"Infinity"}  if self.infinite? ==  1
-    return {"json_class"=>Float, "raw"=>"-Infinity"} if self.infinite? == -1
-    return {"json_class"=>Float, "raw"=>"NaN"}       if self.nan?
+    return { "json_class" => Float, "raw" => "Infinity" }  if self.infinite? ==  1
+    return { "json_class" => Float, "raw" => "-Infinity" } if self.infinite? == -1
+    return { "json_class" => Float, "raw" => "NaN" }       if self.nan?
     return self
   end
 end
@@ -255,14 +255,12 @@ module Cosmos
     # @param request_data [String] JSON encoded string representing the request
     # @return [JsonRpcRequest]
     def self.from_json(request_data)
-      begin
-        hash = JSON.parse(request_data, :allow_nan => true, :create_additions => true)
-        # Verify the jsonrpc version is correct and there is a method and id
-        raise unless (hash['jsonrpc'.freeze] == "2.0".freeze && hash['method'.freeze] && hash['id'.freeze])
-        self.from_hash(hash)
-      rescue
-        raise "Invalid JSON-RPC 2.0 Request\n#{request_data.inspect}\n"
-      end
+      hash = JSON.parse(request_data, :allow_nan => true, :create_additions => true)
+      # Verify the jsonrpc version is correct and there is a method and id
+      raise unless hash['jsonrpc'.freeze] == "2.0".freeze && hash['method'.freeze] && hash['id'.freeze]
+      self.from_hash(hash)
+    rescue
+      raise "Invalid JSON-RPC 2.0 Request\n#{request_data.inspect}\n"
     end
 
     # Creates a JsonRpcRequest object from a Hash

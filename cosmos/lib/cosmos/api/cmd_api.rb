@@ -274,7 +274,7 @@ module Cosmos
         end
       end
 
-      return false
+      false
     end
 
     # Returns a value from the specified command
@@ -301,7 +301,7 @@ module Cosmos
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
       if target_name and command_name
         time = Store.instance.get_cmd_item(target_name, command_name, 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
-        return [target_name, command_name, time.to_i, ((time.to_f - time.to_i) * 1_000_000).to_i]
+        [target_name, command_name, time.to_i, ((time.to_f - time.to_i) * 1_000_000).to_i]
       else
         if target_name.nil?
           targets = TargetModel.names(scope: scope)

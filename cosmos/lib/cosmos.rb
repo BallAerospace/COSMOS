@@ -20,7 +20,7 @@
 # This file sets up using the COSMOS framework
 
 # Set default encodings
-saved_verbose = $VERBOSE; $VERBOSE = nil;
+saved_verbose = $VERBOSE; $VERBOSE = nil
 Encoding.default_external = Encoding::ASCII_8BIT
 Encoding.default_internal = Encoding::ASCII_8BIT
 $VERBOSE = saved_verbose

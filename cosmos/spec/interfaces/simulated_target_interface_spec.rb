@@ -129,6 +129,5 @@ end
         expect(sti.connected?).to be false
       end
     end
-
   end
 end

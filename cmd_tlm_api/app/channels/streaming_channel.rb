@@ -54,7 +54,6 @@ class StreamingChannel < ApplicationCable::Channel
   end
 
   private
-
   def validate_data(data)
     result = true
     # data['items'] isn't required because we can start out with no items

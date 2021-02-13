@@ -118,11 +118,10 @@ module Cosmos
           expect(driver).to receive(:close).once
           expect(SerialDriver).to receive(:new).and_return(driver)
           ss = SerialStream.new(nil,'COM1',9600,:EVEN,1,nil,nil)
-          expect{ss.connect}.to_not raise_error
+          expect {ss.connect}.to_not raise_error
           ss.disconnect
         end
       end
-
     end
 
   end
