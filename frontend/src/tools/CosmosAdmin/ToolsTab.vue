@@ -136,7 +136,7 @@ export default {
         axios
           .post('http://localhost:7777/tools', {
             id: this.name,
-            json: data,
+            json: JSON.stringify(data),
             scope: 'DEFAULT',
           })
           .then((response) => {
