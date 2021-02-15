@@ -25,8 +25,8 @@ require 'cosmos/models/router_status_model'
 require 'cosmos/topics/telemetry_topic'
 require 'cosmos/topics/command_topic'
 require 'cosmos/topics/command_decom_topic'
-require 'cosmos/topics/interface_topics'
-require 'cosmos/topics/router_topics'
+require 'cosmos/topics/interface_topic'
+require 'cosmos/topics/router_topic'
 
 module Cosmos
   class InterfaceCmdHandlerThread
@@ -50,7 +50,7 @@ module Cosmos
     end
 
     def run
-      InterfaceTopics.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
+      InterfaceTopic.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
         # Check for a raw write to the interface
         if topic =~ /CMDINTERFACE/
           if msg_hash['connect']
@@ -171,7 +171,7 @@ module Cosmos
     end
 
     def run
-      RouterTopics.receive_telemetry(@router, scope: @scope) do |topic, msg_hash|
+      RouterTopic.receive_telemetry(@router, scope: @scope) do |topic, msg_hash|
         # Check for commands to the router itself
         if /CMDROUTER/.match?(topic)
           if msg_hash['connect']
