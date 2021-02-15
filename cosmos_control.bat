@@ -13,6 +13,10 @@ if "%1" == "stop" (
   GOTO stop
 )
 
+if "%1" == "deploy" (
+  GOTO deploy
+)
+
 if "%1" == "build" (
   GOTO build
 )
