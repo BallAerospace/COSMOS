@@ -97,12 +97,6 @@ export default new Router({
       meta: { title: 'Telemetry Viewer', icon: 'mdi-monitor-dashboard' },
     },
     {
-      path: '/data-viewer',
-      name: 'DataViewer',
-      component: () => import('./views/DataViewerView.vue'),
-      meta: { title: 'Data Viewer', icon: 'mdi-view-split-horizontal' },
-    },
-    {
       path: '/telemetry-grapher',
       name: 'TlmGrapher',
       component: () => import('./views/TlmGrapherView.vue'),
@@ -113,6 +107,12 @@ export default new Router({
       name: 'Data Extractor',
       component: () => import('./views/DataExtractorView.vue'),
       meta: { title: 'Data Extractor', icon: 'mdi-archive-arrow-down' },
+    },
+    {
+      path: '/data-viewer',
+      name: 'DataViewer',
+      component: () => import('./views/DataViewerView.vue'),
+      meta: { title: 'Data Viewer', icon: 'mdi-hexadecimal' },
     },
     {
       path: '/admin',
