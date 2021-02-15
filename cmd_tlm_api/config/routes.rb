@@ -66,4 +66,5 @@ Rails.application.routes.draw do
   post "/api" => "api#api"
   get "/screen/:target" => "api#screens"
   get "/screen/:target/:screen" => "api#screen"
+  get "/time" => "time#get_current"
 end

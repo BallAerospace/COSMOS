@@ -1,4 +1,5 @@
-<!--
+# encoding: ascii-8bit
+
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,32 +16,13 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
 
-<template>
-  <v-app id="app">
-    <!-- Sizes your content based upon application components -->
-    <v-main>
-      <!-- Provides the application the proper gutter -->
-      <v-container fluid>
-        <router-view />
-      </v-container>
-    </v-main>
-    <AppFooter app />
-    <time-check />
-  </v-app>
-</template>
-
-<script>
-import AppFooter from '@/AppFooter'
-import TimeCheck from '@/components/TimeCheck'
-
-export default {
-  components: {
-    AppFooter,
-    TimeCheck,
-  },
-}
-</script>
-
-<style></style>
+class TimeController < ApplicationController
+  def get_current
+    # authorize(permission: 'system', scope: params[:scope], token: params[:token]) # TODO: do we want auth here?
+    now = Time.now.to_nsec_from_epoch
+    render :json => {
+      now_nsec: now
+    }
+  end
+end
