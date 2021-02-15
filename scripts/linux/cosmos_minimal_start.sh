@@ -23,10 +23,6 @@ docker container rm cosmos-minio
 docker run --network cosmos -p 127.0.0.1:9000:9000  -d --name cosmos-minio -v cosmos-minio-v:/data minio/minio:RELEASE.2020-08-25T00-21-20Z server /data
 sleep 30
 
-docker container rm cosmos-aggregator
-docker build -f aggregator/Dockerfile -t cosmos-aggregator aggregator
-docker run --network cosmos -p 127.0.0.1:3113:3113 -d --name cosmos-aggregator --env NO_FLUENTD=1 cosmos-aggregator
-
 docker build -f cmd_tlm_api/Dockerfile -t cosmos-cmd-tlm-api cmd_tlm_api
 docker container rm cosmos-cmd-tlm-api
 docker run --network cosmos -p 127.0.0.1:7777:7777 -d --name cosmos-cmd-tlm-api --env NO_FLUENTD=1 cosmos-cmd-tlm-api
