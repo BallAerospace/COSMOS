@@ -22,8 +22,6 @@ require 'cosmos/api/api'
 require 'cosmos/io/json_drb_object'
 require 'cosmos/script/commands'
 require 'cosmos/script/limits'
-require 'cosmos/script/scripting'
-require 'cosmos/script/tools'
 
 $api_server = nil
 $disconnect = false
@@ -32,6 +30,8 @@ $cosmos_token = nil
 
 module Cosmos
   module Script
+    private
+
     # All methods are private so they can only be called by themselves and not
     # on another object. This is important for the JsonDrbObject class which we
     # use to communicate with the server. JsonDrbObject implements method_missing
