@@ -23,7 +23,7 @@ require 'cosmos/models/tool_model'
 module Cosmos
   describe ToolModel do
     DEFAULT_APPS = ["CmdTlmServer", "Command Sender", "Data Extractor", "Limits Monitor",
-      "Packet Viewer", "Script Runner", "Telemetry Grapher", "Telemetry Viewer"]
+      "Packet Viewer", "Script Runner", "Telemetry Grapher", "Telemetry Viewer", "Data Viewer"]
 
     before(:each) do
       mock_redis()
