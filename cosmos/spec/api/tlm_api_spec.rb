@@ -306,14 +306,14 @@ module Cosmos
       it "injects a packet into the system" do
         STDOUT.puts "#{Time.now.to_f} INJECT TLM"
         @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 10, TEMP2: 20}, type: :CONVERTED)
-        sleep 0.5
+        sleep 2
         STDOUT.puts "#{Time.now.to_f} CHECK TLM"
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to be_within(0.1).of(20.0)
 
         STDOUT.puts "#{Time.now.to_f} INJECT TLM"
         @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 0, TEMP2: 0}, type: :RAW)
-        sleep 0.2
+        sleep 2
         STDOUT.puts "#{Time.now.to_f} CHECK TLM"
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(-100.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql(-100.0)
