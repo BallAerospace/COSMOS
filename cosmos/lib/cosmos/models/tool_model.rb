@@ -246,6 +246,12 @@ module Cosmos
         'url' => '/data-extractor',
         'position' => 7,
       }
+      tools['Data Viewer'] = {
+        'name' => 'Data Viewer',
+        'icon' => 'mdi-hexadecimal',
+        'url' => '/data-viewer',
+        'position' => 8,
+      }
       tools
     end
   end

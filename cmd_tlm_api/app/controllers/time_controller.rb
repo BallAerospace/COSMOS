@@ -1,4 +1,5 @@
-<!--
+# encoding: ascii-8bit
+
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,21 +16,12 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
 
-<template>
-  <v-textarea> </v-textarea>
-</template>
-
-<script>
-import Component from './Component'
-export default {
-  mixins: [Component],
-}
-</script>
-
-<style lang="scss" scoped>
-.v-textarea {
-  font-family: 'Courier New', Courier, monospace;
-}
-</style>
+class TimeController < ApplicationController
+  def get_current
+    now = Time.now.to_nsec_from_epoch
+    render :json => {
+      now_nsec: now
+    }
+  end
+end

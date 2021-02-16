@@ -18,14 +18,44 @@
 */
 
 export default {
-  data() {
+  props: {
+    config: {
+      type: Object,
+    },
+  },
+  data: function () {
     return {
-      value: '',
+      currentConfig: {},
+      lastReceived: null,
+    }
+  },
+  computed: {
+    mode: function () {
+      return this.lastReceived && 'buffer' in this.lastReceived
+        ? 'RAW'
+        : 'DECOM'
+    },
+  },
+  watch: {
+    currentConfig: {
+      deep: true,
+      handler: function (val) {
+        this.$emit('config-change', val)
+      },
+    },
+  },
+  created: function () {
+    if (this.config) {
+      this.currentConfig = {
+        ...this.config,
+      }
     }
   },
   methods: {
-    reset() {
-      this.value = ''
+    receive: function (data) {
+      // This is called by the parent to feed this component data. A function is used instead
+      // of a prop to ensure each message gets handled, regardless of how fast they come in
+      this.lastReceived = data
     },
   },
 }
