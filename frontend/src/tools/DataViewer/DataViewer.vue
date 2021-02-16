@@ -358,6 +358,22 @@ export default {
       newPacketValueType: 'WITH_UNITS',
     }
   },
+  computed: {
+    startEndTime: function () {
+      return {
+        start_time:
+          new Date(this.startDate + ' ' + this.startTime).getTime() * 1_000_000,
+        end_time: this.endDate
+          ? new Date(this.endDate + ' ' + this.endTime).getTime() * 1_000_000
+          : null,
+      }
+    },
+    allPackets: function () {
+      return this.config.tabs.flatMap((tab) => {
+        return tab.packets
+      })
+    },
+  },
   watch: {
     'config.tabs.length': function () {
       this.resizeTabs()
@@ -584,22 +600,6 @@ export default {
       const packet = this.config.tabs[tabIndex].packets[packetIndex]
       this.config.tabs[tabIndex].packets.splice(packetIndex, 1)
       this.removePacketsFromSubscription([packet])
-    },
-  },
-  computed: {
-    startEndTime: function () {
-      return {
-        start_time:
-          new Date(this.startDate + ' ' + this.startTime).getTime() * 1_000_000,
-        end_time: this.endDate
-          ? new Date(this.endDate + ' ' + this.endTime).getTime() * 1_000_000
-          : null,
-      }
-    },
-    allPackets: function () {
-      return this.config.tabs.flatMap((tab) => {
-        return tab.packets
-      })
     },
   },
 }

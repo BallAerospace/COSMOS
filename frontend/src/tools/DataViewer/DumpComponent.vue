@@ -192,6 +192,16 @@ export default {
       packetSize: 0,
     }
   },
+  computed: {
+    // These are just here to trigger their respective watch functions above
+    // There's a better solution to this in Vue 3 v3.vuejs.org/api/computed-watch-api.html#watching-multiple-sources
+    allInstantSettings: function () {
+      return `${this.currentConfig.format}|${this.currentConfig.showLineAddress}|${this.currentConfig.showTimestamp}|${this.currentConfig.newestAtTop}|${this.pauseOffset}`
+    },
+    allDebouncedSettings: function () {
+      return `${this.currentConfig.bytesPerLine}|${this.currentConfig.packetsToShow}|${this.filterText}`
+    },
+  },
   watch: {
     paused: function (val) {
       if (val) {
@@ -398,16 +408,6 @@ export default {
     stepForward: function () {
       this.pause()
       this.pauseOffset++
-    },
-  },
-  computed: {
-    // These are just here to trigger their respective watch functions above
-    // There's a better solution to this in Vue 3 v3.vuejs.org/api/computed-watch-api.html#watching-multiple-sources
-    allInstantSettings: function () {
-      return `${this.currentConfig.format}|${this.currentConfig.showLineAddress}|${this.currentConfig.showTimestamp}|${this.currentConfig.newestAtTop}|${this.pauseOffset}`
-    },
-    allDebouncedSettings: function () {
-      return `${this.currentConfig.bytesPerLine}|${this.currentConfig.packetsToShow}|${this.filterText}`
     },
   },
 }
