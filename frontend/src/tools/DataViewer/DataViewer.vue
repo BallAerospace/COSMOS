@@ -147,7 +147,6 @@
               v-if="packet.component === 'DumpComponent'"
               v-show="receivedPackets[topicKey(packet)]"
               :ref="`${topicKey(packet)}-display`"
-              :mode="packet.mode"
               :config="packet.config"
               @config-change="(newConfig) => (packet.config = newConfig)"
             />

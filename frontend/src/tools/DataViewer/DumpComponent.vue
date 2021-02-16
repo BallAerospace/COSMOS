@@ -29,7 +29,7 @@
             <v-expansion-panel-content>
               <v-container>
                 <v-row no-gutters>
-                  <v-col v-if="mode == 'RAW'">
+                  <v-col v-if="mode === 'RAW'">
                     <v-radio-group
                       v-model="currentConfig.format"
                       label="Display format"
@@ -59,7 +59,7 @@
                   </v-col>
                   <v-col>
                     <v-text-field
-                      v-if="mode == 'RAW'"
+                      v-if="mode === 'RAW'"
                       v-model="currentConfig.bytesPerLine"
                       label="Bytes per line"
                       type="number"
@@ -115,7 +115,7 @@
           <v-textarea
             ref="textarea"
             :value="displayText"
-            :auto-grow="receivedCount == 1"
+            :auto-grow="receivedCount === 1"
             readonly
             solo
             flat
@@ -150,35 +150,14 @@
 <script>
 import _ from 'lodash'
 import { format } from 'date-fns'
+import Component from './Component'
 
 const HISTORY_MAX_SIZE = 100 // TODO: put in config, or make the component learn it based on packet size, or something?
 
-// NOTE FOR MAKING ANOTHER DATA VIEWER COMPONENT:
-// Things that must be here for DataViewer.vue to work properly:
-//  - props: config
-//  - methods: receive
-//  - emit: 'config-change'
 export default {
-  props: {
-    config: {
-      type: Object,
-    },
-    mode: {
-      type: String,
-      default: 'RAW',
-    },
-  },
+  mixins: [Component],
   data: function () {
     return {
-      currentConfig: {
-        // These are just defaults
-        format: 'hex',
-        showLineAddress: true,
-        showTimestamp: true,
-        bytesPerLine: 16,
-        packetsToShow: 1,
-        newestAtTop: false,
-      },
       history: new Array(HISTORY_MAX_SIZE),
       historyPointer: -1, // index of the newest packet in history
       receivedCount: 0,
@@ -203,43 +182,7 @@ export default {
     },
   },
   watch: {
-    paused: function (val) {
-      if (val) {
-        this.pausedAt = this.historyPointer
-        this.pausedHistory = this.history.slice()
-      } else {
-        this.pauseOffset = 0
-        this.rebuildDisplayText()
-      }
-    },
-    currentConfig: {
-      deep: true,
-      handler: function (val) {
-        this.$emit('config-change', val)
-      },
-    },
-    allInstantSettings: function () {
-      this.rebuildDisplayText()
-    },
-    allDebouncedSettings: _.debounce(function () {
-      this.rebuildDisplayText()
-    }, 300),
-  },
-  created: function () {
-    if (this.config) {
-      this.currentConfig = {
-        ...this.currentConfig, // In case anything isn't defined in this.config
-        ...this.config,
-      }
-    }
-  },
-  mounted: function () {
-    this.textarea = this.$refs.textarea.$el.querySelectorAll('textarea')[0]
-  },
-  methods: {
-    receive: function (data) {
-      // This is called by the parent to feed this component data. A function is used instead
-      // of a prop to ensure each message gets handled, regardless of how fast they come in
+    lastReceived: function (data) {
       data.forEach((packet) => {
         delete packet.packet
         let decoded = {
@@ -269,6 +212,40 @@ export default {
         this.updateScrollPosition()
       }
     },
+    paused: function (val) {
+      if (val) {
+        this.pausedAt = this.historyPointer
+        this.pausedHistory = this.history.slice()
+      } else {
+        this.pauseOffset = 0
+        this.rebuildDisplayText()
+      }
+    },
+    allInstantSettings: function () {
+      this.rebuildDisplayText()
+    },
+    allDebouncedSettings: _.debounce(function () {
+      this.rebuildDisplayText()
+    }, 300),
+  },
+  created: function () {
+    const defaultConfig = {
+      format: 'hex',
+      showLineAddress: true,
+      showTimestamp: true,
+      bytesPerLine: 16,
+      packetsToShow: 1,
+      newestAtTop: false,
+    }
+    this.currentConfig = {
+      ...defaultConfig, // In case anything isn't defined in this.config
+      ...this.currentConfig,
+    }
+  },
+  mounted: function () {
+    this.textarea = this.$refs.textarea.$el.querySelectorAll('textarea')[0]
+  },
+  methods: {
     trimDisplayText: function () {
       // Could make this more robust by counting lines instead, but that's slower
       if (this.currentConfig.newestAtTop) {
@@ -333,7 +310,7 @@ export default {
         timestamp += '********************************************\n'
         text = `${timestamp}${text}`
       }
-      if (this.mode == 'RAW') {
+      if ('buffer' in packet) {
         // Split its buffer into lines of the selected length
         text += _.chunk([...packet.buffer], this.currentConfig.bytesPerLine)
           .map((lineBytes, index) => {
