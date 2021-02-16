@@ -383,13 +383,10 @@ module Cosmos
 
       # Write to stream
       packet.received_count += 1
-      STDOUT.puts "#{Time.now.to_f} TelemetryTopic.write_packet"
       TelemetryTopic.write_packet(packet, scope: @scope)
     end
 
     def inject_tlm(hash)
-      STDOUT.puts "#{Time.now.to_f} InterfaceMicroservice inject_tlm"
-
       packet = System.telemetry.packet(hash['target_name'], hash['packet_name']).clone
       if hash['item_hash']
         JSON.parse(hash['item_hash']).each do |item, value|

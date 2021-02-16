@@ -43,8 +43,6 @@ module Cosmos
 
 
     def cvt_data(topic, msg_id, msg_hash, redis)
-      STDOUT.puts "#{Time.now.to_f} CvtMicroservice cvt_data topic:#{topic}"
-
       start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       target_name = msg_hash["target_name"]
       packet_name = msg_hash["packet_name"]

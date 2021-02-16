@@ -113,7 +113,6 @@ module Cosmos
       unless CvtModel::VALUE_TYPES.include?(type.intern)
         raise "Unknown type '#{type}' for #{target_name} #{packet_name}"
       end
-      STDOUT.puts "#{Time.now.to_f} inject_tlm(#{target_name}, #{packet_name})"
 
       if item_hash
         # Check that the items exist ... exceptions are raised if not

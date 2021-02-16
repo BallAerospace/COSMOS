@@ -35,7 +35,6 @@ module Cosmos
     end
 
     before(:each) do
-      STDOUT.puts "#{Time.now.to_f} before(:each) start"
       mock_redis()
       setup_system()
       %w(INST SYSTEM).each do |target|
@@ -56,7 +55,6 @@ module Cosmos
       TelemetryDecomTopic.write_packet(packet, scope: "DEFAULT")
       sleep(0.01) # Allow the write to happen
       @api = ApiTest.new
-      STDOUT.puts "#{Time.now.to_f} before(:each) done"
     end
 
     after(:each) do
@@ -257,7 +255,6 @@ module Cosmos
 
     describe "inject_tlm" do
       before(:each) do
-        STDOUT.puts "#{Time.now.to_f} inject_tlm before(:each) start"
         model = InterfaceModel.new(name: "INST_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
         model.create
 
@@ -279,7 +276,6 @@ module Cosmos
         @dm_thread = Thread.new { @dm.run }
 
         sleep(0.1)
-        STDOUT.puts "#{Time.now.to_f} inject_tlm before(:each) done"
       end
 
       after(:each) do
@@ -304,17 +300,13 @@ module Cosmos
       end
 
       it "injects a packet into the system" do
-        STDOUT.puts "#{Time.now.to_f} INJECT TLM"
         @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 10, TEMP2: 20}, type: :CONVERTED)
         sleep 2
-        STDOUT.puts "#{Time.now.to_f} CHECK TLM"
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to be_within(0.1).of(20.0)
 
-        STDOUT.puts "#{Time.now.to_f} INJECT TLM"
         @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 0, TEMP2: 0}, type: :RAW)
         sleep 2
-        STDOUT.puts "#{Time.now.to_f} CHECK TLM"
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to eql(-100.0)
         expect(@api.tlm("INST HEALTH_STATUS TEMP2")).to eql(-100.0)
       end
