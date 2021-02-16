@@ -19,6 +19,7 @@
 
 require 'spec_helper'
 require 'cosmos/models/gem_model'
+require 'tempfile'
 
 module Cosmos
   describe GemModel do
