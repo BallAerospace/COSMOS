@@ -18,33 +18,184 @@
 # copyright holder
 
 require 'cosmos'
+require 'cosmos/api/api'
 require 'cosmos/io/json_drb_object'
-require 'cosmos/script/cmd_tlm_server'
-require 'cosmos/script/replay'
 require 'cosmos/script/commands'
-require 'cosmos/script/telemetry'
 require 'cosmos/script/limits'
-require 'cosmos/script/scripting'
-require 'cosmos/script/tools'
 
-$cmd_tlm_server = nil
-$disconnect = nil
-$cmd_tlm_replay_mode = false
+$api_server = nil
+$disconnect = false
 $cosmos_scope = 'DEFAULT'
 $cosmos_token = nil
 
 module Cosmos
+  module Script
+    private
+
+    # All methods are private so they can only be called by themselves and not
+    # on another object. This is important for the JsonDrbObject class which we
+    # use to communicate with the server. JsonDrbObject implements method_missing
+    # to forward calls to the remote service. If these methods were not private,
+    # they would be included on the $api_server global and would be
+    # called directly instead of being forwarded over the JsonDrb connection to
+    # the real server.
+
+    # For each of the Api methods determine if they haven't previously been defined by
+    # one of the script files. If not define them and proxy to the $api_server.
+    Api::WHITELIST.each do |method|
+      unless private_instance_methods(false).include?(method.intern)
+        define_method(method.intern) do |*args, **kwargs|
+          $api_server.send(method.intern, *args, **kwargs)
+        end
+      end
+    end
+
+    # Called when this module is mixed in using "include Cosmos::Script"
+    def self.included(base)
+      initialize_script()
+    end
+
+    def initialize_script
+      shutdown_script()
+      $disconnect = false
+      $api_server = ServerProxy.new
+    end
+
+    def shutdown_script
+      $api_server.shutdown if $api_server
+      $api_server = nil
+    end
+
+    def disconnect_script
+      $disconnect = true
+    end
+    
+    def play_wav_file(wav_filename)
+      # NOOP
+    end
+
+    def status_bar(message)
+      # NOOP
+    end
+
+    def ask_string(question, blank_or_default = false, password = false)
+      answer = ''
+      default = ''
+      if blank_or_default != true && blank_or_default != false
+        question << " (default = #{blank_or_default})"
+        allow_blank = true
+      else
+        allow_blank = blank_or_default
+      end
+      while answer.empty?
+        print question + " "
+        answer = gets
+        answer.chomp!
+        break if allow_blank
+      end
+      answer = default if answer.empty? and !default.empty?
+      return answer
+    end
+
+    def ask(question, blank_or_default = false, password = false)
+      string = ask_string(question, blank_or_default, password)
+      value = string.convert_to_value
+      return value
+    end
+
+    def prompt(string, **options)
+      prompt_to_continue(string, options)
+    end
+
+    def message_box(string, *buttons, **options)
+      prompt_message_box(string, buttons, options)
+    end
+
+    def vertical_message_box(string, *buttons, **options)
+      prompt_vertical_message_box(string, buttons, options)
+    end
+
+    def combo_box(string, *items, **options)
+      prompt_combo_box(string, items, options)
+    end
+
+    def _file_dialog(message, directory, filter, select_files = true)
+      answer = ''
+      files = Dir["#{directory}/#{filter}"]
+      if select_files
+        files.select! {|f| !File.directory? f }
+      else
+        files.select! {|f| File.directory? f }
+      end
+      while answer.empty?
+        print message + "\n" + files.join("\n") + "\n<Type file name>:"
+        answer = gets
+        answer.chomp!
+      end
+      return answer
+    end
+    def save_file_dialog(directory = Cosmos::USERPATH, message = "Save File", filter = "*")
+      _file_dialog(message, directory, filter)
+    end
+    def open_file_dialog(directory = Cosmos::USERPATH, message = "Open File", filter = "*")
+      _file_dialog(message, directory, filter)
+    end
+    def open_files_dialog(directory = Cosmos::USERPATH, message = "Open File(s)", filter = "*")
+      _file_dialog(message, directory, filter)
+    end
+    def open_directory_dialog(directory = Cosmos::USERPATH, message = "Open Directory")
+      _file_dialog(message, directory, "*", false)
+    end
+
+    def prompt_for_hazardous(target_name, cmd_name, hazardous_description)
+      message = "Warning: Command #{target_name} #{cmd_name} is Hazardous. "
+      message << "\n#{hazardous_description}\n" if hazardous_description
+      message << "Send? (y,n): "
+      print message
+      answer = gets.chomp
+      if answer.downcase == 'y'
+        return true
+      else
+        return false
+      end
+    end
+
+    def prompt_for_script_abort
+      print "Stop running script? (y,n): "
+      answer = gets.chomp
+      if answer.downcase == 'y'
+        exit
+      else
+        return false # Not aborted - Retry
+      end
+    end
+
+    def prompt_to_continue(string, text_color: nil, background_color: nil, font_size: nil, font_family: nil, details: nil)
+      print "#{string}: "
+      print "Details: #{details}\n" if details
+      gets.chomp
+    end
+
+    def prompt_message_box(string, buttons, text_color: nil, background_color: nil, font_size: nil, font_family: nil, details: nil)
+      print "#{string} (#{buttons.join(", ")}): "
+      print "Details: #{details}\n" if details
+      gets.chomp
+    end
+
+    def prompt_vertical_message_box(string, buttons, options)
+      prompt_message_box(string, buttons, options)
+    end
+
+    def prompt_combo_box(string, items, options)
+      prompt_message_box(string, items, options)
+    end    
+  end
+
   # Provides a proxy to the JsonDRbObject which communicates with the API server
   class ServerProxy
-    # Create a JsonDRbObject connected to Replay (if $cmd_tlm_replay_mode) or to the
-    # Command and Telemetry Server.
+    # Create a JsonDRbObject connection to the API server
     def initialize
-      # Start a JsonDRbObject to connect to the server
-      if $cmd_tlm_replay_mode
-        @cmd_tlm_server = JsonDRbObject.new(ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-cmd-tlm-api', 7777) # System.connect_hosts['REPLAY_API'], System.ports['REPLAY_API'])
-      else
-        @cmd_tlm_server = JsonDRbObject.new(ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-cmd-tlm-api', 7777) # System.connect_hosts['CTS_API'], System.ports['CTS_API'])
-      end
+      @json_drb = JsonDRbObject.new(ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-cmd-tlm-api', 7777)
     end
 
     # Ruby method which captures any method calls on this object. This allows
@@ -54,56 +205,10 @@ module Cosmos
       # to avoid it being sent to the API
       case method_name
       when :shutdown
-        @cmd_tlm_server.shutdown
-      when :disconnect
-        @cmd_tlm_server.disconnect
+        @json_drb.shutdown
       else
-        @cmd_tlm_server.method_missing(method_name, *method_params, scope: $cosmos_scope)
+        @json_drb.method_missing(method_name, *method_params, **kw_params, scope: $cosmos_scope)
       end
-    end
-  end
-
-  module Script
-    # All methods are private so they can only be called by themselves and not
-    # on another object. This is important for the JsonDrbObject class which we
-    # use to communicate with the server. JsonDrbObject implements method_missing
-    # to forward calls to the remote service. If these methods were not private,
-    # they would be included on the $cmd_tlm_server global and would be
-    # called directly instead of being forwarded over the JsonDrb connection to
-    # the real server.
-
-    private
-    # Called when this module is mixed in using "include Cosmos::Script"
-    def self.included(base)
-      $disconnect = nil
-      $cmd_tlm_replay_mode = false
-      $cmd_tlm_server = nil
-      initialize_script_module()
-    end
-
-    def initialize_script_module
-      shutdown_cmd_tlm()
-      $cmd_tlm_server = ServerProxy.new
-    end
-
-    def shutdown_cmd_tlm
-      $cmd_tlm_server.shutdown if $cmd_tlm_server
-    end
-
-    def disconnect_script
-      $disconnect = true
-      initialize_script_module()
-    end
-
-    def set_replay_mode(replay_mode)
-      if replay_mode != $cmd_tlm_replay_mode
-        $cmd_tlm_replay_mode = replay_mode
-        initialize_script_module()
-      end
-    end
-
-    def get_replay_mode
-      $cmd_tlm_replay_mode
     end
   end
 end

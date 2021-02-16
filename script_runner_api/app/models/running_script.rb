@@ -33,7 +33,15 @@ module Cosmos
   module Script
     private
     # Define all the user input methods used in scripting which we need to broadcast to the frontend
-    SCRIPT_METHODS = %i[ask_string prompt_dialog_box prompt_for_hazardous prompt_to_continue prompt_combo_box prompt_message_box prompt_vertical_message_box]
+    # TODO: ask(question, blank_or_default = false, password = false)
+    #   ask differs from ask_string in that it automatically converts the value to the correct type
+    # TODO: How do we handle file dialogs:
+    # save_file_dialog(directory = Cosmos::USERPATH, message = "Save File", filter = "*")
+    # open_file_dialog(directory = Cosmos::USERPATH, message = "Open File", filter = "*")
+    # open_files_dialog(directory = Cosmos::USERPATH, message = "Open File(s)", filter = "*")
+    # open_directory_dialog(directory = Cosmos::USERPATH, message = "Open Directory")
+
+    SCRIPT_METHODS = %i[ask_string prompt_dialog_box prompt_for_hazardous prompt prompt_to_continue combo_box prompt_combo_box message_box prompt_message_box vertical_message_box prompt_vertical_message_box]
     SCRIPT_METHODS.each do |method|
       define_method(method) do |*args|
         while true

@@ -19,6 +19,7 @@
 
 require 'cosmos/models/target_model'
 require 'cosmos/topics/command_topic'
+require 'cosmos/topics/interface_topic'
 
 module Cosmos
   module Api
@@ -180,7 +181,8 @@ module Cosmos
     # @param data [String] The raw binary data
     def send_raw(interface_name, data, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_raw', interface_name: interface_name, scope: scope, token: token)
-      InterfaceTopics.write_raw(interface_name, data, scope: scope)
+      get_interface(interface_name) # Check to make sure the interface exists
+      InterfaceTopic.write_raw(interface_name, data, scope: scope)
     end
 
     # Returns the raw buffer from the most recent specified command packet.
@@ -234,7 +236,7 @@ module Cosmos
     #
     # Accepts two different calling styles:
     #   get_cmd_hazardous("TGT CMD with PARAM1 val, PARAM2 val")
-    #   get_cmd_hazardous('TGT','CMD','PARAM1'=>val,'PARAM2'=>val)
+    #   get_cmd_hazardous('TGT','CMD',{'PARAM1'=>val,'PARAM2'=>val})
     #
     # @param args [String|Array<String>] See the description for calling style
     # @return [Boolean] Whether the command is hazardous

@@ -38,6 +38,10 @@ module Cosmos
       model = TargetModel.new(folder_name: 'INST', name: 'INST', scope: "DEFAULT")
       model.create
       model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+      model = InterfaceModel.new(name: "INST_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
+      model.create
+      model = InterfaceStatusModel.new(name: "INST_INT", scope: "DEFAULT", state: "ACTIVE")
+      model.create
 
       # Create an Interface we can use in the InterfaceCmdHandlerThread
       # It has to have a valid list of target_names as that is what 'receive_commands'
@@ -446,6 +450,10 @@ module Cosmos
     end
 
     describe "send_raw" do
+      it "raises on unknown interfaces" do
+        expect { @api.send_raw("BLAH_INT", "\x00\x01\x02\x03") }.to raise_error("Interface 'BLAH_INT' does not exist")
+      end
+
       it "sends raw data to an interface" do
         @api.send_raw("INST_INT", "\x00\x01\x02\x03")
         sleep 0.1

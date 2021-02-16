@@ -20,7 +20,7 @@
 require 'cosmos/topics/topic'
 
 module Cosmos
-  class RouterTopics < Topic
+  class RouterTopic < Topic
     def self.receive_telemetry(router, scope:)
       topics = []
       topics << "#{scope}__CMDROUTER__#{router.name}"
