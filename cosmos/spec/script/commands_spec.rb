@@ -20,255 +20,341 @@
 require 'spec_helper'
 require 'cosmos'
 require 'cosmos/script'
-require 'tempfile'
+require 'cosmos/api/api'
+require 'cosmos/models/target_model'
+require 'cosmos/microservices/interface_microservice'
+require 'cosmos/script/extract'
+require 'cosmos/utilities/authorization'
 
 module Cosmos
-  xdescribe Script do
-    before(:each) do
-      allow_any_instance_of(Interface).to receive(:connected?).and_return(true)
-      allow_any_instance_of(Interface).to receive(:disconnect)
-      allow_any_instance_of(Interface).to receive(:write)
-      allow_any_instance_of(Interface).to receive(:read)
+  describe Script do
+    class ApiTest
+      include Extract
+      include Api
+      include Authorization
+      def shutdown
+      end
+      def disconnect
+      end
+      def method_missing(name, *params, **kw_params)
+        self.send(name, *params, **kw_params)
+      end
+    end
 
-      @server = CmdTlmServer.new
-      shutdown_cmd_tlm()
-      initialize_script_module()
-      sleep 0.1
+    before(:each) do
+      redis = mock_redis()
+      setup_system()
+      @api = ApiTest.new
+      # Mock the server proxy to directly call the api
+      allow(ServerProxy).to receive(:new).and_return(@api)
+
+      model = TargetModel.new(folder_name: 'INST', name: 'INST', scope: "DEFAULT")
+      model.create
+      model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+      model = InterfaceModel.new(name: "INST_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
+      model.create
+      model = InterfaceStatusModel.new(name: "INST_INT", scope: "DEFAULT", state: "ACTIVE")
+      model.create
+
+      # Create an Interface we can use in the InterfaceCmdHandlerThread
+      # It has to have a valid list of target_names as that is what 'receive_commands'
+      # in the Store uses to determine which topics to read
+      interface = Interface.new
+      interface.name = "INST_INT"
+      interface.target_names = %w[INST]
+      # Stub to make the InterfaceCmdHandlerThread happy
+      @interface_data = ''
+      allow(interface).to receive(:connected?).and_return(true)
+      allow(interface).to receive(:write_interface) { |data| @interface_data = data }
+      @thread = InterfaceCmdHandlerThread.new(interface, nil, scope: 'DEFAULT')
+      @process = true # Allow the command to be processed or not
+      @int_thread = Thread.new { @thread.run }
+      sleep 0.01 # Allow thread to start
+
+      allow(redis).to receive(:xread).and_wrap_original do |m, *args|
+        # Only use the first two arguments as the last argument is keyword block:
+        result = m.call(*args[0..1]) if @process
+        # Create a slight delay to simulate the blocking call
+        sleep 0.001 if result and result.length == 0
+        result
+      end
+      initialize_script()
     end
 
     after(:each) do
-      @server.stop
-      shutdown_cmd_tlm()
-      sleep(0.1)
-    end
-
-    describe "require cosmos/script.rb" do
-      it "should raise when inside CmdTlmServer" do
-        save = $0
-        $0 = "CmdTlmServer"
-        expect { load 'cosmos/script.rb' }.to raise_error(/must not be required/)
-        $0 = save
-      end
-
-      it "should raise when inside Replay" do
-        save = $0
-        $0 = "Replay"
-        expect { load 'cosmos/script.rb' }.to raise_error(/must not be required/)
-        $0 = save
+      shutdown_script()
+      @int_thread.kill
+      count = 0
+      while (@int_thread.alive? or count < 100) do
+        sleep 0.01
+        count += 1
       end
     end
 
-    describe "cmd" do
-      it "sends a command" do
-        capture_io do |stdout|
-          cmd("INST ABORT")
-          expect(stdout.string).to match(/cmd\("INST ABORT"\)/) # "
-          stdout.rewind
-          cmd("INST", "ABORT")
-          expect(stdout.string).to match(/cmd\("INST ABORT"\)/) # "
+    %w(connected disconnected).each do |connect|
+      context "with server #{connect}" do
+        before(:each) do
+          @prefix = '' # Empty if we're connected
+          if connect == 'disconnected'
+            disconnect_script()
+            expect($api_server).to_not receive(:cmd)
+            @prefix = "DISCONNECT: "
+          end
         end
-      end
 
-      it "checks parameter ranges" do
-        expect { cmd("INST COLLECT with TYPE NORMAL, DURATION 20") }.to raise_error(/Command parameter 'INST COLLECT DURATION' = 20 not in valid range/)
-      end
+        describe "cmd" do
+          it "sends a command" do
+            capture_io do |stdout|
+              cmd("INST ABORT")
+              expect(stdout.string).to match(/#{@prefix}cmd\(\"INST ABORT\"\)/) #"
+              stdout.rewind
+              cmd("INST", "ABORT")
+              expect(stdout.string).to match(/#{@prefix}cmd\(\"INST ABORT\"\)/) #"
+            end
+          end
 
-      it "prompts for a hazardous command" do
-        capture_io do |stdout|
-          expect(self).to receive(:gets) { 'y' } # Send hazardous command
-          cmd("INST COLLECT with TYPE SPECIAL")
+          if connect == 'connected'
+            it "checks parameter ranges" do
+              expect { cmd("INST COLLECT with TYPE NORMAL, DURATION 20") }.to raise_error(/Command parameter 'INST COLLECT DURATION' = 20 not in valid range/)
+            end
+          else
+            it "does not check parameter ranges" do
+              cmd("INST COLLECT with TYPE NORMAL, DURATION 20")
+            end
+          end
 
-          expect(stdout.string).to match(/cmd\("INST COLLECT/) # "
-          expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
-          expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
-          expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring hazardous warnings")
-          stdout.rewind
+          it "sends with the hash parameter syntax" do
+            expect { cmd("INST", "COLLECT", "TYPE" => "NORMAL", "DURATION" => 5) }.to_not raise_error
+          end
 
-          expect(self).to receive(:gets) { 'n' } # Don't send hazardous
-          expect(self).to receive(:gets) { 'y' } # Stop running script
-          cmd("INST COLLECT with TYPE SPECIAL")
-          expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
+          it "#{'has no' if connect == 'disconnected'} prompts for a hazardous command" do
+            capture_io do |stdout|
+              expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
+              cmd("INST COLLECT with TYPE SPECIAL")
+              expect(stdout.string).to match(/#{@prefix}cmd\(\"INST COLLECT/) #"
+              if connect == 'connected'
+                expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
+                expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
+                expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring hazardous warnings")
+                stdout.rewind
+
+                expect(self).to receive(:gets) { 'n' } # Don't send hazardous
+                expect(self).to receive(:gets) { 'y' } # Stop running script
+                cmd("INST COLLECT with TYPE SPECIAL")
+                expect(stdout.string).to match(/#{@prefix}cmd\(\"INST COLLECT/) #"
+                expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
+              else
+                expect(stdout.string).to_not match("Warning")
+              end
+            end
+          end
         end
-      end
-    end
 
-    describe "cmd_no_range_check" do
-      it "sends an out of range command" do
-        expect { cmd_no_range_check("INST COLLECT with TYPE NORMAL, DURATION 20") }.to_not raise_error
-      end
+        describe "cmd_no_range_check" do
+          it "sends an out of range command" do
+            expect { cmd_no_range_check("INST COLLECT with TYPE NORMAL, DURATION 20") }.to_not raise_error
+          end
 
-      it "prompts for a hazardous command" do
-        capture_io do |stdout|
-          expect(self).to receive(:gets) { 'y' } # Send hazardous command
-          cmd_no_range_check("INST COLLECT with TYPE SPECIAL")
+          it "#{'has no' if connect == 'disconnected'} prompts for a hazardous command" do
+            capture_io do |stdout|
+              expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
+              cmd_no_range_check("INST COLLECT with TYPE SPECIAL")
 
-          expect(stdout.string).to match(/cmd\("INST COLLECT/) # "
-          expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
-          expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
-          expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring hazardous warnings")
-          stdout.rewind
+              expect(stdout.string).to match(/#{@prefix}cmd\(\"INST COLLECT/) #"
+              if connect == 'connected'
+                expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
+                expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
+                expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring hazardous warnings")
+                stdout.rewind
 
-          expect(self).to receive(:gets) { 'n' } # Don't send hazardous
-          expect(self).to receive(:gets) { 'y' } # Stop running script
-          cmd_no_range_check("INST COLLECT with TYPE SPECIAL")
-          expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
+                expect(self).to receive(:gets) { 'n' } # Don't send hazardous
+                expect(self).to receive(:gets) { 'y' } # Stop running script
+                cmd_no_range_check("INST COLLECT with TYPE SPECIAL")
+                expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
+              else
+                expect(stdout.string).to_not match("Warning")
+              end
+            end
+          end
         end
-      end
-    end
 
-    describe "cmd_no_hazardous_check" do
-      it "checks parameter ranges" do
-        expect { cmd_no_hazardous_check("INST COLLECT with TYPE SPECIAL, DURATION 20") }.to raise_error(/Command parameter 'INST COLLECT DURATION' = 20 not in valid range/)
-      end
+        describe "cmd_no_hazardous_check" do
+          if connect == 'connected'
+            it "checks parameter ranges" do
+              expect { cmd_no_hazardous_check("INST COLLECT with TYPE SPECIAL, DURATION 20") }.to raise_error(/Command parameter 'INST COLLECT DURATION' = 20 not in valid range/)
+            end
+          else
+            it "does not check parameter ranges" do
+              cmd_no_hazardous_check("INST COLLECT with TYPE SPECIAL, DURATION 20")
+            end
+          end
 
-      it "sends a hazardous command without prompting" do
-        capture_io do |stdout|
-          cmd_no_hazardous_check("INST COLLECT with TYPE SPECIAL")
+          it "sends a hazardous command without prompting" do
+            capture_io do |stdout|
+              cmd_no_hazardous_check("INST COLLECT with TYPE SPECIAL")
 
-          expect(stdout.string).to match(/cmd\("INST COLLECT/) # "
-          expect(stdout.string).to_not match("Warning: Command INST COLLECT is Hazardous")
-          expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
-          expect(stdout.string).to match("Command INST COLLECT being sent ignoring hazardous warnings")
+              expect(stdout.string).to match(/#{@prefix}cmd\(\"INST COLLECT/) #"
+              expect(stdout.string).to_not match("Warning: Command INST COLLECT is Hazardous")
+              expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
+              expect(stdout.string).to match("Command INST COLLECT being sent ignoring hazardous warnings")
+            end
+          end
         end
-      end
-    end
 
-    describe "cmd_no_checks" do
-      it "sends an out of range hazardous command without prompting" do
-        capture_io do |stdout|
-          cmd_no_checks("INST COLLECT with TYPE SPECIAL, DURATION 20")
+        describe "cmd_no_checks" do
+          it "sends an out of range hazardous command without prompting" do
+            capture_io do |stdout|
+              cmd_no_checks("INST COLLECT with TYPE SPECIAL, DURATION 20")
 
-          expect(stdout.string).to match(/cmd\("INST COLLECT/) # "
-          expect(stdout.string).to_not match("Warning: Command INST COLLECT is Hazardous")
-          expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
-          expect(stdout.string).to match("Command INST COLLECT being sent ignoring hazardous warnings")
+              expect(stdout.string).to match(/#{@prefix}cmd\(\"INST COLLECT/) #"
+              expect(stdout.string).to_not match("Warning: Command INST COLLECT is Hazardous")
+              expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
+              expect(stdout.string).to match("Command INST COLLECT being sent ignoring hazardous warnings")
+            end
+          end
         end
-      end
-    end
 
-    describe "cmd_raw" do
-      it "sends a command" do
-        capture_io do |stdout|
-          cmd_raw("INST ABORT")
-          expect(stdout.string).to match(/cmd_raw\("INST ABORT"\)/) # "
+        describe "cmd_raw" do
+          it "sends a command" do
+            capture_io do |stdout|
+              cmd_raw("INST ABORT")
+              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\"INST ABORT\"\)/) #"
+            end
+          end
+
+          if connect == 'connected'
+            it "checks parameter ranges" do
+              expect { cmd_raw("INST COLLECT with TYPE 0, DURATION 20") }.to raise_error(/Command parameter 'INST COLLECT DURATION' = 20 not in valid range/)
+            end
+          else
+            it "does not check parameter ranges" do
+              cmd_raw("INST COLLECT with TYPE 0, DURATION 20")
+            end
+          end
+
+          it "#{'has no' if connect == 'disconnected'} prompts for a hazardous command" do
+            capture_io do |stdout|
+              expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
+              cmd_raw("INST COLLECT with TYPE 1")
+
+              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\"INST COLLECT/) #"
+              if connect == 'connected'
+                expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
+                expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
+                expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring hazardous warnings")
+                stdout.rewind
+                expect(self).to receive(:gets) { 'n' } # Don't send hazardous
+                expect(self).to receive(:gets) { 'y' } # Stop running script
+                cmd_raw("INST COLLECT with TYPE 1")
+                expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
+              else
+                expect(stdout.string).to_not match("Warning")
+              end
+            end
+          end
         end
-      end
 
-      it "checks parameter ranges" do
-        expect { cmd_raw("INST COLLECT with TYPE 0, DURATION 20") }.to raise_error(/Command parameter 'INST COLLECT DURATION' = 20 not in valid range/)
-      end
+        describe "cmd_raw_no_range_check" do
+          it "sends an out of range command" do
+            expect { cmd_raw_no_range_check("INST COLLECT with TYPE 0, DURATION 20") }.to_not raise_error
+          end
 
-      it "prompts for a hazardous command" do
-        capture_io do |stdout|
-          expect(self).to receive(:gets) { 'y' } # Send hazardous command
-          cmd_raw("INST COLLECT with TYPE 1")
+          it "#{'has no' if connect == 'disconnected'} prompts for a hazardous command" do
+            capture_io do |stdout|
+              expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
+              cmd_raw_no_range_check("INST COLLECT with TYPE 1")
 
-          expect(stdout.string).to match(/cmd_raw\("INST COLLECT/) # "
-          expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
-          expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
-          expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring hazardous warnings")
-          stdout.rewind
-
-          expect(self).to receive(:gets) { 'n' } # Don't send hazardous
-          expect(self).to receive(:gets) { 'y' } # Stop running script
-          cmd_raw("INST COLLECT with TYPE 1")
-          expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
+              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\"INST COLLECT/) #"
+              if connect == 'connected'
+                expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
+                expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
+                expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring hazardous warnings")
+                stdout.rewind
+                expect(self).to receive(:gets) { 'n' } # Don't send hazardous
+                expect(self).to receive(:gets) { 'y' } # Stop running script
+                cmd_raw_no_range_check("INST COLLECT with TYPE 1")
+                expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
+              else
+                expect(stdout.string).to_not match("Warning")
+              end
+            end
+          end
         end
-      end
-    end
 
-    describe "cmd_raw_no_range_check" do
-      it "sends an out of range command" do
-        expect { cmd_raw_no_range_check("INST COLLECT with TYPE 0, DURATION 20") }.to_not raise_error
-      end
+        describe "cmd_raw_no_hazardous_check" do
+          if connect == 'connected'
+            it "checks parameter ranges" do
+              expect { cmd_raw_no_hazardous_check("INST COLLECT with TYPE 1, DURATION 20") }.to raise_error(/Command parameter 'INST COLLECT DURATION' = 20 not in valid range/)
+            end
+          else
+            it "does not check parameter ranges" do
+              cmd_raw_no_hazardous_check("INST COLLECT with TYPE 1, DURATION 20")
+            end
+          end
 
-      it "prompts for a hazardous command" do
-        capture_io do |stdout|
-          expect(self).to receive(:gets) { 'y' } # Send hazardous command
-          cmd_raw_no_range_check("INST COLLECT with TYPE 1")
-
-          expect(stdout.string).to match(/cmd_raw\("INST COLLECT/) # "
-          expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
-          expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
-          expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring hazardous warnings")
-          stdout.rewind
-
-          expect(self).to receive(:gets) { 'n' } # Don't send hazardous
-          expect(self).to receive(:gets) { 'y' } # Stop running script
-          cmd_raw_no_range_check("INST COLLECT with TYPE 1")
-          expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
+          it "sends a hazardous command without prompting" do
+            capture_io do |stdout|
+              cmd_raw_no_hazardous_check("INST COLLECT with TYPE 1")
+              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\"INST COLLECT/) #"
+              expect(stdout.string).to_not match("Warning: Command INST COLLECT is Hazardous")
+              expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
+              expect(stdout.string).to match("Command INST COLLECT being sent ignoring hazardous warnings")
+            end
+          end
         end
-      end
-    end
 
-    describe "cmd_raw_no_hazardous_check" do
-      it "checks parameter ranges" do
-        expect { cmd_raw_no_hazardous_check("INST COLLECT with TYPE 1, DURATION 20") }.to raise_error(/Command parameter 'INST COLLECT DURATION' = 20 not in valid range/)
-      end
-
-      it "sends a hazardous command without prompting" do
-        capture_io do |stdout|
-          cmd_raw_no_hazardous_check("INST COLLECT with TYPE 1")
-          expect(stdout.string).to match(/cmd_raw\("INST COLLECT/) # "
-          expect(stdout.string).to_not match("Warning: Command INST COLLECT is Hazardous")
-          expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
-          expect(stdout.string).to match("Command INST COLLECT being sent ignoring hazardous warnings")
+        describe "cmd_raw_no_checks" do
+          it "sends an out of range hazardous command without prompting" do
+            capture_io do |stdout|
+              cmd_raw_no_checks("INST COLLECT with TYPE 1, DURATION 20")
+              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\"INST COLLECT/) #"
+              expect(stdout.string).to_not match("Warning: Command INST COLLECT is Hazardous")
+              expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
+              expect(stdout.string).to match("Command INST COLLECT being sent ignoring hazardous warnings")
+            end
+          end
         end
-      end
-    end
 
-    describe "cmd_raw_no_checks" do
-      it "sends an out of range hazardous command without prompting" do
-        capture_io do |stdout|
-          cmd_raw_no_checks("INST COLLECT with TYPE 1, DURATION 20")
-          expect(stdout.string).to match(/cmd_raw\("INST COLLECT/) # "
-          expect(stdout.string).to_not match("Warning: Command INST COLLECT is Hazardous")
-          expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
-          expect(stdout.string).to match("Command INST COLLECT being sent ignoring hazardous warnings")
+        describe "send_raw" do
+          it "sends data to the write_raw interface method" do
+            send_raw('INST_INT', "\x00\x01\x02\x03")
+            sleep 0.1
+            expect(@interface_data).to eql "\x00\x01\x02\x03" if connect == 'connected'
+          end
         end
-      end
-    end
 
-    describe "send_raw" do
-      it "sends data to the write_raw interface method" do
-        expect_any_instance_of(Interface).to receive(:write_raw).with('\x00')
-        send_raw('INST_INT', '\x00')
-      end
-    end
+        describe "send_raw_file" do
+          before(:each) do
+            file = File.open('raw_test_file.bin', 'wb')
+            file.write "\x00\x01\x02\x03"
+            file.close
+          end
 
-    describe "send_raw_file" do
-      it "sends file data to the write_raw interface method" do
-        file = File.open('raw_test_file.bin','wb')
-        file.write '\x00\x01\x02\x03'
-        file.close
+          after(:each) do
+            File.delete('raw_test_file.bin')
+          end
 
-        expect_any_instance_of(Interface).to receive(:write_raw).with('\x00\x01\x02\x03')
+          it "raises if the interface does not exist" do
+            expect { send_raw_file('BLAH_INT', 'raw_test_file.bin') }.to raise_error(/Interface 'BLAH_INT' does not exist/)
+          end
 
-        send_raw_file('INST_INT', 'raw_test_file.bin')
+          it "raises if the file does not exist" do
+            expect { send_raw_file('INST_INT', 'blah.bin') }.to raise_error(/No such file/)
+          end
 
-        File.delete('raw_test_file.bin')
-      end
-    end
+          it "sends file data to the write_raw interface method" do
+            send_raw_file('INST_INT', 'raw_test_file.bin')
+            sleep 0.1
+            expect(@interface_data).to eql "\x00\x01\x02\x03" if connect == 'connected'
+          end
+        end
 
-    describe "get_cmd_hazardous" do
-      it "returns whether a command is hazardous" do
-        expect(get_cmd_hazardous("INST", "COLLECT", { "TYPE" => "NORMAL" })).to be false
-        expect(get_cmd_hazardous("INST", "COLLECT", { "TYPE" => "SPECIAL" })).to be true
-      end
-    end
-
-    describe "get_cmd_value, get_cmd_time, get_cmd_buffer" do
-      it "passes through to the cmd_tlm_server" do
-        expect {
-          get_cmd_value("INST", "COLLECT", "TYPE")
-          get_cmd_value("INST", "COLLECT", "RECEIVED_TIMEFORMATTED")
-          get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")
-          get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")
-          get_cmd_time("INST", "COLLECT")
-          get_cmd_time("INST")
-          get_cmd_time()
-          get_cmd_buffer("INST", "COLLECT")
-        }.to_not raise_error
+        describe "get_cmd_time" do
+          it "creates an actual Ruby Time value" do
+            _, _, time = get_cmd_time()
+            expect(time).to be_a(Time)
+          end
+        end
       end
     end
   end

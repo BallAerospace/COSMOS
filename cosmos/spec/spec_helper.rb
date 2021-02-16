@@ -90,8 +90,21 @@ def get_all_redis_keys
   keys
 end
 
+require 'mock_redis'
+class MockRedis
+  module StreamMethods
+    private
+
+    def with_stream_at(key, &blk)
+      @mutex ||= Mutex.new
+      @mutex.synchronize do
+        with_thing_at(key, :assert_streamy, proc { Stream.new }, &blk)
+      end
+    end
+  end
+end
+
 def mock_redis
-  require 'mock_redis'
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
   # pool = double(ConnectionPool)

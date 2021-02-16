@@ -19,7 +19,7 @@
 
 require 'cosmos/models/router_model'
 require 'cosmos/models/router_status_model'
-require 'cosmos/topics/router_topics'
+require 'cosmos/topics/router_topic'
 
 module Cosmos
   module Api
@@ -57,7 +57,7 @@ module Cosmos
     # @param params [Array] Parameters to pass to the router.
     def connect_router(router_name, *params, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', router_name: router_name, scope: scope, token: token)
-      RouterTopics.connect_router(router_name, scope: scope)
+      RouterTopic.connect_router(router_name, scope: scope)
     end
 
     # Disconnects a router and kills its command gathering thread
@@ -65,7 +65,7 @@ module Cosmos
     # @param router_name [String] Name of router
     def disconnect_router(router_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system_set', router_name: router_name, scope: scope, token: token)
-      RouterTopics.disconnect_router(router_name, scope: scope)
+      RouterTopic.disconnect_router(router_name, scope: scope)
     end
 
     # Starts raw logging for a router
@@ -75,10 +75,10 @@ module Cosmos
       authorize(permission: 'system_set', router_name: router_name, scope: scope, token: token)
       if router_name == 'ALL'
         get_router_names().each do |router_name|
-          RouterTopics.start_raw_logging(router_name, scope: scope)
+          RouterTopic.start_raw_logging(router_name, scope: scope)
         end
       else
-        RouterTopics.start_raw_logging(router_name, scope: scope)
+        RouterTopic.start_raw_logging(router_name, scope: scope)
       end
     end
 
@@ -89,10 +89,10 @@ module Cosmos
       authorize(permission: 'system_set', router_name: router_name, scope: scope, token: token)
       if router_name == 'ALL'
         get_router_names().each do |router_name|
-          RouterTopics.stop_raw_logging(router_name, scope: scope)
+          RouterTopic.stop_raw_logging(router_name, scope: scope)
         end
       else
-        RouterTopics.stop_raw_logging(router_name, scope: scope)
+        RouterTopic.stop_raw_logging(router_name, scope: scope)
       end
     end
 

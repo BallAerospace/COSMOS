@@ -157,14 +157,14 @@ module Cosmos
       System.class_eval('@@instance = nil')
       require 'cosmos/script'
       @server = CmdTlmServer.new
-      shutdown_cmd_tlm()
-      initialize_script_module()
+      shutdown_script()
+      initialize_script()
       sleep 0.1
 
       expect { override_tlm_raw("INST HEALTH_STATUS TEMP3 = 0") }.to raise_error(/INST_INT does not have override ability/)
 
       @server.stop
-      shutdown_cmd_tlm()
+      shutdown_script()
       sleep(0.1)
       # Restore cmd_tlm_server.txt
       FileUtils.mv File.join(Cosmos::USERPATH, 'cmd_tlm_server.txt'),
