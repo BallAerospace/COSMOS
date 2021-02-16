@@ -19,7 +19,6 @@
 
 class TimeController < ApplicationController
   def get_current
-    # authorize(permission: 'system', scope: params[:scope], token: params[:token]) # TODO: do we want auth here?
     now = Time.now.to_nsec_from_epoch
     render :json => {
       now_nsec: now

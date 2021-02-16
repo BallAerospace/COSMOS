@@ -65,7 +65,7 @@ export default {
   },
   methods: {
     dismiss: function () {
-      localStorage.suppressCosmosTimeCheck = this.suppress
+      localStorage.suppressCosmosTimeCheck = this.suppress // TODO: add a way to reset this from global settings page (COSMOSEE-127)
       this.dismissed = true
     },
   },
