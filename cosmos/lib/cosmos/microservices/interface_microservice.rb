@@ -387,6 +387,8 @@ module Cosmos
     end
 
     def inject_tlm(hash)
+      STDOUT.puts "#{Time.now.to} InterfaceMicroservice inject_tlm"
+
       packet = System.telemetry.packet(hash['target_name'], hash['packet_name']).clone
       if hash['item_hash']
         JSON.parse(hash['item_hash']).each do |item, value|

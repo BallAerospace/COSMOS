@@ -35,6 +35,7 @@ module Cosmos
     end
 
     before(:each) do
+      STDOUT.puts "#{Time.now.to_f} before(:each) start"
       mock_redis()
       setup_system()
       %w(INST SYSTEM).each do |target|
@@ -55,6 +56,7 @@ module Cosmos
       TelemetryDecomTopic.write_packet(packet, scope: "DEFAULT")
       sleep(0.01) # Allow the write to happen
       @api = ApiTest.new
+      STDOUT.puts "#{Time.now.to_f} before(:each) done"
     end
 
     after(:each) do
@@ -255,6 +257,7 @@ module Cosmos
 
     describe "inject_tlm" do
       before(:each) do
+        STDOUT.puts "#{Time.now.to_f} inject_tlm before(:each) start"
         model = InterfaceModel.new(name: "INST_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
         model.create
 
@@ -276,6 +279,7 @@ module Cosmos
         @dm_thread = Thread.new { @dm.run }
 
         sleep(0.1)
+        STDOUT.puts "#{Time.now.to_f} inject_tlm before(:each) done"
       end
 
       after(:each) do
