@@ -302,7 +302,7 @@ module Cosmos
     describe "get_out_of_limits" do
       it "returns all out of limits items" do
         @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, type: :RAW)
-        sleep(0.2)
+        sleep 2
         items = @api.get_out_of_limits
         (0..3).each do |i|
           expect(items[i][0]).to eql "INST"
@@ -322,10 +322,10 @@ module Cosmos
         # TEMP1 limits: -80.0 -70.0 60.0 80.0 -20.0 20.0
         # TEMP2 limits: -60.0 -55.0 30.0 35.0
         @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP1' => 70, 'TEMP2' => 32 }) # Both YELLOW
-        sleep(0.2)
+        sleep 2
         expect(@api.get_overall_limits_state).to eql "YELLOW"
         @api.inject_tlm("INST", "HEALTH_STATUS", { 'TEMP2' => 40 })
-        sleep(0.2)
+        sleep 2
         expect(@api.get_overall_limits_state).to eql "RED"
         expect(@api.get_overall_limits_state([])).to eql "RED"
 

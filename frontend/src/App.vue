@@ -27,15 +27,18 @@
       </v-container>
     </v-main>
     <AppFooter app />
+    <time-check />
   </v-app>
 </template>
 
 <script>
 import AppFooter from '@/AppFooter'
+import TimeCheck from '@/components/TimeCheck'
 
 export default {
   components: {
     AppFooter,
+    TimeCheck,
   },
 }
 </script>

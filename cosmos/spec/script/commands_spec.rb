@@ -27,16 +27,6 @@ require 'cosmos/script/extract'
 require 'cosmos/utilities/authorization'
 
 module Cosmos
-  module Script
-    # Create the methods defined by running_script.rb
-    RUNNING_SCRIPT_METHODS = %i[prompt_for_script_abort ask_string prompt_dialog_box prompt_for_hazardous prompt prompt_to_continue combo_box prompt_combo_box message_box prompt_message_box vertical_message_box prompt_vertical_message_box]
-    RUNNING_SCRIPT_METHODS.each do |method|
-      define_method(method) do |*args|
-        # puts "#{method}(#{args})"
-      end
-    end
-  end
-
   describe Script do
     class ApiTest
       include Extract
@@ -141,7 +131,6 @@ module Cosmos
             capture_io do |stdout|
               expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
               cmd("INST COLLECT with TYPE SPECIAL")
-
               expect(stdout.string).to match(/#{@prefix}cmd\(\"INST COLLECT/) #"
               if connect == 'connected'
                 expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
