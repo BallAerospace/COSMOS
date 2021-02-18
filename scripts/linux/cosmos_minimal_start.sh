@@ -40,7 +40,6 @@ docker container rm cosmos-operator
 docker run --network cosmos -d -p 7779:7779 --name cosmos-operator --env NO_FLUENTD=1 cosmos-operator
 
 docker build -f init/Dockerfile -t cosmos-init init
-docker container rm cosmos-init
 docker run --network cosmos --name cosmos-init --rm --env NO_FLUENTD=1 cosmos-init
 
 echo "If everything is working you should be able to access Cosmos at http://localhost:8080/"

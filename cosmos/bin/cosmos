@@ -320,9 +320,20 @@ end
 
 def load_plugin(plugin_file_path, scope:)
   scope ||= 'DEFAULT'
-  Cosmos::ScopeModel.new(name: scope).create(force: true)
-  plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
-  Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
+  begin
+    scope_model = Cosmos::ScopeModel.new(name: scope, scope: scope)
+    scope_model.create
+    scope_model.deploy(".", {})
+  rescue => err
+    puts "Error creating scope: #{scope}: #{err.formatted}"
+  end
+
+  begin
+    plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
+    Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
+  rescue => err
+    puts "Error installing plugin: #{scope}: #{plugin_file_path}: #{err.formatted}"
+  end
 end
 
 def get_redis_keys

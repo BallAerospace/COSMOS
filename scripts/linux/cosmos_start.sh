@@ -72,7 +72,6 @@ docker container rm cosmos-operator
 docker run --network cosmos -d --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=operator.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true -p 7779:7779 --name cosmos-operator cosmos-operator
 
 docker build -f init/Dockerfile -t cosmos-init init
-docker container rm cosmos-init
 docker run --network cosmos --name cosmos-init --rm cosmos-init
 
 echo "Grafana http://localhost:3000/"
