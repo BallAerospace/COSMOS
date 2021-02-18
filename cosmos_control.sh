@@ -18,6 +18,9 @@ if [ $# -ne 1 ]; then
 fi
 
 case $1 in
+setup)
+  scripts/linux/cosmos_setup.sh
+  ;;
 start)
   scripts/linux/cosmos_setup.sh
   scripts/linux/cosmos_start.sh
@@ -25,18 +28,15 @@ start)
 stop)
   scripts/linux/cosmos_stop.sh
   ;;
+cleanup)
+  scripts/linux/cosmos_cleanup.sh
+  ;;
 build)
   scripts/linux/cosmos_setup.sh
   scripts/linux/cosmos_build.sh
   ;;
-cleanup)
-  scripts/linux/cosmos_cleanup.sh
-  ;;
 deploy)
   scripts/linux/cosmos_deploy.sh
-  ;;
-setup)
-  scripts/linux/cosmos_setup.sh
   ;;
 start_dev)
   scripts/linux/cosmos_setup.sh
