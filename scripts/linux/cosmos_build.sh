@@ -16,8 +16,6 @@ docker build -f script_runner_api/Dockerfile -t cosmos-script-runner-api script_
 
 docker build -f frontend/Dockerfile -t cosmos-frontend frontend
 
-docker build -f aggregator/Dockerfile -t cosmos-aggregator aggregator
-
 docker build -f operator/Dockerfile -t cosmos-operator operator
 
 docker build -f init/Dockerfile -t cosmos-init init
