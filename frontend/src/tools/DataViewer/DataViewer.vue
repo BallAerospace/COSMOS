@@ -97,8 +97,16 @@
         ></v-text-field>
       </v-col>
       <v-col cols="auto" class="pt-4">
-        <v-btn v-if="running" color="red" width="86" @click="stop"> Stop </v-btn>
-        <v-btn v-else color="green" width="86" :disabled="!canStart" @click="start">
+        <v-btn v-if="running" color="red" width="86" @click="stop">
+          Stop
+        </v-btn>
+        <v-btn
+          v-else
+          color="green"
+          width="86"
+          :disabled="!canStart"
+          @click="start"
+        >
           Start
         </v-btn>
       </v-col>
