@@ -18,76 +18,12 @@
 -->
 
 <template>
-  <v-container>
-    <v-row no-gutters>
-      <v-col>
-        <v-expansion-panels>
-          <v-expansion-panel>
-            <v-expansion-panel-header>
-              Display Settings
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
-              <v-container>
-                <v-row no-gutters>
-                  <v-col v-if="mode === 'RAW'">
-                    <v-radio-group
-                      v-model="currentConfig.format"
-                      label="Display format"
-                    >
-                      <v-radio label="Hex" value="hex" />
-                      <v-radio label="ASCII" value="ascii" />
-                    </v-radio-group>
-                  </v-col>
-                  <v-col>
-                    <v-radio-group
-                      v-model="currentConfig.newestAtTop"
-                      label="Print newest packets to the"
-                    >
-                      <v-radio label="Top" :value="true" />
-                      <v-radio label="Bottom" :value="false" />
-                    </v-radio-group>
-                  </v-col>
-                  <v-col>
-                    <v-switch
-                      v-model="currentConfig.showLineAddress"
-                      label="Show line address"
-                    />
-                    <v-switch
-                      v-model="currentConfig.showTimestamp"
-                      label="Show timestamp"
-                    />
-                  </v-col>
-                  <v-col>
-                    <v-text-field
-                      v-if="mode === 'RAW'"
-                      v-model="currentConfig.bytesPerLine"
-                      label="Bytes per line"
-                      type="number"
-                      min="1"
-                      v-on:change="validateBytesPerLine"
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="currentConfig.packetsToShow"
-                      label="Packets to show"
-                      type="number"
-                      :hint="`Maximum: ${this.history.length}`"
-                      persistent-hint
-                      :min="1"
-                      :max="this.history.length"
-                      v-on:change="validatePacketsToShow"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-        </v-expansion-panels>
-      </v-col>
-    </v-row>
-    <v-row>
+  <v-container class="pt-0">
+    <v-row dense>
       <v-col>
         <v-text-field
           v-model="filterText"
+          class="pt-0 mt-0"
           label="Search"
           append-icon="mdi-magnify"
           single-line
@@ -95,7 +31,7 @@
         ></v-text-field>
       </v-col>
     </v-row>
-    <v-row class="pb-0">
+    <v-row>
       <v-col>
         <v-slider
           v-model="pauseOffset"
@@ -106,11 +42,12 @@
           append-icon="mdi-step-forward"
           :min="1 - history.length"
           :max="0"
+          hide-details
         />
       </v-col>
     </v-row>
-    <v-row no-gutters>
-      <v-col class="pl-0 pr-0">
+    <v-row dense no-gutters>
+      <v-col>
         <div class="text-area-container">
           <v-textarea
             ref="textarea"
@@ -119,8 +56,83 @@
             readonly
             solo
             flat
+            hide-details
           />
           <div class="floating-buttons">
+            <v-menu
+              :close-on-content-click="false"
+              :min-width="900"
+              :nudge-left="910"
+            >
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  class="ml-2"
+                  color="secondary"
+                  v-bind="attrs"
+                  v-on="on"
+                  fab
+                  small
+                >
+                  <v-icon>mdi-cog</v-icon>
+                </v-btn>
+              </template>
+              <v-card>
+                <v-card-title> Display settings </v-card-title>
+                <v-card-text>
+                  <v-row no-gutters>
+                    <v-col v-if="mode === 'RAW'">
+                      <v-radio-group
+                        v-model="currentConfig.format"
+                        label="Display format"
+                      >
+                        <v-radio label="Hex" value="hex" />
+                        <v-radio label="ASCII" value="ascii" />
+                      </v-radio-group>
+                    </v-col>
+                    <v-col>
+                      <v-radio-group
+                        v-model="currentConfig.newestAtTop"
+                        label="Print newest packets to the"
+                      >
+                        <v-radio label="Top" :value="true" />
+                        <v-radio label="Bottom" :value="false" />
+                      </v-radio-group>
+                    </v-col>
+                    <v-col>
+                      <v-switch
+                        v-if="mode === 'RAW'"
+                        v-model="currentConfig.showLineAddress"
+                        label="Show line address"
+                      />
+                      <v-switch
+                        v-model="currentConfig.showTimestamp"
+                        label="Show timestamp"
+                      />
+                    </v-col>
+                    <v-col>
+                      <v-text-field
+                        v-if="mode === 'RAW'"
+                        v-model="currentConfig.bytesPerLine"
+                        label="Bytes per line"
+                        type="number"
+                        min="1"
+                        v-on:change="validateBytesPerLine"
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="currentConfig.packetsToShow"
+                        label="Packets to show"
+                        type="number"
+                        :hint="`Maximum: ${this.history.length}`"
+                        persistent-hint
+                        :min="1"
+                        :max="this.history.length"
+                        v-on:change="validatePacketsToShow"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-card-text>
+              </v-card>
+            </v-menu>
             <v-btn
               class="ml-2"
               v-on:click="download"

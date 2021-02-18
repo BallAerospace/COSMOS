@@ -20,7 +20,7 @@
 <template>
   <div>
     <app-nav app :menus="menus" />
-    <v-row>
+    <v-row dense>
       <v-col>
         <v-menu
           :close-on-content-click="true"
@@ -96,15 +96,14 @@
           data-test="endTime"
         ></v-text-field>
       </v-col>
+      <v-col cols="auto" class="pt-4">
+        <v-btn v-if="running" color="red" width="86" @click="stop"> Stop </v-btn>
+        <v-btn v-else color="green" width="86" :disabled="!canStart" @click="start">
+          Start
+        </v-btn>
+      </v-col>
     </v-row>
-    <v-row no-gutters>
-      <v-spacer />
-      <v-btn v-if="running" color="red" @click="stop"> Stop </v-btn>
-      <v-btn v-else color="green" :disabled="!canStart" @click="start">
-        Start
-      </v-btn>
-    </v-row>
-    <div class="mt-3">
+    <div class="mb-3" v-show="warning || error || connectionFailure">
       <v-alert type="warning" v-model="warning" dismissible>
         {{ warningText }}
       </v-alert>
@@ -115,7 +114,7 @@
         COSMOS backend connection failed.
       </v-alert>
     </div>
-    <v-card class="mt-3">
+    <v-card>
       <v-tabs ref="tabs" v-model="curTab">
         <v-tab
           v-for="(tab, index) in config.tabs"
@@ -136,7 +135,7 @@
             flat
           >
             <v-divider />
-            <v-card-title>
+            <v-card-title class="pa-3">
               {{ packet.target }} {{ packet.packet }}
               <v-spacer />
               <v-btn @click="() => deleteComponent(index, packetIndex)" icon>
@@ -607,5 +606,9 @@ export default {
 <style scoped>
 .text-component-missing-name {
   font-family: 'Courier New', Courier, monospace;
+}
+
+.v-tabs-items {
+  overflow: visible;
 }
 </style>
