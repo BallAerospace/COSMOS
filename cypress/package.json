@@ -1,0 +1,25 @@
+{
+  "name": "cypress",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "vue": "^2.6.12",
+    "vue-template-compiler": "^2.6.12",
+    "@vue/cli": "^4.5.9",
+    "@vue/cli-plugin-babel": "^4.5.9",
+    "@vue/cli-plugin-eslint": "^4.5.9",
+    "@vue/cli-plugin-router": "^4.5.9",
+    "@vue/cli-plugin-unit-jest": "^4.5.9",
+    "@vue/cli-service": "^4.5.9",
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "@cypress/code-coverage": "^3.8.8",
+    "babel-eslint": "^10.1.0",
+    "cypress": "^6.5.0",
+    "cypress-vue-unit-test": "3",
+    "vue-cli-plugin-cypress-experimental": "^1.2.0",
+    "eslint": "^7.17.0",
+    "eslint-plugin-prettier": "^3.3.0",
+    "eslint-plugin-vue": "^7.4.0",
+    "prettier": "^2.2.1"
+  }
+}
