@@ -17,7 +17,7 @@ docker build -f aggregator/Dockerfile -t cosmos-aggregator aggregator
 
 docker build -f elasticsearch/Dockerfile -t cosmos-elasticsearch elasticsearch
 
-docker build -f kibanan/Dockerfile -t cosmos-kibana kibana
+docker build -f kibana/Dockerfile -t cosmos-kibana kibana
 
 docker build -f fluentd/Dockerfile -t cosmos-fluentd fluentd
 
