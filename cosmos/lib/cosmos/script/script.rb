@@ -45,7 +45,7 @@ module Cosmos
     Api::WHITELIST.each do |method|
       unless private_instance_methods(false).include?(method.intern)
         define_method(method.intern) do |*args, **kwargs|
-          $api_server.send(method.intern, *args, **kwargs)
+          $api_server.method_missing(method.intern, *args, **kwargs)
         end
       end
     end
