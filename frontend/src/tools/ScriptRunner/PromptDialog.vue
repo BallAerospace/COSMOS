@@ -22,8 +22,12 @@
     <v-dialog persistent v-model="show" width="400">
       <v-card>
         <v-card-title>{{ title }}</v-card-title>
+        <v-card-subtitle v-if="subtitle !== ''">{{ subtitle }}</v-card-subtitle>
         <v-card-text>
           {{ message }}
+        </v-card-text>
+        <v-card-text v-if="details !== ''">
+          {{ details }}
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions :class="layoutClass">
@@ -79,9 +83,17 @@ export default {
       type: String,
       default: 'Prompt Dialog',
     },
+    subtitle: {
+      type: String,
+      default: '',
+    },
     message: {
       type: String,
       required: true,
+    },
+    details: {
+      type: String,
+      default: '',
     },
     buttons: {
       type: Array,
