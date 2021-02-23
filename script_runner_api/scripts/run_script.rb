@@ -86,7 +86,7 @@ begin
       else
         if parsed_cmd["method"]
           case parsed_cmd["method"]
-          when "ask", "ask_string", /message_box$/, /combo_box$/, /^prompt/
+          when "ask", "ask_string", "message_box", "vertical_message_box", "combo_box", "prompt", "prompt_for_hazardous", "prompt_for_script_abort"
             if parsed_cmd["password"]
               running_script.user_input = parsed_cmd["password"].to_s
               running_script.continue if running_script.user_input != 'Cancel'
