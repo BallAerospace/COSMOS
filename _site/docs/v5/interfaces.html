@@ -108,7 +108,7 @@
 </ul></div>
         
         <h1>Interface Configuration</h1>
-        <p>Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customizable portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own. Note that in most cases you can extend interfaces with <a href="/docs/protocols/">Protocols</a> rather than implementing a new interface.</p>
+        <p>Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customizable portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own. Note that in most cases you can extend interfaces with <a href="/docs/v5/protocols/">Protocols</a> rather than implementing a new interface.</p>
 
 <div class="note info">
   Note that Interfaces and Routers are very similar and share the same configuration parameters. Routers are simply Interfaces which route an existing Interface's telemetry data out to the connected target and routes the connected target's commands back to the original Interface's target.
@@ -153,7 +153,7 @@
 <h2 id="provided-interfaces">
 <a class="anchor" href="#provided-interfaces" aria-hidden="true"><span class="octicon octicon-link"></span></a>Provided Interfaces</h2>
 
-<p>Cosmos provides the following interfaces for use: TCPIP Client, TCPIP Server, UDP, Serial, Command Telemetry Server, and LINC. The interface to use is defined by the <a href="/docs/system/#interface">INTERFACE</a> and <a href="/docs/system/#router">ROUTER</a> keywords.</p>
+<p>Cosmos provides the following interfaces for use: TCPIP Client, TCPIP Server, UDP, Serial, Command Telemetry Server, and LINC. The interface to use is defined by the <a href="/docs/v5/plugin#interface">INTERFACE</a> and <a href="/docs/v5/plugin#router">ROUTER</a> keywords.</p>
 
 <h3 id="tcpip-client-interface">
 <a class="anchor" href="#tcpip-client-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>TCPIP Client Interface</h3>
@@ -217,7 +217,7 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 <span class="c"># no built-in protocol</span></code></pre></figure>
 
-<p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
+<p>See <a href="/docs/v5/plugin#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/v5/plugin#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
 
 <h3 id="tcpip-server-interface">
 <a class="anchor" href="#tcpip-server-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>TCPIP Server Interface</h3>
@@ -276,7 +276,7 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 TEMPLATE 
 INTERFACE INTERFACE_NAME tcpip_server_interface.rb 8080 8080 10.0 nil PREIDENTIFIED 0xCAFEBABE
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 <span class="c"># no built-in protocol</span></code></pre></figure>
 
-<p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword. Note, TcpipServerInterface processes the <a href="/docs/system/#option">OPTION</a> modifier.</p>
+<p>See <a href="/docs/v5/plugin#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/v5/plugin#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword. Note, TcpipServerInterface processes the <a href="/docs/v5/plugin#option">OPTION</a> modifier.</p>
 
 <h3 id="udp-interface">
 <a class="anchor" href="#udp-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>UDP Interface</h3>
@@ -348,7 +348,7 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 <span cla
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME udp_interface.rb localhost 8080 8081 8082 nil 128 10.0 nil</code></pre></figure>
 
-<p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
+<p>See <a href="/docs/v5/plugin#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/v5/plugin#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
 
 <h3 id="serial-interface">
 <a class="anchor" href="#serial-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>Serial Interface</h3>
@@ -422,7 +422,7 @@ INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 T
 INTERFACE INTERFACE_NAME serial_interface.rb /dev/ttyS0 /dev/ttyS0 57600 NONE 1 10.0 nil PREIDENTIFIED 0xCAFEBABE
 INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 <span class="c"># no built-in protocol</span></code></pre></figure>
 
-<p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword. Note, SerialInterface processes the <a href="/docs/system/#option">OPTION</a> modifier.</p>
+<p>See <a href="/docs/v5/plugin#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/v5/plugin#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword. Note, SerialInterface processes the <a href="/docs/v5/plugin#option">OPTION</a> modifier.</p>
 
 <h3 id="cmdtlmserver-interface">
 <a class="anchor" href="#cmdtlmserver-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>CmdTlmServer Interface</h3>
@@ -437,7 +437,7 @@ INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 <
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE COSMOSINT cmd_tlm_server_interface.rb</code></pre></figure>
 
-<p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
+<p>See <a href="/docs/v5/plugin#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/v5/plugin#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
 
 <h3 id="linc-interface">
 <a class="anchor" href="#linc-interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>LINC Interface</h3>
@@ -534,7 +534,7 @@ INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 <
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080
 INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true </span>5 nil 5 0 16 4 HDR_GUID BIG_ENDIAN HDR_LENGTH</code></pre></figure>
 
-<p>See <a href="/docs/system/#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/system/#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
+<p>See <a href="/docs/v5/plugin#interface">INTERFACE</a> for a description of the INTERFACE keyword. See <a href="/docs/v5/plugin#interface-modifiers">Interface Modifiers</a> for a description of the keywords which can follow the INTERFACE keyword.</p>
 
 <h2 id="streams">
 <a class="anchor" href="#streams" aria-hidden="true"><span class="octicon octicon-link"></span></a>Streams</h2>
@@ -555,27 +555,27 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 <span class="nb">true 
   </thead>
   <tbody>
     <tr>
-      <td><a href="/docs/protocols/#burst-protocol">Burst</a></td>
+      <td><a href="/docs/v5/protocols#burst-protocol">Burst</a></td>
       <td>Reads as much data as possible from the interface</td>
     </tr>
     <tr>
-      <td><a href="/docs/protocols/#fixed-protocol">Fixed</a></td>
+      <td><a href="/docs/v5/protocols#fixed-protocol">Fixed</a></td>
       <td>Processes fixed length packets with a known ID position</td>
     </tr>
     <tr>
-      <td><a href="/docs/protocols/#length-protocol">Length</a></td>
+      <td><a href="/docs/v5/protocols#length-protocol">Length</a></td>
       <td>Processes a length field at a fixed location and then reads the remainder of the data</td>
     </tr>
     <tr>
-      <td><a href="/docs/protocols/#terminated-protocol">Terminated</a></td>
+      <td><a href="/docs/v5/protocols#terminated-protocol">Terminated</a></td>
       <td>Delineates packets uses termination characters at the end of each packet</td>
     </tr>
     <tr>
-      <td><a href="/docs/protocols/#template-protocol">Template</a></td>
+      <td><a href="/docs/v5/protocols#template-protocol">Template</a></td>
       <td>Processes text based command / response data such as SCPI interfaces</td>
     </tr>
     <tr>
-      <td><a href="/docs/protocols/#preidentified-protocol">Preidentified</a></td>
+      <td><a href="/docs/v5/protocols#preidentified-protocol">Preidentified</a></td>
       <td>Internal COSMOS protocol used by COSMOS tools</td>
     </tr>
   </tbody>
@@ -600,15 +600,15 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
   </thead>
   <tbody>
     <tr>
-      <td><a href="/docs/protocols/#override-protocol">Override</a></td>
+      <td><a href="/docs/v5/protocols#override-protocol">Override</a></td>
       <td>Allows telemetry items to be fixed to given value when read</td>
     </tr>
     <tr>
-      <td><a href="/docs/protocols/#crc-protocol">CRC</a></td>
+      <td><a href="/docs/v5/protocols#crc-protocol">CRC</a></td>
       <td>Adds CRCs to outgoing packets and verifies CRCs on incoming packets</td>
     </tr>
     <tr>
-      <td><a href="/docs/protocols/#ignore-protocol">Ignore</a></td>
+      <td><a href="/docs/v5/protocols#ignore-protocol">Ignore</a></td>
       <td>Ignores the specified packet by dropping it</td>
     </tr>
   </tbody>
@@ -623,7 +623,7 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
 
 <p>Note the first parameter after the PROTOCOL keyword is how to apply the protocol: READ, WRITE, or READ_WRITE. Read applies the protocol on incoming packets (telemetry) and write on outgoing packets (commands). The next parameter is the protocol filename or class name. All other parameters are protocol specific.</p>
 
-<p>In addition, you can define your own protocols which are declared like the COSMOS helper protocols after your interface. See the <a href="/docs/protocols#custom-protocols">Custom Protocols</a> documentation for more information.</p>
+<p>In addition, you can define your own protocols which are declared like the COSMOS helper protocols after your interface. See the <a href="/docs/v5/protocols#custom-protocols">Custom Protocols</a> documentation for more information.</p>
 
       </article>
     </div>
@@ -726,9 +726,13 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
     
       
     
+      
+    
   
     
     
+    
+      
     
       
     
@@ -855,6 +859,8 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/upgrading">Upgrading</a>
   </li>
@@ -896,6 +902,44 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
   
     
     
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/plugin">Plugin Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
     
       
     
@@ -996,6 +1040,8 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/telemetry">Telemetry Configuration</a>
   </li>
@@ -1030,6 +1076,8 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
   
     
     
+    
+      
     
       
     
@@ -1152,9 +1200,13 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
     
       
     
+      
+    
   
     
     
+    
+      
     
       
     
@@ -1319,6 +1371,8 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/script-runner">Script Runner</a>
   </li>
@@ -1327,6 +1381,8 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
   
     
     
+    
+      
     
       
     
@@ -1421,6 +1477,8 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
@@ -1429,6 +1487,8 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
   
     
     
+    
+      
     
       
     
@@ -1516,6 +1576,8 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/scripting">Scripting Guide</a>
   </li>
@@ -1524,6 +1586,8 @@ PROTOCOL WRITE CrcProtocol CRC <span class="c"># See the documentation for param
   
     
     
+    
+      
     
       
     

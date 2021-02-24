@@ -25,7 +25,7 @@ By default, all COSMOS tools use the config/system/system.txt file. However, all
 
 Each target is self contained in a target directory named after the target and placed in the config/targets directory. In the target directory there is a configuration file named target.txt which configures the individual target.
 
-{% cosmos_meta target_config.yaml %}
+{% cosmos_meta target.yaml %}
 
 # Command and Telemetry Server Configuration
 

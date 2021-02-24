@@ -268,11 +268,11 @@
 
 <p>If you’ve used COSMOS for a while you’ve noticed that COSMOS automatically creates several telemetry items on every packet: PACKET_TIMESECONDS, PACKET_TIMEFORMATTED, RECEIVED_COUNT, RECEIVED_TIMEFORMATTED, and RECEIVED_TIMESECONDS. While RECEIVED_COUNT is fairly self-explanatory (number of times the packet has been received) it might not be obvious why there are 4! ways to get the time.</p>
 
-<p>So what’s the difference between RECEIVED_TIME vs PACKET_TIME. First of all they both have a TIMEFORMATTED and TIMESECONDS version. The formatted telemetry item returns the date and time in a YYYY/MM/DD HH:MM:SS.sss format in the local timezone. This is useful for human readable output like in <a href="/docs/tools/#telemetry-extractor">Telemetry Extractor</a>. They also can return TIMESECONDS which is the floating point UTC time in seconds from the Unix epoch.</p>
+<p>So what’s the difference between RECEIVED_TIME vs PACKET_TIME. First of all they both have a TIMEFORMATTED and TIMESECONDS version. The formatted telemetry item returns the date and time in a YYYY/MM/DD HH:MM:SS.sss format in the local timezone. This is useful for human readable output like in <a href="/docs/tools#telemetry-extractor">Telemetry Extractor</a>. They also can return TIMESECONDS which is the floating point UTC time in seconds from the Unix epoch.</p>
 
 <p>RECEIVED_TIME is the time that COSMOS receives the packet. This is set by the interface which is connected to the target and is receiving the raw data. Once a packet has been created out of the raw data the time is set.</p>
 
-<p>PACKET_TIME is a recent (<a href="https://cosmosrb.com/news/2018/08/30/cosmos-4-3-0-released/">4.3.0</a>) concept introduced by a <a href="https://github.com/BallAerospace/COSMOS/issues/814">change to support stored telemetry</a>. The <a href="/docs/packet_class/">Packet</a> class has a new method called <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet.rb#L243">packet_time</a> that by default simply returns the received time as set by COSMOS. But if you define a telemetry item called ‘PACKET_TIME’, that item will be used instead.</p>
+<p>PACKET_TIME is a recent (<a href="https://cosmosrb.com/news/2018/08/30/cosmos-4-3-0-released/">4.3.0</a>) concept introduced by a <a href="https://github.com/BallAerospace/COSMOS/issues/814">change to support stored telemetry</a>. The <a href="/docs/v4/packet-class/">Packet</a> class has a new method called <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet.rb#L243">packet_time</a> that by default simply returns the received time as set by COSMOS. But if you define a telemetry item called ‘PACKET_TIME’, that item will be used instead.</p>
 
 <p>This was done to support processing ‘stored’ telemetry data which isn’t coming into COSMOS in real-time. Previously if you created an interface to process stored telemetry, COSMOS would set the received_time as fast as it processed the files and all your stored telemetry would effective have a timestamp of ‘now’. This would have also updated the current value table in COSMOS which affect scripts, screens, etc. With COSMOS 4.3.0 and later you can set the ‘stored’ flag in your interface and the current value table is unaffected. Also if you define a ‘PACKET_TIME’ item in your packet, this item will be used to calculate the time.</p>
 
@@ -326,289 +326,138 @@
         <a href="/news/2019/12/30/cosmos-4-4-1-released/">Version 4.4.1</a>
       </li>
       
-      <li>
-        <a href="/docs/history/">History »</a>
-      </li>
     </ul>
     <h4>Other News</h4>
     <ul>
-        
-        
-        
-        
-        
-        
-        <li class="current">
-          <a href="/news/2020/09/23/packet-time/">Packet Time</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2020/03/24/identifies-packets/">Identifying Packets</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2019/10/21/cosmos-amos/">AMOS 2019</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2019/06/05/protocols/">Protocols</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/03/14/derived-items/">Derived Items</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/02/12/limits/">Limits</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/01/18/metadata/">Metadata</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/10/30/config-editor/">Config Editor</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/06/19/template_protocol/">Template Protocol</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/05/08/packet_processors/">Packet Processors</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/04/24/wired/">WIRED Article</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/02/22/routers/">Routers</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+           
+      <li class="current">
+        <a href="/news/2020/09/23/packet-time/">Packet Time</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2020/03/24/identifies-packets/">Identifying Packets</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2019/10/21/cosmos-amos/">AMOS 2019</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2019/06/05/protocols/">Protocols</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</a>
+      </li>
+                
+      <li class="">
+        <a href="/news/2018/03/14/derived-items/">Derived Items</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/02/12/limits/">Limits</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/01/18/metadata/">Metadata</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/10/30/config-editor/">Config Editor</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/06/19/template_protocol/">Template Protocol</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/05/08/packet_processors/">Packet Processors</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/04/24/wired/">WIRED Article</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/02/22/routers/">Routers</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</a>
+      </li>
+              
+      <li class="">
+        <a href="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</a>
+      </li>
+                            
+      <li class="">
+        <a href="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</a>
+      </li>
+                 
     </ul>
   </aside>
 </div>

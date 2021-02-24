@@ -94,10 +94,10 @@
         <h1>PacketItem Class</h1>
         <div class="note">
   <h5>This documentation is for COSMOS Developers</h5>
-  <p>If you’re simply trying to setup a COSMOS system you’re probably looking for the <a href="/docs/system">System Configuration</a> page. If you’re trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
+  <p>If you’re simply trying to setup a COSMOS system you’re probably looking for the <a href="/docs/v4/system">System Configuration</a> page. If you’re trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
 </div>
 
-<p>The PacketItem class is used to access an individual item within a <a href="/docs/packet_class">Packet</a>. The primary way to access Packet instances is through the <a href="/docs/system_class">System</a> class. The PacketItem class provides access to information about the item like its location in the packet, type, endianness, conversions, states, etc.</p>
+<p>The PacketItem class is used to access an individual item within a <a href="/docs/v4/packet-class">Packet</a>. The primary way to access Packet instances is through the <a href="/docs/v4/system-class">System</a> class. The PacketItem class provides access to information about the item like its location in the packet, type, endianness, conversions, states, etc.</p>
 
 <p>The <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet_item.rb">packet_item.rb</a> source code on Github.</p>
 
@@ -114,7 +114,7 @@
   <li><code class="language-plaintext highlighter-rouge">description</code> - Description of the item</li>
   <li><code class="language-plaintext highlighter-rouge">bit_offset</code> - Where in the binary buffer the item exists</li>
   <li><code class="language-plaintext highlighter-rouge">bit_size</code> - The number of bites which represent the item in the buffer</li>
-  <li><code class="language-plaintext highlighter-rouge">data_type</code> - Data type which can be :INT, :UINT, :FLOAT, :STRING, :BLOCK, or :DERIVED. See <a href="/docs/command">Command</a> or <a href="/docs/telemetry">Telemetry</a> for a description of the types.</li>
+  <li><code class="language-plaintext highlighter-rouge">data_type</code> - Data type which can be :INT, :UINT, :FLOAT, :STRING, :BLOCK, or :DERIVED. See <a href="/docs/v4/command">Command</a> or <a href="/docs/v4/telemetry">Telemetry</a> for a description of the types.</li>
   <li><code class="language-plaintext highlighter-rouge">endianness</code> - Endianness of the item which is either :BIG_ENDIAN or :LITTLE_ENDIAN.</li>
   <li><code class="language-plaintext highlighter-rouge">read_conversion</code> - Conversion applied when reading the item (typically applied to telemetry items)</li>
   <li><code class="language-plaintext highlighter-rouge">write_conversion</code> - Conversion applied when writing the item (typically applied to command items)</li>
@@ -177,7 +177,7 @@
 
 <h4 id="packetid_items">packet.id_items</h4>
 
-<p>Returns an array of all the ID items defined in the packet. ID items are defined by the <a href="/docs/command/#id_parameter">ID_PARAMETER</a> keyword in commands and the <a href="/docs/telemetry/#id_item">ID_ITEM</a> keyword in telemetry (and their associated APPEND keywords).</p>
+<p>Returns an array of all the ID items defined in the packet. ID items are defined by the <a href="/docs/v4/command#id_parameter">ID_PARAMETER</a> keyword in commands and the <a href="/docs/v4/telemetry#id_item">ID_ITEM</a> keyword in telemetry (and their associated APPEND keywords).</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">id_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
   <span class="nb">puts</span> <span class="s2">"item:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">id_value</span><span class="si">}</span><span class="s2">"</span>
@@ -186,7 +186,7 @@
 
 <h4 id="packetlimits_items">packet.limits_items</h4>
 
-<p>Returns an array of all the items defined in the packet with limits. Limits items are defined by the <a href="/docs/telemetry/#limits">LIMITS</a> keyword in telemetry items.</p>
+<p>Returns an array of all the items defined in the packet with limits. Limits items are defined by the <a href="/docs/v4/telemetry#limits">LIMITS</a> keyword in telemetry items.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">limits_items</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
   <span class="nb">puts</span> <span class="s2">"item:</span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">name</span><span class="si">}</span><span class="s2">: </span><span class="si">#{</span><span class="n">item</span><span class="p">.</span><span class="nf">limits</span><span class="si">}</span><span class="s2">"</span>
@@ -2711,7 +2711,7 @@
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2020 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

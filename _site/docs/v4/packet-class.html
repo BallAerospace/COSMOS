@@ -94,10 +94,10 @@
         <h1>Packet Class</h1>
         <div class="note">
   <h5>This documentation is for COSMOS Developers</h5>
-  <p>If you’re simply trying to setup a COSMOS system you’re probably looking for the <a href="/docs/system">System Configuration</a> page. If you’re trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
+  <p>If you’re simply trying to setup a COSMOS system you’re probably looking for the <a href="/docs/v4/system">System Configuration</a> page. If you’re trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
 </div>
 
-<p>The Packet class is used to access the command and telemetry packet instances. The primary way to access Packet instances is through the <a href="/docs/system_class">System</a> class. The Packet class provides access to information about the packet as well as all the packet items.</p>
+<p>The Packet class is used to access the command and telemetry packet instances. The primary way to access Packet instances is through the <a href="/docs/v4/system-class">System</a> class. The Packet class provides access to information about the packet as well as all the packet items.</p>
 
 <p>The <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet.rb">packet.rb</a> source code on Github.</p>
 
@@ -115,17 +115,17 @@
   <li><code class="language-plaintext highlighter-rouge">description</code> - Packet description as a string</li>
   <li><code class="language-plaintext highlighter-rouge">received_time</code> - Time object representing when this packet was received by the COSMOS Server</li>
   <li><code class="language-plaintext highlighter-rouge">received_count</code> - Number of times this packet was received by the COSMOS Server</li>
-  <li><code class="language-plaintext highlighter-rouge">items</code> - Hash of all the <a href="/docs/packet_item_class">items</a> keyed by the uppercase item name</li>
-  <li><code class="language-plaintext highlighter-rouge">sorted_items</code> Array of all the <a href="/docs/packet_item_class">items</a> sorted by bit_offset</li>
+  <li><code class="language-plaintext highlighter-rouge">items</code> - Hash of all the <a href="/docs/v4/packet-item-class">items</a> keyed by the uppercase item name</li>
+  <li><code class="language-plaintext highlighter-rouge">sorted_items</code> Array of all the <a href="/docs/v4/packet-item-class">items</a> sorted by bit_offset</li>
 </ol>
 
 <p>If you’re dealing with a Command packet instance there are additional instance variables that are useful:</p>
 
 <ol>
-  <li><code class="language-plaintext highlighter-rouge">hazardous</code> - Boolean indicating whether the command is hazardous (see <a href="/docs/command/#hazardous">hazardous</a>)</li>
+  <li><code class="language-plaintext highlighter-rouge">hazardous</code> - Boolean indicating whether the command is hazardous (see <a href="/docs/v4/command#hazardous">hazardous</a>)</li>
   <li><code class="language-plaintext highlighter-rouge">hazardous_description</code> - String description of why the packet is hazardous</li>
-  <li><code class="language-plaintext highlighter-rouge">hidden</code> - Boolean indicating whether this packet is hidden (see <a href="/docs/command/#hidden">hidden</a>)</li>
-  <li><code class="language-plaintext highlighter-rouge">disabled</code> - Boolean indicating whether this packet is disabled (see <a href="/docs/command/#disabled">disabled</a>)</li>
+  <li><code class="language-plaintext highlighter-rouge">hidden</code> - Boolean indicating whether this packet is hidden (see <a href="/docs/v4/command#hidden">hidden</a>)</li>
+  <li><code class="language-plaintext highlighter-rouge">disabled</code> - Boolean indicating whether this packet is disabled (see <a href="/docs/v4/command#disabled">disabled</a>)</li>
 </ol>
 
 <h3 id="packet-methods">Packet Methods</h3>
@@ -168,7 +168,7 @@
 
 <p>First a comment about syntax. The first parameter in the read method is a string which in Ruby can be either single or double quotes. The second parameter is a Ruby Symbol which is similar to a string but is prefixed with a colon.</p>
 
-<p>Note that there are four different ways to read a packet value as indicated above in the value_type description. :RAW means to return the value defined at that location in the packet without applying any COSMOS conversions or STATE names. :CONVERTED (the default) means to apply COSMOS conversions and any defined State values (see <a href="/docs/telemetry/#state">STATE</a>). :FORMATTED means to apply any format strings on the packet item (see <a href="/docs/telemetry/#format_string">FORMAT_STRING</a>) and return the resulting string. Note that :FORMATTED always returns a STRING even if there is no formatting being applied. This is distinct from :RAW and :CONVERTED which return a value of the type you specify in the packet definition. Finally :WITH_UNITS applies any units (see <a href="/docs/telemetry/#units">UNITS</a>) to the formatted value and again returns a string value.</p>
+<p>Note that there are four different ways to read a packet value as indicated above in the value_type description. :RAW means to return the value defined at that location in the packet without applying any COSMOS conversions or STATE names. :CONVERTED (the default) means to apply COSMOS conversions and any defined State values (see <a href="/docs/v4/telemetry#state">STATE</a>). :FORMATTED means to apply any format strings on the packet item (see <a href="/docs/v4/telemetry#format_string">FORMAT_STRING</a>) and return the resulting string. Note that :FORMATTED always returns a STRING even if there is no formatting being applied. This is distinct from :RAW and :CONVERTED which return a value of the type you specify in the packet definition. Finally :WITH_UNITS applies any units (see <a href="/docs/v4/telemetry#units">UNITS</a>) to the formatted value and again returns a string value.</p>
 
 <p>The final parameter is buffer. Typically you will just leave this off and write to the buffer contained by the current packet instance. However, if you have an unidentified buffer of data that you believe represents a particular packet instance, you can pass that into read.</p>
 
@@ -209,9 +209,9 @@
 <span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"ITEM"</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># Raw value</span>
 </code></pre></div></div>
 
-<p>See <a href="/docs/packet_class#read">read</a> for a note about the syntax and what value_type means.</p>
+<p>See <a href="/docs/v4/packet-class#read">read</a> for a note about the syntax and what value_type means.</p>
 
-<p>There are a few gotchas associated with writing a value into a packet. If you’re writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. If the packet item has any <a href="/docs/telemetry/#write_conversion">write conversions</a> then using the :RAW value_type will bypass that conversion. For example:</p>
+<p>There are a few gotchas associated with writing a value into a packet. If you’re writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. If the packet item has any <a href="/docs/v4/telemetry#write_conversion">write conversions</a> then using the :RAW value_type will bypass that conversion. For example:</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s1">'STRING_ITEM'</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1"># 10 will be converted to '10' automatically</span>
 <span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"STRING_ITEM"</span><span class="p">,</span> <span class="mf">12.5</span><span class="p">,</span> <span class="ss">:RAW</span><span class="p">)</span> <span class="c1"># 12.5 will be converted to '12.5'</span>
@@ -224,7 +224,7 @@
 <span class="n">packet</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="s2">"FLOAT_ITEM"</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1">#=&gt; packet.read("FLOAT_ITEM") returns 10.0</span>
 </code></pre></div></div>
 
-<p>If there are no <a href="/docs/telemetry/#write_conversion">write conversions</a> or <a href="/docs/telemetry/#state">states</a> defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent.</p>
+<p>If there are no <a href="/docs/v4/telemetry#write_conversion">write conversions</a> or <a href="/docs/v4/telemetry#state">states</a> defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent.</p>
 
 <p>Definition File:</p>
 
@@ -326,7 +326,7 @@
 
 <h4 id="identify">identify?</h4>
 
-<p>Returns whether the buffer of data parameter represents this packet. It does this by iterating over all the packet items that were created with an ID value (see <a href="/docs/command/#id_parameter">id_parameter</a> and <a href="/docs/telemetry/#id_item">id_item</a>) and checking whether the ID values are present in the buffer.</p>
+<p>Returns whether the buffer of data parameter represents this packet. It does this by iterating over all the packet items that were created with an ID value (see <a href="/docs/v4/command#id_parameter">id_parameter</a> and <a href="/docs/v4/telemetry#id_item">id_item</a>) and checking whether the ID values are present in the buffer.</p>
 
 <table>
   <thead>
@@ -2922,7 +2922,7 @@
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2020 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

@@ -264,7 +264,7 @@
   <div class="post-content">
     <p>COSMOS Packet Processors are a powerful concept that allow you to run code each time a specified packet is received. COSMOS provides a few generic Packet Processors which allows you to include statistics about individual telemetry points in your defined packets. Let’s break down how the COSMOS included processors are used and how you can implement your own Packet Processor.</p>
 
-<p>First <a href="/docs/installation">install</a> COSMOS and start up the demo application. You’ll notice we declare a few targets of which one is called INST (for instrument). If you open up Packet Viewer and navigate to the INST target and the HEALTH_STATUS packet you can see a bunch of derived telemetry points at the top.</p>
+<p>First <a href="/docs/v4/installation">install</a> COSMOS and start up the demo application. You’ll notice we declare a few targets of which one is called INST (for instrument). If you open up Packet Viewer and navigate to the INST target and the HEALTH_STATUS packet you can see a bunch of derived telemetry points at the top.</p>
 
 <p><img src="/img/2017_05_08_packet_viewer.png" alt="Packet Viewer" /></p>
 
@@ -290,7 +290,7 @@
   PROCESSOR TEMP1WATER watermark_processor.rb TEMP1
 </code></pre></div></div>
 
-<p>These definitions create six new telemetry <a href="/docs/telemetry/#item">ITEMs</a>. The <a href="/docs/telemetry/#read_conversion">READ_CONVERSION</a> line takes a conversion class and then variable parameters that are passed to the class. Here we’re using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two <a href="/docs/telemetry/#processor">PROCESSORs</a>.</p>
+<p>These definitions create six new telemetry <a href="/docs/v4/telemetry#item">ITEMs</a>. The <a href="/docs/v4/telemetry#read_conversion">READ_CONVERSION</a> line takes a conversion class and then variable parameters that are passed to the class. Here we’re using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two <a href="/docs/v4/telemetry#processor">PROCESSORs</a>.</p>
 
 <p>Currently COSMOS provides the following three processors:</p>
 
@@ -306,14 +306,12 @@
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/processors/processor'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
-  <span class="k">class</span> <span class="nc">WatermarkProcessor</span> <span class="o">&lt;</span> <span class="no">Processor</span>
-    <span class="c1"># @param item_name [String] The name of the item to gather statistics on</span>
-    <span class="c1"># @param value_type #See Processor::initialize</span>
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span> <span class="o">=</span> <span class="ss">:CONVERTED</span><span class="p">)</span>
-      <span class="k">super</span><span class="p">(</span><span class="n">value_type</span><span class="p">)</span>
-      <span class="vi">@item_name</span> <span class="o">=</span> <span class="n">item_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span>
-      <span class="n">reset</span><span class="p">()</span>
-    <span class="k">end</span>
+<span class="k">class</span> <span class="nc">WatermarkProcessor</span> <span class="o">&lt;</span> <span class="no">Processor</span> <span class="c1"># @param item_name [String] The name of the item to gather statistics on # @param value_type #See Processor::initialize</span>
+<span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span> <span class="o">=</span> <span class="ss">:CONVERTED</span><span class="p">)</span>
+<span class="k">super</span><span class="p">(</span><span class="n">value_type</span><span class="p">)</span>
+<span class="vi">@item_name</span> <span class="o">=</span> <span class="n">item_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span>
+<span class="n">reset</span><span class="p">()</span>
+<span class="k">end</span>
 
     <span class="c1"># See Processor#call</span>
     <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">packet</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
@@ -334,7 +332,8 @@
     <span class="k">def</span> <span class="nf">to_config</span>
       <span class="s2">"  PROCESSOR </span><span class="si">#{</span><span class="vi">@name</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">class_name_to_filename</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="vi">@item_name</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="vi">@value_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
     <span class="k">end</span>
-  <span class="k">end</span>
+
+<span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>The initialize method gets passed the parameters from the config file. Thus our config file of:
@@ -353,22 +352,20 @@ Since we only pass one value, we use the default value_type of :CONVERTED.</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/conversions/conversion'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
-  <span class="c1"># Retrieves the result from an item processor</span>
-  <span class="k">class</span> <span class="nc">ProcessorConversion</span> <span class="o">&lt;</span> <span class="no">Conversion</span>
-    <span class="c1"># @param processor_name [String] The name of the associated processor</span>
-    <span class="c1"># @param result_name [String] The name of the associated result in the processor</span>
-    <span class="c1"># @param converted_type [String or nil] The datatype of the result of the processor</span>
-    <span class="c1"># @param converted_bit_size [Integer or nil] The bit size of the result of the processor</span>
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">processor_name</span><span class="p">,</span> <span class="n">result_name</span><span class="p">,</span> <span class="n">converted_type</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">,</span> <span class="n">converted_bit_size</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
-      <span class="k">super</span><span class="p">()</span>
-      <span class="vi">@processor_name</span> <span class="o">=</span> <span class="n">processor_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span>
-      <span class="vi">@result_name</span> <span class="o">=</span> <span class="n">result_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span><span class="p">.</span><span class="nf">intern</span>
-      <span class="k">if</span> <span class="no">ConfigParser</span><span class="p">.</span><span class="nf">handle_nil</span><span class="p">(</span><span class="n">converted_type</span><span class="p">)</span>
-        <span class="vi">@converted_type</span> <span class="o">=</span> <span class="n">converted_type</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span><span class="p">.</span><span class="nf">intern</span>
-        <span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s2">"Unknown converted type: </span><span class="si">#{</span><span class="n">converted_type</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="o">!</span><span class="no">BinaryAccessor</span><span class="o">::</span><span class="no">DATA_TYPES</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="vi">@converted_type</span><span class="p">)</span>
-      <span class="k">end</span>
-      <span class="vi">@converted_bit_size</span> <span class="o">=</span> <span class="no">Integer</span><span class="p">(</span><span class="n">converted_bit_size</span><span class="p">)</span> <span class="k">if</span> <span class="no">ConfigParser</span><span class="p">.</span><span class="nf">handle_nil</span><span class="p">(</span><span class="n">converted_bit_size</span><span class="p">)</span>
-    <span class="k">end</span>
+
+<span class="c1"># Retrieves the result from an item processor</span>
+
+<span class="k">class</span> <span class="nc">ProcessorConversion</span> <span class="o">&lt;</span> <span class="no">Conversion</span> <span class="c1"># @param processor_name [String] The name of the associated processor # @param result_name [String] The name of the associated result in the processor # @param converted_type [String or nil] The datatype of the result of the processor # @param converted_bit_size [Integer or nil] The bit size of the result of the processor</span>
+<span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">processor_name</span><span class="p">,</span> <span class="n">result_name</span><span class="p">,</span> <span class="n">converted_type</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">,</span> <span class="n">converted_bit_size</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+<span class="k">super</span><span class="p">()</span>
+<span class="vi">@processor_name</span> <span class="o">=</span> <span class="n">processor_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span>
+<span class="vi">@result_name</span> <span class="o">=</span> <span class="n">result_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span><span class="p">.</span><span class="nf">intern</span>
+<span class="k">if</span> <span class="no">ConfigParser</span><span class="p">.</span><span class="nf">handle_nil</span><span class="p">(</span><span class="n">converted_type</span><span class="p">)</span>
+<span class="vi">@converted_type</span> <span class="o">=</span> <span class="n">converted_type</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span><span class="p">.</span><span class="nf">intern</span>
+<span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s2">"Unknown converted type: </span><span class="si">#{</span><span class="n">converted_type</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="o">!</span><span class="no">BinaryAccessor</span><span class="o">::</span><span class="no">DATA_TYPES</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="vi">@converted_type</span><span class="p">)</span>
+<span class="k">end</span>
+<span class="vi">@converted_bit_size</span> <span class="o">=</span> <span class="no">Integer</span><span class="p">(</span><span class="n">converted_bit_size</span><span class="p">)</span> <span class="k">if</span> <span class="no">ConfigParser</span><span class="p">.</span><span class="nf">handle_nil</span><span class="p">(</span><span class="n">converted_bit_size</span><span class="p">)</span>
+<span class="k">end</span>
 
     <span class="c1"># @param (see Conversion#call)</span>
     <span class="c1"># @return [Varies] The result of the associated processor</span>
@@ -377,7 +374,8 @@ Since we only pass one value, we use the default value_type of :CONVERTED.</p>
     <span class="k">end</span>
     <span class="k">def</span> <span class="nf">to_s</span><span class="p">;</span> <span class="k">end</span> <span class="c1"># Not shown for brevity</span>
     <span class="k">def</span> <span class="nf">to_config</span><span class="p">(</span><span class="n">read_or_write</span><span class="p">);</span> <span class="k">end</span> <span class="c1"># Not shown for brevity</span>
-  <span class="k">end</span>
+
+<span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>First of all note that ProcessorConversion inherits from the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/conversions/conversion.rb">Conversion</a> base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let’s see how these map together in our definition.</p>
@@ -399,13 +397,12 @@ This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into ini
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/processors/processor'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
-  <span class="k">class</span> <span class="nc">MeanProcessor</span> <span class="o">&lt;</span> <span class="no">Processor</span>
-    <span class="c1"># @param item_name [Array&lt;String&gt;] The names of the items to mean</span>
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="o">*</span><span class="n">item_names</span><span class="p">)</span> <span class="c1"># the splat operator accepts a variable length argument list</span>
-      <span class="k">super</span><span class="p">(</span><span class="ss">:CONVERTED</span><span class="p">)</span> <span class="c1"># Hard code to work on converted values</span>
-      <span class="vi">@item_names</span> <span class="o">=</span> <span class="n">item_names</span> <span class="c1"># Array of the item names</span>
-      <span class="n">reset</span><span class="p">()</span>
-    <span class="k">end</span>
+<span class="k">class</span> <span class="nc">MeanProcessor</span> <span class="o">&lt;</span> <span class="no">Processor</span> <span class="c1"># @param item_name [Array&lt;String&gt;] The names of the items to mean</span>
+<span class="k">def</span> <span class="nf">initialize</span><span class="p">(\</span><span class="o">*</span><span class="n">item_names</span><span class="p">)</span> <span class="c1"># the splat operator accepts a variable length argument list</span>
+<span class="k">super</span><span class="p">(</span><span class="ss">:CONVERTED</span><span class="p">)</span> <span class="c1"># Hard code to work on converted values</span>
+<span class="vi">@item_names</span> <span class="o">=</span> <span class="n">item_names</span> <span class="c1"># Array of the item names</span>
+<span class="n">reset</span><span class="p">()</span>
+<span class="k">end</span>
 
     <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">packet</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
       <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
@@ -424,15 +421,17 @@ This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into ini
     <span class="k">def</span> <span class="nf">to_config</span>
       <span class="s2">"  PROCESSOR </span><span class="si">#{</span><span class="vi">@name</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">class_name_to_filename</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="vi">@item_names</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
     <span class="k">end</span>
-  <span class="k">end</span>
+
+<span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>This class introduces some new Ruby syntax. Since we want to accept any number of items to average we have to accept a variable number of arguments in our initialize method. The ruby splat operator (or star operator) does this and places the arguments into a Ruby array. We store these names and then use them in our call method to perform the mean. I’m using a cool feature of Ruby’s Enumerable mixin, which is part of Array, to sum up the values (starting with 0) and then dividing by the number of values we have to get the mean. Note I’m also calling to_f to ensure the numerator is a floating point number so we do floating point math during the division. Integer division would truncate the value to an integer value.</p>
 
-<p>First to use this new processor you need to require it in your target’s <a href="/docs/system/#targettxt-keywords">target.txt</a> configuration file:
+<p>First to use this new processor you need to require it in your target’s <a href="/docs/v4/system#targettxt-keywords">target.txt</a> configuration file:
 <code class="language-plaintext highlighter-rouge">REQUIRE mean_processor.rb</code>
-Then delcare the processing in your configuration definition as follows:
-<code class="language-plaintext highlighter-rouge">TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
+Then delcare the processing in your configuration definition as follows:</p>
+
+<p><code class="language-plaintext highlighter-rouge">TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
   ... # See demo configuration
   ITEM TEMPS_MEAN 0 0 DERIVED "Mean of TEMP1, TEMP2, TEMP3, TEMP4"
     READ_CONVERSION processor_conversion.rb TEMPMEAN MEAN
@@ -485,289 +484,138 @@ Then delcare the processing in your configuration definition as follows:
         <a href="/news/2019/12/30/cosmos-4-4-1-released/">Version 4.4.1</a>
       </li>
       
-      <li>
-        <a href="/docs/history/">History »</a>
-      </li>
     </ul>
     <h4>Other News</h4>
     <ul>
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2020/09/23/packet-time/">Packet Time</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2020/03/24/identifies-packets/">Identifying Packets</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2019/10/21/cosmos-amos/">AMOS 2019</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2019/06/05/protocols/">Protocols</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/03/14/derived-items/">Derived Items</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/02/12/limits/">Limits</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/01/18/metadata/">Metadata</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/10/30/config-editor/">Config Editor</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/06/19/template_protocol/">Template Protocol</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="current">
-          <a href="/news/2017/05/08/packet_processors/">Packet Processors</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/04/24/wired/">WIRED Article</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/02/22/routers/">Routers</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+           
+      <li class="">
+        <a href="/news/2020/09/23/packet-time/">Packet Time</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2020/03/24/identifies-packets/">Identifying Packets</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2019/10/21/cosmos-amos/">AMOS 2019</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2019/06/05/protocols/">Protocols</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</a>
+      </li>
+                
+      <li class="">
+        <a href="/news/2018/03/14/derived-items/">Derived Items</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/02/12/limits/">Limits</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/01/18/metadata/">Metadata</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/10/30/config-editor/">Config Editor</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/06/19/template_protocol/">Template Protocol</a>
+      </li>
+          
+      <li class="current">
+        <a href="/news/2017/05/08/packet_processors/">Packet Processors</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/04/24/wired/">WIRED Article</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/02/22/routers/">Routers</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</a>
+      </li>
+              
+      <li class="">
+        <a href="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</a>
+      </li>
+                            
+      <li class="">
+        <a href="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</a>
+      </li>
+                 
     </ul>
   </aside>
 </div>

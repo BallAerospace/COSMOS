@@ -288,7 +288,7 @@ PORT CTS_PREIDENTIFIED 7779
 
 <p>Basically we’re creating a Router that routes only the INST interface data. We create this Router using a TCPIP Server interface with a LENGTH protocol of bit offset 32, length field size of 16, and length value offset of 7. These values were chosen to match the INST command and telemetry which use CCSDS headers. The CCSDS standard specifies a 16 bit length field at offset 32. The CCSDS standard also specifies that the length field is the length of the packet past the length field minus 1. Thus we add 7 for the 4 bytes of offset, 2 bytes of length field, and the minus 1.</p>
 
-<p>For more information about the options you can pass to a Router (and Interface) see the <a href="http://cosmosrb.com/docs/interfaces/">Interface Configuration</a> part of the documentation.</p>
+<p>For more information about the options you can pass to a Router (and Interface) see the <a href="http://cosmosrb.com/docs/v4/interfaces/">Interface Configuration</a> part of the documentation.</p>
 
 <p>To connect to the INST_ROUTER that we created we can write a little Ruby code using existing COSMOS interface classes and streams.</p>
 
@@ -297,8 +297,8 @@ PORT CTS_PREIDENTIFIED 7779
 <span class="n">i</span> <span class="o">=</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">TcpipClientInterface</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'localhost'</span><span class="p">,</span><span class="mi">2055</span><span class="p">,</span><span class="mi">2055</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="s1">'LENGTH'</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span>
 <span class="n">i</span><span class="p">.</span><span class="nf">connect</span>
 <span class="kp">loop</span> <span class="k">do</span>
-  <span class="n">pkt</span> <span class="o">=</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">identify!</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="nf">read</span><span class="p">.</span><span class="nf">buffer</span><span class="p">,</span> <span class="p">[</span><span class="s1">'INST'</span><span class="p">])</span>
-  <span class="nb">puts</span> <span class="n">pkt</span><span class="p">.</span><span class="nf">packet_name</span>
+<span class="n">pkt</span> <span class="o">=</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">identify!</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="nf">read</span><span class="p">.</span><span class="nf">buffer</span><span class="p">,</span> <span class="p">[</span><span class="s1">'INST'</span><span class="p">])</span>
+<span class="nb">puts</span> <span class="n">pkt</span><span class="p">.</span><span class="nf">packet_name</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>Obviously we need the TCPIP Client Interface to match the port number of the TCPIP Server and we also need to match the LENGTH protocol options. Notice how we have to call the System.telemetry.identify! method to identify the raw packet stream. When I run this from a command prompt after starting the Server I see a stream of packet names similar to this:</p>
@@ -314,6 +314,7 @@ MECH
 ADCS
 ...
 </code></pre></div></div>
+
 <p>You should see MECH and ADCS come out at 10Hz and the IMAGE, PARAMS, and HEALTH_STATUS come out at 1Hz. This matches the Packet Count ratio on the Tlm Packets tab of the Server.</p>
 
 <p>We can also write some code to connect to the PREIDENTIFIED router. It looks very similar to the previous code except we do not need to identify the packets as they are pre-identified!</p>
@@ -323,8 +324,8 @@ ADCS
 <span class="n">i</span> <span class="o">=</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">TcpipClientInterface</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'localhost'</span><span class="p">,</span><span class="mi">7779</span><span class="p">,</span><span class="mi">7779</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="s1">'PREIDENTIFIED'</span><span class="p">)</span>
 <span class="n">i</span><span class="p">.</span><span class="nf">connect</span>
 <span class="kp">loop</span> <span class="k">do</span>
-  <span class="n">pkt</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="nf">read</span>
-  <span class="nb">puts</span> <span class="n">pkt</span><span class="p">.</span><span class="nf">packet_name</span>
+<span class="n">pkt</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="nf">read</span>
+<span class="nb">puts</span> <span class="n">pkt</span><span class="p">.</span><span class="nf">packet_name</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>This time you should see some LIMITS_CHANGE packet names sprinkled in with the output from before. That’s because we’re accessing the ENTIRE COSMOS telemetry stream and not just the stream from the INST interface. Keep this in mind if you have performance issues when trying to process the entire telemetry stream.</p>
@@ -369,289 +370,138 @@ ADCS
         <a href="/news/2019/12/30/cosmos-4-4-1-released/">Version 4.4.1</a>
       </li>
       
-      <li>
-        <a href="/docs/history/">History »</a>
-      </li>
     </ul>
     <h4>Other News</h4>
     <ul>
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2020/09/23/packet-time/">Packet Time</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2020/03/24/identifies-packets/">Identifying Packets</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2019/10/21/cosmos-amos/">AMOS 2019</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2019/06/05/protocols/">Protocols</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/03/14/derived-items/">Derived Items</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/02/12/limits/">Limits</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/01/18/metadata/">Metadata</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/10/30/config-editor/">Config Editor</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/06/19/template_protocol/">Template Protocol</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/05/08/packet_processors/">Packet Processors</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/04/24/wired/">WIRED Article</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="current">
-          <a href="/news/2017/02/22/routers/">Routers</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+           
+      <li class="">
+        <a href="/news/2020/09/23/packet-time/">Packet Time</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2020/03/24/identifies-packets/">Identifying Packets</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2019/10/21/cosmos-amos/">AMOS 2019</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2019/06/05/protocols/">Protocols</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</a>
+      </li>
+                
+      <li class="">
+        <a href="/news/2018/03/14/derived-items/">Derived Items</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/02/12/limits/">Limits</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/01/18/metadata/">Metadata</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/10/30/config-editor/">Config Editor</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/06/19/template_protocol/">Template Protocol</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/05/08/packet_processors/">Packet Processors</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/04/24/wired/">WIRED Article</a>
+      </li>
+          
+      <li class="current">
+        <a href="/news/2017/02/22/routers/">Routers</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</a>
+      </li>
+              
+      <li class="">
+        <a href="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</a>
+      </li>
+                            
+      <li class="">
+        <a href="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</a>
+      </li>
+                 
     </ul>
   </aside>
 </div>

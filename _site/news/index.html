@@ -454,11 +454,11 @@ Recommended Resources allocated to Docker: 16GB RAM, 2+ CPUs, 100GB Disk</p>
 
 <p>If you’ve used COSMOS for a while you’ve noticed that COSMOS automatically creates several telemetry items on every packet: PACKET_TIMESECONDS, PACKET_TIMEFORMATTED, RECEIVED_COUNT, RECEIVED_TIMEFORMATTED, and RECEIVED_TIMESECONDS. While RECEIVED_COUNT is fairly self-explanatory (number of times the packet has been received) it might not be obvious why there are 4! ways to get the time.</p>
 
-<p>So what’s the difference between RECEIVED_TIME vs PACKET_TIME. First of all they both have a TIMEFORMATTED and TIMESECONDS version. The formatted telemetry item returns the date and time in a YYYY/MM/DD HH:MM:SS.sss format in the local timezone. This is useful for human readable output like in <a href="/docs/tools/#telemetry-extractor">Telemetry Extractor</a>. They also can return TIMESECONDS which is the floating point UTC time in seconds from the Unix epoch.</p>
+<p>So what’s the difference between RECEIVED_TIME vs PACKET_TIME. First of all they both have a TIMEFORMATTED and TIMESECONDS version. The formatted telemetry item returns the date and time in a YYYY/MM/DD HH:MM:SS.sss format in the local timezone. This is useful for human readable output like in <a href="/docs/tools#telemetry-extractor">Telemetry Extractor</a>. They also can return TIMESECONDS which is the floating point UTC time in seconds from the Unix epoch.</p>
 
 <p>RECEIVED_TIME is the time that COSMOS receives the packet. This is set by the interface which is connected to the target and is receiving the raw data. Once a packet has been created out of the raw data the time is set.</p>
 
-<p>PACKET_TIME is a recent (<a href="https://cosmosrb.com/news/2018/08/30/cosmos-4-3-0-released/">4.3.0</a>) concept introduced by a <a href="https://github.com/BallAerospace/COSMOS/issues/814">change to support stored telemetry</a>. The <a href="/docs/packet_class/">Packet</a> class has a new method called <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet.rb#L243">packet_time</a> that by default simply returns the received time as set by COSMOS. But if you define a telemetry item called ‘PACKET_TIME’, that item will be used instead.</p>
+<p>PACKET_TIME is a recent (<a href="https://cosmosrb.com/news/2018/08/30/cosmos-4-3-0-released/">4.3.0</a>) concept introduced by a <a href="https://github.com/BallAerospace/COSMOS/issues/814">change to support stored telemetry</a>. The <a href="/docs/v4/packet-class/">Packet</a> class has a new method called <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet.rb#L243">packet_time</a> that by default simply returns the received time as set by COSMOS. But if you define a telemetry item called ‘PACKET_TIME’, that item will be used instead.</p>
 
 <p>This was done to support processing ‘stored’ telemetry data which isn’t coming into COSMOS in real-time. Previously if you created an interface to process stored telemetry, COSMOS would set the received_time as fast as it processed the files and all your stored telemetry would effective have a timestamp of ‘now’. This would have also updated the current value table in COSMOS which affect scripts, screens, etc. With COSMOS 4.3.0 and later you can set the ‘stored’ flag in your interface and the current value table is unaffected. Also if you define a ‘PACKET_TIME’ item in your packet, this item will be used to calculate the time.</p>
 
@@ -577,19 +577,22 @@ Recommended Resources allocated to Docker: 8GB RAM, 2+ CPUs, 100GB Disk</p>
     </a>
   </div>
   <div class="post-content">
-    <p>COSMOS goes through a multi-stage process to turn raw bits into identified <a href="/docs/packet_class/">Packets</a> belonging to a target. Understanding these steps are helpful when writing your own custom <a href="/docs/interfaces/">interface</a>.</p>
+    <p>COSMOS goes through a multi-stage process to turn raw bits into identified <a href="/docs/v4/packet-class/">Packets</a> belonging to a target. Understanding these steps are helpful when writing your own custom <a href="/docs/v4/interfaces/">interface</a>.</p>
 
 <h3 id="packet-identification-process">Packet Identification Process</h3>
-<p>The <a href="/docs/tools/#command-and-telemetry-server">CmdTlmServer</a> creates a new thread for each interface that was defined by the configuration text files. It calls connect() and then continuously calls the interface’s read() method which returns a packet. Typically the packets are unidentified meaning they don’t have an assigned target or packet name. At that point the interface thread loops through all the targets assigned to the interface to identify the packet. More on that later.</p>
 
-<p>The implementation of the interface’s read() method first calls read_interface() which subclasses must implement to return raw data. Once it has the raw data, read_interface() should call read_interface_base(data) which updates internal counters. The read() method then loops through all the defined <a href="/docs/protocols/">protocols</a> for that interface which can add or subtract data and/or modify the packet. Ultimately a <a href="/docs/packet_class/">Packet</a> instance is returned.</p>
+<p>The <a href="/docs/tools#command-and-telemetry-server">CmdTlmServer</a> creates a new thread for each interface that was defined by the configuration text files. It calls connect() and then continuously calls the interface’s read() method which returns a packet. Typically the packets are unidentified meaning they don’t have an assigned target or packet name. At that point the interface thread loops through all the targets assigned to the interface to identify the packet. More on that later.</p>
+
+<p>The implementation of the interface’s read() method first calls read_interface() which subclasses must implement to return raw data. Once it has the raw data, read_interface() should call read_interface_base(data) which updates internal counters. The read() method then loops through all the defined <a href="/docs/protocols/">protocols</a> for that interface which can add or subtract data and/or modify the packet. Ultimately a <a href="/docs/v4/packet-class/">Packet</a> instance is returned.</p>
 
 <p>The packet identification process is implemented in <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb#L252">System.telemetry.identify!()</a>. The identify!() method loops through all the given targets looking to identify the data. There are two ways to identify a packet. The new way, which was implemented in <a href="/news/2019/06/28/cosmos-4-4-0-released/">COSMOS 4.4</a>, utilizes a lookup hash which is created for each target. This requires that every packet in the target has the same ID_ITEMS (same type, size, location) defined for each packet which is generally good practice. If you have hundreds of small packets associated with a single target it’s especially important to utilize this new lookup method. The old identification method is still available if you put TLM_UNIQUE_ID_MODE in the target’s target.txt file. In this mode, each packet’s ID_ITEMS are read and individually checked for a match.</p>
 
 <h3 id="custom-interfaces">Custom Interfaces</h3>
+
 <p>The implication of this process for custom interfaces is how and when packets are identified. If your custom interface can determine the target, you would want to identify the packet before returning it to save processing time. This may also be required if you map multiple targets to a single interface and have identification collisions. Identification collisions occur if two packets in different targets with the same ID_ITEMS are mapped to the same interface. In this case a custom interface would first have to properly identify the target and then override the read() method to identify the packet before returning it.</p>
 
 <p>An example of a custom interface implementing this might look something like this:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/interface'
 module Cosmos
   class MyInterface &lt; Interface
@@ -601,7 +604,7 @@ module Cosmos
       # This is probably where you determine which target the data belongs to
       @target_name = "TARGETX"
       read_interface_base(data)
-      return data 
+      return data
     end
 
     def read
@@ -645,20 +648,25 @@ end
     <p>Protocols were introduced into COSMOS in version 4.0.0 and were previously discussed in <a href="/news/2019/06/05/protocols/">this post</a>. We recently had a question at Ball about how to reduce the telemetry rate of a high speed target so I thought I would walk through the problem and solution.</p>
 
 <h3 id="the-problem">The Problem</h3>
+
 <p>One COSMOS server was connected to a high speed telemetry target that was generating telemetry at 10Hz. Another COSMOS server was <a href="/docs/chaining/">chained</a> to this and did not need this high speed data. How do you reduce the data rate coming into the chained server?</p>
 
 <h3 id="the-solution">The Solution</h3>
-<p>We can first model the chaining using the COSMOS demo. The format for the cmd_tlm_server.txt file is given in the <a href="https://cosmosrb.com/docs/chaining/#example-cmdtlmserver-configuration-for-child-cmd_tlm_server_chaintxt">chaining documentation</a> and already exists in the COSMOS demo. The demo also includes a deconflicting port definition file in system_alt_ports.txt. To start the two server instances from the command line we can type:</p>
+
+<p>We can first model the chaining using the COSMOS demo. The format for the cmd_tlm_server.txt file is given in the <a href="https://cosmosrb.com/docs/chaining#example-cmdtlmserver-configuration-for-child-cmd_tlm_server_chaintxt">chaining documentation</a> and already exists in the COSMOS demo. The demo also includes a deconflicting port definition file in system_alt_ports.txt. To start the two server instances from the command line we can type:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer
 </code></pre></div></div>
 
 <p>And in another terminal start the chained server:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
 </code></pre></div></div>
 
-<p>Now we need to implement a custom protocol to slow down the telemetry rate on the chained server. Note that the built-in protocols are fully described on the <a href="/docs/protocols">Protocols</a> page and also mentioned on the <a href="/docs/interfaces/#protocols">Interfaces</a> page.</p>
+<p>Now we need to implement a custom protocol to slow down the telemetry rate on the chained server. Note that the built-in protocols are fully described on the <a href="/docs/protocols">Protocols</a> page and also mentioned on the <a href="/docs/v4/interfaces#protocols">Interfaces</a> page.</p>
 
 <h3 id="custom-protocols">Custom Protocols</h3>
+
 <p>Let’s assume we want to slow down the INST ADCS packet which the demo generates at 10Hz. First create a new file called config/targets/INST/lib/drop_protocol.rb. This protocol will drop data until we get the rate we want. It looks like this:</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>require 'cosmos/interfaces/protocols/protocol'
@@ -713,10 +721,12 @@ end
 </code></pre></div></div>
 
 <p>Finally stop and relaunch the chained server:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
 </code></pre></div></div>
 
 <p>You should now see the following in your terminal output:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DROP count:1
 DROP count:2
 DROP count:3
@@ -1064,17 +1074,20 @@ SEND
     <p>Protocols were introduced into COSMOS in version 4.0.0. Protocols consist of the code that make sense of the incoming byte stream before it is turned into packets. They work hand in hand with the COSMOS interface that connects to the target, whether it is TCP/IP, UDP, or serial. The new COSMOS protocol system makes it possible to add and layer protocols into a COSMOS interface.</p>
 
 <h3 id="built-in-protocols">Built-in Protocols</h3>
+
 <p>COSMOS comes with a number of built-in protocols that are used directly with the COSMOS provided interfaces. In fact, when you declare your interface you’re required to specify a protocol. For example, the following code declares a TCP/IP client with a LENGTH protocol.</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8081 10.0 nil LENGTH 0 16 0 1 BIG_ENDIAN 4 0xBA5EBA11
 </code></pre></div></div>
 
-<p>The built-in protocols are fully described on the <a href="/docs/protocols">Protocols</a> page and also mentioned on the <a href="/docs/interfaces/#protocols">Interfaces</a> page.</p>
+<p>The built-in protocols are fully described on the <a href="/docs/protocols">Protocols</a> page and also mentioned on the <a href="/docs/v4/interfaces#protocols">Interfaces</a> page.</p>
 
 <h3 id="custom-protocols">Custom Protocols</h3>
-<p>The built-in protocols are enough to support almost all of the data streams that you’ll encounter from a target. However, sometimes you need to massage the data a little by stripping off data or adding headers. This is when you should create a custom protocol. Custom protocols have 4 methods they can override to modify the incoming telemetry data or outgoing command data. They are read_data(data), write_data(data) and read_packet(packet) write_packet(packet). The ‘data’ methods operate on the raw binary data and are used when adding or removing raw bytes from the stream. The ‘packet’ methods operate on the data after it has been identified and converted to a COSMOS <a href="/docs/packet_class/">Packet</a>.</p>
+
+<p>The built-in protocols are enough to support almost all of the data streams that you’ll encounter from a target. However, sometimes you need to massage the data a little by stripping off data or adding headers. This is when you should create a custom protocol. Custom protocols have 4 methods they can override to modify the incoming telemetry data or outgoing command data. They are read_data(data), write_data(data) and read_packet(packet) write_packet(packet). The ‘data’ methods operate on the raw binary data and are used when adding or removing raw bytes from the stream. The ‘packet’ methods operate on the data after it has been identified and converted to a COSMOS <a href="/docs/v4/packet-class/">Packet</a>.</p>
 
 <h4 id="removing-data">Removing Data</h4>
+
 <p>A recent program was interfacing to a particular device that was sending the ASCII ETX character (0x03) at the end of the data. This character wasn’t needed and was confusing a legacy application that was parsing the raw data. A custom protocol was created to simply strip off this byte from the data stream.</p>
 
 <p>In the target’s lib directory the strip_etx_protocol.rb file was created. Since the protocol had to simply strip off a single byte, it overrides the read_data(data) method.</p>
@@ -1098,6 +1111,7 @@ end
 </code></pre></div></div>
 
 <h4 id="adding-data">Adding Data</h4>
+
 <p>If you need to add framing data or other bits of protocol to your outgoing data you can create a custom protocol.</p>
 
 <p>In the target’s lib directory create a file called framing_protocol.rb. Since the protocol is adding data to the outgoing stream, we override the write_data(data) method.</p>
@@ -1198,6 +1212,7 @@ ITEM C 8 4 UINT "struct item c"
   </div>
   <div class="post-content">
     <h2 id="systemtxt">system.txt</h2>
+
 <p>The COSMOS system configuration is performed by system.txt in the config/system directory. This file declares all the targets that will be used by COSMOS as well as top level configuration information which is primarily used by the Command and Telemetry Server.</p>
 
 <p>By default, all COSMOS tools use the config/system/system.txt file. However, all tools can take a custom system configuration file by passing the “–system <filename>" option to the tool when it starts. This is typically done in the Launcher script as shown in the COSMOS demo. Here's an excerpt which shows how we're passing system2.txt using the --system option.</filename></p>
@@ -1206,10 +1221,12 @@ ITEM C 8 4 UINT "struct item c"
 </code></pre></div></div>
 
 <h3 id="using-multiple-systemtxt-files">Using Multiple system.txt Files</h3>
+
 <p>So when would you want to create and use multiple system.txt files? Since system.txt defines the targets used by the system, you can use two different system.txt files to create two configurations which contain most but not all the same targets. For example, you have a test bench with 5 different test equipment targets but different test box targets: BOX1 and BOX2. You can create one COSMOS configuration for both test benches and create two different launcher files with different lists of targets.</p>
 
 <h2 id="targettxt">target.txt</h2>
-<p>The parsing of a COSMOS target is controlled by the target.txt file found at the root of the target directory. The COMMANDS and TELEMETRY keywords tell COSMOS which <a href="/docs/command">Command</a> and <a href="/docs/telemetry">Telemetry</a> files to parse. For example from the COSMOS demo INST <a href="https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/INST/target.txt">target.txt</a></p>
+
+<p>The parsing of a COSMOS target is controlled by the target.txt file found at the root of the target directory. The COMMANDS and TELEMETRY keywords tell COSMOS which <a href="/docs/v4/command">Command</a> and <a href="/docs/v4/telemetry">Telemetry</a> files to parse. For example from the COSMOS demo INST <a href="https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/INST/target.txt">target.txt</a></p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst_cmds.txt
 TELEMETRY inst_tlm.txt
@@ -1218,24 +1235,29 @@ TELEMETRY inst_tlm.txt
 <p>Since we can tell COSMOS exactly which command and telemetry files to parse we can control how the target cmd/tlm definitions get built. This is useful if you have a target with slightly different command and telemetry definitions. This can happen for varous reasons like connecting to slightly different hardware revisions. The advantage of using a single target folder in this case (vs just copying and renaming the target folder) is that you can (potentially) reuse screens and target library code. Obviously this only works if the command and telemetry definitions are only slightly different between revisions.</p>
 
 <h3 id="combining-systemtxt-and-targettxt">Combining system.txt and target.txt</h3>
+
 <p>When we combine the ability in system.txt to specify a specific target.txt file and the ability in target.txt to specify the command and telemetry definitions, we can create specific configurations for different environments.</p>
 
 <p>This example is losely based on the COSMOS demo. First create two separate system.txt files called system1.txt and system2.txt:</p>
 
 <p>Partial system1.txt:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DECLARE_TARGET INST nil target1.txt
 </code></pre></div></div>
 
 <p>Partial system2.txt</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DECLARE_TARGET INST nil target2.txt
 </code></pre></div></div>
 
 <p>The target1.txt file in the INST target calls out one set of cmd/tlm files:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst1_cmds.txt
 TELEMETRY inst1_tlm.txt
 </code></pre></div></div>
 
 <p>The target2.txt file in the INST target calls out another set:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMANDS inst2_cmds.txt
 TELEMETRY inst2_tlm.txt
 </code></pre></div></div>
@@ -1243,20 +1265,24 @@ TELEMETRY inst2_tlm.txt
 <p>You also have to ensure your Launcher scripts specify the correct system.txt file when launching the tools:</p>
 
 <p>Partial launcher1.txt:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system1.txt" "cts.png" --config cmd_tlm_server.txt
 </code></pre></div></div>
 
 <p>Partial launcher2.txt:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>TOOL "Command and Telemetry Server" "LAUNCH CmdTlmServer --system system2.txt" "cts.png" --config cmd_tlm_server.txt
 </code></pre></div></div>
 
 <p>Once you have your launcher configurations in place you can create a simple Batch file or shell script to launch COSMOS.</p>
 
 <p>Launcher1.bat:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>call tools\Launcher.bat --config launcher1.txt
 </code></pre></div></div>
 
 <p>Launcher2.bat:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>call tools\Launcher.bat --config launcher2.txt
 </code></pre></div></div>
 
@@ -1273,7 +1299,7 @@ TELEMETRY inst2_tlm.txt
   APPEND_ITEM TEMP1            16 UINT     "Temperature #1"
 </code></pre></div></div>
 
-<p>Create another file called inst_tlm_override.txt and start overriding telemetry using the <a href="/docs/telemetry/#select_telemetry">SELECT_TELEMETRY</a> and <a href="/docs/telemetry/#select_item">SELECT_ITEM</a> keywords. Note that the filename is important because by default COSMOS processes cmd/tlm definition files in alphabetical order. For example, if you have a telemetry file named “telemetry.txt” and created a file called “override.txt”, you would get an error because the telemetry file will not be processed before the override.</p>
+<p>Create another file called inst_tlm_override.txt and start overriding telemetry using the <a href="/docs/v4/telemetry#select_telemetry">SELECT_TELEMETRY</a> and <a href="/docs/v4/telemetry#select_item">SELECT_ITEM</a> keywords. Note that the filename is important because by default COSMOS processes cmd/tlm definition files in alphabetical order. For example, if you have a telemetry file named “telemetry.txt” and created a file called “override.txt”, you would get an error because the telemetry file will not be processed before the override.</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SELECT_TELEMETRY INST HEALTH_STATUS
   SELECT_ITEM COLLECTS
@@ -1618,6 +1644,7 @@ rake db:seed
   </div>
   <div class="post-content">
     <h2 id="cosmos-derived-items">COSMOS Derived Items</h2>
+
 <p>COSMOS has a concept of a derived item which is a telemetry item that doesn’t actually exist in the binary data. Derived items are typically computed based on other telemetry items. COSMOS automatically defines three derived items on every packet: RECEIVED_TIMESECONDS, RECEIVED_TIMEFORMATTED, and RECEIVED_COUNT. The time items are set to the time that the COSMOS Command and Telemetry Server receives the packet. The count is a running count of the number of packets received since the Server started. Note that the count is always a relative count and should only be used accordingly.</p>
 
 <p>COSMOS derived items are defined very similarly to real items except they use the special DERIVED telemetry type. Here is how the default COSMOS derived items might look in a telemetry definition.</p>
@@ -1639,6 +1666,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 <p>Note the DERIVED type where real items are INT, UINT, FLOAT, STRING or BLOCK. Also note that the bit offset and bit size values are zero. This is due to the fact that these items don’t actually exist in the binary packet but are created on the fly when the packet is processed. This also has implications with playback of the data. Since these items don’t actually exist in the binary file, they are created on the fly even when doing playback through the Replay tool. Thus if your DERIVED item is aggregating multiple values such as a running average, it will take a few samples to generate a good value.</p>
 
 <h3 id="creating-a-derived-average">Creating a Derived Average</h3>
+
 <p>A common usecase is to create a derived item which averages other telemetry points. Let’s explore how to do this within the COSMOS Demo. The COSMOS Demo already declares 4 fake temperatures named TEMP1, TEMP2, TEMP3, and TEMP4. Let’s create a new derived item called TEMP_AVERAGE that averages them.</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
@@ -1649,9 +1677,10 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 
 <p>The GENERIC_READ_CONVERSION_START keyword also takes two additional argument which describe the output of the conversion. Here we specify FLOAT 32 to indicate the conversion will return a 32 bit floating point value.</p>
 
-<p>In the code section, note the use of the built in variable called ‘packet’. When you create a generic conversion you always have access to the ‘packet’ variable which references the packet the conversion is declared in. For more information about how to use ‘packet’ please see the <a href="/docs/packet_class/">Packet</a> documentation. You also have access to ‘value’ which is the raw value of the current item. In the case of a DERIVED item the value is nil. You can also access ‘buffer’ which is the raw buffer associated with the packet.</p>
+<p>In the code section, note the use of the built in variable called ‘packet’. When you create a generic conversion you always have access to the ‘packet’ variable which references the packet the conversion is declared in. For more information about how to use ‘packet’ please see the <a href="/docs/v4/packet-class/">Packet</a> documentation. You also have access to ‘value’ which is the raw value of the current item. In the case of a DERIVED item the value is nil. You can also access ‘buffer’ which is the raw buffer associated with the packet.</p>
 
 <h3 id="using-a-conversion-class">Using a Conversion Class</h3>
+
 <p>While it is easy to create a simple conversion using GENERIC_READ_CONVERSION there are multiple reasons to prefer a Conversion class. Creating a separate conversion class is easier to test, easier to reuse and has better performance. Let’s create a conversion which performs averging and rewrite the previous example. First the telemetry definition will now look like this.</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ITEM TEMP_AVERAGE 0 0 DERIVED "Average of TEMP1, TEMP2, TEMP3, TEMP4"
@@ -1662,13 +1691,13 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/conversions/conversion'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
-  <span class="k">class</span> <span class="nc">AverageConversion</span> <span class="o">&lt;</span> <span class="no">Conversion</span>
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
-      <span class="k">super</span><span class="p">()</span>
-      <span class="vi">@items</span> <span class="o">=</span> <span class="n">args</span>
-      <span class="vi">@converted_type</span> <span class="o">=</span> <span class="ss">:FLOAT</span>
-      <span class="vi">@converted_bit_size</span> <span class="o">=</span> <span class="mi">32</span>
-    <span class="k">end</span>
+<span class="k">class</span> <span class="nc">AverageConversion</span> <span class="o">&lt;</span> <span class="no">Conversion</span>
+<span class="k">def</span> <span class="nf">initialize</span><span class="p">(\</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+<span class="k">super</span><span class="p">()</span>
+<span class="vi">@items</span> <span class="o">=</span> <span class="n">args</span>
+<span class="vi">@converted_type</span> <span class="o">=</span> <span class="ss">:FLOAT</span>
+<span class="vi">@converted_bit_size</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="k">end</span>
 
     <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">packet</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
       <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1677,7 +1706,8 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
       <span class="k">end</span>
       <span class="k">return</span> <span class="n">total</span> <span class="o">/</span> <span class="vi">@items</span><span class="p">.</span><span class="nf">length</span>
     <span class="k">end</span>
-  <span class="k">end</span>
+
+<span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>Here I’m using the Ruby splat operator to collect all the arguments passed into initialize and assign them to @items. I also explicitly set the @converted_type and @converted_bit_size variables (part of the Conversion base class) to :FLOAT and 32 to indicate our conversion will return a 32 bit floating point number. The call method is what actually performs the conversion. Note how it defines the same three variables I previously talked about: value, packet and buffer. I use the packet argument to read the items passed in and then divide by the total to average them.</p>
@@ -1721,7 +1751,8 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
   </div>
   <div class="post-content">
     <h2 id="cosmos-limits">COSMOS Limits</h2>
-<p>COSMOS allows you to <a href="/docs/telemetry/#limits">define limits</a> for your telemetry items to provide feedback to users about how your telemetry is performing. If you define limits, COSMOS requires you to specify both red and yellow limits. Red limits are traditionally where damage may occur while yellow limits are set a certain percentage away from red to give the operator a chance to respond before the red limits are hit. COSMOS also allows the user to set “Operational” limits (blue limits) which specify a desired operational range inside the green limits. This is best illustrated in the COSMOS demo. Here is a partial screenshot of the INST HS screen in Telemetry Viewer.</p>
+
+<p>COSMOS allows you to <a href="/docs/v4/telemetry#limits">define limits</a> for your telemetry items to provide feedback to users about how your telemetry is performing. If you define limits, COSMOS requires you to specify both red and yellow limits. Red limits are traditionally where damage may occur while yellow limits are set a certain percentage away from red to give the operator a chance to respond before the red limits are hit. COSMOS also allows the user to set “Operational” limits (blue limits) which specify a desired operational range inside the green limits. This is best illustrated in the COSMOS demo. Here is a partial screenshot of the INST HS screen in Telemetry Viewer.</p>
 
 <p><img src="/img/2018_02_12_temps.png" alt="Demo MetaData" /></p>
 
@@ -1731,15 +1762,16 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 
 <p><img src="/img/2018_02_12_limits_monitor.png" alt="Demo MetaData" /></p>
 
-<p>Here I’ve ignored various other items to focus on the INST HEALTH_STATUS packet containing TEMP1 and TEMP2. Notice that the overall limit is yellow since TEMP1 is yellow even though TEMP2 is green. The worst case limts item is reflected in the Monitored Limits State. Also note that TEMP2 appears above TEMP1 because it happened to go out of limits first while I was running the demo. Items appear in Limits Monitor as they go out of limits. Also note that even though TEMP2 is green it still shows up in Limits Monitor because it <em>previously</em> went out of limits. If you switch to the Log tab you can see exactly when an item went out of limits and when it went back to green.</p>
+<p>Here I’ve ignored various other items to focus on the INST HEALTH<em>STATUS packet containing TEMP1 and TEMP2. Notice that the overall limit is yellow since TEMP1 is yellow even though TEMP2 is green. The worst case limts item is reflected in the Monitored Limits State. Also note that TEMP2 appears above TEMP1 because it happened to go out of limits first while I was running the demo. Items appear in Limits Monitor as they go out of limits. Also note that even though TEMP2 is green it still shows up in Limits Monitor because it _previously</em> went out of limits. If you switch to the Log tab you can see exactly when an item went out of limits and when it went back to green.</p>
 
 <h3 id="scripting-limits">Scripting Limits</h3>
+
 <p>You can get this same information from a script by executing the following script in Script Runner.</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">puts</span> <span class="s2">"Overall limits state: </span><span class="si">#{</span><span class="n">get_overall_limits_state</span><span class="si">}</span><span class="s2">"</span>
 <span class="n">get_out_of_limits</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
-  <span class="n">tgt</span><span class="p">,</span> <span class="n">pkt</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">item</span>
-  <span class="nb">puts</span> <span class="s2">"tgt:</span><span class="si">#{</span><span class="n">tgt</span><span class="si">}</span><span class="s2"> pkt:</span><span class="si">#{</span><span class="n">pkt</span><span class="si">}</span><span class="s2"> item:</span><span class="si">#{</span><span class="n">item</span><span class="si">}</span><span class="s2"> state:</span><span class="si">#{</span><span class="n">state</span><span class="si">}</span><span class="s2">"</span>
+<span class="n">tgt</span><span class="p">,</span> <span class="n">pkt</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="n">item</span>
+<span class="nb">puts</span> <span class="s2">"tgt:</span><span class="si">#{</span><span class="n">tgt</span><span class="si">}</span><span class="s2"> pkt:</span><span class="si">#{</span><span class="n">pkt</span><span class="si">}</span><span class="s2"> item:</span><span class="si">#{</span><span class="n">item</span><span class="si">}</span><span class="s2"> state:</span><span class="si">#{</span><span class="n">state</span><span class="si">}</span><span class="s2">"</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>Note that the get_out_of_limits call returns the items which are out of limits at the exact instant of the API call. Thus it doesn’t provide history like the Limits Monitor tool.</p>
@@ -1754,7 +1786,8 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 <span class="nb">puts</span> <span class="s2">"TEMP1 limits enable:</span><span class="si">#{</span><span class="n">limits_enabled?</span><span class="p">(</span><span class="s2">"INST"</span><span class="p">,</span> <span class="s2">"HEALTH_STATUS"</span><span class="p">,</span> <span class="s2">"TEMP1"</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span></code></pre></figure>
 
 <h2 id="limits-sets">Limits Sets</h2>
-<p>COSMOS requires the first item after the <a href="/docs/telemetry/#limits">LIMITS</a> keyword to be the name of the limits set. Limits sets are system wide sets of limits which can be applied depending on the environment you’re testing in. Perhaps you have a “Test” set of limits which are different from your “Operational” limits. At Ball Aerospace, we frequently define cyrogentic limits when testing spacecraft in a vacuum chamber at cyrogenic temperatures. COSMOS requires at least one limits definition to belong to “DEFAULT” which is used when COSMOS starts. If you forget to define a DEFAULT limits set, you’ll get this error when you start the COSMOS Command and Telemetry Server.</p>
+
+<p>COSMOS requires the first item after the <a href="/docs/v4/telemetry#limits">LIMITS</a> keyword to be the name of the limits set. Limits sets are system wide sets of limits which can be applied depending on the environment you’re testing in. Perhaps you have a “Test” set of limits which are different from your “Operational” limits. At Ball Aerospace, we frequently define cyrogentic limits when testing spacecraft in a vacuum chamber at cyrogenic temperatures. COSMOS requires at least one limits definition to belong to “DEFAULT” which is used when COSMOS starts. If you forget to define a DEFAULT limits set, you’ll get this error when you start the COSMOS Command and Telemetry Server.</p>
 
 <p><img src="/img/2018_02_12_limits_error.png" alt="Demo MetaData" /></p>
 
@@ -1765,6 +1798,7 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 <p>Notice the log contains “INFO: Limits Set Changed to: TVAC”. This happened immediately after I manually changed the Limits Set drop down from DEFAULT to TVAC. This message is automatically generated whenever the limits set is changed either manually or from the API.</p>
 
 <h3 id="scripting-limits-sets">Scripting Limits Sets</h3>
+
 <p>You can also manipulate the limits sets programatically from a script.</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_limits_sets</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">set</span><span class="o">|</span> <span class="nb">puts</span> <span class="s2">"Limits Set:</span><span class="si">#{</span><span class="n">set</span><span class="si">}</span><span class="s2">"</span> <span class="p">}</span>
@@ -1773,11 +1807,12 @@ ITEM RECEIVED_COUNT 0 0 DERIVED "COSMOS packet received count"
 <span class="n">set_limits_set</span><span class="p">(</span><span class="s2">"TVAC"</span><span class="p">)</span> <span class="c1"># Change to TVAC</span></code></pre></figure>
 
 <h2 id="limits-groups">Limits Groups</h2>
+
 <p>COSMOS also has the concept of limits groups. Limits groups are used to group together telemetry items so they can be enabled and disabled together. For example, if you have several physical devices in your system, you can group together items from each device and enable their limits when they power on and disable them when they power off. This is useful to avoid limits violations on items which are currently off and returning zeros.</p>
 
-<p>Limits groups are defined by the <a href="/docs/telemetry/#limits_group">LIMITS_GROUP</a> keyword. Typically this is a separate file in your target’s cmd_tlm folder. If you’re creating a group which combines items from multiple targets we recommend to define this in the SYSTEM target’s cmd_tlm folder. This is how the COSMOS demo is configured with a limits_groups.txt file in SYSTEM/cmd_tlm.</p>
+<p>Limits groups are defined by the <a href="/docs/v4/telemetry#limits_group">LIMITS_GROUP</a> keyword. Typically this is a separate file in your target’s cmd_tlm folder. If you’re creating a group which combines items from multiple targets we recommend to define this in the SYSTEM target’s cmd_tlm folder. This is how the COSMOS demo is configured with a limits_groups.txt file in SYSTEM/cmd_tlm.</p>
 
-<p>Items are assigned to a group using the <a href="/docs/telemetry/#limits_group_item">LIMITS_GROUP_ITEM</a> keyword. Here is the definition in the COSMOS demo.</p>
+<p>Items are assigned to a group using the <a href="/docs/v4/telemetry#limits_group_item">LIMITS_GROUP_ITEM</a> keyword. Here is the definition in the COSMOS demo.</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LIMITS_GROUP INST2_TEMP2
   LIMITS_GROUP_ITEM INST2 HEALTH_STATUS TEMP2
@@ -1788,6 +1823,7 @@ LIMITS_GROUP INST2_GROUND
 </code></pre></div></div>
 
 <h3 id="scripting-limits-groups">Scripting Limits Groups</h3>
+
 <p>You can also manipulate the limits groups programatically from a script.</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">get_limits_groups</span><span class="p">.</span><span class="nf">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">group</span><span class="o">|</span> <span class="nb">puts</span> <span class="s2">"Limits Group:</span><span class="si">#{</span><span class="n">group</span><span class="si">}</span><span class="s2">"</span> <span class="p">}</span>
@@ -1795,37 +1831,37 @@ LIMITS_GROUP INST2_GROUND
 <span class="n">disable_limits_group</span><span class="p">(</span><span class="s2">"INST2_GROUND"</span><span class="p">)</span></code></pre></figure>
 
 <h3 id="automating-limits-groups">Automating Limits Groups</h3>
+
 <p>COSMOS also has the ability to automatically enable and disable limits groups based on user configurable conditions. For example, you can automatically enable the group for a particular device when the power supply voltage for that device goes high (the device is powered on). The COSMOS demo has an example of this in the SYSTEM/lib/limits_groups.rb file.</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/tools/cmd_tlm_server/limits_groups_background_task'</span>
 
 <span class="k">module</span> <span class="nn">Cosmos</span>
-  <span class="c1"># Inheriting from the LimitsGroupsBackgroundTask provides a framework for</span>
-  <span class="c1"># automatically enabling and disabling limits groups based on telemetry.</span>
-  <span class="k">class</span> <span class="nc">LimitsGroups</span> <span class="o">&lt;</span> <span class="no">LimitsGroupsBackgroundTask</span>
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">initial_delay</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">task_delay</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
-      <span class="c1"># Initial delay upon starting the server before staring the group checks</span>
-      <span class="c1"># followed by the background task delay between check iterations</span>
-      <span class="k">super</span><span class="p">(</span><span class="n">initial_delay</span><span class="p">,</span> <span class="n">task_delay</span><span class="p">)</span>
-      <span class="c1"># Creating a Proc allows for arbitrary code to be executed when a group</span>
-      <span class="c1"># is enabled or disabled.</span>
-      <span class="vi">@temp2_enable_code</span> <span class="o">=</span> <span class="no">Proc</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span>
-        <span class="n">enable_limits_group</span><span class="p">(</span><span class="s1">'INST2_GROUND'</span><span class="p">)</span> <span class="c1"># Enable the INST2_GROUND group</span>
-      <span class="k">end</span>
-      <span class="vi">@temp2_disable_code</span> <span class="o">=</span> <span class="no">Proc</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span>
-        <span class="n">disable_limits_group</span><span class="p">(</span><span class="s1">'INST2_GROUND'</span><span class="p">)</span> <span class="c1"># Disable the INST2_GROUND group</span>
-      <span class="k">end</span>
-    <span class="k">end</span></code></pre></figure>
+
+<span class="c1"># Inheriting from the LimitsGroupsBackgroundTask provides a framework for</span>
+
+<span class="c1"># automatically enabling and disabling limits groups based on telemetry.</span>
+
+<span class="k">class</span> <span class="nc">LimitsGroups</span> <span class="o">&lt;</span> <span class="no">LimitsGroupsBackgroundTask</span>
+<span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">initial_delay</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">task_delay</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span> <span class="c1"># Initial delay upon starting the server before staring the group checks # followed by the background task delay between check iterations</span>
+<span class="k">super</span><span class="p">(</span><span class="n">initial_delay</span><span class="p">,</span> <span class="n">task_delay</span><span class="p">)</span> <span class="c1"># Creating a Proc allows for arbitrary code to be executed when a group # is enabled or disabled.</span>
+<span class="vi">@temp2_enable_code</span> <span class="o">=</span> <span class="no">Proc</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span>
+<span class="n">enable_limits_group</span><span class="p">(</span><span class="s1">'INST2_GROUND'</span><span class="p">)</span> <span class="c1"># Enable the INST2_GROUND group</span>
+<span class="k">end</span>
+<span class="vi">@temp2_disable_code</span> <span class="o">=</span> <span class="no">Proc</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span>
+<span class="n">disable_limits_group</span><span class="p">(</span><span class="s1">'INST2_GROUND'</span><span class="p">)</span> <span class="c1"># Disable the INST2_GROUND group</span>
+<span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
 
 <p>You first must require the COSMOS base class and inherit from LimitsGroupsBackgroundTask. The constructor (initialize) takes two delay parameters. The first is the initial delay after starting the Command and Telemetry Server before the task starts checking your logical conditions. The second is the delay between doing the checks (it controls the rate of the task). After calling super (important!) a Proc is created to run arbitrary code when a particular group is enabled or disabled. Note this is entirely optional but in this case we wanted to enable the INST2_GROUND group when the INST2_TEMP2 group got enabled. The @temp2_enable_code and @temp2_disable_code names don’t really matter but they must be unique and have the ‘@’ symbol to make them Ruby instance variables (rather than locals).</p>
 
 <p>After the constructor is configured the method to perform the check is implemented.</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">check_inst2_temp2</span>
-  <span class="n">process_group</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="vi">@temp2_enable_code</span><span class="p">,</span> <span class="vi">@temp2_disable_code</span><span class="p">)</span> <span class="k">do</span>
-    <span class="n">val</span> <span class="o">=</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST2 HEALTH_STATUS TEMP2"</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">(</span><span class="o">!</span><span class="n">val</span><span class="p">.</span><span class="nf">nan?</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">val</span><span class="p">.</span><span class="nf">infinite?</span><span class="p">)</span>
-  <span class="k">end</span>
+<span class="n">process_group</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="vi">@temp2_enable_code</span><span class="p">,</span> <span class="vi">@temp2_disable_code</span><span class="p">)</span> <span class="k">do</span>
+<span class="n">val</span> <span class="o">=</span> <span class="n">tlm</span><span class="p">(</span><span class="s2">"INST2 HEALTH_STATUS TEMP2"</span><span class="p">)</span>
+<span class="k">return</span> <span class="p">(</span><span class="o">!</span><span class="n">val</span><span class="p">.</span><span class="nf">nan?</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">val</span><span class="p">.</span><span class="nf">infinite?</span><span class="p">)</span>
+<span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>The method name is very important. It must begin with ‘check_’ and end with the name of a Limits Group defined by the LIMITS_GROUP keyword. In the demo, LIMITS_GROUP(s) are defined in config/targets/SYSTEM/cmd_tlm/limits_groups.txt. Since there is a LIMITS_GROUP INST2_TEMP2 we have a match (the method name should be lower case while the LIMITS_GROUP is typically defined to be uppercase).</p>
@@ -1843,9 +1879,10 @@ LIMITS_GROUP INST2_GROUND
 <p>First TEMP2 transitions to NaN (this is done on purpose for the demo) which is a RED_LOW limits violation. 100ms later (due to processing time) the INST2_TEMP2 group is disabled followed by the INST2_GROUND group due to the Proc code we created.</p>
 
 <h2 id="other-limits-apis">Other Limits APIs</h2>
+
 <p>There are a few other APIs which are provided to work with COSMOS limits.</p>
 
-<p><code class="language-plaintext highlighter-rouge">get_stale</code> returns all the stale packets in the system. Stale packets are those which have not been received by the Command and Telemetry Server for the <a href="/docs/system/#staleness_seconds">STALENESS_SECONDS</a> setting (by default 30s).</p>
+<p><code class="language-plaintext highlighter-rouge">get_stale</code> returns all the stale packets in the system. Stale packets are those which have not been received by the Command and Telemetry Server for the <a href="/docs/v4/system#staleness_seconds">STALENESS_SECONDS</a> setting (by default 30s).</p>
 
 <p><code class="language-plaintext highlighter-rouge">get_limits(tgt, pkt, item)</code> returns the limits settings for a particular telemetry item. It returns an array of the group name, persistence setting, enable setting, red low, yellow low, yellow high, red high, blue low, and blue high limits values. If no blue operational limits were set those values are nil.</p>
 
@@ -1863,25 +1900,27 @@ LIMITS_GROUP INST2_GROUND
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">id</span> <span class="o">=</span> <span class="n">subscribe_limits_events</span><span class="p">()</span>
 <span class="k">while</span> <span class="kp">true</span>
-  <span class="n">type</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">get_limits_event</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="c1"># block waiting</span>
-  <span class="nb">puts</span> <span class="s2">"type:</span><span class="si">#{</span><span class="n">type</span><span class="si">}</span><span class="s2"> data:</span><span class="si">#{</span><span class="n">data</span><span class="si">}</span><span class="s2">"</span>
-  <span class="c1"># break if XXX # Break the loop when ...</span>
+<span class="n">type</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">get_limits_event</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="c1"># block waiting</span>
+<span class="nb">puts</span> <span class="s2">"type:</span><span class="si">#{</span><span class="n">type</span><span class="si">}</span><span class="s2"> data:</span><span class="si">#{</span><span class="n">data</span><span class="si">}</span><span class="s2">"</span>
+
+<span class="c1"># break if XXX # Break the loop when ...</span>
+
 <span class="k">end</span>
 <span class="n">unsubscribe_limits_events</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
 
 <span class="nb">id</span> <span class="o">=</span> <span class="n">subscribe_limits_events</span><span class="p">()</span>
 <span class="k">while</span> <span class="kp">true</span>
-  <span class="k">begin</span>
-    <span class="n">type</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">get_limits_event</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="kp">true</span><span class="p">)</span> <span class="c1"># don't block</span>
-    <span class="nb">puts</span> <span class="s2">"type:</span><span class="si">#{</span><span class="n">type</span><span class="si">}</span><span class="s2"> data:</span><span class="si">#{</span><span class="n">data</span><span class="si">}</span><span class="s2">"</span>
-    <span class="c1"># break if XXX # Break the loop when ...</span>
-  <span class="k">rescue</span> <span class="no">ThreadError</span> <span class="c1"># raised if no event present</span>
-    <span class="n">wait</span> <span class="mi">1</span> <span class="c1"># Wait before checking again</span>
-  <span class="k">end</span>
+<span class="k">begin</span>
+<span class="n">type</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">get_limits_event</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="kp">true</span><span class="p">)</span> <span class="c1"># don't block</span>
+<span class="nb">puts</span> <span class="s2">"type:</span><span class="si">#{</span><span class="n">type</span><span class="si">}</span><span class="s2"> data:</span><span class="si">#{</span><span class="n">data</span><span class="si">}</span><span class="s2">"</span> <span class="c1"># break if XXX # Break the loop when ...</span>
+<span class="k">rescue</span> <span class="no">ThreadError</span> <span class="c1"># raised if no event present</span>
+<span class="n">wait</span> <span class="mi">1</span> <span class="c1"># Wait before checking again</span>
+<span class="k">end</span>
 <span class="k">end</span>
 <span class="n">unsubscribe_limits_events</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span></code></pre></figure>
 
 <h2 id="conclusion">Conclusion</h2>
+
 <p>Limits are a powerful concept in COSMOS. Sets provide for a system wide setting that affects all limits items. Groups allow limits items to be grouped to typically enable and disable them together. APIs allow the user to query and set limits across the system while subscriptions provide notifications for every limits event action.</p>
 
 <p>If you have a question which would benefit the community or find a possible bug please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
@@ -2669,7 +2708,7 @@ C:/git/COSMOS/demo/config/targets/SYSTEM/lib
 
 <p>Click the Download Remote Desktop File and open it in Remote Desktop to connect to the Windows Server instance. Note that it does take a while for the Windows instance to boot so this won’t work until your Status Checks show a green check. Also note that many corporate firewalls may block doing a Remote Desktop outside your corporate network.</p>
 
-<p>You also need to click Get Password and locate your ‘pem’ file you saved earlier to Decrypt your password. Login to the instance as Administrator with the decrypted password. Once you’ve logged in you can change the password to something a little more reasonable. Then simply follow the usual <a href="/docs/installation/">COSMOS installation </a> instructions.</p>
+<p>You also need to click Get Password and locate your ‘pem’ file you saved earlier to Decrypt your password. Login to the instance as Administrator with the decrypted password. Once you’ve logged in you can change the password to something a little more reasonable. Then simply follow the usual <a href="/docs/v4/installation/">COSMOS installation </a> instructions.</p>
 
 <p>Here is a screenshot of my successful COSMOS installation running on the AWS Microsoft Server instance:
 <img src="/img/2017_08_23_aws_windows.png" alt="COSMOS on Windows" /></p>
@@ -3004,15 +3043,15 @@ vncconfig -iconic &amp;
     </a>
   </div>
   <div class="post-content">
-    <p>The <a href="/docs/protocols/#template-protocol">Template Protocol</a> is probably one of the more confusing protocols in the COSMOS protocol library but it is extremely helpful when implementing string based protocols such as Standard Commands for Programmable Instruments (SCPI; often pronounced “skippy”).</p>
+    <p>The <a href="/docs/protocols#template-protocol">Template Protocol</a> is probably one of the more confusing protocols in the COSMOS protocol library but it is extremely helpful when implementing string based protocols such as Standard Commands for Programmable Instruments (SCPI; often pronounced “skippy”).</p>
 
-<p>For this example we’ll assume we’re trying to talk to a SCPI enabled power supply such as the Keysight N6700. We start by creating a directory under our config/targets called POWER. The supply has a TCP/IP interface so we’ll use the <a href="/docs/interfaces/#tcpip-client-interface">TCP/IP Client Interface</a> to connect to it. Thus we create our POWER/cmd_tlm_server.txt file as follows:</p>
+<p>For this example we’ll assume we’re trying to talk to a SCPI enabled power supply such as the Keysight N6700. We start by creating a directory under our config/targets called POWER. The supply has a TCP/IP interface so we’ll use the <a href="/docs/v4/interfaces#tcpip-client-interface">TCP/IP Client Interface</a> to connect to it. Thus we create our POWER/cmd_tlm_server.txt file as follows:</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>INTERFACE POWER_INT tcpip_client_interface.rb 127.0.0.1 5025 5025 10.0 nil TEMPLATE 0x0A 0x0A
   TARGET POWER
 </code></pre></div></div>
 
-<p>This definition declares an interface named POWER_INT using the TCP/IP client interface which connects to ‘127.0.0.1’ (obviously you’ll change this to your actual power supply IP addres) using a write and read port of 5025 (standard SCPI ports for Keysight instruments) with a write timeout of 10s and no read timeout (block on read). We specify the TEMPLATE protocol with both write and read termination characters of 0x0A (ASCII newline). Note the <a href="/docs/protocols/#template-protocol">TEMPLATE protocol</a> takes many additional parameters to allow you to work with off nominal protocol conditions.</p>
+<p>This definition declares an interface named POWER_INT using the TCP/IP client interface which connects to ‘127.0.0.1’ (obviously you’ll change this to your actual power supply IP addres) using a write and read port of 5025 (standard SCPI ports for Keysight instruments) with a write timeout of 10s and no read timeout (block on read). We specify the TEMPLATE protocol with both write and read termination characters of 0x0A (ASCII newline). Note the <a href="/docs/protocols#template-protocol">TEMPLATE protocol</a> takes many additional parameters to allow you to work with off nominal protocol conditions.</p>
 
 <p>Now you can define your target’s command and telemetry definitions. We’ll create example commands which get and set the voltage setting in our power supply. Create a POWER/cmd_tlm/cmd.txt file which has the following:</p>
 
@@ -3032,7 +3071,7 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN "Set voltage"
   APPEND_PARAMETER RSP_PACKET 512 STRING "TLM"
 </code></pre></div></div>
 
-<p>The CMD_ID parameter is defined by <a href="/docs/command/#append_id_parameter">APPEND_ID_PARAMETER</a>. This ID parameter is not used by the SCPI protocol but is needed for COSMOS to identify the command when it is logged. The CMD_TEMPLATE parameter is the actual SCPI command which is being sent to the target. Anything inside brackets &lt;&gt; will be replaced by the value in the named parameter. For example, both commands define the CHANNEL parameter and thus &lt;CHANNEL&gt; will be replaced by the value of that parameter when constructing the command. The RSP_TEMPLATE is the expected string response back from the target. This is parsed by pulling out values into the bracket delimited values. The RSP_PACKET defines the packet where the bracket delimited values are defined. So for our GET_VOLTAGE example we parse the VOLTAGE value and place it in the TLM packet.</p>
+<p>The CMD_ID parameter is defined by <a href="/docs/v4/command#append_id_parameter">APPEND_ID_PARAMETER</a>. This ID parameter is not used by the SCPI protocol but is needed for COSMOS to identify the command when it is logged. The CMD_TEMPLATE parameter is the actual SCPI command which is being sent to the target. Anything inside brackets &lt;&gt; will be replaced by the value in the named parameter. For example, both commands define the CHANNEL parameter and thus &lt;CHANNEL&gt; will be replaced by the value of that parameter when constructing the command. The RSP_TEMPLATE is the expected string response back from the target. This is parsed by pulling out values into the bracket delimited values. The RSP_PACKET defines the packet where the bracket delimited values are defined. So for our GET_VOLTAGE example we parse the VOLTAGE value and place it in the TLM packet.</p>
 
 <p>Create a POWER/cmd_tlm/tlm.txt file to define the response telemetry:</p>
 
@@ -3046,7 +3085,7 @@ COMMAND POWER SET_VOLTAGE BIG_ENDIAN "Set voltage"
     UNITS "Volts" "V"
 </code></pre></div></div>
 
-<p>The TLM_ID item is defined by <a href="/docs/telemetry/#append_id_item">APPEND_ID_ITEM</a>. This ID item is not used by the SCPI protocol but is needed by COSMOS to decode this logged telemetry packet. The packet is named TLM which matches our RSP_PACKET definition in the commands. We define VOLTAGE and SET_VOLTAGE which also match the values used in the RSP_TEMPLATE parameters in our commands.</p>
+<p>The TLM_ID item is defined by <a href="/docs/v4/telemetry#append_id_item">APPEND_ID_ITEM</a>. This ID item is not used by the SCPI protocol but is needed by COSMOS to decode this logged telemetry packet. The packet is named TLM which matches our RSP_PACKET definition in the commands. We define VOLTAGE and SET_VOLTAGE which also match the values used in the RSP_TEMPLATE parameters in our commands.</p>
 
 <p>With Keysight supplies you can string together a bunch of SCIP commands in one CMD_TEMPLATE if you delimit them with semicolons. Then in the RSP_TEMPLATE you can break the response apart and set a bunch of telemetry items at once. For example:</p>
 
@@ -3156,7 +3195,7 @@ Documentation will updated the first week of April.</p>
   <div class="post-content">
     <p>COSMOS Packet Processors are a powerful concept that allow you to run code each time a specified packet is received. COSMOS provides a few generic Packet Processors which allows you to include statistics about individual telemetry points in your defined packets. Let’s break down how the COSMOS included processors are used and how you can implement your own Packet Processor.</p>
 
-<p>First <a href="/docs/installation">install</a> COSMOS and start up the demo application. You’ll notice we declare a few targets of which one is called INST (for instrument). If you open up Packet Viewer and navigate to the INST target and the HEALTH_STATUS packet you can see a bunch of derived telemetry points at the top.</p>
+<p>First <a href="/docs/v4/installation">install</a> COSMOS and start up the demo application. You’ll notice we declare a few targets of which one is called INST (for instrument). If you open up Packet Viewer and navigate to the INST target and the HEALTH_STATUS packet you can see a bunch of derived telemetry points at the top.</p>
 
 <p><img src="/img/2017_05_08_packet_viewer.png" alt="Packet Viewer" /></p>
 
@@ -3182,7 +3221,7 @@ Documentation will updated the first week of April.</p>
   PROCESSOR TEMP1WATER watermark_processor.rb TEMP1
 </code></pre></div></div>
 
-<p>These definitions create six new telemetry <a href="/docs/telemetry/#item">ITEMs</a>. The <a href="/docs/telemetry/#read_conversion">READ_CONVERSION</a> line takes a conversion class and then variable parameters that are passed to the class. Here we’re using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two <a href="/docs/telemetry/#processor">PROCESSORs</a>.</p>
+<p>These definitions create six new telemetry <a href="/docs/v4/telemetry#item">ITEMs</a>. The <a href="/docs/v4/telemetry#read_conversion">READ_CONVERSION</a> line takes a conversion class and then variable parameters that are passed to the class. Here we’re using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two <a href="/docs/v4/telemetry#processor">PROCESSORs</a>.</p>
 
 <p>Currently COSMOS provides the following three processors:</p>
 
@@ -3198,14 +3237,12 @@ Documentation will updated the first week of April.</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/processors/processor'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
-  <span class="k">class</span> <span class="nc">WatermarkProcessor</span> <span class="o">&lt;</span> <span class="no">Processor</span>
-    <span class="c1"># @param item_name [String] The name of the item to gather statistics on</span>
-    <span class="c1"># @param value_type #See Processor::initialize</span>
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span> <span class="o">=</span> <span class="ss">:CONVERTED</span><span class="p">)</span>
-      <span class="k">super</span><span class="p">(</span><span class="n">value_type</span><span class="p">)</span>
-      <span class="vi">@item_name</span> <span class="o">=</span> <span class="n">item_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span>
-      <span class="n">reset</span><span class="p">()</span>
-    <span class="k">end</span>
+<span class="k">class</span> <span class="nc">WatermarkProcessor</span> <span class="o">&lt;</span> <span class="no">Processor</span> <span class="c1"># @param item_name [String] The name of the item to gather statistics on # @param value_type #See Processor::initialize</span>
+<span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span> <span class="o">=</span> <span class="ss">:CONVERTED</span><span class="p">)</span>
+<span class="k">super</span><span class="p">(</span><span class="n">value_type</span><span class="p">)</span>
+<span class="vi">@item_name</span> <span class="o">=</span> <span class="n">item_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span>
+<span class="n">reset</span><span class="p">()</span>
+<span class="k">end</span>
 
     <span class="c1"># See Processor#call</span>
     <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">packet</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
@@ -3226,7 +3263,8 @@ Documentation will updated the first week of April.</p>
     <span class="k">def</span> <span class="nf">to_config</span>
       <span class="s2">"  PROCESSOR </span><span class="si">#{</span><span class="vi">@name</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">class_name_to_filename</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="vi">@item_name</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="vi">@value_type</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
     <span class="k">end</span>
-  <span class="k">end</span>
+
+<span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>The initialize method gets passed the parameters from the config file. Thus our config file of:
@@ -3245,22 +3283,20 @@ Since we only pass one value, we use the default value_type of :CONVERTED.</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/conversions/conversion'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
-  <span class="c1"># Retrieves the result from an item processor</span>
-  <span class="k">class</span> <span class="nc">ProcessorConversion</span> <span class="o">&lt;</span> <span class="no">Conversion</span>
-    <span class="c1"># @param processor_name [String] The name of the associated processor</span>
-    <span class="c1"># @param result_name [String] The name of the associated result in the processor</span>
-    <span class="c1"># @param converted_type [String or nil] The datatype of the result of the processor</span>
-    <span class="c1"># @param converted_bit_size [Integer or nil] The bit size of the result of the processor</span>
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">processor_name</span><span class="p">,</span> <span class="n">result_name</span><span class="p">,</span> <span class="n">converted_type</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">,</span> <span class="n">converted_bit_size</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
-      <span class="k">super</span><span class="p">()</span>
-      <span class="vi">@processor_name</span> <span class="o">=</span> <span class="n">processor_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span>
-      <span class="vi">@result_name</span> <span class="o">=</span> <span class="n">result_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span><span class="p">.</span><span class="nf">intern</span>
-      <span class="k">if</span> <span class="no">ConfigParser</span><span class="p">.</span><span class="nf">handle_nil</span><span class="p">(</span><span class="n">converted_type</span><span class="p">)</span>
-        <span class="vi">@converted_type</span> <span class="o">=</span> <span class="n">converted_type</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span><span class="p">.</span><span class="nf">intern</span>
-        <span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s2">"Unknown converted type: </span><span class="si">#{</span><span class="n">converted_type</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="o">!</span><span class="no">BinaryAccessor</span><span class="o">::</span><span class="no">DATA_TYPES</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="vi">@converted_type</span><span class="p">)</span>
-      <span class="k">end</span>
-      <span class="vi">@converted_bit_size</span> <span class="o">=</span> <span class="no">Integer</span><span class="p">(</span><span class="n">converted_bit_size</span><span class="p">)</span> <span class="k">if</span> <span class="no">ConfigParser</span><span class="p">.</span><span class="nf">handle_nil</span><span class="p">(</span><span class="n">converted_bit_size</span><span class="p">)</span>
-    <span class="k">end</span>
+
+<span class="c1"># Retrieves the result from an item processor</span>
+
+<span class="k">class</span> <span class="nc">ProcessorConversion</span> <span class="o">&lt;</span> <span class="no">Conversion</span> <span class="c1"># @param processor_name [String] The name of the associated processor # @param result_name [String] The name of the associated result in the processor # @param converted_type [String or nil] The datatype of the result of the processor # @param converted_bit_size [Integer or nil] The bit size of the result of the processor</span>
+<span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">processor_name</span><span class="p">,</span> <span class="n">result_name</span><span class="p">,</span> <span class="n">converted_type</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">,</span> <span class="n">converted_bit_size</span> <span class="o">=</span> <span class="kp">nil</span><span class="p">)</span>
+<span class="k">super</span><span class="p">()</span>
+<span class="vi">@processor_name</span> <span class="o">=</span> <span class="n">processor_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span>
+<span class="vi">@result_name</span> <span class="o">=</span> <span class="n">result_name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span><span class="p">.</span><span class="nf">intern</span>
+<span class="k">if</span> <span class="no">ConfigParser</span><span class="p">.</span><span class="nf">handle_nil</span><span class="p">(</span><span class="n">converted_type</span><span class="p">)</span>
+<span class="vi">@converted_type</span> <span class="o">=</span> <span class="n">converted_type</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">upcase</span><span class="p">.</span><span class="nf">intern</span>
+<span class="k">raise</span> <span class="no">ArgumentError</span><span class="p">,</span> <span class="s2">"Unknown converted type: </span><span class="si">#{</span><span class="n">converted_type</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="o">!</span><span class="no">BinaryAccessor</span><span class="o">::</span><span class="no">DATA_TYPES</span><span class="p">.</span><span class="nf">include?</span><span class="p">(</span><span class="vi">@converted_type</span><span class="p">)</span>
+<span class="k">end</span>
+<span class="vi">@converted_bit_size</span> <span class="o">=</span> <span class="no">Integer</span><span class="p">(</span><span class="n">converted_bit_size</span><span class="p">)</span> <span class="k">if</span> <span class="no">ConfigParser</span><span class="p">.</span><span class="nf">handle_nil</span><span class="p">(</span><span class="n">converted_bit_size</span><span class="p">)</span>
+<span class="k">end</span>
 
     <span class="c1"># @param (see Conversion#call)</span>
     <span class="c1"># @return [Varies] The result of the associated processor</span>
@@ -3269,7 +3305,8 @@ Since we only pass one value, we use the default value_type of :CONVERTED.</p>
     <span class="k">end</span>
     <span class="k">def</span> <span class="nf">to_s</span><span class="p">;</span> <span class="k">end</span> <span class="c1"># Not shown for brevity</span>
     <span class="k">def</span> <span class="nf">to_config</span><span class="p">(</span><span class="n">read_or_write</span><span class="p">);</span> <span class="k">end</span> <span class="c1"># Not shown for brevity</span>
-  <span class="k">end</span>
+
+<span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>First of all note that ProcessorConversion inherits from the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/conversions/conversion.rb">Conversion</a> base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let’s see how these map together in our definition.</p>
@@ -3291,13 +3328,12 @@ This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into ini
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/processors/processor'</span>
 <span class="k">module</span> <span class="nn">Cosmos</span>
-  <span class="k">class</span> <span class="nc">MeanProcessor</span> <span class="o">&lt;</span> <span class="no">Processor</span>
-    <span class="c1"># @param item_name [Array&lt;String&gt;] The names of the items to mean</span>
-    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="o">*</span><span class="n">item_names</span><span class="p">)</span> <span class="c1"># the splat operator accepts a variable length argument list</span>
-      <span class="k">super</span><span class="p">(</span><span class="ss">:CONVERTED</span><span class="p">)</span> <span class="c1"># Hard code to work on converted values</span>
-      <span class="vi">@item_names</span> <span class="o">=</span> <span class="n">item_names</span> <span class="c1"># Array of the item names</span>
-      <span class="n">reset</span><span class="p">()</span>
-    <span class="k">end</span>
+<span class="k">class</span> <span class="nc">MeanProcessor</span> <span class="o">&lt;</span> <span class="no">Processor</span> <span class="c1"># @param item_name [Array&lt;String&gt;] The names of the items to mean</span>
+<span class="k">def</span> <span class="nf">initialize</span><span class="p">(\</span><span class="o">*</span><span class="n">item_names</span><span class="p">)</span> <span class="c1"># the splat operator accepts a variable length argument list</span>
+<span class="k">super</span><span class="p">(</span><span class="ss">:CONVERTED</span><span class="p">)</span> <span class="c1"># Hard code to work on converted values</span>
+<span class="vi">@item_names</span> <span class="o">=</span> <span class="n">item_names</span> <span class="c1"># Array of the item names</span>
+<span class="n">reset</span><span class="p">()</span>
+<span class="k">end</span>
 
     <span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="n">packet</span><span class="p">,</span> <span class="n">buffer</span><span class="p">)</span>
       <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3316,15 +3352,17 @@ This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into ini
     <span class="k">def</span> <span class="nf">to_config</span>
       <span class="s2">"  PROCESSOR </span><span class="si">#{</span><span class="vi">@name</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="nb">self</span><span class="p">.</span><span class="nf">class</span><span class="p">.</span><span class="nf">name</span><span class="p">.</span><span class="nf">to_s</span><span class="p">.</span><span class="nf">class_name_to_filename</span><span class="si">}</span><span class="s2"> </span><span class="si">#{</span><span class="vi">@item_names</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="s1">' '</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
     <span class="k">end</span>
-  <span class="k">end</span>
+
+<span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>This class introduces some new Ruby syntax. Since we want to accept any number of items to average we have to accept a variable number of arguments in our initialize method. The ruby splat operator (or star operator) does this and places the arguments into a Ruby array. We store these names and then use them in our call method to perform the mean. I’m using a cool feature of Ruby’s Enumerable mixin, which is part of Array, to sum up the values (starting with 0) and then dividing by the number of values we have to get the mean. Note I’m also calling to_f to ensure the numerator is a floating point number so we do floating point math during the division. Integer division would truncate the value to an integer value.</p>
 
-<p>First to use this new processor you need to require it in your target’s <a href="/docs/system/#targettxt-keywords">target.txt</a> configuration file:
+<p>First to use this new processor you need to require it in your target’s <a href="/docs/v4/system#targettxt-keywords">target.txt</a> configuration file:
 <code class="language-plaintext highlighter-rouge">REQUIRE mean_processor.rb</code>
-Then delcare the processing in your configuration definition as follows:
-<code class="language-plaintext highlighter-rouge">TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
+Then delcare the processing in your configuration definition as follows:</p>
+
+<p><code class="language-plaintext highlighter-rouge">TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
   ... # See demo configuration
   ITEM TEMPS_MEAN 0 0 DERIVED "Mean of TEMP1, TEMP2, TEMP3, TEMP4"
     READ_CONVERSION processor_conversion.rb TEMPMEAN MEAN
@@ -3480,7 +3518,7 @@ PORT CTS_PREIDENTIFIED 7779
 
 <p>Basically we’re creating a Router that routes only the INST interface data. We create this Router using a TCPIP Server interface with a LENGTH protocol of bit offset 32, length field size of 16, and length value offset of 7. These values were chosen to match the INST command and telemetry which use CCSDS headers. The CCSDS standard specifies a 16 bit length field at offset 32. The CCSDS standard also specifies that the length field is the length of the packet past the length field minus 1. Thus we add 7 for the 4 bytes of offset, 2 bytes of length field, and the minus 1.</p>
 
-<p>For more information about the options you can pass to a Router (and Interface) see the <a href="http://cosmosrb.com/docs/interfaces/">Interface Configuration</a> part of the documentation.</p>
+<p>For more information about the options you can pass to a Router (and Interface) see the <a href="http://cosmosrb.com/docs/v4/interfaces/">Interface Configuration</a> part of the documentation.</p>
 
 <p>To connect to the INST_ROUTER that we created we can write a little Ruby code using existing COSMOS interface classes and streams.</p>
 
@@ -3489,8 +3527,8 @@ PORT CTS_PREIDENTIFIED 7779
 <span class="n">i</span> <span class="o">=</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">TcpipClientInterface</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'localhost'</span><span class="p">,</span><span class="mi">2055</span><span class="p">,</span><span class="mi">2055</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="s1">'LENGTH'</span><span class="p">,</span><span class="mi">32</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">7</span><span class="p">)</span>
 <span class="n">i</span><span class="p">.</span><span class="nf">connect</span>
 <span class="kp">loop</span> <span class="k">do</span>
-  <span class="n">pkt</span> <span class="o">=</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">identify!</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="nf">read</span><span class="p">.</span><span class="nf">buffer</span><span class="p">,</span> <span class="p">[</span><span class="s1">'INST'</span><span class="p">])</span>
-  <span class="nb">puts</span> <span class="n">pkt</span><span class="p">.</span><span class="nf">packet_name</span>
+<span class="n">pkt</span> <span class="o">=</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">identify!</span><span class="p">(</span><span class="n">i</span><span class="p">.</span><span class="nf">read</span><span class="p">.</span><span class="nf">buffer</span><span class="p">,</span> <span class="p">[</span><span class="s1">'INST'</span><span class="p">])</span>
+<span class="nb">puts</span> <span class="n">pkt</span><span class="p">.</span><span class="nf">packet_name</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>Obviously we need the TCPIP Client Interface to match the port number of the TCPIP Server and we also need to match the LENGTH protocol options. Notice how we have to call the System.telemetry.identify! method to identify the raw packet stream. When I run this from a command prompt after starting the Server I see a stream of packet names similar to this:</p>
@@ -3506,6 +3544,7 @@ MECH
 ADCS
 ...
 </code></pre></div></div>
+
 <p>You should see MECH and ADCS come out at 10Hz and the IMAGE, PARAMS, and HEALTH_STATUS come out at 1Hz. This matches the Packet Count ratio on the Tlm Packets tab of the Server.</p>
 
 <p>We can also write some code to connect to the PREIDENTIFIED router. It looks very similar to the previous code except we do not need to identify the packets as they are pre-identified!</p>
@@ -3515,8 +3554,8 @@ ADCS
 <span class="n">i</span> <span class="o">=</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">TcpipClientInterface</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="s1">'localhost'</span><span class="p">,</span><span class="mi">7779</span><span class="p">,</span><span class="mi">7779</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="kp">nil</span><span class="p">,</span><span class="s1">'PREIDENTIFIED'</span><span class="p">)</span>
 <span class="n">i</span><span class="p">.</span><span class="nf">connect</span>
 <span class="kp">loop</span> <span class="k">do</span>
-  <span class="n">pkt</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="nf">read</span>
-  <span class="nb">puts</span> <span class="n">pkt</span><span class="p">.</span><span class="nf">packet_name</span>
+<span class="n">pkt</span> <span class="o">=</span> <span class="n">i</span><span class="p">.</span><span class="nf">read</span>
+<span class="nb">puts</span> <span class="n">pkt</span><span class="p">.</span><span class="nf">packet_name</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>This time you should see some LIMITS_CHANGE packet names sprinkled in with the output from before. That’s because we’re accessing the ENTIRE COSMOS telemetry stream and not just the stream from the INST interface. Keep this in mind if you have performance issues when trying to process the entire telemetry stream.</p>
@@ -3746,7 +3785,7 @@ COMMAND INST ABORT BIG_ENDIAN "Aborts a collect on the instrument"
   <div class="post-content">
     <p>Sometimes we receive requests to make custom COSMOS widgets or to modify existing COSMOS widgets to add certain looks or functionality. While this is a project we’re happy to perform for our customers, it’s also something that can be done by end users willing to dig into some of the Qt and COSMOS documentation. In this post, I’m going to describe how to create a custom COSMOS widget.</p>
 
-<p>When asked to perform customizations like this I first bring up the COSMOS Demo. We try to include all the COSMOS features in the Demo so end users have concrete examples to follow instead of relying solely on the excellent documentation at <a href="http://cosmosrb.com/docs/home">cosmosrb.com</a>. Obviously you must first have COSMOS installed so follow the <a href="http://cosmosrb.com/docs/installation/">installation instructions</a> and then launch the Demo by running the Launcher in the Demo folder. Here is how the server appears on my Windows machine:</p>
+<p>When asked to perform customizations like this I first bring up the COSMOS Demo. We try to include all the COSMOS features in the Demo so end users have concrete examples to follow instead of relying solely on the excellent documentation at <a href="http://cosmosrb.com/docs/home">cosmosrb.com</a>. Obviously you must first have COSMOS installed so follow the <a href="http://cosmosrb.com/docs/v4/installation/">installation instructions</a> and then launch the Demo by running the Launcher in the Demo folder. Here is how the server appears on my Windows machine:</p>
 
 <p><img src="/img/2016_08_22_server.png" alt="COSMOS Demo Server" /></p>
 
@@ -3768,27 +3807,28 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/tools/tlm_viewer/widgets/widget'</span>
 
 <span class="k">module</span> <span class="nn">Cosmos</span>
-  <span class="k">class</span> <span class="nc">DemotableWidget</span> <span class="o">&lt;</span> <span class="no">Qt</span><span class="o">::</span><span class="no">TableWidget</span>
-    <span class="kp">include</span> <span class="no">Widget</span>
+<span class="k">class</span> <span class="nc">DemotableWidget</span> <span class="o">&lt;</span> <span class="no">Qt</span><span class="o">::</span><span class="no">TableWidget</span>
+<span class="kp">include</span> <span class="no">Widget</span>
 
     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">parent_layout</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span> <span class="o">=</span> <span class="ss">:WITH_UNITS</span><span class="p">)</span>
       <span class="k">super</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span><span class="p">)</span>
     <span class="k">end</span>
-  <span class="k">end</span>
+
+<span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>We’re extending the closest widget that Qt offers to what we’re trying to achieve. In this case it’s pretty obvious but you can get documentation on <a href="http://doc.qt.io/qt-4.8/classes.html">all the Qt classes</a>. In many cases it might be easier to extend an existing <a href="https://github.com/BallAerospace/COSMOS/tree/master/lib/cosmos/tools/tlm_viewer/widgets">COSMOS widget</a>.</p>
 
 <p>Note that our initialize method takes the parent_layout as the first value. All COSMOS widgets make the first parameter the parent_layout so they can be added. The next four paramaters are typically the target_name, packet_name, item_name and value_type. Additional parameters can follow the value_type parameter. The first thing we do in the initialize method is call super which calls the Widget initialize method. If you run this code you should see that the screen displays but doesn’t look any different. That’s because we haven’t actually added our new widget to the parent_layout. Before adding widgets to the layout you typically want to configure them. For our table, we need to set the number of rows and columns. First I grab the telemetry value from the server using the <code class="language-plaintext highlighter-rouge">System.telemetry.value</code> method defined in <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb">telemetry.rb</a>. Since this is an array value I call <code class="language-plaintext highlighter-rouge">length</code> to determine how many rows to display in the table. I then use the Qt methods <code class="language-plaintext highlighter-rouge">setRowCount</code> and <code class="language-plaintext highlighter-rouge">setColumnCount</code> to initialize the table. You can find these methods in the <a href="http://doc.qt.io/qt-4.8/qtablewidget.html">Qt::TableWidget</a> documentation. Finally I call the addWidget method which is a part of all the <a href="http://doc.qt.io/qt-4.8/qlayout.html">Qt::Layout</a> classes.</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">parent_layout</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span> <span class="o">=</span> <span class="ss">:WITH_UNITS</span><span class="p">)</span>
-      <span class="k">super</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span><span class="p">)</span>
-      <span class="n">value</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">value</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">)</span> <span class="c1"># Get the value</span>
-      <span class="vi">@rows</span> <span class="o">=</span> <span class="n">value</span><span class="p">.</span><span class="nf">length</span> <span class="c1"># Store the rows</span>
-      <span class="n">setRowCount</span><span class="p">(</span><span class="vi">@rows</span><span class="p">)</span>
-      <span class="n">setColumnCount</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-      <span class="n">parent_layout</span><span class="p">.</span><span class="nf">addWidget</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span> <span class="k">if</span> <span class="n">parent_layout</span>
-    <span class="k">end</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">parent_layout</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span> <span class="o">=</span> <span class="ss">:WITH_UNITS</span><span class="p">)</span>
+<span class="k">super</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span><span class="p">)</span>
+<span class="n">value</span> <span class="o">=</span> <span class="no">System</span><span class="p">.</span><span class="nf">telemetry</span><span class="p">.</span><span class="nf">value</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">)</span> <span class="c1"># Get the value</span>
+<span class="vi">@rows</span> <span class="o">=</span> <span class="n">value</span><span class="p">.</span><span class="nf">length</span> <span class="c1"># Store the rows</span>
+<span class="n">setRowCount</span><span class="p">(</span><span class="vi">@rows</span><span class="p">)</span>
+<span class="n">setColumnCount</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">parent_layout</span><span class="p">.</span><span class="nf">addWidget</span><span class="p">(</span><span class="nb">self</span><span class="p">)</span> <span class="k">if</span> <span class="n">parent_layout</span>
+<span class="k">end</span></code></pre></figure>
 
 <p>Now if you stop and restart the Telemetry Viewer (so it can re-require the new widget code) it should display an empty table:</p>
 
@@ -3799,8 +3839,8 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos/tools/tlm_viewer/widgets/widget'</span>
 
 <span class="k">module</span> <span class="nn">Cosmos</span>
-  <span class="k">class</span> <span class="nc">DemotableWidget</span> <span class="o">&lt;</span> <span class="no">Qt</span><span class="o">::</span><span class="no">TableWidget</span>
-    <span class="kp">include</span> <span class="no">Widget</span>
+<span class="k">class</span> <span class="nc">DemotableWidget</span> <span class="o">&lt;</span> <span class="no">Qt</span><span class="o">::</span><span class="no">TableWidget</span>
+<span class="kp">include</span> <span class="no">Widget</span>
 
     <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">takes_value?</span>
       <span class="k">return</span> <span class="kp">true</span>
@@ -3808,11 +3848,11 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 
 <p>Typically class methods are defined at the top of the source file and begin with self. You can also type out the class name but this is less robust as changing the class name requires changing the method name. Implementing this class method allows Telemetry Viewer to call the <code class="language-plaintext highlighter-rouge">value=(data)</code> method with new telemetry data. The value method implementation should look like this:</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">value</span><span class="o">=</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-      <span class="p">(</span><span class="mi">0</span><span class="o">...</span><span class="vi">@rows</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span> <span class="c1"># Note the extra 'dot' which means up to but not including</span>
-        <span class="n">setItem</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="no">Qt</span><span class="o">::</span><span class="no">TableWidgetItem</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">row</span><span class="p">].</span><span class="nf">to_s</span><span class="p">))</span>
-      <span class="k">end</span>
-    <span class="k">end</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">value</span><span class="o">=</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">0</span><span class="o">...</span><span class="vi">@rows</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span> <span class="c1"># Note the extra 'dot' which means up to but not including</span>
+<span class="n">setItem</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="no">Qt</span><span class="o">::</span><span class="no">TableWidgetItem</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">row</span><span class="p">].</span><span class="nf">to_s</span><span class="p">))</span>
+<span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
 
 <p>The data value passed to the method is the same target, packet, and item used in the screen definition. In our value= method we are using our stored instance variable <code class="language-plaintext highlighter-rouge">@rows</code> to index into the array data and create new <a href="http://doc.qt.io/qt-4.8/qtablewidgetitem.html">Qt::TableWidgetItem</a> instances to store the data. TableWidgetItems expect Strings to be passed so I call to_s on the data item to ensure it is a String. If you now re-launch Telemetry Viewer you should see the values populated in the table:</p>
 
@@ -3824,9 +3864,9 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 <span class="nb">require</span> <span class="s1">'cosmos/tools/tlm_viewer/widgets/aging_widget'</span>
 
 <span class="k">module</span> <span class="nn">Cosmos</span>
-  <span class="k">class</span> <span class="nc">DemotableWidget</span> <span class="o">&lt;</span> <span class="no">Qt</span><span class="o">::</span><span class="no">TableWidget</span>
-    <span class="kp">include</span> <span class="no">Widget</span>
-    <span class="kp">include</span> <span class="no">AgingWidget</span>
+<span class="k">class</span> <span class="nc">DemotableWidget</span> <span class="o">&lt;</span> <span class="no">Qt</span><span class="o">::</span><span class="no">TableWidget</span>
+<span class="kp">include</span> <span class="no">Widget</span>
+<span class="kp">include</span> <span class="no">AgingWidget</span>
 
     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">parent_layout</span><span class="p">,</span> <span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span> <span class="o">=</span> <span class="ss">:WITH_UNITS</span><span class="p">)</span>
       <span class="k">super</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">packet_name</span><span class="p">,</span> <span class="n">item_name</span><span class="p">,</span> <span class="n">value_type</span><span class="p">)</span>
@@ -3842,19 +3882,20 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
       <span class="k">super</span>
       <span class="n">process_aging_settings</span>
     <span class="k">end</span>
-  <span class="k">end</span>
+
+<span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
 <p>Note that we were able to remove the class method <code class="language-plaintext highlighter-rouge">self.takes_value?</code> because AgingWidget already implements it. This is all required to setup aging but we must still modify the value= method to do the work. First in value= we call super to call the AgingWidget’s value= method. This method returns a string representation of the data with the correct foreground color and text character indicating the color, e.g. G=Green, Y=Yellow, R=Red. This is important for values with limits settings but since our array value doesn’t have limits I’m going to igore the return value and simply allow the aging routine to age the data. Interally this updates the <code class="language-plaintext highlighter-rouge">@background</code> instance variable with the current ‘aged’ background color. I then set the TableWidgetItem’s background color to this color before adding it to the table:</p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby">    <span class="k">def</span> <span class="nf">value</span><span class="o">=</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-      <span class="k">super</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-      <span class="p">(</span><span class="mi">0</span><span class="o">...</span><span class="vi">@rows</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span>
-        <span class="n">item</span> <span class="o">=</span> <span class="no">Qt</span><span class="o">::</span><span class="no">TableWidgetItem</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">row</span><span class="p">])</span>
-        <span class="n">item</span><span class="p">.</span><span class="nf">setBackgroundColor</span><span class="p">(</span><span class="vi">@background</span><span class="p">)</span>
-        <span class="n">setItem</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
-      <span class="k">end</span>
-    <span class="k">end</span></code></pre></figure>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">def</span> <span class="nf">value</span><span class="o">=</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="k">super</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">0</span><span class="o">...</span><span class="vi">@rows</span><span class="p">).</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">row</span><span class="o">|</span>
+<span class="n">item</span> <span class="o">=</span> <span class="no">Qt</span><span class="o">::</span><span class="no">TableWidgetItem</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">row</span><span class="p">])</span>
+<span class="n">item</span><span class="p">.</span><span class="nf">setBackgroundColor</span><span class="p">(</span><span class="vi">@background</span><span class="p">)</span>
+<span class="n">setItem</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+<span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
 
 <p>The end result is aging:</p>
 
@@ -3891,40 +3932,40 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
   <div class="post-content">
     <div class="note warning">
   <h5>Interfaces were changed dramatically in <a href="/news/2017/08/04/cosmos-4-0-0-released/">COSMOS 4.0.0</a></h5>
-  <p>This article only applies to pre-4.0.0 COSMOS releases. For current COSMOS releases please see the new <a href="/docs/interfaces/">Interface</a> and <a href="/docs/protocols/">Protocol</a> documentation.</p>
+  <p>This article only applies to pre-4.0.0 COSMOS releases. For current COSMOS releases please see the new <a href="/docs/v4/interfaces/">Interface</a> and <a href="/docs/protocols/">Protocol</a> documentation.</p>
 </div>
 
 <p>One of our Ball Aerospace engineers asked how they could add a checksum to an existing COSMOS interface when talking to their target. COSMOS does not support this directly so it requires creating a custom interface. While this might sound daunting, the COSMOS interfaces were designed just for this type of extension and provide hooks for customization.</p>
 
-<p>In this example we will assume the original interface is the COSMOS <a href="/docs/interfaces/#serial-interface">Serial Interface</a>. In your target’s lib folder create a new interface called checksum_serial_interface.rb:</p>
+<p>In this example we will assume the original interface is the COSMOS <a href="/docs/v4/interfaces#serial-interface">Serial Interface</a>. In your target’s lib folder create a new interface called checksum_serial_interface.rb:</p>
 
 <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">require</span> <span class="s1">'cosmos'</span> <span class="c1"># always require cosmos</span>
 <span class="nb">require</span> <span class="s1">'cosmos/interfaces/serial_interface'</span> <span class="c1"># original interface being extended</span>
 
 <span class="k">module</span> <span class="nn">Cosmos</span>
 <span class="k">class</span> <span class="nc">ChecksumSerialInterface</span> <span class="o">&lt;</span> <span class="no">SerialInterface</span>
-  <span class="k">def</span> <span class="nf">pre_write_packet</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">buffer</span>
-    <span class="n">checksum</span> <span class="o">=</span> <span class="mh">0xFFFF</span>
-    <span class="n">data</span><span class="p">.</span><span class="nf">each_byte</span> <span class="p">{</span><span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">checksum</span> <span class="o">+=</span> <span class="n">x</span> <span class="p">}</span>
-    <span class="n">checksum</span> <span class="o">&amp;=</span> <span class="mh">0xFFFF</span>
-    <span class="n">data</span> <span class="o">&lt;&lt;</span> <span class="p">[</span><span class="n">checksum</span><span class="p">].</span><span class="nf">pack</span><span class="p">(</span><span class="s2">"n"</span><span class="p">)</span> <span class="c1"># Pack as 16 bit unsigned bit endian</span>
-    <span class="k">return</span> <span class="n">data</span>
-  <span class="k">end</span>
+<span class="k">def</span> <span class="nf">pre_write_packet</span><span class="p">(</span><span class="n">packet</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">packet</span><span class="p">.</span><span class="nf">buffer</span>
+<span class="n">checksum</span> <span class="o">=</span> <span class="mh">0xFFFF</span>
+<span class="n">data</span><span class="p">.</span><span class="nf">each_byte</span> <span class="p">{</span><span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">checksum</span> <span class="o">+=</span> <span class="n">x</span> <span class="p">}</span>
+<span class="n">checksum</span> <span class="o">&amp;=</span> <span class="mh">0xFFFF</span>
+<span class="n">data</span> <span class="o">&lt;&lt;</span> <span class="p">[</span><span class="n">checksum</span><span class="p">].</span><span class="nf">pack</span><span class="p">(</span><span class="s2">"n"</span><span class="p">)</span> <span class="c1"># Pack as 16 bit unsigned bit endian</span>
+<span class="k">return</span> <span class="n">data</span>
+<span class="k">end</span>
 
-  <span class="k">def</span> <span class="nf">post_read_data</span><span class="p">(</span><span class="n">packet_data</span><span class="p">)</span>
-    <span class="n">len</span> <span class="o">=</span> <span class="n">packet_data</span><span class="p">.</span><span class="nf">length</span>
-    <span class="n">calc_checksum</span> <span class="o">=</span> <span class="mh">0xFFFF</span>
-    <span class="n">packet_data</span><span class="p">[</span><span class="mi">0</span><span class="o">..</span><span class="p">(</span><span class="n">len</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)].</span><span class="nf">each_byte</span> <span class="p">{</span><span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">calc_checksum</span> <span class="o">+=</span> <span class="n">x</span> <span class="p">}</span>
-    <span class="n">calc_checksum</span> <span class="o">&amp;=</span> <span class="mh">0xFFFF</span>
-    <span class="n">rx_checksum</span> <span class="o">=</span> <span class="n">packet_data</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="o">..-</span><span class="mi">1</span><span class="p">].</span><span class="nf">unpack</span><span class="p">(</span><span class="s2">"n"</span><span class="p">)</span> <span class="c1"># Unpack as 16 bit unsigned big endian</span>
-    <span class="k">if</span> <span class="n">calc_checksum</span> <span class="o">==</span> <span class="n">rx_checksum</span>
-      <span class="k">return</span> <span class="n">packet_data</span>
-    <span class="k">else</span>
-      <span class="nb">puts</span> <span class="s2">"Bad checksum detected. Calculated: 0x</span><span class="si">#{</span><span class="n">calc_checksum</span><span class="p">.</span><span class="nf">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="si">}</span><span class="s2"> Received: 0x</span><span class="si">#{</span><span class="n">rx_checksum</span><span class="p">.</span><span class="nf">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="si">}</span><span class="s2">. Dropping packet."</span>
-      <span class="k">return</span> <span class="s2">""</span> <span class="c1"># Also can return nil to break the connection and reconnect to the target</span>
-    <span class="k">end</span>
-  <span class="k">end</span>
+<span class="k">def</span> <span class="nf">post_read_data</span><span class="p">(</span><span class="n">packet_data</span><span class="p">)</span>
+<span class="n">len</span> <span class="o">=</span> <span class="n">packet_data</span><span class="p">.</span><span class="nf">length</span>
+<span class="n">calc_checksum</span> <span class="o">=</span> <span class="mh">0xFFFF</span>
+<span class="n">packet_data</span><span class="p">[</span><span class="mi">0</span><span class="o">..</span><span class="p">(</span><span class="n">len</span> <span class="o">-</span> <span class="mi">3</span><span class="p">)].</span><span class="nf">each_byte</span> <span class="p">{</span><span class="o">|</span><span class="n">x</span><span class="o">|</span> <span class="n">calc_checksum</span> <span class="o">+=</span> <span class="n">x</span> <span class="p">}</span>
+<span class="n">calc_checksum</span> <span class="o">&amp;=</span> <span class="mh">0xFFFF</span>
+<span class="n">rx_checksum</span> <span class="o">=</span> <span class="n">packet_data</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="o">..-</span><span class="mi">1</span><span class="p">].</span><span class="nf">unpack</span><span class="p">(</span><span class="s2">"n"</span><span class="p">)</span> <span class="c1"># Unpack as 16 bit unsigned big endian</span>
+<span class="k">if</span> <span class="n">calc_checksum</span> <span class="o">==</span> <span class="n">rx_checksum</span>
+<span class="k">return</span> <span class="n">packet_data</span>
+<span class="k">else</span>
+<span class="nb">puts</span> <span class="s2">"Bad checksum detected. Calculated: 0x</span><span class="si">#{</span><span class="n">calc_checksum</span><span class="p">.</span><span class="nf">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="si">}</span><span class="s2"> Received: 0x</span><span class="si">#{</span><span class="n">rx_checksum</span><span class="p">.</span><span class="nf">to_s</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="si">}</span><span class="s2">. Dropping packet."</span>
+<span class="k">return</span> <span class="s2">""</span> <span class="c1"># Also can return nil to break the connection and reconnect to the target</span>
+<span class="k">end</span>
+<span class="k">end</span>
 
 <span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
@@ -3932,13 +3973,14 @@ ARRAY INST HEALTH_STATUS ARY 300 50 nil 8 FORMATTED
 <p>What we’re doing is overriding pre_write_packet in StreamInterface to allow us to modify the data before it is written to the packet and sent over the interface. We also override post_read_data to operate on data received before it is sent back to the COSMOS server and thus the tools. Note there is also a post_read_packet(packet) method which is called after post_read_data is called and after the COSMOS Packet has been created. All Interfaces inheriting from StreamInterface includes these callback methods, including SerialInterface, TcpipServerInterface, and TcpipClientInterface. Note that UdpInterface inherits directly from Interface and thus does NOT include these callbacks.</p>
 
 <p>Then in your cmd_tlm_server.txt file for your target you use your new interface:</p>
+
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#         interface name  file name                    write read baud   parity stop timeouts stream
 INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   1    nil nil  BURST
 </code></pre></div></div>
 
-<p>I added a comment line above the definition which describes the settings. For more information see the <a href="/docs/interfaces/#serial-interface">Serial Interface</a> documentation.</p>
+<p>I added a comment line above the definition which describes the settings. For more information see the <a href="/docs/v4/interfaces#serial-interface">Serial Interface</a> documentation.</p>
 
-<p>This same technique can obviously be used to extend the the other TCPIP interfaces and can be used with all the various <a href="/docs/interfaces/#streams">Streams</a> COSMOS defines.</p>
+<p>This same technique can obviously be used to extend the the other TCPIP interfaces and can be used with all the various <a href="/docs/v4/interfaces#streams">Streams</a> COSMOS defines.</p>
 
 <p>If you have a question which would benefit the community or find a possible bug please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
@@ -3967,7 +4009,7 @@ INTERFACE UART_INTERFACE  checksum_serial_interface.rb COM1  COM1 115200 NONE   
     </a>
   </div>
   <div class="post-content">
-    <p>Recently a user asked if they could add exclamation points and question marks to their command and telemetry items. Absolutely!  COSMOS provides great flexibility in command and telemetry naming conventions. (See <a href="http://cosmosrb.com/docs/command">Command</a>). For example, adding an exclamation point to a command to denote a more severe version of the same command:</p>
+    <p>Recently a user asked if they could add exclamation points and question marks to their command and telemetry items. Absolutely! COSMOS provides great flexibility in command and telemetry naming conventions. (See <a href="http://cosmosrb.com/docs/v4/command">Command</a>). For example, adding an exclamation point to a command to denote a more severe version of the same command:</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>COMMAND TGT ABORT BIG_ENDIAN "Tries to abort a collect on the instrument"
 COMMAND TGT ABORT! BIG_ENDIAN "Force aborts a collect on the instrument"
@@ -3984,10 +4026,9 @@ ITEM DEPLOYED? 0 0 DERIVED "Deployed status"
   GENERIC_READ_CONVERSION_END
 </code></pre></div></div>
 
-<p>Note that this is probably overkill in this case because the conversion could just as easily be applied directly to the item. The raw value could then be obtained by calling tlm_raw(“TGT PKT DEPLOYED”) (see <a href="http://cosmosrb.com/docs/scripting/#tlmraw">tlm_raw</a>).</p>
+<p>Note that this is probably overkill in this case because the conversion could just as easily be applied directly to the item. The raw value could then be obtained by calling tlm_raw(“TGT PKT DEPLOYED”) (see <a href="http://cosmosrb.com/docs/scripting#tlmraw">tlm_raw</a>).</p>
 
 <p>These practices are similar to the Ruby convention of using methods with an exclamation point (bang) to indicate a dangerous method which typically directly modifies its caller. Ruby also has a convention of methods with question marks returning a boolean true or false value. Read more in the <a href="http://docs.ruby-lang.org/en/trunk/syntax/methods_rdoc.html">Ruby documentation</a>.</p>
-
 
   </div>
 </article>
@@ -4118,7 +4159,7 @@ ITEM DEPLOYED? 0 0 DERIVED "Deployed status"
     </a>
   </div>
   <div class="post-content">
-    <p>Ball Aerospace COSMOS has been featured in a blog post on <a href="https://www.sparkfun.com/news/2022">SparkFun</a>. SparkFun is an online retail store that sells electronics primarily for hobbyists. Ball recently purchased a Raspberry Pi, Arduino, and various other parts to interface to COSMOS. We think hobbyists will find COSMOS a great way to interface to their embedded projects and SparkFun agrees! <a href="http://cosmosrb.com/docs/installation">Get started</a> with COSMOS now!</p>
+    <p>Ball Aerospace COSMOS has been featured in a blog post on <a href="https://www.sparkfun.com/news/2022">SparkFun</a>. SparkFun is an online retail store that sells electronics primarily for hobbyists. Ball recently purchased a Raspberry Pi, Arduino, and various other parts to interface to COSMOS. We think hobbyists will find COSMOS a great way to interface to their embedded projects and SparkFun agrees! <a href="http://cosmosrb.com/docs/v4/installation">Get started</a> with COSMOS now!</p>
 
 <p>A Ball engineer wrote a <a href="https://bitbucket.org/dholshouser/alagna/wiki/HowTo">Wiki</a> on how he configured COSMOS to talk to his Arduino Uno. It’s a little old but it gives a nice step by step tutorial on how to use COSMOS with an Arduino.</p>
 
@@ -5496,289 +5537,138 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <a href="/news/2019/12/30/cosmos-4-4-1-released/">Version 4.4.1</a>
       </li>
       
-      <li>
-        <a href="/docs/history/">History »</a>
-      </li>
     </ul>
     <h4>Other News</h4>
     <ul>
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2020/09/23/packet-time/">Packet Time</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2020/03/24/identifies-packets/">Identifying Packets</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2019/10/21/cosmos-amos/">AMOS 2019</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2019/06/05/protocols/">Protocols</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/03/14/derived-items/">Derived Items</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/02/12/limits/">Limits</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2018/01/18/metadata/">Metadata</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/10/30/config-editor/">Config Editor</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/06/19/template_protocol/">Template Protocol</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/05/08/packet_processors/">Packet Processors</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/04/24/wired/">WIRED Article</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2017/02/22/routers/">Routers</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
-        </li>
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</a>
-        </li>
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        <li class="">
-          <a href="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</a>
-        </li>
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+           
+      <li class="">
+        <a href="/news/2020/09/23/packet-time/">Packet Time</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2020/03/24/identifies-packets/">Identifying Packets</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2019/10/21/cosmos-amos/">AMOS 2019</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2019/06/05/protocols/">Protocols</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</a>
+      </li>
+                
+      <li class="">
+        <a href="/news/2018/03/14/derived-items/">Derived Items</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/02/12/limits/">Limits</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/01/18/metadata/">Metadata</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/10/30/config-editor/">Config Editor</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/06/19/template_protocol/">Template Protocol</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/05/08/packet_processors/">Packet Processors</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/04/24/wired/">WIRED Article</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/02/22/routers/">Routers</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</a>
+      </li>
+              
+      <li class="">
+        <a href="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</a>
+      </li>
+                            
+      <li class="">
+        <a href="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</a>
+      </li>
+                 
     </ul>
   </aside>
 </div>

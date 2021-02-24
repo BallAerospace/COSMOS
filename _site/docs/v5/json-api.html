@@ -98,7 +98,7 @@
 
 <div class="note">
   <h5>This documentation is for COSMOS Developers</h5>
-  <p>If you’re looking for the methods available to write test procedures using the COSMOS scripting API, refer to the <a href="/docs/scripting">Scripting Guide</a> page. If you’re trying to interface to a COSMOS Command and Telemetry Server from an external application using any language then this is the right place.</p>
+  <p>If you’re looking for the methods available to write test procedures using the COSMOS scripting API, refer to the <a href="/docs/v5/scripting">Scripting Guide</a> page. If you’re trying to interface to a COSMOS Command and Telemetry Server from an external application using any language then this is the right place.</p>
 </div>
 
 <p>This document provides the information necessary for external applications to interact with the COSMOS Command and Telemetry Server using the COSMOS API. External applications written in any language can send commands and retrieve individual telemetry points using this API. External applications also have the option of connecting to the COSMOS Command and Telemetry server to interact with raw tcp/ip streams of commands/telemetry. However, the COSMOS JSON API removes the requirement that external applications have knowledge of the binary formats of packets.</p>
@@ -113,7 +113,7 @@
 
 <h2 id="supported-methods">Supported Methods</h2>
 
-<p>The list of methods supported by the COSMOS API may be found in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_tlm_server/api.rb">api.rb</a> source code on Github. The @api_whitelist variable is initialized with an array of all methods accepted by the CTS. This page will not show the full argument list for every method in the API, but it should be noted that the JSON API methods correspond to the COSMOS scripting API methods documented in the <a href="/docs/scripting">Scripting Guide</a>. This page will show a few example JSON requests and responses, and the scripting guide can be used as a reference to extrapolate how to build requests and parse responses for methods not explicitly documented here.</p>
+<p>The list of methods supported by the COSMOS API may be found in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_tlm_server/api.rb">api.rb</a> source code on Github. The @api_whitelist variable is initialized with an array of all methods accepted by the CTS. This page will not show the full argument list for every method in the API, but it should be noted that the JSON API methods correspond to the COSMOS scripting API methods documented in the <a href="/docs/v5/scripting">Scripting Guide</a>. This page will show a few example JSON requests and responses, and the scripting guide can be used as a reference to extrapolate how to build requests and parse responses for methods not explicitly documented here.</p>
 
 <h2 id="existing-implementations">Existing Implementations</h2>
 
@@ -377,9 +377,13 @@ Response:
     
       
     
+      
+    
   
     
     
+    
+      
     
       
     
@@ -506,6 +510,8 @@ Response:
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/upgrading">Upgrading</a>
   </li>
@@ -547,6 +553,44 @@ Response:
   
     
     
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/plugin">Plugin Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
     
       
     
@@ -647,6 +691,8 @@ Response:
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/telemetry">Telemetry Configuration</a>
   </li>
@@ -681,6 +727,8 @@ Response:
   
     
     
+    
+      
     
       
     
@@ -803,9 +851,13 @@ Response:
     
       
     
+      
+    
   
     
     
+    
+      
     
       
     
@@ -970,6 +1022,8 @@ Response:
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/script-runner">Script Runner</a>
   </li>
@@ -978,6 +1032,8 @@ Response:
   
     
     
+    
+      
     
       
     
@@ -1072,6 +1128,8 @@ Response:
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
@@ -1080,6 +1138,8 @@ Response:
   
     
     
+    
+      
     
       
     
@@ -1167,6 +1227,8 @@ Response:
       
     
       
+    
+      
   <li class="">
     <a href="/docs/v5/scripting">Scripting Guide</a>
   </li>
@@ -1175,6 +1237,8 @@ Response:
   
     
     
+    
+      
     
       
     

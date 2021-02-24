@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>Command Sender</title>
+  <title>Plugin Configuration</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v4.1.1">
@@ -92,75 +92,57 @@
         </div>
          
         <div class="toc"><ul class="section-nav">
-<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
-<li class="toc-entry toc-h2"><a href="#command-sender-menus">Command Sender Menus</a>
+<li class="toc-entry toc-h1"><a href="#plugin-configuration">Plugin Configuration</a>
 <ul>
-<li class="toc-entry toc-h3"><a href="#mode-menu-items">Mode Menu Items</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#sending-commands">Sending Commands</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#hazardous-commands">Hazardous Commands</a></li>
+<li class="toc-entry toc-h2"><a href="#variable">VARIABLE</a></li>
 </ul>
 </li>
 </ul></div>
         
-        <h1>Command Sender</h1>
-        <h2 id="introduction">
-<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+        <h1>Plugin Configuration</h1>
+        <p>This document provides the information necessary to configure a COSMOS plugin. Plugins are used to include COSMOS targets (typically one per plugin) and any associated processes.</p>
 
-<p>Command Sender provides the ability to send any command defined by COSMOS. Commands are selected using the Target and Packet drop down fields which populate the command parameter (if any). A command history is stored which is also editable. Commands in the command history can be re-executed by pressing Enter.</p>
-
-<p><img src="/img/v5/command_sender/command_sender.png" alt="Command Sender"></p>
-
-<h2 id="command-sender-menus">
-<a class="anchor" href="#command-sender-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Sender Menus</h2>
-
-<h3 id="mode-menu-items">
-<a class="anchor" href="#mode-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mode Menu Items</h3>
-
-<!-- Image sized to match up with bullets -->
-
-<p><img src="/img/v5/command_sender/mode_menu.png" alt="Mode Menu" style="float: left; margin-right: 50px; height: 160px;"></p>
+<p>Configuration file formats for the following are provided:</p>
 
 <ul>
-  <li>Ignores parameter range checking</li>
-  <li>Displays parameter state values in hex</li>
-  <li>Shows ignored parameters</li>
-  <li>Disables all parameter conversions</li>
+  <li>plugin.txt</li>
 </ul>
 
-<h2 id="sending-commands">
-<a class="anchor" href="#sending-commands" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sending Commands</h2>
+<h1 id="plugin-configuration">
+<a class="anchor" href="#plugin-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Plugin Configuration</h1>
 
-<p>Select a command by first selecting the target from the Select Target drop down. Changing the target automatically updates the Select Packet options to only display commands from that target. If the command has parameters a table is generated with all the parameters.</p>
+<p>Each plugin is built as a Ruby gem and thus has a <plugin>.gemspec file which builds it. Plugins have a plugin.txt file which declares all the variables used by the plugin and how to interface to the target(s) it contains.</plugin></p>
 
-<p><img src="/img/v5/command_sender/inst_collect.png" alt="INST COLLECT"></p>
+<div class="note unreleased">
+  <p>Additional information about building, upgrading, and releasing plugins needed.</p>
+</div>
 
-<p>Clicking on a parameter with States (like TYPE in the above example) brings up a drop down to select a state. Selecting a state populates the value field next to it. Sending a command updates the Status text and the Command History.</p>
+<h2 id="variable">
+<a class="anchor" href="#variable" aria-hidden="true"><span class="octicon octicon-link"></span></a>VARIABLE</h2>
+<p><strong>Variable which is used to configure the plugin</strong></p>
 
-<p><img src="/img/v5/command_sender/inst_collect_sent.png" alt="INST COLLECT Sent"></p>
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the variable in the plugin</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Default</td>
+      <td>Default value for the variable</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
 
-<p>You can directly edit the Command History to change a parameter value. Pressing Enter on the line will then execute the command. If the command has changed a new line will be entered in the Command History. Pressing Enter several times on the same line updates the Status text with the number of commands sent (3 in the next example).</p>
-
-<p><img src="/img/v5/command_sender/inst_collect_sent_3.png" alt="INST COLLECT Sent 3"></p>
-
-<h3 id="hazardous-commands">
-<a class="anchor" href="#hazardous-commands" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hazardous Commands</h3>
-
-<p>Sending <a href="/docs/v5/command#hazardous">hazardous</a> commands will prompt the user whether to send the command.</p>
-
-<p><img src="/img/v5/command_sender/inst_clear.png" alt="INST CLEAR"></p>
-
-<p>Commands can also have hazardous <a href="/docs/v5/command#state">states</a> (INST COLLECT with TYPE SPECIAL) which also prompt the user. In this example, we’ve also checked all the menu options to show ignored parameters, display state values in hex (see SPECIAL, 0x1), disabled range checking (DURATION 1000), and disabled parameter conversions.</p>
-
-<p><img src="/img/v5/command_sender/inst_collect_hazardous.png" alt="INST COLLECT Hazardous"></p>
-
-<p>Selecting Yes will send the command and update the history with all the parameters shown.</p>
-
-<p><img src="/img/v5/command_sender/inst_collect_hazardous_history.png" alt="INST COLLECT History"></p>
-
-<p>Note that when writing Scripts all parameters are optional unless explicitly marked <a href="/docs/v5/command#required">required</a>.</p>
 
       </article>
     </div>
@@ -467,7 +449,7 @@
       
     
       
-  <li class="">
+  <li class="current">
     <a href="/docs/v5/plugin">Plugin Configuration</a>
   </li>
   <!-- prettier-ignore -->
@@ -668,7 +650,7 @@
     
     
       
-  <li class="current">
+  <li class="">
     <a href="/docs/v5/cmd-sender">Command Sender</a>
   </li>
   <!-- prettier-ignore -->
