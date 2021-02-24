@@ -64,7 +64,7 @@ An overview of what each of these does:
         Defines the gems and their versions used by your COSMOS configuration.
         If you want to use other gems in your cosmos project you should add them here
         and then run "bundle install" from the command line. See the <a href="http://bundler.io/">Bundler</a>
-        documents and our <a href="/docs/upgrading">Upgrading</a> section for more information.
+        documents and our <a href="/docs/v4/upgrading">Upgrading</a> section for more information.
       </p></td>
     </tr>
 
@@ -99,7 +99,7 @@ An overview of what each of these does:
     <tr>
       <td><p><code class="wrap">config/ dart</code></p></td>
       <td><p>
-        The config/dart folder contains the DART Gemfile along with any other configuration files needed by the <a href="/docs/dart_overview">DART</a> application.
+        The config/dart folder contains the DART Gemfile along with any other configuration files needed by the <a href="/docs/v4/dart_overview">DART</a> application.
       </p></td>
     </tr>
 
@@ -113,7 +113,7 @@ An overview of what each of these does:
     <tr>
       <td><p><code class="wrap">config/ system</code></p></td>
       <td><p>
-        The config/system folder contains system.txt one of the first files you may need to edit for you COSMOS configuration. <code>system.txt</code> contains settings common to all of the COSMOS applications. It is also defines the targets that make up your COSMOS configuration. See <a href="/docs/system">System Configuration</a> for all the details.
+        The config/system folder contains system.txt one of the first files you may need to edit for you COSMOS configuration. <code>system.txt</code> contains settings common to all of the COSMOS applications. It is also defines the targets that make up your COSMOS configuration. See <a href="/docs/v4/system">System Configuration</a> for all the details.
       </p></td>
     </tr>
 
@@ -134,28 +134,28 @@ An overview of what each of these does:
     <tr>
       <td><p><code class="wrap">config/ targets/ TARGET/ cmd_tlm</code></p></td>
       <td><p>
-        config/targets/TARGET/cmd_tlm contains command and telemetry definition files for the target. See <a href="/docs/command">Command</a> and <a href="/docs/telemetry">Telemetry</a> Configuration for more information.
+        config/targets/TARGET/cmd_tlm contains command and telemetry definition files for the target. See <a href="/docs/v4/command">Command</a> and <a href="/docs/v4/telemetry">Telemetry</a> Configuration for more information.
       </p></td>
     </tr>
 
     <tr>
       <td><p><code class="wrap">config/ targets/ TARGET/ lib</code></p></td>
       <td><p>
-        config/targets/TARGET/lib contains any custom code required by the target. Often this includes a custom Interface class. See <a href="/docs/interfaces">Interfaces</a> for more information.
+        config/targets/TARGET/lib contains any custom code required by the target. Often this includes a custom Interface class. See <a href="/docs/v4/interfaces">Interfaces</a> for more information.
       </p></td>
     </tr>
 
     <tr>
       <td><p><code class="wrap">config/ targets/ TARGET/ procedures</code></p></td>
       <td><p>
-        config/targets/TARGET/procedures contains target specific procedures which exercise functionality of the target. These procedures should be kept simple and only use the command and telemetry definitions associated with this target. See the <a href="/docs/scripting">Scripting Guide</a> for more information.
+        config/targets/TARGET/procedures contains target specific procedures which exercise functionality of the target. These procedures should be kept simple and only use the command and telemetry definitions associated with this target. See the <a href="/docs/v4/scripting">Scripting Guide</a> for more information.
       </p></td>
     </tr>
 
     <tr>
       <td><p><code class="wrap">config/ targets/ TARGET/ screens</code></p></td>
       <td><p>
-        config/targets/TARGET/screens contains telemetry screens for the target. See <a href="/docs/screens">Screen Configuration</a> for more information.
+        config/targets/TARGET/screens contains telemetry screens for the target. See <a href="/docs/v4/screens">Screen Configuration</a> for more information.
       </p></td>
     </tr>
 
@@ -183,28 +183,28 @@ An overview of what each of these does:
     <tr>
       <td><p><code class="wrap">config/ targets/ TARGET/ cmd_tlm_server.txt</code></p></td>
       <td><p>
-        config/targets/TARGET/cmd_tlm_server.txt contains a snippet of the configuration for the COSMOS Command and Telemetry Server that defines how to interface with the specific target. See <a href="/docs/interfaces">Interface Configuration</a> for more information.
+        config/targets/TARGET/cmd_tlm_server.txt contains a snippet of the configuration for the COSMOS Command and Telemetry Server that defines how to interface with the specific target. See <a href="/docs/v4/interfaces">Interface Configuration</a> for more information.
       </p></td>
     </tr>
 
     <tr>
       <td><p><code class="wrap">config/ targets/ TARGET/ target.txt</code></p></td>
       <td><p>
-        config/targets/TARGET/target.txt contains target specific configuration such as which command parameters should be ignored by Command Sender. See <a href="/docs/system/#target-configuration">Target Configuration</a> for more information.
+        config/targets/TARGET/target.txt contains target specific configuration such as which command parameters should be ignored by Command Sender. See <a href="/docs/v4/system#target-configuration">Target Configuration</a> for more information.
       </p></td>
     </tr>
 
     <tr>
       <td><p><code class="wrap">config/ tools</code></p></td>
       <td><p>
-        config/tools contains configuration files for the COSMOS applications. Most tools support configuration but do not require it. See <a href="/docs/tools">Tool Configuration</a> for more information.
+        config/tools contains configuration files for the COSMOS applications. Most tools support configuration but do not require it. See <a href="/docs/v4/tools">Tool Configuration</a> for more information.
       </p></td>
     </tr>
 
     <tr>
       <td><p><code class="wrap">config/ tools/ cmd_tlm_server</code></p></td>
       <td><p>
-        config/tools/cmd_tlm_server contains the configuration file for the COSMOS Command and Telemetry Server (by default cmd_tlm_server.txt). This file defines how to connect to each target in the COSMOS configuration. See <a href="/docs/system">System Configuration</a> for more information.
+        config/tools/cmd_tlm_server contains the configuration file for the COSMOS Command and Telemetry Server (by default cmd_tlm_server.txt). This file defines how to connect to each target in the COSMOS configuration. See <a href="/docs/v4/system">System Configuration</a> for more information.
       </p></td>
     </tr>
 
@@ -274,7 +274,7 @@ An overview of what each of these does:
     <tr>
       <td><p><code class="wrap">procedures</code></p></td>
       <td><p>
-        The procedures folder is the default location for storing COSMOS test and operations procedures. See the <a href="/docs/scripting">Scripting Guide</a> for more information.
+        The procedures folder is the default location for storing COSMOS test and operations procedures. See the <a href="/docs/v4/scripting">Scripting Guide</a> for more information.
       </p></td>
     </tr>
 

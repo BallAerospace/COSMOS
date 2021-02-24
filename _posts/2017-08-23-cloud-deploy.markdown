@@ -25,7 +25,7 @@ Create a new key pair and give the name something generic because you can use th
 
 Click the Download Remote Desktop File and open it in Remote Desktop to connect to the Windows Server instance. Note that it does take a while for the Windows instance to boot so this won't work until your Status Checks show a green check. Also note that many corporate firewalls may block doing a Remote Desktop outside your corporate network.
 
-You also need to click Get Password and locate your 'pem' file you saved earlier to Decrypt your password. Login to the instance as Administrator with the decrypted password. Once you've logged in you can change the password to something a little more reasonable. Then simply follow the usual [COSMOS installation ](/docs/installation/) instructions.
+You also need to click Get Password and locate your 'pem' file you saved earlier to Decrypt your password. Login to the instance as Administrator with the decrypted password. Once you've logged in you can change the password to something a little more reasonable. Then simply follow the usual [COSMOS installation ](/docs/v4/installation/) instructions.
 
 Here is a screenshot of my successful COSMOS installation running on the AWS Microsoft Server instance:
 ![COSMOS on Windows](/img/2017_08_23_aws_windows.png)

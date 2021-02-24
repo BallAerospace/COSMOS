@@ -4,7 +4,7 @@ title: Interface Configuration
 toc: true
 ---
 
-Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customizable portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own. Note that in most cases you can extend interfaces with [Protocols](/docs/protocols/) rather than implementing a new interface.
+Interface classes provide the code that COSMOS uses to receive real-time telemetry from targets and to send commands to targets. The interface that a target uses could be anything (TCP/IP, serial, GPIB, Firewire, etc.), therefore it is important that this is a customizable portion of any reusable Command and Telemetry System. Fortunately the most common form of interfaces are over TCP/IP sockets, and COSMOS provides interface solutions for these. This guide will discuss how to use these interface classes, and how to create your own. Note that in most cases you can extend interfaces with [Protocols](/docs/v4/protocols/) rather than implementing a new interface.
 
 <div class="note info">
   Note that Interfaces and Routers are very similar and share the same configuration parameters. Routers are simply Interfaces which route an existing Interface's telemetry data out to the connected target and routes the connected target's commands back to the original Interface's target.
@@ -38,7 +38,7 @@ Interfaces also have the following methods that exist and have default implement
 
 ## Provided Interfaces
 
-Cosmos provides the following interfaces for use: TCPIP Client, TCPIP Server, UDP, Serial, Command Telemetry Server, and LINC. The interface to use is defined by the [INTERFACE](/docs/system/#interface) and [ROUTER](/docs/system/#router) keywords.
+Cosmos provides the following interfaces for use: TCPIP Client, TCPIP Server, UDP, Serial, Command Telemetry Server, and LINC. The interface to use is defined by the [INTERFACE](/docs/v4/system#interface) and [ROUTER](/docs/v4/system#router) keywords.
 
 ### TCPIP Client Interface
 
@@ -65,7 +65,7 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 10.0 # no built-in protocol
 {% endhighlight %}
 
-See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
+See [INTERFACE](/docs/v4/system#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/v4/system#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
 
 ### TCPIP Server Interface
 
@@ -91,7 +91,7 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 TEMPLATE 
 INTERFACE INTERFACE_NAME tcpip_client_interface.rb 8080 8080 10.0 10.0 # no built-in protocol
 {% endhighlight %}
 
-See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword. Note, TcpipServerInterface processes the [OPTION](/docs/system/#option) modifier.
+See [INTERFACE](/docs/v4/system#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/v4/system#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword. Note, TcpipServerInterface processes the [OPTION](/docs/v4/system#option) modifier.
 
 ### UDP Interface
 
@@ -113,7 +113,7 @@ cmd_tlm_server.txt Example:
 INTERFACE INTERFACE_NAME udp_interface.rb localhost 8080 8081 8082 nil 128 10.0 nil
 {% endhighlight %}
 
-See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
+See [INTERFACE](/docs/v4/system#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/v4/system#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
 
 ### Serial Interface
 
@@ -142,7 +142,7 @@ INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 T
 INTERFACE INTERFACE_NAME serial_interface.rb COM4 COM4 115200 NONE 1 10.0 10.0 # no built-in protocol
 {% endhighlight %}
 
-See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword. Note, SerialInterface processes the [OPTION](/docs/system/#option) modifier.
+See [INTERFACE](/docs/v4/system#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/v4/system#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword. Note, SerialInterface processes the [OPTION](/docs/v4/system#option) modifier.
 
 ### CmdTlmServer Interface
 
@@ -153,7 +153,7 @@ cmd_tlm_server.txt Example:
 INTERFACE COSMOSINT cmd_tlm_server_interface.rb
 {% endhighlight %}
 
-See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
+See [INTERFACE](/docs/v4/system#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/v4/system#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
 
 ### LINC Interface
 
@@ -180,7 +180,7 @@ INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080
 INTERFACE INTERFACE_NAME linc_interface.rb localhost 8080 true 5 nil 5 0 16 4 HDR_GUID BIG_ENDIAN HDR_LENGTH
 {% endhighlight %}
 
-See [INTERFACE](/docs/system/#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/system/#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
+See [INTERFACE](/docs/v4/system#interface) for a description of the INTERFACE keyword. See [Interface Modifiers](/docs/v4/system#interface-modifiers) for a description of the keywords which can follow the INTERFACE keyword.
 
 ## Streams
 
@@ -190,14 +190,14 @@ Streams are low level classes that implement read, read_nonblock, write, connect
 
 Protocols define the behaviour of an Interface, including differentiating packet boundaries and modifying data as necessary. COSMOS defines the following built-in protocols which can be used with the above interfaces:
 
-| Name                                                     | Description                                                                           |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| [Burst](/docs/protocols/#burst-protocol)                 | Reads as much data as possible from the interface                                     |
-| [Fixed](/docs/protocols/#fixed-protocol)                 | Processes fixed length packets with a known ID position                               |
-| [Length](/docs/protocols/#length-protocol)               | Processes a length field at a fixed location and then reads the remainder of the data |
-| [Terminated](/docs/protocols/#terminated-protocol)       | Delineates packets uses termination characters at the end of each packet              |
-| [Template](/docs/protocols/#template-protocol)           | Processes text based command / response data such as SCPI interfaces                  |
-| [Preidentified](/docs/protocols/#preidentified-protocol) | Internal COSMOS protocol used by COSMOS tools                                         |
+| Name                                                       | Description                                                                           |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [Burst](/docs/v4/protocols#burst-protocol)                 | Reads as much data as possible from the interface                                     |
+| [Fixed](/docs/v4/protocols#fixed-protocol)                 | Processes fixed length packets with a known ID position                               |
+| [Length](/docs/v4/protocols#length-protocol)               | Processes a length field at a fixed location and then reads the remainder of the data |
+| [Terminated](/docs/v4/protocols#terminated-protocol)       | Delineates packets uses termination characters at the end of each packet              |
+| [Template](/docs/v4/protocols#template-protocol)           | Processes text based command / response data such as SCPI interfaces                  |
+| [Preidentified](/docs/v4/protocols#preidentified-protocol) | Internal COSMOS protocol used by COSMOS tools                                         |
 
 These protocols are declared directly after the interface:
 
@@ -211,11 +211,11 @@ INTERFACE INTERFACE_NAME tcpip_client_interface.rb localhost 8080 8080 10.0 nil 
 
 COSMOS also defines the following helper protocols:
 
-| Name                                           | Description                                                         |
-| ---------------------------------------------- | ------------------------------------------------------------------- |
-| [Override](/docs/protocols/#override-protocol) | Allows telemetry items to be fixed to given value when read         |
-| [CRC](/docs/protocols/#crc-protocol)           | Adds CRCs to outgoing packets and verifies CRCs on incoming packets |
-| [Ignore](/docs/protocols/#ignore-protocol)     | Ignores the specified packet by dropping it                         |
+| Name                                             | Description                                                         |
+| ------------------------------------------------ | ------------------------------------------------------------------- |
+| [Override](/docs/v4/protocols#override-protocol) | Allows telemetry items to be fixed to given value when read         |
+| [CRC](/docs/v4/protocols#crc-protocol)           | Adds CRCs to outgoing packets and verifies CRCs on incoming packets |
+| [Ignore](/docs/v4/protocols#ignore-protocol)     | Ignores the specified packet by dropping it                         |
 
 These protocols are declared after the INTERFACE:
 
@@ -228,4 +228,4 @@ PROTOCOL WRITE CrcProtocol CRC # See the documentation for parameters
 
 Note the first parameter after the PROTOCOL keyword is how to apply the protocol: READ, WRITE, or READ_WRITE. Read applies the protocol on incoming packets (telemetry) and write on outgoing packets (commands). The next parameter is the protocol filename or class name. All other parameters are protocol specific.
 
-In addition, you can define your own protocols which are declared like the COSMOS helper protocols after your interface. See the <a href="/docs/protocols#custom-protocols">Custom Protocols</a> documentation for more information.
+In addition, you can define your own protocols which are declared like the COSMOS helper protocols after your interface. See the <a href="/docs/v4/protocols#custom-protocols">Custom Protocols</a> documentation for more information.

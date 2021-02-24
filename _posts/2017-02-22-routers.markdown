@@ -1,6 +1,6 @@
 ---
 layout: news_item
-title: 'Routers'
+title: "Routers"
 date: 2017-02-22 00:00:00 -0700
 author: jmthomas
 categories: [post]
@@ -34,7 +34,7 @@ ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
 
 Basically we're creating a Router that routes only the INST interface data. We create this Router using a TCPIP Server interface with a LENGTH protocol of bit offset 32, length field size of 16, and length value offset of 7. These values were chosen to match the INST command and telemetry which use CCSDS headers. The CCSDS standard specifies a 16 bit length field at offset 32. The CCSDS standard also specifies that the length field is the length of the packet past the length field minus 1. Thus we add 7 for the 4 bytes of offset, 2 bytes of length field, and the minus 1.
 
-For more information about the options you can pass to a Router (and Interface) see the [Interface Configuration](http://cosmosrb.com/docs/interfaces/) part of the documentation.
+For more information about the options you can pass to a Router (and Interface) see the [Interface Configuration](http://cosmosrb.com/docs/v4/interfaces/) part of the documentation.
 
 To connect to the INST_ROUTER that we created we can write a little Ruby code using existing COSMOS interface classes and streams.
 
@@ -44,8 +44,8 @@ require 'cosmos/interfaces/tcpip_client_interface'
 i = Cosmos::TcpipClientInterface.new('localhost',2055,2055,nil,nil,'LENGTH',32,16,7)
 i.connect
 loop do
-  pkt = Cosmos::System.telemetry.identify!(i.read.buffer, ['INST'])
-  puts pkt.packet_name
+pkt = Cosmos::System.telemetry.identify!(i.read.buffer, ['INST'])
+puts pkt.packet_name
 end
 {% endhighlight %}
 
@@ -63,6 +63,7 @@ MECH
 ADCS
 ...
 ```
+
 You should see MECH and ADCS come out at 10Hz and the IMAGE, PARAMS, and HEALTH_STATUS come out at 1Hz. This matches the Packet Count ratio on the Tlm Packets tab of the Server.
 
 We can also write some code to connect to the PREIDENTIFIED router. It looks very similar to the previous code except we do not need to identify the packets as they are pre-identified!
@@ -73,8 +74,8 @@ require 'cosmos/interfaces/tcpip_client_interface'
 i = Cosmos::TcpipClientInterface.new('localhost',7779,7779,nil,nil,'PREIDENTIFIED')
 i.connect
 loop do
-  pkt = i.read
-  puts pkt.packet_name
+pkt = i.read
+puts pkt.packet_name
 end
 {% endhighlight %}
 

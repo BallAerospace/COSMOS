@@ -5,10 +5,10 @@ title: PacketItem Class
 
 <div class="note">
   <h5>This documentation is for COSMOS Developers</h5>
-  <p markdown="1">If you're simply trying to setup a COSMOS system you're probably looking for the [System Configuration](/docs/system) page. If you're trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
+  <p markdown="1">If you're simply trying to setup a COSMOS system you're probably looking for the [System Configuration](/docs/v4/system) page. If you're trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
 </div>
 
-The PacketItem class is used to access an individual item within a [Packet](/docs/packet_class). The primary way to access Packet instances is through the [System](/docs/system_class) class. The PacketItem class provides access to information about the item like its location in the packet, type, endianness, conversions, states, etc.
+The PacketItem class is used to access an individual item within a [Packet](/docs/v4/packet-class). The primary way to access Packet instances is through the [System](/docs/v4/system-class) class. The PacketItem class provides access to information about the item like its location in the packet, type, endianness, conversions, states, etc.
 
 The [packet_item.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet_item.rb) source code on Github.
 
@@ -24,7 +24,7 @@ PacketItem defines a large number of instance variables that provide information
 1. `description` - Description of the item
 1. `bit_offset` - Where in the binary buffer the item exists
 1. `bit_size` - The number of bites which represent the item in the buffer
-1. `data_type` - Data type which can be :INT, :UINT, :FLOAT, :STRING, :BLOCK, or :DERIVED. See [Command](/docs/command) or [Telemetry](/docs/telemetry) for a description of the types.
+1. `data_type` - Data type which can be :INT, :UINT, :FLOAT, :STRING, :BLOCK, or :DERIVED. See [Command](/docs/v4/command) or [Telemetry](/docs/v4/telemetry) for a description of the types.
 1. `endianness` - Endianness of the item which is either :BIG_ENDIAN or :LITTLE_ENDIAN.
 1. `read_conversion` - Conversion applied when reading the item (typically applied to telemetry items)
 1. `write_conversion` - Conversion applied when writing the item (typically applied to command items)
@@ -91,7 +91,7 @@ end
 
 #### packet.id_items
 
-Returns an array of all the ID items defined in the packet. ID items are defined by the [ID_PARAMETER](/docs/command/#id_parameter) keyword in commands and the [ID_ITEM](/docs/telemetry/#id_item) keyword in telemetry (and their associated APPEND keywords).
+Returns an array of all the ID items defined in the packet. ID items are defined by the [ID_PARAMETER](/docs/v4/command#id_parameter) keyword in commands and the [ID_ITEM](/docs/v4/telemetry#id_item) keyword in telemetry (and their associated APPEND keywords).
 
 ```ruby
 packet.id_items.each do |item|
@@ -101,7 +101,7 @@ end
 
 #### packet.limits_items
 
-Returns an array of all the items defined in the packet with limits. Limits items are defined by the [LIMITS](/docs/telemetry/#limits) keyword in telemetry items.
+Returns an array of all the items defined in the packet with limits. Limits items are defined by the [LIMITS](/docs/v4/telemetry#limits) keyword in telemetry items.
 
 ```ruby
 packet.limits_items.each do |item|

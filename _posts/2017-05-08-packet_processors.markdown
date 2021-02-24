@@ -1,13 +1,14 @@
 ---
 layout: news_item
-title: 'Packet Processors'
+title: "Packet Processors"
 date: 2017-05-08 00:00:00 -0700
 author: jmthomas
 categories: [post]
 ---
+
 COSMOS Packet Processors are a powerful concept that allow you to run code each time a specified packet is received. COSMOS provides a few generic Packet Processors which allows you to include statistics about individual telemetry points in your defined packets. Let's break down how the COSMOS included processors are used and how you can implement your own Packet Processor.
 
-First [install](/docs/installation) COSMOS and start up the demo application. You'll notice we declare a few targets of which one is called INST (for instrument). If you open up Packet Viewer and navigate to the INST target and the HEALTH_STATUS packet you can see a bunch of derived telemetry points at the top.
+First [install](/docs/v4/installation) COSMOS and start up the demo application. You'll notice we declare a few targets of which one is called INST (for instrument). If you open up Packet Viewer and navigate to the INST target and the HEALTH_STATUS packet you can see a bunch of derived telemetry points at the top.
 
 ![Packet Viewer](/img/2017_05_08_packet_viewer.png)
 
@@ -34,7 +35,7 @@ This is all controlled by the INST target's cmd/tlm definition files. If you ope
   PROCESSOR TEMP1WATER watermark_processor.rb TEMP1
 ```
 
-These definitions create six new telemetry [ITEMs](/docs/telemetry/#item). The [READ_CONVERSION](/docs/telemetry/#read_conversion) line takes a conversion class and then variable parameters that are passed to the class. Here we're using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two [PROCESSORs](/docs/telemetry/#processor).
+These definitions create six new telemetry [ITEMs](/docs/v4/telemetry#item). The [READ_CONVERSION](/docs/v4/telemetry#read_conversion) line takes a conversion class and then variable parameters that are passed to the class. Here we're using the COSMOS provided processor_conversion.rb class which pulls a result calculated by a PROCESSOR. The last two lines define the two [PROCESSORs](/docs/v4/telemetry#processor).
 
 Currently COSMOS provides the following three processors:
 
@@ -49,14 +50,12 @@ If all you want to do is to calculate useful statistics on your telemetry items 
 {% highlight ruby %}
 require 'cosmos/processors/processor'
 module Cosmos
-  class WatermarkProcessor < Processor
-    # @param item_name [String] The name of the item to gather statistics on
-    # @param value_type #See Processor::initialize
-    def initialize(item_name, value_type = :CONVERTED)
-      super(value_type)
-      @item_name = item_name.to_s.upcase
-      reset()
-    end
+class WatermarkProcessor < Processor # @param item_name [String] The name of the item to gather statistics on # @param value_type #See Processor::initialize
+def initialize(item_name, value_type = :CONVERTED)
+super(value_type)
+@item_name = item_name.to_s.upcase
+reset()
+end
 
     # See Processor#call
     def call(packet, buffer)
@@ -77,14 +76,15 @@ module Cosmos
     def to_config
       "  PROCESSOR #{@name} #{self.class.name.to_s.class_name_to_filename} #{@item_name} #{@value_type}\n"
     end
-  end
+
+end
 end
 {% endhighlight %}
 
 The initialize method gets passed the parameters from the config file. Thus our config file of:
-```PROCESSOR TEMP1WATER watermark_processor.rb TEMP1```
+`PROCESSOR TEMP1WATER watermark_processor.rb TEMP1`
 passes 'TEMP1' into 'item_name' of the initialize method:
-```def initialize(item_name, value_type = :CONVERTED)```
+`def initialize(item_name, value_type = :CONVERTED)`
 Since we only pass one value, we use the default value_type of :CONVERTED.
 
 We store the item_name into a Ruby instance variable @item_name and call reset() to initialize our @results. But how did we get a @results instance variable? If you look at the class definition we are inheriting from [Processor](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/processors/processor.rb) which is the base class for all COSMOS Processors. It declares a @results instance variable and initializes @results in its initialize method which we call using super(value_type).
@@ -98,22 +98,20 @@ If you then open up the processor_conversion.rb code you can see how these resul
 {% highlight ruby %}
 require 'cosmos/conversions/conversion'
 module Cosmos
-  # Retrieves the result from an item processor
-  class ProcessorConversion < Conversion
-    # @param processor_name [String] The name of the associated processor
-    # @param result_name [String] The name of the associated result in the processor
-    # @param converted_type [String or nil] The datatype of the result of the processor
-    # @param converted_bit_size [Integer or nil] The bit size of the result of the processor
-    def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)
-      super()
-      @processor_name = processor_name.to_s.upcase
-      @result_name = result_name.to_s.upcase.intern
-      if ConfigParser.handle_nil(converted_type)
-        @converted_type = converted_type.to_s.upcase.intern
-        raise ArgumentError, "Unknown converted type: #{converted_type}" if !BinaryAccessor::DATA_TYPES.include?(@converted_type)
-      end
-      @converted_bit_size = Integer(converted_bit_size) if ConfigParser.handle_nil(converted_bit_size)
-    end
+
+# Retrieves the result from an item processor
+
+class ProcessorConversion < Conversion # @param processor_name [String] The name of the associated processor # @param result_name [String] The name of the associated result in the processor # @param converted_type [String or nil] The datatype of the result of the processor # @param converted_bit_size [Integer or nil] The bit size of the result of the processor
+def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)
+super()
+@processor_name = processor_name.to_s.upcase
+@result_name = result_name.to_s.upcase.intern
+if ConfigParser.handle_nil(converted_type)
+@converted_type = converted_type.to_s.upcase.intern
+raise ArgumentError, "Unknown converted type: #{converted_type}" if !BinaryAccessor::DATA_TYPES.include?(@converted_type)
+end
+@converted_bit_size = Integer(converted_bit_size) if ConfigParser.handle_nil(converted_bit_size)
+end
 
     # @param (see Conversion#call)
     # @return [Varies] The result of the associated processor
@@ -122,16 +120,17 @@ module Cosmos
     end
     def to_s; end # Not shown for brevity
     def to_config(read_or_write); end # Not shown for brevity
-  end
+
+end
 end
 {% endhighlight %}
 
 First of all note that ProcessorConversion inherits from the [Conversion](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/conversions/conversion.rb) base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let's see how these map together in our definition.
 
 Our config file looked like the following:
-```READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER```
+`READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER`
 This passes TEMP1WATER and HIGH_WATER as processor_name and result_name into initialize:
-```def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)```
+`def initialize(processor_name, result_name, converted_type = nil, converted_bit_size = nil)`
 
 We store the processor name and result name into Ruby instance variables (first turning them into upper case strings). We additionally turn the result name into a Ruby symbol by calling intern on it. This allows us to match the symbol names we used in the WatermarkProcessor code.
 
@@ -146,13 +145,12 @@ First create your new Processor class. Let's call it MeanProcessor. This code sh
 {% highlight ruby %}
 require 'cosmos/processors/processor'
 module Cosmos
-  class MeanProcessor < Processor
-    # @param item_name [Array<String>] The names of the items to mean
-    def initialize(*item_names) # the splat operator accepts a variable length argument list
-      super(:CONVERTED) # Hard code to work on converted values
-      @item_names = item_names # Array of the item names
-      reset()
-    end
+class MeanProcessor < Processor # @param item_name [Array<String>] The names of the items to mean
+def initialize(\*item_names) # the splat operator accepts a variable length argument list
+super(:CONVERTED) # Hard code to work on converted values
+@item_names = item_names # Array of the item names
+reset()
+end
 
     def call(packet, buffer)
       values = []
@@ -171,15 +169,17 @@ module Cosmos
     def to_config
       "  PROCESSOR #{@name} #{self.class.name.to_s.class_name_to_filename} #{@item_names.join(' ')}\n"
     end
-  end
+
+end
 end
 {% endhighlight %}
 
 This class introduces some new Ruby syntax. Since we want to accept any number of items to average we have to accept a variable number of arguments in our initialize method. The ruby splat operator (or star operator) does this and places the arguments into a Ruby array. We store these names and then use them in our call method to perform the mean. I'm using a cool feature of Ruby's Enumerable mixin, which is part of Array, to sum up the values (starting with 0) and then dividing by the number of values we have to get the mean. Note I'm also calling to_f to ensure the numerator is a floating point number so we do floating point math during the division. Integer division would truncate the value to an integer value.
 
-First to use this new processor you need to require it in your target's [target.txt](/docs/system/#targettxt-keywords) configuration file:
-```REQUIRE mean_processor.rb```
+First to use this new processor you need to require it in your target's [target.txt](/docs/v4/system#targettxt-keywords) configuration file:
+`REQUIRE mean_processor.rb`
 Then delcare the processing in your configuration definition as follows:
+
 ```TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the instrument"
   ... # See demo configuration
   ITEM TEMPS_MEAN 0 0 DERIVED "Mean of TEMP1, TEMP2, TEMP3, TEMP4"

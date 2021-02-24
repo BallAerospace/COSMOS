@@ -5,7 +5,7 @@ title: JSON API
 
 <div class="note">
   <h5>This documentation is for COSMOS Developers</h5>
-  <p markdown="1">If you're looking for the methods available to write test procedures using the COSMOS scripting API, refer to the [Scripting Guide](/docs/scripting) page. If you're trying to interface to a COSMOS Command and Telemetry Server from an external application using any language then this is the right place.</p>
+  <p markdown="1">If you're looking for the methods available to write test procedures using the COSMOS scripting API, refer to the [Scripting Guide](/docs/v4/scripting) page. If you're trying to interface to a COSMOS Command and Telemetry Server from an external application using any language then this is the right place.</p>
 </div>
 
 This document provides the information necessary for external applications to interact with the COSMOS Command and Telemetry Server using the COSMOS API. External applications written in any language can send commands and retrieve individual telemetry points using this API. External applications also have the option of connecting to the COSMOS Command and Telemetry server to interact with raw tcp/ip streams of commands/telemetry. However, the COSMOS JSON API removes the requirement that external applications have knowledge of the binary formats of packets.
@@ -20,7 +20,7 @@ The COSMOS Command and Telemetry Server listens for connections to the COSMOS AP
 
 ## Supported Methods
 
-The list of methods supported by the COSMOS API may be found in the [api.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_tlm_server/api.rb) source code on Github. The @api_whitelist variable is initialized with an array of all methods accepted by the CTS. This page will not show the full argument list for every method in the API, but it should be noted that the JSON API methods correspond to the COSMOS scripting API methods documented in the [Scripting Guide](/docs/scripting). This page will show a few example JSON requests and responses, and the scripting guide can be used as a reference to extrapolate how to build requests and parse responses for methods not explicitly documented here.
+The list of methods supported by the COSMOS API may be found in the [api.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_tlm_server/api.rb) source code on Github. The @api_whitelist variable is initialized with an array of all methods accepted by the CTS. This page will not show the full argument list for every method in the API, but it should be noted that the JSON API methods correspond to the COSMOS scripting API methods documented in the [Scripting Guide](/docs/v4/scripting). This page will show a few example JSON requests and responses, and the scripting guide can be used as a reference to extrapolate how to build requests and parse responses for methods not explicitly documented here.
 
 ## Existing Implementations
 

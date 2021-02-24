@@ -11,7 +11,7 @@ version of COSMOS all you need to do is run:
 bundle update cosmos
 {% endhighlight %}
 
-And that should get the latest version installed (unless your Gemfile has locked COSMOS to a specific version). After upgrading, you should also look at the [COSMOS release notes](/docs/history) to see if any other migration is required. If you would like to lock COSMOS (or any other gem) to a specific version, you can also do that with your Gemfile. Here is an example Gemfile that
+And that should get the latest version installed (unless your Gemfile has locked COSMOS to a specific version). After upgrading, you should also look at the [COSMOS release notes](/news/releases) to see if any other migration is required. If you would like to lock COSMOS (or any other gem) to a specific version, you can also do that with your Gemfile. Here is an example Gemfile that
 locks COSMOS to version 4.4.0, shows the ruby-termios gem requirement on non-windows systems, and also adds a project specific requirement for the sshkit gem.
 
 ```

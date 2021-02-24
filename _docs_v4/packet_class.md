@@ -5,10 +5,10 @@ title: Packet Class
 
 <div class="note">
   <h5>This documentation is for COSMOS Developers</h5>
-  <p markdown="1">If you're simply trying to setup a COSMOS system you're probably looking for the [System Configuration](/docs/system) page. If you're trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
+  <p markdown="1">If you're simply trying to setup a COSMOS system you're probably looking for the [System Configuration](/docs/v4/system) page. If you're trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
 </div>
 
-The Packet class is used to access the command and telemetry packet instances. The primary way to access Packet instances is through the [System](/docs/system_class) class. The Packet class provides access to information about the packet as well as all the packet items.
+The Packet class is used to access the command and telemetry packet instances. The primary way to access Packet instances is through the [System](/docs/v4/system-class) class. The Packet class provides access to information about the packet as well as all the packet items.
 
 The [packet.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet.rb) source code on Github.
 
@@ -25,15 +25,15 @@ Packet defines a large number of instance variables that provide information abo
 1. `description` - Packet description as a string
 1. `received_time` - Time object representing when this packet was received by the COSMOS Server
 1. `received_count` - Number of times this packet was received by the COSMOS Server
-1. `items` - Hash of all the [items](/docs/packet_item_class) keyed by the uppercase item name
-1. `sorted_items` Array of all the [items](/docs/packet_item_class) sorted by bit_offset
+1. `items` - Hash of all the [items](/docs/v4/packet-item-class) keyed by the uppercase item name
+1. `sorted_items` Array of all the [items](/docs/v4/packet-item-class) sorted by bit_offset
 
 If you're dealing with a Command packet instance there are additional instance variables that are useful:
 
-1. `hazardous` - Boolean indicating whether the command is hazardous (see [hazardous](/docs/command/#hazardous))
+1. `hazardous` - Boolean indicating whether the command is hazardous (see [hazardous](/docs/v4/command#hazardous))
 1. `hazardous_description` - String description of why the packet is hazardous
-1. `hidden` - Boolean indicating whether this packet is hidden (see [hidden](/docs/command/#hidden))
-1. `disabled` - Boolean indicating whether this packet is disabled (see [disabled](/docs/command/#disabled))
+1. `hidden` - Boolean indicating whether this packet is hidden (see [hidden](/docs/v4/command#hidden))
+1. `disabled` - Boolean indicating whether this packet is disabled (see [disabled](/docs/v4/command#disabled))
 
 ### Packet Methods
 
@@ -59,7 +59,7 @@ value = packet.read("ITEM", :CONVERTED, buffer) # Read the value from the passed
 
 First a comment about syntax. The first parameter in the read method is a string which in Ruby can be either single or double quotes. The second parameter is a Ruby Symbol which is similar to a string but is prefixed with a colon.
 
-Note that there are four different ways to read a packet value as indicated above in the value_type description. :RAW means to return the value defined at that location in the packet without applying any COSMOS conversions or STATE names. :CONVERTED (the default) means to apply COSMOS conversions and any defined State values (see [STATE](/docs/telemetry/#state)). :FORMATTED means to apply any format strings on the packet item (see [FORMAT_STRING](/docs/telemetry/#format_string)) and return the resulting string. Note that :FORMATTED always returns a STRING even if there is no formatting being applied. This is distinct from :RAW and :CONVERTED which return a value of the type you specify in the packet definition. Finally :WITH_UNITS applies any units (see [UNITS](/docs/telemetry/#units)) to the formatted value and again returns a string value.
+Note that there are four different ways to read a packet value as indicated above in the value_type description. :RAW means to return the value defined at that location in the packet without applying any COSMOS conversions or STATE names. :CONVERTED (the default) means to apply COSMOS conversions and any defined State values (see [STATE](/docs/v4/telemetry#state)). :FORMATTED means to apply any format strings on the packet item (see [FORMAT_STRING](/docs/v4/telemetry#format_string)) and return the resulting string. Note that :FORMATTED always returns a STRING even if there is no formatting being applied. This is distinct from :RAW and :CONVERTED which return a value of the type you specify in the packet definition. Finally :WITH_UNITS applies any units (see [UNITS](/docs/v4/telemetry#units)) to the formatted value and again returns a string value.
 
 The final parameter is buffer. Typically you will just leave this off and write to the buffer contained by the current packet instance. However, if you have an unidentified buffer of data that you believe represents a particular packet instance, you can pass that into read.
 
@@ -81,9 +81,9 @@ packet.write('ITEM', value) # Converted value
 packet.write("ITEM", value, :RAW) # Raw value
 ```
 
-See [read](/docs/packet_class#read) for a note about the syntax and what value_type means.
+See [read](/docs/v4/packet-class#read) for a note about the syntax and what value_type means.
 
-There are a few gotchas associated with writing a value into a packet. If you're writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. If the packet item has any [write conversions](/docs/telemetry/#write_conversion) then using the :RAW value_type will bypass that conversion. For example:
+There are a few gotchas associated with writing a value into a packet. If you're writing a value marked as STRING then you can pass almost any value you want as Ruby will automatically convert it into a string. If the packet item has any [write conversions](/docs/v4/telemetry#write_conversion) then using the :RAW value_type will bypass that conversion. For example:
 
 ```ruby
 packet.write('STRING_ITEM', 10) # 10 will be converted to '10' automatically
@@ -98,7 +98,7 @@ packet.write("INT_ITEM", 10.5) #=> packet.read("INT_ITEM") returns 10
 packet.write("FLOAT_ITEM", 10) #=> packet.read("FLOAT_ITEM") returns 10.0
 ```
 
-If there are no [write conversions](/docs/telemetry/#write_conversion) or [states](/docs/telemetry/#state) defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent.
+If there are no [write conversions](/docs/v4/telemetry#write_conversion) or [states](/docs/v4/telemetry#state) defined on the telemetry item then writing with :RAW or :CONVERTED will be equivalent.
 
 Definition File:
 
@@ -167,7 +167,7 @@ Returns whether this packet has been identified which means it has its internal 
 
 #### identify?
 
-Returns whether the buffer of data parameter represents this packet. It does this by iterating over all the packet items that were created with an ID value (see [id_parameter](/docs/command/#id_parameter) and [id_item](/docs/telemetry/#id_item)) and checking whether the ID values are present in the buffer.
+Returns whether the buffer of data parameter represents this packet. It does this by iterating over all the packet items that were created with an ID value (see [id_parameter](/docs/v4/command#id_parameter) and [id_item](/docs/v4/telemetry#id_item)) and checking whether the ID values are present in the buffer.
 
 | Parameter | Description                                                        |
 | --------- | ------------------------------------------------------------------ |

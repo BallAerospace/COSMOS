@@ -5,7 +5,7 @@ title: Getting Started
 
 Welcome to the COSMOS system... Let's get started! This guide is a high level overview that will help with setting up your first COSMOS project.
 
-1. Get COSMOS Installed onto your computer by following the [Installation Guide](/docs/installation).
+1. Get COSMOS Installed onto your computer by following the [Installation Guide](/docs/v5/installation).
    - You should now have COSMOS installed and a Demo project available that we can make changes to.
 2. Browse to http://localhost:8080
    - The COSMOS Command and Telemetry Server will appear. This tool provides real-time information about each "target" in the system. Targets are external systems that receive commands and generate telemetry, often over ethernet or serial connections.
@@ -31,7 +31,7 @@ Playing with the COSMOS Demo is fun and all, but now you want to talk to your ow
 
 - Inside your demo area, create a folder for your target in config/targets/. The folder name should be ALL CAPS and concise. Let's pretend we're going to interface with custom piece of software you wrote called BOB, so we'll call the folder config/targets/BOB.
 
-  2.. Next we need to define the commands and telemetry packets for our target. The details on the command and telemetry definition file formats can be found here: [Command](/docs/command) and [Telemetry](/docs/telemetry)
+  2.. Next we need to define the commands and telemetry packets for our target. The details on the command and telemetry definition file formats can be found here: [Command](/docs/v5/command) and [Telemetry](/docs/v5/telemetry)
 
 - Create the folder config/targets/BOB/cmd_tlm
 - Create a new text file called config/targets/BOB/cmd_tlm/bob_cmds.txt with the following contents:
@@ -69,7 +69,7 @@ ITEM TEMP2 96 32 FLOAT "Temperature 2"
 
     3.. We have successfully defined the commands and telemetry packets for our target. Most targets will obviously have more than one command and one telemetry packet. Before we move on, now is a great time to look at the contents of some of the other target folders in config/target that come with COSMOS. They provide good examples of what the configuration for other types of targets might look like and use a lot of the available keywords for the configuration files.
 
-    4.. Next we need to tell COSMOS that our new target BOB exists. We do that in the config/system/system.txt file. Edit this file and add the following line. See [System Configuration Guide](/docs/system):
+    4.. Next we need to tell COSMOS that our new target BOB exists. See [Plugin Configuration](/docs/v5/plugin):
 
 {% highlight bash %}
 DECLARE_TARGET BOB
@@ -77,15 +77,15 @@ DECLARE_TARGET BOB
 
 - This tells COSMOS to look for a folder called BOB in config/targets.
 
-  5.. Now we need to configure how to communicate with BOB. BOB is acting as a TCP/IP server at 192.168.1.5 and is listening on port 8888. We tell COSMOS how to talk to it by adding the following snippet to config/tools/cmd_tlm_server/cmd_tlm_server.txt. See [System Configuration Guide](/docs/system):
+  5.. Now we need to configure how to communicate with BOB. BOB is acting as a TCP/IP server at 192.168.1.5 and is listening on port 8888. We tell COSMOS how to talk to it by adding the following snippet to config/tools/cmd_tlm_server/cmd_tlm_server.txt. See [Plugin Configuration](/docs/v5/plugin):
 
 {% highlight bash %}
 INTERFACE BOB_INT tcpip_client_interface.rb 192.168.1.5 8888 8888 5.0 nil LENGTH 0 32 4
 TARGET BOB
 {% endhighlight %}
 
-- This tells COSMOS there is a new INTERFACE called BOB_INT that will connect as a TCP/IP client using the code in tcpip_client_interface.rb to address 192.168.1.5 using port 8888 for both reading and writing. It also has a write timeout of 5 seconds, reads will never timeout (nil). The TCP/IP stream will be interpreted using the COSMOS LENGTH protocol with the length field found at bit offset 0 with bit size of 32-bits and a value offset of 4 bytes (because the value in the length field does not include itself). For all the details on how to configure COSMOS interfaces please see the [Interface Guide](/docs/interfaces). The TARGET BOB line tells COSMOS that it will receive telemetry from and send commands to BOB using the BOB_INT interface.
+- This tells COSMOS there is a new INTERFACE called BOB_INT that will connect as a TCP/IP client using the code in tcpip_client_interface.rb to address 192.168.1.5 using port 8888 for both reading and writing. It also has a write timeout of 5 seconds, reads will never timeout (nil). The TCP/IP stream will be interpreted using the COSMOS LENGTH protocol with the length field found at bit offset 0 with bit size of 32-bits and a value offset of 4 bytes (because the value in the length field does not include itself). For all the details on how to configure COSMOS interfaces please see the [Interface Guide](/docs/v5/interfaces). The TARGET BOB line tells COSMOS that it will receive telemetry from and send commands to BOB using the BOB_INT interface.
 
-  6.. COSMOS is now fully configured with everything needed to talk to our new target. Other things you might like to do at this point is define telemetry screens in config/targets/BOB/screens. See [Telemetry Screen Configuration](/docs/screens). Configure LENGTH and CMD_ID as IGNORED_PARAMETER in config/targets/BOB/target.txt.
+  6.. COSMOS is now fully configured with everything needed to talk to our new target. Other things you might like to do at this point is define telemetry screens in config/targets/BOB/screens. See [Telemetry Screen Configuration](/docs/v5/screens). Configure LENGTH and CMD_ID as IGNORED_PARAMETER in config/targets/BOB/target.txt.
 
   7.. That's all there is to it! In 14 lines of configuration we now have a fully configured system that is capable of connecting to, receiving telemetry from, sending commands to, displaying/graphing/logging data from our new target!

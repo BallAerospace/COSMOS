@@ -1,29 +1,35 @@
 ---
 layout: news_item
-title: 'Protocol Rate'
+title: "Protocol Rate"
 date: 2020-03-17 08:00:00 -0700
 author: jmthomas
 categories: [post]
 ---
+
 Protocols were introduced into COSMOS in version 4.0.0 and were previously discussed in [this post](/news/2019/06/05/protocols/). We recently had a question at Ball about how to reduce the telemetry rate of a high speed target so I thought I would walk through the problem and solution.
 
 ### The Problem
+
 One COSMOS server was connected to a high speed telemetry target that was generating telemetry at 10Hz. Another COSMOS server was [chained](/docs/chaining/) to this and did not need this high speed data. How do you reduce the data rate coming into the chained server?
 
 ### The Solution
-We can first model the chaining using the COSMOS demo. The format for the cmd_tlm_server.txt file is given in the [chaining documentation](https://cosmosrb.com/docs/chaining/#example-cmdtlmserver-configuration-for-child-cmd_tlm_server_chaintxt) and already exists in the COSMOS demo. The demo also includes a deconflicting port definition file in system_alt_ports.txt. To start the two server instances from the command line we can type:
+
+We can first model the chaining using the COSMOS demo. The format for the cmd_tlm_server.txt file is given in the [chaining documentation](https://cosmosrb.com/docs/chaining#example-cmdtlmserver-configuration-for-child-cmd_tlm_server_chaintxt) and already exists in the COSMOS demo. The demo also includes a deconflicting port definition file in system_alt_ports.txt. To start the two server instances from the command line we can type:
+
 ```
 ruby demo\tools\CmdTlmServer
 ```
 
 And in another terminal start the chained server:
+
 ```
 ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
 ```
 
-Now we need to implement a custom protocol to slow down the telemetry rate on the chained server. Note that the built-in protocols are fully described on the [Protocols](/docs/protocols) page and also mentioned on the [Interfaces](/docs/interfaces/#protocols) page.
+Now we need to implement a custom protocol to slow down the telemetry rate on the chained server. Note that the built-in protocols are fully described on the [Protocols](/docs/protocols) page and also mentioned on the [Interfaces](/docs/v4/interfaces#protocols) page.
 
 ### Custom Protocols
+
 Let's assume we want to slow down the INST ADCS packet which the demo generates at 10Hz. First create a new file called config/targets/INST/lib/drop_protocol.rb. This protocol will drop data until we get the rate we want. It looks like this:
 
 ```
@@ -80,11 +86,13 @@ INTERFACE CHAININT tcpip_client_interface.rb localhost 7779 7779 10 5 PREIDENTIF
 ```
 
 Finally stop and relaunch the chained server:
+
 ```
 ruby demo\tools\CmdTlmServer --system system_alt_ports.txt --config cmd_tlm_server_chain.txt
 ```
 
 You should now see the following in your terminal output:
+
 ```
 DROP count:1
 DROP count:2
@@ -110,7 +118,7 @@ SEND
 
 And the server "Tlm Packets" tab should show the ADCS count incrementing at 1Hz.
 ![Server Tlm Packets](/img/2020_03_17_server.png)<br/>
-*Chained Server Tlm Packets tab*
+_Chained Server Tlm Packets tab_
 
 This protocol is extremely simple but it accomplishes the task at hand. Remember protocols can be layered and operate in order so keeping them simple helps with debugging and reusability.
 

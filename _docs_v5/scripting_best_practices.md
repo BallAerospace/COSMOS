@@ -355,7 +355,7 @@ def example(target_name, temp_number)
 end
 ```
 
-This can also be useful when looping through a numbered set of telemetry points but be considerate of the downsides of looping as discussed in the [Looping vs Unrolled Loops](/docs/scripting_best_practices/#looping-vs-unrolled-loops) section.
+This can also be useful when looping through a numbered set of telemetry points but be considerate of the downsides of looping as discussed in the [Looping vs Unrolled Loops](/docs/v5/scripting_best_practices#looping-vs-unrolled-loops) section.
 
 ### Using Custom wait_check_expression
 
@@ -472,7 +472,7 @@ puts ss[0][0][0]
 
 <!-- ### Script specific screens
 
-Starting with COSMOS 4.3, script writers can include temporary screens in their COSMOS scripts that show just the specific values relative to the script. They can even display local variables as shown below. This can be a fantastic way to display just the telemetry that is specifically relevant to what you are operating or testing. Screen definitions take the same format as normal COSMOS screens with the addition of using target name LOCAL and packet name LOCAL to gain access to script local variables. See the [local_screen](/docs/scripting/#local_screen-since-430) documentation in the [Scripting Guide](/docs/scripting). -->
+Starting with COSMOS 4.3, script writers can include temporary screens in their COSMOS scripts that show just the specific values relative to the script. They can even display local variables as shown below. This can be a fantastic way to display just the telemetry that is specifically relevant to what you are operating or testing. Screen definitions take the same format as normal COSMOS screens with the addition of using target name LOCAL and packet name LOCAL to gain access to script local variables. See the [local_screen](/docs/v5/scripting#local_screen-since-430) documentation in the [Scripting Guide](/docs/v5/scripting). -->
 
 ### When to use Modules
 
@@ -495,4 +495,4 @@ end
 
 ## Further Reading
 
-Please see the [Scripting Guide](/docs/scripting) for the full list of available scripting methods provided by COSMOS.
+Please see the [Scripting Guide](/docs/v5/scripting) for the full list of available scripting methods provided by COSMOS.

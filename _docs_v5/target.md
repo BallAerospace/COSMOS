@@ -8,4 +8,4 @@ Each target is self contained in a target directory named after the target. In t
 
 # Target Keywords
 
-{% cosmos_meta target.yaml %}
+{% cosmos_meta target_config.yaml %}

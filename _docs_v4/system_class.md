@@ -5,7 +5,7 @@ title: System Class
 
 <div class="note">
   <h5>This documentation is for COSMOS Developers</h5>
-  <p markdown="1">If you're simply trying to setup a COSMOS system you're probably looking for the [System Configuration](/docs/system) page. If you're trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
+  <p markdown="1">If you're simply trying to setup a COSMOS system you're probably looking for the [System Configuration](/docs/v4/system) page. If you're trying to create a custom interface, background task, conversion, or build a custom tool then this is the right place.</p>
 </div>
 
 The System class is the primary entry point into the COSMOS framework. It provides access to the targets, commands, and telemetry. It also captures system wide configuration items such as the available ports and paths used by the system. The System class is primarily responsible for loading the system configuration file and creating all the Target instances. It also saves and restores configurations using a MD5 checksum over the entire configuration to detect changes.
