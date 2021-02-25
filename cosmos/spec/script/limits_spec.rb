@@ -43,11 +43,13 @@ module Cosmos
             disconnect_script() if state == 'disconnected'
 
             # These methods go through to the api server no matter if we're disconnected or not
-            getters = %i(get_stale get_out_of_limits get_overall_limits_state limits_enabled? get_limits get_limits_groups get_limits_sets get_limits_set get_limits_events)
+            getters = %i(get_stale get_out_of_limits get_overall_limits_state limits_enabled? get_limits get_limits_groups get_limits_sets get_limits_set)
             getters.each do |method_name|
-              expect(@proxy).to receive(method_name)
+              expect(@proxy).to receive(:method_missing).with(method_name)
               send(method_name)
             end
+            expect(@proxy).to receive(:method_missing).with(:get_limits_events, nil, count: 100)
+            get_limits_events()
 
             # These methods are simply logged in disconnect mode and don't go through
             setters = %i(enable_limits disable_limits set_limits enable_limits_group disable_limits_group set_limits_set)
