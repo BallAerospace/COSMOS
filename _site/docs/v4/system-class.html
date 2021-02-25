@@ -99,7 +99,7 @@
 
 <p>The System class is the primary entry point into the COSMOS framework. It provides access to the targets, commands, and telemetry. It also captures system wide configuration items such as the available ports and paths used by the system. The System class is primarily responsible for loading the system configuration file and creating all the Target instances. It also saves and restores configurations using a MD5 checksum over the entire configuration to detect changes.</p>
 
-<p>The <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/system/system.rb">system.rb</a> source code on Github.</p>
+<p>The <a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/system/system.rb">system.rb</a> source code on Github.</p>
 
 <h2 id="programming-system">Programming System</h2>
 
@@ -107,7 +107,7 @@
 
 <h3 id="systemcommands">System.commands</h3>
 
-<p><a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/commands.rb">System.commands</a> provides access to all the command definitions in the COSMOS system. The primary developer access methods are:</p>
+<p><a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/packets/commands.rb">System.commands</a> provides access to all the command definitions in the COSMOS system. The primary developer access methods are:</p>
 
 <ol>
   <li><code class="language-plaintext highlighter-rouge">System.commands.target_names</code> - Returns an array of strings containing the target names</li>
@@ -130,7 +130,7 @@
 
 <h4 id="command-sender-example">Command Sender Example</h4>
 
-<p>COSMOS uses System.commands in many of its own applications. Let’s see how it’s used in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_sender/cmd_sender.rb">Command Sender</a>. In the <code class="language-plaintext highlighter-rouge">update_targets</code> method it uses System.commands.target_names to populate the target drop down selection.</p>
+<p>COSMOS uses System.commands in many of its own applications. Let’s see how it’s used in the <a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/tools/cmd_sender/cmd_sender.rb">Command Sender</a>. In the <code class="language-plaintext highlighter-rouge">update_targets</code> method it uses System.commands.target_names to populate the target drop down selection.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_targets</span>
   <span class="vi">@target_select</span><span class="p">.</span><span class="nf">clearItems</span><span class="p">()</span>
@@ -211,7 +211,7 @@
 
 <h3 id="systemtelemetry">System.telemetry</h3>
 
-<p><a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb">System.telemetry</a> provides access to all the telemetry definitions in the COSMOS system. The primary developer access methods are:</p>
+<p><a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/packets/telemetry.rb">System.telemetry</a> provides access to all the telemetry definitions in the COSMOS system. The primary developer access methods are:</p>
 
 <ol>
   <li><code class="language-plaintext highlighter-rouge">System.telemetry.target_names</code> - Returns an array of strings containing the target names</li>
@@ -238,7 +238,7 @@
 
 <h4 id="packet-viewer-example">Packet Viewer Example</h4>
 
-<p>COSMOS uses System.telemetry in many of its own applications. Let’s see how it’s used in the <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/packet_viewer/packet_viewer.rb">Packet Viewer</a>. In the <code class="language-plaintext highlighter-rouge">update_targets</code> method it uses System.telemetry.target_names and System.telemetry.packets.</p>
+<p>COSMOS uses System.telemetry in many of its own applications. Let’s see how it’s used in the <a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/tools/packet_viewer/packet_viewer.rb">Packet Viewer</a>. In the <code class="language-plaintext highlighter-rouge">update_targets</code> method it uses System.telemetry.target_names and System.telemetry.packets.</p>
 
 <div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">update_targets</span>
   <span class="vi">@target_select</span><span class="p">.</span><span class="nf">clearItems</span>
@@ -271,7 +271,7 @@
 <span class="k">end</span>
 </code></pre></div></div>
 
-<p>Once we have the items we call individual <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet_item.rb">PacketItem</a> methods to get the name, states, description, and data type.</p>
+<p>Once we have the items we call individual <a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/packets/packet_item.rb">PacketItem</a> methods to get the name, states, description, and data type.</p>
 
 <h4 id="interface-example-1">Interface Example</h4>
 
@@ -337,7 +337,7 @@
 
 <h3 id="systemlimits">System.limits</h3>
 
-<p><a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/limits.rb">System.limits</a> provides access to all the limits definitions in the COSMOS system. The primary developer access methods are:</p>
+<p><a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/packets/limits.rb">System.limits</a> provides access to all the limits definitions in the COSMOS system. The primary developer access methods are:</p>
 
 <ol>
   <li><code class="language-plaintext highlighter-rouge">System.limits.sets</code> - Returns an array of symbols defining the system limits sets</li>
@@ -361,7 +361,7 @@
 
 <h4 id="example">Example</h4>
 
-<p>In general you should use the CmdTlmServer <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_tlm_server/api.rb">API</a> methods instead of the System.limits methods directly.</p>
+<p>In general you should use the CmdTlmServer <a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/tools/cmd_tlm_server/api.rb">API</a> methods instead of the System.limits methods directly.</p>
 
 <h3 id="systemports">System.ports</h3>
 
@@ -373,7 +373,7 @@
 
 <h3 id="systemtargets">System.targets</h3>
 
-<p>System.targets returns a hash keyed by the name of the target with <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/system/target.rb">Target</a> instance values. The Target instance has instance variables which return useful information about the target. The most frequently used are:</p>
+<p>System.targets returns a hash keyed by the name of the target with <a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/system/target.rb">Target</a> instance values. The Target instance has instance variables which return useful information about the target. The most frequently used are:</p>
 
 <ol>
   <li>name - Name of the target</li>
@@ -2904,7 +2904,7 @@
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">

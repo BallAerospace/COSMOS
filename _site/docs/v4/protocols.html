@@ -710,7 +710,7 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
 
 <p>Creating a custom protocol is easy and should be the default solution for customizing COSMOS Interfaces (rather than creating a new Interface class). However, creating custom Interfaces is still useful for defaulting parameters to values that always are fixed for your target and for including the necessary Protocols. The base COSMOS Interfaces take a lot of parameters that can be confusing to your end users. Thus you may want to create a custom Interface just to hard coded these values and cut the available parameters down to something like the hostname and port to connect to.</p>
 
-<p>All custom Protocols should derive from the Protocol class found in the COSMOS gem at <a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/protocol.rb">lib/cosmos/interfaces/protocols/protocol.rb</a>. This class defines the 9 methods that are relevant to writing your own protocol. The base class implementation for each method is included below as well as a discussion as to how the methods should be overridden and used in your own Protocols.</p>
+<p>All custom Protocols should derive from the Protocol class found in the COSMOS gem at <a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/protocol.rb">lib/cosmos/interfaces/protocols/protocol.rb</a>. This class defines the 9 methods that are relevant to writing your own protocol. The base class implementation for each method is included below as well as a discussion as to how the methods should be overridden and used in your own Protocols.</p>
 
 <p>To really understand how Protocols work, you first must understand the logic within the base Interface class read and write methods.</p>
 
@@ -863,15 +863,15 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
 
 <p>Please see the included COSMOS protocol code for examples of the above methods in action.</p>
 
-<p><a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/protocol.rb">lib/cosmos/interfaces/protocols/protocol.rb</a>
-<a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/burst_protocol.rb">lib/cosmos/interfaces/protocols/burst_protocol.rb</a>
-<a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/fixed_protocol.rb">lib/cosmos/interfaces/protocols/fixed_protocol.rb</a>
-<a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/length_protocol.rb">lib/cosmos/interfaces/protocols/length_protocol.rb</a>
-<a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/preidentified_protocol.rb">lib/cosmos/interfaces/protocols/preidentified_protocol.rb</a>
-<a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/terminated_protocol.rb">lib/cosmos/interfaces/protocols/terminated_protocol.rb</a>
-<a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/template_protocol.rb">lib/cosmos/interfaces/protocols/template_protocol.rb</a>
-<a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/override_protocol.rb">lib/cosmos/interfaces/protocols/override_protocol.rb</a>
-<a href="https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/crc_protocol.rb">lib/cosmos/interfaces/protocols/crc_protocol.rb</a></p>
+<p><a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/protocol.rb">lib/cosmos/interfaces/protocols/protocol.rb</a>
+<a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/burst_protocol.rb">lib/cosmos/interfaces/protocols/burst_protocol.rb</a>
+<a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/fixed_protocol.rb">lib/cosmos/interfaces/protocols/fixed_protocol.rb</a>
+<a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/length_protocol.rb">lib/cosmos/interfaces/protocols/length_protocol.rb</a>
+<a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/preidentified_protocol.rb">lib/cosmos/interfaces/protocols/preidentified_protocol.rb</a>
+<a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/terminated_protocol.rb">lib/cosmos/interfaces/protocols/terminated_protocol.rb</a>
+<a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/template_protocol.rb">lib/cosmos/interfaces/protocols/template_protocol.rb</a>
+<a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/override_protocol.rb">lib/cosmos/interfaces/protocols/override_protocol.rb</a>
+<a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/crc_protocol.rb">lib/cosmos/interfaces/protocols/crc_protocol.rb</a></p>
 
       </article>
     </div>
@@ -3391,7 +3391,7 @@ PROTOCOL READ OverrideProtocol</code></pre></figure>
 <footer role="contentinfo">
   <div class="grid wider">
     <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/cosmos4/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
       <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
     </div>
     <div class="unit two-thirds align-right center-on-mobiles">
