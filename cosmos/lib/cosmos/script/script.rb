@@ -20,6 +20,7 @@
 require 'cosmos'
 require 'cosmos/api/api'
 require 'cosmos/io/json_drb_object'
+require 'cosmos/script/api_shared'
 require 'cosmos/script/commands'
 require 'cosmos/script/limits'
 
@@ -69,7 +70,7 @@ module Cosmos
     def disconnect_script
       $disconnect = true
     end
-    
+
     def play_wav_file(wav_filename)
       # NOOP
     end
@@ -188,7 +189,7 @@ module Cosmos
 
     def prompt_combo_box(string, items, options)
       prompt_message_box(string, items, options)
-    end    
+    end
   end
 
   # Provides a proxy to the JsonDRbObject which communicates with the API server

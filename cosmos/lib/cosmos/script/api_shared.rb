@@ -17,11 +17,15 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-module Cosmos
-  # Error raised by the API when a check fails
-  class CheckError < RuntimeError; end
+require 'cosmos/script/extract'
 
-  module ApiShared
+module Cosmos
+  module Script
+    include Extract
+
+    # Error raised by the API when a check fails
+    class CheckError < RuntimeError; end
+
     DEFAULT_TLM_POLLING_RATE = 0.25
 
     private
