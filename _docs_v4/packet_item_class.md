@@ -10,7 +10,7 @@ title: PacketItem Class
 
 The PacketItem class is used to access an individual item within a [Packet](/docs/v4/packet-class). The primary way to access Packet instances is through the [System](/docs/v4/system-class) class. The PacketItem class provides access to information about the item like its location in the packet, type, endianness, conversions, states, etc.
 
-The [packet_item.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet_item.rb) source code on Github.
+The [packet_item.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/packets/packet_item.rb) source code on Github.
 
 ## Programming PacketItem
 

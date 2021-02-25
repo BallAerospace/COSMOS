@@ -24,7 +24,7 @@ The COSMOS Command and Telemetry Server listens for connections to the COSMOS AP
 
 ## Supported Methods
 
-The list of methods supported by the COSMOS API may be found in the [api.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_tlm_server/api.rb) source code on Github. The @api_whitelist variable is initialized with an array of all methods accepted by the CTS. This page will not show the full argument list for every method in the API, but it should be noted that the JSON API methods correspond to the COSMOS scripting API methods documented in the [Scripting Guide](/docs/v5/scripting). This page will show a few example JSON requests and responses, and the scripting guide can be used as a reference to extrapolate how to build requests and parse responses for methods not explicitly documented here.
+The list of methods supported by the COSMOS API may be found in the [api](https://github.com/BallAerospace/COSMOS/tree/master/cosmos/lib/cosmos/api) source code on Github. The @api_whitelist variable is initialized with an array of all methods accepted by the CTS. This page will not show the full argument list for every method in the API, but it should be noted that the JSON API methods correspond to the COSMOS scripting API methods documented in the [Scripting Guide](/docs/v5/scripting). This page will show a few example JSON requests and responses, and the scripting guide can be used as a reference to extrapolate how to build requests and parse responses for methods not explicitly documented here.
 
 ## Existing Implementations
 

@@ -87,7 +87,7 @@ passes 'TEMP1' into 'item_name' of the initialize method:
 `def initialize(item_name, value_type = :CONVERTED)`
 Since we only pass one value, we use the default value_type of :CONVERTED.
 
-We store the item_name into a Ruby instance variable @item_name and call reset() to initialize our @results. But how did we get a @results instance variable? If you look at the class definition we are inheriting from [Processor](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/processors/processor.rb) which is the base class for all COSMOS Processors. It declares a @results instance variable and initializes @results in its initialize method which we call using super(value_type).
+We store the item_name into a Ruby instance variable @item_name and call reset() to initialize our @results. But how did we get a @results instance variable? If you look at the class definition we are inheriting from [Processor](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/processors/processor.rb) which is the base class for all COSMOS Processors. It declares a @results instance variable and initializes @results in its initialize method which we call using super(value_type).
 
 The call method is the most important Processor method. It is always passed the packet and buffer. The packet is the COSMOS Packet instance which contains the value you're interested in. Buffer is the raw binary buffer which this packet is based on. The Processor base class should never be directly used as it defines but does not implement call. Instead, you inherit from Processor like we did with WatermarkProcessor and implement your own call method. WatermarkProcessor reads the item we're interested in and then compares it with the currently stored high and low value to determine if it should be saved. Note how it is saving the value in the @results hash with the :HIGH_WATER and :LOW_WATER symbol keys.
 
@@ -125,7 +125,7 @@ end
 end
 {% endhighlight %}
 
-First of all note that ProcessorConversion inherits from the [Conversion](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/conversions/conversion.rb) base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let's see how these map together in our definition.
+First of all note that ProcessorConversion inherits from the [Conversion](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/conversions/conversion.rb) base class. This is very similar to the WatermarkProcessor inheriting from the Processor base class. Again, there is an initialize method and a call method. The initialize method requires the processor_name and result_name and takes optional parameters that help describe the converted type. Let's see how these map together in our definition.
 
 Our config file looked like the following:
 `READ_CONVERSION processor_conversion.rb TEMP1WATER HIGH_WATER`

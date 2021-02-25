@@ -10,7 +10,7 @@ title: System Class
 
 The System class is the primary entry point into the COSMOS framework. It provides access to the targets, commands, and telemetry. It also captures system wide configuration items such as the available ports and paths used by the system. The System class is primarily responsible for loading the system configuration file and creating all the Target instances. It also saves and restores configurations using a MD5 checksum over the entire configuration to detect changes.
 
-The [system.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/system/system.rb) source code on Github.
+The [system.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/system/system.rb) source code on Github.
 
 ## Programming System
 
@@ -18,7 +18,7 @@ Almost all custom COSMOS code needs to interact with System as it provides acces
 
 ### System.commands
 
-[System.commands](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/commands.rb) provides access to all the command definitions in the COSMOS system. The primary developer access methods are:
+[System.commands](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/packets/commands.rb) provides access to all the command definitions in the COSMOS system. The primary developer access methods are:
 
 1. `System.commands.target_names` - Returns an array of strings containing the target names
 2. `System.commands.all` - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.commands.packets("TARGET").
@@ -37,7 +37,7 @@ Other methods are available but generally should not be used by developers.
 
 #### Command Sender Example
 
-COSMOS uses System.commands in many of its own applications. Let's see how it's used in the [Command Sender](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_sender/cmd_sender.rb). In the `update_targets` method it uses System.commands.target_names to populate the target drop down selection.
+COSMOS uses System.commands in many of its own applications. Let's see how it's used in the [Command Sender](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/tools/cmd_sender/cmd_sender.rb). In the `update_targets` method it uses System.commands.target_names to populate the target drop down selection.
 
 ```ruby
 def update_targets
@@ -123,7 +123,7 @@ We use the Packet class's identify? method to determine if the packet passed in 
 
 ### System.telemetry
 
-[System.telemetry](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/telemetry.rb) provides access to all the telemetry definitions in the COSMOS system. The primary developer access methods are:
+[System.telemetry](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/packets/telemetry.rb) provides access to all the telemetry definitions in the COSMOS system. The primary developer access methods are:
 
 1. `System.telemetry.target_names` - Returns an array of strings containing the target names
 2. `System.telemetry.all` - Returns a hash keyed by the target name with a hash of Packets as the value. The second hash is indentical to what is returned by System.telemetry.packets("TARGET").
@@ -146,7 +146,7 @@ Other methods are available but generally are not used by developers.
 
 #### Packet Viewer Example
 
-COSMOS uses System.telemetry in many of its own applications. Let's see how it's used in the [Packet Viewer](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/packet_viewer/packet_viewer.rb). In the `update_targets` method it uses System.telemetry.target_names and System.telemetry.packets.
+COSMOS uses System.telemetry in many of its own applications. Let's see how it's used in the [Packet Viewer](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/tools/packet_viewer/packet_viewer.rb). In the `update_targets` method it uses System.telemetry.target_names and System.telemetry.packets.
 
 ```ruby
 def update_targets
@@ -181,7 +181,7 @@ def update_tlm_items(featured_item_name = nil)
 end
 ```
 
-Once we have the items we call individual [PacketItem](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet_item.rb) methods to get the name, states, description, and data type.
+Once we have the items we call individual [PacketItem](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/packets/packet_item.rb) methods to get the name, states, description, and data type.
 
 #### Interface Example
 
@@ -249,7 +249,7 @@ The COSMOS Server will call the interface call method as rapidly as it can. The 
 
 ### System.limits
 
-[System.limits](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/limits.rb) provides access to all the limits definitions in the COSMOS system. The primary developer access methods are:
+[System.limits](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/packets/limits.rb) provides access to all the limits definitions in the COSMOS system. The primary developer access methods are:
 
 1. `System.limits.sets` - Returns an array of symbols defining the system limits sets
 2. `System.limits.out_of_limits` - Returns an array indicating all items that are out of limits. The array values are arrays formatted as ["TARGET", "PACKET", "ITEM", :LIMIT_STATE]. The last item is a symbol indicating the current limit state.
@@ -269,7 +269,7 @@ Other methods are available but generally are not used by developers.
 
 #### Example
 
-In general you should use the CmdTlmServer [API](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/tools/cmd_tlm_server/api.rb) methods instead of the System.limits methods directly.
+In general you should use the CmdTlmServer [API](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/tools/cmd_tlm_server/api.rb) methods instead of the System.limits methods directly.
 
 ### System.ports
 
@@ -281,7 +281,7 @@ System.paths returns a hash keyed by the name of the path with the value the fil
 
 ### System.targets
 
-System.targets returns a hash keyed by the name of the target with [Target](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/system/target.rb) instance values. The Target instance has instance variables which return useful information about the target. The most frequently used are:
+System.targets returns a hash keyed by the name of the target with [Target](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/system/target.rb) instance values. The Target instance has instance variables which return useful information about the target. The most frequently used are:
 
 1. name - Name of the target
 2. ignored_parameters - Array of parameters which should be ignored by various tools

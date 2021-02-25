@@ -22,7 +22,7 @@ So when would you want to create and use multiple system.txt files? Since system
 
 ## target.txt
 
-The parsing of a COSMOS target is controlled by the target.txt file found at the root of the target directory. The COMMANDS and TELEMETRY keywords tell COSMOS which [Command](/docs/v4/command) and [Telemetry](/docs/v4/telemetry) files to parse. For example from the COSMOS demo INST [target.txt](https://github.com/BallAerospace/COSMOS/blob/master/demo/config/targets/INST/target.txt)
+The parsing of a COSMOS target is controlled by the target.txt file found at the root of the target directory. The COMMANDS and TELEMETRY keywords tell COSMOS which [Command](/docs/v4/command) and [Telemetry](/docs/v4/telemetry) files to parse. For example from the COSMOS demo INST [target.txt](https://github.com/BallAerospace/COSMOS/blob/cosmos4/demo/config/targets/INST/target.txt)
 
 ```
 COMMANDS inst_cmds.txt

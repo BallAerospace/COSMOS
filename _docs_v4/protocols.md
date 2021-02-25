@@ -190,7 +190,7 @@ The Ignore Packet protocol drops specified command packets sent by COSMOS or dro
 
 Creating a custom protocol is easy and should be the default solution for customizing COSMOS Interfaces (rather than creating a new Interface class). However, creating custom Interfaces is still useful for defaulting parameters to values that always are fixed for your target and for including the necessary Protocols. The base COSMOS Interfaces take a lot of parameters that can be confusing to your end users. Thus you may want to create a custom Interface just to hard coded these values and cut the available parameters down to something like the hostname and port to connect to.
 
-All custom Protocols should derive from the Protocol class found in the COSMOS gem at [lib/cosmos/interfaces/protocols/protocol.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/protocol.rb). This class defines the 9 methods that are relevant to writing your own protocol. The base class implementation for each method is included below as well as a discussion as to how the methods should be overridden and used in your own Protocols.
+All custom Protocols should derive from the Protocol class found in the COSMOS gem at [lib/cosmos/interfaces/protocols/protocol.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/protocol.rb). This class defines the 9 methods that are relevant to writing your own protocol. The base class implementation for each method is included below as well as a discussion as to how the methods should be overridden and used in your own Protocols.
 
 To really understand how Protocols work, you first must understand the logic within the base Interface class read and write methods.
 
@@ -351,12 +351,12 @@ The base class always just returns the packet/data given.
 
 Please see the included COSMOS protocol code for examples of the above methods in action.
 
-[lib/cosmos/interfaces/protocols/protocol.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/protocol.rb)
-[lib/cosmos/interfaces/protocols/burst_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/burst_protocol.rb)
-[lib/cosmos/interfaces/protocols/fixed_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/fixed_protocol.rb)
-[lib/cosmos/interfaces/protocols/length_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/length_protocol.rb)
-[lib/cosmos/interfaces/protocols/preidentified_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/preidentified_protocol.rb)
-[lib/cosmos/interfaces/protocols/terminated_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/terminated_protocol.rb)
-[lib/cosmos/interfaces/protocols/template_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/template_protocol.rb)
-[lib/cosmos/interfaces/protocols/override_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/override_protocol.rb)
-[lib/cosmos/interfaces/protocols/crc_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/interfaces/protocols/crc_protocol.rb)
+[lib/cosmos/interfaces/protocols/protocol.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/protocol.rb)
+[lib/cosmos/interfaces/protocols/burst_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/burst_protocol.rb)
+[lib/cosmos/interfaces/protocols/fixed_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/fixed_protocol.rb)
+[lib/cosmos/interfaces/protocols/length_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/length_protocol.rb)
+[lib/cosmos/interfaces/protocols/preidentified_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/preidentified_protocol.rb)
+[lib/cosmos/interfaces/protocols/terminated_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/terminated_protocol.rb)
+[lib/cosmos/interfaces/protocols/template_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/template_protocol.rb)
+[lib/cosmos/interfaces/protocols/override_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/override_protocol.rb)
+[lib/cosmos/interfaces/protocols/crc_protocol.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/interfaces/protocols/crc_protocol.rb)

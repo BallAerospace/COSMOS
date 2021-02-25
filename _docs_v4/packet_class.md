@@ -10,7 +10,7 @@ title: Packet Class
 
 The Packet class is used to access the command and telemetry packet instances. The primary way to access Packet instances is through the [System](/docs/v4/system-class) class. The Packet class provides access to information about the packet as well as all the packet items.
 
-The [packet.rb](https://github.com/BallAerospace/COSMOS/blob/master/lib/cosmos/packets/packet.rb) source code on Github.
+The [packet.rb](https://github.com/BallAerospace/COSMOS/blob/cosmos4/lib/cosmos/packets/packet.rb) source code on Github.
 
 ## Programming Packet
 
