@@ -436,10 +436,10 @@ module Cosmos
 
         keys = get_all_redis_keys()
         # Spot check some keys
-        expect(keys).to include("DEFAULT__COMMAND__INST__ABORT")
-        expect(keys).to include("DEFAULT__COMMAND__INST__COLLECT")
-        expect(keys).to include("DEFAULT__TELEMETRY__INST__ADCS")
-        expect(keys).to include("DEFAULT__TELEMETRY__INST__HEALTH_STATUS")
+        expect(keys).to include("DEFAULT__COMMAND__{INST}__ABORT")
+        expect(keys).to include("DEFAULT__COMMAND__{INST}__COLLECT")
+        expect(keys).to include("DEFAULT__TELEMETRY__{INST}__ADCS")
+        expect(keys).to include("DEFAULT__TELEMETRY__{INST}__HEALTH_STATUS")
         expect(keys).to include("DEFAULT__cosmoscmd__INST")
         expect(keys).to include("DEFAULT__cosmostlm__INST")
         targets = Store.hgetall("DEFAULT__cosmos_targets")

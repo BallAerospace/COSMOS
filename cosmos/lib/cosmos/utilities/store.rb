@@ -122,7 +122,7 @@ module Cosmos
     end
 
     def get_cmd_item(target_name, packet_name, param_name, type: :WITH_UNITS, scope: $cosmos_scope)
-      msg_id, msg_hash = read_topic_last("#{scope}__DECOMCMD__#{target_name}__#{packet_name}")
+      msg_id, msg_hash = read_topic_last("#{scope}__DECOMCMD__{#{target_name}}__#{packet_name}")
       if msg_id
         # TODO: We now have these reserved items directly on command packets
         # Do we still calculate from msg_hash['time'] or use the times directly?
@@ -161,7 +161,7 @@ module Cosmos
       else
         raise "Unknown value type #{value_type}"
       end
-      redis.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *secondary_keys)
+      redis.hmget("#{scope}__tlm__{#{target_name}__#{packet_name}}", *secondary_keys)
     end
 
     ###########################################################################

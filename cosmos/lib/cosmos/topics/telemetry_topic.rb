@@ -28,7 +28,7 @@ module Cosmos
         packet_name: packet.packet_name,
         received_count: packet.received_count,
         buffer: packet.buffer(false) }
-      Store.write_topic("#{scope}__TELEMETRY__#{packet.target_name}__#{packet.packet_name}", msg_hash)
+      Store.write_topic("#{scope}__TELEMETRY__{#{packet.target_name}}__#{packet.packet_name}", msg_hash)
     end
   end
 end

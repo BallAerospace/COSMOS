@@ -27,7 +27,7 @@ module Cosmos
 
     # Set multiple items in the current value table using the hash
     def self.set(hash, target_name:, packet_name:, scope:)
-      Store.mapped_hmset("#{scope}__tlm__#{target_name}__#{packet_name}", hash)
+      Store.mapped_hmset("#{scope}__tlm__{#{target_name}__#{packet_name}}", hash)
     end
 
     # Set an item in the current value table
@@ -44,7 +44,7 @@ module Cosmos
       else
         raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
       end
-      Store.hset("#{scope}__tlm__#{target_name}__#{packet_name}", field, JSON.generate(value.as_json))
+      Store.hset("#{scope}__tlm__{#{target_name}__#{packet_name}}", field, JSON.generate(value.as_json))
     end
 
     # Get an item from the current value table
@@ -67,7 +67,7 @@ module Cosmos
         raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
       end
 
-      results = Store.hmget("#{scope}__tlm__#{target_name}__#{packet_name}", *types)
+      results = Store.hmget("#{scope}__tlm__{#{target_name}__#{packet_name}}", *types)
       results.each do |result|
         return JSON.parse(result) if result
       end

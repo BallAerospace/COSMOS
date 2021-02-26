@@ -130,7 +130,7 @@ module Cosmos
 
       InterfaceModel.all(scope: scope).each do |name, interface|
         if interface['target_names'].include? target_name
-          Store.write_topic("#{scope}__CMDINTERFACE__#{interface['name']}", inject)
+          Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface['name']}", inject)
         end
       end
     end
@@ -182,7 +182,7 @@ module Cosmos
     def get_tlm_buffer(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       TargetModel.packet(target_name, packet_name, scope: scope)
-      topic = "#{scope}__TELEMETRY__#{target_name}__#{packet_name}"
+      topic = "#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       return msg_hash['buffer'].b if msg_id # Return as binary
       nil
@@ -210,7 +210,7 @@ module Cosmos
         raise "Unknown type '#{type}' for #{target_name} #{packet_name}"
       end
       result_hash = {}
-      topic = "#{scope}__DECOM__#{target_name}__#{packet_name}"
+      topic = "#{scope}__DECOM__{#{target_name}}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       if msg_id
         json = msg_hash['json_data']
@@ -304,7 +304,7 @@ module Cosmos
       result = [Time.now.to_nsec_from_epoch]
       packets.each do |target_name, packet_name|
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
-        result << "#{scope}__DECOM__#{target_name}__#{packet_name}"
+        result << "#{scope}__DECOM__{#{target_name}}__#{packet_name}"
       end
       result.join("\n")
     end
@@ -336,7 +336,7 @@ module Cosmos
     def get_tlm_cnt(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       TargetModel.packet(target_name, packet_name, scope: scope)
-      _get_cnt("#{scope}__TELEMETRY__#{target_name}__#{packet_name}")
+      _get_cnt("#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}")
     end
 
     # Get information on all telemetry packets
@@ -376,7 +376,7 @@ module Cosmos
         TargetModel.packets(target_name, scope: scope).each do |packet|
           item = packet['items'].find { |item| item['name'] == item_name }
           if item
-            _, msg_hash = Store.instance.get_oldest_message("#{scope}__DECOM__#{target_name}__#{packet['packet_name']}")
+            _, msg_hash = Store.instance.get_oldest_message("#{scope}__DECOM__{#{target_name}}__#{packet['packet_name']}")
             if msg_hash && msg_hash['time'] && msg_hash['time'].to_i > latest
               packet_name = packet['packet_name']
               latest = msg_hash['time'].to_i

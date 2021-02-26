@@ -63,7 +63,7 @@ module Cosmos
       end
       targets.each do |target_name|
         get_all_telemetry(target_name, scope: scope).each do |packet|
-          topic = "#{scope}__TELEMETRY__#{target_name}__#{packet['packet_name']}"
+          topic = "#{scope}__TELEMETRY__{#{target_name}}__#{packet['packet_name']}"
           _, msg_hash = Store.get_newest_message(topic)
           unless msg_hash && msg_hash['time'].to_i > stale_time
             next if with_limits_only && packet['items'].find { |item| item['limits'] }.nil?

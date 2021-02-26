@@ -367,14 +367,15 @@ class StreamingThread
   end
 
   def handle_message(topic, msg_id, msg_hash, redis, objects)
+    topic_without_hashtag = topic.gsub(/{|}/, '') # This is technically not correct, but it works since our keys don't have {} in them otherwise
     first_object = objects[0]
     time = msg_hash['time'].to_i
     if @stream_mode == :RAW
-      return handle_raw_packet(msg_hash['buffer'], objects, time, first_object.topic)
+      return handle_raw_packet(msg_hash['buffer'], objects, time, topic_without_hashtag)
     else # @stream_mode == :DECOM
       json_packet = Cosmos::JsonPacket.new(first_object.cmd_or_tlm, first_object.target_name, first_object.packet_name,
         time, Cosmos::ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["json_data"])
-      return handle_json_packet(json_packet, objects, first_object.topic)
+      return handle_json_packet(json_packet, objects, topic_without_hashtag)
     end
   end
 
@@ -598,9 +599,9 @@ class StreamingApi
       @start_time = start_time
       @end_time = end_time
       authorize(permission: @cmd_or_tlm.to_s.downcase, target_name: @target_name, packet_name: @packet_name, scope: scope, token: token)
-      @topic = "#{@scope}__#{type}__#{@target_name}__#{@packet_name}"
+      @topic = "#{@scope}__#{type}__{#{@target_name}}__#{@packet_name}"
       @offset = nil
-      @offset = Cosmos::Store.instance.get_last_offset(topic) unless @start_time
+      @offset = Cosmos::Store.instance.get_last_offset(@topic) unless @start_time
       @thread_id = thread_id
     end
   end

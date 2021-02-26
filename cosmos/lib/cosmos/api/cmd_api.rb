@@ -193,7 +193,7 @@ module Cosmos
     def get_cmd_buffer(target_name, command_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_info', target_name: target_name, packet_name: command_name, scope: scope, token: token)
       TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
-      topic = "#{scope}__COMMAND__#{target_name}__#{command_name}"
+      topic = "#{scope}__COMMAND__{#{target_name}}__#{command_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       return msg_hash['buffer'].b if msg_id # Return as binary
       nil
@@ -333,7 +333,7 @@ module Cosmos
     def get_cmd_cnt(target_name, command_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'system', target_name: target_name, packet_name: command_name, scope: scope, token: token)
       TargetModel.packet(target_name, command_name, type: :CMD, scope: scope)
-      _get_cnt("#{scope}__COMMAND__#{target_name}__#{command_name}")
+      _get_cnt("#{scope}__COMMAND__{#{target_name}}__#{command_name}")
     end
 
     # Get information on all command packets
