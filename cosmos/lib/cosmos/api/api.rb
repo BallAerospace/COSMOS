@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/script/extract'
+require 'cosmos/script/api_shared'
 require 'cosmos/api/cmd_api'
 require 'cosmos/api/config_api'
 require 'cosmos/api/interface_api'
@@ -31,6 +32,7 @@ module Cosmos
   module Api
     include Extract
     include Authorization
+    include ApiShared
 
     # PRIVATE - Shared by cmd_api and tlm_api
 

@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/script/suite'
+require 'cosmos/script/api_shared'
 
 module Cosmos
   # @deprecated Use SkipScript

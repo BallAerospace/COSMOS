@@ -1231,7 +1231,7 @@ class RunningScript
 
     if error.class == DRb::DRbConnError
       Cosmos::Logger.error("Error Connecting to Command and Telemetry Server")
-    elsif error.class == Cosmos::Script::CheckError
+    elsif error.class == Cosmos::CheckError
       Cosmos::Logger.error(error.message)
     else
       Cosmos::Logger.error(error.class.to_s.split('::')[-1] + ' : ' + error.message)

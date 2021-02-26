@@ -44,8 +44,6 @@ class MechGroup < Cosmos::Group
   end
   def test_mech3
     Cosmos::Group.puts "#{Cosmos::Group.current_suite}::#{Cosmos::Group.current_group}::#{Cosmos::Group.current_script}"
-    # TODO: Real scripts don't have to qualify SkipScript with Cosmos::
-    # Why do we have to do it here?
     raise Cosmos::SkipScript, "unimplemented"
   end
   def teardown
