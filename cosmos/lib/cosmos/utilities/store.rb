@@ -164,6 +164,12 @@ module Cosmos
       redis.hmget("#{scope}__tlm__{#{target_name}__#{packet_name}}", *secondary_keys)
     end
 
+    def get_cosmos_microservices()
+      @redis_pool.with do |redis|
+        return redis.hgetall('cosmos_microservices')
+      end
+    end
+
     ###########################################################################
     # Stream APIs
     ###########################################################################

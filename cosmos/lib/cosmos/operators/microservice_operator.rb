@@ -93,8 +93,7 @@ module Cosmos
     def update
       @previous_microservices = @microservices.dup
       # Get all the microservice configuration from Redis
-      @redis ||= Redis.new(url: ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0'))
-      @microservices = @redis.hgetall('cosmos_microservices')
+      @microservices = Store.instance.get_cosmos_microservices
 
       # Detect new and changed microservices
       @new_microservices = {}
