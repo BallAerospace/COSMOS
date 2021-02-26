@@ -317,7 +317,7 @@ class StreamingThread
     # Cosmos::Logger.debug "#{self.class} redis_thread_body topics:#{topics} offsets:#{offsets} objects:#{objects_by_topic}"
     results = []
     if topics.length > 0
-      rtr = Cosmos::Store.instance.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
+      rtr = Cosmos::Store.read_topics(topics, offsets) do |topic, msg_id, msg_hash, redis|
         # Cosmos::Logger.debug "read_topics topic:#{topic} offsets:#{offsets} id:#{msg_id} msg time:#{msg_hash['time']}"
         objects = objects_by_topic[topic]
         objects.each do |object|
@@ -367,7 +367,7 @@ class StreamingThread
   end
 
   def handle_message(topic, msg_id, msg_hash, redis, objects)
-    topic_without_hashtag = topic.gsub(/{|}/, '') # This is technically not correct, but it works since our keys don't have {} in them otherwise
+    topic_without_hashtag = topic.gsub(/{|}/, '') # This removes all curly braces, and we don't allow curly braces in our keys
     first_object = objects[0]
     time = msg_hash['time'].to_i
     if @stream_mode == :RAW
@@ -442,7 +442,7 @@ class LoggedStreamingThread < StreamingThread
     first_object = objects[0]
     if @thread_mode == :SETUP
       # Get the newest message because we only stream if there is data after our start time
-      _, msg_hash_new = Cosmos::Store.instance.get_newest_message(first_object.topic)
+      _, msg_hash_new = Cosmos::Store.get_newest_message(first_object.topic)
       # Cosmos::Logger.debug "first time:#{first_object.start_time} newest:#{msg_hash_new['time']}"
       # Allow 1 minute in the future to account for big time discrepancies, which may be caused by:
       #   - the JavaScript client using the machine's local time, which might not be set with NTP
@@ -450,7 +450,7 @@ class LoggedStreamingThread < StreamingThread
       allowable_start_time = first_object.start_time - ALLOWABLE_START_TIME_OFFSET_NSEC
       if msg_hash_new && msg_hash_new['time'].to_i > allowable_start_time
         # Determine oldest timestamp in stream to determine if we need to go to file
-        msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_object.topic)
+        msg_id, msg_hash = Cosmos::Store.get_oldest_message(first_object.topic)
         oldest_time = msg_hash['time'].to_i
         # Cosmos::Logger.debug "first start time:#{first_object.start_time} oldest:#{oldest_time}"
         if first_object.start_time < oldest_time
@@ -522,7 +522,7 @@ class LoggedStreamingThread < StreamingThread
 
         # Switch to stream from Redis
         # Determine oldest timestamp in stream
-        msg_id, msg_hash = Cosmos::Store.instance.get_oldest_message(first_object.topic)
+        msg_id, msg_hash = Cosmos::Store.get_oldest_message(first_object.topic)
         if msg_hash
           oldest_time = msg_hash['time'].to_i
           # Stream from Redis
@@ -601,7 +601,7 @@ class StreamingApi
       authorize(permission: @cmd_or_tlm.to_s.downcase, target_name: @target_name, packet_name: @packet_name, scope: scope, token: token)
       @topic = "#{@scope}__#{type}__{#{@target_name}}__#{@packet_name}"
       @offset = nil
-      @offset = Cosmos::Store.instance.get_last_offset(@topic) unless @start_time
+      @offset = Cosmos::Store.get_last_offset(@topic) unless @start_time
       @thread_id = thread_id
     end
   end
