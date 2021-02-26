@@ -48,7 +48,7 @@ if "%1" == "dev" (
 
   docker container rm cosmos-aggregator
   docker build -f aggregator/Dockerfile -t cosmos-aggregator aggregator
-  docker run --network cosmos -p 127.0.0.1:3113:3113 -d --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=aggregator.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true --name cosmos-aggregator cosmos-aggregator
+  docker run --network cosmos -p 127.0.0.1:2903:2903 -d --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=aggregator.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true --name cosmos-aggregator cosmos-aggregator
 )
 
 docker volume create cosmos-redis-v
@@ -62,22 +62,26 @@ timeout 30 >nul
 
 docker container rm cosmos-cmd-tlm-api
 docker build -f cmd_tlm_api\Dockerfile -t cosmos-cmd-tlm-api cmd_tlm_api
-docker run --network cosmos -p 127.0.0.1:7777:7777 -d --name cosmos-cmd-tlm-api --env NO_FLUENTD=1 cosmos-cmd-tlm-api
+docker run --network cosmos -p 127.0.0.1:2901:2901 -d --name cosmos-cmd-tlm-api --env NO_FLUENTD=1 cosmos-cmd-tlm-api
 
 docker container rm cosmos-script-runner-api
 docker build -f script_runner_api\Dockerfile -t cosmos-script-runner-api script_runner_api
-docker run --network cosmos -p 127.0.0.1:3001:3001 -d --name cosmos-script-runner-api --env NO_FLUENTD=1 cosmos-script-runner-api
-
-docker container rm cosmos-frontend
-docker build -f frontend\Dockerfile -t cosmos-frontend frontend
-docker run --network cosmos -p 127.0.0.1:8080:80 -d --name cosmos-frontend --env NO_FLUENTD=1 cosmos-frontend
+docker run --network cosmos -p 127.0.0.1:2902:2902 -d --name cosmos-script-runner-api --env NO_FLUENTD=1 cosmos-script-runner-api
 
 docker container rm cosmos-operator
 docker build -f operator\Dockerfile -t cosmos-operator operator
-docker run --network cosmos -d -p 7779:7779 -d --name cosmos-operator --env NO_FLUENTD=1 cosmos-operator
+docker run --network cosmos -d --name cosmos-operator --env NO_FLUENTD=1 cosmos-operator
+
+docker container rm cosmos-traefik
+docker build -f traefik\Dockerfile -t cosmos-traefik traefik
+docker run --network cosmos -p 127.0.0.1:2900:80 -d --name cosmos-traefik --env NO_FLUENTD=1 cosmos-traefik
+
+docker build -f frontend\Dockerfile -t cosmos-frontend-init frontend
+docker container rm cosmos-frontend-init
+docker run --network cosmos --name cosmos-frontend-init --env NO_FLUENTD=1 cosmos-frontend-init
 
 docker build -f init\Dockerfile -t cosmos-init init
 docker container rm cosmos-init
 docker run --network cosmos --name cosmos-init --rm --env NO_FLUENTD=1 cosmos-init
 
-REM "If everything is working you should be able to access Cosmos at http://localhost:8080/"
+REM "If everything is working you should be able to access Cosmos at http://localhost:2900/"

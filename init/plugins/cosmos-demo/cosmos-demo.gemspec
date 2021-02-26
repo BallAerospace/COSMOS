@@ -37,11 +37,9 @@ spec = Gem::Specification.new do |s|
   else
     s.version = '0.0.0' + ".#{time}"
   end
-  s.license = 'GPL-3.0'
+  s.license = 'AGPL-3.0'
 
   s.files = Dir.glob("{targets,lib,procedures,tools,microservices}/**/*") + %w(Rakefile LICENSE.txt README.md plugin.txt)
-
-  s.required_ruby_version = '~> 2.5'
 
   s.add_runtime_dependency 'cosmos'
 end

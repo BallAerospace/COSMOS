@@ -14,4 +14,4 @@ RUN ["bundle", "install", "--quiet"]
 
 EXPOSE 3113
 
-CMD ["rails", "s", "-b", "0.0.0.0", "-p", "3113"]
+CMD ["rails", "s", "-b", "0.0.0.0", "-p", "2903"]
