@@ -616,6 +616,19 @@ module Cosmos
     end
     alias require_utility load_utility
 
+    def disable_instrumentation
+      if defined? RunningScript and RunningScript.instance
+        RunningScript.instance.use_instrumentation = false
+        begin
+          yield
+        ensure
+          RunningScript.instance.use_instrumentation = true
+        end
+      else
+        yield
+      end
+    end
+
     ##########################################
     # Protected Methods
     ##########################################
