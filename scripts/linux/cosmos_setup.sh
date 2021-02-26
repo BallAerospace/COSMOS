@@ -9,7 +9,6 @@
 # This will allow docker to work through local SSL infrastructure such as decryption devices
 
 if [ ! -f cacert.pem ]; then
-
   if [ ! -z "$SSL_CERT_FILE" ]; then
     cp $SSL_CERT_FILE cosmos\cacert.pem
     cp $SSL_CERT_FILE frontend\cacert.pem
@@ -26,13 +25,9 @@ if [ ! -f cacert.pem ]; then
       cp cacert.pem cosmos/cacert.pem
       cp cacert.pem frontend/cacert.pem
     fi
-
   fi
-
 else
-
   echo Using existing cacert.pem
   cp cacert.pem cosmos/cacert.pem
   cp cacert.pem frontend/cacert.pem
-
 fi

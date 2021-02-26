@@ -11,10 +11,20 @@ cert.pem
 cacert.pem
 .idea
 .rubocop-http*
+.nyc_output
 cosmos/spec/install/outputs
 cosmos/spec/examples.txt
 coverage/
 profile/
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Ignore bundler config.
 /.bundle
@@ -36,3 +46,8 @@ profile/
 node_modules
 
 yarn.lock
+
+# Cypress
+cypress/screenshots
+cypress/videos
+cypress/downloads

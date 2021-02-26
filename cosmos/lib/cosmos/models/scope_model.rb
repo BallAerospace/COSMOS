@@ -54,7 +54,12 @@ module Cosmos
         name: microservice_name,
         cmd: ["ruby", "cleanup_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
-        options: [["SIZE", "20000000000"], ["DELAY", "300"], ["BUCKET", "logs"], ["PREFIX", @scope + "/"]],
+        options: [
+          ["SIZE", "20_000_000_000"], # Max Size to keep in S3
+          ["DELAY", "300"], # Delay between size checks
+          ["BUCKET", "logs"], # Bucket to monitor
+          ["PREFIX", @scope + "/"], # Path into bucket to monitor
+        ],
         scope: @scope)
       microservice.create
       microservice.deploy(gem_path, variables)

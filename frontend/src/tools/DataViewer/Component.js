@@ -31,7 +31,9 @@ export default {
   },
   computed: {
     mode: function () {
-      return this.lastReceived && 'buffer' in this.lastReceived
+      return this.lastReceived &&
+        this.lastReceived.length > 0 &&
+        'buffer' in this.lastReceived[0]
         ? 'RAW'
         : 'DECOM'
     },

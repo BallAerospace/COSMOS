@@ -25,13 +25,13 @@ module Cosmos
       # Update settings from config
       @config['options'].each do |option|
         case option[0].upcase
-        when 'SIZE'
+        when 'SIZE' # Max size to use in S3 in bytes
           @size = option[1].to_i
-        when 'DELAY'
+        when 'DELAY' # Delay between size checks
           @delay = option[1].to_i
-        when 'BUCKET'
+        when 'BUCKET' # Which bucket to monitor
           @bucket = option[1]
-        when 'PREFIX'
+        when 'PREFIX' # Path into bucket to monitor
           @prefix = option[1]
         else
           Logger.error("Unknown option passed to microservice #{@name}: #{option}")

@@ -10,6 +10,7 @@ This document describes how to install Cosmos using the cosmos_control and scrip
 - [Build](#Build)
 - [Deploy](#Deploy)
 - [Start Dev](#Start_Dev)
+- [Build Dev](#Build_Dev)
 
 ## Requirements
 
@@ -142,3 +143,22 @@ $ pwd
 /COSMOS/
 $ cosmos_control.sh start_dev
 ```
+
+## Build_Dev
+
+This will setup and build Cosmos but also build fluentd, opendistro elastic, opendistro kibana, prometheus, grafana.
+
+### Windows
+
+```
+> C:\COSMOS>cosmos_control.bat build_dev
+```
+
+### Linux
+
+```
+$ pwd
+/COSMOS/
+$ cosmos_control.sh build_dev
+```
+
