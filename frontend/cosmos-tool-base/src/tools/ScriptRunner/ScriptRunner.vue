@@ -182,7 +182,9 @@
     <PromptDialog
       v-if="prompt.show"
       :title="prompt.title"
+      :subtitle="prompt.subtitle"
       :message="prompt.message"
+      :details="prompt.details"
       :buttons="prompt.buttons"
       :layout="prompt.layout"
       @submit="prompt.callback"
@@ -442,7 +444,9 @@ export default {
       prompt: {
         show: false,
         title: '',
+        subtitle: '',
         message: '',
+        details: '',
         buttons: null,
         layout: 'horizontal',
         callback: () => {},
@@ -692,8 +696,12 @@ export default {
     handleScript(data) {
       this.prompt.method = data.method // Set it here since all prompts use this
       this.prompt.layout = 'horizontal' // Reset the layout since most are horizontal
+      this.prompt.title = 'Prompt'
+      this.prompt.subtitle = ''
+      this.prompt.details = ''
       this.prompt.buttons = [] // Reset buttons so 'Yes', 'No' are used by default
       switch (data.method) {
+        case 'ask':
         case 'ask_string':
           // Reset values since this dialog can be re-used
           this.ask.default = null
@@ -733,17 +741,6 @@ export default {
           }
           this.ask.show = true // Display the dialog
           break
-        case 'prompt_dialog_box':
-          this.prompt.title = data.args[0]
-          this.prompt.message = data.args[1]
-          this.prompt.callback = this.promptDialogCallback
-          if (data.args[2]) {
-            data.args[2].forEach((v) => {
-              this.prompt.buttons.push({ text: v, value: v })
-            })
-          }
-          this.prompt.show = true
-          break
         case 'prompt_for_hazardous':
           this.prompt.title = 'Hazardous Command'
           this.prompt.message =
@@ -759,17 +756,27 @@ export default {
           this.prompt.callback = this.promptDialogCallback
           this.prompt.show = true
           break
-        case 'prompt_to_continue':
-          this.prompt.title = 'Prompt'
+        case 'prompt':
+          if (data.kwargs && data.kwargs.informative) {
+            this.prompt.subtitle = data.kwargs.informative
+          }
+          if (data.kwargs && data.kwargs.details) {
+            this.prompt.details = data.kwargs.details
+          }
           this.prompt.message = data.args[0]
           this.prompt.buttons = [{ text: 'Ok', value: 'Ok' }]
           this.prompt.callback = this.promptDialogCallback
           this.prompt.show = true
           break
-        case 'prompt_combo_box':
-          this.prompt.title = 'Prompt'
+        case 'combo_box':
+          if (data.kwargs && data.kwargs.informative) {
+            this.prompt.subtitle = data.kwargs.informative
+          }
+          if (data.kwargs && data.kwargs.details) {
+            this.prompt.details = data.kwargs.details
+          }
           this.prompt.message = data.args[0]
-          data.args[1].forEach((v) => {
+          data.args.slice(1).forEach((v) => {
             this.prompt.buttons.push({ text: v, value: v })
           })
           this.prompt.combo = true
@@ -777,14 +784,19 @@ export default {
           this.prompt.callback = this.promptDialogCallback
           this.prompt.show = true
           break
-        case 'prompt_message_box':
-        case 'prompt_vertical_message_box':
-          this.prompt.title = 'Prompt'
+        case 'message_box':
+        case 'vertical_message_box':
+          if (data.kwargs && data.kwargs.informative) {
+            this.prompt.subtitle = data.kwargs.informative
+          }
+          if (data.kwargs && data.kwargs.details) {
+            this.prompt.details = data.kwargs.details
+          }
           this.prompt.message = data.args[0]
-          data.args[1].forEach((v) => {
+          data.args.slice(1).forEach((v) => {
             this.prompt.buttons.push({ text: v, value: v })
           })
-          if (data.method === 'prompt_vertical_message_box') {
+          if (data.method.includes('vertical')) {
             this.prompt.layout = 'vertical'
           }
           this.prompt.callback = this.promptDialogCallback

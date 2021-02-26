@@ -41,13 +41,13 @@ module Cosmos
     # open_files_dialog(directory = Cosmos::USERPATH, message = "Open File(s)", filter = "*")
     # open_directory_dialog(directory = Cosmos::USERPATH, message = "Open Directory")
 
-    SCRIPT_METHODS = %i[ask_string prompt_dialog_box prompt_for_hazardous prompt prompt_to_continue combo_box prompt_combo_box message_box prompt_message_box vertical_message_box prompt_vertical_message_box]
+    SCRIPT_METHODS = %i[ask ask_string prompt_for_hazardous prompt combo_box message_box vertical_message_box]
     SCRIPT_METHODS.each do |method|
-      define_method(method) do |*args|
+      define_method(method) do |*args, **kwargs|
         while true
           RunningScript.instance.scriptrunner_puts("#{method}(#{args.join(', ')})")
           # ActionCable.server.broadcast("running-script-channel:#{RunningScript.instance.id}", { type: :script, method: method, args: args })
-          Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :script, method: method, args: args }))
+          Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :script, method: method, args: args, kwargs: kwargs }))
           RunningScript.instance.perform_pause
           input = RunningScript.instance.user_input
           # All ask and prompt dialogs should include a 'Cancel' button to enable break

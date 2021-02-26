@@ -81,7 +81,6 @@ docker container rm cosmos-frontend-init
 docker run --network cosmos --name cosmos-frontend-init --env NO_FLUENTD=1 cosmos-frontend-init
 
 docker build -f init\Dockerfile -t cosmos-init init
-docker container rm cosmos-init
 docker run --network cosmos --name cosmos-init --rm --env NO_FLUENTD=1 cosmos-init
 
 REM "If everything is working you should be able to access Cosmos at http://localhost:2900/"

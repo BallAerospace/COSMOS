@@ -69,7 +69,7 @@ module Cosmos
     def disconnect_script
       $disconnect = true
     end
-    
+
     def play_wav_file(wav_filename)
       # NOOP
     end
@@ -103,20 +103,18 @@ module Cosmos
       return value
     end
 
-    def prompt(string, **options)
-      prompt_to_continue(string, options)
-    end
-
     def message_box(string, *buttons, **options)
-      prompt_message_box(string, buttons, options)
+      print "#{string} (#{buttons.join(", ")}): "
+      print "Details: #{details}\n" if details
+      gets.chomp
     end
 
     def vertical_message_box(string, *buttons, **options)
-      prompt_vertical_message_box(string, buttons, options)
+      message_box(string, *buttons, **options)
     end
 
     def combo_box(string, *items, **options)
-      prompt_combo_box(string, items, options)
+      message_box(string, *items, **options)
     end
 
     def _file_dialog(message, directory, filter, select_files = true)
@@ -170,25 +168,11 @@ module Cosmos
       end
     end
 
-    def prompt_to_continue(string, text_color: nil, background_color: nil, font_size: nil, font_family: nil, details: nil)
+    def prompt(string, text_color: nil, background_color: nil, font_size: nil, font_family: nil, details: nil)
       print "#{string}: "
       print "Details: #{details}\n" if details
       gets.chomp
     end
-
-    def prompt_message_box(string, buttons, text_color: nil, background_color: nil, font_size: nil, font_family: nil, details: nil)
-      print "#{string} (#{buttons.join(", ")}): "
-      print "Details: #{details}\n" if details
-      gets.chomp
-    end
-
-    def prompt_vertical_message_box(string, buttons, options)
-      prompt_message_box(string, buttons, options)
-    end
-
-    def prompt_combo_box(string, items, options)
-      prompt_message_box(string, items, options)
-    end    
   end
 
   # Provides a proxy to the JsonDRbObject which communicates with the API server
