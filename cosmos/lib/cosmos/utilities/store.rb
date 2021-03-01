@@ -179,6 +179,9 @@ module Cosmos
     # Stream APIs
     ###########################################################################
 
+    def self.initialize_streams(topics)
+      self.instance.initialize_streams(topics)
+    end
     def initialize_streams(topics)
       @redis_pool.with do |redis|
         topics.each do |topic|
@@ -188,6 +191,9 @@ module Cosmos
       end
     end
 
+    def self.get_oldest_message(topic)
+      self.instance.get_oldest_message(topic)
+    end
     def get_oldest_message(topic)
       @redis_pool.with do |redis|
         result = redis.xrange(topic, count: 1)
@@ -195,6 +201,9 @@ module Cosmos
       end
     end
 
+    def self.get_newest_message(topic)
+      self.instance.get_newest_message(topic)
+    end
     def get_newest_message(topic)
       @redis_pool.with do |redis|
         result = redis.xrevrange(topic, count: 1)
