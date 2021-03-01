@@ -8,8 +8,6 @@ WORKDIR /src/
 COPY . /src/
 
 # Download and setup COSMOS devel area
-RUN ["gem", "install", "bundler", "--no-document"]
-
 RUN ["bundle", "install", "--quiet"]
 
 EXPOSE 3113

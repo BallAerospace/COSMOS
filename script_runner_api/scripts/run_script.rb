@@ -37,7 +37,6 @@ path = File.join(Script::DEFAULT_BUCKET_NAME, scope, 'targets', name)
 def run_script_log(id, message, color = 'BLACK')
   line_to_write = Time.now.sys.formatted + " (SCRIPTRUNNER): " + message
   RunningScript.message_log.write(line_to_write + "\n", true)
-  # ActionCable.server.broadcast("running-script-channel:#{id}", type: :output, line: line_to_write, color: color)
   Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: color }))
 end
 
@@ -126,7 +125,6 @@ ensure
       end
     end
     Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :complete }))
-    # ActionCable.server.broadcast("running-script-channel:#{id}", type: :complete)
   ensure
     running_script.stop_message_log if running_script
   end

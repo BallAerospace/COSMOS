@@ -31,8 +31,8 @@ require 'cosmos/utilities/authorization'
 module Cosmos
   module Api
     include Extract
-    include ApiShared
     include Authorization
+    include ApiShared
 
     # PRIVATE - Shared by cmd_api and tlm_api
 

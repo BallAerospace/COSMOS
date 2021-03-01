@@ -56,7 +56,7 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
         end
 
         it "passes a new SerialStream to the stream protocol" do
-          # Ensure the 'NONE' parity is coverted to a symbol
+          # Ensure the 'NONE' parity is converted to a symbol
           if @ports
             i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
             expect(i.connected?).to be false

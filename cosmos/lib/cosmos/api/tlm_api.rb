@@ -63,20 +63,19 @@ module Cosmos
       CvtModel.get_item(target_name, packet_name, item_name, type: type.intern, scope: scope)
     end
 
-    # Request a raw telemetry item from a packet.
+    # @deprecated Use tlm with type: :RAW
     def tlm_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
       tlm(*args, type: :RAW)
     end
-    # Request a formatted telemetry item from a packet.
+    # @deprecated Use tlm with type: :FORMATTED
     def tlm_formatted(*args, scope: $cosmos_scope, token: $cosmos_token)
       tlm(*args, type: :FORMATTED)
     end
-    # Request a telemetry item with units from a packet.
+    # @deprecated Use tlm with type: :WITH_UNITS
     def tlm_with_units(*args, scope: $cosmos_scope, token: $cosmos_token)
       tlm(*args, type: :WITH_UNITS)
     end
-    # Request a telemetry item with units from a packet.
-    # @deprecated Use tlm() with type keyword
+    # @deprecated Use tlm with type:
     def tlm_variable(*args, scope: $cosmos_scope, token: $cosmos_token)
       tlm(*args[0..-2], type: args[-1].intern, scope: scope, token: token)
     end
