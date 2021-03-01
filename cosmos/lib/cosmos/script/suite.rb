@@ -17,16 +17,12 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/script/exceptions'
 require 'cosmos/core_ext/stringio'
 require 'cosmos/io/stderr'
 require 'cosmos/io/stdout'
 
 module Cosmos
-  # Error raised when a Script should be stopped
-  class StopScript < StandardError; end
-  # Error raised when a Script should be skipped
-  class SkipScript < StandardError; end
-
   # Base class for Script Runner suites. COSMOS Suites inherit from Suite
   # and can implement setup and teardown methods. Script groups are added via add_group(Group)
   # and individual scripts added via add_script(Group, script_method).

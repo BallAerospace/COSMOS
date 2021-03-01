@@ -43,6 +43,13 @@ class TopicsThread
         thread_body()
         break if @cancel_thread
       end
+    rescue Redis::CommandError => err
+      Cosmos::Logger.error "#{self.class.name} Redis::CommandError\n#{err.formatted}"
+      # If we're loading then Redis is just not ready yet so retry
+      if err.message.include?("LOADING")
+        sleep 5
+        retry
+      end
     rescue => err
       Cosmos::Logger.error "#{self.class.name} unexpectedly died\n#{err.formatted}"
     ensure

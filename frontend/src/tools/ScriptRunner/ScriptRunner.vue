@@ -46,7 +46,7 @@
               data-test="filename"
             ></v-text-field>
             <v-text-field
-              class="shrink ml-2"
+              class="shrink ml-2 script-state"
               style="width: 120px"
               outlined
               dense
@@ -428,6 +428,7 @@ export default {
       subscription: null,
       cable: null,
       marker: null,
+      fatal: false,
       search: '',
       messages: [],
       headers: [{ text: 'Message', value: 'message' }],
@@ -565,6 +566,8 @@ export default {
       this.startOrGoDisabled = this.suiteRunner
       this.pauseOrRetryDisabled = true
       this.stopDisabled = true
+      this.fatal = false
+      this.marker = null
       this.editor.setReadOnly(false)
       // Delete the temp file created as a result of saving a NEW file
       if (this.tempFilename) {
@@ -617,9 +620,16 @@ export default {
       }
     },
     stop() {
-      axios.post(
-        'http://localhost:3001/running-script/' + this.scriptId + '/stop'
-      )
+      // We previously encountered a fatal error so remove the marker
+      // and cleanup by calling scriptComplete()
+      if (this.fatal) {
+        this.editor.session.removeMarker(this.marker)
+        this.scriptComplete()
+      } else {
+        axios.post(
+          'http://localhost:3001/running-script/' + this.scriptId + '/stop'
+        )
+      }
     },
     step() {
       axios.post(
@@ -639,7 +649,7 @@ export default {
               this.current_filename = data.filename
             }
           }
-          if (this.marker) {
+          if (this.marker && !this.fatal) {
             this.editor.session.removeMarker(this.marker)
           }
           var marker = null
@@ -663,6 +673,9 @@ export default {
               break
             case 'fatal':
               marker = 'fatalMarker'
+              this.fatal = true
+              this.startOrGoDisabled = true
+              this.pauseOrRetryDisabled = true
               break
             default:
               marker = null
@@ -692,7 +705,10 @@ export default {
           this.scriptResults = data.report
           break
         case 'complete':
-          this.scriptComplete()
+          // Don't complete on fatal because we just sit there on the fatal line
+          if (!this.fatal) {
+            this.scriptComplete()
+          }
         default:
           // console.log('Unexpected ActionCable message')
           // console.log(data)
@@ -1045,6 +1061,9 @@ hr {
   height: 3px;
   width: 5%;
   margin: auto;
+}
+.script-state >>> input {
+  text-transform: capitalize;
 }
 </style>
 <style>
