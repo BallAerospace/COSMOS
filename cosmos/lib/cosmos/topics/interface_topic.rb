@@ -23,9 +23,9 @@ module Cosmos
   class InterfaceTopic < Topic
     def self.receive_commands(interface, scope:)
       topics = []
-      topics << "#{scope}__CMDINTERFACE__#{interface.name}"
+      topics << "{#{scope}__CMD}INTERFACE__#{interface.name}"
       interface.target_names.each do |target_name|
-        topics << "#{scope}__CMDTARGET__#{target_name}"
+        topics << "{#{scope}__CMD}TARGET__#{target_name}"
       end
       while true
         Store.read_topics(topics) do |topic, msg_id, msg_hash, redis|
@@ -39,23 +39,23 @@ module Cosmos
     end
 
     def self.write_raw(interface_name, data, scope:)
-      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", { 'raw' => data })
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'raw' => data })
     end
 
     def self.connect_interface(interface_name, scope:)
-      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", { 'connect' => 'true' })
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'connect' => 'true' })
     end
 
     def self.disconnect_interface(interface_name, scope:)
-      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", { 'disconnect' => 'true' })
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'disconnect' => 'true' })
     end
 
     def self.start_raw_logging(interface_name, scope:)
-      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", { 'log_raw' => 'true' })
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'log_raw' => 'true' })
     end
 
     def self.stop_raw_logging(interface_name, scope:)
-      Store.write_topic("#{scope}__CMDINTERFACE__#{interface_name}", { 'log_raw' => 'false' })
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'log_raw' => 'false' })
     end
   end
 end

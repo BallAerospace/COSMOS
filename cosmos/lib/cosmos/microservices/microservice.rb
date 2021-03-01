@@ -124,6 +124,9 @@ module Cosmos
           MicroserviceStatusModel.set(as_json(), scope: @scope) unless @cancel_thread
           break if @microservice_sleeper.sleep(@microservice_status_period_seconds)
         end
+      rescue Exception => err
+        Logger.error "#{@name} status thread died: #{err.formatted}"
+        raise err
       end
     end
 

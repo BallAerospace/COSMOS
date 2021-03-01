@@ -230,11 +230,11 @@ module Cosmos
         Store.hdel("#{@scope}__limits_groups", group)
       end
       self.class.packets(@name, type: :CMD, scope: @scope).each do |packet|
-        Store.del("#{@scope}__COMMAND__#{@name}__#{packet['packet_name']}")
+        Store.del("#{@scope}__COMMAND__{#{@name}}__#{packet['packet_name']}")
       end
       self.class.packets(@name, scope: @scope).each do |packet|
-        Store.del("#{@scope}__TELEMETRY__#{@name}__#{packet['packet_name']}")
-        Store.del("#{@scope}__DECOM__#{@name}__#{packet['packet_name']}")
+        Store.del("#{@scope}__TELEMETRY__{#{@name}}__#{packet['packet_name']}")
+        Store.del("#{@scope}__DECOM__{#{@name}}__#{packet['packet_name']}")
         LimitsEventTopic.delete(@name, packet['packet_name'], scope: @scope)
       end
       Store.del("#{@scope}__cosmostlm__#{@name}")
@@ -341,15 +341,15 @@ module Cosmos
       decom_topic_list = []
       begin
         system.commands.packets(@name).each do |packet_name, packet|
-          command_topic_list << "#{@scope}__COMMAND__#{@name}__#{packet_name}"
+          command_topic_list << "#{@scope}__COMMAND__{#{@name}}__#{packet_name}"
         end
       rescue
         # No command packets for this target
       end
       begin
         system.telemetry.packets(@name).each do |packet_name, packet|
-          packet_topic_list << "#{@scope}__TELEMETRY__#{@name}__#{packet_name}"
-          decom_topic_list << "#{@scope}__DECOM__#{@name}__#{packet_name}"
+          packet_topic_list << "#{@scope}__TELEMETRY__{#{@name}}__#{packet_name}"
+          decom_topic_list << "#{@scope}__DECOM__{#{@name}}__#{packet_name}"
         end
       rescue
         # No telemetry packets for this target

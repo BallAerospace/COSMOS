@@ -52,7 +52,7 @@ module Cosmos
     def run
       InterfaceTopic.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
         # Check for a raw write to the interface
-        if topic =~ /CMDINTERFACE/
+        if topic =~ /CMD}INTERFACE/
           if msg_hash['connect']
             Logger.info "#{@interface.name}: Connect requested"
             @tlm.attempting()
@@ -173,7 +173,7 @@ module Cosmos
     def run
       RouterTopic.receive_telemetry(@router, scope: @scope) do |topic, msg_hash|
         # Check for commands to the router itself
-        if /CMDROUTER/.match?(topic)
+        if /CMD}ROUTER/.match?(topic)
           if msg_hash['connect']
             Logger.info "#{@router.name}: Connect requested"
             @tlm.attempting()

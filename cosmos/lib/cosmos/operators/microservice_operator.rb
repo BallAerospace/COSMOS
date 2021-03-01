@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos'
+require 'cosmos/models/microservice_model'
 require 'cosmos/operators/operator'
 require 'cosmos/utilities/s3'
 require 'redis'
@@ -40,10 +41,9 @@ module Cosmos
     end
 
     def convert_microservice_to_process_definition(microservice_name, microservice_config)
-      microservice_config_parsed = JSON.parse(microservice_config)
-      work_dir = microservice_config_parsed["work_dir"]
-      cmd_array = microservice_config_parsed["cmd"]
-      env = microservice_config_parsed["env"]
+      work_dir = microservice_config["work_dir"]
+      cmd_array = microservice_config["cmd"]
+      env = microservice_config["env"]
       scope = microservice_name.split("__")[0]
 
       # Get Microservice files from S3
@@ -92,9 +92,8 @@ module Cosmos
 
     def update
       @previous_microservices = @microservices.dup
-      # Get all the microservice configuration from Redis
-      @redis ||= Redis.new(url: ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0'))
-      @microservices = @redis.hgetall('cosmos_microservices')
+      # Get all the microservice configuration
+      @microservices = MicroserviceModel.all
 
       # Detect new and changed microservices
       @new_microservices = {}

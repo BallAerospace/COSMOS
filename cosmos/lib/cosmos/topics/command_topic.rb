@@ -25,7 +25,7 @@ module Cosmos
     COMMAND_ACK_RETRY_MS = 250 # How much time to wait between ACK checks
 
     def self.write_packet(packet, scope:)
-      topic = "#{scope}__COMMAND__#{packet.target_name}__#{packet.packet_name}"
+      topic = "#{scope}__COMMAND__{#{packet.target_name}}__#{packet.packet_name}"
       msg_hash = { time: packet.received_time.to_nsec_from_epoch,
                   target_name: packet.target_name,
                   packet_name: packet.packet_name,
@@ -36,12 +36,12 @@ module Cosmos
 
     # @param command [Hash] Command hash structure read to be written to a topic
     def self.send_command(command, scope:)
-      ack_topic = "#{scope}__ACKCMDTARGET__#{command['target_name']}"
+      ack_topic = "{#{scope}__ACKCMD}TARGET__#{command['target_name']}"
       Store.update_topic_offsets([ack_topic])
       # Save the existing cmd_params Hash and JSON generate before writing to the topic
       cmd_params = command['cmd_params']
       command['cmd_params'] = JSON.generate(command['cmd_params'].as_json)
-      cmd_id = Store.write_topic("#{scope}__CMDTARGET__#{command['target_name']}", command)
+      cmd_id = Store.write_topic("{#{scope}__CMD}TARGET__#{command['target_name']}", command)
       # TODO: This timeout is fine for most but can we get the write_timeout from the interface here?
       (COMMAND_ACK_TIMEOUT_MS / COMMAND_ACK_RETRY_MS).times do
         Topic.read_topics([ack_topic]) do |topic, msg_id, msg_hash, redis|
