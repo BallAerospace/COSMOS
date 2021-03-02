@@ -401,8 +401,9 @@ module Cosmos
       microservice = MicroserviceModel.new(
         name: microservice_name,
         folder_name: @folder_name,
-        cmd: ["ruby", "command_log_microservice.rb", microservice_name],
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
+        options: ["RAW", "CMD"],
         topics: command_topic_list,
         target_names: [@name],
         plugin: plugin,
@@ -416,8 +417,9 @@ module Cosmos
       microservice = MicroserviceModel.new(
         name: microservice_name,
         folder_name: @folder_name,
-        cmd: ["ruby", "decom_cmd_log_microservice.rb", microservice_name],
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
+        options: ["DECOM", "CMD"],
         topics: decom_command_topic_list,
         target_names: [@name],
         plugin: plugin,
@@ -431,8 +433,9 @@ module Cosmos
       microservice = MicroserviceModel.new(
         name: microservice_name,
         folder_name: @folder_name,
-        cmd: ["ruby", "packet_log_microservice.rb", microservice_name],
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
+        options: ["RAW", "TLM"],
         topics: packet_topic_list,
         target_names: [@name],
         plugin: plugin,
@@ -446,8 +449,9 @@ module Cosmos
       microservice = MicroserviceModel.new(
         name: microservice_name,
         folder_name: @folder_name,
-        cmd: ["ruby", "decom_log_microservice.rb", microservice_name],
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
+        options: ["DECOM", "TLM"],
         topics: decom_topic_list,
         target_names: [@name],
         plugin: plugin,
