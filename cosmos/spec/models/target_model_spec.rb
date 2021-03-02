@@ -385,6 +385,12 @@ module Cosmos
                                                           name: "#{@scope}__CVT__#{@target}")
         ).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
+                                                          name: "#{@scope}__COMMANDLOG__#{@target}")
+        ).and_return(umodel)
+        expect(MicroserviceModel).to receive(:new).with(hash_including(
+                                                          name: "#{@scope}__DECOMCMDLOG__#{@target}")
+        ).and_return(umodel)
+        expect(MicroserviceModel).to receive(:new).with(hash_including(
                                                           name: "#{@scope}__PACKETLOG__#{@target}")
         ).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(

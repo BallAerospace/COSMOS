@@ -244,6 +244,10 @@ module Cosmos
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__CVT__#{@name}", scope: @scope)
       model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__COMMANDLOG__#{@name}", scope: @scope)
+      model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__DECOMCMDLOG__#{@name}", scope: @scope)
+      model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__PACKETLOG__#{@name}", scope: @scope)
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__DECOMLOG__#{@name}", scope: @scope)
@@ -337,11 +341,13 @@ module Cosmos
 
     def deploy_microservices(gem_path, variables, system)
       command_topic_list = []
+      decom_command_topic_list = []
       packet_topic_list = []
       decom_topic_list = []
       begin
         system.commands.packets(@name).each do |packet_name, packet|
           command_topic_list << "#{@scope}__COMMAND__{#{@name}}__#{packet_name}"
+          decom_command_topic_list << "#{@scope}__DECOMCMD__{#{@name}}__#{packet_name}"
         end
       rescue
         # No command packets for this target
@@ -356,6 +362,7 @@ module Cosmos
       end
       # It's ok to call this with an empty array
       Store.initialize_streams(command_topic_list)
+      Store.initialize_streams(decom_command_topic_list)
       # Might as well return if there are no packets
       return unless packet_topic_list.length > 0
       Store.initialize_streams(packet_topic_list)
@@ -383,6 +390,36 @@ module Cosmos
         cmd: ["ruby", "cvt_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
         topics: decom_topic_list,
+        plugin: plugin,
+        scope: @scope)
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
+
+      # CommandLog Microservice
+      microservice_name = "#{@scope}__COMMANDLOG__#{@name}"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        folder_name: @folder_name,
+        cmd: ["ruby", "command_log_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        topics: command_topic_list,
+        target_names: [@name],
+        plugin: plugin,
+        scope: @scope)
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
+
+      # DecomCmdLog Microservice
+      microservice_name = "#{@scope}__DECOMCMDLOG__#{@name}"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        folder_name: @folder_name,
+        cmd: ["ruby", "decom_cmd_log_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        topics: decom_command_topic_list,
+        target_names: [@name],
         plugin: plugin,
         scope: @scope)
       microservice.create
