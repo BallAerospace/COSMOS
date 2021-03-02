@@ -263,7 +263,7 @@ class Time
 
   # @return [String] Date formatted as YYYYMMDDHHmmSSNNNNNNNNN
   def to_timestamp
-    self.strftime("%Y%m%d%H%M%S%9N")
+    self.strftime("%Y%m%d%H%M%S%N")
   end
 
   # @param time [Time]

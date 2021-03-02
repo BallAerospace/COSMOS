@@ -60,7 +60,7 @@ module Cosmos
       target_name = topic_split[2]
       packet_name = topic_split[3]
       rt_or_stored = ConfigParser.handle_true_false(msg_hash["stored"]) ? :STORED : :RT
-      plws[topic][rt_or_stored].write(:RAW_PACKET, :CMD, target_name, packet_name, msg_hash["time"].to_i, rt_or_stored == :STORED, msg_hash["buffer"], nil)
+      plws[topic][rt_or_stored].write(:RAW_PACKET, :CMD, target_name, packet_name, msg_hash["time"].to_i, rt_or_stored == :STORED, msg_hash["buffer"], nil, msg_id)
       @count += 1
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
       metric_labels = { "packet" => packet_name, "target" => target_name }
