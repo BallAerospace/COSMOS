@@ -58,7 +58,7 @@ module Cosmos
       @im = InterfaceMicroservice.new("DEFAULT__INTERFACE__INST_INT")
       @im_thread = Thread.new { @im.run }
 
-      model = MicroserviceModel.new(name: "DEFAULT__DECOM__INST_INT", scope: "DEFAULT", topics: ["DEFAULT__TELEMETRY__INST__HEALTH_STATUS"])
+      model = MicroserviceModel.new(name: "DEFAULT__DECOM__INST_INT", scope: "DEFAULT", topics: ["DEFAULT__TELEMETRY__{INST}__HEALTH_STATUS"])
       model.create
       @dm = DecomMicroservice.new("DEFAULT__DECOM__INST_INT")
       @dm_thread = Thread.new { @dm.run }

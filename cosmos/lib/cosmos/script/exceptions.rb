@@ -17,18 +17,11 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos/topics/topic'
-
 module Cosmos
-  class TelemetryTopic < Topic
-    def self.write_packet(packet, scope:)
-      msg_hash = { time: packet.received_time.to_nsec_from_epoch,
-        stored: packet.stored,
-        target_name: packet.target_name,
-        packet_name: packet.packet_name,
-        received_count: packet.received_count,
-        buffer: packet.buffer(false) }
-      Store.write_topic("#{scope}__TELEMETRY__{#{packet.target_name}}__#{packet.packet_name}", msg_hash)
-    end
-  end
+  # Error raised by the API when a check fails
+  class CheckError < StandardError; end
+  # Error raised by the API when a script should be stopped
+  class StopScript < StandardError; end
+  # Error raised by the API when a case should be skipped
+  class SkipScript < StandardError; end
 end

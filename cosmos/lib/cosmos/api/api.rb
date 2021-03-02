@@ -31,8 +31,8 @@ require 'cosmos/utilities/authorization'
 module Cosmos
   module Api
     include Extract
-    include ApiShared
     include Authorization
+    include ApiShared
 
     # PRIVATE - Shared by cmd_api and tlm_api
 
@@ -52,7 +52,7 @@ module Cosmos
         break if count.to_i == 0
       end
       keys.each do |key|
-        _, _, target, packet = key.split('__') # split off scope and type
+        _, _, target, packet = key.gsub(/{|}/, '').split('__') # split off scope and type
         result << [target, packet, _get_cnt(key)]
       end
       # Return the results sorted by target, packet

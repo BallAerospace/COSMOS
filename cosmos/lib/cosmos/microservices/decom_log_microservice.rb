@@ -40,7 +40,7 @@ module Cosmos
     def setup_plws
       plws = {}
       @topics.each do |topic|
-        topic_split = topic.split("__")
+        topic_split = topic.gsub(/{|}/, '').split("__") # Remove the redis hashtag curly braces
         scope = topic_split[0]
         target_name = topic_split[2]
         packet_name = topic_split[3]
@@ -56,7 +56,7 @@ module Cosmos
 
     def decom_log_data(plws, topic, msg_id, msg_hash, redis)
       start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      topic_split = topic.split("__")
+      topic_split = topic.gsub(/{|}/, '').split("__") # Remove the redis hashtag curly braces
       target_name = topic_split[2]
       packet_name = topic_split[3]
 

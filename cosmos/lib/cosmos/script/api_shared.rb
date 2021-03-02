@@ -17,93 +17,74 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-module Cosmos
-  # Error raised by the API when a check fails
-  class CheckError < RuntimeError; end
+require 'cosmos/script/extract'
 
+module Cosmos
   module ApiShared
+    include Extract
+
     DEFAULT_TLM_POLLING_RATE = 0.25
 
     private
-    # Creates a string with the parameters upcased
-    def _upcase(target_name, packet_name, item_name)
-      "#{target_name.upcase} #{packet_name.upcase} #{item_name.upcase}"
-    end
-
-    # Implementaton of the various check commands. It yields back to the
-    # caller to allow the return of the value through various telemetry calls.
-    # This method should not be called directly by application code.
-    def _check(*args, scope: $cosmos_scope, token: $cosmos_token)
-      target_name, packet_name, item_name, comparison_to_eval = check_process_args(args, 'check', scope: scope, token: token)
-
-      value = yield(target_name, packet_name, item_name)
-      if comparison_to_eval
-        check_eval(target_name, packet_name, item_name, comparison_to_eval, value, scope: scope)
-      else
-        Logger.info "CHECK: #{_upcase(target_name, packet_name, item_name)} == #{value}"
-      end
-    end
-
-    # Check the converted value of a telmetry item against a condition
-    # Always print the value of the telemetry item to STDOUT
-    # If the condition check fails, raise an error
+    # Check the converted value of a telmetry item against a condition.
+    # Always print the value of the telemetry item to STDOUT.
+    # If the condition check fails, raise an error.
+    #
     # Supports two signatures:
     # check(target_name, packet_name, item_name, comparison_to_eval)
-    # or
     # check('target_name packet_name item_name > 1')
-    def check(*args, scope: $cosmos_scope, token: $cosmos_token)
-      _check(*args, scope: scope) {|tgt,pkt,item| tlm(tgt,pkt,item,scope: scope,token: token) }
+    #
+    # @param args [String|Array<String>] See the description for calling style
+    # @param type [Symbol] Telemetry type, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
+    def check(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
+      _check(*args, scope: scope) { |tgt, pkt, item| tlm(tgt, pkt, item, type: type, scope: scope, token: token) }
     end
 
-    # Check the formatted value of a telmetry item against a condition
-    # Always print the value of the telemetry item to STDOUT
-    # If the condition check fails, raise an error
-    # Supports two signatures:
-    # check(target_name, packet_name, item_name, comparison_to_eval)
-    # or
-    # check('target_name packet_name item_name > 1')
-    def check_formatted(*args, scope: $cosmos_scope, token: $cosmos_token)
-      _check(*args, scope: scope) {|tgt,pkt,item| tlm_formatted(tgt,pkt,item,scope: scope,token: token) }
-    end
-
-    # Check the formatted with units value of a telmetry item against a condition
-    # Always print the value of the telemetry item to STDOUT
-    # If the condition check fails, raise an error
-    # Supports two signatures:
-    # check(target_name, packet_name, item_name, comparison_to_eval)
-    # or
-    # check('target_name packet_name item_name > 1')
-    def check_with_units(*args, scope: $cosmos_scope, token: $cosmos_token)
-      _check(*args, scope: scope) {|tgt,pkt,item| tlm_with_units(tgt,pkt,item,scope: scope,token: token) }
-    end
-
-    # Check the raw value of a telmetry item against a condition
-    # Always print the value of the telemetry item to STDOUT
-    # If the condition check fails, raise an error
-    # Supports two signatures:
-    # check(target_name, packet_name, item_name, comparison_to_eval)
-    # or
-    # check('target_name packet_name item_name > 1')
+    # @deprecated Use check with type: :RAW
     def check_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      _check(*args, scope: scope) {|tgt,pkt,item| tlm_raw(tgt,pkt,item,scope: scope, token: token) }
+      check(*args, type: :RAW, scope: scope, token: token)
+    end
+    # @deprecated Use check with type: :FORMATTED
+    def check_formatted(*args, scope: $cosmos_scope, token: $cosmos_token)
+      check(*args, type: :FORMATTED, scope: scope, token: token)
+    end
+    # @deprecated Use check with type: :WITH_UNITS
+    def check_with_units(*args, scope: $cosmos_scope, token: $cosmos_token)
+      check(*args, type: :WITH_UNITS, scope: scope, token: token)
     end
 
     # Executes the passed method and expects an exception to be raised.
     # Raises a CheckError if an Exception is not raised.
     # Usage:
     #   check_exception(method_name, method_params}
-    def check_exception(method_name, *method_params, scope: $cosmos_scope, token: $cosmos_token)
-      send(method_name, *method_params, scope: scope, token: token)
+    def check_exception(method_name, *args, **kwargs)
+      orig_kwargs = kwargs.clone
+      kwargs[:scope] = $cosmos_scope unless kwargs[:scope]
+      kwargs[:token] = $cosmos_token unless kwargs[:token]
+      send(method_name.intern, *args, **kwargs)
+      method = "#{method_name}(#{args.join(", ")}"
+      method += ", #{orig_kwargs}" unless orig_kwargs.empty?
+      method += ")"
     rescue Exception => error
-      Logger.info "CHECK: #{method_name}(#{method_params.join(", ")}) raised #{error.class}:#{error.message}"
+      Logger.info "CHECK: #{method} raised #{error.class}:#{error.message}"
     else
-      raise(CheckError, "#{method_name}(#{method_params.join(", ")}) should have raised an exception but did not.")
+      raise(CheckError, "#{method} should have raised an exception but did not.")
     end
 
-    def _check_tolerance(*args, scope: $cosmos_scope, token: $cosmos_token)
+    # Check the converted value of a telmetry item against an expected value with a tolerance.
+    # Always print the value of the telemetry item to STDOUT. If the condition check fails, raise an error.
+    #
+    # Supports two signatures:
+    # check_tolerance(target_name, packet_name, item_name, expected_value, tolerance)
+    # check_tolerance('target_name packet_name item_name', expected_value, tolerance)
+    #
+    # @param args [String|Array<String>] See the description for calling style
+    # @param type [Symbol] Telemetry type, :RAW or :CONVERTED (default)
+    def check_tolerance(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
+      raise "Invalid type '#{type}' for check_tolerance" unless %i(RAW CONVERTED).include?(type)
       target_name, packet_name, item_name, expected_value, tolerance =
-        check_tolerance_process_args(args, 'check_tolerance', scope: scope, token: token)
-      value = yield(target_name, packet_name, item_name)
+        _check_tolerance_process_args(args, scope: scope, token: token)
+      value = tlm(target_name, packet_name, item_name, type: type, scope: scope, token: token)
       if value.is_a?(Array)
         expected_value, tolerance = array_tolerance_process_args(value.size, expected_value, tolerance, 'check_tolerance', scope: scope, token: token)
 
@@ -147,26 +128,9 @@ module Cosmos
       end
     end
 
-    # Check the converted value of a telmetry item against an expected value with a tolerance
-    # Always print the value of the telemetry item to STDOUT
-    # If the condition check fails, raise an error
-    # Supports two signatures:
-    # check_tolerance(target_name, packet_name, item_name, expected_value, tolerance)
-    # or
-    # check_tolerance('target_name packet_name item_name', expected_value, tolerance)
-    def check_tolerance(*args, scope: $cosmos_scope, token: $cosmos_token)
-      _check_tolerance(*args, scope: scope) {|tgt,pkt,item| tlm(tgt,pkt,item, scope: scope, token: token) }
-    end
-
-    # Check the raw value of a telmetry item against an expected value with a tolerance
-    # Always print the value of the telemetry item to STDOUT
-    # If the condition check fails, raise an error
-    # Supports two signatures:
-    # check_tolerance_raw(target_name, packet_name, item_name, expected_value, tolerance)
-    # or
-    # check_tolerance_raw('target_name packet_name item_name', expected_value, tolerance)
+    # @deprecated Use check_tolerance with type: :RAW
     def check_tolerance_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      _check_tolerance(*args, scope: scope) {|tgt,pkt,item| tlm_raw(tgt,pkt,item, scope: scope, token: token) }
+      check_tolerance(*args, type: :RAW, scope: scope, token: token)
     end
 
     # Check to see if an expression is true without waiting.  If the expression
@@ -185,33 +149,89 @@ module Cosmos
       end
     end
 
-    # Wait on an expression to be true.  On a timeout, the script will continue.
+    # Wait on an expression to be true. On a timeout, the script will continue.
+    #
     # Supports multiple signatures:
     # wait(time)
     # wait('target_name packet_name item_name > 1', timeout, polling_rate)
     # wait('target_name', 'packet_name', 'item_name', comparison_to_eval, timeout, polling_rate)
-    def wait(*args, scope: $cosmos_scope, token: $cosmos_token)
-      wait_process_args(args, 'wait', :CONVERTED, scope: scope, token: token)
+    #
+    # @param args [String|Array<String>] See the description for calling style
+    # @param type [Symbol] Telemetry type, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
+    def wait(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
+      time = nil
+
+      case args.length
+      # wait() # indefinitely until they click Go
+      when 0
+        start_time = Time.now.sys
+        cosmos_script_sleep()
+        time = Time.now.sys - start_time
+        Logger.info("WAIT: Indefinite for actual time of #{time} seconds")
+
+      # wait(5) # absolute wait time
+      when 1
+        if args[0].kind_of? Numeric
+          start_time = Time.now.sys
+          cosmos_script_sleep(args[0])
+          time = Time.now.sys - start_time
+          Logger.info("WAIT: #{args[0]} seconds with actual time of #{time} seconds")
+        else
+          raise "Non-numeric wait time specified"
+        end
+
+      # wait('target_name packet_name item_name > 1', timeout, polling_rate) # polling_rate is optional
+      when 2, 3
+        target_name, packet_name, item_name, comparison_to_eval = extract_fields_from_check_text(args[0])
+        timeout = args[1]
+        if args.length == 3
+          polling_rate = args[2]
+        else
+          polling_rate = DEFAULT_TLM_POLLING_RATE
+        end
+        _execute_wait(target_name, packet_name, item_name, type, comparison_to_eval, timeout, polling_rate, scope: scope, token: token)
+
+      # wait('target_name', 'packet_name', 'item_name', comparison_to_eval, timeout, polling_rate) # polling_rate is optional
+      when 5, 6
+        target_name = args[0]
+        packet_name = args[1]
+        item_name = args[2]
+        comparison_to_eval = args[3]
+        timeout = args[4]
+        if args.length == 6
+          polling_rate = args[5]
+        else
+          polling_rate = DEFAULT_TLM_POLLING_RATE
+        end
+        _execute_wait(target_name, packet_name, item_name, type, comparison_to_eval, timeout, polling_rate, scope: scope, token: token)
+
+      else
+        # Invalid number of arguments
+        raise "ERROR: Invalid number of arguments (#{args.length}) passed to wait()"
+      end
+      time
     end
 
-    # Wait on an expression to be true.  On a timeout, the script will continue.
-    # Supports multiple signatures:
-    # wait(time)
-    # wait_raw('target_name packet_name item_name > 1', timeout, polling_rate)
-    # wait_raw('target_name', 'packet_name', 'item_name', comparison_to_eval, timeout, polling_rate)
+    # @deprecated Use wait with type: :RAW
     def wait_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      wait_process_args(args, 'wait_raw', :RAW, scope: scope, token: token)
+      wait(*args, type: :RAW, scope: scope, token: token)
     end
 
-    def _wait_tolerance(raw, *args, scope: $cosmos_scope, token: $cosmos_token)
-      type = (raw ? :RAW : :CONVERTED)
-      type_string = 'wait_tolerance'
-      type_string << '_raw' if raw
-      target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = wait_tolerance_process_args(args, type_string, scope: scope, token: token)
+    # Wait on an expression to be true. On a timeout, the script will continue.
+    #
+    # Supports two signatures:
+    # wait_tolerance('target_name packet_name item_name', expected_value, tolerance, timeout, polling_rate)
+    # wait_tolerance('target_name', 'packet_name', 'item_name', expected_value, tolerance, timeout, polling_rate)
+    #
+    # @param args [String|Array<String>] See the description for calling style
+    # @param type [Symbol] Telemetry type, :RAW or :CONVERTED (default)
+    def wait_tolerance(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
+      raise "Invalid type '#{type}' for wait_tolerance" unless %i(RAW CONVERTED).include?(type)
+      target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = _wait_tolerance_process_args(args, scope: scope, token: token)
       start_time = Time.now.sys
-      value = tlm_variable(target_name, packet_name, item_name, type, scope: scope, token: token)
+      value = tlm(target_name, packet_name, item_name, type: type, scope: scope, token: token)
       if value.is_a?(Array)
-        expected_value, tolerance = array_tolerance_process_args(value.size, expected_value, tolerance, type_string, scope: scope, token: token)
+        expected_value, tolerance = array_tolerance_process_args(value.size, expected_value, tolerance, 'wait_tolerance', scope: scope, token: token)
 
         success, value = cosmos_script_wait_implementation_array_tolerance(value.size, target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate, scope: scop, token: token)
         time = Time.now.sys - start_time
@@ -248,20 +268,9 @@ module Cosmos
       time
     end
 
-    # Wait on an expression to be true.  On a timeout, the script will continue.
-    # Supports multiple signatures:
-    # wait_tolerance('target_name packet_name item_name', expected_value, tolerance, timeout, polling_rate)
-    # wait_tolerance('target_name', 'packet_name', 'item_name', expected_value, tolerance, timeout, polling_rate)
-    def wait_tolerance(*args, scope: $cosmos_scope, token: $cosmos_token)
-      _wait_tolerance(false, *args, scope: scope, token: token)
-    end
-
-    # Wait on an expression to be true.  On a timeout, the script will continue.
-    # Supports multiple signatures:
-    # wait_tolerance_raw('target_name packet_name item_name', expected_value, tolerance, timeout, polling_rate)
-    # wait_tolerance_raw('target_name', 'packet_name', 'item_name', expected_value, tolerance, timeout, polling_rate)
+    # @deprecated Use wait_tolerance with type: :RAW
     def wait_tolerance_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      _wait_tolerance(true, *args, scope: scope, token: token)
+      wait_tolerance(*args, type: :RAW, scope: scope, token: token)
     end
 
     # Wait on a custom expression to be true
@@ -277,9 +286,17 @@ module Cosmos
       time
     end
 
-    def _wait_check(raw, *args, scope: $cosmos_scope, token: $cosmos_token)
-      type = (raw ? :RAW : :CONVERTED)
-      target_name, packet_name, item_name, comparison_to_eval, timeout, polling_rate = wait_check_process_args(args, 'wait_check', scope: scope, token: token)
+    # Wait for the converted value of a telmetry item against a condition or for a timeout
+    # and then check against the condition.
+    #
+    # Supports two signatures:
+    # wait_check(target_name, packet_name, item_name, comparison_to_eval, timeout, polling_rate)
+    # wait_check('target_name packet_name item_name > 1', timeout, polling_rate)
+    #
+    # @param args [String|Array<String>] See the description for calling style
+    # @param type [Symbol] Telemetry type, :RAW, :CONVERTED (default), :FORMATTED, or :WITH_UNITS
+    def wait_check(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
+      target_name, packet_name, item_name, comparison_to_eval, timeout, polling_rate = _wait_check_process_args(args, scope: scope, token: token)
       start_time = Time.now.sys
       success, value = cosmos_script_wait_implementation(target_name, packet_name, item_name, type, comparison_to_eval, timeout, polling_rate, scope: scope, token: token)
       time = Time.now.sys - start_time
@@ -298,35 +315,27 @@ module Cosmos
       time
     end
 
-    # Wait for the converted value of a telmetry item against a condition or for a timeout
-    # and then check against the condition
-    # Supports two signatures:
-    # wait_check(target_name, packet_name, item_name, comparison_to_eval, timeout, polling_rate)
-    # or
-    # wait_check('target_name packet_name item_name > 1', timeout, polling_rate)
-    def wait_check(*args, scope: $cosmos_scope, token: $cosmos_token)
-      _wait_check(false, *args, scope: scope, token: token)
-    end
-
-    # Wait for the raw value of a telmetry item against a condition or for a timeout
-    # and then check against the condition
-    # Supports two signatures:
-    # wait_check_raw(target_name, packet_name, item_name, comparison_to_eval, timeout, polling_rate)
-    # or
-    # wait_check_raw('target_name packet_name item_name > 1', timeout, polling_rate)
+    # @deprecated use wait_check with type: :RAW
     def wait_check_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      _wait_check(true, *args, scope: scope, token: token)
+      wait_check(*args, type: :RAW, scope: scope, token: token)
     end
 
-    def _wait_check_tolerance(raw, *args, scope: $cosmos_scope, token: $cosmos_token)
-      type_string = 'wait_check_tolerance'
-      type_string << '_raw' if raw
-      type = (raw ? :RAW : :CONVERTED)
-      target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = wait_tolerance_process_args(args, type_string, scope: scope, token: token)
+    # Wait for the value of a telmetry item to be within a tolerance of a value
+    # and then check against the condition.
+    #
+    # Supports multiple signatures:
+    # wait_tolerance('target_name packet_name item_name', expected_value, tolerance, timeout, polling_rate)
+    # wait_tolerance('target_name', 'packet_name', 'item_name', expected_value, tolerance, timeout, polling_rate)
+    #
+    # @param args [String|Array<String>] See the description for calling style
+    # @param type [Symbol] Telemetry type, :RAW or :CONVERTED (default)
+    def wait_check_tolerance(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
+      raise "Invalid type '#{type}' for wait_check_tolerance" unless %i(RAW CONVERTED).include?(type)
+      target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = _wait_tolerance_process_args(args, scope: scope, token: token)
       start_time = Time.now.sys
-      value = tlm_variable(target_name, packet_name, item_name, type, scope: scope, token: token)
+      value = tlm(target_name, packet_name, item_name, type: type, scope: scope, token: token)
       if value.is_a?(Array)
-        expected_value, tolerance = array_tolerance_process_args(value.size, expected_value, tolerance, type_string, scope: scope, token: token)
+        expected_value, tolerance = array_tolerance_process_args(value.size, expected_value, tolerance, 'wait_check_tolerance', scope: scope, token: token)
 
         success, value = cosmos_script_wait_implementation_array_tolerance(value.size, target_name, packet_name, item_name, type, expected_value, tolerance, timeout, polling_rate, scope: scope, token: token)
         time = Time.now.sys - start_time
@@ -369,16 +378,12 @@ module Cosmos
           end
         end
       end
-
       time
     end
 
-    def wait_check_tolerance(*args, scope: $cosmos_scope, token: $cosmos_token)
-      _wait_check_tolerance(false, *args, scope: scope, token: token)
-    end
-
+    # @deprecated Use wait_check_tolerance with type: :RAW
     def wait_check_tolerance_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      _wait_check_tolerance(true, *args, scope: scope, token: token)
+      wait_check_tolerance(*args, type: :RAW, scope: scope, token: token)
     end
 
     # Wait on an expression to be true.  On a timeout, the script will pause.
@@ -406,6 +411,250 @@ module Cosmos
       time
     end
     alias wait_expression_stop_on_timeout wait_check_expression
+
+    def wait_packet(target_name,
+                    packet_name,
+                    num_packets,
+                    timeout,
+                    polling_rate = DEFAULT_TLM_POLLING_RATE,
+                    scope: $cosmos_scope, token: $cosmos_token)
+      _wait_packet(false, target_name, packet_name, num_packets, timeout, polling_rate, scope: scope, token: token)
+    end
+
+    # Wait for a telemetry packet to be received a certain number of times or timeout and raise an error
+    def wait_check_packet(target_name,
+                          packet_name,
+                          num_packets,
+                          timeout,
+                          polling_rate = DEFAULT_TLM_POLLING_RATE,
+                          scope: $cosmos_scope, token: $cosmos_token)
+      _wait_packet(true, target_name, packet_name, num_packets, timeout, polling_rate, scope: scope, token: token)
+    end
+
+    def start(procedure_name)
+      raise "TODO: start needs to be updated"
+      # cached = true
+      # path = _get_procedure_path(procedure_name)
+
+      # if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
+      #   hashing_sum = nil
+      #   begin
+      #     hashing_result = Cosmos.hash_files([path], nil, System.hashing_algorithm)
+      #     hash_string = hashing_result.hexdigest
+      #     # Only use at most, 32 characters of the hex
+      #     hash_string = hash_string[-32..-1] if hash_string.length >= 32
+      #   rescue Exception => error
+      #     raise "Error calculating hash string on procedure file : #{path}"
+      #   end
+
+      #   # Check RAM based instrumented cache
+      #   instrumented_cache = ScriptRunnerFrame.instrumented_cache[path]
+      #   instrumented_script = nil
+      #   if instrumented_cache and hash_string == instrumented_cache[1]
+      #     # Use cached instrumentation
+      #     instrumented_script = instrumented_cache[0]
+      #   else
+      #     file_text, instrumented_script, cached = _check_file_cache_for_instrumented_script(path, hash_string)
+      #     # Cache instrumentation into RAM
+      #     ScriptRunnerFrame.file_cache[path] = file_text
+      #     ScriptRunnerFrame.instrumented_cache[path] = [instrumented_script, hash_string]
+      #   end
+
+      #   Object.class_eval(instrumented_script, path, 1)
+      # else # No ScriptRunnerFrame so just start it locally
+      #   cached = false
+      #   begin
+      #     Kernel::load(path)
+      #   rescue LoadError => error
+      #     raise LoadError, "Error loading -- #{procedure_name}\n#{error.message}"
+      #   end
+      # end
+      # # Return whether we had to load and instrument this file, i.e. it was not cached
+      # !cached
+    end
+
+    # Require an additional ruby file
+    def load_utility(procedure_name)
+      # TODO
+      not_cached = false
+      # if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
+      #   saved = ScriptRunnerFrame.instance.use_instrumentation
+      #   begin
+      #     ScriptRunnerFrame.instance.use_instrumentation = false
+      #     not_cached = start(procedure_name)
+      #   ensure
+      #     ScriptRunnerFrame.instance.use_instrumentation = saved
+      #   end
+      # else # Just call start
+      not_cached = start(procedure_name)
+      # end
+      # Return whether we had to load and instrument this file, i.e. it was not cached
+      # This is designed to match the behavior of Ruby's require and load keywords
+      not_cached
+    end
+    alias require_utility load_utility
+
+    def disable_instrumentation
+      if defined? RunningScript and RunningScript.instance
+        RunningScript.instance.use_instrumentation = false
+        begin
+          yield
+        ensure
+          RunningScript.instance.use_instrumentation = true
+        end
+      else
+        yield
+      end
+    end
+
+    ###########################################################################
+    # Private implementation details
+    ###########################################################################
+
+    def _get_procedure_path(procedure_name)
+      # Handle not-giving an extension
+      procedure_name_with_extension = nil
+      procedure_name_with_extension = procedure_name + '.rb' if File.extname(procedure_name).empty?
+
+      path = nil
+
+      # Find filename in search path
+      ($:).each do |directory|
+        if File.exist?(directory + '/' + procedure_name) and not File.directory?(directory + '/' + procedure_name)
+          path = directory + '/' + procedure_name
+          break
+        end
+
+        if procedure_name_with_extension and File.exist?(directory + '/' + procedure_name_with_extension)
+          procedure_name = procedure_name_with_extension
+          path = directory + '/' + procedure_name
+          break
+        end
+      end
+
+      # Handle absolute path
+      path = procedure_name if !path and File.exist?(procedure_name)
+      path = procedure_name_with_extension if !path and procedure_name_with_extension and File.exist?(procedure_name_with_extension)
+
+      raise LoadError, "Procedure not found -- #{procedure_name}" unless path
+      path
+    end
+
+    # def _check_file_cache_for_instrumented_script(path, hash_string)
+    #   file_text = nil
+    #   instrumented_script = nil
+    #   cached = true
+    #   use_file_cache = true
+
+    #   Cosmos.set_working_dir do
+    #     cache_path = File.join(System.paths['TMP'], 'script_runner')
+    #     unless File.directory?(cache_path)
+    #       # Try to create .cache directory
+    #       begin
+    #         Dir.mkdir(cache_path)
+    #       rescue
+    #         use_file_cache = false
+    #       end
+    #     end
+
+    #     cache_filename = nil
+    #     if use_file_cache
+    #       # Check file based instrumented cache
+    #       flat_path = path.tr("/", "_").gsub("\\", "_").tr(":", "_").tr(" ", "_")
+    #       flat_path_with_hash_string = flat_path + '_' + hash_string
+    #       cache_filename = File.join(cache_path, flat_path_with_hash_string)
+    #     end
+
+    #     begin
+    #       file_text = File.read(path)
+    #     rescue Exception => error
+    #       msg = "Error reading procedure file '#{path}' due to #{error.message}."
+    #       raise $!, msg, $!.backtrace
+    #     end
+
+    #     if use_file_cache and File.exist?(cache_filename)
+    #       # Use file cached instrumentation
+    #       File.open(cache_filename, 'r') {|file| instrumented_script = file.read}
+    #     else
+    #       cached = false
+
+    #       # Build instrumentation
+    #       instrumented_script = ScriptRunnerFrame.instrument_script(file_text, path, true)
+
+    #       # Cache instrumentation into file
+    #       if use_file_cache
+    #         begin
+    #           File.open(cache_filename, 'w') {|file| file.write(instrumented_script)}
+    #         rescue
+    #           # Oh well, failed to write cache file
+    #         end
+    #       end
+    #     end
+    #   end
+    #   [file_text, instrumented_script, cached]
+    # end
+
+    # Creates a string with the parameters upcased
+    def _upcase(target_name, packet_name, item_name)
+      "#{target_name.upcase} #{packet_name.upcase} #{item_name.upcase}"
+    end
+
+    # Implementaton of the various check commands. It yields back to the
+    # caller to allow the return of the value through various telemetry calls.
+    # This method should not be called directly by application code.
+    def _check(*args, scope: $cosmos_scope, token: $cosmos_token)
+      target_name, packet_name, item_name, comparison_to_eval = _check_process_args(args, 'check', scope: scope, token: token)
+
+      value = yield(target_name, packet_name, item_name)
+      if comparison_to_eval
+        check_eval(target_name, packet_name, item_name, comparison_to_eval, value, scope: scope)
+      else
+        Logger.info "CHECK: #{_upcase(target_name, packet_name, item_name)} == #{value}"
+      end
+    end
+
+    def _check_process_args(args, function_name, scope: $cosmos_scope, token: $cosmos_token)
+      case args.length
+      when 1
+        target_name, packet_name, item_name, comparison_to_eval = extract_fields_from_check_text(args[0])
+      when 4
+        target_name        = args[0]
+        packet_name        = args[1]
+        item_name          = args[2]
+        comparison_to_eval = args[3]
+      else
+        # Invalid number of arguments
+        raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
+      end
+      return [target_name, packet_name, item_name, comparison_to_eval]
+    end
+
+    def _check_tolerance_process_args(args, scope: $cosmos_scope, token: $cosmos_token)
+      case args.length
+      when 3
+        target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
+        expected_value = args[1]
+        if args[2].is_a?(Array)
+          tolerance = args[2].map!(&:abs)
+        else
+          tolerance = args[2].abs
+        end
+      when 5
+        target_name = args[0]
+        packet_name = args[1]
+        item_name = args[2]
+        expected_value = args[3]
+        if args[4].is_a?(Array)
+          tolerance = args[4].map!(&:abs)
+        else
+          tolerance = args[4].abs
+        end
+      else
+        # Invalid number of arguments
+        raise "ERROR: Invalid number of arguments (#{args.length}) passed to check_tolerance()"
+      end
+      return [target_name, packet_name, item_name, expected_value, tolerance]
+    end
 
     # Wait for a telemetry packet to be received a certain number of times or timeout
     def _wait_packet(check,
@@ -446,219 +695,6 @@ module Cosmos
       time
     end
 
-    def wait_packet(target_name,
-                    packet_name,
-                    num_packets,
-                    timeout,
-                    polling_rate = DEFAULT_TLM_POLLING_RATE,
-                    scope: $cosmos_scope, token: $cosmos_token)
-      _wait_packet(false, target_name, packet_name, num_packets, timeout, polling_rate, scope: scope, token: token)
-    end
-
-    # Wait for a telemetry packet to be received a certain number of times or timeout and raise an error
-    def wait_check_packet(target_name,
-                          packet_name,
-                          num_packets,
-                          timeout,
-                          polling_rate = DEFAULT_TLM_POLLING_RATE,
-                          scope: $cosmos_scope, token: $cosmos_token)
-      _wait_packet(true, target_name, packet_name, num_packets, timeout, polling_rate, scope: scope, token: token)
-    end
-
-    def _get_procedure_path(procedure_name)
-      # Handle not-giving an extension
-      procedure_name_with_extension = nil
-      procedure_name_with_extension = procedure_name + '.rb' if File.extname(procedure_name).empty?
-
-      path = nil
-
-      # Find filename in search path
-      ($:).each do |directory|
-        if File.exist?(directory + '/' + procedure_name) and not File.directory?(directory + '/' + procedure_name)
-          path = directory + '/' + procedure_name
-          break
-        end
-
-        if procedure_name_with_extension and File.exist?(directory + '/' + procedure_name_with_extension)
-          procedure_name = procedure_name_with_extension
-          path = directory + '/' + procedure_name
-          break
-        end
-      end
-
-      # Handle absolute path
-      path = procedure_name if !path and File.exist?(procedure_name)
-      path = procedure_name_with_extension if !path and procedure_name_with_extension and File.exist?(procedure_name_with_extension)
-
-      raise LoadError, "Procedure not found -- #{procedure_name}" unless path
-      path
-    end
-
-    def check_file_cache_for_instrumented_script(path, hash_string)
-      file_text = nil
-      instrumented_script = nil
-      cached = true
-      # use_file_cache = true
-
-      # TODO
-      # Cosmos.set_working_dir do
-      #   cache_path = File.join(System.paths['TMP'], 'script_runner')
-      #   unless File.directory?(cache_path)
-      #     # Try to create .cache directory
-      #     begin
-      #       Dir.mkdir(cache_path)
-      #     rescue
-      #       use_file_cache = false
-      #     end
-      #   end
-
-      #   cache_filename = nil
-      #   if use_file_cache
-      #     # Check file based instrumented cache
-      #     flat_path = path.tr("/", "_").gsub("\\", "_").tr(":", "_").tr(" ", "_")
-      #     flat_path_with_hash_string = flat_path + '_' + hash_string
-      #     cache_filename = File.join(cache_path, flat_path_with_hash_string)
-      #   end
-
-      #   begin
-      #     file_text = File.read(path)
-      #   rescue Exception => error
-      #     msg = "Error reading procedure file '#{path}' due to #{error.message}."
-      #     raise $!, msg, $!.backtrace
-      #   end
-
-      #   if use_file_cache and File.exist?(cache_filename)
-      #     # Use file cached instrumentation
-      #     File.open(cache_filename, 'r') {|file| instrumented_script = file.read}
-      #   else
-      #     cached = false
-
-      #     # Build instrumentation
-      #     instrumented_script = ScriptRunnerFrame.instrument_script(file_text, path, true)
-
-      #     # Cache instrumentation into file
-      #     if use_file_cache
-      #       begin
-      #         File.open(cache_filename, 'w') {|file| file.write(instrumented_script)}
-      #       rescue
-      #         # Oh well, failed to write cache file
-      #       end
-      #     end
-      #   end
-      # end
-      [file_text, instrumented_script, cached]
-    end
-
-    def start(procedure_name)
-      raise "TODO: start needs to be updated"
-      # cached = true
-      # path = _get_procedure_path(procedure_name)
-
-      # if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
-      #   hashing_sum = nil
-      #   begin
-      #     hashing_result = Cosmos.hash_files([path], nil, System.hashing_algorithm)
-      #     hash_string = hashing_result.hexdigest
-      #     # Only use at most, 32 characters of the hex
-      #     hash_string = hash_string[-32..-1] if hash_string.length >= 32
-      #   rescue Exception => error
-      #     raise "Error calculating hash string on procedure file : #{path}"
-      #   end
-
-      #   # Check RAM based instrumented cache
-      #   instrumented_cache = ScriptRunnerFrame.instrumented_cache[path]
-      #   instrumented_script = nil
-      #   if instrumented_cache and hash_string == instrumented_cache[1]
-      #     # Use cached instrumentation
-      #     instrumented_script = instrumented_cache[0]
-      #   else
-      #     file_text, instrumented_script, cached = check_file_cache_for_instrumented_script(path, hash_string)
-      #     # Cache instrumentation into RAM
-      #     ScriptRunnerFrame.file_cache[path] = file_text
-      #     ScriptRunnerFrame.instrumented_cache[path] = [instrumented_script, hash_string]
-      #   end
-
-      #   Object.class_eval(instrumented_script, path, 1)
-      # else # No ScriptRunnerFrame so just start it locally
-      #   cached = false
-      #   begin
-      #     Kernel::load(path)
-      #   rescue LoadError => error
-      #     raise LoadError, "Error loading -- #{procedure_name}\n#{error.message}"
-      #   end
-      # end
-      # # Return whether we had to load and instrument this file, i.e. it was not cached
-      # !cached
-    end
-
-    # Require an additional ruby file
-    def load_utility(procedure_name)
-      # TODO
-      not_cached = false
-      # if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
-      #   saved = ScriptRunnerFrame.instance.use_instrumentation
-      #   begin
-      #     ScriptRunnerFrame.instance.use_instrumentation = false
-      #     not_cached = start(procedure_name)
-      #   ensure
-      #     ScriptRunnerFrame.instance.use_instrumentation = saved
-      #   end
-      # else # Just call start
-      not_cached = start(procedure_name)
-      # end
-      # Return whether we had to load and instrument this file, i.e. it was not cached
-      # This is designed to match the behavior of Ruby's require and load keywords
-      not_cached
-    end
-    alias require_utility load_utility
-
-    ##########################################
-    # Protected Methods
-    ##########################################
-
-    def check_process_args(args, function_name, scope: $cosmos_scope, token: $cosmos_token)
-      case args.length
-      when 1
-        target_name, packet_name, item_name, comparison_to_eval = extract_fields_from_check_text(args[0])
-      when 4
-        target_name        = args[0]
-        packet_name        = args[1]
-        item_name          = args[2]
-        comparison_to_eval = args[3]
-      else
-        # Invalid number of arguments
-        raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
-      end
-      return [target_name, packet_name, item_name, comparison_to_eval]
-    end
-
-    def check_tolerance_process_args(args, function_name, scope: $cosmos_scope, token: $cosmos_token)
-      case args.length
-      when 3
-        target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
-        expected_value = args[1]
-        if args[2].is_a?(Array)
-          tolerance = args[2].map!(&:abs)
-        else
-          tolerance = args[2].abs
-        end
-      when 5
-        target_name = args[0]
-        packet_name = args[1]
-        item_name = args[2]
-        expected_value = args[3]
-        if args[4].is_a?(Array)
-          tolerance = args[4].map!(&:abs)
-        else
-          tolerance = args[4].abs
-        end
-      else
-        # Invalid number of arguments
-        raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
-      end
-      return [target_name, packet_name, item_name, expected_value, tolerance]
-    end
-
     def _execute_wait(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate, scope: $cosmos_scope, token: $cosmos_token)
       start_time = Time.now.sys
       success, value = cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate, scope: scope, token: token)
@@ -672,55 +708,7 @@ module Cosmos
       end
     end
 
-    def wait_process_args(args, function_name, value_type, scope: $cosmos_scope, token: $cosmos_token)
-      time = nil
-
-      case args.length
-      when 0
-        start_time = Time.now.sys
-        cosmos_script_sleep()
-        time = Time.now.sys - start_time
-        Logger.info("WAIT: Indefinite for actual time of #{time} seconds")
-      when 1
-        if args[0].kind_of? Numeric
-          start_time = Time.now.sys
-          cosmos_script_sleep(args[0])
-          time = Time.now.sys - start_time
-          Logger.info("WAIT: #{args[0]} seconds with actual time of #{time} seconds")
-        else
-          raise "Non-numeric wait time specified"
-        end
-      when 2, 3
-        target_name, packet_name, item_name, comparison_to_eval = extract_fields_from_check_text(args[0])
-        timeout = args[1]
-        if args.length == 3
-          polling_rate = args[2]
-        else
-          polling_rate = DEFAULT_TLM_POLLING_RATE
-        end
-        _execute_wait(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate, scope: scope, token: token)
-
-      when 5, 6
-        target_name = args[0]
-        packet_name = args[1]
-        item_name = args[2]
-        comparison_to_eval = args[3]
-        timeout = args[4]
-        if args.length == 6
-          polling_rate = args[5]
-        else
-          polling_rate = DEFAULT_TLM_POLLING_RATE
-        end
-        _execute_wait(target_name, packet_name, item_name, value_type, comparison_to_eval, timeout, polling_rate, scope: scope, token: token)
-
-      else
-        # Invalid number of arguments
-        raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
-      end
-      time
-    end
-
-    def wait_tolerance_process_args(args, function_name, scope: $cosmos_scope, token: $cosmos_token)
+    def _wait_tolerance_process_args(args, scope: $cosmos_scope, token: $cosmos_token)
       case args.length
       when 4, 5
         target_name, packet_name, item_name = extract_fields_from_tlm_text(args[0])
@@ -754,7 +742,7 @@ module Cosmos
         end
       else
         # Invalid number of arguments
-        raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
+        raise "ERROR: Invalid number of arguments (#{args.length}) passed to wait_tolerance()"
       end
       return [target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate]
     end
@@ -780,7 +768,7 @@ module Cosmos
       return [expected_value, tolerance]
     end
 
-    def wait_check_process_args(args, function_name, scope: $cosmos_scope, token: $cosmos_token)
+    def _wait_check_process_args(args, scope: $cosmos_scope, token: $cosmos_token)
       case args.length
       when 2, 3
         target_name, packet_name, item_name, comparison_to_eval = extract_fields_from_check_text(args[0])
@@ -803,7 +791,7 @@ module Cosmos
         end
       else
         # Invalid number of arguments
-        raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
+        raise "ERROR: Invalid number of arguments (#{args.length}) passed to wait_check()"
       end
       return [target_name, packet_name, item_name, comparison_to_eval, timeout, polling_rate]
     end
@@ -814,7 +802,7 @@ module Cosmos
 
       while true
         work_start = Time.now.sys
-        value = tlm_variable(target_name, packet_name, item_name, value_type, scope: scope, token: token)
+        value = tlm(target_name, packet_name, item_name, type: value_type, scope: scope, token: token)
         if eval(exp_to_eval)
           return true, value
         end
@@ -828,7 +816,7 @@ module Cosmos
         canceled = cosmos_script_sleep(sleep_time)
 
         if canceled
-          value = tlm_variable(target_name, packet_name, item_name, value_type, scope: scope, token: token)
+          value = tlm(target_name, packet_name, item_name, type: value_type, scope: scope, token: token)
           if eval(exp_to_eval)
             return true, value
           else
@@ -907,31 +895,6 @@ module Cosmos
           raise CheckError, message
         end
       end
-    end
-
-    #######################################
-    # Methods accessing tlm_viewer
-    #######################################
-
-    def display(display_name, x_pos = nil, y_pos = nil)
-      # TODO
-      # run_tlm_viewer("display", display_name) do |tlm_viewer|
-      #  tlm_viewer.display(display_name, x_pos, y_pos)
-      # end
-    end
-
-    def clear(display_name)
-      # TODO
-      # run_tlm_viewer("clear", display_name) do |tlm_viewer|
-      #  tlm_viewer.clear(display_name)
-      # end
-    end
-
-    def clear_all(target = nil)
-      # TODO
-      # run_tlm_viewer("clear_all") do |tlm_viewer|
-      #  tlm_viewer.clear_all(target)
-      # end
     end
   end
 end

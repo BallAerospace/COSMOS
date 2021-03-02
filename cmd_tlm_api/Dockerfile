@@ -8,10 +8,8 @@ WORKDIR /src/
 COPY . /src/
 
 # Download and setup COSMOS devel area
-RUN ["gem", "install", "bundler", "--no-document"]
-
 RUN ["bundle", "install", "--quiet"]
 
-EXPOSE 7777
+EXPOSE 2901
 
 CMD ["rails", "s", "-b", "0.0.0.0", "-p", "2901"]
