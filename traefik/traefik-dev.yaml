@@ -4,13 +4,13 @@ api:
   insecure: true
 entrypoints:
   web:
-    address: ':80'
+    address: ":80"
 http:
   middlewares:
     removeFirst:
       replacePathRegex:
-        regex: '^/([^/]*)/(.*)'
-        replacement: '/$2'
+        regex: "^/([^/]*)/(.*)"
+        replacement: "/$2"
   routers:
     web-router:
       rule: Host(`localhost`)
@@ -18,33 +18,33 @@ http:
     api-router:
       rule: PathPrefix(`/cosmos-api`)
       middlewares:
-        - 'removeFirst'
+        - "removeFirst"
       service: service-api
     script-router:
       rule: PathPrefix(`/script-api`)
       middlewares:
-        - 'removeFirst'
+        - "removeFirst"
       service: service-script
     tools-router:
-      rule: PathPrefix(`/minio`)
+      rule: PathPrefix(`/tools`)
       service: service-minio
   services:
     service-web:
       loadBalancer:
         servers:
-          - url: 'http://host.docker.internal:2910'
+          - url: "http://host.docker.internal:2910"
     service-api:
       loadBalancer:
         servers:
-          - url: 'http://host.docker.internal:2901'
+          - url: "http://host.docker.internal:2901"
     service-script:
       loadBalancer:
         servers:
-          - url: 'http://host.docker.internal:2902'
+          - url: "http://host.docker.internal:2902"
     service-minio:
       loadBalancer:
         servers:
-          - url: 'http://host.docker.internal:9000'
+          - url: "http://host.docker.internal:9000"
 providers:
   file:
     filename: /etc/traefik/traefik.yaml

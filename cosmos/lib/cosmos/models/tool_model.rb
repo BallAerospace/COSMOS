@@ -27,6 +27,9 @@ module Cosmos
     attr_accessor :folder_name
     attr_accessor :icon
     attr_accessor :url
+    attr_accessor :window
+    attr_accessor :category
+    attr_accessor :shown
     attr_accessor :position
 
     # NOTE: The following three class methods are used by the ModelController
@@ -97,6 +100,9 @@ module Cosmos
       folder_name: nil,
       icon: 'mdi-alert',
       url: nil,
+      window: 'INLINE',
+      category: nil,
+      shown: true,
       position: nil,
       updated_at: nil,
       plugin: nil,
@@ -105,6 +111,9 @@ module Cosmos
       @folder_name = folder_name
       @icon = icon
       @url = url
+      @window = window
+      @category = category
+      @shown = shown
       @position = position
     end
 
@@ -123,6 +132,9 @@ module Cosmos
         'folder_name' => @folder_name,
         'icon' => @icon,
         'url' => @url,
+        'window' => @window,
+        'category' => @category,
+        'shown' => @shown,
         'position' => @position,
         'updated_at' => @updated_at,
         'plugin' => @plugin
@@ -133,6 +145,9 @@ module Cosmos
       result = "TOOL #{@folder_name ? @folder_name : 'nil'} \"#{@name}\"\n"
       result << "  URL #{@url}\n"
       result << "  ICON #{@icon}\n"
+      result << "  WINDOW #{@window}\n" unless @window == 'INLINE'
+      result << "  CATEGORY #{@category}\n" if @category
+      result << "  SHOWN false\n" unless @shown
       result
     end
 
@@ -144,6 +159,16 @@ module Cosmos
       when 'ICON'
         parser.verify_num_parameters(1, 1, "ICON <ICON Name>")
         @icon = parameters[0]
+      when 'WINDOW'
+        parser.verify_num_parameters(1, 1, "WINDOW <INLINE | IFRAME | NEW>")
+        @window = parameters[0].to_s.upcase
+        raise ConfigParser::Error.new(parser, "Invalid WINDOW setting: #{@window}") unless ['INLINE', 'IFRAME', 'NEW'].include?(@window)
+      when 'CATEGORY'
+        parser.verify_num_parameters(1, 1, "CATEGORY <Category Name>")
+        @category = parameters[0].to_s
+      when 'SHOWN'
+        parser.verify_num_parameters(1, 1, "SHOWN <true/false>")
+        @shown = ConfigParser.handle_true_false(parameters[0])
       else
         raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Tool: #{keyword} #{parameters.join(" ")}")
       end
@@ -152,27 +177,74 @@ module Cosmos
 
     def deploy(gem_path, variables)
       return unless @folder_name
+      rubys3_client = Aws::S3::Client.new
+
+      # Ensure tools bucket exists
+      begin
+        rubys3_client.head_bucket(bucket: 'tools')
+      rescue Aws::S3::Errors::NotFound
+        rubys3_client.create_bucket(bucket: 'tools')
+
+        policy = <<EOL
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:GetBucketLocation",
+        "s3:ListBucket"
+      ],
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "*"
+        ]
+      },
+      "Resource": [
+        "arn:aws:s3:::tools"
+      ],
+      "Sid": ""
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "*"
+        ]
+      },
+      "Resource": [
+        "arn:aws:s3:::tools/*"
+      ],
+      "Sid": ""
+    }
+  ]
+}
+EOL
+
+        rubys3_client.put_bucket_policy({bucket: 'tools', policy: policy})
+      end
 
       variables["tool_name"] = @name
-      rubys3_client = Aws::S3::Client.new
       start_path = "/tools/#{@folder_name}/"
       Dir.glob(gem_path + start_path + "**/*") do |filename|
         next if filename == '.' or filename == '..' or File.directory?(filename)
-        path = filename.split(gem_path)[-1]
-        key = "#{@scope}/tools/#{@name}/" + path.split(start_path)[-1]
+        key = filename.split(gem_path + '/tools/')[-1]
 
         # Load tool files
         data = File.read(filename, mode: "rb")
         data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
-        rubys3_client.put_object(bucket: 'config', key: key, body: data)
+        rubys3_client.put_object(bucket: 'tools', key: key, body: data)
       end
     end
 
     def undeploy
       rubys3_client = Aws::S3::Client.new
-      prefix = "#{@scope}/tools/#{@name}/"
-      rubys3_client.list_objects(bucket: 'config', prefix: prefix).contents.each do |object|
-        rubys3_client.delete_object(bucket: 'config', key: object.key)
+      prefix = "#{@scope}/tools/#{@folder_name}/"
+      rubys3_client.list_objects(bucket: 'tools', prefix: prefix).contents.each do |object|
+        rubys3_client.delete_object(bucket: 'tools', key: object.key)
       end
     end
 
@@ -202,54 +274,81 @@ module Cosmos
         'name' => 'CmdTlmServer',
         'icon' => 'mdi-server-network',
         'url' => '/cmd-tlm-server',
+        'window' => 'INLINE',
+        'category' => nil,
+        'shown' => true,
         'position' => 0,
       }
       tools['Limits Monitor'] = {
         'name' => 'Limits Monitor',
         'icon' => 'mdi-alert',
         'url' => '/limits-monitor',
+        'window' => 'INLINE',
+        'category' => nil,
+        'shown' => true,
         'position' => 1,
       }
       tools['Command Sender'] = {
         'name' => 'Command Sender',
         'icon' => 'mdi-satellite-uplink',
         'url' => '/command-sender',
+        'window' => 'INLINE',
+        'category' => nil,
+        'shown' => true,
         'position' => 2,
       }
       tools['Script Runner'] = {
         'name' => 'Script Runner',
         'icon' => 'mdi-run-fast',
         'url' => '/script-runner',
+        'window' => 'INLINE',
+        'category' => nil,
+        'shown' => true,
         'position' => 3,
       }
       tools['Packet Viewer'] = {
         'name' => 'Packet Viewer',
         'icon' => 'mdi-format-list-bulleted',
         'url' => '/packet-viewer',
+        'window' => 'INLINE',
+        'category' => nil,
+        'shown' => true,
         'position' => 4,
       }
       tools['Telemetry Viewer'] = {
         'name' => 'Telemetry Viewer',
         'icon' => 'mdi-monitor-dashboard',
         'url' => '/telemetry-viewer',
+        'window' => 'INLINE',
+        'category' => nil,
+        'shown' => true,
         'position' => 5,
       }
       tools['Telemetry Grapher'] = {
         'name' => 'Telemetry Grapher',
         'icon' => 'mdi-chart-line',
         'url' => '/telemetry-grapher',
+        'window' => 'INLINE',
+        'category' => nil,
+        'shown' => true,
         'position' => 6,
       }
       tools['Data Extractor'] = {
         'name' => 'Data Extractor',
         'icon' => 'mdi-archive-arrow-down',
         'url' => '/data-extractor',
+        'window' => 'INLINE',
+        'category' => nil,
+        'shown' => true,
         'position' => 7,
       }
       tools['Data Viewer'] = {
         'name' => 'Data Viewer',
         'icon' => 'mdi-hexadecimal',
         'url' => '/data-viewer',
+        'window' => 'INLINE',
+        'category' => nil,
+        'shown' => true,
         'position' => 8,
       }
       tools

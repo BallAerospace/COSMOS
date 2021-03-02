@@ -179,7 +179,7 @@ module Cosmos
   class ServerProxy
     # Create a JsonDRbObject connection to the API server
     def initialize
-      @json_drb = JsonDRbObject.new(ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-cmd-tlm-api', 7777)
+      @json_drb = JsonDRbObject.new(ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-cmd-tlm-api', 2901)
     end
 
     # Ruby method which captures any method calls on this object. This allows

@@ -1,47 +1,54 @@
 ---
 entrypoints:
   web:
-    address: ':80'
+    address: ":80"
 http:
   middlewares:
     removeFirst:
       replacePathRegex:
-        regex: '^/([^/]*)/(.*)'
-        replacement: '/$2'
+        regex: "^/([^/]*)/(.*)"
+        replacement: "/$2"
+    addToolsBase:
+      replacePathRegex:
+        regex: "^/(.*)"
+        replacement: "/tools/base/$1"
+    addIndex:
+      replacePathRegex:
+        regex: "(.*)/$"
+        replacement: "$1/index.html"
   routers:
     web-router:
       rule: Host(`localhost`)
-      service: service-web
+      middlewares:
+        - "addToolsBase"
+        - "addIndex"
+      service: service-minio
     api-router:
       rule: PathPrefix(`/cosmos-api`)
       middlewares:
-        - 'removeFirst'
+        - "removeFirst"
       service: service-api
     script-router:
       rule: PathPrefix(`/script-api`)
       middlewares:
-        - 'removeFirst'
+        - "removeFirst"
       service: service-script
     tools-router:
-      rule: PathPrefix(`/minio`)
+      rule: PathPrefix(`/tools`)
       service: service-minio
   services:
-    service-web:
-      loadBalancer:
-        servers:
-          - url: 'http://host.docker.internal:2910'
     service-api:
       loadBalancer:
         servers:
-          - url: 'http://cosmos-cmd-tlm-api:2901'
+          - url: "http://cosmos-cmd-tlm-api:2901"
     service-script:
       loadBalancer:
         servers:
-          - url: 'http://cosmos-script-runner-api:2902'
+          - url: "http://cosmos-script-runner-api:2902"
     service-minio:
       loadBalancer:
         servers:
-          - url: 'http://cosmos-minio:9000'
+          - url: "http://cosmos-minio:9000"
 providers:
   file:
     filename: /etc/traefik/traefik.yaml

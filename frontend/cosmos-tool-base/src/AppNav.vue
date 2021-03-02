@@ -31,7 +31,7 @@
           </v-list-item-content>
         </v-list-item>
         <v-divider></v-divider>
-        <v-list-item v-for="(tool, name) in appNav" :key="name">
+        <v-list-item v-for="(tool, name) in shownTools" :key="name">
           <router-link :to="tool.url">
             <v-list-item-icon>
               <v-icon>{{ tool.icon }}</v-icon>
@@ -138,6 +138,18 @@ export default {
       appNav: {},
       checked: [],
     }
+  },
+  computed: {
+    // a computed getter
+    shownTools: function () {
+      let result = {}
+      for (var key of Object.keys(this.appNav)) {
+        if (this.appNav[key].shown) {
+          result[key] = this.appNav[key]
+        }
+      }
+      return result
+    },
   },
   created() {
     // Determine if any of the checkboxes should be initially checked
