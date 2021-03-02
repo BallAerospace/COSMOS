@@ -45,11 +45,15 @@ module Cosmos
         target_name = topic_split[2]
         packet_name = topic_split[3]
         remote_log_directory = "#{scope}/decomlogs/tlm/#{target_name}/#{packet_name}"
-        label = "#{scope}__#{target_name}__#{packet_name}__decom"
+        rt_label = "#{scope}__#{target_name}__#{packet_name}__rt__decom"
+        stored_label = "#{scope}__#{target_name}__#{packet_name}__stored__decom"
         # NOTE: Setting a cycle time of 3600s means the DecomMicroservice must allow for at LEAST
         # 3600s worth of data in the Redis stream. This is due to how the streaming_api works
         # when switching between a closed log file and the active Redis stream.
-        plws[topic] = PacketLogWriter.new(remote_log_directory, label, true, 3600, nil)
+        plws[topic] = {
+          :RT => PacketLogWriter.new(remote_log_directory, rt_label, true, 3600, nil),
+          :STORED => PacketLogWriter.new(remote_log_directory, stored_label, true, 3600, nil)
+        }
       end
       return plws
     end
@@ -59,8 +63,8 @@ module Cosmos
       topic_split = topic.gsub(/{|}/, '').split("__") # Remove the redis hashtag curly braces
       target_name = topic_split[2]
       packet_name = topic_split[3]
-
-      plws[topic].write(:JSON_PACKET, :TLM, target_name, packet_name, msg_hash["time"].to_i, ConfigParser.handle_true_false(msg_hash["stored"]), msg_hash["json_data"], nil)
+      rt_or_stored = ConfigParser.handle_true_false(msg_hash["stored"]) ? :STORED : :RT
+      plws[topic][rt_or_stored].write(:JSON_PACKET, :TLM, target_name, packet_name, msg_hash["time"].to_i, rt_or_stored == :STORED, msg_hash["json_data"], nil)
       @count += 1
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
       metric_labels = { "packet" => packet_name, "target" => target_name }
