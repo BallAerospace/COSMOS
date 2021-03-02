@@ -375,7 +375,7 @@ module Cosmos
         length += COSMOS5_TARGET_DECLARATION_SECONDARY_FIXED_SIZE + target_name.length
         length += COSMOS5_ID_FIXED_SIZE if id
         @entry.clear
-        @entry << [length, flags, target_name.length].pack(COSMOS5_TARGET_DECLARATION_PACK_DIRECTIVE) << target_name
+        @entry << [length, flags].pack(COSMOS5_TARGET_DECLARATION_PACK_DIRECTIVE) << target_name
         @entry << [id].pack('H*') if id
         @target_dec_entries << @entry.dup
       when :PACKET_DECLARATION
@@ -387,7 +387,7 @@ module Cosmos
         length += COSMOS5_PACKET_DECLARATION_SECONDARY_FIXED_SIZE + packet_name.length
         length += COSMOS5_ID_FIXED_SIZE if id
         @entry.clear
-        @entry << [length, flags, target_index, packet_name.length].pack(COSMOS5_PACKET_DECLARATION_PACK_DIRECTIVE) << packet_name
+        @entry << [length, flags, target_index].pack(COSMOS5_PACKET_DECLARATION_PACK_DIRECTIVE) << packet_name
         @entry << [id].pack('H*') if id
         @packet_dec_entries << @entry.dup
       when :OFFSET_MARKER
