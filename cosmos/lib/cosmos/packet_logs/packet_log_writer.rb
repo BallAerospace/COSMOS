@@ -254,7 +254,7 @@ module Cosmos
           begin
             @file.close unless @file.closed?
             Logger.info "Log File Closed : #{@filename}"
-            s3_key = File.join(@remote_log_directory, "#{@first_time}__#{@last_time}__#{@label}.bin")
+            s3_key = File.join(@remote_log_directory, "#{first_timestamp}__#{last_timestamp}__#{@label}.bin")
             move_file_to_s3(@filename, s3_key)
           rescue Exception => err
             Logger.instance.error "Error closing #{@filename} : #{err.formatted}"
@@ -269,7 +269,7 @@ module Cosmos
             write_index_file_footer()
             @index_file.close unless @index_file.closed?
             Logger.info "Index Log File Closed : #{@index_filename}"
-            s3_key = File.join(@remote_log_directory, "#{@first_time}__#{@last_time}__#{@label}.idx")
+            s3_key = File.join(@remote_log_directory, "#{first_timestamp}__#{last_timestamp}__#{@label}.idx")
             move_file_to_s3(@index_filename, s3_key)
           rescue Exception => err
             Logger.instance.error "Error closing #{@index_filename} : #{err.formatted}"
@@ -429,6 +429,14 @@ module Cosmos
         footer_length += packet_dec_entry.length
       end
       @index_file.write([footer_length].pack('N'))
+    end
+
+    def first_timestamp
+      Time.from_nsec_from_epoch(@first_time).to_timestamp # "YYYYMMDDHHmmSSNNNNNNNNN"
+    end
+    
+    def last_timestamp
+      Time.from_nsec_from_epoch(@last_time).to_timestamp # "YYYYMMDDHHmmSSNNNNNNNNN"
     end
   end
 end
