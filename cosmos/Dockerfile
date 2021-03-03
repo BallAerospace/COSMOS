@@ -8,7 +8,7 @@ ENV SSL_CERT_FILE=/devel/cacert.pem
 ENV CURL_CA_BUNDLE=/devel/cacert.pem
 ENV REQUESTS_CA_BUNDLE=/devel/cacert.pem
 
-RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && apt-get install -y \
   --no-install-recommends \
   --option "Acquire:http::No-Cache=true" \
   --option "Acquire:http::Pipeline-Depth=0" \

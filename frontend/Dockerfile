@@ -1,7 +1,7 @@
 FROM cosmos-base
 
 ENV NODE_EXTRA_CA_CERTS=/devel/cacert.pem
-RUN DEBIAN_FRONTEND="noninteractive" apt-get update -y && apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && apt-get install -y \
   --no-install-recommends \
   --option "Acquire:http::No-Cache=true" \
   --option "Acquire:http::Pipeline-Depth=0" \
