@@ -8,7 +8,9 @@ ENV SSL_CERT_FILE=/devel/cacert.pem
 ENV CURL_CA_BUNDLE=/devel/cacert.pem
 ENV REQUESTS_CA_BUNDLE=/devel/cacert.pem
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && apt-get install -y \
+# ARG rather than ENV so it doesn't persist in the built image
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -y && apt-get install -y \
   --no-install-recommends \
   --option "Acquire:http::No-Cache=true" \
   --option "Acquire:http::Pipeline-Depth=0" \
@@ -21,13 +23,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && apt-get install -y \
   zlib1g \
   zlib1g-dev
 
-RUN git config --global http.sslCAinfo /devel/cacert.pem
-RUN ["gem", "install", "bundler"]
-
 ENV COSMOS_PATH="/cosmos"
 WORKDIR /cosmos/
 COPY . .
 
-RUN ["bundle", "install", "--quiet", "--without=development"]
-RUN ["mkdir", "-p", "lib/cosmos/ext"]
-RUN ["bundle", "exec", "rake", "build"]
+RUN mkdir -p lib/cosmos/ext && \
+  git config --global http.sslCAinfo /devel/cacert.pem && \
+  gem install bundler && \
+  bundle config set --local without 'development' && \
+  bundle install --quiet && \
+  bundle exec rake build

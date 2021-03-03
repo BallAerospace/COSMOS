@@ -1,7 +1,9 @@
 FROM cosmos-base
 
 ENV NODE_EXTRA_CA_CERTS=/devel/cacert.pem
-RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && apt-get install -y \
+# ARG rather than ENV so it doesn't persist in the build image
+ARG DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -y && apt-get install -y \
   --no-install-recommends \
   --option "Acquire:http::No-Cache=true" \
   --option "Acquire:http::Pipeline-Depth=0" \
@@ -20,10 +22,10 @@ ENV RUBYLIB=/cosmos/lib
 RUN mkdir -p /cosmos/plugins/cosmos-tool-base
 COPY cosmos-tool-base/package*.json /cosmos/plugins/cosmos-tool-base
 WORKDIR /cosmos/plugins/cosmos-tool-base/
-RUN ["npm", "install"]
+RUN npm install
 COPY cosmos-tool-base/. .
-RUN ["npm", "run", "build"]
-RUN ["rake", "build", "VERSION=5.0.0", "--quiet"]
+RUN npm run build && \
+  rake build VERSION=5.0.0 --quiet
 WORKDIR /cosmos/plugins/
 COPY init.sh .
 CMD [ "/cosmos/plugins/init.sh" ]
