@@ -19,9 +19,7 @@
 
 begin
   require 'cosmos-enterprise/utilities/authorization'
-  STDOUT.puts "************ AUTH ENTERPRISE *******************"
 rescue LoadError
-  STDOUT.puts "!!!!!!!!!!!! NO AUTH ENTERPRISE !!!!!!!!!!!!!!!!"
   # If we're not in cosmos-enterprise we define our own
   module Cosmos
     class AuthError < StandardError
