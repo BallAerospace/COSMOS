@@ -3,7 +3,7 @@ FROM cosmos-base
 # Set RUBYLIB so the init.sh script which calls ruby can find COSMOS
 ENV RUBYLIB=/cosmos/lib
 COPY plugins /cosmos/plugins/
-WORKDIR /cosmos/plugins/cosmos-demo
+WORKDIR /cosmos/plugins/cosmos-demo/
 COPY init.sh .
 
 RUN ["rake", "build", "VERSION=5.0.0", "--quiet"]
