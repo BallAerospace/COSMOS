@@ -84,9 +84,9 @@ module Cosmos
           @pkt.write("COLLECTS", 100)
         end
         data = raw_or_json == :RAW_PACKET ? @pkt.buffer : JSON.generate(@pkt.as_json)
-        plw.write(raw_or_json, cmd_or_tlm, @pkt.target_name, @pkt.packet_name, @times[0], true, data, nil)
-        plw.write(raw_or_json, cmd_or_tlm, @pkt.target_name, @pkt.packet_name, @times[1], true, data, nil)
-        plw.write(raw_or_json, cmd_or_tlm, @pkt.target_name, @pkt.packet_name, @times[2], true, data, nil)
+        plw.write(raw_or_json, cmd_or_tlm, @pkt.target_name, @pkt.packet_name, @times[0], true, data, nil, '0-0')
+        plw.write(raw_or_json, cmd_or_tlm, @pkt.target_name, @pkt.packet_name, @times[1], true, data, nil, '0-0')
+        plw.write(raw_or_json, cmd_or_tlm, @pkt.target_name, @pkt.packet_name, @times[2], true, data, nil, '0-0')
         @logfile = plw.filename
         plw.shutdown
         sleep 0.1
