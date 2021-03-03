@@ -1,11 +1,9 @@
 FROM cosmos-base
 
-ENV COSMOS_ENTERPRISE_PATH="/src/cosmos-enterprise"
-
 WORKDIR /src/
 
 # Copy the local package files to the container's workspace
-COPY . /src/
+COPY . .
 
 # Download and setup COSMOS devel area
 RUN ["bundle", "install", "--quiet"]

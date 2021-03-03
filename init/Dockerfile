@@ -1,13 +1,10 @@
 FROM cosmos-base
 
-ENV RUBYLIB /cosmos/lib
-
-COPY plugins /cosmos/plugins
-
+# Set RUBYLIB so the init.sh script which calls ruby can find COSMOS
+ENV RUBYLIB=/cosmos/lib
+COPY plugins /cosmos/plugins/
 WORKDIR /cosmos/plugins/cosmos-demo
-
 COPY init.sh .
 
-RUN ["bundle", "install", "--quiet"]
-
+RUN ["rake", "build", "VERSION=5.0.0", "--quiet"]
 CMD [ "/cosmos/plugins/cosmos-demo/init.sh" ]

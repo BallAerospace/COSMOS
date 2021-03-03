@@ -5,7 +5,7 @@ FROM cosmos-base
 WORKDIR /src/
 
 # Copy the local package files to the container's workspace
-COPY . /src/
+COPY . .
 
 # Download and setup COSMOS devel area
 RUN ["bundle", "install", "--quiet"]

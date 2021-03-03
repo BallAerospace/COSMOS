@@ -19,31 +19,20 @@
 
 begin
   require 'cosmos-enterprise/utilities/authorization'
-  $cosmos_enterprise = true
+  STDOUT.puts "************ AUTH ENTERPRISE *******************"
 rescue LoadError
-  $cosmos_enterprise = false
-end
+  STDOUT.puts "!!!!!!!!!!!! NO AUTH ENTERPRISE !!!!!!!!!!!!!!!!"
+  # If we're not in cosmos-enterprise we define our own
+  module Cosmos
+    class AuthError < StandardError
+    end
 
-$cosmos_authorize = false
-
-module Cosmos
-
-  class AuthError < StandardError
-  end
-
-  class ForbiddenError < StandardError
-  end
-
-  module Authorization
-
-    private
-    unless $cosmos_enterprise
+    module Authorization
+      private
       # Raises an exception if unauthorized, otherwise does nothing
       def authorize(permission: nil, target_name: nil, packet_name: nil, interface_name: nil, router_name: nil, scope: nil, token: nil)
         raise AuthError.new("Scope is required") unless scope
       end
     end
-
-  end # module Authorization
-
-end # module Cosmos
+  end
+end

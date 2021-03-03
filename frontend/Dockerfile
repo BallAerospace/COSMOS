@@ -1,7 +1,6 @@
 FROM cosmos-base
 
-ENV NODE_EXTRA_CA_CERTS /devel/cacert.pem
-
+ENV NODE_EXTRA_CA_CERTS=/devel/cacert.pem
 RUN apt-get update -y && apt-get install -y \
   --no-install-recommends \
   --option "Acquire:http::No-Cache=true" \
@@ -16,7 +15,7 @@ RUN apt-get update -y && apt-get install -y \
   libasound2 \
   xvfb
 
-ENV RUBYLIB /cosmos/lib
+ENV RUBYLIB=/cosmos/lib
 RUN mkdir -p /cosmos/plugins/cosmos-tool-base
 COPY cosmos-tool-base/package*.json /cosmos/plugins/cosmos-tool-base
 WORKDIR /cosmos/plugins/cosmos-tool-base

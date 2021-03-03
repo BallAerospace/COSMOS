@@ -25,7 +25,9 @@ require 'connection_pool'
 begin
   require 'cosmos-enterprise/utilities/store'
   $cosmos_enterprise = true
+  STDOUT.puts "************ STORE ENTERPRISE *******************"
 rescue LoadError
+  STDOUT.puts "!!!!!!!!!!!! NO STORE ENTERPRISE !!!!!!!!!!!!!!!!"
   $cosmos_enterprise = false
 end
 
