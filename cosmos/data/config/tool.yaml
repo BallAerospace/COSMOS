@@ -5,15 +5,15 @@ TOOL:
   parameters:
     - name: Folder Name
       required: true
-      description: The target folder where the tool is located
+      description: The folder where the tool is located relative to the tools folder in the plugin
       values: .*
     - name: Name
       required: true
-      description: The tool name
+      description: The tool name displayed in the Nav bar
       values: .*
   modifiers:
     URL:
-      summary: Url to reach the tool
+      summary: Url to reach the tool relative to the tools Folder Name, or absolute
       parameters:
         - name: URL
           required: true
@@ -26,3 +26,24 @@ TOOL:
           required: true
           description: Material design icon name (https://materialdesignicons.com/)
           values: .*
+    WINDOW:
+      summary: How the tool should be displayed
+      parameters:
+        - name: Mode
+          required: true
+          description: Tool display mode
+          values: ["INLINE", "IFRAME", "NEW"]
+    CATEGORY:
+      summary: Category to place the tool into
+      parameters:
+        - name: Category
+          required: true
+          description: Name of a category to organize a tool into
+          values: .*
+    SHOWN:
+      summary: Is the Tool Shown in the Nav Bar
+      parameters:
+        - name: Shown
+          required: true
+          description: Is Shown?
+          values: ["true", "false"]
