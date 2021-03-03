@@ -231,6 +231,7 @@ module Cosmos
       end
       self.class.packets(@name, type: :CMD, scope: @scope).each do |packet|
         Store.del("#{@scope}__COMMAND__{#{@name}}__#{packet['packet_name']}")
+        Store.del("#{@scope}__DECOMCMD__{#{@name}}__#{packet['packet_name']}")
       end
       self.class.packets(@name, scope: @scope).each do |packet|
         Store.del("#{@scope}__TELEMETRY__{#{@name}}__#{packet['packet_name']}")
