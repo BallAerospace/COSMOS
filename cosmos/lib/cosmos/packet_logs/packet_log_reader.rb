@@ -110,7 +110,7 @@ module Cosmos
       id = false
       id = true if flags & COSMOS5_ID_FLAG_MASK == COSMOS5_ID_FLAG_MASK
 
-      if flags & COSMOS5_PACKET_ENTRY_TYPE_MASK == COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK
+      if flags & COSMOS5_ENTRY_TYPE_MASK == COSMOS5_JSON_PACKET_ENTRY_TYPE_MASK
         packet_index, time_nsec_since_epoch = entry[2..11].unpack('nQ>')
         json_data = entry[12..-1]
         lookup_cmd_or_tlm, target_name, packet_name, id = @packets[packet_index]
@@ -118,7 +118,7 @@ module Cosmos
           raise "Packet type mismatch, packet:#{cmd_or_tlm}, lookup:#{lookup_cmd_or_tlm}"
         end
         return JsonPacket.new(cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, json_data)
-      elsif flags & COSMOS5_PACKET_ENTRY_TYPE_MASK == COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK
+      elsif flags & COSMOS5_ENTRY_TYPE_MASK == COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK
         packet_index, time_nsec_since_epoch = entry[2..11].unpack('nQ>')
         packet_data = entry[12..-1]
         lookup_cmd_or_tlm, target_name, packet_name, id = @packets[packet_index]
@@ -137,7 +137,7 @@ module Cosmos
         packet.stored = stored
         packet.received_count += 1
         return packet
-      elsif flags & COSMOS5_PACKET_ENTRY_TYPE_MASK == COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK
+      elsif flags & COSMOS5_ENTRY_TYPE_MASK == COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK
         target_name_length = length - COSMOS5_PRIMARY_FIXED_SIZE - COSMOS5_TARGET_DECLARATION_SECONDARY_FIXED_SIZE
         target_name_length -= COSMOS5_ID_FIXED_SIZE if id
         target_name = entry[2..(target_name_length + 1)]
@@ -147,7 +147,7 @@ module Cosmos
         end
         @target_names << target_name
         return read(identify_and_define)
-      elsif flags & COSMOS5_PACKET_ENTRY_TYPE_MASK == COSMOS5_PACKET_DECLARATION_ENTRY_TYPE_MASK
+      elsif flags & COSMOS5_ENTRY_TYPE_MASK == COSMOS5_PACKET_DECLARATION_ENTRY_TYPE_MASK
         target_index = entry[2..3].unpack('n')[0]
         target_name = @target_names[target_index]
         packet_name_length = length - COSMOS5_PRIMARY_FIXED_SIZE - COSMOS5_PACKET_DECLARATION_SECONDARY_FIXED_SIZE
@@ -159,7 +159,7 @@ module Cosmos
         end
         @packets << [cmd_or_tlm, target_name, packet_name, id]
         return read(identify_and_define)
-      elsif flags & COSMOS5_PACKET_ENTRY_TYPE_MASK == COSMOS5_OFFSET_MARKER_ENTRY_TYPE_MASK
+      elsif flags & COSMOS5_ENTRY_TYPE_MASK == COSMOS5_OFFSET_MARKER_ENTRY_TYPE_MASK
         offset_length = length - COSMOS5_PRIMARY_FIXED_SIZE - COSMOS5_OFFSET_MARKER_SECONDARY_FIXED_SIZE
         offset_length -= COSMOS5_ID_FIXED_SIZE if id
         redis_offset = entry[2..(offset_length + 1)]
