@@ -28,7 +28,6 @@ VARIABLE templated_port 5025
 <% include_inst2_int = (inst2_int_name.strip.length > 0) %>
 <% include_example_int = (example_int_name.strip.length > 0) %>
 <% include_templated_int = (templated_int_name.strip.length > 0) %>
-<% include_demo_tool = (demo_tool_name.strip.length > 0) %>
 <% include_example_microservice = (example_microservice_name.strip.length > 0) %>
 <% include_templated_microservice = (templated_microservice_name.strip.length > 0) %>
 
@@ -93,9 +92,4 @@ VARIABLE templated_port 5025
   MICROSERVICE TEMPLATED <%= templated_microservice_name %>
     WORK_DIR .
     CMD ruby scpi_target.rb <%= templated_target_name %> <%= templated_port %>
-<% end %>
-
-<% if include_demo_tool %>
-#  TOOL DEMO <%= demo_tool_name %>
-#    URL dist/index.html
 <% end %>
