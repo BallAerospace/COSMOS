@@ -27,6 +27,9 @@
 import DataExtractor from '@/tools/DataExtractor/DataExtractor'
 export default {
   name: 'DataExtractorView',
+  mounted() {
+    document.title = 'Data Extractor: Cosmos'
+  },
   components: {
     DataExtractor,
   },

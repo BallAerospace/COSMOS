@@ -27,6 +27,9 @@
 import DataViewer from '@/tools/DataViewer/DataViewer'
 export default {
   name: 'DataViewerView',
+  mounted() {
+    document.title = 'Data Viewer: Cosmos'
+  },
   components: {
     DataViewer,
   },

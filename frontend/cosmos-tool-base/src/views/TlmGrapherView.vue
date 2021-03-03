@@ -26,6 +26,9 @@
 import TlmGrapher from '@/tools/TlmGrapher/TlmGrapher'
 export default {
   name: 'TlmGrapherView',
+  mounted() {
+    document.title = 'Telemetry Grapher: Cosmos'
+  },
   components: {
     TlmGrapher,
   },

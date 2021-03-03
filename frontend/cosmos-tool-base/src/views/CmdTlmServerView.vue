@@ -27,6 +27,9 @@
 import CmdTlmServer from '@/tools/CmdTlmServer/CmdTlmServer'
 export default {
   name: 'CmdTlmServerView',
+  mounted() {
+    document.title = 'Command/Telemetry: Cosmos'
+  },
   components: {
     CmdTlmServer,
   },

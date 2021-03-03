@@ -28,6 +28,9 @@
 import PacketViewer from '@/tools/PacketViewer/PacketViewer'
 export default {
   name: 'PacketViewerView',
+  mounted() {
+    document.title = 'Packet Viewer: Cosmos'
+  },
   components: {
     PacketViewer,
   },

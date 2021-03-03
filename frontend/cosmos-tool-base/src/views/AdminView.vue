@@ -27,6 +27,9 @@
 import CosmosAdmin from '@/tools/CosmosAdmin/CosmosAdmin'
 export default {
   name: 'AdminView',
+  mounted() {
+    document.title = 'Admin: Cosmos'
+  },
   components: {
     CosmosAdmin,
   },

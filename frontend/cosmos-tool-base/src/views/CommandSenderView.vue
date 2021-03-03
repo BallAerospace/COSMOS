@@ -27,6 +27,9 @@
 import CommandSender from '@/tools/CommandSender/CommandSender'
 export default {
   name: 'CommandSenderView',
+  mounted() {
+    document.title = 'Command Sender: Cosmos'
+  },
   components: {
     CommandSender,
   },

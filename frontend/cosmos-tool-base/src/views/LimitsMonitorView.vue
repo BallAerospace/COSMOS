@@ -28,6 +28,9 @@
 import LimitsMonitor from '@/tools/LimitsMonitor/LimitsMonitor'
 export default {
   name: 'LimitsMonitorView',
+  mounted() {
+    document.title = 'Limits Monitor: Cosmos'
+  },
   components: {
     LimitsMonitor,
   },

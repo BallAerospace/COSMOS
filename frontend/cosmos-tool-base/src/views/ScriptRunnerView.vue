@@ -27,6 +27,9 @@
 import ScriptRunner from '@/tools/ScriptRunner/ScriptRunner'
 export default {
   name: 'ScriptRunnerView',
+  mounted() {
+    document.title = 'Script Runner: Cosmos'
+  },
   components: {
     ScriptRunner,
   },

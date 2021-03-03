@@ -26,6 +26,9 @@
 import TlmViewer from '@/tools/TlmViewer/TlmViewer'
 export default {
   name: 'TlmViewerView',
+  mounted() {
+    document.title = 'Telemetry Viewer: Cosmos'
+  },
   components: {
     TlmViewer,
   },
