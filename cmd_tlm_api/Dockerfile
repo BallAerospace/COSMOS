@@ -6,7 +6,7 @@ WORKDIR /src/
 COPY . .
 
 # Download and setup COSMOS devel area
-RUN ["bundle", "install", "--quiet"]
+RUN ["bundle", "install", "--quiet", "--without=development"]
 
 EXPOSE 2901
 

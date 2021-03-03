@@ -28,6 +28,6 @@ ENV COSMOS_PATH="/cosmos"
 WORKDIR /cosmos/
 COPY . .
 
-RUN ["bundle", "install", "--quiet"]
+RUN ["bundle", "install", "--quiet", "--without=development"]
 RUN ["mkdir", "-p", "lib/cosmos/ext"]
 RUN ["bundle", "exec", "rake", "build"]
