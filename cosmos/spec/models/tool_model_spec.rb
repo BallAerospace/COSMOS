@@ -185,7 +185,8 @@ module Cosmos
         folder = "DEMO"
         name = "DEMO"
         dir = File.join(SPEC_DIR, "install")
-        expect(s3).to receive(:put_object).with(bucket: 'config', key: "#{scope}/tools/#{name}/index.html", body: anything)
+        expect(s3).to receive(:head_bucket)
+        expect(s3).to receive(:put_object).with(bucket: 'tools', key: "#{name}/index.html", body: anything)
 
         model = ToolModel.new(folder_name: folder, name: name, scope: scope)
         model.create
@@ -204,8 +205,8 @@ module Cosmos
         scope = "DEFAULT"
         folder = "DEMO"
         name = "DEMO"
-        expect(s3).to receive(:list_objects).with(bucket: 'config', prefix: "#{scope}/tools/#{name}/").and_return(objs)
-        expect(s3).to receive(:delete_object).with(bucket: 'config', key: "blah")
+        expect(s3).to receive(:list_objects).with(bucket: 'tools', prefix: "#{name}/").and_return(objs)
+        expect(s3).to receive(:delete_object).with(bucket: 'tools', key: "blah")
 
         model = ToolModel.new(folder_name: folder, name: name, scope: scope)
         model.undeploy

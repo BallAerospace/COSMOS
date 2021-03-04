@@ -8,6 +8,6 @@ COPY . /src/
 # Download and setup COSMOS devel area
 RUN ["bundle", "install", "--quiet"]
 
-EXPOSE 3001
+EXPOSE 2902
 
-CMD ["rails", "s", "-b", "0.0.0.0", "-p", "3001"]
+CMD ["rails", "s", "-b", "0.0.0.0", "-p", "2902"]

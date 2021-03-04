@@ -26,4 +26,4 @@ This protects both you and us and you retain full rights to any code you write.
 
 ## License
 
-This Ball Aerospace plugin is released under the GPLv3.0 with a few addendums. See [LICENSE.txt](LICENSE.txt)
+This Ball Aerospace plugin is released under the AGPLv3.0 with a few addendums. See [LICENSE.txt](LICENSE.txt)
