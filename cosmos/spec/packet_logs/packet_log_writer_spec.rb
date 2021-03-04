@@ -49,7 +49,7 @@ module Cosmos
       it "raises with invalid type" do
         capture_io do |stdout|
           plw = PacketLogWriter.new(@log_dir, 'test')
-          plw.write(:BLAH, :CMD, 'TGT', 'CMD', 0, true, "\x01\x02", nil)
+          plw.write(:BLAH, :CMD, 'TGT', 'CMD', 0, true, "\x01\x02", nil, '0-0')
           expect(stdout.string).to match("Unknown entry_type: BLAH")
           plw.shutdown
           sleep 0.1
@@ -59,28 +59,30 @@ module Cosmos
       it "writes binary data to a binary and index file" do
         first_time = Time.now.to_nsec_from_epoch
         last_time = first_time += 1_000_000_000
+        first_timestamp = Time.from_nsec_from_epoch(first_time).to_timestamp 
+        last_timestamp = Time.from_nsec_from_epoch(last_time).to_timestamp
         label = 'test'
         plw = PacketLogWriter.new(@log_dir, label)
         expect(plw.instance_variable_get(:@file_size)).to eq 0
         # Mark the first packet as "stored" (true)
-        plw.write(:RAW_PACKET, :TLM, 'TGT1', 'PKT1', first_time, true, "\x01\x02", nil)
+        plw.write(:RAW_PACKET, :TLM, 'TGT1', 'PKT1', first_time, true, "\x01\x02", nil, '0-0')
         expect(plw.instance_variable_get(:@file_size)).to_not eq 0
-        plw.write(:RAW_PACKET, :TLM, 'TGT2', 'PKT2', last_time, false, "\x03\x04", nil)
+        plw.write(:RAW_PACKET, :TLM, 'TGT2', 'PKT2', last_time, false, "\x03\x04", nil, '0-0')
         plw.shutdown
         sleep 0.1 # Allow for shutdown thread "copy" to S3
 
         # Files copied to S3 are named via the first_time, last_time, label
-        expect(@files.keys).to contain_exactly("#{first_time}__#{last_time}__#{label}.bin",
-          "#{first_time}__#{last_time}__#{label}.idx")
+        expect(@files.keys).to contain_exactly("#{first_timestamp}__#{last_timestamp}__#{label}.bin",
+          "#{first_timestamp}__#{last_timestamp}__#{label}.idx")
 
         # Verify the COSMOS5 header on the binary file
-        bin = @files["#{first_time}__#{last_time}__#{label}.bin"]
+        bin = @files["#{first_timestamp}__#{last_timestamp}__#{label}.bin"]
         results = bin.unpack("Z8")[0]
         expect(results).to eq 'COSMOS5_'
         # puts bin.formatted
 
         # Verify the COSMOS5 header on the index file
-        idx = @files["#{first_time}__#{last_time}__#{label}.idx"]
+        idx = @files["#{first_timestamp}__#{last_timestamp}__#{label}.idx"]
         results = idx.unpack("Z8")[0]
         expect(results).to eq 'COSIDX5_'
         # puts idx.formatted
@@ -129,9 +131,9 @@ module Cosmos
         file_size += 2 * (data.length + pkt.buffer.length)
 
         plw = PacketLogWriter.new(@log_dir, label, true, nil, file_size)
-        plw.write(:RAW_PACKET, :TLM, target_name, packet_name, time, false, pkt.buffer, nil)
+        plw.write(:RAW_PACKET, :TLM, target_name, packet_name, time, false, pkt.buffer, nil, '0-0')
         time += 1_000_000_000
-        plw.write(:RAW_PACKET, :TLM, target_name, packet_name, time, false, pkt.buffer, nil)
+        plw.write(:RAW_PACKET, :TLM, target_name, packet_name, time, false, pkt.buffer, nil, '0-0')
         time += 1_000_000_000
         sleep 0.1
 
@@ -140,7 +142,7 @@ module Cosmos
         expect(@files.keys.length).to eq 0 # No files have been written out
 
         # One more write should cause the first file to close and new one to open
-        plw.write(:RAW_PACKET, :TLM, target_name, packet_name, time, false, pkt.buffer, nil)
+        plw.write(:RAW_PACKET, :TLM, target_name, packet_name, time, false, pkt.buffer, nil, '0-0')
         sleep 0.1
         expect(@files.keys.length).to eq 2 # Initial files (binary and index)
 
@@ -158,7 +160,7 @@ module Cosmos
         label = 'test'
         plw = PacketLogWriter.new(@log_dir, label, true, 1, nil) # cycle every sec
         15.times do
-          plw.write(:RAW_PACKET, :TLM, 'TGT1', 'PKT1', time, true, "\x01\x02", nil)
+          plw.write(:RAW_PACKET, :TLM, 'TGT1', 'PKT1', time, true, "\x01\x02", nil, '0-0')
           time += 200_000_000
           sleep 0.2
         end
@@ -176,7 +178,7 @@ module Cosmos
         capture_io do |stdout|
           allow(File).to receive(:new) { raise "Error" }
           plw = PacketLogWriter.new(@log_dir, "test")
-          plw.write(:RAW_PACKET, :TLM, 'TGT1', 'PKT1', Time.now.to_nsec_from_epoch, true, "\x01\x02", nil)
+          plw.write(:RAW_PACKET, :TLM, 'TGT1', 'PKT1', Time.now.to_nsec_from_epoch, true, "\x01\x02", nil, '0-0')
           sleep 0.1
           plw.stop
           expect(stdout.string).to match("Error opening")
@@ -189,7 +191,7 @@ module Cosmos
         capture_io do |stdout|
           allow_any_instance_of(File).to receive(:close).and_raise('Nope')
           plw = PacketLogWriter.new(@log_dir, "test")
-          plw.write(:RAW_PACKET, :TLM, 'TGT1', 'PKT1', Time.now.to_nsec_from_epoch, true, "\x01\x02", nil)
+          plw.write(:RAW_PACKET, :TLM, 'TGT1', 'PKT1', Time.now.to_nsec_from_epoch, true, "\x01\x02", nil, '0-0')
           sleep 0.1
           plw.stop
           expect(stdout.string).to match("Error closing")
@@ -203,7 +205,7 @@ module Cosmos
           plw = PacketLogWriter.new(@log_dir, "test")
           # Plus 2 because 0 to MAX are all valid so +1 is ok and +2 errors
           (PacketLogWriter::COSMOS5_MAX_TARGET_INDEX + 2).times do |i|
-            plw.write(:RAW_PACKET, :TLM, "TGT#{i}", "PKT", Time.now.to_nsec_from_epoch, true, "\x01\x02", nil)
+            plw.write(:RAW_PACKET, :TLM, "TGT#{i}", "PKT", Time.now.to_nsec_from_epoch, true, "\x01\x02", nil, '0-0')
           end
           expect(stdout.string).to match("Target Index Overflow")
           plw.shutdown
@@ -216,7 +218,7 @@ module Cosmos
           plw = PacketLogWriter.new(@log_dir, "test")
           # Plus 2 because 0 to MAX are all valid so +1 is ok and +2 errors
           (PacketLogWriter::COSMOS5_MAX_PACKET_INDEX + 2).times do |i|
-            plw.write(:RAW_PACKET, :TLM, "TGT", "PKT#{i}", Time.now.to_nsec_from_epoch, true, "\x01\x02", nil)
+            plw.write(:RAW_PACKET, :TLM, "TGT", "PKT#{i}", Time.now.to_nsec_from_epoch, true, "\x01\x02", nil, '0-0')
           end
           expect(stdout.string).to match("Packet Index Overflow")
           plw.shutdown
@@ -228,11 +230,11 @@ module Cosmos
     describe "start" do
       it "enables logging" do
         plw = PacketLogWriter.new(@log_dir, 'test', false) # Logging not enabled
-        plw.write(:RAW_PACKET, :CMD, 'TGT', 'CMD', Time.now.to_nsec_from_epoch, true, "\x01\x02", nil)
+        plw.write(:RAW_PACKET, :CMD, 'TGT', 'CMD', Time.now.to_nsec_from_epoch, true, "\x01\x02", nil, '0-0')
         expect(plw.instance_variable_get(:@file_size)).to eq 0
 
         plw.start # Enable logging
-        plw.write(:RAW_PACKET, :CMD, 'TGT', 'CMD', Time.now.to_nsec_from_epoch, true, "\x01\x02", nil)
+        plw.write(:RAW_PACKET, :CMD, 'TGT', 'CMD', Time.now.to_nsec_from_epoch, true, "\x01\x02", nil, '0-0')
         expect(plw.instance_variable_get(:@file_size)).to_not eq 0
 
         plw.shutdown

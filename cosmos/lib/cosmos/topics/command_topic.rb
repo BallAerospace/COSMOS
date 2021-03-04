@@ -30,6 +30,7 @@ module Cosmos
                   target_name: packet.target_name,
                   packet_name: packet.packet_name,
                   received_count: packet.received_count,
+                  stored: packet.stored,
                   buffer: packet.buffer(false) }
       Store.write_topic(topic, msg_hash)
     end

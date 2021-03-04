@@ -89,8 +89,6 @@ module Cosmos
       @filename = nil
       @index_file = nil
       @index_filename = nil
-      @index_file = nil
-      @index_filename = nil
       @start_time = Time.now.utc
       @cmd_packet_table = {}
       @tlm_packet_table = {}
@@ -102,6 +100,7 @@ module Cosmos
       @target_indexes = {}
       @next_target_index = 0
       @cancel_threads = false
+      @last_offset = nil
 
       # This is an optimization to avoid creating a new entry object
       # each time we create an entry which we do a LOT!
@@ -131,13 +130,15 @@ module Cosmos
     # @param stored [Boolean] Whether this data is stored telemetry
     # @param data [String] Binary string of data
     # @param id [Integer] Target ID
-    def write(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id)
+    # @param redis_offset [Integer] The offset of this packet in its Redis stream
+    def write(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id, redis_offset)
       return if !@logging_enabled
       @mutex.synchronize do
         # This check includes logging_enabled again because it might have changed since we acquired the mutex
         if @logging_enabled and (!@file or (@cycle_size and (@file_size + data.length) > @cycle_size))
           start_new_file()
         end
+        @last_offset = redis_offset # This is needed for the redis offset marker entry at the end of the log file
         write_entry(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id) if @file
       end
     rescue => err
@@ -252,9 +253,11 @@ module Cosmos
       begin
         if @file
           begin
+            write_entry(:OFFSET_MARKER, nil, nil, nil, nil, nil, nil, nil)
             @file.close unless @file.closed?
             Logger.info "Log File Closed : #{@filename}"
-            s3_key = File.join(@remote_log_directory, "#{@first_time}__#{@last_time}__#{@label}.bin")
+            date = first_timestamp[0..7] # YYYYMMDD
+            s3_key = File.join(@remote_log_directory, date, "#{first_timestamp}__#{last_timestamp}__#{@label}.bin")
             move_file_to_s3(@filename, s3_key)
           rescue Exception => err
             Logger.instance.error "Error closing #{@filename} : #{err.formatted}"
@@ -269,7 +272,8 @@ module Cosmos
             write_index_file_footer()
             @index_file.close unless @index_file.closed?
             Logger.info "Index Log File Closed : #{@index_filename}"
-            s3_key = File.join(@remote_log_directory, "#{@first_time}__#{@last_time}__#{@label}.idx")
+            date = first_timestamp[0..7] # YYYYMMDD
+            s3_key = File.join(@remote_log_directory, date, "#{first_timestamp}__#{last_timestamp}__#{@label}.idx")
             move_file_to_s3(@index_filename, s3_key)
           rescue Exception => err
             Logger.instance.error "Error closing #{@index_filename} : #{err.formatted}"
@@ -371,7 +375,7 @@ module Cosmos
         length += COSMOS5_TARGET_DECLARATION_SECONDARY_FIXED_SIZE + target_name.length
         length += COSMOS5_ID_FIXED_SIZE if id
         @entry.clear
-        @entry << [length, flags, target_name.length].pack(COSMOS5_TARGET_DECLARATION_PACK_DIRECTIVE) << target_name
+        @entry << [length, flags].pack(COSMOS5_TARGET_DECLARATION_PACK_DIRECTIVE) << target_name
         @entry << [id].pack('H*') if id
         @target_dec_entries << @entry.dup
       when :PACKET_DECLARATION
@@ -383,9 +387,14 @@ module Cosmos
         length += COSMOS5_PACKET_DECLARATION_SECONDARY_FIXED_SIZE + packet_name.length
         length += COSMOS5_ID_FIXED_SIZE if id
         @entry.clear
-        @entry << [length, flags, target_index, packet_name.length].pack(COSMOS5_PACKET_DECLARATION_PACK_DIRECTIVE) << packet_name
+        @entry << [length, flags, target_index].pack(COSMOS5_PACKET_DECLARATION_PACK_DIRECTIVE) << packet_name
         @entry << [id].pack('H*') if id
         @packet_dec_entries << @entry.dup
+      when :OFFSET_MARKER
+        flags |= COSMOS5_OFFSET_MARKER_ENTRY_TYPE_MASK
+        length += COSMOS5_OFFSET_MARKER_SECONDARY_FIXED_SIZE + @last_offset.length
+        @entry.clear
+        @entry << [length, flags].pack(COSMOS5_OFFSET_MARKER_PACK_DIRECTIVE) << @last_offset
       when :RAW_PACKET, :JSON_PACKET
         target_name = 'UNKNOWN'.freeze unless target_name
         packet_name = 'UNKNOWN'.freeze unless packet_name
@@ -429,6 +438,14 @@ module Cosmos
         footer_length += packet_dec_entry.length
       end
       @index_file.write([footer_length].pack('N'))
+    end
+
+    def first_timestamp
+      Time.from_nsec_from_epoch(@first_time).to_timestamp # "YYYYMMDDHHmmSSNNNNNNNNN"
+    end
+    
+    def last_timestamp
+      Time.from_nsec_from_epoch(@last_time).to_timestamp # "YYYYMMDDHHmmSSNNNNNNNNN"
     end
   end
 end

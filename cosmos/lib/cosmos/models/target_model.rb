@@ -231,6 +231,7 @@ module Cosmos
       end
       self.class.packets(@name, type: :CMD, scope: @scope).each do |packet|
         Store.del("#{@scope}__COMMAND__{#{@name}}__#{packet['packet_name']}")
+        Store.del("#{@scope}__DECOMCMD__{#{@name}}__#{packet['packet_name']}")
       end
       self.class.packets(@name, scope: @scope).each do |packet|
         Store.del("#{@scope}__TELEMETRY__{#{@name}}__#{packet['packet_name']}")
@@ -243,6 +244,10 @@ module Cosmos
       model = MicroserviceModel.get_model(name: "#{@scope}__DECOM__#{@name}", scope: @scope)
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__CVT__#{@name}", scope: @scope)
+      model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__COMMANDLOG__#{@name}", scope: @scope)
+      model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__DECOMCMDLOG__#{@name}", scope: @scope)
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__PACKETLOG__#{@name}", scope: @scope)
       model.destroy if model
@@ -337,11 +342,13 @@ module Cosmos
 
     def deploy_microservices(gem_path, variables, system)
       command_topic_list = []
+      decom_command_topic_list = []
       packet_topic_list = []
       decom_topic_list = []
       begin
         system.commands.packets(@name).each do |packet_name, packet|
           command_topic_list << "#{@scope}__COMMAND__{#{@name}}__#{packet_name}"
+          decom_command_topic_list << "#{@scope}__DECOMCMD__{#{@name}}__#{packet_name}"
         end
       rescue
         # No command packets for this target
@@ -356,6 +363,7 @@ module Cosmos
       end
       # It's ok to call this with an empty array
       Store.initialize_streams(command_topic_list)
+      Store.initialize_streams(decom_command_topic_list)
       # Might as well return if there are no packets
       return unless packet_topic_list.length > 0
       Store.initialize_streams(packet_topic_list)
@@ -389,13 +397,46 @@ module Cosmos
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"
 
+      # CommandLog Microservice
+      microservice_name = "#{@scope}__COMMANDLOG__#{@name}"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        folder_name: @folder_name,
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        options: ["RAW", "CMD"],
+        topics: command_topic_list,
+        target_names: [@name],
+        plugin: plugin,
+        scope: @scope)
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
+
+      # DecomCmdLog Microservice
+      microservice_name = "#{@scope}__DECOMCMDLOG__#{@name}"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        folder_name: @folder_name,
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        options: ["DECOM", "CMD"],
+        topics: decom_command_topic_list,
+        target_names: [@name],
+        plugin: plugin,
+        scope: @scope)
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
+
       # PacketLog Microservice
       microservice_name = "#{@scope}__PACKETLOG__#{@name}"
       microservice = MicroserviceModel.new(
         name: microservice_name,
         folder_name: @folder_name,
-        cmd: ["ruby", "packet_log_microservice.rb", microservice_name],
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
+        options: ["RAW", "TLM"],
         topics: packet_topic_list,
         target_names: [@name],
         plugin: plugin,
@@ -409,8 +450,9 @@ module Cosmos
       microservice = MicroserviceModel.new(
         name: microservice_name,
         folder_name: @folder_name,
-        cmd: ["ruby", "decom_log_microservice.rb", microservice_name],
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
+        options: ["DECOM", "TLM"],
         topics: decom_topic_list,
         target_names: [@name],
         plugin: plugin,

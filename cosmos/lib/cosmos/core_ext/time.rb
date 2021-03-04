@@ -261,6 +261,11 @@ class Time
     self.strftime(str)
   end
 
+  # @return [String] Date formatted as YYYYMMDDHHmmSSNNNNNNNNN
+  def to_timestamp
+    self.strftime("%Y%m%d%H%M%S%N")
+  end
+
   # @param time [Time]
   # @return [Float] Number of julian days since Jan 1, 2000 at noon
   def self.days_from_j2000(time)

@@ -202,7 +202,7 @@ module Cosmos
         Fluent::Logger.post(@metric_tag, data) unless @no_fluentd
         unless @no_store
           if scope
-            Store.write_topic("#{@scope}__cosmos_log_messages", data)
+            Store.write_topic("#{scope}__cosmos_log_messages", data)
           else
             Store.write_topic("cosmos_log_messages", data)
           end
@@ -226,7 +226,7 @@ module Cosmos
         Fluent::Logger.post(@tag, data) unless @no_fluentd
         unless @no_store
           if scope
-            Store.write_topic("#{@scope}__cosmos_log_messages", data)
+            Store.write_topic("#{scope}__cosmos_log_messages", data)
           else
             Store.write_topic("cosmos_log_messages", data)
           end
