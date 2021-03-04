@@ -1,7 +1,5 @@
 FROM cosmos-base
 
-# Set RUBYLIB so the init.sh script which calls ruby can find COSMOS
-ENV RUBYLIB=/cosmos/lib
 COPY plugins /cosmos/plugins/
 WORKDIR /cosmos/plugins/cosmos-demo/
 COPY init.sh .

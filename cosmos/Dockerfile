@@ -10,6 +10,7 @@ ENV REQUESTS_CA_BUNDLE=/devel/cacert.pem
 
 # ARG rather than ENV so it doesn't persist in the built image
 ARG DEBIAN_FRONTEND=noninteractive
+# Update packages first as this changes the least
 RUN apt-get update -y && apt-get install -y \
   --no-install-recommends \
   --option "Acquire:http::No-Cache=true" \
@@ -23,13 +24,16 @@ RUN apt-get update -y && apt-get install -y \
   zlib1g \
   zlib1g-dev
 
+ENV RUBYLIB=/cosmos/lib
 ENV COSMOS_PATH="/cosmos"
 WORKDIR /cosmos/
-COPY . .
-
+# Copy in the Gemfile and bundle install
+COPY Gemfile .
 RUN mkdir -p lib/cosmos/ext && \
   git config --global http.sslCAinfo /devel/cacert.pem && \
   gem install bundler && \
   bundle config set --local without 'development' && \
-  bundle install --quiet && \
-  bundle exec rake build
+  bundle install --quiet
+# Copy all the source code (which changes the most) and build
+COPY . .
+RUN bundle exec rake build

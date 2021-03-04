@@ -17,8 +17,6 @@ RUN apt-get update -y && apt-get install -y \
   libasound2 \
   xvfb
 
-# Set RUBYLIB so the init.sh script which calls ruby can find COSMOS
-ENV RUBYLIB=/cosmos/lib
 RUN mkdir -p /cosmos/plugins/cosmos-tool-base
 WORKDIR /cosmos/plugins/cosmos-tool-base/
 COPY cosmos-tool-base/. .
