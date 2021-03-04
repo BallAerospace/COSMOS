@@ -52,7 +52,7 @@ module Cosmos
       microservice_name = "#{@scope}__CLEANUP__S3"
       microservice = MicroserviceModel.new(
         name: microservice_name,
-        cmd: ["ruby", "cleanup_microservice.rb", microservice_name],
+        cmd: ["bundle", "exec", "ruby", "cleanup_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [
           ["SIZE", "20_000_000_000"], # Max Size to keep in S3

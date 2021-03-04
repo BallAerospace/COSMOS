@@ -19,7 +19,9 @@
 
 begin
   require 'cosmos-enterprise/utilities/authorization'
+  Logger.info "Required cosmos-enterprise authorization"
 rescue LoadError
+  STDOUT.puts "!!!!!!!!!!!!!! NO STORE AUTHORIZATION !!!!!!!!!!!!!!!!!!!!"
   # If we're not in cosmos-enterprise we define our own
   module Cosmos
     class AuthError < StandardError
