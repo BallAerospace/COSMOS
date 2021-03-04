@@ -28,6 +28,8 @@ module Cosmos
   class PacketLogReader
     include PacketLogConstants
 
+    attr_reader :redis_offset
+
     MAX_READ_SIZE = 1000000000
 
     # Create a new log file reader
@@ -160,14 +162,7 @@ module Cosmos
         @packets << [cmd_or_tlm, target_name, packet_name, id]
         return read(identify_and_define)
       elsif flags & COSMOS5_ENTRY_TYPE_MASK == COSMOS5_OFFSET_MARKER_ENTRY_TYPE_MASK
-        offset_length = length - COSMOS5_PRIMARY_FIXED_SIZE - COSMOS5_OFFSET_MARKER_SECONDARY_FIXED_SIZE
-        offset_length -= COSMOS5_ID_FIXED_SIZE if id
-        redis_offset = entry[2..(offset_length + 1)]
-        if id
-          id = entry[(offset_length + 3)..(offset_length + 34)]
-          @target_ids << id
-        end
-        @redis_offsets << redis_offset
+        @redis_offset = entry[2..-1]
         return read(identify_and_define)
       else
         raise "Invalid Entry Flags: #{flags}"
@@ -285,7 +280,7 @@ module Cosmos
       @target_ids = []
       @packets = []
       @packet_ids = []
-      @redis_offsets = []
+      @redis_offset = nil
     end
 
     # This is best effort. May return unidentified/undefined packets

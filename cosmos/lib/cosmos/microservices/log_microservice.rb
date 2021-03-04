@@ -55,7 +55,7 @@ module Cosmos
         # These settings limit the log file to 10 minutes or 50MB of data, whichever comes first
         # TODO: Move these to a config (and probably only use only one or the other, as recommended by packet_log_writer)
         cycle_time = 600 # 10 minutes
-        cycle_size = 52_428_800 # 50 MB
+        cycle_size = 50_000_000 # ~50 MB
         plws[topic] = {
           :RT => PacketLogWriter.new(remote_log_directory, rt_label, true, cycle_time, cycle_size),
           :STORED => PacketLogWriter.new(remote_log_directory, stored_label, true, cycle_time, cycle_size)
