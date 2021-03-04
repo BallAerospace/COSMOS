@@ -236,7 +236,7 @@ module Cosmos
       microservice = MicroserviceModel.new(
         name: microservice_name,
         work_dir: '/cosmos/lib/cosmos/microservices',
-        cmd: ["bundle", "exec", "ruby", "#{type.downcase}_microservice.rb", microservice_name],
+        cmd: ["ruby", "#{type.downcase}_microservice.rb", microservice_name],
         target_names: @target_names,
         plugin: @plugin,
         scope: @scope)
