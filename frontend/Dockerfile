@@ -18,12 +18,13 @@ RUN apt-get update -y && apt-get install -y \
   xvfb
 
 RUN mkdir -p /cosmos/plugins/cosmos-tool-base
-COPY cosmos-tool-base/package*.json /cosmos/plugins/cosmos-tool-base
 WORKDIR /cosmos/plugins/cosmos-tool-base/
-RUN npm install
 COPY cosmos-tool-base/. .
-RUN npm run build && \
-  bundle exec rake build VERSION=5.0.0 --quiet
+RUN npm install && npm run build
+RUN bundle exec rake build VERSION=5.0.0 --quiet && \
+  bundle config set --local without 'development' && \
+  bundle install --quiet
+
 WORKDIR /cosmos/plugins/
 COPY init.sh .
 CMD [ "/cosmos/plugins/init.sh" ]

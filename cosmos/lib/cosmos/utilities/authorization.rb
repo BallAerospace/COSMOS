@@ -17,11 +17,14 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/utilities/logger'
+
 begin
   require 'cosmos-enterprise/utilities/authorization'
-  Logger.info "Required cosmos-enterprise authorization"
+  Cosmos::Logger.info "Required cosmos-enterprise authorization"
+  STDOUT.puts "************** ENTERPRISE AUTHORIZATION *******************"
 rescue LoadError
-  STDOUT.puts "!!!!!!!!!!!!!! NO STORE AUTHORIZATION !!!!!!!!!!!!!!!!!!!!"
+  STDOUT.puts "!!!!!!!!!!!!!! NO ENTERPRISE AUTHORIZATION !!!!!!!!!!!!!!!!!!!!"
   # If we're not in cosmos-enterprise we define our own
   module Cosmos
     class AuthError < StandardError

@@ -21,13 +21,15 @@ require 'redis'
 require 'json'
 require 'thread'
 require 'connection_pool'
+require 'cosmos/utilities/logger'
 
 begin
   require 'cosmos-enterprise/utilities/store'
-  Logger.info "Required cosmos-enterprise store"
+  Cosmos::Logger.info "Required cosmos-enterprise store"
+  STDOUT.puts "************** ENTERPRISE STORE *******************"
   $cosmos_enterprise = true
 rescue LoadError
-  STDOUT.puts "!!!!!!!!!!!!!! NO STORE ENTERPRISE !!!!!!!!!!!!!!!!!!!!"
+  STDOUT.puts "!!!!!!!!!!!!!! NO ENTERPRISE STORE !!!!!!!!!!!!!!!!!!!!"
   $cosmos_enterprise = false
 end
 
