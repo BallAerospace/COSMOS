@@ -196,6 +196,7 @@ class FileCache
     dates = []
     cur_date = Time.at(start_time_nsec / Time::NSEC_PER_SECOND).beginning_of_day
     end_date = Time.at(end_time_nsec / Time::NSEC_PER_SECOND).beginning_of_day
+    cur_date -= 1.day # start looking in the folder for the day before because log files can span across midnight
     while cur_date <= end_date
       dates << cur_date.strftime("%Y%m%d")
       cur_date += 1.day
