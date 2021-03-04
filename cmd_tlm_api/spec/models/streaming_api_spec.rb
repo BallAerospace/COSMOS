@@ -58,8 +58,8 @@ RSpec.describe StreamingApi, type: :model do
     # Ensure the FileCache is clear so we don't leak the s3 mock
     FileCache.class_variable_set(:@@instance, nil)
 
-    @file_start_time = 1612507048486161200 # these are from the file names in spec/fixtures/files
-    @file_end_time = 1612510649489137500
+    @file_start_time = 1614890937274290500 # these are from the file names in spec/fixtures/files
+    @file_end_time = 1614891537276524900
     s3 = double("AwsS3Client").as_null_object
     allow(Aws::S3::Client).to receive(:new).and_return(s3)
     allow(s3).to receive(:list_objects_v2) do |args|
@@ -68,14 +68,14 @@ RSpec.describe StreamingApi, type: :model do
         def response.contents
           file_1 = Object.new
           def file_1.key
-            "1612507048486161200__1612510649489137500__DEFAULT__INST__PARAMS__decom.bin"
+            "20210304204857274290500__20210304205858274347600__DEFAULT__INST__PARAMS__rt__decom.bin"
           end
           def file_1.size
             4221512
           end
           file_2 = Object.new
           def file_2.key
-            "1612507048486161200__1612510649489137500__DEFAULT__INST__PARAMS__decom.idx"
+            "20210304204857274290500__20210304205858274347600__DEFAULT__INST__PARAMS__rt__decom.idx"
           end
           def file_2.size
             86522
@@ -86,14 +86,14 @@ RSpec.describe StreamingApi, type: :model do
         def response.contents
           file_1 = Object.new
           def file_1.key
-            "1612507011488049700__1612530822029552800__DEFAULT__INST__PARAMS__raw.bin"
+            "20210304204857274290500__20210304205857276524900__DEFAULT__INST__PARAMS__rt__raw.bin"
           end
           def file_1.size
             1000002
           end
           file_2 = Object.new
           def file_2.key
-            "1612507011488049700__1612530822029552800__DEFAULT__INST__PARAMS__raw.idx"
+            "20210304204857274290500__20210304205857276524900__DEFAULT__INST__PARAMS__rt__raw.idx"
           end
           def file_2.size
             571466
@@ -289,7 +289,7 @@ RSpec.describe StreamingApi, type: :model do
 
             @time = Time.at(@start_time.to_i - 1.5)
             data['start_time'] = @file_start_time # make it hit the files
-            data['end_time'] = @file_start_time + 1 # 1 nsec after the beginning of the file so it only has one message to read
+            data['end_time'] = @file_start_time + 1000 # 1 ms after the beginning of the file so it only has one message to read
             @api.add(data)
             sleep 1.65 # Allow the threads to run (files need a long time)
             # We expect 2 messages, the one from the file and the empty one
@@ -308,8 +308,8 @@ RSpec.describe StreamingApi, type: :model do
             data['end_time'] = @start_time.to_i * 1_000_000_000 # now
             @api.add(data)
             sleep 2.65 # Allow the threads to run (files need a long time)
-            # We expect at least 38 messages: 36 from the fixture file, at least one from redis, and the empty one at the end
-            expect(@messages.length).to be >= 38
+            # We expect at least 9 messages: 7 from the fixture file, at least one from redis, and the empty one at the end
+            expect(@messages.length).to be >= 9
             expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
           end
         end
