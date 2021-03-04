@@ -145,7 +145,7 @@ end
 
 class FileCache
   MAX_DISK_USAGE = 20_000_000_000 # 20 GB
-  TIMESTAMP_FORMAT = "%Y%m%d%S%N" # TODO: get from different class?
+  TIMESTAMP_FORMAT = "%Y%m%d%H%M%S%N" # TODO: get from different class?
 
   attr_reader :cache_dir
 
@@ -200,13 +200,12 @@ class FileCache
       dates << cur_date.strftime("%Y%m%d")
       cur_date += 1.day
     end
-    dates = ['temporary - remove this line']
     dates.each do |date|
       while true
         resp = rubys3_client.list_objects_v2({
           bucket: "logs",
           max_keys: 1000,
-          prefix: "#{scope}/#{type.to_s.downcase}logs/#{cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}", # /#{date}",
+          prefix: "#{scope}/#{type.to_s.downcase}logs/#{cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}/#{date}",
           continuation_token: token
         })
         total_resp.concat(resp.contents)
@@ -255,10 +254,8 @@ class FileCache
   def file_in_time_range(s3_path, start_time_nsec, end_time_nsec)
     basename = File.basename(s3_path)
     file_start_timestamp, file_end_timestamp, other = basename.split("__")
-    # file_start_time_nsec = Time.strptime(file_start_timestamp, TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND
-    # file_end_time_nsec = Time.strptime(file_end_timestamp, TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND
-    file_start_time_nsec = file_start_timestamp.to_i
-    file_end_time_nsec = file_end_timestamp.to_i
+    file_start_time_nsec = DateTime.strptime(file_start_timestamp, TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND
+    file_end_time_nsec = DateTime.strptime(file_end_timestamp, TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND
     if (start_time_nsec < file_end_time_nsec) and (end_time_nsec >= file_start_time_nsec)
       return true
     else
@@ -483,8 +480,7 @@ class LoggedStreamingThread < StreamingThread
       # puts file_path
       if file_path
         file_path_split = File.basename(file_path).split("__")
-        file_end_time = file_path_split[1].to_i # TODO: replace with the line below for new file name convention
-        # file_end_time = Time.strptime(file_path_split[1], FileCache::TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND # TODO: get format from different class' constant?
+        file_end_time = DateTime.strptime(file_path_split[1], FileCache::TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND # TODO: get format from different class' constant?
         # Cosmos::Logger.debug("file:#{file_path} end:#{file_end_time}")
 
         # Scan forward to find first packet needed
@@ -513,6 +509,7 @@ class LoggedStreamingThread < StreamingThread
           break if @cancel_thread
         end
         transmit_results(results)
+        @last_file_redis_offset = plr.redis_offset
 
         # Move to the next file
         FileCache.instance.unreserve_file(file_path)
@@ -527,11 +524,14 @@ class LoggedStreamingThread < StreamingThread
         if msg_hash
           oldest_time = msg_hash['time'].to_i
           # Stream from Redis
-          # Guesstimate start offset in stream based on first packet time and redis time
-          redis_time = msg_id.split('-')[0].to_i * 1000000
-          delta = redis_time - oldest_time
-          # Start streaming from calculated redis time
-          offset = ((first_object.start_time + delta) / 1_000_000).to_s + '-0'
+          offset = @last_file_redis_offset if @last_file_redis_offset
+          if !offset
+            # Guesstimate start offset in stream based on first packet time and redis time
+            redis_time = msg_id.split('-')[0].to_i * 1000000
+            delta = redis_time - oldest_time
+            # Start streaming from calculated redis time
+            offset = ((first_object.start_time + delta) / 1_000_000).to_s + '-0'
+          end
           Cosmos::Logger.debug("Oldest Redis id:#{msg_id} msg time:#{oldest_time} last object time:#{first_object.start_time} offset:#{offset}")
           objects.each {|object| object.offset = offset}
           @thread_mode = :STREAM
