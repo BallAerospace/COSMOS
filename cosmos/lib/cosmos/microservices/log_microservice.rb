@@ -26,8 +26,26 @@ module Cosmos
 
     def initialize(name)
       super(name)
-      @raw_or_decom = @config['options'][0].intern
-      @cmd_or_tlm = @config['options'][1].intern
+      @config['options'].each do |option|
+        case option[0].upcase
+        when 'RAW_OR_DECOM'
+          @raw_or_decom = option[1].intern
+        when 'CMD_OR_TLM'
+          @cmd_or_tlm = option[1].intern
+        when 'CYCLE_TIME' # Maximum time between log files
+          @cycle_time = option[1].to_i
+        when 'CYCLE_SIZE' # Maximum size of a log file
+          @cycle_size = option[1].to_i
+        else
+          Logger.error("Unknown option passed to microservice #{@name}: #{option}")
+        end
+      end
+
+      raise "Microservice #{@name} not fully configured" unless @raw_or_decom and @cmd_or_tlm
+      
+      # These settings limit the log file to 10 minutes or 50MB of data, whichever comes first
+      @cycle_time = 600 unless @cycle_time # 10 minutes
+      @cycle_size = 50_000_000 unless @cycle_size # ~50 MB
     end
 
     def run
@@ -52,13 +70,9 @@ module Cosmos
         remote_log_directory = "#{scope}/#{type}logs/#{@cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}"
         rt_label = "#{scope}__#{target_name}__#{packet_name}__rt__#{type}"
         stored_label = "#{scope}__#{target_name}__#{packet_name}__stored__#{type}"
-        # These settings limit the log file to 10 minutes or 50MB of data, whichever comes first
-        # TODO: Move these to a config (and probably only use only one or the other, as recommended by packet_log_writer)
-        cycle_time = 600 # 10 minutes
-        cycle_size = 50_000_000 # ~50 MB
         plws[topic] = {
-          :RT => PacketLogWriter.new(remote_log_directory, rt_label, true, cycle_time, cycle_size, redis_topic: topic),
-          :STORED => PacketLogWriter.new(remote_log_directory, stored_label, true, cycle_time, cycle_size, redis_topic: topic)
+          :RT => PacketLogWriter.new(remote_log_directory, rt_label, true, @cycle_time, @cycle_size, redis_topic: topic),
+          :STORED => PacketLogWriter.new(remote_log_directory, stored_label, true, @cycle_time, @cycle_size, redis_topic: topic)
         }
       end
       return plws

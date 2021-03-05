@@ -48,7 +48,7 @@ module Cosmos
         delete_items = []
         oldest_list.each do |item|
           break if total_size <= @size
-          delete_items << item
+          delete_items << { :key => item.key }
           total_size -= item.size
         end
         if delete_items.length > 0
