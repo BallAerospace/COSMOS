@@ -57,8 +57,8 @@ module Cosmos
         cycle_time = 600 # 10 minutes
         cycle_size = 50_000_000 # ~50 MB
         plws[topic] = {
-          :RT => PacketLogWriter.new(remote_log_directory, rt_label, true, cycle_time, cycle_size),
-          :STORED => PacketLogWriter.new(remote_log_directory, stored_label, true, cycle_time, cycle_size)
+          :RT => PacketLogWriter.new(remote_log_directory, rt_label, true, cycle_time, cycle_size, redis_topic: topic),
+          :STORED => PacketLogWriter.new(remote_log_directory, stored_label, true, cycle_time, cycle_size, redis_topic: topic)
         }
       end
       return plws
