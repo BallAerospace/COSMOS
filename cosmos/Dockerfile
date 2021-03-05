@@ -27,13 +27,10 @@ RUN apt-get update -y && apt-get install -y \
 ENV RUBYLIB=/cosmos/lib
 ENV COSMOS_PATH="/cosmos"
 WORKDIR /cosmos/
-# Copy in the Gemfile and bundle install
-COPY Gemfile .
+COPY . .
 RUN mkdir -p lib/cosmos/ext && \
   git config --global http.sslCAinfo /devel/cacert.pem && \
   gem install bundler && \
   bundle config set --local without 'development' && \
-  bundle install --quiet
-# Copy all the source code (which changes the most) and build
-COPY . .
-RUN bundle exec rake build
+  bundle install --quiet && \
+  bundle exec rake build

@@ -17,6 +17,7 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos'
 require 'cosmos/utilities/logger'
 
 begin

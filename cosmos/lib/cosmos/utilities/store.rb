@@ -21,6 +21,7 @@ require 'redis'
 require 'json'
 require 'thread'
 require 'connection_pool'
+require 'cosmos'
 require 'cosmos/utilities/logger'
 
 begin
