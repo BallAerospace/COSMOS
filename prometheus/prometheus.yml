@@ -19,15 +19,11 @@ scrape_configs:
     static_configs:
       - targets: ["cosmos-cmd-tlm-api:2901"]
 
+  - job_name: cosmos-cmd-tlm-api
+    metrics_path: "/internal/metrics"
+    static_configs:
+      - targets: ["cosmos-aggregator:2903"]
+
   - job_name: cosmos-script-runner-api
     static_configs:
       - targets: ["cosmos-script-runner-api:2902"]
-
-  - job_name: cosmos-aggregator-api
-    static_configs:
-      - targets: ["cosmos-aggregator:2903"]
-
-  - job_name: cosmos-aggregator
-    metrics_path: "/"
-    static_configs:
-      - targets: ["cosmos-aggregator:2903"]

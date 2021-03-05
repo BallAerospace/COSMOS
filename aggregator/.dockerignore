@@ -1,7 +1,0 @@
-.git
-.gitignore
-coverage/
-spec/
-test/
-log/*
-tmp/*

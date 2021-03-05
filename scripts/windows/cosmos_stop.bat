@@ -8,7 +8,6 @@ docker stop cosmos-redis && docker container rm cosmos-redis
 docker stop cosmos-gems && docker container rm cosmos-gems
 
 if "%1" == "dev" (
-  docker stop cosmos-aggregator && docker container rm cosmos-aggregator
   docker stop cosmos-fluentd && docker container rm cosmos-fluentd
   docker stop cosmos-grafana && docker container rm cosmos-grafana
   docker stop cosmos-prometheus && docker container rm cosmos-prometheus

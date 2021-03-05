@@ -21,7 +21,7 @@ require 'cosmos'
 require 'cosmos/models/scope_model'
 require 'cosmos/models/metric_model'
 
-class ApplicationController < ActionController::Base
+class InternalMetricsController < ActionController::Base
   # This Controller is designed to output metrics from the cosmos/utilities/metric.rb
   # Find all scopes currently active in the cosmos system, we use the cosmos/models/scope_model
   # then seach redis for the #{scope}__cosmos__metrics key. This key uses subkeys that are the name

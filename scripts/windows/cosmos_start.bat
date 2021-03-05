@@ -15,7 +15,9 @@ docker container rm cosmos-gems
 docker build -f geminabox\Dockerfile -t cosmos-gems geminabox
 docker run --network cosmos -p 127.0.0.1:9292:9292 -d --name cosmos-gems -v cosmos-gems-v:/data cosmos-gems
 
+@echo off
 if "%1" == "dev" (
+  @echo on
   docker volume create cosmos-elasticsearch-v
   docker container rm cosmos-elasticsearch
   docker pull amazon/opendistro-for-elasticsearch:1.12.0
@@ -45,11 +47,8 @@ if "%1" == "dev" (
   docker run --network cosmos -p 127.0.0.1:24224:24224 -p 127.0.0.1:24224:24224/udp -d --name cosmos-fluentd cosmos-fluentd
   timeout 30 >nul
   curl -X POST http://localhost:5601/api/saved_objects/_import -H "kbn-xsrf:true" --form file=@kibana\export.ndjson -w "\n"
-
-  docker container rm cosmos-aggregator
-  docker build -f aggregator/Dockerfile -t cosmos-aggregator aggregator
-  docker run --network cosmos -p 127.0.0.1:2903:2903 -d --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=aggregator.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true --name cosmos-aggregator cosmos-aggregator
 )
+@echo on
 
 docker volume create cosmos-redis-v
 docker container rm cosmos-redis
@@ -83,4 +82,4 @@ docker run --network cosmos --name cosmos-frontend-init --env NO_FLUENTD=1 cosmo
 docker build -f init\Dockerfile -t cosmos-init init
 docker run --network cosmos --name cosmos-init --rm --env NO_FLUENTD=1 cosmos-init
 
-REM "If everything is working you should be able to access Cosmos at http://localhost:2900/"
+REM If everything is working you should be able to access Cosmos at http://localhost:2900/

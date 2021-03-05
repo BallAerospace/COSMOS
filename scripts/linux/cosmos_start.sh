@@ -44,10 +44,6 @@ if [[ "$1" == "dev" ]]; then
   docker run --network cosmos -p 127.0.0.1:24224:24224 -p 127.0.0.1:24224:24224/udp -d --name cosmos-fluentd cosmos-fluentd
   sleep 30
   curl -X POST http://localhost:5601/api/saved_objects/_import -H "kbn-xsrf:true" --form file=@kibana/export.ndjson -w "\n"
-
-  docker container rm cosmos-aggregator
-  docker build -f aggregator/Dockerfile -t cosmos-aggregator aggregator
-  docker run --network cosmos -p 127.0.0.1:2903:2903 -d --log-driver=fluentd --log-opt fluentd-address=127.0.0.1:24224 --log-opt tag=aggregator.log --log-opt fluentd-async-connect=true --log-opt fluentd-sub-second-precision=true --name cosmos-aggregator cosmos-aggregator
 fi
 
 docker volume create cosmos-redis-v

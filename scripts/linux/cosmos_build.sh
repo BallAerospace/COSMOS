@@ -15,7 +15,6 @@ docker build -f operator/Dockerfile -t cosmos-operator operator
 docker build -f init/Dockerfile -t cosmos-init init
 
 if [[ "$1" == "dev" ]]; then
-  docker build -f aggregator/Dockerfile -t cosmos-aggregator aggregator
   docker build -f elasticsearch/Dockerfile -t cosmos-elasticsearch elasticsearch
   docker build -f kibanan/Dockerfile -t cosmos-kibana kibana
   docker build -f fluentd/Dockerfile -t cosmos-fluentd fluentd
