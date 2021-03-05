@@ -23,73 +23,38 @@
     <v-container>
       <v-row>
         <v-col>
-          <v-menu
-            :close-on-content-click="true"
-            :nudge-right="40"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="startDate"
-                label="Start Date"
-                v-on="on"
-                prepend-icon="mdi-calendar"
-                :rules="[rules.required, rules.calendar]"
-                data-test="startDate"
-              ></v-text-field>
-            </template>
-            <v-date-picker
-              v-model="startDate"
-              :max="endDate"
-              :show-current="false"
-              no-title
-            ></v-date-picker>
-          </v-menu>
-          <v-menu
-            ref="endDatemenu"
-            :close-on-content-click="true"
-            :nudge-right="40"
-            transition="scale-transition"
-            offset-y
-            max-width="290px"
-            min-width="290px"
-          >
-            <template v-slot:activator="{ on }">
-              <v-text-field
-                v-model="endDate"
-                label="End Date"
-                v-on="on"
-                prepend-icon="mdi-calendar"
-                :rules="[rules.required, rules.calendar]"
-                data-test="endDate"
-              ></v-text-field>
-            </template>
-            <v-date-picker
-              v-model="endDate"
-              :min="startDate"
-              :show-current="false"
-              no-title
-            ></v-date-picker>
-          </v-menu>
+          <v-text-field
+            v-model="startDate"
+            label="Start Date"
+            type="date"
+            :rules="[rules.required, rules.calendar]"
+            data-test="startDate"
+          ></v-text-field>
+          <v-text-field
+            v-model="endDate"
+            label="End Date"
+            type="date"
+            :rules="[rules.required, rules.calendar]"
+            data-test="endDate"
+          ></v-text-field>
         </v-col>
         <v-col>
           <v-text-field
             v-model="startTime"
             label="Start Time"
-            prepend-icon="mdi-clock"
+            type="time"
             :rules="[rules.required, rules.time]"
             data-test="startTime"
-          ></v-text-field>
+          >
+          </v-text-field>
           <v-text-field
             v-model="endTime"
             label="End Time"
-            prepend-icon="mdi-clock"
+            type="time"
             :rules="[rules.required, rules.time]"
             data-test="endTime"
-          ></v-text-field>
+          >
+          </v-text-field>
         </v-col>
       </v-row>
       <v-row no-gutters>
@@ -105,6 +70,16 @@
               value="tlm"
               data-test="tlm-radio"
             ></v-radio>
+          </v-radio-group>
+        </v-col>
+        <v-col>
+          <v-radio-group v-model="utcOrLocal" row hide-details class="mt-0">
+            <v-radio
+              label="Local"
+              value="loc"
+              data-test="local-radio"
+            ></v-radio>
+            <v-radio label="UTC" value="utc" data-test="utc-radio"></v-radio>
           </v-radio-group>
         </v-col>
       </v-row>
@@ -322,9 +297,10 @@ export default {
         },
         time: (value) => {
           try {
+            let time_s = parse(value, 'HH:mm:ss', new Date())
+            let time_m = parse(value, 'HH:mm', new Date())
             return (
-              isValid(parse(value, 'HH:mm:ss', new Date())) ||
-              'Invalid time (HH:MM:SS)'
+              isValid(time_s) || isValid(time_m) || 'Invalid time (HH:MM:SS)'
             )
           } catch (e) {
             return 'Invalid time (HH:MM:SS)'
@@ -332,6 +308,7 @@ export default {
         },
       },
       cmdOrTlm: 'tlm',
+      utcOrLocal: 'loc',
       warning: false,
       warningText: '',
       error: false,
@@ -513,10 +490,21 @@ export default {
         /(:|-)\s*/g,
         '_'
       )
-      this.startDateTime =
-        new Date(this.startDate + ' ' + this.startTime).getTime() * 1_000_000
-      this.endDateTime =
-        new Date(this.endDate + ' ' + this.endTime).getTime() * 1_000_000
+      let startTemp
+      let endTemp
+      try {
+        if (this.utcOrLocal === 'utc') {
+          startTemp = new Date(this.startDate + ' ' + this.startTime + 'Z')
+          endTemp = new Date(this.endDate + ' ' + this.endTime + 'Z')
+        } else {
+          startTemp = new Date(this.startDate + ' ' + this.startTime)
+          endTemp = new Date(this.endDate + ' ' + this.endTime)
+        }
+      } catch (e) {
+        return
+      }
+      this.startDateTime = startTemp.getTime() * 1_000_000
+      this.endDateTime = endTemp.getTime() * 1_000_000
     },
     processItems() {
       // Check for an empty list
@@ -532,18 +520,26 @@ export default {
       }
       // Check for an empty time period
       this.setTimestamps()
+      if (!this.startDateTime || !this.endDateTime) {
+        this.warningText = 'Invalid date/time selected!'
+        this.warning = true
+        return
+      }
       if (this.startDateTime === this.endDateTime) {
         this.warningText = 'Start date/time is equal to end date/time!'
         this.warning = true
         return
       }
+      if (this.endDateTime - this.startDateTime < 0) {
+        this.warningText = 'Start date/time is greater then end date/time!'
+        this.warning = true
+        return
+      }
       // Check for a future End Time
-      if (new Date(this.endDate + ' ' + this.endTime) > Date.now()) {
+      if (new Date(this.endDateTime) > Date.now()) {
         this.warningText =
           'Note: End date/time is greater than current date/time. Data will continue to stream in real-time until ' +
-          this.endDate +
-          ' ' +
-          this.endTime +
+          this.endDateTime.toISOString() +
           ' is reached.'
         this.warning = true
       }
@@ -657,11 +653,13 @@ export default {
       this.subscription.unsubscribe()
 
       if (this.rawData.length === 0) {
-        this.warningText =
-          'No data found for the items in the requested time range'
+        let start = new Date(this.startDateTime / 1_000_000).toISOString()
+        let end = new Date(this.endDateTime / 1_000_000).toISOString()
+        this.warningText = `No data found for the items in the requested time range of ${start} to ${end}`
         this.warning = true
       } else {
         // Output the headers
+        this.warning = false
         let headers = ''
         if (this.matlabHeader) {
           headers += '% '
