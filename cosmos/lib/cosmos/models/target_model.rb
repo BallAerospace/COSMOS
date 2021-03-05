@@ -404,7 +404,13 @@ module Cosmos
         folder_name: @folder_name,
         cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
-        options: ["RAW", "CMD"],
+        options: [
+          ["RAW_OR_DECOM", "RAW"],
+          ["CMD_OR_TLM", "CMD"]
+          # The following options are optional (600 and 50_000_000 are the defaults)
+          # ["CYCLE_TIME", "600"], # Keep at most 10 minutes per log
+          # ["CYCLE_SIZE", "50_000_000"] # Keep at most ~50MB per log
+        ],
         topics: command_topic_list,
         target_names: [@name],
         plugin: plugin,
@@ -420,7 +426,10 @@ module Cosmos
         folder_name: @folder_name,
         cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
-        options: ["DECOM", "CMD"],
+        options: [
+          ["RAW_OR_DECOM", "DECOM"],
+          ["CMD_OR_TLM", "CMD"]
+        ],
         topics: decom_command_topic_list,
         target_names: [@name],
         plugin: plugin,
@@ -436,7 +445,10 @@ module Cosmos
         folder_name: @folder_name,
         cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
-        options: ["RAW", "TLM"],
+        options: [
+          ["RAW_OR_DECOM", "RAW"],
+          ["CMD_OR_TLM", "TLM"]
+        ],
         topics: packet_topic_list,
         target_names: [@name],
         plugin: plugin,
@@ -452,7 +464,10 @@ module Cosmos
         folder_name: @folder_name,
         cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
-        options: ["DECOM", "TLM"],
+        options: [
+          ["RAW_OR_DECOM", "DECOM"],
+          ["CMD_OR_TLM", "TLM"]
+        ],
         topics: decom_topic_list,
         target_names: [@name],
         plugin: plugin,
