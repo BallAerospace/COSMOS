@@ -71,8 +71,8 @@ module Cosmos
         rt_label = "#{scope}__#{target_name}__#{packet_name}__rt__#{type}"
         stored_label = "#{scope}__#{target_name}__#{packet_name}__stored__#{type}"
         plws[topic] = {
-          :RT => PacketLogWriter.new(remote_log_directory, rt_label, true, @cycle_time, @cycle_size),
-          :STORED => PacketLogWriter.new(remote_log_directory, stored_label, true, @cycle_time, @cycle_size)
+          :RT => PacketLogWriter.new(remote_log_directory, rt_label, true, @cycle_time, @cycle_size, redis_topic: topic),
+          :STORED => PacketLogWriter.new(remote_log_directory, stored_label, true, @cycle_time, @cycle_size, redis_topic: topic)
         }
       end
       return plws
