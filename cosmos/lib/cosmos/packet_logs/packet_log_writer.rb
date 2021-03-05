@@ -21,6 +21,7 @@ require 'thread'
 require 'aws-sdk-s3'
 require 'cosmos/config/config_parser'
 require 'cosmos/packet_logs/packet_log_constants'
+require 'cosmos/utilities/store'
 
 Aws.config.update(
   endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000',
@@ -60,6 +61,8 @@ module Cosmos
     #   will be cycled hourly at the specified cycle_minute.
     # @param cycle_minute [Integer] The time at which to cycle the log. See cycle_hour
     #   for more information.
+    # @param redis_topic [String] The key of the Redis stream to trim when files are
+    #   moved to S3
     def initialize(
       remote_log_directory,
       label,
@@ -67,7 +70,8 @@ module Cosmos
       cycle_time = nil,
       cycle_size = 1000000000,
       cycle_hour = nil,
-      cycle_minute = nil
+      cycle_minute = nil,
+      redis_topic: nil
     )
       @remote_log_directory = remote_log_directory
       @label = label
@@ -101,6 +105,8 @@ module Cosmos
       @next_target_index = 0
       @cancel_threads = false
       @last_offset = nil
+      @previous_file_redis_offset = nil
+      @redis_topic = redis_topic
 
       # This is an optimization to avoid creating a new entry object
       # each time we create an entry which we do a LOT!
@@ -259,6 +265,10 @@ module Cosmos
             date = first_timestamp[0..7] # YYYYMMDD
             s3_key = File.join(@remote_log_directory, date, "#{first_timestamp}__#{last_timestamp}__#{@label}.bin")
             move_file_to_s3(@filename, s3_key)
+            # Now that the file is in S3, trim the Redis stream up until the previous file.
+            # This keeps one file worth of data in Redis as a safety buffer
+            Cosmos::Store.trim_topic(@redis_topic, @previous_file_redis_offset) if @redis_topic and @previous_file_redis_offset
+            @previous_file_redis_offset = @last_offset
           rescue Exception => err
             Logger.instance.error "Error closing #{@filename} : #{err.formatted}"
           end
