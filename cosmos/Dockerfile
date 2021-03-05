@@ -4,12 +4,13 @@ FROM ubuntu:20.04
 # You must place a valid cert.pem file in your COSMOS development folder for this work
 # Comment out these lines if this is not required in your environment
 COPY cacert.pem /devel/cacert.pem
-ENV SSL_CERT_FILE /devel/cacert.pem
-ENV CURL_CA_BUNDLE /devel/cacert.pem
-ENV REQUESTS_CA_BUNDLE /devel/cacert.pem
+ENV SSL_CERT_FILE=/devel/cacert.pem
+ENV CURL_CA_BUNDLE=/devel/cacert.pem
+ENV REQUESTS_CA_BUNDLE=/devel/cacert.pem
 
-ENV DEBIAN_FRONTEND="noninteractive"
-
+# ARG rather than ENV so it doesn't persist in the built image
+ARG DEBIAN_FRONTEND=noninteractive
+# Update packages first as this changes the least
 RUN apt-get update -y && apt-get install -y \
   --no-install-recommends \
   --option "Acquire:http::No-Cache=true" \
@@ -23,15 +24,13 @@ RUN apt-get update -y && apt-get install -y \
   zlib1g \
   zlib1g-dev
 
-RUN git config --global http.sslCAinfo /devel/cacert.pem
-
-RUN ["gem", "install", "bundler"]
-
-WORKDIR /cosmos/
-
-COPY . .
-RUN ["bundle", "install", "--quiet"]
-RUN ["mkdir", "-p", "lib/cosmos/ext"]
-RUN ["bundle", "exec", "rake", "build"]
-
+ENV RUBYLIB=/cosmos/lib
 ENV COSMOS_PATH="/cosmos"
+WORKDIR /cosmos/
+COPY . .
+RUN mkdir -p lib/cosmos/ext && \
+  git config --global http.sslCAinfo /devel/cacert.pem && \
+  gem install bundler && \
+  bundle config set --local without 'development' && \
+  bundle install --quiet && \
+  bundle exec rake build

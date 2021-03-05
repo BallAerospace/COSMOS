@@ -1,6 +1,0 @@
-demo/outputs/**
-install/outputs/**
-node_modules
-web/**/log
-Gemfile.lock
-**/*.so
