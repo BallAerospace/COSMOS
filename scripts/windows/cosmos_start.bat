@@ -52,7 +52,7 @@ if "%1" == "dev" (
 
 docker volume create cosmos-redis-v
 docker container rm cosmos-redis
-docker run --network cosmos -p 127.0.0.1:6379:6379 -d --name cosmos-redis -v cosmos-redis-v:/data redis redis-server --appendonly yes
+docker run --network cosmos -p 127.0.0.1:6379:6379 -d --name cosmos-redis -v cosmos-redis-v:/data redis:6.2 redis-server --appendonly yes
 
 docker volume create cosmos-minio-v
 docker container rm cosmos-minio
