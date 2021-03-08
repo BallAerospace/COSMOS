@@ -310,20 +310,21 @@ module Cosmos
       end
     end
 
-    def self.trim_topic(topic, minid, approximate = true)
-      self.instance.trim_topic(topic, minid, approximate)
+    def self.trim_topic(topic, minid, approximate = true, limit: 0)
+      self.instance.trim_topic(topic, minid, approximate, limit: limit)
     end
-    def trim_topic(topic, minid, approximate = true)
+    def trim_topic(topic, minid, approximate = true, limit: 0)
       @redis_pool.with do |redis|
-        return redis.xtrim_minid(topic, minid, approximate: approximate)
+        return redis.xtrim_minid(topic, minid, approximate: approximate, limit: limit)
       end
     end
   end
 end
 
 class Redis
-  def xtrim_minid(key, minid, approximate: true)
+  def xtrim_minid(key, minid, approximate: true, limit: 0)
     args = [:xtrim, key, :MINID, (approximate ? '~' : nil), minid].compact
+    args.concat([:LIMIT, limit]) if limit
     synchronize { |client| client.call(args) }
   end
 end
