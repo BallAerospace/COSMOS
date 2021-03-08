@@ -22,8 +22,11 @@ require 'cosmos/models/metric_model'
 module Cosmos
 
   class Metric
-    # This class is designed to output metrics to the cosmos-aggregator
-    # application_controller. Warning contains some sorcery.
+    # This class is designed to output metrics to the cmd_tlm_api
+    # InternalMetricsController. Output format can be read about here
+    # https://prometheus.io/docs/concepts/data_model/
+    #
+    # Warning contains some sorcery.
     #
     # examples:
     #    TYPE foobar histogram
