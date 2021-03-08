@@ -4,7 +4,7 @@ module.exports = {
   transpileDependencies: ['vuetify'],
   configureWebpack: {
     devServer: {
-      port: 2903,
+      port: 2910,
       watchOptions: {
         ignored: ['node_modules'],
         aggregateTimeout: 300,
