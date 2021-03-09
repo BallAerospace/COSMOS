@@ -54,7 +54,7 @@ module Cosmos
           total_size += item.size
         end
         oldest_list.concat(resp.contents)
-        oldest_list.sort! {|a,b| a.key <=> b.key}
+        oldest_list.sort! {|a,b| a.last_modified <=> b.last_modified}
         oldest_list = oldest_list[0..(max_list_length - 1)]
         break unless resp.is_truncated
         token = resp.next_continuation_token
