@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <app-nav />
+    <app-nav app :menus="menus" />
     <v-container>
       <v-row>
         <v-col>
@@ -43,7 +43,12 @@
           />
         </v-col>
         <v-col>
-          <v-btn class="primary" @click="showScreen">Show Screen</v-btn>
+          <v-btn
+            class="primary"
+            @click="() => showScreen(selectedTarget, selectedScreen)"
+          >
+            Show Screen
+          </v-btn>
         </v-col>
       </v-row>
     </v-container>
@@ -66,6 +71,19 @@
         </div>
       </div>
     </div>
+    <!-- Dialogs for opening and saving configs -->
+    <OpenConfigDialog
+      v-if="openConfig"
+      v-model="openConfig"
+      :tool="toolName"
+      @success="openConfiguration($event)"
+    />
+    <SaveConfigDialog
+      v-if="saveConfig"
+      v-model="saveConfig"
+      :tool="toolName"
+      @success="saveConfiguration($event)"
+    />
   </div>
 </template>
 
@@ -74,12 +92,16 @@ import axios from 'axios'
 import AppNav from '@/AppNav'
 import { CosmosApi } from '@/services/cosmos-api'
 import CosmosScreen from './CosmosScreen'
+import OpenConfigDialog from '@/components/OpenConfigDialog'
+import SaveConfigDialog from '@/components/SaveConfigDialog'
 import Muuri from 'muuri'
 
 export default {
   components: {
     AppNav,
     CosmosScreen,
+    OpenConfigDialog,
+    SaveConfigDialog,
   },
   data() {
     return {
@@ -91,6 +113,28 @@ export default {
       selectedScreen: '',
       grid: null,
       api: null,
+      menus: [
+        {
+          label: 'File',
+          items: [
+            {
+              label: 'Open Configuration',
+              command: () => {
+                this.openConfig = true
+              },
+            },
+            {
+              label: 'Save Configuration',
+              command: () => {
+                this.saveConfig = true
+              },
+            },
+          ],
+        },
+      ],
+      toolName: 'tlm-viewer',
+      openConfig: false,
+      saveConfig: false,
     }
   },
   created() {
@@ -112,6 +156,10 @@ export default {
       // Only allow drags starting from the v-system-bar title
       dragHandle: '.v-system-bar',
     })
+    const previousConfig = localStorage.lastTlmViewerConfig
+    if (previousConfig) {
+      this.openConfiguration(previousConfig)
+    }
   },
   methods: {
     updateScreens() {
@@ -134,22 +182,16 @@ export default {
     screenSelect(screen) {
       this.selectedScreen = screen
     },
-    showScreen() {
-      axios
-        .get(
-          '/cosmos-api/screen/' +
-            this.selectedTarget +
-            '/' +
-            this.selectedScreen,
-          {
-            params: { scope: 'DEFAULT' },
-          }
-        )
+    showScreen(target, screen) {
+      return axios
+        .get('/cosmos-api/screen/' + target + '/' + screen, {
+          params: { scope: 'DEFAULT' },
+        })
         .then((response) => {
           this.definitions.push({
             id: this.counter,
-            target: this.selectedTarget,
-            screen: this.selectedScreen,
+            target: target,
+            screen: screen,
             definition: response.data,
           })
           this.counter += 1
@@ -182,6 +224,28 @@ export default {
     },
     screenId(id) {
       return 'tlmViewerScreen' + id
+    },
+    openConfiguration: async function (name) {
+      localStorage.lastTlmViewerConfig = name
+      this.counter = 0
+      this.definitions = []
+      let response = await this.api.load_config(this.toolName, name)
+      if (response) {
+        const showScreenPromises = JSON.parse(response).map((def) => {
+          return this.showScreen(def.target, def.screen)
+        })
+        Promise.all(showScreenPromises).then(this.minMaxScreen)
+      }
+    },
+    saveConfiguration: function (name) {
+      localStorage.lastTlmViewerConfig = name
+      const defs = this.definitions.map((def) => {
+        return {
+          screen: def.screen,
+          target: def.target,
+        }
+      })
+      this.api.save_config(this.toolName, name, JSON.stringify(defs))
     },
   },
 }
