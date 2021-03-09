@@ -131,7 +131,7 @@
         >
           {{ tab.name }}
         </v-tab>
-        <v-btn class="mt-2 ml-2" @click="openTabDialog" icon>
+        <v-btn class="mt-2 ml-2" @click="addTab" icon>
           <v-icon>mdi-tab-plus</v-icon>
         </v-btn>
       </v-tabs>
@@ -169,6 +169,13 @@
               No data
             </v-card-text>
           </v-card>
+          <v-card v-if="!tab.packets.length">
+            <v-card-title>This tab is empty</v-card-title>
+            <v-card-text>
+              Click the button below to add packets. Right click on the tab name
+              above to rename or delete this tab.
+            </v-card-text>
+          </v-card>
           <v-btn block @click="() => openComponentDialog(index)">
             <v-icon class="mr-2">mdi-plus-circle</v-icon>
             Click here to add a packet
@@ -177,7 +184,7 @@
       </v-tabs-items>
       <v-card v-if="!config.tabs.length">
         <v-card-title>You're not viewing any packets</v-card-title>
-        <v-card-text>Click the new tab icon to start</v-card-text>
+        <v-card-text>Click the new tab icon to start.</v-card-text>
       </v-card>
     </v-card>
     <!-- Dialogs for opening and saving configs -->
@@ -193,17 +200,17 @@
       :tool="toolName"
       @success="saveConfiguration($event)"
     />
-    <!-- Dialog for adding a new tab -->
-    <v-dialog v-model="addTabDialog" width="500">
+    <!-- Dialog for renaming a new tab -->
+    <v-dialog v-model="tabNameDialog" width="500">
       <v-card>
-        <v-card-title> Add a tab </v-card-title>
+        <v-card-title> Rename tab </v-card-title>
         <v-card-text>
           <v-text-field v-model="newTabName" label="Tab name" />
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
-          <v-btn color="primary" text @click="addTab"> Add </v-btn>
-          <v-btn color="primary" text @click="cancelAddTab"> Cancel </v-btn>
+          <v-btn color="primary" text @click="renameTab"> Rename </v-btn>
+          <v-btn color="primary" text @click="cancelTabRename"> Cancel </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -217,8 +224,13 @@
     >
       <v-list>
         <v-list-item>
+          <v-list-item-title style="cursor: pointer" @click="openTabNameDialog">
+            Rename
+          </v-list-item-title>
+        </v-list-item>
+        <v-list-item>
           <v-list-item-title style="cursor: pointer" @click="deleteTab">
-            Close tab
+            Delete
           </v-list-item-title>
         </v-list-item>
       </v-list>
@@ -351,12 +363,12 @@ export default {
       config: {
         tabs: [],
       },
-      addTabDialog: false,
+      tabNameDialog: false,
       newTabName: '',
       showTabMenu: false,
       tabMenuX: 0,
       tabMenuY: 0,
-      adtiveTab: 0,
+      activeTab: 0,
       addComponentDialog: false,
       newPacket: null,
       newPacketMode: 'RAW',
@@ -546,22 +558,20 @@ export default {
       localStorage.lastDataViewerConfig = name
       this.api.save_config(this.toolName, name, JSON.stringify(this.config))
     },
-    openTabDialog: function () {
-      this.addTabDialog = true
-    },
     addTab: function () {
       this.config.tabs.push({
-        name: this.newTabName,
+        // name: this.newTabName,
+        name: 'New Tab',
         packets: [],
       })
-      this.cancelAddTab()
+      this.cancelTabRename()
     },
-    cancelAddTab: function () {
-      this.addTabDialog = false
+    cancelTabRename: function () {
+      this.tabNameDialog = false
       this.newTabName = ''
     },
     tabMenu: function (event, index) {
-      this.adtiveTab = index
+      this.activeTab = index
       event.preventDefault()
       this.showTabMenu = false
       this.tabMenuX = event.clientX
@@ -570,8 +580,16 @@ export default {
         this.showTabMenu = true
       })
     },
+    openTabNameDialog: function () {
+      this.newTabName = this.config.tabs[this.activeTab].name
+      this.tabNameDialog = true
+    },
+    renameTab: function () {
+      this.config.tabs[this.activeTab].name = this.newTabName
+      this.tabNameDialog = false
+    },
     deleteTab: function () {
-      this.config.tabs.splice(this.adtiveTab, 1)
+      this.config.tabs.splice(this.activeTab, 1)
     },
     openComponentDialog: function (index) {
       this.activeTab = index
