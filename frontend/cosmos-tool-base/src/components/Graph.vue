@@ -609,8 +609,6 @@ export default {
         {
           channel: 'StreamingChannel',
           scope: 'DEFAULT',
-          start_time: this.graphStartDateTime,
-          end_time: endTime,
         },
         {
           received: (data) => this.received(data),
