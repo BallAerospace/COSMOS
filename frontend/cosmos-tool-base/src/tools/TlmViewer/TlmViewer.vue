@@ -183,29 +183,32 @@ export default {
       this.selectedScreen = screen
     },
     showScreen(target, screen) {
-      return axios
-        .get('/cosmos-api/screen/' + target + '/' + screen, {
-          params: { scope: 'DEFAULT' },
+      this.loadScreen(target, screen).then((response) => {
+        this.pushScreen({
+          id: this.counter++,
+          target: target,
+          screen: screen,
+          definition: response.data,
         })
-        .then((response) => {
-          this.definitions.push({
-            id: this.counter,
-            target: target,
-            screen: screen,
-            definition: response.data,
-          })
-          this.counter += 1
-          this.$nextTick(function () {
-            var items = this.grid.add(
-              this.$refs.gridItem[this.$refs.gridItem.length - 1],
-              {
-                active: false,
-              }
-            )
-            this.grid.show(items)
-            this.grid.refreshItems().layout()
-          })
-        })
+      })
+    },
+    loadScreen(target, screen) {
+      return axios.get('/cosmos-api/screen/' + target + '/' + screen, {
+        params: { scope: 'DEFAULT' },
+      })
+    },
+    pushScreen(definition) {
+      this.definitions.push(definition)
+      this.$nextTick(function () {
+        var items = this.grid.add(
+          this.$refs.gridItem[this.$refs.gridItem.length - 1],
+          {
+            active: false,
+          }
+        )
+        this.grid.show(items)
+        this.grid.refreshItems().layout()
+      })
     },
     closeScreen(id) {
       var items = this.grid.getItems([
@@ -220,7 +223,7 @@ export default {
     minMaxScreen(id) {
       setTimeout(() => {
         this.grid.refreshItems().layout()
-      }, 500) // TODO: Is 500ms ok for all screens?
+      }, 600) // TODO: Is 600ms ok for all screens?
     },
     screenId(id) {
       return 'tlmViewerScreen' + id
@@ -229,23 +232,52 @@ export default {
       localStorage.lastTlmViewerConfig = name
       this.counter = 0
       this.definitions = []
-      let response = await this.api.load_config(this.toolName, name)
-      if (response) {
-        const showScreenPromises = JSON.parse(response).map((def) => {
-          return this.showScreen(def.target, def.screen)
+      let configResponse = await this.api.load_config(this.toolName, name)
+      if (configResponse) {
+        const config = JSON.parse(configResponse)
+        // Load all the screen definitions from the API at once
+        const loadScreenPromises = config.map((definition) => {
+          return this.loadScreen(definition.target, definition.screen)
         })
-        Promise.all(showScreenPromises).then(this.minMaxScreen)
+        // Wait until they're all loaded
+        Promise.all(loadScreenPromises)
+          .then((responses) => {
+            // Then add all the screens in order
+            responses.forEach((response, index) => {
+              const definition = config[index]
+              setTimeout(() => {
+                this.pushScreen({
+                  id: this.counter++,
+                  target: definition.target,
+                  screen: definition.screen,
+                  definition: response.data,
+                })
+              }, 0) // I don't even know... but Muuri complains if this isn't in a setTimeout
+            })
+          })
+          .then(() => {
+            this.$nextTick(this.minMaxScreen) // Muuri probably stacked some, so refresh that
+          })
       }
     },
     saveConfiguration: function (name) {
       localStorage.lastTlmViewerConfig = name
-      const defs = this.definitions.map((def) => {
-        return {
-          screen: def.screen,
-          target: def.target,
-        }
-      })
-      this.api.save_config(this.toolName, name, JSON.stringify(defs))
+      const gridItems = this.grid.getItems().map((item) => item.getElement().id)
+      const config = this.definitions
+        .sort((a, b) => {
+          // Sort by their current position on the page
+          return gridItems.indexOf(this.screenId(a)) >
+            gridItems.indexOf(this.screenId(b))
+            ? 1
+            : -1
+        })
+        .map((def) => {
+          return {
+            screen: def.screen,
+            target: def.target,
+          }
+        })
+      this.api.save_config(this.toolName, name, JSON.stringify(config))
     },
   },
 }
