@@ -66,7 +66,7 @@
             :screen="def.screen"
             :definition="def.definition"
             @close-screen="closeScreen(def.id)"
-            @min-max-screen="minMaxScreen(def.id)"
+            @min-max-screen="refreshLayout"
           />
         </div>
       </div>
@@ -220,7 +220,7 @@ export default {
         return value.id != id
       })
     },
-    minMaxScreen(id) {
+    refreshLayout() {
       setTimeout(() => {
         this.grid.refreshItems().layout()
       }, 600) // TODO: Is 600ms ok for all screens?
@@ -256,7 +256,7 @@ export default {
             })
           })
           .then(() => {
-            this.$nextTick(this.minMaxScreen) // Muuri probably stacked some, so refresh that
+            this.$nextTick(this.refreshLayout) // Muuri probably stacked some, so refresh that
           })
       }
     },
