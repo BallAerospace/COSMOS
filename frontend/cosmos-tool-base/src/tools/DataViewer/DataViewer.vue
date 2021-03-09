@@ -242,7 +242,23 @@
         <v-card-text>
           <v-row>
             <v-col>
-              <TargetPacketItemChooser @on-set="packetSelected($event)" />
+              <v-radio-group
+                v-model="newPacketCmdOrTlm"
+                row
+                hide-details
+                class="mt-0"
+              >
+                <v-radio label="Command" value="cmd" />
+                <v-radio label="Telemetry" value="tlm" />
+              </v-radio-group>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <TargetPacketItemChooser
+                @on-set="packetSelected($event)"
+                :mode="newPacketCmdOrTlm"
+              />
             </v-col>
             <v-col>
               <v-row>
@@ -371,6 +387,7 @@ export default {
       activeTab: 0,
       addComponentDialog: false,
       newPacket: null,
+      newPacketCmdOrTlm: 'tlm',
       newPacketMode: 'RAW',
       valueTypes: ['CONVERTED', 'RAW', 'FORMATTED', 'WITH_UNITS'],
       newPacketValueType: 'WITH_UNITS',
@@ -534,13 +551,18 @@ export default {
     },
     topicKey: function (packet) {
       let key = 'DEFAULT__'
-      key += packet.mode === 'DECOM' ? 'DECOM' : 'TELEMETRY'
+      if (packet.cmdOrTlm === 'tlm') {
+        key += packet.mode === 'DECOM' ? 'DECOM' : 'TELEMETRY'
+      } else {
+        key += packet.mode === 'DECOM' ? 'DECOMCMD' : 'COMMAND'
+      }
       key += `__${packet.target}__${packet.packet}`
       if (packet.mode === 'DECOM') key += `__${packet.valueType}`
       return key
     },
     subscriptionKey: function (packet) {
-      let key = `TLM__${packet.target}__${packet.packet}`
+      const cmdOrTlm = packet.cmdOrTlm.toUpperCase()
+      let key = `${cmdOrTlm}__${packet.target}__${packet.packet}`
       if (packet.mode === 'DECOM') key += `__${packet.valueType}`
       return key
     },
@@ -599,6 +621,7 @@ export default {
       this.newPacket = {
         target: event.targetName,
         packet: event.packetName,
+        cmdOrTlm: this.newPacketCmdOrTlm,
       }
     },
     addComponent: function () {
