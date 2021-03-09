@@ -322,7 +322,7 @@ module Cosmos
 end
 
 class Redis
-  def xtrim_minid(key, minid, approximate: true, limit: 0)
+  def xtrim_minid(key, minid, approximate: true, limit: nil)
     args = [:xtrim, key, :MINID, (approximate ? '~' : nil), minid].compact
     args.concat([:LIMIT, limit]) if limit
     synchronize { |client| client.call(args) }
