@@ -274,7 +274,7 @@ module Cosmos
     end
 
     def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-      self.instance.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
+      self.instance.read_topics(topics, offsets, timeout_ms, &block)
     end
     unless $cosmos_enterprise
       def read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
@@ -297,7 +297,7 @@ module Cosmos
     end
 
     def self.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
-      self.instance.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
+      self.instance.write_topic(topic, msg_hash, id, maxlen, approximate)
     end
     def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
       # Logger.debug "write_topic topic:#{topic} id:#{id} hash:#{msg_hash}"
