@@ -426,7 +426,7 @@ export default {
     }, 1000)
   },
   mounted: function () {
-    const previousConfig = localStorage.lastDataViewerConfig // TODO: Do we want to use localStorage for this?
+    const previousConfig = localStorage.lastDataViewerConfig
     if (previousConfig) {
       this.openConfiguration(previousConfig)
     }
