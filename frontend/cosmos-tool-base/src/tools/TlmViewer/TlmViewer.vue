@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <app-nav />
+    <app-nav app :menus="menus" />
     <v-container>
       <v-row>
         <v-col>
@@ -43,7 +43,12 @@
           />
         </v-col>
         <v-col>
-          <v-btn class="primary" @click="showScreen">Show Screen</v-btn>
+          <v-btn
+            class="primary"
+            @click="() => showScreen(selectedTarget, selectedScreen)"
+          >
+            Show Screen
+          </v-btn>
         </v-col>
       </v-row>
     </v-container>
@@ -61,11 +66,24 @@
             :screen="def.screen"
             :definition="def.definition"
             @close-screen="closeScreen(def.id)"
-            @min-max-screen="minMaxScreen(def.id)"
+            @min-max-screen="refreshLayout"
           />
         </div>
       </div>
     </div>
+    <!-- Dialogs for opening and saving configs -->
+    <OpenConfigDialog
+      v-if="openConfig"
+      v-model="openConfig"
+      :tool="toolName"
+      @success="openConfiguration($event)"
+    />
+    <SaveConfigDialog
+      v-if="saveConfig"
+      v-model="saveConfig"
+      :tool="toolName"
+      @success="saveConfiguration($event)"
+    />
   </div>
 </template>
 
@@ -74,12 +92,16 @@ import axios from 'axios'
 import AppNav from '@/AppNav'
 import { CosmosApi } from '@/services/cosmos-api'
 import CosmosScreen from './CosmosScreen'
+import OpenConfigDialog from '@/components/OpenConfigDialog'
+import SaveConfigDialog from '@/components/SaveConfigDialog'
 import Muuri from 'muuri'
 
 export default {
   components: {
     AppNav,
     CosmosScreen,
+    OpenConfigDialog,
+    SaveConfigDialog,
   },
   data() {
     return {
@@ -91,6 +113,28 @@ export default {
       selectedScreen: '',
       grid: null,
       api: null,
+      menus: [
+        {
+          label: 'File',
+          items: [
+            {
+              label: 'Open Configuration',
+              command: () => {
+                this.openConfig = true
+              },
+            },
+            {
+              label: 'Save Configuration',
+              command: () => {
+                this.saveConfig = true
+              },
+            },
+          ],
+        },
+      ],
+      toolName: 'tlm-viewer',
+      openConfig: false,
+      saveConfig: false,
     }
   },
   created() {
@@ -112,6 +156,10 @@ export default {
       // Only allow drags starting from the v-system-bar title
       dragHandle: '.v-system-bar',
     })
+    const previousConfig = localStorage.lastTlmViewerConfig
+    if (previousConfig) {
+      this.openConfiguration(previousConfig)
+    }
   },
   methods: {
     updateScreens() {
@@ -134,36 +182,33 @@ export default {
     screenSelect(screen) {
       this.selectedScreen = screen
     },
-    showScreen() {
-      axios
-        .get(
-          '/cosmos-api/screen/' +
-            this.selectedTarget +
-            '/' +
-            this.selectedScreen,
+    showScreen(target, screen) {
+      this.loadScreen(target, screen).then((response) => {
+        this.pushScreen({
+          id: this.counter++,
+          target: target,
+          screen: screen,
+          definition: response.data,
+        })
+      })
+    },
+    loadScreen(target, screen) {
+      return axios.get('/cosmos-api/screen/' + target + '/' + screen, {
+        params: { scope: 'DEFAULT' },
+      })
+    },
+    pushScreen(definition) {
+      this.definitions.push(definition)
+      this.$nextTick(function () {
+        var items = this.grid.add(
+          this.$refs.gridItem[this.$refs.gridItem.length - 1],
           {
-            params: { scope: 'DEFAULT' },
+            active: false,
           }
         )
-        .then((response) => {
-          this.definitions.push({
-            id: this.counter,
-            target: this.selectedTarget,
-            screen: this.selectedScreen,
-            definition: response.data,
-          })
-          this.counter += 1
-          this.$nextTick(function () {
-            var items = this.grid.add(
-              this.$refs.gridItem[this.$refs.gridItem.length - 1],
-              {
-                active: false,
-              }
-            )
-            this.grid.show(items)
-            this.grid.refreshItems().layout()
-          })
-        })
+        this.grid.show(items)
+        this.grid.refreshItems().layout()
+      })
     },
     closeScreen(id) {
       var items = this.grid.getItems([
@@ -175,13 +220,64 @@ export default {
         return value.id != id
       })
     },
-    minMaxScreen(id) {
+    refreshLayout() {
       setTimeout(() => {
         this.grid.refreshItems().layout()
-      }, 500) // TODO: Is 500ms ok for all screens?
+      }, 600) // TODO: Is 600ms ok for all screens?
     },
     screenId(id) {
       return 'tlmViewerScreen' + id
+    },
+    openConfiguration: async function (name) {
+      localStorage.lastTlmViewerConfig = name
+      this.counter = 0
+      this.definitions = []
+      let configResponse = await this.api.load_config(this.toolName, name)
+      if (configResponse) {
+        const config = JSON.parse(configResponse)
+        // Load all the screen definitions from the API at once
+        const loadScreenPromises = config.map((definition) => {
+          return this.loadScreen(definition.target, definition.screen)
+        })
+        // Wait until they're all loaded
+        Promise.all(loadScreenPromises)
+          .then((responses) => {
+            // Then add all the screens in order
+            responses.forEach((response, index) => {
+              const definition = config[index]
+              setTimeout(() => {
+                this.pushScreen({
+                  id: this.counter++,
+                  target: definition.target,
+                  screen: definition.screen,
+                  definition: response.data,
+                })
+              }, 0) // I don't even know... but Muuri complains if this isn't in a setTimeout
+            })
+          })
+          .then(() => {
+            this.$nextTick(this.refreshLayout) // Muuri probably stacked some, so refresh that
+          })
+      }
+    },
+    saveConfiguration: function (name) {
+      localStorage.lastTlmViewerConfig = name
+      const gridItems = this.grid.getItems().map((item) => item.getElement().id)
+      const config = this.definitions
+        .sort((a, b) => {
+          // Sort by their current position on the page
+          return gridItems.indexOf(this.screenId(a)) >
+            gridItems.indexOf(this.screenId(b))
+            ? 1
+            : -1
+        })
+        .map((def) => {
+          return {
+            screen: def.screen,
+            target: def.target,
+          }
+        })
+      this.api.save_config(this.toolName, name, JSON.stringify(config))
     },
   },
 }
