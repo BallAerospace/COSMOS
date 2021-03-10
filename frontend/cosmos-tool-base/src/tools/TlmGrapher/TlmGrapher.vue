@@ -88,7 +88,7 @@
           ref="gridItem"
         >
           <div class="item-content">
-            <graph
+            <graph-screen
               :ref="'graph' + graph"
               :id="graph"
               :state="state"
@@ -126,7 +126,7 @@
 
 <script>
 import AppNav from '@/AppNav'
-import Graph from '@/components/Graph.vue'
+import GraphScreen from '@/components/GraphScreen.vue'
 import TargetPacketItemChooser from '@/components/TargetPacketItemChooser'
 import OpenConfigDialog from '@/components/OpenConfigDialog'
 import SaveConfigDialog from '@/components/SaveConfigDialog'
@@ -140,7 +140,7 @@ export default {
     OpenConfigDialog,
     SaveConfigDialog,
     TargetPacketItemChooser,
-    Graph,
+    GraphScreen,
   },
   data() {
     return {
