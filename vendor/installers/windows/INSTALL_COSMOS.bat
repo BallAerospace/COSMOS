@@ -31,7 +31,7 @@ set RUBY_ABI_VERSION=2.5.0
 set WKHTMLTOPDF=wkhtmltox-0.12.6-1.msvc2015-win64.exe
 set WKHTMLPATHWITHPROTOCOL=https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/
 set QTBINDINGS_QT_VERSION=4.8.6.4
-set WINDOWS_INSTALL_ZIP=//github.com/BallAerospace/COSMOS/blob/master/vendor/installers/windows/COSMOS_Windows_Install.zip
+set WINDOWS_INSTALL_ZIP=//github.com/BallAerospace/COSMOS/blob/cosmos4/vendor/installers/windows/COSMOS_Windows_Install.zip
 
 :: Detect Ball
 if "%USERDNSDOMAIN%"=="AERO.BALL.COM" (
