@@ -34,8 +34,8 @@ else
 end
 require 'cosmos/ext/platform' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 require 'cosmos/version'
-require 'cosmos/top_level'
 require 'cosmos/core_ext'
+require 'cosmos/top_level'
 require 'cosmos/utilities'
 require 'cosmos/conversions'
 require 'cosmos/interfaces'
@@ -43,6 +43,12 @@ require 'cosmos/processors'
 require 'cosmos/packets/packet'
 require 'cosmos/packet_logs'
 require 'cosmos/system'
+begin
+  # Require cosmos-enterprise last to override previously required files
+  require 'cosmos-enterprise'
+rescue LoadError
+  # Contact COSMOS support to learn more about COSMOS Enterprise Edition
+end
 
 # COSMOS services need to die if something goes wrong so they can be restarted
 require 'thread'

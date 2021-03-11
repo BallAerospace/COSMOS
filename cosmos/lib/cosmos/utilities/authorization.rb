@@ -17,20 +17,15 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-begin
-  require 'cosmos-enterprise/utilities/authorization'
-rescue LoadError
-  # If we're not in cosmos-enterprise we define our own
-  module Cosmos
-    class AuthError < StandardError
-    end
+module Cosmos
+  class AuthError < StandardError
+  end
 
-    module Authorization
-      private
-      # Raises an exception if unauthorized, otherwise does nothing
-      def authorize(permission: nil, target_name: nil, packet_name: nil, interface_name: nil, router_name: nil, scope: nil, token: nil)
-        raise AuthError.new("Scope is required") unless scope
-      end
+  module Authorization
+    private
+    # Raises an exception if unauthorized, otherwise does nothing
+    def authorize(permission: nil, target_name: nil, packet_name: nil, interface_name: nil, router_name: nil, scope: nil, token: nil)
+      raise AuthError.new("Scope is required") unless scope
     end
   end
 end

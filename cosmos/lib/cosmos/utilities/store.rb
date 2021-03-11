@@ -22,13 +22,6 @@ require 'json'
 require 'thread'
 require 'connection_pool'
 
-begin
-  require 'cosmos-enterprise/utilities/store'
-  $cosmos_enterprise = true
-rescue LoadError
-  $cosmos_enterprise = false
-end
-
 module Cosmos
   class Store
     # Variable that holds the singleton instance
@@ -78,58 +71,54 @@ module Cosmos
       @topic_offsets = {}
     end
 
-    unless $cosmos_enterprise
-      def build_redis
-        return Redis.new(url: @redis_url)
-      end
+    def build_redis
+      return Redis.new(url: @redis_url)
     end
 
-    unless $cosmos_enterprise
-      def get_tlm_values(items, scope: $cosmos_scope)
-        values = []
-        return values if items.empty?
+    def get_tlm_values(items, scope: $cosmos_scope)
+      values = []
+      return values if items.empty?
 
-        @redis_pool.with do |redis|
-          promises = []
-          redis.pipelined do
-            items.each_with_index do |item, index|
-              target_name, packet_name, item_name, value_type = item.split('__')
-              raise ArgumentError, "items must be formatted as TGT__PKT__ITEM__TYPE" if target_name.nil? || packet_name.nil? || item_name.nil? || value_type.nil?
-              promises[index] = tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type.intern, scope: scope)
-            end
-          end
-          promises.each_with_index do |promise, index|
-            value_type = items[index].split('__')[-1]
-            result = promise.value
-            if result[0]
-              if value_type == :FORMATTED or value_type == :WITH_UNITS
-                values << [JSON.parse(result[0]).to_s]
-              else
-                values << [JSON.parse(result[0])]
-              end
-            elsif result[1]
-              if value_type == :FORMATTED or value_type == :WITH_UNITS
-                values << [JSON.parse(result[1]).to_s]
-              else
-                values << [JSON.parse(result[1])]
-              end
-            elsif result[2]
-              values << [JSON.parse(result[2]).to_s]
-            elsif result[3]
-              values << [JSON.parse(result[3]).to_s]
-            else
-              raise "Item '#{items[index].split('__')[0..2].join(' ')}' does not exist"
-            end
-            if result[-1]
-              values[-1] << JSON.parse(result[-1]).intern
-            else
-              values[-1] << nil
-            end
+      @redis_pool.with do |redis|
+        promises = []
+        redis.pipelined do
+          items.each_with_index do |item, index|
+            target_name, packet_name, item_name, value_type = item.split('__')
+            raise ArgumentError, "items must be formatted as TGT__PKT__ITEM__TYPE" if target_name.nil? || packet_name.nil? || item_name.nil? || value_type.nil?
+            promises[index] = tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type.intern, scope: scope)
           end
         end
-
-        return values
+        promises.each_with_index do |promise, index|
+          value_type = items[index].split('__')[-1]
+          result = promise.value
+          if result[0]
+            if value_type == :FORMATTED or value_type == :WITH_UNITS
+              values << [JSON.parse(result[0]).to_s]
+            else
+              values << [JSON.parse(result[0])]
+            end
+          elsif result[1]
+            if value_type == :FORMATTED or value_type == :WITH_UNITS
+              values << [JSON.parse(result[1]).to_s]
+            else
+              values << [JSON.parse(result[1])]
+            end
+          elsif result[2]
+            values << [JSON.parse(result[2]).to_s]
+          elsif result[3]
+            values << [JSON.parse(result[3]).to_s]
+          else
+            raise "Item '#{items[index].split('__')[0..2].join(' ')}' does not exist"
+          end
+          if result[-1]
+            values[-1] << JSON.parse(result[-1]).intern
+          else
+            values[-1] << nil
+          end
+        end
       end
+
+      return values
     end
 
     def get_cmd_item(target_name, packet_name, param_name, type: :WITH_UNITS, scope: $cosmos_scope)
@@ -276,23 +265,21 @@ module Cosmos
     def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
       self.instance.read_topics(topics, offsets, timeout_ms, &block)
     end
-    unless $cosmos_enterprise
-      def read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-        # Logger.debug "read_topics: #{topics}, #{offsets} pool:#{@redis_pool}"
-        @redis_pool.with do |redis|
-          offsets = update_topic_offsets(topics) unless offsets
-          result = redis.xread(topics, offsets, block: timeout_ms)
-          if result and result.length > 0
-            result.each do |topic, messages|
-              messages.each do |msg_id, msg_hash|
-                @topic_offsets[topic] = msg_id
-                yield topic, msg_id, msg_hash, redis if block_given?
-              end
+    def read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
+      # Logger.debug "read_topics: #{topics}, #{offsets} pool:#{@redis_pool}"
+      @redis_pool.with do |redis|
+        offsets = update_topic_offsets(topics) unless offsets
+        result = redis.xread(topics, offsets, block: timeout_ms)
+        if result and result.length > 0
+          result.each do |topic, messages|
+            messages.each do |msg_id, msg_hash|
+              @topic_offsets[topic] = msg_id
+              yield topic, msg_id, msg_hash, redis if block_given?
             end
           end
-          # Logger.debug "result:#{result}" if result and result.length > 0
-          return result
         end
+        # Logger.debug "result:#{result}" if result and result.length > 0
+        return result
       end
     end
 
