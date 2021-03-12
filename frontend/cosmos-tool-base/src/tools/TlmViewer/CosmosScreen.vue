@@ -243,6 +243,7 @@ export default {
         keyword.includes('VERTICAL') ||
         keyword.includes('HORIZONTAL') ||
         keyword.includes('MATRIXBYCOLUMNS') ||
+        keyword.startsWith('TAB') ||
         keyword === 'CANVAS' ||
         keyword === 'RADIOGROUP'
       ) {
