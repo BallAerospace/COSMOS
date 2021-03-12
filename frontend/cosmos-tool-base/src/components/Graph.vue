@@ -219,11 +219,11 @@ export default {
     },
     hideSystemBar: {
       type: Boolean,
-      default: () => false,
+      default: false,
     },
     hideOverview: {
       type: Boolean,
-      default: () => false,
+      default: false,
     },
     initialItems: {
       type: Array,
