@@ -28,7 +28,7 @@
     </v-system-bar>
     <v-expand-transition>
       <div class="pa-1" ref="screen" v-show="expand">
-        <VerticalWidget :widgets="layoutStack[0].widgets" />
+        <VerticalWidget :widgets="layoutStack[0].widgets" v-on="$listeners" />
       </div>
     </v-expand-transition>
   </v-card>
@@ -243,6 +243,7 @@ export default {
         keyword.includes('VERTICAL') ||
         keyword.includes('HORIZONTAL') ||
         keyword.includes('MATRIXBYCOLUMNS') ||
+        keyword.startsWith('TAB') ||
         keyword === 'CANVAS' ||
         keyword === 'RADIOGROUP'
       ) {

@@ -18,16 +18,24 @@
 -->
 
 <template>
-  <div ref="container" class="d-flex flex-column">
-    <component
-      v-on="$listeners"
-      v-for="(widget, index) in widgets"
-      :key="index"
-      :is="widget.type"
-      :parameters="widget.parameters"
-      :settings="widget.settings"
-      :widgets="widget.widgets"
-    ></component>
+  <div>
+    <v-tabs v-model="curTab">
+      <v-tab v-for="(tab, index) in widgets" :key="index">
+        {{ tab.parameters[0] }}
+      </v-tab>
+    </v-tabs>
+    <v-tabs-items v-model="curTab">
+      <v-tab-item v-for="(tab, tabIndex) in widgets" :key="tabIndex">
+        <component
+          v-for="(widget, widgetIndex) in tab.widgets"
+          :key="`${tabIndex}-${widgetIndex}`"
+          :is="widget.type"
+          :parameters="widget.parameters"
+          :settings="widget.settings"
+          :widgets="widget.widgets"
+        />
+      </v-tab-item>
+    </v-tabs-items>
   </div>
 </template>
 
@@ -35,5 +43,15 @@
 import Layout from './Layout'
 export default {
   mixins: [Layout],
+  data: function () {
+    return {
+      curTab: null,
+    }
+  },
+  watch: {
+    curTab: function () {
+      this.$emit('min-max-screen')
+    },
+  },
 }
 </script>

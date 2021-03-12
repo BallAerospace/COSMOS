@@ -20,7 +20,10 @@
 <template>
   <div>
     <v-card @click.native="$emit('click')">
-      <v-system-bar :class="selectedGraphId === id ? 'active' : 'inactive'">
+      <v-system-bar
+        :class="selectedGraphId === id ? 'active' : 'inactive'"
+        v-show="!hideSystemBar"
+      >
         <v-spacer />
         <span>{{ title }}</span>
         <v-spacer />
@@ -42,7 +45,7 @@
       <v-expand-transition>
         <div class="pa-1" id="chart" ref="chart" v-show="expand">
           <div :id="'chart' + id"></div>
-          <div :id="'overview' + id"></div>
+          <div :id="'overview' + id" v-show="!hideOverview"></div>
         </div>
       </v-expand-transition>
     </v-card>
@@ -214,6 +217,24 @@ export default {
       type: Number,
       required: true,
     },
+    hideSystemBar: {
+      type: Boolean,
+      default: false,
+    },
+    hideOverview: {
+      type: Boolean,
+      default: false,
+    },
+    initialItems: {
+      type: Array,
+    },
+    // These allow the parent to force a specific height and/or width
+    height: {
+      type: Number,
+    },
+    width: {
+      type: Number,
+    },
   },
   data() {
     return {
@@ -234,13 +255,13 @@ export default {
       selectedItem: null,
       title: '',
       overview: null,
-      data: null,
+      data: [[]],
       graphMinX: '',
       graphMaxX: '',
       graphStartDateTime: this.startTime,
       graphEndDateTime: null,
       indexes: {},
-      items: [],
+      items: this.initialItems || [],
       drawInterval: null,
       zoomChart: false,
       zoomOverview: false,
@@ -279,6 +300,19 @@ export default {
     // Creating the cable can be done once, subscriptions come and go
     this.cable = ActionCable.createConsumer('/cosmos-api/cable')
     this.title = 'Graph ' + this.id
+    for (const [index, item] of this.items.entries()) {
+      this.data.push([]) // initialize the empty data arrays
+      let key =
+        'TLM__' +
+        item.targetName +
+        '__' +
+        item.packetName +
+        '__' +
+        item.itemName +
+        '__' +
+        item.valueType
+      this.indexes[key] = index + 1
+    }
   },
   mounted() {
     // This code allows for temporary pulling in a patched uPlot
@@ -322,6 +356,27 @@ export default {
     //   })
     // }
 
+    const { chartSeries, overviewSeries } = this.items.reduce(
+      (seriesObj, item) => {
+        const commonProps = {
+          spanGaps: true,
+          stroke: this.colors.shift(),
+        }
+        seriesObj.chartSeries.push({
+          ...commonProps,
+          item: item,
+          label: item.itemName,
+          value: (self, rawValue) =>
+            rawValue == null ? '--' : rawValue.toFixed(2),
+        })
+        seriesObj.overviewSeries.push({
+          ...commonProps,
+        })
+        return seriesObj
+      },
+      { chartSeries: [], overviewSeries: [] }
+    )
+
     let chartOpts = {
       ...this.getSize('chart'),
       ...this.getScales(),
@@ -334,6 +389,7 @@ export default {
             // Convert the unix timestamp into a formatted date / time
             v == null ? '--' : format(toDate(v * 1000), 'yyyy-MM-dd HH:mm:ss'),
         },
+        ...chartSeries,
       ],
       cursor: {
         drag: {
@@ -407,6 +463,7 @@ export default {
       ...this.getScales(),
       ...this.getAxes('overview'),
       // series: series, // TODO: Uncomment with the performance code
+      series: [...overviewSeries],
       cursor: {
         y: false,
         points: {
@@ -671,7 +728,7 @@ export default {
         if (!this.fullHeight) {
           height = 0
         }
-      } else {
+      } else if (chooser) {
         // Height of chart is viewportSize - chooser - overview - fudge factor (primarily padding)
         height = viewHeight - chooser.clientHeight - height - 190
         if (!this.fullHeight) {
@@ -683,8 +740,8 @@ export default {
         width = width / 2.0 - 10 // 5px padding left and right
       }
       return {
-        width: width,
-        height: height,
+        width: this.width || width,
+        height: this.height || height,
       }
     },
     getScales() {
