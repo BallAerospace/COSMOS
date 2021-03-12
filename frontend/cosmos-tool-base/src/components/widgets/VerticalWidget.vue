@@ -20,6 +20,7 @@
 <template>
   <div ref="container" class="d-flex flex-column">
     <component
+      v-on="$listeners"
       v-for="(widget, index) in widgets"
       :key="index"
       :is="widget.type"

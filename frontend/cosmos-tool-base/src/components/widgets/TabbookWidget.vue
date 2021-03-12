@@ -48,5 +48,10 @@ export default {
       curTab: null,
     }
   },
+  watch: {
+    curTab: function () {
+      this.$emit('min-max-screen')
+    },
+  },
 }
 </script>
