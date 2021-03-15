@@ -369,6 +369,7 @@ module Cosmos
     end
 
     def write_entry(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id)
+      raise ArgumentError.new("Length of id must be 64, got #{id.length}") if id and id.length != 64 # 64 hex digits, gets packed to 32 bytes with .pack('H*')
       length = COSMOS5_PRIMARY_FIXED_SIZE
       flags = 0
       flags |= COSMOS5_STORED_FLAG_MASK if stored

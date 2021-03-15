@@ -24,6 +24,9 @@ rescue LoadError
   module Cosmos
     class AuthError < StandardError
     end
+    
+    class ForbiddenError < StandardError
+    end
 
     module Authorization
       private
