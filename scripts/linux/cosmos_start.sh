@@ -72,8 +72,7 @@ docker build -f traefik/Dockerfile -t cosmos-traefik traefik
 docker run --network cosmos -p 127.0.0.1:2900:80 -d --name cosmos-traefik cosmos-traefik
 
 docker build -f frontend/Dockerfile -t cosmos-frontend-init frontend
-docker container rm cosmos-frontend-init
-docker run --network cosmos --name cosmos-frontend-init cosmos-frontend-init
+docker run --network cosmos --name cosmos-frontend-init --rm cosmos-frontend-init 
 
 docker build -f init/Dockerfile -t cosmos-init init
 docker run --network cosmos --name cosmos-init --rm cosmos-init
