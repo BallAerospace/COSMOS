@@ -24,7 +24,6 @@ require 'socket'
 require 'thread'
 require 'logger'
 require 'time'
-require 'fluent-logger'
 
 module Cosmos
 
@@ -71,23 +70,16 @@ module Cosmos
     FATAL_SEVERITY_STRING = 'FATAL'
 
     # @param level [Integer] The initial logging level
-    def initialize(level = Logger::INFO, stdout = false)
+    def initialize(level = Logger::INFO)
       @level = level
       @scope = nil
       @detail_string = nil
-      @stdout = stdout
       @container_name = Socket.gethostname
       @microservice_name = nil
       @metric_tag = @container_name + ".metric"
       @tag = @container_name + ".log"
       @mutex = Mutex.new
-      @no_fluentd = ENV['NO_FLUENTD']
       @no_store = ENV['NO_STORE']
-      unless @no_fluentd
-        fluentd_url = ENV['COSMOS_FLUENTD_URL'] || (ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:24224' : 'http://cosmos-fluentd:24224')
-        path = fluentd_url.split('/')[-1].split(':')
-        Fluent::Logger::FluentLogger.open(nil, { host: path[0], port: path[1] })
-      end
     end
 
     # @param message [String] The message to print if the log level is at or
@@ -199,16 +191,13 @@ module Cosmos
         if block_given?
           data = yield
         end
-        Fluent::Logger.post(@metric_tag, data) unless @no_fluentd
+        puts data.to_json
         unless @no_store
           if scope
             Store.write_topic("#{scope}__cosmos_log_messages", data)
           else
             Store.write_topic("cosmos_log_messages", data)
           end
-        end
-        if @stdout
-          puts "#{Time.now.sys.formatted} #{@detail_string ? "(#{@detail_string}):" : ''} #{data.to_json}"
         end
       end
     end
@@ -223,16 +212,13 @@ module Cosmos
         end
         data[:container_name] = @container_name
         data[:log] = message
-        Fluent::Logger.post(@tag, data) unless @no_fluentd
+        puts data.to_json
         unless @no_store
           if scope
             Store.write_topic("#{scope}__cosmos_log_messages", data)
           else
             Store.write_topic("cosmos_log_messages", data)
           end
-        end
-        if @stdout
-          puts "#{Time.now.sys.formatted} #{@detail_string ? "(#{@detail_string}):" : ''} #{severity_string}: #{message}"
         end
       end
     end
