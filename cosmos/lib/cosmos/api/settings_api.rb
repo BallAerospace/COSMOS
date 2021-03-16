@@ -42,6 +42,7 @@ module Cosmos
     end
 
     def save_setting(name, data, scope: $cosmos_scope, token: $cosmos_token)
+      authorize(permission: 'superadmin', scope: scope, token: token)
       Store.instance.hset(SETTINGS_KEY, name, data)
     end
   end
