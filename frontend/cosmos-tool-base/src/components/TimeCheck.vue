@@ -50,7 +50,8 @@ export default {
     }
   },
   created: function () {
-    this.suppress = localStorage.suppressCosmosTimeCheck === 'true'
+    this.suppress =
+      localStorage['suppresswarning__clock_out_of_sync_with_server'] === 'true'
     if (!this.suppress) {
       axios
         .get('/cosmos-api/time')
@@ -65,7 +66,9 @@ export default {
   },
   methods: {
     dismiss: function () {
-      localStorage.suppressCosmosTimeCheck = this.suppress // TODO: add a way to reset this from global settings page (COSMOSEE-127)
+      localStorage[
+        'suppresswarning__clock_out_of_sync_with_server'
+      ] = this.suppress
       this.dismissed = true
     },
   },

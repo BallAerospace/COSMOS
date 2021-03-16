@@ -20,11 +20,11 @@
 <template>
   <v-card>
     <v-card-title>Classification Banner Settings</v-card-title>
-    <v-card-text>
+    <v-card-text class="pb-0">
       <v-alert v-model="errorLoading" type="error" dismissible dense>
         Error loading previous configuration
       </v-alert>
-      <v-container>
+      <v-container class="pb-0">
         <v-row dense>
           <v-col>
             <v-text-field label="Text" v-model="text" />
@@ -141,10 +141,12 @@
       </v-container>
     </v-card-text>
     <v-card-actions>
-      <v-container>
+      <v-container class="pt-0">
         <v-row dense>
-          <v-col>
-            <v-btn :disabled="!formValid" @click="save"> Save </v-btn>
+          <v-col class="pl-0">
+            <v-btn :disabled="!formValid" @click="save" color="success" text>
+              Save
+            </v-btn>
           </v-col>
         </v-row>
         <v-alert v-model="errorSaving" type="error" dismissible dense>
