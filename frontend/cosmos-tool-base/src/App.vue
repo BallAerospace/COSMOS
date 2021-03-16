@@ -34,6 +34,7 @@
 <script>
 import AppFooter from '@/AppFooter'
 import TimeCheck from '@/components/TimeCheck'
+import { CosmosApi } from '@/services/cosmos-api'
 
 export default {
   components: {
@@ -42,9 +43,10 @@ export default {
   },
   data: function () {
     return {
+      api: null,
       classification: {
         text: '',
-        backgroundColor: 'red',
+        color: 'red',
         topHeight: 0,
         bottomHeight: 0,
       },
@@ -57,10 +59,25 @@ export default {
       // the style sheet via the style attribute on #app
       return [
         `--classification-text:"${this.classification.text}";`,
-        `--classification-color:${this.classification.backgroundColor};`,
+        `--classification-color:${this.classification.color};`,
         `--classification-height-top:${this.classification.topHeight}px;`,
         `--classification-height-bottom:${this.classification.bottomHeight}px;`,
       ].join('')
+    },
+  },
+  created: function () {
+    this.api = new CosmosApi()
+    this.loadClassificationBanner()
+  },
+  methods: {
+    loadClassificationBanner: function () {
+      this.api.get_setting('classification_banner').then((response) => {
+        if (response) {
+          this.classification = JSON.parse(response)
+        }
+      }).catch((error) => {
+        console.error('error loading:', error)
+      })
     },
   },
 }

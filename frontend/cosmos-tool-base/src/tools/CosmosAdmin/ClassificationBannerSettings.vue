@@ -96,14 +96,18 @@
 
 <script>
 import axios from 'axios'
+import { CosmosApi } from '@/services/cosmos-api'
+
+const settingName = 'classification_banner'
 export default {
   data() {
     return {
-      text: 'SECRET',
-      displayTopBanner: true,
-      displayBottomBanner: true,
-      topHeight: 42,
-      bottomHeight: 42,
+      api: null,
+      text: '',
+      displayTopBanner: false,
+      displayBottomBanner: false,
+      topHeight: 0,
+      bottomHeight: 0,
       selectedColor: 'red',
       customColor: '',
       customColorHint: 'Enter a 3 or 6-digit hex color code',
@@ -148,12 +152,12 @@ export default {
   },
   computed: {
     saveObj: function () {
-      return {
+      return JSON.stringify({
         text: this.text,
         color: this.selectedColor || this.customColor,
         topHeight: this.displayTopBanner ? this.topHeight : 0,
         bottomHeight: this.displayBottomBanner ? this.bottomHeight : 0,
-      }
+      })
     },
     formValid: function () {
       return (
@@ -168,9 +172,37 @@ export default {
       }
     },
   },
+  created() {
+    this.api = new CosmosApi()
+    this.load()
+  },
   methods: {
+    load: function () {
+      this.api.get_setting(settingName).then((response) => {
+        if (response) {
+          const parsed = JSON.parse(response)
+          this.text = parsed.text
+          this.topHeight = parsed.topHeight
+          this.bottomHeight = parsed.bottomHeight
+          this.displayTopBanner = parsed.topHeight !== 0
+          this.displayBottomBanner = parsed.bottomHeight !== 0
+          if (parsed.color.startsWith('#')) {
+            this.customColor = parsed.color
+            this.selectedColor = false
+          } else {
+            this.selectedColor = parsed.color
+          }
+        }
+      }).catch((error) => {
+        console.error('error loading:', error)
+      })
+    },
     save: function () {
-      console.error('TODO: implement saving classification banner settings')
+      this.api.save_setting(settingName, this.saveObj).then((response) => {
+        console.log('saved', response)
+      }).catch((error) => {
+        console.error('error saving:', error)
+      })
     },
   },
 }
