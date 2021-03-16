@@ -26,10 +26,16 @@
           <v-col>
             <v-text-field label="Text" v-model="text" />
           </v-col>
+        </v-row>
+        <v-row dense>
           <v-col>
-            <v-select label="Color" :items="colors" v-model="selectedColor">
-              <template v-slot:prepend-inner v-if="selectedColor">
-                <v-icon :color="selectedColor"> mdi-square </v-icon>
+            <v-select
+              label="Background color"
+              :items="colors"
+              v-model="selectedBackgroundColor"
+            >
+              <template v-slot:prepend-inner v-if="selectedBackgroundColor">
+                <v-icon :color="selectedBackgroundColor"> mdi-square </v-icon>
               </template>
               <template slot="item" slot-scope="data">
                 <v-icon
@@ -45,19 +51,62 @@
           </v-col>
           <v-col>
             <v-text-field
-              label="Custom color"
+              label="Custom background color"
               :hint="customColorHint"
-              v-show="!selectedColor"
-              v-model="customColor"
+              :disabled="selectedBackgroundColor !== false"
+              v-model="customBackgroundColor"
               :rules="[rules.customColor]"
             >
               <template v-slot:prepend-inner>
-                <v-icon :color="customColor"> mdi-square </v-icon>
+                <v-icon
+                  v-show="!selectedBackgroundColor"
+                  :color="customBackgroundColor"
+                >
+                  mdi-square
+                </v-icon>
+              </template>
+            </v-text-field>
+          </v-col>
+          <v-col>
+            <v-select
+              label="Font color"
+              :items="colors"
+              v-model="selectedFontColor"
+            >
+              <template v-slot:prepend-inner v-if="selectedFontColor">
+                <v-icon v-show="selectedFontColor" :color="selectedFontColor">
+                  mdi-square
+                </v-icon>
+              </template>
+              <template slot="item" slot-scope="data">
+                <v-icon
+                  v-if="data.item.value"
+                  :color="data.item.value"
+                  class="pr-1"
+                >
+                  mdi-square
+                </v-icon>
+                {{ data.item.text }}
+              </template>
+            </v-select>
+          </v-col>
+          <v-col>
+            <v-text-field
+              label="Custom font color"
+              :hint="customColorHint"
+              :disabled="selectedFontColor !== false"
+              v-model="customFontColor"
+              :rules="[rules.customColor]"
+            >
+              <template v-slot:prepend-inner>
+                <v-icon v-show="!selectedFontColor" :color="customFontColor">
+                  mdi-square
+                </v-icon>
               </template>
             </v-text-field>
           </v-col>
         </v-row>
-        <v-row>
+        <v-row dense>
           <v-col>
             <v-switch label="Display top banner" v-model="displayTopBanner" />
           </v-col>
@@ -108,8 +157,10 @@ export default {
       displayBottomBanner: false,
       topHeight: 0,
       bottomHeight: 0,
-      selectedColor: 'red',
-      customColor: '',
+      selectedBackgroundColor: 'red',
+      customBackgroundColor: '',
+      selectedFontColor: 'white',
+      customFontColor: '',
       customColorHint: 'Enter a 3 or 6-digit hex color code',
       colors: [
         {
@@ -137,6 +188,14 @@ export default {
           value: 'green',
         },
         {
+          text: 'Black',
+          value: 'black',
+        },
+        {
+          text: 'White',
+          value: 'white',
+        },
+        {
           text: 'Custom',
           value: false,
         },
@@ -154,21 +213,31 @@ export default {
     saveObj: function () {
       return JSON.stringify({
         text: this.text,
-        color: this.selectedColor || this.customColor,
+        fontColor: this.selectedFontColor || this.customFontColor,
+        backgroundColor:
+          this.selectedBackgroundColor || this.customBackgroundColor,
         topHeight: this.displayTopBanner ? this.topHeight : 0,
         bottomHeight: this.displayBottomBanner ? this.bottomHeight : 0,
       })
     },
     formValid: function () {
       return (
-        this.selectedColor || this.rules.customColor(this.customColor) === true
+        (this.selectedFontColor ||
+          this.rules.customColor(this.customFontColor) === true) &&
+        (this.selectedBackgroundColor ||
+          this.rules.customColor(this.customBackgroundColor) === true)
       )
     },
   },
   watch: {
-    customColor: function (val) {
+    customFontColor: function (val) {
       if (val && val.length && !val.startsWith('#')) {
-        this.customColor = `#${val}`
+        this.customFontColor = `#${val}`
+      }
+    },
+    customBackgroundColor: function (val) {
+      if (val && val.length && !val.startsWith('#')) {
+        this.customBackgroundColor = `#${val}`
       }
     },
   },
@@ -178,31 +247,46 @@ export default {
   },
   methods: {
     load: function () {
-      this.api.get_setting(settingName).then((response) => {
-        if (response) {
-          const parsed = JSON.parse(response)
-          this.text = parsed.text
-          this.topHeight = parsed.topHeight
-          this.bottomHeight = parsed.bottomHeight
-          this.displayTopBanner = parsed.topHeight !== 0
-          this.displayBottomBanner = parsed.bottomHeight !== 0
-          if (parsed.color.startsWith('#')) {
-            this.customColor = parsed.color
-            this.selectedColor = false
-          } else {
-            this.selectedColor = parsed.color
+      this.api
+        .get_setting(settingName)
+        .then((response) => {
+          if (response) {
+            const parsed = JSON.parse(response)
+            this.text = parsed.text
+            this.topHeight = parsed.topHeight
+            this.bottomHeight = parsed.bottomHeight
+            this.displayTopBanner = parsed.topHeight !== 0
+            this.displayBottomBanner = parsed.bottomHeight !== 0
+            if (
+              parsed.backgroundColor &&
+              parsed.backgroundColor.startsWith('#')
+            ) {
+              this.customBackgroundColor = parsed.backgroundColor
+              this.selectedBackgroundColor = false
+            } else {
+              this.selectedBackgroundColor = parsed.backgroundColor
+            }
+            if (parsed.fontColor && parsed.fontColor.startsWith('#')) {
+              this.customFontColor = parsed.fontColor
+              this.selectedFontColor = false
+            } else {
+              this.selectedFontColor = parsed.fontColor
+            }
           }
-        }
-      }).catch((error) => {
-        console.error('error loading:', error)
-      })
+        })
+        .catch((error) => {
+          console.error('error loading:', error)
+        })
     },
     save: function () {
-      this.api.save_setting(settingName, this.saveObj).then((response) => {
-        console.log('saved', response)
-      }).catch((error) => {
-        console.error('error saving:', error)
-      })
+      this.api
+        .save_setting(settingName, this.saveObj)
+        .then((response) => {
+          console.log('saved', response)
+        })
+        .catch((error) => {
+          console.error('error saving:', error)
+        })
     },
   },
 }

@@ -26,7 +26,8 @@ export default {
       api: null,
       classification: {
         text: '',
-        color: 'red',
+        fontColor: 'white',
+        backgroundColor: 'red',
         topHeight: 0,
         bottomHeight: 0,
       },
@@ -39,7 +40,8 @@ export default {
       // the style sheet via the style attribute on #app
       return [
         `--classification-text:"${this.classification.text}";`,
-        `--classification-color:${this.classification.color};`,
+        `--classification-font-color:${this.classification.fontColor};`,
+        `--classification-background-color:${this.classification.backgroundColor};`,
         `--classification-height-top:${this.classification.topHeight}px;`,
         `--classification-height-bottom:${this.classification.bottomHeight}px;`,
       ].join('')
@@ -96,7 +98,8 @@ export default {
   right: 0;
   text-align: center;
   content: var(--classification-text);
-  background-color: var(--classification-color);
+  color: var(--classification-font-color);
+  background-color: var(--classification-background-color);
 }
 #app::before {
   top: 0;
