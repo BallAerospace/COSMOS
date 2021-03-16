@@ -21,6 +21,9 @@
   <v-card>
     <v-card-title>Classification Banner Settings</v-card-title>
     <v-card-text>
+      <v-alert v-model="errorLoading" type="error" dismissible dense>
+        Error loading previous configuration
+      </v-alert>
       <v-container>
         <v-row dense>
           <v-col>
@@ -138,7 +141,19 @@
       </v-container>
     </v-card-text>
     <v-card-actions>
-      <v-btn :disabled="!formValid" @click="save"> Save </v-btn>
+      <v-container>
+        <v-row dense>
+          <v-col>
+            <v-btn :disabled="!formValid" @click="save"> Save </v-btn>
+          </v-col>
+        </v-row>
+        <v-alert v-model="errorSaving" type="error" dismissible dense>
+          Error saving
+        </v-alert>
+        <v-alert v-model="successSaving" type="success" dismissible dense>
+          Saved! (Refresh the page to see changes)
+        </v-alert>
+      </v-container>
     </v-card-actions>
   </v-card>
 </template>
@@ -152,6 +167,9 @@ export default {
   data() {
     return {
       api: null,
+      errorLoading: false,
+      errorSaving: false,
+      successSaving: false,
       text: '',
       displayTopBanner: false,
       displayBottomBanner: false,
@@ -250,6 +268,7 @@ export default {
       this.api
         .get_setting(settingName)
         .then((response) => {
+          this.errorLoading = false
           if (response) {
             const parsed = JSON.parse(response)
             this.text = parsed.text
@@ -275,17 +294,20 @@ export default {
           }
         })
         .catch((error) => {
-          console.error('error loading:', error)
+          console.error(error)
+          this.errorLoading = true
         })
     },
     save: function () {
       this.api
         .save_setting(settingName, this.saveObj)
         .then((response) => {
-          console.log('saved', response)
+          this.errorSaving = false
+          this.successSaving = true
         })
         .catch((error) => {
-          console.error('error saving:', error)
+          console.error(error)
+          this.errorSaving = true
         })
     },
   },

@@ -61,7 +61,7 @@ export default {
           }
         })
         .catch((error) => {
-          console.error('error loading:', error)
+          console.error('Error loading classification banner:', error) // TODO: Do we need to do anything here?
         })
     },
   },
