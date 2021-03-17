@@ -76,13 +76,16 @@ export default {
     update() {
       axios
         .get('/cosmos-api/microservice_status/all', {
-          params: { scope: 'DEFAULT' },
+          params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
         })
         .then((response) => {
           this.microservice_status = response.data
           axios
             .get('/cosmos-api/microservices', {
-              params: { scope: 'DEFAULT' },
+              params: {
+                scope: 'DEFAULT',
+                token: localStorage.getItem('token'),
+              },
             })
             .then((response) => {
               this.microservices = response.data
@@ -116,7 +119,10 @@ export default {
         .then(function (dialog) {
           axios
             .delete('/cosmos-api/microservices/' + name, {
-              params: { scope: 'DEFAULT' },
+              params: {
+                scope: 'DEFAULT',
+                token: localStorage.getItem('token'),
+              },
             })
             .then((response) => {
               self.alert = 'Removed microservice ' + name

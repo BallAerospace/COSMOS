@@ -91,7 +91,7 @@ export default {
     update() {
       axios
         .get('/cosmos-api/plugins', {
-          params: { scope: 'DEFAULT' },
+          params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
         })
         .then((response) => {
           //console.log(response.data)
@@ -111,6 +111,7 @@ export default {
         let formData = new FormData()
         formData.append('plugin', this.file, this.file.name)
         formData.append('scope', 'DEFAULT')
+        formData.append('token', localStorage.getItem('token'))
         axios
           .post('/cosmos-api/plugins', formData)
           .then((response) => {
@@ -148,6 +149,7 @@ export default {
       let formData = new FormData()
       formData.append('variables', JSON.stringify(updated_variables))
       formData.append('scope', 'DEFAULT')
+      formData.append('token', localStorage.getItem('token'))
       axios
         .post('/cosmos-api/plugins/install/' + this.pluginId, formData)
         .then((response) => {
@@ -178,7 +180,10 @@ export default {
         .then(function (dialog) {
           axios
             .delete('/cosmos-api/plugins/' + plugin, {
-              params: { scope: 'DEFAULT' },
+              params: {
+                scope: 'DEFAULT',
+                token: localStorage.getItem('token'),
+              },
             })
             .then((response) => {
               self.alert = 'Removed plugin ' + plugin

@@ -91,6 +91,7 @@ export default {
         .post('/cosmos-api/tools/position/' + this.tools[evt.oldIndex], {
           position: evt.newIndex,
           scope: 'DEFAULT',
+          token: localStorage.getItem('token'),
         })
         .then((response) => {
           this.alert = 'Reordered tool ' + this.tools[evt.oldIndex]
@@ -113,7 +114,7 @@ export default {
     update() {
       axios
         .get('/cosmos-api/tools', {
-          params: { scope: 'DEFAULT' },
+          params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
         })
         .then((response) => {
           this.tools = response.data
@@ -135,6 +136,7 @@ export default {
             id: this.name,
             json: JSON.stringify(data),
             scope: 'DEFAULT',
+            token: localStorage.getItem('token'),
           })
           .then((response) => {
             this.alert = 'Added tool ' + this.name
@@ -172,7 +174,10 @@ export default {
         .then(function (dialog) {
           axios
             .delete('/cosmos-api/tools/' + name, {
-              params: { scope: 'DEFAULT' },
+              params: {
+                scope: 'DEFAULT',
+                token: localStorage.getItem('token'),
+              },
             })
             .then((response) => {
               self.alert = 'Removed tool ' + name

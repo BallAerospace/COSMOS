@@ -65,7 +65,7 @@ export default {
     update() {
       axios
         .get('/cosmos-api/targets', {
-          params: { scope: 'DEFAULT' },
+          params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
         })
         .then((response) => {
           this.targets = response.data
@@ -90,7 +90,10 @@ export default {
         .then(function (dialog) {
           axios
             .delete('/cosmos-api/targets/' + name, {
-              params: { scope: 'DEFAULT' },
+              params: {
+                scope: 'DEFAULT',
+                token: localStorage.getItem('token'),
+              },
             })
             .then((response) => {
               self.alert = 'Removed target ' + name

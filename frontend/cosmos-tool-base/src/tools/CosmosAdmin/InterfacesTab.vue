@@ -71,7 +71,7 @@ export default {
     update() {
       axios
         .get('/cosmos-api/interfaces', {
-          params: { scope: 'DEFAULT' },
+          params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
         })
         .then((response) => {
           this.interfaces = response.data
@@ -96,7 +96,10 @@ export default {
         .then(function (dialog) {
           axios
             .delete('/cosmos-api/interfaces/' + name, {
-              params: { scope: 'DEFAULT' },
+              params: {
+                scope: 'DEFAULT',
+                token: localStorage.getItem('token'),
+              },
             })
             .then((response) => {
               self.alert = 'Removed interface ' + name

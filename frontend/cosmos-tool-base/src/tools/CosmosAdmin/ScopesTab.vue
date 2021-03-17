@@ -77,7 +77,7 @@ export default {
     update() {
       axios
         .get('/cosmos-api/scopes', {
-          params: { scope: 'DEFAULT' },
+          params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
         })
         .then((response) => {
           this.scopes = response.data
@@ -96,6 +96,7 @@ export default {
         axios
           .post('/cosmos-api/scopes', {
             scope: this.scope,
+            token: localStorage.getItem('token'),
             json: JSON.stringify({ name: this.scope }),
           })
           .then((response) => {
@@ -134,7 +135,7 @@ export default {
         .then(function (dialog) {
           axios
             .delete('/cosmos-api/scopes/' + scope, {
-              params: { scope: scope },
+              params: { scope: scope, token: localStorage.getItem('token') },
             })
             .then((response) => {
               self.alert = 'Removed scope ' + scope

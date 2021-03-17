@@ -166,7 +166,7 @@ export default {
       this.screens = []
       axios
         .get('/cosmos-api/screen/' + this.selectedTarget, {
-          params: { scope: 'DEFAULT' },
+          params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
         })
         .then((response) => {
           for (let screen of response.data) {
@@ -194,7 +194,7 @@ export default {
     },
     loadScreen(target, screen) {
       return axios.get('/cosmos-api/screen/' + target + '/' + screen, {
-        params: { scope: 'DEFAULT' },
+        params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
       })
     },
     pushScreen(definition) {

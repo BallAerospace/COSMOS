@@ -128,7 +128,7 @@ export default {
   created() {
     axios
       .get('/script-api/scripts', {
-        params: { scope: 'DEFAULT' },
+        params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
       })
       .then((response) => {
         this.tree = []
@@ -170,7 +170,7 @@ export default {
         this.disableButtons = true
         axios
           .get('/script-api/scripts/' + this.selectedFile, {
-            params: { scope: 'DEFAULT' },
+            params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
           })
           .then((response) => {
             const file = {
