@@ -32,7 +32,11 @@ export default {
       type: String,
       required: true,
       validator: (val) => {
-        return AstroIconLibrary.indexOf(val) !== -1
+        return (
+          AstroIconLibrary.includes(val) &&
+          (!val.startsWith('status-') ||
+            ['settings-outline', 'notifications-outline'].includes(val)) // These were renamed
+        )
       },
     },
   },
