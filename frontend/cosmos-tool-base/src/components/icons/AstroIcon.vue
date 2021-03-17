@@ -1,4 +1,4 @@
-/*
+<!--
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,35 +15,32 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
-*/
+-->
 
-import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
-import { AstroIconVuetifyValues } from '@/components/icons'
+<template>
+  <rux-icon :icon="icon" class="astro-icon" />
+</template>
 
-Vue.use(Vuetify)
+<script>
+import { RuxIcon } from '@astrouxds/rux-icon' // VSCode might falsely show this as an unused import
+import { AstroIconLibrary } from '.'
 
-export default new Vuetify({
-  theme: {
-    dark: true,
-    options: {
-      customProperties: true,
-    },
-    themes: {
-      dark: {
-        primary: '#005a8f',
-        secondary: '#4dacff',
-        tertiary: '#283f58',
-      },
-      light: {
-        primary: '#cce6ff',
-        secondary: '#cce6ff',
+// This component is a wrapper around the Astro UXDS RuxIcon to make it work with Vuetify
+export default {
+  props: {
+    icon: {
+      type: String,
+      required: true,
+      validator: (val) => {
+        return AstroIconLibrary.indexOf(val) !== -1
       },
     },
   },
-  icons: {
-    values: {
-      ...AstroIconVuetifyValues,
-    },
-  },
-})
+}
+</script>
+
+<style scoped>
+.astro-icon {
+  fill: currentColor;
+}
+</style>
