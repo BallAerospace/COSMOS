@@ -21,6 +21,7 @@
 # This file will handle COSMOS tasks such as instantiating a new project
 
 require 'cosmos'
+require 'cosmos/utilities/s3'
 require 'cosmos/models/scope_model'
 require 'cosmos/models/plugin_model'
 require 'zip'
@@ -32,14 +33,6 @@ require 'json'
 require 'redis'
 
 $redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0')
-
-Aws.config.update(
-  endpoint: ENV['COSMOS_S3_URL'] || (ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000'),
-  access_key_id: 'minioadmin',
-  secret_access_key: 'minioadmin',
-  force_path_style: true,
-  region: 'us-east-1'
-)
 
 # Prints the usage text for the cosmos executable
 def print_usage
