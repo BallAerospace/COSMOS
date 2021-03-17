@@ -18,18 +18,10 @@
 # copyright holder
 
 require 'thread'
-require 'aws-sdk-s3'
 require 'cosmos/config/config_parser'
 require 'cosmos/packet_logs/packet_log_constants'
 require 'cosmos/utilities/store'
-
-Aws.config.update(
-  endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000',
-  access_key_id: 'minioadmin',
-  secret_access_key: 'minioadmin',
-  force_path_style: true,
-  region: 'us-east-1'
-)
+require 'cosmos/utilities/s3'
 
 module Cosmos
   # Creates a packet log. Can automatically cycle the log based on an elasped
@@ -454,7 +446,7 @@ module Cosmos
     def first_timestamp
       Time.from_nsec_from_epoch(@first_time).to_timestamp # "YYYYMMDDHHmmSSNNNNNNNNN"
     end
-    
+
     def last_timestamp
       Time.from_nsec_from_epoch(@last_time).to_timestamp # "YYYYMMDDHHmmSSNNNNNNNNN"
     end

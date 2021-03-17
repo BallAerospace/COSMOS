@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/microservices/microservice'
+require 'cosmos/utilities/s3'
 
 module Cosmos
   class CleanupMicroservice < Microservice
