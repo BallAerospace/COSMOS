@@ -53,9 +53,7 @@ export default {
     this.suppress = localStorage.suppressCosmosTimeCheck === 'true'
     if (!this.suppress) {
       axios
-        .get('/cosmos-api/time', {
-          params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
-        })
+        .get('/cosmos-api/time')
         .then((response) => {
           this.discrepancy = response.data.now_nsec / 1_000_000 - Date.now()
         })
