@@ -113,6 +113,13 @@ export default {
         : '-12 -10 35 35' // Compensate for the offset in the SVG paths to make the rest easier to use
     },
   },
+  created: function () {
+    if (this.$parent.$options.name !== 'v-icon') {
+      console.warn(
+        "AstroStatusIcon shouldn't be used directly. Use v-icon instead."
+      )
+    }
+  },
 }
 </script>
 

@@ -18,38 +18,45 @@
 -->
 
 <template>
-  <rux-icon :icon="icon" class="astro-icon" />
+  <v-badge
+    :icon="icon"
+    color="transparent"
+    left
+    :offset-x="offsetX"
+    :offset-y="offsetY"
+  >
+    <slot />
+  </v-badge>
 </template>
 
 <script>
-import { RuxIcon } from '@astrouxds/rux-icon' // VSCode might falsely show this as an unused import
-import { AstroIconLibrary } from '.'
-
-// This component is a wrapper around the Astro UXDS RuxIcon to make it work with Vuetify
 export default {
   props: {
-    icon: {
+    status: {
       type: String,
       required: true,
-      validator: (val) => {
-        return (
-          AstroIconLibrary.includes(val) &&
-          (!val.startsWith('status-') ||
-            ['settings-outline', 'notifications-outline'].includes(val)) // These were renamed
-        )
-      },
+      validator: (val) =>
+        [
+          'emergency',
+          'caution',
+          'error',
+          'ok',
+          'standby',
+          'off',
+          'null',
+        ].includes(val),
+    },
+    offsetX: {
+      type: [Number, String],
+    },
+    offsetY: {
+      type: [Number, String],
     },
   },
-  created: function () {
-    if (this.$parent.$options.name !== 'v-icon') {
-      console.warn("AstroIcon shouldn't be used directly. Use v-icon instead.")
-    }
+  computed: {
+    icon: function () {
+      return `$astro-status-${this.status}`
+    },
   },
 }
 </script>
-
-<style scoped>
-.astro-icon {
-  fill: currentColor;
-}
-</style>

@@ -23,6 +23,12 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 
+// Register these globally so they don't have to be imported every time
+import AstroBadge from '@/components/icons/AstroBadge'
+import AstroBadgeIcon from '@/components/icons/AstroBadgeIcon'
+Vue.component('astro-badge', AstroBadge)
+Vue.component('astro-badge-icon', AstroBadgeIcon)
+
 Vue.config.productionTip = false
 
 import './assets/stylesheets/layout/layout.scss'
