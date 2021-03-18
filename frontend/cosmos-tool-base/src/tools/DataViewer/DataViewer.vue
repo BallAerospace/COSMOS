@@ -177,7 +177,7 @@
             </v-card-text>
           </v-card>
           <v-btn block @click="() => openComponentDialog(index)">
-            <v-icon class="mr-2">mdi-plus-circle</v-icon>
+            <v-icon class="mr-2">$astro-add-large</v-icon>
             Click here to add a packet
           </v-btn>
         </v-tab-item>

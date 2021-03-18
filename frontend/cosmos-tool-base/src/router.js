@@ -30,6 +30,7 @@ export default new Router({
       path: '/cmd-tlm-server',
       alias: '/',
       component: () => import('./views/CmdTlmServerView.vue'),
+      meta: { icon: '$astro-equipment' },
       children: [
         {
           component: () => import('./tools/CmdTlmServer/InterfacesTab'),
@@ -65,13 +66,13 @@ export default new Router({
       path: '/limits-monitor',
       name: 'LimitsMonitor',
       component: () => import('./views/LimitsMonitorView.vue'),
-      meta: { title: 'Limits Monitor', icon: 'mdi-alert' },
+      meta: { title: 'Limits Monitor', icon: '$astro-caution' },
     },
     {
       path: '/command-sender/:target?/:packet?',
       name: 'CommandSender',
       component: () => import('./views/CommandSenderView.vue'),
-      meta: { title: 'Command Sender', icon: 'mdi-satellite-uplink' },
+      meta: { title: 'Command Sender', icon: '$astro-antenna-transmit' },
     },
     {
       path: '/script-runner/:id?',
