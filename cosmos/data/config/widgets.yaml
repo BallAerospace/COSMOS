@@ -70,17 +70,17 @@ MATRIXBYCOLUMNS:
 # SCROLLWINDOW:
 #   summary: Places the widgets inside of it into a scrollable
 #     area. The SCROLLWINDOW widget sizes itself to fit the screen in which it is contained.
-# TABBOOK:
-#   summary: Creates a tabbed area in which to place TABITEM widgets
-#     to form a tabbed layout.
-# TABITEM:
-#   summary: Creates a tab into which to place widgets. The tab
-#     automatically acts like a VERTICAL widget.
-#   parameters:
-#     - name: Tab text
-#       required: true
-#       description: Text to diplay in the tab
-#       values: .*
+TABBOOK:
+  summary: Creates a tabbed area in which to place TABITEM widgets
+    to form a tabbed layout.
+TABITEM:
+  summary: Creates a tab into which to place widgets. The tab
+    automatically acts like a VERTICAL widget.
+  parameters:
+    - name: Tab text
+      required: true
+      description: Text to diplay in the tab
+      values: .*
 LABEL:
   summary: Displays text on the screen. Generally, label widgets
     contain a telemetry mnemonic and are placed next to the telemetry VALUE widget.
@@ -818,38 +818,39 @@ VALUERANGEBAR:
 #       required: false
 #       description: Height of the range bar (default = 25)
 #       values: .*
-# LINEGRAPH:
-#   summary: Displays a line graph of a telemetry items value
-#     verses sample number
-#   parameters:
-#     - name: Target name
-#       required: true
-#       description: The target name
-#       values: .+
-#     - name: Packet name
-#       required: true
-#       description: The packet name
-#       values: .+
-#     - name: Item name
-#       required: true
-#       description: The item name
-#       values: .+
-#     - name: Num Samples
-#       required: false
-#       description: Number of samples to display on the graph (default = 100)
-#       values: .*
-#     - name: Width
-#       required: false
-#       description: Width of the graph (default = 300)
-#       values: .*
-#     - name: Height
-#       required: false
-#       description: Height of the graph (default = 200)
-#       values: .*
-#     - name: Value type
-#       required: false
-#       description: The type of the value to display. Default is CONVERTED.
-#       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+LINEGRAPH:
+  summary: Displays a line graph of a telemetry items value
+    verses sample number
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: .+
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    # TODO: This is how the old one worked ... current doesn't match
+    # - name: Num Samples
+    #   required: false
+    #   description: Number of samples to display on the graph (default = 100)
+    #   values: .*
+    # - name: Width
+    #   required: false
+    #   description: Width of the graph (default = 300)
+    #   values: .*
+    # - name: Height
+    #   required: false
+    #   description: Height of the graph (default = 200)
+    #   values: .*
+    # - name: Value type
+    #   required: false
+    #   description: The type of the value to display. Default is CONVERTED.
+    #   values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
 PROGRESSBAR:
   summary: Displays a progress bar that is useful for displaying percentages
   parmeters:
