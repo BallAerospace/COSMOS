@@ -18,16 +18,9 @@
 */
 
 class Auth {
-  constructor() {
-    localStorage.removeItem('token')
-    localStorage.removeItem('refreshToken')
-  }
-
+  constructor() {}
   updateToken(value) {}
-
   login() {}
-
   logout() {}
 }
-
 export const auth = new Auth()
