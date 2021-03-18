@@ -17,19 +17,11 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'aws-sdk-s3'
 require 'tempfile'
 require 'cosmos/script/suite'
 require 'cosmos/script/suite_runner'
 require 'cosmos/tools/test_runner/test'
-
-Aws.config.update(
-  endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000',
-  access_key_id: 'minioadmin',
-  secret_access_key: 'minioadmin',
-  force_path_style: true,
-  region: 'us-east-1'
-)
+require 'cosmos/utilities/s3'
 
 class Script
   DEFAULT_BUCKET_NAME = 'config'

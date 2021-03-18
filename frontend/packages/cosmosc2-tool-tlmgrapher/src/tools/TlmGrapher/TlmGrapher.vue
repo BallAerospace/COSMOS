@@ -254,6 +254,10 @@ export default {
       // Only allow drags starting from the v-system-bar title
       dragHandle: '.v-system-bar',
     })
+    const previousConfig = localStorage.lastTlmGrapherConfig
+    if (previousConfig) {
+      this.openConfiguration(previousConfig)
+    }
   },
   methods: {
     addItem(item, startGraphing = true) {
@@ -319,6 +323,7 @@ export default {
       }
     },
     async openConfiguration(name) {
+      localStorage.lastTlmGrapherConfig = name
       this.closeAllGraphs()
       let config = await this.api.load_config(this.toolName, name)
       let graphs = JSON.parse(config)
@@ -347,6 +352,7 @@ export default {
       this.state = 'start'
     },
     saveConfiguration(name) {
+      localStorage.lastTlmGrapherConfig = name
       let config = []
       for (let graphId of this.graphs) {
         const vueGraph = this.$refs['graph' + graphId][0]

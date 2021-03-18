@@ -20,7 +20,7 @@
 Cosmos.require_file 'aws-sdk-s3'
 
 Aws.config.update(
-  endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000',
+  endpoint: ENV['COSMOS_S3_URL'] || (ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000'),
   access_key_id: 'minioadmin',
   secret_access_key: 'minioadmin',
   force_path_style: true,
@@ -54,7 +54,7 @@ module Cosmos
           total_size += item.size
         end
         oldest_list.concat(resp.contents)
-        oldest_list.sort! {|a,b| a.key <=> b.key}
+        oldest_list.sort! {|a,b| File.basename(a.key) <=> File.basename(b.key)}
         oldest_list = oldest_list[0..(max_list_length - 1)]
         break unless resp.is_truncated
         token = resp.next_continuation_token

@@ -274,7 +274,7 @@ module Cosmos
     end
 
     def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-      self.instance.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
+      self.instance.read_topics(topics, offsets, timeout_ms, &block)
     end
     unless $cosmos_enterprise
       def read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
@@ -297,7 +297,7 @@ module Cosmos
     end
 
     def self.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
-      self.instance.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
+      self.instance.write_topic(topic, msg_hash, id, maxlen, approximate)
     end
     def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
       # Logger.debug "write_topic topic:#{topic} id:#{id} hash:#{msg_hash}"
@@ -310,20 +310,21 @@ module Cosmos
       end
     end
 
-    def self.trim_topic(topic, minid, approximate = true)
-      self.instance.trim_topic(topic, minid, approximate)
+    def self.trim_topic(topic, minid, approximate = true, limit: 0)
+      self.instance.trim_topic(topic, minid, approximate, limit: limit)
     end
-    def trim_topic(topic, minid, approximate = true)
+    def trim_topic(topic, minid, approximate = true, limit: 0)
       @redis_pool.with do |redis|
-        return redis.xtrim_minid(topic, minid, approximate: approximate)
+        return redis.xtrim_minid(topic, minid, approximate: approximate, limit: limit)
       end
     end
   end
 end
 
 class Redis
-  def xtrim_minid(key, minid, approximate: true)
+  def xtrim_minid(key, minid, approximate: true, limit: nil)
     args = [:xtrim, key, :MINID, (approximate ? '~' : nil), minid].compact
+    args.concat([:LIMIT, limit]) if limit
     synchronize { |client| client.call(args) }
   end
 end

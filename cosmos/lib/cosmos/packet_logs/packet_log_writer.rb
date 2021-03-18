@@ -18,18 +18,10 @@
 # copyright holder
 
 require 'thread'
-require 'aws-sdk-s3'
 require 'cosmos/config/config_parser'
 require 'cosmos/packet_logs/packet_log_constants'
 require 'cosmos/utilities/store'
-
-Aws.config.update(
-  endpoint: ENV['COSMOS_S3_URL'] || ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9000' : 'http://cosmos-minio:9000',
-  access_key_id: 'minioadmin',
-  secret_access_key: 'minioadmin',
-  force_path_style: true,
-  region: 'us-east-1'
-)
+require 'cosmos/utilities/s3'
 
 module Cosmos
   # Creates a packet log. Can automatically cycle the log based on an elasped
@@ -369,6 +361,7 @@ module Cosmos
     end
 
     def write_entry(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id)
+      raise ArgumentError.new("Length of id must be 64, got #{id.length}") if id and id.length != 64 # 64 hex digits, gets packed to 32 bytes with .pack('H*')
       length = COSMOS5_PRIMARY_FIXED_SIZE
       flags = 0
       flags |= COSMOS5_STORED_FLAG_MASK if stored
@@ -453,7 +446,7 @@ module Cosmos
     def first_timestamp
       Time.from_nsec_from_epoch(@first_time).to_timestamp # "YYYYMMDDHHmmSSNNNNNNNNN"
     end
-    
+
     def last_timestamp
       Time.from_nsec_from_epoch(@last_time).to_timestamp # "YYYYMMDDHHmmSSNNNNNNNNN"
     end
