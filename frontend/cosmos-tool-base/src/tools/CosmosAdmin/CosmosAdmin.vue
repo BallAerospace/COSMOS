@@ -58,6 +58,7 @@ export default {
         { name: 'Tools', component: 'ToolsTab', url: '/admin/tools' },
         { name: 'Gems', component: 'GemsTab', url: '/admin/gems' },
         { name: 'Scopes', component: 'ScopesTab', url: '/admin/scopes' },
+        { name: 'Settings', component: 'SettingsTab', url: '/admin/settings' },
       ],
     }
   },

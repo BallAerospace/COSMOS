@@ -20,7 +20,7 @@
 <template>
   <v-footer id="footer" app color="tertiary darken-3">
     <img src="/img/logo.png" alt="COSMOS" width="20" />
-    <span class="footer-text" style="margin-left: 5px">COSMOS &copy; 2020</span>
+    <span class="footer-text" style="margin-left: 5px">COSMOS &copy; 2021</span>
     <v-spacer />
     <!-- <v-btn color="primary" small rounded @click="toggleTheme"
       >Toggle Theme</v-btn

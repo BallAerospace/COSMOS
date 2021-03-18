@@ -18,7 +18,7 @@
 -->
 
 <template>
-  <v-app id="app">
+  <v-app id="app" :style="classificationStyles">
     <!-- Sizes your content based upon application components -->
     <v-main>
       <!-- Provides the application the proper gutter -->
@@ -26,7 +26,7 @@
         <router-view />
       </v-container>
     </v-main>
-    <AppFooter app />
+    <app-footer app />
     <time-check />
   </v-app>
 </template>
@@ -34,13 +34,13 @@
 <script>
 import AppFooter from '@/AppFooter'
 import TimeCheck from '@/components/TimeCheck'
+import ClassificationBanners from '@/components/ClassificationBanners'
 
 export default {
   components: {
     AppFooter,
     TimeCheck,
   },
+  mixins: [ClassificationBanners],
 }
 </script>
-
-<style></style>
