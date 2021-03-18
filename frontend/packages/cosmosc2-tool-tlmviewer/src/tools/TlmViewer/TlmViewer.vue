@@ -19,11 +19,7 @@
 
 <template>
   <div>
-<<<<<<< HEAD:frontend/packages/cosmosc2-tool-tlmviewer/src/tools/TlmViewer/TlmViewer.vue
     <TopBar :title="title" />
-=======
-    <app-nav app :menus="menus" />
->>>>>>> master:frontend/cosmos-tool-base/src/tools/TlmViewer/TlmViewer.vue
     <v-container>
       <v-row>
         <v-col>
@@ -95,8 +91,8 @@
 import axios from 'axios'
 import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 import CosmosScreen from './CosmosScreen'
-import OpenConfigDialog from '@/components/OpenConfigDialog'
-import SaveConfigDialog from '@/components/SaveConfigDialog'
+import OpenConfigDialog from '@cosmosc2/tool-common/src/components/OpenConfigDialog'
+import SaveConfigDialog from '@cosmosc2/tool-common/src/components/SaveConfigDialog'
 import Muuri from 'muuri'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
