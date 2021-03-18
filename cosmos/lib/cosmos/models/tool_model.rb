@@ -98,7 +98,7 @@ module Cosmos
     def initialize(
       name:,
       folder_name: nil,
-      icon: 'mdi-alert',
+      icon: '$astro-caution',
       url: nil,
       window: 'INLINE',
       category: nil,
@@ -272,7 +272,7 @@ EOL
       tools = {}
       tools['CmdTlmServer'] = {
         'name' => 'CmdTlmServer',
-        'icon' => 'mdi-server-network',
+        'icon' => '$astro-equipment',
         'url' => '/cmd-tlm-server',
         'window' => 'INLINE',
         'category' => nil,
@@ -281,7 +281,7 @@ EOL
       }
       tools['Limits Monitor'] = {
         'name' => 'Limits Monitor',
-        'icon' => 'mdi-alert',
+        'icon' => '$astro-caution',
         'url' => '/limits-monitor',
         'window' => 'INLINE',
         'category' => nil,
@@ -290,7 +290,7 @@ EOL
       }
       tools['Command Sender'] = {
         'name' => 'Command Sender',
-        'icon' => 'mdi-satellite-uplink',
+        'icon' => '$astro-antenna-transmit',
         'url' => '/command-sender',
         'window' => 'INLINE',
         'category' => nil,

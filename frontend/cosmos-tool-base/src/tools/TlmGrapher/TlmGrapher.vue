@@ -225,7 +225,7 @@ export default {
       settings: {
         secondsGraphed: {
           title: 'Seconds Graphed',
-          icon: 'mdi-cog',
+          icon: '$astro-settings',
           value: 1000,
           rules: [(value) => !!value || 'Required'],
         },
