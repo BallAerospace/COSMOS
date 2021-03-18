@@ -57,9 +57,9 @@
     </v-card>
     <v-divider />
     <v-card>
-      <v-card-title> Forget recent configs </v-card-title>
+      <v-card-title> Clear recent configs </v-card-title>
       <v-card-subtitle>
-        This forgets the most recently saved/loaded tool configs on this browser
+        This clears the most recently saved/loaded tool configs on this browser
       </v-card-subtitle>
       <v-card-text class="pb-0 ml-2">
         <template v-if="lastConfigs.length">
@@ -78,17 +78,17 @@
             dense
           />
         </template>
-        <template v-else> No configs to forget </template>
+        <template v-else> No configs to clear </template>
       </v-card-text>
       <v-card-actions>
         <v-btn
           :disabled="!selectedLastConfigs.length"
-          @click="forgetLastConfigs"
+          @click="clearLastConfigs"
           color="warning"
           text
           class="ml-2"
         >
-          Forget
+          Clear
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -157,7 +157,7 @@ export default {
         .map(this.localStorageKeyToDisplayObject)
       this.selectedLastConfigs = []
     },
-    forgetLastConfigs: function () {
+    clearLastConfigs: function () {
       this.deleteLocalStorageKeys(this.selectedLastConfigs)
       this.loadLastConfigs()
     },
