@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title"/>
+    <TopBar :menus="menus" :title="title" />
     <v-card>
       <v-tabs v-model="curTab" fixed-tabs>
         <v-tab v-for="(tab, index) in tabs" :key="index" :to="tab.url">{{
@@ -53,7 +53,7 @@ import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 export default {
   components: {
     LogMessages,
-    TopBar
+    TopBar,
   },
   data() {
     return {

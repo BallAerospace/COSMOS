@@ -7,6 +7,9 @@
   "settings": {
     "vetur.validation.template": false,
     "eslint.validate": ["vue", "html", "javascript"],
+    "eslint.workingDirectories": [
+      "./frontend"
+    ],
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": true
