@@ -110,14 +110,10 @@ export default {
       this.viewRaw = true
     },
     openPktViewer(target_name, packet_name) {
-      let routeData = this.$router.resolve({
-        name: 'PackerViewer',
-        params: {
-          target: target_name,
-          packet: packet_name,
-        },
-      })
-      window.open(routeData.href, '_blank')
+      window.open(
+        '/tools/packetviewer/' + target_name + '/' + packet_name,
+        '_blank'
+      )
     },
     update() {
       if (this.tabId != this.curTab) return

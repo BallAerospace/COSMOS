@@ -118,7 +118,10 @@ export default {
           packet: packet_name,
         },
       })
-      window.open(routeData.href, '_blank')
+      window.open(
+        '/tools/cmdsender/' + target_name + '/' + packet_name,
+        '_blank'
+      )
     },
     update() {
       if (this.tabId != this.curTab) return
