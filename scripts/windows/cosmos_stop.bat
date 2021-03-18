@@ -6,6 +6,8 @@ docker stop cosmos-cmd-tlm-api && docker container rm cosmos-cmd-tlm-api
 docker stop cosmos-minio && docker container rm cosmos-minio
 docker stop cosmos-redis && docker container rm cosmos-redis
 docker stop cosmos-gems && docker container rm cosmos-gems
+docker stop cosmos-frontend-init && docker container rm cosmos-frontend-init
+docker stop cosmos-init && docker container rm cosmos-init
 
 if "%1" == "dev" (
   docker stop cosmos-fluentd && docker container rm cosmos-fluentd

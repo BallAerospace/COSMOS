@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import Api from '@/services/api'
 import AppNav from '@/AppNav'
 
 export default {
@@ -84,7 +84,7 @@ export default {
   },
   methods: {
     getRunningScripts() {
-      axios.get('/script-api/running-script').then((response) => {
+      Api.get('/script-api/running-script').then((response) => {
         this.data = response.data
       })
     },

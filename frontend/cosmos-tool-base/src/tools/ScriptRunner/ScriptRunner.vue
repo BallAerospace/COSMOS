@@ -254,7 +254,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import Api from '@/services/api'
 // TODO: brace appears to be abandened. Some guy put together this: https://github.com/aminoeditor/vue-ace
 // or we just try to use ace directly ...
 import * as ace from 'brace'
@@ -571,9 +571,7 @@ export default {
       this.editor.setReadOnly(false)
       // Delete the temp file created as a result of saving a NEW file
       if (this.tempFilename) {
-        axios.post('/script-api/scripts/' + this.tempFilename + '/delete', {
-          scope: 'DEFAULT',
-        })
+        Api.post('/script-api/scripts/' + this.tempFilename + '/delete')
       }
     },
     startOrGo(event, suiteRunner = null) {
@@ -595,19 +593,19 @@ export default {
         if (suiteRunner) {
           data['suiteRunner'] = event
         }
-        axios.post(url, data).then((response) => {
+        Api.post(url, data).then((response) => {
           this.scriptStart(response.data)
         })
       } else {
-        axios.post('/script-api/running-script/' + this.scriptId + '/go')
+        Api.post('/script-api/running-script/' + this.scriptId + '/go')
       }
     },
     pauseOrRetry() {
       if (this.pauseOrRetryButton === 'Pause') {
-        axios.post('/script-api/running-script/' + this.scriptId + '/pause')
+        Api.post('/script-api/running-script/' + this.scriptId + '/pause')
       } else {
         this.pauseOrRetryButton = 'Pause'
-        axios.post('/script-api/running-script/' + this.scriptId + '/retry')
+        Api.post('/script-api/running-script/' + this.scriptId + '/retry')
       }
     },
     stop() {
@@ -617,13 +615,11 @@ export default {
         this.editor.session.removeMarker(this.marker)
         this.scriptComplete()
       } else {
-        axios.post(
-          '/script-api/running-script/' + this.scriptId + '/stop'
-        )
+        Api.post('/script-api/running-script/' + this.scriptId + '/stop')
       }
     },
     step() {
-      axios.post('/script-api/running-script/' + this.scriptId + '/step')
+      Api.post('/script-api/running-script/' + this.scriptId + '/step')
     },
     received(data) {
       switch (data.type) {
@@ -706,7 +702,7 @@ export default {
     },
     promptDialogCallback(value) {
       this.prompt.show = false
-      axios.post('/script-api/running-script/' + this.scriptId + '/prompt', {
+      Api.post('/script-api/running-script/' + this.scriptId + '/prompt', {
         method: this.prompt.method,
         answer: value,
       })
@@ -740,7 +736,7 @@ export default {
           this.ask.callback = (value) => {
             this.ask.show = false // Close the dialog
             if (this.ask.password) {
-              axios.post(
+              Api.post(
                 '/script-api/running-script/' + this.scriptId + '/prompt',
                 {
                   method: data.method,
@@ -748,7 +744,7 @@ export default {
                 }
               )
             } else {
-              axios.post(
+              Api.post(
                 '/script-api/running-script/' + this.scriptId + '/prompt',
                 {
                   method: data.method,
@@ -870,8 +866,7 @@ export default {
         if (type === 'start') {
           this.tempFilename =
             format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_temp.rb'
-          axios.post('/script-api/scripts/' + this.tempFilename, {
-            scope: 'DEFAULT',
+          Api.post('/script-api/scripts/' + this.tempFilename, {
             text: this.editor.getValue(), // Pass in the raw file text
           })
         } else {
@@ -880,27 +875,24 @@ export default {
         }
       } else {
         // Save a file by posting the new contents
-        axios
-          .post('/script-api/scripts/' + this.filename, {
-            scope: 'DEFAULT',
-            text: this.editor.getValue(), // Pass in the raw file text
-          })
-          .then((response) => {
-            if (response.status == 200) {
-              if (response.data.suites) {
-                this.suiteRunner = true
-                this.suiteMap = JSON.parse(response.data.suites)
-              }
-              this.fileModified = ''
-            } else {
-              this.alertType = 'error'
-              this.alertText =
-                'Error saving file. Code: ' +
-                response.status +
-                ' Text: ' +
-                response.statusText
+        Api.post('/script-api/scripts/' + this.filename, {
+          text: this.editor.getValue(), // Pass in the raw file text
+        }).then((response) => {
+          if (response.status == 200) {
+            if (response.data.suites) {
+              this.suiteRunner = true
+              this.suiteMap = JSON.parse(response.data.suites)
             }
-          })
+            this.fileModified = ''
+          } else {
+            this.alertType = 'error'
+            this.alertText =
+              'Error saving file. Code: ' +
+              response.status +
+              ' Text: ' +
+              response.statusText
+          }
+        })
       }
     },
     saveAs() {
@@ -915,14 +907,13 @@ export default {
     },
     confirmDelete(action) {
       if (action === true) {
-        axios
-          .post('/script-api/scripts/' + this.filename + '/delete', {
-            scope: 'DEFAULT',
-          })
-          .then((response) => {
+        // TODO: Delete instead of post
+        Api.post('/script-api/scripts/' + this.filename + '/delete', {}).then(
+          (response) => {
             this.areYouSure = false
             this.newFile()
-          })
+          }
+        )
       }
     },
     download() {
@@ -938,19 +929,17 @@ export default {
 
     // ScriptRunner Script menu actions
     rubySyntaxCheck() {
-      axios
-        .post(
-          '/script-api/scripts/syntax',
-          this.editor.getValue() // Pass in the raw text, no scope needed
-        )
-        .then((response) => {
-          this.infoTitle = response.data.title
-          this.infoText = JSON.parse(response.data.description)
-          this.infoDialog = true
-        })
+      Api.post(
+        '/script-api/scripts/syntax',
+        this.editor.getValue() // Pass in the raw text, no scope needed
+      ).then((response) => {
+        this.infoTitle = response.data.title
+        this.infoText = JSON.parse(response.data.description)
+        this.infoDialog = true
+      })
     },
     showCallStack() {
-      axios.post('/script-api/running-script/' + this.scriptId + '/backtrace')
+      Api.post('/script-api/running-script/' + this.scriptId + '/backtrace')
     },
     toggleDebug() {
       this.showDebug = !this.showDebug
@@ -967,7 +956,7 @@ export default {
         this.debugHistory.push(this.debug)
         this.debugHistoryIndex = this.debugHistory.length
         // Post the code to /debug, output is processed by receive()
-        axios.post('/script-api/running-script/' + this.scriptId + '/debug', {
+        Api.post('/script-api/running-script/' + this.scriptId + '/debug', {
           args: this.debug,
         })
         this.debug = ''

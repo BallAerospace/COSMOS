@@ -123,7 +123,7 @@
 <script>
 import '@astrouxds/rux-clock'
 import '@astrouxds/rux-global-status-bar'
-import axios from 'axios'
+import Api from '@/services/api'
 
 export default {
   props: {
@@ -160,10 +160,7 @@ export default {
         }
       })
     })
-    axios
-      .get('/cosmos-api/tools/all', {
-        params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
-      })
+    Api.get('/cosmos-api/tools/all')
       .then((response) => {
         this.appNav = response.data
       })

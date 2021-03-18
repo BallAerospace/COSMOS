@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import Api from '@/services/api'
 export default {
   components: {},
   data() {
@@ -79,10 +79,7 @@ export default {
   },
   methods: {
     update() {
-      axios
-        .get('/cosmos-api/gems', {
-          params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
-        })
+      Api.get('/cosmos-api/gems')
         .then((response) => {
           this.gems = response.data
         })
@@ -99,10 +96,7 @@ export default {
       if (this.file !== null) {
         let formData = new FormData()
         formData.append('gem', this.file, this.file.name)
-        formData.append('scope', 'DEFAULT')
-        formData.append('token', localStorage.getItem('token'))
-        axios
-          .post('/cosmos-api/gems', formData)
+        Api.post('/cosmos-api/gems', formData)
           .then((response) => {
             this.alert = 'Uploaded gem ' + this.file.name
             this.alertType = 'success'
@@ -137,13 +131,7 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          axios
-            .delete('/cosmos-api/gems/' + gem, {
-              params: {
-                scope: 'DEFAULT',
-                token: localStorage.getItem('token'),
-              },
-            })
+          Api.delete('/cosmos-api/gems/' + gem)
             .then((response) => {
               self.alert = 'Removed gem ' + gem
               self.alertType = 'success'

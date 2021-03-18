@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import Api from '@/services/api'
 import Sortable from 'sortablejs'
 
 export default {
@@ -87,12 +87,9 @@ export default {
   },
   methods: {
     sortChanged(evt) {
-      axios
-        .post('/cosmos-api/tools/position/' + this.tools[evt.oldIndex], {
-          position: evt.newIndex,
-          scope: 'DEFAULT',
-          token: localStorage.getItem('token'),
-        })
+      Api.post('/cosmos-api/tools/position/' + this.tools[evt.oldIndex], {
+        position: evt.newIndex,
+      })
         .then((response) => {
           this.alert = 'Reordered tool ' + this.tools[evt.oldIndex]
           this.alertType = 'success'
@@ -112,10 +109,7 @@ export default {
         })
     },
     update() {
-      axios
-        .get('/cosmos-api/tools', {
-          params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
-        })
+      Api.get('/cosmos-api/tools')
         .then((response) => {
           this.tools = response.data
         })
@@ -130,14 +124,14 @@ export default {
     },
     add() {
       if (this.name !== null && this.icon !== null && this.url !== null) {
-        let data = { name: this.name, icon: this.icon, url: this.url }
-        axios
-          .post('/cosmos-api/tools', {
-            id: this.name,
-            json: JSON.stringify(data),
-            scope: 'DEFAULT',
-            token: localStorage.getItem('token'),
-          })
+        Api.post('/cosmos-api/tools', {
+          id: this.name,
+          json: JSON.stringify({
+            name: this.name,
+            icon: this.icon,
+            url: this.url,
+          }),
+        })
           .then((response) => {
             this.alert = 'Added tool ' + this.name
             this.alertType = 'success'
@@ -172,13 +166,7 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          axios
-            .delete('/cosmos-api/tools/' + name, {
-              params: {
-                scope: 'DEFAULT',
-                token: localStorage.getItem('token'),
-              },
-            })
+          Api.delete('/cosmos-api/tools/' + name)
             .then((response) => {
               self.alert = 'Removed tool ' + name
               self.alertType = 'success'

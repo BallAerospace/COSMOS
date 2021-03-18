@@ -91,9 +91,8 @@ module Cosmos
       fields = []
       limits = Store.hgetall("#{scope}__current_limits")
       limits.each do |item, limits_state|
-        fields << item if item.include?("#{target_name}__#{packet_name}")
+        Store.hdel("#{scope}__current_limits", item)
       end
-      Store.hdel(fields)
     end
   end
 end

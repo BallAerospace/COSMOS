@@ -18,7 +18,10 @@
 */
 
 class Auth {
-  constructor() {}
+  constructor() {
+    localStorage.removeItem('token')
+    localStorage.removeItem('refreshToken')
+  }
 
   updateToken(value) {}
 

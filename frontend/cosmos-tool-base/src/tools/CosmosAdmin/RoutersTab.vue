@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import Api from '@/services/api'
 export default {
   components: {},
   data() {
@@ -63,10 +63,7 @@ export default {
   },
   methods: {
     update() {
-      axios
-        .get('/cosmos-api/routers', {
-          params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
-        })
+      Api.get('/cosmos-api/routers')
         .then((response) => {
           this.routers = response.data
         })
@@ -88,13 +85,7 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          axios
-            .delete('/cosmos-api/routers/' + name, {
-              params: {
-                scope: 'DEFAULT',
-                token: localStorage.getItem('token'),
-              },
-            })
+          Api.delete('/cosmos-api/routers/' + name)
             .then((response) => {
               self.alert = 'Removed router ' + name
               self.alertType = 'success'

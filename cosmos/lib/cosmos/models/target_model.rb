@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/models/model'
+require 'cosmos/models/microservice_model'
 require 'cosmos/topics/limits_event_topic'
 require 'cosmos/system'
 require 'cosmos/utilities/s3'
@@ -136,7 +137,7 @@ module Cosmos
 
     def initialize(
       name:,
-      folder_name:,
+      folder_name: nil,
       requires: [],
       ignored_parameters: [],
       ignored_items: [],
