@@ -110,7 +110,7 @@ export default {
         this.name
       )
         ? '0 0 114 114' // Display these how RuxIcon would display them
-        : '-7 0 25 25' // Compensate for the offset in the SVG paths to make the rest easier to use
+        : '-12 -10 35 35' // Compensate for the offset in the SVG paths to make the rest easier to use
     },
   },
 }
