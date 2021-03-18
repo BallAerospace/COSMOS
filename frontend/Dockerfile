@@ -17,13 +17,56 @@ RUN apt-get update -y && apt-get install -y \
   libasound2 \
   xvfb
 
-RUN mkdir -p /cosmos/plugins/cosmos-tool-base
-WORKDIR /cosmos/plugins/cosmos-tool-base/
-COPY cosmos-tool-base/. .
+RUN mkdir -p /cosmos/plugins
+WORKDIR /cosmos/plugins/
+COPY . .
+
+RUN npm install --global lerna
+RUN lerna bootstrap --hoist
+
+WORKDIR /cosmos/plugins/cosmosc2-tool-base/
 RUN npm install && npm run build
-RUN rake build VERSION=5.0.0 --quiet && \
-  bundle config set --local without 'development' && \
-  bundle install --quiet
+RUN rake build VERSION=5.0.0
+
+WORKDIR /cosmos/plugins/packages/cosmosc2-tool-admin/
+RUN npm run build
+RUN rake build VERSION=5.0.0
+
+WORKDIR /cosmos/plugins/packages/cosmosc2-tool-cmdsender/
+RUN npm run build
+RUN rake build VERSION=5.0.0
+
+WORKDIR /cosmos/plugins/packages/cosmosc2-tool-cmdtlmserver/
+RUN npm run build
+RUN rake build VERSION=5.0.0
+
+WORKDIR /cosmos/plugins/packages/cosmosc2-tool-dataextractor/
+RUN npm run build
+RUN rake build VERSION=5.0.0
+
+WORKDIR /cosmos/plugins/packages/cosmosc2-tool-dataviewer/
+RUN npm run build
+RUN rake build VERSION=5.0.0
+
+WORKDIR /cosmos/plugins/packages/cosmosc2-tool-limitsmonitor/
+RUN npm run build
+RUN rake build VERSION=5.0.0
+
+WORKDIR /cosmos/plugins/packages/cosmosc2-tool-packetviewer/
+RUN npm run build
+RUN rake build VERSION=5.0.0
+
+WORKDIR /cosmos/plugins/packages/cosmosc2-tool-scriptrunner/
+RUN npm run build
+RUN rake build VERSION=5.0.0
+
+WORKDIR /cosmos/plugins/packages/cosmosc2-tool-tlmgrapher/
+RUN npm run build
+RUN rake build VERSION=5.0.0
+
+WORKDIR /cosmos/plugins/packages/cosmosc2-tool-tlmviewer/
+RUN npm run build
+RUN rake build VERSION=5.0.0
 
 WORKDIR /cosmos/plugins/
 COPY init.sh .

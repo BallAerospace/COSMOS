@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/models/model'
+require 'cosmos/models/scope_model'
 require 'cosmos/utilities/s3'
 
 module Cosmos
@@ -27,6 +28,7 @@ module Cosmos
     attr_accessor :folder_name
     attr_accessor :icon
     attr_accessor :url
+    attr_accessor :inline_url
     attr_accessor :window
     attr_accessor :category
     attr_accessor :shown
@@ -58,6 +60,16 @@ module Cosmos
         ordered_hash[tool['name']] = tool
       end
       ordered_hash
+    end
+
+    def self.all_scopes
+      result = {}
+      scopes = Cosmos::ScopeModel.all
+      scopes.each do |key, scope|
+        tools = unordered_all(scope: key)
+        result.merge!(tools)
+      end
+      result
     end
 
     # Called by the PluginModel to allow this class to validate it's top-level keyword: "TOOL"
@@ -100,6 +112,7 @@ module Cosmos
       folder_name: nil,
       icon: 'mdi-alert',
       url: nil,
+      inline_url: nil,
       window: 'INLINE',
       category: nil,
       shown: true,
@@ -111,17 +124,27 @@ module Cosmos
       @folder_name = folder_name
       @icon = icon
       @url = url
-      @window = window
+      @inline_url = inline_url
+      @window = window.to_s.upcase
       @category = category
       @shown = shown
       @position = position
+
+      if @shown and @window == 'INLINE'
+        @inline_url = 'js/app.js' unless @inline_url
+        @url = "/tools/#{folder_name}" unless @url
+      end
     end
 
     def create(update: false, force: false)
       unless @position
         tools = self.class.all(scope: @scope)
         _, tool = tools.max_by { |tool_name, tool| tool['position'] }
-        @position = tool['position'] + 1
+        if tool
+          @position = tool['position'] + 1
+        else
+          @position = 1
+        end
       end
       super(update: update, force: force)
     end
@@ -132,6 +155,7 @@ module Cosmos
         'folder_name' => @folder_name,
         'icon' => @icon,
         'url' => @url,
+        'inline_url' => @inline_url,
         'window' => @window,
         'category' => @category,
         'shown' => @shown,
@@ -143,8 +167,9 @@ module Cosmos
 
     def as_config
       result = "TOOL #{@folder_name ? @folder_name : 'nil'} \"#{@name}\"\n"
-      result << "  URL #{@url}\n"
-      result << "  ICON #{@icon}\n"
+      result << "  URL #{@url}\n" if @url
+      result << "  INLINE_URL #{@inline_url}\n" if @inline_url
+      result << "  ICON #{@icon}\n" if @icon
       result << "  WINDOW #{@window}\n" unless @window == 'INLINE'
       result << "  CATEGORY #{@category}\n" if @category
       result << "  SHOWN false\n" unless @shown
@@ -156,6 +181,9 @@ module Cosmos
       when 'URL'
         parser.verify_num_parameters(1, 1, "URL <URL>")
         @url = parameters[0]
+      when 'INLINE_URL'
+        parser.verify_num_parameters(1, 1, "INLINE_URL <URL>")
+        @inline_url = parameters[0]
       when 'ICON'
         parser.verify_num_parameters(1, 1, "ICON <ICON Name>")
         @icon = parameters[0]
@@ -258,100 +286,8 @@ EOL
       tools.each do |key, value|
         tools[key] = JSON.parse(value)
       end
-      # If no tools exist generate the default list and store it
-      if tools.length == 0
-        tools = default_tools()
-        tools.each do |name, tool|
-          Store.hset("#{scope}__#{PRIMARY_KEY}", name, JSON.generate(tool))
-        end
-      end
       return tools
     end
 
-    def self.default_tools
-      tools = {}
-      tools['CmdTlmServer'] = {
-        'name' => 'CmdTlmServer',
-        'icon' => 'mdi-server-network',
-        'url' => '/cmd-tlm-server',
-        'window' => 'INLINE',
-        'category' => nil,
-        'shown' => true,
-        'position' => 0,
-      }
-      tools['Limits Monitor'] = {
-        'name' => 'Limits Monitor',
-        'icon' => 'mdi-alert',
-        'url' => '/limits-monitor',
-        'window' => 'INLINE',
-        'category' => nil,
-        'shown' => true,
-        'position' => 1,
-      }
-      tools['Command Sender'] = {
-        'name' => 'Command Sender',
-        'icon' => 'mdi-satellite-uplink',
-        'url' => '/command-sender',
-        'window' => 'INLINE',
-        'category' => nil,
-        'shown' => true,
-        'position' => 2,
-      }
-      tools['Script Runner'] = {
-        'name' => 'Script Runner',
-        'icon' => 'mdi-run-fast',
-        'url' => '/script-runner',
-        'window' => 'INLINE',
-        'category' => nil,
-        'shown' => true,
-        'position' => 3,
-      }
-      tools['Packet Viewer'] = {
-        'name' => 'Packet Viewer',
-        'icon' => 'mdi-format-list-bulleted',
-        'url' => '/packet-viewer',
-        'window' => 'INLINE',
-        'category' => nil,
-        'shown' => true,
-        'position' => 4,
-      }
-      tools['Telemetry Viewer'] = {
-        'name' => 'Telemetry Viewer',
-        'icon' => 'mdi-monitor-dashboard',
-        'url' => '/telemetry-viewer',
-        'window' => 'INLINE',
-        'category' => nil,
-        'shown' => true,
-        'position' => 5,
-      }
-      tools['Telemetry Grapher'] = {
-        'name' => 'Telemetry Grapher',
-        'icon' => 'mdi-chart-line',
-        'url' => '/telemetry-grapher',
-        'window' => 'INLINE',
-        'category' => nil,
-        'shown' => true,
-        'position' => 6,
-      }
-      tools['Data Extractor'] = {
-        'name' => 'Data Extractor',
-        'icon' => 'mdi-archive-arrow-down',
-        'url' => '/data-extractor',
-        'window' => 'INLINE',
-        'category' => nil,
-        'shown' => true,
-        'position' => 7,
-      }
-      tools['Data Viewer'] = {
-        'name' => 'Data Viewer',
-        'icon' => 'mdi-hexadecimal',
-        'url' => '/data-viewer',
-        'window' => 'INLINE',
-        'category' => nil,
-        'shown' => true,
-        'position' => 8,
-      }
-      tools
-    end
   end
 end
