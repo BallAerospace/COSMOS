@@ -156,7 +156,7 @@ export default {
       // Only allow drags starting from the v-system-bar title
       dragHandle: '.v-system-bar',
     })
-    const previousConfig = localStorage.lastTlmViewerConfig
+    const previousConfig = localStorage['lastconfig__telemetry_viewer']
     if (previousConfig) {
       this.openConfiguration(previousConfig)
     }
@@ -223,7 +223,7 @@ export default {
       return 'tlmViewerScreen' + id
     },
     openConfiguration: async function (name) {
-      localStorage.lastTlmViewerConfig = name
+      localStorage['lastconfig__telemetry_viewer'] = name
       this.counter = 0
       this.definitions = []
       let configResponse = await this.api.load_config(this.toolName, name)
@@ -255,7 +255,7 @@ export default {
       }
     },
     saveConfiguration: function (name) {
-      localStorage.lastTlmViewerConfig = name
+      localStorage['lastconfig__telemetry_viewer'] = name
       const gridItems = this.grid.getItems().map((item) => item.getElement().id)
       const config = this.definitions
         .sort((a, b) => {

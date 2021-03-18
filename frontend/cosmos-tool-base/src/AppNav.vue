@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <v-navigation-drawer v-model="drawer" app>
+    <v-navigation-drawer v-model="drawer" app id="cosmos-nav-drawer">
       <v-list>
         <v-list-item two-line>
           <v-list-item-icon>
@@ -67,7 +67,7 @@
       </template>
     </v-navigation-drawer>
 
-    <v-app-bar app color="tertiary darken-3">
+    <v-app-bar app color="tertiary darken-3" id="cosmos-app-toolbar">
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-menu offset-y v-for="(menu, i) in menus" :key="i">
         <template v-slot:activator="{ on }">
