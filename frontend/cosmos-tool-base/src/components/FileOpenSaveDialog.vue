@@ -31,7 +31,7 @@
           solo-inverted
           hide-details
           clearable
-          clear-icon="mdi-close-circle-outline"
+          clear-icon="$astro-close-large"
           data-test="search"
         ></v-text-field>
       </v-sheet>

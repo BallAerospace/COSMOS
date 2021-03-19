@@ -1,4 +1,4 @@
-/*
+<!--
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,35 +15,48 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
-*/
+-->
 
-import Vue from 'vue'
-import Vuetify from 'vuetify/lib'
-import { AstroIconVuetifyValues } from '@/components/icons'
+<template>
+  <v-badge
+    :icon="icon"
+    color="transparent"
+    left
+    :offset-x="offsetX"
+    :offset-y="offsetY"
+  >
+    <slot />
+  </v-badge>
+</template>
 
-Vue.use(Vuetify)
-
-export default new Vuetify({
-  theme: {
-    dark: true,
-    options: {
-      customProperties: true,
+<script>
+export default {
+  props: {
+    status: {
+      type: String,
+      required: true,
+      validator: (val) =>
+        [
+          'emergency',
+          'caution',
+          'error',
+          'ok',
+          'standby',
+          'off',
+          'null',
+        ].includes(val),
     },
-    themes: {
-      dark: {
-        primary: '#005a8f',
-        secondary: '#4dacff',
-        tertiary: '#283f58',
-      },
-      light: {
-        primary: '#cce6ff',
-        secondary: '#cce6ff',
-      },
+    offsetX: {
+      type: [Number, String],
+    },
+    offsetY: {
+      type: [Number, String],
     },
   },
-  icons: {
-    values: {
-      ...AstroIconVuetifyValues,
+  computed: {
+    icon: function () {
+      return `$astro-status-${this.status}`
     },
   },
-})
+}
+</script>
