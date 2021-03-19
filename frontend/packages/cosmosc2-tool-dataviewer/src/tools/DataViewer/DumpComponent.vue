@@ -25,7 +25,7 @@
           v-model="filterText"
           class="pt-0 mt-0"
           label="Search"
-          append-icon="mdi-magnify"
+          append-icon="$astro-search"
           single-line
           hide-details
         ></v-text-field>
@@ -73,7 +73,7 @@
                   fab
                   small
                 >
-                  <v-icon>mdi-cog</v-icon>
+                  <v-icon>$astro-settings</v-icon>
                 </v-btn>
               </template>
               <v-card>

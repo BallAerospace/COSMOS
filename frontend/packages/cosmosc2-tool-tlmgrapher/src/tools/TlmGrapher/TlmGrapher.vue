@@ -226,7 +226,7 @@ export default {
       settings: {
         secondsGraphed: {
           title: 'Seconds Graphed',
-          icon: 'mdi-cog',
+          icon: '$astro-settings',
           value: 1000,
           rules: [(value) => !!value || 'Required'],
         },
@@ -254,7 +254,7 @@ export default {
       // Only allow drags starting from the v-system-bar title
       dragHandle: '.v-system-bar',
     })
-    const previousConfig = localStorage.lastTlmGrapherConfig
+    const previousConfig = localStorage['lastconfig__telemetry_grapher']
     if (previousConfig) {
       this.openConfiguration(previousConfig)
     }
@@ -323,7 +323,7 @@ export default {
       }
     },
     async openConfiguration(name) {
-      localStorage.lastTlmGrapherConfig = name
+      localStorage['lastconfig__telemetry_grapher'] = name
       this.closeAllGraphs()
       let config = await this.api.load_config(this.toolName, name)
       let graphs = JSON.parse(config)
@@ -352,7 +352,7 @@ export default {
       this.state = 'start'
     },
     saveConfiguration(name) {
-      localStorage.lastTlmGrapherConfig = name
+      localStorage['lastconfig__telemetry_grapher'] = name
       let config = []
       for (let graphId of this.graphs) {
         const vueGraph = this.$refs['graph' + graphId][0]

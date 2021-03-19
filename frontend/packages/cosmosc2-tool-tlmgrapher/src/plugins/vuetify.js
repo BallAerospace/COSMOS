@@ -19,6 +19,7 @@
 
 import Vue from 'vue'
 import Vuetify from 'vuetify/lib'
+import { AstroIconVuetifyValues } from '@cosmosc2/tool-common/src/components/icons/index.js'
 
 Vue.use(Vuetify)
 
@@ -38,6 +39,11 @@ export default new Vuetify({
         primary: '#cce6ff',
         secondary: '#cce6ff',
       },
+    },
+  },
+  icons: {
+    values: {
+      ...AstroIconVuetifyValues,
     },
   },
 })

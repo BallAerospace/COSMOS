@@ -26,7 +26,7 @@
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
-          append-icon="mdi-magnify"
+          append-icon="$astro-search"
           label="Search"
           single-line
           hide-details

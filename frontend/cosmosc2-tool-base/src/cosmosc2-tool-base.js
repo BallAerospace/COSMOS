@@ -6,6 +6,12 @@ Vue.config.productionTip = false
 import '../../packages/cosmosc2-tool-common/src/assets/stylesheets/layout/layout.scss'
 import vuetify from './plugins/vuetify'
 
+// Register these globally so they don't have to be imported every time
+import AstroBadge from '../../packages/cosmosc2-tool-common/src/components/icons/AstroBadge'
+import AstroBadgeIcon from '../../packages/cosmosc2-tool-common/src/components/icons/AstroBadgeIcon'
+Vue.component('astro-badge', AstroBadge)
+Vue.component('astro-badge-icon', AstroBadgeIcon)
+
 new Vue({
   vuetify,
   render: (h) => h(App),

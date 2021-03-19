@@ -18,8 +18,8 @@
 -->
 
 <template>
-  <v-app>
-    <AppNav/>
+  <v-app :style="classificationStyles">
+    <app-nav />
 
     <!-- Sizes your content based upon application components -->
     <v-main>
@@ -27,8 +27,7 @@
         <div id="cosmos-tool"></div>
       </v-container>
     </v-main>
-
-    <AppFooter />
+    <app-footer app />
     <time-check />
   </v-app>
 </template>
@@ -37,13 +36,13 @@
 import AppFooter from './AppFooter'
 import AppNav from './AppNav'
 import TimeCheck from './components/TimeCheck'
+import ClassificationBanners from './components/ClassificationBanners'
 export default {
   components: {
     AppFooter,
     AppNav,
     TimeCheck,
-  }
+  },
+  mixins: [ClassificationBanners],
 }
 </script>
-
-<style></style>

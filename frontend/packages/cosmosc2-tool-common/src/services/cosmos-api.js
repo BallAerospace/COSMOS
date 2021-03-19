@@ -460,4 +460,20 @@ export class CosmosApi {
   get_overall_limits_state(ignored) {
     return this.exec('get_overall_limits_state', [ignored])
   }
+
+  list_settings() {
+    return this.exec('list_settings', [])
+  }
+
+  get_all_settings() {
+    return this.exec('get_all_settings', [])
+  }
+
+  get_setting(name) {
+    return this.exec('get_setting', [name])
+  }
+
+  save_setting(name, data) {
+    return this.exec('save_setting', [name, data])
+  }
 }

@@ -177,7 +177,7 @@
             </v-card-text>
           </v-card>
           <v-btn block @click="() => openComponentDialog(index)">
-            <v-icon class="mr-2">mdi-plus-circle</v-icon>
+            <v-icon class="mr-2">$astro-add-large</v-icon>
             Click here to add a packet
           </v-btn>
         </v-tab-item>
@@ -427,7 +427,7 @@ export default {
     }, 1000)
   },
   mounted: function () {
-    const previousConfig = localStorage.lastDataViewerConfig
+    const previousConfig = localStorage['lastconfig__data_viewer']
     if (previousConfig) {
       this.openConfiguration(previousConfig)
     }
@@ -568,7 +568,7 @@ export default {
       return key
     },
     openConfiguration: async function (name) {
-      localStorage.lastDataViewerConfig = name
+      localStorage['lastconfig__data_viewer'] = name
       this.removePacketsFromSubscription()
       this.receivedPackets = {}
       let response = await this.api.load_config(this.toolName, name)
@@ -578,7 +578,7 @@ export default {
       this.addPacketsToSubscription()
     },
     saveConfiguration: function (name) {
-      localStorage.lastDataViewerConfig = name
+      localStorage['lastconfig__data_viewer'] = name
       this.api.save_config(this.toolName, name, JSON.stringify(this.config))
     },
     addTab: function () {

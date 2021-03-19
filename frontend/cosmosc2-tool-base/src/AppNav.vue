@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <v-navigation-drawer v-model="drawer" app>
+    <v-navigation-drawer v-model="drawer" app id="cosmos-nav-drawer">
       <v-list>
         <v-list-item two-line>
           <v-list-item-icon>
@@ -67,7 +67,7 @@
       </template>
     </v-navigation-drawer>
 
-    <v-app-bar app color="tertiary darken-3">
+    <v-app-bar app color="tertiary darken-3" id="cosmos-app-toolbar">
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <span style="width:100%"><span id="cosmos-menu"></span></span>
       <div class="justify-right"><rux-clock /></div>

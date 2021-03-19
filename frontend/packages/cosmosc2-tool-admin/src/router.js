@@ -66,6 +66,10 @@ export default new Router({
           component: () => import('./tools/CosmosAdmin/ScopesTab'),
           path: 'scopes',
         },
+        {
+          component: () => import('./tools/CosmosAdmin/SettingsTab'),
+          path: 'settings',
+        },
       ],
     },
     // TODO: Create NotFoundComponent since we're doing history browser mode

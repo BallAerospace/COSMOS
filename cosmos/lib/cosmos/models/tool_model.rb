@@ -110,7 +110,7 @@ module Cosmos
     def initialize(
       name:,
       folder_name: nil,
-      icon: 'mdi-alert',
+      icon: '$astro-caution',
       url: nil,
       inline_url: nil,
       window: 'INLINE',

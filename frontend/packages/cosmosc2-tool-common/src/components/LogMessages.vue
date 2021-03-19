@@ -24,7 +24,7 @@
       <v-spacer></v-spacer>
       <v-text-field
         v-model="search"
-        append-icon="mdi-magnify"
+        append-icon="$astro-search"
         label="Search"
         single-line
         hide-details
@@ -49,7 +49,9 @@
         </time>
       </template>
       <template v-slot:item.severity="{ item }">
-        <span :class="getColorClass(item.severity)">{{ item.severity }}</span>
+        <astro-badge :status="getAstroStatus(item.severity)">
+          <span :class="getColorClass(item.severity)">{{ item.severity }}</span>
+        </astro-badge>
       </template>
     </v-data-table>
   </v-card>
@@ -127,6 +129,15 @@ export default {
         return 'cosmos-white'
       } else {
         return 'cosmos-black'
+      }
+    },
+    getAstroStatus(severity) {
+      if (severity === 'INFO') {
+        return 'ok'
+      } else if (severity === 'WARN') {
+        return 'caution'
+      } else if (severity === 'ERROR') {
+        return 'error'
       }
     },
   },

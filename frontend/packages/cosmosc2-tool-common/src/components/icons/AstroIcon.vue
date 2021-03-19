@@ -18,26 +18,38 @@
 -->
 
 <template>
-  <v-footer id="footer" app color="tertiary darken-3" height="33">
-    <img :src="logo" alt="COSMOS" width="20" height="20" />
-    <span class="footer-text" style="margin-left: 5px">COSMOS &copy; 2021</span>
-    <v-spacer />
-  </v-footer>
+  <rux-icon :icon="icon" class="astro-icon" />
 </template>
 
 <script>
-import logo from '../public/img/logo.png'
+import { RuxIcon } from '@astrouxds/rux-icon' // VSCode might falsely show this as an unused import
+import { AstroIconLibrary } from '.'
+
+// This component is a wrapper around the Astro UXDS RuxIcon to make it work with Vuetify
 export default {
-  data() {
-    return {
-      logo: logo,
+  props: {
+    icon: {
+      type: String,
+      required: true,
+      validator: (val) => {
+        return (
+          AstroIconLibrary.includes(val) &&
+          (!val.startsWith('status-') ||
+            ['settings-outline', 'notifications-outline'].includes(val)) // These were renamed
+        )
+      },
+    },
+  },
+  created: function () {
+    if (this.$parent.$options.name !== 'v-icon') {
+      console.warn("AstroIcon shouldn't be used directly. Use v-icon instead.")
     }
   },
 }
 </script>
 
 <style scoped>
-#footer {
-  z-index: 1000; /* On TOP! */
+.astro-icon {
+  fill: currentColor;
 }
 </style>

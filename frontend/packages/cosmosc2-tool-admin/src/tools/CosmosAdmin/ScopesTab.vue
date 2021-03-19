@@ -26,7 +26,7 @@
       <v-col cols="1" class="pl-2">
         <v-btn color="primary" class="mr-4" @click="add()">
           Add
-          <v-icon right dark>mdi-plus</v-icon>
+          <v-icon right dark>$astro-add-small</v-icon>
         </v-btn>
       </v-col>
     </v-row>
