@@ -20,43 +20,34 @@
 import axios from 'axios'
 import { auth } from '@/auth'
 
+const request = async function (method, url, data = {}, params = {}) {
+  try {
+    await auth.updateToken(30)
+  } catch (error) {
+    auth.login()
+  }
+  params['token'] = localStorage.getItem('token')
+  if (!params['scope']) {
+    params['scope'] = 'DEFAULT'
+  }
+  return axios({
+    method,
+    url,
+    data,
+    params,
+  })
+}
+
 export default {
-  async get(path, params = {}) {
-    try {
-      await auth.updateToken(30)
-    } catch (error) {
-      auth.login()
-    }
-    params['token'] = localStorage.getItem('token')
-    if (!params['scope']) {
-      params['scope'] = 'DEFAULT'
-    }
-    return axios.get(path, { params })
+  get: function (path, params) {
+    return request('get', path, null, params)
   },
 
-  async post(path, data, params = {}) {
-    try {
-      await auth.updateToken(30)
-    } catch (error) {
-      auth.login()
-    }
-    params['token'] = localStorage.getItem('token')
-    if (!params['scope']) {
-      params['scope'] = 'DEFAULT'
-    }
-    return axios.post(path, data, { params })
+  post: function (path, data, params) {
+    return request('post', path, data, params)
   },
 
-  async delete(path, params = {}) {
-    try {
-      await auth.updateToken(30)
-    } catch (error) {
-      auth.login()
-    }
-    params['token'] = localStorage.getItem('token')
-    if (!params['scope']) {
-      params['scope'] = 'DEFAULT'
-    }
-    return axios.delete(path, { params })
+  delete: function (path, params) {
+    return request('delete', path, null, params)
   },
 }
