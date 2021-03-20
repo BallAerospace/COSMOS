@@ -22,11 +22,14 @@
 </template>
 
 <script>
-import { RuxIcon } from '@astrouxds/rux-icon' // VSCode might falsely show this as an unused import
+import RuxIcon from './RuxIcon.vue'
 import { AstroIconLibrary } from '.'
 
 // This component is a wrapper around the Astro UXDS RuxIcon to make it work with Vuetify
 export default {
+  components: {
+    RuxIcon,
+  },
   props: {
     icon: {
       type: String,
@@ -42,7 +45,7 @@ export default {
   },
   created: function () {
     if (this.$parent.$options.name !== 'v-icon') {
-      console.warn("AstroIcon shouldn't be used directly. Use v-icon instead.")
+      //console.warn("AstroIcon shouldn't be used directly. Use v-icon instead.")
     }
   },
 }

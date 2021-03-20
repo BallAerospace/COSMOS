@@ -14,17 +14,17 @@ module.exports = {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2913/tools/cmdsender'
-    }
+      public: 'localhost:2913/tools/cmdsender',
+    },
   },
   chainWebpack(config) {
     config.module
       .rule('js')
-        .use('babel-loader')
-          .tap(options => {
-            return {
-              rootMode: "upward"
-            }
-          })
-  }
+      .use('babel-loader')
+      .tap((options) => {
+        return {
+          rootMode: 'upward',
+        }
+      })
+  },
 }

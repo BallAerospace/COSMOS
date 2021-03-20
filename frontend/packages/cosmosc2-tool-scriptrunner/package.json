@@ -14,7 +14,6 @@
   "dependencies": {
     "@astrouxds/rux-clock": "^4.1.1",
     "@astrouxds/rux-global-status-bar": "^4.0.3",
-    "@astrouxds/rux-icon": "^5.0.0",
     "@cosmosc2/tool-common": "~5.0.0",
     "actioncable": "^5.2.4-4",
     "axios": "^0.21.1",

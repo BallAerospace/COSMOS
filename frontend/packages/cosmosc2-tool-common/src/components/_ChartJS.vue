@@ -110,7 +110,7 @@ export default {
       })
     }
 
-    console.time('chart')
+    //console.time('chart')
     this.chart = new Chart('chart', {
       type: 'line',
       data: this.data,
@@ -136,7 +136,7 @@ export default {
         },
       },
     })
-    console.timeEnd('chart')
+    //console.timeEnd('chart')
   },
   destroyed() {
     if (this.subscription) {

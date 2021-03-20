@@ -14,17 +14,17 @@ module.exports = {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2915/tools/packetviewer'
-    }
+      public: 'localhost:2915/tools/packetviewer',
+    },
   },
   chainWebpack(config) {
     config.module
       .rule('js')
-        .use('babel-loader')
-          .tap(options => {
-            return {
-              rootMode: "upward"
-            }
-          })
-  }
+      .use('babel-loader')
+      .tap((options) => {
+        return {
+          rootMode: 'upward',
+        }
+      })
+  },
 }

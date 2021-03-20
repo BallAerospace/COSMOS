@@ -15,6 +15,7 @@
 		"@types/systemjs": "^6.1.0",
 		"babel-eslint": "^11.0.0-beta.2",
 		"concurrently": "^5.3.0",
+		"copy-webpack-plugin": "^8.0.0",
 		"cross-env": "^7.0.3",
 		"deepmerge": "^4.2.2",
 		"eslint": "^6.8.0",
@@ -39,7 +40,6 @@
 		"webpack-merge": "^5.7.3"
 	},
 	"dependencies": {
-		"@astrouxds/rux-icon": "^5.0.0",
 		"axios": "^0.21.1",
 		"npm": "^7.5.4",
 		"single-spa": "^5.9.1",

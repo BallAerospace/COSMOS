@@ -1,3 +1,3 @@
 TOOL cmdtlmserver CmdTlmServer
   INLINE_URL js/app.js
-  ICON mdi-server-network
+  ICON $astro-equipment

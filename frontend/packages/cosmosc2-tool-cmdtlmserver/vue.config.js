@@ -14,17 +14,17 @@ module.exports = {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2911/tools/cmdtlmserver'
-    }
+      public: 'localhost:2911/tools/cmdtlmserver',
+    },
   },
   chainWebpack(config) {
     config.module
       .rule('js')
-        .use('babel-loader')
-          .tap(options => {
-            return {
-              rootMode: "upward"
-            }
-          })
-  }
+      .use('babel-loader')
+      .tap((options) => {
+        return {
+          rootMode: 'upward',
+        }
+      })
+  },
 }

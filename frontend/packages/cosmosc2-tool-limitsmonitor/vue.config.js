@@ -14,17 +14,17 @@ module.exports = {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2912/tools/limitsmonitor'
-    }
+      public: 'localhost:2912/tools/limitsmonitor',
+    },
   },
   chainWebpack(config) {
     config.module
       .rule('js')
-        .use('babel-loader')
-          .tap(options => {
-            return {
-              rootMode: "upward"
-            }
-          })
-  }
+      .use('babel-loader')
+      .tap((options) => {
+        return {
+          rootMode: 'upward',
+        }
+      })
+  },
 }

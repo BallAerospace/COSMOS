@@ -14,17 +14,17 @@ module.exports = {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2916/tools/tlmviewer'
-    }
+      public: 'localhost:2916/tools/tlmviewer',
+    },
   },
   chainWebpack(config) {
     config.module
       .rule('js')
-        .use('babel-loader')
-          .tap(options => {
-            return {
-              rootMode: "upward"
-            }
-          })
-  }
+      .use('babel-loader')
+      .tap((options) => {
+        return {
+          rootMode: 'upward',
+        }
+      })
+  },
 }

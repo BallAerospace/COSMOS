@@ -115,9 +115,9 @@ export default {
   },
   created: function () {
     if (this.$parent.$options.name !== 'v-icon') {
-      console.warn(
-        "AstroStatusIcon shouldn't be used directly. Use v-icon instead."
-      )
+      //console.warn(
+      //  "AstroStatusIcon shouldn't be used directly. Use v-icon instead."
+      //)
     }
   },
 }

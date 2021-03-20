@@ -1,23 +1,24 @@
-const { merge } = require("webpack-merge");
-const singleSpaDefaults = require("webpack-config-single-spa");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { merge } = require('webpack-merge')
+const singleSpaDefaults = require('webpack-config-single-spa')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const { VuetifyLoaderPlugin } = require('vuetify-loader')
-const path = require('path');
+const path = require('path')
 
-function resolve (dir) {
+function resolve(dir) {
   return path.join(__dirname, '..', dir)
 }
 
 module.exports = (webpackConfigEnv, argv) => {
-  const orgName = "cosmosc2";
+  const orgName = 'cosmosc2'
   const defaultConfig = singleSpaDefaults({
     orgName,
-    projectName: "tool-base",
+    projectName: 'tool-base',
     webpackConfigEnv,
     argv,
     disableHtmlGeneration: true,
-  });
+  })
 
   return merge(defaultConfig, {
     // modify the webpack config however you'd like to by adding to this object
@@ -27,31 +28,32 @@ module.exports = (webpackConfigEnv, argv) => {
     plugins: [
       new HtmlWebpackPlugin({
         inject: false,
-        template: "src/index.ejs",
+        template: 'src/index.ejs',
         templateParameters: {
           isLocal: webpackConfigEnv && webpackConfigEnv.isLocal,
           orgName,
         },
       }),
       new VueLoaderPlugin(),
-      new VuetifyLoaderPlugin()
+      new VuetifyLoaderPlugin(),
+      new CopyWebpackPlugin({ patterns: [{ from: 'public', to: '.' }] }),
     ],
     module: {
       rules: [
         // ... other rules
         {
           test: /\.vue$/,
-          loader: 'vue-loader'
+          loader: 'vue-loader',
         },
         {
           test: /\.s[ac]ss$/i,
           use: [
             // Creates `style` nodes from JS strings
-            "vue-style-loader",
+            'vue-style-loader',
             // Translates CSS into CommonJS
-            "css-loader",
+            'css-loader',
             // Compiles Sass to CSS
-            "sass-loader",
+            'sass-loader',
           ],
         },
         {
@@ -62,14 +64,14 @@ module.exports = (webpackConfigEnv, argv) => {
             },
           ],
         },
-      ]
+      ],
     },
     resolve: {
       extensions: ['.js', '.vue', '.json'],
       alias: {
-        'vue$': 'vue/dist/vue.esm.js',
+        vue$: 'vue/dist/vue.esm.js',
         '@': resolve('src'),
-      }
+      },
     },
-  });
-};
+  })
+}

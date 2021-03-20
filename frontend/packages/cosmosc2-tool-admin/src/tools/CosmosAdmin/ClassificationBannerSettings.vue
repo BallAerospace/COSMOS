@@ -296,7 +296,7 @@ export default {
           }
         })
         .catch((error) => {
-          console.error(error)
+          //console.error(error)
           this.errorLoading = true
         })
     },
@@ -308,7 +308,7 @@ export default {
           this.successSaving = true
         })
         .catch((error) => {
-          console.error(error)
+          //console.error(error)
           this.errorSaving = true
         })
     },
