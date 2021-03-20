@@ -68,4 +68,5 @@ Rails.application.routes.draw do
   get "/screen/:target" => "api#screens"
   get "/screen/:target/:screen" => "api#screen"
   get "/time" => "time#get_current"
+  get "map.json" => "tools#importmap"
 end

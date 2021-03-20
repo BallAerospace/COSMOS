@@ -1,0 +1,49 @@
+{
+	"name": "@cosmosc2/tool-base",
+	"version": "5.0.0",
+	"scripts": {
+		"serve": "webpack serve --port 2910 --env isLocal",
+		"lint": "eslint src --ext js",
+		"format": "prettier --write \"./**\"",
+		"build": "webpack --mode=production"
+	},
+	"devDependencies": {
+		"@babel/core": "^7.12.16",
+		"@babel/plugin-transform-runtime": "^7.12.15",
+		"@babel/preset-env": "^7.12.16",
+		"@babel/runtime": "^7.12.13",
+		"@types/systemjs": "^6.1.0",
+		"babel-eslint": "^11.0.0-beta.2",
+		"concurrently": "^5.3.0",
+		"copy-webpack-plugin": "^8.0.0",
+		"cross-env": "^7.0.3",
+		"deepmerge": "^4.2.2",
+		"eslint": "^6.8.0",
+		"eslint-config-important-stuff": "^1.1.0",
+		"eslint-config-prettier": "^6.8.0",
+		"eslint-plugin-prettier": "^3.3.0",
+		"file-loader": "^6.2.0",
+		"html-webpack-plugin": "^4.5.1",
+		"husky": "^4.3.5",
+		"prettier": "^2.2.1",
+		"pretty-quick": "^3.1.0",
+		"sass": "^1.32.0",
+		"sass-loader": "^10.1.0",
+		"serve": "^11.3.2",
+		"vue-loader": "^15.9.6",
+		"vue-template-compiler": "^2.6.12",
+		"vuetify-loader": "^1.6.0",
+		"webpack": "^5.21.2",
+		"webpack-cli": "^4.5.0",
+		"webpack-config-single-spa": "^2.0.0-beta.1",
+		"webpack-dev-server": "^4.0.0-beta.0",
+		"webpack-merge": "^5.7.3"
+	},
+	"dependencies": {
+		"axios": "^0.21.1",
+		"npm": "^7.5.4",
+		"single-spa": "^5.9.1",
+		"vue": "^2.6.12",
+		"vuetify": "^2.3.21"
+	}
+}

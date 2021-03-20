@@ -1,3 +1,0 @@
-TOOL base Base
-  URL index.html
-  SHOWN false

@@ -1,0 +1,3 @@
+FROM traefik:2.4
+COPY ./traefik-dev-base.yaml /etc/traefik/traefik.yaml
+EXPOSE 80
