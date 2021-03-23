@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import Api from '@cosmosc2/tool-common/src/services/api'
 export default {
   components: {},
   data() {
@@ -74,16 +74,10 @@ export default {
   },
   methods: {
     update() {
-      axios
-        .get('/cosmos-api/microservice_status/all', {
-          params: { scope: 'DEFAULT' },
-        })
+      Api.get('/cosmos-api/microservice_status/all')
         .then((response) => {
           this.microservice_status = response.data
-          axios
-            .get('/cosmos-api/microservices', {
-              params: { scope: 'DEFAULT' },
-            })
+          Api.get('/cosmos-api/microservices')
             .then((response) => {
               this.microservices = response.data
             })
@@ -114,10 +108,7 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          axios
-            .delete('/cosmos-api/microservices/' + name, {
-              params: { scope: 'DEFAULT' },
-            })
+          Api.delete('/cosmos-api/microservices/' + name)
             .then((response) => {
               self.alert = 'Removed microservice ' + name
               self.alertType = 'success'

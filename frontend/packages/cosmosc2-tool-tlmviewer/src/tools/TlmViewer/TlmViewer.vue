@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import Api from '@cosmosc2/tool-common/src/services/api'
 import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 import CosmosScreen from './CosmosScreen'
 import OpenConfigDialog from '@cosmosc2/tool-common/src/components/OpenConfigDialog'
@@ -165,15 +165,11 @@ export default {
   methods: {
     updateScreens() {
       this.screens = []
-      axios
-        .get('/cosmos-api/screen/' + this.selectedTarget, {
-          params: { scope: 'DEFAULT' },
-        })
-        .then((response) => {
-          for (let screen of response.data) {
-            this.screens.push(screen)
-          }
-        })
+      Api.get('/cosmos-api/screen/' + this.selectedTarget).then((response) => {
+        for (let screen of response.data) {
+          this.screens.push(screen)
+        }
+      })
     },
     targetSelect(target) {
       this.selectedTarget = target
@@ -194,9 +190,7 @@ export default {
       })
     },
     loadScreen(target, screen) {
-      return axios.get('/cosmos-api/screen/' + target + '/' + screen, {
-        params: { scope: 'DEFAULT' },
-      })
+      return Api.get('/cosmos-api/screen/' + target + '/' + screen)
     },
     pushScreen(definition) {
       this.definitions.push(definition)

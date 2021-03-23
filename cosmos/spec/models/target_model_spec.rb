@@ -258,9 +258,8 @@ module Cosmos
     end
 
     describe "initialize" do
-      it "requires folder_name, name and scope" do
+      it "requires name and scope" do
         expect { TargetModel.new(folder_name: "TEST", name: "TEST") }.to raise_error(ArgumentError)
-        expect { TargetModel.new(name: "TEST", scope: "DEFAULT") }.to raise_error(ArgumentError)
         expect { TargetModel.new(folder_name: "TEST", scope: "DEFAULT") }.to raise_error(ArgumentError)
         model = TargetModel.new(folder_name: "TEST", name: "TEST", scope: "DEFAULT")
         expect(model).to_not be_nil

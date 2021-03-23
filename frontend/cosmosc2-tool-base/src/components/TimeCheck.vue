@@ -37,6 +37,7 @@
 </template>
 
 <script>
+// Directly use axios since we need no authentication or scope
 import axios from 'axios'
 
 const ALLOWABLE_DISCREPANCY_MS = 3000

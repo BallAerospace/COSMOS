@@ -17,10 +17,37 @@
 # copyright holder
 */
 
-class Auth {
-  constructor() {}
-  updateToken(value) {}
-  login() {}
-  logout() {}
+import axios from 'axios'
+import { auth } from './auth'
+
+const request = async function (method, url, data = {}, params = {}) {
+  try {
+    await auth.updateToken(30)
+  } catch (error) {
+    auth.login()
+  }
+  params['token'] = localStorage.getItem('token')
+  if (!params['scope']) {
+    params['scope'] = 'DEFAULT'
+  }
+  return axios({
+    method,
+    url,
+    data,
+    params,
+  })
 }
-export const auth = new Auth()
+
+export default {
+  get: function (path, params) {
+    return request('get', path, null, params)
+  },
+
+  post: function (path, data, params) {
+    return request('post', path, data, params)
+  },
+
+  delete: function (path, params) {
+    return request('delete', path, null, params)
+  },
+}

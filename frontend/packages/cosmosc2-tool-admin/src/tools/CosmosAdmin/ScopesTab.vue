@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import Api from '@cosmosc2/tool-common/src/services/api'
 export default {
   components: {},
   data() {
@@ -75,10 +75,7 @@ export default {
   },
   methods: {
     update() {
-      axios
-        .get('/cosmos-api/scopes', {
-          params: { scope: 'DEFAULT' },
-        })
+      Api.get('/cosmos-api/scopes')
         .then((response) => {
           this.scopes = response.data
         })
@@ -93,11 +90,10 @@ export default {
     },
     add() {
       if (this.scope !== null) {
-        axios
-          .post('/cosmos-api/scopes', {
-            scope: this.scope,
-            json: JSON.stringify({ name: this.scope }),
-          })
+        Api.post('/cosmos-api/scopes', {
+          scope: this.scope,
+          json: JSON.stringify({ name: this.scope }),
+        })
           .then((response) => {
             this.alert = 'Added scope ' + this.scope
             this.alertType = 'success'
@@ -132,10 +128,7 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          axios
-            .delete('/cosmos-api/scopes/' + scope, {
-              params: { scope: scope },
-            })
+          Api.delete('/cosmos-api/scopes/' + scope)
             .then((response) => {
               self.alert = 'Removed scope ' + scope
               self.alertType = 'success'

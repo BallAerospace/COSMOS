@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import Api from '../services/api'
 
 export default {
   props: {
@@ -126,22 +126,18 @@ export default {
     },
   },
   created() {
-    axios
-      .get('/script-api/scripts', {
-        params: { scope: 'DEFAULT' },
-      })
-      .then((response) => {
-        this.tree = []
-        this.id = 1
-        for (let file of response.data) {
-          this.filepath = file
-          this.insertFile(this.tree, 1, file)
-          this.id++
-        }
-        if (this.inputFilename) {
-          this.selectedFile = this.inputFilename
-        }
-      })
+    Api.get('/script-api/scripts').then((response) => {
+      this.tree = []
+      this.id = 1
+      for (let file of response.data) {
+        this.filepath = file
+        this.insertFile(this.tree, 1, file)
+        this.id++
+      }
+      if (this.inputFilename) {
+        this.selectedFile = this.inputFilename
+      }
+    })
   },
   methods: {
     handleSearch(input) {
@@ -166,23 +162,19 @@ export default {
         return
       }
       if (this.type === 'open') {
-        // Disable the buttons because the axios call can take a bit
+        // Disable the buttons because the API call can take a bit
         this.disableButtons = true
-        axios
-          .get('/script-api/scripts/' + this.selectedFile, {
-            params: { scope: 'DEFAULT' },
-          })
-          .then((response) => {
-            const file = {
-              name: this.selectedFile,
-              contents: response.data.contents,
-            }
-            if (response.data.suites) {
-              file['suites'] = JSON.parse(response.data.suites)
-            }
-            this.$emit('file', file)
-            this.show = false
-          })
+        Api.get('/script-api/scripts/' + this.selectedFile).then((response) => {
+          const file = {
+            name: this.selectedFile,
+            contents: response.data.contents,
+          }
+          if (response.data.suites) {
+            file['suites'] = JSON.parse(response.data.suites)
+          }
+          this.$emit('file', file)
+          this.show = false
+        })
       } else {
         if (!this.checkValid(this.selectedFile)) {
           this.warningText =

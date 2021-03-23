@@ -28,7 +28,7 @@ class ToolsController < ModelController
   # Passed position is an integer index starting with 0 being first in the list
   def position
     authorize(permission: 'admin', scope: params[:scope], token: params[:token])
-    @model_class.set_position(name: params[:id], order: params[:position], scope: params[:scope])
+    @model_class.set_position(name: params[:id], position: params[:position], scope: params[:scope])
     head :ok
   end
 

@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import Api from '@cosmosc2/tool-common/src/services/api'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
 export default {
@@ -85,7 +85,7 @@ export default {
   },
   methods: {
     getRunningScripts() {
-      axios.get('/script-api/running-script').then((response) => {
+      Api.get('/script-api/running-script').then((response) => {
         this.data = response.data
       })
     },

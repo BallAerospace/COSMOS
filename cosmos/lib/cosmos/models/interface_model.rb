@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/models/model'
+require 'cosmos/models/microservice_model'
 
 module Cosmos
   class InterfaceModel < Model
@@ -250,6 +251,12 @@ module Cosmos
     def undeploy
       model = MicroserviceModel.get_model(name: "#{@scope}__#{self.class._get_type}__#{@name}", scope: @scope)
       model.destroy if model
+      if self.class._get_type == 'INTERFACE'
+        status_model = InterfaceStatusModel.get_model(name: @name, scope: @scope)
+      else
+        status_model = RouterStatusModel.get_model(name: @name, scope: @scope)
+      end
+      status_model.destroy if status_model
     end
   end
 end

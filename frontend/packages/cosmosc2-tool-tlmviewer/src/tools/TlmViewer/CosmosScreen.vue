@@ -242,8 +242,9 @@ export default {
       if (
         keyword.includes('VERTICAL') ||
         keyword.includes('HORIZONTAL') ||
-        keyword.includes('MATRIXBYCOLUMNS') ||
-        keyword.startsWith('TAB') ||
+        keyword === 'MATRIXBYCOLUMNS' ||
+        keyword === 'TABBOOK' ||
+        keyword === 'TABITEM' ||
         keyword === 'CANVAS' ||
         keyword === 'RADIOGROUP'
       ) {

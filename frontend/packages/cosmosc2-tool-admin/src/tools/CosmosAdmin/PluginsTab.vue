@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import Api from '@cosmosc2/tool-common/src/services/api'
 import VariablesDialog from '@/tools/CosmosAdmin/VariablesDialog'
 export default {
   components: { VariablesDialog },
@@ -89,10 +89,7 @@ export default {
   },
   methods: {
     update() {
-      axios
-        .get('/cosmos-api/plugins', {
-          params: { scope: 'DEFAULT' },
-        })
+      Api.get('/cosmos-api/plugins')
         .then((response) => {
           //console.log(response.data)
           this.plugins = response.data
@@ -110,9 +107,7 @@ export default {
       if (this.file !== null) {
         let formData = new FormData()
         formData.append('plugin', this.file, this.file.name)
-        formData.append('scope', 'DEFAULT')
-        axios
-          .post('/cosmos-api/plugins', formData)
+        Api.post('/cosmos-api/plugins', formData)
           .then((response) => {
             this.alert = 'Uploaded file ' + this.file.name
             this.alertType = 'success'
@@ -145,11 +140,9 @@ export default {
     },
     variablesCallback(updated_variables) {
       this.showVariables = false
-      let formData = new FormData()
-      formData.append('variables', JSON.stringify(updated_variables))
-      formData.append('scope', 'DEFAULT')
-      axios
-        .post('/cosmos-api/plugins/install/' + this.pluginId, formData)
+      Api.post('/cosmos-api/plugins/install/' + this.pluginId, {
+        variables: JSON.stringify(updated_variables),
+      })
         .then((response) => {
           this.alert = 'Installed plugin ' + this.file.name
           this.alertType = 'success'
@@ -176,10 +169,7 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          axios
-            .delete('/cosmos-api/plugins/' + plugin, {
-              params: { scope: 'DEFAULT' },
-            })
+          Api.delete('/cosmos-api/plugins/' + plugin)
             .then((response) => {
               self.alert = 'Removed plugin ' + plugin
               self.alertType = 'success'

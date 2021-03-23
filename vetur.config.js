@@ -6,11 +6,11 @@ module.exports = {
   // Notice: It only affects the settings used by Vetur.
   settings: {
     "vetur.useWorkspaceDependencies": true,
-    "vetur.experimental.templateInterpolationService": false
+    "vetur.experimental.templateInterpolationService": false,
   },
   // **optional** default: `[{ root: './' }]`
   // support monorepos
   projects: [
-    './frontend', // shorthand for only root.
-  ]
-}
+    "./frontend/cosmosc2-tool-base", // shorthand for only root.
+  ],
+};

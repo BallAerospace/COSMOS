@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/models/model'
+require 'cosmos/models/microservice_model'
 
 module Cosmos
   class ScopeModel < Model

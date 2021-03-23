@@ -77,7 +77,8 @@
 
 <script>
 import '@astrouxds/rux-clock'
-import axios from 'axios'
+import '@astrouxds/rux-global-status-bar'
+import Api from '../../packages/cosmosc2-tool-common/src/services/api'
 import logo from '../public/img/logo.png'
 import { registerApplication, start } from 'single-spa'
 
@@ -113,10 +114,15 @@ export default {
     },
   },
   created() {
-    axios
-      .get('/cosmos-api/tools/all', {
-        params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
+    // Determine if any of the checkboxes should be initially checked
+    this.menus.forEach((menu) => {
+      menu.items.forEach((item) => {
+        if (item.checked) {
+          this.checked.push(item.label)
+        }
       })
+    })
+    Api.get('/cosmos-api/tools/all')
       .then((response) => {
         this.appNav = response.data
 
