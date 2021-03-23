@@ -57,25 +57,24 @@ sleep 30
 
 docker build -f cmd_tlm_api/Dockerfile -t cosmos-cmd-tlm-api cmd_tlm_api
 docker container rm cosmos-cmd-tlm-api
-docker run --network cosmos -p 127.0.0.1:2901:2901 -d --name cosmos-cmd-tlm-api --env NO_FLUENTD=1 cosmos-cmd-tlm-api
+docker run --network cosmos -p 127.0.0.1:2901:2901 -d --name cosmos-cmd-tlm-api cosmos-cmd-tlm-api
 
 docker build -f script_runner_api/Dockerfile -t cosmos-script-runner-api script_runner_api
 docker container rm cosmos-script-runner-api
-docker run --network cosmos -p 127.0.0.1:2902:2902 -d --name cosmos-script-runner-api --env NO_FLUENTD=1 cosmos-script-runner-api
+docker run --network cosmos -p 127.0.0.1:2902:2902 -d --name cosmos-script-runner-api cosmos-script-runner-api
 
 docker build -f operator/Dockerfile -t cosmos-operator operator
 docker container rm cosmos-operator
-docker run --network cosmos -d --name cosmos-operator --env NO_FLUENTD=1 cosmos-operator
+docker run --network cosmos -d --name cosmos-operator cosmos-operator
 
 docker container rm cosmos-traefik
 docker build -f traefik/Dockerfile -t cosmos-traefik traefik
-docker run --network cosmos -p 127.0.0.1:2900:80 -d --name cosmos-traefik --env NO_FLUENTD=1 cosmos-traefik
+docker run --network cosmos -p 127.0.0.1:2900:80 -d --name cosmos-traefik cosmos-traefik
 
 docker build -f frontend/Dockerfile -t cosmos-frontend-init frontend
-docker container rm cosmos-frontend-init
-docker run --network cosmos --name cosmos-frontend-init --env NO_FLUENTD=1 cosmos-frontend-init
+docker run --network cosmos --name cosmos-frontend-init --rm cosmos-frontend-init 
 
 docker build -f init/Dockerfile -t cosmos-init init
-docker run --network cosmos --name cosmos-init --rm --env NO_FLUENTD=1 cosmos-init
+docker run --network cosmos --name cosmos-init --rm cosmos-init
 
 echo "If everything is working you should be able to access Cosmos at http://localhost:2900/"

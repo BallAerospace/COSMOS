@@ -95,7 +95,6 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'puma', '~> 5.0'
   s.add_runtime_dependency 'rack', '~> 2.0'
   s.add_runtime_dependency 'httpclient', '~> 2.8'
-  s.add_runtime_dependency 'fluent-logger', '~> 0.8'
   s.add_runtime_dependency 'redis', '~> 4.2'
   s.add_runtime_dependency 'childprocess', '~> 3.0'
   s.add_runtime_dependency 'connection_pool', '~> 2.2'
