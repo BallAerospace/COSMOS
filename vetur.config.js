@@ -11,6 +11,6 @@ module.exports = {
   // **optional** default: `[{ root: './' }]`
   // support monorepos
   projects: [
-    "./frontend/cosmos-tool-base", // shorthand for only root.
+    "./frontend/cosmosc2-tool-base", // shorthand for only root.
   ],
 };

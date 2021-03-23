@@ -6,7 +6,7 @@ This plugin provides the base COSMOS user interface
 
 ## Getting Started
 
-1.  At the COSMOS Admin - Plugins, upload the cosmos-tool-base.gem file
+1.  At the COSMOS Admin - Plugins, upload the cosmosc2-tool-base.gem file
 
 ## Contributing
 

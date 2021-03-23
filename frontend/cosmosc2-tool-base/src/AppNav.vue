@@ -78,7 +78,7 @@
 <script>
 import '@astrouxds/rux-clock'
 import '@astrouxds/rux-global-status-bar'
-import Api from '@cosmosc2/tool-common/src/services/api'
+import Api from '../../packages/cosmosc2-tool-common/src/services/api'
 import logo from '../public/img/logo.png'
 import { registerApplication, start } from 'single-spa'
 

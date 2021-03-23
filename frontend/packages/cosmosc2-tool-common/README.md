@@ -6,7 +6,7 @@ This package capture the code common between COSMOS Vue based tools
 
 ## Getting Started
 
-1.  At the COSMOS Admin - Plugins, upload the cosmos-tool-base.gem file
+1.  At the COSMOS Admin - Plugins, upload the cosmosc2-tool-base.gem file
 
 ## Contributing
 
