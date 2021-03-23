@@ -114,7 +114,6 @@ export default {
     },
   },
   created() {
-<<<<<<< HEAD:frontend/cosmos-tool-base/src/AppNav.vue
     // Determine if any of the checkboxes should be initially checked
     this.menus.forEach((menu) => {
       menu.items.forEach((item) => {
@@ -124,12 +123,6 @@ export default {
       })
     })
     Api.get('/cosmos-api/tools/all')
-=======
-    axios
-      .get('/cosmos-api/tools/all', {
-        params: { scope: 'DEFAULT', token: localStorage.getItem('token') },
-      })
->>>>>>> master:frontend/cosmosc2-tool-base/src/AppNav.vue
       .then((response) => {
         this.appNav = response.data
 
