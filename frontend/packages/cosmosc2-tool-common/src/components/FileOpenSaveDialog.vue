@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import Api from '@/services/api'
+import Api from '../services/api'
 
 export default {
   props: {
