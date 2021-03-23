@@ -42,7 +42,7 @@ http:
         # ie. / becomes /tools/base/index.html before being passed to Minio
         # This gets us to the right url for Minio to serve the static webpage
         # 404 errors will serve /tools/base/index.html to make the single page app
-        # wor as expected
+        # work as expected
         - "addToolsBase"
         - "addIndex"
         - "indexOnNotFound"
@@ -64,6 +64,10 @@ http:
     # Route to other tool plugins hosted statically in Minio
     tools-router:
       rule: PathPrefix(`/tools`)
+      middlewares:
+        # 404 errors will serve /tools/base/index.html to make the single page app
+        # work as expected
+        - "indexOnNotFound"
       service: service-minio
   services:
     # The COSMOS cmd/tlm api service

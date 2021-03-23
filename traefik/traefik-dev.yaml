@@ -37,7 +37,16 @@ http:
     # It gets us to the base cosmos application
     web-router:
       rule: Host(`localhost`)
-      service: service-web
+      middlewares:
+        # Add /tools/base/ and optionally index.html for ending in /
+        # ie. / becomes /tools/base/index.html before being passed to Minio
+        # This gets us to the right url for Minio to serve the static webpage
+        # 404 errors will serve /tools/base/index.html to make the single page app
+        # work as expected
+        - "addToolsBase"
+        - "addIndex"
+        - "indexOnNotFound"
+      service: service-minio
     # Route to the cosmos cmd/tlm api
     api-router:
       rule: PathPrefix(`/cosmos-api`)
@@ -55,13 +64,12 @@ http:
     # Route to other tool plugins hosted statically in Minio
     tools-router:
       rule: PathPrefix(`/tools`)
+      middlewares:
+        # 404 errors will serve /tools/base/index.html to make the single page app
+        # work as expected
+        - "indexOnNotFound"
       service: service-minio
   services:
-    # Local development of the base tool
-    service-web:
-      loadBalancer:
-        servers:
-          - url: "http://host.docker.internal:2910"
     # The COSMOS cmd/tlm api service
     service-api:
       loadBalancer:
@@ -76,7 +84,7 @@ http:
     service-minio:
       loadBalancer:
         servers:
-          - url: "http://host.docker.internal:9000"
+          - url: "http://cosmos-minio:9000"
 # Declare the routes are currently coming from this file, not dynamically
 providers:
   file:
