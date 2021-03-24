@@ -49,7 +49,7 @@
         </time>
       </template>
       <template v-slot:item.severity="{ item }">
-        <astro-badge :status="getAstroStatus(item.severity)">
+        <astro-badge :status="getAstroStatus(item.severity)" inline>
           <span :class="getColorClass(item.severity)">{{ item.severity }}</span>
         </astro-badge>
       </template>
@@ -60,8 +60,12 @@
 <script>
 import * as ActionCable from 'actioncable'
 import { parseISO, format } from 'date-fns'
+import AstroBadge from './icons/AstroBadge'
 
 export default {
+  components: {
+    AstroBadge,
+  },
   props: {
     history_count: {
       type: Number,
@@ -133,11 +137,11 @@ export default {
     },
     getAstroStatus(severity) {
       if (severity === 'INFO') {
-        return 'ok'
+        return 'normal'
       } else if (severity === 'WARN') {
         return 'caution'
       } else if (severity === 'ERROR') {
-        return 'error'
+        return 'critical'
       }
     },
   },
