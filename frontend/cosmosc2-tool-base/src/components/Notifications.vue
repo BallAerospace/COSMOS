@@ -20,7 +20,7 @@
 <template>
   <div>
     <v-overlay :value="showNotificationPane" class="notifications-overlay" />
-    <v-menu1
+    <v-menu
       v-model="showNotificationPane"
       transition="slide-y-transition"
       :close-on-content-click="false"
