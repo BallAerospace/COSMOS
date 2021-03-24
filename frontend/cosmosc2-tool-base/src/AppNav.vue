@@ -114,14 +114,6 @@ export default {
     },
   },
   created() {
-    // Determine if any of the checkboxes should be initially checked
-    this.menus.forEach((menu) => {
-      menu.items.forEach((item) => {
-        if (item.checked) {
-          this.checked.push(item.label)
-        }
-      })
-    })
     Api.get('/cosmos-api/tools/all')
       .then((response) => {
         this.appNav = response.data
