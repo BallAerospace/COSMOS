@@ -52,11 +52,17 @@
         <v-card-title>
           Notifications
           <v-spacer />
+          <v-btn icon @click="clearNotifications" class="mr-1">
+            <v-icon> mdi-notification-clear-all </v-icon>
+          </v-btn>
           <v-btn icon @click="toggleNotificationPane">
             <v-icon> $astro-close-large </v-icon>
           </v-btn>
         </v-card-title>
-        <v-list two-line :max-width="388">
+        <v-card-text v-if="notifications.length === 0">
+          No notifications
+        </v-card-text>
+        <v-list v-else two-line :max-width="388">
           <template v-for="(notification, index) in notificationList">
             <template v-if="notification.header">
               <v-divider v-if="index !== 0" :key="index" class="mb-2" />
@@ -234,9 +240,7 @@ export default {
   watch: {
     showNotificationPane: function (val) {
       if (!val) {
-        this.notifications.forEach((notification) => {
-          notification.read = true
-        })
+        this.markAllAsRead()
       }
     },
   },
@@ -251,11 +255,34 @@ export default {
     this.cable.disconnect()
   },
   methods: {
+    markAllAsRead: function () {
+      this.notifications.forEach((notification) => {
+        notification.read = true
+        if (
+          !localStorage.lastReadNotification ||
+          localStorage.lastReadNotification < notification.msg_id
+        ) {
+          localStorage.lastReadNotification = notification.msg_id
+        }
+      })
+    },
+    clearNotifications: function () {
+      this.markAllAsRead()
+      this.notifications = []
+      localStorage.notificationStreamOffset = localStorage.lastReadNotification
+      this.showNotificationPane = false
+    },
     toggleNotificationPane: function () {
       this.showNotificationPane = !this.showNotificationPane
     },
     openDialog: function (notification, clearToast = false) {
       notification.read = true
+      if (
+        !localStorage.lastReadNotification ||
+        localStorage.lastReadNotification < notification.msg_id
+      ) {
+        localStorage.lastReadNotification = notification.msg_id
+      }
       this.selectedNotification = notification
       this.notificationDialog = true
       if (clearToast) {
@@ -267,11 +294,18 @@ export default {
       window.open(url, '_blank')
     },
     subscribe: function () {
+      const startOffset =
+        localStorage.notificationStreamOffset ||
+        localStorage.lastReadNotification
+      const startOptions = startOffset && {
+        start_offset: startOffset,
+      }
+      console.log('startOptions', startOptions)
       this.subscription = this.cable.subscriptions.create(
         {
           channel: 'NotificationsChannel',
-          // history_count: 1,
           scope: 'DEFAULT',
+          ...startOptions,
         },
         {
           received: (data) => this.received(data),
@@ -282,8 +316,10 @@ export default {
       const parsed = JSON.parse(data)
       let foundToast = false
       parsed.forEach((notification) => {
-        notification.read = false // TODO: compare against stored msg_id
+        notification.read =
+          notification.msg_id <= localStorage.lastReadNotification
         if (
+          !notification.read && // Don't toast read notifications
           ['critical', 'serious'].includes(notification.severity) && // Toast for these statuses
           (!this.toast || notification.severity === 'critical') // Ok to override a toast only if this one is 'critical'
         ) {

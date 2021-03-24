@@ -21,12 +21,13 @@ require 'cosmos'
 Cosmos.require_file 'cosmos/utilities/store'
 
 class TopicsThread
-  def initialize(topics, channel, history_count = 0, max_batch_size = 100)
+  def initialize(topics, channel, history_count = 0, max_batch_size = 100, offsets: nil, transmit_msg_id: false)
     @topics = topics
-    @offsets = Array.new(topics.length, "0-0")
+    @offsets = offsets
     @channel = channel
     @history_count = history_count.to_i
     @max_batch_size = max_batch_size
+    @transmit_msg_id = transmit_msg_id
     @cancel_thread = false
     @thread = nil
     @offset_index_by_topic = {}
@@ -37,7 +38,10 @@ class TopicsThread
 
   def start
     @thread = Thread.new do
-      thread_setup()
+      if !@offsets
+        @offsets = Array.new(topics.length, "0-0")
+        thread_setup()
+      end
       while true
         break if @cancel_thread
         thread_body()
@@ -73,6 +77,7 @@ class TopicsThread
       batch = []
       results.reverse_each do |msg_id, msg_hash|
         @offsets[@offset_index_by_topic[topic]] = msg_id
+        msg_hash[:msg_id] = msg_id if @transmit_msg_id
         batch << msg_hash
         if batch.length > @max_batch_size
           transmit_results(batch)
@@ -87,6 +92,7 @@ class TopicsThread
     results = []
     Cosmos::Store.read_topics(@topics, @offsets) do |topic, msg_id, msg_hash, redis|
       @offsets[@offset_index_by_topic[topic]] = msg_id
+      msg_hash[:msg_id] = msg_id if @transmit_msg_id
       results << msg_hash
       if results.length > @max_batch_size
         transmit_results(results)
