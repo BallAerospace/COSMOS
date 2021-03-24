@@ -19,43 +19,39 @@
 
 <template>
   <v-badge
-    :icon="icon"
     color="transparent"
     left
+    :inline="inline"
     :offset-x="offsetX"
-    :offset-y="offsetY"
+    :offset-y="offsetY + 12"
   >
+    <template v-slot:badge>
+      <astro-status-indicator :status="status" small />
+    </template>
     <slot />
   </v-badge>
 </template>
 
 <script>
+import AstroStatusIndicator from './AstroStatusIndicator.vue'
 export default {
+  components: {
+    AstroStatusIndicator,
+  },
   props: {
     status: {
       type: String,
       required: true,
-      validator: (val) =>
-        [
-          'emergency',
-          'caution',
-          'error',
-          'ok',
-          'standby',
-          'off',
-          'null',
-        ].includes(val),
     },
     offsetX: {
       type: [Number, String],
     },
     offsetY: {
       type: [Number, String],
+      default: 0,
     },
-  },
-  computed: {
-    icon: function () {
-      return `$astro-status-${this.status}`
+    inline: {
+      type: Boolean,
     },
   },
 }
