@@ -24,6 +24,15 @@ class ToolsController < ModelController
     @model_class = Cosmos::ToolModel
   end
 
+  def show
+    # No authorization required
+    if params[:id].downcase == 'all'
+      render :json => @model_class.all(scope: params[:scope])
+    else
+      render :json => @model_class.get(name: params[:id], scope: params[:scope])
+    end
+  end
+
   # Set the tools position in the list
   # Passed position is an integer index starting with 0 being first in the list
   def position
