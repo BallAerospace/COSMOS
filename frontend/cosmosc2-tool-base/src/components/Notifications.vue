@@ -85,6 +85,11 @@
             <template v-if="notification.header">
               <v-divider v-if="index !== 0" :key="index" class="mb-2" />
               <v-subheader :key="notification.header">
+                <astro-status-indicator
+                  v-if="notification.header !== 'Read'"
+                  :status="notification.header.toLowerCase()"
+                  class="mr-1"
+                />
                 {{ notification.header }}
               </v-subheader>
             </template>
@@ -99,12 +104,6 @@
                 inline
                 :color="notification.read ? 'transparent' : 'success'"
               >
-                <!-- TODO: astro-badge-icon -->
-                <!-- <v-list-item-icon>
-                  <v-icon large :color="AstroStatusColors[notification.severity]">
-                    {{ notification.icon }}
-                  </v-icon>
-                </v-list-item-icon> -->
                 <v-list-item-content class="pt-0 pb-0">
                   <v-list-item-title>
                     {{ notification.title }}
@@ -134,9 +133,6 @@
         class="toast-notification"
         @click="openDialog(toastNotification, true)"
       >
-        <v-icon v-if="toastNotification.icon" class="mr-2">
-          {{ toastNotification.icon }}
-        </v-icon>
         <div class="toast-content">
           <span class="text-subtitle-1 mr-1">
             {{ toastNotification.title }}:
@@ -154,8 +150,9 @@
     <v-dialog v-model="notificationDialog" width="600">
       <v-card>
         <v-card-title>
-          <!-- TODO: astro-badge-icon -->
           {{ selectedNotification.title }}
+          <v-spacer />
+          <astro-status-indicator :status="selectedNotification.severity" />
         </v-card-title>
         <v-card-subtitle>
           {{ selectedNotification.time | shortDateTime }}
@@ -200,14 +197,18 @@
 <script>
 import * as ActionCable from 'actioncable'
 import { formatDistanceToNow } from 'date-fns'
+import AstroStatusIndicator from '../../../packages/cosmosc2-tool-common/src/components/icons/AstroStatusIndicator.vue'
+import { AstroStatusColors } from '../../../packages/cosmosc2-tool-common/src/components/icons'
 import {
-  AstroStatusColors,
   highestSeverity,
   orderBySeverity,
   groupBySeverity,
 } from '../util/AstroStatus'
 
 export default {
+  components: {
+    AstroStatusIndicator,
+  },
   props: {
     size: {
       type: [String, Number],
