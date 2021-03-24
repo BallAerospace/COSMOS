@@ -66,37 +66,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-span {
-  --iconDefaultSize: 2.7rem;
-  --iconColor: var(--iconDefaultColor);
-
-  display: inline-block;
-
-  height: var(--iconDefaultSize);
-  width: var(--iconDefaultSize);
-}
-
-svg,
-svg > use {
-  height: 100%;
-  width: auto;
-  fill: var(--iconColor);
-}
-
-[size='extra-small'] {
-  height: 1rem;
-  width: 1rem;
-}
-
-[size='small'] {
-  height: 2rem;
-  width: 2rem;
-}
-
-[size='large'] {
-  height: 4rem;
-  width: 4rem;
-}
-</style>
