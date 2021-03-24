@@ -22,13 +22,7 @@ require 'cosmos/topics/topic'
 module Cosmos
   class NotificationsTopic < Topic
     def self.write_notification(notification, scope:)
-      msg_hash = { time: notification.time.to_nsec_from_epoch,
-        severity: notification.severity,
-        icon: notification.icon,
-        title: notification.title,
-        url: notification.url,
-        body: notification.body }
-      Store.write_topic("#{scope}__cosmos_notifications", msg_hash)
+      Store.write_topic("#{scope}__cosmos_notifications", notification)
     end
   end
 end
