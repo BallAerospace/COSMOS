@@ -23,7 +23,8 @@ module Cosmos
   class NotificationsTopic < Topic
     def self.write_notification(notification, scope:)
       msg_hash = { time: notification.time.to_nsec_from_epoch,
-        urgency: notification.urgency,
+        severity: notification.severity,
+        icon: notification.icon,
         title: notification.title,
         url: notification.url,
         body: notification.body }
