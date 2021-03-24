@@ -19,7 +19,8 @@
 
 <template>
   <div>
-    <v-menu
+    <v-overlay :value="showNotificationPane" class="notifications-overlay" />
+    <v-menu1
       v-model="showNotificationPane"
       transition="slide-y-transition"
       :close-on-content-click="false"
@@ -29,7 +30,7 @@
     >
       <!-- Bell icon -->
       <template v-slot:activator="{ on, attrs }">
-        <v-btn v-bind="attrs" v-on="on" icon @click="toggleNotificationPane">
+        <v-btn v-bind="attrs" v-on="on" icon>
           <v-icon v-if="unreadCount === 0" :size="size">
             mdi-bell-outline
           </v-icon>
@@ -52,17 +53,34 @@
         <v-card-title>
           Notifications
           <v-spacer />
-          <v-btn icon @click="clearNotifications" class="mr-1">
-            <v-icon> mdi-notification-clear-all </v-icon>
-          </v-btn>
-          <v-btn icon @click="toggleNotificationPane">
-            <v-icon> $astro-close-large </v-icon>
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                v-bind="attrs"
+                v-on="on"
+                @click="clearNotifications"
+                class="ml-1"
+              >
+                <v-icon> mdi-notification-clear-all </v-icon>
+              </v-btn>
+            </template>
+            <span>Clear all</span>
+          </v-tooltip>
+          <v-btn icon @click="toggleSettingsDialog" class="ml-1">
+            <v-icon> $astro-settings </v-icon>
           </v-btn>
         </v-card-title>
         <v-card-text v-if="notifications.length === 0">
           No notifications
         </v-card-text>
-        <v-list v-else two-line :max-width="388">
+        <v-list
+          v-else
+          two-line
+          width="388"
+          max-height="80vh"
+          class="overflow-y-auto"
+        >
           <template v-for="(notification, index) in notificationList">
             <template v-if="notification.header">
               <v-divider v-if="index !== 0" :key="index" class="mb-2" />
@@ -111,9 +129,9 @@
     <!-- Toast -->
     <v-slide-y-transition>
       <v-sheet
-        v-show="toast"
+        v-show="showToast"
         :style="toastStyle"
-        class="toast"
+        class="toast-notification"
         @click="openDialog(toastNotification, true)"
       >
         <v-icon v-if="toastNotification.icon" class="mr-2">
@@ -139,6 +157,9 @@
           <!-- TODO: astro-badge-icon -->
           {{ selectedNotification.title }}
         </v-card-title>
+        <v-card-subtitle>
+          {{ selectedNotification.time | shortDateTime }}
+        </v-card-subtitle>
         <v-card-text>
           {{ selectedNotification.body }}
         </v-card-text>
@@ -153,6 +174,22 @@
           </v-btn>
           <v-btn color="primary" text @click="notificationDialog = false">
             Dismiss
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog for changing notification settings -->
+    <v-dialog v-model="settingsDialog" width="600">
+      <v-card>
+        <v-card-title> Notification settings </v-card-title>
+        <v-card-text>
+          <v-switch v-model="showToastSetting" label="Show toasts" />
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-btn color="primary" text @click="toggleSettingsDialog">
+            close
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -189,6 +226,8 @@ export default {
       toastTimeout: null,
       notificationDialog: false,
       selectedNotification: {},
+      settingsDialog: false,
+      showToastSetting: true,
     }
   },
   computed: {
@@ -231,6 +270,9 @@ export default {
       }
       return result
     },
+    showToast: function () {
+      return this.showToastSetting && this.toast
+    },
     toastStyle: function () {
       return `--toast-bg-color:${
         AstroStatusColors[this.toastNotification.severity]
@@ -243,8 +285,17 @@ export default {
         this.markAllAsRead()
       }
     },
+    showToastSetting: function (val) {
+      localStorage.notoast = !val
+      if (val) {
+        // Don't show an old toast when turning this setting on
+        this.toast = false
+        clearTimeout(this.toastTimeout)
+      }
+    },
   },
   created: function () {
+    this.showToastSetting = localStorage.notoast === 'false'
     this.cable = ActionCable.createConsumer('/cosmos-api/cable')
     this.subscribe()
   },
@@ -275,6 +326,9 @@ export default {
     toggleNotificationPane: function () {
       this.showNotificationPane = !this.showNotificationPane
     },
+    toggleSettingsDialog: function () {
+      this.settingsDialog = !this.settingsDialog
+    },
     openDialog: function (notification, clearToast = false) {
       notification.read = true
       if (
@@ -300,7 +354,6 @@ export default {
       const startOptions = startOffset && {
         start_offset: startOffset,
       }
-      console.log('startOptions', startOptions)
       this.subscription = this.cable.subscriptions.create(
         {
           channel: 'NotificationsChannel',
@@ -342,8 +395,9 @@ export default {
   },
   filters: {
     shortDateTime: function (nsec) {
+      if (!nsec) return ''
       const date = new Date(nsec / 1_000_000)
-      return `${formatDistanceToNow(date)} ago`
+      return formatDistanceToNow(date, { addSuffix: true })
     },
   },
 }
@@ -358,7 +412,12 @@ export default {
   width: 100%;
 }
 
-.v-sheet.toast {
+.notifications-overlay {
+  height: 100vh;
+  width: 100vw;
+}
+
+.v-sheet.toast-notification {
   position: absolute;
   top: 0;
   right: 0;
@@ -371,7 +430,7 @@ export default {
   cursor: pointer;
 }
 
-.toast .toast-content {
+.toast-notification .toast-content {
   white-space: nowrap;
   overflow-x: hidden;
   text-overflow: ellipsis;
