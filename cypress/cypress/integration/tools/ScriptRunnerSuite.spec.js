@@ -56,7 +56,7 @@ describe('ScriptRunner Suite', () => {
   }
 
   it('loads Suite controls when opening a suite', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     // Open the file
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Open').click()
@@ -95,7 +95,7 @@ describe('ScriptRunner Suite', () => {
   })
 
   it('starts a suite', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.get('#editor').type('load "cosmos/script/suite.rb"\n')
     cy.get('#editor').type('class TestGroup < Cosmos::Group\n')
     cy.get('#editor').type('def test_test; puts "test"; end\n')
@@ -179,7 +179,7 @@ describe('ScriptRunner Suite', () => {
   })
 
   it('starts a group', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.get('#editor').type('load "cosmos/script/suite.rb"\n')
     cy.get('#editor').type('class TestGroup1 < Cosmos::Group\n')
     cy.get('#editor').type('def setup; Cosmos::Group.puts("setup"); end\n')
@@ -269,7 +269,7 @@ describe('ScriptRunner Suite', () => {
   })
 
   it('starts a script', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.get('#editor').type('load "cosmos/script/suite.rb"\n')
     cy.get('#editor').type('class TestGroup < Cosmos::Group\n')
     cy.get('#editor').type('def test_test1; Cosmos::Group.puts "test1"; end\n')

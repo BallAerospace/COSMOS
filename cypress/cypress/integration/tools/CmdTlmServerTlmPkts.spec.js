@@ -19,7 +19,7 @@
 
 describe('CmdTlmServer TlmPackets', () => {
   it('displays the list of telemetry', () => {
-    cy.visit('/cmd-tlm-server/tlm-packets')
+    cy.visit('/tools/cmdtlmserver/tlm-packets')
     cy.hideNav()
     cy.get('[data-test=tlm-packets-table]', { timeout: 10000 })
       .contains('HEALTH_STATUS')
@@ -42,7 +42,7 @@ describe('CmdTlmServer TlmPackets', () => {
       })
   })
   it('displays the packet count', () => {
-    cy.visit('/cmd-tlm-server/tlm-packets')
+    cy.visit('/tools/cmdtlmserver/tlm-packets')
     cy.hideNav()
     cy.get('[data-test=tlm-packets-table]', { timeout: 10000 })
       .contains('HEALTH_STATUS')
@@ -69,7 +69,7 @@ describe('CmdTlmServer TlmPackets', () => {
   })
 
   it('displays a raw packet', () => {
-    cy.visit('/cmd-tlm-server/tlm-packets')
+    cy.visit('/tools/cmdtlmserver/tlm-packets')
     cy.hideNav()
     cy.get('[data-test=tlm-packets-table]', { timeout: 10000 })
       .contains('Target Name')
@@ -127,7 +127,7 @@ describe('CmdTlmServer TlmPackets', () => {
   })
 
   it('links to packet viewer', () => {
-    cy.visit('/cmd-tlm-server/tlm-packets', {
+    cy.visit('/tools/cmdtlmserver/tlm-packets', {
       onBeforeLoad(win) {
         cy.stub(win, 'open').as('windowOpen')
       },
@@ -148,7 +148,7 @@ describe('CmdTlmServer TlmPackets', () => {
       })
     cy.get('@windowOpen').should(
       'be.calledWith',
-      '/packet-viewer/INST/HEALTH_STATUS'
+      '/tools/packetviewer/INST/HEALTH_STATUS'
     )
   })
 })

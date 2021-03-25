@@ -22,7 +22,7 @@ describe('ScriptRunner', () => {
   // Test the basic functionality of the application, not running scripts
   //
   it('opens ready to type', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.focused().type('this is a test')
     cy.contains('this is a test')
   })
@@ -31,7 +31,7 @@ describe('ScriptRunner', () => {
   // Test the File menu
   //
   it('clears the editor on File->New', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.get('#editor').type('this is a test')
     cy.contains('this is a test')
     cy.get('.v-toolbar').contains('File').click()
@@ -40,7 +40,7 @@ describe('ScriptRunner', () => {
   })
 
   it('handles File Save, Save As, and Delete', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.get('#editor').type('puts "File Save"')
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save File').click()
@@ -163,7 +163,7 @@ describe('ScriptRunner', () => {
   })
 
   it('downloads an unnamed file', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.get('#editor').type('this is a test\nanother line')
     // Download the file
     cy.get('.v-toolbar').contains('File').click()

@@ -19,7 +19,7 @@
 
 describe('CmdTlmServer CmdPackets', () => {
   it('displays the list of command', () => {
-    cy.visit('/cmd-tlm-server/cmd-packets')
+    cy.visit('/tools/cmdtlmserver/cmd-packets')
     cy.hideNav()
     cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
       .contains('ABORT')
@@ -42,7 +42,7 @@ describe('CmdTlmServer CmdPackets', () => {
       })
   })
   it('displays the command count', () => {
-    cy.visit('/cmd-tlm-server/cmd-packets')
+    cy.visit('/tools/cmdtlmserver/cmd-packets')
     cy.hideNav()
     cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
       .contains('ABORT')
@@ -51,11 +51,11 @@ describe('CmdTlmServer CmdPackets', () => {
         cy.get('td').eq(0).contains('INST')
         cy.get('td').eq(2).invoke('text').as('cmdCnt')
       })
-    cy.visit('/command-sender/INST/ABORT')
+    cy.visit('/tools/commandsender/INST/ABORT')
     cy.hideNav()
     cy.contains('Aborts a collect')
     cy.get('button').contains('Send').click()
-    cy.visit('/cmd-tlm-server/cmd-packets')
+    cy.visit('/tools/cmdtlmserver/cmd-packets')
     cy.hideNav()
     cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
       .contains('ABORT')
@@ -75,11 +75,11 @@ describe('CmdTlmServer CmdPackets', () => {
 
   it('displays a raw command', () => {
     // Send a command to ensure it's there
-    cy.visit('/command-sender/INST/ABORT')
+    cy.visit('/tools/commandsender/INST/ABORT')
     cy.hideNav()
     cy.contains('Aborts a collect')
     cy.get('button').contains('Send').click()
-    cy.visit('/cmd-tlm-server/cmd-packets')
+    cy.visit('/tools/cmdtlmserver/cmd-packets')
     cy.hideNav()
     cy.get('[data-test=cmd-packets-table]', { timeout: 10000 })
       .contains('ABORT')
@@ -111,7 +111,7 @@ describe('CmdTlmServer CmdPackets', () => {
   })
 
   it('links to command sender', () => {
-    cy.visit('/cmd-tlm-server/cmd-packets', {
+    cy.visit('/tools/cmdtlmserver/cmd-packets', {
       onBeforeLoad(win) {
         cy.stub(win, 'open').as('windowOpen')
       },
@@ -125,6 +125,6 @@ describe('CmdTlmServer CmdPackets', () => {
         cy.get('td').eq(0).contains('INST')
         cy.get('td').eq(4).click()
       })
-    cy.get('@windowOpen').should('be.calledWith', '/command-sender/INST/ABORT')
+    cy.get('@windowOpen').should('be.calledWith', '/tools/commandsender/INST/ABORT')
   })
 })

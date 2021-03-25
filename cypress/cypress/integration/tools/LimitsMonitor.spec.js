@@ -24,7 +24,7 @@ describe('LimitsMonitor', () => {
   // Test the Limits Tab
   //
   it('temporarily hides items', function () {
-    cy.visit('/limits-monitor')
+    cy.visit('/tools/limitsmonitor')
     cy.hideNav()
     cy.get('[data-test=limits-row]:contains("TEMP2")', {
       timeout: 30000,
@@ -56,7 +56,7 @@ describe('LimitsMonitor', () => {
   })
 
   it('ignores items', function () {
-    cy.visit('/limits-monitor')
+    cy.visit('/tools/limitsmonitor')
     cy.hideNav()
     cy.get('[data-test=limits-row]:contains("TEMP2")', {
       timeout: 30000,
@@ -100,7 +100,7 @@ describe('LimitsMonitor', () => {
   })
 
   it('ignores entire packets', function () {
-    cy.visit('/limits-monitor')
+    cy.visit('/tools/limitsmonitor')
     cy.hideNav()
     cy.get('[data-test=overall-state]').invoke('val').should('eq', 'RED')
 
@@ -139,7 +139,7 @@ describe('LimitsMonitor', () => {
   })
 
   it('ignores items which changes overall state', function () {
-    cy.visit('/limits-monitor')
+    cy.visit('/tools/limitsmonitor')
     cy.hideNav()
     cy.get('[data-test=overall-state]').invoke('val').should('eq', 'RED')
 
@@ -228,7 +228,7 @@ describe('LimitsMonitor', () => {
   // Test the log tab
   //
   it('displays the limits log', () => {
-    cy.visit('/limits-monitor')
+    cy.visit('/tools/limitsmonitor')
     cy.hideNav()
     cy.get('.v-tab').contains('Log').click()
     // Just verify we see dates and the various red, yellow, green states
@@ -245,10 +245,10 @@ describe('LimitsMonitor', () => {
       expect(error.message).to.include('No request ever occurred.')
       return false
     })
-    cy.visit('/limits-monitor')
+    cy.visit('/tools/limitsmonitor')
     cy.hideNav()
     cy.contains('INST')
-    cy.visit('/command-sender')
+    cy.visit('/tools/commandsender')
     cy.contains('Command Sender')
     cy.wait(1000) // Allow the initial Command Sender APIs to happen
     cy.server()

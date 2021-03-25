@@ -22,7 +22,7 @@ describe('CmdTlmServer', () => {
   // Test the File menu
   //
   it('changes the polling rate', function () {
-    cy.visit('/cmd-tlm-server')
+    cy.visit('/tools/cmdtlmserver')
     cy.hideNav()
     cy.contains('td', 'CONNECTED')
     cy.wait(1000) // Let things spin up
@@ -94,10 +94,10 @@ describe('CmdTlmServer', () => {
       expect(error.message).to.include('No request ever occurred.')
       return false
     })
-    cy.visit('/cmd-tlm-server')
+    cy.visit('/tools/cmdtlmserver')
     cy.hideNav()
     cy.contains('Log Messages')
-    cy.visit('/command-sender')
+    cy.visit('/tools/commandsender')
     cy.contains('Command Sender')
     cy.wait(1000) // Allow the initial Command Sender APIs to happen
     cy.server()

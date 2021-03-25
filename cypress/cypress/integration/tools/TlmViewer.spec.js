@@ -19,7 +19,7 @@
 
 describe('TlmViewer', () => {
   function showScreen(target, screen) {
-    cy.visit('/telemetry-viewer')
+    cy.visit('/tools/tlmviewer')
     cy.hideNav()
     cy.server()
     cy.route('POST', '/api').as('api')
