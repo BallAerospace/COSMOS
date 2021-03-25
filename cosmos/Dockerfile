@@ -17,6 +17,7 @@ RUN apt-get update -y && apt-get install -y \
   --option "Acquire:http::Pipeline-Depth=0" \
   curl \
   build-essential \
+  shared-mime-info \
   ruby \
   ruby-dev \
   git \
