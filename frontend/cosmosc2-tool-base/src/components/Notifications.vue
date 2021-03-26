@@ -197,7 +197,6 @@
 <script>
 import * as ActionCable from 'actioncable'
 import { formatDistanceToNow } from 'date-fns'
-import AstroStatusIndicator from '../../../packages/cosmosc2-tool-common/src/components/icons/AstroStatusIndicator.vue'
 import { AstroStatusColors } from '../../../packages/cosmosc2-tool-common/src/components/icons'
 import {
   highestSeverity,
@@ -206,9 +205,6 @@ import {
 } from '../util/AstroStatus'
 
 export default {
-  components: {
-    AstroStatusIndicator,
-  },
   props: {
     size: {
       type: [String, Number],
