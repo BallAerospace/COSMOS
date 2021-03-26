@@ -53,7 +53,7 @@
         <v-card-title>
           Notifications
           <v-spacer />
-          <v-tooltip top>
+          <v-tooltip top open-delay="350">
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 icon
@@ -345,11 +345,10 @@ export default {
       window.open(url, '_blank')
     },
     subscribe: function () {
-      const startOffset =
-        localStorage.notificationStreamOffset ||
-        localStorage.lastReadNotification
-      const startOptions = startOffset && {
-        start_offset: startOffset,
+      const startOptions = {
+        start_offset:
+          localStorage.notificationStreamOffset ||
+          localStorage.lastReadNotification,
       }
       this.subscription = this.cable.subscriptions.create(
         {
@@ -368,6 +367,7 @@ export default {
       parsed.forEach((notification) => {
         notification.read =
           notification.msg_id <= localStorage.lastReadNotification
+        notification.severity = notification.severity || 'normal'
         if (
           !notification.read && // Don't toast read notifications
           ['critical', 'serious'].includes(notification.severity) && // Toast for these statuses
