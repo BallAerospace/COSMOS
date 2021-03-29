@@ -90,7 +90,6 @@ module Cosmos
         when :RED, :RED_LOW, :RED_HIGH
           notification = { time: time_nsec,
             severity: "critical",
-            icon: "$astro-caution",
             url: "/tools/limitsmonitor",
             title: "#{packet.target_name} #{packet.packet_name} #{item.name} out of limits",
             body: "Item went into #{item.limits.state} limit status." }

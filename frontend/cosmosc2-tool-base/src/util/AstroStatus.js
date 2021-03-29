@@ -1,12 +1,3 @@
-const AstroStatusColors = {
-  critical: '#ff3838',
-  serious: '#ffb302',
-  caution: '#fce83a',
-  normal: '#56f000',
-  standby: '#2dccff',
-  off: '#9ea7ad',
-}
-
 const _severities = [
   // order of severities from highest to lowest
   'critical',
@@ -48,4 +39,4 @@ const groupBySeverity = function (objects, severityGetter = (x) => x.severity) {
   }, {})
 }
 
-export { AstroStatusColors, highestSeverity, lowestSeverity, orderBySeverity, groupBySeverity }
+export { highestSeverity, lowestSeverity, orderBySeverity, groupBySeverity }
