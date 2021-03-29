@@ -18,12 +18,16 @@
 -->
 
 <template>
-  <astro-badge :status="status" offset-x="10">
-    <v-icon :color="color || statusColor"> {{ icon }} </v-icon>
+  <astro-badge :status="status">
+    <v-icon :color="color || statusColor">
+      <slot v-if="$slots.default" />
+      <template v-else> {{ icon }} </template>
+    </v-icon>
   </astro-badge>
 </template>
 
 <script>
+import { AstroStatusColors } from '.'
 import AstroBadge from './AstroBadge.vue'
 
 export default {
@@ -32,12 +36,9 @@ export default {
     status: {
       type: String,
       required: true,
-      validator: (val) =>
-        ['emergency', 'caution', 'error', 'ok', 'standby', 'off'].includes(val),
     },
     icon: {
       type: String,
-      required: true,
     },
     color: {
       type: String,
@@ -45,16 +46,7 @@ export default {
   },
   computed: {
     statusColor: function () {
-      // These are from the fill colors in Astro's icons.svg: https://github.com/RocketCommunicationsInc/astro-components/blob/master/static/img/icons.svg
-      const dictionary = {
-        emergency: '#F72501',
-        caution: '#F8E81C',
-        error: '#C05846',
-        ok: '#7ED321',
-        standby: '#A1DCFB',
-        off: '#C6CCD1',
-      }
-      return dictionary[this.status]
+      return AstroStatusColors[this.status]
     },
   },
 }
