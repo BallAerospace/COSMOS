@@ -35,18 +35,9 @@ export default {
       type: String,
       required: true,
       validator: (val) => {
-        return (
-          AstroIconLibrary.includes(val) &&
-          (!val.startsWith('status-') ||
-            ['settings-outline', 'notifications-outline'].includes(val)) // These were renamed
-        )
+        return AstroIconLibrary.includes(val)
       },
     },
-  },
-  created: function () {
-    if (this.$parent.$options.name !== 'v-icon') {
-      //console.warn("AstroIcon shouldn't be used directly. Use v-icon instead.")
-    }
   },
 }
 </script>
