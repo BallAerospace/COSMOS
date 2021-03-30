@@ -12,12 +12,7 @@ http:
         regex: "^/([^/]*)/(.*)"
         replacement: "/$2"
   routers:
-    # This is the default route for everything that doesn't match a more specific route
-    # It gets us to the base cosmos application
-    web-router:
-      rule: HostRegexp(`{name:.*}`)
-      service: service-web
-      priority: 1
+    # Note: Priorities control router check order with highest priority evaluated first
     # Route to the cosmos cmd/tlm api
     api-router:
       rule: PathPrefix(`/cosmos-api`)
@@ -25,7 +20,7 @@ http:
         # Remove /cosmos-api from urls
         - "removeFirst"
       service: service-api
-      priority: 5
+      priority: 4
     # Route to the script api
     script-router:
       rule: PathPrefix(`/script-api`)
@@ -33,12 +28,18 @@ http:
         # Remove /script-api from urls
         - "removeFirst"
       service: service-script
-      priority: 4
+      priority: 3
     # Route to other tool plugins hosted statically in Minio
     tools-router:
       rule: Path(`/tools/{id:.*/.*[.].*}`)
       service: service-minio
-      priority: 3
+      priority: 2
+    # This is the default route for everything that doesn't match a more specific route
+    # It gets us to the base cosmos application
+    web-router:
+      rule: HostRegexp(`{name:.*}`)
+      service: service-web
+      priority: 1
   services:
     # Local development of the base tool
     service-web:
