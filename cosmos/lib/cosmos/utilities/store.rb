@@ -43,7 +43,6 @@ module Cosmos
     # Get the singleton instance
     def self.instance(pool_size = 10)
       # Logger.level = Logger::DEBUG
-      # Logger.stdout = true
       return @@instance if @@instance
       @@instance_mutex.synchronize do
         @@instance ||= self.new(pool_size)
