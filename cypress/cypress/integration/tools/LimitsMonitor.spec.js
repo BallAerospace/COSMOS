@@ -248,7 +248,7 @@ describe('LimitsMonitor', () => {
     cy.visit('/tools/limitsmonitor')
     cy.hideNav()
     cy.contains('INST')
-    cy.visit('/tools/commandsender')
+    cy.visit('/tools/cmdsender')
     cy.contains('Command Sender')
     cy.wait(1000) // Allow the initial Command Sender APIs to happen
     cy.server()

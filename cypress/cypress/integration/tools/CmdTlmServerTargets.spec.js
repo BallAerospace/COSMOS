@@ -21,7 +21,7 @@ describe('CmdTlmServer Targets', () => {
   it('displays the list of targets', () => {
     cy.visit('/tools/cmdtlmserver/targets')
     cy.hideNav()
-    cy.get('[data-test=targets-table]', { timeout: 10000 }).contains('INST')
+    cy.get('[data-test=targets-table]').contains('INST', { timeout: 10000 })
     cy.get('[data-test=targets-table]').contains('INST2')
     cy.get('[data-test=targets-table]').contains('EXAMPLE')
     cy.get('[data-test=targets-table]').contains('TEMPLATED')
@@ -44,7 +44,7 @@ describe('CmdTlmServer Targets', () => {
       .eq(2)
       .invoke('text')
       .then((cmdCnt) => {
-        cy.visit('/tools/commandsender/INST2/ABORT')
+        cy.visit('/tools/cmdsender/INST2/ABORT')
         cy.hideNav()
         cy.contains('Aborts a collect')
         cy.get('button').contains('Send').click()

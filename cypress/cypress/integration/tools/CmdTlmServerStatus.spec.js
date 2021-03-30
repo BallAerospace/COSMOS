@@ -17,8 +17,10 @@
 # copyright holder
 */
 
+// This tab of CmdTlmServer will be going away
+
 describe('CmdTlmServer Status', () => {
-  xit('changes the limits set', () => {
+  it('changes the limits set', () => {
     cy.visit('/tools/cmdtlmserver')
     cy.hideNav()
     cy.get('.v-tab').contains('Status').click()
@@ -30,14 +32,14 @@ describe('CmdTlmServer Status', () => {
     // TODO: This message doesn't appear to be showing up
     // cy.get('[data-test=log-messages]').contains('Setting Limits Set: DEFAULT')
   })
-  it('lists API statistics', () => {
+  xit('lists API statistics', () => {
     cy.visit('/tools/cmdtlmserver')
     cy.hideNav()
     cy.get('.v-tab').contains('Status').click()
     cy.contains('API Status')
     // TODO what do we really want to display here
   })
-  it('lists background tasks', () => {
+  xit('lists background tasks', () => {
     cy.visit('/tools/cmdtlmserver')
     cy.hideNav()
     cy.get('.v-tab').contains('Status').click()

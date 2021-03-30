@@ -242,7 +242,7 @@ describe('DataExtractor', () => {
 
   it('processes commands', function () {
     // Preload an ABORT command
-    cy.visit('/tools/commandsender/INST/ABORT')
+    cy.visit('/tools/cmdsender/INST/ABORT')
     cy.hideNav()
     cy.get('button').contains('Send').click()
     cy.contains('cmd("INST ABORT") sent')
@@ -369,8 +369,8 @@ describe('DataExtractor', () => {
         var firstHS = -1
         for (let i = 1; i < lines.length; i++) {
           if (firstHS !== -1) {
-            var [tgt1, pkt1, adcs1, hs1] = lines[firstHS].split(',')
-            var [tgt2, pkt2, adcs2, hs2] = lines[i].split(',')
+            var [tgt1, pkt1, hs1, adcs1] = lines[firstHS].split(',')
+            var [tgt2, pkt2, hs2, adcs2] = lines[i].split(',')
             expect(tgt1).to.eq(tgt2) // Both INST
             expect(pkt1).to.eq('HEALTH_STATUS')
             expect(pkt2).to.eq('ADCS')
@@ -378,9 +378,8 @@ describe('DataExtractor', () => {
             expect(parseInt(hs1)).to.be.greaterThan(1) // Double check for a value
             expect(hs1).to.eq(hs2) // HEALTH_STATUS should be the same
             break
-          }
-          // Look for the first line containing HEALTH_STATUS
-          if (lines[i].includes('HEALTH_STATUS')) {
+          } else if (lines[i].includes('HEALTH_STATUS')) {
+            // Look for the first line containing HEALTH_STATUS
             console.log('Found first HEALTH_STATUS on line ' + i)
             firstHS = i
           }
