@@ -58,7 +58,7 @@ describe('PacketViewer', () => {
     cy.contains('HEALTH_STATUS')
     cy.contains('Health and status') // Description
     cy.server()
-    cy.route('POST', '/api').as('api')
+    cy.route('POST', '/cosmos-api/api').as('api')
     cy.wait(2000) // Delay a little to ensure we're getting polled requests
     cy.wait('@api').should((xhr) => {
       expect(xhr.request.body.method).to.eql('get_tlm_packet')
@@ -101,7 +101,7 @@ describe('PacketViewer', () => {
     cy.contains('Command Sender')
     cy.wait(1000) // Allow the initial Command Sender APIs to happen
     cy.server()
-    cy.route('POST', '/api').as('api')
+    cy.route('POST', '/cosmos-api/api').as('api')
     cy.wait('@api', {
       requestTimeout: 1000,
     }).then((xhr) => {

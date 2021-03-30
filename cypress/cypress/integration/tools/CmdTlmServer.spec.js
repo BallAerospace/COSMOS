@@ -101,7 +101,7 @@ describe('CmdTlmServer', () => {
     cy.contains('Command Sender')
     cy.wait(1000) // Allow the initial Command Sender APIs to happen
     cy.server()
-    cy.route('POST', '/api').as('api')
+    cy.route('POST', '/cosmos-api/api').as('api')
     cy.wait('@api', {
       requestTimeout: 1000,
     }).then((xhr) => {
