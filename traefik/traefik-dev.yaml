@@ -11,42 +11,26 @@ http:
       replacePathRegex:
         regex: "^/([^/]*)/(.*)"
         replacement: "/$2"
+    # Serve /tools/base/index.html
+    gotoToolsBaseIndex:
+      replacePath:
+        path: "/tools/base/index.html"
     # Adds /tools/base to the beginning of the given url
     # ie. /index.html becomes /tools/base/index.html
     addToolsBase:
       replacePathRegex:
         regex: "^/(.*)"
         replacement: "/tools/base/$1"
-    # Adds index.html to the end of urls that end in /
-    # ie. /something/ becomes /something/index.html
-    addIndex:
-      replacePathRegex:
-        regex: "(.*)/$"
-        replacement: "$1/index.html"
-    # Handle any not found errors from the regular default route
-    # to pull from index.html to allow the SPA to work with the
-    # URL
-    indexOnNotFound:
-      errors:
-        status:
-          - "400-499"
-        service: service-minio
-        query: "/tools/base/index.html"
   routers:
     # This is the default route for everything that doesn't match a more specific route
     # It gets us to the base cosmos application
     web-router:
-      rule: Host(`localhost`)
+      rule: HostRegexp(`{name:.*}`)
       middlewares:
-        # Add /tools/base/ and optionally index.html for ending in /
-        # ie. / becomes /tools/base/index.html before being passed to Minio
-        # This gets us to the right url for Minio to serve the static webpage
-        # 404 errors will serve /tools/base/index.html to make the single page app
-        # work as expected
-        - "addToolsBase"
-        - "addIndex"
-        - "indexOnNotFound"
+        # Serve /tools/base/index.html from minio
+        - "gotoToolsBaseIndex"
       service: service-minio
+      priority: 1
     # Route to the cosmos cmd/tlm api
     api-router:
       rule: PathPrefix(`/cosmos-api`)
@@ -54,6 +38,7 @@ http:
         # Remove /cosmos-api from urls
         - "removeFirst"
       service: service-api
+      priority: 5
     # Route to the script api
     script-router:
       rule: PathPrefix(`/script-api`)
@@ -61,14 +46,24 @@ http:
         # Remove /script-api from urls
         - "removeFirst"
       service: service-script
+      priority: 4
     # Route to other tool plugins hosted statically in Minio
+    # Matches any path with a file extension which is assumed to be
+    # a static file
     tools-router:
-      rule: PathPrefix(`/tools`)
-      middlewares:
-        # 404 errors will serve /tools/base/index.html to make the single page app
-        # work as expected
-        - "indexOnNotFound"
+      rule: Path(`/tools/{id:.*/.*[.].*}`)
       service: service-minio
+      priority: 3
+    # Route to base files hosted statically in Minio
+    # Matches any path with a file extension which is assumed to be
+    # a static file
+    base-router:
+      rule: Path(`/{id:.*[.].*}`)
+      middlewares:
+        # add /tools/base to the beginning
+        - "addToolsBase"
+      service: service-minio
+      priority: 2
   services:
     # The COSMOS cmd/tlm api service
     service-api:

@@ -11,33 +11,13 @@ http:
       replacePathRegex:
         regex: "^/([^/]*)/(.*)"
         replacement: "/$2"
-    # Adds /tools/base to the beginning of the given url
-    # ie. /index.html becomes /tools/base/index.html
-    addToolsBase:
-      replacePathRegex:
-        regex: "^/(.*)"
-        replacement: "/tools/base/$1"
-    # Adds index.html to the end of urls that end in /
-    # ie. /something/ becomes /something/index.html
-    addIndex:
-      replacePathRegex:
-        regex: "(.*)/$"
-        replacement: "$1/index.html"
-    # Handle any not found errors from the regular default route
-    # to pull from index.html to allow the SPA to work with the
-    # URL
-    indexOnNotFound:
-      errors:
-        status:
-          - "400-499"
-        service: service-web
-        query: "/index.html"
   routers:
     # This is the default route for everything that doesn't match a more specific route
     # It gets us to the base cosmos application
     web-router:
-      rule: Host(`localhost`)
+      rule: HostRegexp(`{name:.*}`)
       service: service-web
+      priority: 1
     # Route to the cosmos cmd/tlm api
     api-router:
       rule: PathPrefix(`/cosmos-api`)
@@ -45,6 +25,7 @@ http:
         # Remove /cosmos-api from urls
         - "removeFirst"
       service: service-api
+      priority: 5
     # Route to the script api
     script-router:
       rule: PathPrefix(`/script-api`)
@@ -52,14 +33,12 @@ http:
         # Remove /script-api from urls
         - "removeFirst"
       service: service-script
+      priority: 4
     # Route to other tool plugins hosted statically in Minio
     tools-router:
-      rule: PathPrefix(`/tools`)
-      middlewares:
-        # 404 errors will serve /tools/base/index.html to make the single page app
-        # work as expected
-        - "indexOnNotFound"
+      rule: Path(`/tools/{id:.*/.*[.].*}`)
       service: service-minio
+      priority: 3
   services:
     # Local development of the base tool
     service-web:
