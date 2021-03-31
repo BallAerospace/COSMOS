@@ -943,6 +943,7 @@ class RunningScript
       temp_trace.each do |line|
         next if line.include?(Cosmos::PATH)    # Ignore COSMOS internals
         next if line.include?('lib/ruby/gems') # Ignore system gems
+        next if line.include?('app/models/running_script') # Ignore this file
         trace << line
       end
     end

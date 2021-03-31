@@ -143,9 +143,9 @@ describe('ScriptRunner Commands', () => {
   it('opens a dialog with buttons for message_box, vertical_message_box', () => {
     cy.visit('/tools/scriptrunner')
     cy.focused().type(
-      'value = message_box("Select", ["ONE", "TWO", "THREE"])\n' +
+      'value = message_box("Select", "ONE", "TWO", "THREE")\n' +
         'puts value\n' +
-        'value = vertical_message_box("Select", ["FOUR", "FIVE", "SIX"])\n' +
+        'value = vertical_message_box("Select", "FOUR", "FIVE", "SIX")\n' +
         'puts value\n'
     )
     cy.get('[data-test=start-go-button]').click()
@@ -173,7 +173,7 @@ describe('ScriptRunner Commands', () => {
   it('opens a dialog with dropdowns for combo_box', () => {
     cy.visit('/tools/scriptrunner')
     cy.focused().type(
-      'value = combo_box("Select", ["abc123", "def456"])\n' + 'puts value\n'
+      'value = combo_box("Select", "abc123", "def456")\n' + 'puts value\n'
     )
     cy.get('[data-test=start-go-button]').click()
     cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
@@ -195,35 +195,6 @@ describe('ScriptRunner Commands', () => {
 
     cy.get('[data-test=state]').should('have.value', 'stopped')
     cy.get('[data-test=output-messages]').contains('def456')
-  })
-
-  it('opens a dialog for dialog_box', () => {
-    cy.visit('/tools/scriptrunner')
-    // Default choices for dialog_box is Yes and No
-    cy.focused().type(
-      'value = dialog_box("This is a Title!")\n' +
-        'puts value\n' +
-        'value = dialog_box("Are you tired?", "Extra message")\n' +
-        'puts value\n' +
-        'value = dialog_box("Choose Your Adventure", "Sun vs Moon", ["Day", "Night"])\n' +
-        'puts value\n'
-    )
-    cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
-      cy.contains('This is a Title!')
-      cy.contains('Yes').click()
-    })
-    cy.get('[data-test=output-messages]').contains('true') // Yes => true
-    cy.get('.v-dialog:visible').within(() => {
-      cy.contains('Are you tired?')
-      cy.contains('Extra message')
-      cy.contains('No').click()
-    })
-    cy.get('[data-test=output-messages]').contains('false') // No => false
-    cy.get('.v-dialog:visible').within(() => {
-      cy.contains('Day').click()
-    })
-    cy.get('[data-test=output-messages]').contains('Day')
   })
 
   it('opens a dialog for prompt', () => {
