@@ -25,7 +25,7 @@ NOTE: All commands are assumed to be executed from this (frontend) directory
     Visit localhost:2900 and Right-click 'Inspect'<br>
     In the console paste:
 
-        localStorage.setItem('devtools', true')
+        localStorage.setItem('devtools', true)
 
     Refresh and you should see {...} in the bottom right<br>
     Click the Default button next to the application (@cosmosc2/tool-scriptrunner)<br>
