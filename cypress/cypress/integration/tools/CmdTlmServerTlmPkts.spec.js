@@ -19,10 +19,10 @@
 
 describe('CmdTlmServer TlmPackets', () => {
   it('displays the list of telemetry', () => {
-    cy.visit('/cmd-tlm-server/tlm-packets')
+    cy.visit('/tools/cmdtlmserver/tlm-packets')
     cy.hideNav()
-    cy.get('[data-test=tlm-packets-table]', { timeout: 10000 })
-      .contains('HEALTH_STATUS')
+    cy.get('[data-test=tlm-packets-table]')
+      .contains('HEALTH_STATUS', { timeout: 10000 })
       .parent('tr')
       .within(() => {
         // all searches are automatically rooted to the found tr element
@@ -42,10 +42,10 @@ describe('CmdTlmServer TlmPackets', () => {
       })
   })
   it('displays the packet count', () => {
-    cy.visit('/cmd-tlm-server/tlm-packets')
+    cy.visit('/tools/cmdtlmserver/tlm-packets')
     cy.hideNav()
-    cy.get('[data-test=tlm-packets-table]', { timeout: 10000 })
-      .contains('HEALTH_STATUS')
+    cy.get('[data-test=tlm-packets-table]')
+      .contains('HEALTH_STATUS', { timeout: 10000 })
       .parent('tr')
       .within(() => {
         cy.get('td').eq(0).contains('INST')
@@ -69,13 +69,13 @@ describe('CmdTlmServer TlmPackets', () => {
   })
 
   it('displays a raw packet', () => {
-    cy.visit('/cmd-tlm-server/tlm-packets')
+    cy.visit('/tools/cmdtlmserver/tlm-packets')
     cy.hideNav()
     cy.get('[data-test=tlm-packets-table]', { timeout: 10000 })
       .contains('Target Name')
       .click()
     cy.get('[data-test=tlm-packets-table]')
-      .contains('HEALTH_STATUS')
+      .contains('HEALTH_STATUS', { timeout: 10000 })
       .parent('tr')
       .within(() => {
         cy.get('td').eq(0).contains('INST')
@@ -83,7 +83,7 @@ describe('CmdTlmServer TlmPackets', () => {
       })
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('Raw Telemetry Packet: INST HEALTH_STATUS')
-      cy.contains(/Packet Time: \d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/)
+      cy.contains(/Packet Time: \d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/, { timeout: 10000 })
       cy.contains(/Received Time: \d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/)
       cy.get('textarea').invoke('val').should('include', 'Address')
       cy.get('textarea').invoke('val').should('include', '00000000:')
@@ -127,7 +127,7 @@ describe('CmdTlmServer TlmPackets', () => {
   })
 
   it('links to packet viewer', () => {
-    cy.visit('/cmd-tlm-server/tlm-packets', {
+    cy.visit('/tools/cmdtlmserver/tlm-packets', {
       onBeforeLoad(win) {
         cy.stub(win, 'open').as('windowOpen')
       },
@@ -138,7 +138,7 @@ describe('CmdTlmServer TlmPackets', () => {
       .contains('Target Name')
       .click()
     cy.get('[data-test=tlm-packets-table]')
-      .contains('HEALTH_STATUS')
+      .contains('HEALTH_STATUS', { timeout: 10000 })
       .parent('tr')
       .within(() => {
         cy.get('td')
@@ -148,7 +148,7 @@ describe('CmdTlmServer TlmPackets', () => {
       })
     cy.get('@windowOpen').should(
       'be.calledWith',
-      '/packet-viewer/INST/HEALTH_STATUS'
+      '/tools/packetviewer/INST/HEALTH_STATUS'
     )
   })
 })

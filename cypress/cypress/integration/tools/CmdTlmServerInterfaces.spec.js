@@ -19,10 +19,10 @@
 
 describe('CmdTlmServer Interfaces', () => {
   it('disconnects & connects an interface', () => {
-    cy.visit('/cmd-tlm-server/interfaces')
+    cy.visit('/tools/cmdtlmserver/interfaces')
     cy.hideNav()
     cy.get('[data-test=interfaces-table]')
-      .contains('INST_INT')
+      .contains('INST_INT', { timeout: 10000 })
       .parent()
       .children()
       .eq(2)
@@ -50,8 +50,8 @@ describe('CmdTlmServer Interfaces', () => {
       .children()
       .eq(1)
       .click()
-    cy.get('[data-test=interfaces-table]', { timeout: 10000 })
-      .contains('INST_INT')
+    cy.get('[data-test=interfaces-table]')
+      .contains('INST_INT', { timeout: 10000 })
       .parent()
       .children()
       .eq(2)
@@ -61,10 +61,10 @@ describe('CmdTlmServer Interfaces', () => {
   })
 
   it('cancels an inteface from attempting', () => {
-    cy.visit('/cmd-tlm-server/interfaces')
+    cy.visit('/tools/cmdtlmserver/interfaces')
     cy.hideNav()
     cy.get('[data-test=interfaces-table]')
-      .contains('EXAMPLE_INT')
+      .contains('EXAMPLE_INT', { timeout: 10000 })
       .parent()
       .children()
       .eq(2)

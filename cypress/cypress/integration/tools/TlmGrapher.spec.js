@@ -47,7 +47,7 @@ describe('TlmGrapher', () => {
   })
 
   it('adds items to a graph, starts, pauses, resumes and stops', () => {
-    cy.visit('/telemetry-grapher')
+    cy.visit('/tools/tlmgrapher')
     cy.hideNav()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
@@ -69,7 +69,7 @@ describe('TlmGrapher', () => {
   })
 
   it('edits a graph title', () => {
-    cy.visit('/telemetry-grapher')
+    cy.visit('/tools/tlmgrapher')
     cy.hideNav()
     cy.contains('Graph 1')
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
@@ -110,7 +110,7 @@ describe('TlmGrapher', () => {
   })
 
   it('adds multiple graphs', () => {
-    cy.visit('/telemetry-grapher')
+    cy.visit('/tools/tlmgrapher')
     cy.hideNav()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
@@ -136,7 +136,7 @@ describe('TlmGrapher', () => {
   })
 
   it('saves and loads the configuration', () => {
-    cy.visit('/telemetry-grapher')
+    cy.visit('/tools/tlmgrapher')
     cy.hideNav()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
@@ -167,7 +167,7 @@ describe('TlmGrapher', () => {
     })
     cy.get('.v-dialog:visible').should('not.exist')
     // Totally refresh the page
-    cy.visit('/telemetry-grapher')
+    cy.visit('/tools/tlmgrapher')
     cy.hideNav()
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Open Configuration').click()
@@ -208,7 +208,7 @@ describe('TlmGrapher', () => {
   })
 
   it('shrinks and expands a graph width and height', () => {
-    cy.visit('/telemetry-grapher')
+    cy.visit('/tools/tlmgrapher')
     cy.hideNav()
     aliasWidthHeight()
     cy.get('#tlmGrapherGraph1').within(() => {
@@ -225,7 +225,7 @@ describe('TlmGrapher', () => {
   })
 
   it('shrinks and expands a graph width', () => {
-    cy.visit('/telemetry-grapher')
+    cy.visit('/tools/tlmgrapher')
     cy.hideNav()
     aliasWidthHeight()
     cy.get('#tlmGrapherGraph1').within(() => {
@@ -242,7 +242,7 @@ describe('TlmGrapher', () => {
   })
 
   it('shrinks and expands a graph height', () => {
-    cy.visit('/telemetry-grapher')
+    cy.visit('/tools/tlmgrapher')
     cy.hideNav()
     aliasWidthHeight()
     cy.get('#tlmGrapherGraph1').within(() => {
@@ -259,7 +259,7 @@ describe('TlmGrapher', () => {
   })
 
   it('minimizes a graph', () => {
-    cy.visit('/telemetry-grapher')
+    cy.visit('/tools/tlmgrapher')
     cy.hideNav()
     cy.get('#tlmGrapherGraph1').within(() => {
       cy.get('#chart').should('be.visible')

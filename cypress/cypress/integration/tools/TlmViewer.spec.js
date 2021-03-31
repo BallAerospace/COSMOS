@@ -19,10 +19,10 @@
 
 describe('TlmViewer', () => {
   function showScreen(target, screen) {
-    cy.visit('/telemetry-viewer')
+    cy.visit('/tools/tlmviewer')
     cy.hideNav()
     cy.server()
-    cy.route('POST', '/api').as('api')
+    cy.route('POST', '/cosmos-api/api').as('api')
     cy.chooseVSelect('Select Target', target)
     cy.chooseVSelect('Select Screen', screen)
     cy.contains('Show Screen').click()
@@ -30,7 +30,7 @@ describe('TlmViewer', () => {
     cy.wait('@api').should((xhr) => {
       expect(xhr.status, 'successful POST').to.equal(200)
     })
-    cy.get('.mdi-close-box').click()
+    cy.get('.mdi-close-box').first().click()
     cy.contains(target + ' ' + screen).should('not.exist')
     cy.get('@consoleError').should('not.be.called')
   }
@@ -62,7 +62,8 @@ describe('TlmViewer', () => {
   it('displays INST LIMITS', () => {
     showScreen('INST', 'LIMITS')
   })
-  it('displays INST OTHER', () => {
+  // TODO: this screen uses a lot of widgets that aren't implemented yet
+  xit('displays INST OTHER', () => {
     showScreen('INST', 'OTHER')
   })
   it('displays INST PARAMS', () => {

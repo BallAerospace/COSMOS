@@ -19,9 +19,9 @@
 
 describe('CmdTlmServer Targets', () => {
   it('displays the list of targets', () => {
-    cy.visit('/cmd-tlm-server/targets')
+    cy.visit('/tools/cmdtlmserver/targets')
     cy.hideNav()
-    cy.get('[data-test=targets-table]', { timeout: 10000 }).contains('INST')
+    cy.get('[data-test=targets-table]').contains('INST', { timeout: 10000 })
     cy.get('[data-test=targets-table]').contains('INST2')
     cy.get('[data-test=targets-table]').contains('EXAMPLE')
     cy.get('[data-test=targets-table]').contains('TEMPLATED')
@@ -35,7 +35,7 @@ describe('CmdTlmServer Targets', () => {
     //   .should('eq', 'INST_INT')
   })
   xit('displays the command count', () => {
-    cy.visit('/cmd-tlm-server/targets')
+    cy.visit('/tools/cmdtlmserver/targets')
     cy.hideNav()
     cy.get('[data-test=targets-table]', { timeout: 10000 })
       .contains('INST2_INT')
@@ -44,11 +44,11 @@ describe('CmdTlmServer Targets', () => {
       .eq(2)
       .invoke('text')
       .then((cmdCnt) => {
-        cy.visit('/command-sender/INST2/ABORT')
+        cy.visit('/tools/cmdsender/INST2/ABORT')
         cy.hideNav()
         cy.contains('Aborts a collect')
         cy.get('button').contains('Send').click()
-        cy.visit('/cmd-tlm-server')
+        cy.visit('/tools/cmdtlmserver')
         cy.hideNav()
         cy.get('.v-tab').contains('Targets').click()
         cy.get('[data-test=targets-table]')
@@ -63,7 +63,7 @@ describe('CmdTlmServer Targets', () => {
       })
   })
   xit('displays the telemetry count', () => {
-    cy.visit('/cmd-tlm-server/targets')
+    cy.visit('/tools/cmdtlmserver/targets')
     cy.hideNav()
     cy.get('[data-test=targets-table]', { timeout: 10000 })
       .contains('INST_INT')
