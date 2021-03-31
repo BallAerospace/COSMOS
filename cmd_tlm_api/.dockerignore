@@ -7,3 +7,4 @@ test/
 # Keep the directories but no contents
 log/*
 tmp/*
+Gemfile.lock
