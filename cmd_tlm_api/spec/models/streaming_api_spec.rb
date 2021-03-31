@@ -22,7 +22,6 @@ require 'rails_helper'
 RSpec.describe StreamingApi, type: :model do
   before(:each) do
     # Cosmos::Logger.level = Logger::DEBUG
-    # Cosmos::Logger.stdout = true
 
     mock_redis()
     setup_system()

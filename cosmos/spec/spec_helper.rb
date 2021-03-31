@@ -125,7 +125,6 @@ end
 def capture_io
   # Set the logger level to DEBUG so we see all output
   Cosmos::Logger.instance.level = Logger::DEBUG
-  Cosmos::Logger.stdout = true
   # Create a StringIO object to capture the output
   stdout = StringIO.new('', 'r+')
   $stdout = stdout
@@ -140,7 +139,6 @@ def capture_io
   # Yield back the StringIO so they can match against it
   yield stdout
 
-  Cosmos::Logger.stdout = false
   # Restore the logger to FATAL to prevent all kinds of output
   Cosmos::Logger.level = Logger::FATAL
   # Restore the STDOUT constant

@@ -60,7 +60,6 @@ module Cosmos
           # Override SIGINT to just kill the process
           Process.kill("KILL", pid) if type == "SIGINT"
         end
-        Logger.stdout = true
         ENV['OPERATOR_CYCLE_TIME'] = '0.1'
         @thread = Thread.new { MicroserviceOperator.run }
         sleep 0.1 # Allow the operator to spin up
