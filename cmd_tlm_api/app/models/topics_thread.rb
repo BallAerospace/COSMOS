@@ -39,7 +39,7 @@ class TopicsThread
   def start
     @thread = Thread.new do
       if !@offsets
-        @offsets = Array.new(topics.length, "0-0")
+        @offsets = Array.new(@topics.length, "0-0")
         thread_setup()
       end
       while true
