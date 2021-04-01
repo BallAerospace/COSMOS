@@ -5,8 +5,7 @@ REM This will allow docker to work through local SSL infrastructure such as decr
 if not exist cacert.pem (
   if DEFINED SSL_CERT_FILE (
     copy %SSL_CERT_FILE% cacert.pem
-    copy %SSL_CERT_FILE% cosmos\cacert.pem
-    copy %SSL_CERT_FILE% frontend\cacert.pem
+    copy %SSL_CERT_FILE% cosmos-ruby\cacert.pem
     echo Using %SSL_CERT_FILE% as cacert.pem
   ) else (
     echo "Downloading cacert.pem from curl"
@@ -17,14 +16,12 @@ if not exist cacert.pem (
       exit /b 1
     ) else (
       echo Successfully downloaded cacert.pem file from: https://curl.haxx.se/ca/cacert.pem
-      copy cacert.pem cosmos\cacert.pem
-      copy cacert.pem frontend\cacert.pem
+      copy cacert.pem cosmos-ruby\cacert.pem
     )
   )
 ) else (
   echo Using existing cacert.pem
-  copy cacert.pem cosmos\cacert.pem
-  copy cacert.pem frontend\cacert.pem
+  copy cacert.pem cosmos-ruby\cacert.pem
 )
 
 @echo on

@@ -10,8 +10,7 @@
 
 if [ ! -f cacert.pem ]; then
   if [ ! -z "$SSL_CERT_FILE" ]; then
-    cp $SSL_CERT_FILE cosmos\cacert.pem
-    cp $SSL_CERT_FILE frontend\cacert.pem
+    cp $SSL_CERT_FILE cosmos-ruby\cacert.pem
     echo Using $SSL_CERT_FILE as cacert.pem
   else
     echo "Downloading cert from curl"
@@ -22,12 +21,10 @@ if [ ! -f cacert.pem ]; then
       exit 1
     else
       echo "Successfully downloaded cacert.pem file from: https://curl.haxx.se/ca/cacert.pem"
-      cp cacert.pem cosmos/cacert.pem
-      cp cacert.pem frontend/cacert.pem
+      cp cacert.pem cosmos-ruby/cacert.pem
     fi
   fi
 else
   echo Using existing cacert.pem
-  cp cacert.pem cosmos/cacert.pem
-  cp cacert.pem frontend/cacert.pem
+  cp cacert.pem cosmos-ruby/cacert.pem
 fi
