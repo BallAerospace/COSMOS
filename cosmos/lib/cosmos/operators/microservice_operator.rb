@@ -30,7 +30,6 @@ module Cosmos
   class MicroserviceOperator < Operator
     def initialize
       Logger.microservice_name = 'MicroserviceOperator'
-      Logger.stdout = true
       super
 
       @microservices = {}

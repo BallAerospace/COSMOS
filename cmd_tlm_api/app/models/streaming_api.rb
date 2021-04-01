@@ -268,7 +268,6 @@ end
 class StreamingThread
   def initialize(channel, collection, stream_mode, max_batch_size = 100)
     # Cosmos::Logger.level = Cosmos::Logger::DEBUG
-    # Cosmos::Logger.stdout = true
     @channel = channel
     @collection = collection
     @max_batch_size = max_batch_size

@@ -42,7 +42,6 @@ module Cosmos
     def test_output(level, method, block = false)
       stdout = StringIO.new('', 'r+')
       $stdout = stdout
-      Logger.stdout = true
       Logger.level = level
       if block
         Logger.send(method, "Message1") { "Block1" }
@@ -58,7 +57,6 @@ module Cosmos
     def test_no_output(level, method, block = false)
       stdout = StringIO.new('', 'r+')
       $stdout = stdout
-      Logger.stdout = true
       Logger.level = level
       if block
         Logger.send(method, "Message2") { "Block2" }

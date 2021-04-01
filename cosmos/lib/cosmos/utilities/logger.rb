@@ -37,10 +37,7 @@ module Cosmos
     # @return [String] Additional detail to add to messages
     instance_attr_accessor :detail_string
 
-    # @return [Boolean] Whether to write to Fluentd and STDOUT
-    instance_attr_accessor :stdout
-
-    # @return [String] Fluentd tag
+    # @return [String] Fluent tag
     instance_attr_accessor :tag
 
     # @return [String] Microservice name
@@ -191,7 +188,7 @@ module Cosmos
         if block_given?
           data = yield
         end
-        puts data.to_json
+        STDOUT.puts data.to_json
         unless @no_store
           if scope
             Store.write_topic("#{scope}__cosmos_log_messages", data)
@@ -212,7 +209,7 @@ module Cosmos
         end
         data[:container_name] = @container_name
         data[:log] = message
-        puts data.to_json
+        STDOUT.puts data.to_json
         unless @no_store
           if scope
             Store.write_topic("#{scope}__cosmos_log_messages", data)

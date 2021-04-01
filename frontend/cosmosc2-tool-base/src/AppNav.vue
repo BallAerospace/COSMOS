@@ -69,7 +69,8 @@
 
     <v-app-bar app color="tertiary darken-3" id="cosmos-app-toolbar">
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
-      <span style="width:100%"><span id="cosmos-menu"></span></span>
+      <span style="width: 100%"><span id="cosmos-menu"></span></span>
+      <div class="justify-right mr-2"><notifications /></div>
       <div class="justify-right"><rux-clock /></div>
     </v-app-bar>
   </div>
@@ -81,8 +82,12 @@ import '@astrouxds/rux-global-status-bar'
 import Api from '../../packages/cosmosc2-tool-common/src/services/api'
 import logo from '../public/img/logo.png'
 import { registerApplication, start } from 'single-spa'
+import Notifications from './components/Notifications.vue'
 
 export default {
+  components: {
+    Notifications,
+  },
   data() {
     return {
       drawer: true,
@@ -97,7 +102,7 @@ export default {
     shownTools: function () {
       let result = {}
       for (var key of Object.keys(this.appNav)) {
-        if ((this.appNav[key].shown) && (this.appNav[key].category !== 'Admin')) {
+        if (this.appNav[key].shown && this.appNav[key].category !== 'Admin') {
           result[key] = this.appNav[key]
         }
       }
@@ -106,7 +111,7 @@ export default {
     adminTools: function () {
       let result = {}
       for (var key of Object.keys(this.appNav)) {
-        if ((this.appNav[key].shown) && (this.appNav[key].category === 'Admin')) {
+        if (this.appNav[key].shown && this.appNav[key].category === 'Admin') {
           result[key] = this.appNav[key]
         }
       }
@@ -126,7 +131,7 @@ export default {
             registerApplication({
               name: name,
               app: () => System.import(name),
-              activeWhen: ["/tools/" + folder_name],
+              activeWhen: ['/tools/' + folder_name],
             })
           }
         }

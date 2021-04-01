@@ -1,4 +1,5 @@
-<!--
+# encoding: ascii-8bit
+
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,39 +16,13 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
 
-<template>
-  <astro-badge :status="status">
-    <v-icon :color="color || statusColor">
-      <slot v-if="$slots.default" />
-      <template v-else> {{ icon }} </template>
-    </v-icon>
-  </astro-badge>
-</template>
+require 'cosmos/topics/topic'
 
-<script>
-import { AstroStatusColors } from '.'
-import AstroBadge from './AstroBadge.vue'
-
-export default {
-  components: { AstroBadge },
-  props: {
-    status: {
-      type: String,
-      required: true,
-    },
-    icon: {
-      type: String,
-    },
-    color: {
-      type: String,
-    },
-  },
-  computed: {
-    statusColor: function () {
-      return AstroStatusColors[this.status]
-    },
-  },
-}
-</script>
+module Cosmos
+  class NotificationsTopic < Topic
+    def self.write_notification(notification, scope:)
+      Store.write_topic("#{scope}__cosmos_notifications", notification)
+    end
+  end
+end

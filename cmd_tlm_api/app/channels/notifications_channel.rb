@@ -1,4 +1,5 @@
-<!--
+# encoding: ascii-8bit
+
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,39 +16,17 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
 
-<template>
-  <astro-badge :status="status">
-    <v-icon :color="color || statusColor">
-      <slot v-if="$slots.default" />
-      <template v-else> {{ icon }} </template>
-    </v-icon>
-  </astro-badge>
-</template>
+class NotificationsChannel < ApplicationCable::Channel
+  def subscribed
+    stream_from uuid
+    @broadcasters ||= {}
+    @broadcasters[uuid] = NotificationsApi.new(uuid, self, params['history_count'], params['start_offset'], scope: params['scope'], token: params['token'])
+  end
 
-<script>
-import { AstroStatusColors } from '.'
-import AstroBadge from './AstroBadge.vue'
-
-export default {
-  components: { AstroBadge },
-  props: {
-    status: {
-      type: String,
-      required: true,
-    },
-    icon: {
-      type: String,
-    },
-    color: {
-      type: String,
-    },
-  },
-  computed: {
-    statusColor: function () {
-      return AstroStatusColors[this.status]
-    },
-  },
-}
-</script>
+  def unsubscribed
+    @broadcasters[uuid].kill
+    @broadcasters[uuid] = nil
+    @broadcasters.delete(uuid)
+  end
+end

@@ -20,6 +20,7 @@
 require 'cosmos/microservices/microservice'
 require 'cosmos/topics/telemetry_decom_topic'
 require 'cosmos/topics/limits_event_topic'
+require 'cosmos/topics/notifications_topic'
 
 module Cosmos
   class DecomMicroservice < Microservice
@@ -79,6 +80,7 @@ module Cosmos
       message = "#{packet.target_name} #{packet.packet_name} #{item.name} = #{value} is #{item.limits.state}"
       message << " (#{packet.packet_time.sys.formatted})" if packet_time
 
+      time_nsec = packet_time ? packet_time.to_nsec_from_epoch : Time.now.to_nsec_from_epoch
       if log_change
         case item.limits.state
         when :BLUE, :GREEN, :GREEN_LOW, :GREEN_HIGH
@@ -86,6 +88,12 @@ module Cosmos
         when :YELLOW, :YELLOW_LOW, :YELLOW_HIGH
           Logger.warn message
         when :RED, :RED_LOW, :RED_HIGH
+          notification = { time: time_nsec,
+            severity: "critical",
+            url: "/tools/limitsmonitor",
+            title: "#{packet.target_name} #{packet.packet_name} #{item.name} out of limits",
+            body: "Item went into #{item.limits.state} limit status." }
+          NotificationsTopic.write_notification(notification, scope: @scope)
           Logger.error message
         else
           Logger.error "#{tgt_pkt_item_str} UNKNOWN#{pkt_time_str}"
@@ -93,7 +101,6 @@ module Cosmos
       end
 
       # The cosmos_limits_events topic can be listened to for all limits events, it is a continuous stream
-      time_nsec = packet_time ? packet_time.to_nsec_from_epoch : Time.now.to_nsec_from_epoch
       event = { type: :LIMITS_CHANGE, target_name: packet.target_name, packet_name: packet.packet_name,
         item_name: item.name, old_limits_state: old_limits_state, new_limits_state: item.limits.state,
         time_nsec: time_nsec, message: message }

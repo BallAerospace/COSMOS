@@ -1,4 +1,5 @@
-<!--
+# encoding: ascii-8bit
+
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,39 +16,26 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
 
-<template>
-  <astro-badge :status="status">
-    <v-icon :color="color || statusColor">
-      <slot v-if="$slots.default" />
-      <template v-else> {{ icon }} </template>
-    </v-icon>
-  </astro-badge>
-</template>
+require_relative 'topics_thread'
+require 'cosmos/utilities/authorization'
 
-<script>
-import { AstroStatusColors } from '.'
-import AstroBadge from './AstroBadge.vue'
+class NotificationsApi
+  include Cosmos::Authorization
 
-export default {
-  components: { AstroBadge },
-  props: {
-    status: {
-      type: String,
-      required: true,
-    },
-    icon: {
-      type: String,
-    },
-    color: {
-      type: String,
-    },
-  },
-  computed: {
-    statusColor: function () {
-      return AstroStatusColors[this.status]
-    },
-  },
-}
-</script>
+  def initialize(uuid, channel, history_count = 0, start_offset = nil, scope: nil, token: nil)
+    authorize(permission: 'system', scope: scope, token: token)
+    if scope
+      topics = ["#{scope}__cosmos_notifications"]
+    else
+      topics = ["cosmos_notifications"]
+    end
+    start_offsets = [start_offset] if start_offset
+    @thread = TopicsThread.new(topics, channel, history_count, offsets: start_offsets, transmit_msg_id: true)
+    @thread.start
+  end
+
+  def kill
+    @thread.stop
+  end
+end
