@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# exit when any command fails
+set -e
+
 # Tag and push all the images to the local repository
 docker tag cosmos-base localhost:5000/cosmos-base:latest
 docker tag cosmos-gems localhost:5000/cosmos-gems:latest
