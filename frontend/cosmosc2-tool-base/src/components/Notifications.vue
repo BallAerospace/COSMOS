@@ -151,7 +151,9 @@
         <v-card-title>
           {{ selectedNotification.title }}
           <v-spacer />
-          <astro-status-indicator :status="selectedNotification.severity" />
+          <astro-status-indicator
+            :status="selectedNotification.severity || 'normal'"
+          />
         </v-card-title>
         <v-card-subtitle>
           {{ selectedNotification.time | shortDateTime }}
