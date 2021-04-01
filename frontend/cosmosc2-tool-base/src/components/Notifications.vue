@@ -85,11 +85,6 @@
             <template v-if="notification.header">
               <v-divider v-if="index !== 0" :key="index" class="mb-2" />
               <v-subheader :key="notification.header">
-                <astro-status-indicator
-                  v-if="notification.header !== 'Read'"
-                  :status="notification.header.toLowerCase()"
-                  class="mr-1"
-                />
                 {{ notification.header }}
               </v-subheader>
             </template>
@@ -98,14 +93,13 @@
               v-else
               :key="`notification-${index}`"
               @click="openDialog(notification)"
+              class="pl-2"
             >
-              <v-badge
-                dot
-                inline
-                :color="notification.read ? 'transparent' : 'success'"
-              >
+              <v-badge left inline color="transparent">
                 <v-list-item-content class="pt-0 pb-0">
-                  <v-list-item-title>
+                  <v-list-item-title
+                    :class="{ 'text--secondary': notification.read }"
+                  >
                     {{ notification.title }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
@@ -118,6 +112,11 @@
                   </v-list-item-action-text>
                   <v-spacer />
                 </v-list-item-action>
+                <template v-slot:badge>
+                  <astro-status-indicator
+                    :status="notification.severity.toLowerCase()"
+                  />
+                </template>
               </v-badge>
             </v-list-item>
           </template>
