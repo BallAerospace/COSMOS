@@ -363,6 +363,9 @@ export default {
     },
     received: function (data) {
       const parsed = JSON.parse(data)
+      if (parsed.length > 100) {
+        parsed.splice(0, parsed.length - 100)
+      }
       let foundToast = false
       parsed.forEach((notification) => {
         notification.read =
@@ -380,6 +383,12 @@ export default {
           this.toastNotification = notification
         }
       })
+      if (this.notifications.length + parsed.length > 100) {
+        this.notifications.splice(
+          0,
+          this.notifications.length + parsed.length - 100
+        )
+      }
       this.notifications = this.notifications.concat(parsed)
       this.toast = this.toast || foundToast
       if (foundToast && this.toastNotification.severity === 'serious') {
