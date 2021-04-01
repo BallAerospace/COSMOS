@@ -1,73 +1,29 @@
-FROM cosmos-base
+FROM cosmos-node AS frontend-tmp
 
-ENV NODE_EXTRA_CA_CERTS=/devel/cacert.pem
-# ARG rather than ENV so it doesn't persist in the build image
-ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update -y && apt-get install -y \
-  --no-install-recommends \
-  --option "Acquire:http::No-Cache=true" \
-  --option "Acquire:http::Pipeline-Depth=0" \
-  nodejs \
-  npm \
-  libgtk2.0-0 \
-  libnotify-dev \
-  libgconf-2-4 \
-  libnss3 \
-  libxss1 \
-  libasound2 \
-  xvfb
-
-RUN mkdir -p /cosmos/plugins
 WORKDIR /cosmos/plugins/
+
+COPY ./*.json .
+COPY ./cosmosc2-tool-base/*.json cosmosc2-tool-base/
+COPY ./packages/cosmosc2-tool-admin/*.json packages/cosmosc2-tool-admin/
+COPY ./packages/cosmosc2-tool-cmdsender/*.json packages/cosmosc2-tool-cmdsender/
+COPY ./packages/cosmosc2-tool-cmdtlmserver/*.json packages/cosmosc2-tool-cmdtlmserver/
+COPY ./packages/cosmosc2-tool-common/*.json packages/cosmosc2-tool-common/
+COPY ./packages/cosmosc2-tool-dataextractor/*.json packages/cosmosc2-tool-dataextractor/
+COPY ./packages/cosmosc2-tool-dataviewer/*.json packages/cosmosc2-tool-dataviewer/
+COPY ./packages/cosmosc2-tool-limitsmonitor/*.json packages/cosmosc2-tool-limitsmonitor/
+COPY ./packages/cosmosc2-tool-packetviewer/*.json packages/cosmosc2-tool-packetviewer/
+COPY ./packages/cosmosc2-tool-scriptrunner/*.json packages/cosmosc2-tool-scriptrunner/
+COPY ./packages/cosmosc2-tool-tlmgrapher/*.json packages/cosmosc2-tool-tlmgrapher/
+COPY ./packages/cosmosc2-tool-tlmviewer/*.json packages/cosmosc2-tool-tlmviewer/
+
+RUN npm install --global lerna && lerna bootstrap --hoist
+
 COPY . .
 
-RUN npm install --global lerna
-RUN lerna bootstrap --hoist
+RUN sh docker-build.sh
 
-WORKDIR /cosmos/plugins/cosmosc2-tool-base/
-RUN npm install && npm run build
-RUN rake build VERSION=5.0.0
+FROM cosmos-base
 
-WORKDIR /cosmos/plugins/packages/cosmosc2-tool-admin/
-RUN npm run build
-RUN rake build VERSION=5.0.0
+COPY --from=frontend-tmp /cosmos/plugins/ /cosmos/plugins/
 
-WORKDIR /cosmos/plugins/packages/cosmosc2-tool-cmdsender/
-RUN npm run build
-RUN rake build VERSION=5.0.0
-
-WORKDIR /cosmos/plugins/packages/cosmosc2-tool-cmdtlmserver/
-RUN npm run build
-RUN rake build VERSION=5.0.0
-
-WORKDIR /cosmos/plugins/packages/cosmosc2-tool-dataextractor/
-RUN npm run build
-RUN rake build VERSION=5.0.0
-
-WORKDIR /cosmos/plugins/packages/cosmosc2-tool-dataviewer/
-RUN npm run build
-RUN rake build VERSION=5.0.0
-
-WORKDIR /cosmos/plugins/packages/cosmosc2-tool-limitsmonitor/
-RUN npm run build
-RUN rake build VERSION=5.0.0
-
-WORKDIR /cosmos/plugins/packages/cosmosc2-tool-packetviewer/
-RUN npm run build
-RUN rake build VERSION=5.0.0
-
-WORKDIR /cosmos/plugins/packages/cosmosc2-tool-scriptrunner/
-RUN npm run build
-RUN rake build VERSION=5.0.0
-
-WORKDIR /cosmos/plugins/packages/cosmosc2-tool-tlmgrapher/
-RUN npm run build
-RUN rake build VERSION=5.0.0
-
-WORKDIR /cosmos/plugins/packages/cosmosc2-tool-tlmviewer/
-RUN npm run build
-RUN rake build VERSION=5.0.0
-
-WORKDIR /cosmos/plugins/
-COPY init.sh .
 CMD [ "/cosmos/plugins/init.sh" ]

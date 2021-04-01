@@ -5,6 +5,8 @@ docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "e
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/defrag"
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "sysctl -w vm.max_map_count=262144"
 
+docker build -f cosmos-ruby\Dockerfile -t cosmos-ruby cosmos-ruby
+docker build -f cosmos-node\Dockerfile -t cosmos-node cosmos-node
 docker build -f cosmos\Dockerfile -t cosmos-base cosmos
 docker build -f geminabox\Dockerfile -t cosmos-gems geminabox
 docker build -f cmd_tlm_api\Dockerfile -t cosmos-cmd-tlm-api cmd_tlm_api
