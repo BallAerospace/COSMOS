@@ -278,7 +278,12 @@ export default {
   watch: {
     showNotificationPane: function (val) {
       if (!val) {
-        this.markAllAsRead()
+        if (this.selectedNotification.title) {
+          this.notificationDialog = false
+          this.selectedNotification = {}
+        } else {
+          this.markAllAsRead()
+        }
       }
     },
     showToastSetting: function (val) {
