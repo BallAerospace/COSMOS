@@ -712,10 +712,15 @@ export default {
     //   }
     // },
     getSize(type) {
-      const viewWidth = Math.max(
-        document.documentElement.clientWidth,
-        window.innerWidth || 0
+      const navDrawer = document.getElementById('cosmos-nav-drawer')
+      const navDrawerWidth = navDrawer.classList.contains(
+        'v-navigation-drawer--open'
       )
+        ? navDrawer.clientWidth
+        : 0
+      const viewWidth =
+        Math.max(document.documentElement.clientWidth, window.innerWidth || 0) -
+        navDrawerWidth
       const viewHeight = Math.max(
         document.documentElement.clientHeight,
         window.innerHeight || 0
