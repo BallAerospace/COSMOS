@@ -85,11 +85,6 @@
             <template v-if="notification.header">
               <v-divider v-if="index !== 0" :key="index" class="mb-2" />
               <v-subheader :key="notification.header">
-                <astro-status-indicator
-                  v-if="notification.header !== 'Read'"
-                  :status="notification.header.toLowerCase()"
-                  class="mr-1"
-                />
                 {{ notification.header }}
               </v-subheader>
             </template>
@@ -98,14 +93,13 @@
               v-else
               :key="`notification-${index}`"
               @click="openDialog(notification)"
+              class="pl-2"
             >
-              <v-badge
-                dot
-                inline
-                :color="notification.read ? 'transparent' : 'success'"
-              >
+              <v-badge left inline color="transparent">
                 <v-list-item-content class="pt-0 pb-0">
-                  <v-list-item-title>
+                  <v-list-item-title
+                    :class="{ 'text--secondary': notification.read }"
+                  >
                     {{ notification.title }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
@@ -118,6 +112,11 @@
                   </v-list-item-action-text>
                   <v-spacer />
                 </v-list-item-action>
+                <template v-slot:badge>
+                  <astro-status-indicator
+                    :status="notification.severity.toLowerCase()"
+                  />
+                </template>
               </v-badge>
             </v-list-item>
           </template>
@@ -152,7 +151,9 @@
         <v-card-title>
           {{ selectedNotification.title }}
           <v-spacer />
-          <astro-status-indicator :status="selectedNotification.severity" />
+          <astro-status-indicator
+            :status="selectedNotification.severity || 'normal'"
+          />
         </v-card-title>
         <v-card-subtitle>
           {{ selectedNotification.time | shortDateTime }}
@@ -279,7 +280,12 @@ export default {
   watch: {
     showNotificationPane: function (val) {
       if (!val) {
-        this.markAllAsRead()
+        if (this.selectedNotification.title) {
+          this.notificationDialog = false
+          this.selectedNotification = {}
+        } else {
+          this.markAllAsRead()
+        }
       }
     },
     showToastSetting: function (val) {
@@ -363,6 +369,9 @@ export default {
     },
     received: function (data) {
       const parsed = JSON.parse(data)
+      if (parsed.length > 100) {
+        parsed.splice(0, parsed.length - 100)
+      }
       let foundToast = false
       parsed.forEach((notification) => {
         notification.read =
@@ -380,6 +389,12 @@ export default {
           this.toastNotification = notification
         }
       })
+      if (this.notifications.length + parsed.length > 100) {
+        this.notifications.splice(
+          0,
+          this.notifications.length + parsed.length - 100
+        )
+      }
       this.notifications = this.notifications.concat(parsed)
       this.toast = this.toast || foundToast
       if (foundToast && this.toastNotification.severity === 'serious') {
