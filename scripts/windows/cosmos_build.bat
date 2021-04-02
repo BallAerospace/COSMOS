@@ -1,25 +1,24 @@
 @echo off
 
 REM These lines configure the host OS properly for Redis
-docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
-docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/defrag"
-docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "sysctl -w vm.max_map_count=262144"
+docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled" || exit /b
+docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/defrag" || exit /b
+docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "sysctl -w vm.max_map_count=262144" || exit /b
 
-docker build -f cosmos-ruby\Dockerfile -t cosmos-ruby cosmos-ruby
-docker build -f cosmos-node\Dockerfile -t cosmos-node cosmos-node
-docker build -f cosmos\Dockerfile -t cosmos-base cosmos
-docker build -f geminabox\Dockerfile -t cosmos-gems geminabox
-docker build -f cmd_tlm_api\Dockerfile -t cosmos-cmd-tlm-api cmd_tlm_api
-docker build -f script_runner_api\Dockerfile -t cosmos-script-runner-api script_runner_api
-docker build -f frontend\Dockerfile -t cosmos-frontend-init frontend
-docker build -f operator\Dockerfile -t cosmos-operator operator
-docker build -f init\Dockerfile -t cosmos-init init
+docker build -f cosmos-ruby\Dockerfile -t cosmos-ruby cosmos-ruby || exit /b
+docker build -f cosmos-node\Dockerfile -t cosmos-node cosmos-node || exit /b
+docker build -f cosmos\Dockerfile -t cosmos-base cosmos || exit /b
+docker build -f geminabox\Dockerfile -t cosmos-gems geminabox || exit /b
+docker build -f cmd_tlm_api\Dockerfile -t cosmos-cmd-tlm-api cmd_tlm_api || exit /b
+docker build -f script_runner_api\Dockerfile -t cosmos-script-runner-api script_runner_api || exit /b
+docker build -f frontend\Dockerfile -t cosmos-frontend-init frontend || exit /b
+docker build -f operator\Dockerfile -t cosmos-operator operator || exit /b
+docker build -f init\Dockerfile -t cosmos-init init || exit /b
 
 if "%1" == "dev" (
-  docker build -f elasticsearch/Dockerfile -t cosmos-elasticsearch elasticsearch
-  docker build -f kibana/Dockerfile -t cosmos-kibana kibana
-  docker build -f fluentd/Dockerfile -t cosmos-fluentd fluentd
-  docker build -f grafana/Dockerfile -t cosmos-grafana grafana
-  docker build -f prometheus/Dockerfile -t cosmos-prometheus prometheus
+  docker build -f elasticsearch/Dockerfile -t cosmos-elasticsearch elasticsearch || exit /b
+  docker build -f kibana/Dockerfile -t cosmos-kibana kibana || exit /b
+  docker build -f fluentd/Dockerfile -t cosmos-fluentd fluentd || exit /b
+  docker build -f grafana/Dockerfile -t cosmos-grafana grafana || exit /b
+  docker build -f prometheus/Dockerfile -t cosmos-prometheus prometheus || exit /b
 )
-@echo on

@@ -313,12 +313,15 @@ end
 
 def load_plugin(plugin_file_path, scope:)
   scope ||= 'DEFAULT'
-  begin
-    scope_model = Cosmos::ScopeModel.new(name: scope, scope: scope)
-    scope_model.create
-    scope_model.deploy(".", {})
-  rescue => err
-    puts "Error creating scope: #{scope}: #{err.formatted}"
+  # Only create the scope if it doesn't already exist
+  unless Cosmos::ScopeModel.names.include?(scope)
+    begin
+      scope_model = Cosmos::ScopeModel.new(name: scope, scope: scope)
+      scope_model.create
+      scope_model.deploy(".", {})
+    rescue => err
+      puts "Error creating scope: #{scope}: #{err.formatted}"
+    end
   end
 
   begin
