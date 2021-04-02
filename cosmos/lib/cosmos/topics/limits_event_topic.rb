@@ -88,7 +88,6 @@ module Cosmos
     end
 
     def self.delete(target_name, packet_name, scope:)
-      fields = []
       limits = Store.hgetall("#{scope}__current_limits")
       limits.each do |item, limits_state|
         Store.hdel("#{scope}__current_limits", item)
