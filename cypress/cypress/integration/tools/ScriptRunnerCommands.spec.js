@@ -19,7 +19,7 @@
 
 describe('ScriptRunner Commands', () => {
   it('downloads the log messages', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.focused().type('puts "This is a test"')
     cy.get('[data-test=start-go-button]').click()
     cy.get('[data-test=state]', { timeout: 30000 }).should(
@@ -32,7 +32,7 @@ describe('ScriptRunner Commands', () => {
   })
 
   it('prompts for hazardous commands', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.focused().type('cmd("INST CLEAR")')
     cy.get('[data-test=start-go-button]').click()
     cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
@@ -48,7 +48,7 @@ describe('ScriptRunner Commands', () => {
   })
 
   it('does not hazardous prompt for cmd_no_hazardous_check, cmd_no_checks', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.focused().type(
       'cmd_no_hazardous_check("INST CLEAR")\ncmd_no_checks("INST CLEAR")'
     )
@@ -61,7 +61,7 @@ describe('ScriptRunner Commands', () => {
   })
 
   it('errors for out of range command parameters', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.focused().type('cmd("INST COLLECT with DURATION 11, TYPE \'NORMAL\'")')
     cy.get('[data-test=start-go-button]').click()
     cy.get('[data-test=state]', { timeout: 30000 }).should(
@@ -74,7 +74,7 @@ describe('ScriptRunner Commands', () => {
   })
 
   it('does not out of range error for cmd_no_range_check, cmd_no_checks', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.focused().type(
       'cmd_no_range_check("INST COLLECT with DURATION 11, TYPE \'NORMAL\'")\n' +
         'cmd_no_checks("INST COLLECT with DURATION 11, TYPE \'NORMAL\'")'
@@ -88,7 +88,7 @@ describe('ScriptRunner Commands', () => {
   })
 
   it('opens a dialog for ask and returns the value', () => {
-    cy.visit('/script-runner')
+    cy.visit('/tools/scriptrunner')
     cy.focused().type(
       'value = ask("Enter password:")\n' +
         'puts value\n' +
@@ -140,12 +140,12 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('abc123!')
   })
 
-  it('opens a dialog with buttons for prompt_message_box, prompt_vertical_message_box', () => {
-    cy.visit('/script-runner')
+  it('opens a dialog with buttons for message_box, vertical_message_box', () => {
+    cy.visit('/tools/scriptrunner')
     cy.focused().type(
-      'value = prompt_message_box("Select", ["ONE", "TWO", "THREE"])\n' +
+      'value = message_box("Select", "ONE", "TWO", "THREE")\n' +
         'puts value\n' +
-        'value = prompt_vertical_message_box("Select", ["FOUR", "FIVE", "SIX"])\n' +
+        'value = vertical_message_box("Select", "FOUR", "FIVE", "SIX")\n' +
         'puts value\n'
     )
     cy.get('[data-test=start-go-button]').click()
@@ -170,11 +170,10 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('FOUR')
   })
 
-  it('opens a dialog with dropdowns for prompt_combo_box', () => {
-    cy.visit('/script-runner')
+  it('opens a dialog with dropdowns for combo_box', () => {
+    cy.visit('/tools/scriptrunner')
     cy.focused().type(
-      'value = prompt_combo_box("Select", ["abc123", "def456"])\n' +
-        'puts value\n'
+      'value = combo_box("Select", "abc123", "def456")\n' + 'puts value\n'
     )
     cy.get('[data-test=start-go-button]').click()
     cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
@@ -198,41 +197,10 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('def456')
   })
 
-  it('opens a dialog for prompt_dialog_box', () => {
-    cy.visit('/script-runner')
-    // Default choices for prompt_dialog_box is Yes and No
-    cy.focused().type(
-      'value = prompt_dialog_box("This is a Title!")\n' +
-        'puts value\n' +
-        'value = prompt_dialog_box("Are you tired?", "Extra message")\n' +
-        'puts value\n' +
-        'value = prompt_dialog_box("Choose Your Adventure", "Sun vs Moon", ["Day", "Night"])\n' +
-        'puts value\n'
-    )
-    cy.get('[data-test=start-go-button]').click()
-    cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
-      cy.contains('This is a Title!')
-      cy.contains('Yes').click()
-    })
-    cy.get('[data-test=output-messages]').contains('true') // Yes => true
-    cy.get('.v-dialog:visible').within(() => {
-      cy.contains('Are you tired?')
-      cy.contains('Extra message')
-      cy.contains('No').click()
-    })
-    cy.get('[data-test=output-messages]').contains('false') // No => false
-    cy.get('.v-dialog:visible').within(() => {
-      cy.contains('Day').click()
-    })
-    cy.get('[data-test=output-messages]').contains('Day')
-  })
-
-  it('opens a dialog for prompt_to_continue', () => {
-    cy.visit('/script-runner')
-    // Default choices for prompt_to_continue is Ok and Cancel
-    cy.focused().type(
-      'value = prompt_to_continue("Continue?")\n' + 'puts value\n'
-    )
+  it('opens a dialog for prompt', () => {
+    cy.visit('/tools/scriptrunner')
+    // Default choices for prompt is Ok and Cancel
+    cy.focused().type('value = prompt("Continue?")\n' + 'puts value\n')
     cy.get('[data-test=start-go-button]').click()
     cy.get('.v-dialog:visible', { timeout: 30000 }).within(() => {
       cy.contains('Continue?')
@@ -240,7 +208,7 @@ describe('ScriptRunner Commands', () => {
     })
     cy.get('[data-test=output-messages]').contains('User input: Cancel')
     cy.get('[data-test=state]').should('have.value', 'paused')
-    // Clicking Go re-executes the prompt_to_continue
+    // Clicking Go re-executes the prompt
     cy.get('[data-test=start-go-button]').click()
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('Continue?')

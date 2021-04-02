@@ -56,7 +56,7 @@ module.exports = (on, config) => {
     // Make the download directory cypress/downloads
     const downloadDirectory = path.join(__dirname, '..', 'downloads')
 
-    if (browser.family === 'chromium' && browser.name !== 'electron') {
+    if (browser.family === 'chrome' && browser.name !== 'electron') {
       // The available option list is here:
       // https://src.chromium.org/viewvc/chrome/trunk/src/chrome/common/pref_names.cc?view=markup
       // TODO: Is there a way to disable the warning about Ruby file downloads?

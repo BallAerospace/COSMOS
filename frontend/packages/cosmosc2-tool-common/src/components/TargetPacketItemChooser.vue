@@ -273,9 +273,9 @@ export default {
         this.itemsDisabled = false
         var arrayLength = this.packet_list_items.length
         for (var i = 0; i < arrayLength; i++) {
-          if (value === this.packet_list_items[i]['packet_name']) {
-            this.selectedPacketName = this.packet_list_items[i]['packet_name']
-            this.description = this.packet_list_items[i]['description']
+          if (value === this.packet_list_items[i][0]) {
+            this.selectedPacketName = this.packet_list_items[i][0]
+            this.description = this.packet_list_items[i][1]
             break
           }
         }
@@ -295,8 +295,8 @@ export default {
     itemNameChanged(value) {
       var arrayLength = this.tlm_item_list_items.length
       for (var i = 0; i < arrayLength; i++) {
-        if (value === this.tlm_item_list_items[i]['packet_name']) {
-          this.selectedItemName = this.tlm_item_list_items[i]['packet_name']
+        if (value === this.tlm_item_list_items[i]['name']) {
+          this.selectedItemName = this.tlm_item_list_items[i]['name']
           this.description = this.tlm_item_list_items[i]['description']
           break
         }

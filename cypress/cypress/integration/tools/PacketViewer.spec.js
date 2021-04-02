@@ -52,13 +52,13 @@ describe('PacketViewer', () => {
   // Test the basic functionality of the application
   //
   it('displays INST HEALTH_STATUS & polls the api', () => {
-    cy.visit('/packet-viewer/INST/HEALTH_STATUS')
+    cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.contains('INST')
     cy.contains('HEALTH_STATUS')
     cy.contains('Health and status') // Description
     cy.server()
-    cy.route('POST', '/api').as('api')
+    cy.route('POST', '/cosmos-api/api').as('api')
     cy.wait(2000) // Delay a little to ensure we're getting polled requests
     cy.wait('@api').should((xhr) => {
       expect(xhr.request.body.method).to.eql('get_tlm_packet')
@@ -66,7 +66,7 @@ describe('PacketViewer', () => {
     })
   })
   it('selects a target and packet to display', () => {
-    cy.visit('/packet-viewer')
+    cy.visit('/tools/packetviewer')
     cy.hideNav()
     cy.selectTargetPacketItem('INST', 'IMAGE')
     cy.contains('INST')
@@ -75,7 +75,7 @@ describe('PacketViewer', () => {
     cy.contains('BYTES')
   })
   it('gets details with right click', () => {
-    cy.visit('/packet-viewer/INST/HEALTH_STATUS')
+    cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.contains('HEALTH_STATUS')
     cy.contains(/^TEMP1$/)
@@ -93,15 +93,15 @@ describe('PacketViewer', () => {
       expect(error.message).to.include('No request ever occurred.')
       return false
     })
-    cy.visit('/packet-viewer/INST/HEALTH_STATUS')
+    cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.contains('INST')
     cy.contains('HEALTH_STATUS')
-    cy.visit('/command-sender')
+    cy.visit('/tools/cmdsender')
     cy.contains('Command Sender')
     cy.wait(1000) // Allow the initial Command Sender APIs to happen
     cy.server()
-    cy.route('POST', '/api').as('api')
+    cy.route('POST', '/cosmos-api/api').as('api')
     cy.wait('@api', {
       requestTimeout: 1000,
     }).then((xhr) => {
@@ -114,7 +114,7 @@ describe('PacketViewer', () => {
   // Test the File menu
   //
   it('changes the polling rate', function () {
-    cy.visit('/packet-viewer/INST/HEALTH_STATUS')
+    cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.contains('TEMP1')
     cy.get('.v-toolbar').contains('File').click()
@@ -143,13 +143,13 @@ describe('PacketViewer', () => {
   // Test the View menu
   //
   it('displays formatted items with units by default', function () {
-    cy.visit('/packet-viewer/INST/HEALTH_STATUS')
+    cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
     // Check for exactly 3 decimal points followed by units
     matchItem('TEMP1', /^-?\d+\.\d{3}\s\S$/)
   })
   it('displays formatted items with units', function () {
-    cy.visit('/packet-viewer/INST/HEALTH_STATUS')
+    cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.get('.v-toolbar').contains('View').click()
     cy.contains(/^Formatted Items with Units$/).click()
@@ -157,7 +157,7 @@ describe('PacketViewer', () => {
     matchItem('TEMP1', /^-?\d+\.\d{3}\s\S$/)
   })
   it('displays raw items', function () {
-    cy.visit('/packet-viewer/INST/HEALTH_STATUS')
+    cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.get('.v-toolbar').contains('View').click()
     cy.contains('Raw').click()
@@ -165,7 +165,7 @@ describe('PacketViewer', () => {
     matchItem('TEMP1', /^\d{1,5}$/)
   })
   it('displays converted items', function () {
-    cy.visit('/packet-viewer/INST/HEALTH_STATUS')
+    cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.get('.v-toolbar').contains('View').click()
     cy.contains('Converted').click()
@@ -173,7 +173,7 @@ describe('PacketViewer', () => {
     matchItem('TEMP1', /^-?\d+\.\d{4,}$/)
   })
   it('displays formatted items', function () {
-    cy.visit('/packet-viewer/INST/HEALTH_STATUS')
+    cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.get('.v-toolbar').contains('View').click()
     cy.contains(/^Formatted Items$/).click()
@@ -181,7 +181,7 @@ describe('PacketViewer', () => {
     matchItem('TEMP1', /^-?\d+\.\d{3}$/)
   })
   it('hides ignored items', function () {
-    cy.visit('/packet-viewer/INST/HEALTH_STATUS')
+    cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.contains('CCSDSVER').should('exist')
     cy.get('.v-toolbar').contains('View').click()
@@ -192,7 +192,7 @@ describe('PacketViewer', () => {
     cy.contains('CCSDSVER').should('exist')
   })
   it('displays derived last', function () {
-    cy.visit('/packet-viewer/INST/HEALTH_STATUS')
+    cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
     cy.get('tbody>tr')
       .eq(0)

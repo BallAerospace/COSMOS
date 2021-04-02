@@ -1,6 +1,6 @@
 {
   "projectId": "guaqdd",
-  "baseUrl": "http://localhost:8080",
+  "baseUrl": "http://localhost:2900",
   "testFiles": "**/*.spec.js*",
   "experimentalComponentTesting": true,
   "componentFolder": "cypress/components",
