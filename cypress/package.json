@@ -22,8 +22,5 @@
     "vue": "^2.6.12",
     "vue-cli-plugin-cypress-experimental": "^1.2.0",
     "vue-template-compiler": "^2.6.12"
-  },
-  "nyc": {
-    "cwd": "../frontend/"
   }
 }
