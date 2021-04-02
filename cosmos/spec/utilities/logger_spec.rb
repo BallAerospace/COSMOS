@@ -45,11 +45,15 @@ module Cosmos
       Logger.level = level
       if block
         Logger.send(method, "Message1") { "Block1" }
-        expect(stdout.string).not_to match("Message1")
-        expect(stdout.string).to match("#{method.upcase}: Block1")
+        json = JSON.parse(stdout.string)
+        expect(json['log']).not_to match("Message1")
+        expect(json['severity']).to match(method.upcase)
+        expect(json['log']).to match("Block1")
       else
         Logger.send(method, "Message1")
-        expect(stdout.string).to match("#{method.upcase}: Message1")
+        json = JSON.parse(stdout.string)
+        expect(json['severity']).to match(method.upcase)
+        expect(json['log']).to match("Message1")
       end
       $stdout = STDOUT
     end
@@ -60,12 +64,10 @@ module Cosmos
       Logger.level = level
       if block
         Logger.send(method, "Message2") { "Block2" }
-        expect(stdout.string).not_to match("Message2")
-        expect(stdout.string).not_to match("Block2")
       else
         Logger.send(method, "Message2")
-        expect(stdout.string).not_to match("Message2")
       end
+      expect(stdout.string).to be_empty
       $stdout = STDOUT
     end
 

@@ -188,7 +188,7 @@ module Cosmos
         if block_given?
           data = yield
         end
-        STDOUT.puts data.to_json
+        puts data.to_json
         unless @no_store
           if scope
             Store.write_topic("#{scope}__cosmos_log_messages", data)
@@ -209,7 +209,7 @@ module Cosmos
         end
         data[:container_name] = @container_name
         data[:log] = message
-        STDOUT.puts data.to_json
+        puts data.to_json
         unless @no_store
           if scope
             Store.write_topic("#{scope}__cosmos_log_messages", data)

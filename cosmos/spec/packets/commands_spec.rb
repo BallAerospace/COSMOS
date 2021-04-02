@@ -191,7 +191,7 @@ module Cosmos
             expect(pkt.item2).to eql 2
             expect(pkt.item3).to eql 3
             expect(pkt.item4).to eql 0
-            expect(stdout.string).to match(/ERROR: TGT1 PKT1 received with actual packet length of 3 but defined length of 4/)
+            expect(stdout.string).to match(/TGT1 PKT1 received with actual packet length of 3 but defined length of 4/)
           end
         end
 
@@ -204,7 +204,7 @@ module Cosmos
             expect(pkt.item2).to eql 2
             expect(pkt.item3).to eql 3
             expect(pkt.item4).to eql 4
-            expect(stdout.string).to match(/ERROR: TGT1 PKT1 received with actual packet length of 5 but defined length of 4/)
+            expect(stdout.string).to match(/TGT1 PKT1 received with actual packet length of 5 but defined length of 4/)
           end
         end
 

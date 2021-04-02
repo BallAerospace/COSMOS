@@ -143,7 +143,7 @@ module Cosmos
         if tool
           @position = tool['position'] + 1
         else
-          @position = 1
+          @position = 0
         end
       end
       super(update: update, force: force)

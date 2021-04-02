@@ -72,10 +72,12 @@ $cosmos_scope = 'DEFAULT'
 $cosmos_token = nil
 
 def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
-  require 'cosmos/system'
-  dir = File.join(__dir__, 'install', 'config', 'targets')
-  Cosmos::System.class_variable_set(:@@instance, nil)
-  Cosmos::System.instance(targets, dir)
+  capture_io do |stdout|
+    require 'cosmos/system'
+    dir = File.join(__dir__, 'install', 'config', 'targets')
+    Cosmos::System.class_variable_set(:@@instance, nil)
+    Cosmos::System.instance(targets, dir)
+  end
 end
 
 def get_all_redis_keys
