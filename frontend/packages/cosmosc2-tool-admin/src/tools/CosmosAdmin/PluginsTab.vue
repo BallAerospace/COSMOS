@@ -22,6 +22,7 @@
     <v-row no-gutters align="center">
       <v-col cols="4">
         <v-file-input
+          ref="fileInput"
           v-model="file"
           show-size
           label="Click to Select Plugin .gem File"
@@ -34,6 +35,14 @@
         </v-btn>
       </v-col>
     </v-row>
+    <!-- TODO This alert shows both success and failure. Make consistent with rest of COSMOS. -->
+    <v-alert
+      :type="alertType"
+      v-model="showAlert"
+      dismissible
+      transition="scale-transition"
+      >{{ alert }}</v-alert
+    >
     <v-list data-test="pluginList">
       <v-list-item v-for="(plugin, i) in plugins" :key="i">
         <v-list-item-content>
@@ -42,11 +51,21 @@
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
+              <v-icon @click="upgradePlugin(plugin)" v-bind="attrs" v-on="on"
+                >mdi-update</v-icon
+              >
+            </template>
+            <span>Upgrade Plugin</span>
+          </v-tooltip>
+        </v-list-item-icon>
+        <v-list-item-icon>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
               <v-icon @click="deletePlugin(plugin)" v-bind="attrs" v-on="on"
                 >mdi-delete</v-icon
               >
             </template>
-            <span>Delete Item</span>
+            <span>Delete Plugin</span>
           </v-tooltip>
         </v-list-item-icon>
       </v-list-item>
@@ -98,16 +117,19 @@ export default {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
         })
     },
-    upload() {
+    upload(existing = null) {
+      let method = 'post'
+      let path = '/cosmos-api/plugins'
+      if (existing != null) {
+        method = 'put'
+        path = '/cosmos-api/plugins/' + existing
+      }
       if (this.file !== null) {
         let formData = new FormData()
         formData.append('plugin', this.file, this.file.name)
-        Api.post('/cosmos-api/plugins', formData)
+        Api[method](path, formData)
           .then((response) => {
             this.alert = 'Uploaded file ' + this.file.name
             this.alertType = 'success'
@@ -125,9 +147,6 @@ export default {
             this.alert = error
             this.alertType = 'error'
             this.showAlert = true
-            setTimeout(() => {
-              this.showAlert = false
-            }, 5000)
           })
       } else {
         this.alert = 'Please Select A Plugin File'
@@ -156,10 +175,16 @@ export default {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
         })
+    },
+    async upgradePlugin(plugin) {
+      this.file = null
+      this.$refs.fileInput.$refs.input.click()
+      // Wait for the file to be set by the dialog so upload works
+      while (this.file === null) {
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      }
+      this.upload(plugin)
     },
     deletePlugin(plugin) {
       var self = this
@@ -183,9 +208,6 @@ export default {
               self.alert = error
               self.alertType = 'error'
               self.showAlert = true
-              setTimeout(() => {
-                self.showAlert = false
-              }, 5000)
             })
         })
     },

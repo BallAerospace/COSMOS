@@ -45,8 +45,19 @@ class PluginsController < ModelController
     end
   end
 
+  def update
+    @old_model = @model_class.get(name: params[:id], scope: params[:scope])
+    STDOUT.puts @old_model
+    destroy()
+    create()
+  end
+
   def install
     authorize(permission: 'admin', scope: params[:scope], token: params[:token])
-    render :json => Cosmos::PluginModel.install_phase2(params[:id], JSON.parse(params[:variables]), scope: params[:scope])
+    begin
+      render :json => Cosmos::PluginModel.install_phase2(params[:id], JSON.parse(params[:variables]), scope: params[:scope])
+    rescue
+      head :internal_server_error
+    end
   end
 end
