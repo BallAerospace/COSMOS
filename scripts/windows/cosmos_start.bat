@@ -8,6 +8,8 @@ docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "s
 
 docker network inspect cosmos || docker network create cosmos || exit /b
 
+docker build -f cosmos-ruby\Dockerfile -t cosmos-ruby cosmos-ruby || exit /b
+docker build -f cosmos-node\Dockerfile -t cosmos-node cosmos-node || exit /b
 docker build -f cosmos/Dockerfile -t cosmos-base cosmos || exit /b
 
 docker container rm cosmos-gems
