@@ -54,7 +54,7 @@ module Cosmos
 
     # Called by the PluginsController to parse the plugin variables
     # Doesn't actaully create the plugin during the phase
-    def self.install_phase1(gem_file_path, existing_variables, scope:)
+    def self.install_phase1(gem_file_path, existing_variables = nil, scope:)
       gem_filename = File.basename(gem_file_path)
 
       # Load gem to internal gem server
