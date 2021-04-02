@@ -22,9 +22,6 @@ require 'cosmos/models/tool_model'
 
 module Cosmos
   describe ToolModel do
-    DEFAULT_APPS = ["CmdTlmServer", "Command Sender", "Data Extractor", "Limits Monitor",
-      "Packet Viewer", "Script Runner", "Telemetry Grapher", "Telemetry Viewer", "Data Viewer"]
-
     before(:each) do
       mock_redis()
     end
@@ -42,14 +39,6 @@ module Cosmos
     end
 
     describe "self.names" do
-      it "returns default tool names" do
-        # Try two different scopes
-        names = ToolModel.names(scope: "DEFAULT")
-        expect(names).to contain_exactly(*DEFAULT_APPS)
-        names = ToolModel.names(scope: "OTHER")
-        expect(names).to contain_exactly(*DEFAULT_APPS)
-      end
-
       it "returns all tool names" do
         model = ToolModel.new(folder_name: "TEST", name: "TEST", scope: "DEFAULT")
         model.create
@@ -58,9 +47,9 @@ module Cosmos
         model = ToolModel.new(folder_name: "OTHER", name: "OTHER", scope: "OTHER")
         model.create
         names = ToolModel.names(scope: "DEFAULT")
-        expect(names).to contain_exactly(*DEFAULT_APPS, "TEST", "SPEC")
+        expect(names).to contain_exactly("TEST", "SPEC")
         names = ToolModel.names(scope: "OTHER")
-        expect(names).to contain_exactly(*DEFAULT_APPS, "OTHER")
+        expect(names).to contain_exactly("OTHER")
       end
     end
 
@@ -71,7 +60,7 @@ module Cosmos
         model = ToolModel.new(folder_name: "SPEC", name: "SPEC", scope: "DEFAULT")
         model.create
         all = ToolModel.all(scope: "DEFAULT")
-        expect(all.keys).to contain_exactly(*DEFAULT_APPS, "TEST", "SPEC")
+        expect(all.keys).to contain_exactly("TEST", "SPEC")
       end
     end
 
@@ -88,42 +77,36 @@ module Cosmos
 
     describe "self.set_position" do
       it "reorders the tools" do
-        # Create a few new tool models
-        model = ToolModel.new(folder_name: "TEST", name: "TEST", scope: "DEFAULT")
+        # Create a few tool models
+        model = ToolModel.new(folder_name: "TEST", name: "TEST0", scope: "DEFAULT")
         model.create
-        # Verify the new position is at the end
-        expect(model.position).to eql DEFAULT_APPS.length
+        expect(model.position).to eql 0
+        model = ToolModel.new(folder_name: "TEST", name: "TEST1", scope: "DEFAULT")
+        model.create
+        expect(model.position).to eql 1
         model = ToolModel.new(folder_name: "TEST", name: "TEST2", scope: "DEFAULT")
         model.create
-        # Verify the new position is at the end
-        expect(model.position).to eql DEFAULT_APPS.length + 1
+        expect(model.position).to eql 2
 
-        # Verify CmdTlmServer is currently 0 (first)
-        server = ToolModel.get(name: "CmdTlmServer", scope: "DEFAULT")
-        expect(server['position']).to eq 0
-
-        # Move TEST to the beginning
-        ToolModel.set_position(name: "TEST", position: 0, scope: "DEFAULT")
-        model = ToolModel.get(name: "TEST", scope: "DEFAULT")
+        # Move TEST1 to the beginning
+        ToolModel.set_position(name: "TEST1", position: 0, scope: "DEFAULT")
+        model = ToolModel.get(name: "TEST1", scope: "DEFAULT")
         # The tool gets moved to the 0 position
         expect(model['position']).to eql 0
-        # CmdTlmServer is moved to 1
-        server = ToolModel.get(name: "CmdTlmServer", scope: "DEFAULT")
+        # TEST0 is moved to 1
+        server = ToolModel.get(name: "TEST0", scope: "DEFAULT")
         expect(server['position']).to eql 1
         # TEST2 doesn't change
         model = ToolModel.get(name: "TEST2", scope: "DEFAULT")
-        expect(model['position']).to eql DEFAULT_APPS.length + 1
+        expect(model['position']).to eql 2
 
-        # Move TEST to the end
-        ToolModel.set_position(name: "TEST", position: DEFAULT_APPS.length + 1, scope: "DEFAULT")
-        model = ToolModel.get(name: "TEST", scope: "DEFAULT")
-        expect(model['position']).to eql DEFAULT_APPS.length + 1
-        # CmdTlmServer is now 0
-        server = ToolModel.get(name: "CmdTlmServer", scope: "DEFAULT")
-        expect(server['position']).to eql 0
-        # TEST2 moves down
+        # Move TEST0 to the end (currently in the middle)
+        ToolModel.set_position(name: "TEST0", position: 2, scope: "DEFAULT")
+        model = ToolModel.get(name: "TEST0", scope: "DEFAULT")
+        expect(model['position']).to eql 2
+        # TEST2 moves up
         model = ToolModel.get(name: "TEST2", scope: "DEFAULT")
-        expect(model['position']).to eql DEFAULT_APPS.length
+        expect(model['position']).to eql 1
       end
     end
 

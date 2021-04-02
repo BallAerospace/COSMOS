@@ -72,10 +72,12 @@ $cosmos_scope = 'DEFAULT'
 $cosmos_token = nil
 
 def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
-  require 'cosmos/system'
-  dir = File.join(__dir__, 'install', 'config', 'targets')
-  Cosmos::System.class_variable_set(:@@instance, nil)
-  Cosmos::System.instance(targets, dir)
+  capture_io do |stdout|
+    require 'cosmos/system'
+    dir = File.join(__dir__, 'install', 'config', 'targets')
+    Cosmos::System.class_variable_set(:@@instance, nil)
+    Cosmos::System.instance(targets, dir)
+  end
 end
 
 def get_all_redis_keys
@@ -90,15 +92,17 @@ def get_all_redis_keys
   keys
 end
 
-require 'mock_redis'
-class MockRedis
-  module StreamMethods
-    private
+Cosmos.disable_warnings do
+  require 'mock_redis'
+  class MockRedis
+    module StreamMethods
+      private
 
-    def with_stream_at(key, &blk)
-      @mutex ||= Mutex.new
-      @mutex.synchronize do
-        with_thing_at(key, :assert_streamy, proc { Stream.new }, &blk)
+      def with_stream_at(key, &blk)
+        @mutex ||= Mutex.new
+        @mutex.synchronize do
+          with_thing_at(key, :assert_streamy, proc { Stream.new }, &blk)
+        end
       end
     end
   end

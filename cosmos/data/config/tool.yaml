@@ -19,6 +19,14 @@ TOOL:
           required: true
           description: URL
           values: .*
+    INLINE_URL:
+      summary: Single SPA url to reach the tool
+      example: js/app.js
+      parameters:
+        - name: URL
+          required: true
+          description: URL
+          values: .*
     ICON:
       summary: Icon used to display the tool link
       parameters:

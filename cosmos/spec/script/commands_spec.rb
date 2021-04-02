@@ -42,43 +42,45 @@ module Cosmos
     end
 
     before(:each) do
-      redis = mock_redis()
-      setup_system()
-      @api = ApiTest.new
-      # Mock the server proxy to directly call the api
-      allow(ServerProxy).to receive(:new).and_return(@api)
+      capture_io do |stdout|
+        redis = mock_redis()
+        setup_system()
+        @api = ApiTest.new
+        # Mock the server proxy to directly call the api
+        allow(ServerProxy).to receive(:new).and_return(@api)
 
-      model = TargetModel.new(folder_name: 'INST', name: 'INST', scope: "DEFAULT")
-      model.create
-      model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
-      model = InterfaceModel.new(name: "INST_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
-      model.create
-      model = InterfaceStatusModel.new(name: "INST_INT", scope: "DEFAULT", state: "ACTIVE")
-      model.create
+        model = TargetModel.new(folder_name: 'INST', name: 'INST', scope: "DEFAULT")
+        model.create
+        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
+        model = InterfaceModel.new(name: "INST_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
+        model.create
+        model = InterfaceStatusModel.new(name: "INST_INT", scope: "DEFAULT", state: "ACTIVE")
+        model.create
 
-      # Create an Interface we can use in the InterfaceCmdHandlerThread
-      # It has to have a valid list of target_names as that is what 'receive_commands'
-      # in the Store uses to determine which topics to read
-      interface = Interface.new
-      interface.name = "INST_INT"
-      interface.target_names = %w[INST]
-      # Stub to make the InterfaceCmdHandlerThread happy
-      @interface_data = ''
-      allow(interface).to receive(:connected?).and_return(true)
-      allow(interface).to receive(:write_interface) { |data| @interface_data = data }
-      @thread = InterfaceCmdHandlerThread.new(interface, nil, scope: 'DEFAULT')
-      @process = true # Allow the command to be processed or not
-      @int_thread = Thread.new { @thread.run }
-      sleep 0.01 # Allow thread to start
+        # Create an Interface we can use in the InterfaceCmdHandlerThread
+        # It has to have a valid list of target_names as that is what 'receive_commands'
+        # in the Store uses to determine which topics to read
+        interface = Interface.new
+        interface.name = "INST_INT"
+        interface.target_names = %w[INST]
+        # Stub to make the InterfaceCmdHandlerThread happy
+        @interface_data = ''
+        allow(interface).to receive(:connected?).and_return(true)
+        allow(interface).to receive(:write_interface) { |data| @interface_data = data }
+        @thread = InterfaceCmdHandlerThread.new(interface, nil, scope: 'DEFAULT')
+        @process = true # Allow the command to be processed or not
+        @int_thread = Thread.new { @thread.run }
+        sleep 0.01 # Allow thread to start
 
-      allow(redis).to receive(:xread).and_wrap_original do |m, *args|
-        # Only use the first two arguments as the last argument is keyword block:
-        result = m.call(*args[0..1]) if @process
-        # Create a slight delay to simulate the blocking call
-        sleep 0.001 if result and result.length == 0
-        result
+        allow(redis).to receive(:xread).and_wrap_original do |m, *args|
+          # Only use the first two arguments as the last argument is keyword block:
+          result = m.call(*args[0..1]) if @process
+          # Create a slight delay to simulate the blocking call
+          sleep 0.001 if result and result.length == 0
+          result
+        end
+        initialize_script()
       end
-      initialize_script()
     end
 
     after(:each) do
@@ -106,10 +108,10 @@ module Cosmos
           it "sends a command" do
             capture_io do |stdout|
               cmd("INST ABORT")
-              expect(stdout.string).to match(/#{@prefix}cmd\(\"INST ABORT\"\)/) #"
+              expect(stdout.string).to match(/#{@prefix}cmd\(\\\"INST ABORT\\\"\)/) #"
               stdout.rewind
               cmd("INST", "ABORT")
-              expect(stdout.string).to match(/#{@prefix}cmd\(\"INST ABORT\"\)/) #"
+              expect(stdout.string).to match(/#{@prefix}cmd\(\\\"INST ABORT\\\"\)/) #"
             end
           end
 
@@ -131,7 +133,7 @@ module Cosmos
             capture_io do |stdout|
               expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
               cmd("INST COLLECT with TYPE SPECIAL")
-              expect(stdout.string).to match(/#{@prefix}cmd\(\"INST COLLECT/) #"
+              expect(stdout.string).to match(/#{@prefix}cmd\(\\\"INST COLLECT/) #"
               if connect == 'connected'
                 expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
                 expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
@@ -141,7 +143,7 @@ module Cosmos
                 expect(self).to receive(:gets) { 'n' } # Don't send hazardous
                 expect(self).to receive(:gets) { 'y' } # Stop running script
                 cmd("INST COLLECT with TYPE SPECIAL")
-                expect(stdout.string).to match(/#{@prefix}cmd\(\"INST COLLECT/) #"
+                expect(stdout.string).to match(/#{@prefix}cmd\(\\\"INST COLLECT/) #"
                 expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
               else
                 expect(stdout.string).to_not match("Warning")
@@ -160,7 +162,7 @@ module Cosmos
               expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
               cmd_no_range_check("INST COLLECT with TYPE SPECIAL")
 
-              expect(stdout.string).to match(/#{@prefix}cmd\(\"INST COLLECT/) #"
+              expect(stdout.string).to match(/#{@prefix}cmd\(\\\"INST COLLECT/) #"
               if connect == 'connected'
                 expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
                 expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
@@ -193,7 +195,7 @@ module Cosmos
             capture_io do |stdout|
               cmd_no_hazardous_check("INST COLLECT with TYPE SPECIAL")
 
-              expect(stdout.string).to match(/#{@prefix}cmd\(\"INST COLLECT/) #"
+              expect(stdout.string).to match(/#{@prefix}cmd\(\\\"INST COLLECT/) #"
               expect(stdout.string).to_not match("Warning: Command INST COLLECT is Hazardous")
               expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
               expect(stdout.string).to match("Command INST COLLECT being sent ignoring hazardous warnings")
@@ -206,7 +208,7 @@ module Cosmos
             capture_io do |stdout|
               cmd_no_checks("INST COLLECT with TYPE SPECIAL, DURATION 20")
 
-              expect(stdout.string).to match(/#{@prefix}cmd\(\"INST COLLECT/) #"
+              expect(stdout.string).to match(/#{@prefix}cmd\(\\\"INST COLLECT/) #"
               expect(stdout.string).to_not match("Warning: Command INST COLLECT is Hazardous")
               expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
               expect(stdout.string).to match("Command INST COLLECT being sent ignoring hazardous warnings")
@@ -218,7 +220,7 @@ module Cosmos
           it "sends a command" do
             capture_io do |stdout|
               cmd_raw("INST ABORT")
-              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\"INST ABORT\"\)/) #"
+              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\\\"INST ABORT\\\"\)/) #"
             end
           end
 
@@ -237,7 +239,7 @@ module Cosmos
               expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
               cmd_raw("INST COLLECT with TYPE 1")
 
-              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\"INST COLLECT/) #"
+              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\\\"INST COLLECT/) #"
               if connect == 'connected'
                 expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
                 expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
@@ -264,7 +266,7 @@ module Cosmos
               expect(self).to receive(:gets) { 'y' } if connect == 'connected' # Send hazardous command
               cmd_raw_no_range_check("INST COLLECT with TYPE 1")
 
-              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\"INST COLLECT/) #"
+              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\\\"INST COLLECT/) #"
               if connect == 'connected'
                 expect(stdout.string).to match("Warning: Command INST COLLECT is Hazardous")
                 expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
@@ -295,7 +297,7 @@ module Cosmos
           it "sends a hazardous command without prompting" do
             capture_io do |stdout|
               cmd_raw_no_hazardous_check("INST COLLECT with TYPE 1")
-              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\"INST COLLECT/) #"
+              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\\\"INST COLLECT/) #"
               expect(stdout.string).to_not match("Warning: Command INST COLLECT is Hazardous")
               expect(stdout.string).to_not match("Command INST COLLECT being sent ignoring range checks")
               expect(stdout.string).to match("Command INST COLLECT being sent ignoring hazardous warnings")
@@ -307,7 +309,7 @@ module Cosmos
           it "sends an out of range hazardous command without prompting" do
             capture_io do |stdout|
               cmd_raw_no_checks("INST COLLECT with TYPE 1, DURATION 20")
-              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\"INST COLLECT/) #"
+              expect(stdout.string).to match(/#{@prefix}cmd_raw\(\\\"INST COLLECT/) #"
               expect(stdout.string).to_not match("Warning: Command INST COLLECT is Hazardous")
               expect(stdout.string).to match("Command INST COLLECT being sent ignoring range checks")
               expect(stdout.string).to match("Command INST COLLECT being sent ignoring hazardous warnings")
