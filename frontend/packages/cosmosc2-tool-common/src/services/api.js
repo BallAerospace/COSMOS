@@ -43,6 +43,10 @@ export default {
     return request('get', path, null, params)
   },
 
+  put: function (path, data, params) {
+    return request('put', path, data, params)
+  },
+
   post: function (path, data, params) {
     return request('post', path, data, params)
   },

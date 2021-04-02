@@ -23,6 +23,7 @@ require 'cosmos/models/plugin_model'
 class PluginsController < ModelController
   def initialize
     @model_class = Cosmos::PluginModel
+    @variables = nil
   end
 
   # Add a new plugin
@@ -34,7 +35,7 @@ class PluginsController < ModelController
       begin
         gem_file_path = temp_dir + '/' + file.original_filename
         FileUtils.cp(file.tempfile.path, gem_file_path)
-        render :json => Cosmos::PluginModel.install_phase1(gem_file_path, scope: params[:scope])
+        render :json => Cosmos::PluginModel.install_phase1(gem_file_path, @variables, scope: params[:scope])
       rescue
         head :internal_server_error
       ensure
@@ -45,8 +46,20 @@ class PluginsController < ModelController
     end
   end
 
+  def update
+    # Grab the existing plugin we're updating so we can display existing variables
+    @variables = @model_class.get(name: params[:id], scope: params[:scope])['variables']
+    destroy()
+    create()
+    @variables = nil
+  end
+
   def install
     authorize(permission: 'admin', scope: params[:scope], token: params[:token])
-    render :json => Cosmos::PluginModel.install_phase2(params[:id], JSON.parse(params[:variables]), scope: params[:scope])
+    begin
+      render :json => Cosmos::PluginModel.install_phase2(params[:id], JSON.parse(params[:variables]), scope: params[:scope])
+    rescue
+      head :internal_server_error
+    end
   end
 end
