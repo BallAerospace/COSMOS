@@ -32,6 +32,15 @@ module Cosmos
       Logger.microservice_name = 'MicroserviceOperator'
       super
 
+      rubys3_client = Aws::S3::Client.new
+
+      # Ensure config bucket exists
+      begin
+        rubys3_client.head_bucket(bucket: 'config')
+      rescue Aws::S3::Errors::NotFound
+        rubys3_client.create_bucket(bucket: 'config')
+      end
+
       @microservices = {}
       @previous_microservices = {}
       @new_microservices = {}
