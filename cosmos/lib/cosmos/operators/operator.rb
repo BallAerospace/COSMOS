@@ -103,6 +103,7 @@ module Cosmos
 
     def initialize
       Logger.level = Logger::INFO
+      # TODO: This is pretty generic. Can we pass in more information to help identify the operator?
       Logger.microservice_name = 'MicroserviceOperator'
       Logger.tag = "operator.log"
 
