@@ -1,6 +1,6 @@
 # Install
 
-This document describes how to install Cosmos using the cosmos_control and scripts directory.
+This document describes how to install Cosmos using the cosmos-control and scripts directory.
 
 - [Requirements](#Requirements)
 - [Setup](#Setup)
@@ -25,7 +25,7 @@ To build you can use an environment variable `SSL_CERT_FILE` or it will default 
 ### Windows
 
 ```
-C:\COSMOS>cosmos_control.bat setup
+C:\COSMOS>cosmos-control.bat setup
 ```
 
 ### Linux
@@ -33,7 +33,7 @@ C:\COSMOS>cosmos_control.bat setup
 ```
 $ pwd
 /COSMOS/
-$ cosmos_control.sh setup
+$ cosmos-control.sh setup
 ```
 
 ## Start
@@ -43,7 +43,7 @@ This will run the setup to make sure it has been run. It will build and run the 
 ### Windows
 
 ```
-C:\COSMOS>cosmos_control.bat start
+C:\COSMOS>cosmos-control.bat start
 ```
 
 ### Linux
@@ -51,7 +51,7 @@ C:\COSMOS>cosmos_control.bat start
 ```
 $ pwd
 /COSMOS/
-$ cosmos_control.sh start
+$ cosmos-control.sh start
 ```
 
 ## Stop
@@ -61,7 +61,7 @@ This will safely stop all cosmos containers and disconnect from all targets. Thi
 ### Windows
 
 ```
-C:\COSMOS>cosmos_control.bat stop
+C:\COSMOS>cosmos-control.bat stop
 ```
 
 ### Linux
@@ -69,7 +69,7 @@ C:\COSMOS>cosmos_control.bat stop
 ```
 $ pwd
 /COSMOS/
-$ cosmos_control.sh stop
+$ cosmos-control.sh stop
 ```
 
 ## Cleanup
@@ -79,7 +79,7 @@ Note this is destructive and if successful **ALL** stored commands and telemetry
 ### Windows
 
 ```
-C:\COSMOS>cosmos_control.bat cleanup
+C:\COSMOS>cosmos-control.bat cleanup
 ```
 
 ### Linux
@@ -87,7 +87,7 @@ C:\COSMOS>cosmos_control.bat cleanup
 ```
 $ pwd
 /COSMOS/
-$ cosmos_control.sh cleanup
+$ cosmos-control.sh cleanup
 ```
 
 ## Build
@@ -97,7 +97,7 @@ This will build all new containers. If cosmos is being used you will have to sto
 ### Windows
 
 ```
-C:\COSMOS>cosmos_control.bat build
+C:\COSMOS>cosmos-control.bat build
 ```
 
 ### Linux
@@ -105,7 +105,7 @@ C:\COSMOS>cosmos_control.bat build
 ```
 $ pwd
 /COSMOS/
-$ cosmos_control.sh build
+$ cosmos-control.sh build
 ```
 
 ## Deploy
@@ -115,7 +115,7 @@ Deploy built docker containers into a local docker repository.
 ### Windows
 
 ```
-C:\COSMOS>cosmos_control.bat deploy
+C:\COSMOS>cosmos-control.bat deploy
 ```
 
 ### Linux
@@ -123,7 +123,7 @@ C:\COSMOS>cosmos_control.bat deploy
 ```
 $ pwd
 /COSMOS/
-$ cosmos_control.sh deploy
+$ cosmos-control.sh deploy
 ```
 
 ## Start_Dev
@@ -133,7 +133,7 @@ This will run setup and start Cosmos but also build and run fluentd, opendistro 
 ### Windows
 
 ```
-> C:\COSMOS>cosmos_control.bat start_dev
+> C:\COSMOS>cosmos-control.bat start_dev
 ```
 
 ### Linux
@@ -141,7 +141,7 @@ This will run setup and start Cosmos but also build and run fluentd, opendistro 
 ```
 $ pwd
 /COSMOS/
-$ cosmos_control.sh start_dev
+$ cosmos-control.sh start_dev
 ```
 
 ## Build_Dev
@@ -151,7 +151,7 @@ This will setup and build Cosmos but also build fluentd, opendistro elastic, ope
 ### Windows
 
 ```
-> C:\COSMOS>cosmos_control.bat build_dev
+> C:\COSMOS>cosmos-control.bat build_dev
 ```
 
 ### Linux
@@ -159,6 +159,6 @@ This will setup and build Cosmos but also build fluentd, opendistro elastic, ope
 ```
 $ pwd
 /COSMOS/
-$ cosmos_control.sh build_dev
+$ cosmos-control.sh build_dev
 ```
 

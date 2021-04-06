@@ -15,12 +15,15 @@ packageBuild() {
 }
 
 packageInstall() {
-  echo "--- packageInstall $1"
+  echo "<<< packageInstall $1"
   cd ${PLUGINS}/${1}/
+  echo "--- packageInstall $1 npm install"
   npm install --silent
   echo "--- packageInstall $1 npm install complete"
+  echo "--- packageInstall $1 npm build"
   npm run --silent build
   echo "--- packageInstall $1 npm run build complete"
+  echo "--- packageInstall $1 rake build"
   rake build VERSION=${RVERSION}
   echo "--- packageInstall $1 rake build complete"
 }
