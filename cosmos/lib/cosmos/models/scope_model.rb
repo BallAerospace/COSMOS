@@ -65,10 +65,29 @@ module Cosmos
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"
+
+      # Notification Log Microservice
+      microservice_name = "#{@scope}__NOTIFICATION__LOG"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        cmd: ["ruby", "text_log_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        options: [
+          # The following options are optional (600 and 50_000_000 are the defaults)
+          ["CYCLE_TIME", "3600"], # Keep at most 1 hour per log
+          # ["CYCLE_SIZE", "50_000_000"] # Keep at most ~50MB per log
+        ],
+        topics: ["#{@scope}__cosmos_notifications"],
+        scope: @scope)
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
     end
 
     def undeploy
-      model = MicroserviceModel.get_model(name: "#{@scope}__CLEANUP", scope: @scope)
+      model = MicroserviceModel.get_model(name: "#{@scope}__CLEANUP__S3", scope: @scope)
+      model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__NOTIFICATION__LOG", scope: @scope)
       model.destroy if model
     end
   end
