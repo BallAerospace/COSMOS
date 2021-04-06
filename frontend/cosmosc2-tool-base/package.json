@@ -35,7 +35,7 @@
 		"vuetify-loader": "^1.6.0",
 		"webpack": "^5.21.2",
 		"webpack-cli": "^4.5.0",
-		"webpack-config-single-spa": "^2.0.0-beta.1",
+		"webpack-config-single-spa": "2.1.1",
 		"webpack-dev-server": "^4.0.0-beta.0",
 		"webpack-merge": "^5.7.3"
 	},
