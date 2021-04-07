@@ -42,6 +42,7 @@ require 'cosmos/interfaces'
 require 'cosmos/processors'
 require 'cosmos/packets/packet'
 require 'cosmos/packet_logs'
+require 'cosmos/text_logs'
 require 'cosmos/system'
 
 # COSMOS services need to die if something goes wrong so they can be restarted
