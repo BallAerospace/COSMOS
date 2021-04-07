@@ -2,9 +2,8 @@
 
 REM If necessary, before running please copy a local certificate authority .pem file as cacert.pem to this folder
 REM This will allow docker to work through local SSL infrastructure such as decryption devices
-if not exist cacert.pem (
+if not exist cosmos-ruby\cacert.pem (
   if DEFINED SSL_CERT_FILE (
-    copy %SSL_CERT_FILE% cacert.pem
     copy %SSL_CERT_FILE% cosmos-ruby\cacert.pem
     echo Using %SSL_CERT_FILE% as cacert.pem
   ) else (

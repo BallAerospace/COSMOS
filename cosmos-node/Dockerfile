@@ -15,4 +15,5 @@ RUN apt-get update -y && apt-get install -y \
   libnss3 \
   libxss1 \
   libasound2 \
-  xvfb
+  xvfb && \
+  npm i -g npm

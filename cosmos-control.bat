@@ -21,12 +21,6 @@ if "%1" == "cleanup" (
 if "%1" == "setup" (
   GOTO setup
 )
-if "%1" == "start_dev" (
-  GOTO start_dev
-)
-if "%1" == "build_dev" (
-  GOTO build_dev
-)
 GOTO usage
 
 :setup

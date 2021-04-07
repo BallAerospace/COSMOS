@@ -14,7 +14,7 @@ docker build -f cosmos/Dockerfile -t cosmos-base cosmos || exit /b
 
 docker container rm cosmos-gems
 docker volume create cosmos-gems-v || exit /b
-docker build -f geminabox\Dockerfile -t cosmos-gems geminabox || exit /b
+docker build -f cosmos-gems\Dockerfile -t cosmos-gems cosmos-gems || exit /b
 docker run --network cosmos -p 127.0.0.1:9292:9292 -d --name cosmos-gems -v cosmos-gems-v:/data cosmos-gems || exit /b
 
 @echo off
@@ -62,25 +62,25 @@ docker run --network cosmos -p 127.0.0.1:9000:9000 -d --name cosmos-minio -v cos
 timeout 30 >nul
 
 docker container rm cosmos-cmd-tlm-api
-docker build -f cmd_tlm_api\Dockerfile -t cosmos-cmd-tlm-api cmd_tlm_api || exit /b
+docker build -f cosmos-cmd-tlm-api\Dockerfile -t cosmos-cmd-tlm-api cosmos-cmd-tlm-api || exit /b
 docker run --network cosmos -p 127.0.0.1:2901:2901 -d --name cosmos-cmd-tlm-api cosmos-cmd-tlm-api || exit /b
 
 docker container rm cosmos-script-runner-api
-docker build -f script_runner_api\Dockerfile -t cosmos-script-runner-api script_runner_api || exit /b
+docker build -f cosmos-script-runner-api\Dockerfile -t cosmos-script-runner-api cosmos-script-runner-api || exit /b
 docker run --network cosmos -p 127.0.0.1:2902:2902 -d --name cosmos-script-runner-api cosmos-script-runner-api || exit /b
 
 docker container rm cosmos-operator
-docker build -f operator\Dockerfile -t cosmos-operator operator || exit /b
+docker build -f cosmos-operator\Dockerfile -t cosmos-operator cosmos-operator || exit /b
 docker run --network cosmos -d --name cosmos-operator cosmos-operator || exit /b
 
 docker container rm cosmos-traefik
 docker build -f traefik\Dockerfile -t cosmos-traefik traefik || exit /b
 docker run --network cosmos -p 127.0.0.1:2900:80 -d --name cosmos-traefik cosmos-traefik || exit /b
 
-docker build -f frontend\Dockerfile -t cosmos-frontend-init frontend || exit /b
+docker build -f cosmos-frontend-init\Dockerfile -t cosmos-frontend-init cosmos-frontend-init || exit /b
 docker run --network cosmos --name cosmos-frontend-init --rm cosmos-frontend-init || exit /b
 
-docker build -f init\Dockerfile -t cosmos-init init || exit /b
+docker build -f cosmos-init\Dockerfile -t cosmos-init cosmos-init || exit /b
 docker run --network cosmos --name cosmos-init --rm cosmos-init || exit /b
 
 REM If everything is working you should be able to access Cosmos at http://localhost:2900/
