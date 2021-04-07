@@ -1,7 +1,7 @@
 development:
   adapter: redis
   url: <%= ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0') %>
-  channel_prefix: cmd_tlm_api
+  channel_prefix: cosmos-api
 
 test:
   adapter: test
@@ -9,4 +9,4 @@ test:
 production:
   adapter: redis
   url: <%= ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0') %>
-  channel_prefix: cmd_tlm_api
+  channel_prefix: cosmos-api
