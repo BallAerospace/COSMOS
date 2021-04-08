@@ -62,8 +62,7 @@ module Cosmos
       @response_data = ""
       @hostname = hostname
       @port = port
-      # TODO: Make /cosmos-api/api a parameter to support other use-cases
-      @uri = URI("http://#{@hostname}:#{@port}/cosmos-api/api")
+      @uri = URI("http://#{@hostname}:#{@port}/api")
       @http = nil
       @mutex = Mutex.new
       @id = 0
