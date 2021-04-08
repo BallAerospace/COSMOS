@@ -6,9 +6,13 @@
   ],
   "settings": {
     "vetur.validation.template": false,
-    "eslint.validate": ["vue", "html", "javascript"],
+    "eslint.validate": [
+      "vue",
+      "html",
+      "javascript"
+    ],
     "eslint.workingDirectories": [
-      "./frontend"
+      "./cosmos-frontend-init"
     ],
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
