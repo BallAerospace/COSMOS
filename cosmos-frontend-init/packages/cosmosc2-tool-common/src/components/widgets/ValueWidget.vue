@@ -18,7 +18,7 @@
 -->
 
 <template>
-  <div>
+  <div class="value-widget-container">
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
         <v-text-field
@@ -86,6 +86,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.value-widget-container {
+  min-height: 34px;
+}
 .value ::v-deep div {
   min-height: 24px !important;
   display: flex !important;
