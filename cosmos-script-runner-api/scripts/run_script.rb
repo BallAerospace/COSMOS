@@ -37,7 +37,7 @@ path = File.join(Script::DEFAULT_BUCKET_NAME, scope, 'targets', name)
 def run_script_log(id, message, color = 'BLACK')
   line_to_write = Time.now.sys.formatted + " (SCRIPTRUNNER): " + message
   RunningScript.message_log.write(line_to_write + "\n", true)
-  Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: color }))
+  Cosmos::Store.publish(["script-api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: color }))
 end
 
 run_script_log(id, "Script #{path} spawned in #{startup_time} seconds")
@@ -64,7 +64,7 @@ begin
   # scenes in ActionCable. Throughout the rest of the code we use ActionCable to broadcast
   #   e.g. ActionCable.server.broadcast("running-script-channel:#{@id}", ...)
   redis = Cosmos::Store.instance.build_redis
-  redis.subscribe(["script_runner_api", "cmd-running-script-channel:#{id}"].compact.join(":")) do |on|
+  redis.subscribe(["script-api", "cmd-running-script-channel:#{id}"].compact.join(":")) do |on|
     on.message do |channel, msg|
       parsed_cmd = JSON.parse(msg)
       run_script_log(id, "Script #{path} received command: #{msg}") unless parsed_cmd == "shutdown" or parsed_cmd["method"]
@@ -96,7 +96,7 @@ begin
               running_script.continue if running_script.user_input != 'Cancel'
             end
           when "backtrace"
-            Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :script, method: :backtrace, args: running_script.current_backtrace }))
+            Cosmos::Store.publish(["script-api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :script, method: :backtrace, args: running_script.current_backtrace }))
           when "debug"
             run_script_log(id, "DEBUG: #{parsed_cmd["args"]}") # Log what we were passed
             running_script.debug(parsed_cmd["args"]) # debug() logs the output of the command
@@ -124,7 +124,7 @@ ensure
         break
       end
     end
-    Cosmos::Store.publish(["script_runner_api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :complete }))
+    Cosmos::Store.publish(["script-api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :complete }))
   ensure
     running_script.stop_message_log if running_script
   end
