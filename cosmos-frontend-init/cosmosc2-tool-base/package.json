@@ -7,6 +7,16 @@
 		"format": "prettier --write \"./**\"",
 		"build": "webpack --mode=production"
 	},
+	"dependencies": {
+		"@astrouxds/rux-clock": "5.0.2",
+		"@astrouxds/rux-global-status-bar": "5.0.0",
+		"actioncable": "5.2.5",
+		"axios": "0.21.1",
+		"date-fns": "2.19.0",
+		"single-spa": "5.9.2",
+		"vue": "2.6.12",
+		"vuetify": "2.4.9"
+	},
 	"devDependencies": {
 		"@babel/core": "^7.12.16",
 		"@babel/plugin-transform-runtime": "^7.12.15",
@@ -38,12 +48,5 @@
 		"webpack-config-single-spa": "2.1.1",
 		"webpack-dev-server": "^4.0.0-beta.0",
 		"webpack-merge": "^5.7.3"
-	},
-	"dependencies": {
-		"axios": "^0.21.1",
-		"npm": "^7.5.4",
-		"single-spa": "^5.9.1",
-		"vue": "^2.6.12",
-		"vuetify": "^2.3.21"
 	}
 }
