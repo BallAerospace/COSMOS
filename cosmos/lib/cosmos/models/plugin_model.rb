@@ -155,7 +155,7 @@ module Cosmos
         end
       rescue => err
         # Install failed - need to cleanup
-        plugin_model.undeploy
+        plugin_model.destroy
         raise err
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
