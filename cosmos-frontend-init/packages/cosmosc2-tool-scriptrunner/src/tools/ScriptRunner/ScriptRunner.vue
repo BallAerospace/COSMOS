@@ -844,7 +844,8 @@ export default {
     // Called by the FileOpenDialog to set the file contents
     setFile(file) {
       this.suiteRunner = false
-      this.filename = file.name
+      // Split off the ' *' which indicates a file is modified on the server
+      this.filename = file.name.split(' ')[0]
       this.editor.session.setValue(file.contents)
       this.fileModified = ''
       if (file.suites) {
