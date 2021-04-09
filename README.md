@@ -1,5 +1,8 @@
 ## Welcome to Ball Aerospace COSMOS
 
+**Note**: The `master/main` branch may be in an *unstable or even broken state* during development.
+Please use [releases] instead of the `master/main` branch in order to get stable builds.
+
 > "The User Interface for Embedded Systems"
 
 [Documentation](http://cosmosrb.com)

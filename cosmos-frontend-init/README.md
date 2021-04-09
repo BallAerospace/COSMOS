@@ -58,5 +58,5 @@ NOTE: All commands are assumed to be executed from this (frontend) directory
 
 1.  Run a local copy of the API server
 
-        frontend> cd ../cmd_tlm_api
-        cmd_tlm_api> rails s
+        cosmos-frontend-init> cd ../cosmos-cmd-tlm-api
+        cosmos-cmd-tlm-api> rails s

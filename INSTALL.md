@@ -9,8 +9,12 @@ This document describes how to install Cosmos using the cosmos-control and scrip
 - [Cleanup](#Cleanup)
 - [Build](#Build)
 - [Deploy](#Deploy)
-- [Start Dev](#Start_Dev)
-- [Build Dev](#Build_Dev)
+
+## Optional Arguments
+
+The most commands can also take arguments. The current argument options when running are listed.
+
+- **dev**: Will download, build and run fluentd, opendistro elastic, opendistro kibana, prometheus, grafana. The memory footprint of these containers can cause some computers to not run Cosmos.
 
 ## Requirements
 
@@ -25,50 +29,43 @@ To build you can use an environment variable `SSL_CERT_FILE` or it will default 
 ### Windows
 
 ```
-C:\COSMOS>cosmos-control.bat setup
+>cosmos-control.bat setup
 ```
 
 ### Linux
 
 ```
-$ pwd
-/COSMOS/
 $ cosmos-control.sh setup
 ```
 
 ## Start
 
-This will run the setup to make sure it has been run. It will build and run the minimal requirements for cosmos. This will create a docker network and volumes if they do not already exist. Then run the containers.
-
+This will run the setup to make sure it has been run. It will build and run the minimal requirements for cosmos. This will create a docker network and volumes if they do not already exist. Then run the containers. 
 ### Windows
 
 ```
-C:\COSMOS>cosmos-control.bat start
+>cosmos-control.bat start 
 ```
 
 ### Linux
 
 ```
-$ pwd
-/COSMOS/
 $ cosmos-control.sh start
 ```
 
 ## Stop
 
-This will safely stop all cosmos containers and disconnect from all targets. This will **NOT** remove the docker network or volumes and thus all stored commands and telemetry are saved.
+This will safely stop all cosmos containers and disconnect from all targets. This will **NOT** remove the docker network or volumes and thus all stored commands and telemetry are saved. 
 
 ### Windows
 
 ```
-C:\COSMOS>cosmos-control.bat stop
+>cosmos-control.bat stop
 ```
 
 ### Linux
 
 ```
-$ pwd
-/COSMOS/
 $ cosmos-control.sh stop
 ```
 
@@ -79,14 +76,12 @@ Note this is destructive and if successful **ALL** stored commands and telemetry
 ### Windows
 
 ```
-C:\COSMOS>cosmos-control.bat cleanup
+>cosmos-control.bat cleanup
 ```
 
 ### Linux
 
 ```
-$ pwd
-/COSMOS/
 $ cosmos-control.sh cleanup
 ```
 
@@ -97,14 +92,12 @@ This will build all new containers. If cosmos is being used you will have to sto
 ### Windows
 
 ```
-C:\COSMOS>cosmos-control.bat build
+>cosmos-control.bat build
 ```
 
 ### Linux
 
 ```
-$ pwd
-/COSMOS/
 $ cosmos-control.sh build
 ```
 
@@ -115,50 +108,11 @@ Deploy built docker containers into a local docker repository.
 ### Windows
 
 ```
-C:\COSMOS>cosmos-control.bat deploy
+>cosmos-control.bat deploy
 ```
 
 ### Linux
 
 ```
-$ pwd
-/COSMOS/
 $ cosmos-control.sh deploy
 ```
-
-## Start_Dev
-
-This will run setup and start Cosmos but also build and run fluentd, opendistro elastic, opendistro kibana, prometheus, grafana. The memory footprint of these containers can cause some computers to not run Cosmos.
-
-### Windows
-
-```
-> C:\COSMOS>cosmos-control.bat start_dev
-```
-
-### Linux
-
-```
-$ pwd
-/COSMOS/
-$ cosmos-control.sh start_dev
-```
-
-## Build_Dev
-
-This will setup and build Cosmos but also build fluentd, opendistro elastic, opendistro kibana, prometheus, grafana.
-
-### Windows
-
-```
-> C:\COSMOS>cosmos-control.bat build_dev
-```
-
-### Linux
-
-```
-$ pwd
-/COSMOS/
-$ cosmos-control.sh build_dev
-```
-

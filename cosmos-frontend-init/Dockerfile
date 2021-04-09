@@ -24,6 +24,7 @@ RUN sh docker-build.sh
 
 FROM cosmos-base
 
-COPY --from=cosmos-frontend-tmp /cosmos/plugins/ /cosmos/plugins/
+COPY --from=cosmos-frontend-tmp /cosmos/plugins/init.sh /cosmos/plugins/init.sh
+COPY --from=cosmos-frontend-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
 
 CMD [ "/cosmos/plugins/init.sh" ]
