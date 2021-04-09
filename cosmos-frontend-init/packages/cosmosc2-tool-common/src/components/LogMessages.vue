@@ -69,7 +69,7 @@ export default {
   props: {
     history_count: {
       type: Number,
-      default: 1000,
+      default: 100,
     },
   },
   data() {
@@ -97,12 +97,13 @@ export default {
       {
         received: (data) => {
           let messages = JSON.parse(data)
-          for (let i = 0; i < messages.length; i++) {
-            messages[i]['timestamp'] = this.formatDate(
-              messages[i]['@timestamp']
-            )
-            this.data.unshift(messages[i])
+          if (messages.length > this.history_count) {
+            messages.splice(0, messages.length - this.history_count)
           }
+          messages.forEach((message) => {
+            message.timestamp = this.formatDate(message['@timestamp'])
+          })
+          this.data = messages.reverse().concat(this.data)
           if (this.data.length > this.history_count) {
             this.data.length = this.history_count
           }
