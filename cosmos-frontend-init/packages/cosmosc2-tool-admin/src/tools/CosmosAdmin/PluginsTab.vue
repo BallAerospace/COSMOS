@@ -19,6 +19,13 @@
 
 <template>
   <div>
+    <v-alert
+      :type="alertType"
+      v-model="showAlert"
+      dismissible
+      transition="scale-transition"
+      >{{ alert }}</v-alert
+    >
     <v-row no-gutters align="center">
       <v-col cols="4">
         <v-file-input
@@ -48,6 +55,16 @@
         <v-list-item-content>
           <v-list-item-title v-text="plugin"></v-list-item-title>
         </v-list-item-content>
+        <v-list-item-icon>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon @click="showPlugin(plugin)" v-bind="attrs" v-on="on"
+                >mdi-eye</v-icon
+              >
+            </template>
+            <span>Show Plugin Details</span>
+          </v-tooltip>
+        </v-list-item-icon>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -83,14 +100,23 @@
       v-if="showVariables"
       @submit="variablesCallback"
     />
+    <EditDialog
+      :content="json_content"
+      title="Plugin Details"
+      :readonly="true"
+      v-model="showDialog"
+      v-if="showDialog"
+      @submit="dialogCallback"
+    />
   </div>
 </template>
 
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
 import VariablesDialog from '@/tools/CosmosAdmin/VariablesDialog'
+import EditDialog from '@/tools/CosmosAdmin/EditDialog'
 export default {
-  components: { VariablesDialog },
+  components: { VariablesDialog, EditDialog },
   data() {
     return {
       file: null,
@@ -101,6 +127,8 @@ export default {
       pluginId: null,
       variables: {},
       showVariables: false,
+      json_content: '',
+      showDialog: false,
     }
   },
   mounted() {
@@ -176,6 +204,25 @@ export default {
           this.alertType = 'error'
           this.showAlert = true
         })
+    },
+    showPlugin(name) {
+      var self = this
+      Api.get('/cosmos-api/plugins/' + name)
+        .then((response) => {
+          self.json_content = JSON.stringify(response.data, null, 1)
+          self.showDialog = true
+        })
+        .catch((error) => {
+          self.alert = error
+          self.alertType = 'error'
+          self.showAlert = true
+          setTimeout(() => {
+            self.showAlert = false
+          }, 5000)
+        })
+    },
+    dialogCallback(content) {
+      this.showDialog = false
     },
     async upgradePlugin(plugin) {
       this.file = null

@@ -19,6 +19,13 @@
 
 <template>
   <div>
+    <v-alert
+      :type="alertType"
+      v-model="showAlert"
+      dismissible
+      transition="scale-transition"
+      >{{ alert }}</v-alert
+    >
     <v-list data-test="microserviceList">
       <v-list-item v-for="microservice in microservices" :key="microservice">
         <v-list-item-content>
@@ -34,6 +41,19 @@
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
               <v-icon
+                @click="editMicroservice(microservice)"
+                v-bind="attrs"
+                v-on="on"
+                >mdi-pencil</v-icon
+              >
+            </template>
+            <span>Edit Microservice</span>
+          </v-tooltip>
+        </v-list-item-icon>
+        <v-list-item-icon>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon
                 @click="deleteMicroservice(microservice)"
                 v-bind="attrs"
                 v-on="on"
@@ -45,7 +65,6 @@
         </v-list-item-icon>
       </v-list-item>
     </v-list>
-
     <v-alert
       :type="alertType"
       v-model="showAlert"
@@ -53,20 +72,31 @@
       transition="scale-transition"
       >{{ alert }}</v-alert
     >
+    <EditDialog
+      :content="json_content"
+      title="Edit Microservice"
+      v-model="showDialog"
+      v-if="showDialog"
+      @submit="dialogCallback"
+    />
   </div>
 </template>
 
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
+import EditDialog from '@/tools/CosmosAdmin/EditDialog'
 export default {
-  components: {},
+  components: { EditDialog },
   data() {
     return {
       microservices: [],
       microservice_status: {},
+      microservice_id: null,
       alert: '',
       alertType: 'success',
       showAlert: false,
+      json_content: '',
+      showDialog: false,
     }
   },
   mounted() {
@@ -100,6 +130,53 @@ export default {
         })
     },
     add() {},
+    editMicroservice(name) {
+      var self = this
+      Api.get('/cosmos-api/microservices/' + name)
+        .then((response) => {
+          self.microservice_id = name
+          self.json_content = JSON.stringify(response.data, null, 1)
+          self.showDialog = true
+        })
+        .catch((error) => {
+          self.alert = error
+          self.alertType = 'error'
+          self.showAlert = true
+          setTimeout(() => {
+            self.showAlert = false
+          }, 5000)
+        })
+    },
+    dialogCallback(content) {
+      this.showDialog = false
+      if (content !== null) {
+        let parsed = JSON.parse(content)
+        let method = 'put'
+        let url = '/cosmos-api/microservices/' + this.microservice_id
+        if (parsed['name'] !== this.microservice_id) {
+          method = 'post'
+          url = '/cosmos-api/microservices'
+        }
+
+        Api[method](url, {
+          json: content,
+        })
+          .then((response) => {
+            this.alert = 'Modified Microservice'
+            this.alertType = 'success'
+            this.showAlert = true
+            setTimeout(() => {
+              this.showAlert = false
+            }, 5000)
+            this.update()
+          })
+          .catch((error) => {
+            this.alert = error
+            this.alertType = 'error'
+            this.showAlert = true
+          })
+      }
+    },
     deleteMicroservice(name) {
       var self = this
       this.$dialog

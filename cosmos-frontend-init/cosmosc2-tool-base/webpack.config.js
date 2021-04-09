@@ -1,4 +1,4 @@
-const { merge } = require('webpack-merge')
+const { mergeWithRules } = require('webpack-merge')
 const singleSpaDefaults = require('webpack-config-single-spa')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
@@ -20,7 +20,15 @@ module.exports = (webpackConfigEnv, argv) => {
     disableHtmlGeneration: true,
   })
 
-  return merge(defaultConfig, {
+  return mergeWithRules({
+    module: {
+      rules: {
+        test: 'match',
+        use: 'replace',
+        loader: 'replace',
+      },
+    },
+  })(defaultConfig, {
     // modify the webpack config however you'd like to by adding to this object
     output: {
       path: path.resolve(__dirname, 'tools/base'),
@@ -41,6 +49,11 @@ module.exports = (webpackConfigEnv, argv) => {
     module: {
       rules: [
         // ... other rules
+        {
+          test: /\.html$/i,
+          exclude: /node_modules/,
+          use: { loader: 'vue-loader' },
+        },
         {
           test: /\.vue$/,
           loader: 'vue-loader',
