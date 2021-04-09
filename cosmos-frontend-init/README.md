@@ -38,7 +38,7 @@ NOTE: All commands are assumed to be executed from this (frontend) directory
 1.  Run a development version of traefik
 
         frontend> cd ../traefik
-        traefik> cosmos stop cosmos-traefik
+        traefik> docker stop cosmos-traefik
         traefik> docker build -f Dockerfile-dev-base -t cosmos-traefik-dev-base .
         traefik> docker run --network=cosmos -p 2900:80 -it --rm cosmos-traefik-dev-base
 
@@ -52,11 +52,12 @@ NOTE: All commands are assumed to be executed from this (frontend) directory
 1.  Run a development version of traefik
 
         frontend> cd ../traefik
-        traefik> cosmos stop cosmos-traefik
+        traefik> docker stop cosmos-traefik
         traefik> docker build -f Dockerfile-dev -t cosmos-traefik-dev .
         traefik> docker run --network=cosmos -p 2900:80 -it --rm cosmos-traefik-dev
 
 1.  Run a local copy of the API server
 
         cosmos-frontend-init> cd ../cosmos-cmd-tlm-api
+        cosmos-cmd-tlm-api> docker stop cosmos-cmd-tlm-api
         cosmos-cmd-tlm-api> rails s

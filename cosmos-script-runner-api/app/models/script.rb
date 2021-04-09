@@ -30,21 +30,44 @@ class Script
     rubys3_client = Aws::S3::Client.new
     resp = rubys3_client.list_objects_v2(bucket: DEFAULT_BUCKET_NAME)
     result = []
+    modified = []
     contents = resp.to_h[:contents]
     if contents
       contents.each do |object|
         next unless object[:key].include?("#{scope}/targets")
+        if object[:key].include?("#{scope}/targets/_")
+          modified << object[:key].split('/')[2..-1].join('/')[1..-1] # Remove '_' prefix
+          next
+        end
         if object[:key].include?("procedures") || object[:key].include?("lib")
           result << object[:key].split('/')[2..-1].join('/')
         end
       end
     end
+    # Determine if there are any modified files and mark them with '*'
+    result.map! do |file|
+      if modified.include?(file)
+        modified.delete(file)
+        "#{file}*"
+      else
+        file
+      end
+    end
+    # Concat any remaining modified files (new files not in original target)
+    result.concat(modified)
     result.sort
   end
 
   def self.body(scope, name)
+    name = name.split('*')[0] # Split '*' that indicates modified
     rubys3_client = Aws::S3::Client.new
-    resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{name}")
+    begin
+      # First try opening a potentially modified version by looking for the underscore target
+      resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/_#{name}")
+    rescue
+      # Now try the original
+      resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{name}")
+    end
     resp.body.read
   end
 
@@ -79,7 +102,9 @@ class Script
     return false unless text
     rubys3_client = Aws::S3::Client.new
     rubys3_client.put_object(
-      key: "#{scope}/targets/#{name}",
+      # Prepend '_' to the target name to save modifications
+      # This keeps the original target clean (read-only)
+      key: "#{scope}/targets/_#{name}",
       body: text,
       bucket: DEFAULT_BUCKET_NAME,
       content_type: 'text/plain')
@@ -88,7 +113,8 @@ class Script
 
   def self.destroy(scope, name)
     rubys3_client = Aws::S3::Client.new
-    rubys3_client.delete_object(key: "#{scope}/targets/#{name}", bucket: DEFAULT_BUCKET_NAME)
+    # Only delete file from the modified '_' target directory
+    rubys3_client.delete_object(key: "#{scope}/targets/_#{name}", bucket: DEFAULT_BUCKET_NAME)
     true
   end
 
