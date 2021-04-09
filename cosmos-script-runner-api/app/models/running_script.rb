@@ -959,6 +959,7 @@ class RunningScript
     @output_time = Time.now.sys
     if @output_io.string[-1..-1] == "\n"
       time_formatted = Time.now.sys.formatted
+      color = 'BLACK'
       lines_to_write = ''
       out_line_number = line_number.to_s
       out_filename = File.basename(filename) if filename
@@ -968,7 +969,14 @@ class RunningScript
       @output_io.string = @output_io.string[string.length..-1]
       line_count = 0
       string.each_line do |out_line|
-        color = 'BLACK'
+        begin
+          json = JSON.parse(out_line)
+          time_formatted = json["@timestamp"]
+          out_line = json["log"]
+        rescue
+          # Regular output
+        end
+
         if out_line[0..1] == '20' and out_line[10] == ' ' and out_line[23..24] == ' ('
           line_to_write = out_line
         else
@@ -1338,6 +1346,8 @@ class RunningScript
     # $stdout.remove_default_io
     # $stderr.remove_default_io
 
+    # Don't output to stdout because we're outputting to the message topic only
+    Cosmos::Logger.stdout = false
     Cosmos::Logger.level = Cosmos::Logger::INFO
     Cosmos::Logger::INFO_SEVERITY_STRING.replace('')
     Cosmos::Logger::WARN_SEVERITY_STRING.replace('<Y> WARN:')

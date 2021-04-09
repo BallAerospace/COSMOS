@@ -23,6 +23,8 @@ module CmdTlmApi
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
+    # Add to hosts to prevent "Blocked host" errors
+    config.hosts << "cosmos-cmd-tlm-api"
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
