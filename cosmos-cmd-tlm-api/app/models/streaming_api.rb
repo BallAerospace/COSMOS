@@ -26,7 +26,7 @@ require 'cosmos/utilities/s3'
 
 Cosmos.require_file 'cosmos/utilities/store'
 Cosmos.require_file 'cosmos/packets/json_packet'
-Cosmos.require_file 'cosmos/packet_logs/packet_log_reader'
+Cosmos.require_file 'cosmos/logs/packet_log_reader'
 Cosmos.require_file 'cosmos/utilities/authorization'
 
 class FileCacheFile

@@ -19,7 +19,7 @@
 
 require 'spec_helper'
 require 'tempfile'
-require 'cosmos/packet_logs/packet_log_reader'
+require 'cosmos/logs/packet_log_reader'
 
 module Cosmos
   describe PacketLogReader do

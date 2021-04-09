@@ -18,8 +18,8 @@
 # copyright holder
 
 require 'spec_helper'
-require 'cosmos/packet_logs/packet_log_writer'
-require 'cosmos/packet_logs/packet_log_reader'
+require 'cosmos/logs/packet_log_writer'
+require 'cosmos/logs/packet_log_reader'
 
 module Cosmos
   describe PacketLogWriter do
@@ -59,7 +59,7 @@ module Cosmos
       it "writes binary data to a binary and index file" do
         first_time = Time.now.to_nsec_from_epoch
         last_time = first_time += 1_000_000_000
-        first_timestamp = Time.from_nsec_from_epoch(first_time).to_timestamp 
+        first_timestamp = Time.from_nsec_from_epoch(first_time).to_timestamp
         last_timestamp = Time.from_nsec_from_epoch(last_time).to_timestamp
         label = 'test'
         plw = PacketLogWriter.new(@log_dir, label)
