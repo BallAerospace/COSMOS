@@ -19,13 +19,6 @@
 
 <template>
   <div>
-    <v-alert
-      :type="alertType"
-      v-model="showAlert"
-      dismissible
-      transition="scale-transition"
-      >{{ alert }}</v-alert
-    >
     <v-row no-gutters align="center">
       <v-col cols="4">
         <v-file-input

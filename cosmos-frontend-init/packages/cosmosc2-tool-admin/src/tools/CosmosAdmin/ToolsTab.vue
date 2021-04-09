@@ -19,13 +19,6 @@
 
 <template>
   <div>
-    <v-alert
-      :type="alertType"
-      v-model="showAlert"
-      dismissible
-      transition="scale-transition"
-      >{{ alert }}</v-alert
-    >
     <v-row no-gutters align="center" style="padding-left: 10px">
       <v-col cols="3">
         <v-text-field v-model="name" label="Tool Name"></v-text-field>
@@ -43,6 +36,13 @@
         </v-btn>
       </v-col>
     </v-row>
+    <v-alert
+      :type="alertType"
+      v-model="showAlert"
+      dismissible
+      transition="scale-transition"
+      >{{ alert }}</v-alert
+    >
     <v-list data-test="toolList" id="toollist">
       <v-list-item v-for="tool in tools" :key="tool">
         <v-list-item-content>
