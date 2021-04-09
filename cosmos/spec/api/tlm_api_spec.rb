@@ -299,7 +299,7 @@ module Cosmos
         expect { @api.inject_tlm("INST", "HEALTH_STATUS", { 'BLAH' => 0 }) }.to raise_error("Item(s) 'INST HEALTH_STATUS BLAH' does not exist")
       end
 
-      it "injects a packet into the system" do
+      xit "injects a packet into the system" do
         @api.inject_tlm("INST", "HEALTH_STATUS", { TEMP1: 10, TEMP2: 20 }, type: :CONVERTED)
         sleep 2
         expect(@api.tlm("INST HEALTH_STATUS TEMP1")).to be_within(0.1).of(10.0)
