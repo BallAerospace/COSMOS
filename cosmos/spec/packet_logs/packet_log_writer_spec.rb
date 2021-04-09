@@ -153,8 +153,8 @@ module Cosmos
 
       it "cycles the log after a set amount of time" do
         # Monkey patch the constant so the test doesn't take forever
-        PacketLogWriter.__send__(:remove_const,:CYCLE_TIME_INTERVAL)
-        PacketLogWriter.const_set(:CYCLE_TIME_INTERVAL, 0.1)
+        LogWriter.__send__(:remove_const,:CYCLE_TIME_INTERVAL)
+        LogWriter.const_set(:CYCLE_TIME_INTERVAL, 0.1)
 
         time = Time.now.to_nsec_from_epoch
         label = 'test'
@@ -170,8 +170,8 @@ module Cosmos
         expect(@files.keys.length).to eq 6
 
         # Monkey patch the constant back to the default
-        PacketLogWriter.__send__(:remove_const,:CYCLE_TIME_INTERVAL)
-        PacketLogWriter.const_set(:CYCLE_TIME_INTERVAL, 2)
+        LogWriter.__send__(:remove_const,:CYCLE_TIME_INTERVAL)
+        LogWriter.const_set(:CYCLE_TIME_INTERVAL, 2)
       end
 
       it "handles errors creating the log file" do

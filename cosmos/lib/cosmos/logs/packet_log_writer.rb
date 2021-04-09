@@ -61,6 +61,7 @@ module Cosmos
       cycle_minute,
       redis_topic: redis_topic
     )
+      @label = label
       @index_file = nil
       @index_filename = nil
       @cmd_packet_table = {}
