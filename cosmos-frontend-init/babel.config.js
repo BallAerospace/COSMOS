@@ -1,9 +1,4 @@
 module.exports = {
   presets: ['@vue/cli-plugin-babel/preset'],
-  plugins: [
-    // 'babel-plugin-istanbul',
-    // {
-    //   extension: ['.js', '.vue']
-    // }
-  ],
+  plugins: ['babel-plugin-istanbul'],
 }
