@@ -183,7 +183,6 @@ module Cosmos
     # Create a JsonDRbObject connection to the API server
     def initialize
       hostname = ENV['COSMOS_API_HOSTNAME'] || (ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-cmd-tlm-api')
-      STDOUT.puts "devel:#{ENV['COSMOS_DEVEL']} host:#{hostname}"
       @json_drb = JsonDRbObject.new(hostname, 2901)
     end
 

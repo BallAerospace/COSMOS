@@ -30,6 +30,8 @@ module Cosmos
   # Supports different levels of logging and only writes if the level
   # is exceeded.
   class Logger
+    # @return [Boolean] Whether to output the message to stdout
+    instance_attr_accessor :stdout
 
     # @return [Integer] The logging level
     instance_attr_accessor :level
@@ -68,6 +70,7 @@ module Cosmos
 
     # @param level [Integer] The initial logging level
     def initialize(level = Logger::INFO)
+      @stdout = true
       @level = level
       @scope = nil
       @detail_string = nil
@@ -188,7 +191,7 @@ module Cosmos
         if block_given?
           data = yield
         end
-        puts data.to_json
+        puts data.to_json if @stdout
         unless @no_store
           if scope
             Store.write_topic("#{scope}__cosmos_log_messages", data)
@@ -209,7 +212,7 @@ module Cosmos
         end
         data[:container_name] = @container_name
         data[:log] = message
-        puts data.to_json
+        puts data.to_json if @stdout
         unless @no_store
           if scope
             Store.write_topic("#{scope}__cosmos_log_messages", data)
@@ -219,6 +222,5 @@ module Cosmos
         end
       end
     end
-
   end
 end
