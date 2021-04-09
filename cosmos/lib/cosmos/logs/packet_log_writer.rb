@@ -130,7 +130,7 @@ module Cosmos
 
     # Closing a log file isn't critical so we just log an error
     def close_file(take_mutex = true)
-      write_entry(:OFFSET_MARKER, nil, nil, nil, nil, nil, nil, nil)
+      write_entry(:OFFSET_MARKER, nil, nil, nil, nil, nil, nil, nil) if @file
       super
 
       @mutex.lock if take_mutex

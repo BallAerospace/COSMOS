@@ -126,13 +126,13 @@ module Cosmos
     end
 
     protected
-    def create_unique_filename
+    def create_unique_filename(ext = extension)
       # Create a filename that doesn't exist
       attempt = nil
       while true
         filename_parts = [attempt]
         filename_parts.unshift @label if @label
-        filename = File.join(Dir.tmpdir, File.build_timestamped_filename([@label, attempt], extension))
+        filename = File.join(Dir.tmpdir, File.build_timestamped_filename([@label, attempt], ext))
         if File.exist?(filename)
           attempt ||= 0
           attempt += 1
