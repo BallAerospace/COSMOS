@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM alpine:latest
 
 # We require a local certificate file so set that up.
 # You must place a valid cert.pem file in your COSMOS development folder for this work
@@ -8,18 +8,23 @@ ENV SSL_CERT_FILE=/devel/cacert.pem
 ENV CURL_CA_BUNDLE=/devel/cacert.pem
 ENV REQUESTS_CA_BUNDLE=/devel/cacert.pem
 
-# ARG rather than ENV so it doesn't persist in the built image
-ARG DEBIAN_FRONTEND=noninteractive
-# Update packages first as this changes the least
-RUN apt-get update -y && apt-get install -y \
-  --no-install-recommends \
-  --option "Acquire:http::No-Cache=true" \
-  --option "Acquire:http::Pipeline-Depth=0" \
-  curl \
-  build-essential \
-  ruby \
-  ruby-dev \
-  git \
-  netbase \
-  zlib1g \
-  zlib1g-dev
+ENV NOKOGIRI_USE_SYSTEM_LIBRARIES=1
+
+ADD gemrc /root/.gemrc
+
+RUN apk update \
+&& apk add ruby \
+           ruby-etc \
+           ruby-bigdecimal \
+           ruby-io-console \
+           ruby-irb \
+           ca-certificates \
+           libressl \
+           less \
+           git \
+           libxml2-dev \
+           libxslt-dev \
+&& gem install bundler || apk add ruby-bundler \
+&& gem install rake || apk add ruby-rake \
+&& bundle config build.nokogiri --use-system-libraries \
+&& bundle config git.allow_insecure true \

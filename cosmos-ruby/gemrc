@@ -1,0 +1,14 @@
+---
+gem: --no-ri --no-rdoc --no-document --suggestions
+install: --no-rdoc --no-ri
+update:  --no-rdoc --no-ri
+
+:benchmark: false
+
+:verbose: true
+
+:backtrace: true
+
+:update_sources: true
+sources:
+  - http://rubygems.org/

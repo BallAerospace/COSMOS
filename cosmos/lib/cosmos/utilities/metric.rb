@@ -22,7 +22,7 @@ require 'cosmos/models/metric_model'
 module Cosmos
 
   class Metric
-    # This class is designed to output metrics to the cmd_tlm_api
+    # This class is designed to output metrics to the cosmos-cmd-tlm-api
     # InternalMetricsController. Output format can be read about here
     # https://prometheus.io/docs/concepts/data_model/
     #
