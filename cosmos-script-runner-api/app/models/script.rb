@@ -48,7 +48,7 @@ class Script
     result.map! do |file|
       if modified.include?(file)
         modified.delete(file)
-        "#{file} *"
+        "#{file}*"
       else
         file
       end
@@ -59,7 +59,7 @@ class Script
   end
 
   def self.body(scope, name)
-    name = name.split[0] # Split ' *' that indicates modified
+    name = name.split('*')[0] # Split '*' that indicates modified
     rubys3_client = Aws::S3::Client.new
     begin
       # First try opening a potentially modified version by looking for the underscore target

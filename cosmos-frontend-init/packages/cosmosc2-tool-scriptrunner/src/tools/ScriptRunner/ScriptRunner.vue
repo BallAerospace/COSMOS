@@ -845,7 +845,7 @@ export default {
     setFile(file) {
       this.suiteRunner = false
       // Split off the ' *' which indicates a file is modified on the server
-      this.filename = file.name.split(' ')[0]
+      this.filename = file.name.split('*')[0]
       this.editor.session.setValue(file.contents)
       this.fileModified = ''
       if (file.suites) {
