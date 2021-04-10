@@ -35,11 +35,11 @@ class Script
     if contents
       contents.each do |object|
         next unless object[:key].include?("#{scope}/targets")
-        if object[:key].include?("#{scope}/targets/_")
-          modified << object[:key].split('/')[2..-1].join('/')[1..-1] # Remove '_' prefix
-          next
-        end
         if object[:key].include?("procedures") || object[:key].include?("lib")
+          if object[:key].include?("#{scope}/targets_modified")
+            modified << object[:key].split('/')[2..-1].join('/')
+            next
+          end
           result << object[:key].split('/')[2..-1].join('/')
         end
       end
@@ -63,7 +63,7 @@ class Script
     rubys3_client = Aws::S3::Client.new
     begin
       # First try opening a potentially modified version by looking for the underscore target
-      resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/_#{name}")
+      resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets_modified/#{name}")
     rescue
       # Now try the original
       resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{name}")
@@ -102,9 +102,9 @@ class Script
     return false unless text
     rubys3_client = Aws::S3::Client.new
     rubys3_client.put_object(
-      # Prepend '_' to the target name to save modifications
+      # Use targets_modified to save modifications
       # This keeps the original target clean (read-only)
-      key: "#{scope}/targets/_#{name}",
+      key: "#{scope}/targets_modified/#{name}",
       body: text,
       bucket: DEFAULT_BUCKET_NAME,
       content_type: 'text/plain')
@@ -113,8 +113,8 @@ class Script
 
   def self.destroy(scope, name)
     rubys3_client = Aws::S3::Client.new
-    # Only delete file from the modified '_' target directory
-    rubys3_client.delete_object(key: "#{scope}/targets/_#{name}", bucket: DEFAULT_BUCKET_NAME)
+    # Only delete file from the modified target directory
+    rubys3_client.delete_object(key: "#{scope}/targets_modified/#{name}", bucket: DEFAULT_BUCKET_NAME)
     true
   end
 
