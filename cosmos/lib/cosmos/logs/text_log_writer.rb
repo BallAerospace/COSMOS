@@ -54,7 +54,11 @@ module Cosmos
     end
 
     def s3_filename
-      "#{first_timestamp}__#{last_timestamp}__notifications" + extension
+      # Put the name of the redis topic in the filename, but remove the scope
+      # because we're already in a directory with the scope name
+      split_index = @redis_topic.index("__") + 2
+      topic_name = @redis_topic[split_index, @redis_topic.length - split_index]
+      "#{first_timestamp}__#{last_timestamp}__#{topic_name}" + extension
     end
 
     def extension

@@ -52,15 +52,15 @@ module Cosmos
       cycle_minute = nil,
       redis_topic: nil
     )
-    super(
-      remote_log_directory,
-      logging_enabled,
-      cycle_time,
-      cycle_size,
-      cycle_hour,
-      cycle_minute,
-      redis_topic: redis_topic
-    )
+      super(
+        remote_log_directory,
+        logging_enabled,
+        cycle_time,
+        cycle_size,
+        cycle_hour,
+        cycle_minute,
+        redis_topic: redis_topic
+      )
       @label = label
       @index_file = nil
       @index_filename = nil
