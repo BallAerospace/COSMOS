@@ -18,9 +18,9 @@
 # copyright holder
 
 begin
-  require 'cosmos-enterprise/utilities/authorization'
+  require 'enterprise-cosmos/utilities/authorization'
 rescue LoadError
-  # If we're not in cosmos-enterprise we define our own
+  # If we're not in enterprise-cosmos we define our own
   module Cosmos
     class AuthError < StandardError
     end
