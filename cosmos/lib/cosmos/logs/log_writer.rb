@@ -60,7 +60,6 @@ module Cosmos
       cycle_minute = nil,
       redis_topic: nil
     )
-
       @remote_log_directory = remote_log_directory
       @logging_enabled = ConfigParser.handle_true_false(logging_enabled)
       @cycle_time = ConfigParser.handle_nil(cycle_time)
