@@ -19,7 +19,12 @@
 
 <template>
   <div>
-    <v-row no-gutters align="center" style="padding-left: 10px">
+    <v-row
+      v-if="enterprise"
+      no-gutters
+      align="center"
+      style="padding-left: 10px"
+    >
       <v-col cols="4">
         <v-text-field v-model="scope" label="Scope Name"></v-text-field>
       </v-col>
@@ -68,6 +73,7 @@ export default {
       alert: '',
       alertType: 'success',
       showAlert: false,
+      enterprise: localStorage.getItem('enterprise'),
     }
   },
   mounted() {

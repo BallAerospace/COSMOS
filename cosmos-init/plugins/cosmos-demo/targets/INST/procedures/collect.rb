@@ -6,8 +6,8 @@ raise "Bad return" unless number.is_a? Numeric
 number = ask_string("Enter a number.")
 raise "Bad return" unless number.is_a? String
 
-result = message_box("Click something.", "BLAH", "WHAT")
-raise "Bad return" unless result == 'BLAH' or result == 'WHAT'
+result = message_box("Click something.", "CHOICE1", "CHOICE2")
+raise "Bad return" unless result == 'CHOICE1' or result == 'CHOICE2'
 
 prompt("Press Ok to start NORMAL Collect")
 collect('NORMAL', 1)

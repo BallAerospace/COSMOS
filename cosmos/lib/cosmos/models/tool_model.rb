@@ -269,10 +269,12 @@ EOL
     end
 
     def undeploy
-      rubys3_client = Aws::S3::Client.new
-      prefix = "#{@folder_name}/"
-      rubys3_client.list_objects(bucket: 'tools', prefix: prefix).contents.each do |object|
-        rubys3_client.delete_object(bucket: 'tools', key: object.key)
+      if @folder_name and @folder_name.to_s.length > 0
+        rubys3_client = Aws::S3::Client.new
+        prefix = "#{@folder_name}/"
+        rubys3_client.list_objects(bucket: 'tools', prefix: prefix).contents.each do |object|
+          rubys3_client.delete_object(bucket: 'tools', key: object.key)
+        end
       end
     end
 

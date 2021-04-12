@@ -19,11 +19,28 @@
 
 <template>
   <div>
+    <v-alert
+      :type="alertType"
+      v-model="showAlert"
+      dismissible
+      transition="scale-transition"
+      >{{ alert }}</v-alert
+    >
     <v-list data-test="routerList">
       <v-list-item v-for="router in routers" :key="router">
         <v-list-item-content>
           <v-list-item-title v-text="router"></v-list-item-title>
         </v-list-item-content>
+        <v-list-item-icon>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon @click="showRouter(router)" v-bind="attrs" v-on="on"
+                >mdi-eye</v-icon
+              >
+            </template>
+            <span>Show Router Details</span>
+          </v-tooltip>
+        </v-list-item-icon>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
@@ -43,19 +60,30 @@
       transition="scale-transition"
       >{{ alert }}</v-alert
     >
+    <EditDialog
+      :content="json_content"
+      title="Router Details"
+      :readonly="true"
+      v-model="showDialog"
+      v-if="showDialog"
+      @submit="dialogCallback"
+    />
   </div>
 </template>
 
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
+import EditDialog from '@/tools/CosmosAdmin/EditDialog'
 export default {
-  components: {},
+  components: { EditDialog },
   data() {
     return {
       routers: [],
       alert: '',
       alertType: 'success',
       showAlert: false,
+      json_content: '',
+      showDialog: false,
     }
   },
   mounted() {
@@ -77,6 +105,25 @@ export default {
         })
     },
     add() {},
+    showRouter(name) {
+      var self = this
+      Api.get('/cosmos-api/routers/' + name)
+        .then((response) => {
+          self.json_content = JSON.stringify(response.data, null, 1)
+          self.showDialog = true
+        })
+        .catch((error) => {
+          self.alert = error
+          self.alertType = 'error'
+          self.showAlert = true
+          setTimeout(() => {
+            self.showAlert = false
+          }, 5000)
+        })
+    },
+    dialogCallback(content) {
+      this.showDialog = false
+    },
     deleteInterface(name) {
       var self = this
       this.$dialog

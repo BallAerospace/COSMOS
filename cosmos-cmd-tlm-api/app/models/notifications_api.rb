@@ -30,7 +30,7 @@ class NotificationsApi
     else
       topics = ["cosmos_notifications"]
     end
-    start_offsets = [start_offset] if start_offset
+    start_offsets = [start_offset] if start_offset and start_offset != 'undefined'
     @thread = TopicsThread.new(topics, channel, history_count, offsets: start_offsets, transmit_msg_id: true)
     @thread.start
   end
