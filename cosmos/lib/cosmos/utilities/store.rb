@@ -23,10 +23,10 @@ require 'thread'
 require 'connection_pool'
 
 begin
-  require 'cosmos-enterprise/utilities/store'
-  $cosmos_enterprise = true
+  require 'enterprise-cosmos/utilities/store'
+  $enterprise_cosmos = true
 rescue LoadError
-  $cosmos_enterprise = false
+  $enterprise_cosmos = false
 end
 
 module Cosmos
@@ -77,13 +77,13 @@ module Cosmos
       @topic_offsets = {}
     end
 
-    unless $cosmos_enterprise
+    unless $enterprise_cosmos
       def build_redis
         return Redis.new(url: @redis_url)
       end
     end
 
-    unless $cosmos_enterprise
+    unless $enterprise_cosmos
       def get_tlm_values(items, scope: $cosmos_scope)
         values = []
         return values if items.empty?
@@ -275,7 +275,7 @@ module Cosmos
     def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
       self.instance.read_topics(topics, offsets, timeout_ms, &block)
     end
-    unless $cosmos_enterprise
+    unless $enterprise_cosmos
       def read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
         # Logger.debug "read_topics: #{topics}, #{offsets} pool:#{@redis_pool}"
         @redis_pool.with do |redis|
