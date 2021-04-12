@@ -184,6 +184,7 @@ module Cosmos
     protected
     def log_metric(data, scope:, &block)
       @mutex.synchronize do
+        data[:time] = Time.now.to_nsec_from_epoch
         data[:@timestamp] = Time.now.xmlschema(3)
         data[:microservice_name] = @microservice_name if @microservice_name
         data[:detail] = @detail_string if @detail_string
@@ -204,7 +205,7 @@ module Cosmos
 
     def log_message(severity_string, message, scope:, &block)
       @mutex.synchronize do
-        data = { '@timestamp' => Time.now.xmlschema(3), severity: severity_string }
+        data = { time: Time.now.to_nsec_from_epoch, '@timestamp' => Time.now.xmlschema(3), severity: severity_string }
         data[:microservice_name] = @microservice_name if @microservice_name
         data[:detail] = @detail_string if @detail_string
         if block_given?
