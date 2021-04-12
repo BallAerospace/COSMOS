@@ -23,9 +23,9 @@ require 'cosmos/utilities/store'
 require 'cosmos/utilities/s3'
 
 module Cosmos
-  # Creates a packet log. Can automatically cycle the log based on an elasped
+  # Creates a log. Can automatically cycle the log based on an elasped
   # time period or when the log file reaches a predefined size.
-  class TextLogWriter
+  class LogWriter
     # @return [String] The filename of the packet log
     attr_reader :filename
 
@@ -60,6 +60,7 @@ module Cosmos
       cycle_minute = nil,
       redis_topic: nil
     )
+
       @remote_log_directory = remote_log_directory
       @logging_enabled = ConfigParser.handle_true_false(logging_enabled)
       @cycle_time = ConfigParser.handle_nil(cycle_time)
@@ -92,33 +93,10 @@ module Cosmos
       @cycle_thread = nil
       if @cycle_time or @cycle_hour or @cycle_minute
         @cycle_sleeper = Sleeper.new
-        @cycle_thread = Cosmos.safe_thread("Text log cycle") do
+        @cycle_thread = Cosmos.safe_thread("Log cycle") do
           cycle_thread_body()
         end
       end
-    end
-
-    # Write to the log file.
-    #
-    # If no log file currently exists in the filesystem, a new file will be
-    # created.
-    #
-    # @param time_nsec_since_epoch [Integer] 64 bit integer nsecs since EPOCH
-    # @param data [String] String of data
-    # @param redis_offset [Integer] The offset of this packet in its Redis stream
-    def write(time_nsec_since_epoch, data, redis_offset)
-      return if !@logging_enabled
-      @mutex.synchronize do
-        # This check includes logging_enabled again because it might have changed since we acquired the mutex
-        if @logging_enabled and (!@file or (@cycle_size and (@file_size + data.length) > @cycle_size))
-          start_new_file()
-        end
-        @last_offset = redis_offset # This is needed for the redis offset marker entry at the end of the log file
-        write_entry(time_nsec_since_epoch, data) if @file
-      end
-    rescue => err
-      Logger.instance.error "Error writing #{@filename} : #{err.formatted}"
-      Cosmos.handle_critical_exception(err)
     end
 
     # Starts a new log file by closing the existing log file. New log files are
@@ -148,11 +126,13 @@ module Cosmos
     end
 
     protected
-    def create_unique_filename(extension)
+    def create_unique_filename(ext = extension)
       # Create a filename that doesn't exist
       attempt = nil
       while true
-        filename = File.join(Dir.tmpdir, File.build_timestamped_filename([attempt], extension))
+        filename_parts = [attempt]
+        filename_parts.unshift @label if @label
+        filename = File.join(Dir.tmpdir, File.build_timestamped_filename([@label, attempt], ext))
         if File.exist?(filename)
           attempt ||= 0
           attempt += 1
@@ -160,27 +140,6 @@ module Cosmos
           return filename
         end
       end
-    end
-
-    # Starting a new log file is a critical operation so the entire method is
-    # wrapped with a rescue and handled with handle_critical_exception
-    # Assumes mutex has already been taken
-    def start_new_file
-      close_file(false)
-
-      # Start log file
-      @filename = create_unique_filename('.txt'.freeze)
-      @file = File.new(@filename, 'wb')
-      @file_size = 0
-
-      @start_time = Time.now.utc
-      @first_time = nil
-      @last_time = nil
-      Logger.instance.info "Log File Opened : #{@filename}"
-    rescue => err
-      Logger.instance.error "Error opening Tempfile : #{err.formatted}"
-      @logging_enabled = false
-      Cosmos.handle_critical_exception(err)
     end
 
     def move_file_to_s3(filename, s3_key)
@@ -205,35 +164,6 @@ module Cosmos
         Logger.info("local file #{filename} deleted")
       rescue => err
         Logger.error("Error saving log file to bucket: #{filename}\n#{err.formatted}")
-      end
-    end
-
-    # Closing a log file isn't critical so we just log an error
-    def close_file(take_mutex = true)
-      @mutex.lock if take_mutex
-
-      begin
-        if @file
-          begin
-            @file.close unless @file.closed?
-            Logger.info "Log File Closed : #{@filename}"
-            date = first_timestamp[0..7] # YYYYMMDD
-            s3_key = File.join(@remote_log_directory, date, "#{first_timestamp}__#{last_timestamp}.txt")
-            move_file_to_s3(@filename, s3_key)
-            # Now that the file is in S3, trim the Redis stream up until the previous file.
-            # This keeps one file worth of data in Redis as a safety buffer
-            Cosmos::Store.trim_topic(@redis_topic, @previous_file_redis_offset) if @redis_topic and @previous_file_redis_offset
-            @previous_file_redis_offset = @last_offset
-          rescue Exception => err
-            Logger.instance.error "Error closing #{@filename} : #{err.formatted}"
-          end
-
-          @file = nil
-          @file_size = 0
-          @filename = nil
-        end
-      ensure
-        @mutex.unlock if take_mutex
       end
     end
 
@@ -263,14 +193,69 @@ module Cosmos
       end
     end
 
-    def write_entry(time_nsec_since_epoch, data)
-      @entry.clear
-      @entry << "#{time_nsec_since_epoch}\t"
-      @entry << "#{data}\n"
-      @file.write(@entry)
-      @file_size += @entry.length
-      @first_time = time_nsec_since_epoch if !@first_time or time_nsec_since_epoch < @first_time
-      @last_time = time_nsec_since_epoch if !@last_time or time_nsec_since_epoch > @last_time
+    # Starting a new log file is a critical operation so the entire method is
+    # wrapped with a rescue and handled with handle_critical_exception
+    # Assumes mutex has already been taken
+    def start_new_file
+      close_file(false)
+
+      # Start log file
+      @filename = create_unique_filename()
+      @file = File.new(@filename, 'wb')
+      @file_size = 0
+
+      @start_time = Time.now.utc
+      @first_time = nil
+      @last_time = nil
+      Logger.instance.info "Log File Opened : #{@filename}"
+    rescue => err
+      Logger.instance.error "Error opening Tempfile : #{err.formatted}"
+      @logging_enabled = false
+      Cosmos.handle_critical_exception(err)
+    end
+
+    def prepare_write(time_nsec_since_epoch, data_length, redis_offset)
+      # This check includes logging_enabled again because it might have changed since we acquired the mutex
+      if @logging_enabled and (!@file or (@cycle_size and (@file_size + data_length) > @cycle_size))
+        start_new_file()
+      end
+      @last_offset = redis_offset # This is needed for the redis offset marker entry at the end of the log file
+    end
+
+    # Closing a log file isn't critical so we just log an error
+    def close_file(take_mutex = true)
+      @mutex.lock if take_mutex
+      begin
+        if @file
+          begin
+            @file.close unless @file.closed?
+            Logger.info "Log File Closed : #{@filename}"
+            date = first_timestamp[0..7] # YYYYMMDD
+            s3_key = File.join(@remote_log_directory, date, s3_filename)
+            move_file_to_s3(@filename, s3_key)
+            # Now that the file is in S3, trim the Redis stream up until the previous file.
+            # This keeps one file worth of data in Redis as a safety buffer
+            Cosmos::Store.trim_topic(@redis_topic, @previous_file_redis_offset) if @redis_topic and @previous_file_redis_offset
+            @previous_file_redis_offset = @last_offset
+          rescue Exception => err
+            Logger.instance.error "Error closing #{@filename} : #{err.formatted}"
+          end
+
+          @file = nil
+          @file_size = 0
+          @filename = nil
+        end
+      ensure
+        @mutex.unlock if take_mutex
+      end
+    end
+
+    def s3_filename
+      "#{first_timestamp}__#{last_timestamp}" + extension
+    end
+
+    def extension
+      '.log'.freeze
     end
 
     def first_timestamp

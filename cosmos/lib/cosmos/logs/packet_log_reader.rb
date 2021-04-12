@@ -21,7 +21,7 @@ require 'cosmos/core_ext/io'
 require 'cosmos/packets/packet'
 require 'cosmos/packets/json_packet'
 require 'cosmos/io/buffered_file'
-require 'cosmos/packet_logs/packet_log_constants'
+require 'cosmos/logs/packet_log_constants'
 
 module Cosmos
   # Reads a packet log of either commands or telemetry.

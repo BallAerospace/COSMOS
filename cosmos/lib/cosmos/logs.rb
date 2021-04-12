@@ -18,8 +18,8 @@
 # copyright holder
 
 module Cosmos
-  autoload(:PacketLogWriter, 'cosmos/packet_logs/packet_log_writer.rb')
-  autoload(:PacketLogWriterPair, 'cosmos/packet_logs/packet_log_writer_pair.rb')
-  autoload(:PacketLogReader, 'cosmos/packet_logs/packet_log_reader.rb')
-  autoload(:CcsdsLogReader, 'cosmos/packet_logs/ccsds_log_reader.rb')
+  autoload(:PacketLogWriter, 'cosmos/logs/packet_log_writer.rb')
+  autoload(:PacketLogWriterPair, 'cosmos/logs/packet_log_writer_pair.rb')
+  autoload(:PacketLogReader, 'cosmos/logs/packet_log_reader.rb')
+  autoload(:TextLogWriter, 'cosmos/logs/text_log_writer.rb')
 end
