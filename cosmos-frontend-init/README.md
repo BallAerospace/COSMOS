@@ -2,13 +2,13 @@
 
 NOTE: All commands are assumed to be executed from this (frontend) directory
 
-1.  Ensure lerna and webpack are installed
+1.  Ensure webpack are installed <!--- TODO: make this not require a global add. Should be in devDependencies, and just run `yarn` -->
 
-        frontend> npm i -g lerna webpack
+        frontend> yarn global add webpack
 
-1.  Bootstrap the frontend with lerna
+1.  Bootstrap the frontend with yarn
 
-        frontend> lerna bootstrap --hoist
+        frontend> yarn
 
 1.  Start cosmos
 
@@ -18,7 +18,7 @@ NOTE: All commands are assumed to be executed from this (frontend) directory
 1.  Serve a local COSMOS application (CmdTlmServer, ScriptRunner, etc)
 
         frontend> cd packages/cosmosc2-tool-scriptrunner
-        cosmosc2-tool-scriptrunner> npm run serve
+        cosmosc2-tool-scriptrunner> yarn serve
 
 1.  Set the single SPA override for the application
 
@@ -29,7 +29,7 @@ NOTE: All commands are assumed to be executed from this (frontend) directory
 
     Refresh and you should see {...} in the bottom right<br>
     Click the Default button next to the application (@cosmosc2/tool-scriptrunner)<br>
-    Paste in the development path which is dependent on the port returned by the local npm run serve and the tool name (scriptrunner)
+    Paste in the development path which is dependent on the port returned by the local yarn serve and the tool name (scriptrunner)
 
         http://localhost:2914/tools/scriptrunner/js/app.js
 
@@ -45,7 +45,7 @@ NOTE: All commands are assumed to be executed from this (frontend) directory
 1.  Serve a local base application (App, Auth, AppBar, AppFooter, etc)
 
         frontend> cd cosmosc2-tool-base
-        cosmosc2-tool-base> npm run serve
+        cosmosc2-tool-base> yarn serve
 
 # API development
 

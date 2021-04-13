@@ -1,6 +1,9 @@
 {
   "name": "cosmosc2",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
     "@vue/eslint-config-prettier": "6.0.0",
     "eslint-config-prettier": "6.0.0",
