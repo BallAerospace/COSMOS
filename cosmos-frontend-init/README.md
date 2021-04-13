@@ -2,10 +2,6 @@
 
 NOTE: All commands are assumed to be executed from this (cosmos-frontend-init) directory
 
-1.  Ensure webpack are installed <!--- TODO: make this not require a global add. Should be in devDependencies, and just run `yarn` -->
-
-        cosmos-frontend-init> yarn global add webpack
-
 1.  Bootstrap the frontend with yarn
 
         cosmos-frontend-init> yarn
