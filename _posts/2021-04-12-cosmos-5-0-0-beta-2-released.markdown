@@ -1,6 +1,6 @@
 ---
 layout: news_item
-title: 'Ball Aerospace COSMOS 5.0.0 beta 3 Released'
+title: 'Ball Aerospace COSMOS 5.0.0 beta 2 Released'
 date: 2021-04-12 6:00:00 -0700
 author: ryanmelt
 version: 5.0.0.beta2
