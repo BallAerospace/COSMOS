@@ -5071,10 +5071,10 @@ webpack-cli@4.6.0:
     v8-compile-cache "^2.2.0"
     webpack-merge "^5.7.3"
 
-webpack-config-single-spa@2.2.1:
-  version "2.2.1"
-  resolved "https://registry.yarnpkg.com/webpack-config-single-spa/-/webpack-config-single-spa-2.2.1.tgz#4ce9b4547cadc1701bb0dc1400e665bf96994b1a"
-  integrity sha512-6J0ehjby3xuOi5+yeJPBa03slbYmDEYaquLVDYyvYm5jxbT/pFBX21Ne/oqHQ5NuQ7VVNkhJYoysTwFgcf3e9w==
+webpack-config-single-spa@2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/webpack-config-single-spa/-/webpack-config-single-spa-2.1.1.tgz#cc43172a353ea73be152d9cae1a2fdac4dac2d44"
+  integrity sha512-26/8FQJDIQZBfMVCX6Z0cNHawDhSHF0qWq4Y66Km7/Tmn+oNGCXfBeTNFjjfIukKMt4KhXT16He55x6DUQ1/7A==
   dependencies:
     babel-loader "^8.2.2"
     css-loader "^5.0.1"
