@@ -5,7 +5,7 @@
   <title>News</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v4.1.1">
+  <meta name="generator" content="Jekyll v4.2.0">
   <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
   <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
@@ -87,6 +87,8 @@
     <option value="">Navigate the blog...</option>
     <option value="/news/">Home</option>
     <optgroup label="v1.x">
+      
+      <option value="/news/2021/04/12/cosmos-5-0-0-beta-2-released/">Ball Aerospace COSMOS 5.0.0 beta 3 Released</option>
       
       <option value="/news/2021/01/09/cosmos-5-0-0-beta-1-released/">Ball Aerospace COSMOS 5.0.0 beta 1 Released</option>
       
@@ -243,6 +245,113 @@
 
       <div class="unit four-fifths">
         
+  <article>
+  <h2>
+    <a href="/news/2021/04/12/cosmos-5-0-0-beta-2-released/">
+      Ball Aerospace COSMOS 5.0.0 beta 3 Released
+    </a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      release
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      12 Apr 2021
+    </span>
+    <a href="https://github.com/ryanmelt" class="post-author">
+      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
+      ryanmelt
+    </a>
+  </div>
+  <div class="post-content">
+    <p>I am proud to announce the release of COSMOS 5 Beta 2!</p>
+
+<p>COSMOS 5 is a highly scalable, cloud native, command and control software system.  This second beta release is intended for users to begin to experiment with and prepare for the production COSMOS 5 release scheduled for June.</p>
+
+<p>Changes from the Beta 1 Release:</p>
+
+<ul>
+  <li>COSMOS tools are now modular and can be added with plugins</li>
+  <li>Improved Stability and Testing</li>
+  <li>Improved API support from COSMOS 4</li>
+  <li>Improved Project Organization and Naming Consistency</li>
+  <li>New DataViewer Tool</li>
+  <li>New Notifications System</li>
+  <li>Streaming API now supports streaming raw packet data</li>
+  <li>Improved Admin Functionality</li>
+  <li>Improved TlmViewer Widget support</li>
+  <li>Classification Banner Support</li>
+  <li>Support for Raw Logging</li>
+  <li>Open source license changed from GPLv3 to AGPLv3</li>
+  <li>Removed EFK stack from running by default</li>
+</ul>
+
+<p>COSMOS 5 Technologies:</p>
+
+<ul>
+  <li>Docker - COSMOS 5 runs across a set of containers managed by Docker</li>
+  <li>Redis - Redis is used as a key-value store, and streaming data server</li>
+  <li>Minio - Minio provides an S3 compatible file storage server</li>
+  <li>Vue.js - Javascript technology used to build the new COSMOS user interface</li>
+</ul>
+
+<p>Functional versions of the following COSMOS tools are included in this release:</p>
+
+<ul>
+  <li>Command and Telemetry Server</li>
+  <li>Command Sender</li>
+  <li>Packet Viewer</li>
+  <li>Telemetry Viewer</li>
+  <li>Telemetry Grapher</li>
+  <li>Script Runner (Test Runner now built in)</li>
+  <li>Limits Monitor</li>
+  <li>Extractor</li>
+  <li>Data Viewer</li>
+  <li>Admin Interface</li>
+</ul>
+
+<p>Known Things That Aren’t Done/Fully Working Yet:</p>
+
+<ul>
+  <li>Data Reduction</li>
+  <li>The LATEST telemetry packet</li>
+  <li>Serial Interface Support (probably would work on a linux host with the cosmos-operator container running with –privileged)</li>
+  <li>New Timeline Feature</li>
+</ul>
+
+<h3 id="prerequisites">Prerequisites:</h3>
+
+<p>Docker - Running COSMOS 5 requires a working Docker installation.  Typically Docker Desktop on Windows / Mac.  Plain docker should work on linux.  We’re currently only developing / running with Docker Desktop on Windows, so if you have any issues on another platform, please let us know by submitting a ticket!</p>
+
+<p>Minimum Resources allocated to Docker: 8GB RAM, 1 CPU, 80GB Disk
+Recommended Resources allocated to Docker: 16GB RAM, 2+ CPUs, 100GB Disk</p>
+
+<h3 id="to-run">To Run:</h3>
+
+<ol>
+  <li>Download one of the archives (.zip or .tar.gz from the Github release page) <a href="https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0-beta.2">Download Release Here</a></li>
+  <li>Extract the archive somewhere on your host computer</li>
+  <li>The COSMOS 5 containers are designed to work and be built in the presence of an SSL Decryption device.  To support this a cacert.pem file can be placed at the base of the COSMOS 5 project that includes any certificates needed by your organization.  If you don’t need this, then please ignore, but if you see any SSL errors, this is probably why.</li>
+  <li>Run cosmos-control.bat start (Windows), or ./cosmos-control.sh start (linux/Mac)</li>
+  <li>COSMOS 5 will be built and when ready should be running (~20 mins for first run, ~3 for subsequent)</li>
+  <li>Connect a web browser to http://localhost:2900</li>
+  <li>Have fun trying out COSMOS 5!</li>
+</ol>
+
+<p>We will be actively updating documentation on cosmosrb.com throughout the month of April.  So if it isn’t documented yet, we’re getting there!  The biggest new documentation is on the new plugin system.</p>
+
+<p>Please try it out and let us know what you think!  Please submit any issues as Github tickets, or any generic feedback to COSMOS@ball.com.</p>
+
+<p>Note that this release is not recommended for production use, but at this point you are encouraged to start migrating and working through any initial issues.</p>
+
+<p>Thanks!</p>
+
+  </div>
+</article>
+
+
   <article>
   <h2>
     <a href="/news/2021/01/09/cosmos-5-0-0-beta-1-released/">
@@ -5518,6 +5627,10 @@ change the whole playing field of Operations, Integration, and Test”.</p>
     <ul>
       
       <li class="">
+        <a href="/news/2021/04/12/cosmos-5-0-0-beta-2-released/">Version 5.0.0.beta2</a>
+      </li>
+      
+      <li class="">
         <a href="/news/2021/01/09/cosmos-5-0-0-beta-1-released/">Version 5.0.0-beta.1</a>
       </li>
       
@@ -5533,14 +5646,10 @@ change the whole playing field of Operations, Integration, and Test”.</p>
         <a href="/news/2020/03/09/cosmos-4-4-2-released/">Version 4.4.2</a>
       </li>
       
-      <li class="">
-        <a href="/news/2019/12/30/cosmos-4-4-1-released/">Version 4.4.1</a>
-      </li>
-      
     </ul>
     <h4>Other News</h4>
     <ul>
-           
+             
       <li class="">
         <a href="/news/2020/09/23/packet-time/">Packet Time</a>
       </li>
