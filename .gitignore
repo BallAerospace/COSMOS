@@ -45,8 +45,6 @@ yarn-error.log*
 # Ignore node modules
 node_modules
 
-yarn.lock
-
 # Cypress
 */cypress/screenshots
 */cypress/videos

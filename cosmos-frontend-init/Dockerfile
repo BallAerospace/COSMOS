@@ -16,7 +16,7 @@ COPY ./packages/cosmosc2-tool-scriptrunner/*.json packages/cosmosc2-tool-scriptr
 COPY ./packages/cosmosc2-tool-tlmgrapher/*.json packages/cosmosc2-tool-tlmgrapher/
 COPY ./packages/cosmosc2-tool-tlmviewer/*.json packages/cosmosc2-tool-tlmviewer/
 
-RUN npm install --global lerna && lerna bootstrap --hoist
+RUN yarn install
 
 COPY . .
 
