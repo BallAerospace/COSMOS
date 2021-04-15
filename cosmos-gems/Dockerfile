@@ -17,4 +17,5 @@ RUN apk add --virtual .build-dependencies \
           /var/tmp/*
 
 EXPOSE 9292
-CMD ["bundle", "exec", "rackup", "--host", "0.0.0.0"]
+
+CMD [ "bundle", "exec", "rackup", "--host", "0.0.0.0" ]
