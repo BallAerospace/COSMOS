@@ -14,6 +14,7 @@
     "eslint.workingDirectories": [
       "./cosmos-frontend-init"
     ],
+    "eslint.packageManager": "yarn",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": true
