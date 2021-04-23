@@ -6,7 +6,6 @@ IF /I "%question%" NEQ "Y" GOTO :EOF
 @echo on
 docker volume rm cosmos-minio-v
 docker volume rm cosmos-redis-v
-docker volume rm cosmos-gems-v
 
 @echo off
 if "%1" == "dev" (

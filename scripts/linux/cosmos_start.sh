@@ -13,11 +13,6 @@ docker network inspect cosmos || docker network create cosmos
 
 docker build -f cosmos/Dockerfile -t cosmos-base cosmos
 
-docker container rm cosmos-gems || true
-docker volume create cosmos-gems-v
-docker build -f cosmos-gems/Dockerfile -t cosmos-gems cosmos-gems
-docker run --network cosmos -p 127.0.0.1:9292:9292 -d --name cosmos-gems -v cosmos-gems-v:/data cosmos-gems
-
 if [[ "$1" == "dev" ]]; then
   docker container rm cosmos-elasticsearch || true
   docker volume create cosmos-elasticsearch-v

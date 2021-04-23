@@ -20,40 +20,40 @@
 require 'open-uri'
 require 'nokogiri'
 require 'httpclient'
+require 'cosmos/utilities/s3'
 
 module Cosmos
-  # Abstracts interacting with the the local gem server (geminabox).
   # This class acts like a Model but doesn't inherit from Model because it doesn't
   # actual interact with the Store (Redis). Instead we implement names, get, put
-  # and destroy to allow interaction with the gem server from the PluginModel and
+  # and destroy to allow interaction with gem files from the PluginModel and
   # the GemsController.
   class GemModel
-    GEMINABOX_URL = ENV['COSMOS_GEMS_URL'] || (ENV['COSMOS_DEVEL'] ? 'http://127.0.0.1:9292' : 'http://cosmos-gems:9292')
+    @@bucket_initialized = false
 
     def self.names
-      doc = Nokogiri::XML(URI.open("#{GEMINABOX_URL}/atom.xml"))
-      doc.remove_namespaces!
+      rubys3_client = initialize_bucket()
       gems = []
-      doc.xpath('//entry/link').each do |a|
-        gems << File.basename(a.attributes['href'])
+      rubys3_client.list_objects(bucket: 'gems').contents.each do |object|
+        gems << object.key
       end
       gems
     end
 
     def self.get(dir, name)
+      rubys3_client = initialize_bucket()
       path = File.join(dir, name)
-      File.open(path, 'wb') do |file|
-        file.write(HTTPClient.get_content("#{GEMINABOX_URL}/gems/#{name}"))
-      end
+      rubys3_client.get_object(bucket: 'gems', key: name, response_target: path)
       return path
     end
 
     def self.put(gem_file_path)
+      rubys3_client = initialize_bucket()
       if File.file?(gem_file_path)
-        # Install gem to geminabox - gem push pkg/my-awesome-gem-1.0.gem --host HOST
-        command = "gem inabox #{gem_file_path} --host #{GEMINABOX_URL}"
-        Logger.info "Installing gem: #{command}"
-        return run_command(command)
+        gem_filename = File.basename(gem_file_path)
+        Logger.info "Installing gem: #{gem_filename}"
+        File.open(gem_file_path, 'rb') do |file|
+          rubys3_client.put_object(bucket: 'gems', key: gem_filename, body: file)
+        end
       else
         message = "Gem file #{gem_file_path} does not exist!"
         Logger.error message
@@ -62,33 +62,25 @@ module Cosmos
     end
 
     def self.destroy(name)
-      gem_dot_split = name.split('.')
-      gem_dot_dash_split = gem_dot_split[0].split('-')
-      gem_name = gem_dot_dash_split[0..-2].join('-')
-      gem_version = [gem_dot_dash_split[-1]].concat(gem_dot_split[1..-2]).join('.')
-
-      # Remove gem from geminabox - gem yank my-awesome-gem -v 1.0 --host HOST
-      command = "gem yank #{gem_name} -v #{gem_version} --host #{GEMINABOX_URL}"
-      Logger.info "Removing gem: #{command}"
-      return run_command(command)
+      rubys3_client = initialize_bucket()
+      Logger.info "Removing gem: #{name}"
+      rubys3_client.delete_object(bucket: 'gems', key: name)
     end
 
-    ##################################################
-    # The following methods are implementation details
-    ##################################################
+    # private
 
-    def self.run_command(command)
-      status = 0
-      output = false
-      thread = Thread.new do
-        output, status = Open3.capture2e(command)
+    def self.initialize_bucket
+      rubys3_client = Aws::S3::Client.new
+      unless @@bucket_initialized
+        begin
+          rubys3_client.head_bucket(bucket: 'gems')
+        rescue Aws::S3::Errors::NotFound
+          rubys3_client.create_bucket(bucket: 'gems')
+        end
+        @@bucket_initialized = true
       end
-      thread.join
-      if status.success?
-        return output
-      else
-        raise output
-      end
+      return rubys3_client
     end
+
   end
 end
