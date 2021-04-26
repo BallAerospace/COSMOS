@@ -14,7 +14,10 @@ Vue.component('astro-badge', AstroBadge)
 Vue.component('astro-badge-icon', AstroBadgeIcon)
 Vue.component('astro-status-indicator', AstroStatusIndicator)
 
-new Vue({
-  vuetify,
-  render: (h) => h(App),
-}).$mount('#cosmos-main')
+const options = CosmosAuth.getInitOptions()
+CosmosAuth.init(options).then(() => {
+  new Vue({
+    vuetify,
+    render: (h) => h(App),
+  }).$mount('#cosmos-main')
+})

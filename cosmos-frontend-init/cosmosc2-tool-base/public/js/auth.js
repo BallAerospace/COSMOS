@@ -18,9 +18,18 @@
 */
 
 class Auth {
-  constructor() {}
+  constructor() {
+    localStorage.token = 'invalid'
+    localStorage.refreshToken = 'invalid'
+  }
   updateToken(value) {}
   login() {}
   logout() {}
+  getInitOptions() {}
+  init() {
+    return new Promise((resolve) => {
+      resolve(true)
+    })
+  }
 }
-export const auth = new Auth()
+var CosmosAuth = new Auth()

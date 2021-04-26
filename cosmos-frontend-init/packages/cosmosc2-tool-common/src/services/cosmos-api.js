@@ -18,7 +18,6 @@
 */
 
 import axios from 'axios'
-import { auth } from './auth'
 
 export class CosmosApi {
   id = 1
@@ -29,9 +28,9 @@ export class CosmosApi {
   // This is hacky Json-rpc for now.  Should probably use a jsonrpc library.
   async exec(method, params, kwparams = {}) {
     try {
-      await auth.updateToken(30)
+      await CosmosAuth.updateToken(30)
     } catch (error) {
-      auth.login()
+      CosmosAuth.login()
     }
     this.id = this.id + 1
     try {
