@@ -17,19 +17,24 @@
 # copyright holder
 */
 
+const emptyPromise = function (resolution = true) {
+  return new Promise((resolve) => {
+    resolve(resolution)
+  })
+}
 class Auth {
   constructor() {
     localStorage.token = 'invalid'
     localStorage.refreshToken = 'invalid'
   }
-  updateToken(value) {}
+  updateToken(value) {
+    return emptyPromise()
+  }
   login() {}
   logout() {}
   getInitOptions() {}
   init() {
-    return new Promise((resolve) => {
-      resolve(true)
-    })
+    return emptyPromise()
   }
 }
 var CosmosAuth = new Auth()
