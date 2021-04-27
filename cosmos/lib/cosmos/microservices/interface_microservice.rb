@@ -477,6 +477,7 @@ module Cosmos
       if allow_reconnect and @interface.auto_reconnect and @interface.state != 'DISCONNECTED'
         attempting()
         if !@cancel_thread
+          STDOUT.puts "reconnect delay:#{@interface.reconnect_delay}"
           @interface_thread_sleeper.sleep(@interface.reconnect_delay)
         end
       else

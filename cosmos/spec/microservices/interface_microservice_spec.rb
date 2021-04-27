@@ -24,12 +24,6 @@ require 'cosmos/interfaces/interface'
 require 'cosmos/utilities/authorization'
 require 'cosmos/microservices/interface_microservice'
 
-# Override at_exit to do nothing for testing
-saved_verbose = $VERBOSE; $VERBOSE = nil
-def at_exit(*args, &block)
-end
-$VERBOSE = saved_verbose
-
 module Cosmos
   describe InterfaceMicroservice do
     class ApiTest
@@ -151,7 +145,7 @@ module Cosmos
         i = 0
         allow(System).to receive_message_chain("telemetry.identify!") do
           i += 1
-          raise 'test-error' if i == 2
+          raise 'test-error' if i == 1
           nil
         end
         allow(System).to receive_message_chain("telemetry.update!") { Packet.new("TGT", "PKT") }
@@ -175,7 +169,7 @@ module Cosmos
           stdout.truncate(0) # Erase the previous connection strings so we can verify the reconnect
 
           $read_interface_raise = false
-          sleep 0.4 # Allow to reconnect
+          sleep 0.3 # Allow to reconnect
           expect(stdout.string).to include("Connecting ...")
           expect(stdout.string).to include("Connection Success")
           all = InterfaceStatusModel.all(scope: "DEFAULT")
@@ -284,42 +278,41 @@ module Cosmos
       sleep 0.1 # Allow threads to exit
     end
 
-    # describe "disconnect" do
-    #   it "disconnects the interface and allows for reconnect" do
-    #     im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
-    #     all = InterfaceStatusModel.all(scope: "DEFAULT")
-    #     expect(all["TEST_INT"]["name"]).to eql "TEST_INT"
-    #     expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
+    it "handles a interface that doesn't allow reads" do
+      capture_io do |stdout|
+        im = InterfaceMicroservice.new("DEFAULT__INTERFACE__TEST_INT")
+        all = InterfaceStatusModel.all(scope: "DEFAULT")
+        expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
+        interface = im.instance_variable_get(:@interface)
+        interface.instance_variable_set(:@read_allowed, false)
 
-    #     @api.connect_interface("TEST_INT")
-    #     sleep(0.1)
-    #     # im.connect
-    #     all = InterfaceStatusModel.all(scope: "DEFAULT")
-    #     pp all["TEST_INT"]
-    #     # expect(all["TEST_INT"]["state"]).to eql "CONNECTED"
+        # Shouldn't cause error because read_interface shouldn't be called
+        $read_interface_raise = true
+        im_thread = Thread.new { im.run }
+        sleep 0.1 # Allow to start
+        all = InterfaceStatusModel.all(scope: "DEFAULT")
+        expect(all["TEST_INT"]["state"]).to eql "CONNECTED"
+        expect(stdout.string).to include("Connecting ...")
+        expect(stdout.string).to include("Connection Success")
+        expect(stdout.string).to include("Starting connection maintenance")
 
-    #     @api.disconnect_interface("TEST_INT")
-    #     sleep(0.1)
-    #     # im.disconnect
-    #     all = InterfaceStatusModel.all(scope: "DEFAULT")
-    #     # Since the interface is set to auto_reconnect it should immediately go to ATTEMPTING
-    #     pp all["TEST_INT"]
-    #     # expect(all["TEST_INT"]["state"]).to eql "ATTEMPTING"
+        @api.disconnect_interface("TEST_INT")
+        sleep 1.1 # Allow disconnect and wait for @interface_thread_sleeper.sleep(1)
+        all = InterfaceStatusModel.all(scope: "DEFAULT")
+        expect(all["TEST_INT"]["state"]).to eql "DISCONNECTED"
+        expect(stdout.string).to include("Disconnect requested")
+        expect(stdout.string).to include("Connection Lost")
 
-    #     @api.connect_interface("TEST_INT")
-    #     sleep(0.1)
-    #     # # im.connect
-    #     all = InterfaceStatusModel.all(scope: "DEFAULT")
-    #     pp all["TEST_INT"]
-    #     # expect(all["TEST_INT"]["state"]).to eql "CONNECTED"
+        # Wait and verify still DISCONNECTED and not ATTEMPTING
+        sleep 0.2
+        all = InterfaceStatusModel.all(scope: "DEFAULT")
+        expect(all["TEST_INT"]["state"]).to eql "DISCONNECTED"
+        expect($disconnect_count).to eql 1
 
-    #     # im.disconnect(false) # Don't allow reconnect
-    #     # all = InterfaceStatusModel.all(scope: "DEFAULT")
-    #     # expect(all["TEST_INT"]["state"]).to eql "DISCONNECTED"
-
-    #     im.shutdown
-    #     sleep 0.1
-    #   end
-    # end
+        im.shutdown
+        im_thread.kill
+      end
+      sleep 0.1 # Allow threads to exit
+    end
   end
 end
