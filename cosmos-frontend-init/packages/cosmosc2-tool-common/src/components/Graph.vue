@@ -689,12 +689,15 @@ export default {
             item.valueType
         )
       })
-      this.subscription.perform('add', {
-        scope: 'DEFAULT',
-        mode: 'DECOM',
-        items: items,
-        start_time: this.graphStartDateTime,
-        end_time: endTime,
+      CosmosAuth.updateToken(30).then(() => {
+        this.subscription.perform('add', {
+          scope: 'DEFAULT',
+          mode: 'DECOM',
+          token: localStorage.token,
+          items: items,
+          start_time: this.graphStartDateTime,
+          end_time: endTime,
+        })
       })
     },
     // throttle(cb, limit) {
@@ -838,11 +841,14 @@ export default {
       this.indexes[key] = index
 
       if (this.subscription) {
-        this.subscription.perform('add', {
-          scope: 'DEFAULT',
-          items: [key],
-          start_time: this.graphStartDateTime,
-          end_time: this.graphEndDateTime, // normally null which means continue in real-time
+        CosmosAuth.updateToken(30).then(() => {
+          this.subscription.perform('add', {
+            scope: 'DEFAULT',
+            token: localStorage.token,
+            items: [key],
+            start_time: this.graphStartDateTime,
+            end_time: this.graphEndDateTime, // normally null which means continue in real-time
+          })
         })
       }
     },

@@ -548,34 +548,7 @@ export default {
       this.cable
         .createSubscription('StreamingChannel', 'DEFAULT', {
           received: (data) => this.received(data),
-          connected: () => {
-            this.foundKeys = []
-            this.columnHeaders = []
-            this.columnMap = {}
-            this.outputFile = []
-            this.rawData = []
-            var items = []
-            this.items.forEach((item, index) => {
-              items.push(
-                item.cmdOrTlm +
-                  '__' +
-                  item.targetName +
-                  '__' +
-                  item.packetName +
-                  '__' +
-                  item.itemName +
-                  '__' +
-                  item.valueType
-              )
-            })
-            this.subscription.perform('add', {
-              scope: 'DEFAULT',
-              mode: 'DECOM',
-              items: items,
-              start_time: this.startDateTime,
-              end_time: this.endDateTime,
-            })
-          },
+          connected: () => this.onConnected(),
           disconnected: () => {
             this.warningText = 'COSMOS backend connection disconnected.'
             this.warning = true
@@ -588,6 +561,37 @@ export default {
         .then((subscription) => {
           this.subscription = subscription
         })
+    },
+    onConnected() {
+      this.foundKeys = []
+      this.columnHeaders = []
+      this.columnMap = {}
+      this.outputFile = []
+      this.rawData = []
+      var items = []
+      this.items.forEach((item, index) => {
+        items.push(
+          item.cmdOrTlm +
+            '__' +
+            item.targetName +
+            '__' +
+            item.packetName +
+            '__' +
+            item.itemName +
+            '__' +
+            item.valueType
+        )
+      })
+      CosmosAuth.updateToken(30).then(() => {
+        this.subscription.perform('add', {
+          scope: 'DEFAULT',
+          mode: 'DECOM',
+          token: localStorage.token,
+          items: items,
+          start_time: this.startDateTime,
+          end_time: this.endDateTime,
+        })
+      })
     },
     buildHeaders(itemKeys) {
       if (

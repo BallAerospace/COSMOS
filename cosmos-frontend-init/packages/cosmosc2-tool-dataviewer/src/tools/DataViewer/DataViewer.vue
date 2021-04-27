@@ -501,12 +501,15 @@ export default {
         }
         return groups
       }, {})
-      Object.keys(modeGroups).forEach((mode) => {
-        this.subscription.perform('add', {
-          scope: 'DEFAULT',
-          packets: modeGroups[mode].map(this.subscriptionKey),
-          mode: mode,
-          ...this.startEndTime,
+      CosmosAuth.updateToken(30).then(() => {
+        Object.keys(modeGroups).forEach((mode) => {
+          this.subscription.perform('add', {
+            scope: 'DEFAULT',
+            token: localStorage.token,
+            packets: modeGroups[mode].map(this.subscriptionKey),
+            mode: mode,
+            ...this.startEndTime,
+          })
         })
       })
     },
