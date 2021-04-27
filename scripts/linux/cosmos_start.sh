@@ -55,7 +55,7 @@ docker run --network cosmos -p 127.0.0.1:9000:9000  -d --name cosmos-minio -v co
 sleep 30
 
 docker container rm cosmos-cmd-tlm-api || true
-docker build -f cosmos-cmd-tlm-api/Dockerfile -t cosmos-cmd-tlm-api cmd-tlm-api
+docker build -f cosmos-cmd-tlm-api/Dockerfile -t cosmos-cmd-tlm-api cosmos-cmd-tlm-api
 docker run --network cosmos -p 127.0.0.1:2901:2901 -d --name cosmos-cmd-tlm-api cosmos-cmd-tlm-api
 
 docker container rm cosmos-script-runner-api || true
@@ -63,14 +63,14 @@ docker build -f cosmos-script-runner-api/Dockerfile -t cosmos-script-runner-api 
 docker run --network cosmos -p 127.0.0.1:2902:2902 -d --name cosmos-script-runner-api cosmos-script-runner-api
 
 docker container rm cosmos-operator || true
-docker build -f cosmos-operator/Dockerfile -t cosmos-operator operator
+docker build -f cosmos-operator/Dockerfile -t cosmos-operator cosmos-operator
 docker run --network cosmos -d --name cosmos-operator cosmos-operator
 
 docker container rm cosmos-traefik || true
 docker build -f traefik/Dockerfile -t cosmos-traefik traefik
 docker run --network cosmos -p 127.0.0.1:2900:80 -d --name cosmos-traefik cosmos-traefik
 
-docker build -f cosmos-frontend/Dockerfile -t cosmos-frontend-init cosmos-frontend
+docker build -f cosmos-frontend-init/Dockerfile -t cosmos-frontend-init cosmos-frontend-init
 docker run --network cosmos --name cosmos-frontend-init --rm cosmos-frontend-init
 
 docker build -f cosmos-init/Dockerfile -t cosmos-init cosmos-init

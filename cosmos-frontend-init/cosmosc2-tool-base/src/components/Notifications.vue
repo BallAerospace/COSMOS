@@ -351,21 +351,24 @@ export default {
       window.open(url, '_blank')
     },
     subscribe: function () {
-      const startOptions = {
-        start_offset:
-          localStorage.notificationStreamOffset ||
-          localStorage.lastReadNotification,
-      }
-      this.subscription = this.cable.subscriptions.create(
-        {
-          channel: 'NotificationsChannel',
-          scope: 'DEFAULT',
-          ...startOptions,
-        },
-        {
-          received: (data) => this.received(data),
+      CosmosAuth.updateToken(30).then(() => {
+        const startOptions = {
+          start_offset:
+            localStorage.notificationStreamOffset ||
+            localStorage.lastReadNotification,
         }
-      )
+        this.subscription = this.cable.subscriptions.create(
+          {
+            channel: 'NotificationsChannel',
+            scope: 'DEFAULT',
+            token: localStorage.token,
+            ...startOptions,
+          },
+          {
+            received: (data) => this.received(data),
+          }
+        )
+      })
     },
     received: function (data) {
       const parsed = JSON.parse(data)
