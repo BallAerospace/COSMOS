@@ -175,10 +175,10 @@
 
 <script>
 import DateTimeChooser from './DateTimeChooser'
-import * as ActionCable from 'actioncable'
 import uPlot from 'uplot'
 import bs from 'binary-search'
 import { toDate, format, getTime } from 'date-fns'
+import Cable from '../services/cable.js'
 
 require('uplot/dist/uPlot.min.css')
 
@@ -264,7 +264,7 @@ export default {
       drawInterval: null,
       zoomChart: false,
       zoomOverview: false,
-      cable: ActionCable.Cable,
+      cable: new Cable(),
       subscription: null,
       colors: [
         'blue',
@@ -296,8 +296,6 @@ export default {
     },
   },
   created() {
-    // Creating the cable can be done once, subscriptions come and go
-    this.cable = ActionCable.createConsumer('/cosmos-api/cable')
     this.title = 'Graph ' + this.id
     for (const [index, item] of this.items.entries()) {
       this.data.push([]) // initialize the empty data arrays
@@ -661,43 +659,43 @@ export default {
       }
     },
     subscribe(endTime = null) {
-      let subscription = this.cable.subscriptions.create(
-        {
-          channel: 'StreamingChannel',
-          scope: 'DEFAULT',
-        },
-        {
+      this.cable
+        .createSubscription('StreamingChannel', 'DEFAULT', {
           received: (data) => this.received(data),
           connected: () => {
-            var items = []
-            this.items.forEach((item) => {
-              items.push(
-                'TLM__' +
-                  item.targetName +
-                  '__' +
-                  item.packetName +
-                  '__' +
-                  item.itemName +
-                  '__' +
-                  item.valueType
-              )
-            })
-            subscription.perform('add', {
-              scope: 'DEFAULT',
-              mode: 'DECOM',
-              items: items,
-              start_time: this.graphStartDateTime,
-              end_time: endTime,
-            })
+            this.onConnected(endTime)
           },
           // TODO: How should we handle server side disconnect
           // disconnected: () => console.log('disconnected'),
-        }
-      )
-      // Store the subscription if we haven't already
-      if (this.subscription === null) {
-        this.subscription = subscription
-      }
+        })
+        .then((subscription) => {
+          // Store the subscription if we haven't already
+          if (this.subscription === null) {
+            this.subscription = subscription
+          }
+        })
+    },
+    onConnected(endTime) {
+      var items = []
+      this.items.forEach((item) => {
+        items.push(
+          'TLM__' +
+            item.targetName +
+            '__' +
+            item.packetName +
+            '__' +
+            item.itemName +
+            '__' +
+            item.valueType
+        )
+      })
+      this.subscription.perform('add', {
+        scope: 'DEFAULT',
+        mode: 'DECOM',
+        items: items,
+        start_time: this.graphStartDateTime,
+        end_time: endTime,
+      })
     },
     // throttle(cb, limit) {
     //   var wait = false

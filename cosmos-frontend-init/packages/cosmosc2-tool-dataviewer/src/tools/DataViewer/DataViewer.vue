@@ -295,11 +295,11 @@
 
 <script>
 import { format, isValid, parse } from 'date-fns'
-import * as ActionCable from 'actioncable'
 import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 import OpenConfigDialog from '@cosmosc2/tool-common/src/components/OpenConfigDialog'
 import SaveConfigDialog from '@cosmosc2/tool-common/src/components/SaveConfigDialog'
 import TargetPacketItemChooser from '@cosmosc2/tool-common/src/components/TargetPacketItemChooser'
+import Cable from '@cosmosc2/tool-common/src/services/cable.js'
 import DumpComponent from './DumpComponent'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
@@ -318,8 +318,8 @@ export default {
       openConfig: false,
       saveConfig: false,
       api: null,
-      cable: ActionCable.Cable,
-      subscription: ActionCable.Channel,
+      cable: new Cable(),
+      subscription: null,
       startDate: format(new Date(), 'yyyy-MM-dd'),
       startTime: format(new Date(), 'HH:mm:ss'),
       endDate: '',
@@ -414,17 +414,10 @@ export default {
     'config.tabs.length': function () {
       this.resizeTabs()
     },
-    'cable.connection.disconnected': function (val) {
-      this.connectionFailure = val
-    },
   },
   created() {
     this.api = new CosmosApi()
-    this.cable = ActionCable.createConsumer('/cosmos-api/cable')
     this.subscribe()
-    setTimeout(() => {
-      this.connectionFailure = this.cable.connection.disconnected
-    }, 1000)
   },
   mounted: function () {
     const previousConfig = localStorage['lastconfig__data_viewer']
@@ -473,28 +466,29 @@ export default {
       this.removePacketsFromSubscription()
     },
     subscribe: function () {
-      this.subscription = this.cable.subscriptions.create(
-        {
-          channel: 'StreamingChannel',
-          scope: 'DEFAULT',
-        },
-        {
+      this.cable
+        .createSubscription('StreamingChannel', 'DEFAULT', {
           received: (data) => this.received(data),
           connected: () => {
             this.canStart = true
+            this.connectionFailure = false
           },
           disconnected: () => {
             this.stop()
             this.canStart = false
             this.warningText = 'COSMOS backend connection disconnected.'
             this.warning = true
+            this.connectionFailure = true
           },
           rejected: () => {
             this.warningText = 'COSMOS backend connection rejected.'
             this.warning = true
           },
-        }
-      )
+        })
+        .then((subscription) => {
+          this.subscription = subscription
+          if (this.running) this.addPacketsToSubscription()
+        })
     },
     addPacketsToSubscription: function (packets) {
       packets = packets || this.allPackets
@@ -569,13 +563,13 @@ export default {
     },
     openConfiguration: async function (name) {
       localStorage['lastconfig__data_viewer'] = name
-      this.removePacketsFromSubscription()
+      if (this.subscription) this.removePacketsFromSubscription()
       this.receivedPackets = {}
       let response = await this.api.load_config(this.toolName, name)
       if (response) {
         this.config = JSON.parse(response)
       }
-      this.addPacketsToSubscription()
+      if (this.subscription && this.running) this.addPacketsToSubscription()
     },
     saveConfiguration: function (name) {
       localStorage['lastconfig__data_viewer'] = name
