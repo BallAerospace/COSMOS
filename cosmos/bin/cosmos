@@ -38,7 +38,7 @@ $redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.
 def print_usage
   puts "Usage:"
   puts "  cosmos help                   # Displays this information"
-  puts "  cosmos load                   # Loads a COSMOS user directory onto the cluster"
+  puts "  cosmos load /path/file.gem    # Loads a COSMOS gem file"
   puts "  cosmos install directory_name # Creates a barebones COSMOS user directory"
   puts "  cosmos demo directory_name    # Creates a demo COSMOS user directory"
   puts "  cosmos docs                   # Launches the documentation server"
@@ -65,10 +65,10 @@ def install(install_type, install_folder)
 
       puts "Complete"
     else
-      puts "ERROR: Directory #{dir_name} already exists... aborting"
+      abort("ERROR: Directory #{dir_name} already exists... aborting")
     end
   else
-    puts "ERROR: Directory must be given to install to"
+    abort("ERROR: Directory must be given to install to")
   end
 end
 
@@ -205,12 +205,10 @@ def generate(args)
   case args[0]
   when 'target'
     unless File.exist?('./config/targets/')
-      puts "generator must be run at the root of the COSMOS user installation"
-      return
+      abort("generator must be run at the root of the COSMOS user installation")
     end
     if args.length != 2
-      puts "Usage: cosmos generate target <NAME>"
-      return
+      abort("Usage: cosmos generate target <NAME>")
     end
     target = args[1].upcase
     target_path = File.join("./config/targets/#{target}")
@@ -219,8 +217,7 @@ def generate(args)
       STDOUT.flush # Output the warning
       name = STDIN.gets.chomp
       if name != 'y'
-        puts "Aborting generator"
-        return
+        abort("Aborting generator")
       end
       FileUtils.rm_rf target_path
       sleep 1 # Allow the delete to occur
@@ -246,7 +243,7 @@ def generate(args)
     puts "and interface the target unless you're using AUTO_INTERFACE_TARGETS."
     puts "See the COSMOS System Configuration documentation for more details.\n"
   else # Unknown generator
-    puts "Unknown generator #{args[0]}"
+    abort("Unknown generator #{args[0]}")
   end
 end
 
@@ -320,7 +317,7 @@ def load_plugin(plugin_file_path, scope:)
       scope_model.create
       scope_model.deploy(".", {})
     rescue => err
-      puts "Error creating scope: #{scope}: #{err.formatted}"
+      abort("Error creating scope: #{scope}: #{err.formatted}")
     end
   end
 
@@ -328,7 +325,7 @@ def load_plugin(plugin_file_path, scope:)
     plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
     Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
   rescue => err
-    puts "Error installing plugin: #{scope}: #{plugin_file_path}: #{err.formatted}"
+    abort("Error installing plugin: #{scope}: #{plugin_file_path}: #{err.formatted}")
   end
 end
 
@@ -403,8 +400,8 @@ if not ARGV[0].nil? # argument(s) given
     end
 
   else # Unknown task
-    puts "Unknown task: #{ARGV[0]}\n"
     print_usage()
+    abort("Unknown task: #{ARGV[0]}")
   end
 
 else # No arguments given
