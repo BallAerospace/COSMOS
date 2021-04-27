@@ -8,7 +8,6 @@ docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "s
 docker build -f cosmos-ruby\Dockerfile -t cosmos-ruby cosmos-ruby || exit /b
 docker build -f cosmos-node\Dockerfile -t cosmos-node cosmos-node || exit /b
 docker build -f cosmos\Dockerfile -t cosmos-base cosmos || exit /b
-docker build -f cosmos-gems\Dockerfile -t cosmos-gems cosmos-gems || exit /b
 docker build -f cosmos-cmd-tlm-api\Dockerfile -t cosmos-cmd-tlm-api cosmos-cmd-tlm-api || exit /b
 docker build -f cosmos-script-runner-api\Dockerfile -t cosmos-script-runner-api cosmos-script-runner-api || exit /b
 docker build -f cosmos-frontend-init\Dockerfile -t cosmos-frontend-init cosmos-frontend-init || exit /b

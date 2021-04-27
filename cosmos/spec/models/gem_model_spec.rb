@@ -20,23 +20,33 @@
 require 'spec_helper'
 require 'cosmos/models/gem_model'
 require 'tempfile'
+require 'ostruct'
 
 module Cosmos
   describe GemModel do
-    # self.names can't really be tested outside geminabox because
-    # by the time you're done stubbing everything you're not really testing
+    before(:each) do
+      @scope = "DEFAULT"
+      @s3 = instance_double("Aws::S3::Client") # .as_null_object
+      @list_result = OpenStruct.new
+      @list_result.contents = [OpenStruct.new({key: 'cosmos-test1.gem'}), OpenStruct.new({key: 'cosmos-test2.gem'})]
+      allow(@s3).to receive(:list_objects).and_return(@list_result)
+      allow(@s3).to receive(:head_bucket).with(any_args)
+      allow(@s3).to receive(:create_bucket)
+      allow(Aws::S3::Client).to receive(:new).and_return(@s3)
+    end
+
+    describe "self.names" do
+      it "returns a list of gem names" do
+        expect(GemModel.names).to eql ["cosmos-test1.gem", "cosmos-test2.gem"]
+      end
+    end
 
     describe "self.get" do
-      it "raises if the gem server can't be reached" do
-        expect { GemModel.get(Dir.pwd, 'testgem') }.to raise_error(Errno::ECONNREFUSED)
-        FileUtils.rm_f 'testgem'
-      end
-
       it "copies the gem to the local filesystem" do
-        expect(HTTPClient).to receive(:get_content).with(/test.gem/).and_return("This is a gem")
-        path = GemModel.get(Dir.pwd, 'test.gem')
-        expect(File.read(path)).to eql "This is a gem"
-        FileUtils.rm_f path
+        response_path = File.join(Dir.pwd, 'cosmos-test1.gem')
+        expect(@s3).to receive(:get_object).with(bucket: 'gems', key: 'cosmos-test1.gem', response_target: response_path)
+        path = GemModel.get(Dir.pwd, 'cosmos-test1.gem')
+        expect(path).to eql response_path
       end
     end
 
@@ -45,36 +55,19 @@ module Cosmos
         expect { GemModel.put('another.gem') }.to raise_error(/does not exist/)
       end
 
-      it "raises if the gem server can't be reached" do
-        tf = Tempfile.new("testgem")
-        tf.close
-        # Simply check for error ... for some reason we don't always get Errno::ECONNREFUSED
-        expect { GemModel.put(tf.path) }.to raise_error(RuntimeError)
-        tf.unlink
-      end
-
       it "installs the gem to the gem server" do
-        tf = Tempfile.new("testgem")
+        tf = Tempfile.new("cosmos-test3.gem")
         tf.close
-        status = double("status")
-        expect(status).to receive(:success?).and_return(true)
-        expect(Open3).to receive(:capture2e).with(/#{tf.path}/).and_return(["success", status])
-        result = GemModel.put(tf.path)
-        expect(result).to eql "success"
+        expect(@s3).to receive(:put_object)
+        GemModel.put(tf.path)
         tf.unlink
       end
     end
 
     describe "self.destroy" do
       it "removes the gem from the gem server" do
-        tf = Tempfile.new("testgem")
-        tf.close
-        status = double("status")
-        expect(status).to receive(:success?).and_return(true)
-        expect(Open3).to receive(:capture2e).with(/gem yank my-awesome-gem -v 1.2.3.4/).and_return(["success", status])
-        result = GemModel.destroy("my-awesome-gem-1.2.3.4.gem")
-        expect(result).to eql "success"
-        tf.unlink
+        expect(@s3).to receive(:delete_object).with(bucket: 'gems', key: 'cosmos-test1.gem')
+        GemModel.destroy("cosmos-test1.gem")
       end
     end
   end
