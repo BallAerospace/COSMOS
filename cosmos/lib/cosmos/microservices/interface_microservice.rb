@@ -232,6 +232,8 @@ module Cosmos
       end
       @interface.name = interface_name
       @config["target_names"].each do |target_name|
+        # TODO: Is this duplicating the target_names array?
+        #   InterfaceModel already holds target_names internally ...
         @interface.target_names << target_name
         target = System.targets[target_name]
         target.interface = @interface
@@ -320,6 +322,8 @@ module Cosmos
       rescue Exception => error
         Logger.error "#{@interface.name}: Packet reading thread died: #{error.formatted}"
         Cosmos.handle_fatal_exception(error)
+        # Try to do clean disconnect because we're going down
+        disconnect(false)
       end
       if @interface_or_router == 'INTERFACE'
         InterfaceStatusModel.set(@interface.as_json, scope: @scope)
@@ -455,7 +459,18 @@ module Cosmos
     end
 
     def disconnect(allow_reconnect = true)
-      @interface.disconnect
+      return if @interface.state == 'DISCONNECTED' && !@interface.connected?
+
+      # Synchronize the calls to @interface.disconnect since it takes an unknown
+      # amount of time. If two calls to disconnect stack up, the if statement
+      # should avoid multiple calls to disconnect.
+      @mutex.synchronize do
+        begin
+          @interface.disconnect if @interface.connected?
+        rescue => e
+          Logger.error "Disconnect: #{@interface.name}: #{e.formatted}"
+        end
+      end
 
       # If the interface is set to auto_reconnect then delay so the thread
       # can come back around and allow the interface a chance to reconnect.
