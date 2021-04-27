@@ -37,12 +37,12 @@ $redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.
 # Prints the usage text for the cosmos executable
 def print_usage
   puts "Usage:"
-  puts "  cosmos help                   # Displays this information"
-  puts "  cosmos load /path/file.gem    # Loads a COSMOS gem file"
-  puts "  cosmos install directory_name # Creates a barebones COSMOS user directory"
-  puts "  cosmos demo directory_name    # Creates a demo COSMOS user directory"
-  puts "  cosmos docs                   # Launches the documentation server"
-  puts "  cosmos generate target <NAME> # Generate a COSMOS target"
+  puts "  cosmos help                       # Displays this information"
+  puts "  cosmos load </PATH/FILENAME.gem>  # Loads a COSMOS plugin gem file"
+  puts "  cosmos install <DIR_NAME>         # Creates a barebones COSMOS user directory"
+  puts "  cosmos demo <DIR_NAME>            # Creates a demo COSMOS user directory"
+  puts "  cosmos docs                       # Launches the documentation server"
+  puts "  cosmos generate target <TGT_NAME> # Generate a COSMOS target"
   puts ""
   puts "Other Tools included with COSMOS:"
   puts "  rubysloc                      # Counts Ruby SLOC recursively"
