@@ -1,0 +1,2345 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <title>Plugins</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v4.2.0">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
+
+
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
+
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+  <section class="docs">
+  <div class="grid wider">
+    <div class="unit four-fifths">
+      <article>
+        <!-- Get version but ignore the "docs" collection -->
+        <!-- prettier-ignore -->
+        
+        
+        <div class="improve right">
+          <span class="version-badge">v5</span>
+        </div>
+         
+        <div class="toc"><ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
+<li class="toc-entry toc-h2"><a href="#concepts">Concepts</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#target">Target</a></li>
+<li class="toc-entry toc-h3"><a href="#interface">Interface</a></li>
+<li class="toc-entry toc-h3"><a href="#router">Router</a></li>
+<li class="toc-entry toc-h3"><a href="#tool">Tool</a></li>
+<li class="toc-entry toc-h3"><a href="#microservice">Microservice</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#plugin-directory-structure">Plugin Directory Structure</a></li>
+<li class="toc-entry toc-h2"><a href="#plugintxt-configuration-file">plugin.txt Configuration File</a></li>
+<li class="toc-entry toc-h2"><a href="#variable">VARIABLE</a></li>
+<li class="toc-entry toc-h2"><a href="#interface-1">INTERFACE</a></li>
+<li class="toc-entry toc-h2"><a href="#router-1">ROUTER</a></li>
+<li class="toc-entry toc-h2"><a href="#target-1">TARGET</a></li>
+<li class="toc-entry toc-h2"><a href="#microservice-1">MICROSERVICE</a></li>
+<li class="toc-entry toc-h2"><a href="#tool-1">TOOL</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#interface-modifiers">INTERFACE Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#map_target">MAP_TARGET</a></li>
+<li class="toc-entry toc-h3"><a href="#dont_connect">DONT_CONNECT</a></li>
+<li class="toc-entry toc-h3"><a href="#dont_reconnect">DONT_RECONNECT</a></li>
+<li class="toc-entry toc-h3"><a href="#reconnect_delay">RECONNECT_DELAY</a></li>
+<li class="toc-entry toc-h3"><a href="#disable_disconnect">DISABLE_DISCONNECT</a></li>
+<li class="toc-entry toc-h3"><a href="#log">LOG</a></li>
+<li class="toc-entry toc-h3"><a href="#log_stored">LOG_STORED</a></li>
+<li class="toc-entry toc-h3"><a href="#dont_log">DONT_LOG</a></li>
+<li class="toc-entry toc-h3"><a href="#log_raw">LOG_RAW</a></li>
+<li class="toc-entry toc-h3"><a href="#protocol">PROTOCOL</a></li>
+<li class="toc-entry toc-h3"><a href="#option">OPTION</a></li>
+<li class="toc-entry toc-h3"><a href="#router-modifiers">ROUTER Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#route">ROUTE</a></li>
+<li class="toc-entry toc-h3"><a href="#map_target-1">MAP_TARGET</a></li>
+<li class="toc-entry toc-h3"><a href="#dont_connect-1">DONT_CONNECT</a></li>
+<li class="toc-entry toc-h3"><a href="#dont_reconnect-1">DONT_RECONNECT</a></li>
+<li class="toc-entry toc-h3"><a href="#reconnect_delay-1">RECONNECT_DELAY</a></li>
+<li class="toc-entry toc-h3"><a href="#disable_disconnect-1">DISABLE_DISCONNECT</a></li>
+<li class="toc-entry toc-h3"><a href="#log-1">LOG</a></li>
+<li class="toc-entry toc-h3"><a href="#log_stored-1">LOG_STORED</a></li>
+<li class="toc-entry toc-h3"><a href="#dont_log-1">DONT_LOG</a></li>
+<li class="toc-entry toc-h3"><a href="#log_raw-1">LOG_RAW</a></li>
+<li class="toc-entry toc-h3"><a href="#protocol-1">PROTOCOL</a></li>
+<li class="toc-entry toc-h3"><a href="#option-1">OPTION</a></li>
+<li class="toc-entry toc-h3"><a href="#microservice-modifiers">MICROSERVICE Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#env">ENV</a></li>
+<li class="toc-entry toc-h3"><a href="#work_dir">WORK_DIR</a></li>
+<li class="toc-entry toc-h3"><a href="#topic">TOPIC</a></li>
+<li class="toc-entry toc-h3"><a href="#target_name">TARGET_NAME</a></li>
+<li class="toc-entry toc-h3"><a href="#cmd">CMD</a></li>
+<li class="toc-entry toc-h3"><a href="#option-2">OPTION</a></li>
+<li class="toc-entry toc-h3"><a href="#tool-modifiers">TOOL Modifiers</a></li>
+<li class="toc-entry toc-h3"><a href="#url">URL</a></li>
+<li class="toc-entry toc-h3"><a href="#inline_url">INLINE_URL</a></li>
+<li class="toc-entry toc-h3"><a href="#window">WINDOW</a></li>
+<li class="toc-entry toc-h3"><a href="#icon">ICON</a></li>
+<li class="toc-entry toc-h3"><a href="#category">CATEGORY</a></li>
+<li class="toc-entry toc-h3"><a href="#shown">SHOWN</a></li>
+</ul>
+</li>
+</ul></div>
+        
+        <h1>Plugins</h1>
+        <h2 id="introduction">
+<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>This document provides the information necessary to configure a COSMOS plugin. Plugins are how you configure and extend COSMOS 5.</p>
+
+<p>Plugins are where you define targets (and their corresponding command and telemetry packet definitions), where you configure the interfaces needed to talk to targets, where you can define routers to stream raw data out of COSMOS, how you can add new tools to the COSMOS user interface, and how you can run additional microservices to provide new functionality.</p>
+
+<p>Each plugin is built as a Ruby gem and thus has a <plugin>.gemspec file which builds it. Plugins have a plugin.txt file which declares all the variables used by the plugin and how to interface to the target(s) it contains.</plugin></p>
+
+<h2 id="concepts">
+<a class="anchor" href="#concepts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Concepts</h2>
+
+<h3 id="target">
+<a class="anchor" href="#target" aria-hidden="true"><span class="octicon octicon-link"></span></a>Target</h3>
+
+<p>Targets are the external pieces of hardware and/or software that COSMOS communicates with.  These are things like Front End Processors (FEPs), ground support equipment (GSE), custom software tools, and pieces of hardware like satellites themselves.  A target is anything that COSMOS can send commands to and receive telemetry from.</p>
+
+<h3 id="interface">
+<a class="anchor" href="#interface" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interface</h3>
+
+<p>Interfaces implement the physical connection to one or more targets.  They are typically ethernet connections implemented using TCP or UDP but can be other connections like serial ports.  Interfaces send commands to targets and receive telemetry from targets.</p>
+
+<h3 id="router">
+<a class="anchor" href="#router" aria-hidden="true"><span class="octicon octicon-link"></span></a>Router</h3>
+
+<p>Routers flow streams of telemetry packets out of COSMOS and receive streams of commands into COSMOS.  The commands are forwarded by COSMOS to associated interfaces.  Telemetry comes from associated interfaces.</p>
+
+<h3 id="tool">
+<a class="anchor" href="#tool" aria-hidden="true"><span class="octicon octicon-link"></span></a>Tool</h3>
+
+<p>COSMOS Tools are web-based applications the communicate with the COSMOS APIs to perform takes like displaying telemetry, sending commands, and running scripts.</p>
+
+<h3 id="microservice">
+<a class="anchor" href="#microservice" aria-hidden="true"><span class="octicon octicon-link"></span></a>Microservice</h3>
+
+<p>Microservices are persistent running backend code that runs within the COSMOS environment.  They can process data and perform other useful tasks.</p>
+
+<h2 id="plugin-directory-structure">
+<a class="anchor" href="#plugin-directory-structure" aria-hidden="true"><span class="octicon octicon-link"></span></a>Plugin Directory Structure</h2>
+
+<p>COSMOS plugins have a well-defined directory structure as follows:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Folder / File</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>plugin.txt</td>
+      <td>Configuration file for the plugin.  This file is required and always named exactly plugin.txt.  See later in this document for the format.</td>
+    </tr>
+    <tr>
+      <td>LICENSE.txt</td>
+      <td>License for the plugin.  COSMOS Plugins should be licensed in a manner compatible with the AGPLv3, unless they are designed only for use with COSMOS Enterprise Edition (or only for use at Ball), in which case they can take on any license as desired.</td>
+    </tr>
+    <tr>
+      <td>cosmos-PLUGINNAME.gemspec or cosmosc2-PLUGINNAME.gemspec</td>
+      <td>This file should have the name of the plugin with a .gemspec extension.  For example cosmos-demo.gemspec.   The name of this file is used in compiling the plugin contents into the final corresponding <plugin name="">-<version>.gem plugin file.  ie. cosmos-demo-5.0.0.gem.  COSMOS plugins should always begin with the cosmos- or cosmosc2- prefix to make them easily identifiable in the Rubygems repository. The contents of this file take on the Rubygems spec format as documented at: https://guides.rubygems.org/specification-reference/</version></plugin>
+</td>
+    </tr>
+    <tr>
+      <td>Rakefile</td>
+      <td>This is a helper ruby Rakefile used to build the plugin.  In general, the exact same file as provided with the COSMOS demo plugins can be used, or other features can be added as necessary for your plugin project.  This file is typically just used to support building the plugin by running “rake build VERSION=X.X.X” where X.X.X is the plugin version number.  A working Ruby installation is required.</td>
+    </tr>
+    <tr>
+      <td>README.md</td>
+      <td>Use this file to describe your plugin.  It is typically a markdown file that supports nice formatting on Github.</td>
+    </tr>
+    <tr>
+      <td>targets/</td>
+      <td>This folder is required if any targets are defined by your plugin.  All target configuration is included under this folder. It should contain one or more target configurations</td>
+    </tr>
+    <tr>
+      <td>targets/TARGETNAME</td>
+      <td>This is a folder that contains the configuration for a specific target named TARGETNAME.  The name is always defined in all caps.  For example: targets/INST.   This is typically the default name of the target, but well-designed targets will allow themselves to be renamed at installation. All subfolders and files below this folder are optional and should be added as needed.</td>
+    </tr>
+    <tr>
+      <td>targets/TARGETNAME/cmd_tlm</td>
+      <td>This folder contains the command and telemetry definition files for the target. These files capture the format of the commands that can be sent to the target, and the telemetry packets that are expected to be received by COSMOS from the target. Note that the files in this folder are processed in alphabetical order by default. That can matter if you reference a packet in another file (it should already have been defined). See the Command and Telemetry Configuration Guides for more information.</td>
+    </tr>
+    <tr>
+      <td>targets/TARGETNAME/data</td>
+      <td>Use this folder to store any general data that is needed by the target.  For example, any image files would be stored here.</td>
+    </tr>
+    <tr>
+      <td>targets/TARGETNAME/lib</td>
+      <td>This folder contains any custom code required by the target.  Good examples of custom code are custom Interface classes and protocols.  See the Interface documentation for more information. Try to give any custom code a unique filename that starts with the name of the target.  This can help avoid name conflicts that can occur if two different targets create a custom code file with the same filename.</td>
+    </tr>
+    <tr>
+      <td>targets/TARGETNAME/procedures</td>
+      <td>This folder contains target specific procedures and helper methods which exercise functionality of the target. These procedures should be kept simple and only use the command and telemetry definitions associated with this target. See the Scripting Guide for more information.</td>
+    </tr>
+    <tr>
+      <td>targets/TARGETNAME/screens</td>
+      <td>This folder contains telemetry screens for the target. See Screen Configuration for more information.</td>
+    </tr>
+    <tr>
+      <td>targets/TARGETNAME/target.txt</td>
+      <td>This file contains target specific configuration such as which command parameters should be ignored by Command Sender. See Target Configuration for more information.</td>
+    </tr>
+    <tr>
+      <td>microservices/</td>
+      <td>This folder is required if any microservices are defined by your plugin.  All microservice code and configuration is included in this folder. It should contain one or more MICROSERVICENAME subfolders</td>
+    </tr>
+    <tr>
+      <td>microservices/MICROSERVICENAME</td>
+      <td>This is a folder that contains the code and any necessary configuration for a specific microservice named MICROSERVICENAME.  The name is always defined in all caps.  For example: microservices/EXAMPLE.   This is typically the default name of the microservice, but well-designed microservices will allow themselves to be renamed at installation. All subfolders and files below this folder are optional and should be added as needed.</td>
+    </tr>
+    <tr>
+      <td>tools/</td>
+      <td>This folder is required if any tools are defined by your plugin.  All tool code and configuration is included in this folder. It should contain one or more toolname subfolders</td>
+    </tr>
+    <tr>
+      <td>tools/toolname</td>
+      <td>This is a folder that contains all the files necessary to serve a web-based tool named toolname.  The name is always defined in all lowercase.  For example: tools/base.   Due to technical limitations, the toolname must be unique and cannot be renamed at installation. All subfolders and files below this folder are optional and should be added as needed.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="plugintxt-configuration-file">
+<a class="anchor" href="#plugintxt-configuration-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>plugin.txt Configuration File</h2>
+
+<p>A plugin.txt configuration file is required for any COSMOS plugin.   It declares the contents of the plugin and provides variables that allow the plugin to be configured at the time it is initially installed or upgraded.
+This file follows the standard COSMOS configuration file format of keywords followed by zero or more space separated parameters.  The following keywords are supported by the plugin.txt config file:</p>
+
+<h2 id="variable">
+<a class="anchor" href="#variable" aria-hidden="true"><span class="octicon octicon-link"></span></a>VARIABLE</h2>
+<p><strong>Define a configurable variable for the plugin</strong></p>
+
+<p>The VARIABLE keyword defines a variable that will be requested for the user to enter during plugin installation.   Variables can be used to handle details of targets that are user defined such as specific IP addresses and ports.  Variables should also be used to allow users to rename targets to whatever name they want and support multiple installations of the same target with different names. Variables can be used later in plugin.txt or in any other configuration file included in a plugin using Ruby ERB syntax.  The variables are assigned to accessible local variables in the file. At a high level, ERB allows you to run Ruby code in configuration files.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Variable Name</td>
+      <td>The name of the variable</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Default Value</td>
+      <td>Default value of the variable</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="interface-1">
+<a class="anchor" href="#interface-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>INTERFACE</h2>
+<p><strong>Defines a connection to a physical target</strong></p>
+
+<p>Interfaces are what COSMOS uses to talk to a particular piece of hardware. Interfaces require a Ruby file which implements all the interface methods necessary to talk to the hardware. COSMOS defines many built in interfaces or you can define your own as long as it implements the interface protocol.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Interface Name</td>
+      <td>Name of the interface. This name will appear in the Interfaces tab of the Server and is also referenced by other keywords. The COSMOS convention is to name interfaces after their targets with ‘_INT’ appended to the name, e.g. INST_INT for the INST target.</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Filename</td>
+      <td>Ruby file to use when instantiating the interface.<br><br>Valid Values: <span class="values">tcpip_client_interface.rb, tcpip_server_interface.rb, udp_interface.rb, serial_interface.rb, cmd_tlm_server_interface.rb, linc_interface.rb</span>
+</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Additional parameters are required. Please see the <a href="/docs/interfaces">Interfaces</a> documentation for more details.</p>
+
+<h2 id="router-1">
+<a class="anchor" href="#router-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>ROUTER</h2>
+<p><strong>Create router to receive commands and output telemetry packets from one or more interfaces</strong></p>
+
+<p>Creates an router which receives command packets from their remote clients and sends them to associated interfaces. They receive telemetry packets from their interfaces and send them to their remote clients. This allows routers to be intermediaries between an external client and an actual device.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Name of the router</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Filename</td>
+      <td>Ruby file to use when instantiating the interface.<br><br>Valid Values: <span class="values">tcpip_client_interface.rb, tcpip_server_interface.rb, udp_interface.rb, serial_interface.rb, cmd_tlm_server_interface.rb, linc_interface.rb</span>
+</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Additional parameters are required. Please see the <a href="/docs/interfaces">Interfaces</a> documentation for more details.</p>
+
+<h2 id="target-1">
+<a class="anchor" href="#target-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>TARGET</h2>
+<p><strong>Define a target</strong></p>
+
+<p>Defines a target that the plugin adds to the COSMOS system.  Targets are entities that COSMOS can send commands to and receive telemetry from.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Folder Name</td>
+      <td>The exact name of the target folder in the plugin. ie. targets/<target folder="" name=""></target>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Target Name</td>
+      <td>The specific name of this instance of the target in the COSMOS system</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="microservice-1">
+<a class="anchor" href="#microservice-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>MICROSERVICE</h2>
+<p><strong>Define a microservice</strong></p>
+
+<p>Defines a microservice that the plugin adds to the COSMOS system.  Microservices are background software processes that perform persistent processing.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Microservice Folder Name</td>
+      <td>The exact name of the microservice folder in the plugin. ie. microservices/<microservice folder="" name=""></microservice>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Microservice Name</td>
+      <td>The specific name of this instance of the microservice in the COSMOS system</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="tool-1">
+<a class="anchor" href="#tool-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOOL</h2>
+<p><strong>Define a tool</strong></p>
+
+<p>Defines a tool that the plugin adds to the COSMOS system.  Tools are web based applications that make use of the Single-SPA javascript library that allows them to by dynamically added to the running system as independent frontend microservices.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tool Folder Name</td>
+      <td>The exact name of the tool folder in the plugin. ie. tools/<tool folder="" name=""></tool>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Tool Name</td>
+      <td>Name of the tool that is displayed in the COSMOS Navigation menu</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="interface-modifiers">
+<a class="anchor" href="#interface-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>INTERFACE Modifiers</h3>
+<p>The following keywords must follow a INTERFACE keyword.</p>
+
+<h3 id="map_target">
+<a class="anchor" href="#map_target" aria-hidden="true"><span class="octicon octicon-link"></span></a>MAP_TARGET</h3>
+<p><strong>Maps a target name to an interface</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Target name to map to this interface</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="dont_connect">
+<a class="anchor" href="#dont_connect" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_CONNECT</h3>
+<p><strong>Server will not automatically try to connect to the interface at startup</strong></p>
+
+<h3 id="dont_reconnect">
+<a class="anchor" href="#dont_reconnect" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_RECONNECT</h3>
+<p><strong>Server will not try to reconnect to the interface if the connection is lost</strong></p>
+
+<h3 id="reconnect_delay">
+<a class="anchor" href="#reconnect_delay" aria-hidden="true"><span class="octicon octicon-link"></span></a>RECONNECT_DELAY</h3>
+<p><strong>Reconnect delay in seconds</strong></p>
+
+<p>If DONT_RECONNECT is not present the Server will try to reconnect to an interface if the connection is lost. Reconnect delay sets the interval in seconds between reconnect tries.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Delay</td>
+      <td>Delay in seconds between reconnect attempts. The default is 15 seconds.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="disable_disconnect">
+<a class="anchor" href="#disable_disconnect" aria-hidden="true"><span class="octicon octicon-link"></span></a>DISABLE_DISCONNECT</h3>
+<p><strong>Disable the Disconnect button on the Interfaces tab in the Server</strong></p>
+
+<p>Use this keyword to prevent the user from disconnecting from the interface. This is typically used in a ‘production’ environment where you would not want the user to inadvertantly disconnect from a target.</p>
+
+<h3 id="log">
+<a class="anchor" href="#log" aria-hidden="true"><span class="octicon octicon-link"></span></a>LOG</h3>
+<p><strong>Enable logging on the interface by the specified log writer</strong></p>
+
+<p>LOG is only required if you want a log writer other than the default to log commands and telemetry on this interface</p>
+
+<div class="note warning"><p>Choosing a custom log writer can prevent COSMOS from reading back your log files</p></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Log writer name as defined by PACKET_LOG_WRITER</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="log_stored">
+<a class="anchor" href="#log_stored" aria-hidden="true"><span class="octicon octicon-link"></span></a>LOG_STORED</h3>
+<p><strong>Enable logging of stored telemetry on the interface by the specified log writer</strong></p>
+
+<p>LOG_STORED allows you to specify a different log writer for stored telemetry (telemetry which has the ‘stored’ flag set in the packet). By default the stored telemetry is intermingled in the normal log file.</p>
+
+<div class="note warning"><p>Choosing a custom log writer can prevent COSMOS from reading back your log files</p></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Log writer name as defined by PACKET_LOG_WRITER</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="dont_log">
+<a class="anchor" href="#dont_log" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_LOG</h3>
+<p><strong>Disable logging commands and telemetry on this interface</strong></p>
+
+<h3 id="log_raw">
+<a class="anchor" href="#log_raw" aria-hidden="true"><span class="octicon octicon-link"></span></a>LOG_RAW</h3>
+<p><strong>Log all data on the interface exactly as it is sent and received</strong></p>
+
+<p>LOG_RAW does not add any COSMOS headers and thus can not be read by COSMOS tools. It is primarily useful for low level debugging of an interface. You will have to manually parse these logs yourself using a hex editor or other application.</p>
+
+<h3 id="protocol">
+<a class="anchor" href="#protocol" aria-hidden="true"><span class="octicon octicon-link"></span></a>PROTOCOL</h3>
+<div class="right">(Since 4.0.0)</div>
+<p><strong>Protocols modify the interface by processing the data</strong></p>
+
+<p>Protocols can be either READ, WRITE, or READ_WRITE. READ protocols act on the data received by the interface while write acts on the data before it is sent out. READ_WRITE applies the protocol to both reading and writing.<br><br> There is only one built in protocol implemented by override_protocol.rb. This protocol allows for Scripts to use the override_tlm() and normalize_tlm() methods to permanently change a telemetry value. Note, this differs from set_tlm() as set_tlm() is over-written by new incoming telemetry.<br><br> For information on creating your own custom protocol please see <a href="http://cosmosrb.com/docs/protocols">cosmosrb.com/docs/protocols</a></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Type</td>
+      <td>Whether to apply the protocol on incoming data, outgoing data, or both<br><br>Valid Values: <span class="values">READ, WRITE, READ_WRITE</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Protocol Filename or Classname</td>
+      <td>Ruby filename or class name which implements the protocol</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Protocol specific parameters</td>
+      <td>Additional parameters used by the protocol</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="option">
+<a class="anchor" href="#option" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTION</h3>
+<p><strong>Set a parameter on an interface</strong></p>
+
+<p>When an option is set the interface class calls the set_option method. Custom interfaces can override set_option to handle any additional options they want.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>The option to set. COSMOS defines several options on the core provided interfaces. The SerialInterface defines FLOW_CONTROL which can be NONE (default) or RTSCTS and DATA_BITS which changes the data bits of the serial interface. The TcpipServerInterface defines LISTEN_ADDRESS which is the IP address to accept connections on (default 0.0.0.0) and AUTO_SYSTEM_META which will automatically send SYSTEM META when the interface connects (default false).</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Parameters</td>
+      <td>Parameters to pass to the option</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="router-modifiers">
+<a class="anchor" href="#router-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>ROUTER Modifiers</h3>
+<p>The following keywords must follow a ROUTER keyword.</p>
+
+<h3 id="route">
+<a class="anchor" href="#route" aria-hidden="true"><span class="octicon octicon-link"></span></a>ROUTE</h3>
+<p><strong>Map an interface to a router</strong></p>
+
+<p>Once an interface has been mapped to a router, all its received telemetry will be sent out through the router.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Interface</td>
+      <td>Name of the interface</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="map_target-1">
+<a class="anchor" href="#map_target-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>MAP_TARGET</h3>
+<p><strong>Maps a target name to an interface</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>Target name to map to this interface</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="dont_connect-1">
+<a class="anchor" href="#dont_connect-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_CONNECT</h3>
+<p><strong>Server will not automatically try to connect to the interface at startup</strong></p>
+
+<h3 id="dont_reconnect-1">
+<a class="anchor" href="#dont_reconnect-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_RECONNECT</h3>
+<p><strong>Server will not try to reconnect to the interface if the connection is lost</strong></p>
+
+<h3 id="reconnect_delay-1">
+<a class="anchor" href="#reconnect_delay-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>RECONNECT_DELAY</h3>
+<p><strong>Reconnect delay in seconds</strong></p>
+
+<p>If DONT_RECONNECT is not present the Server will try to reconnect to an interface if the connection is lost. Reconnect delay sets the interval in seconds between reconnect tries.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Delay</td>
+      <td>Delay in seconds between reconnect attempts. The default is 15 seconds.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="disable_disconnect-1">
+<a class="anchor" href="#disable_disconnect-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>DISABLE_DISCONNECT</h3>
+<p><strong>Disable the Disconnect button on the Interfaces tab in the Server</strong></p>
+
+<p>Use this keyword to prevent the user from disconnecting from the interface. This is typically used in a ‘production’ environment where you would not want the user to inadvertantly disconnect from a target.</p>
+
+<h3 id="log-1">
+<a class="anchor" href="#log-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>LOG</h3>
+<p><strong>Enable logging on the interface by the specified log writer</strong></p>
+
+<p>LOG is only required if you want a log writer other than the default to log commands and telemetry on this interface</p>
+
+<div class="note warning"><p>Choosing a custom log writer can prevent COSMOS from reading back your log files</p></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Log writer name as defined by PACKET_LOG_WRITER</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="log_stored-1">
+<a class="anchor" href="#log_stored-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>LOG_STORED</h3>
+<p><strong>Enable logging of stored telemetry on the interface by the specified log writer</strong></p>
+
+<p>LOG_STORED allows you to specify a different log writer for stored telemetry (telemetry which has the ‘stored’ flag set in the packet). By default the stored telemetry is intermingled in the normal log file.</p>
+
+<div class="note warning"><p>Choosing a custom log writer can prevent COSMOS from reading back your log files</p></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>Log writer name as defined by PACKET_LOG_WRITER</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="dont_log-1">
+<a class="anchor" href="#dont_log-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>DONT_LOG</h3>
+<p><strong>Disable logging commands and telemetry on this interface</strong></p>
+
+<h3 id="log_raw-1">
+<a class="anchor" href="#log_raw-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>LOG_RAW</h3>
+<p><strong>Log all data on the interface exactly as it is sent and received</strong></p>
+
+<p>LOG_RAW does not add any COSMOS headers and thus can not be read by COSMOS tools. It is primarily useful for low level debugging of an interface. You will have to manually parse these logs yourself using a hex editor or other application.</p>
+
+<h3 id="protocol-1">
+<a class="anchor" href="#protocol-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>PROTOCOL</h3>
+<div class="right">(Since 4.0.0)</div>
+<p><strong>Protocols modify the interface by processing the data</strong></p>
+
+<p>Protocols can be either READ, WRITE, or READ_WRITE. READ protocols act on the data received by the interface while write acts on the data before it is sent out. READ_WRITE applies the protocol to both reading and writing.<br><br> There is only one built in protocol implemented by override_protocol.rb. This protocol allows for Scripts to use the override_tlm() and normalize_tlm() methods to permanently change a telemetry value. Note, this differs from set_tlm() as set_tlm() is over-written by new incoming telemetry.<br><br> For information on creating your own custom protocol please see <a href="http://cosmosrb.com/docs/protocols">cosmosrb.com/docs/protocols</a></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Type</td>
+      <td>Whether to apply the protocol on incoming data, outgoing data, or both<br><br>Valid Values: <span class="values">READ, WRITE, READ_WRITE</span>
+</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Protocol Filename or Classname</td>
+      <td>Ruby filename or class name which implements the protocol</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Protocol specific parameters</td>
+      <td>Additional parameters used by the protocol</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="option-1">
+<a class="anchor" href="#option-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTION</h3>
+<p><strong>Set a parameter on an interface</strong></p>
+
+<p>When an option is set the interface class calls the set_option method. Custom interfaces can override set_option to handle any additional options they want.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Name</td>
+      <td>The option to set. COSMOS defines several options on the core provided interfaces. The SerialInterface defines FLOW_CONTROL which can be NONE (default) or RTSCTS and DATA_BITS which changes the data bits of the serial interface. The TcpipServerInterface defines LISTEN_ADDRESS which is the IP address to accept connections on (default 0.0.0.0) and AUTO_SYSTEM_META which will automatically send SYSTEM META when the interface connects (default false).</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Parameters</td>
+      <td>Parameters to pass to the option</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="microservice-modifiers">
+<a class="anchor" href="#microservice-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>MICROSERVICE Modifiers</h3>
+<p>The following keywords must follow a MICROSERVICE keyword.</p>
+
+<h3 id="env">
+<a class="anchor" href="#env" aria-hidden="true"><span class="octicon octicon-link"></span></a>ENV</h3>
+<p><strong>Sets an environment variable in the microservice.</strong></p>
+
+<p>Sets an environment variable in the microservice.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Key</td>
+      <td>Name of the environment variable</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Value</td>
+      <td>Value of the environment variable</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="work_dir">
+<a class="anchor" href="#work_dir" aria-hidden="true"><span class="octicon octicon-link"></span></a>WORK_DIR</h3>
+<p><strong>Set the working directory</strong></p>
+
+<p>Working directory to run the microservice CMD in.  Can be a path relative to the microservice folder in the plugin, or an absolute path in the container the microservice runs in.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Directory</td>
+      <td>Working directory to run the microservice CMD in.  Can be a path relative to the microservice folder in the plugin, or an absolute path in the container the microservice runs in.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="topic">
+<a class="anchor" href="#topic" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOPIC</h3>
+<p><strong>Associate a Redis topic</strong></p>
+
+<p>Redis topic to associate with this microservice.  Standard COSMOS microservices such as decom_microservice use this information to know what packet streams to subscribe to.  The TOPIC keyword can be used as many times as necessary to associate all needed topics.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Topic Name</td>
+      <td>Redis Topic to associate with the microservice</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="target_name">
+<a class="anchor" href="#target_name" aria-hidden="true"><span class="octicon octicon-link"></span></a>TARGET_NAME</h3>
+<p><strong>Associate a COSMOS target</strong></p>
+
+<p>COSMOS target to associate with the microservice.   For standard COSMOS microservices such as decom_microservice this causes the target configuration to get loaded into the container for the microservice.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Target Name</td>
+      <td>COSMOS target to associate with the microservice</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="cmd">
+<a class="anchor" href="#cmd" aria-hidden="true"><span class="octicon octicon-link"></span></a>CMD</h3>
+<p><strong>Command line to execute to run the microservice.</strong></p>
+
+<p>Command line to execute to run the microservice.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Args</td>
+      <td>One or more arguments to exec to run the microservice.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="option-2">
+<a class="anchor" href="#option-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>OPTION</h3>
+<p><strong>Pass an option to the microservice</strong></p>
+
+<p>Generic key/value(s) options to pass to the microservice.  These take the form of KEYWORD/PARAMS like a line in a COSMOS configuration file.  Multiple OPTION keywords can be used to pass multiple options to the microservice.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Option Name</td>
+      <td>Name of the option</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <td>Option Value(s)</td>
+      <td>One or more values to associate with the option</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="tool-modifiers">
+<a class="anchor" href="#tool-modifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>TOOL Modifiers</h3>
+<p>The following keywords must follow a TOOL keyword.</p>
+
+<h3 id="url">
+<a class="anchor" href="#url" aria-hidden="true"><span class="octicon octicon-link"></span></a>URL</h3>
+<p><strong>Url used to access the tool</strong></p>
+
+<p>The relative url used to access the tool.  Defaults to “/tools/<tool folder="" name="">".</tool></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Url</td>
+      <td>The url.  If not given defaults to tools/<tool folder="" name="">.  Generally should not be given unless linking to external tools.</tool>
+</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="inline_url">
+<a class="anchor" href="#inline_url" aria-hidden="true"><span class="octicon octicon-link"></span></a>INLINE_URL</h3>
+<p><strong>Internal url to load a tool</strong></p>
+
+<p>The url of the javascript file used to load the tool into single-SPA.  Defaults to “js/app.js”.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Url</td>
+      <td>The inline url.  If not given defaults to js/app.js.  Generally should not be given unless using a non-standard filename.</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="window">
+<a class="anchor" href="#window" aria-hidden="true"><span class="octicon octicon-link"></span></a>WINDOW</h3>
+<p><strong>How to display the tool when navigated to</strong></p>
+
+<p>The window mode used to display the tool.  Currently supported modes are INLINE which opens the tool internally without refreshing the page using the Single-SPA framework, and NEW which opens the tool in a new TAB.   A future release will support IFRAME to open external tools in an Iframe within COSMOS.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Window Mode</td>
+      <td>INLINE, NEW, or IFRAME</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="icon">
+<a class="anchor" href="#icon" aria-hidden="true"><span class="octicon octicon-link"></span></a>ICON</h3>
+<p><strong>Set tool icon</strong></p>
+
+<p>Icon shown next to the tool name in the COSMOS navigation menu.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Icon Name</td>
+      <td>Icon to display next to the tool name.   Icons come from Font Awesome, Material Design, and Astro.  See https://vuetifyjs.com/en/components/icons/</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="category">
+<a class="anchor" href="#category" aria-hidden="true"><span class="octicon octicon-link"></span></a>CATEGORY</h3>
+<p><strong>Category for the tool</strong></p>
+
+<p>Associates the tool with a category.  In a future release this will be able to organize tools into submenus in the Navigation menu.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Category Name</td>
+      <td>Category to associate the tool with</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="shown">
+<a class="anchor" href="#shown" aria-hidden="true"><span class="octicon octicon-link"></span></a>SHOWN</h3>
+<p><strong>Show the tool or not</strong></p>
+
+<p>Whether or not the tool is shown in the Navigation menu.   Should generally be true, except for the cosmos base tool.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Parameter</th>
+      <th>Description</th>
+      <th>Required</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Shown</td>
+      <td>Whether or not the tool is shown.  TRUE or FALSE</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+
+
+      </article>
+    </div>
+
+    <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    <ul>
+      
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+       
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+      
+      
+      <li>
+        <!-- Only create links to collections which aren't our own  -->
+        
+        <a href="/docs/v4/"
+          >v4 Docs</a
+        >
+          
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+      
+      
+      <li>
+        <!-- Only create links to collections which aren't our own  -->
+          
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+       
+      </li>
+    </ul>
+
+    <!-- prettier-ignore -->
+    
+    
+    
+    <h4>Getting Started</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
+
+
+
+<ul>
+  <!-- prettier-ignore -->
+  
+  
+
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/tools">Tools</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/installation">Installation</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/upgrading">Upgrading</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/gettingstarted">Getting Started</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+
+    
+    <h4>Configuration</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
+
+
+
+<ul>
+  <!-- prettier-ignore -->
+  
+  
+
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="current">
+    <a href="/docs/v5/plugins">Plugins</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/target">Target Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/command">Command Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/telemetry">Telemetry Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/interfaces">Interface Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/protocols">Protocol Configuration</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+
+    
+    <h4>Tool User Manuals</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
+
+
+
+<ul>
+  <!-- prettier-ignore -->
+  
+  
+
+  
+    
+    
+    
+      
+  <li class="">
+    <a href="/docs/v5/cmd-sender">Command Sender</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/cmd-tlm-server">Command and Telemetry Server</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/data-extractor">Data Extractor</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/limits-monitor">Limits Monitor</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/packet-viewer">Packet Viewer</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/script-runner">Script Runner</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/tlm-grapher">Telemetry Grapher</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/tlm-viewer">Telemetry Viewer</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/screens">Telemetry Screens</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+
+    
+    <h4>Usage Guides</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
+
+
+
+<ul>
+  <!-- prettier-ignore -->
+  
+  
+
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/scripting">Scripting Guide</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/scripting-best-practices">Scripting Best Practices</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+
+    
+    <h4>Development</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
+
+
+
+<ul>
+  <!-- prettier-ignore -->
+  
+  
+
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/json-api">JSON API</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+  <li class="">
+    <a href="/docs/v5/logging">Logging</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+</ul>
+
+    
+
+    <!-- Every versioned site gets the unversioned Meta section -->
+    <h4>Meta</h4>
+    <ul>
+      
+      <li>
+        <a href="/docs/contributing">Contributing</a>
+      </li>
+      
+      <li>
+        <a href="/docs/papers">Papers</a>
+      </li>
+      
+      <li>
+        <a href="/docs/requirements">Requirements and Design</a>
+      </li>
+      
+      <li>
+        <a href="/docs/xtce">XTCE Support</a>
+      </li>
+      
+    </ul>
+  </aside>
+</div>
+
+
+    <div class="clear"></div>
+  </div>
+</section>
+
+
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+  
+  <!-- Google Analytics (http://google.com/analytics) -->
+  <script>
+    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
+    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
+    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
+    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
+
+    ga('create', 'UA-60103689-1', 'cosmosrb.com');
+    ga('send', 'pageview');
+
+  </script>
+
+
+
+</body>
+</html>

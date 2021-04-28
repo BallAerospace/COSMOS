@@ -8,7 +8,7 @@
 
 - title: Configuration
   docs:
-    - plugin
+    - plugins
     - target
     - command
     - telemetry
