@@ -17,26 +17,13 @@
 # copyright holder
 */
 
-import * as ActionCable from 'actioncable'
-
-export default class Cable {
-  constructor(url = '/cosmos-api/cable') {
-    this._cable = ActionCable.createConsumer(url)
-  }
-  disconnect() {
-    this._cable.disconnect()
-  }
-  createSubscription(channel, scope, callbacks = {}, additionalOptions = {}) {
-    return CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
-      return this._cable.subscriptions.create(
-        {
-          channel,
-          scope,
-          token: localStorage.token,
-          ...additionalOptions,
-        },
-        callbacks
-      )
-    })
-  }
-}
+// This is typically used with the CosmosAuth.updateToken method.
+// Passing a value of 30 to this method means that the access token
+// will be updated it is currently expired or if it will expire
+// within the next 30 seconds.
+Object.defineProperty(CosmosAuth, 'defaultMinValidity', {
+  value: 30,
+  writable: false,
+  enumerable: true,
+  configurable: false,
+})

@@ -689,7 +689,7 @@ export default {
             item.valueType
         )
       })
-      CosmosAuth.updateToken(30).then(() => {
+      CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
         this.subscription.perform('add', {
           scope: 'DEFAULT',
           mode: 'DECOM',
@@ -841,7 +841,7 @@ export default {
       this.indexes[key] = index
 
       if (this.subscription) {
-        CosmosAuth.updateToken(30).then(() => {
+        CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
           this.subscription.perform('add', {
             scope: 'DEFAULT',
             token: localStorage.token,

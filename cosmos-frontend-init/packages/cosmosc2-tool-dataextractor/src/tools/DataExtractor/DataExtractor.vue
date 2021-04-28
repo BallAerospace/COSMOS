@@ -582,7 +582,7 @@ export default {
             item.valueType
         )
       })
-      CosmosAuth.updateToken(30).then(() => {
+      CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
         this.subscription.perform('add', {
           scope: 'DEFAULT',
           mode: 'DECOM',

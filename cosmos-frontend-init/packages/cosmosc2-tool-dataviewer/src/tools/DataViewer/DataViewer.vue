@@ -501,7 +501,7 @@ export default {
         }
         return groups
       }, {})
-      CosmosAuth.updateToken(30).then(() => {
+      CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
         Object.keys(modeGroups).forEach((mode) => {
           this.subscription.perform('add', {
             scope: 'DEFAULT',
