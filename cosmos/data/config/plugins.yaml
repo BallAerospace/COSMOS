@@ -1,0 +1,209 @@
+---
+VARIABLE:
+  summary: Define a configurable variable for the plugin
+  description: The VARIABLE keyword defines a variable that will be requested for the user to enter during plugin installation.   Variables can be used to handle details of targets that are user defined such as specific IP addresses and ports.  Variables should also be used to allow users to rename targets to whatever name they want and support multiple installations of the same target with different names.
+    Variables can be used later in plugin.txt or in any other configuration file included in a plugin using Ruby ERB syntax.  The variables are assigned to accessible local variables in the file.
+    At a high level, ERB allows you to run Ruby code in configuration files.
+  parameters:
+    - name: Variable Name
+      required: true
+      description: The name of the variable
+      values: .+
+    - name: Default Value
+      required: true
+      description: Default value of the variable
+      values: .+
+INTERFACE:
+  modifiers:
+    <%= MetaConfigParser.load('interface_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Defines a connection to a physical target
+  description: Interfaces are what COSMOS uses to talk to a particular piece
+    of hardware. Interfaces require a Ruby file which implements all the interface
+    methods necessary to talk to the hardware. COSMOS defines many built in interfaces
+    or you can define your own as long as it implements the interface protocol.
+  parameters:
+    - name: Interface Name
+      required: true
+      description: Name of the interface. This name will appear in the
+        Interfaces tab of the Server and is also referenced by other keywords.
+        The COSMOS convention is to name interfaces after their targets with
+        '_INT' appended to the name, e.g. INST_INT for the INST target.
+      values: \D\S*
+    - name: Filename
+      required: true
+      description: Ruby file to use when instantiating the interface.
+      values:
+        <%= MetaConfigParser.load('_interfaces.yaml').to_meta_config_yaml(8) %>
+      documentation: Additional parameters are required. Please see the [Interfaces](/docs/interfaces)
+        documentation for more details.
+ROUTER:
+  modifiers:
+    ROUTE:
+      summary: Map an interface to a router
+      description: Once an interface has been mapped to a router, all its received telemetry
+        will be sent out through the router.
+      parameters:
+        - name: Interface
+          required: true
+          description: Name of the interface
+          values: .+
+    <%= MetaConfigParser.load('interface_modifiers.yaml').to_meta_config_yaml(4) %>
+  summary: Create router to receive commands and output telemetry packets from one or more interfaces
+  description: Creates an router which receives command packets from
+    their remote clients and sends them to associated interfaces. They receive telemetry
+    packets from their interfaces and send them to their remote clients. This allows
+    routers to be intermediaries between an external client and an actual device.
+  parameters:
+    - name: Name
+      required: true
+      description: Name of the router
+      values: .+
+    - name: Filename
+      required: true
+      description: Ruby file to use when instantiating the interface.
+      values:
+        <%= MetaConfigParser.load('_interfaces.yaml').to_meta_config_yaml(8) %>
+      documentation: Additional parameters are required. Please see the [Interfaces](/docs/interfaces)
+        documentation for more details.
+TARGET:
+  summary: Define a target
+  description: Defines a target that the plugin adds to the COSMOS system.  Targets are entities that COSMOS can send commands to and receive telemetry from.
+  parameters:
+    - name: Target Folder Name
+      description: The exact name of the target folder in the plugin. ie. targets/<Target Folder Name>
+      required: true
+      values: .+
+    - name: Target Name
+      description: The specific name of this instance of the target in the COSMOS system
+      required: true
+      values: .+
+MICROSERVICE:
+  summary: Define a microservice
+  description: Defines a microservice that the plugin adds to the COSMOS system.  Microservices are background software processes that perform persistent processing.
+  parameters:
+    - name: Microservice Folder Name
+      description: The exact name of the microservice folder in the plugin. ie. microservices/<Microservice Folder Name>
+      required: true
+      values: .+
+    - name: Microservice Name
+      description: The specific name of this instance of the microservice in the COSMOS system
+      required: true
+      values: .+
+  modifiers:
+    ENV:
+      summary: Sets an environment variable in the microservice.
+      description: Sets an environment variable in the microservice.
+      parameters:
+        - name: Key
+          required: true
+          description: Name of the environment variable
+          values: .+      
+        - name: Value
+          required: true
+          description: Value of the environment variable
+          values: .+           
+    WORK_DIR:
+      summary: Set the working directory
+      description: Working directory to run the microservice CMD in.  Can be a path relative to the microservice folder in the plugin, or an absolute path in the container the microservice runs in.
+      parameters:
+        - name: Directory
+          required: true
+          description: Working directory to run the microservice CMD in.  Can be a path relative to the microservice folder in the plugin, or an absolute path in the container the microservice runs in.
+          values: .+          
+    TOPIC:
+      summary: Associate a Redis topic
+      description: Redis topic to associate with this microservice.  Standard COSMOS microservices such as decom_microservice use this information to know what packet streams to subscribe to.  The TOPIC keyword can be used as many times as necessary to associate all needed topics.
+      parameters:
+        - name: Topic Name
+          required: true
+          description: Redis Topic to associate with the microservice
+          values: .+      
+    TARGET_NAME:
+      summary: Associate a COSMOS target
+      description: COSMOS target to associate with the microservice.   For standard COSMOS microservices such as decom_microservice this causes the target configuration to get loaded into the container for the microservice.
+      parameters:
+        - name: Target Name
+          required: true
+          description: COSMOS target to associate with the microservice
+          values: .+        
+    CMD:
+      summary: Command line to execute to run the microservice.
+      description: Command line to execute to run the microservice.
+      parameters:
+        - name: Args
+          required: true
+          description: One or more arguments to exec to run the microservice.
+          values: .+        
+    OPTION:
+      summary: Pass an option to the microservice
+      description: Generic key/value(s) options to pass to the microservice.  These take the form of KEYWORD/PARAMS like a line in a COSMOS configuration file.  Multiple OPTION keywords can be used to pass multiple options to the microservice.
+      parameters:
+        - name: Option Name
+          required: true
+          description: Name of the option
+          values: .+      
+        - name: Option Value(s)
+          required: true
+          description: One or more values to associate with the option
+          values: .+             
+TOOL:
+  summary: Define a tool
+  description: Defines a tool that the plugin adds to the COSMOS system.  Tools are web based applications that make use of the Single-SPA javascript library that allows them to by dynamically added to the running system as independent frontend microservices.
+  parameters:
+    - name: Tool Folder Name
+      description: The exact name of the tool folder in the plugin. ie. tools/<Tool Folder Name>
+      required: true
+      values: .+
+    - name: Tool Name
+      description: Name of the tool that is displayed in the COSMOS Navigation menu
+      required: true
+      values: .+
+  modifiers:
+    URL:
+      summary: Url used to access the tool
+      description: The relative url used to access the tool.  Defaults to "/tools/<Tool Folder Name>".
+      parameters:
+        - name: Url
+          required: true
+          description: The url.  If not given defaults to tools/<Tool Folder Name>.  Generally should not be given unless linking to external tools.
+          values: .+      
+    INLINE_URL:
+      summary: Internal url to load a tool
+      description: The url of the javascript file used to load the tool into single-SPA.  Defaults to "js/app.js".
+      parameters:
+        - name: Url
+          required: true
+          description: The inline url.  If not given defaults to js/app.js.  Generally should not be given unless using a non-standard filename.
+          values: .+            
+    WINDOW:
+      summary: How to display the tool when navigated to
+      description: The window mode used to display the tool.  Currently supported modes are INLINE which opens the tool internally without refreshing the page using the Single-SPA framework, and NEW which opens the tool in a new TAB.   A future release will support IFRAME to open external tools in an Iframe within COSMOS.
+      parameters:
+        - name: Window Mode
+          required: true
+          description: INLINE, NEW, or IFRAME
+          values: .+     
+    ICON:
+      summary: Set tool icon
+      description: Icon shown next to the tool name in the COSMOS navigation menu.
+      parameters:
+        - name: Icon Name
+          required: true
+          description: Icon to display next to the tool name.   Icons come from Font Awesome, Material Design, and Astro.  See https://vuetifyjs.com/en/components/icons/
+          values: .+    
+    CATEGORY:
+      summary: Category for the tool
+      description: Associates the tool with a category.  In a future release this will be able to organize tools into submenus in the Navigation menu.
+      parameters:
+        - name: Category Name
+          required: true
+          description: Category to associate the tool with
+          values: .+        
+    SHOWN:
+      summary: Show the tool or not
+      description: Whether or not the tool is shown in the Navigation menu.   Should generally be true, except for the cosmos base tool.
+      parameters:
+        - name: Shown
+          required: true
+          description: Whether or not the tool is shown.  TRUE or FALSE
+          values: .+                 
