@@ -8,7 +8,7 @@ categories: [post]
 
 Sometimes we receive requests to make custom COSMOS widgets or to modify existing COSMOS widgets to add certain looks or functionality. While this is a project we're happy to perform for our customers, it's also something that can be done by end users willing to dig into some of the Qt and COSMOS documentation. In this post, I'm going to describe how to create a custom COSMOS widget.
 
-When asked to perform customizations like this I first bring up the COSMOS Demo. We try to include all the COSMOS features in the Demo so end users have concrete examples to follow instead of relying solely on the excellent documentation at [cosmosrb.com](http://cosmosrb.com/docs/home). Obviously you must first have COSMOS installed so follow the [installation instructions](http://cosmosrb.com/docs/v4/installation/) and then launch the Demo by running the Launcher in the Demo folder. Here is how the server appears on my Windows machine:
+When asked to perform customizations like this I first bring up the COSMOS Demo. We try to include all the COSMOS features in the Demo so end users have concrete examples to follow instead of relying solely on the excellent documentation at [cosmosc2.com](http://cosmosc2.com/docs/home). Obviously you must first have COSMOS installed so follow the [installation instructions](http://cosmosc2.com/docs/v4/installation/) and then launch the Demo by running the Launcher in the Demo folder. Here is how the server appears on my Windows machine:
 
 ![COSMOS Demo Server](/img/2016_08_22_server.png)
 

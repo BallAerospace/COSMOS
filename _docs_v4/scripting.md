@@ -1409,7 +1409,7 @@ inject_tlm("INST", "PARAMS", {'VALUE1'=>5.0, 'VALUE2'=>7.0})
 
 ### override_tlm
 
-The override_tlm method sets the converted value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method. Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the [override protocol](http://cosmosrb.com/docs/v4/protocols#override-protocol)).
+The override_tlm method sets the converted value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method. Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the [override protocol](http://cosmosc2.com/docs/v4/protocols#override-protocol)).
 
 Syntax:
 
@@ -1432,7 +1432,7 @@ override_tlm("INST HEALTH_STATUS TEMP1 = 5")
 
 ### override_tlm_raw
 
-The override_tlm_raw method sets the raw value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method. Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the [override protocol](http://cosmosrb.com/docs/v4/protocols#override-protocol)).
+The override_tlm_raw method sets the raw value for a telmetry point in the Command and Telemetry Server. This value will be maintained even if a new packet is received on the interface unless the override is canceled with the normalize_tlm method. Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the [override protocol](http://cosmosc2.com/docs/v4/protocols#override-protocol)).
 
 Syntax:
 
@@ -1455,7 +1455,7 @@ override_tlm_raw("INST HEALTH_STATUS TEMP1 = 5")
 
 ### normalize_tlm
 
-The normalize_tlm method clears the override of a telmetry point in the Command and Telemetry Server. Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the [override protocol](http://cosmosrb.com/docs/v4/protocols#override-protocol)).
+The normalize_tlm method clears the override of a telmetry point in the Command and Telemetry Server. Note that the interface definition must explicitly add this capability by declaring PROTOCOL READ OverrideProtocol (refer to the documentation for the [override protocol](http://cosmosc2.com/docs/v4/protocols#override-protocol)).
 
 Syntax:
 

@@ -1,1355 +1,1443 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en-US">
-<head>
-  <meta charset="UTF-8">
-  <title>Packet Viewer</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v4.2.0">
-  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
-  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
-  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
-  <link rel="stylesheet" href="/css/screen.css">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <!--[if lt IE 9]>
-  <script src="/js/html5shiv.min.js"></script>
-  <script src="/js/respond.min.js"></script>
-  <![endif]-->
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Packet Viewer</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="generator" content="Jekyll v4.2.0" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Ball Aerospace COSMOS News"
+      href="/feed.xml"
+    />
+    <link
+      rel="alternate"
+      type="application/atom+xml"
+      title="Recent commits to COSMOS's master branch"
+      href="https://github.com/BallAerospace/COSMOS/commits/master.atom"
+    />
+    <link
+      rel="stylesheet"
+      href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900"
+    />
+    <link rel="stylesheet" href="/css/screen.css" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <!--[if lt IE 9]>
+      <script src="/js/html5shiv.min.js"></script>
+      <script src="/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
 
+  <body class="wrap">
+    <header role="banner">
+      <nav class="mobile-nav show-on-mobiles">
+        <ul>
+          <li class="">
+            <a href="/">Home</a>
+          </li>
+          <li class="current">
+            <span class="hide-on-mobiles"
+              ><a href="/docs/v4/">Documentation</a></span
+            >
+            <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+          </li>
+          <li class="">
+            <a href="/news/">News</a>
+          </li>
+          <li>
+            <a href="/help/">Help</a>
+          </li>
+          <li>
+            <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+              ><span class="hide-on-mobiles">View on </span>GitHub</a
+            >
+          </li>
+        </ul>
+      </nav>
+      <div class="grid wider">
+        <div class="unit one-third center-on-mobiles" style="margin-top: 27px">
+          <h1>
+            <a href="/">
+              <span class="sr-only">COSMOS</span>
+              <img
+                src="/img/COSMOS.png"
+                width="312"
+                height="70"
+                alt="COSMOS Logo"
+              />
+            </a>
+          </h1>
+        </div>
+        <nav class="main-nav unit two-thirds hide-on-mobiles">
+          <ul>
+            <li class="">
+              <a href="/">Home</a>
+            </li>
+            <li class="current">
+              <span class="hide-on-mobiles"
+                ><a href="/docs/v4/">Documentation</a></span
+              >
+              <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+            </li>
+            <li class="">
+              <a href="/news/">News</a>
+            </li>
+            <li>
+              <a href="/help/">Help</a>
+            </li>
+            <li>
+              <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+                ><span class="hide-on-mobiles">View on </span>GitHub</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
 
-<body class="wrap">
-  <header role="banner">
-  <nav class="mobile-nav show-on-mobiles">
-    <ul>
-  <li class="">
-    <a href="/">Home</a>
-  </li>
-  <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
-  </li>
-  <li class="">
-    <a href="/news/">News</a>
-  </li>
-  <li>
-    <a href="/help/">Help</a>
-  </li>
-  <li>
-    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
-      ><span class="hide-on-mobiles">View on </span>GitHub</a
-    >
-  </li>
-</ul>
+    <section class="docs">
+      <div class="grid wider">
+        <div class="unit four-fifths">
+          <article>
+            <!-- Get version but ignore the "docs" collection -->
+            <!-- prettier-ignore -->
 
-  </nav>
-  <div class="grid wider">
-    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
-      <h1>
-        <a href="/">
-          <span class="sr-only">COSMOS</span>
-          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
-        </a>
-      </h1>
-    </div>
-    <nav class="main-nav unit two-thirds hide-on-mobiles">
-      <ul>
-  <li class="">
-    <a href="/">Home</a>
-  </li>
-  <li class="current">
-    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
-  </li>
-  <li class="">
-    <a href="/news/">News</a>
-  </li>
-  <li>
-    <a href="/help/">Help</a>
-  </li>
-  <li>
-    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
-      ><span class="hide-on-mobiles">View on </span>GitHub</a
-    >
-  </li>
-</ul>
-
-    </nav>
-  </div>
-</header>
-
-
-  <section class="docs">
-  <div class="grid wider">
-    <div class="unit four-fifths">
-      <article>
-        <!-- Get version but ignore the "docs" collection -->
-        <!-- prettier-ignore -->
-        
-        
-        <div class="improve right">
+            <div class="improve right">
           <span class="version-badge">v5</span>
         </div>
-         
-        <div class="toc"><ul id="toc" class="section-nav">
-<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
-<li class="toc-entry toc-h2"><a href="#packet-viewer-menus">Packet Viewer Menus</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#file-menu-items">File Menu Items</a></li>
-<li class="toc-entry toc-h3"><a href="#view-menu-items">View Menu Items</a></li>
-</ul>
-</li>
-<li class="toc-entry toc-h2"><a href="#selecting-packets">Selecting Packets</a>
-<ul>
-<li class="toc-entry toc-h3"><a href="#details">Details</a></li>
-</ul>
-</li>
-</ul></div>
-        
-        <h1>Packet Viewer</h1>
-        <h2 id="introduction">
-<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
 
-<p>Packet Viewer is a live telemetry viewer which requires no configuration to display the current values for all defined target, packet, items. Items with limits are displayed colored (blue, green, yellow, or red) according to their current state. Items can be right clicked to get detailed information.</p>
+            <div class="toc">
+              <ul id="toc" class="section-nav">
+                <li class="toc-entry toc-h2">
+                  <a href="#introduction">Introduction</a>
+                </li>
+                <li class="toc-entry toc-h2">
+                  <a href="#packet-viewer-menus">Packet Viewer Menus</a>
+                  <ul>
+                    <li class="toc-entry toc-h3">
+                      <a href="#file-menu-items">File Menu Items</a>
+                    </li>
+                    <li class="toc-entry toc-h3">
+                      <a href="#view-menu-items">View Menu Items</a>
+                    </li>
+                  </ul>
+                </li>
+                <li class="toc-entry toc-h2">
+                  <a href="#selecting-packets">Selecting Packets</a>
+                  <ul>
+                    <li class="toc-entry toc-h3">
+                      <a href="#details">Details</a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
 
-<p><img src="/img/v5/packet_viewer/packet_viewer.png" alt="Packet Viewer"></p>
+            <h1>Packet Viewer</h1>
+            <h2 id="introduction">
+              <a class="anchor" href="#introduction" aria-hidden="true"
+                ><span class="octicon octicon-link"></span></a
+              >Introduction
+            </h2>
 
-<h2 id="packet-viewer-menus">
-<a class="anchor" href="#packet-viewer-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Packet Viewer Menus</h2>
+            <p>
+              Packet Viewer is a live telemetry viewer which requires no
+              configuration to display the current values for all defined
+              target, packet, items. Items with limits are displayed colored
+              (blue, green, yellow, or red) according to their current state.
+              Items can be right clicked to get detailed information.
+            </p>
 
-<h3 id="file-menu-items">
-<a class="anchor" href="#file-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>File Menu Items</h3>
+            <p>
+              <img
+                src="/img/v5/packet_viewer/packet_viewer.png"
+                alt="Packet Viewer"
+              />
+            </p>
 
-<p>Packet Viewer has one menu under File -&gt; Options:</p>
+            <h2 id="packet-viewer-menus">
+              <a class="anchor" href="#packet-viewer-menus" aria-hidden="true"
+                ><span class="octicon octicon-link"></span></a
+              >Packet Viewer Menus
+            </h2>
 
-<p><img src="/img/v5/packet_viewer/file_menu.png" alt="File Menu"></p>
+            <h3 id="file-menu-items">
+              <a class="anchor" href="#file-menu-items" aria-hidden="true"
+                ><span class="octicon octicon-link"></span></a
+              >File Menu Items
+            </h3>
 
-<p>This dialog changes the refresh rate of Packet Viewer to reduce load on both your browser window and the backend server.</p>
+            <p>Packet Viewer has one menu under File -&gt; Options:</p>
 
-<h3 id="view-menu-items">
-<a class="anchor" href="#view-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>View Menu Items</h3>
+            <p>
+              <img src="/img/v5/packet_viewer/file_menu.png" alt="File Menu" />
+            </p>
 
-<!-- Image sized to match up with bullets -->
+            <p>
+              This dialog changes the refresh rate of Packet Viewer to reduce
+              load on both your browser window and the backend server.
+            </p>
 
-<p><img src="/img/v5/packet_viewer/view_menu.png" alt="File Menu" style="float: left; margin-right: 50px; height: 240px;"></p>
+            <h3 id="view-menu-items">
+              <a class="anchor" href="#view-menu-items" aria-hidden="true"
+                ><span class="octicon octicon-link"></span></a
+              >View Menu Items
+            </h3>
 
-<ul>
-  <li>Hides <a href="/docs/v5/target#ignore_item">ignored items</a>
-</li>
-  <li>Show <a href="/docs/v5/telemetry#derived-items">derived</a> items last</li>
-  <li>Display formatted telemetry items with units</li>
-  <li>Display formatted telemetry items</li>
-  <li>Display converted telemetry items</li>
-  <li>Display raw telemetry items</li>
-</ul>
+            <!-- Image sized to match up with bullets -->
 
-<h2 id="selecting-packets">
-<a class="anchor" href="#selecting-packets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Selecting Packets</h2>
+            <p>
+              <img
+                src="/img/v5/packet_viewer/view_menu.png"
+                alt="File Menu"
+                style="float: left; margin-right: 50px; height: 240px"
+              />
+            </p>
 
-<p>Initially opening Packet Viewer will open the first alphabetical Target and Packet. Click the drop down menus to update the Items table to a new packet. To filter the list of items you can type in the search box.</p>
+            <ul>
+              <li>
+                Hides <a href="/docs/v5/target#ignore_item">ignored items</a>
+              </li>
+              <li>
+                Show
+                <a href="/docs/v5/telemetry#derived-items">derived</a> items
+                last
+              </li>
+              <li>Display formatted telemetry items with units</li>
+              <li>Display formatted telemetry items</li>
+              <li>Display converted telemetry items</li>
+              <li>Display raw telemetry items</li>
+            </ul>
 
-<p><img src="/img/v5/packet_viewer/items_table_temp.png" alt="Items Table TEMP"></p>
+            <h2 id="selecting-packets">
+              <a class="anchor" href="#selecting-packets" aria-hidden="true"
+                ><span class="octicon octicon-link"></span></a
+              >Selecting Packets
+            </h2>
 
-<h3 id="details">
-<a class="anchor" href="#details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Details</h3>
+            <p>
+              Initially opening Packet Viewer will open the first alphabetical
+              Target and Packet. Click the drop down menus to update the Items
+              table to a new packet. To filter the list of items you can type in
+              the search box.
+            </p>
 
-<p>Right-clicking an item and selecting Details will open the details dialog.</p>
+            <p>
+              <img
+                src="/img/v5/packet_viewer/items_table_temp.png"
+                alt="Items Table TEMP"
+              />
+            </p>
 
-<p><img src="/img/v5/packet_viewer/temp1_details.png" alt="Details"></p>
+            <h3 id="details">
+              <a class="anchor" href="#details" aria-hidden="true"
+                ><span class="octicon octicon-link"></span></a
+              >Details
+            </h3>
 
-<p>This dialog lists everything defined on the telemetry item.</p>
+            <p>
+              Right-clicking an item and selecting Details will open the details
+              dialog.
+            </p>
 
-      </article>
-    </div>
+            <p>
+              <img
+                src="/img/v5/packet_viewer/temp1_details.png"
+                alt="Details"
+              />
+            </p>
 
-    <div class="unit one-fifth hide-on-mobiles">
-  <aside>
-    <ul>
-      
-      <!-- Ignore "posts" and "docs", we only want versioned collections -->
-      <!-- prettier-ignore -->
-       
-      <!-- Ignore "posts" and "docs", we only want versioned collections -->
-      <!-- prettier-ignore -->
-      
-      
-      <li>
-        <!-- Only create links to collections which aren't our own  -->
-        
-        <a href="/docs/v4/"
-          >v4 Docs</a
-        >
-          
-      <!-- Ignore "posts" and "docs", we only want versioned collections -->
-      <!-- prettier-ignore -->
-      
-      
-      <li>
-        <!-- Only create links to collections which aren't our own  -->
-          
-      <!-- Ignore "posts" and "docs", we only want versioned collections -->
-      <!-- prettier-ignore -->
-       
-      </li>
-    </ul>
+            <p>This dialog lists everything defined on the telemetry item.</p>
+          </article>
+        </div>
 
-    <!-- prettier-ignore -->
-    
-    
-    
-    <h4>Getting Started</h4>
-    <!-- prettier-ignore -->
-    <!-- prettier-ignore -->
+        <div class="unit one-fifth hide-on-mobiles">
+          <aside>
+            <ul>
+              <!-- Ignore "posts" and "docs", we only want versioned collections -->
+              <!-- prettier-ignore -->
 
+              <!-- Ignore "posts" and "docs", we only want versioned collections -->
+              <!-- prettier-ignore -->
 
+              <li>
 
-<ul>
+              <li>
+                <!-- Only create links to collections which aren't our own  -->
+
+                <!-- Ignore "posts" and "docs", we only want versioned collections -->
+                <!-- prettier-ignore -->
+              </li>
+            </ul>
+
+            <!-- prettier-ignore -->
+
+            <h4>Getting Started</h4>
+            <!-- prettier-ignore -->
+            <!-- prettier-ignore -->
+
+            <ul>
   <!-- prettier-ignore -->
-  
-  
 
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/tools">Tools</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/installation">Installation</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/upgrading">Upgrading</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/gettingstarted">Getting Started</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
+
+
 </ul>
 
-    
-    <h4>Configuration</h4>
-    <!-- prettier-ignore -->
-    <!-- prettier-ignore -->
+            <h4>Configuration</h4>
+            <!-- prettier-ignore -->
+            <!-- prettier-ignore -->
 
-
-
-<ul>
+            <ul>
   <!-- prettier-ignore -->
-  
-  
 
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/plugins">Plugins</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/target">Target Configuration</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/command">Command Configuration</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/telemetry">Telemetry Configuration</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/interfaces">Interface Configuration</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/protocols">Protocol Configuration</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
+
+
 </ul>
 
-    
-    <h4>Tool User Manuals</h4>
-    <!-- prettier-ignore -->
-    <!-- prettier-ignore -->
+            <h4>Tool User Manuals</h4>
+            <!-- prettier-ignore -->
+            <!-- prettier-ignore -->
 
-
-
-<ul>
+            <ul>
   <!-- prettier-ignore -->
-  
-  
 
-  
-    
-    
-    
-      
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/cmd-sender">Command Sender</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/cmd-tlm-server">Command and Telemetry Server</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/data-extractor">Data Extractor</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/limits-monitor">Limits Monitor</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="current">
     <a href="/docs/v5/packet-viewer">Packet Viewer</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/script-runner">Script Runner</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/tlm-grapher">Telemetry Grapher</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/screens">Telemetry Screens</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
+
+
 </ul>
 
-    
-    <h4>Usage Guides</h4>
-    <!-- prettier-ignore -->
-    <!-- prettier-ignore -->
+            <h4>Usage Guides</h4>
+            <!-- prettier-ignore -->
+            <!-- prettier-ignore -->
 
-
-
-<ul>
+            <ul>
   <!-- prettier-ignore -->
-  
-  
 
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/scripting">Scripting Guide</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/scripting-best-practices">Scripting Best Practices</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
+
+
 </ul>
 
-    
-    <h4>Development</h4>
-    <!-- prettier-ignore -->
-    <!-- prettier-ignore -->
+            <h4>Development</h4>
+            <!-- prettier-ignore -->
+            <!-- prettier-ignore -->
 
-
-
-<ul>
+            <ul>
   <!-- prettier-ignore -->
-  
-  
 
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/json-api">JSON API</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <li class="">
     <a href="/docs/v5/logging">Logging</a>
   </li>
   <!-- prettier-ignore -->
-  
-  
+
+
 </ul>
 
-    
+            <!-- Every versioned site gets the unversioned Meta section -->
+            <h4>Meta</h4>
+            <ul>
+              <li>
+                <a href="/docs/contributing">Contributing</a>
+              </li>
 
-    <!-- Every versioned site gets the unversioned Meta section -->
-    <h4>Meta</h4>
-    <ul>
-      
-      <li>
-        <a href="/docs/contributing">Contributing</a>
-      </li>
-      
-      <li>
-        <a href="/docs/papers">Papers</a>
-      </li>
-      
-      <li>
-        <a href="/docs/requirements">Requirements and Design</a>
-      </li>
-      
-      <li>
-        <a href="/docs/xtce">XTCE Support</a>
-      </li>
-      
-    </ul>
-  </aside>
-</div>
+              <li>
+                <a href="/docs/papers">Papers</a>
+              </li>
 
+              <li>
+                <a href="/docs/requirements">Requirements and Design</a>
+              </li>
 
-    <div class="clear"></div>
-  </div>
-</section>
+              <li>
+                <a href="/docs/xtce">XTCE Support</a>
+              </li>
+            </ul>
+          </aside>
+        </div>
 
+        <div class="clear"></div>
+      </div>
+    </section>
 
-  <script>
-  (function() {
-    var cx = '001663949569052626382:-enhin1layy';
-    var gcse = document.createElement('script');
-    gcse.type = 'text/javascript';
-    gcse.async = true;
-    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(gcse, s);
-  })();
-</script>
-<footer role="contentinfo">
-  <div class="grid wider">
-    <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
-      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
-    </div>
-    <div class="unit two-thirds align-right center-on-mobiles">
-      <p>
-        <gcse:search></gcse:search>
-        Proudly hosted by
-        <a href="https://github.com" target="_blank">
-          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
-        </a>
-      </p>
-    </div>
-  </div>
-</footer>
+    <script>
+      (function () {
+        var cx = "001663949569052626382:-enhin1layy";
+        var gcse = document.createElement("script");
+        gcse.type = "text/javascript";
+        gcse.async = true;
+        gcse.src = "https://cse.google.com/cse.js?cx=" + cx;
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(gcse, s);
+      })();
+    </script>
+    <footer role="contentinfo">
+      <div class="grid wider">
+        <div class="unit one-third center-on-mobiles">
+          <p>
+            The contents of this website are &copy;&nbsp;2021
+            <a href="http://www.ballaerospace.com/" target="_blank"
+              >Ball Aerospace</a
+            >
+            under the terms of the
+            <a
+              href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt"
+              target="_blank"
+              >GPLv3&nbsp;License</a
+            >.
+          </p>
+          <p>
+            Site design derived from the
+            <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project
+            documentation which is licensed under the terms of the
+            <a
+              href="https://github.com/jekyll/jekyll/blob/master/LICENSE"
+              target="_blank"
+              >MIT License</a
+            >.
+          </p>
+        </div>
+        <div class="unit two-thirds align-right center-on-mobiles">
+          <p>
+            <gcse:search></gcse:search>
+            Proudly hosted by
+            <a href="https://github.com" target="_blank">
+              <img
+                src="/img/footer-logo.png"
+                width="100"
+                height="30"
+                alt="GitHub Social coding"
+              />
+            </a>
+          </p>
+        </div>
+      </div>
+    </footer>
 
-  <script>
-  var anchorForId = function (id) {
-    var anchor = document.createElement("a");
-    anchor.className = "header-link";
-    anchor.href      = "#" + id;
-    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
-    anchor.title = "Permalink";
-    return anchor;
-  };
+    <script>
+      var anchorForId = function (id) {
+        var anchor = document.createElement("a");
+        anchor.className = "header-link";
+        anchor.href = "#" + id;
+        anchor.innerHTML =
+          '<span class="sr-only">Permalink</span><i class="fa fa-link"></i>';
+        anchor.title = "Permalink";
+        return anchor;
+      };
 
-  var linkifyAnchors = function (level, containingElement) {
-    var headers = containingElement.getElementsByTagName("h" + level);
-    for (var h = 0; h < headers.length; h++) {
-      var header = headers[h];
+      var linkifyAnchors = function (level, containingElement) {
+        var headers = containingElement.getElementsByTagName("h" + level);
+        for (var h = 0; h < headers.length; h++) {
+          var header = headers[h];
 
-      if (typeof header.id !== "undefined" && header.id !== "") {
-        header.appendChild(anchorForId(header.id));
-      }
-    }
-  };
+          if (typeof header.id !== "undefined" && header.id !== "") {
+            header.appendChild(anchorForId(header.id));
+          }
+        }
+      };
 
-  document.onreadystatechange = function () {
-    if (this.readyState === "complete") {
-      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
-      if (!contentBlock) {
-        return;
-      }
-      for (var level = 1; level <= 6; level++) {
-        linkifyAnchors(level, contentBlock);
-      }
-    }
-  };
-</script>
+      document.onreadystatechange = function () {
+        if (this.readyState === "complete") {
+          var contentBlock =
+            document.getElementsByClassName("docs")[0] ||
+            document.getElementsByClassName("news")[0];
+          if (!contentBlock) {
+            return;
+          }
+          for (var level = 1; level <= 6; level++) {
+            linkifyAnchors(level, contentBlock);
+          }
+        }
+      };
+    </script>
 
-  
-  <!-- Google Analytics (http://google.com/analytics) -->
-  <script>
-    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
-    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
-    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
-    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
+    <!-- Google Analytics (http://google.com/analytics) -->
+    <script>
+      !(function (j, e, k, y, l, L) {
+        (j.GoogleAnalyticsObject = y),
+          j[y] ||
+            (j[y] = function () {
+              (j[y].q = j[y].q || []).push(arguments);
+            }),
+          (j[y].l = +new Date()),
+          (l = e.createElement(k)),
+          (L = e.getElementsByTagName(k)[0]),
+          (l.src = "//www.google-analytics.com/analytics.js"),
+          L.parentNode.insertBefore(l, L);
+      })(window, document, "script", "ga");
 
-    ga('create', 'UA-60103689-1', 'cosmosrb.com');
-    ga('send', 'pageview');
-
-  </script>
-
-
-
-</body>
+      ga("create", "UA-60103689-1", "cosmosc2.com");
+      ga("send", "pageview");
+    </script>
+  </body>
 </html>

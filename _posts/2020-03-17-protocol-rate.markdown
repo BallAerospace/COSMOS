@@ -14,7 +14,7 @@ One COSMOS server was connected to a high speed telemetry target that was genera
 
 ### The Solution
 
-We can first model the chaining using the COSMOS demo. The format for the cmd_tlm_server.txt file is given in the [chaining documentation](https://cosmosrb.com/docs/chaining#example-cmdtlmserver-configuration-for-child-cmd_tlm_server_chaintxt) and already exists in the COSMOS demo. The demo also includes a deconflicting port definition file in system_alt_ports.txt. To start the two server instances from the command line we can type:
+We can first model the chaining using the COSMOS demo. The format for the cmd_tlm_server.txt file is given in the [chaining documentation](https://cosmosc2.com/docs/chaining#example-cmdtlmserver-configuration-for-child-cmd_tlm_server_chaintxt) and already exists in the COSMOS demo. The demo also includes a deconflicting port definition file in system_alt_ports.txt. To start the two server instances from the command line we can type:
 
 ```
 ruby demo\tools\CmdTlmServer

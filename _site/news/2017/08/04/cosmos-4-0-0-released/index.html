@@ -1,625 +1,1179 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en-US">
-<head>
-  <meta charset="UTF-8">
-  <title>Ball Aerospace COSMOS 4.0.0 Released</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="generator" content="Jekyll v4.2.0">
-  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
-  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
-  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
-  <link rel="stylesheet" href="/css/screen.css">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <!--[if lt IE 9]>
-  <script src="/js/html5shiv.min.js"></script>
-  <script src="/js/respond.min.js"></script>
-  <![endif]-->
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ball Aerospace COSMOS 4.0.0 Released</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="generator" content="Jekyll v4.2.0" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="Ball Aerospace COSMOS News"
+      href="/feed.xml"
+    />
+    <link
+      rel="alternate"
+      type="application/atom+xml"
+      title="Recent commits to COSMOS's master branch"
+      href="https://github.com/BallAerospace/COSMOS/commits/master.atom"
+    />
+    <link
+      rel="stylesheet"
+      href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900"
+    />
+    <link rel="stylesheet" href="/css/screen.css" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <!--[if lt IE 9]>
+      <script src="/js/html5shiv.min.js"></script>
+      <script src="/js/respond.min.js"></script>
+    <![endif]-->
+  </head>
 
-
-<body class="wrap">
-  <header role="banner">
-  <nav class="mobile-nav show-on-mobiles">
-    <ul>
-  <li class="">
-    <a href="/">Home</a>
-  </li>
-  <li class="">
-    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
-  </li>
-  <li class="current">
-    <a href="/news/">News</a>
-  </li>
-  <li>
-    <a href="/help/">Help</a>
-  </li>
-  <li>
-    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
-      ><span class="hide-on-mobiles">View on </span>GitHub</a
-    >
-  </li>
-</ul>
-
-  </nav>
-  <div class="grid wider">
-    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
-      <h1>
-        <a href="/">
-          <span class="sr-only">COSMOS</span>
-          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
-        </a>
-      </h1>
-    </div>
-    <nav class="main-nav unit two-thirds hide-on-mobiles">
-      <ul>
-  <li class="">
-    <a href="/">Home</a>
-  </li>
-  <li class="">
-    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
-    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
-  </li>
-  <li class="current">
-    <a href="/news/">News</a>
-  </li>
-  <li>
-    <a href="/help/">Help</a>
-  </li>
-  <li>
-    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
-      ><span class="hide-on-mobiles">View on </span>GitHub</a
-    >
-  </li>
-</ul>
-
-    </nav>
-  </div>
-</header>
-
+  <body class="wrap">
+    <header role="banner">
+      <nav class="mobile-nav show-on-mobiles">
+        <ul>
+          <li class="">
+            <a href="/">Home</a>
+          </li>
+          <li class="">
+            <span class="hide-on-mobiles"
+              ><a href="/docs/v4/">Documentation</a></span
+            >
+            <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+          </li>
+          <li class="current">
+            <a href="/news/">News</a>
+          </li>
+          <li>
+            <a href="/help/">Help</a>
+          </li>
+          <li>
+            <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+              ><span class="hide-on-mobiles">View on </span>GitHub</a
+            >
+          </li>
+        </ul>
+      </nav>
+      <div class="grid wider">
+        <div class="unit one-third center-on-mobiles" style="margin-top: 27px">
+          <h1>
+            <a href="/">
+              <span class="sr-only">COSMOS</span>
+              <img
+                src="/img/COSMOS.png"
+                width="312"
+                height="70"
+                alt="COSMOS Logo"
+              />
+            </a>
+          </h1>
+        </div>
+        <nav class="main-nav unit two-thirds hide-on-mobiles">
+          <ul>
+            <li class="">
+              <a href="/">Home</a>
+            </li>
+            <li class="">
+              <span class="hide-on-mobiles"
+                ><a href="/docs/v4/">Documentation</a></span
+              >
+              <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+            </li>
+            <li class="current">
+              <a href="/news/">News</a>
+            </li>
+            <li>
+              <a href="/help/">Help</a>
+            </li>
+            <li>
+              <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+                ><span class="hide-on-mobiles">View on </span>GitHub</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
 
     <section class="news">
-    <div class="grid wider">
+      <div class="grid wider">
+        <div class="docs-nav-mobile unit whole show-on-mobiles">
+          <select onchange="if (this.value) window.location.href=this.value">
+            <option value="">Navigate the blog...</option>
+            <option value="/news/">Home</option>
+            <optgroup label="v1.x">
+              <option value="/news/2021/04/12/cosmos-5-0-0-beta-2-released/">
+                Ball Aerospace COSMOS 5.0.0 beta 2 Released
+              </option>
 
-      <div class="docs-nav-mobile unit whole show-on-mobiles">
-  <select onchange="if (this.value) window.location.href=this.value">
-    <option value="">Navigate the blog...</option>
-    <option value="/news/">Home</option>
-    <optgroup label="v1.x">
-      
-      <option value="/news/2021/04/12/cosmos-5-0-0-beta-2-released/">Ball Aerospace COSMOS 5.0.0 beta 2 Released</option>
-      
-      <option value="/news/2021/01/09/cosmos-5-0-0-beta-1-released/">Ball Aerospace COSMOS 5.0.0 beta 1 Released</option>
-      
-      <option value="/news/2020/11/05/cosmos-4-5-0-released/">Ball Aerospace COSMOS 4.5.0 Released</option>
-      
-      <option value="/news/2020/09/23/packet-time/">Packet Time</option>
-      
-      <option value="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">Ball Aerospace COSMOS 5.0.0 alpha 1 Released</option>
-      
-      <option value="/news/2020/03/24/identifies-packets/">Identifying Packets</option>
-      
-      <option value="/news/2020/03/17/protocol-rate/">Protocol Rate</option>
-      
-      <option value="/news/2020/03/09/cosmos-4-4-2-released/">Ball Aerospace COSMOS 4.4.2 Released</option>
-      
-      <option value="/news/2019/12/30/cosmos-4-4-1-released/">Ball Aerospace COSMOS 4.4.1 Released</option>
-      
-      <option value="/news/2019/10/21/cosmos-amos/">AMOS 2019</option>
-      
-      <option value="/news/2019/06/28/cosmos-4-4-0-released/">Ball Aerospace COSMOS 4.4.0 Released</option>
-      
-      <option value="/news/2019/06/05/protocols/">Protocols</option>
-      
-      <option value="/news/2018/12/24/little-endian/">Little Endian Packet Data</option>
-      
-      <option value="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</option>
-      
-      <option value="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</option>
-      
-      <option value="/news/2018/08/30/cosmos-4-3-0-released/">Ball Aerospace COSMOS 4.3.0 Released</option>
-      
-      <option value="/news/2018/05/16/cosmos-4-2-4-released/">Ball Aerospace COSMOS 4.2.4 Released</option>
-      
-      <option value="/news/2018/04/17/cosmos-4-2-3-released/">Ball Aerospace COSMOS 4.2.3 Released</option>
-      
-      <option value="/news/2018/04/11/cosmos-4-2-2-released/">Ball Aerospace COSMOS 4.2.2 Released</option>
-      
-      <option value="/news/2018/03/14/derived-items/">Derived Items</option>
-      
-      <option value="/news/2018/02/12/limits/">Limits</option>
-      
-      <option value="/news/2018/01/18/metadata/">Metadata</option>
-      
-      <option value="/news/2017/12/07/cosmos-4-1-1-released/">Ball Aerospace COSMOS 4.1.1 Released</option>
-      
-      <option value="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</option>
-      
-      <option value="/news/2017/11/17/cosmos-4-1-0-released/">Ball Aerospace COSMOS 4.1.0 Released</option>
-      
-      <option value="/news/2017/11/13/require_vs_load/">Require vs Load</option>
-      
-      <option value="/news/2017/10/30/config-editor/">Config Editor</option>
-      
-      <option value="/news/2017/10/24/cosmos-4-0-3-released/">Ball Aerospace COSMOS 4.0.3 Released</option>
-      
-      <option value="/news/2017/09/29/cosmos-4-0-2-released/">Ball Aerospace COSMOS 4.0.2 Released</option>
-      
-      <option value="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</option>
-      
-      <option value="/news/2017/08/23/cosmos-4-0-1-released/">Ball Aerospace COSMOS 4.0.1 Released</option>
-      
-      <option value="/news/2017/08/04/cosmos-4-0-0-released/">Ball Aerospace COSMOS 4.0.0 Released</option>
-      
-      <option value="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</option>
-      
-      <option value="/news/2017/06/19/template_protocol/">Template Protocol</option>
-      
-      <option value="/news/2017/05/18/cosmos-3-9-2-released/">Ball Aerospace COSMOS 3.9.2 Released</option>
-      
-      <option value="/news/2017/05/08/packet_processors/">Packet Processors</option>
-      
-      <option value="/news/2017/04/24/wired/">WIRED Article</option>
-      
-      <option value="/news/2017/03/29/cosmos-3-9-1-released/">Ball Aerospace COSMOS 3.9.1 Released</option>
-      
-      <option value="/news/2017/02/22/routers/">Routers</option>
-      
-      <option value="/news/2016/12/06/cosmos-3-8-3-released/">Ball Aerospace COSMOS 3.8.3 Released</option>
-      
-      <option value="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</option>
-      
-      <option value="/news/2016/09/12/erb-config/">ERB Config Files</option>
-      
-      <option value="/news/2016/08/22/custom-widgets/">Custom Widgets</option>
-      
-      <option value="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</option>
-      
-      <option value="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</option>
-      
-      <option value="/news/2016/07/05/cosmos-3-8-2-released/">Ball Aerospace COSMOS 3.8.2 Released</option>
-      
-      <option value="/news/2016/05/12/cosmos-3-8-1-released/">Ball Aerospace COSMOS 3.8.1 Released</option>
-      
-      <option value="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</option>
-      
-      <option value="/news/2016/02/27/xtce-support/">XTCE Support</option>
-      
-      <option value="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</option>
-      
-      <option value="/news/2016/02/26/cosmos-3-8-0-released/">Ball Aerospace COSMOS 3.8.0 Released</option>
-      
-      <option value="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</option>
-      
-      <option value="/news/2015/12/29/cosmos-3-7-1-released/">Ball Aerospace COSMOS 3.7.1 Released</option>
-      
-      <option value="/news/2015/11/25/cosmos-3-7-0-released/">Ball Aerospace COSMOS 3.7.0 Released</option>
-      
-      <option value="/news/2015/10/30/cosmos-3-6-3-released/">Ball Aerospace COSMOS 3.6.3 Released</option>
-      
-      <option value="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</option>
-      
-      <option value="/news/2015/08/10/cosmos-3-6-2-released/">Ball Aerospace COSMOS 3.6.2 Released</option>
-      
-      <option value="/news/2015/08/10/cosmos-3-6-1-released/">Ball Aerospace COSMOS 3.6.1 Released</option>
-      
-      <option value="/news/2015/08/07/cosmos-3-6-0-released/">Ball Aerospace COSMOS 3.6.0 Released</option>
-      
-      <option value="/news/2015/07/14/cosmos-3-5-3-released/">Ball Aerospace COSMOS 3.5.3 Released</option>
-      
-      <option value="/news/2015/07/14/cosmos-3-5-2-released/">Ball Aerospace COSMOS 3.5.2 Released</option>
-      
-      <option value="/news/2015/07/08/cosmos-3-5-1-released/">Ball Aerospace COSMOS 3.5.1 Released</option>
-      
-      <option value="/news/2015/06/22/cosmos-3-5-0-released/">Ball Aerospace COSMOS 3.5.0 Released</option>
-      
-      <option value="/news/2015/05/08/cosmos-3-4-2-released/">Ball Aerospace COSMOS 3.4.2 Released</option>
-      
-      <option value="/news/2015/05/01/cosmos-3-4-1-released/">Ball Aerospace COSMOS 3.4.1 Released</option>
-      
-      <option value="/news/2015/04/27/cosmos-3-4-0-released/">Ball Aerospace COSMOS 3.4.0 Released</option>
-      
-      <option value="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</option>
-      
-      <option value="/news/2015/03/23/cosmos-3-3-3-released/">Ball Aerospace COSMOS 3.3.3 Released</option>
-      
-      <option value="/news/2015/03/19/cosmos-3-3-1-released/">Ball Aerospace COSMOS 3.3.1 - Startup Cheetah</option>
-      
-      <option value="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</option>
-      
-      <option value="/news/2015/02/23/cosmos-3-2-1-released/">Ball Aerospace COSMOS 3.2.1 Released</option>
-      
-      <option value="/news/2015/02/17/cosmos-3-2-0-released/">Ball Aerospace COSMOS 3.2.0 Released</option>
-      
-      <option value="/news/2015/02/03/cosmos-3-1-2-released/">Ball Aerospace COSMOS 3.1.2 Released</option>
-      
-      <option value="/news/2015/01/28/cosmos-3-1-1-released/">Ball Aerospace COSMOS 3.1.1 Released</option>
-      
-      <option value="/news/2015/01/06/ball-aerospace-cosmos-open-sourced/">Ball Aerospace COSMOS Open Sourced</option>
-      
-    </optgroup>
-  </select>
-</div>
+              <option value="/news/2021/01/09/cosmos-5-0-0-beta-1-released/">
+                Ball Aerospace COSMOS 5.0.0 beta 1 Released
+              </option>
 
+              <option value="/news/2020/11/05/cosmos-4-5-0-released/">
+                Ball Aerospace COSMOS 4.5.0 Released
+              </option>
 
-      <div class="unit four-fifths">
-        <article>
-  <h2>
-    Ball Aerospace COSMOS 4.0.0 Released
-    <a href="/news/2017/08/04/cosmos-4-0-0-released/" class="permalink" title="Permalink">∞</a>
-  </h2>
-  <span class="post-category">
-    <span class="label">
-      release
-    </span>
-  </span>
-  <div class="post-meta">
-    <span class="post-date">
-      04 Aug 2017
-    </span>
-    <a href="https://github.com/ryanmelt" class="post-author">
-      <img src="https://github.com/ryanmelt.png" class="avatar" alt="ryanmelt avatar" width="24" height="24">
-      ryanmelt
-    </a>
-  </div>
-  <div class="post-content">
-    <p>COSMOS 4 is here!</p>
+              <option value="/news/2020/09/23/packet-time/">Packet Time</option>
 
-<p>48 tickets have gone into this release, and it brings with it two new tools and some great under the hood improvements.</p>
+              <option value="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">
+                Ball Aerospace COSMOS 5.0.0 alpha 1 Released
+              </option>
 
-<p>New Tools:</p>
+              <option value="/news/2020/03/24/identifies-packets/">
+                Identifying Packets
+              </option>
 
-<p>COSMOS now has a dedicated Configuration Editor and Command Sequence Builder.</p>
+              <option value="/news/2020/03/17/protocol-rate/">
+                Protocol Rate
+              </option>
 
-<p>The config editor gives you contextual help when building config files, and make it super easy to define packets and configure tools without having to have the online documentation up in front of you.  It’s going to make setting up COSMOS even easier than it was before.</p>
+              <option value="/news/2020/03/09/cosmos-4-4-2-released/">
+                Ball Aerospace COSMOS 4.4.2 Released
+              </option>
 
-<p>Command Sequence builder allows you to define series of commands that should be sent at either absolute or relative timestamps to each other.  This is great for planning time specific commanding.  You can execute these on the ground directly from the tool, or you can convert them to your own internal format and upload to the system you are commanding.</p>
+              <option value="/news/2019/12/30/cosmos-4-4-1-released/">
+                Ball Aerospace COSMOS 4.4.1 Released
+              </option>
 
-<p>Highlighted changes:</p>
+              <option value="/news/2019/10/21/cosmos-amos/">AMOS 2019</option>
 
-<ol>
-  <li>New protocol system allows assigning multiple protocols to each interface to support layered protocols, and common functionality like CRC checking/adding to commands.</li>
-  <li>The ability to View the most recent raw data received or sent on each interface</li>
-  <li>The Command and Telemetry Server can now run on JRuby in –no-gui mode (may help performance for huge projects with 50+ targets)</li>
-  <li>New router provides the ability to get a copy of every command sent out from COSMOS in a stream</li>
-  <li>New SYSTEM META packet output by the CmdTlmServer</li>
-  <li>Lots more!  See the full ticket list below</li>
-</ol>
+              <option value="/news/2019/06/28/cosmos-4-4-0-released/">
+                Ball Aerospace COSMOS 4.4.0 Released
+              </option>
 
-<h3 id="new-features">New Features:</h3>
+              <option value="/news/2019/06/05/protocols/">Protocols</option>
 
-<ul>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/229">#229</a> Gem Based Targets should support DataViewer and other tool configurations</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/234">#234</a> Add a method to system.txt to add files used in the marshall file MD5 sum calculation</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/253">#253</a> Create “generators” for targets, tools, etc</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/258">#258</a> Create COSMOS Command Sequence Tool</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/261">#261</a> Provide a method for specifying binary data in STRING and BLOCK default values</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/278">#278</a> Consider adding wait_ methods to internal API for use in Background tasks</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/281">#281</a> Add support for stretch and spacers in widget layouts</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/319">#319</a> Add the ability to grab telemetry ARRAY_ITEMs</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/337">#337</a> Support specifying default parameters to default log reader and log writer in system.txt</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/347">#347</a> COSMOS GLobal Time Zone Setting (Local/UTC)</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/356">#356</a> Interface protocols</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/360">#360</a> Add raw stream preamble and postamble data to “View Raw”</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/381">#381</a> Float Infinity and NaN as command values</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/401">#401</a> tolerance scripting calls should support array telemetry items</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/404">#404</a> Packet Viewer easy access to edit configuration files</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/405">#405</a> Telemetry Viewer easy access to edit screen definition</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/423">#423</a> Add “Cmd router” to CmdTlmServer to support external logging of all commands</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/424">#424</a> TlmViewer should call update_widget for a screen with no value items and with CmdTlmServer not running</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/426">#426</a> Standardize meta data to SYSTEM META packet</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/432">#432</a> Export processed config files</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/442">#442</a> Label value widgets should support right aligned labels</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/459">#459</a> Script Editor code completion enhancements</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/479">#479</a> Limits Monitor doesn’t detect newly connected targets</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/489">#489</a> Built in support for limits group enable and disable</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/497">#497</a> Update serial_interface.rb to support hardware flow control</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/498">#498</a> Script helper for activities that should cause an exception</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/511">#511</a> Make CmdTlmServer run on JRuby</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/512">#512</a> Create a CRC Protocol</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/513">#513</a> Create a GUI config file editor</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/516">#516</a> Recreate COSMOS C Extension Code in Pure Ruby</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/517">#517</a> Make hostname for tools to connect to CTS API configurable in system.txt</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/519">#519</a> Replay should support alternate packet log readers</li>
-</ul>
+              <option value="/news/2018/12/24/little-endian/">
+                Little Endian Packet Data
+              </option>
 
-<h3 id="maintenance">Maintenance:</h3>
+              <option value="/news/2018/10/05/system-target-txt/">
+                Using system.txt and target.txt
+              </option>
 
-<ul>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/354">#354</a> Targets need to be path namespaced to avoid conflicts</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/323">#323</a> Catch Signals in CmdTlmServer</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/341">#341</a> Document COSMOS JSON API on cosmosrb.com</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/398">#398</a> Documentation, code cleanup</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/429">#429</a> Command Endianness and Parameter Endianness</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/437">#437</a> Remove CMD_TLM_VERSION from system.txt</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/438">#438</a> Cache script text as part of instrumenting script</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/446">#446</a> Windows 10 Install fails</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/476">#476</a> Separate apt and yum package install lines</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/477">#477</a> Deprecate userpath.txt</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/484">#484</a> require_file should re-raise existing exception</li>
-</ul>
+              <option value="/news/2018/09/14/cosmos-dockercon/">
+                COSMOS at DockerCon 2018
+              </option>
 
-<h3 id="bug-fixes">Bug Fixes:</h3>
+              <option value="/news/2018/08/30/cosmos-4-3-0-released/">
+                Ball Aerospace COSMOS 4.3.0 Released
+              </option>
 
-<ul>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/456">#456</a> Replay doesn’t shut down properly if closed while playing</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/481">#481</a> show_backtrace not working in ScriptRunner</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/494">#494</a> Details dialog crashes for items with LATEST packet</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/502">#502</a> Target REQUIRE should also search system path</li>
-  <li><a href="https://github.com/BallAerospace/COSMOS/issues/506">#506</a> Don’t call read_interface if data is cached in protocols for another packet</li>
-</ul>
+              <option value="/news/2018/05/16/cosmos-4-2-4-released/">
+                Ball Aerospace COSMOS 4.2.4 Released
+              </option>
 
-<h3 id="migration-notes-from-cosmos-38x">Migration Notes from COSMOS 3.8.x:</h3>
+              <option value="/news/2018/04/17/cosmos-4-2-3-released/">
+                Ball Aerospace COSMOS 4.2.3 Released
+              </option>
 
-<p>COSMOS 4 includes several breaking changes from the COSMOS 3.x series.</p>
+              <option value="/news/2018/04/11/cosmos-4-2-2-released/">
+                Ball Aerospace COSMOS 4.2.2 Released
+              </option>
 
-<p>The first and simplest is that the Command and Telemetry Server now opens an additional port at 7780 by default, that provides a router that will send out each command that the system has sent.  This can allow external systems to also log all commands sent by COSMOS.  For most people this change will be transparent and no updates to your COSMOS configuration will be required.</p>
+              <option value="/news/2018/03/14/derived-items/">
+                Derived Items
+              </option>
 
-<p>The second is that the Command and Telemetry Server now always supports a meta data packet called SYSTEM META.  This packet will always contain the MD5 sum for the current running COSMOS configuration, the version of COSMOS running, the version of your COSMOS Project, and the version of Ruby being used.  You can also add your own requirements for meta data with things like the name of the operator currently running the system, or the name of a specific test you are currently running.  In general you shouldn’t need to do anything for this change unless you were using the previous metadata functionality in COSMOS.  If you were, then you will need to migrate your meta data to the new SYSTEM META packet, and change the parameters in your CmdTlmServer or TestRunner configurations regarding meta data.  If you weren’t using metadata before, then you will probably just notice this new packet in your log files, and in your telemetry stream.</p>
+              <option value="/news/2018/02/12/limits/">Limits</option>
 
-<p>Finally the most exciting breaking change is in how COSMOS interfaces handle protocols.  Before, the COSMOS TCP/IP and Serial interface classes each took a protocol like LENGTH, TERMINATED, etc that defined how packets were delineated by the interface.  Now each interface can take a set of one or more protocols.  This allows COSMOS to much more easily support nested protocols, such as the frame focused protocols of CCSDS.  It also allows for creating helpful reusable protocols such as the new CRC protocol for automatically adding CRCs to outgoing commands and verifying incoming CRCs on telemetry packets.  It’s a great change, but if you have any custom interface classes you have written, they will probably require some modification.  See the Interfaces section at cosmosrb.com to see how the new interface classes work. We will also be writing up a blog post to help document the process of upgrading.  Look for this in a week or two.</p>
+              <option value="/news/2018/01/18/metadata/">Metadata</option>
 
-<p>To upgrade to the latest version of COSMOS, run “bundle update cosmos” in your COSMOS project folder.</p>
+              <option value="/news/2017/12/07/cosmos-4-1-1-released/">
+                Ball Aerospace COSMOS 4.1.1 Released
+              </option>
 
-  </div>
-</article>
+              <option value="/news/2017/11/28/cosmos-4-1-0-release-notes/">
+                COSMOS 4.1.0 Release Notes
+              </option>
 
+              <option value="/news/2017/11/17/cosmos-4-1-0-released/">
+                Ball Aerospace COSMOS 4.1.0 Released
+              </option>
+
+              <option value="/news/2017/11/13/require_vs_load/">
+                Require vs Load
+              </option>
+
+              <option value="/news/2017/10/30/config-editor/">
+                Config Editor
+              </option>
+
+              <option value="/news/2017/10/24/cosmos-4-0-3-released/">
+                Ball Aerospace COSMOS 4.0.3 Released
+              </option>
+
+              <option value="/news/2017/09/29/cosmos-4-0-2-released/">
+                Ball Aerospace COSMOS 4.0.2 Released
+              </option>
+
+              <option value="/news/2017/08/23/cloud-deploy/">
+                Deploying COSMOS to the Cloud
+              </option>
+
+              <option value="/news/2017/08/23/cosmos-4-0-1-released/">
+                Ball Aerospace COSMOS 4.0.1 Released
+              </option>
+
+              <option value="/news/2017/08/04/cosmos-4-0-0-released/">
+                Ball Aerospace COSMOS 4.0.0 Released
+              </option>
+
+              <option value="/news/2017/07/05/arduino-battle-bots/">
+                Arduinos & Battle Bots
+              </option>
+
+              <option value="/news/2017/06/19/template_protocol/">
+                Template Protocol
+              </option>
+
+              <option value="/news/2017/05/18/cosmos-3-9-2-released/">
+                Ball Aerospace COSMOS 3.9.2 Released
+              </option>
+
+              <option value="/news/2017/05/08/packet_processors/">
+                Packet Processors
+              </option>
+
+              <option value="/news/2017/04/24/wired/">WIRED Article</option>
+
+              <option value="/news/2017/03/29/cosmos-3-9-1-released/">
+                Ball Aerospace COSMOS 3.9.1 Released
+              </option>
+
+              <option value="/news/2017/02/22/routers/">Routers</option>
+
+              <option value="/news/2016/12/06/cosmos-3-8-3-released/">
+                Ball Aerospace COSMOS 3.8.3 Released
+              </option>
+
+              <option value="/news/2016/10/13/cosmos-cubesat-ops/">
+                SmallSat Ops
+              </option>
+
+              <option value="/news/2016/09/12/erb-config/">
+                ERB Config Files
+              </option>
+
+              <option value="/news/2016/08/22/custom-widgets/">
+                Custom Widgets
+              </option>
+
+              <option value="/news/2016/08/04/custom-cosmos_interface/">
+                Custom COSMOS Interface
+              </option>
+
+              <option value="/news/2016/07/06/cosmos-cmd-tlm-names/">
+                COSMOS Cmd/Tlm Naming
+              </option>
+
+              <option value="/news/2016/07/05/cosmos-3-8-2-released/">
+                Ball Aerospace COSMOS 3.8.2 Released
+              </option>
+
+              <option value="/news/2016/05/12/cosmos-3-8-1-released/">
+                Ball Aerospace COSMOS 3.8.1 Released
+              </option>
+
+              <option value="/news/2016/03/03/sparkfun/">
+                Sparkfun Blog Post
+              </option>
+
+              <option value="/news/2016/02/27/xtce-support/">
+                XTCE Support
+              </option>
+
+              <option value="/news/2016/02/27/fukuoka-award/">
+                Fukuoka Special Award Winner
+              </option>
+
+              <option value="/news/2016/02/26/cosmos-3-8-0-released/">
+                Ball Aerospace COSMOS 3.8.0 Released
+              </option>
+
+              <option value="/news/2016/02/11/simulated-target/">
+                COSMOS Simulated Target
+              </option>
+
+              <option value="/news/2015/12/29/cosmos-3-7-1-released/">
+                Ball Aerospace COSMOS 3.7.1 Released
+              </option>
+
+              <option value="/news/2015/11/25/cosmos-3-7-0-released/">
+                Ball Aerospace COSMOS 3.7.0 Released
+              </option>
+
+              <option value="/news/2015/10/30/cosmos-3-6-3-released/">
+                Ball Aerospace COSMOS 3.6.3 Released
+              </option>
+
+              <option value="/news/2015/10/28/cosmos-at-ats-conference/">
+                COSMOS at the ATS Conference
+              </option>
+
+              <option value="/news/2015/08/10/cosmos-3-6-2-released/">
+                Ball Aerospace COSMOS 3.6.2 Released
+              </option>
+
+              <option value="/news/2015/08/10/cosmos-3-6-1-released/">
+                Ball Aerospace COSMOS 3.6.1 Released
+              </option>
+
+              <option value="/news/2015/08/07/cosmos-3-6-0-released/">
+                Ball Aerospace COSMOS 3.6.0 Released
+              </option>
+
+              <option value="/news/2015/07/14/cosmos-3-5-3-released/">
+                Ball Aerospace COSMOS 3.5.3 Released
+              </option>
+
+              <option value="/news/2015/07/14/cosmos-3-5-2-released/">
+                Ball Aerospace COSMOS 3.5.2 Released
+              </option>
+
+              <option value="/news/2015/07/08/cosmos-3-5-1-released/">
+                Ball Aerospace COSMOS 3.5.1 Released
+              </option>
+
+              <option value="/news/2015/06/22/cosmos-3-5-0-released/">
+                Ball Aerospace COSMOS 3.5.0 Released
+              </option>
+
+              <option value="/news/2015/05/08/cosmos-3-4-2-released/">
+                Ball Aerospace COSMOS 3.4.2 Released
+              </option>
+
+              <option value="/news/2015/05/01/cosmos-3-4-1-released/">
+                Ball Aerospace COSMOS 3.4.1 Released
+              </option>
+
+              <option value="/news/2015/04/27/cosmos-3-4-0-released/">
+                Ball Aerospace COSMOS 3.4.0 Released
+              </option>
+
+              <option value="/news/2015/04/06/cosmos-c-extension/">
+                COSMOS BinaryAccessor#write C Extension
+              </option>
+
+              <option value="/news/2015/03/23/cosmos-3-3-3-released/">
+                Ball Aerospace COSMOS 3.3.3 Released
+              </option>
+
+              <option value="/news/2015/03/19/cosmos-3-3-1-released/">
+                Ball Aerospace COSMOS 3.3.1 - Startup Cheetah
+              </option>
+
+              <option value="/news/2015/02/27/cosmos-at-gsaw-conference/">
+                COSMOS at the GSAW Conference
+              </option>
+
+              <option value="/news/2015/02/23/cosmos-3-2-1-released/">
+                Ball Aerospace COSMOS 3.2.1 Released
+              </option>
+
+              <option value="/news/2015/02/17/cosmos-3-2-0-released/">
+                Ball Aerospace COSMOS 3.2.0 Released
+              </option>
+
+              <option value="/news/2015/02/03/cosmos-3-1-2-released/">
+                Ball Aerospace COSMOS 3.1.2 Released
+              </option>
+
+              <option value="/news/2015/01/28/cosmos-3-1-1-released/">
+                Ball Aerospace COSMOS 3.1.1 Released
+              </option>
+
+              <option
+                value="/news/2015/01/06/ball-aerospace-cosmos-open-sourced/"
+              >
+                Ball Aerospace COSMOS Open Sourced
+              </option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="unit four-fifths">
+          <article>
+            <h2>
+              Ball Aerospace COSMOS 4.0.0 Released
+              <a
+                href="/news/2017/08/04/cosmos-4-0-0-released/"
+                class="permalink"
+                title="Permalink"
+                >∞</a
+              >
+            </h2>
+            <span class="post-category">
+              <span class="label"> release </span>
+            </span>
+            <div class="post-meta">
+              <span class="post-date"> 04 Aug 2017 </span>
+              <a href="https://github.com/ryanmelt" class="post-author">
+                <img
+                  src="https://github.com/ryanmelt.png"
+                  class="avatar"
+                  alt="ryanmelt avatar"
+                  width="24"
+                  height="24"
+                />
+                ryanmelt
+              </a>
+            </div>
+            <div class="post-content">
+              <p>COSMOS 4 is here!</p>
+
+              <p>
+                48 tickets have gone into this release, and it brings with it
+                two new tools and some great under the hood improvements.
+              </p>
+
+              <p>New Tools:</p>
+
+              <p>
+                COSMOS now has a dedicated Configuration Editor and Command
+                Sequence Builder.
+              </p>
+
+              <p>
+                The config editor gives you contextual help when building config
+                files, and make it super easy to define packets and configure
+                tools without having to have the online documentation up in
+                front of you. It’s going to make setting up COSMOS even easier
+                than it was before.
+              </p>
+
+              <p>
+                Command Sequence builder allows you to define series of commands
+                that should be sent at either absolute or relative timestamps to
+                each other. This is great for planning time specific commanding.
+                You can execute these on the ground directly from the tool, or
+                you can convert them to your own internal format and upload to
+                the system you are commanding.
+              </p>
+
+              <p>Highlighted changes:</p>
+
+              <ol>
+                <li>
+                  New protocol system allows assigning multiple protocols to
+                  each interface to support layered protocols, and common
+                  functionality like CRC checking/adding to commands.
+                </li>
+                <li>
+                  The ability to View the most recent raw data received or sent
+                  on each interface
+                </li>
+                <li>
+                  The Command and Telemetry Server can now run on JRuby in
+                  –no-gui mode (may help performance for huge projects with 50+
+                  targets)
+                </li>
+                <li>
+                  New router provides the ability to get a copy of every command
+                  sent out from COSMOS in a stream
+                </li>
+                <li>New SYSTEM META packet output by the CmdTlmServer</li>
+                <li>Lots more! See the full ticket list below</li>
+              </ol>
+
+              <h3 id="new-features">New Features:</h3>
+
+              <ul>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/229"
+                    >#229</a
+                  >
+                  Gem Based Targets should support DataViewer and other tool
+                  configurations
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/234"
+                    >#234</a
+                  >
+                  Add a method to system.txt to add files used in the marshall
+                  file MD5 sum calculation
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/253"
+                    >#253</a
+                  >
+                  Create “generators” for targets, tools, etc
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/258"
+                    >#258</a
+                  >
+                  Create COSMOS Command Sequence Tool
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/261"
+                    >#261</a
+                  >
+                  Provide a method for specifying binary data in STRING and
+                  BLOCK default values
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/278"
+                    >#278</a
+                  >
+                  Consider adding wait_ methods to internal API for use in
+                  Background tasks
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/281"
+                    >#281</a
+                  >
+                  Add support for stretch and spacers in widget layouts
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/319"
+                    >#319</a
+                  >
+                  Add the ability to grab telemetry ARRAY_ITEMs
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/337"
+                    >#337</a
+                  >
+                  Support specifying default parameters to default log reader
+                  and log writer in system.txt
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/347"
+                    >#347</a
+                  >
+                  COSMOS GLobal Time Zone Setting (Local/UTC)
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/356"
+                    >#356</a
+                  >
+                  Interface protocols
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/360"
+                    >#360</a
+                  >
+                  Add raw stream preamble and postamble data to “View Raw”
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/381"
+                    >#381</a
+                  >
+                  Float Infinity and NaN as command values
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/401"
+                    >#401</a
+                  >
+                  tolerance scripting calls should support array telemetry items
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/404"
+                    >#404</a
+                  >
+                  Packet Viewer easy access to edit configuration files
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/405"
+                    >#405</a
+                  >
+                  Telemetry Viewer easy access to edit screen definition
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/423"
+                    >#423</a
+                  >
+                  Add “Cmd router” to CmdTlmServer to support external logging
+                  of all commands
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/424"
+                    >#424</a
+                  >
+                  TlmViewer should call update_widget for a screen with no value
+                  items and with CmdTlmServer not running
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/426"
+                    >#426</a
+                  >
+                  Standardize meta data to SYSTEM META packet
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/432"
+                    >#432</a
+                  >
+                  Export processed config files
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/442"
+                    >#442</a
+                  >
+                  Label value widgets should support right aligned labels
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/459"
+                    >#459</a
+                  >
+                  Script Editor code completion enhancements
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/479"
+                    >#479</a
+                  >
+                  Limits Monitor doesn’t detect newly connected targets
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/489"
+                    >#489</a
+                  >
+                  Built in support for limits group enable and disable
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/497"
+                    >#497</a
+                  >
+                  Update serial_interface.rb to support hardware flow control
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/498"
+                    >#498</a
+                  >
+                  Script helper for activities that should cause an exception
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/511"
+                    >#511</a
+                  >
+                  Make CmdTlmServer run on JRuby
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/512"
+                    >#512</a
+                  >
+                  Create a CRC Protocol
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/513"
+                    >#513</a
+                  >
+                  Create a GUI config file editor
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/516"
+                    >#516</a
+                  >
+                  Recreate COSMOS C Extension Code in Pure Ruby
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/517"
+                    >#517</a
+                  >
+                  Make hostname for tools to connect to CTS API configurable in
+                  system.txt
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/519"
+                    >#519</a
+                  >
+                  Replay should support alternate packet log readers
+                </li>
+              </ul>
+
+              <h3 id="maintenance">Maintenance:</h3>
+
+              <ul>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/354"
+                    >#354</a
+                  >
+                  Targets need to be path namespaced to avoid conflicts
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/323"
+                    >#323</a
+                  >
+                  Catch Signals in CmdTlmServer
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/341"
+                    >#341</a
+                  >
+                  Document COSMOS JSON API on cosmosc2.com
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/398"
+                    >#398</a
+                  >
+                  Documentation, code cleanup
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/429"
+                    >#429</a
+                  >
+                  Command Endianness and Parameter Endianness
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/437"
+                    >#437</a
+                  >
+                  Remove CMD_TLM_VERSION from system.txt
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/438"
+                    >#438</a
+                  >
+                  Cache script text as part of instrumenting script
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/446"
+                    >#446</a
+                  >
+                  Windows 10 Install fails
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/476"
+                    >#476</a
+                  >
+                  Separate apt and yum package install lines
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/477"
+                    >#477</a
+                  >
+                  Deprecate userpath.txt
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/484"
+                    >#484</a
+                  >
+                  require_file should re-raise existing exception
+                </li>
+              </ul>
+
+              <h3 id="bug-fixes">Bug Fixes:</h3>
+
+              <ul>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/456"
+                    >#456</a
+                  >
+                  Replay doesn’t shut down properly if closed while playing
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/481"
+                    >#481</a
+                  >
+                  show_backtrace not working in ScriptRunner
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/494"
+                    >#494</a
+                  >
+                  Details dialog crashes for items with LATEST packet
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/502"
+                    >#502</a
+                  >
+                  Target REQUIRE should also search system path
+                </li>
+                <li>
+                  <a href="https://github.com/BallAerospace/COSMOS/issues/506"
+                    >#506</a
+                  >
+                  Don’t call read_interface if data is cached in protocols for
+                  another packet
+                </li>
+              </ul>
+
+              <h3 id="migration-notes-from-cosmos-38x">
+                Migration Notes from COSMOS 3.8.x:
+              </h3>
+
+              <p>
+                COSMOS 4 includes several breaking changes from the COSMOS 3.x
+                series.
+              </p>
+
+              <p>
+                The first and simplest is that the Command and Telemetry Server
+                now opens an additional port at 7780 by default, that provides a
+                router that will send out each command that the system has sent.
+                This can allow external systems to also log all commands sent by
+                COSMOS. For most people this change will be transparent and no
+                updates to your COSMOS configuration will be required.
+              </p>
+
+              <p>
+                The second is that the Command and Telemetry Server now always
+                supports a meta data packet called SYSTEM META. This packet will
+                always contain the MD5 sum for the current running COSMOS
+                configuration, the version of COSMOS running, the version of
+                your COSMOS Project, and the version of Ruby being used. You can
+                also add your own requirements for meta data with things like
+                the name of the operator currently running the system, or the
+                name of a specific test you are currently running. In general
+                you shouldn’t need to do anything for this change unless you
+                were using the previous metadata functionality in COSMOS. If you
+                were, then you will need to migrate your meta data to the new
+                SYSTEM META packet, and change the parameters in your
+                CmdTlmServer or TestRunner configurations regarding meta data.
+                If you weren’t using metadata before, then you will probably
+                just notice this new packet in your log files, and in your
+                telemetry stream.
+              </p>
+
+              <p>
+                Finally the most exciting breaking change is in how COSMOS
+                interfaces handle protocols. Before, the COSMOS TCP/IP and
+                Serial interface classes each took a protocol like LENGTH,
+                TERMINATED, etc that defined how packets were delineated by the
+                interface. Now each interface can take a set of one or more
+                protocols. This allows COSMOS to much more easily support nested
+                protocols, such as the frame focused protocols of CCSDS. It also
+                allows for creating helpful reusable protocols such as the new
+                CRC protocol for automatically adding CRCs to outgoing commands
+                and verifying incoming CRCs on telemetry packets. It’s a great
+                change, but if you have any custom interface classes you have
+                written, they will probably require some modification. See the
+                Interfaces section at cosmosc2.com to see how the new interface
+                classes work. We will also be writing up a blog post to help
+                document the process of upgrading. Look for this in a week or
+                two.
+              </p>
+
+              <p>
+                To upgrade to the latest version of COSMOS, run “bundle update
+                cosmos” in your COSMOS project folder.
+              </p>
+            </div>
+          </article>
+        </div>
+
+        <div class="unit one-fifth hide-on-mobiles">
+          <aside>
+            <ul>
+              <li class="">
+                <a href="/news/">All News</a>
+              </li>
+              <li class="">
+                <a href="/news/releases/">COSMOS Releases</a>
+              </li>
+            </ul>
+            <h4>Recent Releases</h4>
+            <ul>
+              <li class="">
+                <a href="/news/2021/04/12/cosmos-5-0-0-beta-2-released/"
+                  >Version 5.0.0.beta2</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2021/01/09/cosmos-5-0-0-beta-1-released/"
+                  >Version 5.0.0-beta.1</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2020/11/05/cosmos-4-5-0-released/"
+                  >Version 4.5.0</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/"
+                  >Version 5.0.0-alpha.1</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2020/03/09/cosmos-4-4-2-released/"
+                  >Version 4.4.2</a
+                >
+              </li>
+            </ul>
+            <h4>Other News</h4>
+            <ul>
+              <li class="">
+                <a href="/news/2020/09/23/packet-time/">Packet Time</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2020/03/24/identifies-packets/"
+                  >Identifying Packets</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2019/10/21/cosmos-amos/">AMOS 2019</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2019/06/05/protocols/">Protocols</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2018/12/24/little-endian/"
+                  >Little Endian Packet Data</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2018/10/05/system-target-txt/"
+                  >Using system.txt and target.txt</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2018/09/14/cosmos-dockercon/"
+                  >COSMOS at DockerCon 2018</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2018/03/14/derived-items/">Derived Items</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2018/02/12/limits/">Limits</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2018/01/18/metadata/">Metadata</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/"
+                  >COSMOS 4.1.0 Release Notes</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2017/10/30/config-editor/">Config Editor</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2017/08/23/cloud-deploy/"
+                  >Deploying COSMOS to the Cloud</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2017/07/05/arduino-battle-bots/"
+                  >Arduinos & Battle Bots</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2017/06/19/template_protocol/"
+                  >Template Protocol</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2017/05/08/packet_processors/"
+                  >Packet Processors</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2017/04/24/wired/">WIRED Article</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2017/02/22/routers/">Routers</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2016/08/04/custom-cosmos_interface/"
+                  >Custom COSMOS Interface</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2016/07/06/cosmos-cmd-tlm-names/"
+                  >COSMOS Cmd/Tlm Naming</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
+              </li>
+
+              <li class="">
+                <a href="/news/2016/02/27/fukuoka-award/"
+                  >Fukuoka Special Award Winner</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2016/02/11/simulated-target/"
+                  >COSMOS Simulated Target</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2015/10/28/cosmos-at-ats-conference/"
+                  >COSMOS at the ATS Conference</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2015/04/06/cosmos-c-extension/"
+                  >COSMOS BinaryAccessor#write C Extension</a
+                >
+              </li>
+
+              <li class="">
+                <a href="/news/2015/02/27/cosmos-at-gsaw-conference/"
+                  >COSMOS at the GSAW Conference</a
+                >
+              </li>
+            </ul>
+          </aside>
+        </div>
+
+        <div class="clear"></div>
       </div>
+    </section>
 
-      <div class="unit one-fifth hide-on-mobiles">
-  <aside>
-    <ul>
-      <li class="">
-        <a href="/news/">All News</a>
-      </li>
-      <li class="">
-        <a href="/news/releases/">COSMOS Releases</a>
-      </li>
-    </ul>
-    <h4>Recent Releases</h4>
-    <ul>
-      
-      <li class="">
-        <a href="/news/2021/04/12/cosmos-5-0-0-beta-2-released/">Version 5.0.0.beta2</a>
-      </li>
-      
-      <li class="">
-        <a href="/news/2021/01/09/cosmos-5-0-0-beta-1-released/">Version 5.0.0-beta.1</a>
-      </li>
-      
-      <li class="">
-        <a href="/news/2020/11/05/cosmos-4-5-0-released/">Version 4.5.0</a>
-      </li>
-      
-      <li class="">
-        <a href="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">Version 5.0.0-alpha.1</a>
-      </li>
-      
-      <li class="">
-        <a href="/news/2020/03/09/cosmos-4-4-2-released/">Version 4.4.2</a>
-      </li>
-      
-    </ul>
-    <h4>Other News</h4>
-    <ul>
-             
-      <li class="">
-        <a href="/news/2020/09/23/packet-time/">Packet Time</a>
-      </li>
-          
-      <li class="">
-        <a href="/news/2020/03/24/identifies-packets/">Identifying Packets</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
-      </li>
-            
-      <li class="">
-        <a href="/news/2019/10/21/cosmos-amos/">AMOS 2019</a>
-      </li>
-          
-      <li class="">
-        <a href="/news/2019/06/05/protocols/">Protocols</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</a>
-      </li>
-                
-      <li class="">
-        <a href="/news/2018/03/14/derived-items/">Derived Items</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2018/02/12/limits/">Limits</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2018/01/18/metadata/">Metadata</a>
-      </li>
-          
-      <li class="">
-        <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</a>
-      </li>
-          
-      <li class="">
-        <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2017/10/30/config-editor/">Config Editor</a>
-      </li>
-            
-      <li class="">
-        <a href="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</a>
-      </li>
-            
-      <li class="">
-        <a href="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2017/06/19/template_protocol/">Template Protocol</a>
-      </li>
-          
-      <li class="">
-        <a href="/news/2017/05/08/packet_processors/">Packet Processors</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2017/04/24/wired/">WIRED Article</a>
-      </li>
-          
-      <li class="">
-        <a href="/news/2017/02/22/routers/">Routers</a>
-      </li>
-          
-      <li class="">
-        <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</a>
-      </li>
-            
-      <li class="">
-        <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
-      </li>
-        
-      <li class="">
-        <a href="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</a>
-      </li>
-          
-      <li class="">
-        <a href="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</a>
-      </li>
-              
-      <li class="">
-        <a href="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</a>
-      </li>
-                            
-      <li class="">
-        <a href="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</a>
-      </li>
-            
-      <li class="">
-        <a href="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</a>
-      </li>
-                 
-    </ul>
-  </aside>
-</div>
+    <script>
+      (function () {
+        var cx = "001663949569052626382:-enhin1layy";
+        var gcse = document.createElement("script");
+        gcse.type = "text/javascript";
+        gcse.async = true;
+        gcse.src = "https://cse.google.com/cse.js?cx=" + cx;
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(gcse, s);
+      })();
+    </script>
+    <footer role="contentinfo">
+      <div class="grid wider">
+        <div class="unit one-third center-on-mobiles">
+          <p>
+            The contents of this website are &copy;&nbsp;2021
+            <a href="http://www.ballaerospace.com/" target="_blank"
+              >Ball Aerospace</a
+            >
+            under the terms of the
+            <a
+              href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt"
+              target="_blank"
+              >GPLv3&nbsp;License</a
+            >.
+          </p>
+          <p>
+            Site design derived from the
+            <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project
+            documentation which is licensed under the terms of the
+            <a
+              href="https://github.com/jekyll/jekyll/blob/master/LICENSE"
+              target="_blank"
+              >MIT License</a
+            >.
+          </p>
+        </div>
+        <div class="unit two-thirds align-right center-on-mobiles">
+          <p>
+            <gcse:search></gcse:search>
+            Proudly hosted by
+            <a href="https://github.com" target="_blank">
+              <img
+                src="/img/footer-logo.png"
+                width="100"
+                height="30"
+                alt="GitHub Social coding"
+              />
+            </a>
+          </p>
+        </div>
+      </div>
+    </footer>
 
+    <script>
+      var anchorForId = function (id) {
+        var anchor = document.createElement("a");
+        anchor.className = "header-link";
+        anchor.href = "#" + id;
+        anchor.innerHTML =
+          '<span class="sr-only">Permalink</span><i class="fa fa-link"></i>';
+        anchor.title = "Permalink";
+        return anchor;
+      };
 
-      <div class="clear"></div>
+      var linkifyAnchors = function (level, containingElement) {
+        var headers = containingElement.getElementsByTagName("h" + level);
+        for (var h = 0; h < headers.length; h++) {
+          var header = headers[h];
 
-    </div>
-  </section>
+          if (typeof header.id !== "undefined" && header.id !== "") {
+            header.appendChild(anchorForId(header.id));
+          }
+        }
+      };
 
+      document.onreadystatechange = function () {
+        if (this.readyState === "complete") {
+          var contentBlock =
+            document.getElementsByClassName("docs")[0] ||
+            document.getElementsByClassName("news")[0];
+          if (!contentBlock) {
+            return;
+          }
+          for (var level = 1; level <= 6; level++) {
+            linkifyAnchors(level, contentBlock);
+          }
+        }
+      };
+    </script>
 
-  <script>
-  (function() {
-    var cx = '001663949569052626382:-enhin1layy';
-    var gcse = document.createElement('script');
-    gcse.type = 'text/javascript';
-    gcse.async = true;
-    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-    var s = document.getElementsByTagName('script')[0];
-    s.parentNode.insertBefore(gcse, s);
-  })();
-</script>
-<footer role="contentinfo">
-  <div class="grid wider">
-    <div class="unit one-third center-on-mobiles">
-      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
-      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
-    </div>
-    <div class="unit two-thirds align-right center-on-mobiles">
-      <p>
-        <gcse:search></gcse:search>
-        Proudly hosted by
-        <a href="https://github.com" target="_blank">
-          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
-        </a>
-      </p>
-    </div>
-  </div>
-</footer>
+    <!-- Google Analytics (http://google.com/analytics) -->
+    <script>
+      !(function (j, e, k, y, l, L) {
+        (j.GoogleAnalyticsObject = y),
+          j[y] ||
+            (j[y] = function () {
+              (j[y].q = j[y].q || []).push(arguments);
+            }),
+          (j[y].l = +new Date()),
+          (l = e.createElement(k)),
+          (L = e.getElementsByTagName(k)[0]),
+          (l.src = "//www.google-analytics.com/analytics.js"),
+          L.parentNode.insertBefore(l, L);
+      })(window, document, "script", "ga");
 
-  <script>
-  var anchorForId = function (id) {
-    var anchor = document.createElement("a");
-    anchor.className = "header-link";
-    anchor.href      = "#" + id;
-    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
-    anchor.title = "Permalink";
-    return anchor;
-  };
-
-  var linkifyAnchors = function (level, containingElement) {
-    var headers = containingElement.getElementsByTagName("h" + level);
-    for (var h = 0; h < headers.length; h++) {
-      var header = headers[h];
-
-      if (typeof header.id !== "undefined" && header.id !== "") {
-        header.appendChild(anchorForId(header.id));
-      }
-    }
-  };
-
-  document.onreadystatechange = function () {
-    if (this.readyState === "complete") {
-      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
-      if (!contentBlock) {
-        return;
-      }
-      for (var level = 1; level <= 6; level++) {
-        linkifyAnchors(level, contentBlock);
-      }
-    }
-  };
-</script>
-
-  
-  <!-- Google Analytics (http://google.com/analytics) -->
-  <script>
-    !function(j,e,k,y,l,L){j.GoogleAnalyticsObject=y,j[y]||(j[y]=function(){
-    (j[y].q=j[y].q||[]).push(arguments)}),j[y].l=+new Date,l=e.createElement(k),
-    L=e.getElementsByTagName(k)[0],l.src='//www.google-analytics.com/analytics.js',
-    L.parentNode.insertBefore(l,L)}(window,document,'script','ga');
-
-    ga('create', 'UA-60103689-1', 'cosmosrb.com');
-    ga('send', 'pageview');
-
-  </script>
-
-
-
-</body>
+      ga("create", "UA-60103689-1", "cosmosc2.com");
+      ga("send", "pageview");
+    </script>
+  </body>
 </html>

@@ -34,7 +34,7 @@ ROUTER INST_ROUTER tcpip_server_interface.rb 2055 2055 10.0 nil LENGTH 32 16 7
 
 Basically we're creating a Router that routes only the INST interface data. We create this Router using a TCPIP Server interface with a LENGTH protocol of bit offset 32, length field size of 16, and length value offset of 7. These values were chosen to match the INST command and telemetry which use CCSDS headers. The CCSDS standard specifies a 16 bit length field at offset 32. The CCSDS standard also specifies that the length field is the length of the packet past the length field minus 1. Thus we add 7 for the 4 bytes of offset, 2 bytes of length field, and the minus 1.
 
-For more information about the options you can pass to a Router (and Interface) see the [Interface Configuration](http://cosmosrb.com/docs/v4/interfaces/) part of the documentation.
+For more information about the options you can pass to a Router (and Interface) see the [Interface Configuration](http://cosmosc2.com/docs/v4/interfaces/) part of the documentation.
 
 To connect to the INST_ROUTER that we created we can write a little Ruby code using existing COSMOS interface classes and streams.
 
