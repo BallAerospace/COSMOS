@@ -19,7 +19,7 @@
 
 // This is typically used with the CosmosAuth.updateToken method.
 // Passing a value of 30 to this method means that the access token
-// will be updated it is currently expired or if it will expire
+// will be updated if it is currently expired or if it will expire
 // within the next 30 seconds.
 Object.defineProperty(CosmosAuth, 'defaultMinValidity', {
   value: 30,
