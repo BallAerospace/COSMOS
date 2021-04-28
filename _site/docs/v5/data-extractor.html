@@ -1,1693 +1,1447 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="en-US">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Data Extractor</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="generator" content="Jekyll v4.2.0" />
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title="Ball Aerospace COSMOS News"
-      href="/feed.xml"
-    />
-    <link
-      rel="alternate"
-      type="application/atom+xml"
-      title="Recent commits to COSMOS's master branch"
-      href="https://github.com/BallAerospace/COSMOS/commits/master.atom"
-    />
-    <link
-      rel="stylesheet"
-      href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900"
-    />
-    <link rel="stylesheet" href="/css/screen.css" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <!--[if lt IE 9]>
-      <script src="/js/html5shiv.min.js"></script>
-      <script src="/js/respond.min.js"></script>
-    <![endif]-->
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <title>Data Extractor</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v4.2.0">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
 
-  <body class="wrap">
-    <header role="banner">
-      <nav class="mobile-nav show-on-mobiles">
-        <ul>
-          <li class="">
-            <a href="/">Home</a>
-          </li>
-          <li class="current">
-            <span class="hide-on-mobiles"
-              ><a href="/docs/v4/">Documentation</a></span
-            >
-            <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
-          </li>
-          <li class="">
-            <a href="/news/">News</a>
-          </li>
-          <li>
-            <a href="/help/">Help</a>
-          </li>
-          <li>
-            <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
-              ><span class="hide-on-mobiles">View on </span>GitHub</a
-            >
-          </li>
-        </ul>
-      </nav>
-      <div class="grid wider">
-        <div class="unit one-third center-on-mobiles" style="margin-top: 27px">
-          <h1>
-            <a href="/">
-              <span class="sr-only">COSMOS</span>
-              <img
-                src="/img/COSMOS.png"
-                width="312"
-                height="70"
-                alt="COSMOS Logo"
-              />
-            </a>
-          </h1>
-        </div>
-        <nav class="main-nav unit two-thirds hide-on-mobiles">
-          <ul>
-            <li class="">
-              <a href="/">Home</a>
-            </li>
-            <li class="current">
-              <span class="hide-on-mobiles"
-                ><a href="/docs/v4/">Documentation</a></span
-              >
-              <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
-            </li>
-            <li class="">
-              <a href="/news/">News</a>
-            </li>
-            <li>
-              <a href="/help/">Help</a>
-            </li>
-            <li>
-              <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
-                ><span class="hide-on-mobiles">View on </span>GitHub</a
-              >
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </header>
 
-    <section class="docs">
-      <div class="grid wider">
-        <div class="unit four-fifths">
-          <article>
-            <!-- Get version but ignore the "docs" collection -->
-            <!-- prettier-ignore -->
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
 
-            <div class="improve right">
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+  <section class="docs">
+  <div class="grid wider">
+    <div class="unit four-fifths">
+      <article>
+        <!-- Get version but ignore the "docs" collection -->
+        <!-- prettier-ignore -->
+        
+        
+        <div class="improve right">
           <span class="version-badge">v5</span>
         </div>
+         
+        <div class="toc"><ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
+<li class="toc-entry toc-h2"><a href="#data-extractor-menus">Data Extractor Menus</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#file-menu-items">File Menu Items</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#open-configuration">Open Configuration</a></li>
+<li class="toc-entry toc-h4"><a href="#save-configuration">Save Configuration</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#mode-menu-items">Mode Menu Items</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#selecting-items-for-output">Selecting Items for Output</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#startend-datetime">Start/End Date/Time</a></li>
+<li class="toc-entry toc-h3"><a href="#adding-targets-packets-items">Adding Targets Packets Items</a></li>
+<li class="toc-entry toc-h3"><a href="#removing-items">Removing Items</a></li>
+<li class="toc-entry toc-h3"><a href="#editing-items">Editing Items</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#processing-items">Processing Items</a></li>
+</ul></div>
+        
+        <h1>Data Extractor</h1>
+        <h2 id="introduction">
+<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
 
-            <div class="toc">
-              <ul id="toc" class="section-nav">
-                <li class="toc-entry toc-h2">
-                  <a href="#introduction">Introduction</a>
-                </li>
-                <li class="toc-entry toc-h2">
-                  <a href="#data-extractor-menus">Data Extractor Menus</a>
-                  <ul>
-                    <li class="toc-entry toc-h3">
-                      <a href="#file-menu-items">File Menu Items</a>
-                      <ul>
-                        <li class="toc-entry toc-h4">
-                          <a href="#open-configuration">Open Configuration</a>
-                        </li>
-                        <li class="toc-entry toc-h4">
-                          <a href="#save-configuration">Save Configuration</a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li class="toc-entry toc-h3">
-                      <a href="#mode-menu-items">Mode Menu Items</a>
-                    </li>
-                  </ul>
-                </li>
-                <li class="toc-entry toc-h2">
-                  <a href="#selecting-items-for-output"
-                    >Selecting Items for Output</a
-                  >
-                  <ul>
-                    <li class="toc-entry toc-h3">
-                      <a href="#startend-datetime">Start/End Date/Time</a>
-                    </li>
-                    <li class="toc-entry toc-h3">
-                      <a href="#adding-targets-packets-items"
-                        >Adding Targets Packets Items</a
-                      >
-                    </li>
-                    <li class="toc-entry toc-h3">
-                      <a href="#removing-items">Removing Items</a>
-                    </li>
-                    <li class="toc-entry toc-h3">
-                      <a href="#editing-items">Editing Items</a>
-                    </li>
-                  </ul>
-                </li>
-                <li class="toc-entry toc-h2">
-                  <a href="#processing-items">Processing Items</a>
-                </li>
-              </ul>
-            </div>
+<p>Data Extractor extracts command and telemetry items into comma or tab separated files. Individual items or entire packets can be processed over any time period. Data Extractor also has a number of options to control the output for post processing in Excel or Matlab, for example.</p>
 
-            <h1>Data Extractor</h1>
-            <h2 id="introduction">
-              <a class="anchor" href="#introduction" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Introduction
-            </h2>
+<p><img src="/img/v5/data_extractor/data_extractor.png" alt="Data Extractor"></p>
 
-            <p>
-              Data Extractor extracts command and telemetry items into comma or
-              tab separated files. Individual items or entire packets can be
-              processed over any time period. Data Extractor also has a number
-              of options to control the output for post processing in Excel or
-              Matlab, for example.
-            </p>
+<h2 id="data-extractor-menus">
+<a class="anchor" href="#data-extractor-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data Extractor Menus</h2>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/data_extractor.png"
-                alt="Data Extractor"
-              />
-            </p>
+<h3 id="file-menu-items">
+<a class="anchor" href="#file-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>File Menu Items</h3>
 
-            <h2 id="data-extractor-menus">
-              <a class="anchor" href="#data-extractor-menus" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Data Extractor Menus
-            </h2>
+<!-- Image sized to match up with bullets -->
 
-            <h3 id="file-menu-items">
-              <a class="anchor" href="#file-menu-items" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >File Menu Items
-            </h3>
+<p><img src="/img/v5/data_extractor/file_menu.png" alt="File Menu" style="float: left; margin-right: 50px; height: 160px;"></p>
 
-            <!-- Image sized to match up with bullets -->
+<ul>
+  <li>Opens a saved configuration</li>
+  <li>Save the current configuration (item list)</li>
+  <li>Delimit output with commas</li>
+  <li>Delimit output with tabs</li>
+</ul>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/file_menu.png"
-                alt="File Menu"
-                style="float: left; margin-right: 50px; height: 160px"
-              />
-            </p>
+<h4 id="open-configuration">
+<a class="anchor" href="#open-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Open Configuration</h4>
 
-            <ul>
-              <li>Opens a saved configuration</li>
-              <li>Save the current configuration (item list)</li>
-              <li>Delimit output with commas</li>
-              <li>Delimit output with tabs</li>
-            </ul>
+<p>The Open and Save Configuration options deserve a little more explanation. When you select File Open the Open Configuration dialog appears. It displays a list of all saved configurations (INST_TEMPS in this example). You select a configuration and then click Ok to load it. You can delete existing configurations by clicking the Trash icon next to a configuration name.</p>
 
-            <h4 id="open-configuration">
-              <a class="anchor" href="#open-configuration" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Open Configuration
-            </h4>
+<p><img src="/img/v5/data_extractor/open_config.png" alt="Open Config"></p>
 
-            <p>
-              The Open and Save Configuration options deserve a little more
-              explanation. When you select File Open the Open Configuration
-              dialog appears. It displays a list of all saved configurations
-              (INST_TEMPS in this example). You select a configuration and then
-              click Ok to load it. You can delete existing configurations by
-              clicking the Trash icon next to a configuration name.
-            </p>
+<h4 id="save-configuration">
+<a class="anchor" href="#save-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Save Configuration</h4>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/open_config.png"
-                alt="Open Config"
-              />
-            </p>
+<p>When you select File Save the Save Configuration dialog appears. It displays a list of all saved configurations (INST_TEMPS in this example). You click the Configuration Name text field, enter the name of your new configuration, and click Ok to save. You can delete existing configurations by clicking the Trash icon next to a configuration name.</p>
 
-            <h4 id="save-configuration">
-              <a class="anchor" href="#save-configuration" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Save Configuration
-            </h4>
+<p><img src="/img/v5/data_extractor/save_config.png" alt="Save Config"></p>
 
-            <p>
-              When you select File Save the Save Configuration dialog appears.
-              It displays a list of all saved configurations (INST_TEMPS in this
-              example). You click the Configuration Name text field, enter the
-              name of your new configuration, and click Ok to save. You can
-              delete existing configurations by clicking the Trash icon next to
-              a configuration name.
-            </p>
+<h3 id="mode-menu-items">
+<a class="anchor" href="#mode-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mode Menu Items</h3>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/save_config.png"
-                alt="Save Config"
-              />
-            </p>
+<!-- Image sized to match up with bullets -->
 
-            <h3 id="mode-menu-items">
-              <a class="anchor" href="#mode-menu-items" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Mode Menu Items
-            </h3>
+<p><img src="/img/v5/data_extractor/mode_menu.png" alt="Mode Menu" style="float: left; margin-right: 50px; height: 250px;"></p>
 
-            <!-- Image sized to match up with bullets -->
+<ul>
+  <li>Skip ignored items when <a href="/docs/v5/data-extractor#adding-targets-packets-items">adding</a> targets or packets</li>
+  <li>Fill empty cells with the previous value</li>
+  <li>Add a Matlab comment (‘%’) to the header</li>
+  <li>Only output changed values</li>
+  <li>Only list item name as column header</li>
+  <li>List full Target Packet Item as header</li>
+</ul>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/mode_menu.png"
-                alt="Mode Menu"
-                style="float: left; margin-right: 50px; height: 250px"
-              />
-            </p>
+<h2 id="selecting-items-for-output">
+<a class="anchor" href="#selecting-items-for-output" aria-hidden="true"><span class="octicon octicon-link"></span></a>Selecting Items for Output</h2>
 
-            <ul>
-              <li>
-                Skip ignored items when
-                <a href="/docs/v5/data-extractor#adding-targets-packets-items"
-                  >adding</a
-                >
-                targets or packets
-              </li>
-              <li>Fill empty cells with the previous value</li>
-              <li>Add a Matlab comment (‘%’) to the header</li>
-              <li>Only output changed values</li>
-              <li>Only list item name as column header</li>
-              <li>List full Target Packet Item as header</li>
-            </ul>
+<h3 id="startend-datetime">
+<a class="anchor" href="#startend-datetime" aria-hidden="true"><span class="octicon octicon-link"></span></a>Start/End Date/Time</h3>
 
-            <h2 id="selecting-items-for-output">
-              <a
-                class="anchor"
-                href="#selecting-items-for-output"
-                aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Selecting Items for Output
-            </h2>
+<p>Data Extractor provides text fields where you specify the time range to extract items. Clicking the Start Date and End Date text fields opens a Date Chooser dialog. Note you can also manually type in the date.</p>
 
-            <h3 id="startend-datetime">
-              <a class="anchor" href="#startend-datetime" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Start/End Date/Time
-            </h3>
+<p><img src="/img/v5/data_extractor/date_chooser.png" alt="Date Chooser"></p>
 
-            <p>
-              Data Extractor provides text fields where you specify the time
-              range to extract items. Clicking the Start Date and End Date text
-              fields opens a Date Chooser dialog. Note you can also manually
-              type in the date.
-            </p>
+<p>Start Time and End Time are simple text fields. If you enter an invalid time, Data Extractor will warn you and indicate the correct syntax.</p>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/date_chooser.png"
-                alt="Date Chooser"
-              />
-            </p>
+<p><img src="/img/v5/data_extractor/time_validation.png" alt="Time Validation"></p>
 
-            <p>
-              Start Time and End Time are simple text fields. If you enter an
-              invalid time, Data Extractor will warn you and indicate the
-              correct syntax.
-            </p>
+<h3 id="adding-targets-packets-items">
+<a class="anchor" href="#adding-targets-packets-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Adding Targets Packets Items</h3>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/time_validation.png"
-                alt="Time Validation"
-              />
-            </p>
+<p>Data Extractor provides Target, Packet, Item drop downs to select the items you want to export. When you select a Target the Packet drop down defaults to [All] which sets the button to “Add Target”. This would add EVERY item defined in EVERY packet in the target. NOTE: This can be a LOT of telemetry points but any added point can be removed.</p>
 
-            <h3 id="adding-targets-packets-items">
-              <a
-                class="anchor"
-                href="#adding-targets-packets-items"
-                aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Adding Targets Packets Items
-            </h3>
+<p><img src="/img/v5/data_extractor/select_target.png" alt="Select Target"></p>
 
-            <p>
-              Data Extractor provides Target, Packet, Item drop downs to select
-              the items you want to export. When you select a Target the Packet
-              drop down defaults to [All] which sets the button to “Add Target”.
-              This would add EVERY item defined in EVERY packet in the target.
-              NOTE: This can be a LOT of telemetry points but any added point
-              can be removed.
-            </p>
+<p>When you select a Packet the Item drop down defaults to [All] which sets the button to “Add Packet”. This would add EVERY item defined in the specified packet. NOTE: This can be a LOT of telemetry points but any added point can be removed.</p>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/select_target.png"
-                alt="Select Target"
-              />
-            </p>
+<p><img src="/img/v5/data_extractor/select_packet.png" alt="Select Packet"></p>
 
-            <p>
-              When you select a Packet the Item drop down defaults to [All]
-              which sets the button to “Add Packet”. This would add EVERY item
-              defined in the specified packet. NOTE: This can be a LOT of
-              telemetry points but any added point can be removed.
-            </p>
+<p>When you select an individual Item the button changes to “Add Item” and the Description field updates with the item’s description.</p>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/select_packet.png"
-                alt="Select Packet"
-              />
-            </p>
+<p><img src="/img/v5/data_extractor/select_item.png" alt="Select Item"></p>
 
-            <p>
-              When you select an individual Item the button changes to “Add
-              Item” and the Description field updates with the item’s
-              description.
-            </p>
+<h3 id="removing-items">
+<a class="anchor" href="#removing-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Removing Items</h3>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/select_item.png"
-                alt="Select Item"
-              />
-            </p>
+<p>Once you’ve added items the Items table will have a list of items.</p>
 
-            <h3 id="removing-items">
-              <a class="anchor" href="#removing-items" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Removing Items
-            </h3>
+<p><img src="/img/v5/data_extractor/items_table.png" alt="Items Table"></p>
 
-            <p>
-              Once you’ve added items the Items table will have a list of items.
-            </p>
+<p>Items can be removed by clicking the Trash icon next to the item. ALL items can be removed by clicking the Trash icon in the header.</p>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/items_table.png"
-                alt="Items Table"
-              />
-            </p>
+<p><img src="/img/v5/data_extractor/delete_all_mouseover.png" alt="Delete All Mouseover"></p>
 
-            <p>
-              Items can be removed by clicking the Trash icon next to the item.
-              ALL items can be removed by clicking the Trash icon in the header.
-            </p>
+<h3 id="editing-items">
+<a class="anchor" href="#editing-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Editing Items</h3>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/delete_all_mouseover.png"
-                alt="Delete All Mouseover"
-              />
-            </p>
+<p>Items can be edited by clicking the Pencil icon next to the item. ALL items can be edited by clicking the pencil icon in the header.</p>
 
-            <h3 id="editing-items">
-              <a class="anchor" href="#editing-items" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Editing Items
-            </h3>
+<p><img src="/img/v5/data_extractor/edit_all_mouseover.png" alt="Edit All Mouseover"></p>
 
-            <p>
-              Items can be edited by clicking the Pencil icon next to the item.
-              ALL items can be edited by clicking the pencil icon in the header.
-            </p>
+<p>Clicking the Edit All brings up the Edit All Items dialog.</p>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/edit_all_mouseover.png"
-                alt="Edit All Mouseover"
-              />
-            </p>
+<p><img src="/img/v5/data_extractor/edit_all_items.png" alt="Edit All"></p>
 
-            <p>Clicking the Edit All brings up the Edit All Items dialog.</p>
+<p>This allows you to change the data type of all items in the list. In this example we change from the default of CONVERTED to RAW. This updates the item list as follows.</p>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/edit_all_items.png"
-                alt="Edit All"
-              />
-            </p>
+<p><img src="/img/v5/data_extractor/items_table_raw.png" alt="Items Table Raw"></p>
 
-            <p>
-              This allows you to change the data type of all items in the list.
-              In this example we change from the default of CONVERTED to RAW.
-              This updates the item list as follows.
-            </p>
+<p>Clicking the pencil next to an individual item brings up a similar dialog.</p>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/items_table_raw.png"
-                alt="Items Table Raw"
-              />
-            </p>
+<p><img src="/img/v5/data_extractor/edit_temp1.png" alt="Edit TEMP1"></p>
 
-            <p>
-              Clicking the pencil next to an individual item brings up a similar
-              dialog.
-            </p>
+<p>If we change TEMP1 back to CONVERTED the item list is again updated. Note that (CONVERTED) is not shown as this is the default output.</p>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/edit_temp1.png"
-                alt="Edit TEMP1"
-              />
-            </p>
+<p><img src="/img/v5/data_extractor/items_table_temp1.png" alt="Edit TEMP1"></p>
 
-            <p>
-              If we change TEMP1 back to CONVERTED the item list is again
-              updated. Note that (CONVERTED) is not shown as this is the default
-              output.
-            </p>
+<h2 id="processing-items">
+<a class="anchor" href="#processing-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Processing Items</h2>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/items_table_temp1.png"
-                alt="Edit TEMP1"
-              />
-            </p>
+<p>Clicking the Process button starts the processing of the items list. A progress bar is shown above the table and the Process button changes to Cancel to allow cancelling the process.</p>
 
-            <h2 id="processing-items">
-              <a class="anchor" href="#processing-items" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Processing Items
-            </h2>
+<p><img src="/img/v5/data_extractor/processing.png" alt="Processing"></p>
 
-            <p>
-              Clicking the Process button starts the processing of the items
-              list. A progress bar is shown above the table and the Process
-              button changes to Cancel to allow cancelling the process.
-            </p>
+<p>When the processing is complete, the browser shows a file download link. Note this varies by browser. This example is from Chrome.</p>
 
-            <p>
-              <img
-                src="/img/v5/data_extractor/processing.png"
-                alt="Processing"
-              />
-            </p>
+<p><img src="/img/v5/data_extractor/download.png" alt="Download"></p>
 
-            <p>
-              When the processing is complete, the browser shows a file download
-              link. Note this varies by browser. This example is from Chrome.
-            </p>
+      </article>
+    </div>
 
-            <p>
-              <img src="/img/v5/data_extractor/download.png" alt="Download" />
-            </p>
-          </article>
-        </div>
+    <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    <ul>
+      
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+       
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+      
+      
+      <li>
+        <!-- Only create links to collections which aren't our own  -->
+        
+        <a href="/docs/v4/"
+          >v4 Docs</a
+        >
+          
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+      
+      
+      <li>
+        <!-- Only create links to collections which aren't our own  -->
+          
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+       
+      </li>
+    </ul>
 
-        <div class="unit one-fifth hide-on-mobiles">
-          <aside>
-            <ul>
-              <!-- Ignore "posts" and "docs", we only want versioned collections -->
-              <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
+    
+    
+    
+    <h4>Getting Started</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-              <!-- Ignore "posts" and "docs", we only want versioned collections -->
-              <!-- prettier-ignore -->
 
-              <li>
 
-              <li>
-                <!-- Only create links to collections which aren't our own  -->
-
-                <!-- Ignore "posts" and "docs", we only want versioned collections -->
-                <!-- prettier-ignore -->
-              </li>
-            </ul>
-
-            <!-- prettier-ignore -->
-
-            <h4>Getting Started</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
-
-            <ul>
+<ul>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/tools">Tools</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/installation">Installation</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/upgrading">Upgrading</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/gettingstarted">Getting Started</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <h4>Configuration</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
+    
+    <h4>Configuration</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-            <ul>
+
+
+<ul>
   <!-- prettier-ignore -->
+  
+  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/plugins">Plugins</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/target">Target Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/command">Command Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/telemetry">Telemetry Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/interfaces">Interface Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/protocols">Protocol Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <h4>Tool User Manuals</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
+    
+    <h4>Tool User Manuals</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-            <ul>
+
+
+<ul>
   <!-- prettier-ignore -->
+  
+  
 
-
-
-
-
-
-
-
+  
+    
+    
+    
+      
   <li class="">
     <a href="/docs/v5/cmd-sender">Command Sender</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/cmd-tlm-server">Command and Telemetry Server</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="current">
     <a href="/docs/v5/data-extractor">Data Extractor</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/limits-monitor">Limits Monitor</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/packet-viewer">Packet Viewer</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/script-runner">Script Runner</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/tlm-grapher">Telemetry Grapher</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/screens">Telemetry Screens</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <h4>Usage Guides</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
+    
+    <h4>Usage Guides</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-            <ul>
+
+
+<ul>
   <!-- prettier-ignore -->
+  
+  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/scripting">Scripting Guide</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/scripting-best-practices">Scripting Best Practices</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <h4>Development</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
+    
+    <h4>Development</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-            <ul>
+
+
+<ul>
   <!-- prettier-ignore -->
+  
+  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/json-api">JSON API</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/logging">Logging</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <!-- Every versioned site gets the unversioned Meta section -->
-            <h4>Meta</h4>
-            <ul>
-              <li>
-                <a href="/docs/contributing">Contributing</a>
-              </li>
+    
 
-              <li>
-                <a href="/docs/papers">Papers</a>
-              </li>
+    <!-- Every versioned site gets the unversioned Meta section -->
+    <h4>Meta</h4>
+    <ul>
+      
+      <li>
+        <a href="/docs/contributing">Contributing</a>
+      </li>
+      
+      <li>
+        <a href="/docs/papers">Papers</a>
+      </li>
+      
+      <li>
+        <a href="/docs/requirements">Requirements and Design</a>
+      </li>
+      
+      <li>
+        <a href="/docs/xtce">XTCE Support</a>
+      </li>
+      
+    </ul>
+  </aside>
+</div>
 
-              <li>
-                <a href="/docs/requirements">Requirements and Design</a>
-              </li>
 
-              <li>
-                <a href="/docs/xtce">XTCE Support</a>
-              </li>
-            </ul>
-          </aside>
-        </div>
+    <div class="clear"></div>
+  </div>
+</section>
 
-        <div class="clear"></div>
-      </div>
-    </section>
 
-    <script>
-      (function () {
-        var cx = "001663949569052626382:-enhin1layy";
-        var gcse = document.createElement("script");
-        gcse.type = "text/javascript";
-        gcse.async = true;
-        gcse.src = "https://cse.google.com/cse.js?cx=" + cx;
-        var s = document.getElementsByTagName("script")[0];
-        s.parentNode.insertBefore(gcse, s);
-      })();
-    </script>
-    <footer role="contentinfo">
-      <div class="grid wider">
-        <div class="unit one-third center-on-mobiles">
-          <p>
-            The contents of this website are &copy;&nbsp;2021
-            <a href="http://www.ballaerospace.com/" target="_blank"
-              >Ball Aerospace</a
-            >
-            under the terms of the
-            <a
-              href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt"
-              target="_blank"
-              >GPLv3&nbsp;License</a
-            >.
-          </p>
-          <p>
-            Site design derived from the
-            <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project
-            documentation which is licensed under the terms of the
-            <a
-              href="https://github.com/jekyll/jekyll/blob/master/LICENSE"
-              target="_blank"
-              >MIT License</a
-            >.
-          </p>
-        </div>
-        <div class="unit two-thirds align-right center-on-mobiles">
-          <p>
-            <gcse:search></gcse:search>
-            Proudly hosted by
-            <a href="https://github.com" target="_blank">
-              <img
-                src="/img/footer-logo.png"
-                width="100"
-                height="30"
-                alt="GitHub Social coding"
-              />
-            </a>
-          </p>
-        </div>
-      </div>
-    </footer>
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
 
-    <script>
-      var anchorForId = function (id) {
-        var anchor = document.createElement("a");
-        anchor.className = "header-link";
-        anchor.href = "#" + id;
-        anchor.innerHTML =
-          '<span class="sr-only">Permalink</span><i class="fa fa-link"></i>';
-        anchor.title = "Permalink";
-        return anchor;
-      };
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
 
-      var linkifyAnchors = function (level, containingElement) {
-        var headers = containingElement.getElementsByTagName("h" + level);
-        for (var h = 0; h < headers.length; h++) {
-          var header = headers[h];
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
 
-          if (typeof header.id !== "undefined" && header.id !== "") {
-            header.appendChild(anchorForId(header.id));
-          }
-        }
-      };
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
 
-      document.onreadystatechange = function () {
-        if (this.readyState === "complete") {
-          var contentBlock =
-            document.getElementsByClassName("docs")[0] ||
-            document.getElementsByClassName("news")[0];
-          if (!contentBlock) {
-            return;
-          }
-          for (var level = 1; level <= 6; level++) {
-            linkifyAnchors(level, contentBlock);
-          }
-        }
-      };
-    </script>
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
 
-    <!-- Google Analytics (http://google.com/analytics) -->
-    <script>
-      !(function (j, e, k, y, l, L) {
-        (j.GoogleAnalyticsObject = y),
-          j[y] ||
-            (j[y] = function () {
-              (j[y].q = j[y].q || []).push(arguments);
-            }),
-          (j[y].l = +new Date()),
-          (l = e.createElement(k)),
-          (L = e.getElementsByTagName(k)[0]),
-          (l.src = "//www.google-analytics.com/analytics.js"),
-          L.parentNode.insertBefore(l, L);
-      })(window, document, "script", "ga");
+  
+<!-- Google Analytics (http://google.com/analytics) -->
+<script>
+  !(function (j, e, k, y, l, L) {
+    (j.GoogleAnalyticsObject = y),
+      j[y] ||
+        (j[y] = function () {
+          (j[y].q = j[y].q || []).push(arguments);
+        }),
+      (j[y].l = +new Date()),
+      (l = e.createElement(k)),
+      (L = e.getElementsByTagName(k)[0]),
+      (l.src = "//www.google-analytics.com/analytics.js"),
+      L.parentNode.insertBefore(l, L);
+  })(window, document, "script", "ga");
 
-      ga("create", "UA-60103689-1", "cosmosc2.com");
-      ga("send", "pageview");
-    </script>
-  </body>
+  ga("create", "UA-60103689-1", "cosmosc2.com");
+  ga("send", "pageview");
+</script>
+
+
+
+</body>
 </html>

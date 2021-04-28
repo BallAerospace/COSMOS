@@ -1,417 +1,227 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="en-US">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Script Runner</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="generator" content="Jekyll v4.2.0" />
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title="Ball Aerospace COSMOS News"
-      href="/feed.xml"
-    />
-    <link
-      rel="alternate"
-      type="application/atom+xml"
-      title="Recent commits to COSMOS's master branch"
-      href="https://github.com/BallAerospace/COSMOS/commits/master.atom"
-    />
-    <link
-      rel="stylesheet"
-      href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900"
-    />
-    <link rel="stylesheet" href="/css/screen.css" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <!--[if lt IE 9]>
-      <script src="/js/html5shiv.min.js"></script>
-      <script src="/js/respond.min.js"></script>
-    <![endif]-->
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <title>Script Runner</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v4.2.0">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
 
-  <body class="wrap">
-    <header role="banner">
-      <nav class="mobile-nav show-on-mobiles">
-        <ul>
-          <li class="">
-            <a href="/">Home</a>
-          </li>
-          <li class="current">
-            <span class="hide-on-mobiles"
-              ><a href="/docs/v4/">Documentation</a></span
-            >
-            <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
-          </li>
-          <li class="">
-            <a href="/news/">News</a>
-          </li>
-          <li>
-            <a href="/help/">Help</a>
-          </li>
-          <li>
-            <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
-              ><span class="hide-on-mobiles">View on </span>GitHub</a
-            >
-          </li>
-        </ul>
-      </nav>
-      <div class="grid wider">
-        <div class="unit one-third center-on-mobiles" style="margin-top: 27px">
-          <h1>
-            <a href="/">
-              <span class="sr-only">COSMOS</span>
-              <img
-                src="/img/COSMOS.png"
-                width="312"
-                height="70"
-                alt="COSMOS Logo"
-              />
-            </a>
-          </h1>
-        </div>
-        <nav class="main-nav unit two-thirds hide-on-mobiles">
-          <ul>
-            <li class="">
-              <a href="/">Home</a>
-            </li>
-            <li class="current">
-              <span class="hide-on-mobiles"
-                ><a href="/docs/v4/">Documentation</a></span
-              >
-              <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
-            </li>
-            <li class="">
-              <a href="/news/">News</a>
-            </li>
-            <li>
-              <a href="/help/">Help</a>
-            </li>
-            <li>
-              <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
-                ><span class="hide-on-mobiles">View on </span>GitHub</a
-              >
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </header>
 
-    <section class="docs">
-      <div class="grid wider">
-        <div class="unit four-fifths">
-          <article>
-            <!-- Get version but ignore the "docs" collection -->
-            <!-- prettier-ignore -->
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
 
-            <div class="improve right">
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+  <section class="docs">
+  <div class="grid wider">
+    <div class="unit four-fifths">
+      <article>
+        <!-- Get version but ignore the "docs" collection -->
+        <!-- prettier-ignore -->
+        
+        
+        <div class="improve right">
           <span class="version-badge">v5</span>
         </div>
+         
+        <div class="toc"><ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
+<li class="toc-entry toc-h2"><a href="#script-runner-menus">Script Runner Menus</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#file-menu-items">File Menu Items</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#file-open">File Open</a></li>
+<li class="toc-entry toc-h4"><a href="#file-save-as">File Save As</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#script-menu-items">Script Menu Items</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#running-scripts">Running Scripts</a></li>
+<li class="toc-entry toc-h2"><a href="#running-script-suites">Running Script Suites</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#cosmosgroup">Cosmos::Group</a></li>
+<li class="toc-entry toc-h3"><a href="#cosmossuite">Cosmos::Suite</a></li>
+<li class="toc-entry toc-h3"><a href="#script-suite-options">Script Suite Options</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#pause-on-error">Pause on Error</a></li>
+<li class="toc-entry toc-h4"><a href="#continue-after-error">Continue after Error</a></li>
+<li class="toc-entry toc-h4"><a href="#abort-after-error">Abort after Error</a></li>
+<li class="toc-entry toc-h4"><a href="#manual">Manual</a></li>
+<li class="toc-entry toc-h4"><a href="#loop">Loop</a></li>
+<li class="toc-entry toc-h4"><a href="#break-loop-on-error">Break Loop on Error</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#debugging-scripts">Debugging Scripts</a></li>
+</ul></div>
+        
+        <h1>Script Runner</h1>
+        <h2 id="introduction">
+<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
 
-            <div class="toc">
-              <ul id="toc" class="section-nav">
-                <li class="toc-entry toc-h2">
-                  <a href="#introduction">Introduction</a>
-                </li>
-                <li class="toc-entry toc-h2">
-                  <a href="#script-runner-menus">Script Runner Menus</a>
-                  <ul>
-                    <li class="toc-entry toc-h3">
-                      <a href="#file-menu-items">File Menu Items</a>
-                      <ul>
-                        <li class="toc-entry toc-h4">
-                          <a href="#file-open">File Open</a>
-                        </li>
-                        <li class="toc-entry toc-h4">
-                          <a href="#file-save-as">File Save As</a>
-                        </li>
-                      </ul>
-                    </li>
-                    <li class="toc-entry toc-h3">
-                      <a href="#script-menu-items">Script Menu Items</a>
-                    </li>
-                  </ul>
-                </li>
-                <li class="toc-entry toc-h2">
-                  <a href="#running-scripts">Running Scripts</a>
-                </li>
-                <li class="toc-entry toc-h2">
-                  <a href="#running-script-suites">Running Script Suites</a>
-                  <ul>
-                    <li class="toc-entry toc-h3">
-                      <a href="#cosmosgroup">Cosmos::Group</a>
-                    </li>
-                    <li class="toc-entry toc-h3">
-                      <a href="#cosmossuite">Cosmos::Suite</a>
-                    </li>
-                    <li class="toc-entry toc-h3">
-                      <a href="#script-suite-options">Script Suite Options</a>
-                      <ul>
-                        <li class="toc-entry toc-h4">
-                          <a href="#pause-on-error">Pause on Error</a>
-                        </li>
-                        <li class="toc-entry toc-h4">
-                          <a href="#continue-after-error"
-                            >Continue after Error</a
-                          >
-                        </li>
-                        <li class="toc-entry toc-h4">
-                          <a href="#abort-after-error">Abort after Error</a>
-                        </li>
-                        <li class="toc-entry toc-h4">
-                          <a href="#manual">Manual</a>
-                        </li>
-                        <li class="toc-entry toc-h4">
-                          <a href="#loop">Loop</a>
-                        </li>
-                        <li class="toc-entry toc-h4">
-                          <a href="#break-loop-on-error">Break Loop on Error</a>
-                        </li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-                <li class="toc-entry toc-h2">
-                  <a href="#debugging-scripts">Debugging Scripts</a>
-                </li>
-              </ul>
-            </div>
+<p>Script Runner is both an editor of COSMOS scripts as well as executes scripts. Script files are stored within a COSMOS target and Script Runner provides the ability to open, save, download and delete these files. When a suite of scripts is opened, Script Runner provides additional options to run individial scripts, groups of scripts, or entire suites.</p>
 
-            <h1>Script Runner</h1>
-            <h2 id="introduction">
-              <a class="anchor" href="#introduction" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Introduction
-            </h2>
+<p><img src="/img/v5/script_runner/script_runner.png" alt="Script Runner"></p>
 
-            <p>
-              Script Runner is both an editor of COSMOS scripts as well as
-              executes scripts. Script files are stored within a COSMOS target
-              and Script Runner provides the ability to open, save, download and
-              delete these files. When a suite of scripts is opened, Script
-              Runner provides additional options to run individial scripts,
-              groups of scripts, or entire suites.
-            </p>
+<h2 id="script-runner-menus">
+<a class="anchor" href="#script-runner-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Script Runner Menus</h2>
 
-            <p>
-              <img
-                src="/img/v5/script_runner/script_runner.png"
-                alt="Script Runner"
-              />
-            </p>
+<h3 id="file-menu-items">
+<a class="anchor" href="#file-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>File Menu Items</h3>
 
-            <h2 id="script-runner-menus">
-              <a class="anchor" href="#script-runner-menus" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Script Runner Menus
-            </h2>
+<!-- Image sized to match up with bullets -->
 
-            <h3 id="file-menu-items">
-              <a class="anchor" href="#file-menu-items" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >File Menu Items
-            </h3>
+<p><img src="/img/v5/script_runner/file_menu.png" alt="File Menu" style="float: left; margin-right: 50px; height: 250px;"></p>
 
-            <!-- Image sized to match up with bullets -->
+<ul>
+  <li>Clears the editor and filename</li>
+  <li>Opens a dialog to select a file to open</li>
+  <li>Saves the currently opened file to disk</li>
+  <li>Opens a dialog to allow the user to rename the current file</li>
+  <li>Downloads the current file to the browser</li>
+  <li>Deletes the current file (Permanently!)</li>
+</ul>
 
-            <p>
-              <img
-                src="/img/v5/script_runner/file_menu.png"
-                alt="File Menu"
-                style="float: left; margin-right: 50px; height: 250px"
-              />
-            </p>
+<h4 id="file-open">
+<a class="anchor" href="#file-open" aria-hidden="true"><span class="octicon octicon-link"></span></a>File Open</h4>
 
-            <ul>
-              <li>Clears the editor and filename</li>
-              <li>Opens a dialog to select a file to open</li>
-              <li>Saves the currently opened file to disk</li>
-              <li>
-                Opens a dialog to allow the user to rename the current file
-              </li>
-              <li>Downloads the current file to the browser</li>
-              <li>Deletes the current file (Permanently!)</li>
-            </ul>
+<p>The Open and Save Dialogs deserve a little more explanation. When you select File Open the File Open Dialog appears. Initially it displays a tree view of the installed targets. You can manually open the folders and browse for the file you want. You can also use the search box at the top and start typing part of the filename to filter the results.</p>
 
-            <h4 id="file-open">
-              <a class="anchor" href="#file-open" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >File Open
-            </h4>
+<p><img src="/img/v5/script_runner/file_open_check.png" alt="File Open Dialog"></p>
 
-            <p>
-              The Open and Save Dialogs deserve a little more explanation. When
-              you select File Open the File Open Dialog appears. Initially it
-              displays a tree view of the installed targets. You can manually
-              open the folders and browse for the file you want. You can also
-              use the search box at the top and start typing part of the
-              filename to filter the results.
-            </p>
+<h4 id="file-save-as">
+<a class="anchor" href="#file-save-as" aria-hidden="true"><span class="octicon octicon-link"></span></a>File Save As</h4>
 
-            <p>
-              <img
-                src="/img/v5/script_runner/file_open_check.png"
-                alt="File Open Dialog"
-              />
-            </p>
+<p>When saving a file for the first time, or using File Save As, the File Save As Dialog appears. It works similar to the File Open Dialog displaying the tree view of the installed targets. You must select a folder by clicking the folder name and then filling out the Filename field with a filename before clicking Ok. You will be prompted to before over-writing an existing file.</p>
 
-            <h4 id="file-save-as">
-              <a class="anchor" href="#file-save-as" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >File Save As
-            </h4>
+<p><img src="/img/v5/script_runner/file_save_as.png" alt="File Save As"></p>
 
-            <p>
-              When saving a file for the first time, or using File Save As, the
-              File Save As Dialog appears. It works similar to the File Open
-              Dialog displaying the tree view of the installed targets. You must
-              select a folder by clicking the folder name and then filling out
-              the Filename field with a filename before clicking Ok. You will be
-              prompted to before over-writing an existing file.
-            </p>
+<h3 id="script-menu-items">
+<a class="anchor" href="#script-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Script Menu Items</h3>
 
-            <p>
-              <img
-                src="/img/v5/script_runner/file_save_as.png"
-                alt="File Save As"
-              />
-            </p>
+<!-- Image sized to match up with bullets -->
 
-            <h3 id="script-menu-items">
-              <a class="anchor" href="#script-menu-items" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Script Menu Items
-            </h3>
+<p><img src="/img/v5/script_runner/script_menu.png" alt="Script Menu" style="float: left; margin-right: 50px; height: 230px;"></p>
 
-            <!-- Image sized to match up with bullets -->
+<ul>
+  <li>Opens tab to display currently running scripts</li>
+  <li>Performs a Ruby Syntax check on the current file</li>
+  <li>Shows the Call Stack of the running script (only active when running)</li>
+  <li>Displays the Debug prompt to allow Stepping and <a href="/docs/v5/script-runner#debugging-scripts">debugging</a>
+</li>
+  <li>Disconnects from real interfaces for safe script <a href="/docs/v5/script-runner#debugging-scripts">debugging</a>
+</li>
+</ul>
 
-            <p>
-              <img
-                src="/img/v5/script_runner/script_menu.png"
-                alt="Script Menu"
-                style="float: left; margin-right: 50px; height: 230px"
-              />
-            </p>
+<p>The Running Scripts page lists the currently running scripts. This allows other users to connect to running scripts and follow along with the currently executing script.</p>
 
-            <ul>
-              <li>Opens tab to display currently running scripts</li>
-              <li>Performs a Ruby Syntax check on the current file</li>
-              <li>
-                Shows the Call Stack of the running script (only active when
-                running)
-              </li>
-              <li>
-                Displays the Debug prompt to allow Stepping and
-                <a href="/docs/v5/script-runner#debugging-scripts">debugging</a>
-              </li>
-              <li>
-                Disconnects from real interfaces for safe script
-                <a href="/docs/v5/script-runner#debugging-scripts">debugging</a>
-              </li>
-            </ul>
+<p><img src="/img/v5/script_runner/running_scripts.png" alt="Running Scripts"></p>
 
-            <p>
-              The Running Scripts page lists the currently running scripts. This
-              allows other users to connect to running scripts and follow along
-              with the currently executing script.
-            </p>
+<h2 id="running-scripts">
+<a class="anchor" href="#running-scripts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running Scripts</h2>
 
-            <p>
-              <img
-                src="/img/v5/script_runner/running_scripts.png"
-                alt="Running Scripts"
-              />
-            </p>
+<p>Running a regular script is simply a matter of opening it and clicking the Start button. By default when you open a script the Filename is updated and the editor loads the script.</p>
 
-            <h2 id="running-scripts">
-              <a class="anchor" href="#running-scripts" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Running Scripts
-            </h2>
+<p><img src="/img/v5/script_runner/checks_rb.png" alt="checks.rb"></p>
 
-            <p>
-              Running a regular script is simply a matter of opening it and
-              clicking the Start button. By default when you open a script the
-              Filename is updated and the editor loads the script.
-            </p>
+<p>Once you click Start the script is spawned in the Server and the Script State becomes Connecting.</p>
 
-            <p>
-              <img src="/img/v5/script_runner/checks_rb.png" alt="checks.rb" />
-            </p>
+<p><img src="/img/v5/script_runner/connecting.png" alt="connecting"></p>
 
-            <p>
-              Once you click Start the script is spawned in the Server and the
-              Script State becomes Connecting.
-            </p>
+<p>At that point the currently executing line is marked with green. If an error is encountered the line turns red and and the Pause button changes to Retry to allow the line to be re-tried.</p>
 
-            <p>
-              <img
-                src="/img/v5/script_runner/connecting.png"
-                alt="connecting"
-              />
-            </p>
+<p><img src="/img/v5/script_runner/script_error.png" alt="error"></p>
 
-            <p>
-              At that point the currently executing line is marked with green.
-              If an error is encountered the line turns red and and the Pause
-              button changes to Retry to allow the line to be re-tried.
-            </p>
+<p>This allows checks that depend on telemetry changing to potentially be retried as telemetry is being updated live in the background. You can also click Go to continue pass the error or Stop to end the script execution.</p>
 
-            <p>
-              <img src="/img/v5/script_runner/script_error.png" alt="error" />
-            </p>
+<h2 id="running-script-suites">
+<a class="anchor" href="#running-script-suites" aria-hidden="true"><span class="octicon octicon-link"></span></a>Running Script Suites</h2>
 
-            <p>
-              This allows checks that depend on telemetry changing to
-              potentially be retried as telemetry is being updated live in the
-              background. You can also click Go to continue pass the error or
-              Stop to end the script execution.
-            </p>
+<p>If a script has the word ‘suite’ in the filename it automatically prompts Script Runner to parse the file to populate the Suite, Group, and Script drop down menus.</p>
 
-            <h2 id="running-script-suites">
-              <a class="anchor" href="#running-script-suites" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Running Script Suites
-            </h2>
+<p><img src="/img/v5/script_runner/suite_script.png" alt="Suite Script"></p>
 
-            <p>
-              If a script has the word ‘suite’ in the filename it automatically
-              prompts Script Runner to parse the file to populate the Suite,
-              Group, and Script drop down menus.
-            </p>
+<p>All suite files should start with the following line:</p>
 
-            <p>
-              <img
-                src="/img/v5/script_runner/suite_script.png"
-                alt="Suite Script"
-              />
-            </p>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="nb">load</span> <span class="s1">'cosmos/script/suite.rb'</span></code></pre></figure>
 
-            <p>All suite files should start with the following line:</p>
+<h3 id="cosmosgroup">
+<a class="anchor" href="#cosmosgroup" aria-hidden="true"><span class="octicon octicon-link"></span></a>Cosmos::Group</h3>
 
-            <figure class="highlight">
-              <pre><code class="language-ruby" data-lang="ruby"><span class="nb">load</span> <span class="s1">'cosmos/script/suite.rb'</span></code></pre>
-            </figure>
+<p>This pulls in the COSMOS suite framework including the Cosmos::Suite and Cosmos::Group classes. Any methods starting with ‘script’, ‘op’, or ‘test’ which are implemented inside a Cosmos::Group class are automatically included as scripts to run. For example, in the above image, you’ll notice the ‘script_1_method_with_long_name’ is in the Script drop down menu. Here’s another simple example:</p>
 
-            <h3 id="cosmosgroup">
-              <a class="anchor" href="#cosmosgroup" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Cosmos::Group
-            </h3>
+<!-- prettier-ignore -->
 
-            <p>
-              This pulls in the COSMOS suite framework including the
-              Cosmos::Suite and Cosmos::Group classes. Any methods starting with
-              ‘script’, ‘op’, or ‘test’ which are implemented inside a
-              Cosmos::Group class are automatically included as scripts to run.
-              For example, in the above image, you’ll notice the
-              ‘script_1_method_with_long_name’ is in the Script drop down menu.
-              Here’s another simple example:
-            </p>
-
-            <!-- prettier-ignore -->
-
-            <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">ExampleGroup</span> <span class="o">&lt;</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">Group</span>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">ExampleGroup</span> <span class="o">&lt;</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">Group</span>
   <span class="k">def</span> <span class="nf">setup</span>
     <span class="nb">puts</span> <span class="s2">"setup"</span>
   <span class="k">end</span>
@@ -423,26 +233,16 @@
   <span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
-            <p>
-              The setup and teardown methods are special methods which enable
-              the Setup and Teardown buttons next to the Group drop down menu.
-              Clicking these buttons runs the associated method.
-            </p>
+<p>The setup and teardown methods are special methods which enable the Setup and Teardown buttons next to the Group drop down menu. Clicking these buttons runs the associated method.</p>
 
-            <h3 id="cosmossuite">
-              <a class="anchor" href="#cosmossuite" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Cosmos::Suite
-            </h3>
+<h3 id="cosmossuite">
+<a class="anchor" href="#cosmossuite" aria-hidden="true"><span class="octicon octicon-link"></span></a>Cosmos::Suite</h3>
 
-            <p>
-              Groups are added to Suites by creating a class inheriting from
-              Cosmos::Suite and then calling the add_group method. For example:
-            </p>
+<p>Groups are added to Suites by creating a class inheriting from Cosmos::Suite and then calling the add_group method. For example:</p>
 
-            <!-- prettier-ignore -->
+<!-- prettier-ignore -->
 
-            <figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">MySuite</span> <span class="o">&lt;</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">Suite</span>
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">class</span> <span class="nc">MySuite</span> <span class="o">&lt;</span> <span class="no">Cosmos</span><span class="o">::</span><span class="no">Suite</span>
   <span class="k">def</span> <span class="nf">initialize</span>
     <span class="k">super</span><span class="p">()</span>
     <span class="n">add_group</span><span class="p">(</span><span class="s1">'ExampleGroup'</span><span class="p">)</span>
@@ -455,1308 +255,1250 @@
   <span class="k">end</span>
 <span class="k">end</span></code></pre></figure>
 
-            <p>
-              Again there are setup and teardown methods which enable the Setup
-              and Teardown buttons next to the Suite drop down menu.
-            </p>
+<p>Again there are setup and teardown methods which enable the Setup and Teardown buttons next to the Suite drop down menu.</p>
 
-            <p>
-              Multiple Suites and Groups can be created in the same file and
-              will be parsed and added to the drop down menus. Clicking Start at
-              the Suite level will run ALL Groups and ALL Scripts within each
-              Group. Similarly, clicking Start at the Group level will run all
-              Scripts in the Group. Clicking Start next to the Script will run
-              just the single Script.
-            </p>
+<p>Multiple Suites and Groups can be created in the same file and will be parsed and added to the drop down menus. Clicking Start at the Suite level will run ALL Groups and ALL Scripts within each Group. Similarly, clicking Start at the Group level will run all Scripts in the Group. Clicking Start next to the Script will run just the single Script.</p>
 
-            <h3 id="script-suite-options">
-              <a class="anchor" href="#script-suite-options" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Script Suite Options
-            </h3>
+<h3 id="script-suite-options">
+<a class="anchor" href="#script-suite-options" aria-hidden="true"><span class="octicon octicon-link"></span></a>Script Suite Options</h3>
 
-            <p>
-              Opening a Script Suite creates six checkboxes which provide
-              options to the running script.
-            </p>
+<p>Opening a Script Suite creates six checkboxes which provide options to the running script.</p>
 
-            <h4 id="pause-on-error">
-              <a class="anchor" href="#pause-on-error" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Pause on Error
-            </h4>
+<h4 id="pause-on-error">
+<a class="anchor" href="#pause-on-error" aria-hidden="true"><span class="octicon octicon-link"></span></a>Pause on Error</h4>
 
-            <p>
-              Pauses the script if an error is encountered. This is the default
-              and identical to how normal scripts are executed. Unchecking this
-              box allows the script to continue past errors without user
-              intervention. Similar to the User clicking Go upon encountering an
-              error.
-            </p>
+<p>Pauses the script if an error is encountered. This is the default and identical to how normal scripts are executed. Unchecking this box allows the script to continue past errors without user intervention. Similar to the User clicking Go upon encountering an error.</p>
 
-            <h4 id="continue-after-error">
-              <a class="anchor" href="#continue-after-error" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Continue after Error
-            </h4>
+<h4 id="continue-after-error">
+<a class="anchor" href="#continue-after-error" aria-hidden="true"><span class="octicon octicon-link"></span></a>Continue after Error</h4>
 
-            <p>
-              Continue the script if an error is encountered. This is the
-              default and identical to how normal scripts are executed.
-              Unchecking this box means that the script will end after the first
-              encountered error and execution will continue with any other
-              scripts in the Suite/Group.
-            </p>
+<p>Continue the script if an error is encountered. This is the default and identical to how normal scripts are executed. Unchecking this box means that the script will end after the first encountered error and execution will continue with any other scripts in the Suite/Group.</p>
 
-            <h4 id="abort-after-error">
-              <a class="anchor" href="#abort-after-error" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Abort after Error
-            </h4>
+<h4 id="abort-after-error">
+<a class="anchor" href="#abort-after-error" aria-hidden="true"><span class="octicon octicon-link"></span></a>Abort after Error</h4>
 
-            <p>
-              Abort the entire execution upon encountering an error. If the
-              first Script in a Suite’s Group encounters an error the entire
-              Suite will stop execution right there.
-            </p>
+<p>Abort the entire execution upon encountering an error. If the first Script in a Suite’s Group encounters an error the entire Suite will stop execution right there.</p>
 
-            <h4 id="manual">
-              <a class="anchor" href="#manual" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Manual
-            </h4>
+<h4 id="manual">
+<a class="anchor" href="#manual" aria-hidden="true"><span class="octicon octicon-link"></span></a>Manual</h4>
 
-            <p>
-              Set a Ruby global variable called
-              <code class="language-plaintext highlighter-rouge">$manual</code>
-              to true. Setting this box only allows the script author to
-              determine if the operator wants to execute manual steps or not. It
-              is up the script author to use
-              <code class="language-plaintext highlighter-rouge">$manual</code>
-              in their scripts.
-            </p>
+<p>Set a Ruby global variable called <code class="language-plaintext highlighter-rouge">$manual</code> to true. Setting this box only allows the script author to determine if the operator wants to execute manual steps or not. It is up the script author to use <code class="language-plaintext highlighter-rouge">$manual</code> in their scripts.</p>
 
-            <h4 id="loop">
-              <a class="anchor" href="#loop" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Loop
-            </h4>
+<h4 id="loop">
+<a class="anchor" href="#loop" aria-hidden="true"><span class="octicon octicon-link"></span></a>Loop</h4>
 
-            <p>
-              Loop whatever the user Started continuously. If the user clicks
-              Start next to the Group then the entire Group will be looped. This
-              is useful to catch and debug those tricky timing errors that only
-              sometimes happen.
-            </p>
+<p>Loop whatever the user Started continuously. If the user clicks Start next to the Group then the entire Group will be looped. This is useful to catch and debug those tricky timing errors that only sometimes happen.</p>
 
-            <h4 id="break-loop-on-error">
-              <a class="anchor" href="#break-loop-on-error" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Break Loop on Error
-            </h4>
+<h4 id="break-loop-on-error">
+<a class="anchor" href="#break-loop-on-error" aria-hidden="true"><span class="octicon octicon-link"></span></a>Break Loop on Error</h4>
 
-            <p>
-              Break the loop if an Error occurs. Only available if the Loop
-              option is set.
-            </p>
+<p>Break the loop if an Error occurs. Only available if the Loop option is set.</p>
 
-            <h2 id="debugging-scripts">
-              <a class="anchor" href="#debugging-scripts" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Debugging Scripts
-            </h2>
+<h2 id="debugging-scripts">
+<a class="anchor" href="#debugging-scripts" aria-hidden="true"><span class="octicon octicon-link"></span></a>Debugging Scripts</h2>
 
-            <div class="note unreleased">
-              <p>TODO</p>
-            </div>
-          </article>
-        </div>
+<div class="note unreleased">
+  <p>TODO</p>
+</div>
 
-        <div class="unit one-fifth hide-on-mobiles">
-          <aside>
-            <ul>
-              <!-- Ignore "posts" and "docs", we only want versioned collections -->
-              <!-- prettier-ignore -->
+      </article>
+    </div>
 
-              <!-- Ignore "posts" and "docs", we only want versioned collections -->
-              <!-- prettier-ignore -->
+    <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    <ul>
+      
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+       
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+      
+      
+      <li>
+        <!-- Only create links to collections which aren't our own  -->
+        
+        <a href="/docs/v4/"
+          >v4 Docs</a
+        >
+          
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+      
+      
+      <li>
+        <!-- Only create links to collections which aren't our own  -->
+          
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+       
+      </li>
+    </ul>
 
-              <li>
+    <!-- prettier-ignore -->
+    
+    
+    
+    <h4>Getting Started</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-              <li>
-                <!-- Only create links to collections which aren't our own  -->
 
-                <!-- Ignore "posts" and "docs", we only want versioned collections -->
-                <!-- prettier-ignore -->
-              </li>
-            </ul>
 
-            <!-- prettier-ignore -->
-
-            <h4>Getting Started</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
-
-            <ul>
+<ul>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/tools">Tools</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/installation">Installation</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/upgrading">Upgrading</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/gettingstarted">Getting Started</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <h4>Configuration</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
+    
+    <h4>Configuration</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-            <ul>
+
+
+<ul>
   <!-- prettier-ignore -->
+  
+  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/plugins">Plugins</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/target">Target Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/command">Command Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/telemetry">Telemetry Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/interfaces">Interface Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/protocols">Protocol Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <h4>Tool User Manuals</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
+    
+    <h4>Tool User Manuals</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-            <ul>
+
+
+<ul>
   <!-- prettier-ignore -->
+  
+  
 
-
-
-
-
-
-
-
+  
+    
+    
+    
+      
   <li class="">
     <a href="/docs/v5/cmd-sender">Command Sender</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/cmd-tlm-server">Command and Telemetry Server</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/data-extractor">Data Extractor</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/limits-monitor">Limits Monitor</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/packet-viewer">Packet Viewer</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="current">
     <a href="/docs/v5/script-runner">Script Runner</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/tlm-grapher">Telemetry Grapher</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/screens">Telemetry Screens</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <h4>Usage Guides</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
+    
+    <h4>Usage Guides</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-            <ul>
+
+
+<ul>
   <!-- prettier-ignore -->
+  
+  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/scripting">Scripting Guide</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/scripting-best-practices">Scripting Best Practices</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <h4>Development</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
+    
+    <h4>Development</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-            <ul>
+
+
+<ul>
   <!-- prettier-ignore -->
+  
+  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/json-api">JSON API</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/logging">Logging</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <!-- Every versioned site gets the unversioned Meta section -->
-            <h4>Meta</h4>
-            <ul>
-              <li>
-                <a href="/docs/contributing">Contributing</a>
-              </li>
+    
 
-              <li>
-                <a href="/docs/papers">Papers</a>
-              </li>
+    <!-- Every versioned site gets the unversioned Meta section -->
+    <h4>Meta</h4>
+    <ul>
+      
+      <li>
+        <a href="/docs/contributing">Contributing</a>
+      </li>
+      
+      <li>
+        <a href="/docs/papers">Papers</a>
+      </li>
+      
+      <li>
+        <a href="/docs/requirements">Requirements and Design</a>
+      </li>
+      
+      <li>
+        <a href="/docs/xtce">XTCE Support</a>
+      </li>
+      
+    </ul>
+  </aside>
+</div>
 
-              <li>
-                <a href="/docs/requirements">Requirements and Design</a>
-              </li>
 
-              <li>
-                <a href="/docs/xtce">XTCE Support</a>
-              </li>
-            </ul>
-          </aside>
-        </div>
+    <div class="clear"></div>
+  </div>
+</section>
 
-        <div class="clear"></div>
-      </div>
-    </section>
 
-    <script>
-      (function () {
-        var cx = "001663949569052626382:-enhin1layy";
-        var gcse = document.createElement("script");
-        gcse.type = "text/javascript";
-        gcse.async = true;
-        gcse.src = "https://cse.google.com/cse.js?cx=" + cx;
-        var s = document.getElementsByTagName("script")[0];
-        s.parentNode.insertBefore(gcse, s);
-      })();
-    </script>
-    <footer role="contentinfo">
-      <div class="grid wider">
-        <div class="unit one-third center-on-mobiles">
-          <p>
-            The contents of this website are &copy;&nbsp;2021
-            <a href="http://www.ballaerospace.com/" target="_blank"
-              >Ball Aerospace</a
-            >
-            under the terms of the
-            <a
-              href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt"
-              target="_blank"
-              >GPLv3&nbsp;License</a
-            >.
-          </p>
-          <p>
-            Site design derived from the
-            <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project
-            documentation which is licensed under the terms of the
-            <a
-              href="https://github.com/jekyll/jekyll/blob/master/LICENSE"
-              target="_blank"
-              >MIT License</a
-            >.
-          </p>
-        </div>
-        <div class="unit two-thirds align-right center-on-mobiles">
-          <p>
-            <gcse:search></gcse:search>
-            Proudly hosted by
-            <a href="https://github.com" target="_blank">
-              <img
-                src="/img/footer-logo.png"
-                width="100"
-                height="30"
-                alt="GitHub Social coding"
-              />
-            </a>
-          </p>
-        </div>
-      </div>
-    </footer>
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
 
-    <script>
-      var anchorForId = function (id) {
-        var anchor = document.createElement("a");
-        anchor.className = "header-link";
-        anchor.href = "#" + id;
-        anchor.innerHTML =
-          '<span class="sr-only">Permalink</span><i class="fa fa-link"></i>';
-        anchor.title = "Permalink";
-        return anchor;
-      };
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
 
-      var linkifyAnchors = function (level, containingElement) {
-        var headers = containingElement.getElementsByTagName("h" + level);
-        for (var h = 0; h < headers.length; h++) {
-          var header = headers[h];
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
 
-          if (typeof header.id !== "undefined" && header.id !== "") {
-            header.appendChild(anchorForId(header.id));
-          }
-        }
-      };
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
 
-      document.onreadystatechange = function () {
-        if (this.readyState === "complete") {
-          var contentBlock =
-            document.getElementsByClassName("docs")[0] ||
-            document.getElementsByClassName("news")[0];
-          if (!contentBlock) {
-            return;
-          }
-          for (var level = 1; level <= 6; level++) {
-            linkifyAnchors(level, contentBlock);
-          }
-        }
-      };
-    </script>
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
 
-    <!-- Google Analytics (http://google.com/analytics) -->
-    <script>
-      !(function (j, e, k, y, l, L) {
-        (j.GoogleAnalyticsObject = y),
-          j[y] ||
-            (j[y] = function () {
-              (j[y].q = j[y].q || []).push(arguments);
-            }),
-          (j[y].l = +new Date()),
-          (l = e.createElement(k)),
-          (L = e.getElementsByTagName(k)[0]),
-          (l.src = "//www.google-analytics.com/analytics.js"),
-          L.parentNode.insertBefore(l, L);
-      })(window, document, "script", "ga");
+  
+<!-- Google Analytics (http://google.com/analytics) -->
+<script>
+  !(function (j, e, k, y, l, L) {
+    (j.GoogleAnalyticsObject = y),
+      j[y] ||
+        (j[y] = function () {
+          (j[y].q = j[y].q || []).push(arguments);
+        }),
+      (j[y].l = +new Date()),
+      (l = e.createElement(k)),
+      (L = e.getElementsByTagName(k)[0]),
+      (l.src = "//www.google-analytics.com/analytics.js"),
+      L.parentNode.insertBefore(l, L);
+  })(window, document, "script", "ga");
 
-      ga("create", "UA-60103689-1", "cosmosc2.com");
-      ga("send", "pageview");
-    </script>
-  </body>
+  ga("create", "UA-60103689-1", "cosmosc2.com");
+  ga("send", "pageview");
+</script>
+
+
+
+</body>
 </html>

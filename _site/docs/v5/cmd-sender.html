@@ -1,1479 +1,1365 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="en-US">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Command Sender</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="generator" content="Jekyll v4.2.0" />
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title="Ball Aerospace COSMOS News"
-      href="/feed.xml"
-    />
-    <link
-      rel="alternate"
-      type="application/atom+xml"
-      title="Recent commits to COSMOS's master branch"
-      href="https://github.com/BallAerospace/COSMOS/commits/master.atom"
-    />
-    <link
-      rel="stylesheet"
-      href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900"
-    />
-    <link rel="stylesheet" href="/css/screen.css" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <!--[if lt IE 9]>
-      <script src="/js/html5shiv.min.js"></script>
-      <script src="/js/respond.min.js"></script>
-    <![endif]-->
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <title>Command Sender</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v4.2.0">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
 
-  <body class="wrap">
-    <header role="banner">
-      <nav class="mobile-nav show-on-mobiles">
-        <ul>
-          <li class="">
-            <a href="/">Home</a>
-          </li>
-          <li class="current">
-            <span class="hide-on-mobiles"
-              ><a href="/docs/v4/">Documentation</a></span
-            >
-            <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
-          </li>
-          <li class="">
-            <a href="/news/">News</a>
-          </li>
-          <li>
-            <a href="/help/">Help</a>
-          </li>
-          <li>
-            <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
-              ><span class="hide-on-mobiles">View on </span>GitHub</a
-            >
-          </li>
-        </ul>
-      </nav>
-      <div class="grid wider">
-        <div class="unit one-third center-on-mobiles" style="margin-top: 27px">
-          <h1>
-            <a href="/">
-              <span class="sr-only">COSMOS</span>
-              <img
-                src="/img/COSMOS.png"
-                width="312"
-                height="70"
-                alt="COSMOS Logo"
-              />
-            </a>
-          </h1>
-        </div>
-        <nav class="main-nav unit two-thirds hide-on-mobiles">
-          <ul>
-            <li class="">
-              <a href="/">Home</a>
-            </li>
-            <li class="current">
-              <span class="hide-on-mobiles"
-                ><a href="/docs/v4/">Documentation</a></span
-              >
-              <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
-            </li>
-            <li class="">
-              <a href="/news/">News</a>
-            </li>
-            <li>
-              <a href="/help/">Help</a>
-            </li>
-            <li>
-              <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
-                ><span class="hide-on-mobiles">View on </span>GitHub</a
-              >
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </header>
 
-    <section class="docs">
-      <div class="grid wider">
-        <div class="unit four-fifths">
-          <article>
-            <!-- Get version but ignore the "docs" collection -->
-            <!-- prettier-ignore -->
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
 
-            <div class="improve right">
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="current">
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+  </li>
+  <li class="">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
+
+  <section class="docs">
+  <div class="grid wider">
+    <div class="unit four-fifths">
+      <article>
+        <!-- Get version but ignore the "docs" collection -->
+        <!-- prettier-ignore -->
+        
+        
+        <div class="improve right">
           <span class="version-badge">v5</span>
         </div>
+         
+        <div class="toc"><ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
+<li class="toc-entry toc-h2"><a href="#command-sender-menus">Command Sender Menus</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#mode-menu-items">Mode Menu Items</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#sending-commands">Sending Commands</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#hazardous-commands">Hazardous Commands</a></li>
+</ul>
+</li>
+</ul></div>
+        
+        <h1>Command Sender</h1>
+        <h2 id="introduction">
+<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
 
-            <div class="toc">
-              <ul id="toc" class="section-nav">
-                <li class="toc-entry toc-h2">
-                  <a href="#introduction">Introduction</a>
-                </li>
-                <li class="toc-entry toc-h2">
-                  <a href="#command-sender-menus">Command Sender Menus</a>
-                  <ul>
-                    <li class="toc-entry toc-h3">
-                      <a href="#mode-menu-items">Mode Menu Items</a>
-                    </li>
-                  </ul>
-                </li>
-                <li class="toc-entry toc-h2">
-                  <a href="#sending-commands">Sending Commands</a>
-                  <ul>
-                    <li class="toc-entry toc-h3">
-                      <a href="#hazardous-commands">Hazardous Commands</a>
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-            </div>
+<p>Command Sender provides the ability to send any command defined by COSMOS. Commands are selected using the Target and Packet drop down fields which populate the command parameter (if any). A command history is stored which is also editable. Commands in the command history can be re-executed by pressing Enter.</p>
 
-            <h1>Command Sender</h1>
-            <h2 id="introduction">
-              <a class="anchor" href="#introduction" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Introduction
-            </h2>
+<p><img src="/img/v5/command_sender/command_sender.png" alt="Command Sender"></p>
 
-            <p>
-              Command Sender provides the ability to send any command defined by
-              COSMOS. Commands are selected using the Target and Packet drop
-              down fields which populate the command parameter (if any). A
-              command history is stored which is also editable. Commands in the
-              command history can be re-executed by pressing Enter.
-            </p>
+<h2 id="command-sender-menus">
+<a class="anchor" href="#command-sender-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Command Sender Menus</h2>
 
-            <p>
-              <img
-                src="/img/v5/command_sender/command_sender.png"
-                alt="Command Sender"
-              />
-            </p>
+<h3 id="mode-menu-items">
+<a class="anchor" href="#mode-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mode Menu Items</h3>
 
-            <h2 id="command-sender-menus">
-              <a class="anchor" href="#command-sender-menus" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Command Sender Menus
-            </h2>
+<!-- Image sized to match up with bullets -->
 
-            <h3 id="mode-menu-items">
-              <a class="anchor" href="#mode-menu-items" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Mode Menu Items
-            </h3>
+<p><img src="/img/v5/command_sender/mode_menu.png" alt="Mode Menu" style="float: left; margin-right: 50px; height: 160px;"></p>
 
-            <!-- Image sized to match up with bullets -->
+<ul>
+  <li>Ignores parameter range checking</li>
+  <li>Displays parameter state values in hex</li>
+  <li>Shows ignored parameters</li>
+  <li>Disables all parameter conversions</li>
+</ul>
 
-            <p>
-              <img
-                src="/img/v5/command_sender/mode_menu.png"
-                alt="Mode Menu"
-                style="float: left; margin-right: 50px; height: 160px"
-              />
-            </p>
+<h2 id="sending-commands">
+<a class="anchor" href="#sending-commands" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sending Commands</h2>
 
-            <ul>
-              <li>Ignores parameter range checking</li>
-              <li>Displays parameter state values in hex</li>
-              <li>Shows ignored parameters</li>
-              <li>Disables all parameter conversions</li>
-            </ul>
+<p>Select a command by first selecting the target from the Select Target drop down. Changing the target automatically updates the Select Packet options to only display commands from that target. If the command has parameters a table is generated with all the parameters.</p>
 
-            <h2 id="sending-commands">
-              <a class="anchor" href="#sending-commands" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Sending Commands
-            </h2>
+<p><img src="/img/v5/command_sender/inst_collect.png" alt="INST COLLECT"></p>
 
-            <p>
-              Select a command by first selecting the target from the Select
-              Target drop down. Changing the target automatically updates the
-              Select Packet options to only display commands from that target.
-              If the command has parameters a table is generated with all the
-              parameters.
-            </p>
+<p>Clicking on a parameter with States (like TYPE in the above example) brings up a drop down to select a state. Selecting a state populates the value field next to it. Sending a command updates the Status text and the Command History.</p>
 
-            <p>
-              <img
-                src="/img/v5/command_sender/inst_collect.png"
-                alt="INST COLLECT"
-              />
-            </p>
+<p><img src="/img/v5/command_sender/inst_collect_sent.png" alt="INST COLLECT Sent"></p>
 
-            <p>
-              Clicking on a parameter with States (like TYPE in the above
-              example) brings up a drop down to select a state. Selecting a
-              state populates the value field next to it. Sending a command
-              updates the Status text and the Command History.
-            </p>
+<p>You can directly edit the Command History to change a parameter value. Pressing Enter on the line will then execute the command. If the command has changed a new line will be entered in the Command History. Pressing Enter several times on the same line updates the Status text with the number of commands sent (3 in the next example).</p>
 
-            <p>
-              <img
-                src="/img/v5/command_sender/inst_collect_sent.png"
-                alt="INST COLLECT Sent"
-              />
-            </p>
+<p><img src="/img/v5/command_sender/inst_collect_sent_3.png" alt="INST COLLECT Sent 3"></p>
 
-            <p>
-              You can directly edit the Command History to change a parameter
-              value. Pressing Enter on the line will then execute the command.
-              If the command has changed a new line will be entered in the
-              Command History. Pressing Enter several times on the same line
-              updates the Status text with the number of commands sent (3 in the
-              next example).
-            </p>
+<h3 id="hazardous-commands">
+<a class="anchor" href="#hazardous-commands" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hazardous Commands</h3>
 
-            <p>
-              <img
-                src="/img/v5/command_sender/inst_collect_sent_3.png"
-                alt="INST COLLECT Sent 3"
-              />
-            </p>
+<p>Sending <a href="/docs/v5/command#hazardous">hazardous</a> commands will prompt the user whether to send the command.</p>
 
-            <h3 id="hazardous-commands">
-              <a class="anchor" href="#hazardous-commands" aria-hidden="true"
-                ><span class="octicon octicon-link"></span></a
-              >Hazardous Commands
-            </h3>
+<p><img src="/img/v5/command_sender/inst_clear.png" alt="INST CLEAR"></p>
 
-            <p>
-              Sending
-              <a href="/docs/v5/command#hazardous">hazardous</a> commands will
-              prompt the user whether to send the command.
-            </p>
+<p>Commands can also have hazardous <a href="/docs/v5/command#state">states</a> (INST COLLECT with TYPE SPECIAL) which also prompt the user. In this example, we’ve also checked all the menu options to show ignored parameters, display state values in hex (see SPECIAL, 0x1), disabled range checking (DURATION 1000), and disabled parameter conversions.</p>
 
-            <p>
-              <img
-                src="/img/v5/command_sender/inst_clear.png"
-                alt="INST CLEAR"
-              />
-            </p>
+<p><img src="/img/v5/command_sender/inst_collect_hazardous.png" alt="INST COLLECT Hazardous"></p>
 
-            <p>
-              Commands can also have hazardous
-              <a href="/docs/v5/command#state">states</a> (INST COLLECT with
-              TYPE SPECIAL) which also prompt the user. In this example, we’ve
-              also checked all the menu options to show ignored parameters,
-              display state values in hex (see SPECIAL, 0x1), disabled range
-              checking (DURATION 1000), and disabled parameter conversions.
-            </p>
+<p>Selecting Yes will send the command and update the history with all the parameters shown.</p>
 
-            <p>
-              <img
-                src="/img/v5/command_sender/inst_collect_hazardous.png"
-                alt="INST COLLECT Hazardous"
-              />
-            </p>
+<p><img src="/img/v5/command_sender/inst_collect_hazardous_history.png" alt="INST COLLECT History"></p>
 
-            <p>
-              Selecting Yes will send the command and update the history with
-              all the parameters shown.
-            </p>
+<p>Note that when writing Scripts all parameters are optional unless explicitly marked <a href="/docs/v5/command#required">required</a>.</p>
 
-            <p>
-              <img
-                src="/img/v5/command_sender/inst_collect_hazardous_history.png"
-                alt="INST COLLECT History"
-              />
-            </p>
+      </article>
+    </div>
 
-            <p>
-              Note that when writing Scripts all parameters are optional unless
-              explicitly marked
-              <a href="/docs/v5/command#required">required</a>.
-            </p>
-          </article>
-        </div>
+    <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    <ul>
+      
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+       
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+      
+      
+      <li>
+        <!-- Only create links to collections which aren't our own  -->
+        
+        <a href="/docs/v4/"
+          >v4 Docs</a
+        >
+          
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+      
+      
+      <li>
+        <!-- Only create links to collections which aren't our own  -->
+          
+      <!-- Ignore "posts" and "docs", we only want versioned collections -->
+      <!-- prettier-ignore -->
+       
+      </li>
+    </ul>
 
-        <div class="unit one-fifth hide-on-mobiles">
-          <aside>
-            <ul>
-              <!-- Ignore "posts" and "docs", we only want versioned collections -->
-              <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
+    
+    
+    
+    <h4>Getting Started</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-              <!-- Ignore "posts" and "docs", we only want versioned collections -->
-              <!-- prettier-ignore -->
 
-              <li>
 
-              <li>
-                <!-- Only create links to collections which aren't our own  -->
-
-                <!-- Ignore "posts" and "docs", we only want versioned collections -->
-                <!-- prettier-ignore -->
-              </li>
-            </ul>
-
-            <!-- prettier-ignore -->
-
-            <h4>Getting Started</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
-
-            <ul>
+<ul>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/tools">Tools</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/installation">Installation</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/upgrading">Upgrading</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/gettingstarted">Getting Started</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <h4>Configuration</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
+    
+    <h4>Configuration</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-            <ul>
+
+
+<ul>
   <!-- prettier-ignore -->
+  
+  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/plugins">Plugins</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/target">Target Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/command">Command Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/telemetry">Telemetry Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/interfaces">Interface Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/protocols">Protocol Configuration</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <h4>Tool User Manuals</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
+    
+    <h4>Tool User Manuals</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-            <ul>
+
+
+<ul>
   <!-- prettier-ignore -->
+  
+  
 
-
-
-
-
-
-
-
+  
+    
+    
+    
+      
   <li class="current">
     <a href="/docs/v5/cmd-sender">Command Sender</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/cmd-tlm-server">Command and Telemetry Server</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/data-extractor">Data Extractor</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/limits-monitor">Limits Monitor</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/packet-viewer">Packet Viewer</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/script-runner">Script Runner</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/tlm-grapher">Telemetry Grapher</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/tlm-viewer">Telemetry Viewer</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/screens">Telemetry Screens</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <h4>Usage Guides</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
+    
+    <h4>Usage Guides</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-            <ul>
+
+
+<ul>
   <!-- prettier-ignore -->
+  
+  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/scripting">Scripting Guide</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/scripting-best-practices">Scripting Best Practices</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <h4>Development</h4>
-            <!-- prettier-ignore -->
-            <!-- prettier-ignore -->
+    
+    <h4>Development</h4>
+    <!-- prettier-ignore -->
+    <!-- prettier-ignore -->
 
-            <ul>
+
+
+<ul>
   <!-- prettier-ignore -->
+  
+  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/json-api">JSON API</a>
   </li>
   <!-- prettier-ignore -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
   <li class="">
     <a href="/docs/v5/logging">Logging</a>
   </li>
   <!-- prettier-ignore -->
-
-
+  
+  
 </ul>
 
-            <!-- Every versioned site gets the unversioned Meta section -->
-            <h4>Meta</h4>
-            <ul>
-              <li>
-                <a href="/docs/contributing">Contributing</a>
-              </li>
+    
 
-              <li>
-                <a href="/docs/papers">Papers</a>
-              </li>
+    <!-- Every versioned site gets the unversioned Meta section -->
+    <h4>Meta</h4>
+    <ul>
+      
+      <li>
+        <a href="/docs/contributing">Contributing</a>
+      </li>
+      
+      <li>
+        <a href="/docs/papers">Papers</a>
+      </li>
+      
+      <li>
+        <a href="/docs/requirements">Requirements and Design</a>
+      </li>
+      
+      <li>
+        <a href="/docs/xtce">XTCE Support</a>
+      </li>
+      
+    </ul>
+  </aside>
+</div>
 
-              <li>
-                <a href="/docs/requirements">Requirements and Design</a>
-              </li>
 
-              <li>
-                <a href="/docs/xtce">XTCE Support</a>
-              </li>
-            </ul>
-          </aside>
-        </div>
+    <div class="clear"></div>
+  </div>
+</section>
 
-        <div class="clear"></div>
-      </div>
-    </section>
 
-    <script>
-      (function () {
-        var cx = "001663949569052626382:-enhin1layy";
-        var gcse = document.createElement("script");
-        gcse.type = "text/javascript";
-        gcse.async = true;
-        gcse.src = "https://cse.google.com/cse.js?cx=" + cx;
-        var s = document.getElementsByTagName("script")[0];
-        s.parentNode.insertBefore(gcse, s);
-      })();
-    </script>
-    <footer role="contentinfo">
-      <div class="grid wider">
-        <div class="unit one-third center-on-mobiles">
-          <p>
-            The contents of this website are &copy;&nbsp;2021
-            <a href="http://www.ballaerospace.com/" target="_blank"
-              >Ball Aerospace</a
-            >
-            under the terms of the
-            <a
-              href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt"
-              target="_blank"
-              >GPLv3&nbsp;License</a
-            >.
-          </p>
-          <p>
-            Site design derived from the
-            <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project
-            documentation which is licensed under the terms of the
-            <a
-              href="https://github.com/jekyll/jekyll/blob/master/LICENSE"
-              target="_blank"
-              >MIT License</a
-            >.
-          </p>
-        </div>
-        <div class="unit two-thirds align-right center-on-mobiles">
-          <p>
-            <gcse:search></gcse:search>
-            Proudly hosted by
-            <a href="https://github.com" target="_blank">
-              <img
-                src="/img/footer-logo.png"
-                width="100"
-                height="30"
-                alt="GitHub Social coding"
-              />
-            </a>
-          </p>
-        </div>
-      </div>
-    </footer>
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
 
-    <script>
-      var anchorForId = function (id) {
-        var anchor = document.createElement("a");
-        anchor.className = "header-link";
-        anchor.href = "#" + id;
-        anchor.innerHTML =
-          '<span class="sr-only">Permalink</span><i class="fa fa-link"></i>';
-        anchor.title = "Permalink";
-        return anchor;
-      };
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
 
-      var linkifyAnchors = function (level, containingElement) {
-        var headers = containingElement.getElementsByTagName("h" + level);
-        for (var h = 0; h < headers.length; h++) {
-          var header = headers[h];
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
 
-          if (typeof header.id !== "undefined" && header.id !== "") {
-            header.appendChild(anchorForId(header.id));
-          }
-        }
-      };
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
 
-      document.onreadystatechange = function () {
-        if (this.readyState === "complete") {
-          var contentBlock =
-            document.getElementsByClassName("docs")[0] ||
-            document.getElementsByClassName("news")[0];
-          if (!contentBlock) {
-            return;
-          }
-          for (var level = 1; level <= 6; level++) {
-            linkifyAnchors(level, contentBlock);
-          }
-        }
-      };
-    </script>
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
 
-    <!-- Google Analytics (http://google.com/analytics) -->
-    <script>
-      !(function (j, e, k, y, l, L) {
-        (j.GoogleAnalyticsObject = y),
-          j[y] ||
-            (j[y] = function () {
-              (j[y].q = j[y].q || []).push(arguments);
-            }),
-          (j[y].l = +new Date()),
-          (l = e.createElement(k)),
-          (L = e.getElementsByTagName(k)[0]),
-          (l.src = "//www.google-analytics.com/analytics.js"),
-          L.parentNode.insertBefore(l, L);
-      })(window, document, "script", "ga");
+  
+<!-- Google Analytics (http://google.com/analytics) -->
+<script>
+  !(function (j, e, k, y, l, L) {
+    (j.GoogleAnalyticsObject = y),
+      j[y] ||
+        (j[y] = function () {
+          (j[y].q = j[y].q || []).push(arguments);
+        }),
+      (j[y].l = +new Date()),
+      (l = e.createElement(k)),
+      (L = e.getElementsByTagName(k)[0]),
+      (l.src = "//www.google-analytics.com/analytics.js"),
+      L.parentNode.insertBefore(l, L);
+  })(window, document, "script", "ga");
 
-      ga("create", "UA-60103689-1", "cosmosc2.com");
-      ga("send", "pageview");
-    </script>
-  </body>
+  ga("create", "UA-60103689-1", "cosmosc2.com");
+  ga("send", "pageview");
+</script>
+
+
+
+</body>
 </html>

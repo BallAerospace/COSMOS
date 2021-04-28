@@ -1,666 +1,355 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html lang="en-US">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Deploying COSMOS to the Cloud</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="generator" content="Jekyll v4.2.0" />
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title="Ball Aerospace COSMOS News"
-      href="/feed.xml"
-    />
-    <link
-      rel="alternate"
-      type="application/atom+xml"
-      title="Recent commits to COSMOS's master branch"
-      href="https://github.com/BallAerospace/COSMOS/commits/master.atom"
-    />
-    <link
-      rel="stylesheet"
-      href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900"
-    />
-    <link rel="stylesheet" href="/css/screen.css" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <!--[if lt IE 9]>
-      <script src="/js/html5shiv.min.js"></script>
-      <script src="/js/respond.min.js"></script>
-    <![endif]-->
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <title>Deploying COSMOS to the Cloud</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="generator" content="Jekyll v4.2.0">
+  <link rel="alternate" type="application/rss+xml" title="Ball Aerospace COSMOS News" href="/feed.xml">
+  <link rel="alternate" type="application/atom+xml" title="Recent commits to COSMOS's master branch" href="https://github.com/BallAerospace/COSMOS/commits/master.atom">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic,900">
+  <link rel="stylesheet" href="/css/screen.css">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <!--[if lt IE 9]>
+  <script src="/js/html5shiv.min.js"></script>
+  <script src="/js/respond.min.js"></script>
+  <![endif]-->
+</head>
 
-  <body class="wrap">
-    <header role="banner">
-      <nav class="mobile-nav show-on-mobiles">
-        <ul>
-          <li class="">
-            <a href="/">Home</a>
-          </li>
-          <li class="">
-            <span class="hide-on-mobiles"
-              ><a href="/docs/v4/">Documentation</a></span
-            >
-            <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
-          </li>
-          <li class="current">
-            <a href="/news/">News</a>
-          </li>
-          <li>
-            <a href="/help/">Help</a>
-          </li>
-          <li>
-            <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
-              ><span class="hide-on-mobiles">View on </span>GitHub</a
-            >
-          </li>
-        </ul>
-      </nav>
-      <div class="grid wider">
-        <div class="unit one-third center-on-mobiles" style="margin-top: 27px">
-          <h1>
-            <a href="/">
-              <span class="sr-only">COSMOS</span>
-              <img
-                src="/img/COSMOS.png"
-                width="312"
-                height="70"
-                alt="COSMOS Logo"
-              />
-            </a>
-          </h1>
-        </div>
-        <nav class="main-nav unit two-thirds hide-on-mobiles">
-          <ul>
-            <li class="">
-              <a href="/">Home</a>
-            </li>
-            <li class="">
-              <span class="hide-on-mobiles"
-                ><a href="/docs/v4/">Documentation</a></span
-              >
-              <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
-            </li>
-            <li class="current">
-              <a href="/news/">News</a>
-            </li>
-            <li>
-              <a href="/help/">Help</a>
-            </li>
-            <li>
-              <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
-                ><span class="hide-on-mobiles">View on </span>GitHub</a
-              >
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </header>
+
+<body class="wrap">
+  <header role="banner">
+  <nav class="mobile-nav show-on-mobiles">
+    <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="">
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+  </li>
+  <li class="current">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
+
+  </nav>
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles" style="margin-top:27px;">
+      <h1>
+        <a href="/">
+          <span class="sr-only">COSMOS</span>
+          <img src="/img/COSMOS.png" width="312" height="70" alt="COSMOS Logo">
+        </a>
+      </h1>
+    </div>
+    <nav class="main-nav unit two-thirds hide-on-mobiles">
+      <ul>
+  <li class="">
+    <a href="/">Home</a>
+  </li>
+  <li class="">
+    <span class="hide-on-mobiles"><a href="/docs/v4/">Documentation</a></span>
+    <span class="show-on-mobiles"><a href="/docs/v4/">Docs</a></span>
+  </li>
+  <li class="current">
+    <a href="/news/">News</a>
+  </li>
+  <li>
+    <a href="/help/">Help</a>
+  </li>
+  <li>
+    <a href="https://github.com/BallAerospace/COSMOS" target="_blank"
+      ><span class="hide-on-mobiles">View on </span>GitHub</a
+    >
+  </li>
+</ul>
+
+    </nav>
+  </div>
+</header>
+
 
     <section class="news">
-      <div class="grid wider">
-        <div class="docs-nav-mobile unit whole show-on-mobiles">
-          <select onchange="if (this.value) window.location.href=this.value">
-            <option value="">Navigate the blog...</option>
-            <option value="/news/">Home</option>
-            <optgroup label="v1.x">
-              <option value="/news/2021/04/12/cosmos-5-0-0-beta-2-released/">
-                Ball Aerospace COSMOS 5.0.0 beta 2 Released
-              </option>
-
-              <option value="/news/2021/01/09/cosmos-5-0-0-beta-1-released/">
-                Ball Aerospace COSMOS 5.0.0 beta 1 Released
-              </option>
-
-              <option value="/news/2020/11/05/cosmos-4-5-0-released/">
-                Ball Aerospace COSMOS 4.5.0 Released
-              </option>
-
-              <option value="/news/2020/09/23/packet-time/">Packet Time</option>
-
-              <option value="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">
-                Ball Aerospace COSMOS 5.0.0 alpha 1 Released
-              </option>
-
-              <option value="/news/2020/03/24/identifies-packets/">
-                Identifying Packets
-              </option>
-
-              <option value="/news/2020/03/17/protocol-rate/">
-                Protocol Rate
-              </option>
-
-              <option value="/news/2020/03/09/cosmos-4-4-2-released/">
-                Ball Aerospace COSMOS 4.4.2 Released
-              </option>
-
-              <option value="/news/2019/12/30/cosmos-4-4-1-released/">
-                Ball Aerospace COSMOS 4.4.1 Released
-              </option>
-
-              <option value="/news/2019/10/21/cosmos-amos/">AMOS 2019</option>
-
-              <option value="/news/2019/06/28/cosmos-4-4-0-released/">
-                Ball Aerospace COSMOS 4.4.0 Released
-              </option>
-
-              <option value="/news/2019/06/05/protocols/">Protocols</option>
-
-              <option value="/news/2018/12/24/little-endian/">
-                Little Endian Packet Data
-              </option>
-
-              <option value="/news/2018/10/05/system-target-txt/">
-                Using system.txt and target.txt
-              </option>
-
-              <option value="/news/2018/09/14/cosmos-dockercon/">
-                COSMOS at DockerCon 2018
-              </option>
-
-              <option value="/news/2018/08/30/cosmos-4-3-0-released/">
-                Ball Aerospace COSMOS 4.3.0 Released
-              </option>
-
-              <option value="/news/2018/05/16/cosmos-4-2-4-released/">
-                Ball Aerospace COSMOS 4.2.4 Released
-              </option>
-
-              <option value="/news/2018/04/17/cosmos-4-2-3-released/">
-                Ball Aerospace COSMOS 4.2.3 Released
-              </option>
-
-              <option value="/news/2018/04/11/cosmos-4-2-2-released/">
-                Ball Aerospace COSMOS 4.2.2 Released
-              </option>
-
-              <option value="/news/2018/03/14/derived-items/">
-                Derived Items
-              </option>
-
-              <option value="/news/2018/02/12/limits/">Limits</option>
-
-              <option value="/news/2018/01/18/metadata/">Metadata</option>
-
-              <option value="/news/2017/12/07/cosmos-4-1-1-released/">
-                Ball Aerospace COSMOS 4.1.1 Released
-              </option>
-
-              <option value="/news/2017/11/28/cosmos-4-1-0-release-notes/">
-                COSMOS 4.1.0 Release Notes
-              </option>
-
-              <option value="/news/2017/11/17/cosmos-4-1-0-released/">
-                Ball Aerospace COSMOS 4.1.0 Released
-              </option>
-
-              <option value="/news/2017/11/13/require_vs_load/">
-                Require vs Load
-              </option>
-
-              <option value="/news/2017/10/30/config-editor/">
-                Config Editor
-              </option>
-
-              <option value="/news/2017/10/24/cosmos-4-0-3-released/">
-                Ball Aerospace COSMOS 4.0.3 Released
-              </option>
-
-              <option value="/news/2017/09/29/cosmos-4-0-2-released/">
-                Ball Aerospace COSMOS 4.0.2 Released
-              </option>
-
-              <option value="/news/2017/08/23/cloud-deploy/">
-                Deploying COSMOS to the Cloud
-              </option>
-
-              <option value="/news/2017/08/23/cosmos-4-0-1-released/">
-                Ball Aerospace COSMOS 4.0.1 Released
-              </option>
-
-              <option value="/news/2017/08/04/cosmos-4-0-0-released/">
-                Ball Aerospace COSMOS 4.0.0 Released
-              </option>
-
-              <option value="/news/2017/07/05/arduino-battle-bots/">
-                Arduinos & Battle Bots
-              </option>
-
-              <option value="/news/2017/06/19/template_protocol/">
-                Template Protocol
-              </option>
-
-              <option value="/news/2017/05/18/cosmos-3-9-2-released/">
-                Ball Aerospace COSMOS 3.9.2 Released
-              </option>
-
-              <option value="/news/2017/05/08/packet_processors/">
-                Packet Processors
-              </option>
-
-              <option value="/news/2017/04/24/wired/">WIRED Article</option>
-
-              <option value="/news/2017/03/29/cosmos-3-9-1-released/">
-                Ball Aerospace COSMOS 3.9.1 Released
-              </option>
-
-              <option value="/news/2017/02/22/routers/">Routers</option>
-
-              <option value="/news/2016/12/06/cosmos-3-8-3-released/">
-                Ball Aerospace COSMOS 3.8.3 Released
-              </option>
-
-              <option value="/news/2016/10/13/cosmos-cubesat-ops/">
-                SmallSat Ops
-              </option>
-
-              <option value="/news/2016/09/12/erb-config/">
-                ERB Config Files
-              </option>
-
-              <option value="/news/2016/08/22/custom-widgets/">
-                Custom Widgets
-              </option>
-
-              <option value="/news/2016/08/04/custom-cosmos_interface/">
-                Custom COSMOS Interface
-              </option>
-
-              <option value="/news/2016/07/06/cosmos-cmd-tlm-names/">
-                COSMOS Cmd/Tlm Naming
-              </option>
-
-              <option value="/news/2016/07/05/cosmos-3-8-2-released/">
-                Ball Aerospace COSMOS 3.8.2 Released
-              </option>
-
-              <option value="/news/2016/05/12/cosmos-3-8-1-released/">
-                Ball Aerospace COSMOS 3.8.1 Released
-              </option>
-
-              <option value="/news/2016/03/03/sparkfun/">
-                Sparkfun Blog Post
-              </option>
-
-              <option value="/news/2016/02/27/xtce-support/">
-                XTCE Support
-              </option>
-
-              <option value="/news/2016/02/27/fukuoka-award/">
-                Fukuoka Special Award Winner
-              </option>
-
-              <option value="/news/2016/02/26/cosmos-3-8-0-released/">
-                Ball Aerospace COSMOS 3.8.0 Released
-              </option>
-
-              <option value="/news/2016/02/11/simulated-target/">
-                COSMOS Simulated Target
-              </option>
-
-              <option value="/news/2015/12/29/cosmos-3-7-1-released/">
-                Ball Aerospace COSMOS 3.7.1 Released
-              </option>
-
-              <option value="/news/2015/11/25/cosmos-3-7-0-released/">
-                Ball Aerospace COSMOS 3.7.0 Released
-              </option>
-
-              <option value="/news/2015/10/30/cosmos-3-6-3-released/">
-                Ball Aerospace COSMOS 3.6.3 Released
-              </option>
-
-              <option value="/news/2015/10/28/cosmos-at-ats-conference/">
-                COSMOS at the ATS Conference
-              </option>
-
-              <option value="/news/2015/08/10/cosmos-3-6-2-released/">
-                Ball Aerospace COSMOS 3.6.2 Released
-              </option>
-
-              <option value="/news/2015/08/10/cosmos-3-6-1-released/">
-                Ball Aerospace COSMOS 3.6.1 Released
-              </option>
-
-              <option value="/news/2015/08/07/cosmos-3-6-0-released/">
-                Ball Aerospace COSMOS 3.6.0 Released
-              </option>
-
-              <option value="/news/2015/07/14/cosmos-3-5-3-released/">
-                Ball Aerospace COSMOS 3.5.3 Released
-              </option>
-
-              <option value="/news/2015/07/14/cosmos-3-5-2-released/">
-                Ball Aerospace COSMOS 3.5.2 Released
-              </option>
-
-              <option value="/news/2015/07/08/cosmos-3-5-1-released/">
-                Ball Aerospace COSMOS 3.5.1 Released
-              </option>
-
-              <option value="/news/2015/06/22/cosmos-3-5-0-released/">
-                Ball Aerospace COSMOS 3.5.0 Released
-              </option>
-
-              <option value="/news/2015/05/08/cosmos-3-4-2-released/">
-                Ball Aerospace COSMOS 3.4.2 Released
-              </option>
-
-              <option value="/news/2015/05/01/cosmos-3-4-1-released/">
-                Ball Aerospace COSMOS 3.4.1 Released
-              </option>
-
-              <option value="/news/2015/04/27/cosmos-3-4-0-released/">
-                Ball Aerospace COSMOS 3.4.0 Released
-              </option>
-
-              <option value="/news/2015/04/06/cosmos-c-extension/">
-                COSMOS BinaryAccessor#write C Extension
-              </option>
-
-              <option value="/news/2015/03/23/cosmos-3-3-3-released/">
-                Ball Aerospace COSMOS 3.3.3 Released
-              </option>
-
-              <option value="/news/2015/03/19/cosmos-3-3-1-released/">
-                Ball Aerospace COSMOS 3.3.1 - Startup Cheetah
-              </option>
-
-              <option value="/news/2015/02/27/cosmos-at-gsaw-conference/">
-                COSMOS at the GSAW Conference
-              </option>
-
-              <option value="/news/2015/02/23/cosmos-3-2-1-released/">
-                Ball Aerospace COSMOS 3.2.1 Released
-              </option>
-
-              <option value="/news/2015/02/17/cosmos-3-2-0-released/">
-                Ball Aerospace COSMOS 3.2.0 Released
-              </option>
-
-              <option value="/news/2015/02/03/cosmos-3-1-2-released/">
-                Ball Aerospace COSMOS 3.1.2 Released
-              </option>
-
-              <option value="/news/2015/01/28/cosmos-3-1-1-released/">
-                Ball Aerospace COSMOS 3.1.1 Released
-              </option>
-
-              <option
-                value="/news/2015/01/06/ball-aerospace-cosmos-open-sourced/"
-              >
-                Ball Aerospace COSMOS Open Sourced
-              </option>
-            </optgroup>
-          </select>
-        </div>
-
-        <div class="unit four-fifths">
-          <article>
-            <h2>
-              Deploying COSMOS to the Cloud
-              <a
-                href="/news/2017/08/23/cloud-deploy/"
-                class="permalink"
-                title="Permalink"
-                >∞</a
-              >
-            </h2>
-            <span class="post-category">
-              <span class="label"> post </span>
-            </span>
-            <div class="post-meta">
-              <span class="post-date"> 23 Aug 2017 </span>
-              <a href="https://github.com/jmthomas" class="post-author">
-                <img
-                  src="https://github.com/jmthomas.png"
-                  class="avatar"
-                  alt="jmthomas avatar"
-                  width="24"
-                  height="24"
-                />
-                jmthomas
-              </a>
-            </div>
-            <div class="post-content">
-              <p>
-                COSMOS is a GUI application which runs equally well on Windows,
-                Linux, and Mac OS X due to the QT GUI framework and Ruby
-                language it is written in. Traditionally this means you install
-                it locally on your own workstation and you’re off and running.
-                But can COSMOS also be deployed to the cloud? Yes! This post
-                describes how I deployed COSMOS to Amazon Web Services (AWS)
-                using several different technologies.
-              </p>
-
-              <h3 id="aws">AWS</h3>
-
-              <p>
-                AWS consists of a lot of different services. To deploy COSMOS
-                you need to create an AWS EC2 instance. The first step is to
-                sign up for AWS which enables you to use their Free Tier for 12
-                months. This includes 750hrs each on Linux and Windows Server.
-              </p>
-
-              <h3 id="deploying-to-windows-server">
-                Deploying to Windows Server
-              </h3>
-
-              <p>
-                Deploying to Windows Server is probably the easiest way to get
-                COSMOS in the cloud. Simply create a Windows Server instance by
-                selecting the following image:
-                <img
-                  src="/img/2017_08_23_aws_win_server.png"
-                  alt="Windows Image"
-                />
-              </p>
-
-              <p>
-                Then select the t2.micro Type which is marked “Free tier
-                eligible”. Launch the Instance and you should see the key pair
-                dialog:
-                <img
-                  src="/img/2017_08_23_aws_key_pair.png"
-                  alt="Key Pair Dialog"
-                />
-              </p>
-
-              <p>
-                Create a new key pair and give the name something generic
-                because you can use the same key pair for all the EC2 instances
-                you create. Create the instance and then View Instance which
-                will show the instance status. Click the Connect button at top
-                which will bring up the Connect dialog:
-                <img
-                  src="/img/2017_08_23_aws_win_connect.png"
-                  alt="Connect Dialog"
-                />
-              </p>
-
-              <p>
-                Click the Download Remote Desktop File and open it in Remote
-                Desktop to connect to the Windows Server instance. Note that it
-                does take a while for the Windows instance to boot so this won’t
-                work until your Status Checks show a green check. Also note that
-                many corporate firewalls may block doing a Remote Desktop
-                outside your corporate network.
-              </p>
-
-              <p>
-                You also need to click Get Password and locate your ‘pem’ file
-                you saved earlier to Decrypt your password. Login to the
-                instance as Administrator with the decrypted password. Once
-                you’ve logged in you can change the password to something a
-                little more reasonable. Then simply follow the usual
-                <a href="/docs/v4/installation/">COSMOS installation </a>
-                instructions.
-              </p>
-
-              <p>
-                Here is a screenshot of my successful COSMOS installation
-                running on the AWS Microsoft Server instance:
-                <img
-                  src="/img/2017_08_23_aws_windows.png"
-                  alt="COSMOS on Windows"
-                />
-              </p>
-
-              <h3 id="deploying-to-red-hat-linux-with-x-forwarding">
-                Deploying to Red Hat Linux (with X forwarding)
-              </h3>
-
-              <p>
-                Deploying to Red Hat Linux is similar to Windows. Create a Red
-                Hat instance by selecting the following image:
-                <img
-                  src="/img/2017_08_23_aws_red_hat.png"
-                  alt="Red Hat Image"
-                />
-              </p>
-
-              <p>
-                Use the same key pair when creating your Windows instance and
-                create the instance. View Instance and click the Connect button
-                which brings up the Connect dialog:
-                <img
-                  src="/img/2017_08_23_aws_red_hat_connect.png"
-                  alt="Connect Dialog"
-                />
-              </p>
-
-              <p>
-                SSH to the instance using the connection string provided making
-                sure to specify the full path to your ‘pem’ file in the quoted
-                path after the -i option. Install a GUI by issuing the following
-                command:
-              </p>
-
-              <div class="language-plaintext highlighter-rouge">
-                <div class="highlight">
-                  <pre
-                    class="highlight"
-                  ><code>sudo yum groupinstall 'Server with GUI'
-</code></pre>
-                </div>
-              </div>
-
-              <p>Install COSMOS using the installation bash file:</p>
-
-              <div class="language-plaintext highlighter-rouge">
-                <div class="highlight">
-                  <pre
-                    class="highlight"
-                  ><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/cosmos4/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
-</code></pre>
-                </div>
-              </div>
-
-              <p>
-                Chose the sudo option when asked how to install. To enable X
-                forwarding edit the SSH config file:
-              </p>
-
-              <div class="language-plaintext highlighter-rouge">
-                <div class="highlight">
-                  <pre class="highlight"><code>sudo vim /etc/ssh/sshd_config
-</code></pre>
-                </div>
-              </div>
-
-              <p>Enable the following settings:</p>
-
-              <div class="language-plaintext highlighter-rouge">
-                <div class="highlight">
-                  <pre class="highlight"><code>X11Forwarding yes
+    <div class="grid wider">
+
+      <div class="docs-nav-mobile unit whole show-on-mobiles">
+  <select onchange="if (this.value) window.location.href=this.value">
+    <option value="">Navigate the blog...</option>
+    <option value="/news/">Home</option>
+    <optgroup label="v1.x">
+      
+      <option value="/news/2021/04/12/cosmos-5-0-0-beta-2-released/">Ball Aerospace COSMOS 5.0.0 beta 2 Released</option>
+      
+      <option value="/news/2021/01/09/cosmos-5-0-0-beta-1-released/">Ball Aerospace COSMOS 5.0.0 beta 1 Released</option>
+      
+      <option value="/news/2020/11/05/cosmos-4-5-0-released/">Ball Aerospace COSMOS 4.5.0 Released</option>
+      
+      <option value="/news/2020/09/23/packet-time/">Packet Time</option>
+      
+      <option value="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">Ball Aerospace COSMOS 5.0.0 alpha 1 Released</option>
+      
+      <option value="/news/2020/03/24/identifies-packets/">Identifying Packets</option>
+      
+      <option value="/news/2020/03/17/protocol-rate/">Protocol Rate</option>
+      
+      <option value="/news/2020/03/09/cosmos-4-4-2-released/">Ball Aerospace COSMOS 4.4.2 Released</option>
+      
+      <option value="/news/2019/12/30/cosmos-4-4-1-released/">Ball Aerospace COSMOS 4.4.1 Released</option>
+      
+      <option value="/news/2019/10/21/cosmos-amos/">AMOS 2019</option>
+      
+      <option value="/news/2019/06/28/cosmos-4-4-0-released/">Ball Aerospace COSMOS 4.4.0 Released</option>
+      
+      <option value="/news/2019/06/05/protocols/">Protocols</option>
+      
+      <option value="/news/2018/12/24/little-endian/">Little Endian Packet Data</option>
+      
+      <option value="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</option>
+      
+      <option value="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</option>
+      
+      <option value="/news/2018/08/30/cosmos-4-3-0-released/">Ball Aerospace COSMOS 4.3.0 Released</option>
+      
+      <option value="/news/2018/05/16/cosmos-4-2-4-released/">Ball Aerospace COSMOS 4.2.4 Released</option>
+      
+      <option value="/news/2018/04/17/cosmos-4-2-3-released/">Ball Aerospace COSMOS 4.2.3 Released</option>
+      
+      <option value="/news/2018/04/11/cosmos-4-2-2-released/">Ball Aerospace COSMOS 4.2.2 Released</option>
+      
+      <option value="/news/2018/03/14/derived-items/">Derived Items</option>
+      
+      <option value="/news/2018/02/12/limits/">Limits</option>
+      
+      <option value="/news/2018/01/18/metadata/">Metadata</option>
+      
+      <option value="/news/2017/12/07/cosmos-4-1-1-released/">Ball Aerospace COSMOS 4.1.1 Released</option>
+      
+      <option value="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</option>
+      
+      <option value="/news/2017/11/17/cosmos-4-1-0-released/">Ball Aerospace COSMOS 4.1.0 Released</option>
+      
+      <option value="/news/2017/11/13/require_vs_load/">Require vs Load</option>
+      
+      <option value="/news/2017/10/30/config-editor/">Config Editor</option>
+      
+      <option value="/news/2017/10/24/cosmos-4-0-3-released/">Ball Aerospace COSMOS 4.0.3 Released</option>
+      
+      <option value="/news/2017/09/29/cosmos-4-0-2-released/">Ball Aerospace COSMOS 4.0.2 Released</option>
+      
+      <option value="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</option>
+      
+      <option value="/news/2017/08/23/cosmos-4-0-1-released/">Ball Aerospace COSMOS 4.0.1 Released</option>
+      
+      <option value="/news/2017/08/04/cosmos-4-0-0-released/">Ball Aerospace COSMOS 4.0.0 Released</option>
+      
+      <option value="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</option>
+      
+      <option value="/news/2017/06/19/template_protocol/">Template Protocol</option>
+      
+      <option value="/news/2017/05/18/cosmos-3-9-2-released/">Ball Aerospace COSMOS 3.9.2 Released</option>
+      
+      <option value="/news/2017/05/08/packet_processors/">Packet Processors</option>
+      
+      <option value="/news/2017/04/24/wired/">WIRED Article</option>
+      
+      <option value="/news/2017/03/29/cosmos-3-9-1-released/">Ball Aerospace COSMOS 3.9.1 Released</option>
+      
+      <option value="/news/2017/02/22/routers/">Routers</option>
+      
+      <option value="/news/2016/12/06/cosmos-3-8-3-released/">Ball Aerospace COSMOS 3.8.3 Released</option>
+      
+      <option value="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</option>
+      
+      <option value="/news/2016/09/12/erb-config/">ERB Config Files</option>
+      
+      <option value="/news/2016/08/22/custom-widgets/">Custom Widgets</option>
+      
+      <option value="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</option>
+      
+      <option value="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</option>
+      
+      <option value="/news/2016/07/05/cosmos-3-8-2-released/">Ball Aerospace COSMOS 3.8.2 Released</option>
+      
+      <option value="/news/2016/05/12/cosmos-3-8-1-released/">Ball Aerospace COSMOS 3.8.1 Released</option>
+      
+      <option value="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</option>
+      
+      <option value="/news/2016/02/27/xtce-support/">XTCE Support</option>
+      
+      <option value="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</option>
+      
+      <option value="/news/2016/02/26/cosmos-3-8-0-released/">Ball Aerospace COSMOS 3.8.0 Released</option>
+      
+      <option value="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</option>
+      
+      <option value="/news/2015/12/29/cosmos-3-7-1-released/">Ball Aerospace COSMOS 3.7.1 Released</option>
+      
+      <option value="/news/2015/11/25/cosmos-3-7-0-released/">Ball Aerospace COSMOS 3.7.0 Released</option>
+      
+      <option value="/news/2015/10/30/cosmos-3-6-3-released/">Ball Aerospace COSMOS 3.6.3 Released</option>
+      
+      <option value="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</option>
+      
+      <option value="/news/2015/08/10/cosmos-3-6-2-released/">Ball Aerospace COSMOS 3.6.2 Released</option>
+      
+      <option value="/news/2015/08/10/cosmos-3-6-1-released/">Ball Aerospace COSMOS 3.6.1 Released</option>
+      
+      <option value="/news/2015/08/07/cosmos-3-6-0-released/">Ball Aerospace COSMOS 3.6.0 Released</option>
+      
+      <option value="/news/2015/07/14/cosmos-3-5-3-released/">Ball Aerospace COSMOS 3.5.3 Released</option>
+      
+      <option value="/news/2015/07/14/cosmos-3-5-2-released/">Ball Aerospace COSMOS 3.5.2 Released</option>
+      
+      <option value="/news/2015/07/08/cosmos-3-5-1-released/">Ball Aerospace COSMOS 3.5.1 Released</option>
+      
+      <option value="/news/2015/06/22/cosmos-3-5-0-released/">Ball Aerospace COSMOS 3.5.0 Released</option>
+      
+      <option value="/news/2015/05/08/cosmos-3-4-2-released/">Ball Aerospace COSMOS 3.4.2 Released</option>
+      
+      <option value="/news/2015/05/01/cosmos-3-4-1-released/">Ball Aerospace COSMOS 3.4.1 Released</option>
+      
+      <option value="/news/2015/04/27/cosmos-3-4-0-released/">Ball Aerospace COSMOS 3.4.0 Released</option>
+      
+      <option value="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</option>
+      
+      <option value="/news/2015/03/23/cosmos-3-3-3-released/">Ball Aerospace COSMOS 3.3.3 Released</option>
+      
+      <option value="/news/2015/03/19/cosmos-3-3-1-released/">Ball Aerospace COSMOS 3.3.1 - Startup Cheetah</option>
+      
+      <option value="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</option>
+      
+      <option value="/news/2015/02/23/cosmos-3-2-1-released/">Ball Aerospace COSMOS 3.2.1 Released</option>
+      
+      <option value="/news/2015/02/17/cosmos-3-2-0-released/">Ball Aerospace COSMOS 3.2.0 Released</option>
+      
+      <option value="/news/2015/02/03/cosmos-3-1-2-released/">Ball Aerospace COSMOS 3.1.2 Released</option>
+      
+      <option value="/news/2015/01/28/cosmos-3-1-1-released/">Ball Aerospace COSMOS 3.1.1 Released</option>
+      
+      <option value="/news/2015/01/06/ball-aerospace-cosmos-open-sourced/">Ball Aerospace COSMOS Open Sourced</option>
+      
+    </optgroup>
+  </select>
+</div>
+
+
+      <div class="unit four-fifths">
+        <article>
+  <h2>
+    Deploying COSMOS to the Cloud
+    <a href="/news/2017/08/23/cloud-deploy/" class="permalink" title="Permalink">∞</a>
+  </h2>
+  <span class="post-category">
+    <span class="label">
+      post
+    </span>
+  </span>
+  <div class="post-meta">
+    <span class="post-date">
+      23 Aug 2017
+    </span>
+    <a href="https://github.com/jmthomas" class="post-author">
+      <img src="https://github.com/jmthomas.png" class="avatar" alt="jmthomas avatar" width="24" height="24">
+      jmthomas
+    </a>
+  </div>
+  <div class="post-content">
+    <p>COSMOS is a GUI application which runs equally well on Windows, Linux, and Mac OS X due to the QT GUI framework and Ruby language it is written in. Traditionally this means you install it locally on your own workstation and you’re off and running. But can COSMOS also be deployed to the cloud? Yes! This post describes how I deployed COSMOS to Amazon Web Services (AWS) using several different technologies.</p>
+
+<h3 id="aws">AWS</h3>
+
+<p>AWS consists of a lot of different services. To deploy COSMOS you need to create an AWS EC2 instance. The first step is to sign up for AWS which enables you to use their Free Tier for 12 months. This includes 750hrs each on Linux and Windows Server.</p>
+
+<h3 id="deploying-to-windows-server">Deploying to Windows Server</h3>
+
+<p>Deploying to Windows Server is probably the easiest way to get COSMOS in the cloud. Simply create a Windows Server instance by selecting the following image:
+<img src="/img/2017_08_23_aws_win_server.png" alt="Windows Image" /></p>
+
+<p>Then select the t2.micro Type which is marked “Free tier eligible”. Launch the Instance and you should see the key pair dialog:
+<img src="/img/2017_08_23_aws_key_pair.png" alt="Key Pair Dialog" /></p>
+
+<p>Create a new key pair and give the name something generic because you can use the same key pair for all the EC2 instances you create. Create the instance and then View Instance which will show the instance status. Click the Connect button at top which will bring up the Connect dialog:
+<img src="/img/2017_08_23_aws_win_connect.png" alt="Connect Dialog" /></p>
+
+<p>Click the Download Remote Desktop File and open it in Remote Desktop to connect to the Windows Server instance. Note that it does take a while for the Windows instance to boot so this won’t work until your Status Checks show a green check. Also note that many corporate firewalls may block doing a Remote Desktop outside your corporate network.</p>
+
+<p>You also need to click Get Password and locate your ‘pem’ file you saved earlier to Decrypt your password. Login to the instance as Administrator with the decrypted password. Once you’ve logged in you can change the password to something a little more reasonable. Then simply follow the usual <a href="/docs/v4/installation/">COSMOS installation </a> instructions.</p>
+
+<p>Here is a screenshot of my successful COSMOS installation running on the AWS Microsoft Server instance:
+<img src="/img/2017_08_23_aws_windows.png" alt="COSMOS on Windows" /></p>
+
+<h3 id="deploying-to-red-hat-linux-with-x-forwarding">Deploying to Red Hat Linux (with X forwarding)</h3>
+
+<p>Deploying to Red Hat Linux is similar to Windows. Create a Red Hat instance by selecting the following image:
+<img src="/img/2017_08_23_aws_red_hat.png" alt="Red Hat Image" /></p>
+
+<p>Use the same key pair when creating your Windows instance and create the instance. View Instance and click the Connect button which brings up the Connect dialog:
+<img src="/img/2017_08_23_aws_red_hat_connect.png" alt="Connect Dialog" /></p>
+
+<p>SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo yum groupinstall 'Server with GUI'
+</code></pre></div></div>
+
+<p>Install COSMOS using the installation bash file:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/cosmos4/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+</code></pre></div></div>
+
+<p>Chose the sudo option when asked how to install. To enable X forwarding edit the SSH config file:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo vim /etc/ssh/sshd_config
+</code></pre></div></div>
+
+<p>Enable the following settings:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>X11Forwarding yes
 X11DisplayOffset 10
 X11UseLocalhost no
-</code></pre>
-                </div>
-              </div>
+</code></pre></div></div>
 
-              <p>
-                Close your current SSH connection and reconnect with SSH adding
-                the -X option to enable X11 forwarding and -Y to enable trusted
-                X11 fowarding. If you host OS is Mac OS X you’ll need to install
-                <a href="https://www.xquartz.org/">XQuartz</a>. Linux has X11
-                forward support built-in. Windows should probably install Xming
-                which is an exercise left to the reader.
-              </p>
+<p>Close your current SSH connection and reconnect with SSH adding the -X option to enable X11 forwarding and -Y to enable trusted X11 fowarding. If you host OS is Mac OS X you’ll need to install <a href="https://www.xquartz.org/">XQuartz</a>. Linux has X11 forward support built-in. Windows should probably install Xming which is an exercise left to the reader.</p>
 
-              <p>
-                Now launch COSMOS and you should see the COSMOS windows appear
-                on your own machine. While this approach works I found the
-                performance to be significantly slower than VNC. Here is a
-                screenshot of it running while I connected via a Mac OS X
-                machine:
-                <img src="/img/2017_08_23_aws_red_hat_x.png" alt="Red Hat X" />
-              </p>
+<p>Now launch COSMOS and you should see the COSMOS windows appear on your own machine. While this approach works I found the performance to be significantly slower than VNC. Here is a screenshot of it running while I connected via a Mac OS X machine:
+<img src="/img/2017_08_23_aws_red_hat_x.png" alt="Red Hat X" /></p>
 
-              <h3 id="deploying-on-ubuntu-with-vnc">
-                Deploying on Ubuntu (with VNC)
-              </h3>
+<h3 id="deploying-on-ubuntu-with-vnc">Deploying on Ubuntu (with VNC)</h3>
 
-              <p>
-                Deploying to Ubuntu Linux is very similar to Red Hat. Create an
-                Ubuntu instance by selecting the following image:
-                <img src="/img/2017_08_23_aws_ubuntu.png" alt="Ubuntu Image" />
-              </p>
+<p>Deploying to Ubuntu Linux is very similar to Red Hat. Create an Ubuntu instance by selecting the following image:
+<img src="/img/2017_08_23_aws_ubuntu.png" alt="Ubuntu Image" /></p>
 
-              <p>
-                Use the same key pair as when creating your Windows or Red Hat
-                instance and create the instance. View Instance and click the
-                Connect button which brings up the Connect dialog:
-                <img
-                  src="/img/2017_08_23_aws_red_hat_connect.png"
-                  alt="Connect Dialog"
-                />
-              </p>
+<p>Use the same key pair as when creating your Windows or Red Hat instance and create the instance. View Instance and click the Connect button which brings up the Connect dialog:
+<img src="/img/2017_08_23_aws_red_hat_connect.png" alt="Connect Dialog" /></p>
 
-              <p>
-                Click on the instance and click the Description tab which
-                appears below the instance. Click the link next to Security
-                groups to open the Security Groups configuration. Click the
-                Inbound tab and create Edit to create a new Custom TCP Rule to
-                enable TCP traffic on Ports 5900-5910 from Anywhere. Your rule
-                should look like the following:
-                <img
-                  src="/img/2017_08_23_aws_security_group.png"
-                  alt="Security Group"
-                />
-              </p>
+<p>Click on the instance and click the Description tab which appears below the instance. Click the link next to Security groups to open the Security Groups configuration. Click the Inbound tab and create Edit to create a new Custom TCP Rule to enable TCP traffic on Ports 5900-5910 from Anywhere. Your rule should look like the following:
+<img src="/img/2017_08_23_aws_security_group.png" alt="Security Group" /></p>
 
-              <p>
-                SSH to the instance using the connection string provided making
-                sure to specify the full path to your ‘pem’ file in the quoted
-                path after the -i option. Install a GUI by issuing the following
-                command:
-              </p>
+<p>SSH to the instance using the connection string provided making sure to specify the full path to your ‘pem’ file in the quoted path after the -i option. Install a GUI by issuing the following command:</p>
 
-              <div class="language-plaintext highlighter-rouge">
-                <div class="highlight">
-                  <pre class="highlight"><code>sudo apt-get update
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo apt-get update
 sudo apt install xfce4 xfce4-goodies tightvncserver
-</code></pre>
-                </div>
-              </div>
+</code></pre></div></div>
 
-              <p>Run the following commands to setup the VNC server:</p>
+<p>Run the following commands to setup the VNC server:</p>
 
-              <div class="language-plaintext highlighter-rouge">
-                <div class="highlight">
-                  <pre class="highlight"><code>vncserver
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver
 vncserver -kill :1
 vim ~/.vnc/xstartup
-</code></pre>
-                </div>
-              </div>
+</code></pre></div></div>
 
-              <p>Ensure your xstartup file matches the following:</p>
+<p>Ensure your xstartup file matches the following:</p>
 
-              <div class="language-plaintext highlighter-rouge">
-                <div class="highlight">
-                  <pre class="highlight"><code>#!/bin/sh
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#!/bin/sh
 
 # Uncomment the following two lines for normal desktop:
 unset SESSION_MANAGER
@@ -674,373 +363,288 @@ xsetroot -solid grey
 vncconfig -iconic &amp;
 #x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &amp;
 #x-window-manager &amp;
-</code></pre>
-                </div>
-              </div>
+</code></pre></div></div>
 
-              <p>Restart VNC:</p>
+<p>Restart VNC:</p>
 
-              <div class="language-plaintext highlighter-rouge">
-                <div class="highlight">
-                  <pre class="highlight"><code>vncserver
-</code></pre>
-                </div>
-              </div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>vncserver
+</code></pre></div></div>
 
-              <p>Install COSMOS using the installation bash file:</p>
+<p>Install COSMOS using the installation bash file:</p>
 
-              <div class="language-plaintext highlighter-rouge">
-                <div class="highlight">
-                  <pre
-                    class="highlight"
-                  ><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/cosmos4/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
-</code></pre>
-                </div>
-              </div>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash &lt;(\curl -sSL https://raw.githubusercontent.com/BallAerospace/COSMOS/cosmos4/vendor/installers/linux_mac/INSTALL_COSMOS.sh)
+</code></pre></div></div>
 
-              <p>
-                Chose the sudo option when asked how to install. On your local
-                machine install a VNC viewer such as TightVNC and connect by
-                entering the Public DNS address of your AWS instance in the
-                Remote Host as well as the Port number of 5901. Typically this
-                is added by appending it to the Remote Host address with a
-                colon. Here is a screenshot of it running while I connected via
-                TightVNC:
-                <img src="/img/2017_08_23_aws_ubuntu_vnc.png" alt="Red Hat X" />
-              </p>
+<p>Chose the sudo option when asked how to install. On your local machine install a VNC viewer such as TightVNC and connect by entering the Public DNS address of your AWS instance in the Remote Host as well as the Port number of 5901. Typically this is added by appending it to the Remote Host address with a colon. Here is a screenshot of it running while I connected via TightVNC:
+<img src="/img/2017_08_23_aws_ubuntu_vnc.png" alt="Red Hat X" /></p>
 
-              <p>
-                If you have a question which would benefit the community or find
-                a possible bug please use our
-                <a href="https://github.com/BallAerospace/COSMOS/issues"
-                  >Github Issues</a
-                >. If you would like more information about a COSMOS training or
-                support contract please contact us at
-                <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.
-              </p>
-            </div>
-          </article>
-        </div>
+<p>If you have a question which would benefit the community or find a possible bug please use our <a href="https://github.com/BallAerospace/COSMOS/issues">Github Issues</a>. If you would like more information about a COSMOS training or support contract please contact us at <a href="mailto:cosmos@ball.com">cosmos@ball.com</a>.</p>
 
-        <div class="unit one-fifth hide-on-mobiles">
-          <aside>
-            <ul>
-              <li class="">
-                <a href="/news/">All News</a>
-              </li>
-              <li class="">
-                <a href="/news/releases/">COSMOS Releases</a>
-              </li>
-            </ul>
-            <h4>Recent Releases</h4>
-            <ul>
-              <li class="">
-                <a href="/news/2021/04/12/cosmos-5-0-0-beta-2-released/"
-                  >Version 5.0.0.beta2</a
-                >
-              </li>
+  </div>
+</article>
 
-              <li class="">
-                <a href="/news/2021/01/09/cosmos-5-0-0-beta-1-released/"
-                  >Version 5.0.0-beta.1</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2020/11/05/cosmos-4-5-0-released/"
-                  >Version 4.5.0</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/"
-                  >Version 5.0.0-alpha.1</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2020/03/09/cosmos-4-4-2-released/"
-                  >Version 4.4.2</a
-                >
-              </li>
-            </ul>
-            <h4>Other News</h4>
-            <ul>
-              <li class="">
-                <a href="/news/2020/09/23/packet-time/">Packet Time</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2020/03/24/identifies-packets/"
-                  >Identifying Packets</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2019/10/21/cosmos-amos/">AMOS 2019</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2019/06/05/protocols/">Protocols</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2018/12/24/little-endian/"
-                  >Little Endian Packet Data</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2018/10/05/system-target-txt/"
-                  >Using system.txt and target.txt</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2018/09/14/cosmos-dockercon/"
-                  >COSMOS at DockerCon 2018</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2018/03/14/derived-items/">Derived Items</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2018/02/12/limits/">Limits</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2018/01/18/metadata/">Metadata</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/"
-                  >COSMOS 4.1.0 Release Notes</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2017/10/30/config-editor/">Config Editor</a>
-              </li>
-
-              <li class="current">
-                <a href="/news/2017/08/23/cloud-deploy/"
-                  >Deploying COSMOS to the Cloud</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2017/07/05/arduino-battle-bots/"
-                  >Arduinos & Battle Bots</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2017/06/19/template_protocol/"
-                  >Template Protocol</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2017/05/08/packet_processors/"
-                  >Packet Processors</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2017/04/24/wired/">WIRED Article</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2017/02/22/routers/">Routers</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2016/08/04/custom-cosmos_interface/"
-                  >Custom COSMOS Interface</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2016/07/06/cosmos-cmd-tlm-names/"
-                  >COSMOS Cmd/Tlm Naming</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
-              </li>
-
-              <li class="">
-                <a href="/news/2016/02/27/fukuoka-award/"
-                  >Fukuoka Special Award Winner</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2016/02/11/simulated-target/"
-                  >COSMOS Simulated Target</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2015/10/28/cosmos-at-ats-conference/"
-                  >COSMOS at the ATS Conference</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2015/04/06/cosmos-c-extension/"
-                  >COSMOS BinaryAccessor#write C Extension</a
-                >
-              </li>
-
-              <li class="">
-                <a href="/news/2015/02/27/cosmos-at-gsaw-conference/"
-                  >COSMOS at the GSAW Conference</a
-                >
-              </li>
-            </ul>
-          </aside>
-        </div>
-
-        <div class="clear"></div>
       </div>
-    </section>
 
-    <script>
-      (function () {
-        var cx = "001663949569052626382:-enhin1layy";
-        var gcse = document.createElement("script");
-        gcse.type = "text/javascript";
-        gcse.async = true;
-        gcse.src = "https://cse.google.com/cse.js?cx=" + cx;
-        var s = document.getElementsByTagName("script")[0];
-        s.parentNode.insertBefore(gcse, s);
-      })();
-    </script>
-    <footer role="contentinfo">
-      <div class="grid wider">
-        <div class="unit one-third center-on-mobiles">
-          <p>
-            The contents of this website are &copy;&nbsp;2021
-            <a href="http://www.ballaerospace.com/" target="_blank"
-              >Ball Aerospace</a
-            >
-            under the terms of the
-            <a
-              href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt"
-              target="_blank"
-              >GPLv3&nbsp;License</a
-            >.
-          </p>
-          <p>
-            Site design derived from the
-            <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project
-            documentation which is licensed under the terms of the
-            <a
-              href="https://github.com/jekyll/jekyll/blob/master/LICENSE"
-              target="_blank"
-              >MIT License</a
-            >.
-          </p>
-        </div>
-        <div class="unit two-thirds align-right center-on-mobiles">
-          <p>
-            <gcse:search></gcse:search>
-            Proudly hosted by
-            <a href="https://github.com" target="_blank">
-              <img
-                src="/img/footer-logo.png"
-                width="100"
-                height="30"
-                alt="GitHub Social coding"
-              />
-            </a>
-          </p>
-        </div>
-      </div>
-    </footer>
+      <div class="unit one-fifth hide-on-mobiles">
+  <aside>
+    <ul>
+      <li class="">
+        <a href="/news/">All News</a>
+      </li>
+      <li class="">
+        <a href="/news/releases/">COSMOS Releases</a>
+      </li>
+    </ul>
+    <h4>Recent Releases</h4>
+    <ul>
+      
+      <li class="">
+        <a href="/news/2021/04/12/cosmos-5-0-0-beta-2-released/">Version 5.0.0.beta2</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2021/01/09/cosmos-5-0-0-beta-1-released/">Version 5.0.0-beta.1</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2020/11/05/cosmos-4-5-0-released/">Version 4.5.0</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2020/08/31/cosmos-5-0-0-alpha-1-released/">Version 5.0.0-alpha.1</a>
+      </li>
+      
+      <li class="">
+        <a href="/news/2020/03/09/cosmos-4-4-2-released/">Version 4.4.2</a>
+      </li>
+      
+    </ul>
+    <h4>Other News</h4>
+    <ul>
+             
+      <li class="">
+        <a href="/news/2020/09/23/packet-time/">Packet Time</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2020/03/24/identifies-packets/">Identifying Packets</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2020/03/17/protocol-rate/">Protocol Rate</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2019/10/21/cosmos-amos/">AMOS 2019</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2019/06/05/protocols/">Protocols</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/12/24/little-endian/">Little Endian Packet Data</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/10/05/system-target-txt/">Using system.txt and target.txt</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/09/14/cosmos-dockercon/">COSMOS at DockerCon 2018</a>
+      </li>
+                
+      <li class="">
+        <a href="/news/2018/03/14/derived-items/">Derived Items</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/02/12/limits/">Limits</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2018/01/18/metadata/">Metadata</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/11/28/cosmos-4-1-0-release-notes/">COSMOS 4.1.0 Release Notes</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/11/13/require_vs_load/">Require vs Load</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/10/30/config-editor/">Config Editor</a>
+      </li>
+            
+      <li class="current">
+        <a href="/news/2017/08/23/cloud-deploy/">Deploying COSMOS to the Cloud</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2017/07/05/arduino-battle-bots/">Arduinos & Battle Bots</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/06/19/template_protocol/">Template Protocol</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/05/08/packet_processors/">Packet Processors</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2017/04/24/wired/">WIRED Article</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2017/02/22/routers/">Routers</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2016/10/13/cosmos-cubesat-ops/">SmallSat Ops</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/09/12/erb-config/">ERB Config Files</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/08/22/custom-widgets/">Custom Widgets</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/08/04/custom-cosmos_interface/">Custom COSMOS Interface</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/07/06/cosmos-cmd-tlm-names/">COSMOS Cmd/Tlm Naming</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2016/03/03/sparkfun/">Sparkfun Blog Post</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/02/27/xtce-support/">XTCE Support</a>
+      </li>
+        
+      <li class="">
+        <a href="/news/2016/02/27/fukuoka-award/">Fukuoka Special Award Winner</a>
+      </li>
+          
+      <li class="">
+        <a href="/news/2016/02/11/simulated-target/">COSMOS Simulated Target</a>
+      </li>
+              
+      <li class="">
+        <a href="/news/2015/10/28/cosmos-at-ats-conference/">COSMOS at the ATS Conference</a>
+      </li>
+                            
+      <li class="">
+        <a href="/news/2015/04/06/cosmos-c-extension/">COSMOS BinaryAccessor#write C Extension</a>
+      </li>
+            
+      <li class="">
+        <a href="/news/2015/02/27/cosmos-at-gsaw-conference/">COSMOS at the GSAW Conference</a>
+      </li>
+                 
+    </ul>
+  </aside>
+</div>
 
-    <script>
-      var anchorForId = function (id) {
-        var anchor = document.createElement("a");
-        anchor.className = "header-link";
-        anchor.href = "#" + id;
-        anchor.innerHTML =
-          '<span class="sr-only">Permalink</span><i class="fa fa-link"></i>';
-        anchor.title = "Permalink";
-        return anchor;
-      };
 
-      var linkifyAnchors = function (level, containingElement) {
-        var headers = containingElement.getElementsByTagName("h" + level);
-        for (var h = 0; h < headers.length; h++) {
-          var header = headers[h];
+      <div class="clear"></div>
 
-          if (typeof header.id !== "undefined" && header.id !== "") {
-            header.appendChild(anchorForId(header.id));
-          }
-        }
-      };
+    </div>
+  </section>
 
-      document.onreadystatechange = function () {
-        if (this.readyState === "complete") {
-          var contentBlock =
-            document.getElementsByClassName("docs")[0] ||
-            document.getElementsByClassName("news")[0];
-          if (!contentBlock) {
-            return;
-          }
-          for (var level = 1; level <= 6; level++) {
-            linkifyAnchors(level, contentBlock);
-          }
-        }
-      };
-    </script>
 
-    <!-- Google Analytics (http://google.com/analytics) -->
-    <script>
-      !(function (j, e, k, y, l, L) {
-        (j.GoogleAnalyticsObject = y),
-          j[y] ||
-            (j[y] = function () {
-              (j[y].q = j[y].q || []).push(arguments);
-            }),
-          (j[y].l = +new Date()),
-          (l = e.createElement(k)),
-          (L = e.getElementsByTagName(k)[0]),
-          (l.src = "//www.google-analytics.com/analytics.js"),
-          L.parentNode.insertBefore(l, L);
-      })(window, document, "script", "ga");
+  <script>
+  (function() {
+    var cx = '001663949569052626382:-enhin1layy';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<footer role="contentinfo">
+  <div class="grid wider">
+    <div class="unit one-third center-on-mobiles">
+      <p>The contents of this website are &copy;&nbsp;2021 <a href="http://www.ballaerospace.com/" target="_blank">Ball Aerospace</a> under the terms of the <a href="https://github.com/BallAerospace/COSMOS/blob/master/LICENSE.txt" target="_blank">GPLv3&nbsp;License</a>.</p>
+      <p>Site design derived from the <a href="http://jekyllrb.com/" target="_blank">Jekyll</a> project documentation which is licensed under the terms of the <a href="https://github.com/jekyll/jekyll/blob/master/LICENSE" target="_blank">MIT License</a>.</p>
+    </div>
+    <div class="unit two-thirds align-right center-on-mobiles">
+      <p>
+        <gcse:search></gcse:search>
+        Proudly hosted by
+        <a href="https://github.com" target="_blank">
+          <img src="/img/footer-logo.png" width="100" height="30" alt="GitHub Social coding">
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
 
-      ga("create", "UA-60103689-1", "cosmosc2.com");
-      ga("send", "pageview");
-    </script>
-  </body>
+  <script>
+  var anchorForId = function (id) {
+    var anchor = document.createElement("a");
+    anchor.className = "header-link";
+    anchor.href      = "#" + id;
+    anchor.innerHTML = "<span class=\"sr-only\">Permalink</span><i class=\"fa fa-link\"></i>";
+    anchor.title = "Permalink";
+    return anchor;
+  };
+
+  var linkifyAnchors = function (level, containingElement) {
+    var headers = containingElement.getElementsByTagName("h" + level);
+    for (var h = 0; h < headers.length; h++) {
+      var header = headers[h];
+
+      if (typeof header.id !== "undefined" && header.id !== "") {
+        header.appendChild(anchorForId(header.id));
+      }
+    }
+  };
+
+  document.onreadystatechange = function () {
+    if (this.readyState === "complete") {
+      var contentBlock = document.getElementsByClassName("docs")[0] || document.getElementsByClassName("news")[0];
+      if (!contentBlock) {
+        return;
+      }
+      for (var level = 1; level <= 6; level++) {
+        linkifyAnchors(level, contentBlock);
+      }
+    }
+  };
+</script>
+
+  
+<!-- Google Analytics (http://google.com/analytics) -->
+<script>
+  !(function (j, e, k, y, l, L) {
+    (j.GoogleAnalyticsObject = y),
+      j[y] ||
+        (j[y] = function () {
+          (j[y].q = j[y].q || []).push(arguments);
+        }),
+      (j[y].l = +new Date()),
+      (l = e.createElement(k)),
+      (L = e.getElementsByTagName(k)[0]),
+      (l.src = "//www.google-analytics.com/analytics.js"),
+      L.parentNode.insertBefore(l, L);
+  })(window, document, "script", "ga");
+
+  ga("create", "UA-60103689-1", "cosmosc2.com");
+  ga("send", "pageview");
+</script>
+
+
+
+</body>
 </html>
