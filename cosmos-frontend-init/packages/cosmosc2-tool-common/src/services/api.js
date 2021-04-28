@@ -21,7 +21,7 @@ import axios from 'axios'
 
 const request = async function (method, url, data = {}, params = {}) {
   try {
-    await CosmosAuth.updateToken(30)
+    await CosmosAuth.updateToken(CosmosAuth.defaultMinValidity)
   } catch (error) {
     CosmosAuth.login()
   }

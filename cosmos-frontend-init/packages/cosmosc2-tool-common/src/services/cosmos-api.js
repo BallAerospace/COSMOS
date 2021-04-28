@@ -28,7 +28,7 @@ export class CosmosApi {
   // This is hacky Json-rpc for now.  Should probably use a jsonrpc library.
   async exec(method, params, kwparams = {}) {
     try {
-      await CosmosAuth.updateToken(30)
+      await CosmosAuth.updateToken(CosmosAuth.defaultMinValidity)
     } catch (error) {
       CosmosAuth.login()
     }
