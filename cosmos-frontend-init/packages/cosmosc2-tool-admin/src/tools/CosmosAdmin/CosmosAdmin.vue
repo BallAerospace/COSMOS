@@ -19,13 +19,13 @@
 
 <template>
   <div>
-    <TopBar :title="title" />
+    <top-bar :title="title" />
 
     <v-card>
       <v-tabs v-model="curTab" fixed-tabs>
-        <v-tab v-for="(tab, index) in tabs" :key="index" :to="tab.url">{{
-          tab.name
-        }}</v-tab>
+        <v-tab v-for="(tab, index) in tabs" :key="index" :to="tab.path">
+          {{ tab.displayName }}
+        </v-tab>
       </v-tabs>
       <router-view />
     </v-card>
@@ -34,6 +34,8 @@
 
 <script>
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
+import { TabsList } from './tabs'
+
 export default {
   components: {
     TopBar,
@@ -42,25 +44,7 @@ export default {
     return {
       title: 'COSMOS Administrator Console',
       curTab: null,
-      tabs: [
-        { name: 'Plugins', component: 'PluginsTab', url: '/plugins' },
-        { name: 'Targets', component: 'TargetsTab', url: '/targets' },
-        {
-          name: 'Interfaces',
-          component: 'InterfacesTab',
-          url: '/interfaces',
-        },
-        { name: 'Routers', component: 'RoutersTab', url: '/routers' },
-        {
-          name: 'Microservices',
-          component: 'MicroservicesTab',
-          url: '/microservices',
-        },
-        { name: 'Tools', component: 'ToolsTab', url: '/tools' },
-        { name: 'Gems', component: 'GemsTab', url: '/gems' },
-        { name: 'Scopes', component: 'ScopesTab', url: '/scopes' },
-        { name: 'Settings', component: 'SettingsTab', url: '/settings' },
-      ],
+      tabs: TabsList,
     }
   },
   methods: {},

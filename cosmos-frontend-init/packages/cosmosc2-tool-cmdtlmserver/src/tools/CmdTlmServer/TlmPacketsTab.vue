@@ -59,7 +59,7 @@
         >
       </template>
     </v-data-table>
-    <RawDialog
+    <raw-dialog
       type="Telemetry"
       :targetName="target_name"
       :packetName="packet_name"
