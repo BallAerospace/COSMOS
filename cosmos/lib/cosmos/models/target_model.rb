@@ -370,7 +370,7 @@ module Cosmos
       Store.initialize_streams(packet_topic_list)
       Store.initialize_streams(decom_topic_list)
 
-      # Decom Microservice
+      # Decommutation Microservice
       microservice_name = "#{@scope}__DECOM__#{@name}"
       microservice = MicroserviceModel.new(
         name: microservice_name,
@@ -385,11 +385,26 @@ module Cosmos
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"
 
+      # Current Value Table Microservice
       microservice_name = "#{@scope}__CVT__#{@name}"
       microservice = MicroserviceModel.new(
         name: microservice_name,
         folder_name: @folder_name,
         cmd: ["ruby", "cvt_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        topics: decom_topic_list,
+        plugin: plugin,
+        scope: @scope)
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
+
+      # Reducer Microservice
+      microservice_name = "#{@scope}__REDUCER__#{@name}"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        folder_name: @folder_name,
+        cmd: ["ruby", "reducer_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
         topics: decom_topic_list,
         plugin: plugin,
