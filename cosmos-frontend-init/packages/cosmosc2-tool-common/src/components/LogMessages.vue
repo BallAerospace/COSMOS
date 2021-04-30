@@ -58,9 +58,9 @@
 </template>
 
 <script>
-import * as ActionCable from 'actioncable'
 import { parseISO, format } from 'date-fns'
 import AstroBadge from './icons/AstroBadge'
+import Cable from '../services/cable.js'
 
 export default {
   components: {
@@ -82,34 +82,37 @@ export default {
         { text: 'Source', value: 'microservice_name' },
         { text: 'Message', value: 'log' },
       ],
-      cable: ActionCable.Cable,
-      subscription: ActionCable.Channel,
+      cable: new Cable(),
+      subscription: null,
     }
   },
   created() {
-    this.cable = ActionCable.createConsumer('/cosmos-api/cable')
-    this.subscription = this.cable.subscriptions.create(
-      {
-        channel: 'MessagesChannel',
-        history_count: this.history_count,
-        scope: 'DEFAULT',
-      },
-      {
-        received: (data) => {
-          let messages = JSON.parse(data)
-          if (messages.length > this.history_count) {
-            messages.splice(0, messages.length - this.history_count)
-          }
-          messages.forEach((message) => {
-            message.timestamp = this.formatDate(message['@timestamp'])
-          })
-          this.data = messages.reverse().concat(this.data)
-          if (this.data.length > this.history_count) {
-            this.data.length = this.history_count
-          }
+    this.cable
+      .createSubscription(
+        'MessagesChannel',
+        'DEFAULT',
+        {
+          received: (data) => {
+            let messages = JSON.parse(data)
+            if (messages.length > this.history_count) {
+              messages.splice(0, messages.length - this.history_count)
+            }
+            messages.forEach((message) => {
+              message.timestamp = this.formatDate(message['@timestamp'])
+            })
+            this.data = messages.reverse().concat(this.data)
+            if (this.data.length > this.history_count) {
+              this.data.length = this.history_count
+            }
+          },
         },
-      }
-    )
+        {
+          history_count: this.history_count,
+        }
+      )
+      .then((subscription) => {
+        this.subscription = subscription
+      })
   },
   destroyed() {
     if (this.subscription) {

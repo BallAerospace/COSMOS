@@ -2,7 +2,6 @@
 
 REM Tag and push all the images to the local repository
 docker tag cosmos-base localhost:5000/cosmos-base:latest || exit /b
-docker tag cosmos-gems localhost:5000/cosmos-gems:latest || exit /b
 docker tag cosmos-cmd-tlm-api localhost:5000/cosmos-cmd-tlm-api:latest || exit /b
 docker tag cosmos-script-runner-api localhost:5000/cosmos-script-runner-api:latest || exit /b
 docker tag cosmos-frontend-init localhost:5000/cosmos-frontend-init:latest || exit /b
@@ -10,7 +9,6 @@ docker tag cosmos-operator localhost:5000/cosmos-operator:latest || exit /b
 docker tag cosmos-init localhost:5000/cosmos-init:latest || exit /b
 
 docker push localhost:5000/cosmos-base:latest || exit /b
-docker push localhost:5000/cosmos-gems:latest || exit /b
 docker push localhost:5000/cosmos-cmd-tlm-api:latest || exit /b
 docker push localhost:5000/cosmos-script-runner-api:latest || exit /b
 docker push localhost:5000/cosmos-frontend-init:latest || exit /b
