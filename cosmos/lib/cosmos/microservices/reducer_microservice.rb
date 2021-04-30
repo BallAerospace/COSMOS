@@ -154,7 +154,8 @@ module Cosmos
       end
     end
 
-    def process_messages(messages, key)
+    def process_messages(messages, topic_key)
+      num_samples = 0
       data = {} # Raw data
       messages.each do |id, msg_hash|
         values = JSON.parse(msg_hash['json_data'])
@@ -169,50 +170,66 @@ module Cosmos
         values.each do |key, value|
           data[key] ||= []
           data[key] << value
-          # reduced["#{key}__MIN"] = value if reduced["#{key}__MIN"].nil? || value < reduced["#{key}__MIN"]
-          # reduced["#{key}__MAX"] = value if reduced["#{key}__MAX"].nil? || value > reduced["#{key}__MAX"]
-          # reduced["#{key}__AVG"] ||= 0
-          # reduced["#{key}__AVG"] += value
-          # reduced["#{key}__STDDEV"] ||= []
-          # reduced["#{key}__STDDEV"] << value
+        end
+        if msg_hash["num_samples"]
+          num_samples = msg_hash["num_samples"].to_i
+        else
+          num_samples = values.length
         end
       end
-      # reduced.keys.select {|k| k.include?('__AVG') }.each do |key|
-      #   reduced[key] = reduced[key].to_f / total_samples
-      # end
-      # reduced.keys.select {|k| k.include?('__STDDEV') }.each do |key|
-      #   # stddev_population returns average and stddev so throw away average
-      #   _, reduced[key] = Math.stddev_population(reduced[key])
-      # end
-
-      # Aggregated Stddev
-      # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
-      # reduced.keys.select {|k| k.include?('__STDDEV') }.each do |key|
-      #   puts "key:#{key} val:#{reduced[key]} total:#{total_samples} avg:#{reduced["#{key[0...-8]}__AVG"]}"
-      #   # Note: For very large numbers with very small deviations this sqrt can fail. If so then just set the stddev to 0.
-      #   begin
-      #     reduced[key] = sqrt((reduced[key] / total_samples) - (reduced["#{key[0...-8]}__AVG"] * reduced["#{key[0...-8]}__AVG"]))
-      #   rescue Exception => e
-      #     puts e
-      #     reduced[key] = 0.0
-      #   end
-      # end
 
       reduced = {}
-      data.each do |key, value|
-        reduced["#{key}__MIN"] = value.min
-        reduced["#{key}__MAX"] = value.max
-        reduced["#{key}__AVG"], reduced["#{key}__STDDEV"] = Math.stddev_population(value)
+      total_samples = 0
+      data.each do |key, values|
+        if topic_key == MINUTE_KEY
+          total_samples = values.length
+          reduced["#{key}__MIN"] = values.min
+          reduced["#{key}__MAX"] = values.max
+          reduced["#{key}__AVG"], reduced["#{key}__STDDEV"] = Math.stddev_population(values)
+        else
+          total_samples = num_samples * values.length
+          reduced[key] = values.min if key.include?("__MIN")
+          reduced[key] = values.max if key.include?("__MAX")
+          # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
+          if key.include?("__AVG")
+            reduced[key] = values.sum { |v| v * num_samples} / total_samples.to_f
+          end
+        end
       end
+      # Do the STDDEV calc last so we can use the previously calculated AVG
+      if topic_key != MINUTE_KEY
+        data.keys.select {|k| k.include?("__STDDEV") }.each do |key|
+          values = data[key]
+          # puts "key:#{key} vals:#{values} total:#{total_samples}" if key.include?('COLLECTS')
+          # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
+          avg_key = "#{key[0...-8]}__AVG"
+          avg_vals = data[avg_key]
+          # puts "avg key:#{avg_key} vals:#{avg_vals} reduced:#{reduced[avg_key]}" if key.include?('COLLECTS')
+          s2 = 0
+          values.each_with_index do |val, i|
+            # puts "i:#{i} std:#{val} avg:#{avg_vals[i]}" if key.include?('COLLECTS')
+            s2 += (num_samples * (avg_vals[i]**2 + val**2))
+          end
+          # puts "s2:#{s2} samples:#{num_samples} total:#{num_samples * values.length}" if key.include?('COLLECTS')
+          # Note: For very large numbers with very small deviations this sqrt can fail.  If so then just set the stddev to 0.
+          begin
+            reduced[key] = Math.sqrt(s2 / total_samples - reduced[avg_key]**2)
+          rescue Exception
+            reduced[key] = 0.0
+          end
+        end
+      end
+
       target_name = messages[0][1]["target_name"]
       packet_name = messages[0][1]["packet_name"]
       msg_hash = { time: idi(messages[0][0]) * 1000, # Convert milliseconds to nanoseconds
         target_name: target_name,
         packet_name: packet_name,
+        num_samples: total_samples,
         json_data: JSON.generate(reduced.as_json)
       }
       id = @test ? "#{idi(messages[-1][0])}-0" : nil
-      Store.write_topic("#{scope}__#{key}__{#{target_name}}__#{packet_name}", msg_hash, id)
+      Store.write_topic("#{scope}__#{topic_key}__{#{target_name}}__#{packet_name}", msg_hash, id)
     end
 
     private

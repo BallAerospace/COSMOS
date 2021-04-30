@@ -131,9 +131,10 @@ module Cosmos
         start_time = Time.now.sys
         packet = System.telemetry.packet("INST", "HEALTH_STATUS")
         offset = 0
-        370.times do
+        370.times do |i|
           packet.received_time = start_time + offset
-          TelemetryDecomTopic.write_packet(packet, id: "#{packet.received_time.to_i}000-0", scope: "DEFAULT")
+          packet.write("COLLECTS", i)
+          TelemetryDecomTopic.write_packet(packet, id: "#{(packet.received_time.to_f * 1000).to_i}-0", scope: "DEFAULT")
           offset += 10 # seconds
         end
 
@@ -144,11 +145,17 @@ module Cosmos
         expect(Store.xlen("DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS")).to eql 1
         result = Store.read_topics(["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"], ['0-0'])
         expect(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"].length).to eql 1
+        data = JSON.parse(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"][0][1]['json_data'])
+        pp data
+        expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f
+        expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + 3660 # 1 hr
 
         # Throw in another hour of data
-        360.times do
+        370.times do |i|
           packet.received_time = start_time + offset
-          TelemetryDecomTopic.write_packet(packet, id: "#{packet.received_time.to_i}000-0", scope: "DEFAULT")
+          packet.write("COLLECTS", i)
+          packet.write("GROUND1STATUS", 1)
+          TelemetryDecomTopic.write_packet(packet, id: "#{(packet.received_time.to_f * 1000).to_i}-0", scope: "DEFAULT")
           offset += 10 # seconds
         end
 
@@ -159,6 +166,7 @@ module Cosmos
         expect(Store.xlen("DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS")).to eql 2
         result = Store.read_topics(["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"], ['0-0'])
         expect(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"].length).to eql 2
+        pp result
       end
     end
 
