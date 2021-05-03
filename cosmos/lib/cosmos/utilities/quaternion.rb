@@ -22,10 +22,8 @@ require 'cosmos/core_ext/matrix'
 include Math
 
 module Cosmos
-
   # A quaternion where q[3] is the scalar component
   class Quaternion
-
     # Create a Quaternion given the initial components
     #
     # @param array [Array<Float, Float, Float, Float>] Initial values where
@@ -68,13 +66,7 @@ module Cosmos
 
     # @return [Array<Float, Float, Float, Float>] The entire quaternion where the
     # the last element is the scalar
-    def data
-      return @data
-    end
-
-    # @param array [Array<Float, Float, Float, Float>] The entire quaternion
-    # where the the last element is the scalar
-    attr_writer :data
+    attr_accessor :data
 
     # @return [Float] The first element
     def q0
