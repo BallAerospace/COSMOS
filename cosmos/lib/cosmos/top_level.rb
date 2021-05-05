@@ -610,23 +610,23 @@ module Cosmos
   # end
 
   # @param filename [String] Name of the file to open in the web browser
-  # def self.open_in_web_browser(filename)
-  #   if filename
-  #     if Kernel.is_windows?
-  #       self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/','\\')}\"\"")
-  #     elsif Kernel.is_mac?
-  #       self.run_process("open -a Safari \"#{filename}\"")
-  #     else
-  #       which_firefox = `which firefox`.chomp
-  #       if which_firefox =~ /Command not found/i or which_firefox =~ /no .* in/i
-  #         raise "Firefox not found"
-  #       else
-  #         system_call = "#{which_firefox} \"#{filename}\""
-  #       end
-  #       self.run_process(system_call)
-  #     end
-  #   end
-  # end
+  def self.open_in_web_browser(filename)
+    if filename
+      if Kernel.is_windows?
+        self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/','\\')}\"\"")
+      elsif Kernel.is_mac?
+        self.run_process("open -a Safari \"#{filename}\"")
+      else
+        which_firefox = `which firefox`.chomp
+        if which_firefox =~ /Command not found/i or which_firefox =~ /no .* in/i
+          raise "Firefox not found"
+        else
+          system_call = "#{which_firefox} \"#{filename}\""
+        end
+        self.run_process(system_call)
+      end
+    end
+  end
 
   # Temporarily set the working directory during a block
   def self.set_working_dir(working_dir = Cosmos::PATH)

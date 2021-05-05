@@ -126,7 +126,7 @@ end
 
 # Set the logger to output everthing and capture it all in a StringIO object
 # which is yielded back to the block. Then restore everything.
-def capture_io
+def capture_io(output = false)
   # Set the logger level to DEBUG so we see all output
   Cosmos::Logger.instance.level = Logger::DEBUG
   # Create a StringIO object to capture the output
@@ -151,6 +151,7 @@ def capture_io
   end
   # Restore the $stdout global to be STDOUT
   $stdout = STDOUT
+  puts stdout.string if output # Print the capture for debugging
 end
 
 # Get a list of running threads, ignoring jruby system threads if necessary.

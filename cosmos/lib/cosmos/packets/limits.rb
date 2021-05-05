@@ -27,7 +27,8 @@ module Cosmos
   # setting and checking individual limit items as well as manipulating limits
   # groups.
   class Limits
-    attr_reader :config
+    # @param config [PacketConfig] The packet configuration which controls all other outputs
+    attr_accessor :config
 
     LATEST_PACKET_NAME = 'LATEST'.freeze
 
@@ -46,10 +47,6 @@ module Cosmos
     def sets
       return @config.limits_sets
     end
-
-    # @param config [PacketConfig] Set the packet configuration to a new
-    #   configuration. This will change everything this class returns!
-    attr_writer :config
 
     # (see Cosmos::Packet#out_of_limits)
     def out_of_limits
