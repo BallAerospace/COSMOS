@@ -51,7 +51,7 @@ module Cosmos
 
     after(:each) do
       @reducer.shutdown
-      sleep 0.01
+      sleep 0.1
     end
 
     describe "initialize_streams" do
@@ -133,7 +133,7 @@ module Cosmos
         offset = 0
         370.times do |i|
           packet.received_time = start_time + offset
-          packet.write("COLLECTS", i)
+          packet.write("COLLECTS", rand(10))
           TelemetryDecomTopic.write_packet(packet, id: "#{(packet.received_time.to_f * 1000).to_i}-0", scope: "DEFAULT")
           offset += 10 # seconds
         end
@@ -146,14 +146,16 @@ module Cosmos
         result = Store.read_topics(["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"], ['0-0'])
         expect(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"].length).to eql 1
         data = JSON.parse(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"][0][1]['json_data'])
-        pp data
         expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f
         expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + 3660 # 1 hr
+        expect(data['COLLECTS__MIN']).to eql 0
+        expect(data['COLLECTS__MAX']).to eql 9
+        expect(data['COLLECTS__STDDEV']).to be_within(0.3).of(2.8)
 
         # Throw in another hour of data
-        370.times do |i|
+        360.times do |i|
           packet.received_time = start_time + offset
-          packet.write("COLLECTS", i)
+          packet.write("COLLECTS", rand(10))
           packet.write("GROUND1STATUS", 1)
           TelemetryDecomTopic.write_packet(packet, id: "#{(packet.received_time.to_f * 1000).to_i}-0", scope: "DEFAULT")
           offset += 10 # seconds
@@ -166,7 +168,12 @@ module Cosmos
         expect(Store.xlen("DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS")).to eql 2
         result = Store.read_topics(["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"], ['0-0'])
         expect(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"].length).to eql 2
-        pp result
+        data = JSON.parse(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"][1][1]['json_data'])
+        expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f + 3670 # First hour includes extra minute
+        expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + (3660 + 3600) # 2 hr
+        expect(data['COLLECTS__MIN']).to eql 0
+        expect(data['COLLECTS__MAX']).to eql 9
+        expect(data['COLLECTS__STDDEV']).to be_within(0.3).of(2.8)
       end
     end
 

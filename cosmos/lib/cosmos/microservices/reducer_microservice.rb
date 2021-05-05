@@ -188,8 +188,12 @@ module Cosmos
           reduced["#{key}__AVG"], reduced["#{key}__STDDEV"] = Math.stddev_population(values)
         else
           total_samples = num_samples * values.length
-          reduced[key] = values.min if key.include?("__MIN")
-          reduced[key] = values.max if key.include?("__MAX")
+          if key.include?("__MIN")
+            reduced[key] = values.min
+          end
+          if key.include?("__MAX")
+            reduced[key] = values.max
+          end
           # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
           if key.include?("__AVG")
             reduced[key] = values.sum { |v| v * num_samples} / total_samples.to_f

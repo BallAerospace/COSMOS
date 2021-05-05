@@ -109,7 +109,7 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'flay', '~> 2.0'
   # s.add_development_dependency 'reek', '~> 6.0' # Dependency conflict
   s.add_development_dependency 'listen', '~> 3.0'
-  s.add_development_dependency 'mock_redis', '~> 0.27.3'
+  s.add_development_dependency 'mock_redis', '~> 0.28'
   # s.add_development_dependency 'guard', '~> 2.0'
   # s.add_development_dependency 'guard-bundler', '~> 2.0'
   # s.add_development_dependency 'guard-rspec', '~> 4.0'
