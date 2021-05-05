@@ -73,8 +73,7 @@ module Cosmos
       allow(interface).to receive(:connected?).and_return(true)
       allow(System).to receive(:targets).and_return({"TEST" => interface})
       allow(System).to receive_message_chain("telemetry.packets") { [["PKT", Packet.new("TEST", "PKT")]] }
-      # TODO: Adding target_names: ["TEST"] as a parameter duplicates the target_names in the interface
-      model = RouterModel.new(name: "TEST_INT", scope: "DEFAULT", config_params: ["TestInterface"])
+      model = RouterModel.new(name: "TEST_INT", scope: "DEFAULT", target_names: ["TEST"], config_params: ["TestInterface"])
       model.create
       model = MicroserviceModel.new(folder_name: "TEST", name: "DEFAULT__ROUTER__TEST_INT", scope: "DEFAULT", target_names: ["TEST"])
       model.create

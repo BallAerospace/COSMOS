@@ -73,8 +73,7 @@ module Cosmos
       allow(interface).to receive(:connected?).and_return(true)
       allow(System).to receive(:targets).and_return({"TEST" => interface})
 
-      # TODO: Adding target_names: ["TEST"] as a parameter duplicates the target_names in the interface
-      model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", config_params: ["TestInterface"])
+      model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT", target_names: ["TEST"], config_params: ["TestInterface"])
       model.create
       model = MicroserviceModel.new(folder_name: "TEST", name: "DEFAULT__INTERFACE__TEST_INT", scope: "DEFAULT", target_names: ["TEST"])
       model.create
@@ -169,7 +168,7 @@ module Cosmos
           stdout.truncate(0) # Erase the previous connection strings so we can verify the reconnect
 
           $read_interface_raise = false
-          sleep 0.3 # Allow to reconnect
+          sleep 1 # Allow to reconnect
           expect(stdout.string).to include("Connecting ...")
           expect(stdout.string).to include("Connection Success")
           all = InterfaceStatusModel.all(scope: "DEFAULT")

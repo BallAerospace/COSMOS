@@ -231,10 +231,8 @@ module Cosmos
         @interface = RouterModel.get_model(name: interface_name, scope: @scope).build
       end
       @interface.name = interface_name
-      @config["target_names"].each do |target_name|
-        # TODO: Is this duplicating the target_names array?
-        #   InterfaceModel already holds target_names internally ...
-        @interface.target_names << target_name
+      # Map the interface to the interface's targets
+      @interface.target_names do |target_name|
         target = System.targets[target_name]
         target.interface = @interface
       end
