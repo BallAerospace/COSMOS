@@ -17,10 +17,26 @@
 # copyright holder
 */
 
-class Auth {
-  constructor() {}
-  updateToken(value) {}
-  login() {}
-  logout() {}
+import * as ActionCable from 'actioncable'
+
+export default class Cable {
+  constructor(url = '/cosmos-api/cable') {
+    this._cable = ActionCable.createConsumer(url)
+  }
+  disconnect() {
+    this._cable.disconnect()
+  }
+  createSubscription(channel, scope, callbacks = {}, additionalOptions = {}) {
+    return CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
+      return this._cable.subscriptions.create(
+        {
+          channel,
+          scope,
+          token: localStorage.token,
+          ...additionalOptions,
+        },
+        callbacks
+      )
+    })
+  }
 }
-export const auth = new Auth()
