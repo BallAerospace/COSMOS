@@ -231,8 +231,8 @@ module Cosmos
         @interface = RouterModel.get_model(name: interface_name, scope: @scope).build
       end
       @interface.name = interface_name
-      @config["target_names"].each do |target_name|
-        @interface.target_names << target_name
+      # Map the interface to the interface's targets
+      @interface.target_names do |target_name|
         target = System.targets[target_name]
         target.interface = @interface
       end
@@ -320,6 +320,8 @@ module Cosmos
       rescue Exception => error
         Logger.error "#{@interface.name}: Packet reading thread died: #{error.formatted}"
         Cosmos.handle_fatal_exception(error)
+        # Try to do clean disconnect because we're going down
+        disconnect(false)
       end
       if @interface_or_router == 'INTERFACE'
         InterfaceStatusModel.set(@interface.as_json, scope: @scope)
@@ -455,13 +457,25 @@ module Cosmos
     end
 
     def disconnect(allow_reconnect = true)
-      @interface.disconnect
+      return if @interface.state == 'DISCONNECTED' && !@interface.connected?
+
+      # Synchronize the calls to @interface.disconnect since it takes an unknown
+      # amount of time. If two calls to disconnect stack up, the if statement
+      # should avoid multiple calls to disconnect.
+      @mutex.synchronize do
+        begin
+          @interface.disconnect if @interface.connected?
+        rescue => e
+          Logger.error "Disconnect: #{@interface.name}: #{e.formatted}"
+        end
+      end
 
       # If the interface is set to auto_reconnect then delay so the thread
       # can come back around and allow the interface a chance to reconnect.
       if allow_reconnect and @interface.auto_reconnect and @interface.state != 'DISCONNECTED'
         attempting()
         if !@cancel_thread
+          STDOUT.puts "reconnect delay:#{@interface.reconnect_delay}"
           @interface_thread_sleeper.sleep(@interface.reconnect_delay)
         end
       else
