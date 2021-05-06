@@ -48,17 +48,11 @@ class ToolsController < ModelController
     tools.each do |key, tool|
       inline_tools[key] = tool if tool['inline_url'] and tool['shown']
     end
-    result << "{\n"
-    result << "  \"imports\": {\n"
-    index = 1
+    result = Hash.new
+    result["imports"] = Hash.new
     inline_tools.each do |key, tool|
-      result << "    \"@cosmosc2/tool-#{tool['folder_name']}\": \"/tools/#{tool['folder_name']}/#{tool['inline_url']}\""
-      result << "," unless index == inline_tools.length
-      result << "\n"
-      index += 1
+      result["imports"]["@cosmosc2/tool-#{tool['folder_name']}"] = "/tools/#{tool['folder_name']}/#{tool['inline_url']}"
     end
-    result << "  }\n"
-    result << "}\n"
     render :json => result
   end
 end

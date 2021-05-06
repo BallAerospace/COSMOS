@@ -28,17 +28,19 @@ module Cosmos
   # Creates new OperatorProcess objects based on querying the Redis key value store.
   # Any keys under 'cosmos_microservices' will be created into microservices.
   class MicroserviceOperator < Operator
+    BUCKET = "config"
+
     def initialize
-      Logger.microservice_name = 'MicroserviceOperator'
+      Logger.microservice_name = "MicroserviceOperator"
       super
 
       rubys3_client = Aws::S3::Client.new
 
       # Ensure config bucket exists
       begin
-        rubys3_client.head_bucket(bucket: 'config')
+        rubys3_client.head_bucket(bucket: BUCKET)
       rescue Aws::S3::Errors::NotFound
-        rubys3_client.create_bucket(bucket: 'config')
+        rubys3_client.create_bucket(bucket: BUCKET)
       end
 
       @microservices = {}
@@ -59,10 +61,10 @@ module Cosmos
       rubys3_client = Aws::S3::Client.new
       prefix = "#{scope}/microservices/#{microservice_name}/"
       file_count = 0
-      rubys3_client.list_objects(bucket: 'config', prefix: prefix).contents.each do |object|
+      rubys3_client.list_objects(bucket: BUCKET, prefix: prefix).contents.each do |object|
         response_target = File.join(temp_dir, object.key.split(prefix)[-1])
         FileUtils.mkdir_p(File.dirname(response_target))
-        rubys3_client.get_object(bucket: "config", key: object.key, response_target: response_target)
+        rubys3_client.get_object(bucket: BUCKET, key: object.key, response_target: response_target)
         file_count += 1
       end
 

@@ -17,17 +17,16 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos/utilities/store'
+class TimelineEventsChannel < ApplicationCable::Channel
+  def subscribed
+    stream_from uuid
+    @broadcasters ||= {}
+    @broadcasters[uuid] = TimelineEventsApi.new(uuid, self, params['history_count'], scope: params['scope'], token: params['token'])
+  end
 
-module Cosmos
-  class Topic
-
-    def self.initialize_streams(topics)
-      Store.initialize_streams(topics)
-    end
-
-    def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-      Store.read_topics(topics, offsets, timeout_ms, &block)
-    end
+  def unsubscribed
+    @broadcasters[uuid].kill
+    @broadcasters[uuid] = nil
+    @broadcasters.delete(uuid)
   end
 end

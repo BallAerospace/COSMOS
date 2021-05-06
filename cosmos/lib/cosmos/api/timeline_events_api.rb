@@ -17,17 +17,21 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos/utilities/store'
+require 'topics_thread'
+require 'cosmos/utilities/authorization'
+require 'cosmos/topics/timeline_topic'
 
-module Cosmos
-  class Topic
+class TimelineEventsApi
+  include Cosmos::Authorization
 
-    def self.initialize_streams(topics)
-      Store.initialize_streams(topics)
-    end
+  def initialize(uuid, channel, history_count = 0, scope:, token:)
+    authorize(permission: 'system', scope: scope, token: token)
+    topics = ["#{scope}#{TimelineTopic.PRIMARY_KEY}"]
+    @thread = TopicsThread.new(topics, channel, history_count)
+    @thread.start
+  end
 
-    def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-      Store.read_topics(topics, offsets, timeout_ms, &block)
-    end
+  def kill
+    @thread.stop
   end
 end
