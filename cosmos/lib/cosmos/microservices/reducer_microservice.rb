@@ -84,13 +84,23 @@ module Cosmos
       @offsets = {}
       @topics.each do |topic|
         # Get decom stream offsets
-        @offsets[topic] = Store.get_last_offset(topic)
+        id, msg = Store.get_oldest_message(topic)
+        if msg
+          @offsets[topic] = ns_ms(msg['time'])
+        else
+          @offsets[topic] = 0
+        end
 
         # Get reduced stream offsets
         scope, _, target_name, packet_name = topic.split('__')
         REDUCER_KEYS.each do |key|
           stream_name = "#{scope}__#{key}__#{target_name}__#{packet_name}"
-          @offsets[stream_name] = Store.get_last_offset(stream_name)
+          id, msg = Store.get_oldest_message(stream_name)
+          if msg
+            @offsets[stream_name] = ns_ms(msg['time'])
+          else
+            @offsets[stream_name] = 0
+          end
         end
       end
     end
@@ -131,26 +141,27 @@ module Cosmos
 
     def process_topic(topic, time_period, key)
       Logger.debug "Processing #{key} with topic #{topic}"
-      # Ensure it's not sitting at 0-0 which means there is no data in the stream
-      if @offsets[topic] == '0-0'
+      # Ensure it's not sitting at 0 which means there is no data in the stream
+      if @offsets[topic] == 0
         id, msg = Store.get_oldest_message(topic)
         if msg
-          Logger.debug("Oldest message ID:#{id}")
-          @offsets[topic] = id
+          Logger.debug("Oldest message ID:#{id} time:#{ns_ms(msg['time'])}")
+          @offsets[topic] = ns_ms(msg['time'])
         else
           return # Still no data in stream, return and wait
         end
       end
 
       newest_id, msg = Store.get_newest_message(topic)
-      return unless newest_id
-      Logger.debug "Newest message ID:#{newest_id}, offset:#{@offsets[topic]}"
-      # Keep processing while we have 60s of data
-      while (idi(newest_id) - idi(@offsets[topic])) >= time_period # milliseconds
-        messages = Store.xrange(topic, @offsets[topic], idi(@offsets[topic]) + time_period)
-        process_messages(messages, key)
+      newest_time = ns_ms(msg['time'])
+      Logger.debug "Newest message ID:#{newest_id}, time:#{newest_time} offset:#{@offsets[topic]}"
+      # Keep processing while we have data in the time_period
+      while ((newest_time - @offsets[topic]) >= time_period) # milliseconds
         # Prepend '(' to the last ID to make the xrange command exclusive (excludes the first value)
-        @offsets[topic] = "(#{messages[-1][0]}"
+        messages = Store.xrange(topic, "(#{@offsets[topic]}", @offsets[topic] + time_period)
+        process_messages(messages, key)
+        # Set the new offset to the last message time
+        @offsets[topic] = ns_ms(messages[-1][1]["time"])
       end
     end
 
@@ -226,7 +237,7 @@ module Cosmos
 
       target_name = messages[0][1]["target_name"]
       packet_name = messages[0][1]["packet_name"]
-      msg_hash = { time: idi(messages[0][0]) * 1000, # Convert milliseconds to nanoseconds
+      msg_hash = { time: idi(messages[-1][0]) * 1_000_000, # Convert milliseconds to nanoseconds
         target_name: target_name,
         packet_name: packet_name,
         num_samples: total_samples,
@@ -238,13 +249,16 @@ module Cosmos
 
     private
 
+    # Convert String of nanoseconds to Integer milliseconds
+    def ns_ms(nanoseconds)
+      nanoseconds.to_i / 1_000_000
+    end
+
     # Return the ID integer (idi) from a Redis Stream ID
     def idi(id)
       # See https://redis.io/topics/streams-intro for more info
       # Stream IDs are formatted as timestamp dash sequence, e.g. 1519073278252-0
-      # But when used with XRANGE, we prepend '(' to make it exclusive range interval
-      # So get rid of all that stuff and convert to an integer we can do math on
-      id.split('-')[0].delete('(').to_i
+      id.split('-')[0].to_i
     end
   end
 end

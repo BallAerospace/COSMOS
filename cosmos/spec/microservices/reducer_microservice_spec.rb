@@ -42,8 +42,6 @@ module Cosmos
         model.create
     end
 
-    # This is a method instead of before(:each) to allow control over additional setup
-    # def start_service
     before(:each) do
       @reducer = ReducerMicroservice.new("DEFAULT__REDUCER__INST")
       @reducer.instance_variable_set("@test", true) # Enable Redis ID overload
@@ -106,9 +104,9 @@ module Cosmos
         expect(msg_hash['target_name']).to eql "INST"
         expect(msg_hash['packet_name']).to eql "HEALTH_STATUS"
         data = JSON.parse(msg_hash['json_data'])
-        expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f
+        expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f + 10
         expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + 60
-        expect(data['PACKET_TIMESECONDS__STDDEV']).to eql 20.0
+        expect(data['PACKET_TIMESECONDS__STDDEV']).to be_within(0.1).of(17)
 
         # Throw in another minute of data
         6.times do
@@ -120,6 +118,14 @@ module Cosmos
 
         # 2 minutes of data should be processed
         expect(Store.xlen("DEFAULT__REDUCED_MINUTE__{INST}__HEALTH_STATUS")).to eql 2
+        result = Store.read_topics(["DEFAULT__REDUCED_MINUTE__{INST}__HEALTH_STATUS"], ['0-0'])
+        msg_hash = result["DEFAULT__REDUCED_MINUTE__{INST}__HEALTH_STATUS"][1][1]
+        expect(msg_hash['target_name']).to eql "INST"
+        expect(msg_hash['packet_name']).to eql "HEALTH_STATUS"
+        data = JSON.parse(msg_hash['json_data'])
+        expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f + 70
+        expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + 120
+        expect(data['PACKET_TIMESECONDS__STDDEV']).to be_within(0.1).of(17)
       end
     end
 
@@ -146,7 +152,7 @@ module Cosmos
         result = Store.read_topics(["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"], ['0-0'])
         expect(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"].length).to eql 1
         data = JSON.parse(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"][0][1]['json_data'])
-        expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f
+        expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f + 70
         expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + 3660 # 1 hr
         expect(data['COLLECTS__MIN']).to eql 0
         expect(data['COLLECTS__MAX']).to eql 9
@@ -187,13 +193,15 @@ module Cosmos
         offset = 0
         370.times do # Initial hour
           packet.received_time = start_time + offset
+          packet.write("COLLECTS", rand(10))
           TelemetryDecomTopic.write_packet(packet, id: "#{packet.received_time.to_i}000-0", scope: "DEFAULT")
           offset += 10 # seconds
         end
 
-        # Throw in another 24 hours of data
+        # Throw in 24 hours of data
         (24 * 360).times do
           packet.received_time = start_time + offset
+          packet.write("COLLECTS", rand(10))
           TelemetryDecomTopic.write_packet(packet, id: "#{packet.received_time.to_i}000-0", scope: "DEFAULT")
           offset += 10 # seconds
         end
@@ -204,10 +212,36 @@ module Cosmos
 
         # 1 day of data should be reduced
         expect(Store.xlen("DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS")).to eql 1
+        result = Store.read_topics(["DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS"], ['0-0'])
+        data = JSON.parse(result["DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS"][0][1]['json_data'])
+        expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f + 70 + 3600 # First min and first hour
+        expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + (3660 + 24 * 3600)
+        expect(data['COLLECTS__MIN']).to eql 0
+        expect(data['COLLECTS__MAX']).to eql 9
+        expect(data['COLLECTS__STDDEV']).to be_within(0.3).of(2.8)
 
-        # puts Store.xlen("DEFAULT__REDUCED_MINUTE__{INST}__HEALTH_STATUS")
-        # puts Store.xlen("DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS")
-        # puts Store.xlen("DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS")
+        # Throw in another 24 hours of data
+        (24 * 360).times do
+          packet.received_time = start_time + offset
+          packet.write("COLLECTS", rand(10))
+          TelemetryDecomTopic.write_packet(packet, id: "#{packet.received_time.to_i}000-0", scope: "DEFAULT")
+          offset += 10 # seconds
+        end
+
+        @reducer.reduce_minute
+        @reducer.reduce_hour
+        @reducer.reduce_day
+
+        # 2 days of data should be reduced
+        expect(Store.xlen("DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS")).to eql 2
+        result = Store.read_topics(["DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS"], ['0-0'])
+        expect(result["DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS"].length).to eql 2
+        data = JSON.parse(result["DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS"][1][1]['json_data'])
+        expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f + 70 + 25 * 3600 # First min and first hour plus 1 day
+        expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + (3660 + 48 * 3600)
+        expect(data['COLLECTS__MIN']).to eql 0
+        expect(data['COLLECTS__MAX']).to eql 9
+        expect(data['COLLECTS__STDDEV']).to be_within(0.3).of(2.8)
       end
     end
   end
