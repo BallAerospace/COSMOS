@@ -38,6 +38,8 @@ module Cosmos
   class PluginModel < Model
     PRIMARY_KEY = 'cosmos_plugins'
 
+    attr_accessor :variables
+
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
     def self.get(name:, scope: nil)
