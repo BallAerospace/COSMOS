@@ -42,7 +42,7 @@ module Cosmos
         ARGV = []
         expect { Microservice.run }.to raise_error("Microservice must be named")
         ARGV.replace ["DEFAULT"]
-        expect { Microservice.run}.to raise_error(/Microservice names/)
+        expect { Microservice.run }.to raise_error(/Microservice names/)
         ARGV.replace ["DEFAULT_TYPE_NAME"]
         expect { Microservice.run }.to raise_error(/Microservice names/)
         ARGV.replace ["DEFAULT__TYPE__NAME"]

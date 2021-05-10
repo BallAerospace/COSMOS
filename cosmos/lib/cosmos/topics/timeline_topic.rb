@@ -17,17 +17,14 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos/utilities/store'
+require 'cosmos/topics/topic'
 
 module Cosmos
-  class Topic
+  class TimelineTopic < Topic
+    PRIMARY_KEY = "__cosmos_timelines"
 
-    def self.initialize_streams(topics)
-      Store.initialize_streams(topics)
-    end
-
-    def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-      Store.read_topics(topics, offsets, timeout_ms, &block)
+    def self.write_activity(activity, scope:)
+      Store.write_topic("#{scope}#{PRIMARY_KEY}", activity)
     end
   end
 end

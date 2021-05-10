@@ -17,17 +17,27 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos/utilities/store'
-
 module Cosmos
-  class Topic
+  class NotificationModel
 
-    def self.initialize_streams(topics)
-      Store.initialize_streams(topics)
+    attr_reader :time, :severity, :url, :title, :body
+
+    def initialize(time:, severity:, url:, title:, body:)
+      @time = time
+      @severity = severity
+      @url = url
+      @title = title
+      @body = body
     end
 
-    def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
-      Store.read_topics(topics, offsets, timeout_ms, &block)
+    def as_json
+      { "time" => @time,
+        "severity" => @severity,
+        "url" => @url,
+        "title" => @title,
+        "body" => @body
+      }
     end
+
   end
 end

@@ -21,6 +21,7 @@ require 'cosmos/microservices/microservice'
 require 'cosmos/topics/telemetry_decom_topic'
 require 'cosmos/topics/limits_event_topic'
 require 'cosmos/topics/notifications_topic'
+require 'cosmos/models/notification_model'
 
 module Cosmos
   class DecomMicroservice < Microservice
@@ -88,12 +89,13 @@ module Cosmos
         when :YELLOW, :YELLOW_LOW, :YELLOW_HIGH
           Logger.warn message
         when :RED, :RED_LOW, :RED_HIGH
-          notification = { time: time_nsec,
+          notification = NotificationModel.new(
+            time: time_nsec,
             severity: "critical",
             url: "/tools/limitsmonitor",
             title: "#{packet.target_name} #{packet.packet_name} #{item.name} out of limits",
-            body: "Item went into #{item.limits.state} limit status." }
-          NotificationsTopic.write_notification(notification, scope: @scope)
+            body: "Item went into #{item.limits.state} limit status.")
+          NotificationsTopic.write_notification(notification.as_json, scope: @scope)
           Logger.error message
         else
           Logger.error "#{tgt_pkt_item_str} UNKNOWN#{pkt_time_str}"
