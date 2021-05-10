@@ -264,8 +264,30 @@ def load_plugin(plugin_file_path, scope:)
   end
 
   begin
-    plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
-    Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
+    # Try to find an existing plugin with this file to upgrade
+    gem_filename = File.basename(plugin_file_path, ".gem")
+    gem_filename = gem_filename.split('-')[0..-2].join('-')
+    plugin_names = Cosmos::PluginModel.names(scope: scope)
+    found = false
+    plugin_names.each do |plugin_name|
+      gem_name = plugin_name.split("__")[0]
+      gem_name = File.basename(plugin_name, ".gem")
+      gem_name = gem_name.split('-')[0..-2].join('-')
+      if gem_filename == gem_name
+        puts "Upgrading existing plugin: #{plugin_name} with #{plugin_file_path}"
+        plugin_model = Cosmos::PluginModel.get_model(name: plugin_name, scope: scope)
+        variables = plugin_model.variables
+        plugin_model.destroy
+        plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, variables, scope: scope)
+        Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
+        found = true
+      end
+    end
+    unless found
+      puts "Loading new plugin: #{plugin_file_path}"
+      plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
+      Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
+    end
   rescue => err
     abort("Error installing plugin: #{scope}: #{plugin_file_path}: #{err.formatted}")
   end
