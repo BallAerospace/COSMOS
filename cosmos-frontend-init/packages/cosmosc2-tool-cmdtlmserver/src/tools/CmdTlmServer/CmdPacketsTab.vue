@@ -60,7 +60,7 @@
         >
       </template>
     </v-data-table>
-    <RawDialog
+    <raw-dialog
       type="Command"
       :targetName="target_name"
       :packetName="packet_name"

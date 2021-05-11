@@ -77,7 +77,7 @@
       transition="scale-transition"
       >{{ alert }}</v-alert
     >
-    <EditDialog
+    <edit-dialog
       :content="json_content"
       title="Edit Tool"
       v-model="showDialog"

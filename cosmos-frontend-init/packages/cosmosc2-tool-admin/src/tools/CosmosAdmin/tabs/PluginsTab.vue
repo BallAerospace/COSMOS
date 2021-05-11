@@ -87,13 +87,13 @@
       transition="scale-transition"
       >{{ alert }}</v-alert
     >
-    <VariablesDialog
+    <variables-dialog
       :variables="variables"
       v-model="showVariables"
       v-if="showVariables"
       @submit="variablesCallback"
     />
-    <EditDialog
+    <edit-dialog
       :content="json_content"
       title="Plugin Details"
       :readonly="true"
