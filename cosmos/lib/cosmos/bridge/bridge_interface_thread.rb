@@ -24,13 +24,20 @@ module Cosmos
   class BridgeInterfaceThread < InterfaceThread
 
     protected
-    
+
     def handle_packet(packet)
-      # Write to routers
       @interface.routers.each do |router|
-        router.write(packet) if router.write_allowed? and router.connected?
-      rescue => err
-        Logger.error "Problem writing to router #{router.name} - #{err.class}:#{err.message}"
+        if router.connected?
+          if router.write_allowed?
+            begin
+              router.write(packet)
+            rescue Exception => err
+              Logger.error "Error routing telemetry from #{@interface.name} to router #{router.name}\n#{err.formatted}"
+            end
+          end
+        else
+          Logger.error "Attempted to route telemetry from #{@interface.name} to disconnected router #{router.name}"
+        end
       end
     end
 

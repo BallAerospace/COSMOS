@@ -17,6 +17,7 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/utilities/logger'
 require 'cosmos/config/config_parser'
 
 module Cosmos
@@ -48,10 +49,10 @@ INTERFACE SERIAL_INT serial_interface.rb COM1 COM1 9600 NONE 1 10.0 nil BURST
 ROUTER SERIAL_ROUTER tcpip_server_interface.rb 2950 2950 10.0 nil BURST
   # ROUTE <Interface Name>
   ROUTE SERIAL_INT
-  
+
 EOF
 
-      puts "Writing #{filename}"
+      Logger.info "Writing #{filename}"
       File.open(filename, 'w') do |file|
         file.write(default_config)
       end

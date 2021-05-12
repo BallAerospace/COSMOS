@@ -28,24 +28,24 @@ module Cosmos
     def initialize(filename)
       @config = BridgeConfig.new(filename)
       @threads = []
-      
+
       # Start Interface Threads
       @config.interfaces.each do |interface_name, interface|
         @threads << BridgeInterfaceThread.new(interface)
         @threads[-1].start
       end
-      
+
       # Start Router Threads
       @config.routers.each do |router_name, router|
         @threads << BridgeRouterThread.new(router)
         @threads[-1].start
       end
-      
+
       at_exit() do
         shutdown()
       end
     end
-    
+
     def shutdown
       @threads.each do |thread|
         thread.stop
