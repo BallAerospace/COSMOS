@@ -119,8 +119,12 @@ module Cosmos
     # @return [Time] Most recent written raw data time
     attr_accessor :written_raw_data_time
 
-    # @return [Array] Config params fromt the INTERFACE config line
+    # @return [Array] Config params from the INTERFACE config line
     attr_accessor :config_params
+
+    # @return [Array<Interface>] Array of interfaces to route packets to
+    #   (when used as a BridgeRouter)
+    attr_accessor :interfaces
 
     # Initialize default attribute values
     def initialize
@@ -158,6 +162,7 @@ module Cosmos
       @read_raw_data_time = nil
       @written_raw_data_time = nil
       @config_params = []
+      @interfaces = []
     end
 
     # Connects the interface to its target(s). Must be implemented by a

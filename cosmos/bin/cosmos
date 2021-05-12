@@ -24,6 +24,7 @@ require 'cosmos'
 require 'cosmos/utilities/s3'
 require 'cosmos/models/scope_model'
 require 'cosmos/models/plugin_model'
+require 'cosmos/bridge/bridge'
 require 'zip'
 require 'zip/filesystem'
 require 'fileutils'
@@ -37,10 +38,12 @@ $redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.
 # Prints the usage text for the cosmos executable
 def print_usage
   puts "Usage:"
-  puts "  cosmos help                       # Displays this information"
-  puts "  cosmos load </PATH/FILENAME.gem>  # Loads a COSMOS plugin gem file"
-  puts "  cosmos docs                       # Launches the documentation server"
-  puts "  cosmos generate target <TGT_NAME> # Generate a COSMOS target"
+  puts "  cosmos help                          # Displays this information"
+  puts "  cosmos load </PATH/FILENAME.gem>     # Loads a COSMOS plugin gem file"
+  puts "  cosmos docs                          # Launches the documentation server"
+  puts "  cosmos generate target <TGT_NAME>    # Generate a COSMOS target"
+  puts "  cosmos bridge <config filename>      # Run COSMOS host bridge"
+  puts "  cosmos bridgesetup <config filename> # Create a default config file"
   puts ""
   puts "Other Tools included with COSMOS:"
   puts "  rubysloc                      # Counts Ruby SLOC recursively"
@@ -336,6 +339,25 @@ if not ARGV[0].nil? # argument(s) given
 
   when 'generate'
     generate(ARGV[1..-1])
+
+  when 'bridge'
+    filename = ARGV[1]
+    filename = 'bridge.txt' unless filename
+    bridge = Cosmos::Bridge.new(filename)
+    begin
+      while true
+        sleep(1)
+      end
+    rescue Interrupt
+      exit(0)
+    end
+    
+  when 'bridgesetup'
+    filename = ARGV[1]
+    filename = 'bridge.txt' unless filename
+    unless File.exist?(filename)
+      Cosmos::BridgeConfig.generate_default(filename)
+    end
 
   when 'help'
     print_usage()
