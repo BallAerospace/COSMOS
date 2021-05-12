@@ -26,14 +26,14 @@ module Cosmos
     protected
 
     def handle_packet(packet)
-      interfaces = @interface.interfaces
-
-      interfaces.each do |interface|
+      @interface.interfaces.each do |interface|
         if interface.connected?
-          begin
-            interface.write(packet)
-          rescue Exception => err
-            Logger.error "Error routing command from #{@interface.name} to interface #{interface.name}\n#{err.formatted}"
+          if interface.write_allowed?
+            begin
+              interface.write(packet)
+            rescue Exception => err
+              Logger.error "Error routing command from #{@interface.name} to interface #{interface.name}\n#{err.formatted}"
+            end
           end
         else
           Logger.error "Attempted to route command from #{@interface.name} to disconnected interface #{interface.name}"
