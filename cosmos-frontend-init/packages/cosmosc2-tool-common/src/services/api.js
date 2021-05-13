@@ -18,13 +18,12 @@
 */
 
 import axios from 'axios'
-import { auth } from './auth'
 
 const request = async function (method, url, data = {}, params = {}) {
   try {
-    await auth.updateToken(30)
+    await CosmosAuth.updateToken(CosmosAuth.defaultMinValidity)
   } catch (error) {
-    auth.login()
+    CosmosAuth.login()
   }
   params['token'] = localStorage.getItem('token')
   if (!params['scope']) {

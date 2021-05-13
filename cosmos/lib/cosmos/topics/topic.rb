@@ -21,6 +21,11 @@ require 'cosmos/utilities/store'
 
 module Cosmos
   class Topic
+
+    def self.initialize_streams(topics)
+      Store.initialize_streams(topics)
+    end
+
     def self.read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
       Store.read_topics(topics, offsets, timeout_ms, &block)
     end

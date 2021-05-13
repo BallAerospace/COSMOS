@@ -25,10 +25,10 @@
 </template>
 
 <script>
-import * as ActionCable from 'actioncable'
 import Chart from 'chart.js'
 import 'chartjs-adapter-luxon'
 import { DateTime } from 'luxon'
+import Cable from '../services/cable.js'
 
 export default {
   props: {
@@ -55,8 +55,8 @@ export default {
       running: false,
       paused: false,
       drawInterval: null,
-      cable: ActionCable.Cable,
-      subscription: ActionCable.Channel,
+      cable: new Cable(),
+      subscription: null,
       colors: [
         'blue',
         'red',
@@ -82,10 +82,6 @@ export default {
         'black',
       ],
     }
-  },
-  created() {
-    // Creating the cable can be done once, subscriptions come and go
-    this.cable = ActionCable.createConsumer('/cosmos-api/cable')
   },
   mounted() {
     // TODO: This is demo / performance code of multiple items with many data points
@@ -146,9 +142,8 @@ export default {
   },
   methods: {
     subscribe() {
-      this.subscription = this.cable.subscriptions.create(
-        'PreidentifiedChannel',
-        {
+      this.cable
+        .createSubscription('PreidentifiedChannel', null, {
           received: (data) => this.received(data),
           connected: () => {
             this.items.forEach((item) => {
@@ -160,8 +155,10 @@ export default {
           },
           // TODO: How should we handle server side disconnect
           //disconnected: () => alert('disconnected')
-        }
-      )
+        })
+        .then((subscription) => {
+          this.subscription = subscription
+        })
     },
     start() {
       if (this.running || this.items.length === 0) {

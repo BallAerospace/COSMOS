@@ -24,6 +24,7 @@ require 'cosmos'
 require 'cosmos/utilities/s3'
 require 'cosmos/models/scope_model'
 require 'cosmos/models/plugin_model'
+require 'cosmos/bridge/bridge'
 require 'zip'
 require 'zip/filesystem'
 require 'fileutils'
@@ -37,39 +38,17 @@ $redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.
 # Prints the usage text for the cosmos executable
 def print_usage
   puts "Usage:"
-  puts "  cosmos help                   # Displays this information"
-  puts "  cosmos load                   # Loads a COSMOS user directory onto the cluster"
-  puts "  cosmos install directory_name # Creates a barebones COSMOS user directory"
-  puts "  cosmos demo directory_name    # Creates a demo COSMOS user directory"
-  puts "  cosmos docs                   # Launches the documentation server"
-  puts "  cosmos generate target <NAME> # Generate a COSMOS target"
+  puts "  cosmos help                          # Displays this information"
+  puts "  cosmos load </PATH/FILENAME.gem>     # Loads a COSMOS plugin gem file"
+  puts "  cosmos docs                          # Launches the documentation server"
+  puts "  cosmos generate target <TGT_NAME>    # Generate a COSMOS target"
+  puts "  cosmos bridge <config filename>      # Run COSMOS host bridge"
+  puts "  cosmos bridgesetup <config filename> # Create a default config file"
   puts ""
   puts "Other Tools included with COSMOS:"
   puts "  rubysloc                      # Counts Ruby SLOC recursively"
   puts "  cstol_converter               # Converts all *.prc files recursively to COSMOS"
   puts ""
-end
-
-def install(install_type, install_folder)
-  dir_name = ARGV[1]
-  unless dir_name.nil?
-    puts "Attempting COSMOS #{install_type} Installation to: #{dir_name}"
-
-    # Determine if directory exists
-    unless File.directory?(dir_name)
-      # Create Directory
-      FileUtils.makedirs(dir_name, { :verbose => true })
-
-      # Copy files from gem install directory into new project
-      FileUtils.cp_r(File.join(::Cosmos::PATH, install_folder, '.'), dir_name, { :verbose => true })
-
-      puts "Complete"
-    else
-      puts "ERROR: Directory #{dir_name} already exists... aborting"
-    end
-  else
-    puts "ERROR: Directory must be given to install to"
-  end
 end
 
 def gen_tgt(target)
@@ -205,12 +184,10 @@ def generate(args)
   case args[0]
   when 'target'
     unless File.exist?('./config/targets/')
-      puts "generator must be run at the root of the COSMOS user installation"
-      return
+      abort("generator must be run at the root of the COSMOS user installation")
     end
     if args.length != 2
-      puts "Usage: cosmos generate target <NAME>"
-      return
+      abort("Usage: cosmos generate target <NAME>")
     end
     target = args[1].upcase
     target_path = File.join("./config/targets/#{target}")
@@ -219,8 +196,7 @@ def generate(args)
       STDOUT.flush # Output the warning
       name = STDIN.gets.chomp
       if name != 'y'
-        puts "Aborting generator"
-        return
+        abort("Aborting generator")
       end
       FileUtils.rm_rf target_path
       sleep 1 # Allow the delete to occur
@@ -246,41 +222,7 @@ def generate(args)
     puts "and interface the target unless you're using AUTO_INTERFACE_TARGETS."
     puts "See the COSMOS System Configuration documentation for more details.\n"
   else # Unknown generator
-    puts "Unknown generator #{args[0]}"
-  end
-end
-
-def limits_change_callback(packet, item, old_limits_state, value, log_change)
-  if log_change
-    # Write to Server Messages that limits state has changed
-    tgt_pkt_item_str = "#{packet.target_name} #{packet.packet_name} #{item.name} = #{value} is"
-    packet_time = packet.packet_time
-    pkt_time_str = ""
-    pkt_time_str << " (#{packet.packet_time.sys.formatted})" if packet_time
-    case item.limits.state
-    when :BLUE
-      Cosmos::Logger.info "#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
-    when :GREEN, :GREEN_LOW, :GREEN_HIGH
-      Cosmos::Logger.info "#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
-    when :YELLOW, :YELLOW_LOW, :YELLOW_HIGH
-      Cosmos::Logger.warn "#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
-    when :RED, :RED_LOW, :RED_HIGH
-      Cosmos::Logger.error "#{tgt_pkt_item_str} #{item.limits.state}#{pkt_time_str}"
-    else
-      Cosmos::Logger.error "#{tgt_pkt_item_str} UNKNOWN#{pkt_time_str}"
-    end
-  end
-end
-
-def check_limits(filenames)
-  Cosmos::Logger.level = Cosmos::Logger::INFO
-  packet_log_reader = Cosmos::System.default_packet_log_reader.new(*Cosmos::System.default_packet_log_reader_params)
-  filenames.each do |filename|
-    packet_log_reader.open(filename)
-    Cosmos::System.telemetry.limits_change_callback = method(:limits_change_callback)
-    packet_log_reader.each(filename) do |packet|
-      packet.check_limits
-    end
+    abort("Unknown generator #{args[0]}")
   end
 end
 
@@ -320,15 +262,37 @@ def load_plugin(plugin_file_path, scope:)
       scope_model.create
       scope_model.deploy(".", {})
     rescue => err
-      puts "Error creating scope: #{scope}: #{err.formatted}"
+      abort("Error creating scope: #{scope}: #{err.formatted}")
     end
   end
 
   begin
-    plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
-    Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
+    # Try to find an existing plugin with this file to upgrade
+    gem_filename = File.basename(plugin_file_path, ".gem")
+    gem_filename = gem_filename.split('-')[0..-2].join('-')
+    plugin_names = Cosmos::PluginModel.names(scope: scope)
+    found = false
+    plugin_names.each do |plugin_name|
+      gem_name = plugin_name.split("__")[0]
+      gem_name = File.basename(plugin_name, ".gem")
+      gem_name = gem_name.split('-')[0..-2].join('-')
+      if gem_filename == gem_name
+        puts "Upgrading existing plugin: #{plugin_name} with #{plugin_file_path}"
+        plugin_model = Cosmos::PluginModel.get_model(name: plugin_name, scope: scope)
+        variables = plugin_model.variables
+        plugin_model.destroy
+        plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, variables, scope: scope)
+        Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
+        found = true
+      end
+    end
+    unless found
+      puts "Loading new plugin: #{plugin_file_path}"
+      plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
+      Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
+    end
   rescue => err
-    puts "Error installing plugin: #{scope}: #{plugin_file_path}: #{err.formatted}"
+    abort("Error installing plugin: #{scope}: #{plugin_file_path}: #{err.formatted}")
   end
 end
 
@@ -373,19 +337,27 @@ if not ARGV[0].nil? # argument(s) given
     Cosmos.open_in_web_browser('http://127.0.0.1:8808/docs/cosmos/frames')
     thread.join
 
-  when 'install'
-    # Create a COSMOS barebones user directory
-    install('', 'install')
-
-  when 'demo'
-    # Create a COSMOS demo user directory
-    install('Demo', 'demo')
-
   when 'generate'
     generate(ARGV[1..-1])
 
-  when 'check_limits'
-    check_limits(ARGV[1..-1])
+  when 'bridge'
+    filename = ARGV[1]
+    filename = 'bridge.txt' unless filename
+    bridge = Cosmos::Bridge.new(filename)
+    begin
+      while true
+        sleep(1)
+      end
+    rescue Interrupt
+      exit(0)
+    end
+    
+  when 'bridgesetup'
+    filename = ARGV[1]
+    filename = 'bridge.txt' unless filename
+    unless File.exist?(filename)
+      Cosmos::BridgeConfig.generate_default(filename)
+    end
 
   when 'help'
     print_usage()
@@ -403,8 +375,8 @@ if not ARGV[0].nil? # argument(s) given
     end
 
   else # Unknown task
-    puts "Unknown task: #{ARGV[0]}\n"
     print_usage()
+    abort("Unknown task: #{ARGV[0]}")
   end
 
 else # No arguments given

@@ -68,7 +68,7 @@ PROTOCOL:
     This protocol allows for Scripts to use the override_tlm() and normalize_tlm() methods to permanently
     change a telemetry value. Note, this differs from set_tlm() as set_tlm() is over-written by new
     incoming telemetry.<br/><br/>
-    For information on creating your own custom protocol please see <a href="http://cosmosrb.com/docs/protocols">cosmosrb.com/docs/protocols</a>
+    For information on creating your own custom protocol please see <a href="http://cosmosc2.com/docs/v5/protocols">cosmosc2.com/docs/v5/protocols</a>
   since: 4.0.0
   parameters:
     - name: Type

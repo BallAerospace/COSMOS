@@ -99,7 +99,6 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'childprocess', '~> 3.0'
   s.add_runtime_dependency 'connection_pool', '~> 2.2'
   s.add_runtime_dependency 'aws-sdk-s3', '~> 1.67'
-  s.add_runtime_dependency 'geminabox', '~> 1.2'
 
   # Development Dependencies
   s.add_development_dependency 'diff-lcs', '~> 1.3' if RUBY_ENGINE == 'ruby' # Get latest for MRI

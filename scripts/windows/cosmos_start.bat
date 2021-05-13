@@ -12,11 +12,6 @@ docker build -f cosmos-ruby\Dockerfile -t cosmos-ruby cosmos-ruby || exit /b
 docker build -f cosmos-node\Dockerfile -t cosmos-node cosmos-node || exit /b
 docker build -f cosmos/Dockerfile -t cosmos-base cosmos || exit /b
 
-docker container rm cosmos-gems
-docker volume create cosmos-gems-v || exit /b
-docker build -f cosmos-gems\Dockerfile -t cosmos-gems cosmos-gems || exit /b
-docker run --network cosmos -p 127.0.0.1:9292:9292 -d --name cosmos-gems -v cosmos-gems-v:/data cosmos-gems || exit /b
-
 @echo off
 if "%1" == "dev" (
   @echo on

@@ -17,4 +17,5 @@ RUN apk add --virtual .build-dependencies \
 COPY . .
 
 EXPOSE 2901
-CMD ["rails", "s", "-b", "0.0.0.0", "-p", "2901"]
+
+CMD [ "rails", "s", "-b", "0.0.0.0", "-p", "2901" ]

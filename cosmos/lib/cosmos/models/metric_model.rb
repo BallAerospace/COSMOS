@@ -38,7 +38,7 @@ module Cosmos
     end
 
     def self.destroy(scope:, name:)
-      Store.hdel("#{scope}#{PRIMARY_KEY}", @name)
+      Store.hdel("#{scope}#{PRIMARY_KEY}", name)
     end
 
     def initialize(name:, scope:, metric_name:, label_list:)

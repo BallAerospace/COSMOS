@@ -257,7 +257,7 @@ import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 import OpenConfigDialog from '@cosmosc2/tool-common/src/components/OpenConfigDialog'
 import SaveConfigDialog from '@cosmosc2/tool-common/src/components/SaveConfigDialog'
 import TargetPacketItemChooser from '@cosmosc2/tool-common/src/components/TargetPacketItemChooser'
-import * as ActionCable from 'actioncable'
+import Cable from '@cosmosc2/tool-common/src/services/cable.js'
 import { isValid, parse, format, getTime } from 'date-fns'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
@@ -328,8 +328,8 @@ export default {
       editAll: false,
       allItemValueType: null,
       // uniqueIgnoreOptions: ['NO', 'YES'],
-      cable: ActionCable.Cable,
-      subscription: ActionCable.Channel,
+      cable: new Cable(),
+      subscription: null,
       menus: [
         {
           label: 'File',
@@ -425,8 +425,6 @@ export default {
     }
   },
   created() {
-    // Creating the cable can be done once, subscriptions come and go
-    this.cable = ActionCable.createConsumer('/cosmos-api/cable')
     this.api = new CosmosApi()
   },
   destroyed() {
@@ -547,41 +545,10 @@ export default {
 
       this.progress = 0
       this.processButtonText = 'Cancel'
-      this.subscription = this.cable.subscriptions.create(
-        {
-          channel: 'StreamingChannel',
-          scope: 'DEFAULT',
-        },
-        {
+      this.cable
+        .createSubscription('StreamingChannel', 'DEFAULT', {
           received: (data) => this.received(data),
-          connected: () => {
-            this.foundKeys = []
-            this.columnHeaders = []
-            this.columnMap = {}
-            this.outputFile = []
-            this.rawData = []
-            var items = []
-            this.items.forEach((item, index) => {
-              items.push(
-                item.cmdOrTlm +
-                  '__' +
-                  item.targetName +
-                  '__' +
-                  item.packetName +
-                  '__' +
-                  item.itemName +
-                  '__' +
-                  item.valueType
-              )
-            })
-            this.subscription.perform('add', {
-              scope: 'DEFAULT',
-              mode: 'DECOM',
-              items: items,
-              start_time: this.startDateTime,
-              end_time: this.endDateTime,
-            })
-          },
+          connected: () => this.onConnected(),
           disconnected: () => {
             this.warningText = 'COSMOS backend connection disconnected.'
             this.warning = true
@@ -590,8 +557,41 @@ export default {
             this.warningText = 'COSMOS backend connection rejected.'
             this.warning = true
           },
-        }
-      )
+        })
+        .then((subscription) => {
+          this.subscription = subscription
+        })
+    },
+    onConnected() {
+      this.foundKeys = []
+      this.columnHeaders = []
+      this.columnMap = {}
+      this.outputFile = []
+      this.rawData = []
+      var items = []
+      this.items.forEach((item, index) => {
+        items.push(
+          item.cmdOrTlm +
+            '__' +
+            item.targetName +
+            '__' +
+            item.packetName +
+            '__' +
+            item.itemName +
+            '__' +
+            item.valueType
+        )
+      })
+      CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
+        this.subscription.perform('add', {
+          scope: 'DEFAULT',
+          mode: 'DECOM',
+          token: localStorage.token,
+          items: items,
+          start_time: this.startDateTime,
+          end_time: this.endDateTime,
+        })
+      })
     },
     buildHeaders(itemKeys) {
       if (

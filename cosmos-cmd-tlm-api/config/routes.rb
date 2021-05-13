@@ -56,11 +56,30 @@ Rails.application.routes.draw do
   match '/scopes/:id', to: 'scopes#update', id: /[^\/]+/, via: [:patch, :put]
   delete '/scopes/:id', to: 'scopes#destroy', id: /[^\/]+/
 
+  resources :roles, only: [:index, :create]
+  get '/roles/:id', to: 'roles#show', id: /[^\/]+/
+  match '/roles/:id', to: 'roles#update', id: /[^\/]+/, via: [:patch, :put]
+  delete '/roles/:id', to: 'roles#destroy', id: /[^\/]+/
+
+  resources :permissions, only: [:index]
+
   post '/plugins/install/:id', to: 'plugins#install', id: /[^\/]+/
   resources :plugins, only: [:index, :create]
   get '/plugins/:id', to: 'plugins#show', id: /[^\/]+/
   match '/plugins/:id', to: 'plugins#update', id: /[^\/]+/, via: [:patch, :put]
   delete '/plugins/:id', to: 'plugins#destroy', id: /[^\/]+/
+
+  resources :timeline, only: [:index, :create]
+  get '/timeline/:name', to: 'timeline#show', name: /[^\/]+/
+  delete '/timeline/:name', to: 'timeline#destroy', name: /[^\/]+/
+
+  get '/timeline/:name/count', to: 'activity#count', name: /[^\/]+/
+  get '/timeline/:name/activities', to: 'activity#index', name: /[^\/]+/
+  post '/timeline/:name/activities', to: 'activity#create', name: /[^\/]+/
+  get '/timeline/:name/activity/:id', to: 'activity#show', name: /[^\/]+/, id: /[^\/]+/
+  post '/timeline/:name/activity/:id', to: 'activity#event', name: /[^\/]+/, id: /[^\/]+/
+  match '/timeline/:name/activity/:id', to: 'activity#update', name: /[^\/]+/, id: /[^\/]+/, via: [:patch, :put]
+  delete '/timeline/:name/activity/:id', to: 'activity#destroy', name: /[^\/]+/, id: /[^\/]+/
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   post "/api" => "api#api"
