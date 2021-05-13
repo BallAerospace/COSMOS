@@ -44,10 +44,9 @@
 // on('file:preprocessor', webpackPreprocessor(options))
 // }
 
-const fs = require('fs')
 const path = require('path')
 
-const preprocessor = require('cypress-vue-unit-test/dist/plugins/webpack')
+const preprocessor = require('@cypress/vue/dist/plugins/webpack')
 
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
