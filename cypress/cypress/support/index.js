@@ -33,7 +33,7 @@
 // ***********************************************************
 
 import '@cypress/code-coverage/support'
-import 'cypress-vue-unit-test/dist/support'
+import '@cypress/vue/dist/support'
 import './commands'
 
 Cypress.on('window:before:load', (win) => {
