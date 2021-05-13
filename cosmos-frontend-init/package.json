@@ -5,6 +5,11 @@
     "packages/*"
   ],
   "devDependencies": {
+    "@cypress/code-coverage": "3.9.4",
+    "@cypress/webpack-dev-server": "1.1.2",
+    "@vue/eslint-config-prettier": "6.0.0",
+    "cypress": "7.1.0",
+    "date-fns": "2.19.0",
     "babel-eslint": "10.1.0",
     "babel-loader": "8.2.2",
     "babel-plugin-istanbul": "6.0.0",

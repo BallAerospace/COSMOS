@@ -1,0 +1,8 @@
+{
+  "projectId": "guaqdd",
+  "baseUrl": "http://localhost:2900",
+  "testFiles": "**/*.spec.js*",
+  "componentFolder": "cypress/components",
+  "viewportWidth": 1280,
+  "viewportHeight": 720
+}
