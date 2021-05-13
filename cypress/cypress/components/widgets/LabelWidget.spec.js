@@ -18,7 +18,7 @@
 */
 
 /// <reference types="cypress" />
-import { mount } from 'cypress-vue-unit-test'
+import { mount } from '@cypress/vue'
 import LabelWidget from '@/components/widgets/LabelWidget.vue'
 
 describe('LabelWidget', () => {

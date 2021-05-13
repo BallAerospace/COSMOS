@@ -18,7 +18,7 @@
 */
 
 /// <reference types="cypress" />
-import { mount } from 'cypress-vue-unit-test'
+import { mount } from '@cypress/vue'
 import ArrayWidget from '@/components/widgets/ArrayWidget.vue'
 import store from '../../../src/store'
 import Vuex from 'vuex'
