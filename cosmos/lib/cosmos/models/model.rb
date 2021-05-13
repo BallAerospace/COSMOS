@@ -19,13 +19,9 @@
 
 require 'cosmos/utilities/store'
 require 'cosmos/config/config_parser'
-require 'cosmos/utilities/authorization'
 
 module Cosmos
   class Model
-    include Authorization
-    extend Authorization
-
     attr_accessor :name
     attr_accessor :updated_at
     attr_accessor :plugin

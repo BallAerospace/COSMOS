@@ -26,29 +26,41 @@
       transition="scale-transition"
       >{{ alert }}</v-alert
     >
-    <v-list data-test="targetList">
-      <v-list-item v-for="target in targets" :key="target">
+    <v-list data-test="microserviceList">
+      <v-list-item v-for="microservice in microservices" :key="microservice">
         <v-list-item-content>
-          <v-list-item-title v-text="target"></v-list-item-title>
+          <v-list-item-title v-text="microservice"></v-list-item-title>
+          <v-list-item-subtitle v-if="microservice_status[microservice]"
+            >Updated: {{ microservice_status[microservice].updated_at }}, State:
+            {{ microservice_status[microservice].state }}, Count:
+            {{ microservice_status[microservice].count }}, Error:
+            {{ microservice_status[microservice].error }}
+          </v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="showTarget(target)" v-bind="attrs" v-on="on"
-                >mdi-eye</v-icon
+              <v-icon
+                @click="editMicroservice(microservice)"
+                v-bind="attrs"
+                v-on="on"
+                >mdi-pencil</v-icon
               >
             </template>
-            <span>Show Target Details</span>
+            <span>Edit Microservice</span>
           </v-tooltip>
         </v-list-item-icon>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deleteTarget(target)" v-bind="attrs" v-on="on"
+              <v-icon
+                @click="deleteMicroservice(microservice)"
+                v-bind="attrs"
+                v-on="on"
                 >mdi-delete</v-icon
               >
             </template>
-            <span>Delete Target</span>
+            <span>Delete Microservice</span>
           </v-tooltip>
         </v-list-item-icon>
       </v-list-item>
@@ -60,10 +72,9 @@
       transition="scale-transition"
       >{{ alert }}</v-alert
     >
-    <EditDialog
+    <edit-dialog
       :content="json_content"
-      title="Target Details"
-      :readonly="true"
+      title="Edit Microservice"
       v-model="showDialog"
       v-if="showDialog"
       @submit="dialogCallback"
@@ -78,7 +89,9 @@ export default {
   components: { EditDialog },
   data() {
     return {
-      targets: [],
+      microservices: [],
+      microservice_status: {},
+      microservice_id: null,
       alert: '',
       alertType: 'success',
       showAlert: false,
@@ -91,9 +104,21 @@ export default {
   },
   methods: {
     update() {
-      Api.get('/cosmos-api/targets')
+      Api.get('/cosmos-api/microservice_status/all')
         .then((response) => {
-          this.targets = response.data
+          this.microservice_status = response.data
+          Api.get('/cosmos-api/microservices')
+            .then((response) => {
+              this.microservices = response.data
+            })
+            .catch((error) => {
+              this.alert = error
+              this.alertType = 'error'
+              this.showAlert = true
+              setTimeout(() => {
+                this.showAlert = false
+              }, 5000)
+            })
         })
         .catch((error) => {
           this.alert = error
@@ -105,10 +130,11 @@ export default {
         })
     },
     add() {},
-    showTarget(name) {
+    editMicroservice(name) {
       var self = this
-      Api.get('/cosmos-api/targets/' + name)
+      Api.get('/cosmos-api/microservices/' + name)
         .then((response) => {
+          self.microservice_id = name
           self.json_content = JSON.stringify(response.data, null, 1)
           self.showDialog = true
         })
@@ -123,8 +149,35 @@ export default {
     },
     dialogCallback(content) {
       this.showDialog = false
+      if (content !== null) {
+        let parsed = JSON.parse(content)
+        let method = 'put'
+        let url = '/cosmos-api/microservices/' + this.microservice_id
+        if (parsed['name'] !== this.microservice_id) {
+          method = 'post'
+          url = '/cosmos-api/microservices'
+        }
+
+        Api[method](url, {
+          json: content,
+        })
+          .then((response) => {
+            this.alert = 'Modified Microservice'
+            this.alertType = 'success'
+            this.showAlert = true
+            setTimeout(() => {
+              this.showAlert = false
+            }, 5000)
+            this.update()
+          })
+          .catch((error) => {
+            this.alert = error
+            this.alertType = 'error'
+            this.showAlert = true
+          })
+      }
     },
-    deleteTarget(name) {
+    deleteMicroservice(name) {
       var self = this
       this.$dialog
         .confirm('Are you sure you want to remove: ' + name, {
@@ -132,9 +185,9 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete('/cosmos-api/targets/' + name)
+          Api.delete('/cosmos-api/microservices/' + name)
             .then((response) => {
-              self.alert = 'Removed target ' + name
+              self.alert = 'Removed microservice ' + name
               self.alertType = 'success'
               self.showAlert = true
               setTimeout(() => {

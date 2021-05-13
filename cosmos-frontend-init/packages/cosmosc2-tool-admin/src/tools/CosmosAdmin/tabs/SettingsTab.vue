@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import ClassificationBannerSettings from './ClassificationBannerSettings.vue'
+import ClassificationBannerSettings from '@/tools/CosmosAdmin/ClassificationBannerSettings.vue'
 
 export default {
   components: {

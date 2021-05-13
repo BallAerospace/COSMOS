@@ -19,6 +19,7 @@
 
 import Vue from 'vue'
 import Router from 'vue-router'
+import { TabsList } from '@/tools/CosmosAdmin/tabs'
 
 Vue.use(Router)
 
@@ -28,48 +29,13 @@ export default new Router({
   routes: [
     {
       path: '/',
-      component: () => import('./tools/CosmosAdmin/CosmosAdmin.vue'),
+      component: () => import('@/tools/CosmosAdmin/CosmosAdmin'),
       children: [
         {
-          component: () => import('./tools/CosmosAdmin/PluginsTab'),
+          component: () => import('@/tools/CosmosAdmin/tabs/PluginsTab'),
           path: '',
         },
-        {
-          component: () => import('./tools/CosmosAdmin/PluginsTab'),
-          path: 'plugins',
-        },
-        {
-          component: () => import('./tools/CosmosAdmin/TargetsTab'),
-          path: 'targets',
-        },
-        {
-          component: () => import('./tools/CosmosAdmin/InterfacesTab'),
-          path: 'interfaces',
-        },
-        {
-          component: () => import('./tools/CosmosAdmin/RoutersTab'),
-          path: 'routers',
-        },
-        {
-          component: () => import('./tools/CosmosAdmin/MicroservicesTab'),
-          path: 'microservices',
-        },
-        {
-          component: () => import('./tools/CosmosAdmin/ToolsTab'),
-          path: 'tools',
-        },
-        {
-          component: () => import('./tools/CosmosAdmin/GemsTab'),
-          path: 'gems',
-        },
-        {
-          component: () => import('./tools/CosmosAdmin/ScopesTab'),
-          path: 'scopes',
-        },
-        {
-          component: () => import('./tools/CosmosAdmin/SettingsTab'),
-          path: 'settings',
-        },
+        ...TabsList,
       ],
     },
     // TODO: Create NotFoundComponent since we're doing history browser mode

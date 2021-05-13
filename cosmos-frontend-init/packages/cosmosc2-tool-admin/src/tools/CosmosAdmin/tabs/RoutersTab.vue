@@ -26,38 +26,29 @@
       transition="scale-transition"
       >{{ alert }}</v-alert
     >
-    <v-list data-test="interfaceList">
-      <v-list-item
-        v-for="cosmos_interface in interfaces"
-        :key="cosmos_interface"
-      >
+    <v-list data-test="routerList">
+      <v-list-item v-for="router in routers" :key="router">
         <v-list-item-content>
-          <v-list-item-title v-text="cosmos_interface"></v-list-item-title>
+          <v-list-item-title v-text="router"></v-list-item-title>
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon
-                @click="showInterface(cosmos_interface)"
-                v-bind="attrs"
-                v-on="on"
+              <v-icon @click="showRouter(router)" v-bind="attrs" v-on="on"
                 >mdi-eye</v-icon
               >
             </template>
-            <span>Show Interface Details</span>
+            <span>Show Router Details</span>
           </v-tooltip>
         </v-list-item-icon>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon
-                @click="deleteInterface(cosmos_interface)"
-                v-bind="attrs"
-                v-on="on"
+              <v-icon @click="deleteRouter(router)" v-bind="attrs" v-on="on"
                 >mdi-delete</v-icon
               >
             </template>
-            <span>Delete Interface</span>
+            <span>Delete Router</span>
           </v-tooltip>
         </v-list-item-icon>
       </v-list-item>
@@ -69,9 +60,9 @@
       transition="scale-transition"
       >{{ alert }}</v-alert
     >
-    <EditDialog
+    <edit-dialog
       :content="json_content"
-      title="Interface Details"
+      title="Router Details"
       :readonly="true"
       v-model="showDialog"
       v-if="showDialog"
@@ -87,7 +78,7 @@ export default {
   components: { EditDialog },
   data() {
     return {
-      interfaces: [],
+      routers: [],
       alert: '',
       alertType: 'success',
       showAlert: false,
@@ -100,9 +91,9 @@ export default {
   },
   methods: {
     update() {
-      Api.get('/cosmos-api/interfaces')
+      Api.get('/cosmos-api/routers')
         .then((response) => {
-          this.interfaces = response.data
+          this.routers = response.data
         })
         .catch((error) => {
           this.alert = error
@@ -114,9 +105,9 @@ export default {
         })
     },
     add() {},
-    showInterface(name) {
+    showRouter(name) {
       var self = this
-      Api.get('/cosmos-api/interfaces/' + name)
+      Api.get('/cosmos-api/routers/' + name)
         .then((response) => {
           self.json_content = JSON.stringify(response.data, null, 1)
           self.showDialog = true
@@ -141,9 +132,9 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete('/cosmos-api/interfaces/' + name)
+          Api.delete('/cosmos-api/routers/' + name)
             .then((response) => {
-              self.alert = 'Removed interface ' + name
+              self.alert = 'Removed router ' + name
               self.alertType = 'success'
               self.showAlert = true
               setTimeout(() => {

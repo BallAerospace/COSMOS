@@ -62,7 +62,7 @@
         </v-col>
       </v-row>
     </v-container>
-    <PacketLogInfo v-for="log in loggers" :log="log" :key="log.name" />
+    <packet-log-info v-for="log in loggers" :log="log" :key="log.name" />
     <br />
     Note: Buffered IO operations cause file size to not reflect total logged
     data size until the log file is closed.
