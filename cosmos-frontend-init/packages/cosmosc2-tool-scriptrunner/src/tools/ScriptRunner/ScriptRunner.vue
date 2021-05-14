@@ -552,7 +552,6 @@ export default {
       if (this.editor.getReadOnly() === true) {
         return
       }
-      // Don't track changes on a new unsaved file
       if (this.editor.session.getUndoManager().dirtyCounter > 0) {
         this.fileModified = '*'
       } else {
