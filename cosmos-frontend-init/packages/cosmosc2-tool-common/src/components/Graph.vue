@@ -85,13 +85,13 @@
           @date-time="graphEndDateTime = $event"
         ></date-time-chooser>
         <v-text-field
-          label="Min X"
-          v-model="graphMinX"
+          label="Min Y"
+          v-model="graphMinY"
           hide-details
         ></v-text-field>
         <v-text-field
-          label="Max X"
-          v-model="graphMaxX"
+          label="Max Y"
+          v-model="graphMaxY"
           hide-details
         ></v-text-field>
         <v-container fluid>
@@ -184,56 +184,56 @@ require('uplot/dist/uPlot.min.css')
 
 export default {
   components: {
-    DateTimeChooser,
+    DateTimeChooser
   },
   props: {
     id: {
       type: Number,
-      required: true,
+      required: true
     },
     selectedGraphId: {
-      type: Number,
+      type: Number
       // Not required because we pass null
     },
     state: {
       type: String,
-      required: true,
+      required: true
     },
     // start time in nanoseconds to start the graph
     // this allows multiple graphs to be synchronized
     startTime: {
-      type: Number,
+      type: Number
     },
     secondsGraphed: {
       type: Number,
-      required: true,
+      required: true
     },
     pointsSaved: {
       type: Number,
-      required: true,
+      required: true
     },
     pointsGraphed: {
       type: Number,
-      required: true,
+      required: true
     },
     hideSystemBar: {
       type: Boolean,
-      default: false,
+      default: false
     },
     hideOverview: {
       type: Boolean,
-      default: false,
+      default: false
     },
     initialItems: {
-      type: Array,
+      type: Array
     },
     // These allow the parent to force a specific height and/or width
     height: {
-      type: Number,
+      type: Number
     },
     width: {
-      type: Number,
-    },
+      type: Number
+    }
   },
   data() {
     return {
@@ -255,8 +255,8 @@ export default {
       title: '',
       overview: null,
       data: [[]],
-      graphMinX: '',
-      graphMaxX: '',
+      graphMinY: '',
+      graphMaxY: '',
       graphStartDateTime: this.startTime,
       graphEndDateTime: null,
       indexes: {},
@@ -286,14 +286,14 @@ export default {
         'brown',
         'crimson',
         'lightblue',
-        'black',
-      ],
+        'black'
+      ]
     }
   },
   computed: {
     calcFullSize() {
       return this.fullWidth || this.fullHeight
-    },
+    }
   },
   created() {
     this.title = 'Graph ' + this.id
@@ -357,17 +357,17 @@ export default {
       (seriesObj, item) => {
         const commonProps = {
           spanGaps: true,
-          stroke: this.colors.shift(),
+          stroke: this.colors.shift()
         }
         seriesObj.chartSeries.push({
           ...commonProps,
           item: item,
           label: item.itemName,
           value: (self, rawValue) =>
-            rawValue == null ? '--' : rawValue.toFixed(2),
+            rawValue == null ? '--' : rawValue.toFixed(2)
         })
         seriesObj.overviewSeries.push({
-          ...commonProps,
+          ...commonProps
         })
         return seriesObj
       },
@@ -384,21 +384,21 @@ export default {
           label: 'Time',
           value: (u, v) =>
             // Convert the unix timestamp into a formatted date / time
-            v == null ? '--' : format(toDate(v * 1000), 'yyyy-MM-dd HH:mm:ss'),
+            v == null ? '--' : format(toDate(v * 1000), 'yyyy-MM-dd HH:mm:ss')
         },
-        ...chartSeries,
+        ...chartSeries
       ],
       cursor: {
         drag: {
           x: true,
-          y: false,
+          y: false
         },
         // Sync the cursor across graphs so mouseovers are synced
         sync: {
-          key: 'cosmos',
+          key: 'cosmos'
           // setSeries links graphs so clicking an item to hide it also hides the other graph item
           // setSeries: true,
-        },
+        }
       },
       hooks: {
         setScale: [
@@ -414,21 +414,21 @@ export default {
               this.overview.setSelect({ left, width: right - left })
               this.zoomChart = false
             }
-          },
+          }
         ],
         ready: [
-          (u) => {
+          u => {
             let clientX
             let clientY
             let canvas = u.root.querySelector('canvas')
-            canvas.addEventListener('contextmenu', (e) => {
+            canvas.addEventListener('contextmenu', e => {
               e.preventDefault()
               this.editGraphMenuX = e.clientX
               this.editGraphMenuY = e.clientY
               this.editGraphMenu = true
             })
             let legend = u.root.querySelector('.u-legend')
-            legend.addEventListener('contextmenu', (e) => {
+            legend.addEventListener('contextmenu', e => {
               e.preventDefault()
               this.itemMenuX = e.clientX
               this.itemMenuY = e.clientY
@@ -444,9 +444,9 @@ export default {
               }
               return false
             })
-          },
-        ],
-      },
+          }
+        ]
+      }
     }
     // console.time('chart')
     this.graph = new uPlot(
@@ -464,20 +464,20 @@ export default {
       cursor: {
         y: false,
         points: {
-          show: false, // TODO: This isn't working
+          show: false // TODO: This isn't working
         },
         drag: {
           setScale: false,
           x: true,
-          y: false,
-        },
+          y: false
+        }
       },
       legend: {
-        show: false,
+        show: false
       },
       hooks: {
         setSelect: [
-          (chart) => {
+          chart => {
             if (!this.zoomChart) {
               this.zoomOverview = true
               let min = chart.posToVal(chart.select.left, 'x')
@@ -488,9 +488,9 @@ export default {
               this.graph.setScale('x', { min, max })
               this.zoomOverview = false
             }
-          },
-        ],
-      },
+          }
+        ]
+      }
     }
     this.overview = new uPlot(
       overviewOpts,
@@ -514,7 +514,7 @@ export default {
     window.removeEventListener('resize', this.handleResize)
   },
   watch: {
-    state: function (newState, oldState) {
+    state: function(newState, oldState) {
       switch (newState) {
         case 'start':
           // Only subscribe if we were previously stopped
@@ -530,7 +530,7 @@ export default {
           break
       }
     },
-    data: function (newData, oldData) {
+    data: function(newData, oldData) {
       // Ignore changes to the data while we're paused
       if (this.state === 'pause') {
         return
@@ -548,20 +548,20 @@ export default {
       }
       this.graph.setScale('x', { min, max })
     },
-    graphMinX: function (newVal, oldVal) {
+    graphMinY: function(newVal, oldVal) {
       let val = parseFloat(newVal)
       if (!isNaN(val)) {
-        this.graphMinX = val
+        this.graphMinY = val
       }
       this.setGraphRange()
     },
-    graphMaxX: function (newVal, oldVal) {
+    graphMaxY: function(newVal, oldVal) {
       let val = parseFloat(newVal)
       if (!isNaN(val)) {
-        this.graphMaxX = val
+        this.graphMaxY = val
       }
       this.setGraphRange()
-    },
+    }
   },
   methods: {
     editGraphClose() {
@@ -639,21 +639,21 @@ export default {
     setGraphRange() {
       let pad = 0.1
       if (
-        this.graphMinX ||
-        this.graphMinX === 0 ||
-        this.graphMaxX ||
-        this.graphMaxX === 0
+        this.graphMinY ||
+        this.graphMinY === 0 ||
+        this.graphMaxY ||
+        this.graphMaxY === 0
       ) {
         pad = 0
       }
       this.graph.scales.y.range = (u, dataMin, dataMax) => {
         let min = dataMin
-        if (this.graphMinX || this.graphMinX === 0) {
-          min = this.graphMinX
+        if (this.graphMinY || this.graphMinY === 0) {
+          min = this.graphMinY
         }
         let max = dataMax
-        if (this.graphMaxX || this.graphMaxX === 0) {
-          max = this.graphMaxX
+        if (this.graphMaxY || this.graphMaxY === 0) {
+          max = this.graphMaxY
         }
         return uPlot.rangeNum(min, max, pad, true)
       }
@@ -661,14 +661,14 @@ export default {
     subscribe(endTime = null) {
       this.cable
         .createSubscription('StreamingChannel', 'DEFAULT', {
-          received: (data) => this.received(data),
+          received: data => this.received(data),
           connected: () => {
             this.onConnected(endTime)
-          },
+          }
           // TODO: How should we handle server side disconnect
           // disconnected: () => console.log('disconnected'),
         })
-        .then((subscription) => {
+        .then(subscription => {
           // Store the subscription if we haven't already
           if (this.subscription === null) {
             this.subscription = subscription
@@ -677,7 +677,7 @@ export default {
     },
     onConnected(endTime) {
       var items = []
-      this.items.forEach((item) => {
+      this.items.forEach(item => {
         items.push(
           'TLM__' +
             item.targetName +
@@ -696,7 +696,7 @@ export default {
           token: localStorage.token,
           items: items,
           start_time: this.graphStartDateTime,
-          end_time: endTime,
+          end_time: endTime
         })
       })
     },
@@ -746,7 +746,7 @@ export default {
       }
       return {
         width: this.width || width,
-        height: this.height || height,
+        height: this.height || height
       }
     },
     getScales() {
@@ -756,15 +756,15 @@ export default {
             range(u, dataMin, dataMax) {
               if (dataMin == null) return [1566453600, 1566497660]
               return [dataMin, dataMax]
-            },
+            }
           },
           y: {
             range(u, dataMin, dataMax) {
               if (dataMin == null) return [-100, 100]
               return uPlot.rangeNum(dataMin, dataMax, 0.1, true)
-            },
-          },
-        },
+            }
+          }
+        }
       }
     },
     getAxes(type) {
@@ -781,8 +781,8 @@ export default {
             grid: {
               show: true,
               stroke: strokeColor,
-              width: 2,
-            },
+              width: 2
+            }
           },
           {
             size: 70, // This size supports values up to 99 million
@@ -790,10 +790,10 @@ export default {
             grid: {
               show: type === 'overview' ? false : true,
               stroke: strokeColor,
-              width: 2,
-            },
-          },
-        ],
+              width: 2
+            }
+          }
+        ]
       }
     },
     changeType(event) {
@@ -815,14 +815,14 @@ export default {
           label: item.itemName,
           stroke: color,
           value: (self, rawValue) =>
-            rawValue == null ? '--' : rawValue.toFixed(2),
+            rawValue == null ? '--' : rawValue.toFixed(2)
         },
         index
       )
       this.overview.addSeries(
         {
           spanGaps: true,
-          stroke: color,
+          stroke: color
         },
         index
       )
@@ -847,7 +847,7 @@ export default {
             token: localStorage.token,
             items: [key],
             start_time: this.graphStartDateTime,
-            end_time: this.graphEndDateTime, // normally null which means continue in real-time
+            end_time: this.graphEndDateTime // normally null which means continue in real-time
           })
         })
       }
@@ -864,7 +864,7 @@ export default {
         item.valueType
       this.subscription.perform('remove', {
         scope: 'DEFAULT',
-        items: [key],
+        items: [key]
       })
       const index = this.reorderIndexes(key)
       // Put back the color so it's available for new series
@@ -942,8 +942,8 @@ export default {
           }
         }
       }
-    },
-  },
+    }
+  }
 }
 </script>
 
