@@ -36,6 +36,15 @@
             <v-icon v-if="showDisconnect" class="mr-2" color="red"
               >mdi-connection</v-icon
             >
+            <v-btn
+              v-show="showSave"
+              color="primary"
+              small
+              disabled
+              class="saving"
+              :style="savingStyle"
+              >Saving...</v-btn
+            >
             <v-text-field
               outlined
               dense
@@ -43,8 +52,10 @@
               hide-details
               label="Filename"
               v-model="fullFilename"
+              id="filename"
               data-test="filename"
-            ></v-text-field>
+            >
+            </v-text-field>
             <v-text-field
               class="shrink ml-2 script-state"
               style="width: 120px"
@@ -405,6 +416,8 @@ export default {
         //   },
         // },
       },
+      showSave: false,
+      savingOffset: 0,
       alertType: null,
       alertText: '',
       state: ' ',
@@ -461,6 +474,9 @@ export default {
     }
   },
   computed: {
+    savingStyle() {
+      return { '--saving-offset': this.savingOffset + 'px' }
+    },
     fullFilename() {
       if (this.fileModified.length > 0) {
         return this.filename + ' ' + this.fileModified
@@ -483,24 +499,27 @@ export default {
     // while change fires immediately before the UndoManager is updated.
     this.editor.session.on('tokenizerUpdate', this.onChange)
     window.addEventListener('keydown', this.keydown)
-    // Prevent the user from closing the tab accidentally
-    window.addEventListener('beforeunload', (event) => {
-      // Cancel the event as stated by the standard.
-      event.preventDefault()
-      // Older browsers supported custom message
-      event.returnValue = ''
-    })
+    // TOOD: This doesn't work on window resize
+    this.savingOffset = document.getElementById('filename').offsetWidth
     this.cable = ActionCable.createConsumer('/script-api/cable')
-
     if (this.$route.params.id) {
       this.scriptStart(this.$route.params.id)
     }
+    this.autoSaveInterval = setInterval(() => {
+      this.saveFile('auto')
+    }, 60000) // Save every minute
   },
   beforeDestroy() {
     this.editor.destroy()
     this.editor.container.remove()
   },
   destroyed() {
+    if (this.autoSaveInterval != null) {
+      clearInterval(this.autoSaveInterval)
+    }
+    if (this.tempFilename) {
+      Api.post('/script-api/scripts/' + this.tempFilename + '/delete')
+    }
     if (this.subscription) {
       this.subscription.unsubscribe()
     }
@@ -534,10 +553,7 @@ export default {
         return
       }
       // Don't track changes on a new unsaved file
-      if (
-        this.filename !== NEW_FILENAME &&
-        this.editor.session.getUndoManager().dirtyCounter > 0
-      ) {
+      if (this.editor.session.getUndoManager().dirtyCounter > 0) {
         this.fileModified = '*'
       } else {
         this.fileModified = ''
@@ -570,16 +586,10 @@ export default {
       this.fatal = false
       this.marker = null
       this.editor.setReadOnly(false)
-      // Delete the temp file created as a result of saving a NEW file
-      if (this.tempFilename) {
-        Api.post('/script-api/scripts/' + this.tempFilename + '/delete')
-      }
     },
     startOrGo(event, suiteRunner = null) {
       if (this.startOrGoButton === 'Start') {
-        if (this.filename === NEW_FILENAME || this.fileModified.length > 0) {
-          this.saveFile('start')
-        }
+        this.saveFile('start')
 
         let filename = this.filename
         if (this.filename === NEW_FILENAME) {
@@ -861,22 +871,30 @@ export default {
       }
     },
     // saveFile takes a type to indicate if it was called by the Menu
-    // or automatically by the 'Start' button (to ensure a consistent backend file)
+    // or automatically by 'Start' (to ensure a consistent backend file) or autoSave
     saveFile(type = 'menu') {
       if (this.filename === NEW_FILENAME) {
-        // If this saveFile was called by 'Start' we need to create a temp file
-        if (type === 'start') {
-          this.tempFilename =
-            format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_temp.rb'
-          Api.post('/script-api/scripts/' + this.tempFilename, {
-            text: this.editor.getValue(), // Pass in the raw file text
-          })
-        } else {
+        if (type === 'menu') {
           // Menu driven saves on a new file should prompt SaveAs
           this.saveAs()
+        } else if (type === 'start' || (type === 'auto' && this.fileModified)) {
+          if (this.tempFilename === null) {
+            this.tempFilename =
+              format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_temp.rb'
+          }
+          this.showSave = true
+          Api.post('/script-api/scripts/' + this.tempFilename, {
+            text: this.editor.getValue(), // Pass in the raw file text
+          }).then((response) => {
+            this.fileModified = ''
+            setTimeout(() => {
+              this.showSave = false
+            }, 2000)
+          })
         }
       } else {
         // Save a file by posting the new contents
+        this.showSave = true
         Api.post('/script-api/scripts/' + this.filename, {
           text: this.editor.getValue(), // Pass in the raw file text
         }).then((response) => {
@@ -886,6 +904,9 @@ export default {
               this.suiteMap = JSON.parse(response.data.suites)
             }
             this.fileModified = ''
+            setTimeout(() => {
+              this.showSave = false
+            }, 2000)
           } else {
             this.alertType = 'error'
             this.alertText =
@@ -902,6 +923,10 @@ export default {
     },
     saveAsFilename(filename) {
       this.filename = filename
+      if (this.tempFilename) {
+        Api.post('/script-api/scripts/' + this.tempFilename + '/delete')
+        this.tempFilename = null
+      }
       this.saveFile()
     },
     delete() {
@@ -1064,5 +1089,10 @@ hr {
   position: absolute;
   background: rgba(255, 0, 0, 0.5);
   z-index: 20;
+}
+.saving {
+  position: absolute;
+  top: 6px;
+  left: var(--saving-offset);
 }
 </style>
