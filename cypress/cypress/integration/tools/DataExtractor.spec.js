@@ -154,7 +154,9 @@ describe('DataExtractor', () => {
     // Verify the Cancel button goes back to Process
     cy.contains('Process')
     // Verify we still get a file
-    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv')
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
+      timeout: 10000,
+    })
   })
 
   it('adds an entire target', function () {
@@ -230,14 +232,14 @@ describe('DataExtractor', () => {
       cy.get('input').first().focus().type('{esc}', { force: true })
     })
     cy.contains('Process').click({ force: true })
-    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
-      (contents) => {
-        var lines = contents.split('\n')
-        expect(lines[0]).to.contain('CCSDSSHF (RAW)')
-        expect(lines[1]).to.not.contain('FALSE')
-        expect(lines[1]).to.contain('0')
-      }
-    )
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
+      timeout: 10000,
+    }).then((contents) => {
+      var lines = contents.split('\n')
+      expect(lines[0]).to.contain('CCSDSSHF (RAW)')
+      expect(lines[1]).to.not.contain('FALSE')
+      expect(lines[1]).to.contain('0')
+    })
   })
 
   it('processes commands', function () {
@@ -256,13 +258,13 @@ describe('DataExtractor', () => {
     cy.selectTargetPacketItem('INST', 'ABORT', 'RECEIVED_TIMEFORMATTED')
     cy.contains('Add Item').click()
     cy.contains('Process').click()
-    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
-      (contents) => {
-        var lines = contents.split('\n')
-        expect(lines[1]).to.contain('INST')
-        expect(lines[1]).to.contain('ABORT')
-      }
-    )
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
+      timeout: 10000,
+    }).then((contents) => {
+      var lines = contents.split('\n')
+      expect(lines[1]).to.contain('INST')
+      expect(lines[1]).to.contain('ABORT')
+    })
   })
 
   it('creates CSV output', function () {
@@ -277,19 +279,19 @@ describe('DataExtractor', () => {
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
     cy.contains('Process').click()
-    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
-      (contents) => {
-        // Check that we handle raw value types set by the demo
-        expect(contents).to.contain('NaN')
-        expect(contents).to.contain('Infinity')
-        expect(contents).to.contain('-Infinity')
-        var lines = contents.split('\n')
-        expect(lines[0]).to.contain('TEMP1')
-        expect(lines[0]).to.contain('TEMP2')
-        expect(lines[0]).to.contain(',') // csv
-        expect(lines.length).to.be.greaterThan(300) // 5 min at 60Hz is 300 samples
-      }
-    )
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
+      timeout: 10000,
+    }).then((contents) => {
+      // Check that we handle raw value types set by the demo
+      expect(contents).to.contain('NaN')
+      expect(contents).to.contain('Infinity')
+      expect(contents).to.contain('-Infinity')
+      var lines = contents.split('\n')
+      expect(lines[0]).to.contain('TEMP1')
+      expect(lines[0]).to.contain('TEMP2')
+      expect(lines[0]).to.contain(',') // csv
+      expect(lines.length).to.be.greaterThan(300) // 5 min at 60Hz is 300 samples
+    })
   })
 
   it('creates tab delimited output', function () {
@@ -304,15 +306,15 @@ describe('DataExtractor', () => {
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
     cy.contains('Process').click()
-    cy.readFile('cypress/downloads/' + formatFilename(start) + '.txt').then(
-      (contents) => {
-        var lines = contents.split('\n')
-        expect(lines[0]).to.contain('TEMP1')
-        expect(lines[0]).to.contain('TEMP2')
-        expect(lines[0]).to.contain('\t')
-        expect(lines.length).to.be.greaterThan(300) // 5 min at 60Hz is 300 samples
-      }
-    )
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.txt', {
+      timeout: 10000,
+    }).then((contents) => {
+      var lines = contents.split('\n')
+      expect(lines[0]).to.contain('TEMP1')
+      expect(lines[0]).to.contain('TEMP2')
+      expect(lines[0]).to.contain('\t')
+      expect(lines.length).to.be.greaterThan(300) // 5 min at 60Hz is 300 samples
+    })
   })
 
   it('outputs full column names', function () {
@@ -327,13 +329,13 @@ describe('DataExtractor', () => {
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
     cy.contains('Process').click()
-    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
-      (contents) => {
-        var lines = contents.split('\n')
-        expect(lines[0]).to.contain('INST HEALTH_STATUS TEMP1')
-        expect(lines[0]).to.contain('INST HEALTH_STATUS TEMP2')
-      }
-    )
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
+      timeout: 10000,
+    }).then((contents) => {
+      var lines = contents.split('\n')
+      expect(lines[0]).to.contain('INST HEALTH_STATUS TEMP1')
+      expect(lines[0]).to.contain('INST HEALTH_STATUS TEMP2')
+    })
     // Switch back and verify
     cy.get('.v-toolbar').contains('Mode').click()
     cy.contains(/Normal Columns/).click()
@@ -341,15 +343,15 @@ describe('DataExtractor', () => {
     start = sub(new Date(), { minutes: 2 })
     cy.get('[data-test=startTime]').clear().type(formatTime(start))
     cy.contains('Process').click()
-    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
-      (contents) => {
-        var lines = contents.split('\n')
-        expect(lines[0]).to.contain('TARGET,PACKET,TEMP1,TEMP2')
-      }
-    )
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
+      timeout: 10000,
+    }).then((contents) => {
+      var lines = contents.split('\n')
+      expect(lines[0]).to.contain('TARGET,PACKET,TEMP1,TEMP2')
+    })
   })
 
-  it.only('fills values', function () {
+  it('fills values', function () {
     const start = sub(new Date(), { minutes: 1 })
     cy.visit('/tools/dataextractor')
     cy.hideNav()
@@ -362,30 +364,30 @@ describe('DataExtractor', () => {
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'CCSDSSEQCNT')
     cy.contains('Add Item').click()
     cy.contains('Process').click()
-    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
-      (contents) => {
-        var lines = contents.split('\n')
-        expect(lines[0]).to.contain('CCSDSSEQCNT')
-        var firstHS = -1
-        for (let i = 1; i < lines.length; i++) {
-          if (firstHS !== -1) {
-            var [tgt1, pkt1, hs1, adcs1] = lines[firstHS].split(',')
-            var [tgt2, pkt2, hs2, adcs2] = lines[i].split(',')
-            expect(tgt1).to.eq(tgt2) // Both INST
-            expect(pkt1).to.eq('HEALTH_STATUS')
-            expect(pkt2).to.eq('ADCS')
-            expect(parseInt(adcs1) + 1).to.eq(parseInt(adcs2)) // ADCS goes up by one each time
-            expect(parseInt(hs1)).to.be.greaterThan(1) // Double check for a value
-            expect(hs1).to.eq(hs2) // HEALTH_STATUS should be the same
-            break
-          } else if (lines[i].includes('HEALTH_STATUS')) {
-            // Look for the first line containing HEALTH_STATUS
-            console.log('Found first HEALTH_STATUS on line ' + i)
-            firstHS = i
-          }
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
+      timeout: 10000,
+    }).then((contents) => {
+      var lines = contents.split('\n')
+      expect(lines[0]).to.contain('CCSDSSEQCNT')
+      var firstHS = -1
+      for (let i = 1; i < lines.length; i++) {
+        if (firstHS !== -1) {
+          var [tgt1, pkt1, hs1, adcs1] = lines[firstHS].split(',')
+          var [tgt2, pkt2, hs2, adcs2] = lines[i].split(',')
+          expect(tgt1).to.eq(tgt2) // Both INST
+          expect(pkt1).to.eq('HEALTH_STATUS')
+          expect(pkt2).to.eq('ADCS')
+          expect(parseInt(adcs1) + 1).to.eq(parseInt(adcs2)) // ADCS goes up by one each time
+          expect(parseInt(hs1)).to.be.greaterThan(1) // Double check for a value
+          expect(hs1).to.eq(hs2) // HEALTH_STATUS should be the same
+          break
+        } else if (lines[i].includes('HEALTH_STATUS')) {
+          // Look for the first line containing HEALTH_STATUS
+          console.log('Found first HEALTH_STATUS on line ' + i)
+          firstHS = i
         }
       }
-    )
+    })
   })
 
   it('adds Matlab headers', function () {
@@ -400,12 +402,12 @@ describe('DataExtractor', () => {
     cy.selectTargetPacketItem('INST', 'ADCS', 'Q2')
     cy.contains('Add Item').click()
     cy.contains('Process').click()
-    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
-      (contents) => {
-        var lines = contents.split('\n')
-        expect(lines[0]).to.contain('% TARGET,PACKET,Q1,Q2')
-      }
-    )
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
+      timeout: 10000,
+    }).then((contents) => {
+      var lines = contents.split('\n')
+      expect(lines[0]).to.contain('% TARGET,PACKET,Q1,Q2')
+    })
   })
 
   it('outputs unique values only', function () {
@@ -418,13 +420,13 @@ describe('DataExtractor', () => {
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'CCSDSVER')
     cy.contains('Add Item').click()
     cy.contains('Process').click()
-    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv').then(
-      (contents) => {
-        console.log(contents)
-        var lines = contents.split('\n')
-        expect(lines[0]).to.contain('CCSDSVER')
-        expect(lines.length).to.eq(2) // header and a single value
-      }
-    )
+    cy.readFile('cypress/downloads/' + formatFilename(start) + '.csv', {
+      timeout: 10000,
+    }).then((contents) => {
+      console.log(contents)
+      var lines = contents.split('\n')
+      expect(lines[0]).to.contain('CCSDSVER')
+      expect(lines.length).to.eq(2) // header and a single value
+    })
   })
 })
