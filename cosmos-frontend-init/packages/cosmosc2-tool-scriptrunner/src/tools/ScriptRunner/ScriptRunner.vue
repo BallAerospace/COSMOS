@@ -884,37 +884,46 @@ export default {
           this.showSave = true
           Api.post('/script-api/scripts/' + this.tempFilename, {
             text: this.editor.getValue(), // Pass in the raw file text
-          }).then((response) => {
-            this.fileModified = ''
-            setTimeout(() => {
-              this.showSave = false
-            }, 2000)
           })
+            .then((response) => {
+              this.fileModified = ''
+              setTimeout(() => {
+                this.showSave = false
+              }, 2000)
+            })
+            .catch((error) => {
+              this.showSave = false
+            })
         }
       } else {
         // Save a file by posting the new contents
         this.showSave = true
         Api.post('/script-api/scripts/' + this.filename, {
           text: this.editor.getValue(), // Pass in the raw file text
-        }).then((response) => {
-          if (response.status == 200) {
-            if (response.data.suites) {
-              this.suiteRunner = true
-              this.suiteMap = JSON.parse(response.data.suites)
-            }
-            this.fileModified = ''
-            setTimeout(() => {
-              this.showSave = false
-            }, 2000)
-          } else {
-            this.alertType = 'error'
-            this.alertText =
-              'Error saving file. Code: ' +
-              response.status +
-              ' Text: ' +
-              response.statusText
-          }
         })
+          .then((response) => {
+            if (response.status == 200) {
+              if (response.data.suites) {
+                this.suiteRunner = true
+                this.suiteMap = JSON.parse(response.data.suites)
+              }
+              this.fileModified = ''
+              setTimeout(() => {
+                this.showSave = false
+              }, 2000)
+            } else {
+              this.showSave = false
+              this.alertType = 'error'
+              this.alertText =
+                'Error saving file. Code: ' +
+                response.status +
+                ' Text: ' +
+                response.statusText
+            }
+          })
+          .catch((error) => {
+            this.showSave = false
+          })
       }
     },
     saveAs() {
