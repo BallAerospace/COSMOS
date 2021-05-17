@@ -36,16 +36,6 @@
             <v-icon v-if="showDisconnect" class="mr-2" color="red">
               mdi-connection
             </v-icon>
-            <v-btn
-              v-show="showSave"
-              color="primary"
-              small
-              disabled
-              class="saving"
-              :style="savingStyle"
-            >
-              Saving...
-            </v-btn>
             <v-text-field
               outlined
               dense
@@ -125,6 +115,9 @@
       @paneResize="editor.resize()"
     >
       <div id="editorbox" class="pane">
+        <v-snackbar v-model="showSave" absolute top right>
+          Saving...
+        </v-snackbar>
         <pre id="editor"></pre>
       </div>
       <multipane-resizer><hr /></multipane-resizer>
@@ -423,7 +416,6 @@ export default {
         // },
       },
       showSave: false,
-      savingOffset: 0,
       alertType: null,
       alertText: '',
       state: ' ',
@@ -480,9 +472,6 @@ export default {
     }
   },
   computed: {
-    savingStyle() {
-      return { '--saving-offset': this.savingOffset + 'px' }
-    },
     fullFilename() {
       if (this.fileModified.length > 0) {
         return this.filename + ' ' + this.fileModified
@@ -505,8 +494,6 @@ export default {
     // while change fires immediately before the UndoManager is updated.
     this.editor.session.on('tokenizerUpdate', this.onChange)
     window.addEventListener('keydown', this.keydown)
-    // TOOD: This doesn't work on window resize
-    this.savingOffset = document.getElementById('filename').offsetWidth
     this.cable = ActionCable.createConsumer('/script-api/cable')
     if (this.$route.params.id) {
       this.scriptStart(this.$route.params.id)
@@ -1094,10 +1081,5 @@ hr {
   position: absolute;
   background: rgba(255, 0, 0, 0.5);
   z-index: 20;
-}
-.saving {
-  position: absolute;
-  top: 6px;
-  left: var(--saving-offset);
 }
 </style>
