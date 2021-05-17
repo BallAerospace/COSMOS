@@ -19,10 +19,10 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
-    <v-alert dense dismissible :type="alertType" v-if="alertType">{{
-      alertText
-    }}</v-alert>
+    <top-bar :menus="menus" :title="title" />
+    <v-alert dense dismissible :type="alertType" v-if="alertType">
+      {{ alertText }}
+    </v-alert>
     <suite-runner
       v-if="suiteRunner"
       :suiteMap="suiteMap"
@@ -33,9 +33,9 @@
       <v-row no-gutters justify="space-between">
         <v-col cols="8">
           <v-row no-gutters>
-            <v-icon v-if="showDisconnect" class="mr-2" color="red"
-              >mdi-connection</v-icon
-            >
+            <v-icon v-if="showDisconnect" class="mr-2" color="red">
+              mdi-connection
+            </v-icon>
             <v-btn
               v-show="showSave"
               color="primary"
@@ -43,8 +43,9 @@
               disabled
               class="saving"
               :style="savingStyle"
-              >Saving...</v-btn
             >
+              Saving...
+            </v-btn>
             <v-text-field
               outlined
               dense
@@ -92,7 +93,8 @@
               class="mr-2"
               :disabled="startOrGoDisabled"
               data-test="start-go-button"
-              >{{ startOrGoButton }}
+            >
+              {{ startOrGoButton }}
             </v-btn>
             <v-btn
               color="primary"
@@ -100,14 +102,16 @@
               class="mr-2"
               :disabled="pauseOrRetryDisabled"
               data-test="pause-retry-button"
-              >{{ pauseOrRetryButton }}
+            >
+              {{ pauseOrRetryButton }}
             </v-btn>
             <v-btn
               color="primary"
               @click="stop"
               data-test="stop-button"
               :disabled="stopDisabled"
-              >Stop
+            >
+              Stop
             </v-btn>
           </v-row>
         </v-col>
@@ -115,7 +119,7 @@
     </v-container>
     <!-- Create Multipane container to support resizing.
          NOTE: We listen to paneResize event and call editor.resize() to prevent weird sizing issues -->
-    <Multipane
+    <multipane
       class="horizontal-panes"
       layout="horizontal"
       @paneResize="editor.resize()"
@@ -123,7 +127,7 @@
       <div id="editorbox" class="pane">
         <pre id="editor"></pre>
       </div>
-      <MultipaneResizer><hr /></MultipaneResizer>
+      <multipane-resizer><hr /></multipane-resizer>
       <div id="messages" class="mt-2 pane" ref="messagesDiv">
         <v-container id="debug" class="pa-0" v-if="showDebug">
           <v-row no-gutters>
@@ -133,7 +137,8 @@
               style="width: 100px"
               class="mr-4"
               data-test="step-button"
-              >Step
+            >
+              Step
               <v-icon right> mdi-step-forward </v-icon>
             </v-btn>
             <v-text-field
@@ -164,8 +169,9 @@
               @click="downloadLog"
               class="pa-2 mt-3"
               data-test="download-log"
-              >mdi-download</v-icon
             >
+              mdi-download
+            </v-icon>
           </v-card-title>
           <v-data-table
             :headers="headers"
@@ -181,16 +187,16 @@
           ></v-data-table>
         </v-card>
       </div>
-    </Multipane>
-    <AskDialog
+    </multipane>
+    <ask-dialog
       v-if="ask.show"
       :question="ask.question"
       :default="ask.default"
       :password="ask.password"
       :answerRequired="ask.answerRequired"
       @submit="ask.callback"
-    ></AskDialog>
-    <PromptDialog
+    />
+    <prompt-dialog
       v-if="prompt.show"
       :title="prompt.title"
       :subtitle="prompt.subtitle"
@@ -199,15 +205,15 @@
       :buttons="prompt.buttons"
       :layout="prompt.layout"
       @submit="prompt.callback"
-    ></PromptDialog>
+    />
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <FileOpenSaveDialog
+    <file-open-save-dialog
       v-if="fileOpen"
       v-model="fileOpen"
       type="open"
       @file="setFile($event)"
     />
-    <FileOpenSaveDialog
+    <file-open-save-dialog
       v-if="showSaveAs"
       v-model="showSaveAs"
       type="save"
