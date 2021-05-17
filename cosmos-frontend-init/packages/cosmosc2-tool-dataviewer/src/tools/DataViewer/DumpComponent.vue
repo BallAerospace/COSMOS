@@ -57,6 +57,7 @@
             solo
             flat
             hide-details
+            data-test="dump-component-text-area"
           />
           <div class="floating-buttons">
             <v-menu

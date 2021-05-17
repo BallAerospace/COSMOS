@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
     <v-row dense>
       <v-col>
         <v-menu
@@ -106,6 +106,7 @@
           width="86"
           :disabled="!canStart"
           @click="start"
+          data-test="start-button"
         >
           Start
         </v-btn>
@@ -131,7 +132,7 @@
         >
           {{ tab.name }}
         </v-tab>
-        <v-btn class="mt-2 ml-2" @click="addTab" icon>
+        <v-btn class="mt-2 ml-2" @click="addTab" icon data-test="new-tab">
           <v-icon>mdi-tab-plus</v-icon>
         </v-btn>
       </v-tabs>
@@ -176,7 +177,11 @@
               above to rename or delete this tab.
             </v-card-text>
           </v-card>
-          <v-btn block @click="() => openComponentDialog(index)">
+          <v-btn
+            block
+            @click="() => openComponentDialog(index)"
+            data-test="new-packet"
+          >
             <v-icon class="mr-2">$astro-add-large</v-icon>
             Click here to add a packet
           </v-btn>
@@ -188,13 +193,13 @@
       </v-card>
     </v-card>
     <!-- Dialogs for opening and saving configs -->
-    <OpenConfigDialog
+    <open-config-dialog
       v-if="openConfig"
       v-model="openConfig"
       :tool="toolName"
       @success="openConfiguration($event)"
     />
-    <SaveConfigDialog
+    <save-config-dialog
       v-if="saveConfig"
       v-model="saveConfig"
       :tool="toolName"
@@ -255,7 +260,7 @@
           </v-row>
           <v-row>
             <v-col>
-              <TargetPacketItemChooser
+              <target-packet-item-chooser
                 @on-set="packetSelected($event)"
                 :mode="newPacketCmdOrTlm"
               />
@@ -264,8 +269,16 @@
               <v-row>
                 <v-col>
                   <v-radio-group v-model="newPacketMode" row>
-                    <v-radio label="Raw" value="RAW" />
-                    <v-radio label="Decom" value="DECOM" />
+                    <v-radio
+                      label="Raw"
+                      value="RAW"
+                      data-test="new-packet-raw-radio"
+                    />
+                    <v-radio
+                      label="Decom"
+                      value="DECOM"
+                      data-test="new-packet-decom-radio"
+                    />
                   </v-radio-group>
                 </v-col>
                 <v-col>
@@ -275,6 +288,7 @@
                     :items="valueTypes"
                     label="Value Type"
                     v-model="newPacketValueType"
+                    data-test="add-packet-value-type"
                   ></v-select>
                 </v-col>
               </v-row>
@@ -283,7 +297,14 @@
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
-          <v-btn color="primary" text @click="addComponent"> Add </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="addComponent"
+            data-test="add-packet-button"
+          >
+            Add
+          </v-btn>
           <v-btn color="primary" text @click="cancelAddComponent">
             Cancel
           </v-btn>
