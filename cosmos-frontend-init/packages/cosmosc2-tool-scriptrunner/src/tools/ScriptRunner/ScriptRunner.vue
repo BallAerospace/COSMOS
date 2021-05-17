@@ -115,7 +115,7 @@
       @paneResize="editor.resize()"
     >
       <div id="editorbox" class="pane">
-        <v-snackbar v-model="showSave" absolute top right>
+        <v-snackbar v-model="showSave" absolute top right :timeout="-1">
           Saving...
         </v-snackbar>
         <pre id="editor"></pre>
