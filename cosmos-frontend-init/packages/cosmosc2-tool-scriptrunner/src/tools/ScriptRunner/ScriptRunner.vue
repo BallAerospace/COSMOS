@@ -115,7 +115,14 @@
       @paneResize="editor.resize()"
     >
       <div id="editorbox" class="pane">
-        <v-snackbar v-model="showSave" absolute top right :timeout="-1">
+        <v-snackbar
+          v-model="showSave"
+          absolute
+          top
+          right
+          :timeout="-1"
+          class="saving"
+        >
           Saving...
         </v-snackbar>
         <pre id="editor"></pre>
@@ -1081,5 +1088,9 @@ hr {
   position: absolute;
   background: rgba(255, 0, 0, 0.5);
   z-index: 20;
+}
+.saving {
+  z-index: 20;
+  opacity: 0.35;
 }
 </style>
