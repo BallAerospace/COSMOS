@@ -85,13 +85,13 @@
           @date-time="graphEndDateTime = $event"
         ></date-time-chooser>
         <v-text-field
-          label="Min X"
-          v-model="graphMinX"
+          label="Min Y"
+          v-model="graphMinY"
           hide-details
         ></v-text-field>
         <v-text-field
-          label="Max X"
-          v-model="graphMaxX"
+          label="Max Y"
+          v-model="graphMaxY"
           hide-details
         ></v-text-field>
         <v-container fluid>
@@ -255,8 +255,8 @@ export default {
       title: '',
       overview: null,
       data: [[]],
-      graphMinX: '',
-      graphMaxX: '',
+      graphMinY: '',
+      graphMaxY: '',
       graphStartDateTime: this.startTime,
       graphEndDateTime: null,
       indexes: {},
@@ -548,17 +548,17 @@ export default {
       }
       this.graph.setScale('x', { min, max })
     },
-    graphMinX: function (newVal, oldVal) {
+    graphMinY: function (newVal, oldVal) {
       let val = parseFloat(newVal)
       if (!isNaN(val)) {
-        this.graphMinX = val
+        this.graphMinY = val
       }
       this.setGraphRange()
     },
-    graphMaxX: function (newVal, oldVal) {
+    graphMaxY: function (newVal, oldVal) {
       let val = parseFloat(newVal)
       if (!isNaN(val)) {
-        this.graphMaxX = val
+        this.graphMaxY = val
       }
       this.setGraphRange()
     },
@@ -639,21 +639,21 @@ export default {
     setGraphRange() {
       let pad = 0.1
       if (
-        this.graphMinX ||
-        this.graphMinX === 0 ||
-        this.graphMaxX ||
-        this.graphMaxX === 0
+        this.graphMinY ||
+        this.graphMinY === 0 ||
+        this.graphMaxY ||
+        this.graphMaxY === 0
       ) {
         pad = 0
       }
       this.graph.scales.y.range = (u, dataMin, dataMax) => {
         let min = dataMin
-        if (this.graphMinX || this.graphMinX === 0) {
-          min = this.graphMinX
+        if (this.graphMinY || this.graphMinY === 0) {
+          min = this.graphMinY
         }
         let max = dataMax
-        if (this.graphMaxX || this.graphMaxX === 0) {
-          max = this.graphMaxX
+        if (this.graphMaxY || this.graphMaxY === 0) {
+          max = this.graphMaxY
         }
         return uPlot.rangeNum(min, max, pad, true)
       }
