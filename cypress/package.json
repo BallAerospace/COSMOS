@@ -2,6 +2,10 @@
   "name": "cypress",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "fixlinux": "cp ./context.js node_modules/istanbul-lib-report/lib/context.js",
+    "fixwindows": "copy .\\context.js node_modules\\istanbul-lib-report\\lib\\context.js"
+  },
   "dependencies": {
     "@cypress/code-coverage": "3.9.4",
     "@cypress/vue": "2.2.3",
