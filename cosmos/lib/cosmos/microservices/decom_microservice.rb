@@ -27,9 +27,19 @@ module Cosmos
   class DecomMicroservice < Microservice
     DECOM_METRIC_NAME = "decom_packet_duration_seconds"
     LIMIT_METRIC_NAME = "limits_change_callback_duration_seconds"
+    NS_PER_MSEC = 1000000
 
     def initialize(*args)
       super(*args)
+      @id_by_topic = {}
+      offsets = Store.update_topic_offsets(@topics)
+      @topics.each_with_index do |topic, index|
+        id_time, id_offset = offsets[index].split('-')
+        id_time = id_time.to_i
+        id_offset = id_offset.to_i
+        @id_by_topic[topic] = [id_time, id_offset]
+      end
+
       System.telemetry.limits_change_callback = method(:limits_change_callback)
     end
 
@@ -61,7 +71,18 @@ module Cosmos
       packet.buffer = msg_hash["buffer"]
       packet.check_limits # Process all the limits and call the limits_change_callback (as necessary)
 
-      TelemetryDecomTopic.write_packet(packet, scope: @scope)
+      # Id should match packet time to allow for easy querying of Redis
+      previous_id_time, previous_id_count = @id_by_topic[topic]
+      id_time = packet.packet_time.to_nsec_from_epoch / NS_PER_MSEC
+      id_count = 0
+      if previous_id_time >= id_time
+        id_time = previous_id_time
+        id_count = previous_id_count + 1
+      end
+      @id_by_topic[topic] = [id_time, id_count]
+      id = "#{id_time}-#{id_count}"
+
+      TelemetryDecomTopic.write_packet(packet, id: id, scope: @scope)
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
       metric_labels = { "packet" => packet_name, "target" => target_name }
       @metric.add_sample(name: DECOM_METRIC_NAME, value: diff, labels: metric_labels)
