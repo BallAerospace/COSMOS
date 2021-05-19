@@ -97,7 +97,13 @@
         ></v-text-field>
       </v-col>
       <v-col cols="auto" class="pt-4">
-        <v-btn v-if="running" color="red" width="86" @click="stop">
+        <v-btn
+          v-if="running"
+          color="red"
+          width="86"
+          @click="stop"
+          data-test="stop-button"
+        >
           Stop
         </v-btn>
         <v-btn
@@ -129,6 +135,7 @@
           v-for="(tab, index) in config.tabs"
           :key="index"
           @contextmenu="(event) => tabMenu(event, index)"
+          data-test="tab"
         >
           {{ tab.name }}
         </v-tab>
@@ -147,7 +154,11 @@
             <v-card-title class="pa-3">
               {{ packet.target }} {{ packet.packet }}
               <v-spacer />
-              <v-btn @click="() => deleteComponent(index, packetIndex)" icon>
+              <v-btn
+                @click="() => deleteComponent(index, packetIndex)"
+                icon
+                data-test="delete-packet"
+              >
                 <v-icon color="red">mdi-delete</v-icon>
               </v-btn>
             </v-card-title>
@@ -210,12 +221,25 @@
       <v-card>
         <v-card-title> Rename tab </v-card-title>
         <v-card-text>
-          <v-text-field v-model="newTabName" label="Tab name" />
+          <v-text-field
+            v-model="newTabName"
+            label="Tab name"
+            data-test="rename-tab-input"
+          />
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions>
-          <v-btn color="primary" text @click="renameTab"> Rename </v-btn>
-          <v-btn color="primary" text @click="cancelTabRename"> Cancel </v-btn>
+          <v-btn color="primary" text @click="renameTab" data-test="rename">
+            Rename
+          </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="cancelTabRename"
+            data-test="cancel-rename"
+          >
+            Cancel
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -228,12 +252,12 @@
       offset-y
     >
       <v-list>
-        <v-list-item>
+        <v-list-item data-test="context-menu-rename">
           <v-list-item-title style="cursor: pointer" @click="openTabNameDialog">
             Rename
           </v-list-item-title>
         </v-list-item>
-        <v-list-item>
+        <v-list-item data-test="context-menu-delete">
           <v-list-item-title style="cursor: pointer" @click="deleteTab">
             Delete
           </v-list-item-title>
@@ -347,28 +371,14 @@ export default {
       endTime: '',
       rules: {
         required: (value) => !!value || 'Required',
-        calendar: (value) => {
-          try {
-            return (
-              value === '' ||
-              isValid(parse(value, 'yyyy-MM-dd', new Date())) ||
-              'Invalid date (YYYY-MM-DD)'
-            )
-          } catch (e) {
-            return 'Invalid date (YYYY-MM-DD)'
-          }
-        },
-        time: (value) => {
-          try {
-            return (
-              value === '' ||
-              isValid(parse(value, 'HH:mm:ss', new Date())) ||
-              'Invalid time (HH:MM:SS)'
-            )
-          } catch (e) {
-            return 'Invalid time (HH:MM:SS)'
-          }
-        },
+        calendar: (value) =>
+          value === '' ||
+          isValid(parse(value, 'yyyy-MM-dd', new Date())) ||
+          'Invalid date (YYYY-MM-DD)',
+        time: (value) =>
+          value === '' ||
+          isValid(parse(value, 'HH:mm:ss', new Date())) ||
+          'Invalid time (HH:MM:SS)',
       },
       canStart: false,
       running: false,
