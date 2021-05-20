@@ -29,9 +29,11 @@ describe('LimitsMonitor', () => {
     cy.get('[data-test=limits-row]:contains("TEMP2")', {
       timeout: 30000,
     }).should('have.length', 2)
+    cy.wait(500)
 
     // Hide both TEMP2s
-    cy.contains('TEMP2')
+    cy.get('[data-test=label]')
+      .contains('TEMP2')
       .parentsUntil('[data-test=limits-row]')
       .parent()
       .children()
@@ -39,7 +41,8 @@ describe('LimitsMonitor', () => {
       .find('button')
       .eq(2) // hide item
       .click()
-    cy.contains('TEMP2')
+    cy.get('[data-test=label]')
+      .contains('TEMP2')
       .parentsUntil('[data-test=limits-row]')
       .parent()
       .children()
@@ -61,9 +64,11 @@ describe('LimitsMonitor', () => {
     cy.get('[data-test=limits-row]:contains("TEMP2")', {
       timeout: 30000,
     }).should('have.length', 2)
+    cy.wait(500)
 
     // Ignore both TEMP2s
-    cy.contains('TEMP2')
+    cy.get('[data-test=label]')
+      .contains('TEMP2')
       .parentsUntil('[data-test=limits-row]')
       .parent()
       .children()
@@ -71,7 +76,8 @@ describe('LimitsMonitor', () => {
       .find('button')
       .eq(1) // ignore item
       .click()
-    cy.contains('TEMP2')
+    cy.get('[data-test=label]')
+      .contains('TEMP2')
       .parentsUntil('[data-test=limits-row]')
       .parent()
       .children()
@@ -142,9 +148,11 @@ describe('LimitsMonitor', () => {
     cy.visit('/tools/limitsmonitor')
     cy.hideNav()
     cy.get('[data-test=overall-state]').invoke('val').should('eq', 'RED')
+    cy.wait(500)
 
     // Ignore the entire VALUE2 packet
-    cy.contains('VALUE2')
+    cy.get('[data-test=label]')
+      .contains('VALUE2')
       .parentsUntil('[data-test=limits-row]')
       .parent()
       .children()
@@ -152,7 +160,8 @@ describe('LimitsMonitor', () => {
       .find('button')
       .eq(0) // Ignore packet
       .click()
-    cy.contains('VALUE2')
+    cy.get('[data-test=label]')
+      .contains('VALUE2')
       .parentsUntil('[data-test=limits-row]')
       .parent()
       .children()
@@ -160,7 +169,8 @@ describe('LimitsMonitor', () => {
       .find('button')
       .eq(0) // Ignore packet
       .click()
-    cy.contains('TEMP2')
+    cy.get('[data-test=label]')
+      .contains('TEMP2')
       .parentsUntil('[data-test=limits-row]')
       .parent()
       .children()
@@ -168,7 +178,8 @@ describe('LimitsMonitor', () => {
       .find('button')
       .eq(0) // Ignore packet
       .click()
-    cy.contains('TEMP2')
+    cy.get('[data-test=label]')
+      .contains('TEMP2')
       .parentsUntil('[data-test=limits-row]')
       .parent()
       .children()

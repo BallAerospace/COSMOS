@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
     <v-container>
       <v-row>
         <v-col>
@@ -236,14 +236,14 @@
       </v-card>
     </v-dialog>
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <OpenConfigDialog
+    <open-config-dialog
       v-if="openConfig"
       v-model="openConfig"
       :tool="toolName"
       @success="openConfiguration($event)"
     />
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <SaveConfigDialog
+    <save-config-dialog
       v-if="saveConfig"
       v-model="saveConfig"
       :tool="toolName"
@@ -535,10 +535,10 @@ export default {
         return
       }
       // Check for a future End Time
-      if (new Date(this.endDateTime) > Date.now()) {
+      if (new Date(this.endDateTime / 1_000_000) > Date.now()) {
         this.warningText =
           'Note: End date/time is greater than current date/time. Data will continue to stream in real-time until ' +
-          this.endDateTime.toISOString() +
+          new Date(this.endDateTime / 1_000_000).toISOString() +
           ' is reached.'
         this.warning = true
       }

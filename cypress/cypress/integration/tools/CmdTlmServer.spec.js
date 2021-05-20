@@ -71,7 +71,7 @@ describe('CmdTlmServer', () => {
             expect(rxBytes2).to.eq(rxBytes1)
           })
 
-        cy.wait(2500)
+        cy.wait(3000)
         cy.get('[data-test=interfaces-table]')
           .contains('INST_INT')
           .parent()

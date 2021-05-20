@@ -79,19 +79,25 @@ describe('DataExtractor', () => {
     // Date validation
     cy.get('[data-test=startDate]').clear()
     cy.get('.container').should('contain', 'Required')
-    cy.get('[data-test=startDate]').type('2020/01/01') // Must use '-' separator
-    cy.get('.container').should('contain', 'Invalid date')
-    cy.get('[data-test=startDate]').clear().type('2020-01-32') // Format valid but impossible date
-    cy.get('.container').should('contain', 'Invalid date')
+
+    // These test cases aren't possible because the input has type `date` which enforces this at the browser level
+    // cy.get('[data-test=startDate]').type('2020/01/01') // Must use '-' separator
+    // cy.get('.container').should('contain', 'Invalid date')
+    // cy.get('[data-test=startDate]').clear().type('2020-01-32') // Format valid but impossible date
+    // cy.get('.container').should('contain', 'Invalid date')
+
     cy.get('[data-test=startDate]').clear().type('2020-01-01') // Valid!
     cy.get('.container').should('not.contain', 'Invalid')
     // Time validation
     cy.get('[data-test=startTime]').clear()
     cy.get('.container').should('contain', 'Required')
-    cy.get('[data-test=startTime]').type('12-15-15') // Must use ':' separator
-    cy.get('.container').should('contain', 'Invalid time')
-    cy.get('[data-test=startTime]').clear().type('12:15:61') // Format valid but impossible time
-    cy.get('.container').should('contain', 'Invalid time')
+
+    // These test cases aren't possible because the input has type `time` which enforces this at the browser level
+    // cy.get('[data-test=startTime]').type('12-15-15') // Must use ':' separator
+    // cy.get('.container').should('contain', 'Invalid time')
+    // cy.get('[data-test=startTime]').clear().type('12:15:61') // Format valid but impossible time
+    // cy.get('.container').should('contain', 'Invalid time')
+
     cy.get('[data-test=startTime]').clear().type('12:15:15')
     cy.get('.container').should('not.contain', 'Invalid')
   })
@@ -166,7 +172,7 @@ describe('DataExtractor', () => {
     cy.selectTargetPacketItem('INST')
     cy.contains('Add Target').click()
     cy.get('[data-test=itemList]')
-      .find('.v-list-item')
+      .find('.v-list-item__content')
       .should(($items) => {
         expect($items.length).to.be.greaterThan(50) // Anything bigger than below
       })
@@ -179,7 +185,7 @@ describe('DataExtractor', () => {
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS')
     cy.contains('Add Packet').click()
     cy.get('[data-test=itemList]')
-      .find('.v-list-item')
+      .find('.v-list-item__content')
       .should(($items) => {
         expect($items.length).to.be.greaterThan(20)
         expect($items.length).to.be.lessThan(50) // Less than the full target
@@ -246,6 +252,7 @@ describe('DataExtractor', () => {
     // Preload an ABORT command
     cy.visit('/tools/cmdsender/INST/ABORT')
     cy.hideNav()
+    cy.wait(500)
     cy.get('button').contains('Send').click()
     cy.contains('cmd("INST ABORT") sent')
     cy.wait(500)
