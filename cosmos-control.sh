@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 usage() {
-  echo "Usage: $1 [setup, start, stop, cleanup, build, deploy]" >&2
+  echo "Usage: $1 [config, setup, start, stop, cleanup, build, deploy]" >&2
   echo "  All commands take a 'dev' option to start additional containers" >&2
   echo "*  setup: setup containers to build and run" >&2
   echo "*  start: start the minimal docker run for cosmos" >&2
@@ -17,6 +17,9 @@ if [[ "$#" -eq 0 ]]; then
 fi
 
 case $1 in
+config)
+  scripts/linux/cosmos_config.sh
+  ;;
 setup)
   scripts/linux/cosmos_setup.sh
   ;;

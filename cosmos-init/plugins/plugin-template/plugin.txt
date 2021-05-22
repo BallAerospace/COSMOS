@@ -1,0 +1,2 @@
+# Set VARIABLEs here to allow variation in your plugin
+# See https://cosmosc2.com/docs/v5/plugins for more information
