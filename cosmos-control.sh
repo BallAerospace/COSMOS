@@ -3,6 +3,7 @@
 usage() {
   echo "Usage: $1 [config, setup, start, stop, cleanup, build, deploy]" >&2
   echo "  All commands take a 'dev' option to start additional containers" >&2
+  echo "*  config: create a new COSMOS project configuration" >&2
   echo "*  setup: setup containers to build and run" >&2
   echo "*  start: start the minimal docker run for cosmos" >&2
   echo "*  stop: stop the running dockers for cosmos" >&2

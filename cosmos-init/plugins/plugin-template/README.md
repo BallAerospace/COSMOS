@@ -2,10 +2,11 @@
 
 See the [COSMOS](cosmosc2.com) documentation for all things COSMOS.
 
-## Building the plugin (TODO)
+## Building the plugin
 
-1. docker run -v . build
-1. how do I get the built stuff out
+1. rake build VERSION=X.Y.Z
+   - VERSION is required
+   - gem file will be built locally
 
 ## Upload plugin
 
