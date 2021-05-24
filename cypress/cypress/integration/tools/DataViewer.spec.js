@@ -223,34 +223,18 @@ describe('DataViewer', () => {
     // validate start date
     cy.get('[data-test=startDate]').clear()
     cy.get('.container').should('contain', 'Required')
-    cy.get('[data-test=startDate]').type('2020/01/01') // Must use '-' separator
-    cy.get('.container').should('contain', 'Invalid date')
-    cy.get('[data-test=startDate]').clear().type('2020-01-32') // Format valid but impossible date
-    cy.get('.container').should('contain', 'Invalid date')
-    cy.get('[data-test=startDate]').clear().type('2020-01-01') // Valid!
+    cy.get('[data-test=startDate]').clear().type('2020-01-01')
     cy.get('.container').should('not.contain', 'Invalid')
     // validate start time
     cy.get('[data-test=startTime]').clear()
     cy.get('.container').should('contain', 'Required')
-    cy.get('[data-test=startTime]').type('12-15-15') // Must use ':' separator
-    cy.get('.container').should('contain', 'Invalid time')
-    cy.get('[data-test=startTime]').clear().type('12:15:61') // Format valid but impossible time
-    cy.get('.container').should('contain', 'Invalid time')
     cy.get('[data-test=startTime]').clear().type('12:15:15')
     cy.get('.container').should('not.contain', 'Invalid')
 
     // validate end date
-    cy.get('[data-test=endDate]').clear().type('2020/01/01') // Must use '-' separator
-    cy.get('.container').should('contain', 'Invalid date')
-    cy.get('[data-test=endDate]').clear().type('2020-01-32') // Format valid but impossible date
-    cy.get('.container').should('contain', 'Invalid date')
-    cy.get('[data-test=endDate]').clear().type('2020-01-01') // Valid!
+    cy.get('[data-test=endDate]').clear().type('2020-01-01')
     cy.get('.container').should('not.contain', 'Invalid')
     // validate end time
-    cy.get('[data-test=endTime]').clear().type('12-15-15') // Must use ':' separator
-    cy.get('.container').should('contain', 'Invalid time')
-    cy.get('[data-test=endTime]').clear().type('12:15:61') // Format valid but impossible time
-    cy.get('.container').should('contain', 'Invalid time')
     cy.get('[data-test=endTime]').clear().type('12:15:15')
     cy.get('.container').should('not.contain', 'Invalid')
   })

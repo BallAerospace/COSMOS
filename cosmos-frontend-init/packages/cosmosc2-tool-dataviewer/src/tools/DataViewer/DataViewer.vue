@@ -22,77 +22,38 @@
     <top-bar :menus="menus" :title="title" />
     <v-row dense>
       <v-col>
-        <v-menu
-          :close-on-content-click="true"
-          :nudge-right="40"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-          min-width="290px"
-        >
-          <template v-slot:activator="{ on }">
-            <v-text-field
-              v-model="startDate"
-              label="Start Date"
-              v-on="on"
-              prepend-icon="mdi-calendar"
-              :rules="[rules.required, rules.calendar]"
-              data-test="startDate"
-            ></v-text-field>
-          </template>
-          <v-date-picker
-            v-model="startDate"
-            :max="endDate"
-            :show-current="false"
-            no-title
-          ></v-date-picker>
-        </v-menu>
+        <v-text-field
+          v-model="startDate"
+          label="Start Date"
+          type="date"
+          :rules="[rules.required]"
+          data-test="startDate"
+        />
       </v-col>
       <v-col>
         <v-text-field
           v-model="startTime"
           label="Start Time"
-          prepend-icon="mdi-clock"
-          :rules="[rules.required, rules.time]"
+          type="time"
+          :rules="[rules.required]"
           data-test="startTime"
-        ></v-text-field>
+        />
       </v-col>
       <v-col>
-        <v-menu
-          ref="endDatemenu"
-          :close-on-content-click="true"
-          :nudge-right="40"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-          min-width="290px"
-        >
-          <template v-slot:activator="{ on }">
-            <v-text-field
-              v-model="endDate"
-              label="End Date"
-              v-on="on"
-              prepend-icon="mdi-calendar"
-              :rules="
-                endTime ? [rules.required, rules.calendar] : [rules.calendar]
-              "
-              data-test="endDate"
-            ></v-text-field>
-          </template>
-          <v-date-picker
-            v-model="endDate"
-            :min="startDate"
-            :show-current="false"
-            no-title
-          ></v-date-picker>
-        </v-menu>
+        <v-text-field
+          v-model="endDate"
+          label="End Date"
+          type="date"
+          :rules="endTime ? [rules.required] : []"
+          data-test="endDate"
+        />
       </v-col>
       <v-col>
         <v-text-field
           v-model="endTime"
           label="End Time"
-          prepend-icon="mdi-clock"
-          :rules="endDate ? [rules.required, rules.time] : [rules.time]"
+          type="time"
+          :rules="endDate ? [rules.required] : []"
           data-test="endTime"
         ></v-text-field>
       </v-col>
@@ -371,14 +332,6 @@ export default {
       endTime: '',
       rules: {
         required: (value) => !!value || 'Required',
-        calendar: (value) =>
-          value === '' ||
-          isValid(parse(value, 'yyyy-MM-dd', new Date())) ||
-          'Invalid date (YYYY-MM-DD)',
-        time: (value) =>
-          value === '' ||
-          isValid(parse(value, 'HH:mm:ss', new Date())) ||
-          'Invalid time (HH:MM:SS)',
       },
       canStart: false,
       running: false,

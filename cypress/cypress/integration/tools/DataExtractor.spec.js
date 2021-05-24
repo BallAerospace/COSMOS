@@ -79,25 +79,11 @@ describe('DataExtractor', () => {
     // Date validation
     cy.get('[data-test=startDate]').clear()
     cy.get('.container').should('contain', 'Required')
-
-    // These test cases aren't possible because the input has type `date` which enforces this at the browser level
-    // cy.get('[data-test=startDate]').type('2020/01/01') // Must use '-' separator
-    // cy.get('.container').should('contain', 'Invalid date')
-    // cy.get('[data-test=startDate]').clear().type('2020-01-32') // Format valid but impossible date
-    // cy.get('.container').should('contain', 'Invalid date')
-
-    cy.get('[data-test=startDate]').clear().type('2020-01-01') // Valid!
+    cy.get('[data-test=startDate]').clear().type('2020-01-01')
     cy.get('.container').should('not.contain', 'Invalid')
     // Time validation
     cy.get('[data-test=startTime]').clear()
     cy.get('.container').should('contain', 'Required')
-
-    // These test cases aren't possible because the input has type `time` which enforces this at the browser level
-    // cy.get('[data-test=startTime]').type('12-15-15') // Must use ':' separator
-    // cy.get('.container').should('contain', 'Invalid time')
-    // cy.get('[data-test=startTime]').clear().type('12:15:61') // Format valid but impossible time
-    // cy.get('.container').should('contain', 'Invalid time')
-
     cy.get('[data-test=startTime]').clear().type('12:15:15')
     cy.get('.container').should('not.contain', 'Invalid')
   })
