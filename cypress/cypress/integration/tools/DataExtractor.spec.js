@@ -27,10 +27,14 @@ function formatFilename(date) {
 }
 
 describe('DataExtractor', () => {
-  it('loads and saves the configuration', function () {
-    const now = new Date()
+  beforeEach(() => {
+    cy.task('clearDownloads')
     cy.visit('/tools/dataextractor')
     cy.hideNav()
+  })
+
+  it('loads and saves the configuration', function () {
+    const now = new Date()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
@@ -74,8 +78,6 @@ describe('DataExtractor', () => {
   })
 
   it('validates dates and times', function () {
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     // Date validation
     cy.get('[data-test=startDate]').clear()
     cy.get('.container').should('contain', 'Required')
@@ -89,15 +91,11 @@ describe('DataExtractor', () => {
   })
 
   it('warns with no items', function () {
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.contains('Process').click()
     cy.contains('No items to process').should('be.visible')
   })
 
   it('warns with duplicate item', function () {
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
     cy.contains('Add Item').click()
@@ -105,8 +103,6 @@ describe('DataExtractor', () => {
   })
 
   it('warns with no time delta', function () {
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
     cy.contains('Add Item').click()
     cy.contains('Process').click()
@@ -117,8 +113,6 @@ describe('DataExtractor', () => {
 
   it('warns with no data', function () {
     const start = sub(new Date(), { seconds: 1 })
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.get('[data-test=startTime]').clear().type(formatTime(start))
     cy.get('[data-test=cmd-radio]').click({ force: true })
     cy.selectTargetPacketItem('INST', 'ABORT', 'RECEIVED_TIMEFORMATTED')
@@ -129,8 +123,6 @@ describe('DataExtractor', () => {
 
   it('cancels a process', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.get('[data-test=startTime]').clear().type(formatTime(start))
     cy.get('[data-test=endTime]')
       .clear()
@@ -153,8 +145,6 @@ describe('DataExtractor', () => {
 
   it('adds an entire target', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.selectTargetPacketItem('INST')
     cy.contains('Add Target').click()
     cy.get('[data-test=itemList]')
@@ -166,8 +156,6 @@ describe('DataExtractor', () => {
 
   it('adds an entire packet', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS')
     cy.contains('Add Packet').click()
     cy.get('[data-test=itemList]')
@@ -180,8 +168,6 @@ describe('DataExtractor', () => {
 
   it('add, edits, deletes items', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.get('[data-test=startTime]').clear().type(formatTime(start))
     cy.selectTargetPacketItem('INST', 'ADCS', 'CCSDSVER')
     cy.contains('Add Item').click()
@@ -244,8 +230,6 @@ describe('DataExtractor', () => {
     cy.wait(500)
 
     const start = sub(new Date(), { minutes: 5 })
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.get('[data-test=startTime]').clear().type(formatTime(start))
     cy.get('[data-test=cmd-radio]').click({ force: true })
     cy.selectTargetPacketItem('INST', 'ABORT', 'RECEIVED_TIMEFORMATTED')
@@ -262,8 +246,6 @@ describe('DataExtractor', () => {
 
   it('creates CSV output', function () {
     const start = sub(new Date(), { minutes: 5 })
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.get('.v-toolbar').contains('File').click()
     cy.contains(/Comma Delimited/).click()
     cy.get('[data-test=startTime]').clear().type(formatTime(start))
@@ -289,8 +271,6 @@ describe('DataExtractor', () => {
 
   it('creates tab delimited output', function () {
     const start = sub(new Date(), { minutes: 5 })
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.get('.v-toolbar').contains('File').click()
     cy.contains(/Tab Delimited/).click()
     cy.get('[data-test=startTime]').clear().type(formatTime(start))
@@ -312,8 +292,6 @@ describe('DataExtractor', () => {
 
   it('outputs full column names', function () {
     let start = sub(new Date(), { minutes: 1 })
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.get('.v-toolbar').contains('Mode').click()
     cy.contains(/Full Column Names/).click()
     cy.get('[data-test=startTime]').clear().type(formatTime(start))
@@ -346,8 +324,6 @@ describe('DataExtractor', () => {
 
   it('fills values', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.get('.v-toolbar').contains('Mode').click()
     cy.contains(/Fill Down/).click()
     cy.get('[data-test=startTime]').clear().type(formatTime(start))
@@ -385,8 +361,6 @@ describe('DataExtractor', () => {
 
   it('adds Matlab headers', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.get('.v-toolbar').contains('Mode').click()
     cy.contains(/Matlab Header/).click()
     cy.get('[data-test=startTime]').clear().type(formatTime(start))
@@ -405,8 +379,6 @@ describe('DataExtractor', () => {
 
   it('outputs unique values only', function () {
     const start = sub(new Date(), { minutes: 1 })
-    cy.visit('/tools/dataextractor')
-    cy.hideNav()
     cy.get('.v-toolbar').contains('Mode').click()
     cy.contains(/Unique Only/).click()
     cy.get('[data-test=startTime]').clear().type(formatTime(start))

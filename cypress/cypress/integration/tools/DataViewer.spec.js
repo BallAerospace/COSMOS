@@ -20,8 +20,13 @@
 import { format } from 'date-fns'
 
 describe('DataViewer', () => {
-  it('adds a raw packet to a new tab', () => {
+  beforeEach(() => {
+    cy.task('clearDownloads')
     cy.visit('/tools/dataviewer')
+    cy.hideNav()
+  })
+
+  it('adds a raw packet to a new tab', () => {
     cy.hideNav()
     cy.get('[data-test=new-tab]').click()
     cy.get('[data-test=new-packet]').should('be.visible').click()
@@ -33,8 +38,6 @@ describe('DataViewer', () => {
   })
 
   it('adds a decom packet to a new tab', () => {
-    cy.visit('/tools/dataviewer')
-    cy.hideNav()
     cy.get('[data-test=new-tab]').click()
     cy.get('[data-test=new-packet]').click()
     cy.selectTargetPacketItem('INST', 'ADCS')
@@ -51,8 +54,6 @@ describe('DataViewer', () => {
   })
 
   it('renames a tab', () => {
-    cy.visit('/tools/dataviewer')
-    cy.hideNav()
     cy.get('[data-test=new-tab]').click()
     cy.get('[data-test=tab').rightclick()
     cy.get('[data-test=context-menu-rename]').click()
@@ -67,8 +68,6 @@ describe('DataViewer', () => {
   })
 
   it('deletes a component and tab', () => {
-    cy.visit('/tools/dataviewer')
-    cy.hideNav()
     cy.get('[data-test=new-tab]').click()
     cy.get('[data-test=new-packet]').click()
     cy.selectTargetPacketItem('INST', 'ADCS')
@@ -91,8 +90,6 @@ describe('DataViewer', () => {
   })
 
   it('controls playback', () => {
-    cy.visit('/tools/dataviewer')
-    cy.hideNav()
     cy.get('[data-test=new-tab]').click()
     cy.get('[data-test=new-packet]').click()
     cy.selectTargetPacketItem('INST', 'ADCS')
@@ -138,8 +135,6 @@ describe('DataViewer', () => {
   })
 
   it('changes display settings', () => {
-    cy.visit('/tools/dataviewer')
-    cy.hideNav()
     cy.get('[data-test=new-tab]').click()
     cy.get('[data-test=new-packet]').click()
     cy.selectTargetPacketItem('INST', 'ADCS')
@@ -192,8 +187,6 @@ describe('DataViewer', () => {
   })
 
   it('downloads a file', () => {
-    cy.visit('/tools/dataviewer')
-    cy.hideNav()
     cy.get('[data-test=new-tab]').click()
     cy.get('[data-test=new-packet]').click()
     cy.selectTargetPacketItem('INST', 'ADCS')
@@ -217,9 +210,6 @@ describe('DataViewer', () => {
   })
 
   it('validates start and end time inputs', () => {
-    cy.visit('/tools/dataviewer')
-    cy.hideNav()
-
     // validate start date
     cy.get('[data-test=startDate]').clear()
     cy.get('.container').should('contain', 'Required')
@@ -240,9 +230,6 @@ describe('DataViewer', () => {
   })
 
   it('validates start and end time values', () => {
-    cy.visit('/tools/dataviewer')
-    cy.hideNav()
-
     // validate future start date
     cy.get('[data-test=startDate]').clear().type('4000-01-01') // If this version of COSMOS is still used 2000 years from now, this test will need to be updated
     cy.get('[data-test=startTime]').clear().type('12:15:15')
@@ -273,8 +260,6 @@ describe('DataViewer', () => {
   })
 
   it('saves and loads the configuration', () => {
-    cy.visit('/tools/dataviewer')
-    cy.hideNav()
     cy.get('[data-test=new-tab]').click()
     cy.get('[data-test=new-packet]').click()
     cy.selectTargetPacketItem('INST', 'ADCS')

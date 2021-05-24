@@ -44,17 +44,18 @@
 // on('file:preprocessor', webpackPreprocessor(options))
 // }
 
+const fs = require('fs')
 const path = require('path')
 
 const preprocessor = require('@cypress/vue/dist/plugins/webpack')
 
 module.exports = (on, config) => {
+  // Make the download directory cypress/downloads
+  const downloadDirectory = path.join(__dirname, '..', 'downloads')
+
   // `on` is used to hook into various events Cypress emits
 
   on('before:browser:launch', (browser, options) => {
-    // Make the download directory cypress/downloads
-    const downloadDirectory = path.join(__dirname, '..', 'downloads')
-
     if (browser.family === 'chrome' && browser.name !== 'electron') {
       // The available option list is here:
       // https://src.chromium.org/viewvc/chrome/trunk/src/chrome/common/pref_names.cc?view=markup
@@ -72,6 +73,21 @@ module.exports = (on, config) => {
         'text/csv,text/plain,text/x-ruby'
       return options
     }
+  })
+
+  on('task', {
+    clearDownloads: function () {
+      fs.readdir(downloadDirectory, (err, files) => {
+        if (err) throw err
+
+        for (const file of files) {
+          fs.unlink(path.join(downloadDirectory, file), (err) => {
+            if (err) throw err
+          })
+        }
+      })
+      return null
+    },
   })
 
   require('@cypress/code-coverage/task')(on, config)
