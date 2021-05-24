@@ -18,3 +18,8 @@ task :build => [:require_version] do
   end
   system("docker run -v %cd%:/cosmos/plugins -w /cosmos/plugins cosmos-base rake docker_build VERSION=%VERSION%")
 end
+
+# Run like "rake cosmos cmd=generate target TEST"
+task :cosmos do
+  system("docker run -v %cd%:/cosmos/plugins -w /cosmos/plugins cosmos-base ruby /cosmos/bin/cosmos #{ENV['cmd']}")
+end

@@ -45,6 +45,10 @@ def print_usage
   puts "  cosmos bridge <config filename>      # Run COSMOS host bridge"
   puts "  cosmos bridgesetup <config filename> # Create a default config file"
   puts ""
+  puts "NOTE: When run inside a rake task you need to run similar to:"
+  puts "  rake cosmos cmd=\"help\""
+  puts "  rake cosmos cmd=\"generate target TEST\""
+  puts ""
   puts "Other Tools included with COSMOS:"
   puts "  rubysloc                      # Counts Ruby SLOC recursively"
   puts "  cstol_converter               # Converts all *.prc files recursively to COSMOS"
@@ -183,14 +187,14 @@ end
 def generate(args)
   case args[0]
   when 'target'
-    unless File.exist?('./config/targets/')
+    unless File.exist?('./targets/')
       abort("generator must be run at the root of the COSMOS user installation")
     end
     if args.length != 2
       abort("Usage: cosmos generate target <NAME>")
     end
     target = args[1].upcase
-    target_path = File.join("./config/targets/#{target}")
+    target_path = File.join("./targets/#{target}")
     if File.exist?(target_path)
       puts "Warning! Target #{target} already exists! Completely DELETE existing target? (N/y)"
       STDOUT.flush # Output the warning
@@ -216,11 +220,6 @@ def generate(args)
     File.open(File.join(target_path, 'screens', "status.txt"), 'w') { |file| file.write(gen_screen(target)) }
 
     puts "Target #{target} successfully generated!\n"
-    puts "Edit config/system/system.txt add add the line 'DECLARE_TARGET #{target}'"
-    # AUTO_INTERFACE_TARGETS # Use cmd_tlm_server.txt from all targets declared in system.txt
-    puts "You may also have to edit your config/tools/cmd_tlm_server/cmd_tlm_server.txt"
-    puts "and interface the target unless you're using AUTO_INTERFACE_TARGETS."
-    puts "See the COSMOS System Configuration documentation for more details.\n"
   else # Unknown generator
     abort("Unknown generator #{args[0]}")
   end
@@ -351,7 +350,7 @@ if not ARGV[0].nil? # argument(s) given
     rescue Interrupt
       exit(0)
     end
-    
+
   when 'bridgesetup'
     filename = ARGV[1]
     filename = 'bridge.txt' unless filename
