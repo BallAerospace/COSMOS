@@ -196,16 +196,16 @@ describe('DataViewer', () => {
 
     cy.get('[data-test=dump-component-play-pause]').click()
     cy.get('[data-test=dump-component-download]').click()
-    let fileContents
-    cy.readFile(
-      `cypress/downloads/${format(new Date(), 'yyyy_MM_dd_HH_mm')}.txt`
-    )
-      .then((contents) => {
-        fileContents = contents
-        return cy.get('[data-test=dump-component-text-area]').invoke('val')
+    cy.task('readDownloads')
+      .then((files) => {
+        expect(files.length).to.eq(1)
+        return Promise.all([
+          cy.readFile(files[0]),
+          cy.get('[data-test=dump-component-text-area]').invoke('val'),
+        ])
       })
-      .then((val) => {
-        expect(val).to.eq(fileContents)
+      .then(([fileContents, inputContents]) => {
+        expect(fileContents).to.eq(inputContents)
       })
   })
 

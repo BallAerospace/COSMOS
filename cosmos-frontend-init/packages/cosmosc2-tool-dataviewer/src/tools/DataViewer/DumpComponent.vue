@@ -405,7 +405,7 @@ export default {
       link.href = url
       link.setAttribute(
         'download',
-        `${format(new Date(), 'yyyy_MM_dd_HH_mm')}.txt`
+        `${format(new Date(), 'yyyy_MM_dd_HH_mm_ss')}.txt`
       )
       link.click()
       window.URL.revokeObjectURL(url)

@@ -88,6 +88,12 @@ module.exports = (on, config) => {
       })
       return null
     },
+
+    readDownloads: function () {
+      return fs
+        .readdirSync(downloadDirectory)
+        .map((file) => path.join(downloadDirectory, file))
+    },
   })
 
   require('@cypress/code-coverage/task')(on, config)
