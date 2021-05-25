@@ -24,6 +24,7 @@
       <v-container class="ma-0 pa-4">
         <v-row no-gutters>
           <v-col cols="auto">
+            <!-- TODO: move to admin settings and delete this tab -->
             <v-select
               label="Limits Set"
               :items="limitsSets"
@@ -70,16 +71,18 @@
 </template>
 
 <script>
-import Updater from './Updater'
+// import Updater from './Updater'
+import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 
 export default {
-  mixins: [Updater],
+  // mixins: [Updater],
   props: {
     tabId: Number,
     curTab: Number,
   },
   data() {
     return {
+      api: new CosmosApi(),
       apiStatus: [],
       apiHeaders: [
         { text: 'Port', value: 'port' },

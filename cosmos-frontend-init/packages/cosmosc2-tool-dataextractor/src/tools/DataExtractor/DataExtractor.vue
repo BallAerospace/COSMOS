@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
     <v-container>
       <v-row>
         <v-col>
@@ -27,14 +27,14 @@
             v-model="startDate"
             label="Start Date"
             type="date"
-            :rules="[rules.required, rules.calendar]"
+            :rules="[rules.required]"
             data-test="startDate"
           ></v-text-field>
           <v-text-field
             v-model="endDate"
             label="End Date"
             type="date"
-            :rules="[rules.required, rules.calendar]"
+            :rules="[rules.required]"
             data-test="endDate"
           ></v-text-field>
         </v-col>
@@ -43,7 +43,7 @@
             v-model="startTime"
             label="Start Time"
             type="time"
-            :rules="[rules.required, rules.time]"
+            :rules="[rules.required]"
             data-test="startTime"
           >
           </v-text-field>
@@ -51,7 +51,7 @@
             v-model="endTime"
             label="End Time"
             type="time"
-            :rules="[rules.required, rules.time]"
+            :rules="[rules.required]"
             data-test="endTime"
           >
           </v-text-field>
@@ -236,14 +236,14 @@
       </v-card>
     </v-dialog>
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <OpenConfigDialog
+    <open-config-dialog
       v-if="openConfig"
       v-model="openConfig"
       :tool="toolName"
       @success="openConfiguration($event)"
     />
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <SaveConfigDialog
+    <save-config-dialog
       v-if="saveConfig"
       v-model="saveConfig"
       :tool="toolName"
@@ -286,27 +286,6 @@ export default {
       startDateTimeFilename: '',
       rules: {
         required: (value) => !!value || 'Required',
-        calendar: (value) => {
-          try {
-            return (
-              isValid(parse(value, 'yyyy-MM-dd', new Date())) ||
-              'Invalid date (YYYY-MM-DD)'
-            )
-          } catch (e) {
-            return 'Invalid date (YYYY-MM-DD)'
-          }
-        },
-        time: (value) => {
-          try {
-            let time_s = parse(value, 'HH:mm:ss', new Date())
-            let time_m = parse(value, 'HH:mm', new Date())
-            return (
-              isValid(time_s) || isValid(time_m) || 'Invalid time (HH:MM:SS)'
-            )
-          } catch (e) {
-            return 'Invalid time (HH:MM:SS)'
-          }
-        },
       },
       cmdOrTlm: 'tlm',
       utcOrLocal: 'loc',
@@ -535,10 +514,10 @@ export default {
         return
       }
       // Check for a future End Time
-      if (new Date(this.endDateTime) > Date.now()) {
+      if (new Date(this.endDateTime / 1_000_000) > Date.now()) {
         this.warningText =
           'Note: End date/time is greater than current date/time. Data will continue to stream in real-time until ' +
-          this.endDateTime.toISOString() +
+          new Date(this.endDateTime / 1_000_000).toISOString() +
           ' is reached.'
         this.warning = true
       }
