@@ -18,23 +18,24 @@ fi
 case $1 in
 start)
   scripts/linux/cosmos_setup.sh
-  scripts/linux/cosmos_start.sh $2
+  scripts/linux/cosmos_build.sh
+  scripts/linux/cosmos_run.sh
   ;;
 stop)
-  scripts/linux/cosmos_stop.sh $2
+  scripts/linux/cosmos_stop.sh
   ;;
 cleanup)
-  scripts/linux/cosmos_cleanup.sh $2
+  scripts/linux/cosmos_cleanup.sh
   ;;
 build)
   scripts/linux/cosmos_setup.sh
-  scripts/linux/cosmos_build.sh $2
+  scripts/linux/cosmos_build.sh
   ;;
 run)
-  scripts/linux/cosmos_run.sh $2
+  scripts/linux/cosmos_run.sh
   ;;
 deploy)
-  scripts/linux/cosmos_deploy.sh $2
+  scripts/linux/cosmos_deploy.sh
   ;;
 *)
   usage $0
