@@ -2,7 +2,7 @@ FROM cosmos-node AS cosmos-frontend-tmp
 
 WORKDIR /cosmos/plugins/
 
-COPY ./*.json .
+COPY ./*.json ./
 COPY ./cosmosc2-tool-base/*.json cosmosc2-tool-base/
 COPY ./packages/cosmosc2-tool-admin/*.json packages/cosmosc2-tool-admin/
 COPY ./packages/cosmosc2-tool-cmdsender/*.json packages/cosmosc2-tool-cmdsender/
