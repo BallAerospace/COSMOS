@@ -8,10 +8,4 @@ docker volume rm cosmos-minio-v
 docker volume rm cosmos-redis-v
 
 @echo off
-if "%1" == "dev" (
-  @echo on
-  docker volume rm cosmos-elasticsearch-v
-  docker volume rm cosmos-grafana-v
-)
-
 docker network rm cosmos
