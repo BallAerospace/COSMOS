@@ -25,6 +25,7 @@
     <v-main>
       <v-container fluid>
         <div id="cosmos-tool"></div>
+        <div><router-view /></div>
       </v-container>
     </v-main>
     <app-footer app />
