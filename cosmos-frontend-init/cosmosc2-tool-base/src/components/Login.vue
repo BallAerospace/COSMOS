@@ -1,4 +1,4 @@
-/*
+<!--
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,30 +15,30 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
-*/
+-->
 
-const emptyPromise = function (resolution = null) {
-  return new Promise((resolve) => {
-    resolve(resolution)
-  })
+<template>
+  <div>
+    <top-bar :title="title" />
+
+    <v-card>
+      <v-card-title> Login </v-card-title>
+    </v-card>
+  </div>
+</template>
+
+<script>
+import TopBar from '../../../packages/cosmosc2-tool-common/src/components/TopBar'
+
+export default {
+  components: {
+    TopBar,
+  },
+  data() {
+    return {
+      title: 'COSMOS Login',
+    }
+  },
+  methods: {},
 }
-class Auth {
-  constructor() {
-    // localStorage.token = 'invalid'
-    // localStorage.refreshToken = 'invalid'
-  }
-  updateToken(value) {
-    return emptyPromise()
-  }
-  login() {
-    // TODO: redirect to login page
-  }
-  logout() {
-    // TODO: delete tokens
-  }
-  getInitOptions() {}
-  init() {
-    return emptyPromise(true)
-  }
-}
-var CosmosAuth = new Auth()
+</script>

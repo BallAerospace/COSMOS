@@ -17,28 +17,24 @@
 # copyright holder
 */
 
-const emptyPromise = function (resolution = null) {
-  return new Promise((resolve) => {
-    resolve(resolution)
-  })
-}
-class Auth {
-  constructor() {
-    // localStorage.token = 'invalid'
-    // localStorage.refreshToken = 'invalid'
-  }
-  updateToken(value) {
-    return emptyPromise()
-  }
-  login() {
-    // TODO: redirect to login page
-  }
-  logout() {
-    // TODO: delete tokens
-  }
-  getInitOptions() {}
-  init() {
-    return emptyPromise(true)
-  }
-}
-var CosmosAuth = new Auth()
+import Vue from 'vue'
+import Router from 'vue-router'
+
+Vue.use(Router)
+
+export default new Router({
+  mode: 'history',
+  base: 'http://localhost:2900', //process.env.BASE_URL,
+  routes: [
+    {
+      path: '/login',
+      component: () => import('./components/Login'),
+    },
+    // TODO: Create NotFoundComponent since we're doing history browser mode
+    // See: https://router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations
+    // {
+    //   path: '*',
+    //   component: NotFoundComponent
+    // }
+  ],
+})
