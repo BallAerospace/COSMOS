@@ -24,7 +24,7 @@ Vue.use(Router)
 
 export default new Router({
   mode: 'history',
-  base: 'http://localhost:2900', //process.env.BASE_URL,
+  base: process.env.BASE_URL,
   routes: [
     {
       path: '/login',
