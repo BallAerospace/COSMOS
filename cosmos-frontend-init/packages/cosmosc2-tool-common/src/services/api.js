@@ -19,14 +19,22 @@
 
 import axios from 'axios'
 
-const request = async function (method, url, data = {}, params = {}) {
-  try {
-    await CosmosAuth.updateToken(CosmosAuth.defaultMinValidity)
-  } catch (error) {
-    CosmosAuth.login()
+const request = async function (
+  method,
+  url,
+  data = {},
+  params = {},
+  { noAuth = false, noScope = false } = {}
+) {
+  if (!noAuth) {
+    try {
+      await CosmosAuth.updateToken(CosmosAuth.defaultMinValidity)
+    } catch (error) {
+      CosmosAuth.login()
+    }
+    params['token'] = localStorage.getItem('token')
   }
-  params['token'] = localStorage.getItem('token')
-  if (!params['scope']) {
+  if (!noScope && !params['scope']) {
     params['scope'] = 'DEFAULT'
   }
   return axios({
@@ -38,19 +46,19 @@ const request = async function (method, url, data = {}, params = {}) {
 }
 
 export default {
-  get: function (path, params) {
-    return request('get', path, null, params)
+  get: function (path, params, options) {
+    return request('get', path, null, params, options)
   },
 
-  put: function (path, data, params) {
-    return request('put', path, data, params)
+  put: function (path, data, params, options) {
+    return request('put', path, data, params, options)
   },
 
-  post: function (path, data, params) {
-    return request('post', path, data, params)
+  post: function (path, data, params, options) {
+    return request('post', path, data, params, options)
   },
 
-  delete: function (path, params) {
-    return request('delete', path, null, params)
+  delete: function (path, params, options) {
+    return request('delete', path, null, params, options)
   },
 }
