@@ -23,18 +23,16 @@ const emptyPromise = function (resolution = null) {
   })
 }
 class Auth {
-  constructor() {
-    // localStorage.token = 'invalid'
-    // localStorage.refreshToken = 'invalid'
-  }
   updateToken(value) {
+    if (!localStorage.token) this.login()
     return emptyPromise()
   }
   login() {
-    // TODO: redirect to login page
+    // redirect to login if we're not already there
+    if (!/^\/login$/.test(window.location.pathname)) window.location = '/login'
   }
   logout() {
-    // TODO: delete tokens
+    delete localStorage.token
   }
   getInitOptions() {}
   init() {
