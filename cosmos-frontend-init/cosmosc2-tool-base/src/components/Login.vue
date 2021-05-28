@@ -107,7 +107,10 @@ export default {
     },
     login: function () {
       localStorage.token = this.password
-      // TODO: redirect back
+      const redirect = new URLSearchParams(window.location.search).get(
+        'redirect'
+      )
+      window.location = decodeURI(redirect)
     },
     verifyPassword: function () {
       this.showAlert = false
