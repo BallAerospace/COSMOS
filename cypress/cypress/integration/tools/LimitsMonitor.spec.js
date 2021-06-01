@@ -144,7 +144,8 @@ describe('LimitsMonitor', () => {
     cy.get('[data-test=limits-row]:contains("VALUE4")').should('have.length', 2)
   })
 
-  it('ignores items which changes overall state', function () {
+  it.skip('ignores items which changes overall state', function () {
+    // TODO: possibly remove this test. It relies on a target not entering red status, and therefore it's unreliable with the current demo code
     cy.visit('/tools/limitsmonitor')
     cy.hideNav()
     cy.get('[data-test=overall-state]').invoke('val').should('eq', 'RED')

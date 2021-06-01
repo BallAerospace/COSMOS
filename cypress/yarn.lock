@@ -1138,6 +1138,11 @@
     tunnel-agent "^0.6.0"
     uuid "^3.3.2"
 
+"@cypress/skip-test@^2.6.0":
+  version "2.6.0"
+  resolved "https://registry.npmjs.org/@cypress/skip-test/-/skip-test-2.6.0.tgz#73fc58477b436638cfdfaa212b5378ff81b9b3ee"
+  integrity sha512-H5dnS+o0HaSKPexR5wuwF2YGq5praxRZMVodba/Ar9/SuDEWVlW3qxbn9ar06MFjtQnMsHjo4QHQoZzrUPLrHA==
+
 "@cypress/vue@2.2.3":
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/@cypress/vue/-/vue-2.2.3.tgz#81822914019c47b5a6011652e50c5aad6041c6cc"

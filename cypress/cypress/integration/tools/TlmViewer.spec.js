@@ -56,9 +56,10 @@ describe('TlmViewer', () => {
   it('displays INST HS', () => {
     showScreen('INST', 'HS')
   })
-  it('displays INST LATEST', () => {
-    showScreen('INST', 'LATEST')
-  })
+  // Don't know where this test came from, INST LATEST doesn't seem to exist
+  // it.only('displays INST LATEST', () => {
+  //   showScreen('INST', 'LATEST')
+  // })
   it('displays INST LIMITS', () => {
     showScreen('INST', 'LIMITS')
   })

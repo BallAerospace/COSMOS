@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@cypress/code-coverage": "3.9.4",
+    "@cypress/skip-test": "^2.6.0",
     "@cypress/vue": "2.2.3",
     "@cypress/webpack-dev-server": "1.2.0",
     "@vue/cli-plugin-babel": "4.5.13",

@@ -224,12 +224,14 @@ describe('DataExtractor', () => {
     // Preload an ABORT command
     cy.visit('/tools/cmdsender/INST/ABORT')
     cy.hideNav()
-    cy.wait(500)
+    cy.wait(700)
     cy.get('button').contains('Send').click()
     cy.contains('cmd("INST ABORT") sent')
     cy.wait(500)
 
     const start = sub(new Date(), { minutes: 5 })
+    cy.visit('/tools/dataextractor')
+    cy.hideNav()
     cy.get('[data-test=startTime]').clear().type(formatTime(start))
     cy.get('[data-test=cmd-radio]').click({ force: true })
     cy.selectTargetPacketItem('INST', 'ABORT', 'RECEIVED_TIMEFORMATTED')
