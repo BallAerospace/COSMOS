@@ -140,16 +140,18 @@ export default {
   },
   created() {
     this.api = new CosmosApi()
-    this.api.get_target_list({ params: { scope: 'DEFAULT' } }).then((data) => {
-      var arrayLength = data.length
-      for (var i = 0; i < arrayLength; i++) {
-        this.targets.push({ label: data[i], value: data[i] })
-      }
-      if (!this.selectedTarget) {
-        this.selectedTarget = this.targets[0].value
-      }
-      this.updateScreens()
-    })
+    this.api
+      .get_target_list({ params: { scope: localStorage.scope } })
+      .then((data) => {
+        var arrayLength = data.length
+        for (var i = 0; i < arrayLength; i++) {
+          this.targets.push({ label: data[i], value: data[i] })
+        }
+        if (!this.selectedTarget) {
+          this.selectedTarget = this.targets[0].value
+        }
+        this.updateScreens()
+      })
   },
   mounted() {
     this.grid = new Muuri('.grid', {

@@ -660,7 +660,7 @@ export default {
     },
     subscribe(endTime = null) {
       this.cable
-        .createSubscription('StreamingChannel', 'DEFAULT', {
+        .createSubscription('StreamingChannel', localStorage.scope, {
           received: (data) => this.received(data),
           connected: () => {
             this.onConnected(endTime)
@@ -691,7 +691,7 @@ export default {
       })
       CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
         this.subscription.perform('add', {
-          scope: 'DEFAULT',
+          scope: localStorage.scope,
           mode: 'DECOM',
           token: localStorage.token,
           items: items,
@@ -843,7 +843,7 @@ export default {
       if (this.subscription) {
         CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
           this.subscription.perform('add', {
-            scope: 'DEFAULT',
+            scope: localStorage.scope,
             token: localStorage.token,
             items: [key],
             start_time: this.graphStartDateTime,
@@ -863,7 +863,7 @@ export default {
         '__' +
         item.valueType
       this.subscription.perform('remove', {
-        scope: 'DEFAULT',
+        scope: localStorage.scope,
         items: [key],
       })
       const index = this.reorderIndexes(key)

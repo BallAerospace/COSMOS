@@ -599,7 +599,7 @@ export default {
         if (this.showDisconnect) {
           url += '/disconnect'
         }
-        let data = { scope: 'DEFAULT' }
+        let data = { scope: localStorage.scope }
         if (suiteRunner) {
           data['suiteRunner'] = event
         }

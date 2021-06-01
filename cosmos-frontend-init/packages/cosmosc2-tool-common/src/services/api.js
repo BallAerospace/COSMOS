@@ -27,7 +27,7 @@ const request = async function (method, url, data = {}, params = {}) {
   }
   params['token'] = localStorage.getItem('token')
   if (!params['scope']) {
-    params['scope'] = 'DEFAULT'
+    params['scope'] = localStorage.scope
   }
   return axios({
     method,
