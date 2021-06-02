@@ -353,7 +353,7 @@ export default {
       this.cable
         .createSubscription(
           'NotificationsChannel',
-          'DEFAULT',
+          localStorage.scope,
           {
             received: (data) => this.received(data),
           },

@@ -1,4 +1,4 @@
-/*
+<!--
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,42 +15,32 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
-*/
+-->
 
-import axios from 'axios'
+<template>
+  <v-select v-model="scope" :items="scopes" label="Scope" dense hide-details />
+</template>
 
-const request = async function (method, url, data = {}, params = {}) {
-  try {
-    await CosmosAuth.updateToken(CosmosAuth.defaultMinValidity)
-  } catch (error) {
-    CosmosAuth.login()
-  }
-  params['token'] = localStorage.getItem('token')
-  if (!params['scope']) {
-    params['scope'] = localStorage.scope
-  }
-  return axios({
-    method,
-    url,
-    data,
-    params,
-  })
-}
+<script>
+import Api from '../../../packages/cosmosc2-tool-common/src/services/api'
 
 export default {
-  get: function (path, params) {
-    return request('get', path, null, params)
+  data: function () {
+    return {
+      scopes: ['DEFAULT'],
+      scope: localStorage.scope,
+    }
   },
-
-  put: function (path, data, params) {
-    return request('put', path, data, params)
+  watch: {
+    scope: function (val) {
+      localStorage.scope = val
+    },
   },
-
-  post: function (path, data, params) {
-    return request('post', path, data, params)
-  },
-
-  delete: function (path, params) {
-    return request('delete', path, null, params)
+  created: function () {
+    Api.get('/cosmos-api/scopes').then((response) => {
+      this.scopes = response.data
+      if (!this.scope && this.scopes.length) this.scope = this.scopes[0]
+    })
   },
 }
+</script>

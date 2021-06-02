@@ -34,7 +34,7 @@ export class CosmosApi {
     }
     this.id = this.id + 1
     try {
-      kwparams['scope'] = 'DEFAULT'
+      kwparams['scope'] = localStorage.scope
       kwparams['token'] = localStorage.getItem('token')
       const response = await axios.post(this.host + '/api', {
         jsonrpc: '2.0',

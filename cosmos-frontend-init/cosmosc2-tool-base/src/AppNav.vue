@@ -70,6 +70,7 @@
     <v-app-bar app color="tertiary darken-3" id="cosmos-app-toolbar">
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <span style="width: 100%"><span id="cosmos-menu"></span></span>
+      <div class="justify-right mr-2 pt-2"><scope-selector /></div>
       <div class="justify-right mr-2"><notifications /></div>
       <div class="justify-right"><rux-clock /></div>
     </v-app-bar>
@@ -82,10 +83,12 @@ import '@astrouxds/rux-global-status-bar'
 import Api from '../../packages/cosmosc2-tool-common/src/services/api'
 import logo from '../public/img/logo.png'
 import { registerApplication, start } from 'single-spa'
+import ScopeSelector from './components/ScopeSelector.vue'
 import Notifications from './components/Notifications.vue'
 
 export default {
   components: {
+    ScopeSelector,
     Notifications,
   },
   data() {
