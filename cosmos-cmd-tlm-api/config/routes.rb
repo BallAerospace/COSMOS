@@ -83,10 +83,10 @@ Rails.application.routes.draw do
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   post "/api" => "api#api"
-  get "/password/exists" => "password#exists"
-  post "/password/verify" => "password#verify"
-  post "/password/set" => "password#set"
-  post "/password/reset" => "password#reset"
+  get "/auth/token-exists" => "auth#token_exists"
+  post "/auth/verify" => "auth#verify"
+  post "/auth/set" => "auth#set"
+  post "/auth/reset" => "auth#reset"
   get "/internal/metrics" => "internal_metrics#index"
   get "/screen/:target" => "api#screens"
   get "/screen/:target/:screen" => "api#screen"

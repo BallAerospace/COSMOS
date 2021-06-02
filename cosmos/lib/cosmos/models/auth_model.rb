@@ -17,37 +17,35 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos'
-require 'cosmos/models/password_model'
+require 'digest'
+require 'cosmos/utilities/store'
 
-class PasswordController < ApplicationController
+module Cosmos
+  class AuthModel
+    PRIMARY_KEY = 'COSMOS__TOKEN'
 
-  def exists
-    result = Cosmos::PasswordModel.is_set?
-    render :json => {
-      result: result
-    }
+    def self.is_set?
+      Store.exists(PRIMARY_KEY) == 1
+    end
+
+    def self.verify(token)
+      return false if token.nil? or token.empty?
+      Store.get(PRIMARY_KEY) == hash(token)
+    end
+
+    def self.set(token)
+      raise "Token must not be nil or empty" if token.nil? or token.empty?
+      Store.setnx(PRIMARY_KEY, hash(token))
+    end
+
+    def self.reset(token, recovery_token)
+      # TODO
+      raise "Not implemented"
+    end
+
+    private
+    def self.hash(token)
+      Digest::SHA2.hexdigest token
+    end
   end
-
-  def verify
-    result = Cosmos::PasswordModel.verify(params[:password])
-    render :json => {
-      result: result
-    }
-  end
-
-  def set
-    result = Cosmos::PasswordModel.set(params[:password])
-    render :json => {
-      result: result
-    }
-  end
-
-  def reset
-    result = Cosmos::PasswordModel.reset(params[:password], params[:recovery_token])
-    render :json => {
-      result: result
-    }
-  end
-
 end

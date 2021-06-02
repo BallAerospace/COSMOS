@@ -95,7 +95,7 @@ export default {
     },
   },
   created: function () {
-    Api.get('/cosmos-api/password/exists', null, this.options).then(
+    Api.get('/cosmos-api/auth/token-exists', null, this.options).then(
       (response) => {
         this.isSet = !!response.data.result
       }
@@ -115,9 +115,9 @@ export default {
     verifyPassword: function () {
       this.showAlert = false
       Api.post(
-        '/cosmos-api/password/verify',
+        '/cosmos-api/auth/verify',
         {
-          password: this.password,
+          token: this.password,
         },
         null,
         this.options
@@ -140,9 +140,9 @@ export default {
     setPassword: function () {
       this.showAlert = false
       Api.post(
-        '/cosmos-api/password/set',
+        '/cosmos-api/auth/set',
         {
-          password: this.password,
+          token: this.password,
         },
         null,
         this.options
@@ -157,9 +157,9 @@ export default {
     resetPassword: function () {
       this.showAlert = false
       Api.post(
-        '/cosmos-api/password/reset',
+        '/cosmos-api/auth/reset',
         {
-          password: this.password,
+          token: this.password,
           recovery_token: this.token,
         },
         null,
