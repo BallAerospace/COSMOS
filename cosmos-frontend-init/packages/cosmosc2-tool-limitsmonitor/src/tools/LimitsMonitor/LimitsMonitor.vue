@@ -76,7 +76,7 @@ export default {
     this.cable
       .createSubscription(
         'LimitsEventsChannel',
-        'DEFAULT',
+        localStorage.scope,
         {
           received: (data) => {
             const parsed = JSON.parse(data)

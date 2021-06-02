@@ -525,7 +525,7 @@ export default {
       this.progress = 0
       this.processButtonText = 'Cancel'
       this.cable
-        .createSubscription('StreamingChannel', 'DEFAULT', {
+        .createSubscription('StreamingChannel', localStorage.scope, {
           received: (data) => this.received(data),
           connected: () => this.onConnected(),
           disconnected: () => {
@@ -563,7 +563,7 @@ export default {
       })
       CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
         this.subscription.perform('add', {
-          scope: 'DEFAULT',
+          scope: localStorage.scope,
           mode: 'DECOM',
           token: localStorage.token,
           items: items,

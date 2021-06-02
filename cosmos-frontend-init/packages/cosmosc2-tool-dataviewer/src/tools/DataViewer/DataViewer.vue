@@ -451,7 +451,7 @@ export default {
     },
     subscribe: function () {
       this.cable
-        .createSubscription('StreamingChannel', 'DEFAULT', {
+        .createSubscription('StreamingChannel', localStorage.scope, {
           received: (data) => this.received(data),
           connected: () => {
             this.canStart = true
@@ -488,7 +488,7 @@ export default {
       CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
         Object.keys(modeGroups).forEach((mode) => {
           this.subscription.perform('add', {
-            scope: 'DEFAULT',
+            scope: localStorage.scope,
             token: localStorage.token,
             packets: modeGroups[mode].map(this.subscriptionKey),
             mode: mode,
@@ -500,7 +500,7 @@ export default {
     removePacketsFromSubscription: function (packets) {
       packets = packets || this.allPackets
       this.subscription.perform('remove', {
-        scope: 'DEFAULT',
+        scope: localStorage.scope,
         packets: packets.map(this.subscriptionKey),
       })
     },
