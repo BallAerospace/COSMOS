@@ -72,13 +72,12 @@
       <span style="width: 100%"><span id="cosmos-menu"></span></span>
       <div class="justify-right mr-2 pt-2"><scope-selector /></div>
       <div class="justify-right mr-2"><notifications /></div>
-      <div class="justify-right"><rux-clock /></div>
+      <div class="justify-right"></div>
     </v-app-bar>
   </div>
 </template>
 
 <script>
-import '@astrouxds/rux-clock'
 import '@astrouxds/rux-global-status-bar'
 import Api from '../../packages/cosmosc2-tool-common/src/services/api'
 import logo from '../public/img/logo.png'
