@@ -60,7 +60,7 @@ describe('CmdTlmServer Interfaces', () => {
     cy.get('[data-test=log-messages]').contains('INST_INT: Connection Success')
   })
 
-  it('cancels an inteface from attempting', () => {
+  it.skip('cancels an inteface from attempting', () => {
     // TODO: possibly remove this test. Sometimes it connects almost instantly, making this not testable
     cy.visit('/tools/cmdtlmserver/interfaces')
     cy.hideNav()
@@ -89,7 +89,7 @@ describe('CmdTlmServer Interfaces', () => {
       .eq(2)
       .invoke('text')
       .then((val) => {
-        'eq', 'ATTEMPTING'
+        // 'eq', 'ATTEMPTING'
         expect('ATTEMPTING,CONNECTED').to.have.string(val) // ¯\_(ツ)_/¯
       })
     // Disconnect
