@@ -45,7 +45,7 @@ RSpec.describe TimelineController, :type => :controller do
       json = JSON.parse(response.body)
       expect(json.empty?).to eql(false)
       expect(json.length).to eql(1)
-      expect(json[0]).to eql("test")
+      expect(json[0]["name"]).to eql("test")
       expect(response).to have_http_status(:ok)
     end
   end
@@ -59,11 +59,11 @@ RSpec.describe TimelineController, :type => :controller do
       post :create, params: {"scope"=>"TEST", "json"=>body}
       expect(response).to have_http_status(:created)
       get :index, params: {"scope"=>"DEFAULT"}
+      expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       expect(json.empty?).to eql(false)
       expect(json.length).to eql(1)
-      expect(json[0]).to eql("test")
-      expect(response).to have_http_status(:ok)
+      expect(json[0]["name"]).to eql("test")
     end
   end
 
@@ -72,9 +72,28 @@ RSpec.describe TimelineController, :type => :controller do
       request.headers["Authorization"] = "foobar"
       body = JSON.generate({"name" => "test"})
       post :create, params: {"scope"=>"DEFAULT", "json"=>body}
+      expect(response).to have_http_status(:created)
       json = JSON.parse(response.body)
       expect(json["name"]).to eql("test")
+    end
+  end
+
+  describe "POST color" do
+    it "returns a json hash of name and status code 200" do
+      request.headers["Authorization"] = "foobar"
+      body = JSON.generate({"name" => "test"})
+      post :create, params: {"scope"=>"DEFAULT", "json"=>body}
       expect(response).to have_http_status(:created)
+      json = JSON.parse(response.body)
+      expect(json["name"]).to eql("test")
+      expect(json["color"]).not_to be_nil
+      post :create, params: {"scope"=>"DEFAULT", "json"=>body}
+      body = JSON.generate({"color" => "#FF0000"})
+      post :color, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>body}
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json["name"]).to eql("test")
+      expect(json["color"]).to eql("#FF0000")
     end
   end
 

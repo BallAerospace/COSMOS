@@ -34,6 +34,7 @@ const request = async function (method, url, data = {}, params = {}) {
     url,
     data,
     params,
+    headers: { Authorization: localStorage.getItem('token') },
   })
 }
 

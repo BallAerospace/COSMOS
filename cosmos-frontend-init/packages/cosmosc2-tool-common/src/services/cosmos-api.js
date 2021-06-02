@@ -42,6 +42,7 @@ export class CosmosApi {
         params: params,
         id: this.id,
         keyword_params: kwparams,
+        headers: { Authorization: localStorage.getItem('token') },
       })
       // var data = response.data
       // if (data.error) {

@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json.schemastore.org/vsls",
+  "gitignore":"exclude",
+  "excludeFiles":[
+      "!node_modules"
+  ],
+  "hideFiles":[
+      "node_modules"
+  ]
+}

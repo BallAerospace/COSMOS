@@ -28,10 +28,10 @@ RSpec.describe ActivityController, :type => :controller do
   def generate_activity(start)
       dt = DateTime.now.new_offset(0)
       start_time = dt + (start/24.0)
-      end_time = dt + ((start+1.0)/24.0)
+      stop_time = dt + ((start+1.0)/24.0)
       post_hash = {
-        "start_time" => start_time.to_s,
-        "end_time" => end_time.to_s,
+        "start" => start_time.to_s,
+        "stop" => stop_time.to_s,
         "kind" => "cmd",
         "data" => {"test"=>"test"}
       }
@@ -41,7 +41,7 @@ RSpec.describe ActivityController, :type => :controller do
   describe "GET index" do
     it "returns an empty array and status code 200" do
       request.headers["Authorization"] = "foobar"
-      json = generate_activity(50.0)
+      json = generate_activity(200.0)
       post :create, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>json}
       expect(response).to have_http_status(:created)
       get :index, params: {"scope"=>"DEFAULT", "name"=>"test"}
@@ -59,7 +59,7 @@ RSpec.describe ActivityController, :type => :controller do
       expect(response).to have_http_status(:created)
       start = DateTime.now.new_offset(0) + 2.0 # add two days
       stop = start + (4.0/24.0) # add four hours to the start time
-      get :index, params: {"scope"=>"DEFAULT", "name"=>"test", "start_time"=>start.to_s, "end_time"=>stop.to_s}
+      get :index, params: {"scope"=>"DEFAULT", "name"=>"test", "start"=>start.to_s, "stop"=>stop.to_s}
       json = JSON.parse(response.body)
       expect(response).to have_http_status(:ok)
       expect(json.empty?).to eql(false)
@@ -84,11 +84,10 @@ RSpec.describe ActivityController, :type => :controller do
       json = generate_activity(1.0)
       post :create, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>json}
       ret = JSON.parse(response.body)
-      expect(ret["score"]).not_to be_nil
       expect(ret["updated_at"]).not_to be_nil
       expect(ret["duration"]).to eql(3600)
-      expect(ret["start_time"]).not_to be_nil
-      expect(ret["end_time"]).not_to be_nil
+      expect(ret["start"]).not_to be_nil
+      expect(ret["stop"]).not_to be_nil
       expect(response).to have_http_status(:created)
     end
   end
@@ -120,11 +119,11 @@ RSpec.describe ActivityController, :type => :controller do
     it "returns a hash and status code 400" do
       request.headers["Authorization"] = "foobar"
       dt = DateTime.now.new_offset(0)
-      start_time = dt + (1.0/24.0)
-      end_time = dt + 2.0
+      dt_start = dt + (1.0/24.0)
+      dt_stop = dt + 2.0
       post_hash = {
-        "start_time" => start_time.to_s,
-        "end_time" => end_time.to_s,
+        "start" => dt_start.to_s,
+        "stop" => dt_stop.to_s,
         "kind" => "cmd",
         "data" => {"test"=>"test"}
       }
@@ -169,9 +168,9 @@ RSpec.describe ActivityController, :type => :controller do
       post :create, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>json}
       expect(response).to have_http_status(:created)
       created = JSON.parse(response.body)
-      expect(created["score"]).not_to be_nil
+      expect(created["start"]).not_to be_nil
       json = JSON.generate({"status"=>"valid", "message"=>"external event update"})
-      post :event, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["score"], "json"=>json}
+      post :event, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["start"], "json"=>json}
       ret = JSON.parse(response.body)
       expect(ret["events"].empty?).to eql(false)
       expect(ret["events"].length).to eql(2)
@@ -186,19 +185,18 @@ RSpec.describe ActivityController, :type => :controller do
       post :create, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>json}
       expect(response).to have_http_status(:created)
       created = JSON.parse(response.body)
-      expect(created["score"]).not_to be_nil
-      get :show, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["score"]}
+      expect(created["start"]).not_to be_nil
+      get :show, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["start"]}
       ret = JSON.parse(response.body)
-      expect(ret["score"]).to eql(created["score"])
+      expect(ret["start"]).to eql(created["start"])
+      expect(ret["stop"]).not_to be_nil
       expect(ret["updated_at"]).not_to be_nil
       expect(ret["duration"]).to eql(3600)
-      expect(ret["start_time"]).not_to be_nil
-      expect(ret["end_time"]).not_to be_nil
       expect(response).to have_http_status(:ok)
     end
   end
 
-  describe "GET show invalid score" do
+  describe "GET show invalid start" do
     it "returns a hash and status code 404" do
       request.headers["Authorization"] = "foobar"
       get :show, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>"200"}
@@ -209,7 +207,7 @@ RSpec.describe ActivityController, :type => :controller do
     end
   end
 
-  describe "PUT update invalid score" do
+  describe "PUT update invalid start" do
     it "returns a hash and status code 404" do
       request.headers["Authorization"] = "foobar"
       put :update, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>"200"}
@@ -226,8 +224,8 @@ RSpec.describe ActivityController, :type => :controller do
       json = generate_activity(1.0)
       post :create, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>json}
       created = JSON.parse(response.body)
-      expect(created["score"]).not_to be_nil
-      put :update, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["score"], "json"=>"test"}
+      expect(created["start"]).not_to be_nil
+      put :update, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["start"], "json"=>"test"}
       ret = JSON.parse(response.body)
       expect(ret["status"]).to eql("error")
       expect(ret["message"]).not_to be_nil
@@ -241,11 +239,11 @@ RSpec.describe ActivityController, :type => :controller do
       json = generate_activity(1.0)
       post :create, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>json}
       created = JSON.parse(response.body)
-      expect(created["score"]).not_to be_nil
+      expect(created["start"]).not_to be_nil
       json = generate_activity(2.0)
-      put :update, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["score"], "json"=>json}
+      put :update, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["start"], "json"=>json}
       ret = JSON.parse(response.body)
-      expect(ret["score"]).not_to eql(created["score"])
+      expect(ret["start"]).not_to eql(created["start"])
       expect(response).to have_http_status(:ok)
     end
   end
@@ -257,9 +255,9 @@ RSpec.describe ActivityController, :type => :controller do
       post :create, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>json}
       expect(response).to have_http_status(:created)
       created = JSON.parse(response.body)
-      expect(created["score"]).not_to be_nil
+      expect(created["start"]).not_to be_nil
       json = generate_activity(-2.0)
-      put :update, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["score"], "json"=>json}
+      put :update, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["start"], "json"=>json}
       ret = JSON.parse(response.body)
       expect(ret["status"]).to eql("error")
       expect(ret["message"]).not_to be_nil
@@ -274,8 +272,8 @@ RSpec.describe ActivityController, :type => :controller do
       post :create, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>json}
       expect(response).to have_http_status(:created)
       created = JSON.parse(response.body)
-      expect(created["score"]).not_to be_nil
-      put :update, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["score"], "json"=>"{}"}
+      expect(created["start"]).not_to be_nil
+      put :update, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["start"], "json"=>"{}"}
       ret = JSON.parse(response.body)
       expect(ret["status"]).to eql("error")
       expect(ret["message"]).not_to be_nil
@@ -291,12 +289,12 @@ RSpec.describe ActivityController, :type => :controller do
       post :create, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>json}
       expect(response).to have_http_status(:created)
       created = JSON.parse(response.body)
-      expect(created["score"]).not_to be_nil
+      expect(created["start"]).not_to be_nil
       json = generate_activity(2.0)
       post :create, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>json}
       expect(response).to have_http_status(:created)
       json = generate_activity(2.0)
-      put :update, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["score"], "json"=>json}
+      put :update, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["start"], "json"=>json}
       ret = JSON.parse(response.body)
       expect(ret["status"]).to eql("error")
       expect(ret["message"]).not_to be_nil
@@ -311,8 +309,8 @@ RSpec.describe ActivityController, :type => :controller do
       post :create, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>json}
       expect(response).to have_http_status(:created)
       created = JSON.parse(response.body)
-      expect(created["score"]).not_to be_nil
-      delete :destroy, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["score"]}
+      expect(created["start"]).not_to be_nil
+      delete :destroy, params: {"scope"=>"DEFAULT", "name"=>"test", "id"=>created["start"]}
       expect(response).to have_http_status(:no_content)
     end
   end
@@ -327,5 +325,126 @@ RSpec.describe ActivityController, :type => :controller do
       expect(response).to have_http_status(:not_found)
     end
   end
+
+  describe "POST multi_create" do
+    it "returns an array and status code 200" do
+      request.headers["Authorization"] = "foobar"
+      post_array = Array.new
+      for i in (1..10) do
+        dt = DateTime.now.new_offset(0)
+        start_time = dt + (i/24.0)
+        stop_time = dt + ((i+0.5)/24.0)
+        post_array << {
+          "name" => "test",
+          "start" => start_time.to_s,
+          "stop" => stop_time.to_s,
+          "kind" => "cmd",
+          "data" => {"test"=>"test #{i}"}
+        }
+      end
+      json = JSON.generate(post_array)
+      post :multi_create, params: {"scope"=>"DEFAULT", "json"=>json}
+      expect(response).to have_http_status(:ok)
+      get :index, params: {"scope"=>"DEFAULT", "name"=>"test"}
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.empty?).to eql(false)
+      expect(json.length).to eql(10)
+    end
+  end
+
+  describe "POST multi_create with errors" do
+    it "returns an array and status code 200" do
+      request.headers["Authorization"] = "foobar"
+      dt = DateTime.now.new_offset(0)
+      start_time = dt + (1/24.0)
+      stop_time = dt + ((1.5)/24.0)
+      post_array = [
+        {"name" => "foo", "start" => start_time.to_s, "stop" => stop_time.to_s},
+        {"start" => start_time.to_s, "stop" => stop_time.to_s},
+        {},
+        "Test",
+        1,
+      ]
+      json = JSON.generate(post_array)
+      post :multi_create, params: {"scope"=>"DEFAULT", "json"=>json}
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.empty?).to eql(false)
+      expect(json.length).to eql(5)
+    end
+  end
+
+  describe "POST multi_create, multi_destory" do
+    it "returns a hash and status code 400" do
+      request.headers["Authorization"] = "foobar"
+      post :multi_create, params: {"scope"=>"DEFAULT", "json"=>"TEST"}
+      expect(response).to have_http_status(400)
+      json = JSON.parse(response.body)
+      expect(json["status"]).to eql("error")
+      expect(json["message"]).not_to be_nil
+      post :multi_destroy, params: {"scope"=>"DEFAULT", "json"=>"TEST"}
+      expect(response).to have_http_status(400)
+      json = JSON.parse(response.body)
+      expect(json["status"]).to eql("error")
+      expect(json["message"]).not_to be_nil
+    end
+  end
+
+  describe "POST multi_destroy" do
+    it "returns an array and status code 200" do
+      request.headers["Authorization"] = "foobar"
+      create_post_array = Array.new
+      for i in (1..10) do
+        dt = DateTime.now.new_offset(0)
+        start_time = dt + (i/24.0)
+        stop_time = dt + ((i+0.5)/24.0)
+        create_post_array << {
+          "name" => "test",
+          "start" => start_time.to_s,
+          "stop" => stop_time.to_s,
+          "kind" => "cmd",
+          "data" => {"test"=>"test #{i}"}
+        }
+      end
+      json = JSON.generate(create_post_array)
+      post :multi_create, params: {"scope"=>"DEFAULT", "json"=>json}
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      destroy_post_array = Array.new
+      json.each do |hash|
+        destroy_post_array << {"name" => hash["name"], "id" => hash['start']}
+      end
+      json = JSON.generate(destroy_post_array)
+      post :multi_destroy, params: {"scope"=>"DEFAULT", "json"=>json}
+      expect(response).to have_http_status(:ok)
+      get :index, params: {"scope"=>"DEFAULT", "name"=>"test"}
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.empty?).to eql(true)
+    end
+  end
+
+  describe "POST multi_destroy with errors" do
+    it "returns an array and status code 200" do
+      request.headers["Authorization"] = "foobar"
+      dt = DateTime.now.new_offset(0)
+      destroy_post_array = [
+        {"name" => "foo", "id" => "123456"},
+        {"name" => "foo"},
+        {"id" => "1234567"},
+        {},
+        "Test",
+        1,
+      ]
+      json = JSON.generate(destroy_post_array)
+      post :multi_destroy, params: {"scope"=>"DEFAULT", "json"=>json}
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.empty?).to eql(false)
+      expect(json.length).to eql(6)
+    end
+  end
+
 
 end

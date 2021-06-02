@@ -27,26 +27,34 @@ module Cosmos
       mock_redis()
     end
 
+    def generate_activity(name:, scope:, start:, kind: "cmd", stop: 1.0)
+        dt = DateTime.now.new_offset(0)
+        start_time = dt + (start/24.0)
+        end_time = dt + ((start+stop)/24.0)
+        data = {"test"=>"test"}
+        ActivityModel.new(
+          name: name,
+          scope: scope,
+          start: start_time.strftime("%s").to_i,
+          stop: end_time.strftime("%s").to_i,
+          kind: kind,
+          data: data)
+    end
+
     describe "self.activites" do
       it "returns metrics for the next hour" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        now = DateTime.now.new_offset(0)
-        start_time = (now + (30.0/86400.0)).to_s
-        end_time = (now + (100.0/86400.0)).to_s
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data)
-        model.create()
-        new_start_time = (now + (2.0/24.0)).to_s
-        new_end_time = (now + (2.1/24.0)).to_s
-        model = ActivityModel.new(name: name, scope: scope, start_time: new_start_time, end_time: new_end_time, kind: "cmd", data: data)
-        model.create()
+        activity = generate_activity(name: name, scope: scope, start: 1)
+        activity.create()
+        activity = generate_activity(name: name, scope: scope, start: 10)
+        activity.create()
         array = ActivityModel.activities(name: name, scope: scope)
         expect(array.empty?).to eql(false)
         expect(array.length).to eql(1)
         expect(array[0].kind).to eql("cmd")
-        expect(array[0].start_time).to eql(start_time)
-        expect(array[0].end_time).to eql(end_time)
+        expect(array[0].start).not_to be_nil
+        expect(array[0].stop).not_to be_nil
       end
     end
 
@@ -54,23 +62,19 @@ module Cosmos
       it "returns all metrics between X and Y" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "error", data: data, events: nil)
-        model.create()
-        start_time = "2031-04-16T02:02:00+00:00"
-        end_time = "2031-04-16T02:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        search_start_time = "2031-04-16T02:01:00+00:00"
-        search_end_time = "2031-04-16T02:03:00+00:00"
-        array = ActivityModel.get(name: name, scope: scope, start_time: search_start_time, end_time: search_end_time)
+        activity = generate_activity(name: name, scope: scope, start: 1.5)
+        activity.create()
+        activity = generate_activity(name: name, scope: scope, start: 5.0)
+        activity.create()
+        dt = DateTime.now.new_offset(0)
+        start = (dt + (1/24.0)).strftime("%s").to_i
+        stop = (dt + (3/24.0)).strftime("%s").to_i
+        array = ActivityModel.get(name: name, scope: scope, start: start, stop: stop)
         expect(array.empty?).to eql(false)
         expect(array.length).to eql(1)
         expect(array[0]["kind"]).to eql("cmd")
-        expect(array[0]["start_time"]).to eql(start_time)
-        expect(array[0]["end_time"]).to eql(end_time)
+        expect(array[0]["start"]).not_to be_nil
+        expect(array[0]["stop"]).not_to be_nil
       end
     end
 
@@ -78,42 +82,33 @@ module Cosmos
       it "returns all the activities" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        start_time = "2031-04-16T02:02:00+00:00"
-        end_time = "2031-04-16T02:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
+        activity = generate_activity(name: name, scope: scope, start: 2.0)
+        activity.create()
+        activity = generate_activity(name: name, scope: scope, start: 4.0)
+        activity.create()
         all = ActivityModel.all(name: name, scope: scope)
         expect(all.empty?).to eql(false)
         expect(all.length).to eql(2)
         expect(all[0]["kind"]).not_to be_nil
-        expect(all[0]["score"]).not_to be_nil
-        expect(all[0]["end_time"]).not_to be_nil
+        expect(all[0]["start"]).not_to be_nil
+        expect(all[0]["stop"]).not_to be_nil
         expect(all[1]["kind"]).not_to be_nil
-        expect(all[1]["score"]).not_to be_nil
-        expect(all[1]["end_time"]).not_to be_nil
+        expect(all[1]["start"]).not_to be_nil
+        expect(all[1]["stop"]).not_to be_nil
       end
     end
 
-    describe "self.score" do
-      it "returns a ActivityModel at the score" do
+    describe "self.start" do
+      it "returns a ActivityModel at the start" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        score = DateTime.parse(start_time).strftime("%s").to_i
-        model = ActivityModel.score(name: name, scope: scope, score: score)
+        activity = generate_activity(name: name, scope: scope, start: 1.0)
+        activity.create()
+        model = ActivityModel.score(name: name, scope: scope, score: activity.start)
         expect(model.fulfillment).to eql(false)
-        expect(model.start_time).to eql(start_time)
-        expect(model.end_time).to eql(end_time)
-        expect(model.data).to include("path")
+        expect(model.start).to eql(activity.start)
+        expect(model.stop).to eql(activity.stop)
+        expect(model.data).to include("test")
         expect(model.events.empty?).to eql(false)
         expect(model.events.length).to eql(1)
       end
@@ -123,17 +118,12 @@ module Cosmos
       it "returns the count of the timeline" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        start_time = "2031-04-16T02:02:00+00:00"
-        end_time = "2031-04-16T02:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        all = ActivityModel.count(name: name, scope: scope)
-        expect(all).to eql(2)
+        activity = generate_activity(name: name, scope: scope, start: 1.0)
+        activity.create()
+        activity = generate_activity(name: name, scope: scope, start: 2.5)
+        activity.create()
+        count = ActivityModel.count(name: name, scope: scope)
+        expect(count).to eql(2)
       end
     end
 
@@ -141,13 +131,9 @@ module Cosmos
       it "removes the score form of the timeline" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        score = DateTime.parse(start_time).strftime("%s").to_i
-        ret = ActivityModel.destroy(name: name, scope: scope, score: score)
+        activity = generate_activity(name: name, scope: scope, start: 2.0)
+        activity.create()
+        ret = ActivityModel.destroy(name: name, scope: scope, score: activity.start)
         expect(ret).to eql(1)
         count = ActivityModel.count(name: name, scope: scope)
         expect(count).to eql(0)
@@ -158,38 +144,27 @@ module Cosmos
       it "removes multiple members form of the timeline" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        start_time = "2031-04-16T01:10:00+00:00"
-        end_time = "2031-04-16T01:20:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        delete_start_time = "2031-04-16T01:01:00+00:00"
-        delete_end_time = "2031-04-16T01:15:00+00:00"
-        min_score = DateTime.parse(delete_start_time).strftime("%s").to_i
-        max_score = DateTime.parse(delete_end_time).strftime("%s").to_i
+        activity = generate_activity(name: name, scope: scope, start: 0.5)
+        activity.create()
+        activity = generate_activity(name: name, scope: scope, start: 2.0)
+        activity.create()
+        dt = DateTime.now.new_offset(0)
+        min_score = (dt + (0.5/24.0)).strftime("%s").to_i
+        max_score = (dt + (3.0/24.0)).strftime("%s").to_i
         ret = ActivityModel.range_destroy(name: name, scope: scope, min: min_score, max: max_score)
         expect(ret).to eql(2)
-        all = ActivityModel.count(name: name, scope: scope)
-        expect(all).to eql(0)
+        count = ActivityModel.count(name: name, scope: scope)
+        expect(count).to eql(0)
       end
     end
 
     describe "model.create" do
-      it "raises error due to overlap starts after A and ends inside A" do
+      it "raises error due to overlap starts inside A and ends inside A" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:30:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        start_time = "2031-04-16T01:10:00+00:00"
-        end_time = "2031-04-16T01:45:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
+        activity = generate_activity(name: name, scope: scope, start: 1.0, stop: 1.0)
+        activity.create()
+        model = generate_activity(name: name, scope: scope, start: 1.1, stop: 0.8)
         expect{
           model.create()
         }.to raise_error(ActivityOverlapError)
@@ -200,14 +175,9 @@ module Cosmos
       it "raises error due to overlap starts before A and ends before A" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:30:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        start_time = "2031-04-16T01:00:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
+        activity = generate_activity(name: name, scope: scope, start: 1.0, stop: 1.0)
+        activity.create()
+        model = generate_activity(name: name, scope: scope, start: 0.5, stop: 1.0)
         expect{
           model.create()
         }.to raise_error(ActivityOverlapError)
@@ -215,17 +185,12 @@ module Cosmos
     end
 
     describe "model.create" do
-      it "raises error due to overlap starts inside A and ends inside A" do
+      it "raises error due to overlap starts inside A and ends outside A" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:01:00+00:00"
-        end_time = "2031-04-16T01:31:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        start_time = "2031-04-16T01:10:00+00:00"
-        end_time = "2031-04-16T01:20:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
+        activity = generate_activity(name: name, scope: scope, start: 1.0, stop: 1.0)
+        activity.create()
+        model = generate_activity(name: name, scope: scope, start: 1.5, stop: 1.5)
         expect{
           model.create()
         }.to raise_error(ActivityOverlapError)
@@ -233,17 +198,12 @@ module Cosmos
     end
 
     describe "model.create" do
-      it "raises error due to overlap starts outside A and ends outside A" do
+      it "raises error due to overlap starts before A and ends after A" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:05:00+00:00"
-        end_time = "2031-04-16T01:35:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        start_time = "2031-04-16T01:01:00+00:00"
-        end_time = "2031-04-16T01:41:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
+        activity = generate_activity(name: name, scope: scope, start: 1.0, stop: 1.0)
+        activity.create()
+        model = generate_activity(name: name, scope: scope, start: 0.5, stop: 1.5)
         expect{
           model.create()
         }.to raise_error(ActivityOverlapError)
@@ -251,23 +211,16 @@ module Cosmos
     end
 
     describe "model.create" do
-      it "raises error due to overlap starts outside A and ends outside A with a second activity" do
+      it "raises error due to overlap starts before A and ends outside A inside a second activity" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:04:00+00:00"
-        end_time = "2031-04-16T01:04:55+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        start_time = "2031-04-16T01:05:00+00:00"
-        end_time = "2031-04-16T01:35:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        start_time = "2031-04-16T01:01:00+00:00"
-        end_time = "2031-04-16T01:41:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
+        foo = generate_activity(name: name, scope: scope, start: 1.0, stop: 0.5)
+        foo.create()
+        bar = generate_activity(name: name, scope: scope, start: 2.0, stop: 0.5)
+        bar.create()
+        activity = generate_activity(name: name, scope: scope, start: 0.5, stop: 1.7)
         expect{
-          model.create()
+          activity.create()
         }.to raise_error(ActivityOverlapError)
       end
     end
@@ -276,20 +229,13 @@ module Cosmos
       it "raises error due to overlap single " do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:01:00+00:00"
-        end_time = "2031-04-16T01:02:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:03:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        start_time = "2031-04-16T01:02:30+00:00"
-        end_time = "2031-04-16T01:03:30+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
+        foo = generate_activity(name: name, scope: scope, start: 1.0, stop: 0.5)
+        foo.create()
+        bar= generate_activity(name: name, scope: scope, start: 2.0, stop: 0.5)
+        bar.create()
+        activity = generate_activity(name: name, scope: scope, start: 1.0, stop: 0.5)
         expect{
-          model.create()
+          activity.create()
         }.to raise_error(ActivityOverlapError)
       end
     end
@@ -298,9 +244,8 @@ module Cosmos
       it "raises error due to invalid time" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
         expect{
-          ActivityModel.new(name: name, scope: scope, start_time: "foo", end_time: "bar", kind: "cmd", data: data, events: nil)
+          ActivityModel.new(name: name, scope: scope, start: "foo", stop: "bar", kind: "cmd", data: {})
         }.to raise_error(ActivityInputError)
       end
     end
@@ -309,9 +254,8 @@ module Cosmos
       it "raises error due to event start and end are the same time" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: start_time, kind: "cmd", data: data, events: nil)
+        start = Time.now.to_i
+        model = ActivityModel.new(name: name, scope: scope, start: start, stop: start, kind: "cmd", data: {})
         expect{
           model.create()
         }.to raise_error(ActivityInputError)
@@ -323,23 +267,24 @@ module Cosmos
         name = "foobar"
         scope = "scope"
         data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-17T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
+        dt_now = DateTime.now
+        start = (dt_now + (1.0/24.0)).strftime("%s").to_i
+        stop = (dt_now + (25.0/24.0)).strftime("%s").to_i
+        activity = ActivityModel.new(name: name, scope: scope, start: start, stop: stop, kind: "cmd", data: {})
         expect{
-          model.create()
+          activity.create()
         }.to raise_error(ActivityInputError)
       end
     end
 
     describe "time entry" do
-      it "raises error due to event start is after end" do
+      it "raises error due to event start is after stop" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2021-04-17T01:10:00+00:00"
-        end_time = "2031-04-16T01:02:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
+        dt_now = DateTime.now
+        start = (dt_now + (1.5/24.0)).strftime("%s").to_i
+        stop = (dt_now + (1.0/24.0)).strftime("%s").to_i
+        model = ActivityModel.new(name: name, scope: scope, start: start, stop: stop, kind: "cmd", data: {})
         expect{
           model.create()
         }.to raise_error(ActivityInputError)
@@ -350,12 +295,11 @@ module Cosmos
       it "raises error due to not created yet" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "error", data: data, events: nil)
+        activity = generate_activity(name: name, scope: scope, start: 0.5, stop: 1.0)
+        start = activity.start + 10
+        stop = activity.stop + 10
         expect{
-          model.update(start_time: start_time, end_time: end_time, kind: "error", data: data)
+          activity.update(start: start, stop: stop, kind: "error", data: {})
         }.to raise_error(ActivityError)
       end
     end
@@ -364,70 +308,51 @@ module Cosmos
       it "raises error due to update is overlapping time point" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "error", data: data, events: nil)
+        activity = generate_activity(name: name, scope: scope, start: 0.5, stop: 1.0)
+        activity.create()
+        model = generate_activity(name: name, scope: scope, start: 2.0)
         model.create()
-        start_time = "2031-04-16T00:02:00+00:00"
-        end_time = "2031-04-16T00:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        new_start_time = "2031-04-16T00:01:00+00:00"
-        new_end_time = "2031-04-16T01:10:00+00:00"
+        new_start = activity.start + 3600
+        new_stop = activity.stop + 3600
         expect{
-          model.update(start_time: new_start_time, end_time: new_end_time, kind: "error", data: data)
+          activity.update(start: new_start, stop: new_stop, kind: "error", data: {})
         }.to raise_error(ActivityOverlapError)
-        search_start_time = "2031-04-16T00:01:00+00:00"
-        search_end_time = "2031-04-16T00:03:00+00:00"
-        array = ActivityModel.get(name: name, scope: scope, start_time: search_start_time, end_time: search_end_time)
-        expect(array.empty?).to eql(false)
-        expect(array.length).to eql(1)
-        expect(array[0]["kind"]).to eql("cmd")
-        expect(array[0]["start_time"]).to eql(start_time)
-        expect(array[0]["end_time"]).to eql(end_time)
       end
     end
 
-    describe "update end_time" do
+    describe "update stop" do
       it "update the input parameters" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        end_time = "2031-04-16T01:20:00+00:00"
-        model.update(start_time: start_time, end_time: end_time, kind: "foo", data: data)
-        expect(model.start_time).to eql(start_time)
-        expect(model.end_time).to eql(end_time)
-        expect(model.kind).to eql("foo")
-        expect(model.data).not_to be_nil
-        expect(model.data).to include("path")
-        expect(model.events.empty?).to eql(false)
-        expect(model.events.length).to eql(2)
+        activity = generate_activity(name: name, scope: scope, start: 1.0)
+        activity.create()
+        stop = activity.stop + 100
+        activity.update(start: activity.start, stop: stop, kind: "foo", data: {})
+        expect(activity.start).to eql(activity.start)
+        expect(activity.stop).to eql(stop)
+        expect(activity.kind).to eql("foo")
+        expect(activity.data).not_to be_nil
+        expect(activity.data).not_to include("test")
+        expect(activity.events.empty?).to eql(false)
+        expect(activity.events.length).to eql(2)
       end
     end
 
-    describe "update both start_time and end_time" do
+    describe "update both start and stop" do
       it "update the input parameters" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        new_start_time = "2031-04-16T01:10:00+00:00"
-        new_end_time = "2031-04-16T01:20:00+00:00"
-        model.update(start_time: new_start_time, end_time: new_end_time, kind: "foo", data: data)
-        expect(model.start_time).to eql(new_start_time)
-        expect(model.end_time).to eql(new_end_time)
-        expect(model.kind).to eql("foo")
-        expect(model.data).not_to be_nil
-        score = DateTime.parse(start_time).strftime("%s").to_i
-        ret = ActivityModel.score(name: name, scope: scope, score: score)
+        activity = generate_activity(name: name, scope: scope, start: 1.0)
+        activity.create()
+        og_start = activity.start
+        new_start = activity.start + 100
+        new_stop = activity.stop + 100
+        activity.update(start: new_start, stop: new_stop, kind: "foo", data: {})
+        expect(activity.start).to eql(new_start)
+        expect(activity.stop).to eql(new_stop)
+        expect(activity.kind).to eql("foo")
+        expect(activity.data).not_to include("test")
+        ret = ActivityModel.score(name: name, scope: scope, score: og_start)
         expect(ret).to be_nil
       end
     end
@@ -436,16 +361,11 @@ module Cosmos
       it "update the events and commit them to redis" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        score = DateTime.parse(start_time).strftime("%s").to_i
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create()
-        expect(model.fulfillment).to eql(false)
-        model.commit(status: "test", message: "message", fulfillment: true)
-        expect(model.fulfillment).to eql(true)
-        activity = ActivityModel.score(name: name, scope: scope, score: score)
+        activity = generate_activity(name: name, scope: scope, start: 1.0)
+        expect(activity.fulfillment).to eql(false)
+        activity.commit(status: "test", message: "message", fulfillment: true)
+        expect(activity.fulfillment).to eql(true)
+        activity = ActivityModel.score(name: name, scope: scope, score: activity.start)
         expect(activity.fulfillment).to eql(true)
         valid_commit = false
         activity.events.each do |event|
@@ -463,11 +383,8 @@ module Cosmos
       it "update the top of a change to the timeline" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.notify(kind: "new")
+        activity = generate_activity(name: name, scope: scope, start: 1.0)
+        activity.notify(kind: "new")
       end
     end
 
@@ -475,14 +392,10 @@ module Cosmos
       it "the model to remove it" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        score = DateTime.parse(start_time).strftime("%s").to_i
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model.create
-        model.destroy
-        activity = ActivityModel.score(name: name, scope: scope, score: score)
+        activity = generate_activity(name: name, scope: scope, start: 1.0)
+        activity.create
+        activity.destroy
+        activity = ActivityModel.score(name: name, scope: scope, score: activity.start)
         expect(activity).to eql(nil)
       end
     end
@@ -491,19 +404,12 @@ module Cosmos
       it "encodes all the input parameters" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        start_check = DateTime.parse(start_time).strftime("%s").to_i
-        end_check = DateTime.parse(end_time).strftime("%s").to_i
-        duration = end_check - start_check
-        model = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        json = model.as_json
-        expect(json["score"]).to eql(start_check)
-        expect(json["duration"]).to eql(duration)
-        expect(json["start_time"]).to eql(start_time)
-        expect(json["end_time"]).to eql(end_time)
-        expect(json["kind"]).to eql("cmd")
+        activity = generate_activity(name: name, scope: scope, start: 1.0)
+        json = activity.as_json
+        expect(json["duration"]).to eql(activity.duration)
+        expect(json["start"]).to eql(activity.start)
+        expect(json["stop"]).to eql(activity.stop)
+        expect(json["kind"]).to eql(activity.kind)
         expect(json["data"]).not_to be_nil
       end
     end
@@ -512,19 +418,15 @@ module Cosmos
       it "encodes all the input parameters" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
-        start_time = "2031-04-16T01:02:00+00:00"
-        end_time = "2031-04-16T01:10:00+00:00"
-        model_obj = ActivityModel.new(name: name, scope: scope, start_time: start_time, end_time: end_time, kind: "cmd", data: data, events: nil)
-        model_hash = model_obj.as_json
+        activity = generate_activity(name: name, scope: scope, start: 1.0)
+        model_hash = activity.as_json
         json = JSON.generate(model_hash)
-        new_model = ActivityModel.from_json(json, name: name, scope: scope)
-        expect(model_obj.score).to eql(new_model.score)
-        expect(model_obj.duration).to eql(new_model.duration)
-        expect(model_obj.start_time).to eql(new_model.start_time)
-        expect(model_obj.end_time).to eql(new_model.end_time)
-        expect(model_obj.kind).to eql(new_model.kind)
-        expect(model_obj.data).to eql(new_model.data)
+        new_activity = ActivityModel.from_json(json, name: name, scope: scope)
+        expect(activity.duration).to eql(new_activity.duration)
+        expect(activity.start).to eql(new_activity.start)
+        expect(activity.stop).to eql(new_activity.stop)
+        expect(activity.kind).to eql(new_activity.kind)
+        expect(activity.data).to eql(new_activity.data)
       end
     end
 

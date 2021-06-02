@@ -4,6 +4,7 @@ usage() {
   echo "Usage: $1 [start, stop, cleanup, build, deploy]" >&2
   echo "*  start: start the minimal docker run for cosmos" >&2
   echo "*  stop: stop the running dockers for cosmos" >&2
+  echo "*  restart: stop and start the minimal docker run for cosmos" >&2
   echo "*  cleanup: cleanup network and volumes for cosmos" >&2
   echo "*  build: build the containers for cosmos" >&2
   echo "*  run: run the prebuilt containers for cosmos" >&2
@@ -23,6 +24,9 @@ start)
   ;;
 stop)
   scripts/linux/cosmos_stop.sh
+  ;;
+restart)
+  scripts/linux/cosmos_restart.sh
   ;;
 cleanup)
   scripts/linux/cosmos_cleanup.sh

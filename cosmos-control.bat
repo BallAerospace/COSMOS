@@ -3,6 +3,9 @@
 if ("%1"=="") (
   GOTO usage
 )
+if "%1" == "restart" (
+  GOTO restart
+)
 if "%1" == "start" (
   GOTO startup
 )
@@ -57,10 +60,16 @@ GOTO :EOF
   @echo off
 GOTO :EOF
 
+:restart
+  CALL scripts/windows/cosmos_restart
+  @echo off
+GOTO :EOF
+
 :usage
   @echo Usage: %0 [start, stop, cleanup, build, run, deploy] 1>&2
   @echo *  start: run the docker containers for cosmos 1>&2
   @echo *  stop: stop the running docker containers for cosmos 1>&2
+  @echo *  restart: stop and run the minimal docker containers for cosmos 1>&2
   @echo *  cleanup: cleanup network and volumes for cosmos 1>&2
   @echo *  build: build the containers for cosmos 1>&2
   @echo *  run: run the prebuilt containers for cosmos 1>&2

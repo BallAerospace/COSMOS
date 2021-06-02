@@ -29,18 +29,18 @@ module Cosmos
     end
 
     def generate_activity(name:, scope:, start:)
-        dt = DateTime.now.new_offset(0)
-        start_time = dt + (start/24.0)
-        end_time = dt + ((start+1.0)/24.0)
-        start = start_time.to_s
-        stop = end_time.to_s
+        t = Time.now
+        start_time = t + (start * 60)
+        end_time = t + ((start + 10) * 60)
+        start = start_time.to_i
+        stop = end_time.to_i
         kind = "cmd"
         data = {"test"=>"test"}
         ActivityModel.new(
           name: name,
           scope: scope,
-          start_time: start,
-          end_time: stop,
+          start: start,
+          stop: stop,
           kind: kind,
           data: data)
     end
@@ -125,7 +125,7 @@ module Cosmos
         expect(ret).to eql(name)
         activity = generate_activity(name: name, scope: scope, start: 1)
         activity.create()
-        score = DateTime.parse(activity.start_time).strftime("%s").to_i
+        score = activity.start
         ret = ActivityModel.destroy(name: name, scope: scope, score: score)
         expect(ret).to eql(1)
         ret = TimelineModel.delete(name: name, scope: scope)

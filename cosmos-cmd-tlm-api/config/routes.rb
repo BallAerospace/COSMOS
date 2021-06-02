@@ -71,7 +71,11 @@ Rails.application.routes.draw do
 
   resources :timeline, only: [:index, :create]
   get '/timeline/:name', to: 'timeline#show', name: /[^\/]+/
+  post '/timeline/:name/color', to: 'timeline#color', name: /[^\/]+/
   delete '/timeline/:name', to: 'timeline#destroy', name: /[^\/]+/
+
+  post '/timeline/activities/create', to: 'activity#multi_create'
+  post '/timeline/activities/delete', to: 'activity#multi_destroy'
 
   get '/timeline/:name/count', to: 'activity#count', name: /[^\/]+/
   get '/timeline/:name/activities', to: 'activity#index', name: /[^\/]+/

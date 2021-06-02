@@ -17,29 +17,26 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos/topics/topic'
+# Create the overall gemspec
+spec = Gem::Specification.new do |s|
+  s.name = 'cosmosc2-tool-timeline'
+  s.summary = 'Ball Aerospace COSMOS'
+  s.description = <<-EOF
+    This plugin adds the COSMOS timeline tool
+  EOF
+  s.authors = ['Ryan Melton', 'Jason Thomas']
+  s.email = ['rmelton@ball.com', 'jmthomas@ball.com']
+  s.homepage = 'https://github.com/BallAerospace/COSMOS'
 
-module Cosmos
-  class TimelineTopic < Topic
-    PRIMARY_KEY = "__cosmos_timelines"
+  s.platform = Gem::Platform::RUBY
 
-    # Write an activity to the topic
-    #
-    #```json
-    #  "timeline" => "foobar",
-    #  "kind" => "created",
-    #  "type" => "activity",
-    #  "data" => {
-    #    "name" => "foobar",
-    #    "start" => 1621875570,
-    #    "stop" => 1621875585,
-    #    "kind" => "cmd",
-    #    "data" => {"cmd"=>"INST ABORT"}
-    #    "events" => [{"event"=>"created"}]
-    #  }
-    #```
-    def self.write_activity(activity, scope:)
-      Store.write_topic("#{scope}#{PRIMARY_KEY}", activity)
-    end
+  time = Time.now.strftime("%Y%m%d%H%M%S")
+  if ENV['VERSION']
+    s.version = ENV['VERSION'].dup + ".#{time}"
+  else
+    s.version = '0.0.0' + ".#{time}"
   end
+  s.license = 'AGPL-3.0'
+
+  s.files = Dir.glob("{targets,lib,procedures,tools,microservices}/**/*") + %w(Rakefile LICENSE.txt README.md plugin.txt)
 end

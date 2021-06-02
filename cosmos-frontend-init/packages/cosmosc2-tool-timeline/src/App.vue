@@ -1,5 +1,4 @@
-# encoding: ascii-8bit
-
+<!--
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -16,30 +15,18 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
+-->
 
-require 'cosmos/topics/topic'
+<template>
+  <div>
+    <v-app id="innerapp">
+      <router-view />
+    </v-app>
+  </div>
+</template>
 
-module Cosmos
-  class TimelineTopic < Topic
-    PRIMARY_KEY = "__cosmos_timelines"
+<script>
+export default {}
+</script>
 
-    # Write an activity to the topic
-    #
-    #```json
-    #  "timeline" => "foobar",
-    #  "kind" => "created",
-    #  "type" => "activity",
-    #  "data" => {
-    #    "name" => "foobar",
-    #    "start" => 1621875570,
-    #    "stop" => 1621875585,
-    #    "kind" => "cmd",
-    #    "data" => {"cmd"=>"INST ABORT"}
-    #    "events" => [{"event"=>"created"}]
-    #  }
-    #```
-    def self.write_activity(activity, scope:)
-      Store.write_topic("#{scope}#{PRIMARY_KEY}", activity)
-    end
-  end
-end
+<style></style>

@@ -12,3 +12,4 @@ ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-tlmgrapher-5.0.0
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-dataextractor-5.0.0.*.gem
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-dataviewer-5.0.0.*.gem
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-admin-5.0.0.*.gem
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-timeline-5.0.0.*.gem

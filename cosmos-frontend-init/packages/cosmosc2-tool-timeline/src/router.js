@@ -1,5 +1,4 @@
-# encoding: ascii-8bit
-
+/*
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -16,30 +15,22 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
+*/
 
-require 'cosmos/topics/topic'
+import Vue from 'vue'
+import Router from 'vue-router'
 
-module Cosmos
-  class TimelineTopic < Topic
-    PRIMARY_KEY = "__cosmos_timelines"
+Vue.use(Router)
 
-    # Write an activity to the topic
-    #
-    #```json
-    #  "timeline" => "foobar",
-    #  "kind" => "created",
-    #  "type" => "activity",
-    #  "data" => {
-    #    "name" => "foobar",
-    #    "start" => 1621875570,
-    #    "stop" => 1621875585,
-    #    "kind" => "cmd",
-    #    "data" => {"cmd"=>"INST ABORT"}
-    #    "events" => [{"event"=>"created"}]
-    #  }
-    #```
-    def self.write_activity(activity, scope:)
-      Store.write_topic("#{scope}#{PRIMARY_KEY}", activity)
-    end
-  end
-end
+export default new Router({
+  mode: 'history',
+  base: process.env.BASE_URL,
+  routes: [
+    {
+      path: '/',
+      name: 'Timeline',
+      component: () => import('./tools/Timeline/Timeline.vue'),
+      meta: { title: 'Timeline', icon: 'mdi-database-clock' },
+    },
+  ],
+})

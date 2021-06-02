@@ -17,16 +17,19 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'topics_thread'
+require_relative 'topics_thread'
 require 'cosmos/utilities/authorization'
-require 'cosmos/topics/timeline_topic'
 
 class TimelineEventsApi
   include Cosmos::Authorization
 
-  def initialize(uuid, channel, history_count = 0, scope:, token:)
+  def initialize(uuid, channel, history_count = 0, scope: nil, token: nil)
     authorize(permission: 'system', scope: scope, token: token)
-    topics = ["#{scope}#{TimelineTopic.PRIMARY_KEY}"]
+    if scope
+      topics = ["#{scope}__cosmos_timelines"] # MUST be equal to `ActivityModel::PRIMARY_KEY`
+    else
+      topics = ["cosmos_timelines"] # MUST be equal to `ActivityModel::PRIMARY_KEY`
+    end
     @thread = TopicsThread.new(topics, channel, history_count)
     @thread.start
   end
@@ -35,3 +38,12 @@ class TimelineEventsApi
     @thread.stop
   end
 end
+
+# class FakeChannel
+#   def transmit(*args)
+#     STDOUT.puts args.inspect
+#   end
+# end
+
+# MessagesApi.new("Ryan", FakeChannel.new, nil)
+# sleep(20)

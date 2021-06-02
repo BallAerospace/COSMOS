@@ -13,6 +13,7 @@ COPY ./packages/cosmosc2-tool-dataviewer/*.json packages/cosmosc2-tool-dataviewe
 COPY ./packages/cosmosc2-tool-limitsmonitor/*.json packages/cosmosc2-tool-limitsmonitor/
 COPY ./packages/cosmosc2-tool-packetviewer/*.json packages/cosmosc2-tool-packetviewer/
 COPY ./packages/cosmosc2-tool-scriptrunner/*.json packages/cosmosc2-tool-scriptrunner/
+COPY ./packages/cosmosc2-tool-timeline/*.json packages/cosmosc2-tool-timeline/
 COPY ./packages/cosmosc2-tool-tlmgrapher/*.json packages/cosmosc2-tool-tlmgrapher/
 COPY ./packages/cosmosc2-tool-tlmviewer/*.json packages/cosmosc2-tool-tlmviewer/
 
