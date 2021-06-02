@@ -281,7 +281,7 @@ export default {
     subscribe: function () {
       // TODO: need to see how to get scope
       this.cable
-        .createSubscription('TimelineEventsChannel', 'DEFAULT', {
+        .createSubscription('TimelineEventsChannel', localStorage.scope, {
           received: (data) => this.received(data),
         })
         .then((subscription) => {
