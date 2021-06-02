@@ -27,7 +27,11 @@
       <v-container class="pb-0">
         <v-row dense>
           <v-col>
-            <v-text-field label="Text" v-model="text" />
+            <v-text-field
+              label="Text"
+              v-model="text"
+              data-test="classificationBannerText"
+            />
           </v-col>
         </v-row>
         <v-row dense>
@@ -59,6 +63,7 @@
               :disabled="selectedBackgroundColor !== false"
               v-model="customBackgroundColor"
               :rules="[rules.customColor]"
+              data-test="classificationBannerCustomBackgroundColor"
             >
               <template v-slot:prepend-inner>
                 <v-icon
@@ -100,6 +105,7 @@
               :disabled="selectedFontColor !== false"
               v-model="customFontColor"
               :rules="[rules.customColor]"
+              data-test="classificationBannerCustomFontColor"
             >
               <template v-slot:prepend-inner>
                 <v-icon v-show="!selectedFontColor" :color="customFontColor">
@@ -111,7 +117,11 @@
         </v-row>
         <v-row dense>
           <v-col>
-            <v-switch label="Display top banner" v-model="displayTopBanner" />
+            <v-switch
+              label="Display top banner"
+              v-model="displayTopBanner"
+              data-test="displayTopBanner"
+            />
           </v-col>
           <v-col>
             <v-text-field
@@ -120,12 +130,14 @@
               type="number"
               suffix="px"
               v-model="topHeight"
+              data-test="classificationBannerTopHeight"
             />
           </v-col>
           <v-col>
             <v-switch
               label="Display bottom banner"
               v-model="displayBottomBanner"
+              data-test="displayBottomBanner"
             />
           </v-col>
           <v-col>
@@ -135,6 +147,7 @@
               type="number"
               suffix="px"
               v-model="bottomHeight"
+              data-test="classificationBannerBottomHeight"
             />
           </v-col>
         </v-row>
@@ -144,7 +157,13 @@
       <v-container class="pt-0">
         <v-row dense>
           <v-col class="pl-0">
-            <v-btn :disabled="!formValid" @click="save" color="success" text>
+            <v-btn
+              :disabled="!formValid"
+              @click="save"
+              color="success"
+              text
+              data-test="saveClassificationBanner"
+            >
               Save
             </v-btn>
           </v-col>

@@ -27,14 +27,21 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
-Cypress.Commands.add('chooseVSelect', (inputLabel, selection) => {
+Cypress.Commands.add('chooseVSelect', (inputLabel, selection, options = {}) => {
   cy.get('label')
     .contains(new RegExp(`^${inputLabel}$`, 'i'))
     .click({ force: true })
 
-  cy.get('.v-list-item__title')
-    .contains(new RegExp(`^${selection}$`, 'i'))
-    .click()
+  const selectionExpression = options.fuzzy ? selection : `^${selection}$`
+  const list = cy.get(options.selectionElement || '.v-list-item__title')
+  let el
+  if (options.index) {
+    el = list.eq(options.index)
+    el.contains(new RegExp(selectionExpression, 'i'))
+  } else {
+    el = list.contains(new RegExp(selectionExpression, 'i'))
+  }
+  el.click()
 })
 
 Cypress.Commands.add(

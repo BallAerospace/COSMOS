@@ -30,6 +30,7 @@
             v-model="selectAllSuppressedWarnings"
             label="Select all"
             class="mt-0"
+            data-test="selectAllSuppressedWarnings"
           />
           <v-checkbox
             v-for="warning in suppressedWarnings"
@@ -50,6 +51,7 @@
           color="warning"
           text
           class="ml-2"
+          data-test="resetSuppressedWarnings"
         >
           Reset
         </v-btn>
@@ -67,6 +69,7 @@
             v-model="selectAllLastConfigs"
             label="Select all"
             class="mt-0"
+            data-test="selectAllLastConfigs"
           />
           <v-checkbox
             v-for="config in lastConfigs"
@@ -87,6 +90,7 @@
           color="warning"
           text
           class="ml-2"
+          data-test="clearLastConfigs"
         >
           Clear
         </v-btn>
