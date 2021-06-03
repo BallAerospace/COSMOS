@@ -23,14 +23,14 @@
     <v-card>
       <v-card-title>
         <v-btn color="primary" @click="getRunningScripts">Refresh</v-btn>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-text-field
           v-model="search"
           append-icon="$astro-search"
           label="Search"
           single-line
           hide-details
-        ></v-text-field>
+        />
       </v-card-title>
       <v-data-table
         :headers="headers"

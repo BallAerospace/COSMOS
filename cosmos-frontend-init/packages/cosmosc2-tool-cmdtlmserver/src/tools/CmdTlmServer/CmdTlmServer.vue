@@ -38,7 +38,7 @@
             label="Refresh Interval (ms)"
             :value="refreshInterval"
             @change="refreshInterval = $event"
-          ></v-text-field>
+          />
         </v-card>
       </v-dialog>
     </v-card>

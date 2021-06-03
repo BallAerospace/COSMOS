@@ -21,14 +21,14 @@
   <v-card class="card-height">
     <v-card-title>
       Limits Events
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-text-field
         v-model="search"
         append-icon="$astro-search"
         label="Search"
         single-line
         hide-details
-      ></v-text-field>
+      />
     </v-card-title>
     <v-data-table
       :headers="headers"

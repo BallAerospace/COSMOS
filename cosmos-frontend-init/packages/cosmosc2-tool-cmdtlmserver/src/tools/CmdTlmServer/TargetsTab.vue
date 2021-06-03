@@ -21,14 +21,14 @@
   <v-card>
     <v-card-title>
       Targets
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-text-field
         v-model="search"
         append-icon="$astro-search"
         label="Search"
         single-line
         hide-details
-      ></v-text-field>
+      />
     </v-card-title>
     <v-data-table
       :headers="headers"
@@ -39,7 +39,7 @@
       hide-default-footer
       multi-sort
       data-test="targets-table"
-    ></v-data-table>
+    />
   </v-card>
 </template>
 

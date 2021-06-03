@@ -33,7 +33,7 @@
           clearable
           clear-icon="$astro-close-large"
           data-test="search"
-        ></v-text-field>
+        />
       </v-sheet>
       <v-card-text>
         <v-treeview
@@ -62,13 +62,13 @@
           label="Filename"
           v-model="selectedFile"
           data-test="filename"
-        ></v-text-field>
+        />
       </v-card-text>
       <v-card-actions>
         <v-btn color="primary" text @click="ok()" :disabled="disableButtons"
           >Ok</v-btn
         >
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-btn
           color="primary"
           text

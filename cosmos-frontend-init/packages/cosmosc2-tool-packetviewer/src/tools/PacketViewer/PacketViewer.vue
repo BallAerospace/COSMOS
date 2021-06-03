@@ -35,14 +35,14 @@
           <v-card>
             <v-card-title>
               Items
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-text-field
                 v-model="search"
                 append-icon="$astro-search"
                 label="Search"
                 single-line
                 hide-details
-              ></v-text-field>
+              />
             </v-card-title>
             <v-data-table
               :headers="headers"
@@ -71,7 +71,7 @@
                   :limitsState="item.limitsState"
                   :parameters="[targetName, packetName, item.name]"
                   :settings="['WIDTH', '50']"
-                ></value-widget>
+                />
               </template>
             </v-data-table>
           </v-card>
@@ -94,7 +94,7 @@
           label="Refresh Interval (ms)"
           :value="refreshInterval"
           @change="refreshInterval = $event"
-        ></v-text-field>
+        />
       </v-card>
     </v-dialog>
   </div>

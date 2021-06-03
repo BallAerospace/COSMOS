@@ -29,7 +29,7 @@
     <v-list data-test="microserviceList">
       <v-list-item v-for="microservice in microservices" :key="microservice">
         <v-list-item-content>
-          <v-list-item-title v-text="microservice"></v-list-item-title>
+          <v-list-item-title v-text="microservice" />
           <v-list-item-subtitle v-if="microservice_status[microservice]"
             >Updated: {{ microservice_status[microservice].updated_at }}, State:
             {{ microservice_status[microservice].state }}, Count:

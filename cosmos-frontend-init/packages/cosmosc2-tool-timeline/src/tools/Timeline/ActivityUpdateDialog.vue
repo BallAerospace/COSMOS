@@ -68,14 +68,14 @@
                   label="Start Date"
                   :rules="[rules.required, rules.calendar]"
                   data-test="startDate"
-                ></v-text-field>
+                />
                 <v-text-field
                   v-model="startTime"
                   type="time"
                   label="Start Time"
                   :rules="[rules.required, rules.time]"
                   data-test="startTime"
-                ></v-text-field>
+                />
               </v-row>
               <v-row dense>
                 <v-text-field
@@ -100,16 +100,8 @@
                   hide-details
                   class="mt-0"
                 >
-                  <v-radio
-                    label="Local"
-                    value="loc"
-                    data-test="local-radio"
-                  ></v-radio>
-                  <v-radio
-                    label="UTC"
-                    value="utc"
-                    data-test="utc-radio"
-                  ></v-radio>
+                  <v-radio label="Local" value="loc" data-test="local-radio" />
+                  <v-radio label="UTC" value="utc" data-test="utc-radio" />
                 </v-radio-group>
               </v-row>
               <v-row dense>

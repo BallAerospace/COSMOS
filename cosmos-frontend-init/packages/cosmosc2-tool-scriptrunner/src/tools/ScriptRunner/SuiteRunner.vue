@@ -30,7 +30,7 @@
                 value="pauseOnError"
                 hide-details
                 data-test="pause-on-error"
-              ></v-checkbox>
+              />
             </v-col>
             <v-col cols="6">
               <v-checkbox
@@ -39,7 +39,7 @@
                 value="manual"
                 hide-details
                 data-test="manual"
-              ></v-checkbox>
+              />
             </v-col>
           </v-row>
         </v-col>
@@ -55,7 +55,7 @@
                 :items="suites"
                 v-model="suite"
                 data-test="select-suite"
-              ></v-select>
+              />
             </v-col>
             <v-col cols="auto">
               <v-btn
@@ -95,7 +95,7 @@
                 value="continueAfterError"
                 hide-details
                 data-test="continue-after-error"
-              ></v-checkbox>
+              />
             </v-col>
             <v-col cols="6">
               <v-checkbox
@@ -104,7 +104,7 @@
                 value="loop"
                 hide-details
                 data-test="loop"
-              ></v-checkbox>
+              />
             </v-col>
           </v-row>
         </v-col>
@@ -120,7 +120,7 @@
                 :items="groups"
                 v-model="group"
                 data-test="select-group"
-              ></v-select>
+              />
             </v-col>
             <v-col cols="auto">
               <v-btn
@@ -166,7 +166,7 @@
                 value="abortAfterError"
                 hide-details
                 data-test="abort-after-error"
-              ></v-checkbox>
+              />
             </v-col>
             <v-col cols="6">
               <v-checkbox
@@ -176,7 +176,7 @@
                 value="breakLoopOnError"
                 hide-details
                 data-test="break-loop-on-error"
-              ></v-checkbox>
+              />
             </v-col>
           </v-row>
         </v-col>
@@ -192,7 +192,7 @@
                 :items="scripts"
                 v-model="script"
                 data-test="select-script"
-              ></v-select>
+              />
             </v-col>
             <v-col cols="auto">
               <v-btn

@@ -25,7 +25,7 @@
           v-model="file"
           show-size
           label="Click to Select .gem file to add to internal gem server"
-        ></v-file-input>
+        />
       </v-col>
       <v-col cols="1" class="pl-2">
         <v-btn color="primary" class="mr-4" @click="upload()">
@@ -37,7 +37,7 @@
     <v-list data-test="gemList">
       <v-list-item v-for="(gem, i) in gems" :key="i">
         <v-list-item-content>
-          <v-list-item-title v-text="gem"></v-list-item-title>
+          <v-list-item-title v-text="gem" />
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>

@@ -29,14 +29,14 @@
             type="date"
             :rules="[rules.required]"
             data-test="startDate"
-          ></v-text-field>
+          />
           <v-text-field
             v-model="endDate"
             label="End Date"
             type="date"
             :rules="[rules.required]"
             data-test="endDate"
-          ></v-text-field>
+          />
         </v-col>
         <v-col>
           <v-text-field
@@ -60,26 +60,14 @@
       <v-row no-gutters>
         <v-col>
           <v-radio-group v-model="cmdOrTlm" row hide-details class="mt-0">
-            <v-radio
-              label="Command"
-              value="cmd"
-              data-test="cmd-radio"
-            ></v-radio>
-            <v-radio
-              label="Telemetry"
-              value="tlm"
-              data-test="tlm-radio"
-            ></v-radio>
+            <v-radio label="Command" value="cmd" data-test="cmd-radio" />
+            <v-radio label="Telemetry" value="tlm" data-test="tlm-radio" />
           </v-radio-group>
         </v-col>
         <v-col>
           <v-radio-group v-model="utcOrLocal" row hide-details class="mt-0">
-            <v-radio
-              label="Local"
-              value="loc"
-              data-test="local-radio"
-            ></v-radio>
-            <v-radio label="UTC" value="utc" data-test="utc-radio"></v-radio>
+            <v-radio label="Local" value="loc" data-test="local-radio" />
+            <v-radio label="UTC" value="utc" data-test="utc-radio" />
           </v-radio-group>
         </v-col>
       </v-row>
@@ -91,7 +79,7 @@
             :mode="cmdOrTlm"
             :chooseItem="true"
             :allowAll="true"
-          ></target-packet-item-chooser>
+          />
           <v-alert type="warning" v-model="warning" dismissible
             >{{ warningText }}
           </v-alert>
@@ -109,11 +97,11 @@
               height="10"
               :value="progress"
               color="secondary"
-            ></v-progress-linear>
+            />
             <v-list data-test="itemList">
               <v-subheader class="mt-3">
                 Items
-                <v-spacer></v-spacer>
+                <v-spacer />
                 <v-btn class="primary mr-4" @click="processItems">
                   {{ processButtonText }}
                 </v-btn>
@@ -172,7 +160,7 @@
                             label="Value Type"
                             outlined
                             v-model="item.valueType"
-                          ></v-select>
+                          />
                         </v-col>
                         <!-- v-col v-if="uniqueOnly">
                           <v-select
@@ -180,11 +168,11 @@
                             label="Add to Unique Ignore List?:"
                             outlined
                             v-model="item.uniqueIgnoreAdd"
-                          ></v-select>
+                          />
                         </v-col -->
                       </v-card-text>
                       <v-card-actions>
-                        <v-spacer></v-spacer>
+                        <v-spacer />
                         <v-btn color="primary" text @click="item.edit = false">
                           Ok
                         </v-btn>
@@ -193,9 +181,7 @@
                   </v-dialog>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title
-                    v-text="getItemLabel(item)"
-                  ></v-list-item-title>
+                  <v-list-item-title v-text="getItemLabel(item)" />
                 </v-list-item-content>
                 <v-list-item-icon>
                   <v-tooltip bottom>
@@ -225,11 +211,11 @@
               label="Value Type"
               outlined
               v-model="allItemValueType"
-            ></v-select>
+            />
           </v-col>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="primary" text @click="editAllValueTypes()"> Ok </v-btn>
           <v-btn color="primary" text @click="editAll = false"> Cancel </v-btn>
         </v-card-actions>

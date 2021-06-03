@@ -30,7 +30,7 @@
           :value="overallStateFormatted"
           :class="textFieldClass"
           data-test="overall-state"
-        ></v-text-field>
+        />
       </v-row>
       <v-row
         no-gutters
@@ -47,7 +47,7 @@
               ['1', 'WIDTH', '200'],
               ['2', 'WIDTH', '200'],
             ]"
-          ></labelvaluelimitsbar-widget>
+          />
           <labelvalue-widget
             v-else
             :parameters="item.parameters"
@@ -55,7 +55,7 @@
               ['0', 'WIDTH', '150'],
               ['1', 'WIDTH', '200'],
             ]"
-          ></labelvalue-widget>
+          />
         </v-col>
         <v-col cols="2">
           <v-tooltip bottom>

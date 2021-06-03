@@ -67,7 +67,7 @@
                   label="Search Date"
                   :rules="[rules.required, rules.calendar]"
                   data-test="searchDate"
-                ></v-text-field>
+                />
                 <v-btn
                   color="success"
                   class="ml-2"

@@ -25,7 +25,7 @@
       preserveAspectRatio="xMidYMid meet"
       focusable="false"
     >
-      <use :href="getIcon(this.library, this.icon)"></use>
+      <use :href="getIcon(this.library, this.icon)" />
     </svg>
   </span>
 </template>

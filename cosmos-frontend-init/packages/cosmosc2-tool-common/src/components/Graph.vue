@@ -65,7 +65,7 @@
           v-model="title"
           hide-details
           data-test="edit-title"
-        ></v-text-field>
+        />
         <v-card-text class="pa-0"
           >Select a start date/time for the graph. Leave blank for start now.
         </v-card-text>
@@ -74,7 +74,7 @@
           @date-time="graphStartDateTime = $event"
           dateLabel="Start Date"
           timeLabel="Start Time"
-        ></date-time-chooser>
+        />
         <v-card-text class="pa-0"
           >Select a end date/time for the graph. Leave blank for continuous
           real-time graphing.
@@ -83,17 +83,9 @@
           dateLabel="End Date"
           timeLabel="End Time"
           @date-time="graphEndDateTime = $event"
-        ></date-time-chooser>
-        <v-text-field
-          label="Min Y"
-          v-model="graphMinY"
-          hide-details
-        ></v-text-field>
-        <v-text-field
-          label="Max Y"
-          v-model="graphMaxY"
-          hide-details
-        ></v-text-field>
+        />
+        <v-text-field label="Min Y" v-model="graphMinY" hide-details />
+        <v-text-field label="Max Y" v-model="graphMaxY" hide-details />
         <v-container fluid>
           <v-row v-for="(item, key) in items" :key="key">
             <v-col
@@ -141,7 +133,7 @@
           outlined
           v-model="this.selectedItem.valueType"
           @change="changeType($event)"
-        ></v-select>
+        />
         <v-card-actions>
           <v-btn color="primary" @click="editItem = false">Ok</v-btn>
         </v-card-actions>

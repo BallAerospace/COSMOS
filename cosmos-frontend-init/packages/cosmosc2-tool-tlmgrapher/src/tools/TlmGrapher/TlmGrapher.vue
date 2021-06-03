@@ -33,7 +33,7 @@
         <v-list-item-title>Grapher Controls</v-list-item-title>
       </v-list-item>
 
-      <v-divider></v-divider>
+      <v-divider />
 
       <v-list dense>
         <v-list-item
@@ -51,7 +51,7 @@
         </v-list-item>
       </v-list>
 
-      <v-divider></v-divider>
+      <v-divider />
       <v-list dense>
         <v-list-item v-for="item in settings" :key="item.title">
           <v-list-item-icon>
@@ -67,7 +67,7 @@
                 :rules="item.rules"
                 :label="item.title"
                 v-model.number="item.value"
-              ></v-text-field>
+              />
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
@@ -78,7 +78,7 @@
         @click="addItem($event)"
         buttonText="Add Item"
         :chooseItem="true"
-      ></target-packet-item-chooser>
+      />
       <div class="grid">
         <div
           class="item"

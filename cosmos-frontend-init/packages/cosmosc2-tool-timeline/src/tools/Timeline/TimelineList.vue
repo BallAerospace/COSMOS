@@ -129,10 +129,7 @@
               </v-col>
             </v-row>
           </v-list-item>
-          <v-divider
-            v-if="index < sortedTimelines.length - 1"
-            :key="index"
-          ></v-divider>
+          <v-divider v-if="index < sortedTimelines.length - 1" :key="index" />
         </template>
       </v-list-item-group>
     </v-list>

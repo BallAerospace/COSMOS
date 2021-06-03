@@ -30,7 +30,7 @@
             <!-- v-list-item-subtitle>Enterprise Edition</v-list-item-subtitle -->
           </v-list-item-content>
         </v-list-item>
-        <v-divider></v-divider>
+        <v-divider />
         <v-list-item v-for="(tool, name) in shownTools" :key="name">
           <v-list-item-icon>
             <a :href="tool.url" onclick="singleSpaNavigate(event)"
@@ -68,7 +68,7 @@
     </v-navigation-drawer>
 
     <v-app-bar app color="tertiary darken-3" id="cosmos-app-toolbar">
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="drawer = !drawer" />
       <span style="width: 100%"><span id="cosmos-menu"></span></span>
       <div class="justify-right mr-2 pt-2"><scope-selector /></div>
       <div class="justify-right mr-2"><notifications /></div>

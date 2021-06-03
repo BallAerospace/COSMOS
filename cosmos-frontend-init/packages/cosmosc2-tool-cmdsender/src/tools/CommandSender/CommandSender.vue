@@ -29,19 +29,19 @@
       :disabled="sendDisabled"
       buttonText="Send"
       mode="cmd"
-    ></target-packet-item-chooser>
+    />
 
     <v-card v-if="rows.length != 0">
       <v-card-title>
         Parameters
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-text-field
           v-model="search"
           append-icon="$astro-search"
           label="Search"
           single-line
           hide-details
-        ></v-text-field>
+        />
       </v-card-title>
       <v-data-table
         :headers="headers"
@@ -58,7 +58,7 @@
           <command-parameter-editor
             v-model="item.val_and_states"
             :statesInHex="statesInHex"
-          ></command-parameter-editor>
+          />
         </template>
       </v-data-table>
     </v-card>
@@ -137,7 +137,7 @@
                 item-text="label"
                 item-value="value"
                 v-model="selectedInterface"
-              ></v-select>
+              />
             </v-col>
           </v-row>
           <v-row no-gutters>

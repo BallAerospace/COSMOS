@@ -33,7 +33,7 @@
             :type="password ? 'password' : 'text'"
             v-model="value"
             :rules="rules"
-          ></v-text-field>
+          />
           <v-btn color="primary" :disabled="!valid" type="submit">Ok</v-btn>
           <v-btn
             class="ma-1"

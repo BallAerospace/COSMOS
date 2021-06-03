@@ -29,7 +29,7 @@
               autofocus
               type="text"
               v-model="local_variables[name]"
-            ></v-text-field>
+            />
           </div>
           <v-btn color="primary" type="submit">Ok</v-btn>
         </v-form>

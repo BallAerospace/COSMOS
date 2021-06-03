@@ -42,7 +42,7 @@
             hide-details
             dense
             data-test="cmd-param-select"
-          ></v-overflow-btn>
+          />
         </v-col>
         <v-col>
           <v-text-field
@@ -51,7 +51,7 @@
             hide-details
             dense
             data-test="cmd-param-value"
-          ></v-text-field>
+          />
         </v-col>
       </v-row>
     </v-container>

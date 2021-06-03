@@ -26,7 +26,7 @@
           v-model="file"
           show-size
           label="Click to Select Plugin .gem File"
-        ></v-file-input>
+        />
       </v-col>
       <v-col cols="1" class="pl-2">
         <v-btn color="primary" class="mr-4" @click="upload()">
@@ -46,7 +46,7 @@
     <v-list data-test="pluginList">
       <v-list-item v-for="(plugin, i) in plugins" :key="i">
         <v-list-item-content>
-          <v-list-item-title v-text="plugin"></v-list-item-title>
+          <v-list-item-title v-text="plugin" />
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>

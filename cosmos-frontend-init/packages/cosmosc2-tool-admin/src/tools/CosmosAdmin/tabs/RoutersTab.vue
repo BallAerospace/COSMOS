@@ -29,7 +29,7 @@
     <v-list data-test="routerList">
       <v-list-item v-for="router in routers" :key="router">
         <v-list-item-content>
-          <v-list-item-title v-text="router"></v-list-item-title>
+          <v-list-item-title v-text="router" />
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
