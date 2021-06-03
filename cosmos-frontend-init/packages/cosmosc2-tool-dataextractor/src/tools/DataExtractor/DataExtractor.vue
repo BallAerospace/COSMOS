@@ -85,13 +85,13 @@
       </v-row>
       <v-row>
         <div class="c-tlmgrapher__contents">
-          <TargetPacketItemChooser
+          <target-packet-item-chooser
             @click="addItem($event)"
             buttonText="Add Item"
             :mode="cmdOrTlm"
             :chooseItem="true"
             :allowAll="true"
-          ></TargetPacketItemChooser>
+          ></target-packet-item-chooser>
           <v-alert type="warning" v-model="warning" dismissible
             >{{ warningText }}
           </v-alert>

@@ -19,9 +19,9 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
 
-    <TargetPacketItemChooser
+    <target-packet-item-chooser
       :initialTargetName="this.$route.params.target"
       :initialPacketName="this.$route.params.packet"
       @on-set="commandChanged($event)"
@@ -29,7 +29,7 @@
       :disabled="sendDisabled"
       buttonText="Send"
       mode="cmd"
-    ></TargetPacketItemChooser>
+    ></target-packet-item-chooser>
 
     <v-card v-if="rows.length != 0">
       <v-card-title>
@@ -55,10 +55,10 @@
         @contextmenu:row="showContextMenu"
       >
         <template v-slot:item.val_and_states="{ item }">
-          <CommandParameterEditor
+          <command-parameter-editor
             v-model="item.val_and_states"
             :statesInHex="statesInHex"
-          ></CommandParameterEditor>
+          ></command-parameter-editor>
         </template>
       </v-data-table>
     </v-card>
@@ -94,7 +94,7 @@
         </v-list-item>
       </v-list>
     </v-menu>
-    <DetailsDialog
+    <details-dialog
       :targetName="targetName"
       :packetName="commandName"
       :itemName="parameterName"

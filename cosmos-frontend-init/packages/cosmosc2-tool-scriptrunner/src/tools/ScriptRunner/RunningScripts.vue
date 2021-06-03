@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <TopBar :title="title" />
+    <top-bar :title="title" />
     <v-card>
       <v-card-title>
         <v-btn color="primary" @click="getRunningScripts">Refresh</v-btn>

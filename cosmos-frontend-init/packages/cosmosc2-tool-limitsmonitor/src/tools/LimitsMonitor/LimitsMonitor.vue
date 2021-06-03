@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
     <v-tabs v-model="curTab" fixed-tabs>
       <v-tab v-for="(tab, index) in tabs" :key="index">{{ tab }}</v-tab>
     </v-tabs>

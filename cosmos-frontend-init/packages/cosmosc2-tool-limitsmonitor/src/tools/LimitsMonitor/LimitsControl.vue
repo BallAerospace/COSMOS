@@ -39,7 +39,7 @@
         data-test="limits-row"
       >
         <v-col>
-          <LabelvaluelimitsbarWidget
+          <labelvaluelimitsbar-widget
             v-if="item.limits"
             :parameters="item.parameters"
             :settings="[
@@ -47,15 +47,15 @@
               ['1', 'WIDTH', '200'],
               ['2', 'WIDTH', '200'],
             ]"
-          ></LabelvaluelimitsbarWidget>
-          <LabelvalueWidget
+          ></labelvaluelimitsbar-widget>
+          <labelvalue-widget
             v-else
             :parameters="item.parameters"
             :settings="[
               ['0', 'WIDTH', '150'],
               ['1', 'WIDTH', '200'],
             ]"
-          ></LabelvalueWidget>
+          ></labelvalue-widget>
         </v-col>
         <v-col cols="2">
           <v-tooltip bottom>

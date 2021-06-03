@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
     <v-navigation-drawer
       absolute
       permanent
@@ -74,11 +74,11 @@
       </v-list>
     </v-navigation-drawer>
     <div class="c-tlmgrapher__contents">
-      <TargetPacketItemChooser
+      <target-packet-item-chooser
         @click="addItem($event)"
         buttonText="Add Item"
         :chooseItem="true"
-      ></TargetPacketItemChooser>
+      ></target-packet-item-chooser>
       <div class="grid">
         <div
           class="item"
@@ -108,14 +108,14 @@
       </div>
     </div>
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <OpenConfigDialog
+    <open-config-dialog
       v-if="openConfig"
       v-model="openConfig"
       :tool="toolName"
       @success="openConfiguration($event)"
     />
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <SaveConfigDialog
+    <save-config-dialog
       v-if="saveConfig"
       v-model="saveConfig"
       :tool="toolName"

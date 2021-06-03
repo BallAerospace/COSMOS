@@ -18,7 +18,7 @@
 -->
 
 <template>
-  <MountingPortal mountTo="#cosmos-menu" append>
+  <mounting-portal mountTo="#cosmos-menu" append>
     <div class="v-toolbar__content">
       <v-menu offset-y v-for="(menu, i) in menus" :key="i">
         <template v-slot:activator="{ on }">
@@ -67,7 +67,7 @@
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer />
     </div>
-  </MountingPortal>
+  </mounting-portal>
 </template>
 
 <script>
