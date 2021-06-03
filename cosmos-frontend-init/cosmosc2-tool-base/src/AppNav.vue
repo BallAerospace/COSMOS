@@ -71,8 +71,7 @@
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <span style="width: 100%"><span id="cosmos-menu"></span></span>
       <div class="justify-right mr-2 pt-2"><scope-selector /></div>
-      <div class="justify-right mr-2"><notifications /></div>
-      <div class="justify-right"></div>
+      <div class="justify-right"><notifications /></div>
     </v-app-bar>
   </div>
 </template>

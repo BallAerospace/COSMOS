@@ -21,23 +21,13 @@
   <div>
     <v-tooltip top v-if="validOffset">
       <template v-slot:activator="{ on, attrs }">
-        <span
-          v-bind="attrs"
-          v-on="on"
-          v-text="localTime"
-          style="margin-left: 1em"
-        />
+        <span v-bind="attrs" v-on="on" v-text="localTime" class="clock-text" />
       </template>
       <span> Local Time </span>
     </v-tooltip>
     <v-tooltip top>
       <template v-slot:activator="{ on, attrs }">
-        <span
-          v-bind="attrs"
-          v-on="on"
-          v-text="utcTime"
-          style="margin-left: 1em"
-        />
+        <span v-bind="attrs" v-on="on" v-text="utcTime" class="clock-text" />
       </template>
       <span> UTC Time </span>
     </v-tooltip>
@@ -92,3 +82,9 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.clock-text {
+  margin-left: 1em;
+}
+</style>
