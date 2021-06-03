@@ -1,4 +1,4 @@
-<!--
+/*
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,30 +15,16 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
+*/
 
-<template>
-  <v-select v-model="scope" :items="scopes" label="Scope" dense hide-details />
-</template>
-
-<script>
-import Scopes from '../util/scopes.js'
+import Api from '../../../packages/cosmosc2-tool-common/src/services/api'
 
 export default {
-  mixins: [Scopes],
-  data: function () {
-    return {
-      scopes: [], // gets set in the mixin
-      scope: localStorage.scope,
-    }
-  },
-  watch: {
-    scope: function (val) {
-      localStorage.scope = val
-    },
-    scopes: function (val) {
-      if (val.length === 1 || (!this.scope && val.length)) this.scope = val[0]
-    },
+  created: function () {
+    Api.get('/cosmos-api/auth/scopes', {}, { noScope: true }).then(
+      (response) => {
+        this.scopes = response.data.result
+      }
+    )
   },
 }
-</script>
