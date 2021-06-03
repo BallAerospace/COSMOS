@@ -113,8 +113,9 @@
                       v-bind="attrs"
                       v-on="on"
                       data-test="editAll"
-                      ><v-icon>mdi-pencil</v-icon></v-btn
                     >
+                      <v-icon> mdi-pencil </v-icon>
+                    </v-btn>
                   </template>
                   <span>Edit All Items</span>
                 </v-tooltip>
@@ -126,8 +127,9 @@
                       v-bind="attrs"
                       v-on="on"
                       data-test="deleteAll"
-                      ><v-icon>mdi-delete</v-icon></v-btn
                     >
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
                   </template>
                   <span>Delete All Items</span>
                 </v-tooltip>
@@ -140,8 +142,9 @@
                         @click.stop="item.edit = true"
                         v-bind="attrs"
                         v-on="on"
-                        >mdi-pencil</v-icon
                       >
+                        mdi-pencil
+                      </v-icon>
                     </template>
                     <span>Edit Item</span>
                   </v-tooltip>
@@ -186,9 +189,13 @@
                 <v-list-item-icon>
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
-                      <v-icon @click="deleteItem(item)" v-bind="attrs" v-on="on"
-                        >mdi-delete</v-icon
+                      <v-icon
+                        @click="deleteItem(item)"
+                        v-bind="attrs"
+                        v-on="on"
                       >
+                        mdi-delete
+                      </v-icon>
                     </template>
                     <span>Delete Item</span>
                   </v-tooltip>
@@ -202,8 +209,8 @@
     <v-dialog v-model="editAll" @keydown.esc="editAll = false" max-width="700">
       <v-card>
         <v-card-title>Edit All Items</v-card-title>
-        <v-card-text
-          >This will change all items to the following data type!
+        <v-card-text>
+          This will change all items to the following data type!
           <v-col>
             <v-select
               hide-details

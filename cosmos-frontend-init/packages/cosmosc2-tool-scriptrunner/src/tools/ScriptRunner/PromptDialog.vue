@@ -45,14 +45,16 @@
               color="secondary"
               :disabled="selectOkDisabled"
               @click="$emit('submit', selectedItem)"
-              >Ok</v-btn
             >
+              Ok
+            </v-btn>
             <v-btn
               class="ma-1"
               color="secondary"
               @click="$emit('submit', 'Cancel')"
-              >Cancel</v-btn
             >
+              Cancel
+            </v-btn>
           </template>
           <template v-else>
             <v-btn
@@ -67,8 +69,9 @@
               class="ma-1"
               color="secondary"
               @click="$emit('submit', 'Cancel')"
-              >Cancel</v-btn
             >
+              Cancel
+            </v-btn>
           </template>
         </v-card-actions>
       </v-card>

@@ -51,9 +51,9 @@
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="editTool(tool)" v-bind="attrs" v-on="on"
-                >mdi-pencil</v-icon
-              >
+              <v-icon @click="editTool(tool)" v-bind="attrs" v-on="on">
+                mdi-pencil
+              </v-icon>
             </template>
             <span>Edit Tool</span>
           </v-tooltip>
@@ -61,9 +61,9 @@
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deleteTool(tool)" v-bind="attrs" v-on="on"
-                >mdi-delete</v-icon
-              >
+              <v-icon @click="deleteTool(tool)" v-bind="attrs" v-on="on">
+                mdi-delete
+              </v-icon>
             </template>
             <span>Delete Tool</span>
           </v-tooltip>

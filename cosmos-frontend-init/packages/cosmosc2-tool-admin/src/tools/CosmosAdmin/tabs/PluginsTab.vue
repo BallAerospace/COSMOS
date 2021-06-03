@@ -51,9 +51,9 @@
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="showPlugin(plugin)" v-bind="attrs" v-on="on"
-                >mdi-eye</v-icon
-              >
+              <v-icon @click="showPlugin(plugin)" v-bind="attrs" v-on="on">
+                mdi-eye
+              </v-icon>
             </template>
             <span>Show Plugin Details</span>
           </v-tooltip>
@@ -61,9 +61,9 @@
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="upgradePlugin(plugin)" v-bind="attrs" v-on="on"
-                >mdi-update</v-icon
-              >
+              <v-icon @click="upgradePlugin(plugin)" v-bind="attrs" v-on="on">
+                mdi-update
+              </v-icon>
             </template>
             <span>Upgrade Plugin</span>
           </v-tooltip>
@@ -71,9 +71,9 @@
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deletePlugin(plugin)" v-bind="attrs" v-on="on"
-                >mdi-delete</v-icon
-              >
+              <v-icon @click="deletePlugin(plugin)" v-bind="attrs" v-on="on">
+                mdi-delete
+              </v-icon>
             </template>
             <span>Delete Plugin</span>
           </v-tooltip>

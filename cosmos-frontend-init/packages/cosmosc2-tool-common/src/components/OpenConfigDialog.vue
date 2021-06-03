@@ -36,9 +36,9 @@
               </v-list-item>
             </v-list-item-group>
           </v-list>
-          <v-alert dense type="warning" v-if="warning"
-            >Select a configuration</v-alert
-          >
+          <v-alert dense type="warning" v-if="warning">
+            Select a configuration
+          </v-alert>
         </v-card-text>
         <v-card-actions>
           <v-btn color="primary" text @click="success()">Ok</v-btn>

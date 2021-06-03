@@ -65,17 +65,18 @@
         />
       </v-card-text>
       <v-card-actions>
-        <v-btn color="primary" text @click="ok()" :disabled="disableButtons"
-          >Ok</v-btn
-        >
+        <v-btn color="primary" text @click="ok()" :disabled="disableButtons">
+          Ok
+        </v-btn>
         <v-spacer />
         <v-btn
           color="primary"
           text
           @click="show = false"
           :disabled="disableButtons"
-          >Cancel</v-btn
         >
+          Cancel
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

@@ -41,8 +41,9 @@
                 @click="showInterface(cosmos_interface)"
                 v-bind="attrs"
                 v-on="on"
-                >mdi-eye</v-icon
               >
+                mdi-eye
+              </v-icon>
             </template>
             <span>Show Interface Details</span>
           </v-tooltip>
@@ -54,8 +55,9 @@
                 @click="deleteInterface(cosmos_interface)"
                 v-bind="attrs"
                 v-on="on"
-                >mdi-delete</v-icon
               >
+                mdi-delete
+              </v-icon>
             </template>
             <span>Delete Interface</span>
           </v-tooltip>

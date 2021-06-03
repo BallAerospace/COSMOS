@@ -67,8 +67,9 @@
                 @click="ignorePacket(item.key)"
                 v-bind="attrs"
                 v-on="on"
-                ><v-icon>mdi-close-circle-multiple</v-icon></v-btn
               >
+                <v-icon> mdi-close-circle-multiple </v-icon>
+              </v-btn>
             </template>
             <span>Ignore Entire Packet</span>
           </v-tooltip>
@@ -81,8 +82,9 @@
                 @click="ignoreItem(item.key)"
                 v-bind="attrs"
                 v-on="on"
-                ><v-icon>mdi-close-circle</v-icon></v-btn
               >
+                <v-icon> mdi-close-circle </v-icon>
+              </v-btn>
             </template>
             <span>Ignore Item</span>
           </v-tooltip>
@@ -95,8 +97,9 @@
                 @click="removeItem(item.key)"
                 v-bind="attrs"
                 v-on="on"
-                ><v-icon>mdi-eye-off</v-icon></v-btn
               >
+                <v-icon> mdi-eye-off </v-icon>
+              </v-btn>
             </template>
             <span>Temporarily Hide Item</span>
           </v-tooltip>
@@ -113,9 +116,9 @@
             :key="index"
             >{{ item }}
             <v-spacer />
-            <v-btn icon small @click="restoreItem(item, index)"
-              ><v-icon>mdi-delete</v-icon></v-btn
-            >
+            <v-btn icon small @click="restoreItem(item, index)">
+              <v-icon> mdi-delete </v-icon>
+            </v-btn>
           </v-row>
         </v-card-text>
         <v-card-actions>

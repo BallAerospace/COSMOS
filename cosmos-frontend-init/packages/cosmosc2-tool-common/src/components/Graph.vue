@@ -27,17 +27,17 @@
         <v-spacer />
         <span>{{ title }}</span>
         <v-spacer />
-        <v-icon v-if="calcFullSize" @click="collapseAll"
-          >mdi-arrow-collapse</v-icon
-        >
+        <v-icon v-if="calcFullSize" @click="collapseAll">
+          mdi-arrow-collapse
+        </v-icon>
         <v-icon v-else @click="expandAll">mdi-arrow-expand</v-icon>
-        <v-icon v-if="fullWidth" @click="collapseWidth"
-          >mdi-arrow-collapse-horizontal</v-icon
-        >
+        <v-icon v-if="fullWidth" @click="collapseWidth">
+          mdi-arrow-collapse-horizontal
+        </v-icon>
         <v-icon v-else @click="expandWidth">mdi-arrow-expand-horizontal</v-icon>
-        <v-icon v-if="fullHeight" @click="collapseHeight"
-          >mdi-arrow-collapse-vertical</v-icon
-        >
+        <v-icon v-if="fullHeight" @click="collapseHeight">
+          mdi-arrow-collapse-vertical
+        </v-icon>
         <v-icon v-else @click="expandHeight">mdi-arrow-expand-vertical</v-icon>
         <v-icon @click="minMaxTransition">mdi-window-minimize</v-icon>
         <v-icon @click="$emit('close-graph')">mdi-close-box</v-icon>
@@ -66,8 +66,8 @@
           hide-details
           data-test="edit-title"
         />
-        <v-card-text class="pa-0"
-          >Select a start date/time for the graph. Leave blank for start now.
+        <v-card-text class="pa-0">
+          Select a start date/time for the graph. Leave blank for start now.
         </v-card-text>
         <date-time-chooser
           :required="false"
@@ -75,8 +75,8 @@
           dateLabel="Start Date"
           timeLabel="Start Time"
         />
-        <v-card-text class="pa-0"
-          >Select a end date/time for the graph. Leave blank for continuous
+        <v-card-text class="pa-0">
+          Select a end date/time for the graph. Leave blank for continuous
           real-time graphing.
         </v-card-text>
         <date-time-chooser
@@ -110,9 +110,9 @@
     >
       <v-list>
         <v-list-item @click="editGraph = true">
-          <v-list-item-title style="cursor: pointer"
-            >Edit {{ title }}</v-list-item-title
-          >
+          <v-list-item-title style="cursor: pointer">
+            Edit {{ title }}
+          </v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -151,14 +151,14 @@
     >
       <v-list>
         <v-list-item @click="editItem = true">
-          <v-list-item-title style="cursor: pointer"
-            >Edit {{ selectedItem.itemName }}</v-list-item-title
-          >
+          <v-list-item-title style="cursor: pointer">
+            Edit {{ selectedItem.itemName }}
+          </v-list-item-title>
         </v-list-item>
         <v-list-item @click="deleteItem(selectedItem)">
-          <v-list-item-title style="cursor: pointer"
-            >Delete {{ selectedItem.itemName }}</v-list-item-title
-          >
+          <v-list-item-title style="cursor: pointer">
+            Delete {{ selectedItem.itemName }}
+          </v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>

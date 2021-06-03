@@ -45,8 +45,9 @@
           block
           color="primary"
           @click="openViewRaw(item.target_name, item.packet_name)"
-          >View Raw</v-btn
         >
+          View Raw
+        </v-btn>
       </template>
       <template v-slot:item.view_in_pkt_viewer="{ item }">
         <span v-if="item.target_name === 'UNKNOWN'">N/A</span>
@@ -55,8 +56,9 @@
           block
           color="primary"
           @click="openPktViewer(item.target_name, item.packet_name)"
-          >View In Packet Viewer</v-btn
         >
+          View In Packet Viewer
+        </v-btn>
       </template>
     </v-data-table>
     <raw-dialog

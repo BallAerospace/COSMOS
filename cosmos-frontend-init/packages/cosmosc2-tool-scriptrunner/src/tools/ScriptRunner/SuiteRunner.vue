@@ -64,7 +64,8 @@
                 :disabled="disableButtons"
                 @click="$emit('button', { method: 'start', suite, options })"
                 data-test="start-suite"
-                >Start
+              >
+                Start
               </v-btn>
               <v-btn
                 color="primary"
@@ -72,14 +73,16 @@
                 @click="$emit('button', { method: 'setup', suite, options })"
                 data-test="setup-suite"
                 :disabled="disableButtons || !setupSuiteEnabled"
-                >Setup
+              >
+                Setup
               </v-btn>
               <v-btn
                 color="primary"
                 @click="$emit('button', { method: 'teardown', suite, options })"
                 data-test="teardown-suite"
                 :disabled="disableButtons || !teardownSuiteEnabled"
-                >Teardown
+              >
+                Teardown
               </v-btn>
             </v-col>
           </v-row>
@@ -131,7 +134,8 @@
                   $emit('button', { method: 'start', suite, group, options })
                 "
                 data-test="start-group"
-                >Start
+              >
+                Start
               </v-btn>
               <v-btn
                 color="primary"
@@ -141,7 +145,8 @@
                 "
                 data-test="setup-group"
                 :disabled="disableButtons || !setupGroupEnabled"
-                >Setup
+              >
+                Setup
               </v-btn>
               <v-btn
                 color="primary"
@@ -150,7 +155,8 @@
                 "
                 data-test="teardown-group"
                 :disabled="disableButtons || !teardownGroupEnabled"
-                >Teardown
+              >
+                Teardown
               </v-btn>
             </v-col>
           </v-row>
@@ -208,7 +214,8 @@
                   })
                 "
                 data-test="start-script"
-                >Start
+              >
+                Start
               </v-btn>
               <!-- TODO: Don't like this hard coded spacer but not sure how else
               to push the Start button over to line up with the other Starts -->
