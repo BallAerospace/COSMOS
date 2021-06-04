@@ -18,7 +18,7 @@
 -->
 
 <template>
-  <v-radio hide-details dense :label="label" :style="computedStyle"> </v-radio>
+  <v-radio hide-details dense :label="label" :style="computedStyle" />
 </template>
 
 <script>
@@ -36,5 +36,3 @@ export default {
   },
 }
 </script>
-
-<style lang="scss" scoped></style>

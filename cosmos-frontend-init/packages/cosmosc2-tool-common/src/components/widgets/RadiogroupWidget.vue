@@ -30,7 +30,7 @@
       :is="widget.type"
       :parameters="widget.parameters"
       :settings="widget.settings"
-    ></component>
+    />
   </v-radio-group>
 </template>
 
@@ -62,5 +62,3 @@ export default {
   },
 }
 </script>
-
-<style lang="scss" scoped></style>

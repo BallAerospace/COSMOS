@@ -23,8 +23,8 @@
     class="d-flex flex-row"
     :style="[defaultStyle, computedStyle]"
   >
-    <ValueWidget :parameters="valueParameters" />
-    <RangebarWidget :parameters="parameters" />
+    <value-widget :parameters="valueParameters" />
+    <rangebar-widget :parameters="parameters" />
   </div>
 </template>
 

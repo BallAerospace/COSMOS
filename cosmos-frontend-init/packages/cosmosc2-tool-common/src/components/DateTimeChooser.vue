@@ -38,14 +38,14 @@
               v-on="on"
               prepend-icon="mdi-calendar"
               data-test="dateChooser"
-            ></v-text-field>
+            />
           </template>
           <v-date-picker
             v-model="date"
             @change="onChange"
             :show-current="false"
             no-title
-          ></v-date-picker>
+          />
         </v-menu>
       </v-col>
       <v-col>
@@ -58,7 +58,7 @@
           @change="onChange"
           prepend-icon="mdi-clock"
           data-test="timeChooser"
-        ></v-text-field>
+        />
       </v-col>
     </v-row>
   </div>
@@ -148,5 +148,3 @@ export default {
   },
 }
 </script>
-
-<style lang="scss" scoped></style>

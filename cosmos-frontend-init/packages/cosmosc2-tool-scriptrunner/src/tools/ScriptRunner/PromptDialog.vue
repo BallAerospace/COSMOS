@@ -29,7 +29,7 @@
         <v-card-text v-if="details !== ''">
           {{ details }}
         </v-card-text>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-actions :class="layoutClass">
           <template v-if="layout === 'combo'">
             <v-select
@@ -39,20 +39,22 @@
               @change="selectOkDisabled = false"
               :items="computedButtons"
               data-test="select"
-            ></v-select>
+            />
             <v-btn
               class="ma-1"
               color="secondary"
               :disabled="selectOkDisabled"
               @click="$emit('submit', selectedItem)"
-              >Ok</v-btn
             >
+              Ok
+            </v-btn>
             <v-btn
               class="ma-1"
               color="secondary"
               @click="$emit('submit', 'Cancel')"
-              >Cancel</v-btn
             >
+              Cancel
+            </v-btn>
           </template>
           <template v-else>
             <v-btn
@@ -67,8 +69,9 @@
               class="ma-1"
               color="secondary"
               @click="$emit('submit', 'Cancel')"
-              >Cancel</v-btn
             >
+              Cancel
+            </v-btn>
           </template>
         </v-card-actions>
       </v-card>

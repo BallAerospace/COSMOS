@@ -30,24 +30,24 @@
             <!-- v-list-item-subtitle>Enterprise Edition</v-list-item-subtitle -->
           </v-list-item-content>
         </v-list-item>
-        <v-divider></v-divider>
+        <v-divider />
         <v-list-item v-for="(tool, name) in shownTools" :key="name">
           <v-list-item-icon>
-            <a :href="tool.url" onclick="singleSpaNavigate(event)"
-              ><v-icon>{{ tool.icon }}</v-icon></a
-            >
+            <a :href="tool.url" onclick="singleSpaNavigate(event)">
+              <v-icon>{{ tool.icon }}</v-icon>
+            </a>
           </v-list-item-icon>
 
           <v-list-item-content>
-            <a :href="tool.url" onclick="singleSpaNavigate(event)"
-              ><v-list-item-title>{{ name }}</v-list-item-title></a
-            >
+            <a :href="tool.url" onclick="singleSpaNavigate(event)">
+              <v-list-item-title>{{ name }}</v-list-item-title>
+            </a>
           </v-list-item-content>
 
           <v-list-item-icon>
-            <a :href="tool.url" target="_blank"
-              ><v-icon>mdi-arrow-top-right-thin-circle-outline</v-icon></a
-            >
+            <a :href="tool.url" target="_blank">
+              <v-icon>mdi-arrow-top-right-thin-circle-outline</v-icon>
+            </a>
           </v-list-item-icon>
         </v-list-item>
       </v-list>
@@ -61,14 +61,15 @@
             color="primary"
             :href="tool.url"
             onclick="singleSpaNavigate(event)"
-            >Admin</v-btn
           >
+            Admin
+          </v-btn>
         </div>
       </template>
     </v-navigation-drawer>
 
     <v-app-bar app color="tertiary darken-3" id="cosmos-app-toolbar">
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="drawer = !drawer" />
       <span style="width: 100%"><span id="cosmos-menu"></span></span>
       <div class="justify-right mr-2 pt-2"><scope-selector /></div>
       <div class="justify-right mr-2"><notifications /></div>

@@ -28,7 +28,7 @@
           append-icon="$astro-search"
           single-line
           hide-details
-        ></v-text-field>
+        />
       </v-col>
     </v-row>
     <v-row>
@@ -140,7 +140,7 @@
                         min="1"
                         v-on:change="validateBytesPerLine"
                         data-test="dump-component-settings-num-bytes"
-                      ></v-text-field>
+                      />
                       <v-text-field
                         v-model="currentConfig.packetsToShow"
                         label="Packets to show"
@@ -151,7 +151,7 @@
                         :max="this.history.length"
                         v-on:change="validatePacketsToShow"
                         data-test="dump-component-settings-num-packets"
-                      ></v-text-field>
+                      />
                     </v-col>
                   </v-row>
                 </v-card-text>

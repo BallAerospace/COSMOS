@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
     <v-navigation-drawer
       absolute
       permanent
@@ -33,7 +33,7 @@
         <v-list-item-title>Grapher Controls</v-list-item-title>
       </v-list-item>
 
-      <v-divider></v-divider>
+      <v-divider />
 
       <v-list dense>
         <v-list-item
@@ -51,7 +51,7 @@
         </v-list-item>
       </v-list>
 
-      <v-divider></v-divider>
+      <v-divider />
       <v-list dense>
         <v-list-item v-for="item in settings" :key="item.title">
           <v-list-item-icon>
@@ -67,18 +67,18 @@
                 :rules="item.rules"
                 :label="item.title"
                 v-model.number="item.value"
-              ></v-text-field>
+              />
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
     </v-navigation-drawer>
     <div class="c-tlmgrapher__contents">
-      <TargetPacketItemChooser
+      <target-packet-item-chooser
         @click="addItem($event)"
         buttonText="Add Item"
         :chooseItem="true"
-      ></TargetPacketItemChooser>
+      />
       <div class="grid">
         <div
           class="item"
@@ -108,14 +108,14 @@
       </div>
     </div>
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <OpenConfigDialog
+    <open-config-dialog
       v-if="openConfig"
       v-model="openConfig"
       :tool="toolName"
       @success="openConfiguration($event)"
     />
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <SaveConfigDialog
+    <save-config-dialog
       v-if="saveConfig"
       v-model="saveConfig"
       :tool="toolName"

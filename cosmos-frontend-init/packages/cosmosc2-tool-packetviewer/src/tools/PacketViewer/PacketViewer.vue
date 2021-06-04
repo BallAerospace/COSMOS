@@ -19,11 +19,11 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
     <v-container>
       <v-row no-gutters>
         <v-col>
-          <TargetPacketItemChooser
+          <target-packet-item-chooser
             :initialTargetName="this.$route.params.target"
             :initialPacketName="this.$route.params.packet"
             @on-set="packetChanged($event)"
@@ -35,14 +35,14 @@
           <v-card>
             <v-card-title>
               Items
-              <v-spacer></v-spacer>
+              <v-spacer />
               <v-text-field
                 v-model="search"
                 append-icon="$astro-search"
                 label="Search"
                 single-line
                 hide-details
-              ></v-text-field>
+              />
             </v-card-title>
             <v-data-table
               :headers="headers"
@@ -66,12 +66,12 @@
                 </span>
               </template>
               <template v-slot:item.value="{ item }">
-                <ValueWidget
+                <value-widget
                   :value="item.value"
                   :limitsState="item.limitsState"
                   :parameters="[targetName, packetName, item.name]"
                   :settings="['WIDTH', '50']"
-                ></ValueWidget>
+                />
               </template>
             </v-data-table>
           </v-card>
@@ -94,7 +94,7 @@
           label="Refresh Interval (ms)"
           :value="refreshInterval"
           @change="refreshInterval = $event"
-        ></v-text-field>
+        />
       </v-card>
     </v-dialog>
   </div>

@@ -29,14 +29,14 @@
             type="date"
             :rules="[rules.required]"
             data-test="startDate"
-          ></v-text-field>
+          />
           <v-text-field
             v-model="endDate"
             label="End Date"
             type="date"
             :rules="[rules.required]"
             data-test="endDate"
-          ></v-text-field>
+          />
         </v-col>
         <v-col>
           <v-text-field
@@ -60,38 +60,26 @@
       <v-row no-gutters>
         <v-col>
           <v-radio-group v-model="cmdOrTlm" row hide-details class="mt-0">
-            <v-radio
-              label="Command"
-              value="cmd"
-              data-test="cmd-radio"
-            ></v-radio>
-            <v-radio
-              label="Telemetry"
-              value="tlm"
-              data-test="tlm-radio"
-            ></v-radio>
+            <v-radio label="Command" value="cmd" data-test="cmd-radio" />
+            <v-radio label="Telemetry" value="tlm" data-test="tlm-radio" />
           </v-radio-group>
         </v-col>
         <v-col>
           <v-radio-group v-model="utcOrLocal" row hide-details class="mt-0">
-            <v-radio
-              label="Local"
-              value="loc"
-              data-test="local-radio"
-            ></v-radio>
-            <v-radio label="UTC" value="utc" data-test="utc-radio"></v-radio>
+            <v-radio label="Local" value="loc" data-test="local-radio" />
+            <v-radio label="UTC" value="utc" data-test="utc-radio" />
           </v-radio-group>
         </v-col>
       </v-row>
       <v-row>
         <div class="c-tlmgrapher__contents">
-          <TargetPacketItemChooser
+          <target-packet-item-chooser
             @click="addItem($event)"
             buttonText="Add Item"
             :mode="cmdOrTlm"
             :chooseItem="true"
             :allowAll="true"
-          ></TargetPacketItemChooser>
+          />
           <v-alert type="warning" v-model="warning" dismissible
             >{{ warningText }}
           </v-alert>
@@ -109,11 +97,11 @@
               height="10"
               :value="progress"
               color="secondary"
-            ></v-progress-linear>
+            />
             <v-list data-test="itemList">
               <v-subheader class="mt-3">
                 Items
-                <v-spacer></v-spacer>
+                <v-spacer />
                 <v-btn class="primary mr-4" @click="processItems">
                   {{ processButtonText }}
                 </v-btn>
@@ -125,8 +113,9 @@
                       v-bind="attrs"
                       v-on="on"
                       data-test="editAll"
-                      ><v-icon>mdi-pencil</v-icon></v-btn
                     >
+                      <v-icon> mdi-pencil </v-icon>
+                    </v-btn>
                   </template>
                   <span>Edit All Items</span>
                 </v-tooltip>
@@ -138,8 +127,9 @@
                       v-bind="attrs"
                       v-on="on"
                       data-test="deleteAll"
-                      ><v-icon>mdi-delete</v-icon></v-btn
                     >
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
                   </template>
                   <span>Delete All Items</span>
                 </v-tooltip>
@@ -152,8 +142,9 @@
                         @click.stop="item.edit = true"
                         v-bind="attrs"
                         v-on="on"
-                        >mdi-pencil</v-icon
                       >
+                        mdi-pencil
+                      </v-icon>
                     </template>
                     <span>Edit Item</span>
                   </v-tooltip>
@@ -172,7 +163,7 @@
                             label="Value Type"
                             outlined
                             v-model="item.valueType"
-                          ></v-select>
+                          />
                         </v-col>
                         <!-- v-col v-if="uniqueOnly">
                           <v-select
@@ -180,11 +171,11 @@
                             label="Add to Unique Ignore List?:"
                             outlined
                             v-model="item.uniqueIgnoreAdd"
-                          ></v-select>
+                          />
                         </v-col -->
                       </v-card-text>
                       <v-card-actions>
-                        <v-spacer></v-spacer>
+                        <v-spacer />
                         <v-btn color="primary" text @click="item.edit = false">
                           Ok
                         </v-btn>
@@ -193,16 +184,18 @@
                   </v-dialog>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title
-                    v-text="getItemLabel(item)"
-                  ></v-list-item-title>
+                  <v-list-item-title v-text="getItemLabel(item)" />
                 </v-list-item-content>
                 <v-list-item-icon>
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
-                      <v-icon @click="deleteItem(item)" v-bind="attrs" v-on="on"
-                        >mdi-delete</v-icon
+                      <v-icon
+                        @click="deleteItem(item)"
+                        v-bind="attrs"
+                        v-on="on"
                       >
+                        mdi-delete
+                      </v-icon>
                     </template>
                     <span>Delete Item</span>
                   </v-tooltip>
@@ -216,8 +209,8 @@
     <v-dialog v-model="editAll" @keydown.esc="editAll = false" max-width="700">
       <v-card>
         <v-card-title>Edit All Items</v-card-title>
-        <v-card-text
-          >This will change all items to the following data type!
+        <v-card-text>
+          This will change all items to the following data type!
           <v-col>
             <v-select
               hide-details
@@ -225,11 +218,11 @@
               label="Value Type"
               outlined
               v-model="allItemValueType"
-            ></v-select>
+            />
           </v-col>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="primary" text @click="editAllValueTypes()"> Ok </v-btn>
           <v-btn color="primary" text @click="editAll = false"> Cancel </v-btn>
         </v-card-actions>

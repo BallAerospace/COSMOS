@@ -19,19 +19,19 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
     <v-tabs v-model="curTab" fixed-tabs>
       <v-tab v-for="(tab, index) in tabs" :key="index">{{ tab }}</v-tab>
     </v-tabs>
     <v-tabs-items v-model="curTab">
       <v-tab-item :eager="true">
         <keep-alive>
-          <limits-control ref="control"></limits-control>
+          <limits-control ref="control" />
         </keep-alive>
       </v-tab-item>
       <v-tab-item :eager="true">
         <keep-alive>
-          <limits-events ref="events"></limits-events>
+          <limits-events ref="events" />
         </keep-alive>
       </v-tab-item>
     </v-tabs-items>

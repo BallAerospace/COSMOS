@@ -29,14 +29,14 @@
     <v-list data-test="routerList">
       <v-list-item v-for="router in routers" :key="router">
         <v-list-item-content>
-          <v-list-item-title v-text="router"></v-list-item-title>
+          <v-list-item-title v-text="router" />
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="showRouter(router)" v-bind="attrs" v-on="on"
-                >mdi-eye</v-icon
-              >
+              <v-icon @click="showRouter(router)" v-bind="attrs" v-on="on">
+                mdi-eye
+              </v-icon>
             </template>
             <span>Show Router Details</span>
           </v-tooltip>
@@ -44,9 +44,9 @@
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deleteRouter(router)" v-bind="attrs" v-on="on"
-                >mdi-delete</v-icon
-              >
+              <v-icon @click="deleteRouter(router)" v-bind="attrs" v-on="on">
+                mdi-delete
+              </v-icon>
             </template>
             <span>Delete Router</span>
           </v-tooltip>

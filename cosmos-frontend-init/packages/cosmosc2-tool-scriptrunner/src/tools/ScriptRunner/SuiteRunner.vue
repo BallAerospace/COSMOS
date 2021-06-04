@@ -30,7 +30,7 @@
                 value="pauseOnError"
                 hide-details
                 data-test="pause-on-error"
-              ></v-checkbox>
+              />
             </v-col>
             <v-col cols="6">
               <v-checkbox
@@ -39,7 +39,7 @@
                 value="manual"
                 hide-details
                 data-test="manual"
-              ></v-checkbox>
+              />
             </v-col>
           </v-row>
         </v-col>
@@ -55,7 +55,7 @@
                 :items="suites"
                 v-model="suite"
                 data-test="select-suite"
-              ></v-select>
+              />
             </v-col>
             <v-col cols="auto">
               <v-btn
@@ -64,7 +64,8 @@
                 :disabled="disableButtons"
                 @click="$emit('button', { method: 'start', suite, options })"
                 data-test="start-suite"
-                >Start
+              >
+                Start
               </v-btn>
               <v-btn
                 color="primary"
@@ -72,14 +73,16 @@
                 @click="$emit('button', { method: 'setup', suite, options })"
                 data-test="setup-suite"
                 :disabled="disableButtons || !setupSuiteEnabled"
-                >Setup
+              >
+                Setup
               </v-btn>
               <v-btn
                 color="primary"
                 @click="$emit('button', { method: 'teardown', suite, options })"
                 data-test="teardown-suite"
                 :disabled="disableButtons || !teardownSuiteEnabled"
-                >Teardown
+              >
+                Teardown
               </v-btn>
             </v-col>
           </v-row>
@@ -95,7 +98,7 @@
                 value="continueAfterError"
                 hide-details
                 data-test="continue-after-error"
-              ></v-checkbox>
+              />
             </v-col>
             <v-col cols="6">
               <v-checkbox
@@ -104,7 +107,7 @@
                 value="loop"
                 hide-details
                 data-test="loop"
-              ></v-checkbox>
+              />
             </v-col>
           </v-row>
         </v-col>
@@ -120,7 +123,7 @@
                 :items="groups"
                 v-model="group"
                 data-test="select-group"
-              ></v-select>
+              />
             </v-col>
             <v-col cols="auto">
               <v-btn
@@ -131,7 +134,8 @@
                   $emit('button', { method: 'start', suite, group, options })
                 "
                 data-test="start-group"
-                >Start
+              >
+                Start
               </v-btn>
               <v-btn
                 color="primary"
@@ -141,7 +145,8 @@
                 "
                 data-test="setup-group"
                 :disabled="disableButtons || !setupGroupEnabled"
-                >Setup
+              >
+                Setup
               </v-btn>
               <v-btn
                 color="primary"
@@ -150,7 +155,8 @@
                 "
                 data-test="teardown-group"
                 :disabled="disableButtons || !teardownGroupEnabled"
-                >Teardown
+              >
+                Teardown
               </v-btn>
             </v-col>
           </v-row>
@@ -166,7 +172,7 @@
                 value="abortAfterError"
                 hide-details
                 data-test="abort-after-error"
-              ></v-checkbox>
+              />
             </v-col>
             <v-col cols="6">
               <v-checkbox
@@ -176,7 +182,7 @@
                 value="breakLoopOnError"
                 hide-details
                 data-test="break-loop-on-error"
-              ></v-checkbox>
+              />
             </v-col>
           </v-row>
         </v-col>
@@ -192,7 +198,7 @@
                 :items="scripts"
                 v-model="script"
                 data-test="select-script"
-              ></v-select>
+              />
             </v-col>
             <v-col cols="auto">
               <v-btn
@@ -208,7 +214,8 @@
                   })
                 "
                 data-test="start-script"
-                >Start
+              >
+                Start
               </v-btn>
               <!-- TODO: Don't like this hard coded spacer but not sure how else
               to push the Start button over to line up with the other Starts -->

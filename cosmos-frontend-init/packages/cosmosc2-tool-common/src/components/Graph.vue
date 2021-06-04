@@ -27,17 +27,17 @@
         <v-spacer />
         <span>{{ title }}</span>
         <v-spacer />
-        <v-icon v-if="calcFullSize" @click="collapseAll"
-          >mdi-arrow-collapse</v-icon
-        >
+        <v-icon v-if="calcFullSize" @click="collapseAll">
+          mdi-arrow-collapse
+        </v-icon>
         <v-icon v-else @click="expandAll">mdi-arrow-expand</v-icon>
-        <v-icon v-if="fullWidth" @click="collapseWidth"
-          >mdi-arrow-collapse-horizontal</v-icon
-        >
+        <v-icon v-if="fullWidth" @click="collapseWidth">
+          mdi-arrow-collapse-horizontal
+        </v-icon>
         <v-icon v-else @click="expandWidth">mdi-arrow-expand-horizontal</v-icon>
-        <v-icon v-if="fullHeight" @click="collapseHeight"
-          >mdi-arrow-collapse-vertical</v-icon
-        >
+        <v-icon v-if="fullHeight" @click="collapseHeight">
+          mdi-arrow-collapse-vertical
+        </v-icon>
         <v-icon v-else @click="expandHeight">mdi-arrow-expand-vertical</v-icon>
         <v-icon @click="minMaxTransition">mdi-window-minimize</v-icon>
         <v-icon @click="$emit('close-graph')">mdi-close-box</v-icon>
@@ -65,35 +65,27 @@
           v-model="title"
           hide-details
           data-test="edit-title"
-        ></v-text-field>
-        <v-card-text class="pa-0"
-          >Select a start date/time for the graph. Leave blank for start now.
+        />
+        <v-card-text class="pa-0">
+          Select a start date/time for the graph. Leave blank for start now.
         </v-card-text>
         <date-time-chooser
           :required="false"
           @date-time="graphStartDateTime = $event"
           dateLabel="Start Date"
           timeLabel="Start Time"
-        ></date-time-chooser>
-        <v-card-text class="pa-0"
-          >Select a end date/time for the graph. Leave blank for continuous
+        />
+        <v-card-text class="pa-0">
+          Select a end date/time for the graph. Leave blank for continuous
           real-time graphing.
         </v-card-text>
         <date-time-chooser
           dateLabel="End Date"
           timeLabel="End Time"
           @date-time="graphEndDateTime = $event"
-        ></date-time-chooser>
-        <v-text-field
-          label="Min Y"
-          v-model="graphMinY"
-          hide-details
-        ></v-text-field>
-        <v-text-field
-          label="Max Y"
-          v-model="graphMaxY"
-          hide-details
-        ></v-text-field>
+        />
+        <v-text-field label="Min Y" v-model="graphMinY" hide-details />
+        <v-text-field label="Max Y" v-model="graphMaxY" hide-details />
         <v-container fluid>
           <v-row v-for="(item, key) in items" :key="key">
             <v-col
@@ -118,9 +110,9 @@
     >
       <v-list>
         <v-list-item @click="editGraph = true">
-          <v-list-item-title style="cursor: pointer"
-            >Edit {{ title }}</v-list-item-title
-          >
+          <v-list-item-title style="cursor: pointer">
+            Edit {{ title }}
+          </v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -141,7 +133,7 @@
           outlined
           v-model="this.selectedItem.valueType"
           @change="changeType($event)"
-        ></v-select>
+        />
         <v-card-actions>
           <v-btn color="primary" @click="editItem = false">Ok</v-btn>
         </v-card-actions>
@@ -159,14 +151,14 @@
     >
       <v-list>
         <v-list-item @click="editItem = true">
-          <v-list-item-title style="cursor: pointer"
-            >Edit {{ selectedItem.itemName }}</v-list-item-title
-          >
+          <v-list-item-title style="cursor: pointer">
+            Edit {{ selectedItem.itemName }}
+          </v-list-item-title>
         </v-list-item>
         <v-list-item @click="deleteItem(selectedItem)">
-          <v-list-item-title style="cursor: pointer"
-            >Delete {{ selectedItem.itemName }}</v-list-item-title
-          >
+          <v-list-item-title style="cursor: pointer">
+            Delete {{ selectedItem.itemName }}
+          </v-list-item-title>
         </v-list-item>
       </v-list>
     </v-menu>

@@ -29,12 +29,12 @@
             v-model="json_content"
             rows="20"
             :readonly="readonly"
-          ></v-textarea>
+          />
           <v-btn color="primary" type="submit">Ok</v-btn>
           &nbsp;&nbsp;
-          <v-btn color="primary" type="submit" @click="json_content = null"
-            >Cancel</v-btn
-          >
+          <v-btn color="primary" type="submit" @click="json_content = null">
+            Cancel
+          </v-btn>
         </v-form>
       </v-card-text>
     </v-card>

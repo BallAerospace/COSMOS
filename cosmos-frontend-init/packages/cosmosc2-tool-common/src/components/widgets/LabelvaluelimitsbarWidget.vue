@@ -23,8 +23,8 @@
     class="d-flex flex-row"
     :style="[defaultStyle, computedStyle]"
   >
-    <LabelvalueWidget :parameters="parameters" :settings="settings" />
-    <LimitsbarWidget
+    <labelvalue-widget :parameters="parameters" :settings="settings" />
+    <limitsbar-widget
       :parameters="limitsBarParameters"
       :settings="settings"
       :widgetIndex="3"

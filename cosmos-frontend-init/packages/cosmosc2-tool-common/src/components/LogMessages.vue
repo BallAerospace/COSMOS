@@ -21,7 +21,7 @@
   <v-card>
     <v-card-title>
       Log Messages
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-text-field
         v-model="search"
         append-icon="$astro-search"
@@ -29,7 +29,7 @@
         single-line
         hide-details
         data-test="search-log-messages"
-      ></v-text-field>
+      />
     </v-card-title>
     <v-data-table
       :headers="headers"
@@ -151,5 +151,3 @@ export default {
   },
 }
 </script>
-
-<style scoped></style>

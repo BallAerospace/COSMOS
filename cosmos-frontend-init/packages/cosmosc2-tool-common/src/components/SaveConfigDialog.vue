@@ -37,7 +37,7 @@
                   <v-list-item-title
                     @click="configName = config"
                     v-text="config"
-                  ></v-list-item-title>
+                  />
                 </v-list-item-content>
                 <v-list-item-icon>
                   <v-icon @click="deleteConfig(config)">mdi-delete</v-icon>
@@ -50,7 +50,7 @@
             hide-details
             label="Configuration Name"
             v-model="configName"
-          ></v-text-field>
+          />
           <v-alert dense type="warning" v-if="warning"
             >'{{ configName }}' already exists! Click 'OK' to
             overwrite.</v-alert
@@ -58,7 +58,7 @@
         </v-card-text>
         <v-card-actions>
           <v-btn color="primary" text @click="success()">Ok</v-btn>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="primary" text @click="show = false">Cancel</v-btn>
         </v-card-actions>
       </v-card>

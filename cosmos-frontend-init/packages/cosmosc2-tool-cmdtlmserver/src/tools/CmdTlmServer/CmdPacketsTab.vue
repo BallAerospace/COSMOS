@@ -21,14 +21,14 @@
   <v-card>
     <v-card-title>
       Command Packets
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-text-field
         v-model="search"
         append-icon="$astro-search"
         label="Search"
         single-line
         hide-details
-      ></v-text-field>
+      />
     </v-card-title>
     <v-data-table
       :headers="headers"
@@ -46,8 +46,9 @@
           block
           color="primary"
           @click="openViewRaw(item.target_name, item.packet_name)"
-          >View Raw</v-btn
         >
+          View Raw
+        </v-btn>
       </template>
       <template v-slot:item.view_in_cmd_sender="{ item }">
         <span v-if="item.target_name === 'UNKNOWN'">N/A</span>
@@ -56,8 +57,9 @@
           block
           color="primary"
           @click="openCmdSender(item.target_name, item.packet_name)"
-          >View In Command Sender</v-btn
         >
+          View In Command Sender
+        </v-btn>
       </template>
     </v-data-table>
     <raw-dialog
@@ -139,5 +141,3 @@ export default {
   },
 }
 </script>
-
-<style scoped></style>

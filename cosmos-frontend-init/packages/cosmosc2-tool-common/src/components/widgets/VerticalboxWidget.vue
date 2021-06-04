@@ -20,7 +20,7 @@
 <template>
   <div>
     <v-banner single-line>{{ parameters.join(' ') }}</v-banner>
-    <VerticalWidget
+    <vertical-widget
       :parameters="parameters"
       :settings="settings"
       :widgets="widgets"

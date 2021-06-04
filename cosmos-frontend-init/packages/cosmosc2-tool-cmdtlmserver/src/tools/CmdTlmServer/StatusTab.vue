@@ -31,7 +31,7 @@
               @change="limitsChange"
               v-model="currentLimitsSet"
               data-test="limits-set"
-            ></v-select>
+            />
           </v-col>
         </v-row>
       </v-container>
@@ -45,7 +45,7 @@
         calculate-widths
         disable-pagination
         hide-default-footer
-      ></v-data-table>
+      />
     </v-card>
 
     <v-card flat>

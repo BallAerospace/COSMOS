@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <TopBar :title="title" />
+    <top-bar :title="title" />
     <v-container>
       <v-row>
         <v-col>
@@ -61,7 +61,7 @@
         ref="gridItem"
       >
         <div class="item-content">
-          <CosmosScreen
+          <cosmos-screen
             :target="def.target"
             :screen="def.screen"
             :definition="def.definition"
@@ -72,13 +72,13 @@
       </div>
     </div>
     <!-- Dialogs for opening and saving configs -->
-    <OpenConfigDialog
+    <open-config-dialog
       v-if="openConfig"
       v-model="openConfig"
       :tool="toolName"
       @success="openConfiguration($event)"
     />
-    <SaveConfigDialog
+    <save-config-dialog
       v-if="saveConfig"
       v-model="saveConfig"
       :tool="toolName"

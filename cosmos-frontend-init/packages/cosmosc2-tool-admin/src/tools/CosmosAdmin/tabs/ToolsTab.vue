@@ -21,13 +21,13 @@
   <div>
     <v-row no-gutters align="center" style="padding-left: 10px">
       <v-col cols="3">
-        <v-text-field v-model="name" label="Tool Name"></v-text-field>
+        <v-text-field v-model="name" label="Tool Name" />
       </v-col>
       <v-col cols="2">
-        <v-text-field v-model="icon" label="Tool Icon"></v-text-field>
+        <v-text-field v-model="icon" label="Tool Icon" />
       </v-col>
       <v-col cols="3">
-        <v-text-field v-model="url" label="Tool Url"></v-text-field>
+        <v-text-field v-model="url" label="Tool Url" />
       </v-col>
       <v-col cols="1" class="pl-2">
         <v-btn color="primary" class="mr-4" @click="add()">
@@ -46,14 +46,14 @@
     <v-list data-test="toolList" id="toollist">
       <v-list-item v-for="tool in tools" :key="tool">
         <v-list-item-content>
-          <v-list-item-title v-text="tool"></v-list-item-title>
+          <v-list-item-title v-text="tool" />
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="editTool(tool)" v-bind="attrs" v-on="on"
-                >mdi-pencil</v-icon
-              >
+              <v-icon @click="editTool(tool)" v-bind="attrs" v-on="on">
+                mdi-pencil
+              </v-icon>
             </template>
             <span>Edit Tool</span>
           </v-tooltip>
@@ -61,9 +61,9 @@
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deleteTool(tool)" v-bind="attrs" v-on="on"
-                >mdi-delete</v-icon
-              >
+              <v-icon @click="deleteTool(tool)" v-bind="attrs" v-on="on">
+                mdi-delete
+              </v-icon>
             </template>
             <span>Delete Tool</span>
           </v-tooltip>

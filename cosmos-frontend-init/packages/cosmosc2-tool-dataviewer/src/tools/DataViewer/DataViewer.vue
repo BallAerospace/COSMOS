@@ -55,7 +55,7 @@
           type="time"
           :rules="endDate ? [rules.required] : []"
           data-test="endTime"
-        ></v-text-field>
+        />
       </v-col>
       <v-col cols="auto" class="pt-4">
         <v-btn
@@ -188,7 +188,7 @@
             data-test="rename-tab-input"
           />
         </v-card-text>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-actions>
           <v-btn color="primary" text @click="renameTab" data-test="rename">
             Rename
@@ -274,13 +274,13 @@
                     label="Value Type"
                     v-model="newPacketValueType"
                     data-test="add-packet-value-type"
-                  ></v-select>
+                  />
                 </v-col>
               </v-row>
             </v-col>
           </v-row>
         </v-card-text>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-actions>
           <v-btn
             color="primary"
