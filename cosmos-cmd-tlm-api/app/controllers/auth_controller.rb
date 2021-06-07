@@ -41,14 +41,7 @@ rescue LoadError
     end
 
     def set
-      result = Cosmos::AuthModel.set(params[:token])
-      render :json => {
-        result: result
-      }
-    end
-
-    def reset
-      result = Cosmos::AuthModel.reset(params[:token], params[:recovery_token])
+      result = Cosmos::AuthModel.set(params[:token], params[:old_token])
       render :json => {
         result: result
       }

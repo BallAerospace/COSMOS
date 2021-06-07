@@ -33,14 +33,13 @@ module Cosmos
       Store.get(PRIMARY_KEY) == hash(token)
     end
 
-    def self.set(token)
-      raise "Token must not be nil or empty" if token.nil? or token.empty?
-      Store.setnx(PRIMARY_KEY, hash(token))
-    end
-
-    def self.reset(token, recovery_token)
-      # TODO
-      raise "Not implemented"
+    def self.set(token, old_token)
+      raise "token must not be nil or empty" if token.nil? or token.empty?
+      if is_set?
+        raise "old_token must not be nil or empty" if old_token.nil? or old_token.empty?
+        raise "old_token incorrect" unless verify(old_token)
+      end
+      Store.set(PRIMARY_KEY, hash(token))
     end
 
     private

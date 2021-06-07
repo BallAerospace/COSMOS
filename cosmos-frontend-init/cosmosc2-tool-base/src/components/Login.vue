@@ -56,11 +56,11 @@
           @click="verifyPassword"
           large
           color="success"
-          :disabled="!password"
+          :disabled="!formValid"
         >
           Login
         </v-btn>
-        <!-- <v-btn text small @click="showReset"> Reset Password </v-btn> -->
+        <v-btn text small @click="showReset"> Change Password </v-btn>
       </template>
     </v-card-text>
     <v-alert :type="alertType" v-model="showAlert" dismissible>
@@ -78,6 +78,7 @@ export default {
       isSet: true,
       password: '',
       confirmPassword: '',
+      oldPassword: '',
       reset: false, // setting a password for the first time, or changing to a new password
       alert: '',
       alertType: 'success',
@@ -164,30 +165,13 @@ export default {
       Api.post(
         '/cosmos-api/auth/set',
         {
+          old_token: this.oldPassword,
           token: this.password,
         },
         null,
         this.options
       )
-        .then(this.login())
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-        })
-    },
-    resetPassword: function () {
-      this.showAlert = false
-      Api.post(
-        '/cosmos-api/auth/reset',
-        {
-          token: this.password,
-          recovery_token: this.token,
-        },
-        null,
-        this.options
-      )
-        .then(this.login())
+        .then(this.login)
         .catch((error) => {
           this.alert = error
           this.alertType = 'error'
