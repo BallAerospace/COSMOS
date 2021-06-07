@@ -381,6 +381,7 @@ export default {
             {
               label: 'Show Call Stack',
               icon: 'mdi-format-list-numbered',
+              disabled: !this.scriptId,
               command: () => {
                 this.showCallStack()
               },
