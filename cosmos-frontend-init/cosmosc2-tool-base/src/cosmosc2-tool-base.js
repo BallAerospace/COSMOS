@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
+import router from './router'
 
 Vue.config.productionTip = false
 
@@ -17,6 +18,7 @@ Vue.component('astro-status-indicator', AstroStatusIndicator)
 const options = CosmosAuth.getInitOptions()
 CosmosAuth.init(options).then(() => {
   new Vue({
+    router,
     vuetify,
     render: (h) => h(App),
   }).$mount('#cosmos-main')

@@ -1,4 +1,4 @@
-<!--
+/*
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,35 +15,26 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
+*/
 
-<template>
-  <v-app :style="classificationStyles">
-    <app-nav />
+import Vue from 'vue'
+import Router from 'vue-router'
 
-    <!-- Sizes your content based upon application components -->
-    <v-main>
-      <v-container fluid>
-        <div id="cosmos-tool"></div>
-        <div><router-view /></div>
-      </v-container>
-    </v-main>
-    <app-footer app />
-    <time-check />
-  </v-app>
-</template>
+Vue.use(Router)
 
-<script>
-import AppFooter from './AppFooter'
-import AppNav from './AppNav'
-import TimeCheck from './components/TimeCheck'
-import ClassificationBanners from './components/ClassificationBanners'
-export default {
-  components: {
-    AppFooter,
-    AppNav,
-    TimeCheck,
-  },
-  mixins: [ClassificationBanners],
-}
-</script>
+export default new Router({
+  mode: 'history',
+  base: process.env.BASE_URL,
+  routes: [
+    {
+      path: '/login',
+      component: () => import('./components/Login'),
+    },
+    // TODO: Create NotFoundComponent since we're doing history browser mode
+    // See: https://router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations
+    // {
+    //   path: '*',
+    //   component: NotFoundComponent
+    // }
+  ],
+})

@@ -17,6 +17,8 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/models/auth_model'
+
 begin
   require 'enterprise-cosmos/utilities/authorization'
 rescue LoadError
@@ -24,7 +26,7 @@ rescue LoadError
   module Cosmos
     class AuthError < StandardError
     end
-    
+
     class ForbiddenError < StandardError
     end
 
@@ -33,6 +35,8 @@ rescue LoadError
       # Raises an exception if unauthorized, otherwise does nothing
       def authorize(permission: nil, target_name: nil, packet_name: nil, interface_name: nil, router_name: nil, scope: nil, token: nil)
         raise AuthError.new("Scope is required") unless scope
+        raise AuthError.new("Token is required") unless token
+        raise AuthError.new("Token is invalid") unless Cosmos::AuthModel.verify(token)
       end
     end
   end

@@ -13,8 +13,9 @@
 		"actioncable": "5.2.5",
 		"axios": "0.21.1",
 		"date-fns": "2.19.0",
+		"dotenv": "8.6.0",
 		"single-spa": "5.9.2",
-		"vue": "2.6.12",
+		"vue-router": "3.5.1",
 		"vuetify": "2.4.9"
 	},
 	"devDependencies": {

@@ -6,6 +6,8 @@ NOTE: All commands are assumed to be executed from this (cypress) directory unle
 
         COSMOS> cosmos-control.bat start
 
+1.  Open COSMOS in your browser. It should take you to the login screen. Set the password to "password"
+
 1.  Install testing dependencies with yarn
 
         cypress> yarn

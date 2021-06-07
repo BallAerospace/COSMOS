@@ -1,4 +1,5 @@
-<!--
+# encoding: ascii-8bit
+
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,35 +16,38 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
 
-<template>
-  <v-app :style="classificationStyles">
-    <app-nav />
+require 'cosmos'
+require 'cosmos/models/auth_model'
 
-    <!-- Sizes your content based upon application components -->
-    <v-main>
-      <v-container fluid>
-        <div id="cosmos-tool"></div>
-        <div><router-view /></div>
-      </v-container>
-    </v-main>
-    <app-footer app />
-    <time-check />
-  </v-app>
-</template>
+class AuthController < ApplicationController
 
-<script>
-import AppFooter from './AppFooter'
-import AppNav from './AppNav'
-import TimeCheck from './components/TimeCheck'
-import ClassificationBanners from './components/ClassificationBanners'
-export default {
-  components: {
-    AppFooter,
-    AppNav,
-    TimeCheck,
-  },
-  mixins: [ClassificationBanners],
-}
-</script>
+  def token_exists
+    result = Cosmos::AuthModel.is_set?
+    render :json => {
+      result: result
+    }
+  end
+
+  def verify
+    result = Cosmos::AuthModel.verify(params[:token])
+    render :json => {
+      result: result
+    }
+  end
+
+  def set
+    result = Cosmos::AuthModel.set(params[:token])
+    render :json => {
+      result: result
+    }
+  end
+
+  def reset
+    result = Cosmos::AuthModel.reset(params[:token], params[:recovery_token])
+    render :json => {
+      result: result
+    }
+  end
+
+end

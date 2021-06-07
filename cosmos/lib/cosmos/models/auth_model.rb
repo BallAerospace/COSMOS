@@ -1,4 +1,5 @@
-<!--
+# encoding: ascii-8bit
+
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,35 +16,36 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
 
-<template>
-  <v-app :style="classificationStyles">
-    <app-nav />
+require 'digest'
+require 'cosmos/utilities/store'
 
-    <!-- Sizes your content based upon application components -->
-    <v-main>
-      <v-container fluid>
-        <div id="cosmos-tool"></div>
-        <div><router-view /></div>
-      </v-container>
-    </v-main>
-    <app-footer app />
-    <time-check />
-  </v-app>
-</template>
+module Cosmos
+  class AuthModel
+    PRIMARY_KEY = 'COSMOS__TOKEN'
 
-<script>
-import AppFooter from './AppFooter'
-import AppNav from './AppNav'
-import TimeCheck from './components/TimeCheck'
-import ClassificationBanners from './components/ClassificationBanners'
-export default {
-  components: {
-    AppFooter,
-    AppNav,
-    TimeCheck,
-  },
-  mixins: [ClassificationBanners],
-}
-</script>
+    def self.is_set?
+      Store.exists(PRIMARY_KEY) == 1
+    end
+
+    def self.verify(token)
+      return false if token.nil? or token.empty?
+      Store.get(PRIMARY_KEY) == hash(token)
+    end
+
+    def self.set(token)
+      raise "Token must not be nil or empty" if token.nil? or token.empty?
+      Store.setnx(PRIMARY_KEY, hash(token))
+    end
+
+    def self.reset(token, recovery_token)
+      # TODO
+      raise "Not implemented"
+    end
+
+    private
+    def self.hash(token)
+      Digest::SHA2.hexdigest token
+    end
+  end
+end

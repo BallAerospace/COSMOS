@@ -17,7 +17,11 @@ COPY ./packages/cosmosc2-tool-timeline/*.json packages/cosmosc2-tool-timeline/
 COPY ./packages/cosmosc2-tool-tlmgrapher/*.json packages/cosmosc2-tool-tlmgrapher/
 COPY ./packages/cosmosc2-tool-tlmviewer/*.json packages/cosmosc2-tool-tlmviewer/
 
-RUN yarn install
+# This is a fix for a network issue with registry.yarnpkg.com, possibly caused by the Ball firewall.
+# Might resolve itself and allow this line to be removed in the future...
+RUN yarn config set registry "https://registry.npmjs.org"
+
+RUN yarn
 
 COPY . .
 
