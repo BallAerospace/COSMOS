@@ -47,21 +47,6 @@ rescue LoadError
       }
     end
 
-    # This is used by the ScopeSelector component on the front end. It's here to
-    # simplify code elsewhere. ScopesController isn't getting overridden in EE,
-    # but this already is. All users have access to all roles in base, but they're
-    # restricted to the user's roles in EE
-    def scopes
-      # Can't use the authorize function (like in ScopesController) because it requires a scope
-      # param, but the client doesn't know what the scopes are yet. Just check the password.
-      raise "Invalid password" unless Cosmos::AuthModel.verify(params[:token])
-
-      result = Cosmos::ScopeModel.names
-      render :json => {
-        result: result
-      }
-    end
-
   end
 
 end

@@ -18,7 +18,14 @@
 -->
 
 <template>
-  <v-select v-model="scope" :items="scopes" label="Scope" dense hide-details />
+  <v-select
+    v-model="scope"
+    :items="scopes"
+    :disabled="scopes.length <= 1"
+    label="Scope"
+    dense
+    hide-details
+  />
 </template>
 
 <script>

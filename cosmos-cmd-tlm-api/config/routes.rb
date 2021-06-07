@@ -90,7 +90,6 @@ Rails.application.routes.draw do
   get "/auth/token-exists" => "auth#token_exists"
   post "/auth/verify" => "auth#verify"
   post "/auth/set" => "auth#set"
-  get "/auth/scopes" => "auth#scopes"
   get "/internal/metrics" => "internal_metrics#index"
   get "/screen/:target" => "api#screens"
   get "/screen/:target/:screen" => "api#screen"
