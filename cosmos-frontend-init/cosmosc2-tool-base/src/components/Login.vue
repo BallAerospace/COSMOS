@@ -25,31 +25,29 @@
     </v-card-subtitle>
     <v-card-text>
       <v-text-field
+        v-if="isSet && reset"
+        v-model="oldPassword"
+        type="password"
+        label="Old Password"
+      />
+      <v-text-field
         v-model="password"
         type="password"
         :label="`${!isSet || reset ? 'New ' : ''}Password`"
       />
       <v-text-field
         v-if="reset"
-        v-model="token"
+        v-model="confirmPassword"
+        :rules="[rules.matchPassword]"
         type="password"
-        label="Reset Token"
+        label="Confirm Password"
       />
       <v-btn
         v-if="reset"
-        @click="resetPassword"
-        large
-        color="warn"
-        :disabled="!password || !token"
-      >
-        Reset
-      </v-btn>
-      <v-btn
-        v-else-if="!isSet"
         @click="setPassword"
         large
-        color="success"
-        :disabled="!password"
+        :color="isSet ? 'warn' : 'success'"
+        :disabled="!formValid"
       >
         Set
       </v-btn>
@@ -79,8 +77,8 @@ export default {
     return {
       isSet: true,
       password: '',
-      token: '',
-      reset: false,
+      confirmPassword: '',
+      reset: false, // setting a password for the first time, or changing to a new password
       alert: '',
       alertType: 'success',
       showAlert: false,
@@ -93,11 +91,35 @@ export default {
         noScope: true, // lol
       }
     },
+    rules: function () {
+      return {
+        matchPassword: () =>
+          this.password === this.confirmPassword || 'Passwords must match',
+      }
+    },
+    formValid: function () {
+      if (this.reset) {
+        if (!this.isSet) {
+          return !!this.password && this.password === this.confirmPassword
+        } else {
+          return (
+            !!this.oldPassword &&
+            !!this.password &&
+            this.password === this.confirmPassword
+          )
+        }
+      } else {
+        return !!this.password
+      }
+    },
   },
   created: function () {
     Api.get('/cosmos-api/auth/token-exists', null, this.options).then(
       (response) => {
         this.isSet = !!response.data.result
+        if (!this.isSet) {
+          this.reset = true
+        }
       }
     )
   },
