@@ -19,6 +19,18 @@
 
 import axios from 'axios'
 
+axios.interceptors.response.use(
+  (response) => {
+    return response
+  },
+  (error) => {
+    if (error.response.status === 401) {
+      CosmosAuth.login(window.location.href)
+    }
+    return error
+  }
+)
+
 const request = async function (
   method,
   url,
