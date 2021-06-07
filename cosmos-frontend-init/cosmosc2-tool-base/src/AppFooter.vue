@@ -22,12 +22,18 @@
     <img :src="logo" alt="COSMOS" width="20" height="20" />
     <span class="footer-text" style="margin-left: 5px">COSMOS &copy; 2021</span>
     <v-spacer />
+    <div class="justify-right"><clock-footer /></div>
   </v-footer>
 </template>
 
 <script>
 import logo from '../public/img/logo.png'
+import ClockFooter from './components/ClockFooter.vue'
+
 export default {
+  components: {
+    ClockFooter,
+  },
   data() {
     return {
       logo: logo,
