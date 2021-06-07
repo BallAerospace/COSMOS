@@ -91,7 +91,6 @@ Rails.application.routes.draw do
   post "/auth/verify" => "auth#verify"
   post "/auth/set" => "auth#set"
   post "/auth/reset" => "auth#reset"
-  get "/auth/scopes" => "auth#scopes"
   get "/internal/metrics" => "internal_metrics#index"
   get "/screen/:target" => "api#screens"
   get "/screen/:target/:screen" => "api#screen"
