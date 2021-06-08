@@ -17,19 +17,7 @@
 # copyright holder
 */
 
-import axios from 'axios'
-
-axios.interceptors.response.use(
-  (response) => {
-    return response
-  },
-  (error) => {
-    if (error.response.status === 401) {
-      CosmosAuth.login(window.location.href)
-    }
-    return error
-  }
-)
+import axios from './axios.js'
 
 const request = async function (
   method,
