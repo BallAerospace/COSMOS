@@ -56,8 +56,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
   </div>
 </template>
 

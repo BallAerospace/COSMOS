@@ -24,8 +24,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <v-list data-test="interfaceList">
       <v-list-item
         v-for="cosmos_interface in interfaces"
@@ -69,8 +70,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <edit-dialog
       :content="json_content"
       title="Interface Details"

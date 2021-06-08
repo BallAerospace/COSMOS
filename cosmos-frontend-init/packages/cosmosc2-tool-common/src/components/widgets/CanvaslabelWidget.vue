@@ -18,9 +18,9 @@
 -->
 
 <template>
-  <text :x="parameters[0]" :y="parameters[1]" :fill="fillColor">{{
-    parameters[2]
-  }}</text>
+  <text :x="parameters[0]" :y="parameters[1]" :fill="fillColor">
+    {{ parameters[2] }}
+  </text>
 </template>
 
 <script>

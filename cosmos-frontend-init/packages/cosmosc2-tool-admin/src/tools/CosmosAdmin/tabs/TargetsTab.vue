@@ -24,8 +24,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <v-list data-test="targetList">
       <v-list-item v-for="target in targets" :key="target">
         <v-list-item-content>
@@ -58,8 +59,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <edit-dialog
       :content="json_content"
       title="Target Details"

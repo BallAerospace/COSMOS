@@ -238,9 +238,9 @@
         <v-card-title class="headline">{{ infoTitle }}</v-card-title>
         <v-card-text class="mb-0">
           <v-container>
-            <v-row no-gutters v-for="(line, index) in infoText" :key="index">{{
-              line
-            }}</v-row>
+            <v-row no-gutters v-for="(line, index) in infoText" :key="index">
+              {{ line }}
+            </v-row>
           </v-container>
         </v-card-text>
         <v-card-actions>

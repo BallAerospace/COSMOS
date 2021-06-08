@@ -24,8 +24,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <v-list data-test="microserviceList">
       <v-list-item v-for="microservice in microservices" :key="microservice">
         <v-list-item-content>
@@ -72,8 +73,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <edit-dialog
       :content="json_content"
       title="Edit Microservice"

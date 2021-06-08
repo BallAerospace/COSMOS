@@ -114,7 +114,8 @@
             no-gutters
             v-for="(item, index) in ignoredFormatted"
             :key="index"
-            >{{ item }}
+          >
+            {{ item }}
             <v-spacer />
             <v-btn icon small @click="restoreItem(item, index)">
               <v-icon> mdi-delete </v-icon>

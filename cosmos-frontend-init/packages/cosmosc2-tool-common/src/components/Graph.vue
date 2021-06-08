@@ -88,10 +88,9 @@
         <v-text-field label="Max Y" v-model="graphMaxY" hide-details />
         <v-container fluid>
           <v-row v-for="(item, key) in items" :key="key">
-            <v-col
-              >{{ item.targetName }} {{ item.packetName }}
-              {{ item.itemName }}</v-col
-            >
+            <v-col>
+              {{ item.targetName }} {{ item.packetName }} {{ item.itemName }}
+            </v-col>
             <v-btn color="error" @click="deleteItem(item)">Remove</v-btn>
           </v-row></v-container
         >

@@ -47,13 +47,14 @@
           color="primary"
           :disabled="buttonsDisabled"
           @click="connectDisconnect(item)"
-          >{{ item.connect }}</v-btn
         >
+          {{ item.connect }}
+        </v-btn>
       </template>
       <template v-slot:item.connected="{ item }">
-        <span :style="{ color: item.connected_color }">{{
-          item.connected
-        }}</span>
+        <span :style="{ color: item.connected_color }">
+          {{ item.connected }}
+        </span>
       </template>
     </v-data-table>
   </v-card>

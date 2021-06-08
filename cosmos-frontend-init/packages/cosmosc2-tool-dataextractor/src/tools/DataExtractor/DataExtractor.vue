@@ -80,11 +80,11 @@
             :chooseItem="true"
             :allowAll="true"
           />
-          <v-alert type="warning" v-model="warning" dismissible
-            >{{ warningText }}
+          <v-alert type="warning" v-model="warning" dismissible>
+            {{ warningText }}
           </v-alert>
-          <v-alert type="error" v-model="error" dismissible
-            >{{ errorText }}
+          <v-alert type="error" v-model="error" dismissible>
+            {{ errorText }}
           </v-alert>
         </div>
       </v-row>

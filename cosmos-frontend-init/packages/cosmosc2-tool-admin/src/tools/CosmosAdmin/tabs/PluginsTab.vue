@@ -41,8 +41,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <v-list data-test="pluginList">
       <v-list-item v-for="(plugin, i) in plugins" :key="i">
         <v-list-item-content>
@@ -85,8 +86,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <variables-dialog
       :variables="variables"
       v-model="showVariables"

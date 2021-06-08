@@ -56,8 +56,9 @@
                 <v-list-item-title
                   v-if="!option.radio && !option.checkbox"
                   style="cursor: pointer"
-                  >{{ option.label }}</v-list-item-title
                 >
+                  {{ option.label }}
+                </v-list-item-title>
               </v-list-item>
             </template>
           </v-radio-group>
