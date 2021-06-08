@@ -301,7 +301,89 @@ export default {
   data() {
     return {
       title: 'Script Runner',
-      menus: [
+      suiteRunner: false, // Whether to display the SuiteRunner GUI
+      disableSuiteButtons: false,
+      suiteMap: {
+        // Useful for testing the various options in the SuiteRunner GUI
+        // Suite: {
+        //   teardown: true,
+        //   groups: {
+        //     Group: {
+        //       setup: true,
+        //       cases: ['case1', 'case2', 'really_long_test_case_name3'],
+        //     },
+        //     ReallyLongGroupName: {
+        //       cases: ['case1', 'case2', 'case3'],
+        //     },
+        //   },
+        // },
+      },
+      showSave: false,
+      alertType: null,
+      alertText: '',
+      state: ' ',
+      scriptId: null,
+      startOrGoButton: 'Start',
+      startOrGoDisabled: false,
+      pauseOrRetryButton: 'Pause',
+      pauseOrRetryDisabled: true,
+      stopDisabled: true,
+      showDebug: false,
+      debug: '',
+      debugHistory: [],
+      debugHistoryIndex: 0,
+      showDisconnect: false,
+      files: {},
+      filename: NEW_FILENAME,
+      tempFilename: null,
+      fileModified: '',
+      fileOpen: false,
+      showSaveAs: false,
+      areYouSure: false,
+      subscription: null,
+      cable: null,
+      marker: null,
+      fatal: false,
+      search: '',
+      messages: [],
+      headers: [{ text: 'Message', value: 'message' }],
+      maxArrayLength: 30,
+      Range: ace.acequire('ace/range').Range,
+      ask: {
+        show: false,
+        question: '',
+        default: null,
+        password: false,
+        answerRequired: true,
+        callback: () => {},
+      },
+      prompt: {
+        show: false,
+        title: '',
+        subtitle: '',
+        message: '',
+        details: '',
+        buttons: null,
+        layout: 'horizontal',
+        callback: () => {},
+      },
+      infoDialog: false,
+      infoTitle: '',
+      infoText: [],
+      resultsDialog: false,
+      scriptResults: '',
+    }
+  },
+  computed: {
+    fullFilename() {
+      if (this.fileModified.length > 0) {
+        return this.filename + ' ' + this.fileModified
+      } else {
+        return this.filename
+      }
+    },
+    menus: function () {
+      return [
         {
           label: 'File',
           items: [
@@ -405,87 +487,7 @@ export default {
             },
           ],
         },
-      ],
-      suiteRunner: false, // Whether to display the SuiteRunner GUI
-      disableSuiteButtons: false,
-      suiteMap: {
-        // Useful for testing the various options in the SuiteRunner GUI
-        // Suite: {
-        //   teardown: true,
-        //   groups: {
-        //     Group: {
-        //       setup: true,
-        //       cases: ['case1', 'case2', 'really_long_test_case_name3'],
-        //     },
-        //     ReallyLongGroupName: {
-        //       cases: ['case1', 'case2', 'case3'],
-        //     },
-        //   },
-        // },
-      },
-      showSave: false,
-      alertType: null,
-      alertText: '',
-      state: ' ',
-      scriptId: null,
-      startOrGoButton: 'Start',
-      startOrGoDisabled: false,
-      pauseOrRetryButton: 'Pause',
-      pauseOrRetryDisabled: true,
-      stopDisabled: true,
-      showDebug: false,
-      debug: '',
-      debugHistory: [],
-      debugHistoryIndex: 0,
-      showDisconnect: false,
-      files: {},
-      filename: NEW_FILENAME,
-      tempFilename: null,
-      fileModified: '',
-      fileOpen: false,
-      showSaveAs: false,
-      areYouSure: false,
-      subscription: null,
-      cable: null,
-      marker: null,
-      fatal: false,
-      search: '',
-      messages: [],
-      headers: [{ text: 'Message', value: 'message' }],
-      maxArrayLength: 30,
-      Range: ace.acequire('ace/range').Range,
-      ask: {
-        show: false,
-        question: '',
-        default: null,
-        password: false,
-        answerRequired: true,
-        callback: () => {},
-      },
-      prompt: {
-        show: false,
-        title: '',
-        subtitle: '',
-        message: '',
-        details: '',
-        buttons: null,
-        layout: 'horizontal',
-        callback: () => {},
-      },
-      infoDialog: false,
-      infoTitle: '',
-      infoText: [],
-      resultsDialog: false,
-      scriptResults: '',
-    }
-  },
-  computed: {
-    fullFilename() {
-      if (this.fileModified.length > 0) {
-        return this.filename + ' ' + this.fileModified
-      } else {
-        return this.filename
-      }
+      ]
     },
   },
   mounted() {
