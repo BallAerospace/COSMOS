@@ -19,10 +19,24 @@
 
 class ApiController < ApplicationController
   def screens
+    begin
+      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     render :json => Screen.all(params[:scope].upcase, params[:target].upcase)
   end
 
   def screen
+    begin
+      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     screen = Screen.find(params[:scope].upcase, params[:target].upcase, params[:screen].downcase)
     if screen
       render :json => screen
@@ -34,16 +48,10 @@ class ApiController < ApplicationController
   def api
     req = Rack::Request.new(request.env)
 
-    # ACL allow_addr? function takes address in the form returned by
-    # IPSocket.peeraddr.
-    req_addr = ["AF_INET", req.port, req.host.to_s, req.ip.to_s]
-
-    # if Cosmos::CmdTlmServer.instance.json_drb.acl and !Cosmos::CmdTlmServer.instance.json_drb.acl.allow_addr?(req_addr)
-    #  status       = 403
-    #  content_type = "text/plain"
-    #  body         = "Forbidden"
     if request.post?
-      status, content_type, body = handle_post(req)
+      request_headers = Hash[*request.env.select {|k,v| k.start_with? 'HTTP_'}.sort.flatten]
+      request_data = req.body.read
+      status, content_type, body = handle_post(request_data, request_headers)
     else
       status       = 405
       content_type = "text/plain"
@@ -57,13 +65,15 @@ class ApiController < ApplicationController
 
   # Handles an http post.
   #
-  # @param request [Rack::Request] - A rack post request
+  # @param request_data [String] - A String of the post body from the request
+  # @param request_headers [Hash] - A Hash of the headers from the post request
   # @return [Integer, String, String] - Http response code, content type,
   #   response body.
-  def handle_post(request)
-    request_data = request.body.read
-    start_time = Time.now.sys
-    response_data, error_code = Cosmos::Cts.instance.json_drb.process_request(request_data, start_time)
+  def handle_post(request_data, request_headers)
+    response_data, error_code = Cosmos::Cts.instance.json_drb.process_request(
+      request_data: request_data,
+      request_headers: request_headers,
+      start_time: Time.now.sys)
 
     # Convert json error code into html status code
     # see http://www.jsonrpc.org/historical/json-rpc-over-http.html#errors

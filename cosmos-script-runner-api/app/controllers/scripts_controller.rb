@@ -19,10 +19,24 @@
 
 class ScriptsController < ApplicationController
   def index
+    begin
+      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     render :json => Script.all(params[:scope])
   end
 
   def body
+    begin
+      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     file = Script.body(params[:scope], params[:name])
     if file
       results = { "contents" => file }
@@ -36,6 +50,13 @@ class ScriptsController < ApplicationController
   end
 
   def create
+    begin
+      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     success = Script.create(params[:scope], params[:name], params[:text])
     if success
       results = {}
@@ -49,6 +70,13 @@ class ScriptsController < ApplicationController
   end
 
   def run
+    begin
+      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     suiteRunner = params[:suiteRunner] ? params[:suiteRunner].as_json : nil
     running_script_id = Script.run(params[:scope], params[:name], suiteRunner, params[:disconnect] == 'disconnect')
     if running_script_id
@@ -59,6 +87,13 @@ class ScriptsController < ApplicationController
   end
 
   def destroy
+    begin
+      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     destroyed = Script.destroy(params[:scope], params[:name])
     if destroyed
       head :ok
@@ -68,6 +103,13 @@ class ScriptsController < ApplicationController
   end
 
   def syntax
+    begin
+      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     script = Script.syntax(request.body.read)
     if script
       render :json => script

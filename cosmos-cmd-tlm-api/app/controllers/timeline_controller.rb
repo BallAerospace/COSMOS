@@ -29,11 +29,17 @@ class TimelineController < ApplicationController
   # scope [String] the scope of the timeline, `TEST`
   # @return [String] the array of timeline names converted into json format
   def index
-    authorize(permission: 'system', scope: params[:scope], token: headers[:Authorization])
+    begin
+      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     timelines = @model_class.all
     ret = Array.new
     timelines.each do |timeline, value|
-      if params[:scope] == timeline.split("__")[0]
+      if params[:scope] == timeline.split('__')[0]
         ret << value
       end
     end
@@ -52,19 +58,24 @@ class TimelineController < ApplicationController
   #  }
   #```
   def create
-    authorize(permission: 'system', scope: params[:scope], token: headers[:Authorization])
     begin
-      hash = JSON.parse(params[:json])
-      model = @model_class.new(name: hash["name"], color: hash["color"], scope: params[:scope])
+      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
+    begin
+      model = @model_class.new(name: params['name'], color: params['color'], scope: params[:scope])
       model.create()
       model.deploy()
       render :json => model.as_json, :status => 201
     rescue RuntimeError, JSON::ParserError => e
-      render :json => {"status" => "error", "message" => e.message}, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
     rescue TypeError
-      render :json => {"status" => "error", "message" => "Invalid json object"}, :status => 400
+      render :json => { 'status' => 'error', 'message' => 'Invalid json object' }, :status => 400
     rescue Cosmos::TimelineInputError => e
-      render :json => {"status" => "error", "message" => e.message}, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
     end
   end
 
@@ -80,27 +91,32 @@ class TimelineController < ApplicationController
   #  }
   #```
   def color
-    authorize(permission: 'system', scope: params[:scope], token: headers[:Authorization])
+    begin
+      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     model = @model_class.get(name: params[:name], scope: params[:scope])
     if model.nil?
       render :json => {
-        "status" => "error",
-        "message" => "failed to find timeline: #{params[:name]}",
+        'status' => 'error',
+        'message' => "failed to find timeline: #{params[:name]}",
       }, :status => 404
       return
     end
     begin
-      hash = JSON.parse(params[:json])
-      model.update_color(color: hash["color"])
+      model.update_color(color: params['color'])
       model.update()
-      model.notify(kind: "update")
+      model.notify(kind: 'update')
       render :json => model.as_json, :status => 200
     rescue RuntimeError, JSON::ParserError => e
-      render :json => {"status" => "error", "message" => e.message}, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
     rescue TypeError
-      render :json => {"status" => "error", "message" => "Invalid json object"}, :status => 400
+      render :json => { 'status' => 'error', 'message' => 'Invalid json object' }, :status => 400
     rescue Cosmos::TimelineInputError => e
-      render :json => {"status" => "error", "message" => e.message}, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
     end
   end
 
@@ -110,23 +126,29 @@ class TimelineController < ApplicationController
   # scope [String] the scope of the timeline, `TEST`
   # @return [String] hash/object of timeline name in json with a 204 no-content status code
   def destroy
-    authorize(permission: 'system', scope: params[:scope], token: headers[:Authorization])
+    begin
+      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     model = @model_class.get(name: params[:name], scope: params[:scope])
     if model.nil?
       render :json => {
-        "status" => "error",
-        "message" => "failed to find timeline: #{params[:name]}",
+        'status' => 'error',
+        'message' => "failed to find timeline: #{params[:name]}",
       }, :status => 404
       return
     end
     begin
-      use_force = params[:force].nil? == false && params[:force] == "true"
+      use_force = params[:force].nil? == false && params[:force] == 'true'
       ret = @model_class.delete(name: params[:name], scope: params[:scope], force: use_force)
       model.undeploy()
-      model.notify(kind: "delete")
-      render :json => {"name" => params[:name]}, :status => 204
+      model.notify(kind: 'delete')
+      render :json => { 'name' => params[:name]}, :status => 204
     rescue Cosmos::TimelineError => e
-      render :json => {"status" => "error", "message" => e.message}, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
     end
   end
 

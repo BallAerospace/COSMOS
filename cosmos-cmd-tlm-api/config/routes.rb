@@ -90,9 +90,9 @@ Rails.application.routes.draw do
   get "/auth/token-exists" => "auth#token_exists"
   post "/auth/verify" => "auth#verify"
   post "/auth/set" => "auth#set"
-  get "/internal/metrics" => "internal_metrics#index"
   get "/screen/:target" => "api#screens"
   get "/screen/:target/:screen" => "api#screen"
+  get "/internal/metrics" => "internal_metrics#index"
   get "/time" => "time#get_current"
   get "map.json" => "tools#importmap"
 end

@@ -253,9 +253,11 @@ module Cosmos
     # must be 2.0 and the JSON must include the method and id members.
     #
     # @param request_data [String] JSON encoded string representing the request
+    # @param request_headers [Hash] Request Header to include the auth token
     # @return [JsonRpcRequest]
-    def self.from_json(request_data)
+    def self.from_json(request_data, request_headers)
       hash = JSON.parse(request_data, :allow_nan => true, :create_additions => true)
+      hash['keyword_params']['token'] = request_headers['HTTP_AUTHORIZATION'] if request_headers['HTTP_AUTHORIZATION']
       # Verify the jsonrpc version is correct and there is a method and id
       raise unless hash['jsonrpc'.freeze] == "2.0".freeze && hash['method'.freeze] && hash['id'.freeze]
       self.from_hash(hash)
