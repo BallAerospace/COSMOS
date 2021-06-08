@@ -242,14 +242,14 @@ module Cosmos
     # Process the JSON request data, execute the method, and create a response.
     #
     # @param request_data [String] The JSON encoded request
+    # @param request_headers [Hash] The requests headers sent with the request
     # @param start_time [Time] The time when the initial request was received
     # @return response_data, error_code [String, Integer/nil] The JSON encoded
     #   response and error code
-    def process_request(request_data, start_time)
+    def process_request(request_data:, request_headers:, start_time:)
       @request_count += 1
-      STDOUT.puts request_data if JsonDRb.debug?
       begin
-        request = JsonRpcRequest.from_json(request_data)
+        request = JsonRpcRequest.from_json(request_data, request_headers)
         response = nil
         error_code = nil
         response_data = nil

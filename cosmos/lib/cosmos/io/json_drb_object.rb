@@ -136,7 +136,12 @@ module Cosmos
         STDOUT.puts "\nRequest:\n" if JsonDRb.debug?
         STDOUT.puts @request_data if JsonDRb.debug?
         @request_in_progress = true
-        headers = { 'Content-Type' => 'application/json-rpc' }
+        # TODO: need to update headers Authorization for how internal code will call authenticated APIs
+        headers = {
+          'Content-Type' => 'application/json-rpc',
+          'User-Agent' => 'Cosmos / 5.0.0 (ruby/cosmos/lib/io/json_drb_object)',
+          'Authorization' => ENV['COSMOS_PASSWORD'] || 'invalid'
+        }
         res = @http.post(@uri,
                          :body   => @request_data,
                          :header => headers)

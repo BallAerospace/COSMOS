@@ -234,7 +234,7 @@ export default {
         )
         .then((dialog) => {
           return Api.post('/cosmos-api/timeline/activities/delete', {
-            json: JSON.stringify(this.selectedData),
+            multi: this.selectedData,
           })
         })
         .then((response) => {

@@ -224,9 +224,7 @@ export default {
         })
         .then((dialog) => {
           return Api.post('/cosmos-api/timeline', {
-            json: JSON.stringify({
-              name: dialog.data,
-            }),
+            name: dialog.data,
           })
         })
         .then((response) => {

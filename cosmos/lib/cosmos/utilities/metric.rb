@@ -41,8 +41,8 @@ module Cosmos
     attr_reader :microservice
 
     def initialize(microservice:, scope:)
-      if microservice.include? "|" or scope.include? "|"
-        raise ArgumentError.new("invalid input must not contain '|'")
+      if microservice.include? '|' or scope.include? '|'
+        raise ArgumentError.new('invalid input must not contain: |')
       end
       @items = {}
       @scope = scope
@@ -69,15 +69,15 @@ module Cosmos
       # the value is added to @items and the count of the value is increased
       # if the count of the values exceed the size of the array it sets the
       # count back to zero and the array will over write older data.
-      key = "#{name}|" + labels.map {|k,v| "#{k}=#{v}"}.join(",")
+      key = "#{name}|" + labels.map {|k,v| "#{k}=#{v}"}.join(',')
       if not @items.has_key?(key)
         Logger.debug("new data for #{@scope}, #{key}")
-        @items[key] = { "values" => Array.new(@size), "count" => 0 }
+        @items[key] = { 'values' => Array.new(@size), 'count' => 0 }
       end
-      count = @items[key]["count"]
+      count = @items[key]['count']
       # Logger.info("adding data for #{@scope}, #{count} #{key}, #{value}")
-      @items[key]["values"][count] = value
-      @items[key]["count"] = count + 1 >= @size ? 0 : count + 1
+      @items[key]['values'][count] = value
+      @items[key]['count'] = count + 1 >= @size ? 0 : count + 1
     end
 
     def percentile(sorted_values, percentile)
@@ -107,14 +107,14 @@ module Cosmos
       Logger.debug("#{@microservice} #{@scope} sending metrics to redis, #{@items.length}") if @items.length > 0
       @items.each do |key, values|
         label_list = []
-        name, labels = key.split("|")
+        name, labels = key.split('|')
         metric_labels = labels.nil? ? {} : labels.split(',').map {|x| x.split('=')}.map {|k, v| { k => v }}.reduce({}, :merge)
-        sorted_values = values["values"].compact.sort
+        sorted_values = values['values'].compact.sort
         for percentile_value in [10, 50, 90, 95, 99]
           percentile_result = percentile(sorted_values, percentile_value)
-          labels = metric_labels.clone.merge({ "scope" => @scope, "microservice" => @microservice })
-          labels["percentile"] = percentile_value
-          labels["metric__value"] = percentile_result
+          labels = metric_labels.clone.merge({ 'scope' => @scope, 'microservice' => @microservice })
+          labels['percentile'] = percentile_value
+          labels['metric__value'] = percentile_result
           label_list.append(labels)
         end
         begin

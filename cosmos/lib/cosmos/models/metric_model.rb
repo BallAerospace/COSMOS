@@ -21,7 +21,7 @@ require 'cosmos/models/model'
 
 module Cosmos
   class MetricModel < Model
-    PRIMARY_KEY = '__cosmos__metric'
+    PRIMARY_KEY = '__cosmos__metric'.freeze
 
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
@@ -48,10 +48,11 @@ module Cosmos
     end
 
     def as_json
-      { "name" => @name,
-        "updated_at" => @updated_at,
-        "metric_name" => @metric_name,
-        "label_list" => @label_list
+      {
+        'name' => @name,
+        'updated_at' => @updated_at,
+        'metric_name' => @metric_name,
+        'label_list' => @label_list
       }
     end
 

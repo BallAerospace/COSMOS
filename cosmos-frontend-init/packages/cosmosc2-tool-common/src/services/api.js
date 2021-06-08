@@ -26,13 +26,17 @@ const request = async function (
   params = {},
   { noAuth = false, noScope = false } = {}
 ) {
+  const headers = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  }
   if (!noAuth) {
     try {
       await CosmosAuth.updateToken(CosmosAuth.defaultMinValidity)
     } catch (error) {
       CosmosAuth.login()
     }
-    params['token'] = localStorage.getItem('token')
+    headers['Authorization'] = localStorage.getItem('token')
   }
   if (!noScope && !params['scope']) {
     params['scope'] = localStorage.scope
@@ -42,7 +46,7 @@ const request = async function (
     url,
     data,
     params,
-    headers: { Authorization: localStorage.getItem('token') },
+    headers,
   })
 }
 
