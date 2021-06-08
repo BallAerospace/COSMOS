@@ -21,7 +21,8 @@
   <v-card>
     <v-card-title> Login </v-card-title>
     <v-card-subtitle>
-      Enter the password to begin using COSMOS
+      {{ isSet ? 'Enter the' : 'Create a' }}
+      password to begin using COSMOS
     </v-card-subtitle>
     <v-card-text>
       <v-text-field
@@ -34,6 +35,7 @@
         v-model="password"
         type="password"
         :label="`${!isSet || reset ? 'New ' : ''}Password`"
+        data-test="new-password"
       />
       <v-text-field
         v-if="reset"
@@ -41,6 +43,7 @@
         :rules="[rules.matchPassword]"
         type="password"
         label="Confirm Password"
+        data-test="confirm-password"
       />
       <v-btn
         v-if="reset"
@@ -48,6 +51,7 @@
         large
         :color="isSet ? 'warn' : 'success'"
         :disabled="!formValid"
+        data-test="set-password"
       >
         Set
       </v-btn>

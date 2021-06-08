@@ -47,3 +47,18 @@ Cypress.on('window:load', (win) => {
   win.localStorage.token = 'password'
   win.localStorage.scope = 'DEFAULT'
 })
+
+before(() => {
+  // Runs once before all tests
+  cy.visit('/login')
+  cy.wait(1000)
+  cy.get('body').then(($body) => {
+    // Ensure that a password is set. If not, set it to "password" so auth works.
+    // If a password is already set, do nothing. (Cypress tests won't work if that password isn't "password" though)
+    if ($body.text().includes('Create a')) {
+      cy.get('[data-test=new-password]').clear().type('password')
+      cy.get('[data-test=confirm-password]').clear().type('password')
+      cy.get('[data-test=set-password]').click({ force: true })
+    }
+  })
+})
