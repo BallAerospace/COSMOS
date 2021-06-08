@@ -89,9 +89,7 @@ export default {
     submitHandler(event) {
       const path = `/cosmos-api/timeline/${this.timeline.name}/color`
       Api.post(path, {
-        json: JSON.stringify({
-          color: this.hex,
-        }),
+        color: this.hex,
       })
         .then((response) => {
           const alertObject = {

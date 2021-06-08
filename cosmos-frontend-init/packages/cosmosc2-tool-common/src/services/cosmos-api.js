@@ -21,7 +21,6 @@ import axios from 'axios'
 
 export class CosmosApi {
   id = 1
-  host = '/cosmos-api'
 
   constructor() {}
 
@@ -35,15 +34,22 @@ export class CosmosApi {
     this.id = this.id + 1
     try {
       kwparams['scope'] = localStorage.scope
-      kwparams['token'] = localStorage.getItem('token')
-      const response = await axios.post(this.host + '/api', {
-        jsonrpc: '2.0',
-        method: method,
-        params: params,
-        id: this.id,
-        keyword_params: kwparams,
-        headers: { Authorization: localStorage.getItem('token') },
-      })
+      const response = await axios.post(
+        '/cosmos-api/api',
+        {
+          jsonrpc: '2.0',
+          method: method,
+          params: params,
+          id: this.id,
+          keyword_params: kwparams,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem('token'),
+            'Content-Type': 'application/json-rpc',
+          },
+        }
+      )
       // var data = response.data
       // if (data.error) {
       //   var err = new Error()

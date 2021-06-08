@@ -38,12 +38,3 @@ class TimelineEventsApi
     @thread.stop
   end
 end
-
-# class FakeChannel
-#   def transmit(*args)
-#     STDOUT.puts args.inspect
-#   end
-# end
-
-# MessagesApi.new("Ryan", FakeChannel.new, nil)
-# sleep(20)

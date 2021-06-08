@@ -30,8 +30,8 @@ module Cosmos
   class TimelineInputError < TimelineError; end
 
   class TimelineModel < Model
-    PRIMARY_KEY = "cosmos_timelines" # MUST be equal to ActivityModel::PRIMARY_KEY without leading __
-    KEY = "__TIMELINE__"
+    PRIMARY_KEY = 'cosmos_timelines'.freeze # MUST be equal to ActivityModel::PRIMARY_KEY without leading __
+    KEY = '__TIMELINE__'.freeze
 
     # @return [TimelineModel] Return the object with the name at
     def self.get(name:, scope:)
@@ -77,13 +77,13 @@ module Cosmos
 
     def update_color(color: nil)
       if color.nil?
-        color = "#%06x" % (rand * 0xffffff)
+        color = '#%06x' % (rand * 0xffffff)
       end
       valid_color = color =~ /(#*)([0-9,a-f,A-f]{6})/
       if valid_color.nil?
         raise RuntimeError.new "invalid color but in hex format. #FF0000"
       end
-      unless color.start_with?("#")
+      unless color.start_with?('#')
         color = "##{color}"
       end
       @color = color
@@ -91,10 +91,12 @@ module Cosmos
 
     # @return [Hash] generated from the TimelineModel
     def as_json
-      { "name" => @timeline_name,
-        "color" => @color,
-        "scope" => @scope,
-        "updated_at" => @updated_at}
+      {
+        'name' => @timeline_name,
+        'color' => @color,
+        'scope' => @scope,
+        'updated_at' => @updated_at
+      }
     end
 
     # @return [TimelineModel] Model generated from the passed JSON
@@ -108,10 +110,11 @@ module Cosmos
     # @return [] update the redis stream / timeline topic that something has changed
     def notify(kind:)
       notification = {
-        "data" => JSON.generate(as_json()),
-        "kind" => kind,
-        "type" => "timeline",
-        "timeline" => @timeline_name}
+        'data' => JSON.generate(as_json()),
+        'kind' => kind,
+        'type' => 'timeline',
+        'timeline' => @timeline_name
+      }
       TimelineTopic.write_activity(notification, scope: @scope)
     end
 
@@ -122,7 +125,7 @@ module Cosmos
       microservice = MicroserviceModel.new(
         name: @name,
         folder_name: nil,
-        cmd: ["ruby", "timeline_microservice.rb", @name],
+        cmd: ['ruby', 'timeline_microservice.rb', @name],
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [],
         topics: topics,
@@ -130,7 +133,7 @@ module Cosmos
         plugin: nil,
         scope: @scope)
       microservice.create
-      notify(kind: "create")
+      notify(kind: 'create')
     end
 
     def undeploy

@@ -25,15 +25,12 @@ require 'cosmos/topics/timeline_topic'
 
 require 'cosmos/script'
 
-
 module Cosmos
-
+  # The Timeline worker is a very simple thread pool worker. Once
+  # the timeline manager has pushed a job to the schedule one of
+  # these workers will run the CMD (command) or SCRIPT (script)
+  # or anything that could be expanded in the future.
   class TimelineWorker
-    # The Timeline worker is a very simple thread pool worker. Once
-    # the timeline manager has pushed a job to the schedule one of
-    # these workers will run the CMD (command) or SCRIPT (script)
-    # or anything that could be expanded in the future.
-
     def initialize(name:, scope:, queue:)
       @timeline_name = name
       @scope = scope
@@ -42,7 +39,7 @@ module Cosmos
 
     def run
       Logger.info "#{@timeline_name} timeline worker running"
-      while true
+      loop do
         activity = @queue.pop
         break if activity.nil?
         run_activity(activity)
@@ -52,38 +49,47 @@ module Cosmos
 
     def run_activity(activity)
       case activity.kind.upcase
-        when 'CMD'
-          run_cmd(activity)
-        when 'SCRIPT'
-          run_script(activity)
-        when 'EXPIRE'
-          clear_expired(activity)
-        else
-          Logger.error "Unknown kind passed to microservice #{@timeline_name}: #{activity.as_json.to_s}"
+      when 'CMD'
+        run_cmd(activity)
+      when 'SCRIPT'
+        run_script(activity)
+      when 'EXPIRE'
+        clear_expired(activity)
+      else
+        Logger.error "Unknown kind passed to microservice #{@timeline_name}: #{activity.as_json}"
       end
     end
 
     def run_cmd(activity)
-      Logger.info "#{@timeline_name} run_cmd > #{activity.as_json.to_s}"
+      Logger.info "#{@timeline_name} run_cmd > #{activity.as_json}"
       begin
-        cmd_no_hazardous_check(activity.data["cmd"], scope: @scope)
-        activity.commit(status: "completed", fulfillment: true)
+        cmd_no_hazardous_check(activity.data['cmd'], scope: @scope)
+        activity.commit(status: 'completed', fulfillment: true)
       rescue StandardError => e
-        activity.commit(status: "failed", message: e.message)
-        Logger.error "#{@timeline_name} run_cmd failed > #{activity.as_json.to_s}, #{e.message}"
+        activity.commit(status: 'failed', message: e.message)
+        Logger.error "#{@timeline_name} run_cmd failed > #{activity.as_json}, #{e.message}"
       end
     end
 
     def run_script(activity)
-      Logger.info "#{@timeline_name} run_script > #{activity.as_json.to_s}"
+      Logger.info "#{@timeline_name} run_script > #{activity.as_json}"
       begin
-        path = "/scripts/#{activity.data["script"]}/run"
-        request = Net::HTTP::Post.new(path, "Content-Type" => "application/json")
-        request.body = JSON.generate({"scope"=>@scope, "timeline"=>@timeline_name, "id"=>activity.start})
-        response = Net::HTTP.new("cosmos-script-runner-api", 2902).request(request)
-        activity.commit(status: "completed", message: "#{response.code}, #{response.body}", fulfillment: true)
+        path = "/scripts/#{activity.data['script']}/run"
+        request = Net::HTTP::Post.new(
+          path,
+          'Content-Type' => 'application/json',
+          'Authorization' => ENV['COSMOS_PASSWORD'] || 'invalid')
+        request.body = JSON.generate({
+          'scope' => @scope,
+          'timeline' => @timeline_name,
+          'id' => activity.start
+        })
+        hostname = ENV['COSMOS_SCRIPT_HOSTNAME'] || (ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-script-runner-api')
+        response = Net::HTTP.new(hostname, 2902).request(request)
+        raise "failed to call #{hostname}, for script: #{activity.data['script']}, response code: #{response.code}" if response.code != '200'
+        activity.commit(status: 'completed', message: "#{activity.data['script']} => #{response.body}", fulfillment: true)
       rescue StandardError => e
-        activity.commit(status: "failed", message: e.message)
+        activity.commit(status: 'failed', message: e.message)
         Logger.error "#{@timeline_name} run_script failed > #{activity.as_json.to_s}, #{e.message}"
       end
     end
@@ -91,23 +97,22 @@ module Cosmos
     def clear_expired(activity)
       begin
         ActivityModel.range_destroy(name: @timeline_name, scope: @scope, min: activity.start, max: activity.stop)
-        activity.add_event(status: "completed")
+        activity.add_event(status: 'completed')
       rescue StandardError => e
-        Logger.error "#{@timeline_name} clear_expired failed > #{activity.as_json.to_s} #{e.message}"
+        Logger.error "#{@timeline_name} clear_expired failed > #{activity.as_json} #{e.message}"
       end
     end
 
   end
 
+  # Shared between the monitor thread and the manager thread to
+  # share the planned activities. This should remain a thread
+  # safe implamentation.
   class Schedule
-    # Shared between the monitor thread and the manager thread to
-    # share the planned activities. This should remain a thread
-    # safe implamentation.
-
     def initialize(name)
       @name = name
       @activities_mutex = Mutex.new
-      @activities = Array.new
+      @activities = []
       @size = 20
       @queue = Array.new(@size)
       @index = 0
@@ -120,7 +125,7 @@ module Cosmos
       return true
     end
 
-    def get_activities
+    def activities
       @activities_mutex.synchronize do
         return @activities.dup
       end
@@ -134,7 +139,7 @@ module Cosmos
 
     def add_activity(input_activity)
       @activities_mutex.synchronize do
-        if @activities.find {|x| x.start == input_activity.start}.nil?
+        if @activities.find { |x| x.start == input_activity.start }.nil?
           @activities << input_activity
         end
       end
@@ -148,12 +153,11 @@ module Cosmos
 
   end
 
+  # The timeline manager starts a thread pool and looks at the
+  # schedule and if an "activity" should be run. TimelineManager
+  # adds the "activity" to the thread pool and the thread will
+  # execute the "activity".
   class TimelineManager
-    # The timeline manager starts a thread pool and looks at the
-    # schedule and if an "activity" should be run. TimelineManager
-    # adds the "activity" to the thread pool and the thread will
-    # execute the "activity".
-
     def initialize(name:, scope:, schedule:)
       @timeline_name = name
       @scope = scope
@@ -165,8 +169,8 @@ module Cosmos
       @expire = 0
     end
 
-    def generate_thread_pool()
-      thread_pool = Array.new
+    def generate_thread_pool
+      thread_pool = []
       @worker_count.times {
         worker = TimelineWorker.new(name: @timeline_name, scope: @scope, queue: @queue)
         thread_pool << Thread.new { worker.run }
@@ -176,13 +180,13 @@ module Cosmos
 
     def run
       Logger.info "#{@timeline_name} timeline manager running"
-      while true
+      loop do
         start = Time.now.to_i
-        @schedule.get_activities().each do |activity|
+        @schedule.activities.each do |activity|
           start_difference = activity.start - start
           if start_difference <= 0 && @schedule.not_queued?(activity.start)
             Logger.debug "#{@timeline_name} #{@scope} current start: #{start}, vs #{activity.start}, #{start_difference}"
-            activity.add_event(status: "queued")
+            activity.add_event(status: 'queued')
             @queue << activity
           end
         end
@@ -200,13 +204,13 @@ module Cosmos
     # Add task to remove events older than 7 time
     def add_expire_activity
       now = Time.now.to_i
-      @expire = now + 3000
+      @expire = now + 3_000
       activity = ActivityModel.new(
         name: @timeline_name,
         scope: @scope,
-        start: (now - 86400 * 7),
-        stop: (now - 82800 * 7),
-        kind: "EXPIRE",
+        start: (now - 86_400 * 7),
+        stop: (now - 82_800 * 7),
+        kind: 'EXPIRE',
         data: {})
       @queue << activity
       return activity
@@ -217,10 +221,11 @@ module Cosmos
     # schedule.
     def request_update(start:)
       notification = {
-        "data" => JSON.generate({"time" => start}),
-        "kind" => "refresh",
-        "type" => "timeline",
-        "timeline"=> @timeline_name}
+        'data' => JSON.generate({ 'time' => start }),
+        'kind' => 'refresh',
+        'type' => 'timeline',
+        'timeline' => @timeline_name
+      }
       begin
         TimelineTopic.write_activity(notification, scope: @scope)
       rescue StandardError
@@ -234,20 +239,19 @@ module Cosmos
         @queue << nil
       }
     end
-
   end
 
+  # The timeline microservice starts a manager then gets the activities
+  # from the sorted set in redis and updates the schedule for the
+  # manager. Timeline will then wait for an update on the timeline
+  # stream this will trigger an update again to the schedule.
   class TimelineMicroservice < Microservice
-    # The timeline microservice starts a manager then gets the activities
-    # from the sorted set in redis and updates the schedule for the
-    # manager. Timeline will then wait for an update on the timeline
-    # stream this will trigger an update again to the schedule.
 
-    TIMELINE_METRIC_NAME = "timeline_activities_duration_seconds"
+    TIMELINE_METRIC_NAME = 'timeline_activities_duration_seconds'.freeze
 
     def initialize(name)
       super(name)
-      @timeline_name = name.split("__")[2]
+      @timeline_name = name.split('__')[2]
       @schedule = Schedule.new(@timeline_name)
       @manager = TimelineManager.new(name: @timeline_name, scope: scope, schedule: @schedule)
       @manager_thread = nil
@@ -257,12 +261,12 @@ module Cosmos
     def run
       Logger.info "#{@name} timeine running"
       @manager_thread = Thread.new { @manager.run }
-      while true
+      loop do
         start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         current_activities = ActivityModel.activities(name: @timeline_name, scope: @scope)
         @schedule.update(current_activities)
         diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
-        metric_labels = { "timeline" => @timeline_name, "thread" => "microservice" }
+        metric_labels = { 'timeline' => @timeline_name, 'thread' => 'microservice' }
         @metric.add_sample(name: TIMELINE_METRIC_NAME, value: diff, labels: metric_labels)
         break if @cancel_thread
         block_for_updates()
@@ -272,18 +276,18 @@ module Cosmos
     end
 
     def topic_lookup_functions
-      return {
-        "timeline"=>{
-          "create"=>:timeline_nop,
-          "refresh"=>:schedule_refresh,
-          "update"=>:timeline_nop,
-          "delete"=>:timeline_nop,
+      {
+        'timeline' => {
+          'create' => :timeline_nop,
+          'refresh' => :schedule_refresh,
+          'update' => :timeline_nop,
+          'delete' => :timeline_nop
         },
-        "activity"=>{
-          "create"=>:create_activity_from_event,
-          "event"=>:timeline_nop,
-          "update"=>:schedule_refresh,
-          "delete"=>:remove_activity_from_event,
+        'activity' => {
+          'create' => :create_activity_from_event,
+          'event' => :timeline_nop,
+          'update' => :schedule_refresh,
+          'delete' => :remove_activity_from_event
         }
       }
     end
@@ -292,10 +296,10 @@ module Cosmos
       @read_topic = true
       while @read_topic
         begin
-          TimelineTopic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
-            if msg_hash["timeline"] == @timeline_name
-              data = JSON.parse(msg_hash["data"])
-              send(topic_lookup_functions()[msg_hash["type"]][msg_hash["kind"]], data)
+          TimelineTopic.read_topics(@topics) do |_topic, _msg_id, msg_hash, _redis|
+            if msg_hash['timeline'] == @timeline_name
+              data = JSON.parse(msg_hash['data'])
+              send(topic_lookup_functions[msg_hash['type']][msg_hash['kind']], data)
             end
           end
         rescue StandardError => e
@@ -316,21 +320,19 @@ module Cosmos
     # Add the activity to the schedule. We don't need to hold the job in memory
     # if it is longer than an hour away. A refresh task will update that.
     def create_activity_from_event(data)
-      diff = data["start"] - Time.now.to_i
-      if (2..3600).include? diff
-        activity = ActivityModel.from_json(data, name: @timeline_name, scope: @scope)
-        @schedule.add_activity(activity)
-      end
+      diff = data['start'] - Time.now.to_i
+      return unless (2..3600).include? diff
+      activity = ActivityModel.from_json(data, name: @timeline_name, scope: @scope)
+      @schedule.add_activity(activity)
     end
 
     # Remove the activity from the schedule. We don't need to remove the activity
     # if it is longer than an hour away. It will be removed from the data.
     def remove_activity_from_event(data)
-      diff = data["start"] - Time.now.to_i
-      if (2..3600).include? diff
-        activity = ActivityModel.from_json(data, name: @timeline_name, scope: @scope)
-        @schedule.remove_activity(activity)
-      end
+      diff = data['start'] - Time.now.to_i
+      return unless (2..3600).include? diff
+      activity = ActivityModel.from_json(data, name: @timeline_name, scope: @scope)
+      @schedule.remove_activity(activity)
     end
 
     def shutdown
@@ -338,9 +340,7 @@ module Cosmos
       @manager.shutdown
       super
     end
-
   end
-
 end
 
 Cosmos::TimelineMicroservice.run if __FILE__ == $0

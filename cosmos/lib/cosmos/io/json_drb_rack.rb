@@ -38,16 +38,10 @@ module Cosmos
     def call(env)
       request = Rack::Request.new(env)
 
-      # ACL allow_addr? function takes address in the form returned by
-      # IPSocket.peeraddr.
-      # req_addr = ["AF_INET", request.port, request.host.to_s, request.ip.to_s]
-
-      # if @drb.acl and !@drb.acl.allow_addr?(req_addr)
-      #  status       = 403
-      #  content_type = "text/plain"
-      #  body         = "Forbidden"
       if request.post?
-        status, content_type, body = handle_post(request)
+        request_headers = Hash[*request.env.select {|k,v| k.start_with? 'HTTP_'}.sort.flatten]
+        request_data = request.body.read
+        status, content_type, body = handle_post(request_data, request_headers)
       else
         status       = 405
         content_type = "text/plain"
@@ -59,13 +53,15 @@ module Cosmos
 
     # Handles an http post.
     #
-    # @param request [Rack::Request] - A rack post request
+    # @param request_data [String] - A String of the post body from the request
+    # @param request_headers [Hash] - A Hash of the headers from the post request
     # @return [Integer, String, String] - Http response code, content type,
     #   response body.
-    def handle_post(request)
-      request_data = request.body.read
-      start_time = Time.now.sys
-      response_data, error_code = @drb.process_request(request_data, start_time)
+    def handle_post(request_data, request_headers)
+      response_data, error_code = @drb.process_request(
+        request_data: request_data,
+        request_headers: request_headers,
+        start_time: Time.now.sys)
 
       # Convert json error code into html status code
       # see http://www.jsonrpc.org/historical/json-rpc-over-http.html#errors

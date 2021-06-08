@@ -18,16 +18,21 @@
 # copyright holder
 
 require 'rails_helper'
+require 'cosmos/models/auth_model'
 require 'cosmos/models/timeline_model'
 
 RSpec.describe TimelineController, :type => :controller do
+
+  AUTH = 'foobar'
+
   before(:each) do
     mock_redis()
+    Cosmos::AuthModel.set(AUTH)
   end
 
   describe "GET index" do
     it "returns an empty array and status code 200" do
-      request.headers["Authorization"] = "foobar"
+      request.headers["Authorization"] = AUTH
       get :index, params: {"scope"=>"DEFAULT"}
       json = JSON.parse(response.body)
       expect(json).to eql([])
@@ -37,9 +42,8 @@ RSpec.describe TimelineController, :type => :controller do
 
   describe "POST then GET index with Timelines" do
     it "returns an array and status code 200" do
-      request.headers["Authorization"] = "foobar"
-      body = JSON.generate({"name" => "test"})
-      post :create, params: {"scope"=>"DEFAULT", "json"=>body}
+      request.headers['Authorization'] = AUTH
+      post :create, params: {"scope"=>"DEFAULT", "name" => "test"}
       expect(response).to have_http_status(:created)
       get :index, params: {"scope"=>"DEFAULT"}
       json = JSON.parse(response.body)
@@ -52,11 +56,10 @@ RSpec.describe TimelineController, :type => :controller do
 
   describe "POST two timelines with the same name on different scopes then GET index with Timelines" do
     it "returns an array of one and status code 200" do
-      request.headers["Authorization"] = "foobar"
-      body = JSON.generate({"name" => "test"})
-      post :create, params: {"scope"=>"DEFAULT", "json"=>body}
+      request.headers['Authorization'] = AUTH
+      post :create, params: {"scope"=>"DEFAULT", "name" => "test"}
       expect(response).to have_http_status(:created)
-      post :create, params: {"scope"=>"TEST", "json"=>body}
+      post :create, params: {"scope"=>"TEST", "name" => "test"}
       expect(response).to have_http_status(:created)
       get :index, params: {"scope"=>"DEFAULT"}
       expect(response).to have_http_status(:ok)
@@ -69,9 +72,8 @@ RSpec.describe TimelineController, :type => :controller do
 
   describe "POST create" do
     it "returns a json hash of name and status code 201" do
-      request.headers["Authorization"] = "foobar"
-      body = JSON.generate({"name" => "test"})
-      post :create, params: {"scope"=>"DEFAULT", "json"=>body}
+      request.headers['Authorization'] = AUTH
+      post :create, params: {"scope"=>"DEFAULT", "name" => "test"}
       expect(response).to have_http_status(:created)
       json = JSON.parse(response.body)
       expect(json["name"]).to eql("test")
@@ -80,16 +82,13 @@ RSpec.describe TimelineController, :type => :controller do
 
   describe "POST color" do
     it "returns a json hash of name and status code 200" do
-      request.headers["Authorization"] = "foobar"
-      body = JSON.generate({"name" => "test"})
-      post :create, params: {"scope"=>"DEFAULT", "json"=>body}
+      request.headers['Authorization'] = AUTH
+      post :create, params: {"scope"=>"DEFAULT", "name" => "test"}
       expect(response).to have_http_status(:created)
       json = JSON.parse(response.body)
       expect(json["name"]).to eql("test")
       expect(json["color"]).not_to be_nil
-      post :create, params: {"scope"=>"DEFAULT", "json"=>body}
-      body = JSON.generate({"color" => "#FF0000"})
-      post :color, params: {"scope"=>"DEFAULT", "name"=>"test", "json"=>body}
+      post :color, params: {"scope"=>"DEFAULT", "name"=>"test", "color" => "#FF0000"}
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       expect(json["name"]).to eql("test")
@@ -99,7 +98,7 @@ RSpec.describe TimelineController, :type => :controller do
 
   describe "POST error" do
     it "returns a hash and status code 400" do
-      request.headers["Authorization"] = "foobar"
+      request.headers['Authorization'] = AUTH
       post :create, params: {"scope"=>"DEFAULT"}
       json = JSON.parse(response.body)
       expect(json["status"]).to eql("error")
@@ -108,11 +107,10 @@ RSpec.describe TimelineController, :type => :controller do
     end
   end
 
- describe "POST error missing name" do
+  describe "POST error missing name" do
     it "returns a hash and status code 400" do
-      request.headers["Authorization"] = "foobar"
-      body = JSON.generate({"test" => "name"})
-      post :create, params: {"scope"=>"DEFAULT", "json"=>body}
+      request.headers['Authorization'] = AUTH
+      post :create, params: {"scope"=>"DEFAULT", "test" => "name"}
       json = JSON.parse(response.body)
       expect(json["status"]).to eql("error")
       expect(json["message"]).not_to be_nil
@@ -120,10 +118,10 @@ RSpec.describe TimelineController, :type => :controller do
     end
   end
 
- describe "POST error invalid json" do
+  describe "POST error invalid json" do
     it "returns a hash and status code 400" do
-      request.headers["Authorization"] = "foobar"
-      post :create, params: {"scope"=>"DEFAULT", "json"=>"test"}
+      request.headers['Authorization'] = AUTH
+      post :create, params: {"scope"=>"DEFAULT"}
       json = JSON.parse(response.body)
       expect(json["status"]).to eql("error")
       expect(json["message"]).not_to be_nil
@@ -134,14 +132,13 @@ RSpec.describe TimelineController, :type => :controller do
   describe "DELETE" do
     it "returns a json hash of name and status code 204" do
       allow_any_instance_of(Cosmos::MicroserviceModel).to receive(:undeploy).and_return(nil)
-      request.headers["Authorization"] = "foobar"
+      request.headers['Authorization'] = AUTH
       delete :destroy, params: {"scope"=>"DEFAULT", "name"=>"test"}
       json = JSON.parse(response.body)
       expect(json["status"]).to eql("error")
       expect(json["message"]).not_to be_nil
       expect(response).to have_http_status(:not_found)
-      body = JSON.generate({"name" => "test"})
-      post :create, params: {"scope"=>"DEFAULT", "json"=>body}
+      post :create, params: {"scope"=>"DEFAULT", "name" => "test"}
       expect(response).to have_http_status(:created)
       delete :destroy, params: {"scope"=>"DEFAULT", "name"=>"test"}
       json = JSON.parse(response.body)

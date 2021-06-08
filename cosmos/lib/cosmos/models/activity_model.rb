@@ -31,7 +31,7 @@ module Cosmos
 
   class ActivityModel < Model
     MAX_DURATION = Time::SEC_PER_DAY
-    PRIMARY_KEY = "__cosmos_timelines" # MUST be equal to `TimelineModel::PRIMARY_KEY` minus the leading __
+    PRIMARY_KEY = '__cosmos_timelines'.freeze # MUST be equal to `TimelineModel::PRIMARY_KEY` minus the leading __
 
     attr_reader :duration, :start, :stop, :kind, :data, :events, :fulfillment
 
@@ -109,8 +109,8 @@ module Cosmos
     # - A task MUST have a data object/hash.
     def validate_input(start:, stop:, kind:, data:)
       begin
-        dt_start = DateTime.strptime(start.to_s, "%s")
-        dt_stop = DateTime.strptime(stop.to_s, "%s")
+        dt_start = DateTime.strptime(start.to_s, '%s')
+        dt_stop = DateTime.strptime(stop.to_s, '%s')
       rescue Date::Error
         raise ActivityInputError.new "failed validation input must be seconds: #{start}, #{stop}"
       end
@@ -127,7 +127,7 @@ module Cosmos
       elsif data.nil?
         raise ActivityInputError.new "data must not be nil: #{data}"
       elsif data.is_a?(Hash) == false
-        raise ActivityInputError.new "data must not be a json object/hash: #{data}"
+        raise ActivityInputError.new "data must be a json object/hash: #{data}"
       end
     end
 
@@ -135,8 +135,8 @@ module Cosmos
     def set_input(start:, stop:, updated_at:, kind: nil, data: nil, events: nil, fulfillment: nil)
       @updated_at = updated_at
       begin
-        dt_start = DateTime.strptime(start.to_s, "%s")
-        dt_stop = DateTime.strptime(stop.to_s, "%s")
+        dt_start = DateTime.strptime(start.to_s, '%s')
+        dt_stop = DateTime.strptime(stop.to_s, '%s')
       rescue ArgumentError
         raise ActivityInputError.new "invalid input must be seconds: #{start}, #{stop}"
       end
@@ -155,12 +155,11 @@ module Cosmos
       stop:,
       kind:,
       data:,
+      scope:,
       updated_at: 0,
       duration: 0,
       fulfillment: nil,
-      events: nil,
-      plugin: nil,
-      scope:)
+      events: nil)
       super("#{scope}#{PRIMARY_KEY}__#{name}", name: name, scope: scope)
       set_input(
         fulfillment: fulfillment,
@@ -186,10 +185,10 @@ module Cosmos
       array = Store.zrevrangebyscore(@primary_key, @stop, max_score)
       array.each do |value|
         activity = JSON.parse(value)
-        if ignore_score == activity["start"]
+        if ignore_score == activity['start']
           next
-        elsif activity["stop"] > @start
-          return activity["start"]
+        elsif activity['stop'] > @start
+          return activity['start']
         else
           return nil
         end
@@ -206,9 +205,9 @@ module Cosmos
         raise ActivityOverlapError.new "no activities can overlap, collision: #{collision}"
       end
       @updated_at = Time.now.to_i
-      add_event(status: "created")
+      add_event(status: 'created')
       Store.zadd(@primary_key, @start, JSON.generate(self.as_json))
-      notify(kind: "create")
+      notify(kind: 'create')
     end
 
     # Update the Redis hash at primary_key and remove the current activity at the current score
@@ -228,12 +227,12 @@ module Cosmos
       unless collision.nil?
         raise ActivityOverlapError.new "failed to update #{tmp_start}, no activities can overlap, collision: #{collision}"
       end
-      add_event(status: "updated")
+      add_event(status: 'updated')
       Store.multi do |multi|
         multi.zremrangebyscore(@primary_key, tmp_start, tmp_start)
         multi.zadd(@primary_key, @start, JSON.generate(self.as_json))
       end
-      notify(kind: "update")
+      notify(kind: 'update')
       return @start
     end
 
@@ -242,11 +241,12 @@ module Cosmos
     # @param [String] message - an optional message to include in the event
     def commit(status:, message: nil, fulfillment: nil)
       event = {
-        "time"=>Time.now.to_i,
-        "event"=>status,
-        "commit"=>true}
+        'time' => Time.now.to_i,
+        'event' => status,
+        'commit' => true
+      }
       unless message.nil?
-        event["message"] = message
+        event['message'] = message
       end
       @fulfillment = fulfillment.nil? ? @fulfillment : fulfillment
       @events << event
@@ -254,31 +254,33 @@ module Cosmos
         multi.zremrangebyscore(@primary_key, @start, @start)
         multi.zadd(@primary_key, @start, JSON.generate(self.as_json))
       end
-      notify(kind: "event")
+      notify(kind: 'event')
     end
 
     # add_event will make an event. This will NOT save the object to the redis database
     # @param [String] status - the event status such as "queued" or "updated" or "created"
     def add_event(status:)
       event = {
-        "time"=>Time.now.to_i,
-        "event"=>status}
+        'time' => Time.now.to_i,
+        'event' => status
+      }
       @events << event
     end
 
     # destroy the activity from the redis database
     def destroy
       Store.zremrangebyscore(@primary_key, @start, @start)
-      notify(kind: "delete")
+      notify(kind: 'delete')
     end
 
     # @return [] update the redis stream / timeline topic that something has changed
     def notify(kind:)
       notification = {
-        "data" => JSON.generate(as_json()),
-        "kind" => kind,
-        "type" => "activity",
-        "timeline" => @name}
+        'data' => JSON.generate(as_json()),
+        'kind' => kind,
+        'type' => 'activity',
+        'timeline' => @name
+      }
       begin
         TimelineTopic.write_activity(notification, scope: @scope)
       rescue StandardError
@@ -287,15 +289,17 @@ module Cosmos
 
     # @return [Hash] generated from the ActivityModel
     def as_json
-      { "name" => @name,
-        "updated_at" => @updated_at,
-        "fulfillment" => @fulfillment,
-        "duration" => @duration,
-        "start" => @start,
-        "stop" => @stop,
-        "kind" => @kind,
-        "events" => @events,
-        "data" => @data}
+      {
+        'name' => @name,
+        'updated_at' => @updated_at,
+        'fulfillment' => @fulfillment,
+        'duration' => @duration,
+        'start' => @start,
+        'stop' => @stop,
+        'kind' => @kind,
+        'events' => @events,
+        'data' => @data
+      }
     end
 
     # @return [ActivityModel] Model generated from the passed JSON

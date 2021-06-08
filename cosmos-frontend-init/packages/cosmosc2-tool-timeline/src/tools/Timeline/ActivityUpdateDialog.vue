@@ -217,12 +217,10 @@ export default {
       let data = {}
       data[this.kind] = this.activityData
       Api.put(path, {
-        json: JSON.stringify({
-          start: sTime,
-          stop: eTime,
-          kind: this.kind,
-          data,
-        }),
+        start: sTime,
+        stop: eTime,
+        kind: this.kind,
+        data,
       })
         .then((response) => {
           const activityTime = this.generateDateTime(response.data)
