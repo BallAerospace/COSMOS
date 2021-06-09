@@ -1,5 +1,4 @@
-# encoding: ascii-8bit
-
+/*
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -16,37 +15,25 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
+*/
 
-require 'cosmos'
-require 'cosmos/models/auth_model'
+import axios from 'axios'
 
-# This controller only exists in base since Keycloak handles auth in EE
-begin
-  require 'enterprise-cosmos/controllers/auth_controller'
-rescue LoadError
-  class AuthController < ApplicationController
+const instance = axios.create({
+  baseURL: window.location.origin,
+  timeout: 10000,
+  params: {},
+})
 
-    def token_exists
-      result = Cosmos::AuthModel.is_set?
-      render :json => {
-        result: result
-      }
-    end
+instance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response.status === 401) {
+      delete localStorage.token
+      CosmosAuth.login(window.location.href)
+    }
+    return error
+  }
+)
 
-    def verify
-      result = Cosmos::AuthModel.verify(params[:token])
-      render :json => {
-        result: result
-      }
-    end
-
-    def set
-      result = Cosmos::AuthModel.set(params[:token], params[:old_token])
-      render :json => {
-        result: result
-      }
-    end
-
-  end
-
-end
+export default instance
