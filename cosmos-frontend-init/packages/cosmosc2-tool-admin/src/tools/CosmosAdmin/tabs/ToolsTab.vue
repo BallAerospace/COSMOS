@@ -41,8 +41,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <v-list data-test="toolList" id="toollist">
       <v-list-item v-for="tool in tools" :key="tool">
         <v-list-item-content>
@@ -75,8 +76,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <edit-dialog
       :content="json_content"
       title="Edit Tool"

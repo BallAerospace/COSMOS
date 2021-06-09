@@ -66,8 +66,9 @@
           color="primary"
           :disabled="buttonDisabled"
           @click="buttonPressed"
-          >{{ actualButtonText }}</v-btn
         >
+          {{ actualButtonText }}
+        </v-btn>
       </v-col>
     </v-row>
     <v-row no-gutters>

@@ -22,9 +22,9 @@
     <top-bar :menus="menus" :title="title" />
     <v-card>
       <v-tabs v-model="curTab" fixed-tabs>
-        <v-tab v-for="(tab, index) in tabs" :key="index" :to="tab.url">{{
-          tab.name
-        }}</v-tab>
+        <v-tab v-for="(tab, index) in tabs" :key="index" :to="tab.url">
+          {{ tab.name }}
+        </v-tab>
       </v-tabs>
       <router-view :refreshInterval="refreshInterval" />
       <v-dialog v-model="optionsDialog" max-width="300">
