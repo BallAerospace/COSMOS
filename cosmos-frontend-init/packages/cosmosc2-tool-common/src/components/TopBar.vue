@@ -70,8 +70,9 @@
                     'cursor: pointer;' + (option.disabled ? 'opacity: 0.2' : '')
                   "
                   :disabled="option.disabled"
-                  >{{ option.label }}</v-list-item-title
                 >
+                  {{ option.label }}
+                </v-list-item-title>
               </v-list-item>
             </template>
           </v-radio-group>

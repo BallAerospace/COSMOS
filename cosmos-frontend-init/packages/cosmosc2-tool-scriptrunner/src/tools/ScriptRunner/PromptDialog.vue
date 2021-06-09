@@ -63,8 +63,9 @@
               :key="index"
               color="secondary"
               @click="$emit('submit', button.value)"
-              >{{ button.text }}</v-btn
             >
+              {{ button.text }}
+            </v-btn>
             <v-btn
               class="ma-1"
               color="secondary"

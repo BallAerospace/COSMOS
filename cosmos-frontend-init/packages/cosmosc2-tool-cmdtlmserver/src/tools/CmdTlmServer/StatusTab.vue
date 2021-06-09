@@ -62,8 +62,9 @@
             block
             color="primary"
             @click="taskControl(item.name, item.control)"
-            >{{ item.control }}</v-btn
           >
+            {{ item.control }}
+          </v-btn>
         </template>
       </v-data-table>
     </v-card -->

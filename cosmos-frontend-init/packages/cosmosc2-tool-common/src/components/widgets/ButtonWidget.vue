@@ -19,13 +19,9 @@
 
 <template>
   <div>
-    <v-btn
-      class="ma-1"
-      color="primary"
-      :style="computedStyle"
-      @click="onClick"
-      >{{ buttonText }}</v-btn
-    >
+    <v-btn class="ma-1" color="primary" :style="computedStyle" @click="onClick">
+      {{ buttonText }}
+    </v-btn>
     <v-dialog v-model="displaySendHazardous" max-width="300">
       <v-card class="pa-3">
         <v-card-title class="headline">Hazardous</v-card-title>

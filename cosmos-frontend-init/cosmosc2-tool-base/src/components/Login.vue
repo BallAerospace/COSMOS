@@ -21,35 +21,37 @@
   <v-card>
     <v-card-title> Login </v-card-title>
     <v-card-subtitle>
-      Enter the password to begin using COSMOS
+      {{ isSet ? 'Enter the' : 'Create a' }}
+      password to begin using COSMOS
     </v-card-subtitle>
     <v-card-text>
+      <v-text-field
+        v-if="isSet && reset"
+        v-model="oldPassword"
+        type="password"
+        label="Old Password"
+      />
       <v-text-field
         v-model="password"
         type="password"
         :label="`${!isSet || reset ? 'New ' : ''}Password`"
+        data-test="new-password"
       />
       <v-text-field
         v-if="reset"
-        v-model="token"
+        v-model="confirmPassword"
+        :rules="[rules.matchPassword]"
         type="password"
-        label="Reset Token"
+        label="Confirm Password"
+        data-test="confirm-password"
       />
       <v-btn
         v-if="reset"
-        @click="resetPassword"
-        large
-        color="warn"
-        :disabled="!password || !token"
-      >
-        Reset
-      </v-btn>
-      <v-btn
-        v-else-if="!isSet"
         @click="setPassword"
         large
-        color="success"
-        :disabled="!password"
+        :color="isSet ? 'warn' : 'success'"
+        :disabled="!formValid"
+        data-test="set-password"
       >
         Set
       </v-btn>
@@ -58,11 +60,11 @@
           @click="verifyPassword"
           large
           color="success"
-          :disabled="!password"
+          :disabled="!formValid"
         >
           Login
         </v-btn>
-        <!-- <v-btn text small @click="showReset"> Reset Password </v-btn> -->
+        <v-btn text small @click="showReset"> Change Password </v-btn>
       </template>
     </v-card-text>
     <v-alert :type="alertType" v-model="showAlert" dismissible>
@@ -79,8 +81,9 @@ export default {
     return {
       isSet: true,
       password: '',
-      token: '',
-      reset: false,
+      confirmPassword: '',
+      oldPassword: '',
+      reset: false, // setting a password for the first time, or changing to a new password
       alert: '',
       alertType: 'success',
       showAlert: false,
@@ -93,11 +96,35 @@ export default {
         noScope: true, // lol
       }
     },
+    rules: function () {
+      return {
+        matchPassword: () =>
+          this.password === this.confirmPassword || 'Passwords must match',
+      }
+    },
+    formValid: function () {
+      if (this.reset) {
+        if (!this.isSet) {
+          return !!this.password && this.password === this.confirmPassword
+        } else {
+          return (
+            !!this.oldPassword &&
+            !!this.password &&
+            this.password === this.confirmPassword
+          )
+        }
+      } else {
+        return !!this.password
+      }
+    },
   },
   created: function () {
     Api.get('/cosmos-api/auth/token-exists', null, this.options).then(
       (response) => {
         this.isSet = !!response.data.result
+        if (!this.isSet) {
+          this.reset = true
+        }
       }
     )
   },
@@ -110,7 +137,7 @@ export default {
       const redirect = new URLSearchParams(window.location.search).get(
         'redirect'
       )
-      window.location = decodeURI(redirect)
+      if (redirect) window.location = decodeURI(redirect)
     },
     verifyPassword: function () {
       this.showAlert = false
@@ -142,30 +169,13 @@ export default {
       Api.post(
         '/cosmos-api/auth/set',
         {
+          old_token: this.oldPassword,
           token: this.password,
         },
         null,
         this.options
       )
-        .then(this.login())
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-        })
-    },
-    resetPassword: function () {
-      this.showAlert = false
-      Api.post(
-        '/cosmos-api/auth/reset',
-        {
-          token: this.password,
-          recovery_token: this.token,
-        },
-        null,
-        this.options
-      )
-        .then(this.login())
+        .then(this.login)
         .catch((error) => {
           this.alert = error
           this.alertType = 'error'

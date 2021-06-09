@@ -17,14 +17,8 @@
 # copyright holder
 */
 
-import Api from '../../../packages/cosmosc2-tool-common/src/services/api'
-
 export default {
   created: function () {
-    Api.get('/cosmos-api/auth/scopes', {}, { noScope: true }).then(
-      (response) => {
-        this.scopes = response.data.result
-      }
-    )
+    this.scopes = ['DEFAULT']
   },
 }

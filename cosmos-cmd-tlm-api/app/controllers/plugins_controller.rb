@@ -28,7 +28,13 @@ class PluginsController < ModelController
 
   # Add a new plugin
   def create
-    authorize(permission: 'admin', scope: params[:scope], token: params[:token])
+    begin
+      authorize(permission: 'admin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     file = params[:plugin]
     if file
       temp_dir = Dir.mktmpdir
@@ -55,7 +61,13 @@ class PluginsController < ModelController
   end
 
   def install
-    authorize(permission: 'admin', scope: params[:scope], token: params[:token])
+    begin
+      authorize(permission: 'admin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
     begin
       render :json => Cosmos::PluginModel.install_phase2(params[:id], JSON.parse(params[:variables]), scope: params[:scope])
     rescue
