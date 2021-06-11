@@ -3,13 +3,8 @@
 if ("%1"=="") (
   GOTO usage
 )
-<<<<<<< HEAD
-if "%1" == "config" (
-  GOTO config
-=======
 if "%1" == "restart" (
   GOTO restart
->>>>>>> e1b2834dd9dba899266fedffecf67bd6894fa83f
 )
 if "%1" == "start" (
   GOTO startup
