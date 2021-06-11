@@ -10,7 +10,7 @@ docker network inspect cosmos || docker network create cosmos || exit /b
 
 docker container rm cosmos-redis
 docker volume create cosmos-redis-v || exit /b
-docker run --network cosmos -p 127.0.0.1:6379:6379 -d --name cosmos-redis -v cosmos-redis-v:/data redis:6.2 redis-server --appendonly yes || exit /b
+docker run --network cosmos -p 127.0.0.1:6379:6379 -d --name cosmos-redis -v cosmos-redis-v:/data cosmos-redis || exit /b
 
 docker container rm cosmos-minio
 docker volume create cosmos-minio-v || exit /b

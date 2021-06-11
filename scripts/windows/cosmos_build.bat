@@ -1,5 +1,6 @@
 @echo off
 
+docker build -f cosmos-redis\Dockerfile -t cosmos-redis cosmos-redis || exit /b
 docker build -f cosmos-ruby\Dockerfile -t cosmos-ruby cosmos-ruby || exit /b
 docker build -f cosmos-node\Dockerfile -t cosmos-node cosmos-node || exit /b
 docker build -f cosmos\Dockerfile -t cosmos-base cosmos || exit /b
