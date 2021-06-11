@@ -17,24 +17,27 @@
 # copyright holder
 */
 
-const emptyPromise = function (resolution = true) {
+const emptyPromise = function (resolution = null) {
   return new Promise((resolve) => {
     resolve(resolution)
   })
 }
 class Auth {
-  constructor() {
-    localStorage.token = 'invalid'
-    localStorage.refreshToken = 'invalid'
-  }
   updateToken(value) {
+    if (!localStorage.token) this.login(window.location.href)
     return emptyPromise()
   }
-  login() {}
-  logout() {}
+  login(redirect) {
+    // redirect to login if we're not already there
+    if (!/^\/login/.test(window.location.pathname))
+      window.location = `/login?redirect=${encodeURI(redirect)}`
+  }
+  logout() {
+    delete localStorage.token
+  }
   getInitOptions() {}
   init() {
-    return emptyPromise()
+    return emptyPromise(true)
   }
 }
 var CosmosAuth = new Auth()

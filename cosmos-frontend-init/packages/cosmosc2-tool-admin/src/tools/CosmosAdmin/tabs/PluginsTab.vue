@@ -26,7 +26,7 @@
           v-model="file"
           show-size
           label="Click to Select Plugin .gem File"
-        ></v-file-input>
+        />
       </v-col>
       <v-col cols="1" class="pl-2">
         <v-btn color="primary" class="mr-4" @click="upload()">
@@ -41,19 +41,20 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <v-list data-test="pluginList">
       <v-list-item v-for="(plugin, i) in plugins" :key="i">
         <v-list-item-content>
-          <v-list-item-title v-text="plugin"></v-list-item-title>
+          <v-list-item-title v-text="plugin" />
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="showPlugin(plugin)" v-bind="attrs" v-on="on"
-                >mdi-eye</v-icon
-              >
+              <v-icon @click="showPlugin(plugin)" v-bind="attrs" v-on="on">
+                mdi-eye
+              </v-icon>
             </template>
             <span>Show Plugin Details</span>
           </v-tooltip>
@@ -61,9 +62,9 @@
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="upgradePlugin(plugin)" v-bind="attrs" v-on="on"
-                >mdi-update</v-icon
-              >
+              <v-icon @click="upgradePlugin(plugin)" v-bind="attrs" v-on="on">
+                mdi-update
+              </v-icon>
             </template>
             <span>Upgrade Plugin</span>
           </v-tooltip>
@@ -71,9 +72,9 @@
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deletePlugin(plugin)" v-bind="attrs" v-on="on"
-                >mdi-delete</v-icon
-              >
+              <v-icon @click="deletePlugin(plugin)" v-bind="attrs" v-on="on">
+                mdi-delete
+              </v-icon>
             </template>
             <span>Delete Plugin</span>
           </v-tooltip>
@@ -85,8 +86,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <variables-dialog
       :variables="variables"
       v-model="showVariables"

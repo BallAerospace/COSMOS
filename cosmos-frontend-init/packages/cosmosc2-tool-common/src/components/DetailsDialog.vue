@@ -21,9 +21,9 @@
   <v-row justify="center">
     <v-dialog v-model="show" width="550">
       <v-card>
-        <v-card-title
-          >{{ targetName }} {{ packetName }} {{ itemName }}</v-card-title
-        >
+        <v-card-title>
+          {{ targetName }} {{ packetName }} {{ itemName }}
+        </v-card-title>
         <v-card-subtitle>{{ details.description }}</v-card-subtitle>
         <v-card-text>
           <v-container fluid>

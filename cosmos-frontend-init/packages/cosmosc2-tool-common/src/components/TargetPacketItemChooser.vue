@@ -31,7 +31,7 @@
           item-value="value"
           v-model="selectedTargetName"
           data-test="select-target"
-        ></v-select>
+        />
       </v-col>
       <v-col>
         <v-select
@@ -45,7 +45,7 @@
           item-value="value"
           v-model="selectedPacketName"
           data-test="select-packet"
-        ></v-select>
+        />
       </v-col>
       <v-col v-if="chooseItem && !buttonDisabled">
         <v-select
@@ -59,15 +59,16 @@
           item-value="value"
           v-model="selectedItemName"
           data-test="select-item"
-        ></v-select>
+        />
       </v-col>
       <v-col v-if="buttonText">
         <v-btn
           color="primary"
           :disabled="buttonDisabled"
           @click="buttonPressed"
-          >{{ actualButtonText }}</v-btn
         >
+          {{ actualButtonText }}
+        </v-btn>
       </v-col>
     </v-row>
     <v-row no-gutters>

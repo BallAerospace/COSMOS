@@ -33,14 +33,15 @@
             :type="password ? 'password' : 'text'"
             v-model="value"
             :rules="rules"
-          ></v-text-field>
+          />
           <v-btn color="primary" :disabled="!valid" type="submit">Ok</v-btn>
           <v-btn
             class="ma-1"
             color="secondary"
             @click="$emit('submit', 'Cancel')"
-            >Cancel</v-btn
           >
+            Cancel
+          </v-btn>
         </v-form>
       </v-card-text>
     </v-card>

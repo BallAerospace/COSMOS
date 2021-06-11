@@ -19,12 +19,12 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
     <v-card>
       <v-tabs v-model="curTab" fixed-tabs>
-        <v-tab v-for="(tab, index) in tabs" :key="index" :to="tab.url">{{
-          tab.name
-        }}</v-tab>
+        <v-tab v-for="(tab, index) in tabs" :key="index" :to="tab.url">
+          {{ tab.name }}
+        </v-tab>
       </v-tabs>
       <router-view :refreshInterval="refreshInterval" />
       <v-dialog v-model="optionsDialog" max-width="300">
@@ -38,12 +38,12 @@
             label="Refresh Interval (ms)"
             :value="refreshInterval"
             @change="refreshInterval = $event"
-          ></v-text-field>
+          />
         </v-card>
       </v-dialog>
     </v-card>
     <div style="height: 20px" />
-    <LogMessages />
+    <log-messages />
   </div>
 </template>
 

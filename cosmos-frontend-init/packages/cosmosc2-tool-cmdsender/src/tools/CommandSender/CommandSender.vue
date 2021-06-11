@@ -19,9 +19,9 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
 
-    <TargetPacketItemChooser
+    <target-packet-item-chooser
       :initialTargetName="this.$route.params.target"
       :initialPacketName="this.$route.params.packet"
       @on-set="commandChanged($event)"
@@ -29,19 +29,19 @@
       :disabled="sendDisabled"
       buttonText="Send"
       mode="cmd"
-    ></TargetPacketItemChooser>
+    />
 
     <v-card v-if="rows.length != 0">
       <v-card-title>
         Parameters
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-text-field
           v-model="search"
           append-icon="$astro-search"
           label="Search"
           single-line
           hide-details
-        ></v-text-field>
+        />
       </v-card-title>
       <v-data-table
         :headers="headers"
@@ -55,10 +55,10 @@
         @contextmenu:row="showContextMenu"
       >
         <template v-slot:item.val_and_states="{ item }">
-          <CommandParameterEditor
+          <command-parameter-editor
             v-model="item.val_and_states"
             :statesInHex="statesInHex"
-          ></CommandParameterEditor>
+          />
         </template>
       </v-data-table>
     </v-card>
@@ -94,7 +94,7 @@
         </v-list-item>
       </v-list>
     </v-menu>
-    <DetailsDialog
+    <details-dialog
       :targetName="targetName"
       :packetName="commandName"
       :itemName="parameterName"
@@ -137,7 +137,7 @@
                 item-text="label"
                 item-value="value"
                 v-model="selectedInterface"
-              ></v-select>
+              />
             </v-col>
           </v-row>
           <v-row no-gutters>
@@ -790,5 +790,3 @@ export default {
   },
 }
 </script>
-
-<style scoped></style>

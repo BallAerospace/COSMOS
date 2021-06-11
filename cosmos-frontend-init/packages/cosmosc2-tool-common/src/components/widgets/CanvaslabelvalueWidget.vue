@@ -24,8 +24,9 @@
     :y="parameters[4]"
     :font-size="fontSize"
     :fill="fillColor"
-    >{{ _value }}</text
   >
+    {{ _value }}
+  </text>
 </template>
 
 <script>

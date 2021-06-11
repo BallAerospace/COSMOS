@@ -19,85 +19,52 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
     <v-row dense>
       <v-col>
-        <v-menu
-          :close-on-content-click="true"
-          :nudge-right="40"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-          min-width="290px"
-        >
-          <template v-slot:activator="{ on }">
-            <v-text-field
-              v-model="startDate"
-              label="Start Date"
-              v-on="on"
-              prepend-icon="mdi-calendar"
-              :rules="[rules.required, rules.calendar]"
-              data-test="startDate"
-            ></v-text-field>
-          </template>
-          <v-date-picker
-            v-model="startDate"
-            :max="endDate"
-            :show-current="false"
-            no-title
-          ></v-date-picker>
-        </v-menu>
+        <v-text-field
+          v-model="startDate"
+          label="Start Date"
+          type="date"
+          :rules="[rules.required]"
+          data-test="startDate"
+        />
       </v-col>
       <v-col>
         <v-text-field
           v-model="startTime"
           label="Start Time"
-          prepend-icon="mdi-clock"
-          :rules="[rules.required, rules.time]"
+          type="time"
+          :rules="[rules.required]"
           data-test="startTime"
-        ></v-text-field>
+        />
       </v-col>
       <v-col>
-        <v-menu
-          ref="endDatemenu"
-          :close-on-content-click="true"
-          :nudge-right="40"
-          transition="scale-transition"
-          offset-y
-          max-width="290px"
-          min-width="290px"
-        >
-          <template v-slot:activator="{ on }">
-            <v-text-field
-              v-model="endDate"
-              label="End Date"
-              v-on="on"
-              prepend-icon="mdi-calendar"
-              :rules="
-                endTime ? [rules.required, rules.calendar] : [rules.calendar]
-              "
-              data-test="endDate"
-            ></v-text-field>
-          </template>
-          <v-date-picker
-            v-model="endDate"
-            :min="startDate"
-            :show-current="false"
-            no-title
-          ></v-date-picker>
-        </v-menu>
+        <v-text-field
+          v-model="endDate"
+          label="End Date"
+          type="date"
+          :rules="endTime ? [rules.required] : []"
+          data-test="endDate"
+        />
       </v-col>
       <v-col>
         <v-text-field
           v-model="endTime"
           label="End Time"
-          prepend-icon="mdi-clock"
-          :rules="endDate ? [rules.required, rules.time] : [rules.time]"
+          type="time"
+          :rules="endDate ? [rules.required] : []"
           data-test="endTime"
-        ></v-text-field>
+        />
       </v-col>
       <v-col cols="auto" class="pt-4">
-        <v-btn v-if="running" color="red" width="86" @click="stop">
+        <v-btn
+          v-if="running"
+          color="red"
+          width="86"
+          @click="stop"
+          data-test="stop-button"
+        >
           Stop
         </v-btn>
         <v-btn
@@ -106,6 +73,7 @@
           width="86"
           :disabled="!canStart"
           @click="start"
+          data-test="start-button"
         >
           Start
         </v-btn>
@@ -128,10 +96,11 @@
           v-for="(tab, index) in config.tabs"
           :key="index"
           @contextmenu="(event) => tabMenu(event, index)"
+          data-test="tab"
         >
           {{ tab.name }}
         </v-tab>
-        <v-btn class="mt-2 ml-2" @click="addTab" icon>
+        <v-btn class="mt-2 ml-2" @click="addTab" icon data-test="new-tab">
           <v-icon>mdi-tab-plus</v-icon>
         </v-btn>
       </v-tabs>
@@ -146,7 +115,11 @@
             <v-card-title class="pa-3">
               {{ packet.target }} {{ packet.packet }}
               <v-spacer />
-              <v-btn @click="() => deleteComponent(index, packetIndex)" icon>
+              <v-btn
+                @click="() => deleteComponent(index, packetIndex)"
+                icon
+                data-test="delete-packet"
+              >
                 <v-icon color="red">mdi-delete</v-icon>
               </v-btn>
             </v-card-title>
@@ -176,7 +149,11 @@
               above to rename or delete this tab.
             </v-card-text>
           </v-card>
-          <v-btn block @click="() => openComponentDialog(index)">
+          <v-btn
+            block
+            @click="() => openComponentDialog(index)"
+            data-test="new-packet"
+          >
             <v-icon class="mr-2">$astro-add-large</v-icon>
             Click here to add a packet
           </v-btn>
@@ -188,13 +165,13 @@
       </v-card>
     </v-card>
     <!-- Dialogs for opening and saving configs -->
-    <OpenConfigDialog
+    <open-config-dialog
       v-if="openConfig"
       v-model="openConfig"
       :tool="toolName"
       @success="openConfiguration($event)"
     />
-    <SaveConfigDialog
+    <save-config-dialog
       v-if="saveConfig"
       v-model="saveConfig"
       :tool="toolName"
@@ -205,12 +182,25 @@
       <v-card>
         <v-card-title> Rename tab </v-card-title>
         <v-card-text>
-          <v-text-field v-model="newTabName" label="Tab name" />
+          <v-text-field
+            v-model="newTabName"
+            label="Tab name"
+            data-test="rename-tab-input"
+          />
         </v-card-text>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-actions>
-          <v-btn color="primary" text @click="renameTab"> Rename </v-btn>
-          <v-btn color="primary" text @click="cancelTabRename"> Cancel </v-btn>
+          <v-btn color="primary" text @click="renameTab" data-test="rename">
+            Rename
+          </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="cancelTabRename"
+            data-test="cancel-rename"
+          >
+            Cancel
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -223,12 +213,12 @@
       offset-y
     >
       <v-list>
-        <v-list-item>
+        <v-list-item data-test="context-menu-rename">
           <v-list-item-title style="cursor: pointer" @click="openTabNameDialog">
             Rename
           </v-list-item-title>
         </v-list-item>
-        <v-list-item>
+        <v-list-item data-test="context-menu-delete">
           <v-list-item-title style="cursor: pointer" @click="deleteTab">
             Delete
           </v-list-item-title>
@@ -255,7 +245,7 @@
           </v-row>
           <v-row>
             <v-col>
-              <TargetPacketItemChooser
+              <target-packet-item-chooser
                 @on-set="packetSelected($event)"
                 :mode="newPacketCmdOrTlm"
               />
@@ -264,8 +254,16 @@
               <v-row>
                 <v-col>
                   <v-radio-group v-model="newPacketMode" row>
-                    <v-radio label="Raw" value="RAW" />
-                    <v-radio label="Decom" value="DECOM" />
+                    <v-radio
+                      label="Raw"
+                      value="RAW"
+                      data-test="new-packet-raw-radio"
+                    />
+                    <v-radio
+                      label="Decom"
+                      value="DECOM"
+                      data-test="new-packet-decom-radio"
+                    />
                   </v-radio-group>
                 </v-col>
                 <v-col>
@@ -275,15 +273,23 @@
                     :items="valueTypes"
                     label="Value Type"
                     v-model="newPacketValueType"
-                  ></v-select>
+                    data-test="add-packet-value-type"
+                  />
                 </v-col>
               </v-row>
             </v-col>
           </v-row>
         </v-card-text>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-actions>
-          <v-btn color="primary" text @click="addComponent"> Add </v-btn>
+          <v-btn
+            color="primary"
+            text
+            @click="addComponent"
+            data-test="add-packet-button"
+          >
+            Add
+          </v-btn>
           <v-btn color="primary" text @click="cancelAddComponent">
             Cancel
           </v-btn>
@@ -326,28 +332,6 @@ export default {
       endTime: '',
       rules: {
         required: (value) => !!value || 'Required',
-        calendar: (value) => {
-          try {
-            return (
-              value === '' ||
-              isValid(parse(value, 'yyyy-MM-dd', new Date())) ||
-              'Invalid date (YYYY-MM-DD)'
-            )
-          } catch (e) {
-            return 'Invalid date (YYYY-MM-DD)'
-          }
-        },
-        time: (value) => {
-          try {
-            return (
-              value === '' ||
-              isValid(parse(value, 'HH:mm:ss', new Date())) ||
-              'Invalid time (HH:MM:SS)'
-            )
-          } catch (e) {
-            return 'Invalid time (HH:MM:SS)'
-          }
-        },
       },
       canStart: false,
       running: false,
@@ -467,7 +451,7 @@ export default {
     },
     subscribe: function () {
       this.cable
-        .createSubscription('StreamingChannel', 'DEFAULT', {
+        .createSubscription('StreamingChannel', localStorage.scope, {
           received: (data) => this.received(data),
           connected: () => {
             this.canStart = true
@@ -504,7 +488,7 @@ export default {
       CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
         Object.keys(modeGroups).forEach((mode) => {
           this.subscription.perform('add', {
-            scope: 'DEFAULT',
+            scope: localStorage.scope,
             token: localStorage.token,
             packets: modeGroups[mode].map(this.subscriptionKey),
             mode: mode,
@@ -516,7 +500,7 @@ export default {
     removePacketsFromSubscription: function (packets) {
       packets = packets || this.allPackets
       this.subscription.perform('remove', {
-        scope: 'DEFAULT',
+        scope: localStorage.scope,
         packets: packets.map(this.subscriptionKey),
       })
     },

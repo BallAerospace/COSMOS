@@ -28,7 +28,7 @@
             <v-list-item-group v-model="configIndex" color="primary">
               <v-list-item v-for="(config, i) in configs" :key="i">
                 <v-list-item-content>
-                  <v-list-item-title v-text="config"></v-list-item-title>
+                  <v-list-item-title v-text="config" />
                 </v-list-item-content>
                 <v-list-item-icon>
                   <v-icon @click="deleteConfig(config)">mdi-delete</v-icon>
@@ -36,13 +36,13 @@
               </v-list-item>
             </v-list-item-group>
           </v-list>
-          <v-alert dense type="warning" v-if="warning"
-            >Select a configuration</v-alert
-          >
+          <v-alert dense type="warning" v-if="warning">
+            Select a configuration
+          </v-alert>
         </v-card-text>
         <v-card-actions>
           <v-btn color="primary" text @click="success()">Ok</v-btn>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="primary" text @click="show = false">Cancel</v-btn>
         </v-card-actions>
       </v-card>

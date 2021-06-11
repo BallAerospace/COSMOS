@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <TopBar :menus="menus" :title="title" />
+    <top-bar :menus="menus" :title="title" />
     <v-container>
       <v-row>
         <v-col>
@@ -27,23 +27,23 @@
             v-model="startDate"
             label="Start Date"
             type="date"
-            :rules="[rules.required, rules.calendar]"
+            :rules="[rules.required]"
             data-test="startDate"
-          ></v-text-field>
+          />
           <v-text-field
             v-model="endDate"
             label="End Date"
             type="date"
-            :rules="[rules.required, rules.calendar]"
+            :rules="[rules.required]"
             data-test="endDate"
-          ></v-text-field>
+          />
         </v-col>
         <v-col>
           <v-text-field
             v-model="startTime"
             label="Start Time"
             type="time"
-            :rules="[rules.required, rules.time]"
+            :rules="[rules.required]"
             data-test="startTime"
           >
           </v-text-field>
@@ -51,7 +51,7 @@
             v-model="endTime"
             label="End Time"
             type="time"
-            :rules="[rules.required, rules.time]"
+            :rules="[rules.required]"
             data-test="endTime"
           >
           </v-text-field>
@@ -60,43 +60,31 @@
       <v-row no-gutters>
         <v-col>
           <v-radio-group v-model="cmdOrTlm" row hide-details class="mt-0">
-            <v-radio
-              label="Command"
-              value="cmd"
-              data-test="cmd-radio"
-            ></v-radio>
-            <v-radio
-              label="Telemetry"
-              value="tlm"
-              data-test="tlm-radio"
-            ></v-radio>
+            <v-radio label="Command" value="cmd" data-test="cmd-radio" />
+            <v-radio label="Telemetry" value="tlm" data-test="tlm-radio" />
           </v-radio-group>
         </v-col>
         <v-col>
           <v-radio-group v-model="utcOrLocal" row hide-details class="mt-0">
-            <v-radio
-              label="Local"
-              value="loc"
-              data-test="local-radio"
-            ></v-radio>
-            <v-radio label="UTC" value="utc" data-test="utc-radio"></v-radio>
+            <v-radio label="Local" value="loc" data-test="local-radio" />
+            <v-radio label="UTC" value="utc" data-test="utc-radio" />
           </v-radio-group>
         </v-col>
       </v-row>
       <v-row>
         <div class="c-tlmgrapher__contents">
-          <TargetPacketItemChooser
+          <target-packet-item-chooser
             @click="addItem($event)"
             buttonText="Add Item"
             :mode="cmdOrTlm"
             :chooseItem="true"
             :allowAll="true"
-          ></TargetPacketItemChooser>
-          <v-alert type="warning" v-model="warning" dismissible
-            >{{ warningText }}
+          />
+          <v-alert type="warning" v-model="warning" dismissible>
+            {{ warningText }}
           </v-alert>
-          <v-alert type="error" v-model="error" dismissible
-            >{{ errorText }}
+          <v-alert type="error" v-model="error" dismissible>
+            {{ errorText }}
           </v-alert>
         </div>
       </v-row>
@@ -109,11 +97,11 @@
               height="10"
               :value="progress"
               color="secondary"
-            ></v-progress-linear>
+            />
             <v-list data-test="itemList">
               <v-subheader class="mt-3">
                 Items
-                <v-spacer></v-spacer>
+                <v-spacer />
                 <v-btn class="primary mr-4" @click="processItems">
                   {{ processButtonText }}
                 </v-btn>
@@ -125,8 +113,9 @@
                       v-bind="attrs"
                       v-on="on"
                       data-test="editAll"
-                      ><v-icon>mdi-pencil</v-icon></v-btn
                     >
+                      <v-icon> mdi-pencil </v-icon>
+                    </v-btn>
                   </template>
                   <span>Edit All Items</span>
                 </v-tooltip>
@@ -138,8 +127,9 @@
                       v-bind="attrs"
                       v-on="on"
                       data-test="deleteAll"
-                      ><v-icon>mdi-delete</v-icon></v-btn
                     >
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
                   </template>
                   <span>Delete All Items</span>
                 </v-tooltip>
@@ -152,8 +142,9 @@
                         @click.stop="item.edit = true"
                         v-bind="attrs"
                         v-on="on"
-                        >mdi-pencil</v-icon
                       >
+                        mdi-pencil
+                      </v-icon>
                     </template>
                     <span>Edit Item</span>
                   </v-tooltip>
@@ -172,7 +163,7 @@
                             label="Value Type"
                             outlined
                             v-model="item.valueType"
-                          ></v-select>
+                          />
                         </v-col>
                         <!-- v-col v-if="uniqueOnly">
                           <v-select
@@ -180,11 +171,11 @@
                             label="Add to Unique Ignore List?:"
                             outlined
                             v-model="item.uniqueIgnoreAdd"
-                          ></v-select>
+                          />
                         </v-col -->
                       </v-card-text>
                       <v-card-actions>
-                        <v-spacer></v-spacer>
+                        <v-spacer />
                         <v-btn color="primary" text @click="item.edit = false">
                           Ok
                         </v-btn>
@@ -193,16 +184,18 @@
                   </v-dialog>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title
-                    v-text="getItemLabel(item)"
-                  ></v-list-item-title>
+                  <v-list-item-title v-text="getItemLabel(item)" />
                 </v-list-item-content>
                 <v-list-item-icon>
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on, attrs }">
-                      <v-icon @click="deleteItem(item)" v-bind="attrs" v-on="on"
-                        >mdi-delete</v-icon
+                      <v-icon
+                        @click="deleteItem(item)"
+                        v-bind="attrs"
+                        v-on="on"
                       >
+                        mdi-delete
+                      </v-icon>
                     </template>
                     <span>Delete Item</span>
                   </v-tooltip>
@@ -216,8 +209,8 @@
     <v-dialog v-model="editAll" @keydown.esc="editAll = false" max-width="700">
       <v-card>
         <v-card-title>Edit All Items</v-card-title>
-        <v-card-text
-          >This will change all items to the following data type!
+        <v-card-text>
+          This will change all items to the following data type!
           <v-col>
             <v-select
               hide-details
@@ -225,25 +218,25 @@
               label="Value Type"
               outlined
               v-model="allItemValueType"
-            ></v-select>
+            />
           </v-col>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="primary" text @click="editAllValueTypes()"> Ok </v-btn>
           <v-btn color="primary" text @click="editAll = false"> Cancel </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <OpenConfigDialog
+    <open-config-dialog
       v-if="openConfig"
       v-model="openConfig"
       :tool="toolName"
       @success="openConfiguration($event)"
     />
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
-    <SaveConfigDialog
+    <save-config-dialog
       v-if="saveConfig"
       v-model="saveConfig"
       :tool="toolName"
@@ -286,27 +279,6 @@ export default {
       startDateTimeFilename: '',
       rules: {
         required: (value) => !!value || 'Required',
-        calendar: (value) => {
-          try {
-            return (
-              isValid(parse(value, 'yyyy-MM-dd', new Date())) ||
-              'Invalid date (YYYY-MM-DD)'
-            )
-          } catch (e) {
-            return 'Invalid date (YYYY-MM-DD)'
-          }
-        },
-        time: (value) => {
-          try {
-            let time_s = parse(value, 'HH:mm:ss', new Date())
-            let time_m = parse(value, 'HH:mm', new Date())
-            return (
-              isValid(time_s) || isValid(time_m) || 'Invalid time (HH:MM:SS)'
-            )
-          } catch (e) {
-            return 'Invalid time (HH:MM:SS)'
-          }
-        },
       },
       cmdOrTlm: 'tlm',
       utcOrLocal: 'loc',
@@ -535,10 +507,10 @@ export default {
         return
       }
       // Check for a future End Time
-      if (new Date(this.endDateTime) > Date.now()) {
+      if (new Date(this.endDateTime / 1_000_000) > Date.now()) {
         this.warningText =
           'Note: End date/time is greater than current date/time. Data will continue to stream in real-time until ' +
-          this.endDateTime.toISOString() +
+          new Date(this.endDateTime / 1_000_000).toISOString() +
           ' is reached.'
         this.warning = true
       }
@@ -546,7 +518,7 @@ export default {
       this.progress = 0
       this.processButtonText = 'Cancel'
       this.cable
-        .createSubscription('StreamingChannel', 'DEFAULT', {
+        .createSubscription('StreamingChannel', localStorage.scope, {
           received: (data) => this.received(data),
           connected: () => this.onConnected(),
           disconnected: () => {
@@ -584,7 +556,7 @@ export default {
       })
       CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
         this.subscription.perform('add', {
-          scope: 'DEFAULT',
+          scope: localStorage.scope,
           mode: 'DECOM',
           token: localStorage.token,
           items: items,

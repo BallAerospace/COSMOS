@@ -51,3 +51,4 @@ packageBuild cosmosc2-tool-packetviewer
 packageBuild cosmosc2-tool-scriptrunner
 packageBuild cosmosc2-tool-tlmgrapher
 packageBuild cosmosc2-tool-tlmviewer
+packageBuild cosmosc2-tool-timeline

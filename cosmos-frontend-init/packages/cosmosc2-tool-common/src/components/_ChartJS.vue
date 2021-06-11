@@ -20,7 +20,7 @@
 <!-- OBE by Graph.vue which uses uPlot -->
 <template>
   <div>
-    <canvas id="chart"></canvas>
+    <canvas id="chart" />
   </div>
 </template>
 
@@ -210,5 +210,3 @@ export default {
   },
 }
 </script>
-
-<style scoped></style>

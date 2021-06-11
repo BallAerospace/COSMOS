@@ -24,13 +24,14 @@
       <v-container class="ma-0 pa-4">
         <v-row no-gutters>
           <v-col cols="auto">
+            <!-- TODO: move to admin settings and delete this tab -->
             <v-select
               label="Limits Set"
               :items="limitsSets"
               @change="limitsChange"
               v-model="currentLimitsSet"
               data-test="limits-set"
-            ></v-select>
+            />
           </v-col>
         </v-row>
       </v-container>
@@ -44,7 +45,7 @@
         calculate-widths
         disable-pagination
         hide-default-footer
-      ></v-data-table>
+      />
     </v-card>
 
     <v-card flat>
@@ -61,8 +62,9 @@
             block
             color="primary"
             @click="taskControl(item.name, item.control)"
-            >{{ item.control }}</v-btn
           >
+            {{ item.control }}
+          </v-btn>
         </template>
       </v-data-table>
     </v-card -->
@@ -70,16 +72,18 @@
 </template>
 
 <script>
-import Updater from './Updater'
+// import Updater from './Updater'
+import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 
 export default {
-  mixins: [Updater],
+  // mixins: [Updater],
   props: {
     tabId: Number,
     curTab: Number,
   },
   data() {
     return {
+      api: new CosmosApi(),
       apiStatus: [],
       apiHeaders: [
         { text: 'Port', value: 'port' },

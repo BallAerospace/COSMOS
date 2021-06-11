@@ -24,19 +24,20 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <v-list data-test="targetList">
       <v-list-item v-for="target in targets" :key="target">
         <v-list-item-content>
-          <v-list-item-title v-text="target"></v-list-item-title>
+          <v-list-item-title v-text="target" />
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="showTarget(target)" v-bind="attrs" v-on="on"
-                >mdi-eye</v-icon
-              >
+              <v-icon @click="showTarget(target)" v-bind="attrs" v-on="on">
+                mdi-eye
+              </v-icon>
             </template>
             <span>Show Target Details</span>
           </v-tooltip>
@@ -44,9 +45,9 @@
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deleteTarget(target)" v-bind="attrs" v-on="on"
-                >mdi-delete</v-icon
-              >
+              <v-icon @click="deleteTarget(target)" v-bind="attrs" v-on="on">
+                mdi-delete
+              </v-icon>
             </template>
             <span>Delete Target</span>
           </v-tooltip>
@@ -58,8 +59,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <edit-dialog
       :content="json_content"
       title="Target Details"

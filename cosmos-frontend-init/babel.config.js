@@ -1,10 +1,11 @@
 module.exports = {
-  presets: [
-    '@vue/app'
-  ],
+  presets: ['@vue/app'],
   plugins: [
-    ['babel-plugin-istanbul', {
-      extension: ['.js', '.vue']
-    }]
-  ]
+    [
+      'babel-plugin-istanbul',
+      {
+        extension: ['.js', '.vue'],
+      },
+    ],
+  ],
 }

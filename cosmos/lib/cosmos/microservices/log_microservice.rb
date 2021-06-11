@@ -42,7 +42,7 @@ module Cosmos
       end
 
       raise "Microservice #{@name} not fully configured" unless @raw_or_decom and @cmd_or_tlm
-      
+
       # These settings limit the log file to 10 minutes or 50MB of data, whichever comes first
       @cycle_time = 600 unless @cycle_time # 10 minutes
       @cycle_size = 50_000_000 unless @cycle_size # ~50 MB
@@ -96,8 +96,8 @@ module Cosmos
       plws[topic][rt_or_stored].write(packet_type, @cmd_or_tlm, target_name, packet_name, msg_hash["time"].to_i, rt_or_stored == :STORED, msg_hash[data_key], nil, msg_id)
       @count += 1
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
-      metric_labels = { "packet" => packet_name, "target" => target_name }
-      @metric.add_sample(name: "#{@raw_or_decom.to_s.downcase}_#{@cmd_or_tlm.to_s.downcase}_log_duration_seconds", value: diff, labels: metric_labels)
+      metric_labels = { "packet" => packet_name, "target" => target_name, "raw_or_decom" => @raw_or_decom.to_s, "cmd_or_tlm" => @cmd_or_tlm.to_s }
+      @metric.add_sample(name: "log_duration_seconds", value: diff, labels: metric_labels)
     rescue => err
       @error = err
       Logger.error("#{@name} error: #{err.formatted}")

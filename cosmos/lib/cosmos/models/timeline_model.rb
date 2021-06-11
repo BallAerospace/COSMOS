@@ -30,8 +30,8 @@ module Cosmos
   class TimelineInputError < TimelineError; end
 
   class TimelineModel < Model
-    PRIMARY_KEY = "cosmos_timelines"
-    KEY = "__TIMELINE__"
+    PRIMARY_KEY = 'cosmos_timelines'.freeze # MUST be equal to ActivityModel::PRIMARY_KEY without leading __
+    KEY = '__TIMELINE__'.freeze
 
     # @return [TimelineModel] Return the object with the name at
     def self.get(name:, scope:)
@@ -65,20 +65,38 @@ module Cosmos
       return name
     end
 
-    def initialize(name:, scope:, updated_at: nil)
+    def initialize(name:, scope:, updated_at: nil, color: nil)
       if name.nil? || scope.nil?
         raise TimelineInputError.new "name or scope must not be nil"
       end
       super(PRIMARY_KEY, name: "#{scope}#{KEY}#{name}", scope: scope)
       @updated_at = updated_at
+      @timeline_name = name
+      update_color(color: color)
+    end
+
+    def update_color(color: nil)
+      if color.nil?
+        color = '#%06x' % (rand * 0xffffff)
+      end
+      valid_color = color =~ /(#*)([0-9,a-f,A-f]{6})/
+      if valid_color.nil?
+        raise RuntimeError.new "invalid color but in hex format. #FF0000"
+      end
+      unless color.start_with?('#')
+        color = "##{color}"
+      end
+      @color = color
     end
 
     # @return [Hash] generated from the TimelineModel
     def as_json
       {
-        'name' => @name,
+        'name' => @timeline_name,
+        'color' => @color,
         'scope' => @scope,
-        'updated_at' => @updated_at}
+        'updated_at' => @updated_at
+      }
     end
 
     # @return [TimelineModel] Model generated from the passed JSON
@@ -91,31 +109,23 @@ module Cosmos
 
     # @return [] update the redis stream / timeline topic that something has changed
     def notify(kind:)
-      notification = Hash.new()
-      notification["data"] = as_json()
-      notification["kind"] = kind
-      notification["type"] = "timeline"
+      notification = {
+        'data' => JSON.generate(as_json()),
+        'kind' => kind,
+        'type' => 'timeline',
+        'timeline' => @timeline_name
+      }
       TimelineTopic.write_activity(notification, scope: @scope)
     end
 
     def deploy
-      topics = generate_topic()
-      notify(kind: "create")
-      generate_microservice(topics)
-    end
-
-    def generate_topic
       topics = ["#{@scope}__#{PRIMARY_KEY}"]
       TimelineTopic.initialize_streams(topics)
-      return topics
-    end
-
-    def generate_microservice(topics)
-      # DecomLog Microservice
+      # Timeline Microservice
       microservice = MicroserviceModel.new(
         name: @name,
         folder_name: nil,
-        cmd: ["ruby", "timeline_microservice.rb", @name],
+        cmd: ['ruby', 'timeline_microservice.rb', @name],
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [],
         topics: topics,
@@ -123,6 +133,7 @@ module Cosmos
         plugin: nil,
         scope: @scope)
       microservice.create
+      notify(kind: 'create')
     end
 
     def undeploy

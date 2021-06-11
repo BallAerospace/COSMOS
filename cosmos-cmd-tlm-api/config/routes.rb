@@ -71,7 +71,11 @@ Rails.application.routes.draw do
 
   resources :timeline, only: [:index, :create]
   get '/timeline/:name', to: 'timeline#show', name: /[^\/]+/
+  post '/timeline/:name/color', to: 'timeline#color', name: /[^\/]+/
   delete '/timeline/:name', to: 'timeline#destroy', name: /[^\/]+/
+
+  post '/timeline/activities/create', to: 'activity#multi_create'
+  post '/timeline/activities/delete', to: 'activity#multi_destroy'
 
   get '/timeline/:name/count', to: 'activity#count', name: /[^\/]+/
   get '/timeline/:name/activities', to: 'activity#index', name: /[^\/]+/
@@ -83,9 +87,12 @@ Rails.application.routes.draw do
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
   post "/api" => "api#api"
-  get "/internal/metrics" => "internal_metrics#index"
+  get "/auth/token-exists" => "auth#token_exists"
+  post "/auth/verify" => "auth#verify"
+  post "/auth/set" => "auth#set"
   get "/screen/:target" => "api#screens"
   get "/screen/:target/:screen" => "api#screen"
+  get "/internal/metrics" => "internal_metrics#index"
   get "/time" => "time#get_current"
   get "map.json" => "tools#importmap"
 end

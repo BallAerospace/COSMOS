@@ -161,7 +161,7 @@
         <v-card-text>
           {{ selectedNotification.body }}
         </v-card-text>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-actions>
           <v-btn
             color="primary"
@@ -184,7 +184,7 @@
         <v-card-text>
           <v-switch v-model="showToastSetting" label="Show toasts" />
         </v-card-text>
-        <v-divider></v-divider>
+        <v-divider />
         <v-card-actions>
           <v-btn color="primary" text @click="toggleSettingsDialog">
             close
@@ -353,7 +353,7 @@ export default {
       this.cable
         .createSubscription(
           'NotificationsChannel',
-          'DEFAULT',
+          localStorage.scope,
           {
             received: (data) => this.received(data),
           },

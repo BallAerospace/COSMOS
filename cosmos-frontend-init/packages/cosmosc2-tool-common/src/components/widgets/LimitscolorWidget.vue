@@ -20,7 +20,7 @@
 <template>
   <div ref="container" class="d-flex flex-row">
     <div class="led align-self-center" :style="[cssProps, computedStyle]"></div>
-    <LabelWidget
+    <label-widget
       :parameters="labelName"
       :settings="settings"
       :style="computedStyle"

@@ -23,6 +23,21 @@ module Cosmos
   class TimelineTopic < Topic
     PRIMARY_KEY = "__cosmos_timelines"
 
+    # Write an activity to the topic
+    #
+    #```json
+    #  "timeline" => "foobar",
+    #  "kind" => "created",
+    #  "type" => "activity",
+    #  "data" => {
+    #    "name" => "foobar",
+    #    "start" => 1621875570,
+    #    "stop" => 1621875585,
+    #    "kind" => "cmd",
+    #    "data" => {"cmd"=>"INST ABORT"}
+    #    "events" => [{"event"=>"created"}]
+    #  }
+    #```
     def self.write_activity(activity, scope:)
       Store.write_topic("#{scope}#{PRIMARY_KEY}", activity)
     end

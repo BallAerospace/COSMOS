@@ -25,7 +25,7 @@
           v-model="file"
           show-size
           label="Click to Select .gem file to add to internal gem server"
-        ></v-file-input>
+        />
       </v-col>
       <v-col cols="1" class="pl-2">
         <v-btn color="primary" class="mr-4" @click="upload()">
@@ -37,14 +37,14 @@
     <v-list data-test="gemList">
       <v-list-item v-for="(gem, i) in gems" :key="i">
         <v-list-item-content>
-          <v-list-item-title v-text="gem"></v-list-item-title>
+          <v-list-item-title v-text="gem" />
         </v-list-item-content>
         <v-list-item-icon>
           <v-tooltip bottom>
             <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deleteGem(gem)" v-bind="attrs" v-on="on"
-                >mdi-delete</v-icon
-              >
+              <v-icon @click="deleteGem(gem)" v-bind="attrs" v-on="on">
+                mdi-delete
+              </v-icon>
             </template>
             <span>Delete Gem</span>
           </v-tooltip>
@@ -56,8 +56,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
   </div>
 </template>
 

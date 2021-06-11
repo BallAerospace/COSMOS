@@ -40,9 +40,9 @@ class InternalMetricsController < ActionController::Base
     Cosmos::Logger.debug("request for aggregator metrics")
     begin
       scopes = Cosmos::ScopeModel.names()
-  rescue RuntimeError
-    Cosmos::Logger.error("failed to connect to redis to pull scopes")
-    render plain: "failed to access datastore", :status => 500
+    rescue RuntimeError
+      Cosmos::Logger.error("failed to connect to redis to pull scopes")
+      render plain: "failed to access datastore", :status => 500
     end
     Cosmos::Logger.debug("ScopeModels: #{scopes}")
     data_hash = {}
@@ -50,9 +50,9 @@ class InternalMetricsController < ActionController::Base
       Cosmos::Logger.debug("search metrics for scope: #{scope}")
       begin
         scope_resp = Cosmos::MetricModel.all(scope: scope)
-    rescue RuntimeError
-      Cosmos::Logger.error("failed to connect to redis to pull metrics")
-      render plain: "failed to access datastore", :status => 500
+      rescue RuntimeError
+        Cosmos::Logger.error("failed to connect to redis to pull metrics")
+        render plain: "failed to access datastore", :status => 500
       end
       Cosmos::Logger.debug("metrics search for scope: #{scope}, returned: #{scope_resp}")
       scope_resp.each do |key, label_json|

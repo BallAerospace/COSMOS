@@ -60,24 +60,24 @@
       <v-row no-gutters>
         <v-col cols="2">Logging Actions: </v-col>
         <v-col>
-          <v-btn color="primary" @click="startCmdLogging(log.name)"
-            >Log Cmds</v-btn
-          >
+          <v-btn color="primary" @click="startCmdLogging(log.name)">
+            Log Cmds
+          </v-btn>
         </v-col>
         <v-col>
-          <v-btn color="primary" @click="startTlmLogging(log.name)"
-            >Log Tlm</v-btn
-          >
+          <v-btn color="primary" @click="startTlmLogging(log.name)">
+            Log Tlm
+          </v-btn>
         </v-col>
         <v-col>
-          <v-btn color="primary" @click="stopCmdLogging(log.name)"
-            >Stop Cmds</v-btn
-          >
+          <v-btn color="primary" @click="stopCmdLogging(log.name)">
+            Stop Cmds
+          </v-btn>
         </v-col>
         <v-col>
-          <v-btn color="primary" @click="stopTlmLogging(log.name)"
-            >Stop Tlm</v-btn
-          >
+          <v-btn color="primary" @click="stopTlmLogging(log.name)">
+            Stop Tlm
+          </v-btn>
         </v-col>
       </v-row>
     </v-container>

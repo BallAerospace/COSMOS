@@ -31,9 +31,9 @@
           <br />
           Received Time: {{ receivedTime }}
           <br />
-          <v-btn color="primary" class="mt-2" @click="pause">{{
-            buttonLabel
-          }}</v-btn>
+          <v-btn color="primary" class="mt-2" @click="pause">
+            {{ buttonLabel }}
+          </v-btn>
           <v-textarea class="pa-0 ma-0" v-model="rawData" auto-grow readonly />
         </v-card-text>
       </v-card>

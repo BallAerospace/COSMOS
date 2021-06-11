@@ -26,7 +26,7 @@
       :parameters="widget.parameters"
       :settings="widget.settings"
       :widgets="widget.widgets"
-    ></component>
+    />
   </svg>
 </template>
 

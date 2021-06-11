@@ -18,9 +18,9 @@
 -->
 
 <template>
-  <span class="text-h5 text-center pa-1 mt-1 label" :style="computedStyle">{{
-    labelText
-  }}</span>
+  <span class="text-h5 text-center pa-1 mt-1 label" :style="computedStyle">
+    {{ labelText }}
+  </span>
 </template>
 
 <script>
@@ -35,5 +35,3 @@ export default {
   },
 }
 </script>
-
-<style lang="scss" scoped></style>

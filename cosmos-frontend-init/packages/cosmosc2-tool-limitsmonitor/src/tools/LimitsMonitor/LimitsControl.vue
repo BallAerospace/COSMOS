@@ -30,7 +30,7 @@
           :value="overallStateFormatted"
           :class="textFieldClass"
           data-test="overall-state"
-        ></v-text-field>
+        />
       </v-row>
       <v-row
         no-gutters
@@ -39,7 +39,7 @@
         data-test="limits-row"
       >
         <v-col>
-          <LabelvaluelimitsbarWidget
+          <labelvaluelimitsbar-widget
             v-if="item.limits"
             :parameters="item.parameters"
             :settings="[
@@ -47,15 +47,15 @@
               ['1', 'WIDTH', '200'],
               ['2', 'WIDTH', '200'],
             ]"
-          ></LabelvaluelimitsbarWidget>
-          <LabelvalueWidget
+          />
+          <labelvalue-widget
             v-else
             :parameters="item.parameters"
             :settings="[
               ['0', 'WIDTH', '150'],
               ['1', 'WIDTH', '200'],
             ]"
-          ></LabelvalueWidget>
+          />
         </v-col>
         <v-col cols="2">
           <v-tooltip bottom>
@@ -67,8 +67,9 @@
                 @click="ignorePacket(item.key)"
                 v-bind="attrs"
                 v-on="on"
-                ><v-icon>mdi-close-circle-multiple</v-icon></v-btn
               >
+                <v-icon> mdi-close-circle-multiple </v-icon>
+              </v-btn>
             </template>
             <span>Ignore Entire Packet</span>
           </v-tooltip>
@@ -81,8 +82,9 @@
                 @click="ignoreItem(item.key)"
                 v-bind="attrs"
                 v-on="on"
-                ><v-icon>mdi-close-circle</v-icon></v-btn
               >
+                <v-icon> mdi-close-circle </v-icon>
+              </v-btn>
             </template>
             <span>Ignore Item</span>
           </v-tooltip>
@@ -95,8 +97,9 @@
                 @click="removeItem(item.key)"
                 v-bind="attrs"
                 v-on="on"
-                ><v-icon>mdi-eye-off</v-icon></v-btn
               >
+                <v-icon> mdi-eye-off </v-icon>
+              </v-btn>
             </template>
             <span>Temporarily Hide Item</span>
           </v-tooltip>
@@ -111,11 +114,12 @@
             no-gutters
             v-for="(item, index) in ignoredFormatted"
             :key="index"
-            >{{ item }}
+          >
+            {{ item }}
             <v-spacer />
-            <v-btn icon small @click="restoreItem(item, index)"
-              ><v-icon>mdi-delete</v-icon></v-btn
-            >
+            <v-btn icon small @click="restoreItem(item, index)">
+              <v-icon> mdi-delete </v-icon>
+            </v-btn>
           </v-row>
         </v-card-text>
         <v-card-actions>

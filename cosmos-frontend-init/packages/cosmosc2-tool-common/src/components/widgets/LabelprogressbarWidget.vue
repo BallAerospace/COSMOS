@@ -19,13 +19,13 @@
 
 <template>
   <div ref="container" class="d-flex flex-row">
-    <LabelWidget
+    <label-widget
       :parameters="labelName"
       :settings="settings"
       :style="computedStyle"
       :widgetIndex="0"
     />
-    <ProgressbarWidget
+    <progressbar-widget
       :parameters="parameters"
       :settings="settings"
       :style="computedStyle"

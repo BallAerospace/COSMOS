@@ -28,7 +28,7 @@
           append-icon="$astro-search"
           single-line
           hide-details
-        ></v-text-field>
+        />
       </v-col>
     </v-row>
     <v-row>
@@ -57,6 +57,7 @@
             solo
             flat
             hide-details
+            data-test="dump-component-text-area"
           />
           <div class="floating-buttons">
             <v-menu
@@ -72,12 +73,15 @@
                   v-on="on"
                   fab
                   small
+                  data-test="dump-component-open-settings"
                 >
                   <v-icon>$astro-settings</v-icon>
                 </v-btn>
               </template>
               <v-card>
-                <v-card-title> Display settings </v-card-title>
+                <v-card-title data-test="display-settings-card">
+                  Display settings
+                </v-card-title>
                 <v-card-text>
                   <v-row no-gutters>
                     <v-col v-if="mode === 'RAW'">
@@ -85,8 +89,16 @@
                         v-model="currentConfig.format"
                         label="Display format"
                       >
-                        <v-radio label="Hex" value="hex" />
-                        <v-radio label="ASCII" value="ascii" />
+                        <v-radio
+                          label="Hex"
+                          value="hex"
+                          data-test="dump-component-settings-format-hex"
+                        />
+                        <v-radio
+                          label="ASCII"
+                          value="ascii"
+                          data-test="dump-component-settings-format-ascii"
+                        />
                       </v-radio-group>
                     </v-col>
                     <v-col>
@@ -94,8 +106,16 @@
                         v-model="currentConfig.newestAtTop"
                         label="Print newest packets to the"
                       >
-                        <v-radio label="Top" :value="true" />
-                        <v-radio label="Bottom" :value="false" />
+                        <v-radio
+                          label="Top"
+                          :value="true"
+                          data-test="dump-component-settings-newest-top"
+                        />
+                        <v-radio
+                          label="Bottom"
+                          :value="false"
+                          data-test="dump-component-settings-newest-bottom"
+                        />
                       </v-radio-group>
                     </v-col>
                     <v-col>
@@ -103,10 +123,12 @@
                         v-if="mode === 'RAW'"
                         v-model="currentConfig.showLineAddress"
                         label="Show line address"
+                        data-test="dump-component-settings-show-address"
                       />
                       <v-switch
                         v-model="currentConfig.showTimestamp"
                         label="Show timestamp"
+                        data-test="dump-component-settings-show-timestamp"
                       />
                     </v-col>
                     <v-col>
@@ -117,7 +139,8 @@
                         type="number"
                         min="1"
                         v-on:change="validateBytesPerLine"
-                      ></v-text-field>
+                        data-test="dump-component-settings-num-bytes"
+                      />
                       <v-text-field
                         v-model="currentConfig.packetsToShow"
                         label="Packets to show"
@@ -127,7 +150,8 @@
                         :min="1"
                         :max="this.history.length"
                         v-on:change="validatePacketsToShow"
-                      ></v-text-field>
+                        data-test="dump-component-settings-num-packets"
+                      />
                     </v-col>
                   </v-row>
                 </v-card-text>
@@ -139,6 +163,7 @@
               color="secondary"
               fab
               small
+              data-test="dump-component-download"
             >
               <v-icon>mdi-file-download</v-icon>
             </v-btn>
@@ -148,6 +173,7 @@
               v-on:click="togglePlayPause"
               color="primary"
               fab
+              data-test="dump-component-play-pause"
             >
               <v-icon large v-if="paused">mdi-play</v-icon>
               <v-icon large v-else>mdi-pause</v-icon>

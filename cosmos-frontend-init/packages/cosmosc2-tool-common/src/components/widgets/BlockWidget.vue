@@ -50,7 +50,7 @@
       </v-list>
     </v-menu>
 
-    <DetailsDialog
+    <details-dialog
       :targetName="parameters[0]"
       :packetName="parameters[1]"
       :itemName="parameters[2]"

@@ -57,14 +57,14 @@
               label="Script State"
               v-model="state"
               data-test="state"
-            ></v-text-field>
+            />
             <v-progress-circular
               v-if="state === 'Connecting...'"
               :size="40"
               class="ml-2 mr-2"
               indeterminate
               color="primary"
-            ></v-progress-circular>
+            />
             <div
               v-else
               style="width: 40px; height: 40px"
@@ -150,13 +150,13 @@
               v-model="debug"
               @keydown="debugKeydown"
               data-test="debug-text"
-            ></v-text-field>
+            />
           </v-row>
         </v-container>
         <v-card>
           <v-card-title>
             Log Messages
-            <v-spacer></v-spacer>
+            <v-spacer />
             <v-text-field
               v-model="search"
               append-icon="$astro-search"
@@ -164,7 +164,7 @@
               single-line
               hide-details
               data-test="search-output-messages"
-            ></v-text-field>
+            />
             <v-icon
               @click="downloadLog"
               class="pa-2 mt-3"
@@ -184,7 +184,7 @@
             dense
             height="45vh"
             data-test="output-messages"
-          ></v-data-table>
+          />
         </v-card>
       </div>
     </multipane>
@@ -225,7 +225,7 @@
         <v-card-title class="headline"> Are you sure? </v-card-title>
         <v-card-text>Permanently delete file {{ filename }}! </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="primary" text @click="confirmDelete(true)"> Ok </v-btn>
           <v-btn color="primary" text @click="confirmDelete(false)">
             Cancel
@@ -238,9 +238,9 @@
         <v-card-title class="headline">{{ infoTitle }}</v-card-title>
         <v-card-text class="mb-0">
           <v-container>
-            <v-row no-gutters v-for="(line, index) in infoText" :key="index">{{
-              line
-            }}</v-row>
+            <v-row no-gutters v-for="(line, index) in infoText" :key="index">
+              {{ line }}
+            </v-row>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -258,11 +258,11 @@
             dense
             auto-grow
             :value="scriptResults"
-          ></v-textarea>
+          />
         </v-card-text>
         <v-card-actions>
           <v-btn color="primary" text @click="resultsDialog = false">Ok</v-btn>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <v-btn color="primary" text @click="downloadResults">Download</v-btn>
         </v-card-actions>
       </v-card>
@@ -599,7 +599,7 @@ export default {
         if (this.showDisconnect) {
           url += '/disconnect'
         }
-        let data = { scope: 'DEFAULT' }
+        let data = { scope: localStorage.scope }
         if (suiteRunner) {
           data['suiteRunner'] = event
         }

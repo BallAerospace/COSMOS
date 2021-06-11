@@ -22,8 +22,9 @@
     data-test="label"
     class="pa-1 mt-1 label"
     :style="[cssProps, computedStyle]"
-    >{{ labelText }}</span
   >
+    {{ labelText }}
+  </span>
 </template>
 
 <script>

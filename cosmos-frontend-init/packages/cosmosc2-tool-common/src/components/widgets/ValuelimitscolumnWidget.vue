@@ -19,12 +19,12 @@
 
 <template>
   <div ref="container" class="d-flex flex-column" :style="computedStyle">
-    <LimitscolumnWidget
+    <limitscolumn-widget
       :parameters="limitsColumnParameters"
       :settings="settings"
       :widgetIndex="0"
     />
-    <ValueWidget
+    <value-widget
       :parameters="parameters"
       :settings="settings"
       :widgetIndex="1"

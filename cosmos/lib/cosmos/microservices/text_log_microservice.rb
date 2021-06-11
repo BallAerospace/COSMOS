@@ -73,7 +73,7 @@ module Cosmos
       tlws[topic].write(msg_hash["time"].to_i, entry, msg_id)
       @count += 1
       diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
-      @metric.add_sample(name: "#{@name}_log_duration_seconds", value: diff, labels: {})
+      @metric.add_sample(name: "log_duration_seconds", value: diff, labels: {})
     rescue => err
       @error = err
       Logger.error("#{@name} error: #{err.formatted}")

@@ -24,14 +24,15 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <v-list data-test="microserviceList">
       <v-list-item v-for="microservice in microservices" :key="microservice">
         <v-list-item-content>
-          <v-list-item-title v-text="microservice"></v-list-item-title>
-          <v-list-item-subtitle v-if="microservice_status[microservice]"
-            >Updated: {{ microservice_status[microservice].updated_at }}, State:
+          <v-list-item-title v-text="microservice" />
+          <v-list-item-subtitle v-if="microservice_status[microservice]">
+            Updated: {{ microservice_status[microservice].updated_at }}, State:
             {{ microservice_status[microservice].state }}, Count:
             {{ microservice_status[microservice].count }}, Error:
             {{ microservice_status[microservice].error }}
@@ -44,8 +45,9 @@
                 @click="editMicroservice(microservice)"
                 v-bind="attrs"
                 v-on="on"
-                >mdi-pencil</v-icon
               >
+                mdi-pencil
+              </v-icon>
             </template>
             <span>Edit Microservice</span>
           </v-tooltip>
@@ -57,8 +59,9 @@
                 @click="deleteMicroservice(microservice)"
                 v-bind="attrs"
                 v-on="on"
-                >mdi-delete</v-icon
               >
+                mdi-delete
+              </v-icon>
             </template>
             <span>Delete Microservice</span>
           </v-tooltip>
@@ -70,8 +73,9 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-      >{{ alert }}</v-alert
     >
+      {{ alert }}
+    </v-alert>
     <edit-dialog
       :content="json_content"
       title="Edit Microservice"

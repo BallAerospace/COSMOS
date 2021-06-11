@@ -1,3 +1,4 @@
+const webpack = require('webpack')
 const { mergeWithRules } = require('webpack-merge')
 const singleSpaDefaults = require('webpack-config-single-spa')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
@@ -45,6 +46,9 @@ module.exports = (webpackConfigEnv, argv) => {
       new VueLoaderPlugin(),
       new VuetifyLoaderPlugin(),
       new CopyWebpackPlugin({ patterns: [{ from: 'public', to: '.' }] }),
+      new webpack.DefinePlugin({
+        'process.env.BASE_URL': process.env.BASE_URL,
+      }),
     ],
     module: {
       rules: [

@@ -23,8 +23,8 @@
     class="d-flex flex-row"
     :style="[defaultStyle, computedStyle]"
   >
-    <ValueWidget :parameters="parameters" />
-    <LimitsbarWidget :parameters="limitsBarParameters" />
+    <value-widget :parameters="parameters" />
+    <limitsbar-widget :parameters="limitsBarParameters" />
   </div>
 </template>
 
