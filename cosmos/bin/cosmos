@@ -41,7 +41,6 @@ def print_usage
   puts "Usage:"
   puts "  cosmos help                          # Displays this information"
   puts "  cosmos load </PATH/FILENAME.gem>     # Loads a COSMOS plugin gem file"
-  puts "  cosmos docs                          # Launches the documentation server"
   puts "  cosmos generate plugin <PLUGIN_NAME> # Generate a COSMOS plugin"
   puts "  cosmos bridge <config filename>      # Run COSMOS host bridge"
   puts "  cosmos bridgesetup <config filename> # Create a default config file"
@@ -206,13 +205,15 @@ if not ARGV[0].nil? # argument(s) given
   when 'load'
     load_plugin(ARGV[1], scope: ARGV[2])
 
-  when 'docs'
-    thread = Thread.new do
-      system('yard server --gems')
-    end
-    sleep 3
-    Cosmos.open_in_web_browser('http://127.0.0.1:8808/docs/cosmos/frames')
-    thread.join
+  # TODO: This will require more work in COSMOS 5 ... would be nice to spawn
+  # in docker container and then map out port to access locally
+  # when 'docs'
+  #   thread = Thread.new do
+  #     system('yard server --gems')
+  #   end
+  #   sleep 3
+  #   Cosmos.open_in_web_browser('http://127.0.0.1:8808/docs/cosmos/frames')
+  #   thread.join
 
   when 'generate'
     generate(ARGV[1..-1])

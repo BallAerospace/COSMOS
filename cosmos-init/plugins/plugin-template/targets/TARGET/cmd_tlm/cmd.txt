@@ -1,4 +1,4 @@
-COMMAND <%= target_name %> COMMAND BIG_ENDIAN "Packet description"
+COMMAND <%= target_name %> EXAMPLE BIG_ENDIAN "Packet description"
   # Keyword           Name  BitSize Type   Min Max  Default  Description
   APPEND_ID_PARAMETER ID    16      INT    1   1    1        "Identifier"
   APPEND_PARAMETER    VALUE 32      FLOAT  0   10.5 2.5      "Value"
