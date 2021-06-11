@@ -9,7 +9,7 @@ Welcome to the COSMOS system... Let's get started! This guide is a high level ov
    - You should now have COSMOS installed and a Demo project available that we can make changes to.
 2. Browse to http://localhost:2900
    - The COSMOS Command and Telemetry Server will appear. This tool provides real-time information about each "target" in the system. Targets are external systems that receive commands and generate telemetry, often over ethernet or serial connections.
-3. Experiment with other COSMOS tools.
+3. Experiment with other COSMOS tools. This is a DEMO environment so you can't break anything. Some things to try:
    - Use Command Sender to send individual commands.
    - Use Limits Monitor to watch for telemetry limits violations
    - Run some of the example scripts in Script Runner and Test Runner
@@ -23,19 +23,25 @@ Welcome to the COSMOS system... Let's get started! This guide is a high level ov
 
 Playing with the COSMOS Demo is fun and all, but now you want to talk to your own real hardware? Let's do it!
 
-1. Install Ruby. This varies according to your operating system. On Windows use [rubyinstaller](https://rubyinstaller.org/downloads/) and choose their recommended version. On Mac it's easiest to use [Homebrew](https://brew.sh/) and simply ```brew install ruby```. On Linux you should use your local package manager. See the [ruby-lang](https://www.ruby-lang.org/en/documentation/installation/) installation instructions for more information.
+[//]: # 1. Install Ruby. This varies according to your operating system. On Windows use [rubyinstaller](https://rubyinstaller.org/downloads/) and choose their recommended version. On Mac it's easiest to use [Homebrew](https://brew.sh/) and simply ```brew install ruby```. On Linux you should use your local package manager. See the [ruby-lang](https://www.ruby-lang.org/en/documentation/installation/) installation instructions for more information.
+
+<div class="note info">
+  <h5>Install and Platform</h5>
+  <p>This guide assumes we're on Windows and COSMOS is installed in C:\COSMOS. Adjust scripts and paths as necessary to match your platform and COSMOS installation directory.</p>
+</div>
 
 1. Before creating your own configuration you should uninstall the COSMOS Demo so you're working with a clean COSMOS system. Click the Admin button and the PLUGINS tab. Then click the Trash can icon next to cosmos-demo to delete it. When you go back to the Command and Telemetry Server you should have a blank table with no interfaces.
 
-1. Create a new "Configuration Directory". This directory is typically named after your program / project and for this example we'll call it ```cosmos-demo```. Inside this directory it's recommended to create a README.md ([Markdown](https://www.markdownguide.org/)) to describe your program / project.
+1. Create a new "Configuration Directory". This directory is typically named after your program / project and for this example we'll call it "tutorial". Inside this directory it's recommended to create a README.md ([Markdown](https://www.markdownguide.org/)) to describe your program / project.
 
 1. Now we need to create a plugin. Plugins are how we add targets and microservices to COSMOS. Our plugin will contain a single target which contains all the information defining the packets (command and telemetry) that are needed to communicate with the target. Use the COSMOS plugin generator to create the correct structure:
 
-    ```bash
-    cosmos generate plugin BOB
+    ```batch
+    C:\> cd tutorial
+    C:\tutorial> C:\COSMOS\cosmos-control.bat cosmos generate plugin BOB
     ```
 
-    This should create a new directory called ```cosmos-bob``` with a bunch of files in it. The full description of all the files is explained by the [Plugin Structure](/docs/v5/plugins#plugin-directory-structure) page.
+    This should create a new directory called "cosmos-bob" with a bunch of files in it. The full description of all the files is explained by the [Plugin Structure](/docs/v5/plugins#plugin-directory-structure) page.
 
 1. The plugin generate creates a single target named after the plugin. Best practice is to create a single target per plugin to make it easier to share targets and upgrade them individually. Lets see what the plugin generate created for us. Open the cosmos-bob/targets/BOB/cmd_tlm/cmd.txt:
 
@@ -79,7 +85,7 @@ Playing with the COSMOS Demo is fun and all, but now you want to talk to your ow
 
     Check out the full [Telemetry](/docs/v5/telemetry) documention for more.    
 
-1. COSMOS has defined an example command and telemetry packet for our target. Most targets will obviously have more than one command and telemetry packet and these are simply additiona COMMAND and TELEMETRY lines in your text files. This should be modified to match the structure of your commands and telemetry.
+1. COSMOS has defined an example command and telemetry packet for our target. Most targets will obviously have more than one command and telemetry packet and these are simply additional COMMAND and TELEMETRY lines in your text files. This should be modified to match the structure of your command and telemetry.
 
 1. Now we need to tell COSMOS how to connect to our BOB target. Open the cosmos-bob/plugin.txt file:
 
@@ -98,6 +104,13 @@ Playing with the COSMOS Demo is fun and all, but now you want to talk to your ow
     - This configures the plugin with a VARIABLE called bob_target_name with a default of "BOB". When you install this plugin you will have the option to change the name of this target to something other than "BOB". This is useful to avoid name conflicts and allows you to have multiple copies of the BOB target in your COSMOS system.
     - The TARGET line declares the new BOB target using the name from the variable. The <%= %> syntax is called ERB (embedded Ruby) and allows us to put variables into our text files, in this case referencing our bob_target_name.
     - The last line declares a new INTERFACE called (by default) BOB_INT that will connect as a TCP/IP client using the code in tcpip_client_interface.rb to address 127.0.0.1 (localhost) using port 8080 for writing and 8081 for reading. It also has a write timeout of 10 seconds and reads will never timeout (nil). The TCP/IP stream will be interpreted using the COSMOS [BURST](/docs/v5/protocols#burst-protocol) protocol which means it will read as much data as it can from the interface. For all the details on how to configure COSMOS interfaces please see the [Interface Guide](/docs/v5/interfaces). The MAP_TARGET line tells COSMOS that it will receive telemetry from and send commands to the BOB target using the BOB_INT interface.
+
+<div class="note">
+  <h5>Variables Support Reusability</h5>
+  <p>In a plugin that you plan to reuse you should make things like hostnames and ports variables</p>
+</div>
+
+1. Now we need to build our plugin and upload it to COSMOS. Coming soon ...
 
 1. The targets/BOB/lib directory contains the target's library code. This code implements methods specific to this target to make it easier for scripts run in Script Runner to interact with this target. The targets/BOB/procedures directory contains an example script for interacting with the target. For more information about scripting please see the [Scripting Best Practices](/docs/v5/scripting-best-practices) page and [Scripting Guide](/docs/v5/scripting).
 
