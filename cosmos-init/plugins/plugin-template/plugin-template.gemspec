@@ -2,7 +2,7 @@
 
 # Create the overall gemspec
 spec = Gem::Specification.new do |s|
-  s.name = 'TEMPLATE'
+  s.name = '<%= plugin_name %>'
   s.summary = 'Ball Aerospace COSMOS <%= plugin_name %> plugin'
   s.description = <<-EOF
     <%= plugin_name %> plugin for deployment to COSMOS

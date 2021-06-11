@@ -15,11 +15,18 @@ task :build => [:require_version] do
   _, platform, *_ = RUBY_PLATFORM.split("-")
   if platform == 'mswin32' or platform == 'mingw32'
     puts "Warning: Building gem on Windows will lose file permissions"
+    system("docker run -v %cd%:/cosmos/plugins -w /cosmos/plugins cosmos-base rake docker_build VERSION=%VERSION%")
+  else
+    system("docker run -v $(pwd):/cosmos/plugins -w /cosmos/plugins cosmos-base rake docker_build VERSION=%VERSION%")
   end
-  system("docker run -v %cd%:/cosmos/plugins -w /cosmos/plugins cosmos-base rake docker_build VERSION=%VERSION%")
 end
 
-# Run like "rake cosmos cmd=generate target TEST"
+# Run like "rake cosmos cmd=docs"
 task :cosmos do
-  system("docker run -v %cd%:/cosmos/plugins -w /cosmos/plugins cosmos-base ruby /cosmos/bin/cosmos #{ENV['cmd']}")
+  _, platform, *_ = RUBY_PLATFORM.split("-")
+  if platform == 'mswin32' or platform == 'mingw32'
+    system("docker run -v %cd%:/cosmos/plugins -w /cosmos/plugins cosmos-base ruby /cosmos/bin/cosmos #{ENV['cmd']}")
+  else
+    system("docker run -v $(pwd):/cosmos/plugins -w /cosmos/plugins cosmos-base ruby /cosmos/bin/cosmos #{ENV['cmd']}")
+  end
 end
