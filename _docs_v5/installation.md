@@ -13,9 +13,12 @@ The following sections describe how to get COSMOS installed on various operating
 1. Download the latest COSMOS 5 from the Github [releases](https://github.com/BallAerospace/COSMOS/releases)
 1. Extract the archive somewhere on your host computer
 1. The COSMOS 5 containers are designed to work and be built in the presence of an SSL Decryption device. To support this a cacert.pem file can be placed at the base of the COSMOS 5 project that includes any certificates needed by your organization.
-1. Run cosmos_start.bat (Windows), or cosmos_start.sh (linux/Mac)
+1. Run cosmos-control.bat start (Windows), or cosmos-control.sh start (linux/Mac)
+    * Note cosmos-control.bat takes multiple arguments. Run with no arguments for help.
+    * If you see an error indicating docker daemon is not running ensure Docker is installed and running.
 1. COSMOS 5 will be built and when ready should be running (~15 mins for first run, ~2 for subsequent)
-1. Connect a web browser to http://localhost:8080
+1. Connect a web browser to http://localhost:2900
+1. Continue to [Getting Started](/docs/v5/gettingstarted)
 
 <div class="note warning">
   <h5>SSL Issues</h5>

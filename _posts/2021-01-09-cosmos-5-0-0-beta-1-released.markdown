@@ -63,7 +63,7 @@ Recommended Resources allocated to Docker: 16GB RAM, 2+ CPUs, 100GB Disk
 
 ### To Run:
 
-1. Download one of the archives (.zip or .tar.gz from the Github release page) [Download Release Here](https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0-beta.1)
+1. Download one of the archives (.zip or .tar.gz from the Github release page) [Download Release Here (bottom of page under Assets)](https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0-beta.1)
 2. Extract the archive somewhere on your host computer
 3. The COSMOS 5 containers are designed to work and be built in the presence of an SSL Decryption device. To support this a cacert.pem file can be placed at the base of the COSMOS 5 project that includes any certificates needed by your organization. If you don't need this, then please ignore, but if you see any SSL errors, this is probably why.
 4. Run cosmos_start.bat (Windows), or cosmos_start.sh (linux/Mac)

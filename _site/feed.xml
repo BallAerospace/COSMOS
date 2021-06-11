@@ -11,8 +11,8 @@
     <title xml:lang="en">Ball Aerospace COSMOS News</title>
     <atom:link type="application/atom+xml" href="http://cosmosc2/feed.xml" rel="self"/>
     <link>http://cosmosc2.com/</link>
-    <pubDate>Wed, 28 Apr 2021 16:14:24 -0600</pubDate>
-    <lastBuildDate>Wed, 28 Apr 2021 16:14:24 -0600</lastBuildDate>
+    <pubDate>Fri, 11 Jun 2021 13:53:06 -0600</pubDate>
+    <lastBuildDate>Fri, 11 Jun 2021 13:53:06 -0600</lastBuildDate>
     <language>en-US</language>
     <generator>Jekyll v4.2.0</generator>
     <description>The User Interface for Embedded Systems</description>
@@ -100,7 +100,8 @@ Recommended Resources allocated to Docker: 16GB RAM, 2+ CPUs, 100GB Disk&lt;/p&g
 &lt;h3 id=&quot;to-run&quot;&gt;To Run:&lt;/h3&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;Download one of the archives (.zip or .tar.gz from the Github release page) &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0-beta.2&quot;&gt;Download Release Here&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Download one of the archives (.zip or .tar.gz from the Github release page) &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0.beta.2&quot;&gt;Download Release Here (bottom of page under Assets)&lt;/a&gt;
+https://github.com/BallAerospace/COSMOS/tags&lt;/li&gt;
   &lt;li&gt;Extract the archive somewhere on your host computer&lt;/li&gt;
   &lt;li&gt;The COSMOS 5 containers are designed to work and be built in the presence of an SSL Decryption device. To support this a cacert.pem file can be placed at the base of the COSMOS 5 project that includes any certificates needed by your organization. If you don’t need this, then please ignore, but if you see any SSL errors, this is probably why.&lt;/li&gt;
   &lt;li&gt;Run cosmos-control.bat start (Windows), or ./cosmos-control.sh start (linux/Mac)&lt;/li&gt;
@@ -194,7 +195,7 @@ Recommended Resources allocated to Docker: 16GB RAM, 2+ CPUs, 100GB Disk&lt;/p&g
 &lt;h3 id=&quot;to-run&quot;&gt;To Run:&lt;/h3&gt;
 
 &lt;ol&gt;
-  &lt;li&gt;Download one of the archives (.zip or .tar.gz from the Github release page) &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0-beta.1&quot;&gt;Download Release Here&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Download one of the archives (.zip or .tar.gz from the Github release page) &lt;a href=&quot;https://github.com/BallAerospace/COSMOS/releases/tag/v5.0.0-beta.1&quot;&gt;Download Release Here (bottom of page under Assets)&lt;/a&gt;&lt;/li&gt;
   &lt;li&gt;Extract the archive somewhere on your host computer&lt;/li&gt;
   &lt;li&gt;The COSMOS 5 containers are designed to work and be built in the presence of an SSL Decryption device. To support this a cacert.pem file can be placed at the base of the COSMOS 5 project that includes any certificates needed by your organization. If you don’t need this, then please ignore, but if you see any SSL errors, this is probably why.&lt;/li&gt;
   &lt;li&gt;Run cosmos_start.bat (Windows), or cosmos_start.sh (linux/Mac)&lt;/li&gt;

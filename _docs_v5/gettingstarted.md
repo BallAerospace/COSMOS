@@ -7,7 +7,7 @@ Welcome to the COSMOS system... Let's get started! This guide is a high level ov
 
 1. Get COSMOS Installed onto your computer by following the [Installation Guide](/docs/v5/installation).
    - You should now have COSMOS installed and a Demo project available that we can make changes to.
-2. Browse to http://localhost:8080
+2. Browse to http://localhost:2900
    - The COSMOS Command and Telemetry Server will appear. This tool provides real-time information about each "target" in the system. Targets are external systems that receive commands and generate telemetry, often over ethernet or serial connections.
 3. Experiment with other COSMOS tools.
    - Use Command Sender to send individual commands.
@@ -23,69 +23,82 @@ Welcome to the COSMOS system... Let's get started! This guide is a high level ov
 
 Playing with the COSMOS Demo is fun and all, but now you want to talk to your own real hardware? Let's do it!
 
-<div class="note unreleased">
-  <p>These instructions need to be updated for COSMOS 5</p>
-</div>
+1. Install Ruby. This varies according to your operating system. On Windows use [rubyinstaller](https://rubyinstaller.org/downloads/) and choose their recommended version. On Mac it's easiest to use [Homebrew](https://brew.sh/) and simply ```brew install ruby```. On Linux you should use your local package manager. See the [ruby-lang](https://www.ruby-lang.org/en/documentation/installation/) installation instructions for more information.
 
-1.. The first step is to create a "target folder" for your new target. At a minimum this folder will contain all the information defining the packets (command and telemetry) that are needed to communicate with your hardware.
+1. Before creating your own configuration you should uninstall the COSMOS Demo so you're working with a clean COSMOS system. Click the Admin button and the PLUGINS tab. Then click the Trash can icon next to cosmos-demo to delete it. When you go back to the Command and Telemetry Server you should have a blank table with no interfaces.
 
-- Inside your demo area, create a folder for your target in config/targets/. The folder name should be ALL CAPS and concise. Let's pretend we're going to interface with custom piece of software you wrote called BOB, so we'll call the folder config/targets/BOB.
+1. Create a new "Configuration Directory". This directory is typically named after your program / project and for this example we'll call it ```cosmos-demo```. Inside this directory it's recommended to create a README.md ([Markdown](https://www.markdownguide.org/)) to describe your program / project.
 
-  2.. Next we need to define the commands and telemetry packets for our target. The details on the command and telemetry definition file formats can be found here: [Command](/docs/v5/command) and [Telemetry](/docs/v5/telemetry)
+1. Now we need to create a plugin. Plugins are how we add targets and microservices to COSMOS. Our plugin will contain a single target which contains all the information defining the packets (command and telemetry) that are needed to communicate with the target. Use the COSMOS plugin generator to create the correct structure:
 
-- Create the folder config/targets/BOB/cmd_tlm
-- Create a new text file called config/targets/BOB/cmd_tlm/bob_cmds.txt with the following contents:
+    ```bash
+    cosmos generate plugin BOB
+    ```
 
-{% highlight bash %}
-COMMAND BOB COLLECT BIG_ENDIAN "Collect temperatures"
-APPEND_PARAMETER LENGTH 32 UINT 0 1024 5 "Packet Length"
-APPEND_ID_PARAMETER CMD_ID 8 UINT 1 1 1 "Command Id"
-APPEND_PARAMETER MODE 32 INT 0 1 0 "Temperature Collection Mode"
-STATE NORMAL 0
-STATE FAST 1
-{% endhighlight %}
+    This should create a new directory called ```cosmos-bob``` with a bunch of files in it. The full description of all the files is explained by the [Plugin Structure](/docs/v5/plugins#plugin-directory-structure) page.
 
-- Woah, what did we just do!
-  - We created a COMMAND for target BOB named COLLECT.
-  - The command is made up of BIG_ENDIAN parameters and is described by "Collect temperatures". Here we are using the append flavor of defining parameters which stacks them back to back as it builds up the packet and you don't have to worry about defining the bit offset into the packet.
-  - First we APPEND_PARAMETER a parameter called LENGTH that is a 32-bit unsigned integer (UINT) that has a minimum value of 0, a maximum value of 1024, and a default value of 5.
-  - Then we APPEND_ID_PARAMETER a parameter that is used to identify the packet called CMD_ID that is an 8-bit unsigned integer (UINT) with a minimum value of 1, a maximum value of 1, and a default value of 1, that is described as the "Command Id".
-  - Then we APPEND_PARAMETER a third parameter called MODE which is a 32-bit integer (INT) with a minimum value of 0, a maximum value of 1, and a default value of 0, that is described as the "Temperature Collection Mode". MODE has two states which are just a fancy way of giving meaning to the integer values 0 and 1. The STATE NORMAL has a value of 0 and the STATE FAST has a value of 1.
-- In summary we defined a 72-bit command packet made up of three parameters, LENGTH which tells us the length of the packet in bytes not included itself, CMD_ID which is used to identify the command, and MODE which has two values NORMAL and FAST.
-- Onto telemetry, Create a new text file called config/targets/BOB/cmd_tlm/bob_tlm.txt with the following contents:
+1. The plugin generate creates a single target named after the plugin. Best practice is to create a single target per plugin to make it easier to share targets and upgrade them individually. Lets see what the plugin generate created for us. Open the cosmos-bob/targets/BOB/cmd_tlm/cmd.txt:
 
-{% highlight bash %}
-TELEMETRY BOB TEMPS BIG_ENDIAN "Temperature Telemetry"
-ITEM LENGTH 0 32 UINT "Packet Length"
-ID_ITEM TLM_ID 32 32 INT 3 "Message Identifier"
-ITEM TEMP1 64 32 FLOAT "Temperature 1"
-ITEM TEMP2 96 32 FLOAT "Temperature 2"
-{% endhighlight %}
+    ```bash
+    COMMAND BOB COMMAND BIG_ENDIAN "Packet description"
+      # Keyword           Name  BitSize Type   Min Max  Default  Description
+      APPEND_ID_PARAMETER ID    16      INT    1   1    1        "Identifier"
+      APPEND_PARAMETER    VALUE 32      FLOAT  0   10.5 2.5      "Value"
+      APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
+        STATE FALSE 0
+        STATE TRUE 1
+      APPEND_PARAMETER    LABEL 0       STRING          "COSMOS" "The label to apply"
+    ```
 
-- This time we created a TELEMETRY packet for target BOB called TEMPS that contains BIG\*ENDIAN items and is described as "Temperature Telemetry". Unlike above, in this example I am not using the APPEND flavor of defining items so each item contains both a bit offset and a bit size. In general, if creating configuration files by hand I recommend using the APPEND versions as they are much easier to maintain.
+    What does this all mean?
+    - We created a COMMAND for target BOB named COMMAND.
+    - The command is made up of BIG_ENDIAN parameters and is described by "Packet description". Here we are using the append flavor of defining parameters which stacks them back to back as it builds up the packet and you don't have to worry about defining the bit offset into the packet.
+    - First we APPEND_ID_PARAMETER a parameter that is used to identify the packet called ID that is an 16-bit signed integer (INT) with a minimum value of 1, a maximum value of 1, and a default value of 1, that is described as the "Identifier".
+    - Next we APPEND_PARAMETER a parameter called VALUE that is a 32-bit float (FLOAT) that has a minimum value of 0, a maximum value of 10.5, and a default value of 2.5.
+    - Then we APPEND_PARAMETER a third parameter called BOOL which is a 8-bit unsigned integer (UINT) with a minimum value of MIN (meaning the smallest value a UINT supports, e.g 0), a maximum value of MAX (largest value a UINT supports, e.g. 255), and a default value of 0. BOOL has two states which are just a fancy way of giving meaning to the integer values 0 and 1. The STATE FALSE has a value of 0 and the STATE TRUE has a value of 1.
+    - Finally we APPEND_PARAMETER called LABEL which is a 0-bit (meaning it takes up all the remaining space in the packet) string (STRING) with a default value of "COSMOS". Strings don't have minimum or maximum values as that doesn't make sense for STRING types.
 
-  - So we start by defining an item called LENGTH at bit offset 0 with a bit size of 32 bits of type UINT (unsigned integer) described as "Packet Length".
-    \_ Next an ID_ITEM called TLM_ID at bit offset 32 with a bit size of 32 bits of type INT (integer) with an id value of 3 and described as "Message Identifier". Id items are used to take unidentified blobs of bytes and determine which packet they are. In this case if a blob comes in with a value of 3 at bit offset 32 interpreted as a 32-bit integer then this packet will be "identified". Note the first packet defined without any ID_ITEMS is a "catch-all" packet that matches all incoming data (even if the data lengths don't match). \* Next we define two items that are temperatures. The first at bit offset 64 that is a 32-bit FLOAT and the second at bit offset 96 which is also a 32-bit float.
+    Check out the full [Command](/docs/v5/command) documention for more.
 
-    3.. We have successfully defined the commands and telemetry packets for our target. Most targets will obviously have more than one command and one telemetry packet. Before we move on, now is a great time to look at the contents of some of the other target folders in config/target that come with COSMOS. They provide good examples of what the configuration for other types of targets might look like and use a lot of the available keywords for the configuration files.
+1. Now open the cosmos-bob/targets/BOB/cmd_tlm/tlm.txt:
 
-    4.. Next we need to tell COSMOS that our new target BOB exists. See [Plugin Configuration](/docs/v5/plugin):
+    ```bash
+    TELEMETRY BOB STATUS BIG_ENDIAN "Telemetry description"
+      # Keyword      Name  BitSize Type   ID Description
+      APPEND_ID_ITEM ID    16      INT    1  "Identifier"
+      APPEND_ITEM    VALUE 32      FLOAT     "Value"
+      APPEND_ITEM    BOOL  8       UINT      "Boolean"
+        STATE FALSE 0
+        STATE TRUE 1
+      APPEND_ITEM    LABEL 0       STRING    "The label to apply"
+    ```
 
-{% highlight bash %}
-DECLARE_TARGET BOB
-{% endhighlight %}
+    - This time we created a TELEMETRY packet for target BOB called STATUS that contains BIG_ENDIAN items and is described as "Telemetry description".
+    - We start by defininig an ID_ITEM called ID that is a 16-bit signed integer (INT) with an id value of 1 and described as "Identifier". Id items are used to take unidentified blobs of bytes and determine which packet they are. In this case if a blob comes in with a value of 1, at bit offset 0 (since we APPEND this item first), interpreted as a 16-bit integer, then this packet will be "identified" as STATUS. Note the first packet defined without any ID_ITEMS is a "catch-all" packet that matches all incoming data (even if the data lengths don't match). 
+    - Next we define three items similar to the command definition above.
 
-- This tells COSMOS to look for a folder called BOB in config/targets.
+    Check out the full [Telemetry](/docs/v5/telemetry) documention for more.    
 
-  5.. Now we need to configure how to communicate with BOB. BOB is acting as a TCP/IP server at 192.168.1.5 and is listening on port 8888. We tell COSMOS how to talk to it by adding the following snippet to config/tools/cmd_tlm_server/cmd_tlm_server.txt. See [Plugin Configuration](/docs/v5/plugin):
+1. COSMOS has defined an example command and telemetry packet for our target. Most targets will obviously have more than one command and telemetry packet and these are simply additiona COMMAND and TELEMETRY lines in your text files. This should be modified to match the structure of your commands and telemetry.
 
-{% highlight bash %}
-INTERFACE BOB_INT tcpip_client_interface.rb 192.168.1.5 8888 8888 5.0 nil LENGTH 0 32 4
-TARGET BOB
-{% endhighlight %}
+1. Now we need to tell COSMOS how to connect to our BOB target. Open the cosmos-bob/plugin.txt file:
 
-- This tells COSMOS there is a new INTERFACE called BOB_INT that will connect as a TCP/IP client using the code in tcpip_client_interface.rb to address 192.168.1.5 using port 8888 for both reading and writing. It also has a write timeout of 5 seconds, reads will never timeout (nil). The TCP/IP stream will be interpreted using the COSMOS LENGTH protocol with the length field found at bit offset 0 with bit size of 32-bits and a value offset of 4 bytes (because the value in the length field does not include itself). For all the details on how to configure COSMOS interfaces please see the [Interface Guide](/docs/v5/interfaces). The TARGET BOB line tells COSMOS that it will receive telemetry from and send commands to BOB using the BOB_INT interface.
+    ```bash
+    # Set VARIABLEs here to allow variation in your plugin
+    # See https://cosmosc2.com/docs/v5/plugins for more information
+    VARIABLE bob_target_name BOB
 
-  6.. COSMOS is now fully configured with everything needed to talk to our new target. Other things you might like to do at this point is define telemetry screens in config/targets/BOB/screens. See [Telemetry Screen Configuration](/docs/v5/screens). Configure LENGTH and CMD_ID as IGNORED_PARAMETER in config/targets/BOB/target.txt.
+    # Modify this according to your actual target connection
+    # See https://cosmosc2.com/docs/v5/interfaces for more information
+    TARGET BOB <%= bob_target_name %>
+    INTERFACE <%= bob_target_name %>_INT tcpip_client_interface.rb 127.0.0.1 8080 8081 10.0 nil BURST
+      MAP_TARGET <%= bob_target_name %>
+    ```
 
-  7.. That's all there is to it! In 14 lines of configuration we now have a fully configured system that is capable of connecting to, receiving telemetry from, sending commands to, displaying/graphing/logging data from our new target!
+    - This configures the plugin with a VARIABLE called bob_target_name with a default of "BOB". When you install this plugin you will have the option to change the name of this target to something other than "BOB". This is useful to avoid name conflicts and allows you to have multiple copies of the BOB target in your COSMOS system.
+    - The TARGET line declares the new BOB target using the name from the variable. The <%= %> syntax is called ERB (embedded Ruby) and allows us to put variables into our text files, in this case referencing our bob_target_name.
+    - The last line declares a new INTERFACE called (by default) BOB_INT that will connect as a TCP/IP client using the code in tcpip_client_interface.rb to address 127.0.0.1 (localhost) using port 8080 for writing and 8081 for reading. It also has a write timeout of 10 seconds and reads will never timeout (nil). The TCP/IP stream will be interpreted using the COSMOS [BURST](/docs/v5/protocols#burst-protocol) protocol which means it will read as much data as it can from the interface. For all the details on how to configure COSMOS interfaces please see the [Interface Guide](/docs/v5/interfaces). The MAP_TARGET line tells COSMOS that it will receive telemetry from and send commands to the BOB target using the BOB_INT interface.
+
+1. The targets/BOB/lib directory contains the target's library code. This code implements methods specific to this target to make it easier for scripts run in Script Runner to interact with this target. The targets/BOB/procedures directory contains an example script for interacting with the target. For more information about scripting please see the [Scripting Best Practices](/docs/v5/scripting-best-practices) page and [Scripting Guide](/docs/v5/scripting).
+
+1. At this point you can create a new plugin named after your real target and start modifying the interface and command and telemetry definitions to enable COSMOS to connect to and drive your target. If you run into trouble look for solutions on our [Github Issues](https://github.com/BallAerospace/COSMOS/issues) page. If you would like to enquire about support contracts or professional COSMOS development please contact us at cosmos@ball.com.

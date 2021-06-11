@@ -103,9 +103,15 @@
   <li>Download the latest COSMOS 5 from the Github <a href="https://github.com/BallAerospace/COSMOS/releases">releases</a></li>
   <li>Extract the archive somewhere on your host computer</li>
   <li>The COSMOS 5 containers are designed to work and be built in the presence of an SSL Decryption device. To support this a cacert.pem file can be placed at the base of the COSMOS 5 project that includes any certificates needed by your organization.</li>
-  <li>Run cosmos_start.bat (Windows), or cosmos_start.sh (linux/Mac)</li>
+  <li>Run cosmos-control.bat start (Windows), or cosmos-control.sh start (linux/Mac)
+    <ul>
+      <li>Note cosmos-control.bat takes multiple arguments. Run with no arguments for help.</li>
+      <li>If you see an error indicating docker daemon is not running ensure Docker is installed and running.</li>
+    </ul>
+  </li>
   <li>COSMOS 5 will be built and when ready should be running (~15 mins for first run, ~2 for subsequent)</li>
-  <li>Connect a web browser to http://localhost:8080</li>
+  <li>Connect a web browser to http://localhost:2900</li>
+  <li>Continue to <a href="/docs/v5/gettingstarted">Getting Started</a></li>
 </ol>
 
 <div class="note warning">
@@ -324,6 +330,24 @@ You will need to create new ones with the names above and set their value to the
       
     
       
+  <li class="">
+    <a href="/docs/v5/gettingstarted">Getting Started</a>
+  </li>
+  <!-- prettier-ignore -->
+  
+  
+    
+    
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
     
       
     
@@ -366,24 +390,6 @@ You will need to create new ones with the names above and set their value to the
       
   <li class="">
     <a href="/docs/v5/upgrading">Upgrading</a>
-  </li>
-  <!-- prettier-ignore -->
-  
-  
-    
-    
-    
-      
-    
-      
-    
-      
-    
-      
-    
-      
-  <li class="">
-    <a href="/docs/v5/gettingstarted">Getting Started</a>
   </li>
   <!-- prettier-ignore -->
   
