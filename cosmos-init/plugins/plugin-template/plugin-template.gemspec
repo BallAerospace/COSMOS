@@ -3,9 +3,9 @@
 # Create the overall gemspec
 spec = Gem::Specification.new do |s|
   s.name = 'TEMPLATE'
-  s.summary = 'Ball Aerospace COSMOS TEMPLATE plugin'
+  s.summary = 'Ball Aerospace COSMOS <%= plugin_name %> plugin'
   s.description = <<-EOF
-    Builds a COSMOS configuration for deployment to COSMOS
+    <%= plugin_name %> plugin for deployment to COSMOS
   EOF
   s.authors = ['Anonymous']
   s.email = ['name@domain.com']

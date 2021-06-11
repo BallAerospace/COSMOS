@@ -32,6 +32,7 @@ require 'find'
 require 'aws-sdk-s3'
 require 'json'
 require 'redis'
+require 'erb'
 
 $redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0')
 
@@ -41,7 +42,7 @@ def print_usage
   puts "  cosmos help                          # Displays this information"
   puts "  cosmos load </PATH/FILENAME.gem>     # Loads a COSMOS plugin gem file"
   puts "  cosmos docs                          # Launches the documentation server"
-  puts "  cosmos generate target <TGT_NAME>    # Generate a COSMOS target"
+  puts "  cosmos generate plugin <PLUGIN_NAME> # Generate a COSMOS plugin"
   puts "  cosmos bridge <config filename>      # Run COSMOS host bridge"
   puts "  cosmos bridgesetup <config filename> # Create a default config file"
   puts ""
@@ -55,171 +56,48 @@ def print_usage
   puts ""
 end
 
-def gen_tgt(target)
-  "# If you have custom limits responses or conversions you require them here
-#REQUIRE #{target}_limits_response.rb
-#REQUIRE #{target}_conversion.rb
-
-# Ignored Parameters
-# (parameters you don't want to see by default in various tools)
-IGNORE_PARAMETER ID
-
-# Ignored Items
-# (items you don't want to see by default in various tools)
-IGNORE_ITEM ID
-
-# You can explicitly define the command and telemetry files
-# you want to process and the order they are processed.
-# If not then all files in cmd_tlm are processed in alphabetical order
-#COMMANDS cmd.txt
-#TELEMETRY tlm.txt
-"
-end
-
-def gen_int(target)
-  "# This is a segment of the main config/tools/cmd_tlm_server/cmd_tlm_server.txt
-# that will be used when that files specifies AUTO_INTERFACE_TARGETS or INTERFACE_TARGET #{target}.
-
-# Modify this according to your actual target connection
-# Please see the COSMOS Interface Configuration documentation
-
-INTERFACE #{target}_INT tcpip_client_interface.rb 127.0.0.1 8080 8081 10.0 nil BURST 4 0xDEADBEEF
-  TARGET #{target}
-"
-end
-
-def gen_cmd(target)
-  %Q(COMMAND #{target} COMMAND BIG_ENDIAN "Packet description"
-  # Keyword           Name  BitSize Type   Min Max  Default  Description
-  APPEND_ID_PARAMETER ID    16      INT    1   1    1        "Identifier"
-  APPEND_PARAMETER    VALUE 32      FLOAT  0   10.5 2.5      "Value"
-  APPEND_PARAMETER    BOOL  8       UINT   MIN MAX  0        "Boolean"
-    STATE FALSE 0
-    STATE TRUE 1
-  APPEND_PARAMETER    LABEL 0       STRING          "COSMOS" "The label to apply"
-)
-end
-
-def gen_tlm(target)
-  %Q(TELEMETRY #{target} STATUS BIG_ENDIAN "Telemetry description"
-  # Keyword      Name  BitSize Type   ID Description
-  APPEND_ID_ITEM ID    16      INT    1  "Identifier"
-  APPEND_ITEM    VALUE 32      FLOAT     "Value"
-  APPEND_ITEM    BOOL  8       UINT      "Boolean"
-    STATE FALSE 0
-    STATE TRUE 1
-  APPEND_ITEM    LABEL 0       STRING    "The label to apply"
-)
-end
-
-def gen_lib(target)
-  "# This class can be used in your scripts like so:
-#   require '#{target.downcase}'
-#   #{target.downcase} = #{target.capitalize}.new
-#   #{target.downcase}.utility
-# For more information see the COSMOS scripting guide
-
-class #{target.capitalize}
-  def utility
-  end
-end
-"
-end
-
-def gen_proc(target)
-  %Q(# Script Runner test script
-cmd("#{target} COMMAND")
-wait_check("#{target} STATUS BOOL == 'FALSE'", 5)
-)
-end
-
-def gen_test(target)
-  %Q(# To add this test to Test Runner edit config/tools/test_runner/test_runner.txt
-# Add this line:
-#   LOAD_UTILITY '#{target.downcase}_test'
-#
-# Test Runner test script
-class #{target.capitalize}Test < Cosmos::Test
-  # def setup
-  #   # Implement group level setup
-  # end
-
-  def test_command
-    cmd("#{target} COMMAND")
-    wait_check("#{target} STATUS BOOL == 'FALSE'", 5)
-  end
-
-  # def teardown
-  #   # Implement group level teardown
-  # end
-end
-
-class #{target.capitalize}Suite < Cosmos::TestSuite
-  # def setup
-  #   # Implement suite level setup
-  # end
-
-  def initialize
-    super()
-    add_test('#{target.capitalize}Test')
-  end
-
-  # def teardown
-  #   # Implement suite level teardown
-  # end
-end
-)
-end
-
-def gen_screen(target)
-  %Q(SCREEN AUTO AUTO 1.0
-
-TITLE "Status"
-
-VERTICALBOX
-  SECTIONHEADER "Information"
-  LABELVALUE #{target} STATUS VALUE
-  LABELVALUE #{target} STATUS BOOL
-END
-)
-end
-
 def generate(args)
   case args[0]
-  when 'target'
-    unless File.exist?('./targets/')
-      abort("generator must be run at the root of the COSMOS user installation")
-    end
+  when 'plugin'
     if args.length != 2
-      abort("Usage: cosmos generate target <NAME>")
+      abort("Usage: cosmos generate plugin <NAME>")
     end
-    target = args[1].upcase
-    target_path = File.join("./targets/#{target}")
-    if File.exist?(target_path)
-      puts "Warning! Target #{target} already exists! Completely DELETE existing target? (N/y)"
-      STDOUT.flush # Output the warning
-      name = STDIN.gets.chomp
-      if name != 'y'
-        abort("Aborting generator")
-      end
-      FileUtils.rm_rf target_path
-      sleep 1 # Allow the delete to occur
+    if args[1] =~ /\s/
+      abort("Plugin names can not have spaces!")
     end
-    FileUtils.mkdir(target_path)
-    File.open(File.join(target_path, 'target.txt'), 'w') { |file| file.write(gen_tgt(target)) }
-    File.open(File.join(target_path, 'cmd_tlm_server.txt'), 'w') { |file| file.write(gen_int(target)) }
-    FileUtils.mkdir(File.join(target_path, 'cmd_tlm'))
-    File.open(File.join(target_path, 'cmd_tlm', 'cmd.txt'), 'w') { |file| file.write(gen_cmd(target)) }
-    File.open(File.join(target_path, 'cmd_tlm', 'tlm.txt'), 'w') { |file| file.write(gen_tlm(target)) }
-    FileUtils.mkdir(File.join(target_path, 'lib'))
-    File.open(File.join(target_path, 'lib', "#{target.downcase}.rb"), 'w') { |file| file.write(gen_lib(target)) }
-    FileUtils.mkdir(File.join(target_path, 'procedures'))
-    File.open(File.join(target_path, 'procedures', "#{target.downcase}_script.rb"), 'w') { |file| file.write(gen_proc(target)) }
-    File.open(File.join(target_path, 'procedures', "#{target.downcase}_test.rb"), 'w') { |file| file.write(gen_test(target)) }
-    FileUtils.mkdir(File.join(target_path, 'screens'))
-    File.open(File.join(target_path, 'screens', "status.txt"), 'w') { |file| file.write(gen_screen(target)) }
 
-    puts "Target #{target} successfully generated!\n"
+    plugin = args[1].downcase.gsub(/_+|-+/, '-')
+    plugin_name = "cosmos-#{plugin}"
+    if File.exist?(plugin_name)
+      abort("Plugin #{plugin_name} already exists!")
+    end
+    FileUtils.mkdir(plugin_name)
+    Dir.chdir(plugin_name)
+
+    # Grab the plugin template
+    template_dir = File.expand_path(File.join(__dir__, '..', '..', 'cosmos-init', 'plugins', 'plugin-template'))
+    target_name = plugin.upcase.gsub('-', '_')
+    target_lib_filename = "#{target_name.downcase}.rb"
+    target_class = target_lib_filename.filename_to_class_name
+    target_object = target_name.downcase
+    b = binding
+
+    Dir.glob("#{template_dir}/**/*").each do |file|
+      base_name = file.sub("#{template_dir}/", '')
+      # Rename the template TARGET to our actual target named after the plugin
+      base_name.sub!("targets/TARGET", "targets/#{target_name}")
+      if File.directory?(file)
+        FileUtils.mkdir(base_name)
+        next
+      end
+      base_name.sub!("target.rb", target_lib_filename)
+      output = ERB.new(File.read(file)).result(b)
+      File.open(base_name, 'w') do |file|
+        file.write output
+      end
+    end
+
+    puts "Plugin #{plugin_name} successfully generated!\n"
   else # Unknown generator
     abort("Unknown generator #{args[0]}")
   end

@@ -1,0 +1,8 @@
+TELEMETRY <%= target_name %> STATUS BIG_ENDIAN "Telemetry description"
+  # Keyword      Name  BitSize Type   ID Description
+  APPEND_ID_ITEM ID    16      INT    1  "Identifier"
+  APPEND_ITEM    VALUE 32      FLOAT     "Value"
+  APPEND_ITEM    BOOL  8       UINT      "Boolean"
+    STATE FALSE 0
+    STATE TRUE 1
+  APPEND_ITEM    LABEL 0       STRING    "The label to apply"
