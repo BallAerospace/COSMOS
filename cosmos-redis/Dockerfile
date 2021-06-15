@@ -1,5 +1,6 @@
 FROM redis:6.2
 
-COPY ./config/* /data
+RUN mkdir /config
+COPY ./config/* /config
 
-CMD [ "redis-server", "/data/redis.conf" ]
+CMD [ "redis-server", "/config/redis.conf" ]
