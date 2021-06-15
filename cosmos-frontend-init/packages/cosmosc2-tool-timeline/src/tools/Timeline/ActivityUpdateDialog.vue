@@ -113,7 +113,12 @@
                 />
               </v-row>
               <v-row>
-                <v-btn color="success" type="submit">Ok</v-btn>
+                <span class="ma-2 red--text" v-show="error" v-text="error" />
+              </v-row>
+              <v-row>
+                <v-btn color="success" type="submit" :disabled="error">
+                  Update
+                </v-btn>
                 <v-spacer />
                 <v-btn color="primary" @click="show = false">Cancel</v-btn>
               </v-row>
@@ -184,6 +189,21 @@ export default {
     }
   },
   computed: {
+    error: function () {
+      const now = new Date()
+      const start = Date.parse(`${this.startDate}T${this.startTime}`)
+      const stop = Date.parse(`${this.stopDate}T${this.stopTime}`)
+      if (start === stop) {
+        return 'Invalid start, stop time. Activity must have different start and stop times.'
+      }
+      if (now > start) {
+        return 'Invalid start time. Activity must be in the future.'
+      }
+      if (start > stop) {
+        return 'Invalid start time. Activity start before stop.'
+      }
+      return null
+    },
     show: {
       get() {
         return this.value
@@ -208,17 +228,17 @@ export default {
     updateActivity: function () {
       // Call the api to create a new activity to add to the activities array
       const path = `/cosmos-api/timeline/${this.activity.name}/activity/${this.activity.start}`
-      const sTime = this.toIsoString(
+      const startString = this.toIsoString(
         Date.parse(`${this.startDate}T${this.startTime}`)
       )
-      const eTime = this.toIsoString(
+      const stopString = this.toIsoString(
         Date.parse(`${this.stopDate}T${this.stopTime}`)
       )
       let data = {}
       data[this.kind] = this.activityData
       Api.put(path, {
-        start: sTime,
-        stop: eTime,
+        start: startString,
+        stop: stopString,
         kind: this.kind,
         data,
       })
