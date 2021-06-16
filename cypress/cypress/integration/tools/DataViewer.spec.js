@@ -186,7 +186,7 @@ describe('DataViewer', () => {
       })
   })
 
-  it.only('downloads a file', () => {
+  it('downloads a file', () => {
     cy.skipOn('electron') // because the readDownloads task doesn't work for some reason
     cy.get('[data-test=new-tab]').click()
     cy.get('[data-test=new-packet]').click()
