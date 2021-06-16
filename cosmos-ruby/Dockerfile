@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM alpine:3.10.9
 
 # We require a local certificate file so set that up.
 # You must place a valid cert.pem file in your COSMOS development folder for this work

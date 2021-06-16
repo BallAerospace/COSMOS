@@ -63,14 +63,14 @@
                   v-model="startDate"
                   type="date"
                   label="Start Date"
-                  :rules="[rules.required, rules.calendar]"
+                  :rules="[rules.required]"
                   data-test="startDate"
                 />
                 <v-text-field
                   v-model="startTime"
                   type="time"
                   label="Start Time"
-                  :rules="[rules.required, rules.time]"
+                  :rules="[rules.required]"
                   data-test="startTime"
                 />
               </v-row>
@@ -79,14 +79,14 @@
                   v-model="stopDate"
                   type="date"
                   label="End Date"
-                  :rules="[rules.required, rules.calendar]"
+                  :rules="[rules.required]"
                   data-test="stopDate"
                 />
                 <v-text-field
                   v-model="stopTime"
                   type="time"
                   label="End Time"
-                  :rules="[rules.required, rules.time]"
+                  :rules="[rules.required]"
                   data-test="stopTime"
                 />
               </v-row>
@@ -110,7 +110,12 @@
                 />
               </v-row>
               <v-row>
-                <v-btn color="success" type="submit">Ok</v-btn>
+                <span class="ma-2 red--text" v-show="error" v-text="error" />
+              </v-row>
+              <v-row>
+                <v-btn color="success" type="submit" :disabled="error">
+                  Ok
+                </v-btn>
                 <v-spacer />
                 <v-btn color="primary" @click="show = false">Cancel</v-btn>
               </v-row>
@@ -155,31 +160,25 @@ export default {
       activityData: '',
       rules: {
         required: (value) => !!value || 'Required',
-        calendar: (value) => {
-          try {
-            return (
-              isValid(parse(value, 'yyyy-MM-dd', new Date())) ||
-              'Invalid date (YYYY-MM-DD)'
-            )
-          } catch (e) {
-            return 'Invalid date (YYYY-MM-DD)'
-          }
-        },
-        time: (value) => {
-          try {
-            let time_s = parse(value, 'HH:mm:ss', new Date())
-            let time_m = parse(value, 'HH:mm', new Date())
-            return (
-              isValid(time_s) || isValid(time_m) || 'Invalid time (HH:MM:SS)'
-            )
-          } catch (e) {
-            return 'Invalid time (HH:MM:SS)'
-          }
-        },
       },
     }
   },
   computed: {
+    error: function () {
+      const now = new Date()
+      const start = Date.parse(`${this.startDate}T${this.startTime}`)
+      const stop = Date.parse(`${this.stopDate}T${this.stopTime}`)
+      if (start === stop) {
+        return 'Invalid start, stop time. Activity must have different start and stop times.'
+      }
+      if (now > start) {
+        return 'Invalid start time. Activity must be in the future.'
+      }
+      if (start > stop) {
+        return 'Invalid start time. Activity start before stop.'
+      }
+      return null
+    },
     show: {
       get() {
         return this.value
@@ -190,20 +189,20 @@ export default {
     },
   },
   methods: {
-    createActivity() {
+    createActivity: function () {
       // Call the api to create a new activity to add to the activities array
       const path = `/cosmos-api/timeline/${this.timeline}/activities`
-      const sTime = this.toIsoString(
+      const startString = this.toIsoString(
         Date.parse(`${this.startDate}T${this.startTime}`)
       )
-      const eTime = this.toIsoString(
+      const stopString = this.toIsoString(
         Date.parse(`${this.stopDate}T${this.stopTime}`)
       )
       let data = {}
       data[this.kind] = this.activityData
       Api.post(path, {
-        start: sTime,
-        stop: eTime,
+        start: startString,
+        stop: stopString,
         kind: this.kind,
         data,
       })
