@@ -969,7 +969,14 @@ export default {
     rubySyntaxCheck() {
       Api.post(
         '/script-api/scripts/syntax',
-        this.editor.getValue() // Pass in the raw text, no scope needed
+        this.editor.getValue(),
+        {},
+        {},
+        {},
+        {
+          Accept: 'application/json',
+          'Content-Type': 'plain/text',
+        }
       ).then((response) => {
         this.infoTitle = response.data.title
         this.infoText = JSON.parse(response.data.description)
