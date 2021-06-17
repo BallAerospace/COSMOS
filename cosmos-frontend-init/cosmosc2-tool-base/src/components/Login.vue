@@ -25,47 +25,51 @@
       password to begin using COSMOS
     </v-card-subtitle>
     <v-card-text>
-      <v-text-field
-        v-if="isSet && reset"
-        v-model="oldPassword"
-        type="password"
-        label="Old Password"
-      />
-      <v-text-field
-        v-model="password"
-        type="password"
-        :label="`${!isSet || reset ? 'New ' : ''}Password`"
-        data-test="new-password"
-      />
-      <v-text-field
-        v-if="reset"
-        v-model="confirmPassword"
-        :rules="[rules.matchPassword]"
-        type="password"
-        label="Confirm Password"
-        data-test="confirm-password"
-      />
-      <v-btn
-        v-if="reset"
-        @click="setPassword"
-        large
-        :color="isSet ? 'warn' : 'success'"
-        :disabled="!formValid"
-        data-test="set-password"
-      >
-        Set
-      </v-btn>
-      <template v-else>
+      <v-form>
+        <v-text-field
+          v-if="isSet && reset"
+          v-model="oldPassword"
+          type="password"
+          label="Old Password"
+        />
+        <v-text-field
+          v-model="password"
+          type="password"
+          :label="`${!isSet || reset ? 'New ' : ''}Password`"
+          data-test="new-password"
+        />
+        <v-text-field
+          v-if="reset"
+          v-model="confirmPassword"
+          :rules="[rules.matchPassword]"
+          type="password"
+          label="Confirm Password"
+          data-test="confirm-password"
+        />
         <v-btn
-          @click="verifyPassword"
+          v-if="reset"
+          type="submit"
+          @click="setPassword"
           large
-          color="success"
+          :color="isSet ? 'warn' : 'success'"
           :disabled="!formValid"
+          data-test="set-password"
         >
-          Login
+          Set
         </v-btn>
-        <v-btn text small @click="showReset"> Change Password </v-btn>
-      </template>
+        <template v-else>
+          <v-btn
+            type="submit"
+            @click="verifyPassword"
+            large
+            color="success"
+            :disabled="!formValid"
+          >
+            Login
+          </v-btn>
+          <v-btn text small @click="showReset"> Change Password </v-btn>
+        </template>
+      </v-form>
     </v-card-text>
     <v-alert :type="alertType" v-model="showAlert" dismissible>
       {{ alert }}
