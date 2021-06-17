@@ -20,7 +20,7 @@
 import axios from 'axios'
 
 const instance = axios.create({
-  baseURL: window.location.origin,
+  baseURL: location.origin,
   timeout: 10000,
   params: {},
 })
@@ -30,7 +30,7 @@ instance.interceptors.response.use(
   (error) => {
     if (error.response.status === 401) {
       delete localStorage.token
-      CosmosAuth.login(window.location.href)
+      CosmosAuth.login(location.href)
     }
     return error
   }
