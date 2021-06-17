@@ -73,6 +73,7 @@
       <span style="width: 100%"><span id="cosmos-menu"></span></span>
       <div class="justify-right mr-2 pt-2"><scope-selector /></div>
       <div class="justify-right"><notifications /></div>
+      <div class="justify-right"><user-menu /></div>
     </v-app-bar>
   </div>
 </template>
@@ -84,11 +85,13 @@ import logo from '../public/img/logo.png'
 import { registerApplication, start } from 'single-spa'
 import ScopeSelector from './components/ScopeSelector.vue'
 import Notifications from './components/Notifications.vue'
+import UserMenu from './components/UserMenu.vue'
 
 export default {
   components: {
     ScopeSelector,
     Notifications,
+    UserMenu,
   },
   data() {
     return {
