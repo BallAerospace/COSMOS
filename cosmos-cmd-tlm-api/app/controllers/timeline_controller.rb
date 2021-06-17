@@ -51,6 +51,14 @@ class TimelineController < ApplicationController
   # scope [String] the scope of the timeline, `TEST`
   # json [String] The json of the timeline name (see below)
   # @return [String] the timeline converted into json format
+  # Request Headers
+  #```json
+  #  {
+  #    "Authorization": "token/password",
+  #    "Content-Type": "application/json"
+  #  }
+  #```
+  # Request Post Body
   #```json
   #  {
   #    "name": "system42",
@@ -85,6 +93,14 @@ class TimelineController < ApplicationController
   # scope [String] the scope of the timeline, `TEST`
   # json [String] The json of the timeline name (see below)
   # @return [String] the timeline converted into json format
+  # Request Headers
+  #```json
+  #  {
+  #    "Authorization": "token/password",
+  #    "Content-Type": "application/json"
+  #  }
+  #```
+  # Request Post Body
   #```json
   #  {
   #    "color": "#FFFFFF"
