@@ -89,3 +89,21 @@ Quickly extract command and telemetry into CSV files with just the data you care
 
 - Process items into CSV data for analysis in other tools (Excel, Matlab, etc)
 - Add individual items, whole packets, and every packet from a given target
+
+## Data Viewer
+
+Quickly view the data you care about.
+
+![Data Viewer](/img/v5/data_viewer/data_viewer.png)
+
+- View both raw and decomed data.
+- Save and load configurations.
+
+## Timeline
+
+Schedule commands and scripts to be run.
+
+![Timeline](/img/v5/timeline/timeline.png)
+
+- View activities and timelines
+- Set times for scripts or cmds to be run

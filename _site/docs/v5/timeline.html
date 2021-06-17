@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>JSON API</title>
+  <title>Timeline</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v4.2.0">
@@ -91,197 +91,132 @@
           <span class="version-badge">v5</span>
         </div>
          
-        <h1>JSON API</h1>
-        <div class="note unreleased">
-  <p>Update with COSMOS 5 changes to JSON API</p>
-</div>
+        <div class="toc"><ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
+<li class="toc-entry toc-h2"><a href="#timeline-menus">Timeline Menus</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#view-menu-items">View Menu Items</a></li>
+<li class="toc-entry toc-h3"><a href="#time-menu-items">Time Menu Items</a></li>
+<li class="toc-entry toc-h3"><a href="#adding-timelines">Adding Timelines</a></li>
+<li class="toc-entry toc-h3"><a href="#timeline-list-view">Timeline List View</a></li>
+<li class="toc-entry toc-h3"><a href="#timeline-calender-view">Timeline Calender View</a></li>
+<li class="toc-entry toc-h3"><a href="#adding-activities">Adding Activities</a></li>
+<li class="toc-entry toc-h3"><a href="#updating-activity">Updating Activity</a></li>
+<li class="toc-entry toc-h3"><a href="#multi-timeline-selection">Multi-Timeline Selection</a></li>
+<li class="toc-entry toc-h3"><a href="#timeline-lifecycle">Timeline lifecycle</a></li>
+</ul>
+</li>
+</ul></div>
+        
+        <h1>Timeline</h1>
+        <h2 id="introduction">
+<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
 
-<div class="note">
-  <h5>This documentation is for COSMOS Developers</h5>
-  <p>If you’re looking for the methods available to write test procedures using the COSMOS scripting API, refer to the <a href="/docs/v5/scripting">Scripting Guide</a> page. If you’re trying to interface to a COSMOS Command and Telemetry Server from an external application using any language then this is the right place.</p>
-</div>
+<p>Timeline allows for the simple execution of commands and scripts. This uses the microservice operator in cosmos to run a multi-threaded application to listen for updates to the timelie schedule and execute on about a seconds accuracy.</p>
 
-<p>This document provides the information necessary for external applications to interact with the COSMOS Command and Telemetry Server using the COSMOS API. External applications written in any language can send commands and retrieve individual telemetry points using this API. External applications also have the option of connecting to the COSMOS Command and Telemetry server to interact with raw tcp/ip streams of commands/telemetry. However, the COSMOS JSON API removes the requirement that external applications have knowledge of the binary formats of packets.</p>
+<p><img src="/img/v5/timeline/timeline.png" alt="Timeline"></p>
 
-<h2 id="authorization">Authorization</h2>
+<h2 id="timeline-menus">
+<a class="anchor" href="#timeline-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Timeline Menus</h2>
 
-<p>The HTTP Authorization request header contains the credentials to authenticate a user agent with a server, usually, but not necessarily, after the server has responded with a 401 Unauthorized status and the WWW-Authenticate header.</p>
+<h3 id="view-menu-items">
+<a class="anchor" href="#view-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>View Menu Items</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Authorization: &lt;token/password&gt;
-</code></pre></div></div>
+<!-- Image sized to match up with bullets -->
 
-<h2 id="json-rpc-20">JSON-RPC 2.0</h2>
-
-<p>The COSMOS API implements a relaxed version of the <a href="http://www.jsonrpc.org/specification">JSON-RPC 2.0 Specification</a>. Requests with an “id” of NULL are not supported. Numbers can contain special non-string literal’s such as NaN, and +/-inf. Request params must be specified by-position, by-name is not supported. Section 6 of the spec, Batch Operations, is not supported.</p>
-
-<h2 id="socket-connections">Socket Connections</h2>
-
-<p>The COSMOS Command and Telemetry Server listens for connections to the COSMOS API on an HTTP server (default port of 7777).</p>
-
-<h2 id="supported-methods">Supported Methods</h2>
-
-<p>The list of methods supported by the COSMOS API may be found in the <a href="https://github.com/BallAerospace/COSMOS/tree/master/cosmos/lib/cosmos/api">api</a> source code on Github. The @api_whitelist variable is initialized with an array of all methods accepted by the CTS. This page will not show the full argument list for every method in the API, but it should be noted that the JSON API methods correspond to the COSMOS scripting API methods documented in the <a href="/docs/v5/scripting">Scripting Guide</a>. This page will show a few example JSON requests and responses, and the scripting guide can be used as a reference to extrapolate how to build requests and parse responses for methods not explicitly documented here.</p>
-
-<h2 id="existing-implementations">Existing Implementations</h2>
-
-<p>The COSMOS JSON API has been implemented in the following languages:</p>
+<p><img src="/img/v5/timeline/view_menu.png" alt="File Menu" style="float: left; margin-right: 50px; height: 6em;"></p>
 
 <ul>
-  <li><a href="https://github.com/BallAerospace/python-ballcosmos">Python</a></li>
+  <li>Signal the web page to refresh</li>
+  <li>Set the activity view to view in a list (better for shorter tasks)</li>
+  <li>Set the activity view to view in a calendar (better for longer tasks)</li>
 </ul>
 
-<h2 id="example-usage">Example Usage</h2>
+<h3 id="time-menu-items">
+<a class="anchor" href="#time-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>Time Menu Items</h3>
 
-<h3 id="sending-commands">Sending Commands</h3>
+<!-- Image sized to match up with bullets -->
 
-<p>The following methods are used to send commands: cmd, cmd_no_range_check, cmd_no_hazardous_check, cmd_no_checks</p>
+<p><img src="/img/v5/timeline/time_menu.png" alt="Mode Menu" style="float: left; margin-right: 50px; height: 4em;"></p>
 
-<p>The cmd method sends a command to a COSMOS target in the system. The cmd_no_range_check method does the same but ignores parameter range errors. The cmd_no_hazardous_check method does the same, but allows hazardous commands to be sent. The cmd_no_checks method does the same but allows hazardous commands to be sent, and ignores range errors.</p>
+<ul>
+  <li>Set time to display in local time</li>
+  <li>Set time to display in UTC time</li>
+</ul>
 
-<p>Two parameter syntaxes are supported.</p>
+<h3 id="adding-timelines">
+<a class="anchor" href="#adding-timelines" aria-hidden="true"><span class="octicon octicon-link"></span></a>Adding Timelines</h3>
 
-<p>The first is a single string of the form “TARGET_NAME COMMAND_NAME with PARAMETER_NAME_1 PARAMETER_VALUE_1, PARAMETER_NAME_2 PARAMETER_VALUE_2, …” The “with …” portion of the string is optional. Any unspecified parameters will be given default values.</p>
+<p><img src="/img/v5/timeline/timeline_create_icon.png" alt="Timeline Create Icon"></p>
 
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Data Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>command_string</td>
-      <td>string</td>
-      <td>A single string containing all required information for the command</td>
-    </tr>
-  </tbody>
-</table>
+<p>Adding a timeline to Cosmos.</p>
 
-<p>The second is two or three parameters with the first parameter being a string denoting the target name, the second being a string with the command name, and an optional third being a hash of parameter names/values. This format should be used if the command contains parameters that take binary data that is not capable of being expressed as ASCII text. The cmd and cmd_no_range_check methods will fail on all attempts to send a command that has been marked hazardous. To send hazardous commands, the cmd_no_hazardous_check, or cmd_no_checks methods must be used.</p>
+<ul>
+  <li>Each timeline consists on several threads so be careful of your compute resources you have as you can overhelm cosmos with lots of these.</li>
+  <li>Also note can not have over lapping activities on a single timeline.</li>
+</ul>
 
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Data Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>target_name</td>
-      <td>String</td>
-      <td>Name of the target to send the command to</td>
-    </tr>
-    <tr>
-      <td>command_name</td>
-      <td>String</td>
-      <td>The name of the command</td>
-    </tr>
-    <tr>
-      <td>command_params</td>
-      <td>Hash</td>
-      <td>Optional hash of command parameters</td>
-    </tr>
-  </tbody>
-</table>
+<h3 id="timeline-list-view">
+<a class="anchor" href="#timeline-list-view" aria-hidden="true"><span class="octicon octicon-link"></span></a>Timeline List View</h3>
 
-<p>Example Usage:</p>
+<p>View activities on a timeline or multiple timelines in a data table view.</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nt">--</span><span class="o">&gt;</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"cmd"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST COLLECT with DURATION 1.0, TEMP 0.0, TYPE 'NORMAL'"</span><span class="o">]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
-&lt;<span class="nt">--</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"COLLECT"</span>, <span class="o">{</span><span class="s2">"DURATION"</span>: 1.0, <span class="s2">"TEMP"</span>: 0.0, <span class="s2">"TYPE"</span>: <span class="s2">"NORMAL"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
+<p><img src="/img/v5/timeline/timeline_list.png" alt="Timeline List"></p>
 
-<span class="nt">--</span><span class="o">&gt;</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"cmd"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"COLLECT"</span>, <span class="o">{</span><span class="s2">"DURATION"</span>: 1.0, <span class="s2">"TEMP"</span>: 0.0, <span class="s2">"TYPE"</span>: <span class="s2">"NORMAL"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
-&lt;<span class="nt">--</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"COLLECT"</span>, <span class="o">{</span><span class="s2">"DURATION"</span>: 1.0, <span class="s2">"TEMP"</span>: 0.0, <span class="s2">"TYPE"</span>: <span class="s2">"NORMAL"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span></code></pre></figure>
+<h3 id="timeline-calender-view">
+<a class="anchor" href="#timeline-calender-view" aria-hidden="true"><span class="octicon octicon-link"></span></a>Timeline Calender View</h3>
 
-<h3 id="getting-telemetry">Getting Telemetry</h3>
+<p>View activities on a timeline or multiple timelines in a data table view.</p>
 
-<p>The following methods are used to get telemetry: tlm, tlm_raw, tlm_formatted, tlm_with_units</p>
+<p><img src="/img/v5/timeline/timeline_cal.png" alt="Timeline Calender"></p>
 
-<p>The tlm method returns the current converted value of a telemetry point. The tlm_raw method returns the current raw value of a telemetry point. The tlm_formatted method returns the current formatted value of a telemetry point. The tlm_with_units method returns the current formatted value of a telemetry point with its units appended to the end.</p>
+<h3 id="adding-activities">
+<a class="anchor" href="#adding-activities" aria-hidden="true"><span class="octicon octicon-link"></span></a>Adding Activities</h3>
 
-<p>Two parameter syntaxes are supported.</p>
+<p><img src="/img/v5/timeline/activity_create_icon.png" alt="Activity Create Icon"></p>
 
-<p>The first is a single string of the form “TARGET_NAME PACKET_NAME ITEM_NAME”</p>
+<p>Once a timeline is selected a user can schedule an activity. Currently all activities must be scheduled at least 10 seconds in the future. Currently as of writting this a user can schedule a command or a script but this could be expanded upon later. When you open the create activity menu, you should have the options of type in a drop down in the top right and an input form to input the activity. This form has some error feedback that will disable the submit or ok button. You can also select if you want to input the activity based on UTC or local time.</p>
 
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Data Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>tlm_string</td>
-      <td>String</td>
-      <td>A single string containing all required information for the telemetry item</td>
-    </tr>
-  </tbody>
-</table>
+<p><img src="/img/v5/timeline/error_create_activity.png" alt="Error With Create Activity"></p>
 
-<p>The second is three parameters with the first parameter being a string denoting the target name, the second being a string with the packet name, and the third being a string with the item name.</p>
+<p><img src="/img/v5/timeline/create_activity.png" alt="Create Activity Complete"></p>
 
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Data Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>target_name</td>
-      <td>String</td>
-      <td>Name of the target to get the telemetry value from</td>
-    </tr>
-    <tr>
-      <td>packet_name</td>
-      <td>String</td>
-      <td>Name of the packet to get the telemetry value from</td>
-    </tr>
-    <tr>
-      <td>item_name</td>
-      <td>String</td>
-      <td>Name of the telemetry item</td>
-    </tr>
-  </tbody>
-</table>
+<h3 id="updating-activity">
+<a class="anchor" href="#updating-activity" aria-hidden="true"><span class="octicon octicon-link"></span></a>Updating Activity</h3>
 
-<p>Example Usage:</p>
+<p>Once a timeline is selected a user can select an activity. Currently all activities must be scheduled at least 10 seconds in the future. An activity can be updated if it is not fulfilled. Note an update is a “hard” command and can cause multiple api calls to make sure the scheduled is displayed and processed correctly.</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nt">--</span><span class="o">&gt;</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"tlm"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="o">]</span>, <span class="s2">"id"</span>: 2<span class="o">}</span>
-&lt;<span class="nt">--</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: 94.9438, <span class="s2">"id"</span>: 2<span class="o">}</span>
+<p><img src="/img/v5/timeline/update_activity.png" alt="Update Activity"></p>
 
-<span class="nt">--</span><span class="o">&gt;</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"tlm"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"HEALTH_STATUS"</span>, <span class="s2">"TEMP1"</span><span class="o">]</span>, <span class="s2">"id"</span>: 2<span class="o">}</span>
-&lt;<span class="nt">--</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: 94.9438, <span class="s2">"id"</span>: 2<span class="o">}</span></code></pre></figure>
+<h3 id="multi-timeline-selection">
+<a class="anchor" href="#multi-timeline-selection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Multi-Timeline Selection</h3>
 
-<h2 id="further-debugging">Further Debugging</h2>
+<p>You can view more then on timeline at a time, with the check icon at the top of the timeline list. This should allow you to compare timelines and view activities from both.</p>
 
-<p>If developing an interface for the JSON API from another language, the best way to debug is to send the same messages from the supported Ruby interface first, like the following. By enabling the debug mode, you can see the exact request and response sent from the Ruby Implementation.</p>
+<ul>
+  <li>List view</li>
+</ul>
 
-<ol>
-  <li>Launch CmdTlmServer</li>
-  <li>From a command line, launch ScriptRunner: ruby ScriptRunner</li>
-  <li>Run a script like the following:</li>
-</ol>
+<p><img src="/img/v5/timeline/multi_timelines_list.png" alt="Multi-Timeline List"></p>
 
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">JsonDRb</span><span class="p">.</span><span class="nf">debug</span> <span class="o">=</span> <span class="kp">true</span>
-<span class="n">cmd</span><span class="p">(</span><span class="s2">"INST ARYCMD with ARRAY [1, 2, 3]"</span><span class="p">)</span></code></pre></figure>
+<ul>
+  <li>Calender view</li>
+</ul>
 
-<ol>
-  <li>The following will be printed to the terminal where you launched ScriptRunner:</li>
-</ol>
+<p><img src="/img/v5/timeline/multi_timelines_cal.png" alt="Multi-Timeline Calender"></p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Request:
-<span class="o">{</span><span class="s2">"jsonrpc"</span>:<span class="s2">"2.0"</span>,<span class="s2">"method"</span>:<span class="s2">"cmd"</span>,<span class="s2">"params"</span>:[<span class="s2">"INST ARYCMD with ARRAY [1, 2, 3]"</span><span class="o">]</span>,<span class="s2">"id"</span>:0<span class="o">}</span>
-Response:
-<span class="o">{</span><span class="s2">"jsonrpc"</span>:<span class="s2">"2.0"</span>,<span class="s2">"id"</span>:0,<span class="s2">"result"</span>:[<span class="s2">"INST"</span>,<span class="s2">"ARYCMD"</span>,<span class="o">{</span><span class="s2">"ARRAY"</span>:[1,2,3]<span class="o">}]}</span></code></pre></figure>
+<h3 id="timeline-lifecycle">
+<a class="anchor" href="#timeline-lifecycle" aria-hidden="true"><span class="octicon octicon-link"></span></a>Timeline lifecycle</h3>
 
+<p>When a user creates a timeline, the cosmos operator see a new microservice has been created. This signals the operator to start a new microservice, the timeline microservice. The timeline microservice is the main thread of execution for the timeline. This starts a scheduler manager thread. The scheduler manger thread contains a thread pool that hosts more then one thread to run the activity. The scheduler manger will evaluate the schedule and based on the start time of the activity it will add the activity to the queue.</p>
+
+<p>The main thread will block on the web socket to listen to request changes to the timeline, these could be adding, removing, or updating acitivities. This will make the changes to the schedule if they are within the hour but not out side of that as we don’t want to hold everything in memory. When the web socket gets an update it has an action lookup table that based on the change takes different actions that could include removing the block and updating the schedule from the database to ensure the schedule and the database are always in synk.</p>
+
+<p>The schedule thread is check every second to make sure if a task can be run. If the start time is equal or less then the last 15 seconds it will then check the previously queued jobs list in the schedule. If the activity has not been queued and is not fulfilled. If the activity passes these check then a queued event is added to the activity but the activity is not saved to the database. The activity will be added to the queue to be worked by the worker threads. (TODO) This could be improved upon as a was to wake the thread when a change to the schedule happens or when a job needs to run.</p>
+
+<p>The workers are plain and simple, they block on the queue until an activity is placed on the queue. Once a job is pulled from the queue they check the type and run the activity. The thread will mark the activity fulfillment true and update the database record with the complete. If the worker gets an error while trying to run the task the activity will NOT be fulfilled and record the error in the database.</p>
+
+<p><img src="/img/v5/timeline/timeline_lifecycle.png" alt="Timeline Lifecycle"></p>
 
       </article>
     </div>
@@ -1241,7 +1176,7 @@ Response:
       
     
       
-  <li class="">
+  <li class="current">
     <a href="/docs/v5/timeline">Timeline</a>
   </li>
   <!-- prettier-ignore -->
@@ -1395,7 +1330,7 @@ Response:
       
     
       
-  <li class="current">
+  <li class="">
     <a href="/docs/v5/json-api">JSON API</a>
   </li>
   <!-- prettier-ignore -->

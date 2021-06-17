@@ -28,6 +28,7 @@
     - tlm_grapher
     - tlm_viewer
     - screens
+    - timeline
 
 - title: Usage Guides
   docs:

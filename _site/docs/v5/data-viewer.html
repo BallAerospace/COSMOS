@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
   <meta charset="UTF-8">
-  <title>JSON API</title>
+  <title>Data Viewer</title>
   <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="generator" content="Jekyll v4.2.0">
@@ -91,197 +91,66 @@
           <span class="version-badge">v5</span>
         </div>
          
-        <h1>JSON API</h1>
-        <div class="note unreleased">
-  <p>Update with COSMOS 5 changes to JSON API</p>
-</div>
+        <div class="toc"><ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#introduction">Introduction</a></li>
+<li class="toc-entry toc-h2"><a href="#data-viewer-menus">Data Viewer Menus</a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#file-menu-items">File Menu Items</a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#open-configuration">Open Configuration</a></li>
+<li class="toc-entry toc-h4"><a href="#save-configuration">Save Configuration</a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h3"><a href="#adding-packets">Adding Packets</a></li>
+</ul>
+</li>
+</ul></div>
+        
+        <h1>Data Viewer</h1>
+        <h2 id="introduction">
+<a class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
 
-<div class="note">
-  <h5>This documentation is for COSMOS Developers</h5>
-  <p>If you’re looking for the methods available to write test procedures using the COSMOS scripting API, refer to the <a href="/docs/v5/scripting">Scripting Guide</a> page. If you’re trying to interface to a COSMOS Command and Telemetry Server from an external application using any language then this is the right place.</p>
-</div>
+<p>Data Viewer allows you to view packet data in both the past and in real time.</p>
 
-<p>This document provides the information necessary for external applications to interact with the COSMOS Command and Telemetry Server using the COSMOS API. External applications written in any language can send commands and retrieve individual telemetry points using this API. External applications also have the option of connecting to the COSMOS Command and Telemetry server to interact with raw tcp/ip streams of commands/telemetry. However, the COSMOS JSON API removes the requirement that external applications have knowledge of the binary formats of packets.</p>
+<p><img src="/img/v5/data_viewer/data_viewer.png" alt="Data Viewer"></p>
 
-<h2 id="authorization">Authorization</h2>
+<h2 id="data-viewer-menus">
+<a class="anchor" href="#data-viewer-menus" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data Viewer Menus</h2>
 
-<p>The HTTP Authorization request header contains the credentials to authenticate a user agent with a server, usually, but not necessarily, after the server has responded with a 401 Unauthorized status and the WWW-Authenticate header.</p>
+<h3 id="file-menu-items">
+<a class="anchor" href="#file-menu-items" aria-hidden="true"><span class="octicon octicon-link"></span></a>File Menu Items</h3>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Authorization: &lt;token/password&gt;
-</code></pre></div></div>
+<!-- Image sized to match up with bullets -->
 
-<h2 id="json-rpc-20">JSON-RPC 2.0</h2>
-
-<p>The COSMOS API implements a relaxed version of the <a href="http://www.jsonrpc.org/specification">JSON-RPC 2.0 Specification</a>. Requests with an “id” of NULL are not supported. Numbers can contain special non-string literal’s such as NaN, and +/-inf. Request params must be specified by-position, by-name is not supported. Section 6 of the spec, Batch Operations, is not supported.</p>
-
-<h2 id="socket-connections">Socket Connections</h2>
-
-<p>The COSMOS Command and Telemetry Server listens for connections to the COSMOS API on an HTTP server (default port of 7777).</p>
-
-<h2 id="supported-methods">Supported Methods</h2>
-
-<p>The list of methods supported by the COSMOS API may be found in the <a href="https://github.com/BallAerospace/COSMOS/tree/master/cosmos/lib/cosmos/api">api</a> source code on Github. The @api_whitelist variable is initialized with an array of all methods accepted by the CTS. This page will not show the full argument list for every method in the API, but it should be noted that the JSON API methods correspond to the COSMOS scripting API methods documented in the <a href="/docs/v5/scripting">Scripting Guide</a>. This page will show a few example JSON requests and responses, and the scripting guide can be used as a reference to extrapolate how to build requests and parse responses for methods not explicitly documented here.</p>
-
-<h2 id="existing-implementations">Existing Implementations</h2>
-
-<p>The COSMOS JSON API has been implemented in the following languages:</p>
+<p><img src="/img/v5/data_viewer/file_menu.png" alt="File Menu" style="float: left; margin-right: 50px; height: 4em;"></p>
 
 <ul>
-  <li><a href="https://github.com/BallAerospace/python-ballcosmos">Python</a></li>
+  <li>Opens a saved configuration</li>
+  <li>Save the current configuration</li>
 </ul>
 
-<h2 id="example-usage">Example Usage</h2>
+<h4 id="open-configuration">
+<a class="anchor" href="#open-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Open Configuration</h4>
 
-<h3 id="sending-commands">Sending Commands</h3>
+<p>The Open and Save Configuration options deserve a little more explanation. When you select File Open the Open Configuration dialog appears. It displays a list of all saved configurations (INST ADCS in this example). You select a configuration and then click Ok to load it. You can delete existing configurations by clicking the Trash icon next to a configuration name.</p>
 
-<p>The following methods are used to send commands: cmd, cmd_no_range_check, cmd_no_hazardous_check, cmd_no_checks</p>
+<p><img src="/img/v5/data_viewer/open_config.png" alt="Open Config"></p>
 
-<p>The cmd method sends a command to a COSMOS target in the system. The cmd_no_range_check method does the same but ignores parameter range errors. The cmd_no_hazardous_check method does the same, but allows hazardous commands to be sent. The cmd_no_checks method does the same but allows hazardous commands to be sent, and ignores range errors.</p>
+<h4 id="save-configuration">
+<a class="anchor" href="#save-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Save Configuration</h4>
 
-<p>Two parameter syntaxes are supported.</p>
+<p>When you select File Save the Save Configuration dialog appears. It displays a list of all saved configurations (INST ADCS in this example). You click the Configuration Name text field, enter the name of your new configuration, and click Ok to save. You can delete existing configurations by clicking the Trash icon next to a configuration name.</p>
 
-<p>The first is a single string of the form “TARGET_NAME COMMAND_NAME with PARAMETER_NAME_1 PARAMETER_VALUE_1, PARAMETER_NAME_2 PARAMETER_VALUE_2, …” The “with …” portion of the string is optional. Any unspecified parameters will be given default values.</p>
+<p><img src="/img/v5/data_viewer/save_config.png" alt="Save Config"></p>
 
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Data Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>command_string</td>
-      <td>string</td>
-      <td>A single string containing all required information for the command</td>
-    </tr>
-  </tbody>
-</table>
+<h3 id="adding-packets">
+<a class="anchor" href="#adding-packets" aria-hidden="true"><span class="octicon octicon-link"></span></a>Adding Packets</h3>
 
-<p>The second is two or three parameters with the first parameter being a string denoting the target name, the second being a string with the command name, and an optional third being a hash of parameter names/values. This format should be used if the command contains parameters that take binary data that is not capable of being expressed as ASCII text. The cmd and cmd_no_range_check methods will fail on all attempts to send a command that has been marked hazardous. To send hazardous commands, the cmd_no_hazardous_check, or cmd_no_checks methods must be used.</p>
+<p><img src="/img/v5/data_viewer/view_portal_add.png" alt="Menu to add packet"></p>
 
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Data Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>target_name</td>
-      <td>String</td>
-      <td>Name of the target to send the command to</td>
-    </tr>
-    <tr>
-      <td>command_name</td>
-      <td>String</td>
-      <td>The name of the command</td>
-    </tr>
-    <tr>
-      <td>command_params</td>
-      <td>Hash</td>
-      <td>Optional hash of command parameters</td>
-    </tr>
-  </tbody>
-</table>
+<p><img src="/img/v5/data_viewer/add_packet.png" alt="Add a packet"></p>
 
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nt">--</span><span class="o">&gt;</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"cmd"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST COLLECT with DURATION 1.0, TEMP 0.0, TYPE 'NORMAL'"</span><span class="o">]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
-&lt;<span class="nt">--</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"COLLECT"</span>, <span class="o">{</span><span class="s2">"DURATION"</span>: 1.0, <span class="s2">"TEMP"</span>: 0.0, <span class="s2">"TYPE"</span>: <span class="s2">"NORMAL"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
-
-<span class="nt">--</span><span class="o">&gt;</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"cmd"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"COLLECT"</span>, <span class="o">{</span><span class="s2">"DURATION"</span>: 1.0, <span class="s2">"TEMP"</span>: 0.0, <span class="s2">"TYPE"</span>: <span class="s2">"NORMAL"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span>
-&lt;<span class="nt">--</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"COLLECT"</span>, <span class="o">{</span><span class="s2">"DURATION"</span>: 1.0, <span class="s2">"TEMP"</span>: 0.0, <span class="s2">"TYPE"</span>: <span class="s2">"NORMAL"</span><span class="o">}]</span>, <span class="s2">"id"</span>: 1<span class="o">}</span></code></pre></figure>
-
-<h3 id="getting-telemetry">Getting Telemetry</h3>
-
-<p>The following methods are used to get telemetry: tlm, tlm_raw, tlm_formatted, tlm_with_units</p>
-
-<p>The tlm method returns the current converted value of a telemetry point. The tlm_raw method returns the current raw value of a telemetry point. The tlm_formatted method returns the current formatted value of a telemetry point. The tlm_with_units method returns the current formatted value of a telemetry point with its units appended to the end.</p>
-
-<p>Two parameter syntaxes are supported.</p>
-
-<p>The first is a single string of the form “TARGET_NAME PACKET_NAME ITEM_NAME”</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Data Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>tlm_string</td>
-      <td>String</td>
-      <td>A single string containing all required information for the telemetry item</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>The second is three parameters with the first parameter being a string denoting the target name, the second being a string with the packet name, and the third being a string with the item name.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Parameter</th>
-      <th>Data Type</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>target_name</td>
-      <td>String</td>
-      <td>Name of the target to get the telemetry value from</td>
-    </tr>
-    <tr>
-      <td>packet_name</td>
-      <td>String</td>
-      <td>Name of the packet to get the telemetry value from</td>
-    </tr>
-    <tr>
-      <td>item_name</td>
-      <td>String</td>
-      <td>Name of the telemetry item</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Example Usage:</p>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nt">--</span><span class="o">&gt;</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"tlm"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST HEALTH_STATUS TEMP1"</span><span class="o">]</span>, <span class="s2">"id"</span>: 2<span class="o">}</span>
-&lt;<span class="nt">--</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: 94.9438, <span class="s2">"id"</span>: 2<span class="o">}</span>
-
-<span class="nt">--</span><span class="o">&gt;</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"method"</span>: <span class="s2">"tlm"</span>, <span class="s2">"params"</span>: <span class="o">[</span><span class="s2">"INST"</span>, <span class="s2">"HEALTH_STATUS"</span>, <span class="s2">"TEMP1"</span><span class="o">]</span>, <span class="s2">"id"</span>: 2<span class="o">}</span>
-&lt;<span class="nt">--</span> <span class="o">{</span><span class="s2">"jsonrpc"</span>: <span class="s2">"2.0"</span>, <span class="s2">"result"</span>: 94.9438, <span class="s2">"id"</span>: 2<span class="o">}</span></code></pre></figure>
-
-<h2 id="further-debugging">Further Debugging</h2>
-
-<p>If developing an interface for the JSON API from another language, the best way to debug is to send the same messages from the supported Ruby interface first, like the following. By enabling the debug mode, you can see the exact request and response sent from the Ruby Implementation.</p>
-
-<ol>
-  <li>Launch CmdTlmServer</li>
-  <li>From a command line, launch ScriptRunner: ruby ScriptRunner</li>
-  <li>Run a script like the following:</li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">JsonDRb</span><span class="p">.</span><span class="nf">debug</span> <span class="o">=</span> <span class="kp">true</span>
-<span class="n">cmd</span><span class="p">(</span><span class="s2">"INST ARYCMD with ARRAY [1, 2, 3]"</span><span class="p">)</span></code></pre></figure>
-
-<ol>
-  <li>The following will be printed to the terminal where you launched ScriptRunner:</li>
-</ol>
-
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">Request:
-<span class="o">{</span><span class="s2">"jsonrpc"</span>:<span class="s2">"2.0"</span>,<span class="s2">"method"</span>:<span class="s2">"cmd"</span>,<span class="s2">"params"</span>:[<span class="s2">"INST ARYCMD with ARRAY [1, 2, 3]"</span><span class="o">]</span>,<span class="s2">"id"</span>:0<span class="o">}</span>
-Response:
-<span class="o">{</span><span class="s2">"jsonrpc"</span>:<span class="s2">"2.0"</span>,<span class="s2">"id"</span>:0,<span class="s2">"result"</span>:[<span class="s2">"INST"</span>,<span class="s2">"ARYCMD"</span>,<span class="o">{</span><span class="s2">"ARRAY"</span>:[1,2,3]<span class="o">}]}</span></code></pre></figure>
-
+<p><img src="/img/v5/data_viewer/view_portal.png" alt="View of packet"></p>
 
       </article>
     </div>
@@ -903,7 +772,7 @@ Response:
       
     
       
-  <li class="">
+  <li class="current">
     <a href="/docs/v5/data-viewer">Data Viewer</a>
   </li>
   <!-- prettier-ignore -->
@@ -1395,7 +1264,7 @@ Response:
       
     
       
-  <li class="current">
+  <li class="">
     <a href="/docs/v5/json-api">JSON API</a>
   </li>
   <!-- prettier-ignore -->
