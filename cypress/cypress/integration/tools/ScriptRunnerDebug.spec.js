@@ -26,7 +26,7 @@ describe('ScriptRunner Debug', () => {
     cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('Syntax Check Failed')
-      cy.contains('unexpected `end')
+      cy.contains('unexpected keyword_end')
       cy.contains('Ok').click()
     })
     cy.get('[data-test=start-go-button]').click()
@@ -45,7 +45,7 @@ describe('ScriptRunner Debug', () => {
     cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('Syntax Check Failed')
-      cy.contains('unexpected `end')
+      cy.contains('unexpected keyword_end')
       cy.contains('Ok').click()
     })
     cy.get('[data-test=start-go-button]').click()
