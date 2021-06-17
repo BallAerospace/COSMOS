@@ -36,7 +36,18 @@
 
       <v-card>
         <v-card-text class="text-center">
-          <v-btn @click="logout" color="primary"> Logout </v-btn>
+          <v-btn
+            v-if="authenticated"
+            @click="logout"
+            color="primary"
+            small
+            rounded
+          >
+            Logout
+          </v-btn>
+          <v-btn v-else @click="login" color="primary" small rounded>
+            Login
+          </v-btn>
         </v-card-text>
       </v-card>
     </v-menu>
@@ -54,17 +65,21 @@ export default {
   data: function () {
     return {
       showUserMenu: false,
+      authenticated: !!localStorage.token,
     }
   },
   methods: {
     logout: function () {
       CosmosAuth.logout()
     },
+    login: function () {
+      CosmosAuth.login(location.href)
+    },
   },
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .overlay {
   height: 100vh;
   width: 100vw;
