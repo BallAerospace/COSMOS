@@ -1,0 +1,12 @@
+# NOTE: Telemetry definitions are processed in alphabetical order by default.
+#   However, this can be overridden by explicitly calling them out in target.txt.
+#   Thus it's recommended to create a file like this with an extension
+#   such as inst_tlm_override.txt which will be processed AFTER inst_tlm.txt.
+
+# Existing telemetry packets can be selected and items modified
+SELECT_TELEMETRY INST MECH
+  # Existing items can be selected and modified by adding conversions, limits, etc
+  SELECT_ITEM SLRPNL1
+    LIMITS DEFAULT 1 ENABLED -180.0 -170.0 170.0 180.0
+  # Delete an item so it doesn't appear in the packet
+  DELETE_ITEM EXTRA
