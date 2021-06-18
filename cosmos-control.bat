@@ -13,6 +13,12 @@ if "%1" == "cosmos" (
   docker run --rm -v %cd%:/cosmos/plugins -w /cosmos/plugins cosmos-base ruby /cosmos/bin/cosmos !params!
   GOTO :EOF
 )
+if "%1" == "rake" (
+  @REM set params=%*
+  @REM call set params=%%params:*%1=%%
+  docker run --rm -v %cd%:/cosmos -w /cosmos cosmos-base %1
+  GOTO :EOF
+)
 if "%1" == "restart" (
   GOTO restart
 )

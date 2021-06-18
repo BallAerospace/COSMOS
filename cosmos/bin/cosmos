@@ -73,8 +73,8 @@ def generate(args)
     FileUtils.mkdir(plugin_name)
     Dir.chdir(plugin_name)
 
-    # Grab the plugin template
-    template_dir = File.expand_path(File.join(__dir__, '..', '..', 'cosmos-init', 'plugins', 'plugin-template'))
+    # Grab the plugin template (note this uses the Docker container path)
+    template_dir = '/cosmos/templates/plugin-template'
     target_name = plugin.upcase.gsub('-', '_')
     target_lib_filename = "#{target_name.downcase}.rb"
     target_class = target_lib_filename.filename_to_class_name
@@ -90,6 +90,7 @@ def generate(args)
         next
       end
       base_name.sub!("target.rb", target_lib_filename)
+      base_name.sub!("plugin.gemspec", "#{plugin_name}.gemspec")
       output = ERB.new(File.read(file)).result(b)
       File.open(base_name, 'w') do |file|
         file.write output

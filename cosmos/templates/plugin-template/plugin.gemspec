@@ -7,6 +7,7 @@ spec = Gem::Specification.new do |s|
   s.description = <<-EOF
     <%= plugin_name %> plugin for deployment to COSMOS
   EOF
+  s.license = 'AGPL-3.0-only'
   s.authors = ['Anonymous']
   s.email = ['name@domain.com']
   s.homepage = 'https://github.com/BallAerospace/COSMOS'
