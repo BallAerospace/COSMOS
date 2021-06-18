@@ -10,7 +10,7 @@ COPY ext/ /cosmos/ext/
 RUN mkdir -p lib/cosmos/ext \
   && git config --global http.sslCAinfo /devel/cacert.pem \
   && apk add --virtual .build-dependencies build-base ruby-dev libressl-dev \
-  && gem install bundler \
+  && gem update --system \
   && bundle config set --local without 'development' \
   && bundle install --quiet \
   && bundle exec rake build \

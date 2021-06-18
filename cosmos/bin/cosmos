@@ -40,18 +40,14 @@ $redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.
 def print_usage
   puts "Usage:"
   puts "  cosmos help                          # Displays this information"
+  puts "  cosmos rake                          # Runs rake in the local directory"
   puts "  cosmos load </PATH/FILENAME.gem>     # Loads a COSMOS plugin gem file"
   puts "  cosmos generate plugin <PLUGIN_NAME> # Generate a COSMOS plugin"
   puts "  cosmos bridge <config filename>      # Run COSMOS host bridge"
   puts "  cosmos bridgesetup <config filename> # Create a default config file"
-  puts ""
-  puts "NOTE: When run inside a rake task you need to run similar to:"
-  puts "  rake cosmos cmd=\"help\""
-  puts "  rake cosmos cmd=\"generate target TEST\""
-  puts ""
-  puts "Other Tools included with COSMOS:"
-  puts "  rubysloc                      # Counts Ruby SLOC recursively"
-  puts "  cstol_converter               # Converts all *.prc files recursively to COSMOS"
+  puts "  cosmos rubysloc                      # Counts Ruby SLOC recursively. Run with --help for more info."
+  # puts "  cosmos xtce_converter                # Convert to and from the XTCE format. Run with --help for more info."
+  puts "  cosmos cstol_converter               # Converts CSTOL files (.prc) to COSMOS. Run with --help for more info."
   puts ""
 end
 
@@ -203,6 +199,10 @@ if not ARGV[0].nil? # argument(s) given
 
   # Handle each task
   case ARGV[0].downcase
+
+  when 'rake'
+    puts `rake #{ARGV[1..-1].join(' ')}`
+
   when 'load'
     load_plugin(ARGV[1], scope: ARGV[2])
 
@@ -218,6 +218,16 @@ if not ARGV[0].nil? # argument(s) given
 
   when 'generate'
     generate(ARGV[1..-1])
+
+  when 'rubysloc'
+    puts `ruby /cosmos/bin/rubysloc #{ARGV[1..-1].join(' ')}`
+
+  when 'cstol_converter'
+    puts `ruby /cosmos/bin/cstol_converter #{ARGV[1..-1].join(' ')}`
+
+  # TODO: This still needs work in COSMOS 5
+  # when 'xtce_converter'
+  #   puts `ruby /cosmos/bin/xtce_converter #{ARGV[1..-1].join(' ')}`
 
   when 'bridge'
     filename = ARGV[1]

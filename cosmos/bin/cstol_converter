@@ -346,7 +346,7 @@ def parse_tlm_item(tlm)
   # If there are two telemetry items (target and mnemonic)
   if tlm.length == 2
     begin
-      str = tlm[0].tr('[]"', '').upcase + " " + Cosmos::System.telemetry.newest_packet(tlm[0].tr('[]"', '').upcase,tlm[1].tr('[]"', '').upcase).packet_name + " " + tlm[1].tr('[]"', '').upcase
+      str = tlm[0].tr('[]"', '').upcase + " LATEST " + tlm[1].tr('[]"', '').upcase
     rescue
       str = "# TODO unknown TLM: " + tlm.to_s
     end
@@ -1032,6 +1032,7 @@ require 'optparse'
 
 options = OpenStruct.new
 options.file = nil
+options.scope = 'DEFAULT'
 
 opts = OptionParser.new do |opts|
   opts.banner = "Usage: cstol_converter [optional filenames]"
@@ -1043,6 +1044,9 @@ opts = OptionParser.new do |opts|
   opts.on("-h", "--help", "Show this message") do
     puts opts
     exit
+  end
+  opts.on("-s SCOPE", "--scope SCOPE", "Use the specified scope instead of DEFAULT") do |arg|
+    options.scope = arg
   end
 end
 
@@ -1068,7 +1072,7 @@ else
 end
 
 # List of targets found in the CSTOL files
-$targetList = Cosmos::System.targets.keys
+$targetList = Cosmos::TargetModel.names(scope: options.scope)
 
 # Process all macros first
 unless mac_files.empty?
