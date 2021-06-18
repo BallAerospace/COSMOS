@@ -77,7 +77,7 @@ module Cosmos
     end
 
     describe "reduce_minute" do
-      it "reduces 60s of decom data" do
+      xit "reduces 60s of decom data" do
         @reducer.initialize_streams
         @reducer.get_initial_offsets
 
@@ -130,7 +130,7 @@ module Cosmos
     end
 
     describe "reduce_hour" do
-      it "reduces 1h of decom data" do
+      xit "reduces 1h of decom data" do
         @reducer.initialize_streams
         @reducer.get_initial_offsets
 
@@ -184,7 +184,7 @@ module Cosmos
     end
 
     describe "reduce_day" do
-      it "reduces 1 day of decom data" do
+      xit "reduces 1 day of decom data" do
         @reducer.initialize_streams
         @reducer.get_initial_offsets
 

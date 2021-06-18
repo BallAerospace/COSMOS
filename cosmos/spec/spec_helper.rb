@@ -65,11 +65,12 @@ module Cosmos
 end
 
 require 'cosmos/top_level'
+require 'cosmos/script'
 # require 'cosmos/utilities/logger'
 # Create a easy alias to the base of the spec directory
 SPEC_DIR = File.dirname(__FILE__)
 $cosmos_scope = 'DEFAULT'
-$cosmos_token = nil
+$cosmos_token = 'FOOBAR'
 
 def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
   capture_io do |stdout|

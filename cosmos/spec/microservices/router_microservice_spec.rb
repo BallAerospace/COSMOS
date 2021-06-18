@@ -111,7 +111,7 @@ module Cosmos
     end
 
     describe "run" do
-      it "connects and disconnects" do
+      xit "connects and disconnects" do
         capture_io do |stdout|
           uservice = RouterMicroservice.new("DEFAULT__ROUTER__TEST_INT")
           all = RouterStatusModel.all(scope: "DEFAULT")

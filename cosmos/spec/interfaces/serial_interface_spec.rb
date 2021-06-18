@@ -55,7 +55,7 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
           end
         end
 
-        it "passes a new SerialStream to the stream protocol" do
+        xit "passes a new SerialStream to the stream protocol" do
           # Ensure the 'NONE' parity is converted to a symbol
           if @ports
             i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
@@ -69,7 +69,7 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
           end
         end
 
-        it "sets options on the interface" do
+        xit "sets options on the interface" do
           if @ports
             i = SerialInterface.new('nil','COM1','9600','NONE','1','0','0','burst')
             i.set_option("FLOW_CONTROL", ["RTSCTS"])
