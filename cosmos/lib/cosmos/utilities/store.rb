@@ -79,7 +79,7 @@ module Cosmos
 
     unless $enterprise_cosmos
       def build_redis
-        return Redis.new(url: @redis_url)
+        return Redis.new(url: @redis_url, username: ENV['COSMOS_REDIS_USERNAME'], password: ENV['COSMOS_REDIS_PASSWORD'])
       end
     end
 
