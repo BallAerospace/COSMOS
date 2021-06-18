@@ -20,8 +20,9 @@ fi
 case $1 in
 cosmos)
   # Start (and remove when done --rm) the cosmos-base container with the current working directory
-  # mapped as volume (-v) /cosmos/local and container working directory (-w) also set to /cosmos/local
-  # and run the command "ruby /cosmos/bin/cosmos" with all parameters starting at 2 since the first is 'cosmos'
+  # mapped as volume (-v) /cosmos/local and container working directory (-w) also set to /cosmos/local.
+  # This allows tools running in the container to have a consistent path to the current working directory.
+  # Run the command "ruby /cosmos/bin/cosmos" with all parameters starting at 2 since the first is 'cosmos'
   docker run --rm -v $(pwd):/cosmos/local -w /cosmos/local cosmos-base ruby /cosmos/bin/cosmos ${@:2}
   ;;
 start)

@@ -79,7 +79,6 @@ GOTO :EOF
 :usage
   @echo Usage: %0 [start, stop, cleanup, build, run, deploy] 1>&2
   @echo *  cosmos: run a cosmos command ('cosmos help' for more info) 1>&2
-  @echo *  rake: run rake 1>&2
   @echo *  start: run the docker containers for cosmos 1>&2
   @echo *  stop: stop the running docker containers for cosmos 1>&2
   @echo *  restart: stop and run the minimal docker containers for cosmos 1>&2

@@ -4,7 +4,7 @@ See the [COSMOS](cosmosc2.com) documentation for all things COSMOS.
 
 ## Building the plugin
 
-1. rake build VERSION=X.Y.Z
+1. <Path to COSMOS installation>\cosmos-control.bat cosmos rake VERSION=X.Y.Z
    - VERSION is required
    - gem file will be built locally
 
