@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <v-overlay :value="showNotificationPane" class="notifications-overlay" />
+    <v-overlay :value="showNotificationPane" class="overlay" />
     <v-menu
       v-model="showNotificationPane"
       transition="slide-y-transition"
@@ -424,7 +424,7 @@ export default {
   width: 100%;
 }
 
-.notifications-overlay {
+.overlay {
   height: 100vh;
   width: 100vw;
 }

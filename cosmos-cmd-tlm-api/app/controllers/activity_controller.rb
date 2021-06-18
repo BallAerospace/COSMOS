@@ -63,6 +63,14 @@ class ActivityController < ApplicationController
   # scope [String] the scope of the timeline, `TEST`
   # json [String] The json of the activity (see below)
   # @return [String] the activity converted into json format
+  # Request Headers
+  #```json
+  #  {
+  #    "Authorization": "token/password",
+  #    "Content-Type": "application/json"
+  #  }
+  #```
+  # Request Post Body
   #```json
   #  {
   #    "start": "2031-04-16T01:02:00",
@@ -105,6 +113,13 @@ class ActivityController < ApplicationController
   # name [String] the timeline name, `system42`
   # scope [String] the scope of the timeline, `TEST`
   # @return [String] the object/hash converted into json format
+  # Request Headers
+  #```json
+  #  {
+  #    "Authorization": "token/password",
+  #    "Content-Type": "application/json"
+  #  }
+  #```
   def count
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -126,6 +141,13 @@ class ActivityController < ApplicationController
   # scope [String] the scope of the timeline, `TEST`
   # id [String] the start/id of the activity, `1620248449`
   # @return [String] the activity as a object/hash converted into json format
+  # Request Headers
+  #```json
+  #  {
+  #    "Authorization": "token/password",
+  #    "Content-Type": "application/json"
+  #  }
+  #```
   def show
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -149,6 +171,14 @@ class ActivityController < ApplicationController
   # id [String] the score/id of the activity, `1620248449`
   # json [String] The json of the event (see #event_model)
   # @return [String] the activity as a object/hash converted into json format
+  # Request Headers
+  #```json
+  #  {
+  #    "Authorization": "token/password",
+  #    "Content-Type": "application/json"
+  #  }
+  #```
+  # Request Post Body
   #```json
   #  {
   #    "status": "system42-ready",
@@ -186,6 +216,14 @@ class ActivityController < ApplicationController
   # id [String] the score or id of the activity, `1620248449`
   # json [String] The json of the event (see #activity_model)
   # @return [String] the activity as a object/hash converted into json format
+  # Request Headers
+  #```json
+  #  {
+  #    "Authorization": "token/password",
+  #    "Content-Type": "application/json"
+  #  }
+  #```
+  # Request Post Body
   #```json
   #  {
   #    "start": "2031-04-16T01:02:00+00:00",
@@ -230,6 +268,13 @@ class ActivityController < ApplicationController
   # scope [String] the scope of the timeline, `TEST`
   # id [String] the score or id of the activity, `1620248449`
   # @return [String] object/hash converted into json format but with a 204 no-content status code
+  # Request Headers
+  #```json
+  #  {
+  #    "Authorization": "token/password",
+  #    "Content-Type": "application/json"
+  #  }
+  #```
   def destroy
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -256,8 +301,17 @@ class ActivityController < ApplicationController
   # scope [String] the scope of the timeline, `TEST`
   # json [String] The json of the event (see #activity_model)
   # @return [String] the activity as a object/hash converted into json format
+  # Request Headers
   #```json
-  #    [
+  #  {
+  #    "Authorization": "token/password",
+  #    "Content-Type": "application/json"
+  #  }
+  #```
+  # Request Post Body
+  #```json
+  #  {
+  #    "multi": [
   #      {
   #        "name": "test",
   #        "start": "2031-04-16T01:02:00+00:00",
@@ -266,6 +320,7 @@ class ActivityController < ApplicationController
   #        "data": {"cmd"=>"INST ABORT"
   #      }
   #    ]
+  #  }
   #```
   def multi_create
     begin
@@ -308,13 +363,23 @@ class ActivityController < ApplicationController
   # scope [String] the scope of the timeline, `TEST`
   # json [String] The json below
   # @return [String] the activity as a object/hash converted into json format
+  # Request Headers
   #```json
-  #    [
+  #  {
+  #    "Authorization": "token/password",
+  #    "Content-Type": "application/json"
+  #  }
+  #```
+  # Request Post Body
+  #```json
+  #  {
+  #    "multi": [
   #      {
   #        "name": "system42", # name of the timeline
   #        "id": "12345678" # score/start/id of the timeline
   #      }
   #    ]
+  #  }
   #```
   def multi_destroy
     begin

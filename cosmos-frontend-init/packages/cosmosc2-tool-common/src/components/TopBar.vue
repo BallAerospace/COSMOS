@@ -34,15 +34,26 @@
           >
             <template v-for="(option, j) in menu.items">
               <v-divider v-if="option.divider" :key="j" />
-              <v-list-item v-else :key="j" @click="option.command">
-                <v-list-item-action v-if="option.radio">
+              <v-list-item
+                v-else
+                :key="j"
+                @click="option.command"
+                :disabled="option.disabled"
+              >
+                <v-list-item-action
+                  v-if="option.radio"
+                  :disabled="option.disabled"
+                >
                   <v-radio
                     color="secondary"
                     :label="option.label"
                     :value="option.label"
                   />
                 </v-list-item-action>
-                <v-list-item-action v-if="option.checkbox">
+                <v-list-item-action
+                  v-if="option.checkbox"
+                  :disabled="option.disabled"
+                >
                   <v-checkbox
                     color="secondary"
                     :label="option.label"
@@ -51,11 +62,14 @@
                   />
                 </v-list-item-action>
                 <v-list-item-icon v-if="option.icon">
-                  <v-icon v-text="option.icon" />
+                  <v-icon v-text="option.icon" :disabled="option.disabled" />
                 </v-list-item-icon>
                 <v-list-item-title
                   v-if="!option.radio && !option.checkbox"
-                  style="cursor: pointer"
+                  :style="
+                    'cursor: pointer;' + (option.disabled ? 'opacity: 0.2' : '')
+                  "
+                  :disabled="option.disabled"
                 >
                   {{ option.label }}
                 </v-list-item-title>

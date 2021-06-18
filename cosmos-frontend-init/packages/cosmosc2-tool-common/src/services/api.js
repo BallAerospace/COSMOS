@@ -24,12 +24,12 @@ const request = async function (
   url,
   data = {},
   params = {},
-  { noAuth = false, noScope = false } = {}
-) {
-  const headers = {
+  { noAuth = false, noScope = false } = {},
+  headers = {
     Accept: 'application/json',
     'Content-Type': 'application/json',
   }
+) {
   if (!noAuth) {
     try {
       await CosmosAuth.updateToken(CosmosAuth.defaultMinValidity)
@@ -51,19 +51,19 @@ const request = async function (
 }
 
 export default {
-  get: function (path, params, options) {
-    return request('get', path, null, params, options)
+  get: function (path, params, options, headers) {
+    return request('get', path, null, params, options, headers)
   },
 
-  put: function (path, data, params, options) {
-    return request('put', path, data, params, options)
+  put: function (path, data, params, options, headers) {
+    return request('put', path, data, params, options, headers)
   },
 
-  post: function (path, data, params, options) {
-    return request('post', path, data, params, options)
+  post: function (path, data, params, options, headers) {
+    return request('post', path, data, params, options, headers)
   },
 
-  delete: function (path, params, options) {
-    return request('delete', path, null, params, options)
+  delete: function (path, params, options, headers) {
+    return request('delete', path, null, params, options, headers)
   },
 }
