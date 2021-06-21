@@ -28,6 +28,6 @@ It should be noted that the only commands this user has access to are those in t
 
 1.  Pick a new password for the 'cosmos' user. Set that value in plaintext to the `COSMOS_REDIS_PASSWORD` variable in .env. Hash this string using SHA-256, and set that hash for the 'cosmos' user in the ACL file. A utility script has been provided to calculate this hash.
 
-        COSMOS> cosmos-util.bat hash yourpasswordhere
+        COSMOS> cosmos-control.bat util hash yourpasswordhere
 
 1.  Pick a new password for the 'admin' user and put its hash into the ACL file, or disable the user by changing "on" to "off", or delete the line if you do not want an admin user.

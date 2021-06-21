@@ -24,6 +24,9 @@ if "%1" == "run" (
 if "%1" == "deploy" (
   GOTO deploy
 )
+if "%1" == "util" (
+  GOTO util
+)
 
 GOTO usage
 
@@ -65,6 +68,14 @@ GOTO :EOF
   @echo off
 GOTO :EOF
 
+:util
+  REM Send the remaining arguments to cosmos_util
+  set args=%*
+  call set args=%%args:*%1=%%
+  CALL scripts/windows/cosmos_util %args%
+  @echo off
+GOTO :EOF
+
 :usage
   @echo Usage: %0 [start, stop, cleanup, build, run, deploy] 1>&2
   @echo *  start: run the docker containers for cosmos 1>&2
@@ -74,5 +85,8 @@ GOTO :EOF
   @echo *  build: build the containers for cosmos 1>&2
   @echo *  run: run the prebuilt containers for cosmos 1>&2
   @echo *  deploy: deploy the containers to localhost repository 1>&2
+  @echo *  util: various helper commands: 1>&2
+  @echo *    encode: encode a string to base64 1>&2
+  @echo *    hash: hash a string using SHA-256 1>&2
 
 @echo on
