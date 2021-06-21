@@ -1,2 +1,2 @@
-user cosmos on >cosmospassword ~* &* -@all +@read +@write +@pubsub +@connection
-user admin on #8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918 +@all
+user cosmos on #b24a63c6b3d19cdd7116f9486b4bafc60e0ef287bd44f40905d19269fcb2e2e6 ~* &* -@all +@read +@write +@pubsub +@connection
+user admin on #8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918 +@admin
