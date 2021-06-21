@@ -1,0 +1,33 @@
+# Setting up Redis users
+
+**IMPORTANT:** When setting up COSMOS, please see the section at the bottom for changing the default passwords.
+
+## The ACL file
+
+Redis reads in the user configuration from an ACL file: [users.acl](./config/users.acl). Each line has the syntax `user <username> [on/off] <password> [keyspace] [commands]`
+
+Passwords can be set in the ACL file as either the SHA-256 hash or plaintext. To use the hash, prefix it with a # symbol (example: `user bob on #3ff698674f294ba598e719e3bfef82d88836d363b9e6f74d4b684415542919da`). To use plaintext, prefix it with a > symbol (example: `user bob on >bobspassword`). Note that this file gets physically stored on the Redis server, so storing the passwords in plaintext is not recommended.
+
+### The two users
+
+#### cosmos
+
+This user is required, and it's used by COSMOS to connect to Redis. It has access to the entire keyspace, but its commands are restricted to what's necessary for COSMOS. As such, someone with this user has access to / ownership of all of the data stored in COSMOS; however, this user cannot reconfigure Redis itself.
+
+#### admin
+
+This user is optional, but it's provided so that you can make changes to Redis while it's running. This won't be needed for normal operation of COSMOS. You can remove this user by deleting its line from the ACL file, or disabled by changing "on" to "off". Doing so would require a restart of Redis (with an amended ACL file that adds this user back) if configuration changes are needed.
+
+It should be noted that the only commands this user has access to are those in the `@admin` category. However, that category includes the `ACL` command and all its subcommands, meaning that the user could grant themselves any other permission in Redis.
+
+## The .env file
+
+[This file](../.env) contains the plaintext credentials used by COSMOS to access Redis, which are loaded in as environment variables.
+
+## CHANGING THE PASSWORDS WHEN SETTING UP COSMOS
+
+1.  Pick a new password for the 'cosmos' user. Set that value in plaintext to the `COSMOS_REDIS_PASSWORD` variable in .env. Hash this string using SHA-256, and set that hash for the 'cosmos' user in the ACL file. A utility script has been provided to calculate this hash.
+
+        COSMOS> cosmos-util.bat hash yourpasswordhere
+
+1.  Pick a new password for the 'admin' user and put its hash into the ACL file, or disable the user by changing "on" to "off", or delete the line if you do not want an admin user.
