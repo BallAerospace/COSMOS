@@ -24,16 +24,17 @@ const emptyPromise = function (resolution = null) {
 }
 class Auth {
   updateToken(value) {
-    if (!localStorage.token) this.login(window.location.href)
+    if (!localStorage.token) this.login(location.href)
     return emptyPromise()
   }
   login(redirect) {
     // redirect to login if we're not already there
-    if (!/^\/login/.test(window.location.pathname))
-      window.location = `/login?redirect=${encodeURI(redirect)}`
+    if (!/^\/login/.test(location.pathname))
+      location = `/login?redirect=${encodeURI(redirect)}`
   }
   logout() {
     delete localStorage.token
+    location.reload()
   }
   getInitOptions() {}
   init() {

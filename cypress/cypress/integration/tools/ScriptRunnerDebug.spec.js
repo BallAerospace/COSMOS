@@ -26,7 +26,7 @@ describe('ScriptRunner Debug', () => {
     cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('Syntax Check Failed')
-      cy.contains('unexpected `end')
+      cy.contains('unexpected keyword_end')
       cy.contains('Ok').click()
     })
     cy.get('[data-test=start-go-button]').click()
@@ -45,7 +45,7 @@ describe('ScriptRunner Debug', () => {
     cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('Syntax Check Failed')
-      cy.contains('unexpected `end')
+      cy.contains('unexpected keyword_end')
       cy.contains('Ok').click()
     })
     cy.get('[data-test=start-go-button]').click()
@@ -135,12 +135,10 @@ describe('ScriptRunner Debug', () => {
     cy.get('[data-test=output-messages]').contains('Script completed')
   })
 
-  it.skip('does nothing for call stack when not running', () => {
-    // TODO: This is failing due to a Script Runner code change that's newer than this test.
-    // It makes a call to /script-api/running-script/null/backtrace which 404's, which prints a console error. Not sure what the correct test is
+  it('does nothing for call stack when not running', () => {
     cy.visit('/tools/scriptrunner')
     cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Show Call Stack').click()
+    cy.contains('Show Call Stack').should('have.attr', 'disabled', 'disabled')
     cy.get('@consoleError').should('not.be.called')
   })
 

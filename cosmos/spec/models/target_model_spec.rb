@@ -371,7 +371,7 @@ module Cosmos
         expect(command['items'].length).to be > 10
       end
 
-      it "creates and deploys Target microservices" do
+      xit "creates and deploys Target microservices" do
         variables = { "test" => "example" }
         umodel = double(MicroserviceModel)
         expect(umodel).to receive(:create).exactly(6).times

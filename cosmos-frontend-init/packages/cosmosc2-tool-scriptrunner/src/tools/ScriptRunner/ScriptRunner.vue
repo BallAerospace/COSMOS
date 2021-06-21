@@ -301,110 +301,6 @@ export default {
   data() {
     return {
       title: 'Script Runner',
-      menus: [
-        {
-          label: 'File',
-          items: [
-            {
-              label: 'New File',
-              icon: 'mdi-file-plus',
-              command: () => {
-                this.newFile()
-              },
-            },
-            {
-              label: 'Open File',
-              icon: 'mdi-folder-open',
-              command: () => {
-                this.openFile()
-              },
-            },
-            {
-              divider: true,
-            },
-            {
-              label: 'Save File',
-              icon: 'mdi-content-save',
-              command: () => {
-                this.saveFile()
-              },
-            },
-            {
-              label: 'Save As...',
-              icon: 'mdi-content-save',
-              command: () => {
-                this.saveAs()
-              },
-            },
-            {
-              divider: true,
-            },
-            {
-              label: 'Download',
-              icon: 'mdi-cloud-download',
-              command: () => {
-                this.download()
-              },
-            },
-            {
-              divider: true,
-            },
-            {
-              label: 'Delete File',
-              icon: 'mdi-delete',
-              command: () => {
-                this.delete()
-              },
-            },
-          ],
-        },
-        {
-          label: 'Script',
-          items: [
-            {
-              label: 'Show Running Scripts',
-              command: () => {
-                let routeData = this.$router.resolve({ name: 'RunningScripts' })
-                window.open(routeData.href, '_blank')
-              },
-            },
-            {
-              divider: true,
-            },
-            {
-              label: 'Ruby Syntax Check',
-              icon: 'mdi-language-ruby',
-              command: () => {
-                this.rubySyntaxCheck()
-              },
-            },
-            {
-              label: 'Show Call Stack',
-              icon: 'mdi-format-list-numbered',
-              command: () => {
-                this.showCallStack()
-              },
-            },
-            {
-              divider: true,
-            },
-            {
-              label: 'Toggle Debug',
-              icon: 'mdi-bug',
-              command: () => {
-                this.toggleDebug()
-              },
-            },
-            {
-              label: 'Toggle Disconnect',
-              icon: 'mdi-connection',
-              command: () => {
-                this.toggleDisconnect()
-              },
-            },
-          ],
-        },
-      ],
       suiteRunner: false, // Whether to display the SuiteRunner GUI
       disableSuiteButtons: false,
       suiteMap: {
@@ -485,6 +381,113 @@ export default {
       } else {
         return this.filename
       }
+    },
+    menus: function () {
+      return [
+        {
+          label: 'File',
+          items: [
+            {
+              label: 'New File',
+              icon: 'mdi-file-plus',
+              command: () => {
+                this.newFile()
+              },
+            },
+            {
+              label: 'Open File',
+              icon: 'mdi-folder-open',
+              command: () => {
+                this.openFile()
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Save File',
+              icon: 'mdi-content-save',
+              command: () => {
+                this.saveFile()
+              },
+            },
+            {
+              label: 'Save As...',
+              icon: 'mdi-content-save',
+              command: () => {
+                this.saveAs()
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Download',
+              icon: 'mdi-cloud-download',
+              command: () => {
+                this.download()
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Delete File',
+              icon: 'mdi-delete',
+              command: () => {
+                this.delete()
+              },
+            },
+          ],
+        },
+        {
+          label: 'Script',
+          items: [
+            {
+              label: 'Show Running Scripts',
+              command: () => {
+                let routeData = this.$router.resolve({ name: 'RunningScripts' })
+                window.open(routeData.href, '_blank')
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Ruby Syntax Check',
+              icon: 'mdi-language-ruby',
+              command: () => {
+                this.rubySyntaxCheck()
+              },
+            },
+            {
+              label: 'Show Call Stack',
+              icon: 'mdi-format-list-numbered',
+              disabled: !this.scriptId,
+              command: () => {
+                this.showCallStack()
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Toggle Debug',
+              icon: 'mdi-bug',
+              command: () => {
+                this.toggleDebug()
+              },
+            },
+            {
+              label: 'Toggle Disconnect',
+              icon: 'mdi-connection',
+              command: () => {
+                this.toggleDisconnect()
+              },
+            },
+          ],
+        },
+      ]
     },
   },
   mounted() {
@@ -966,7 +969,14 @@ export default {
     rubySyntaxCheck() {
       Api.post(
         '/script-api/scripts/syntax',
-        this.editor.getValue() // Pass in the raw text, no scope needed
+        this.editor.getValue(),
+        {},
+        {},
+        {},
+        {
+          Accept: 'application/json',
+          'Content-Type': 'plain/text',
+        }
       ).then((response) => {
         this.infoTitle = response.data.title
         this.infoText = JSON.parse(response.data.description)

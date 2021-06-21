@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 usage() {
-  echo "Usage: $1 [start, stop, cleanup, build, deploy]" >&2
+  echo "Usage: $1 [cosmos, start, stop, cleanup, build, deploy]" >&2
+  echo "*  cosmos: run a cosmos command ('cosmos help' for more info)" 1>&2
   echo "*  start: start the minimal docker run for cosmos" >&2
   echo "*  stop: stop the running dockers for cosmos" >&2
   echo "*  restart: stop and start the minimal docker run for cosmos" >&2
@@ -17,6 +18,13 @@ if [[ "$#" -eq 0 ]]; then
 fi
 
 case $1 in
+cosmos)
+  # Start (and remove when done --rm) the cosmos-base container with the current working directory
+  # mapped as volume (-v) /cosmos/local and container working directory (-w) also set to /cosmos/local.
+  # This allows tools running in the container to have a consistent path to the current working directory.
+  # Run the command "ruby /cosmos/bin/cosmos" with all parameters starting at 2 since the first is 'cosmos'
+  docker run --rm -v $(pwd):/cosmos/local -w /cosmos/local cosmos-base ruby /cosmos/bin/cosmos ${@:2}
+  ;;
 start)
   scripts/linux/cosmos_setup.sh
   scripts/linux/cosmos_build.sh

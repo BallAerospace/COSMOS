@@ -44,6 +44,10 @@ module Cosmos
     before(:each) do
       mock_redis()
       setup_system()
+
+      require 'cosmos/models/auth_model'
+      Cosmos::AuthModel.set($cosmos_token, nil)
+
       @api = ApiTest.new
       # Mock the server proxy to directly call the api
       allow(ServerProxy).to receive(:new).and_return(@api)

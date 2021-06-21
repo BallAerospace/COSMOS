@@ -34,6 +34,8 @@ module Cosmos
     before(:each) do
       redis = mock_redis()
       setup_system()
+      require 'cosmos/models/auth_model'
+      Cosmos::AuthModel.set($cosmos_token, nil)
       require 'cosmos/models/target_model'
       model = TargetModel.new(folder_name: 'INST', name: 'INST', scope: "DEFAULT")
       model.create
@@ -560,8 +562,8 @@ module Cosmos
         sleep 0.1
         expect(@api.get_cmd_value("INST", "COLLECT", "TYPE")).to eql 'NORMAL'
         expect(@api.get_cmd_value("INST", "COLLECT", "DURATION")).to eql 5.0
-        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to be_within(0.01).of(time.to_f)
-        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMESECONDS")).to be_within(0.01).of(time.to_f)
+        expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_TIMESECONDS")).to be_within(0.1).of(time.to_f)
+        expect(@api.get_cmd_value("INST", "COLLECT", "PACKET_TIMESECONDS")).to be_within(0.1).of(time.to_f)
         expect(@api.get_cmd_value("INST", "COLLECT", "RECEIVED_COUNT")).to eql 1
 
         @api.cmd("INST COLLECT with TYPE NORMAL, DURATION 7")

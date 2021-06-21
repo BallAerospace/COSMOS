@@ -1,7 +1,18 @@
 @echo off
+setlocal ENABLEDELAYEDEXPANSION
 
-if ("%1"=="") (
+if "%1" == "" (
   GOTO usage
+)
+if "%1" == "cosmos" (
+  set params=%*
+  call set params=%%params:*%1=%%
+  REM Start (and remove when done --rm) the cosmos-base container with the current working directory
+  REM mapped as volume (-v) /cosmos/local and container working directory (-w) also set to /cosmos/local.
+  REM This allows tools running in the container to have a consistent path to the current working directory.
+  REM Run the command "ruby /cosmos/bin/cosmos" with all parameters ignoring the first.
+  docker run --rm -v %cd%:/cosmos/local -w /cosmos/local cosmos-base ruby /cosmos/bin/cosmos !params!
+  GOTO :EOF
 )
 if "%1" == "restart" (
   GOTO restart
@@ -78,6 +89,7 @@ GOTO :EOF
 
 :usage
   @echo Usage: %0 [start, stop, cleanup, build, run, deploy] 1>&2
+  @echo *  cosmos: run a cosmos command ('cosmos help' for more info) 1>&2
   @echo *  start: run the docker containers for cosmos 1>&2
   @echo *  stop: stop the running docker containers for cosmos 1>&2
   @echo *  restart: stop and run the minimal docker containers for cosmos 1>&2
