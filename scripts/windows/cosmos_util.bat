@@ -21,7 +21,7 @@ GOTO :EOF
 GOTO :EOF
 
 :usage
-  @echo Usage: %0 [encode, hash] 1>&2
+  @echo Usage: %1 [encode, hash] 1>&2
   @echo *  encode: encode a string to base64 1>&2
   @echo *  hash: hash a string using SHA-256 1>&2
 
