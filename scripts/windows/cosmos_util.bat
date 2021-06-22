@@ -13,7 +13,7 @@ if "%1" == "hash" (
 GOTO usage
 
 :encode
-  powershell -c "[Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes("""%2"""))"
+  powershell -c "[Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("""%2"""))"
 GOTO :EOF
 
 :hash

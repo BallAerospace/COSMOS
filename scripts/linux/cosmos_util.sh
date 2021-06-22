@@ -13,7 +13,7 @@ fi
 
 case $1 in
 encode)
-  echo -n $2 | iconv -f UTF-8 -t UTF-16LE | base64
+  echo -n $2 | base64
   ;;
 hash)
   echo -n $2 | shasum -a 256 | sed 's/-//'
