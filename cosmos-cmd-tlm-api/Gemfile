@@ -26,6 +26,8 @@ gem 'bootsnap', '>= 1.4.2', require: false
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors', '~> 1.1'
 
+gem 'dotenv-rails', require: 'dotenv/rails-now'
+
 group :development do
   gem 'ruby-debug-ide', '~> 0.7.2'
   gem 'debase', '~> 0.2.4.1'

@@ -25,8 +25,6 @@ Encoding.default_external = Encoding::ASCII_8BIT
 Encoding.default_internal = Encoding::ASCII_8BIT
 $VERBOSE = saved_verbose
 
-require 'dotenv/load'
-
 # Add COSMOS bin folder to PATH
 require 'cosmos/core_ext/kernel'
 if Kernel.is_windows?
