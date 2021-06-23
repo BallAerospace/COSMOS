@@ -3,6 +3,7 @@
 # exit when any command fails
 set -e
 
+docker build -f cosmos-redis/Dockerfile -t cosmos-redis cosmos-redis
 docker build -f cosmos-ruby/Dockerfile -t cosmos-ruby cosmos-ruby
 docker build -f cosmos-node/Dockerfile -t cosmos-node cosmos-node
 docker build -f cosmos/Dockerfile -t cosmos-base cosmos
