@@ -247,16 +247,12 @@ module Cosmos
       microservice
     end
 
-    # Looks up the deployed MicroserviceModel and destroys it
+    # Looks up the deployed MicroserviceModel and destroy the microservice model
+    # should should trigger the operator to kill the microservice that in turn
+    # will destroy the InterfaceStatusModel when a stop is called.
     def undeploy
       model = MicroserviceModel.get_model(name: "#{@scope}__#{self.class._get_type}__#{@name}", scope: @scope)
       model.destroy if model
-      if self.class._get_type == 'INTERFACE'
-        status_model = InterfaceStatusModel.get_model(name: @name, scope: @scope)
-      else
-        status_model = RouterStatusModel.get_model(name: @name, scope: @scope)
-      end
-      status_model.destroy if status_model
     end
   end
 end

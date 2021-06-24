@@ -282,8 +282,12 @@ module Cosmos
           break if @cancel_thread
           case @interface.state
           when 'DISCONNECTED'
-            # Just wait to see if we should connect later
-            @interface_thread_sleeper.sleep(1)
+            begin
+              # Just wait to see if we should connect later
+              @interface_thread_sleeper.sleep(1)
+            rescue Exception => err
+              break if @cancel_thread
+            end
           when 'ATTEMPTING'
             begin
               @mutex.synchronize do
@@ -475,7 +479,7 @@ module Cosmos
       if allow_reconnect and @interface.auto_reconnect and @interface.state != 'DISCONNECTED'
         attempting()
         if !@cancel_thread
-          STDOUT.puts "reconnect delay:#{@interface.reconnect_delay}"
+          # Logger.debug "reconnect delay: #{@interface.reconnect_delay}"
           @interface_thread_sleeper.sleep(@interface.reconnect_delay)
         end
       else
@@ -497,16 +501,17 @@ module Cosmos
         @cancel_thread = true
         @interface_thread_sleeper.cancel
         @interface.disconnect
-        @interface.state = 'DISCONNECTED'
         if @interface_or_router == 'INTERFACE'
-          InterfaceStatusModel.set(@interface.as_json, scope: @scope)
+          valid_interface = InterfaceStatusModel.get_model(name: @interface.name, scope: @scope)
         else
-          RouterStatusModel.set(@interface.as_json, scope: @scope)
+          valid_interface = RouterStatusModel.get_model(name: @interface.name, scope: @scope)
         end
+        valid_interface.destroy if valid_interface
       end
     end
 
     def shutdown(sig = nil)
+      Logger.info "#{@interface.name}: shutdown requested"
       stop()
       super()
     end
