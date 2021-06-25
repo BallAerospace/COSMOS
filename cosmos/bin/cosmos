@@ -25,6 +25,8 @@ require 'cosmos/utilities/s3'
 require 'cosmos/models/scope_model'
 require 'cosmos/models/plugin_model'
 require 'cosmos/bridge/bridge'
+require 'ostruct'
+require 'optparse'
 require 'zip'
 require 'zip/filesystem'
 require 'fileutils'
@@ -36,15 +38,26 @@ require 'erb'
 
 $redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0')
 
+# Build the OpenStruct and OptionParser here as constants so we can use in methods
+MIGRATE_OPTIONS = OpenStruct.new
+MIGRATE_OPTIONS.all = false
+MIGRATE_PARSER = OptionParser.new do |op|
+  op.banner = "cosmos migrate PLUGIN [TGT1...]  # Create a COSMOS 5 plugin from existing COSMOS 4 targets"
+  op.on("-a", "--all", "Move all COSMOS 4 targets into a single COSMOS 5 plugin") do
+    MIGRATE_OPTIONS.all = true
+  end
+end
+
 # Prints the usage text for the cosmos executable
 def print_usage
   puts "Usage:"
   puts "  cosmos help                          # Displays this information"
   puts "  cosmos rake                          # Runs rake in the local directory"
-  puts "  cosmos load </PATH/FILENAME.gem>     # Loads a COSMOS plugin gem file"
-  puts "  cosmos generate plugin <PLUGIN_NAME> # Generate a COSMOS plugin"
-  puts "  cosmos bridge <config filename>      # Run COSMOS host bridge"
-  puts "  cosmos bridgesetup <config filename> # Create a default config file"
+  puts "  cosmos load /PATH/FILENAME.gem       # Loads a COSMOS plugin gem file"
+  puts "  cosmos generate plugin PLUGIN_NAME   # Generate a COSMOS plugin"
+  puts "  #{MIGRATE_PARSER}"
+  puts "  cosmos bridge CONFIG_FILENAME        # Run COSMOS host bridge"
+  puts "  cosmos bridgesetup CONFIG_FILENAME   # Create a default config file"
   puts "  cosmos rubysloc                      # Counts Ruby SLOC recursively. Run with --help for more info."
   # puts "  cosmos xtce_converter                # Convert to and from the XTCE format. Run with --help for more info."
   puts "  cosmos cstol_converter               # Converts CSTOL files (.prc) to COSMOS. Run with --help for more info."
@@ -67,10 +80,10 @@ def generate(args)
       abort("Plugin #{plugin_name} already exists!")
     end
     FileUtils.mkdir(plugin_name)
-    Dir.chdir(plugin_name)
+    Dir.chdir(plugin_name) # Change to the plugin path to make copying easier
 
-    # Grab the plugin template (note this uses the Docker container path)
-    template_dir = '/cosmos/templates/plugin-template'
+    # Grab the plugin template
+    template_dir = "#{File.dirname(__FILE__)}/../templates/plugin-template"
     target_name = plugin.upcase.gsub('-', '_')
     target_lib_filename = "#{target_name.downcase}.rb"
     target_class = target_lib_filename.filename_to_class_name
@@ -94,9 +107,81 @@ def generate(args)
     end
 
     puts "Plugin #{plugin_name} successfully generated!\n"
+    return target_name # This makes the migrate method easier
   else # Unknown generator
     abort("Unknown generator #{args[0]}")
   end
+end
+
+def migrate(args)
+  MIGRATE_PARSER.parse!(args)
+  abort(MIGRATE_PARSER.to_s) if args.length == 0
+  if MIGRATE_OPTIONS.all and args.length > 1
+    puts "Only specify the plugin name when using --all"
+    abort(MIGRATE_PARSER.to_s)
+  end
+  if !MIGRATE_OPTIONS.all and args.length < 2
+    puts "Specify the individual target names when not using --all"
+    abort(MIGRATE_PARSER.to_s)
+  end
+  if Dir.glob("config/targets/**/*").empty?
+    puts "No targets found in config/targets/*"
+    puts "Migrate must be run within an existing COSMOS configuration"
+    abort(MIGRATE_PARSER.to_s)
+  end
+
+  ###############################################################
+  # Create the framework for the plugin
+  # NOTE: generate does a chdir to be inside the plugin directory
+  ###############################################################
+  plugin = args.shift
+  target_name = generate(['plugin', plugin])
+  # Delete target contents from the plugin framework
+  FileUtils.rm_rf Dir.glob("targets/#{target_name}/*")
+
+  if MIGRATE_OPTIONS.all
+    args = Dir.glob("../config/targets/*").map { |path| File.basename(path) }
+  else
+    args.each do |target|
+      path = File.join('..', 'config', 'targets', target)
+      unless File.exist?(path)
+        puts "Target #{path} does not exist!"
+        abort(MIGRATE_PARSER.to_s)
+      end
+    end
+  end
+
+  # Overwrite plugin.txt with all the cmd_tlm_server.txt info found
+  plugin = File.open('plugin.txt', 'w')
+  plugin.puts "TARGET #{target_name}"
+
+  args.each do |target|
+    puts "Migrating target #{target}"
+    target_path = File.join('..', 'config', 'targets', target)
+    FileUtils.cp_r target_path, 'targets'
+    plugin.puts "TARGET #{target}"
+  end
+  plugin.puts ""
+
+  puts "Migrating /lib & /procedures to #{target_name}"
+  FileUtils.cp_r '../lib', "targets/#{target_name}"
+  FileUtils.cp_r '../procedures', "targets/#{target_name}"
+
+  # Migrate cmd_tlm_server.txt info to plugin.txt
+  Dir.glob('targets/**/cmd_tlm_server*.txt') do |file|
+    File.open(file) do |file|
+      file.each do |line|
+        next if line =~ /^\s*#/ # Ignore comments
+        next if line.strip.empty?
+        # Convert TARGET to MAP_TARGET
+        line.gsub!(/TARGET (\S+)/, 'MAP_TARGET \1')
+        plugin.puts line
+      end
+    end
+    plugin.puts ''
+  end
+  plugin.close
+  puts "Plugin complete: #{File.expand_path('.')}"
 end
 
 # A helper method to make the zip writing recursion work
@@ -218,6 +303,9 @@ if not ARGV[0].nil? # argument(s) given
 
   when 'generate'
     generate(ARGV[1..-1])
+
+  when 'migrate'
+    migrate(ARGV[1..-1])
 
   when 'rubysloc'
     puts `ruby /cosmos/bin/rubysloc #{ARGV[1..-1].join(' ')}`
