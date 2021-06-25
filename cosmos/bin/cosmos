@@ -136,12 +136,14 @@ def migrate(args)
   ###############################################################
   plugin = args.shift
   target_name = generate(['plugin', plugin])
-  # Delete target contents from the plugin framework
+  # Delete target contents from the plugin framework (but keep directory)
   FileUtils.rm_rf Dir.glob("targets/#{target_name}/*")
 
   if MIGRATE_OPTIONS.all
+    # Grab all target directories to match the command line input
     args = Dir.glob("../config/targets/*").map { |path| File.basename(path) }
   else
+    # Ensure targets passed in on command line actually exist
     args.each do |target|
       path = File.join('..', 'config', 'targets', target)
       unless File.exist?(path)
@@ -151,14 +153,13 @@ def migrate(args)
     end
   end
 
-  # Overwrite plugin.txt with all the cmd_tlm_server.txt info found
+  # Overwrite plugin.txt with specified targets
   plugin = File.open('plugin.txt', 'w')
   plugin.puts "TARGET #{target_name}"
 
   args.each do |target|
     puts "Migrating target #{target}"
-    target_path = File.join('..', 'config', 'targets', target)
-    FileUtils.cp_r target_path, 'targets'
+    FileUtils.cp_r "../config/targets/#{target}", 'targets'
     plugin.puts "TARGET #{target}"
   end
   plugin.puts ""
@@ -172,7 +173,7 @@ def migrate(args)
     File.open(file) do |file|
       file.each do |line|
         next if line =~ /^\s*#/ # Ignore comments
-        next if line.strip.empty?
+        next if line.strip.empty? # Ignore empty lines
         # Convert TARGET to MAP_TARGET
         line.gsub!(/TARGET (\S+)/, 'MAP_TARGET \1')
         plugin.puts line
@@ -181,7 +182,7 @@ def migrate(args)
     plugin.puts ''
   end
   plugin.close
-  puts "Plugin complete: #{File.expand_path('.')}"
+  puts "Plugin complete: #{File.expand_path('.')}" # Remember we're inside the plugin dir
 end
 
 # A helper method to make the zip writing recursion work
