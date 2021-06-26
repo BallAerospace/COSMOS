@@ -3,8 +3,6 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # ruby '2.7.0'
 
-gem 'dotenv-rails', require: 'dotenv/rails-now'
-
 # gem 'nokogiri', '~> 1.10.9' # Comes with COSMOS
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'

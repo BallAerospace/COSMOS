@@ -1,4 +1,4 @@
-FROM cosmos-node AS cosmos-frontend-tmp
+FROM ballaerospace/cosmosc2-node AS cosmos-frontend-tmp
 
 WORKDIR /cosmos/plugins/
 
@@ -27,7 +27,7 @@ COPY . .
 
 RUN sh docker-build.sh
 
-FROM cosmos-base
+FROM ballaerospace/cosmosc2-base
 
 COPY --from=cosmos-frontend-tmp /cosmos/plugins/init.sh /cosmos/plugins/init.sh
 COPY --from=cosmos-frontend-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/

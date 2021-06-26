@@ -31,23 +31,24 @@ cosmos)
 start)
   scripts/linux/cosmos_setup.sh
   scripts/linux/cosmos_build.sh
-  scripts/linux/cosmos_run.sh
+  docker-compuse up -d
   ;;
 stop)
-  scripts/linux/cosmos_stop.sh
+  docker-compose down
   ;;
 restart)
-  scripts/linux/cosmos_restart.sh
+  docker-compose down
+  docker-compose up -d
   ;;
 cleanup)
-  scripts/linux/cosmos_cleanup.sh
+  docker-compose down -v
   ;;
 build)
   scripts/linux/cosmos_setup.sh
   scripts/linux/cosmos_build.sh
   ;;
 run)
-  scripts/linux/cosmos_run.sh
+  docker-compuse up -d
   ;;
 deploy)
   scripts/linux/cosmos_deploy.sh

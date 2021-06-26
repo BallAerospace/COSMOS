@@ -44,17 +44,17 @@ GOTO usage
 :startup
   CALL scripts/windows/cosmos_setup
   CALL scripts/windows/cosmos_build
-  CALL scripts/windows/cosmos_run
+  docker-compose up -d
   @echo off
 GOTO :EOF
 
 :stop
-  CALL scripts/windows/cosmos_stop
+  docker-compose down
   @echo off
 GOTO :EOF
 
 :cleanup
-  CALL scripts/windows/cosmos_cleanup
+  docker-compose down -v
   @echo off
 GOTO :EOF
 
@@ -65,7 +65,7 @@ GOTO :EOF
 GOTO :EOF
 
 :run
-  CALL scripts/windows/cosmos_run
+  docker-compose up -d
   @echo off
 GOTO :EOF
 
@@ -75,7 +75,8 @@ GOTO :EOF
 GOTO :EOF
 
 :restart
-  CALL scripts/windows/cosmos_restart
+  docker-compose down
+  docker-compose up -d
   @echo off
 GOTO :EOF
 

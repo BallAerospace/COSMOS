@@ -1,4 +1,4 @@
-FROM cosmos-base
+FROM ballaerospace/cosmosc2-base
 
 COPY plugins /cosmos/plugins/
 WORKDIR /cosmos/plugins/cosmos-demo/

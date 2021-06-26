@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  cosmos-redis:
+    ports:
+      - "127.0.0.1:6379:6379"
+
+  cosmos-minio:
+    ports:
+      - "127.0.0.1:9000:9000"
+
+  cosmos-cmd-tlm-api:
+    ports:
+      - "127.0.0.1:2901:2901"
+
+  cosmos-script-runner-api:
+    ports:
+      - "127.0.0.1:2902:2902"
