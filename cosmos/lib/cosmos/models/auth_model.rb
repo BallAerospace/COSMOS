@@ -23,23 +23,25 @@ require 'cosmos/utilities/store'
 module Cosmos
   class AuthModel
     PRIMARY_KEY = 'COSMOS__TOKEN'
+    SERVICE_KEY = 'COSMOS__SERVICE__TOKEN'
 
-    def self.is_set?
-      Store.exists(PRIMARY_KEY) == 1
+    def self.is_set?(key = PRIMARY_KEY)
+      Store.exists(key) == 1
     end
 
     def self.verify(token)
       return false if token.nil? or token.empty?
-      Store.get(PRIMARY_KEY) == hash(token)
+      token_hash = hash(token)
+      (Store.get(PRIMARY_KEY) == token_hash) or (Store.get(SERVICE_KEY) == token_hash)
     end
 
-    def self.set(token, old_token)
+    def self.set(token, old_token, key = PRIMARY_KEY)
       raise "token must not be nil or empty" if token.nil? or token.empty?
-      if is_set?
+      if is_set?(key)
         raise "old_token must not be nil or empty" if old_token.nil? or old_token.empty?
         raise "old_token incorrect" unless verify(old_token)
       end
-      Store.set(PRIMARY_KEY, hash(token))
+      Store.set(key, hash(token))
     end
 
     private

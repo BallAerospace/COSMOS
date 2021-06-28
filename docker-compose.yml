@@ -13,6 +13,9 @@ services:
       - cosmos-minio-v:/data
     command: ["server", "/data"]
     restart: unless-stopped
+    environment:
+      - MINIO_ROOT_USER=${COSMOS_MINIO_USERNAME}
+      - MINIO_ROOT_PASSWORD=${COSMOS_MINIO_PASSWORD}
 
   cosmos-cmd-tlm-api:
     image: "ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_TAG}"
