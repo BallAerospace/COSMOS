@@ -98,10 +98,48 @@
     </v-card>
     <v-divider />
     <classification-banner-settings />
+    <v-divider />
+    <v-card>
+      <v-card-title> Source code URL </v-card-title>
+      <v-card-subtitle>
+        This sets the URL for the "Source" link in the footer. This is required
+        under the AGPL license.
+      </v-card-subtitle>
+      <v-card-text class="pb-0 ml-2">
+        <v-text-field
+          label="Source URL"
+          v-model="sourceUrl"
+          data-test="sourceUrl"
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-container class="pt-0">
+          <v-row dense>
+            <v-col class="pl-0">
+              <v-btn
+                @click="saveSourceUrl"
+                color="success"
+                text
+                data-test="saveSourceUrl"
+              >
+                Save
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-alert v-model="errorSaving" type="error" dismissible dense>
+            Error saving
+          </v-alert>
+          <v-alert v-model="successSaving" type="success" dismissible dense>
+            Saved! (Refresh the page to see changes)
+          </v-alert>
+        </v-container>
+      </v-card-actions>
+    </v-card>
   </div>
 </template>
 
 <script>
+import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 import ClassificationBannerSettings from '@/tools/CosmosAdmin/ClassificationBannerSettings.vue'
 
 export default {
@@ -110,12 +148,16 @@ export default {
   },
   data() {
     return {
+      api: new CosmosApi(),
       suppressedWarnings: [],
       selectedSuppressedWarnings: [],
       selectAllSuppressedWarnings: false,
       lastConfigs: [],
       selectedLastConfigs: [],
       selectAllLastConfigs: false,
+      sourceUrl: '',
+      errorSaving: false,
+      successSaving: false,
     }
   },
   watch: {
@@ -139,6 +181,7 @@ export default {
   created() {
     this.loadSuppressedWarnings()
     this.loadLastConfigs()
+    this.loadSourceUrl()
   },
   methods: {
     loadSuppressedWarnings: function () {
@@ -177,6 +220,27 @@ export default {
         text: name.charAt(0).toUpperCase() + name.slice(1),
         value: localStorage[key],
       }
+    },
+    loadSourceUrl: function () {
+      this.api
+        .get_setting('source_url')
+        .then((response) => {
+          this.sourceUrl = response
+        })
+        .catch(() => {
+          this.sourceUrl = 'https://github.com/BallAerospace/COSMOS'
+        })
+    },
+    saveSourceUrl: function () {
+      this.api
+        .save_setting('source_url', this.sourceUrl)
+        .then((response) => {
+          this.errorSaving = false
+          this.successSaving = true
+        })
+        .catch((error) => {
+          this.errorSaving = true
+        })
     },
   },
 }

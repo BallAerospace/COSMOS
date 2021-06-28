@@ -22,11 +22,16 @@
     <img :src="logo" alt="COSMOS" width="20" height="20" />
     <span class="footer-text" style="margin-left: 5px">COSMOS &copy; 2021</span>
     <v-spacer />
+    <a :href="sourceUrl" class="white--text text-decoration-underline">
+      Source
+    </a>
+    <v-spacer />
     <div class="justify-right"><clock-footer /></div>
   </v-footer>
 </template>
 
 <script>
+import { CosmosApi } from '../../packages/cosmosc2-tool-common/src/services/cosmos-api'
 import logo from '../public/img/logo.png'
 import ClockFooter from './components/ClockFooter.vue'
 
@@ -36,8 +41,20 @@ export default {
   },
   data() {
     return {
+      api: new CosmosApi(),
       logo: logo,
+      sourceUrl: '',
     }
+  },
+  created: function () {
+    this.getSourceUrl()
+  },
+  methods: {
+    getSourceUrl: function () {
+      this.api.get_setting('source_url').then((response) => {
+        this.sourceUrl = response
+      })
+    },
   },
 }
 </script>

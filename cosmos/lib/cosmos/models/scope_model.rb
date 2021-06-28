@@ -49,6 +49,8 @@ module Cosmos
     end
 
     def deploy(gem_path, variables)
+      seed_database()
+
       # Cleanup Microservice
       microservice_name = "#{@scope}__CLEANUP__S3"
       microservice = MicroserviceModel.new(
@@ -106,6 +108,12 @@ module Cosmos
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__NOTIFICATION__LOG", scope: @scope)
       model.destroy if model
+    end
+
+    def seed_database
+      # Set default values for items in the db that should be set
+      # Should use the "nx" (not-exists) variant of redis calls here to not overwrite things the user has already set
+      Cosmos::Store.hsetnx('cosmos__settings', 'source_url', 'https://github.com/BallAerospace/COSMOS')
     end
   end
 end
