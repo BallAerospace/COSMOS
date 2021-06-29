@@ -32,7 +32,15 @@ module Cosmos
     def self.verify(token)
       return false if token.nil? or token.empty?
       token_hash = hash(token)
-      (Store.get(PRIMARY_KEY) == token_hash) or (Store.get(SERVICE_KEY) == token_hash)
+      return true if Store.get(PRIMARY_KEY) == token_hash
+      service_hash = Store.get(SERVICE_KEY)
+      if ENV['COSMOS_SERVICE_PASSWORD'] and hash(ENV['COSMOS_SERVICE_PASSWORD']) != service_hash
+        set_hash = hash(ENV['COSMOS_SERVICE_PASSWORD'])
+        Cosmos::Store.set(SERVICE_KEY, set_hash)
+        service_hash = set_hash
+      end
+      return true if service_hash == token_hash
+      return false
     end
 
     def self.set(token, old_token, key = PRIMARY_KEY)

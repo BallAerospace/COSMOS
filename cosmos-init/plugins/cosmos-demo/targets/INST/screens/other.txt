@@ -3,7 +3,7 @@ SCREEN 800 700 1.0
 SCROLLWINDOW
 
   # Change the title font to 10 pt courier without bold and make it italic
-  TITLE "<%= @target_name %> Other Widget Examples" courier 10 normal true
+  TITLE "<%= target_name %> Other Widget Examples" courier 10 normal true
 
   HORIZONTAL
     LABEL "TestText"
@@ -19,16 +19,16 @@ SCROLLWINDOW
     HORIZONTAL
       SETTING LAYOUT_FILL_X
       LABEL TIMESEC
-      FORMATFONTVALUE INST LATEST TIMESEC %012u CONVERTED 12 arial 15
+      FORMATFONTVALUE <%= target_name %> LATEST TIMESEC %012u CONVERTED 12 arial 15
         SETTING LAYOUT_RIGHT
     END
 
     HORIZONTAL
-      TEXTBOX INST ADCS TIMEFORMATTED 200 300
-      TIMEGRAPH INST ADCS Q1 100 500 500 3
+      TEXTBOX <%= target_name %> ADCS TIMEFORMATTED 200 300
+      TIMEGRAPH <%= target_name %> ADCS Q1 100 500 500 3
     END
 
-    LABELVALUEDESC INST HEALTH_STATUS TEMP1
-    LABELFORMATVALUE INST HEALTH_STATUS TEMP1 %0.6f
+    LABELVALUEDESC <%= target_name %> HEALTH_STATUS TEMP1
+    LABELFORMATVALUE <%= target_name %> HEALTH_STATUS TEMP1 %0.6f
   END
 END

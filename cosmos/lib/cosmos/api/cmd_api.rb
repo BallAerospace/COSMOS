@@ -364,7 +364,7 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{method_name}()"
       end
       authorize(permission: 'cmd', target_name: target_name, packet_name: cmd_name, scope: scope, token: token)
-      TargetModel.packet(target_name, cmd_name, type: :CMD, scope: scope)
+      packet = TargetModel.packet(target_name, cmd_name, type: :CMD, scope: scope)
 
       command = {
         'target_name' => target_name,
@@ -373,7 +373,55 @@ module Cosmos
         'range_check' => range_check,
         'hazardous_check' => hazardous_check,
         'raw' => raw }
+      Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params, packet, raw) if !packet["messages_disabled"]
       CommandTopic.send_command(command, scope: scope)
+    end
+
+    def build_cmd_output_string(target_name, cmd_name, cmd_params, packet, raw)
+      if raw
+        output_string = 'cmd_raw("'
+      else
+        output_string = 'cmd("'
+      end
+      output_string << target_name + ' ' + cmd_name
+      if cmd_params.nil? or cmd_params.empty?
+        output_string << '")'
+      else
+        params = []
+        cmd_params.each do |key, value|
+          next if Packet::RESERVED_ITEM_NAMES.include?(key)
+          item = packet['items'].find {|item| item['name'] == key.to_s }
+
+          begin
+            item_type = item['data_type'].intern
+          rescue
+            item_type = nil
+          end
+
+          if value.is_a?(String)
+            value = value.dup
+            if item_type == :BLOCK or item_type == :STRING
+              if !value.is_printable?
+                value = "0x" + value.simple_formatted
+              else
+                value = value.inspect
+              end
+            else
+              value = value.convert_to_value.to_s
+            end
+            if value.length > 256
+              value = value[0..255] + "...'"
+            end
+            value.tr!('"',"'")
+          elsif value.is_a?(Array)
+            value = "[#{value.join(", ")}]"
+          end
+          params << "#{key} #{value}"
+        end
+        params = params.join(", ")
+        output_string << ' with ' + params + '")'
+      end
+      return output_string
     end
   end
 end

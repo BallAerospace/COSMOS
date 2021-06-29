@@ -108,7 +108,7 @@ module Cosmos
     # @param filename [String] The target configuration file to parse
     def process_file(filename)
       Logger.instance.info "Processing target definition in file '#{filename}'"
-      parser = ConfigParser.new("http://cosmosrb.com/docs/system/#target-configuration")
+      parser = ConfigParser.new("https://cosmosc2.com/docs/v5/target")
       parser.parse_file(filename) do |keyword, parameters|
         case keyword
         when 'REQUIRE'

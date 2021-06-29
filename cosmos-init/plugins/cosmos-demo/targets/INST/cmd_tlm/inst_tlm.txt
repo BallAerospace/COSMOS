@@ -1,4 +1,4 @@
-TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the <%= @target_name %> target"
+TELEMETRY <%= target_name %> HEALTH_STATUS BIG_ENDIAN "Health and status from the <%= target_name %> target"
   <%= render "_ccsds_tlm.txt", locals: {apid: 1} %>
   APPEND_ITEM COLLECTS         16 UINT     "Number of collects"
   APPEND_ITEM TEMP1            16 UINT     "Temperature #1"
@@ -69,7 +69,7 @@ TELEMETRY INST HEALTH_STATUS BIG_ENDIAN "Health and status from the <%= @target_
   PROCESSOR TEMP1STAT statistics_processor.rb TEMP1 100
   PROCESSOR TEMP1WATER watermark_processor.rb TEMP1
 
-TELEMETRY INST ADCS BIG_ENDIAN "Position and attitude data"
+TELEMETRY <%= target_name %> ADCS BIG_ENDIAN "Position and attitude data"
   META TYPE 'struct adcs'
   <%= render "_ccsds_tlm.txt", locals: {apid: 2} %>
   ITEM POSX             128 32 FLOAT "Position X"
@@ -115,7 +115,7 @@ TELEMETRY INST ADCS BIG_ENDIAN "Position and attitude data"
   ITEM TIMEFORMATTED 0 0 DERIVED "Derived time since epoch as formatted string"
     READ_CONVERSION unix_time_formatted_conversion.rb TIMESEC TIMEUS
 
-TELEMETRY INST PARAMS BIG_ENDIAN "Params set by SETPARAMS command"
+TELEMETRY <%= target_name %> PARAMS BIG_ENDIAN "Params set by SETPARAMS command"
   <%= render "_ccsds_tlm.txt", locals: {apid: 3} %>
   # ERB syntax:
   <% (1..5).each do |i| %>
@@ -130,7 +130,7 @@ TELEMETRY INST PARAMS BIG_ENDIAN "Params set by SETPARAMS command"
   ITEM TIMEFORMATTED 0 0 DERIVED "Derived time since epoch as formatted string"
     READ_CONVERSION unix_time_formatted_conversion.rb TIMESEC TIMEUS
 
-TELEMETRY INST IMAGE BIG_ENDIAN "Packet with image data"
+TELEMETRY <%= target_name %> IMAGE BIG_ENDIAN "Packet with image data"
   <%= render "_ccsds_tlm.txt", locals: {apid: 4} %>
   ITEM BYTES 128 32 UINT "First bytes"
     FORMAT_STRING '0x%08x'
@@ -142,7 +142,7 @@ TELEMETRY INST IMAGE BIG_ENDIAN "Packet with image data"
   ITEM TIMEFORMATTED 0 0 DERIVED "Derived time since epoch as formatted string"
     READ_CONVERSION unix_time_formatted_conversion.rb TIMESEC TIMEUS
 
-TELEMETRY INST MECH BIG_ENDIAN "Mechanism status"
+TELEMETRY <%= target_name %> MECH BIG_ENDIAN "Mechanism status"
   <%= render "_ccsds_tlm.txt", locals: {apid: 5} %>
   APPEND_ITEM EXTRA         32 FLOAT    "Extra item to be deleted"
   APPEND_ITEM SLRPNL1       32 FLOAT    "Solar panel 1 angle"

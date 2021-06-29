@@ -1,7 +1,7 @@
 def clear
   # Command the collect
-  cmd("INST CLEAR")
+  cmd("<%= target_name %> CLEAR")
 
   # Wait for telemetry to update
-  wait_check("INST HEALTH_STATUS COLLECTS == 0", 10)
+  wait_check("<%= target_name %> HEALTH_STATUS COLLECTS == 0", 10)
 end
