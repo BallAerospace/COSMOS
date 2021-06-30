@@ -8,7 +8,7 @@ Redis reads in the user configuration from an ACL file: [users.acl](./config/use
 
 Passwords can be set in the ACL file as either the SHA-256 hash or plaintext. To use the hash, prefix it with a # symbol (example: `user bob on #3ff698674f294ba598e719e3bfef82d88836d363b9e6f74d4b684415542919da`). To use plaintext, prefix it with a > symbol (example: `user bob on >bobspassword`). Note that this file gets physically stored on the Redis server, so storing the passwords in plaintext is not recommended.
 
-### The two users
+### The three users:
 
 - cosmos
 
@@ -23,6 +23,12 @@ Passwords can be set in the ACL file as either the SHA-256 hash or plaintext. To
   - This user is optional, but it's provided so that you can make changes to Redis while it's running. This won't be needed for normal operation of COSMOS. You can remove this user by deleting its line from the ACL file, or disable it by changing "on" to "off". Doing so would require a restart of Redis (with an amended ACL file that adds this user back) if configuration changes are needed.
 
   - It should be noted that the only commands this user has access to are those in the `@admin` category. However, that category includes the `ACL` command and all its subcommands, meaning that the user could grant themselves any other permission in Redis.
+
+- default
+
+  - This is the default user for Redis, which has permission to do anything and no password. This user is set to `off` to ensure that it can't be used.
+
+  - You can enable this user if you want a simple way to expose certain commands without needing authentication. For example `user default on nopass -@all +ping` would let anyone ping Redis, but nothing else.
 
 ## The .env file
 
