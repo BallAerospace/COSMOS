@@ -577,9 +577,8 @@ module Cosmos
       target = System.targets[target_name.upcase]
       raise "Unknown target: #{target_name}" unless target
 
-      # Find and clone the telemetry packet
-      cvt_packet = System.telemetry.packet(target_name, packet_name)
-      packet = cvt_packet.clone
+      # Find the telemetry packet
+      packet = System.telemetry.packet(target_name, packet_name)
       packet.received_time = received_time
 
       if item_hash
@@ -590,14 +589,9 @@ module Cosmos
         end
       end
 
-      # Update current value table
-      cvt_packet.buffer = packet.buffer(false)
-      cvt_packet.received_time = received_time
-
       # The interface does the following line, but I don't think inject_tlm should because it could confuse the interface
       target.tlm_cnt += 1
       packet.received_count += 1
-      cvt_packet.received_count += 1
       CmdTlmServer.instance.identified_packet_callback(packet)
 
       # Find the interface for this target
