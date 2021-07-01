@@ -10,6 +10,9 @@ usage() {
   echo "*  build: build the containers for cosmos" >&2
   echo "*  run: run the prebuilt containers for cosmos" >&2
   echo "*  deploy: deploy the containers to localhost repository" >&2
+  echo "*  util: various helper commands" >&2
+  echo "*    encode: encode a string to base64" >&2
+  echo "*    hash: hash a string using SHA-256" >&2
   exit 1
 }
 
@@ -28,26 +31,30 @@ cosmos)
 start)
   scripts/linux/cosmos_setup.sh
   scripts/linux/cosmos_build.sh
-  scripts/linux/cosmos_run.sh
+  docker-compuse up -d
   ;;
 stop)
-  scripts/linux/cosmos_stop.sh
+  docker-compose down
   ;;
 restart)
-  scripts/linux/cosmos_restart.sh
+  docker-compose down
+  docker-compose up -d
   ;;
 cleanup)
-  scripts/linux/cosmos_cleanup.sh
+  docker-compose down -v
   ;;
 build)
   scripts/linux/cosmos_setup.sh
   scripts/linux/cosmos_build.sh
   ;;
 run)
-  scripts/linux/cosmos_run.sh
+  docker-compuse up -d
   ;;
 deploy)
   scripts/linux/cosmos_deploy.sh
+  ;;
+util)
+  scripts/linux/cosmos_util.sh $2 $3
   ;;
 *)
   usage $0

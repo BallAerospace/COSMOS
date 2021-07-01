@@ -1,4 +1,4 @@
-TELEMETRY EXAMPLE STATUS BIG_ENDIAN "Health and status from the instrument"
+TELEMETRY <%= target_name %> STATUS BIG_ENDIAN "Health and status from the instrument"
   APPEND_ID_ITEM PACKET_ID 8 UINT 1 "Packet id"
   APPEND_ITEM VALUE 32 UINT "Limits value"
     LIMITS DEFAULT 1 ENABLED 0 1 10 11

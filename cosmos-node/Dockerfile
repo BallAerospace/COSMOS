@@ -1,4 +1,4 @@
-FROM cosmos-ruby
+FROM ballaerospace/cosmosc2-ruby
 
 RUN apk update \
   && apk add yarn \

@@ -90,7 +90,7 @@ module Cosmos
     #   the default location of <USERPATH>/config/targets.
     def process_file(filename, targets_config_dir)
       Cosmos.set_working_dir(@userpath) do
-        parser = ConfigParser.new("http://cosmosrb.com/docs/system")
+        parser = ConfigParser.new("http://cosmosc2.com/docs/v5")
 
         # First pass - Everything except targets
         parser.parse_file(filename) do |keyword, parameters|

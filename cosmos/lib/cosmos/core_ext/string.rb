@@ -26,7 +26,7 @@ class String
   # The printable range of ASCII characters
   PRINTABLE_RANGE = 32..126
   # Regular expression to identify a character that is not in the printable range
-  NON_PRINTABLE_REGEX = /[^ -~]/
+  NON_PRINTABLE_REGEX = /[^\s -~]/
   # Regular expression to identify a String as a floating point number
   FLOAT_CHECK_REGEX = /\A\s*[-+]?\d*\.\d+\s*\z/
   # Regular expression to identify a String as a floating point number in

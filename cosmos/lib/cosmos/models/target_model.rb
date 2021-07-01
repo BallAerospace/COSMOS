@@ -201,8 +201,13 @@ module Cosmos
           key = "#{@scope}/targets/#{@name}/" + target_folder_path
 
           # Load target files
+          @filename = filename # For render
           data = File.read(filename, mode: "rb")
-          data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
+          begin
+            data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable? and File.basename(filename)[0] != '_'
+          rescue => error
+            raise "ERB error parsing: #{filename}: #{error.formatted}"
+          end
           local_path = File.join(temp_dir, @name, target_folder_path)
           FileUtils.mkdir_p(File.dirname(local_path))
           File.open(local_path, 'wb') {|file| file.write(data)}
@@ -259,6 +264,29 @@ module Cosmos
     ##################################################
     # The following methods are implementation details
     ##################################################
+
+    # Called by the ERB template to render a partial
+    def render(template_name, options = {})
+      raise Error.new(self, "Partial name '#{template_name}' must begin with an underscore.") if File.basename(template_name)[0] != '_'
+      b = binding
+      b.local_variable_set(:target_name, @name)
+      if options[:locals]
+        options[:locals].each {|key, value| b.local_variable_set(key, value) }
+      end
+
+      # Assume the file is there. If not we raise a pretty obvious error
+      if File.expand_path(template_name) == template_name # absolute path
+        path = template_name
+      else # relative to the current @filename
+        path = File.join(File.dirname(@filename), template_name)
+      end
+
+      begin
+        return ERB.new(File.read(path)).result(b)
+      rescue => error
+        raise "ERB error parsing: #{path}: #{error.formatted}"
+      end
+    end
 
     def build_target_archive(rubys3_client, temp_dir, target_folder)
       target_files = []

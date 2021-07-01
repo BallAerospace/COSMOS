@@ -1,4 +1,4 @@
-FROM cosmos-base
+FROM ballaerospace/cosmosc2-base
 
 WORKDIR /cosmos/lib/cosmos/operators/
 

@@ -34,7 +34,7 @@ require 'json'
 require 'redis'
 require 'erb'
 
-$redis_url = ENV['COSMOS_REDIS_URL'] || (ENV['COSMOS_DEVEL'] ? 'redis://127.0.0.1:6379/0' : 'redis://cosmos-redis:6379/0')
+$redis_url = ENV['COSMOS_REDIS_URL']
 
 # Prints the usage text for the cosmos executable
 def print_usage
@@ -170,7 +170,7 @@ def load_plugin(plugin_file_path, scope:)
 end
 
 def get_redis_keys
-  redis = Redis.new(url: $redis_url)
+  redis = Redis.new(url: $redis_url, username: ENV['COSMOS_REDIS_USERNAME'], password: ENV['COSMOS_REDIS_PASSWORD'])
   puts "\n--- COSMOS Redis database keys ---"
   cursor = 0
   keys = []
@@ -256,7 +256,7 @@ if not ARGV[0].nil? # argument(s) given
     when 'keys'
       get_redis_keys()
     when 'hget'
-      redis = Redis.new(url: $redis_url)
+      redis = Redis.new(url: $redis_url, username: ENV['COSMOS_REDIS_USERNAME'], password: ENV['COSMOS_REDIS_PASSWORD'])
       puts JSON.parse(redis.hget(ARGV[2], ARGV[3]))
     else
       puts "Unknown redis task: #{ARGV[1]}\n"

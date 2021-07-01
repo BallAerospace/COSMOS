@@ -70,7 +70,7 @@ module Cosmos
         pkg.extract_files(temp_dir)
         plugin_txt_path = File.join(temp_dir, 'plugin.txt')
         if File.exist?(plugin_txt_path)
-          parser = Cosmos::ConfigParser.new("http://cosmosrb.com")
+          parser = Cosmos::ConfigParser.new("http://cosmosc2.com")
 
           # Phase 1 Gather Variables
           variables = {}
@@ -127,7 +127,7 @@ module Cosmos
         # Process plugin.txt file
         plugin_txt_path = File.join(gem_path, 'plugin.txt')
         if File.exist?(plugin_txt_path)
-          parser = Cosmos::ConfigParser.new("http://cosmosrb.com")
+          parser = Cosmos::ConfigParser.new("http://cosmosc2.com")
 
           current_model = nil
           parser.parse_file(plugin_txt_path, false, true, true, variables) do |keyword, params|

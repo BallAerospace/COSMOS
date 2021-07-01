@@ -1,4 +1,4 @@
-FROM cosmos-ruby
+FROM ballaerospace/cosmosc2-ruby
 
 ENV RUBYLIB=/cosmos/lib
 ENV COSMOS_PATH="/cosmos"
