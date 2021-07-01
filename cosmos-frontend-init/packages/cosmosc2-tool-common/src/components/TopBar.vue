@@ -21,8 +21,11 @@
   <mounting-portal mountTo="#cosmos-menu" append>
     <div class="v-toolbar__content">
       <v-menu offset-y v-for="(menu, i) in menus" :key="i">
-        <template v-slot:activator="{ on }">
-          <v-btn icon v-on="on">{{ menu.label }}</v-btn>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn outlined v-bind="attrs" v-on="on" class="mx-1">
+            <span v-text="menu.label" />
+            <v-icon right> mdi-menu-down </v-icon>
+          </v-btn>
         </template>
         <v-list>
           <!-- The radio-group is necessary in case the application wants radio buttons -->
