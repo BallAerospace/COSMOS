@@ -251,8 +251,12 @@ module Cosmos
       if !items.is_a?(Array) || !items[0].is_a?(String)
         raise ArgumentError, "items must be array of strings: ['TGT__PKT__ITEM__TYPE', ...]"
       end
-      items.each do |item|
-        target_name, packet_name, _, _ = item.split('__')
+      items.each_with_index do |item, index|
+        target_name, packet_name, item_name, item_type = item.split('__')
+        if packet_name == 'LATEST'
+          _, packet_name, _ = tlm_process_args([target_name, packet_name, item_name], 'get_tlm_values', scope: scope) # Figure out which packet is LATEST
+          items[index] = "#{target_name}__#{packet_name}__#{item_name}__#{item_type}" # Replace LATEST with the real packet name
+        end
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       end
       Store.instance.get_tlm_values(items, scope: scope)
