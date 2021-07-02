@@ -1,7 +1,19 @@
 version: "3.9"
 
 services:
+  cosmos-ruby:
+    build:
+      context: cosmos-ruby
+    image: "ballaerospace/cosmosc2-ruby:${COSMOS_TAG}"
+
+  cosmos-node:
+    build:
+      context: cosmos-node
+    image: "ballaerospace/cosmosc2-node:${COSMOS_TAG}"
+
   cosmos-redis:
+    build:
+      context: cosmos-redis
     image: "ballaerospace/cosmosc2-redis:${COSMOS_TAG}"
     volumes:
       - cosmos-redis-v:/data
@@ -18,6 +30,8 @@ services:
       - MINIO_ROOT_PASSWORD=${COSMOS_MINIO_PASSWORD}
 
   cosmos-cmd-tlm-api:
+    build:
+      context: cosmos-cmd-tlm-api
     image: "ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_TAG}"
     restart: unless-stopped
     depends_on:
@@ -27,6 +41,8 @@ services:
       - .env
 
   cosmos-script-runner-api:
+    build:
+      context: cosmos-script-runner-api
     image: "ballaerospace/cosmosc2-script-runner-api:${COSMOS_TAG}"
     restart: unless-stopped
     depends_on:
@@ -36,6 +52,8 @@ services:
       - .env
 
   cosmos-operator:
+    build:
+      context: cosmos-operator
     image: "ballaerospace/cosmosc2-operator:${COSMOS_TAG}"
     restart: unless-stopped
     depends_on:
@@ -45,6 +63,8 @@ services:
       - .env
 
   cosmos-traefik:
+    build:
+      context: cosmos-traefik
     image: "ballaerospace/cosmosc2-traefik:${COSMOS_TAG}"
     ports:
       - "2900:80"
@@ -54,6 +74,8 @@ services:
       - cosmos-minio
 
   cosmos-frontend-init:
+    build:
+      context: cosmos-frontend-init
     image: "ballaerospace/cosmosc2-frontend-init:${COSMOS_TAG}"
     restart: on-failure
     depends_on:
@@ -64,6 +86,8 @@ services:
       - .env
 
   cosmos-init:
+    build:
+      context: cosmos-init
     image: "ballaerospace/cosmosc2-init:${COSMOS_TAG}"
     restart: on-failure
     depends_on:

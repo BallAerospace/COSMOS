@@ -43,7 +43,7 @@ GOTO usage
 
 :startup
   CALL scripts/windows/cosmos_setup
-  CALL scripts/windows/cosmos_build
+  docker-compose build
   docker-compose up -d
   @echo off
 GOTO :EOF
@@ -60,7 +60,7 @@ GOTO :EOF
 
 :build
   CALL scripts/windows/cosmos_setup
-  CALL scripts/windows/cosmos_build
+  docker-compose build
   @echo off
 GOTO :EOF
 
@@ -70,13 +70,15 @@ GOTO :EOF
 GOTO :EOF
 
 :deploy
-  CALL scripts/windows/cosmos_deploy
+  REM Send the remaining arguments to cosmos_deploy
+  set args=%*
+  call set args=%%args:*%1=%%
+  CALL scripts/windows/cosmos_deploy %args%
   @echo off
 GOTO :EOF
 
 :restart
-  docker-compose down
-  docker-compose up -d
+  docker-compose restart
   @echo off
 GOTO :EOF
 
@@ -98,6 +100,7 @@ GOTO :EOF
   @echo *  build: build the containers for cosmos 1>&2
   @echo *  run: run the prebuilt containers for cosmos 1>&2
   @echo *  deploy: deploy the containers to localhost repository 1>&2
+  @echo *    repository: hostname of the docker repository 1>&2
   @echo *  util: various helper commands: 1>&2
   @echo *    encode: encode a string to base64 1>&2
   @echo *    hash: hash a string using SHA-256 1>&2
