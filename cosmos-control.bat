@@ -46,7 +46,7 @@ GOTO usage
 
 :startup
   CALL scripts/windows/cosmos_setup
-  docker-compose -f scripts/docker/docker-compose.build.yaml build 
+  docker-compose -f scripts/docker/docker-compose.yaml -f scripts/docker/compose-build.yaml build 
   docker-compose -f scripts/docker/docker-compose.yaml up -d
   @echo off
 GOTO :EOF
@@ -68,7 +68,7 @@ GOTO :EOF
 
 :build
   CALL scripts/windows/cosmos_setup
-  docker-compose -f scripts/docker/docker-compose.build.yaml build 
+  docker-compose -f scripts/docker/docker-compose.yaml -f scripts/docker/compose-build.yaml build 
   @echo off
 GOTO :EOF
 
@@ -78,7 +78,7 @@ GOTO :EOF
 GOTO :EOF
 
 :dev
-  docker-compose -f scripts/docker/docker-compose.yaml -f scripts/docker/docker-compose.dev.yaml up -d
+  docker-compose -f scripts/docker/docker-compose.yaml -f scripts/docker/compose-dev.yaml up -d
   @echo off
 GOTO :EOF
 
