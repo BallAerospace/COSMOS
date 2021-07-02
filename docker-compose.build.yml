@@ -1,32 +1,32 @@
 version: "3.9"
 
 services:
+  cosmos-ruby:
+    build:
+      context: cosmos-ruby
+    image: "ballaerospace/cosmosc2-ruby:${COSMOS_TAG}"
+
+  cosmos-node:
+    build:
+      context: cosmos-node
+    image: "ballaerospace/cosmosc2-node:${COSMOS_TAG}"
+
+  cosmos-base:
+    build:
+      context: cosmos
+    image: "ballaerospace/cosmosc2-base:${COSMOS_TAG}"
+
   cosmos-redis:
     build:
       context: cosmos-redis
     image: "ballaerospace/cosmosc2-redis:${COSMOS_TAG}"
-    volumes:
-      - cosmos-redis-v:/data
-    restart: unless-stopped
-
-  cosmos-minio:
-    image: "minio/minio:RELEASE.2021-06-17T00-10-46Z"
-    volumes:
-      - cosmos-minio-v:/data
-    command: ["server", "/data"]
-    restart: unless-stopped
-    environment:
-      - MINIO_ROOT_USER=${COSMOS_MINIO_USERNAME}
-      - MINIO_ROOT_PASSWORD=${COSMOS_MINIO_PASSWORD}
 
   cosmos-cmd-tlm-api:
     build:
       context: cosmos-cmd-tlm-api
     image: "ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_TAG}"
-    restart: unless-stopped
     depends_on:
-      - cosmos-redis
-      - cosmos-minio
+      - cosmos-ruby
     env_file:
       - .env
 
@@ -34,10 +34,8 @@ services:
     build:
       context: cosmos-script-runner-api
     image: "ballaerospace/cosmosc2-script-runner-api:${COSMOS_TAG}"
-    restart: unless-stopped
     depends_on:
-      - cosmos-redis
-      - cosmos-minio
+      - cosmos-ruby
     env_file:
       - .env
 
@@ -47,8 +45,7 @@ services:
     image: "ballaerospace/cosmosc2-operator:${COSMOS_TAG}"
     restart: unless-stopped
     depends_on:
-      - cosmos-redis
-      - cosmos-minio
+      - cosmos-ruby
     env_file:
       - .env
 
@@ -56,22 +53,14 @@ services:
     build:
       context: cosmos-traefik
     image: "ballaerospace/cosmosc2-traefik:${COSMOS_TAG}"
-    ports:
-      - "2900:80"
-    restart: unless-stopped
-    depends_on:
-      - cosmos-redis
-      - cosmos-minio
 
   cosmos-frontend-init:
     build:
       context: cosmos-frontend-init
     image: "ballaerospace/cosmosc2-frontend-init:${COSMOS_TAG}"
-    restart: on-failure
     depends_on:
-      - cosmos-traefik
-      - cosmos-redis
-      - cosmos-minio
+      - cosmos-ruby
+      - cosmos-node
     env_file:
       - .env
 
@@ -79,14 +68,7 @@ services:
     build:
       context: cosmos-init
     image: "ballaerospace/cosmosc2-init:${COSMOS_TAG}"
-    restart: on-failure
     depends_on:
-      - cosmos-traefik
-      - cosmos-redis
-      - cosmos-minio
+      - cosmos-ruby
     env_file:
       - .env
-
-volumes:
-  cosmos-redis-v: {}
-  cosmos-minio-v: {}

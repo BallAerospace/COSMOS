@@ -1,16 +1,6 @@
 version: "3.9"
 
 services:
-    cosmos-ruby:
-    build:
-      context: cosmos-ruby
-    image: "ballaerospace/cosmosc2-ruby:${COSMOS_TAG}"
-
-  cosmos-node:
-    build:
-      context: cosmos-node
-    image: "ballaerospace/cosmosc2-node:${COSMOS_TAG}"
-
   cosmos-redis:
     build:
       context: cosmos-redis
@@ -104,7 +94,3 @@ services:
       - cosmos-minio
     env_file:
       - .env
-
-volumes:
-  cosmos-redis-v: {}
-  cosmos-minio-v: {}

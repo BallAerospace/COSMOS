@@ -31,7 +31,7 @@ cosmos)
   ;;
 start)
   scripts/linux/cosmos_setup.sh
-  docker-compose build
+  docker-compose build -f docker-compose.build.yml
   docker-compuse up -d
   ;;
 stop)
@@ -45,7 +45,7 @@ cleanup)
   ;;
 build)
   scripts/linux/cosmos_setup.sh
-  docker-compose build
+  docker-compose build -f docker-compose.build.yml
   ;;
 run)
   docker-compuse up -d
