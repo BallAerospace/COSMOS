@@ -1,15 +1,6 @@
 version: "3.9"
 
 services:
-  cosmos-redis:
-    build:
-      context: cosmos-redis
-    image: "ballaerospace/cosmosc2-redis:${COSMOS_TAG}-dev"
-    volumes:
-      - cosmos-redis-v:/data
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:6379:6379" # only allow localhost access to internal apis
 
   cosmos-minio:
     image: "minio/minio:RELEASE.2021-06-17T00-10-46Z"
@@ -20,39 +11,41 @@ services:
     environment:
       - MINIO_ROOT_USER=${COSMOS_MINIO_USERNAME}
       - MINIO_ROOT_PASSWORD=${COSMOS_MINIO_PASSWORD}
-    ports:
-      - "127.0.0.1:9000:9000" # only allow localhost access to internal apis
+
+  cosmos-redis:
+    build:
+      context: ../../cosmos-redis
+    image: "ballaerospace/cosmosc2-redis:${COSMOS_TAG}"
+    volumes:
+      - cosmos-redis-v:/data
+    restart: unless-stopped
 
   cosmos-cmd-tlm-api:
     build:
-      context: cosmos-cmd-tlm-api
-    image: "ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_TAG}-dev"
+      context: ../../cosmos-cmd-tlm-api
+    image: "ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_TAG}"
     restart: unless-stopped
     depends_on:
       - cosmos-redis
       - cosmos-minio
     env_file:
       - .env
-    ports:
-      - "127.0.0.1:2901:2901" # only allow localhost access to internal apis
 
   cosmos-script-runner-api:
     build:
-      context: cosmos-script-runner-api
-    image: "ballaerospace/cosmosc2-script-runner-api:${COSMOS_TAG}-dev"
+      context: ../../cosmos-script-runner-api
+    image: "ballaerospace/cosmosc2-script-runner-api:${COSMOS_TAG}"
     restart: unless-stopped
     depends_on:
       - cosmos-redis
       - cosmos-minio
     env_file:
       - .env
-    ports:
-      - "127.0.0.1:2902:2902" # only allow localhost access to internal apis
 
   cosmos-operator:
     build:
-      context: cosmos-operator
-    image: "ballaerospace/cosmosc2-operator:${COSMOS_TAG}-dev"
+      context: ../../cosmos-operator
+    image: "ballaerospace/cosmosc2-operator:${COSMOS_TAG}"
     restart: unless-stopped
     depends_on:
       - cosmos-redis
@@ -62,8 +55,8 @@ services:
 
   cosmos-traefik:
     build:
-      context: cosmos-traefik
-    image: "ballaerospace/cosmosc2-traefik:${COSMOS_TAG}-dev"
+      context: ../../cosmos-traefik
+    image: "ballaerospace/cosmosc2-traefik:${COSMOS_TAG}"
     ports:
       - "2900:80"
     restart: unless-stopped
@@ -73,8 +66,8 @@ services:
 
   cosmos-frontend-init:
     build:
-      context: cosmos-frontend-init
-    image: "ballaerospace/cosmosc2-frontend-init:${COSMOS_TAG}-dev"
+      context: ../../cosmos-frontend-init
+    image: "ballaerospace/cosmosc2-frontend-init:${COSMOS_TAG}"
     restart: on-failure
     depends_on:
       - cosmos-traefik
@@ -85,8 +78,8 @@ services:
 
   cosmos-init:
     build:
-      context: cosmos-init
-    image: "ballaerospace/cosmosc2-init:${COSMOS_TAG}-dev"
+      context: ../../cosmos-init
+    image: "ballaerospace/cosmosc2-init:${COSMOS_TAG}"
     restart: on-failure
     depends_on:
       - cosmos-traefik
@@ -94,3 +87,7 @@ services:
       - cosmos-minio
     env_file:
       - .env
+
+volumes:
+  cosmos-redis-v: {}
+  cosmos-minio-v: {}

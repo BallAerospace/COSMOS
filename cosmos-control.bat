@@ -32,6 +32,9 @@ if "%1" == "build" (
 if "%1" == "run" (
   GOTO run
 )
+if "%1" == "dev" (
+  GOTO dev
+)
 if "%1" == "deploy" (
   GOTO deploy
 )
@@ -43,29 +46,39 @@ GOTO usage
 
 :startup
   CALL scripts/windows/cosmos_setup
-  docker-compose -f docker-compose.build.yml build 
-  docker-compose up -d
+  docker-compose -f scripts/docker/docker-compose.build.yaml build 
+  docker-compose -f scripts/docker/docker-compose.yaml up -d
+  @echo off
+GOTO :EOF
+
+:restart
+  docker-compose -f scripts/docker/docker-compose.yaml restart
   @echo off
 GOTO :EOF
 
 :stop
-  docker-compose down
+  docker-compose -f scripts/docker/docker-compose.yaml down
   @echo off
 GOTO :EOF
 
 :cleanup
-  docker-compose down -v
+  docker-compose -f scripts/docker/docker-compose.yaml down -v
   @echo off
 GOTO :EOF
 
 :build
   CALL scripts/windows/cosmos_setup
-  docker-compose -f docker-compose.build.yml build 
+  docker-compose -f scripts/docker/docker-compose.build.yaml build 
   @echo off
 GOTO :EOF
 
 :run
-  docker-compose up -d
+  docker-compose -f scripts/docker/docker-compose.yaml up -d
+  @echo off
+GOTO :EOF
+
+:dev
+  docker-compose -f scripts/docker/docker-compose.yaml -f scripts/docker/docker-compose.dev.yaml up -d
   @echo off
 GOTO :EOF
 
@@ -74,11 +87,6 @@ GOTO :EOF
   set args=%*
   call set args=%%args:*%1=%%
   CALL scripts/windows/cosmos_deploy %args%
-  @echo off
-GOTO :EOF
-
-:restart
-  docker-compose restart
   @echo off
 GOTO :EOF
 
@@ -99,6 +107,7 @@ GOTO :EOF
   @echo *  cleanup: cleanup network and volumes for cosmos 1>&2
   @echo *  build: build the containers for cosmos 1>&2
   @echo *  run: run the prebuilt containers for cosmos 1>&2
+  @echo *  dev: run cosmos in dev mode 1>&2
   @echo *  deploy: deploy the containers to localhost repository 1>&2
   @echo *    repository: hostname of the docker repository 1>&2
   @echo *  util: various helper commands: 1>&2
