@@ -29,7 +29,6 @@ services:
   cosmos-script-runner-api:
     build:
       context: "../../cosmos-script-runner-api"
-    image: "ballaerospace/cosmosc2-script-runner-api:${COSMOS_TAG}"
     depends_on:
       - "cosmos-base"
 
