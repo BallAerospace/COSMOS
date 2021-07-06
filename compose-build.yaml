@@ -3,53 +3,55 @@ version: "3.9"
 services:
   cosmos-ruby:
     build:
-      context: "../../cosmos-ruby"
+      context: "cosmos-ruby"
     image: "ballaerospace/cosmosc2-ruby:${COSMOS_TAG}"
 
   cosmos-node:
     build:
-      context: "../../cosmos-node"
+      context: "cosmos-node"
     image: "ballaerospace/cosmosc2-node:${COSMOS_TAG}"
 
   cosmos-base:
     build:
-      context: "../../cosmos"
+      context: "cosmos"
     image: "ballaerospace/cosmosc2-base:${COSMOS_TAG}"
+    depends_on:
+      - "cosmos-ruby"
 
   cosmos-redis:
     build:
-      context: "../../cosmos-redis"
+      context: "cosmos-redis"
 
   cosmos-cmd-tlm-api:
     build:
-      context: "../../cosmos-cmd-tlm-api"
+      context: "cosmos-cmd-tlm-api"
     depends_on:
       - "cosmos-base"
 
   cosmos-script-runner-api:
     build:
-      context: "../../cosmos-script-runner-api"
+      context: "cosmos-script-runner-api"
     depends_on:
       - "cosmos-base"
 
   cosmos-operator:
     build:
-      context: "../../cosmos-operator"
+      context: "cosmos-operator"
     depends_on:
       - "cosmos-base"
 
   cosmos-traefik:
     build:
-      context: "../../cosmos-traefik"
+      context: "cosmos-traefik"
 
   cosmos-frontend-init:
     build:
-      context: "../../cosmos-frontend-init"
+      context: "cosmos-frontend-init"
     depends_on:
       - "cosmos-node"
 
   cosmos-init:
     build:
-      context: "../../cosmos-init"
+      context: "cosmos-init"
     depends_on:
       - "cosmos-base"

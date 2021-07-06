@@ -10,6 +10,7 @@ usage() {
   echo "*  build: build the containers for cosmos" >&2
   echo "*  run: run the prebuilt containers for cosmos" >&2
   echo "*  dev: run cosmos in a dev mode" >&2
+  echo "*  docker: build and run the cosmos-build container" >&2
   echo "*  deploy: deploy the containers to localhost repository" >&2
   echo "*    repository: hostname of the docker repository" >&2
   echo "*  util: various helper commands" >&2
@@ -32,28 +33,31 @@ cosmos)
   ;;
 start)
   scripts/linux/cosmos_setup.sh
-  docker-compose -f scripts/docker/docker-compose.yaml -f scripts/docker/compose-build.yaml build
-  docker-compuse -f scripts/docker/docker-compose.yaml up -d
+  docker-compose -f docker-compose.yaml -f compose-build.yaml build
+  docker-compose -f docker-compose.yaml up -d
   ;;
 stop)
-  docker-compose -f scripts/docker/docker-compose.yaml down
+  docker-compose -f docker-compose.yaml down
   ;;
 restart)
-  docker-compose -f scripts/docker/docker-compose.yaml restart
+  docker-compose -f docker-compose.yaml restart
   ;;
 cleanup)
-  docker-compose -f scripts/docker/docker-compose.yaml down -v
+  docker-compose -f docker-compose.yaml down -v
   ;;
 build)
   scripts/linux/cosmos_setup.sh
-  docker-compose -f scripts/docker/docker-compose.yaml -f scripts/docker/compose-build.yaml build
+  docker-compose -f docker-compose.yaml -f compose-build.yaml build
   ;;
 run)
-  docker-compuse -f scripts/docker/docker-compose.yaml up -d
+  docker-compose -f docker-compose.yaml up -d
   ;;
 dev)
-  docker-compuse -f scripts/docker/docker-compose.yaml -f scripts/docker/compose-dev.yaml up -d
+  docker-compose -f docker-compose.yaml -f compose-dev.yaml up -d
   ;;
+docker)
+  docker build -t cosmos-build .
+  docker run --rm -ti -v /var/run/docker.sock:/var/run/docker.sock cosmos-build
 deploy)
   scripts/linux/cosmos_deploy.sh $2
   ;;

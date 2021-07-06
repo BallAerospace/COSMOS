@@ -35,6 +35,9 @@ if "%1" == "run" (
 if "%1" == "dev" (
   GOTO dev
 )
+if "%1" == "docker" (
+  GOTO docker
+)
 if "%1" == "deploy" (
   GOTO deploy
 )
@@ -46,39 +49,45 @@ GOTO usage
 
 :startup
   CALL scripts/windows/cosmos_setup
-  docker-compose -f scripts/docker/docker-compose.yaml -f scripts/docker/compose-build.yaml build 
-  docker-compose -f scripts/docker/docker-compose.yaml up -d
+  docker-compose -f docker-compose.yaml -f compose-build.yaml build 
+  docker-compose -f docker-compose.yaml up -d
   @echo off
 GOTO :EOF
 
 :restart
-  docker-compose -f scripts/docker/docker-compose.yaml restart
+  docker-compose -f docker-compose.yaml restart
   @echo off
 GOTO :EOF
 
 :stop
-  docker-compose -f scripts/docker/docker-compose.yaml down
+  docker-compose -f docker-compose.yaml down
   @echo off
 GOTO :EOF
 
 :cleanup
-  docker-compose -f scripts/docker/docker-compose.yaml down -v
+  docker-compose -f docker-compose.yaml down -v
   @echo off
 GOTO :EOF
 
 :build
   CALL scripts/windows/cosmos_setup
-  docker-compose -f scripts/docker/docker-compose.yaml -f scripts/docker/compose-build.yaml build 
+  docker-compose -f docker-compose.yaml -f compose-build.yaml build 
   @echo off
 GOTO :EOF
 
 :run
-  docker-compose -f scripts/docker/docker-compose.yaml up -d
+  docker-compose -f docker-compose.yaml up -d
   @echo off
 GOTO :EOF
 
 :dev
-  docker-compose -f scripts/docker/docker-compose.yaml -f scripts/docker/compose-dev.yaml up -d
+  docker-compose -f docker-compose.yaml -f compose-dev.yaml up -d
+  @echo off
+GOTO :EOF
+
+:docker
+  docker build -t cosmos-build .
+  docker run --rm -ti -v /var/run/docker.sock:/var/run/docker.sock cosmos-build
   @echo off
 GOTO :EOF
 
@@ -108,6 +117,7 @@ GOTO :EOF
   @echo *  build: build the containers for cosmos 1>&2
   @echo *  run: run the prebuilt containers for cosmos 1>&2
   @echo *  dev: run cosmos in dev mode 1>&2
+  @echo *  docker: build and run the cosmos-build container 1>&2
   @echo *  deploy: deploy the containers to localhost repository 1>&2
   @echo *    repository: hostname of the docker repository 1>&2
   @echo *  util: various helper commands: 1>&2
