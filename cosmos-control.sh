@@ -31,7 +31,7 @@ cosmos)
 start)
   scripts/linux/cosmos_setup.sh
   scripts/linux/cosmos_build.sh
-  docker-compuse up -d
+  docker-compose up -d
   ;;
 stop)
   docker-compose down
@@ -48,7 +48,7 @@ build)
   scripts/linux/cosmos_build.sh
   ;;
 run)
-  docker-compuse up -d
+  docker-compose up -d
   ;;
 deploy)
   scripts/linux/cosmos_deploy.sh
