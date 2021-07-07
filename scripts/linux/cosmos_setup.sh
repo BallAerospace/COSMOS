@@ -14,7 +14,7 @@ if [ ! -f cosmos-ruby/cacert.pem ]; then
     echo Using $SSL_CERT_FILE as cacert.pem
   else
     echo "Downloading cert from curl"
-    curl -q https://curl.se/ca/cacert.pem --output cosmos-ruby/cacert.pem
+    curl -q -L https://curl.se/ca/cacert.pem --output cosmos-ruby/cacert.pem
     if [ $? -ne 0 ]; then
       echo "ERROR: Problem downloading cacert.pem file from https://curl.se/ca/cacert.pem" >&2
       echo "cosmos_setup FAILED" >&2
