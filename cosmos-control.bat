@@ -85,7 +85,7 @@ GOTO :EOF
   @echo off
 GOTO :EOF
 
-:docker
+:dind
   docker build -t cosmos-build .
   docker run --rm -ti -v /var/run/docker.sock:/var/run/docker.sock cosmos-build
   @echo off
@@ -117,7 +117,7 @@ GOTO :EOF
   @echo *  build: build the containers for cosmos 1>&2
   @echo *  run: run the prebuilt containers for cosmos 1>&2
   @echo *  dev: run cosmos in dev mode 1>&2
-  @echo *  docker: build and run the cosmos-build container 1>&2
+  @echo *  dind: build and run the docker development container (cosmos-build) 1>&2
   @echo *  deploy: deploy the containers to localhost repository 1>&2
   @echo *    repository: hostname of the docker repository 1>&2
   @echo *  util: various helper commands: 1>&2
