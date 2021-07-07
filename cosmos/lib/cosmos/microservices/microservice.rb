@@ -70,7 +70,7 @@ module Cosmos
       }
     end
 
-    def initialize(name)
+    def initialize(name, is_plugin: false)
       raise "Microservice must be named" unless name
       @name = name
       split_name = name.split("__")
@@ -100,7 +100,7 @@ module Cosmos
       # Get configuration for any targets from Minio/S3
       @target_names = @config["target_names"]
       @target_names ||= []
-      System.setup_targets(@target_names, @temp_dir, scope: @scope)
+      System.setup_targets(@target_names, @temp_dir, scope: @scope) unless is_plugin
 
       # Use at_exit to shutdown cleanly no matter how we die
       at_exit do
@@ -113,20 +113,22 @@ module Cosmos
       @state = 'INITIALIZED'
       metric_name = "metric_output_duration_seconds"
 
-      @microservice_sleeper = Sleeper.new
-      @microservice_status_period_seconds = 5
-      @microservice_status_thread = Thread.new do
-        until @cancel_thread
-          start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-          @metric.output
-          diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
-          @metric.add_sample(name: metric_name, value: diff, labels: {})
-          MicroserviceStatusModel.set(as_json(), scope: @scope) unless @cancel_thread
-          break if @microservice_sleeper.sleep(@microservice_status_period_seconds)
+      unless is_plugin
+        @microservice_sleeper = Sleeper.new
+        @microservice_status_period_seconds = 5
+        @microservice_status_thread = Thread.new do
+          until @cancel_thread
+            start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+            @metric.output
+            diff = Process.clock_gettime(Process::CLOCK_MONOTONIC) - start # seconds as a float
+            @metric.add_sample(name: metric_name, value: diff, labels: {})
+            MicroserviceStatusModel.set(as_json(), scope: @scope) unless @cancel_thread
+            break if @microservice_sleeper.sleep(@microservice_status_period_seconds)
+          end
+        rescue Exception => err
+          Logger.error "#{@name} status thread died: #{err.formatted}"
+          raise err
         end
-      rescue Exception => err
-        Logger.error "#{@name} status thread died: #{err.formatted}"
-        raise err
       end
     end
 
@@ -137,7 +139,7 @@ module Cosmos
 
     def shutdown
       @cancel_thread = true
-      @microservice_sleeper.cancel
+      @microservice_sleeper.cancel if @microservice_sleeper
       MicroserviceStatusModel.set(as_json(), scope: @scope)
       FileUtils.remove_entry(@temp_dir) if File.exist?(@temp_dir)
       @metric.destroy

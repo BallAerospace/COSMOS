@@ -56,6 +56,7 @@ module Cosmos
       env = microservice_config["env"]
       scope = microservice_name.split("__")[0]
 
+      # TODO: move to microservice.rb initialize
       # Get Microservice files from S3
       temp_dir = Dir.mktmpdir
       rubys3_client = Aws::S3::Client.new
@@ -97,7 +98,9 @@ module Cosmos
         end
       end
 
-      return cmd_array, work_dir, temp_dir, env, scope
+      process_definition = ["ruby", "plugin_microservice.rb", microservice_name]
+      work_dir = "/cosmos/lib/cosmos/microservices"
+      return process_definition, work_dir, temp_dir, env, scope
     end
 
     def update
