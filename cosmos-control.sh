@@ -33,27 +33,27 @@ cosmos)
   ;;
 start)
   scripts/linux/cosmos_setup.sh
-  docker-compose -f docker-compose.yaml -f compose-build.yaml build
-  docker-compose -f docker-compose.yaml up -d
+  docker-compose -f compose.yaml -f compose-build.yaml build
+  docker-compose -f compose.yaml up -d
   ;;
 stop)
-  docker-compose -f docker-compose.yaml down
+  docker-compose -f compose.yaml down
   ;;
 restart)
-  docker-compose -f docker-compose.yaml restart
+  docker-compose -f compose.yaml restart
   ;;
 cleanup)
-  docker-compose -f docker-compose.yaml down -v
+  docker-compose -f compose.yaml down -v
   ;;
 build)
   scripts/linux/cosmos_setup.sh
-  docker-compose -f docker-compose.yaml -f compose-build.yaml build
+  docker-compose -f compose.yaml -f compose-build.yaml build
   ;;
 run)
-  docker-compose -f docker-compose.yaml up -d
+  docker-compose -f compose.yaml up -d
   ;;
 dev)
-  docker-compose -f docker-compose.yaml -f compose-dev.yaml up -d
+  docker-compose -f compose.yaml -f compose-dev.yaml up -d
   ;;
 dind)
   docker build -t cosmos-build .

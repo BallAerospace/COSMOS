@@ -35,8 +35,8 @@ if "%1" == "run" (
 if "%1" == "dev" (
   GOTO dev
 )
-if "%1" == "docker" (
-  GOTO docker
+if "%1" == "dind" (
+  GOTO dind
 )
 if "%1" == "deploy" (
   GOTO deploy
@@ -49,39 +49,39 @@ GOTO usage
 
 :startup
   CALL scripts/windows/cosmos_setup
-  docker-compose -f docker-compose.yaml -f compose-build.yaml build 
-  docker-compose -f docker-compose.yaml up -d
+  docker-compose -f compose.yaml -f compose-build.yaml build 
+  docker-compose -f compose.yaml up -d
   @echo off
 GOTO :EOF
 
 :restart
-  docker-compose -f docker-compose.yaml restart
+  docker-compose -f compose.yaml restart
   @echo off
 GOTO :EOF
 
 :stop
-  docker-compose -f docker-compose.yaml down
+  docker-compose -f compose.yaml down
   @echo off
 GOTO :EOF
 
 :cleanup
-  docker-compose -f docker-compose.yaml down -v
+  docker-compose -f compose.yaml down -v
   @echo off
 GOTO :EOF
 
 :build
   CALL scripts/windows/cosmos_setup
-  docker-compose -f docker-compose.yaml -f compose-build.yaml build 
+  docker-compose -f compose.yaml -f compose-build.yaml build 
   @echo off
 GOTO :EOF
 
 :run
-  docker-compose -f docker-compose.yaml up -d
+  docker-compose -f compose.yaml up -d
   @echo off
 GOTO :EOF
 
 :dev
-  docker-compose -f docker-compose.yaml -f compose-dev.yaml up -d
+  docker-compose -f compose.yaml -f compose-dev.yaml up -d
   @echo off
 GOTO :EOF
 
