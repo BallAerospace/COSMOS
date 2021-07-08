@@ -113,7 +113,60 @@ module Cosmos
       @state = 'INITIALIZED'
       metric_name = "metric_output_duration_seconds"
 
-      unless is_plugin
+      if is_plugin
+        @work_dir = @config["work_dir"]
+        cmd_array = @config["cmd"]
+
+        # Get Microservice files from S3
+        temp_dir = Dir.mktmpdir
+        rubys3_client = Aws::S3::Client.new
+        bucket = "config"
+
+        # Ensure config bucket exists
+        begin
+          rubys3_client.head_bucket(bucket: bucket)
+        rescue Aws::S3::Errors::NotFound
+          rubys3_client.create_bucket(bucket: bucket)
+        end
+
+        prefix = "#{@scope}/microservices/#{@name}/"
+        file_count = 0
+        rubys3_client.list_objects(bucket: bucket, prefix: prefix).contents.each do |object|
+          response_target = File.join(temp_dir, object.key.split(prefix)[-1])
+          FileUtils.mkdir_p(File.dirname(response_target))
+          rubys3_client.get_object(bucket: bucket, key: object.key, response_target: response_target)
+          file_count += 1
+        end
+
+        # Adjust @work_dir to microservice files downloaded if files and a relative path
+        if file_count > 0 and @work_dir[0] != '/'
+          @work_dir = File.join(temp_dir, @work_dir)
+        end
+
+        # Check Syntax on any ruby files
+        ruby_filename = nil
+        cmd_array.each do |part|
+          if /\.rb$/.match?(part)
+            ruby_filename = part
+            break
+          end
+        end
+        if ruby_filename
+          Cosmos.set_working_dir(@work_dir) do
+            if File.exist?(ruby_filename)
+              # Run ruby syntax so we can log those
+              syntax_check, _ = Open3.capture2e("ruby -c #{ruby_filename}")
+              if /Syntax OK/.match?(syntax_check)
+                Logger.info("Ruby microservice #{@name} file #{ruby_filename} passed syntax check\n", scope: @scope)
+              else
+                Logger.error("Ruby microservice #{@name} file #{ruby_filename} failed syntax check\n#{syntax_check}", scope: @scope)
+              end
+            else
+              Logger.error("Ruby microservice #{@name} file #{ruby_filename} does not exist", scope: @scope)
+            end
+          end
+        end
+      else
         @microservice_sleeper = Sleeper.new
         @microservice_status_period_seconds = 5
         @microservice_status_thread = Thread.new do
