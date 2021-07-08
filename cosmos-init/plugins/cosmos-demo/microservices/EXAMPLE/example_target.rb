@@ -105,7 +105,7 @@ module Cosmos
       Logger.level = Logger::INFO
       Thread.abort_on_exception = true
       temp_dir = Dir.mktmpdir
-      System.setup_targets([target_name], temp_dir, scope: ENV['COSMOS_SCOPE'])
+      System.setup_targets([target_name], temp_dir, scope: 'DEFAULT')
       target = self.new(target_name, port)
       begin
         target.start

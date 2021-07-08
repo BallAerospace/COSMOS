@@ -63,7 +63,7 @@ module Cosmos
     def self.run(target_name, port)
       Logger.level = Logger::INFO
       temp_dir = Dir.mktmpdir
-      System.setup_targets([target_name], temp_dir, scope: ENV['COSMOS_SCOPE'])
+      System.setup_targets([target_name], temp_dir, scope: 'DEFAULT')
       target = self.new(port)
       begin
         target.start
