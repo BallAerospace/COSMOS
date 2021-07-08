@@ -77,7 +77,7 @@ module Cosmos
       topics: [],
       target_names: [],
       options: [],
-      container: "ballaerospace/cosmosc2-base",
+      container: nil,
       updated_at: nil,
       plugin: nil,
       scope:)
