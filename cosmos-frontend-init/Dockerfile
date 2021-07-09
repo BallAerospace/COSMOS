@@ -24,6 +24,7 @@ RUN yarn config set registry "https://registry.npmjs.org"
 RUN yarn
 
 COPY ./docker-package-build.sh ./docker-package-install.sh ./babel.config.js ./.eslintrc.js ./.nycrc ./
+RUN chmod +x ./docker-package-build.sh ./docker-package-install.sh
 COPY ./cosmosc2-tool-base/ cosmosc2-tool-base/
 COPY ./packages/cosmosc2-tool-common/ packages/cosmosc2-tool-common/
 RUN ["/cosmos/plugins/docker-package-install.sh", "cosmosc2-tool-base"]
