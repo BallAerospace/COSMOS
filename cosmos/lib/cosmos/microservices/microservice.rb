@@ -74,7 +74,7 @@ module Cosmos
       raise "Microservice must be named" unless name
       @name = name
       split_name = name.split("__")
-      raise "Microservice name #{name} should be scope__type__name" if split_name.length != 3
+      raise "Microservice names should be scope, type, and then name" if split_name.length != 3
       @scope = split_name[0]
       Logger.scope = @scope
       @cancel_thread = false

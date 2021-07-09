@@ -42,7 +42,7 @@ module Cosmos
             @sleeper.sleep(1)
           end
           loop do
-            cmd("#{@target_names[0]} GET_SETPT_VOLTAGE", scope: 'DEFAULT')
+            cmd("#{@target_names[0]} GET_SETPT_VOLTAGE", scope: ENV['COSMOS_SCOPE'])
             break if @sleeper.sleep(1)
           end
         rescue Errno::ECONNRESET
