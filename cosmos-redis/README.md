@@ -8,13 +8,19 @@ Redis reads in the user configuration from an ACL file: [users.acl](./config/use
 
 Passwords can be set in the ACL file as either the SHA-256 hash or plaintext. To use the hash, prefix it with a # symbol (example: `user bob on #3ff698674f294ba598e719e3bfef82d88836d363b9e6f74d4b684415542919da`). To use plaintext, prefix it with a > symbol (example: `user bob on >bobspassword`). Note that this file gets physically stored on the Redis server, so storing the passwords in plaintext is not recommended.
 
-### The three users:
+### The users:
 
 - cosmos
 
   - Default password: cosmospassword
 
   - This user is required, and it's used by COSMOS to connect to Redis. It has access to the entire keyspace, but its commands are restricted to what's necessary for COSMOS. As such, someone with this user has access to / ownership of all of the data stored in COSMOS; however, this user cannot reconfigure Redis itself.
+
+- scriptrunner
+
+  - Default password: scriptrunnerpassword
+
+  - This user is required to use Script Runner. Script Runner needs Redis to keep track of the scripts it's running, but it has a user with limited access to prevent scripts from being able to destroy or access data they shouldn't be able to.
 
 - admin
 
