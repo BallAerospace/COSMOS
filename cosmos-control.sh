@@ -3,13 +3,16 @@
 usage() {
   echo "Usage: $1 [cosmos, start, stop, cleanup, build, deploy]" >&2
   echo "*  cosmos: run a cosmos command ('cosmos help' for more info)" 1>&2
-  echo "*  start: start the minimal docker run for cosmos" >&2
+  echo "*  start: start the docker-compose cosmos" >&2
   echo "*  stop: stop the running dockers for cosmos" >&2
   echo "*  restart: stop and start the minimal docker run for cosmos" >&2
   echo "*  cleanup: cleanup network and volumes for cosmos" >&2
   echo "*  build: build the containers for cosmos" >&2
   echo "*  run: run the prebuilt containers for cosmos" >&2
+  echo "*  dev: run cosmos in a dev mode" >&2
+  echo "*  dind: build and run the docker development container (cosmos-build)" >&2
   echo "*  deploy: deploy the containers to localhost repository" >&2
+  echo "*    repository: hostname of the docker repository" >&2
   echo "*  util: various helper commands" >&2
   echo "*    encode: encode a string to base64" >&2
   echo "*    hash: hash a string using SHA-256" >&2
@@ -30,28 +33,33 @@ cosmos)
   ;;
 start)
   scripts/linux/cosmos_setup.sh
-  scripts/linux/cosmos_build.sh
-  docker-compuse up -d
+  docker-compose -f compose.yaml -f compose-build.yaml build
+  docker-compose -f compose.yaml up -d
   ;;
 stop)
-  docker-compose down
+  docker-compose -f compose.yaml down
   ;;
 restart)
-  docker-compose down
-  docker-compose up -d
+  docker-compose -f compose.yaml restart
   ;;
 cleanup)
-  docker-compose down -v
+  docker-compose -f compose.yaml down -v
   ;;
 build)
   scripts/linux/cosmos_setup.sh
-  scripts/linux/cosmos_build.sh
+  docker-compose -f compose.yaml -f compose-build.yaml build
   ;;
 run)
-  docker-compuse up -d
+  docker-compose -f compose.yaml up -d
   ;;
+dev)
+  docker-compose -f compose.yaml -f compose-dev.yaml up -d
+  ;;
+dind)
+  docker build -t cosmos-build .
+  docker run --rm -ti -v /var/run/docker.sock:/var/run/docker.sock cosmos-build
 deploy)
-  scripts/linux/cosmos_deploy.sh
+  scripts/linux/cosmos_deploy.sh $2
   ;;
 util)
   scripts/linux/cosmos_util.sh $2 $3

@@ -35,7 +35,7 @@ module Cosmos
       # Perform any setup steps necessary
     end
 
-    def initialize(process_definition, work_dir: '/cosmos/lib/microservices', temp_dir: nil, env: {}, scope:)
+    def initialize(process_definition, work_dir: '/cosmos/lib/microservices', temp_dir: nil, env: {}, scope:, container: nil) # container is not used, it's just here for Enterprise
       @process = nil
       @process_definition = process_definition
       @work_dir = work_dir

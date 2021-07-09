@@ -3,21 +3,31 @@
 # exit when any command fails
 set -e
 
-# Tag and push all the images to the local repository
-docker tag ballaerospace/cosmosc2-ruby localhost:5000/cosmosc2-ruby:latest
-docker tag ballaerospace/cosmosc2-node localhost:5000/cosmosc2-node:latest
-docker tag ballaerospace/cosmosc2-base localhost:5000/cosmosc2-base:latest
-docker tag ballaerospace/cosmosc2-cmd-tlm-api localhost:5000/cosmosc2-cmd-tlm-api:latest
-docker tag ballaerospace/cosmosc2-script-runner-api localhost:5000/cosmosc2-script-runner-api:latest
-docker tag ballaerospace/cosmosc2-frontend-init localhost:5000/cosmosc2-frontend-init:latest
-docker tag ballaerospace/cosmosc2-operator localhost:5000/cosmosc2-operator:latest
-docker tag ballaerospace/cosmosc2-init localhost:5000/cosmosc2-init:latest
+usage() {
+  echo "Usage: $1 [repository]" >&2
+  echo "*  repository: hostname of the docker repository" >&2
+  exit 1
+}
 
-docker push localhost:5000/cosmosc2-ruby:latest
-docker push localhost:5000/cosmosc2-node:latest
-docker push localhost:5000/cosmosc2-base:latest
-docker push localhost:5000/cosmosc2-cmd-tlm-api:latest
-docker push localhost:5000/cosmosc2-script-runner-api:latest
-docker push localhost:5000/cosmosc2-frontend-init:latest
-docker push localhost:5000/cosmosc2-operator:latest
-docker push localhost:5000/cosmosc2-init:latest
+if [[ "$#" -ne 1 ]]; then
+  usage $0
+fi
+
+# Tag and push all the images to the local repository
+docker tag ballaerospace/cosmosc2-ruby ${1}/cosmosc2-ruby:latest
+docker tag ballaerospace/cosmosc2-node ${1}/cosmosc2-node:latest
+docker tag ballaerospace/cosmosc2-base ${1}/cosmosc2-base:latest
+docker tag ballaerospace/cosmosc2-cmd-tlm-api ${1}/cosmosc2-cmd-tlm-api:latest
+docker tag ballaerospace/cosmosc2-script-runner-api ${1}/cosmosc2-script-runner-api:latest
+docker tag ballaerospace/cosmosc2-frontend-init ${1}/cosmosc2-frontend-init:latest
+docker tag ballaerospace/cosmosc2-operator ${1}/cosmosc2-operator:latest
+docker tag ballaerospace/cosmosc2-init ${1}/cosmosc2-init:latest
+
+docker push ${1}/cosmosc2-ruby:latest
+docker push ${1}/cosmosc2-node:latest
+docker push ${1}/cosmosc2-base:latest
+docker push ${1}/cosmosc2-cmd-tlm-api:latest
+docker push ${1}/cosmosc2-script-runner-api:latest
+docker push ${1}/cosmosc2-frontend-init:latest
+docker push ${1}/cosmosc2-operator:latest
+docker push ${1}/cosmosc2-init:latest

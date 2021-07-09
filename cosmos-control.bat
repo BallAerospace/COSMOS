@@ -32,6 +32,12 @@ if "%1" == "build" (
 if "%1" == "run" (
   GOTO run
 )
+if "%1" == "dev" (
+  GOTO dev
+)
+if "%1" == "dind" (
+  GOTO dind
+)
 if "%1" == "deploy" (
   GOTO deploy
 )
@@ -43,40 +49,53 @@ GOTO usage
 
 :startup
   CALL scripts/windows/cosmos_setup
-  CALL scripts/windows/cosmos_build
-  docker-compose up -d
+  docker-compose -f compose.yaml -f compose-build.yaml build 
+  docker-compose -f compose.yaml up -d
+  @echo off
+GOTO :EOF
+
+:restart
+  docker-compose -f compose.yaml restart
   @echo off
 GOTO :EOF
 
 :stop
-  docker-compose down
+  docker-compose -f compose.yaml down
   @echo off
 GOTO :EOF
 
 :cleanup
-  docker-compose down -v
+  docker-compose -f compose.yaml down -v
   @echo off
 GOTO :EOF
 
 :build
   CALL scripts/windows/cosmos_setup
-  CALL scripts/windows/cosmos_build
+  docker-compose -f compose.yaml -f compose-build.yaml build 
   @echo off
 GOTO :EOF
 
 :run
-  docker-compose up -d
+  docker-compose -f compose.yaml up -d
+  @echo off
+GOTO :EOF
+
+:dev
+  docker-compose -f compose.yaml -f compose-dev.yaml up -d
+  @echo off
+GOTO :EOF
+
+:dind
+  docker build -t cosmos-build .
+  docker run --rm -ti -v /var/run/docker.sock:/var/run/docker.sock cosmos-build
   @echo off
 GOTO :EOF
 
 :deploy
-  CALL scripts/windows/cosmos_deploy
-  @echo off
-GOTO :EOF
-
-:restart
-  docker-compose down
-  docker-compose up -d
+  REM Send the remaining arguments to cosmos_deploy
+  set args=%*
+  call set args=%%args:*%1=%%
+  CALL scripts/windows/cosmos_deploy %args%
   @echo off
 GOTO :EOF
 
@@ -97,7 +116,10 @@ GOTO :EOF
   @echo *  cleanup: cleanup network and volumes for cosmos 1>&2
   @echo *  build: build the containers for cosmos 1>&2
   @echo *  run: run the prebuilt containers for cosmos 1>&2
+  @echo *  dev: run cosmos in dev mode 1>&2
+  @echo *  dind: build and run the docker development container (cosmos-build) 1>&2
   @echo *  deploy: deploy the containers to localhost repository 1>&2
+  @echo *    repository: hostname of the docker repository 1>&2
   @echo *  util: various helper commands: 1>&2
   @echo *    encode: encode a string to base64 1>&2
   @echo *    hash: hash a string using SHA-256 1>&2

@@ -77,7 +77,7 @@ module Cosmos
       topics: [],
       target_names: [],
       options: [],
-      container: "cosmos-base",
+      container: nil,
       updated_at: nil,
       plugin: nil,
       scope:)
@@ -155,6 +155,9 @@ module Cosmos
       when 'OPTION'
         parser.verify_num_parameters(2, nil, "#{keyword} <Option Name> <Option Values>")
         @options << parameters.dup
+      when 'CONTAINER'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Container Image Name>")
+        @container = parameters[0]
       else
         raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Microservice: #{keyword} #{parameters.join(" ")}")
       end

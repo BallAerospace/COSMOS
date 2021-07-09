@@ -70,7 +70,7 @@ end
     end
 
     describe "connected?" do
-      it "initiallies be false" do
+      it "is initialized as false" do
         sti = SimulatedTargetInterface.new("test_inst.rb")
         sti.target_names = ['SYSTEM']
         expect(sti.connected?).to be false
