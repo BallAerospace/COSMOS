@@ -1,0 +1,75 @@
+# encoding: ascii-8bit
+
+# Copyright 2021 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU Affero General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# This program may also be used under the terms of a commercial or
+# enterprise edition license of COSMOS if purchased from the
+# copyright holder
+
+
+services:
+  cosmos-ruby:
+    build:
+      context: "cosmos-ruby"
+    image: "ballaerospace/cosmosc2-ruby:${COSMOS_TAG}"
+
+  cosmos-node:
+    build:
+      context: "cosmos-node"
+    image: "ballaerospace/cosmosc2-node:${COSMOS_TAG}"
+
+  cosmos-base:
+    build:
+      context: "cosmos"
+    image: "ballaerospace/cosmosc2-base:${COSMOS_TAG}"
+    depends_on:
+      - "cosmos-ruby"
+
+  cosmos-redis:
+    build:
+      context: "cosmos-redis"
+
+  cosmos-cmd-tlm-api:
+    build:
+      context: "cosmos-cmd-tlm-api"
+    depends_on:
+      - "cosmos-base"
+
+  cosmos-script-runner-api:
+    build:
+      context: "cosmos-script-runner-api"
+    depends_on:
+      - "cosmos-base"
+
+  cosmos-operator:
+    build:
+      context: "cosmos-operator"
+    depends_on:
+      - "cosmos-base"
+
+  cosmos-traefik:
+    build:
+      context: "cosmos-traefik"
+
+  cosmos-frontend-init:
+    build:
+      context: "cosmos-frontend-init"
+    depends_on:
+      - "cosmos-node"
+
+  cosmos-init:
+    build:
+      context: "cosmos-init"
+    depends_on:
+      - "cosmos-base"

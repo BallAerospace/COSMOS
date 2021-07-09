@@ -1,0 +1,97 @@
+# encoding: ascii-8bit
+
+# Copyright 2021 Ball Aerospace & Technologies Corp.
+# All Rights Reserved.
+#
+# This program is free software; you can modify and/or redistribute it
+# under the terms of the GNU Affero General Public License
+# as published by the Free Software Foundation; version 3 with
+# attribution addendums as found in the LICENSE.txt
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# This program may also be used under the terms of a commercial or
+# enterprise edition license of COSMOS if purchased from the
+# copyright holder
+
+version: "3.9"
+
+services:
+  cosmos-minio:
+    image: "minio/minio:RELEASE.2021-06-17T00-10-46Z"
+    volumes:
+      - "cosmos-minio-v:/data"
+    command: ["server", "/data"]
+    restart: "unless-stopped"
+    environment:
+      MINIO_ROOT_USER: "${COSMOS_MINIO_USERNAME}"
+      MINIO_ROOT_PASSWORD: "${COSMOS_MINIO_PASSWORD}"
+
+  cosmos-redis:
+    image: "ballaerospace/cosmosc2-redis:${COSMOS_TAG}"
+    volumes:
+      - "cosmos-redis-v:/data"
+    restart: "unless-stopped"
+
+  cosmos-cmd-tlm-api:
+    image: "ballaerospace/cosmosc2-cmd-tlm-api:${COSMOS_TAG}"
+    restart: "unless-stopped"
+    depends_on:
+      - "cosmos-redis"
+      - "cosmos-minio"
+    env_file:
+      - ".env"
+
+  cosmos-script-runner-api:
+    image: "ballaerospace/cosmosc2-script-runner-api:${COSMOS_TAG}"
+    restart: "unless-stopped"
+    depends_on:
+      - "cosmos-redis"
+      - "cosmos-minio"
+    env_file:
+      - ".env"
+
+  cosmos-operator:
+    image: "ballaerospace/cosmosc2-operator:${COSMOS_TAG}"
+    restart: "unless-stopped"
+    depends_on:
+      - "cosmos-redis"
+      - "cosmos-minio"
+    env_file:
+      - ".env"
+
+  cosmos-traefik:
+    image: "ballaerospace/cosmosc2-traefik:${COSMOS_TAG}"
+    ports:
+      - "2900:80"
+    restart: "unless-stopped"
+    depends_on:
+      - "cosmos-redis"
+      - "cosmos-minio"
+
+  cosmos-frontend-init:
+    image: "ballaerospace/cosmosc2-frontend-init:${COSMOS_TAG}"
+    restart: on-failure
+    depends_on:
+      - "cosmos-traefik"
+      - "cosmos-redis"
+      - "cosmos-minio"
+    env_file:
+      - ".env"
+
+  cosmos-init:
+    image: "ballaerospace/cosmosc2-init:${COSMOS_TAG}"
+    restart: on-failure
+    depends_on:
+      - "cosmos-traefik"
+      - "cosmos-redis"
+      - "cosmos-minio"
+    env_file:
+      - ".env"
+
+volumes:
+  cosmos-redis-v: {}
+  cosmos-minio-v: {}
