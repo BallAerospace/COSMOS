@@ -28,6 +28,8 @@ services:
     build:
       context: "cosmos-node"
     image: "ballaerospace/cosmosc2-node:${COSMOS_TAG}"
+    depends_on:
+      - "cosmos-ruby"
 
   cosmos-base:
     build:
@@ -67,6 +69,7 @@ services:
       context: "cosmos-frontend-init"
     depends_on:
       - "cosmos-node"
+      - "cosmos-base"
 
   cosmos-init:
     build:
