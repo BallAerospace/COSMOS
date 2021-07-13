@@ -28,7 +28,8 @@ if [ "$1" == "cosmos" ]; then
   # mapped as volume (-v) /cosmos/local and container working directory (-w) also set to /cosmos/local.
   # This allows tools running in the container to have a consistent path to the current working directory.
   # Run the command "ruby /cosmos/bin/cosmos" with all parameters starting at 2 since the first is 'cosmos'
-  docker run --rm -v $(pwd):/cosmos/local -w /cosmos/local cosmos-base ruby /cosmos/bin/cosmos ${@:2}
+  args=`echo $@ | { read _ args; echo $args; }`
+  docker run --rm -v `pwd`:/cosmos/local -w /cosmos/local ballaerospace/cosmosc2-base ruby /cosmos/bin/cosmos $args
 elif [ "$1" == "start" ]; then
   scripts/linux/cosmos_setup.sh
   docker-compose -f compose.yaml -f compose-build.yaml build
