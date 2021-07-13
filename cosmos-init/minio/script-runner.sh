@@ -14,8 +14,8 @@ mc admin policy add cosmosminio script ${dir}/script-runner.json
 
 # Create a new user scriptrunner on MinIO use mc admin user.
 
-mc admin user add cosmosminio ${COSMOS_MINIO_SCRIPT_RUNNER_USERNAME} ${COSMOS_MINIO_SCRIPT_RUNNER_PASSWORD}
+mc admin user add cosmosminio ${COSMOS_SR_MINIO_USERNAME} ${COSMOS_SR_MINIO_PASSWORD}
 
 # Once the user is successfully created you can now apply the getonly policy for this user.
 
-mc admin policy set cosmosminio script user=${COSMOS_MINIO_SCRIPT_RUNNER_USERNAME}
+mc admin policy set cosmosminio script user=${COSMOS_SR_MINIO_USERNAME}
