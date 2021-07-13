@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # Please download cacert.pem from https://curl.haxx.se/docs/caextract.html and place in this folder before running
 # Alternatively, if your org requires a different certificate authority file, please place that here as cacert.pem before running

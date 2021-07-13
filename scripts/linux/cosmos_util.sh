@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 usage() {
   echo "Usage: $1 [encode, hash]" >&2
