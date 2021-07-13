@@ -52,7 +52,7 @@ services:
       - "cosmos-redis"
       - "cosmos-minio"
     env_file:
-      - ".env"
+      - ".env.scriptrunner"
 
   cosmos-operator:
     image: "ballaerospace/cosmosc2-operator:${COSMOS_TAG}"
