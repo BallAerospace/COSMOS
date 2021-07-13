@@ -60,7 +60,7 @@ services:
       - "COSMOS_MINIO_PASSWORD=${COSMOS_SR_MINIO_PASSWORD}"
       - "RAILS_ENV=production"
     env_file:
-      - ".env.scriptrunner"
+      - ".env"
 
   cosmos-operator:
     image: "ballaerospace/cosmosc2-operator:${COSMOS_TAG}"

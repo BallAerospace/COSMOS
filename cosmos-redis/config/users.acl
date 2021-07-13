@@ -1,4 +1,4 @@
-user cosmos on #b24a63c6b3d19cdd7116f9486b4bafc60e0ef287bd44f40905d19269fcb2e2e6 allkeys allchannels -@all +@read +@write +@pubsub +@connection
+user cosmos on #b24a63c6b3d19cdd7116f9486b4bafc60e0ef287bd44f40905d19269fcb2e2e6 allkeys allchannels -@all +@read +@write +@pubsub +@connection +@transaction
 user scriptrunner on #e808c74e210256ee7cf3ec165271544167de776d526f7fa94243e5cdcc08b0c1 resetkeys resetchannels ~running-script* &_action_cable_internal &script-api:* -@all +@read +@write +@pubsub +@connection
 user admin on #8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918 +@admin
 user default off
