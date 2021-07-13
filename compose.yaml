@@ -42,6 +42,8 @@ services:
     depends_on:
       - "cosmos-redis"
       - "cosmos-minio"
+    environment:
+      - "RAILS_ENV=production"
     env_file:
       - ".env"
 
@@ -51,6 +53,12 @@ services:
     depends_on:
       - "cosmos-redis"
       - "cosmos-minio"
+    environment:
+      - "COSMOS_REDIS_USERNAME=${COSMOS_SR_REDIS_USERNAME}"
+      - "COSMOS_REDIS_PASSWORD=${COSMOS_SR_REDIS_PASSWORD}"
+      - "COSMOS_MINIO_USERNAME=${COSMOS_SR_MINIO_USERNAME}"
+      - "COSMOS_MINIO_PASSWORD=${COSMOS_SR_MINIO_PASSWORD}"
+      - "RAILS_ENV=production"
     env_file:
       - ".env.scriptrunner"
 
@@ -89,6 +97,9 @@ services:
       - "cosmos-traefik"
       - "cosmos-redis"
       - "cosmos-minio"
+    environment:
+      - "COSMOS_MINIO_USERNAME=${COSMOS_SR_MINIO_USERNAME}"
+      - "COSMOS_MINIO_PASSWORD=${COSMOS_SR_MINIO_PASSWORD}"
     env_file:
       - ".env"
 

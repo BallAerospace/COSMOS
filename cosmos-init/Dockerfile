@@ -1,9 +1,11 @@
 FROM ballaerospace/cosmosc2-base
 
+RUN apk --update add curl \
+  && curl https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/bin/mc \
+  && chmod +x /usr/bin/mc
+
+COPY minio /cosmos/minio/
 COPY plugins /cosmos/plugins/
-WORKDIR /cosmos/plugins/cosmos-demo/
-COPY init.sh .
+COPY init.sh /cosmos/
 
-RUN ["rake", "build", "VERSION=5.0.0", "--quiet"]
-
-CMD [ "/cosmos/plugins/cosmos-demo/init.sh" ]
+CMD [ "/cosmos/init.sh" ]
