@@ -31,10 +31,10 @@ services:
     ports:
       - "127.0.0.1:2901:2901" # only allow localhost access to internal apis
     environment:
-      - "RAILS_ENV=dev"
+      - "RAILS_ENV=development"
 
   cosmos-script-runner-api:
     ports:
       - "127.0.0.1:2902:2902" # only allow localhost access to internal apis
     environment:
-      - "RAILS_ENV=dev"
+      - "RAILS_ENV=development"
