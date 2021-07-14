@@ -24,6 +24,7 @@ require 'cosmos/system'
 require 'cosmos/utilities/s3'
 require 'cosmos/utilities/zip'
 require 'fileutils'
+require 'tmpdir'
 
 module Cosmos
   # Manages the target in Redis. It stores the target itself under the

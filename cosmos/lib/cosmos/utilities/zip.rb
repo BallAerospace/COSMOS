@@ -17,4 +17,5 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-autoload(:Zip, "cosmos/utilities/zip_autoload.rb")
+require 'zip'
+require 'zip/filesystem'

@@ -24,7 +24,9 @@ require 'cosmos/utilities/store'
 require 'json'
 require '../app/models/script'
 require '../app/models/running_script'
-# require '../config/environment'
+
+# Important - Preload Aws::S3 before changing $stdout
+Aws::S3
 
 id = ARGV[0]
 script = JSON.parse(Cosmos::Store.get("running-script:#{id}"))

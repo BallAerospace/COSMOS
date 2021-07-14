@@ -27,6 +27,7 @@ Cosmos.require_file 'cosmos/utilities/s3'
 Cosmos.require_file 'cosmos/utilities/sleeper'
 Cosmos.require_file 'cosmos/models/microservice_model'
 Cosmos.require_file 'cosmos/models/microservice_status_model'
+Cosmos.require_file 'tmpdir'
 
 module Cosmos
   class Microservice

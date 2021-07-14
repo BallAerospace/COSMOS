@@ -30,15 +30,8 @@ group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
 end
 
-group :development do
-end
-
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data'
-
-gem 'aws-sdk-s3', '~> 1.67'
-gem 'ffi'
-gem 'childprocess', '~> 3'
 
 if ENV['COSMOS_DEVEL']
   gem 'cosmos', :path => ENV['COSMOS_DEVEL']

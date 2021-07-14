@@ -30,6 +30,7 @@ require 'cosmos/models/interface_model'
 require 'cosmos/models/router_model'
 require 'cosmos/models/tool_model'
 require 'cosmos/models/microservice_model'
+require 'tmpdir'
 
 module Cosmos
   # Represents a COSMOS plugin that can consist of targets, interfaces, routers

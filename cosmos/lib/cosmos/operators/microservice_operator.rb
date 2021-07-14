@@ -59,9 +59,13 @@ module Cosmos
       @microservices.each do |microservice_name, microservice_config|
         if @previous_microservices[microservice_name]
           if @previous_microservices[microservice_name] != microservice_config
+            scope = microservice_name.split("__")[0]
+            Logger.info("Changed microservice detected: #{microservice_name}", scope: scope)
             @changed_microservices[microservice_name] = microservice_config
           end
         else
+          scope = microservice_name.split("__")[0]
+          Logger.info("New microservice detected: #{microservice_name}", scope: scope)
           @new_microservices[microservice_name] = microservice_config
         end
       end
@@ -70,6 +74,8 @@ module Cosmos
       @removed_microservices = {}
       @previous_microservices.each do |microservice_name, microservice_config|
         unless @microservices[microservice_name]
+          scope = microservice_name.split("__")[0]
+          Logger.info("Removed microservice detected: #{microservice_name}", scope: scope)
           @removed_microservices[microservice_name] = microservice_config
         end
       end

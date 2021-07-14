@@ -59,6 +59,7 @@ http:
 providers:
   file:
     filename: /etc/traefik/traefik.yaml
+accessLog: {}
 # api:
 #   dashboard: true
 #   insecure: trues
