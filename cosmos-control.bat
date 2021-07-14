@@ -11,7 +11,7 @@ if "%1" == "cosmos" (
   REM mapped as volume (-v) /cosmos/local and container working directory (-w) also set to /cosmos/local.
   REM This allows tools running in the container to have a consistent path to the current working directory.
   REM Run the command "ruby /cosmos/bin/cosmos" with all parameters ignoring the first.
-  docker run --rm -v %cd%:/cosmos/local -w /cosmos/local cosmos-base ruby /cosmos/bin/cosmos !params!
+  docker run --rm -v %cd%:/cosmos/local -w /cosmos/local ballaerospace/cosmosc2-base ruby /cosmos/bin/cosmos !params!
   GOTO :EOF
 )
 if "%1" == "restart" (
@@ -49,7 +49,7 @@ GOTO usage
 
 :startup
   CALL scripts/windows/cosmos_setup
-  docker-compose -f compose.yaml -f compose-build.yaml build 
+  docker-compose -f compose.yaml -f compose-build.yaml build
   docker-compose -f compose.yaml up -d
   @echo off
 GOTO :EOF
@@ -71,7 +71,7 @@ GOTO :EOF
 
 :build
   CALL scripts/windows/cosmos_setup
-  docker-compose -f compose.yaml -f compose-build.yaml build 
+  docker-compose -f compose.yaml -f compose-build.yaml build
   @echo off
 GOTO :EOF
 
