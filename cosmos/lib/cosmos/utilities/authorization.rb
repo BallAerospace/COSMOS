@@ -37,7 +37,7 @@ rescue LoadError
         raise AuthError.new("Scope is required") unless scope
         if $cosmos_authorize
           raise AuthError.new("Token is required") unless token
-          raise AuthError.new("Token is invalid") unless Cosmos::AuthModel.verify(token)
+          raise AuthError.new("Token is invalid for permission #{permission}") unless Cosmos::AuthModel.verify(token, permission: permission)
         end
       end
     end

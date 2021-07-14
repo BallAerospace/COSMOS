@@ -17,7 +17,5 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-class ApplicationMailer < ActionMailer::Base
-  default from: 'from@example.com'
-  layout 'mailer'
-end
+require 'zip'
+require 'zip/filesystem'

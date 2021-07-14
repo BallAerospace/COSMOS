@@ -16,17 +16,11 @@ http:
     # Route to the cosmos cmd/tlm api
     api-router:
       rule: PathPrefix(`/cosmos-api`)
-      middlewares:
-        # Remove /cosmos-api from urls
-        - "removeFirst"
       service: service-api
       priority: 4
     # Route to the script api
     script-router:
       rule: PathPrefix(`/script-api`)
-      middlewares:
-        # Remove /script-api from urls
-        - "removeFirst"
       service: service-script
       priority: 3
     # Route to other tool plugins hosted statically in Minio

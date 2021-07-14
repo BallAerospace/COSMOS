@@ -19,8 +19,9 @@
 
 require 'childprocess'
 require 'cosmos'
-require 'tempfile'
 require 'fileutils'
+
+autoload(:Tempfile, 'tempfile.rb')
 
 module Cosmos
   class OperatorProcess

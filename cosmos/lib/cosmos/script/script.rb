@@ -27,8 +27,8 @@ require 'cosmos/script/exceptions'
 
 $api_server = nil
 $disconnect = false
-$cosmos_scope = 'DEFAULT'
-$cosmos_token = nil
+$cosmos_scope = ENV['COSMOS_SCOPE'] || 'DEFAULT'
+$cosmos_token = ENV['COSMOS_PASSWORD']
 
 module Cosmos
   module Script
@@ -182,8 +182,11 @@ module Cosmos
   class ServerProxy
     # Create a JsonDRbObject connection to the API server
     def initialize
-      hostname = ENV['COSMOS_API_HOSTNAME'] || (ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-cmd-tlm-api')
-      @json_drb = JsonDRbObject.new(hostname, 2901)
+      hostname = ENV['COSMOS_API_HOSTNAME'] || (ENV['COSMOS_DEVEL'] ? '127.0.0.1:2900' : 'cosmos-cmd-tlm-api:2901')
+      port = hostname.split(":")[1] || "2900"
+      port = port.to_i
+      hostname = hostname.split(":")[0]
+      @json_drb = JsonDRbObject.new(hostname, port)
     end
 
     # Ruby method which captures any method calls on this object. This allows

@@ -220,6 +220,15 @@ class RunningScript
     process = ChildProcess.build(ruby_process_name, runner_path.to_s, id.to_s)
     process.io.inherit! # Helps with debugging
     process.cwd = File.join(RAILS_ROOT, 'scripts')
+
+    # Set proper secrets for running script
+    process.environment["SECRET_KEY_BASE"] = nil
+    process.environment["COSMOS_REDIS_USERNAME"] = ENV["COSMOS_SR_REDIS_USERNAME"]
+    process.environment["COSMOS_REDIS_PASSWORD"] = ENV["COSMOS_SR_REDIS_PASSWORD"]
+    process.environment["COSMOS_MINIO_USERNAME"] = ENV["COSMOS_SR_MINIO_USERNAME"]
+    process.environment["COSMOS_MINIO_PASSWORD"] = ENV["COSMOS_SR_MINIO_PASSWORD"]
+    process.environment["COSMOS_TOKEN"] = ENV["COSMOS_SERVICE_PASSWORD"]
+
     process.start
     id
   end

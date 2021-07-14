@@ -20,7 +20,7 @@
 class ScriptsController < ApplicationController
   def index
     begin
-      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'script_view', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
@@ -31,7 +31,7 @@ class ScriptsController < ApplicationController
 
   def body
     begin
-      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'script_view', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
@@ -51,7 +51,7 @@ class ScriptsController < ApplicationController
 
   def create
     begin
-      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'script_edit', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
@@ -71,7 +71,7 @@ class ScriptsController < ApplicationController
 
   def run
     begin
-      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'script_run', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
@@ -88,7 +88,7 @@ class ScriptsController < ApplicationController
 
   def destroy
     begin
-      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'script_edit', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
@@ -104,7 +104,7 @@ class ScriptsController < ApplicationController
 
   def syntax
     begin
-      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'script_run', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e

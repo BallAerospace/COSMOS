@@ -22,10 +22,8 @@ require 'cosmos/models/microservice_model'
 require 'cosmos/topics/limits_event_topic'
 require 'cosmos/system'
 require 'cosmos/utilities/s3'
-require 'zip'
-require 'zip/filesystem'
+require 'cosmos/utilities/zip'
 require 'fileutils'
-require 'tempfile'
 
 module Cosmos
   # Manages the target in Redis. It stores the target itself under the

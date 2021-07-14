@@ -19,7 +19,7 @@
 
 require 'erb'
 require 'psych'
-require 'tempfile'
+autoload(:Tempfile, 'tempfile.rb')
 
 class Array
   def to_meta_config_yaml(indentation = 0)

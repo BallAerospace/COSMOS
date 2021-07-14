@@ -47,7 +47,7 @@ module Cosmos
     # @param hostname [String] The name of the machine which has started
     #   the JSON service
     # @param port [Integer] The port number of the JSON service
-    def initialize(hostname, port, connect_timeout = 1.0)
+    def initialize(hostname, port, connect_timeout = 1.0, url_path = "/cosmos-api/api")
       hostname = '127.0.0.1' if hostname.to_s.upcase == 'LOCALHOST'
       begin
         Socket.pack_sockaddr_in(port, hostname)
@@ -62,7 +62,7 @@ module Cosmos
       @response_data = ""
       @hostname = hostname
       @port = port
-      @uri = URI("http://#{@hostname}:#{@port}/api")
+      @uri = URI("http://#{@hostname}:#{@port}#{url_path}")
       @http = nil
       @mutex = Mutex.new
       @id = 0

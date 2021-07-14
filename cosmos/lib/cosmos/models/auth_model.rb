@@ -29,7 +29,7 @@ module Cosmos
       Store.exists(key) == 1
     end
 
-    def self.verify(token)
+    def self.verify(token, permission: nil)
       return false if token.nil? or token.empty?
       token_hash = hash(token)
       return true if Store.get(PRIMARY_KEY) == token_hash
@@ -39,7 +39,7 @@ module Cosmos
         Cosmos::Store.set(SERVICE_KEY, set_hash)
         service_hash = set_hash
       end
-      return true if service_hash == token_hash
+      return true if service_hash == token_hash and permission != 'admin'
       return false
     end
 

@@ -27,7 +27,6 @@ require 'cosmos/version'
 require 'cosmos/utilities/logger'
 require 'socket'
 require 'pathname'
-require 'bundler'
 
 # If a hazardous command is sent through the {Cosmos::Api} this error is raised.
 # {Cosmos::Script} rescues the error and prompts the user to continue.
@@ -84,87 +83,6 @@ module Cosmos
       $: << path
     end
   end
-
-  # Searches the COSMOS::USERPATH/config/data directory and then the core
-  # COSMOS/data directory for the given filename. Returns the absolute file
-  # path or nil if the file could not be found. This allows for user configuration
-  # files to override COSMOS data file defaults.
-  # def self.data_path(name)
-  #   # Check USERPATH
-  #   filename = File.join(::Cosmos::USERPATH, 'config', 'data', name)
-  #   return filename if File.exist? filename
-
-  #   # Check extensions
-  #   begin
-  #     Bundler.load.specs.each do |spec|
-  #       spec_name_split = spec.name.split('-')
-  #       if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
-  #         filename = File.join(spec.gem_dir, 'config', 'data', name)
-  #         return filename if File.exist? filename
-  #       end
-  #     end
-  #   rescue Bundler::GemfileNotFound
-  #     # No Gemfile - so no gem based extensions
-  #   end
-
-  #   # Check CORE
-  #   filename = File.join(::Cosmos::PATH, 'data', name)
-  #   return filename if File.exist? filename
-
-  #   # Check relative to executing file
-  #   begin # path raises so begin rescue it
-  #     filename = Cosmos.path($0, ['config', 'data', name])
-  #     return filename if File.exist? filename
-  #   rescue
-  #     # Couldn't find the file so return nil below
-  #   end
-  #   nil
-  # end
-
-  # Returns a path to a cosmos file.  Prefers files in USERPATH but will look
-  # relative to calling_file if not present in USERPATH
-  # @param calling_file [String] Should be __FILE__ from the calling file
-  # @param paths [Array<String>] Partial paths like in File.join
-  # def self.path(calling_file, *paths)
-  #   partial_path = File.join(*paths)
-
-  #   # First look in the Cosmos::USERPATH
-  #   user_path = File.join(Cosmos::USERPATH, partial_path)
-  #   return user_path if File.exist?(user_path)
-
-  #   # Check cosmos extensions
-  #   begin
-  #     Bundler.load.specs.each do |spec|
-  #       spec_name_split = spec.name.split('-')
-  #       if spec_name_split.length > 1 and spec_name_split[0] == 'cosmos'
-  #         filename = File.join(spec.gem_dir, partial_path)
-  #         return filename if File.exist? filename
-  #       end
-  #     end
-  #   rescue Bundler::GemfileNotFound
-  #     # No Gemfile - so no gem based extensions
-  #   end
-
-  #   # Then look relative to the calling file
-  #   if Pathname.new(calling_file).absolute?
-  #     current_dir = File.dirname(calling_file)
-  #   else
-  #     current_dir = File.join(BASE_PWD, calling_file)
-  #   end
-  #   loop do
-  #     test_path = File.join(current_dir, partial_path)
-  #     if File.exist?(test_path)
-  #       return test_path
-  #     else
-  #       old_current_dir = current_dir
-  #       current_dir = File.expand_path(File.join(current_dir, '..'))
-  #       if old_current_dir == current_dir
-  #         # Hit the root dir - give up
-  #         raise "Could not find path to #{File.join(*paths)}"
-  #       end
-  #     end
-  #   end
-  # end
 
   # Creates a marshal file by serializing the given obj
   #
@@ -278,21 +196,7 @@ module Cosmos
     thread
   end
 
-  # Runs a COSMOS tool
-  #
-  # @param tool_name [String] COSMOS tool to execute
-  # @param parameters [String] Parameters string to pass to the tool
-  # def self.run_cosmos_tool(tool_name, parameters = '')
-  #   if Kernel.is_windows?
-  #     Cosmos.run_process("rubyw tools/#{tool_name} #{parameters}")
-  #   elsif Kernel.is_mac? and File.exist?("tools/mac/#{tool_name}.app")
-  #     Cosmos.run_process("open tools/mac/#{tool_name}.app --args #{parameters}")
-  #   else
-  #     Cosmos.run_process("ruby tools/#{tool_name} #{parameters}")
-  #   end
-  # end
-
-  # Runs a hash algorithm over one or more files and returns the Digest object.
+   # Runs a hash algorithm over one or more files and returns the Digest object.
   # Handles windows/unix new line differences but changes in whitespace will
   # change the hash sum.
   #
@@ -560,54 +464,6 @@ module Cosmos
     Logger.error msg if log_error
     raise $!, msg, $!.backtrace
   end
-
-  # Open a platform specific file browser at the given path
-  # @param path [String] Directory path
-  # def self.open_file_browser(path)
-  #   if Kernel.is_windows?
-  #     self.run_process("start #{path}")
-  #   elsif Kernel.is_mac?
-  #     self.run_process("open #{path}")
-  #   else
-  #     self.run_process("xdg-open #{path}")
-  #   end
-  # end
-
-  # @param filename [String] Name of the file to open in the editor
-  # def self.open_in_text_editor(filename)
-  #   if filename
-  #     if ENV['COSMOS_TEXT']
-  #       self.run_process("#{ENV['COSMOS_TEXT']} \"#{filename}\"")
-  #     else
-  #       if Kernel.is_windows?
-  #         if File.extname(filename).to_s.downcase == '.csv'
-  #           self.run_process("cmd /c \"start wordpad \"#{filename.gsub('/','\\')}\"\"")
-  #         else
-  #           self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/','\\')}\"\"")
-  #         end
-  #       elsif Kernel.is_mac?
-  #         self.run_process("open -a TextEdit \"#{filename}\"")
-  #       else
-  #         which_gedit = `which gedit 2>&1`.chomp
-  #         if which_gedit.to_s.strip == "" or which_gedit =~ /Command not found/i or which_gedit =~ /no .* in/i
-  #           # No gedit
-  #           ['xterm', 'gnome-terminal', 'urxvt', 'rxvt'].each do |terminal|
-  #             which_terminal = `which #{terminal} 2>&1`.chomp
-  #             next if which_terminal.to_s.strip == "" or which_terminal =~ /Command not found/i or which_terminal =~ /no .* in/i
-  #             editor = ENV['VISUAL']
-  #             editor = ENV['EDITOR'] unless editor
-  #             editor = 'vi' unless editor
-  #             self.run_process("#{terminal} -e \"#{editor} '#{filename}'\"")
-  #             break
-  #           end
-  #         else
-  #           # Have gedit
-  #           self.run_process("gedit \"#{filename}\"")
-  #         end
-  #       end
-  #     end
-  #   end
-  # end
 
   # @param filename [String] Name of the file to open in the web browser
   def self.open_in_web_browser(filename)

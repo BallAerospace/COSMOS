@@ -1,7 +1,6 @@
 require 'cosmos'
 require 'benchmark'
-ENV['NO_STORE'] = 'true'
-ENV['NO_FLUENTD'] = 'true'
+ENV['COSMOS_NO_STORE'] = 'true'
 
 dir = File.expand_path(File.join(__dir__, '..', '..', 'spec', 'install', 'config', 'targets'))
 puts dir

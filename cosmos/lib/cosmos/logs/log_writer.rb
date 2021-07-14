@@ -208,7 +208,7 @@ module Cosmos
       @last_time = nil
       Logger.instance.info "Log File Opened : #{@filename}"
     rescue => err
-      Logger.instance.error "Error opening Tempfile : #{err.formatted}"
+      Logger.instance.error "Error starting new log file: #{err.formatted}"
       @logging_enabled = false
       Cosmos.handle_critical_exception(err)
     end

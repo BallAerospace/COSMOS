@@ -57,8 +57,8 @@ require 'rspec'
 # Set the user path to our COSMOS configuration in the spec directory
 ENV['COSMOS_USERPATH'] = File.join(File.dirname(File.expand_path(__FILE__)), 'install')
 # Disable Redis and Fluentd in the Logger
-ENV['NO_STORE'] = 'true'
-ENV['NO_FLUENTD'] = 'true'
+ENV['COSMOS_NO_STORE'] = 'true'
+
 # TODO: This is a hack until we figure out COSMOS_USERPATH
 module Cosmos
   USERPATH = ENV['COSMOS_USERPATH']
