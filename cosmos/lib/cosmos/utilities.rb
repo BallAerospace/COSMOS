@@ -20,7 +20,7 @@
 module Cosmos
   autoload(:Logger, 'cosmos/utilities/logger.rb')
   autoload(:Authorization, 'cosmos/utilities/authorization.rb')
-  autoload(:Store, 'cosmos/utilities/store.rb')
+  autoload(:Store, 'cosmos/utilities/store_autoload.rb')
   autoload(:Sleeper, 'cosmos/utilities/sleeper.rb')
   autoload(:Crc, 'cosmos/utilities/crc.rb')
   autoload(:Crc16, 'cosmos/utilities/crc.rb')

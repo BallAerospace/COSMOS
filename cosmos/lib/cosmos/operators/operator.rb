@@ -19,8 +19,8 @@
 
 require 'childprocess'
 require 'cosmos'
-require 'tempfile'
 require 'fileutils'
+require 'tempfile'
 
 module Cosmos
   class OperatorProcess
@@ -144,6 +144,7 @@ module Cosmos
     def respawn_changed
       @mutex.synchronize do
         if @changed_processes.length > 0
+          Logger.info("Cycling #{@changed_processes.length} changed microservices...")
           shutdown_processes(@changed_processes)
           break if @shutdown
           @changed_processes.each { |name, p| p.start }
@@ -155,6 +156,7 @@ module Cosmos
     def remove_old
       @mutex.synchronize do
         if @removed_processes.length > 0
+          Logger.info("Shutting down #{@removed_processes.length} removed microservices...")
           shutdown_processes(@removed_processes)
           @removed_processes = {}
         end

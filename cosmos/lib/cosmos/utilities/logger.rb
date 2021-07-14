@@ -26,7 +26,6 @@ require 'logger'
 require 'time'
 
 module Cosmos
-
   # Supports different levels of logging and only writes if the level
   # is exceeded.
   class Logger
@@ -79,7 +78,7 @@ module Cosmos
       @metric_tag = @container_name + ".metric"
       @tag = @container_name + ".log"
       @mutex = Mutex.new
-      @no_store = ENV['NO_STORE']
+      @no_store = ENV['COSMOS_NO_STORE']
     end
 
     # @param message [String] The message to print if the log level is at or

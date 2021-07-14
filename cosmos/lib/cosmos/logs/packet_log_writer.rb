@@ -124,7 +124,7 @@ module Cosmos
       @packet_dec_entries = []
       Logger.instance.info "Index Log File Opened : #{@index_filename}"
     rescue => err
-      Logger.instance.error "Error opening Tempfile : #{err.formatted}"
+      Logger.instance.error "Error starting new log file: #{err.formatted}"
       @logging_enabled = false
       Cosmos.handle_critical_exception(err)
     end

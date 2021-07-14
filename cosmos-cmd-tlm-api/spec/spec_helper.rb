@@ -59,8 +59,7 @@ if !ENV['COSMOS_NO_SIMPLECOV']
 end
 
 # Disable Redis and Fluentd in the Logger
-ENV['NO_STORE'] = 'true'
-ENV['NO_FLUENTD'] = 'true'
+ENV['COSMOS_NO_STORE'] = 'true'
 
 $cosmos_scope = 'DEFAULT'
 

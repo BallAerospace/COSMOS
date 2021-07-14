@@ -25,6 +25,7 @@ require 'cosmos/packets/telemetry'
 require 'cosmos/packets/limits'
 require 'cosmos/system/target'
 require 'cosmos/utilities/s3'
+require 'cosmos/utilities/zip'
 require 'thread'
 require 'fileutils'
 

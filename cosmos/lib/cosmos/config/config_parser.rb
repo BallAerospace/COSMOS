@@ -18,7 +18,6 @@
 # copyright holder
 
 require 'cosmos/ext/config_parser' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
-require 'tempfile'
 require 'erb'
 
 module Cosmos

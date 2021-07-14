@@ -37,5 +37,6 @@ module ScriptRunnerApi
     config.api_only = true
 
     config.action_cable.disable_request_forgery_protection = true
+    config.action_cable.mount_path = '/script-api/cable'
   end
 end
