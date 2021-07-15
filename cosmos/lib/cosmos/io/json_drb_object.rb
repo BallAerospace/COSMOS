@@ -140,7 +140,7 @@ module Cosmos
         headers = {
           'Content-Type' => 'application/json-rpc',
           'User-Agent' => 'Cosmos / 5.0.0 (ruby/cosmos/lib/io/json_drb_object)',
-          'Authorization' => ENV['COSMOS_PASSWORD'] || 'invalid'
+          'Authorization' => $cosmos_token || 'invalid'
         }
         res = @http.post(@uri,
                          :body   => @request_data,

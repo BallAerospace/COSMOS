@@ -24,6 +24,7 @@ require 'cosmos/models/timeline_model'
 require 'cosmos/topics/timeline_topic'
 
 require 'cosmos/script'
+$cosmos_token = ENV['COSMOS_SERVICE_PASSWORD']
 
 module Cosmos
   # The Timeline worker is a very simple thread pool worker. Once
@@ -78,7 +79,7 @@ module Cosmos
         request = Net::HTTP::Post.new(
           path,
           'Content-Type' => 'application/json',
-          'Authorization' => ENV['COSMOS_PASSWORD'] || 'invalid')
+          'Authorization' => ENV['COSMOS_SERVICE_PASSWORD'] || 'invalid')
         request.body = JSON.generate({
           'scope' => @scope,
           'timeline' => @timeline_name,

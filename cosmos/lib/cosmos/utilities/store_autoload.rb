@@ -72,6 +72,8 @@ module Cosmos
 
     def initialize(pool_size = 10)
       Redis.exists_returns_integer = true
+      @redis_username = ENV['COSMOS_REDIS_USERNAME']
+      @redis_key = ENV['COSMOS_REDIS_PASSWORD']
       @redis_url = ENV['COSMOS_REDIS_URL']
       @redis_pool = ConnectionPool.new(size: pool_size) { build_redis() }
       @topic_offsets = {}
@@ -79,7 +81,7 @@ module Cosmos
 
     unless $enterprise_cosmos
       def build_redis
-        return Redis.new(url: @redis_url, username: ENV['COSMOS_REDIS_USERNAME'], password: ENV['COSMOS_REDIS_PASSWORD'])
+        return Redis.new(url: @redis_url, username: @redis_username, password: @redis_key)
       end
     end
 

@@ -27,6 +27,16 @@ require '../app/models/running_script'
 
 # Important - Preload Aws::S3 before changing $stdout
 Aws::S3
+ENV['COSMOS_MINIO_USERNAME'] = nil
+ENV['COSMOS_MINIO_PASSWORD'] = nil
+
+# Preload Store and remove Redis secrets from ENV
+Cosmos::Store.instance
+ENV['COSMOS_REDIS_USERNAME'] = nil
+ENV['COSMOS_REDIS_PASSWORD'] = nil
+
+# Clear other secrets
+ENV['COSMOS_PASSWORD'] = nil
 
 id = ARGV[0]
 script = JSON.parse(Cosmos::Store.get("running-script:#{id}"))

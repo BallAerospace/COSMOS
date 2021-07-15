@@ -70,6 +70,7 @@ class ApiController < ApplicationController
   # @return [Integer, String, String] - Http response code, content type,
   #   response body.
   def handle_post(request_data, request_headers)
+    STDOUT.puts "API request data:\n #{request_data.inspect}"
     response_data, error_code = Cosmos::Cts.instance.json_drb.process_request(
       request_data: request_data,
       request_headers: request_headers,

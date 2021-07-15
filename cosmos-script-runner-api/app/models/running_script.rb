@@ -228,6 +228,11 @@ class RunningScript
     process.environment["COSMOS_MINIO_USERNAME"] = ENV["COSMOS_SR_MINIO_USERNAME"]
     process.environment["COSMOS_MINIO_PASSWORD"] = ENV["COSMOS_SR_MINIO_PASSWORD"]
     process.environment["COSMOS_PASSWORD"] = ENV["COSMOS_SERVICE_PASSWORD"]
+    process.environment["COSMOS_SR_REDIS_USERNAME"] = nil
+    process.environment["COSMOS_SR_REDIS_PASSWORD"] = nil
+    process.environment["COSMOS_SR_MINIO_USERNAME"] = nil
+    process.environment["COSMOS_SR_MINIO_PASSWORD"] = nil
+    process.environment["COSMOS_SERVICE_PASSWORD"] = nil
 
     process.start
     id
