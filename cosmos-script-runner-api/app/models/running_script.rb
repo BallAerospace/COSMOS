@@ -1355,8 +1355,7 @@ class RunningScript
     # $stdout.remove_default_io
     # $stderr.remove_default_io
 
-    # Don't output to stdout because we're outputting to the message topic only
-    Cosmos::Logger.stdout = false
+    Cosmos::Logger.stdout = true
     Cosmos::Logger.level = Cosmos::Logger::INFO
     Cosmos::Logger::INFO_SEVERITY_STRING.replace('')
     Cosmos::Logger::WARN_SEVERITY_STRING.replace('<Y> WARN:')
