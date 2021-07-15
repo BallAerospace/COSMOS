@@ -159,6 +159,7 @@ export default {
       // Only allow drags starting from the v-system-bar title
       dragHandle: '.v-system-bar',
     })
+    this.grid.on('dragEnd', this.refreshLayout)
     const previousConfig = localStorage['lastconfig__telemetry_viewer']
     if (previousConfig) {
       this.openConfiguration(previousConfig)
