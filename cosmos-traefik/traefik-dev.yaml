@@ -27,17 +27,30 @@ http:
     api-router:
       rule: PathPrefix(`/cosmos-api`)
       service: service-api
-      priority: 5
+      priority: 7
     # Route to the script api
     script-router:
       rule: PathPrefix(`/script-api`)
       service: service-script
-      priority: 4
+      priority: 6
     # Route to other tool plugins hosted statically in Minio
     # Matches any path with a file extension which is assumed to be
     # a static file
     tools-router:
       rule: Path(`/tools/{id:.*/.*[.].*}`)
+      service: service-minio
+      priority: 5
+    # Route to minio user interface
+    minio-router:
+      rule: PathPrefix(`/minio`)
+      service: service-minio
+      priority: 4
+    # Route to any path in minio
+    files-router:
+      rule: PathPrefix(`/files`)
+      middlewares:
+        # remove /files from the beginning
+        - "removeFirst"
       service: service-minio
       priority: 3
     # Route to base files hosted statically in Minio
