@@ -30,74 +30,60 @@ COPY ./packages/cosmosc2-tool-common/ packages/cosmosc2-tool-common/
 RUN ["/cosmos/plugins/docker-package-install.sh", "cosmosc2-tool-base"]
 
 # Build admin tool
-FROM cosmos-frontend-tmp AS cosmos-admin-tmp
+FROM cosmos-frontend-tmp AS cosmos-tmp1
 COPY ./packages/cosmosc2-tool-admin/ packages/cosmosc2-tool-admin/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-admin"]
 
 # Build cmdsender tool
-FROM cosmos-frontend-tmp AS cosmos-cmdsender-tmp
 COPY ./packages/cosmosc2-tool-cmdsender/ packages/cosmosc2-tool-cmdsender/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-cmdsender"]
 
 # Build cmdtlmserver tool
-FROM cosmos-frontend-tmp AS cosmos-cmdtlmserver-tmp
 COPY ./packages/cosmosc2-tool-cmdtlmserver/ packages/cosmosc2-tool-cmdtlmserver/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-cmdtlmserver"]
 
 # Build dataextractor tool
-FROM cosmos-frontend-tmp AS cosmos-dataextractor-tmp
+FROM cosmos-frontend-tmp AS cosmos-tmp2
 COPY ./packages/cosmosc2-tool-dataextractor/ packages/cosmosc2-tool-dataextractor/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-dataextractor"]
 
 # Build dataviewer tool
-FROM cosmos-frontend-tmp AS cosmos-dataviewer-tmp
 COPY ./packages/cosmosc2-tool-dataviewer/ packages/cosmosc2-tool-dataviewer/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-dataviewer"]
 
 # Build limitsmonitor tool
-FROM cosmos-frontend-tmp AS cosmos-limitsmonitor-tmp
 COPY ./packages/cosmosc2-tool-limitsmonitor/ packages/cosmosc2-tool-limitsmonitor/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-limitsmonitor"]
 
 # Build packetviewer tool
-FROM cosmos-frontend-tmp AS cosmos-packetviewer-tmp
+FROM cosmos-frontend-tmp AS cosmos-tmp3
 COPY ./packages/cosmosc2-tool-packetviewer/ packages/cosmosc2-tool-packetviewer/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-packetviewer"]
 
 # Build scriptrunner tool
-FROM cosmos-frontend-tmp AS cosmos-scriptrunner-tmp
 COPY ./packages/cosmosc2-tool-scriptrunner/ packages/cosmosc2-tool-scriptrunner/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-scriptrunner"]
 
 # Build timeline tool
-FROM cosmos-frontend-tmp AS cosmos-timeline-tmp
 COPY ./packages/cosmosc2-tool-timeline/ packages/cosmosc2-tool-timeline/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-timeline"]
 
 # Build tlmgrapher tool
-FROM cosmos-frontend-tmp AS cosmos-tlmgrapher-tmp
+FROM cosmos-frontend-tmp AS cosmos-tmp4
 COPY ./packages/cosmosc2-tool-tlmgrapher/ packages/cosmosc2-tool-tlmgrapher/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-tlmgrapher"]
 
 # Build tlmviewer tool
-FROM cosmos-frontend-tmp AS cosmos-tlmviewer-tmp
 COPY ./packages/cosmosc2-tool-tlmviewer/ packages/cosmosc2-tool-tlmviewer
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-tlmviewer"]
 
 
 FROM cosmos-frontend-tmp AS cosmos-frontend-base-tmp
 
-COPY --from=cosmos-admin-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
-COPY --from=cosmos-cmdsender-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
-COPY --from=cosmos-cmdtlmserver-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
-COPY --from=cosmos-dataextractor-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
-COPY --from=cosmos-dataviewer-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
-COPY --from=cosmos-limitsmonitor-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
-COPY --from=cosmos-packetviewer-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
-COPY --from=cosmos-scriptrunner-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
-COPY --from=cosmos-timeline-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
-COPY --from=cosmos-tlmgrapher-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
-COPY --from=cosmos-tlmviewer-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
+COPY --from=cosmos-tmp1 /cosmos/plugins/gems/* /cosmos/plugins/gems/
+COPY --from=cosmos-tmp2 /cosmos/plugins/gems/* /cosmos/plugins/gems/
+COPY --from=cosmos-tmp3 /cosmos/plugins/gems/* /cosmos/plugins/gems/
+COPY --from=cosmos-tmp4 /cosmos/plugins/gems/* /cosmos/plugins/gems/
 
 FROM ballaerospace/cosmosc2-base
 
