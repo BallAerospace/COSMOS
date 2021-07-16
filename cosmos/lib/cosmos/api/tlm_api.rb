@@ -65,15 +65,15 @@ module Cosmos
 
     # @deprecated Use tlm with type: :RAW
     def tlm_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
-      tlm(*args, type: :RAW)
+      tlm(*args, type: :RAW, scope: scope, token: token)
     end
     # @deprecated Use tlm with type: :FORMATTED
     def tlm_formatted(*args, scope: $cosmos_scope, token: $cosmos_token)
-      tlm(*args, type: :FORMATTED)
+      tlm(*args, type: :FORMATTED, scope: scope, token: token)
     end
     # @deprecated Use tlm with type: :WITH_UNITS
     def tlm_with_units(*args, scope: $cosmos_scope, token: $cosmos_token)
-      tlm(*args, type: :WITH_UNITS)
+      tlm(*args, type: :WITH_UNITS, scope: scope, token: token)
     end
     # @deprecated Use tlm with type:
     def tlm_variable(*args, scope: $cosmos_scope, token: $cosmos_token)
