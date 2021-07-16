@@ -141,7 +141,7 @@ export default {
       const redirect = new URLSearchParams(window.location.search).get(
         'redirect'
       )
-      if (redirect) window.location = decodeURI(redirect)
+      window.location = decodeURI(redirect || '/')
     },
     verifyPassword: function () {
       this.showAlert = false
