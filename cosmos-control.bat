@@ -41,6 +41,9 @@ if "%1" == "dind" (
 if "%1" == "deploy" (
   GOTO deploy
 )
+if "%1" == "test" (
+  GOTO test
+)
 if "%1" == "util" (
   GOTO util
 )
@@ -99,6 +102,17 @@ GOTO :EOF
   @echo off
 GOTO :EOF
 
+:test
+  REM Building COSMOS
+  CALL scripts/windows/cosmos_setup
+  docker-compose -f compose.yaml -f compose-build.yaml build
+  set args=%*
+  call set args=%%args:*%1=%%
+  REM Running tests
+  CALL scripts/windows/cosmos_test %args%
+  @echo off
+GOTO :EOF
+
 :util
   REM Send the remaining arguments to cosmos_util
   set args=%*
@@ -120,7 +134,10 @@ GOTO :EOF
   @echo *  dind: build and run the docker development container (cosmos-build) 1>&2
   @echo *  deploy: deploy the containers to localhost repository 1>&2
   @echo *    repository: hostname of the docker repository 1>&2
-  @echo *  util: various helper commands: 1>&2
+  @echo *  test: test COSMOS 1>&2
+  @echo *    rspec: run tests against Ruby code 1>&2
+  @echo *    cypress: run end-to-end tests 1>&2
+  @echo *  util: various helper commands 1>&2
   @echo *    encode: encode a string to base64 1>&2
   @echo *    hash: hash a string using SHA-256 1>&2
 

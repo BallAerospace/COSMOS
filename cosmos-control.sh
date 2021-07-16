@@ -13,6 +13,9 @@ usage() {
   echo "*  dind: build and run the docker development container (cosmos-build)" >&2
   echo "*  deploy: deploy the containers to localhost repository" >&2
   echo "*    repository: hostname of the docker repository" >&2
+  echo "*  test: test COSMOS" >&2
+  echo "*    rspec: run tests against Ruby code" >&2
+  echo "*    cypress: run end-to-end tests" >&2
   echo "*  util: various helper commands" >&2
   echo "*    encode: encode a string to base64" >&2
   echo "*    hash: hash a string using SHA-256" >&2
@@ -52,6 +55,10 @@ elif [ "$1" == "dind" ]; then
   docker run --rm -ti -v /var/run/docker.sock:/var/run/docker.sock cosmos-build
 elif [ "$1" == "deploy" ]; then
   scripts/linux/cosmos_deploy.sh $2
+elif [ "$1" == "test" ]; then
+  scripts/linux/cosmos_setup.sh
+  docker-compose -f compose.yaml -f compose-build.yaml build
+  scripts/linux/cosmos_test.sh $2
 elif [ "$1" == "util" ]; then
   scripts/linux/cosmos_util.sh $2 $3
 else
