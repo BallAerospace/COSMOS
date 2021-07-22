@@ -58,11 +58,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th class="text-left">Kind</th>
-                  <td v-text="activity.kind" />
-                </tr>
-                <tr>
-                  <th class="text-left">Data</th>
+                  <th class="text-left" v-text="activity.kind" />
                   <td v-text="activity.data[activity.kind]" />
                 </tr>
               </tbody>

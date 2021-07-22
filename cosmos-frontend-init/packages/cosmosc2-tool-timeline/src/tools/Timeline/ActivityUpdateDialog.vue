@@ -49,16 +49,19 @@
               </v-btn>
             </template>
             <v-list>
-              <v-list-item @click="kind = 'cmd'">
+              <v-list-item data-test="cmd" @click="changeKind('cmd')">
                 <v-list-item-title>CMD</v-list-item-title>
               </v-list-item>
-              <v-list-item @click="kind = 'script'">
+              <v-list-item data-test="script" @click="changeKind('script')">
                 <v-list-item-title>SCRIPT</v-list-item-title>
+              </v-list-item>
+              <v-list-item data-test="reserve" @click="changeKind('reserve')">
+                <v-list-item-title>RESERVE</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
         </v-toolbar>
-        <v-card-text>
+        <v-card-text class="mt-1">
           <v-form ref="form" @submit.prevent="updateActivity()">
             <v-sheet>
               <v-row dense>
@@ -66,14 +69,14 @@
                   v-model="startDate"
                   type="date"
                   label="Start Date"
-                  :rules="[rules.required, rules.calendar]"
+                  :rules="[rules.required]"
                   data-test="startDate"
                 />
                 <v-text-field
                   v-model="startTime"
                   type="time"
                   label="Start Time"
-                  :rules="[rules.required, rules.time]"
+                  :rules="[rules.required]"
                   data-test="startTime"
                 />
               </v-row>
@@ -82,14 +85,14 @@
                   v-model="stopDate"
                   type="date"
                   label="End Date"
-                  :rules="[rules.required, rules.calendar]"
+                  :rules="[rules.required]"
                   data-test="stopDate"
                 />
                 <v-text-field
                   v-model="stopTime"
                   type="time"
                   label="End Time"
-                  :rules="[rules.required, rules.time]"
+                  :rules="[rules.required]"
                   data-test="stopTime"
                 />
               </v-row>
@@ -106,21 +109,41 @@
               </v-row>
               <v-row dense>
                 <v-text-field
+                  v-if="kind === 'cmd'"
                   v-model="activityData"
                   type="text"
-                  label="Activity Data"
-                  data-test="Activity Data"
+                  label="CMD"
+                  placeholder="INST COLLECT with TYPE 0, DURATION 1, OPCODE 171, TEMP 0"
+                  prefix="cmd('"
+                  suffix="')"
+                  hint="Timeline run commands with cmd_no_hazardous_check"
+                  data-test="cmd"
+                />
+                <script-select
+                  v-else-if="kind === 'script'"
+                  @file="fileHandeler"
                 />
               </v-row>
               <v-row>
                 <span class="ma-2 red--text" v-show="error" v-text="error" />
               </v-row>
               <v-row>
-                <v-btn color="success" type="submit" :disabled="error">
+                <v-btn
+                  color="success"
+                  type="submit"
+                  :disabled="!!error"
+                  data-test="update-submit-btn"
+                >
                   Update
                 </v-btn>
                 <v-spacer />
-                <v-btn color="primary" @click="show = false">Cancel</v-btn>
+                <v-btn
+                  color="primary"
+                  @click="show = false"
+                  data-test="update-cancel-btn"
+                >
+                  Cancel
+                </v-btn>
               </v-row>
             </v-sheet>
           </v-form>
@@ -133,9 +156,13 @@
 <script>
 import { isValid, parse, format, getTime } from 'date-fns'
 import Api from '@cosmosc2/tool-common/src/services/api'
+import ScriptSelect from '@/tools/Timeline/ScriptSelect'
 import TimeFilters from './util/timeFilters.js'
 
 export default {
+  components: {
+    ScriptSelect,
+  },
   props: {
     icon: Boolean,
     activity: {
@@ -160,31 +187,11 @@ export default {
       kindToLabel: {
         cmd: 'CMD',
         script: 'SCRIPT',
+        reserve: 'RESERVE',
       },
       activityData: '',
       rules: {
         required: (value) => !!value || 'Required',
-        calendar: (value) => {
-          try {
-            return (
-              isValid(parse(value, 'yyyy-MM-dd', new Date())) ||
-              'Invalid date (YYYY-MM-DD)'
-            )
-          } catch (e) {
-            return 'Invalid date (YYYY-MM-DD)'
-          }
-        },
-        time: (value) => {
-          try {
-            let time_s = parse(value, 'HH:mm:ss', new Date())
-            let time_m = parse(value, 'HH:mm', new Date())
-            return (
-              isValid(time_s) || isValid(time_m) || 'Invalid time (HH:MM:SS)'
-            )
-          } catch (e) {
-            return 'Invalid time (HH:MM:SS)'
-          }
-        },
       },
     }
   },
@@ -202,6 +209,9 @@ export default {
       if (start > stop) {
         return 'Invalid start time. Activity start before stop.'
       }
+      if (this.kind !== 'reserve' && !this.activityData) {
+        return 'No data is selected or inputted'
+      }
       return null
     },
     show: {
@@ -214,6 +224,16 @@ export default {
     },
   },
   methods: {
+    changeKind: function (inputKind) {
+      if (inputKind === this.kind) {
+        return
+      }
+      this.kind = inputKind
+      this.activityData = ''
+    },
+    fileHandeler: function (event) {
+      this.activityData = event ? event.script : null
+    },
     showMenu: function () {
       const sDate = new Date(this.activity.start * 1000)
       const eDate = new Date(this.activity.stop * 1000)
@@ -255,7 +275,8 @@ export default {
         .catch((error) => {
           if (error) {
             const alertObject = {
-              text: `Failed to create activity. ${error}`,
+              error: error,
+              text: 'Failed to create activity.',
               type: 'error',
             }
             this.$emit('alert', alertObject)

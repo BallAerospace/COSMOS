@@ -22,7 +22,13 @@
     <div class="v-toolbar__content">
       <v-menu offset-y v-for="(menu, i) in menus" :key="i">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn outlined v-bind="attrs" v-on="on" class="mx-1">
+          <v-btn
+            outlined
+            v-bind="attrs"
+            v-on="on"
+            class="mx-1"
+            :data-test="`${title}-${menu.label}`"
+          >
             <span v-text="menu.label" />
             <v-icon right> mdi-menu-down </v-icon>
           </v-btn>
@@ -39,9 +45,10 @@
               <v-divider v-if="option.divider" :key="j" />
               <v-list-item
                 v-else
-                :key="j"
                 @click="option.command"
+                :key="j"
                 :disabled="option.disabled"
+                :data-test="`${title}-${menu.label}-${option.label}`"
               >
                 <v-list-item-action
                   v-if="option.radio"
@@ -58,10 +65,10 @@
                   :disabled="option.disabled"
                 >
                   <v-checkbox
+                    v-model="checked"
                     color="secondary"
                     :label="option.label"
                     :value="option.label"
-                    v-model="checked"
                   />
                 </v-list-item-action>
                 <v-list-item-icon v-if="option.icon">
@@ -73,16 +80,15 @@
                     'cursor: pointer;' + (option.disabled ? 'opacity: 0.2' : '')
                   "
                   :disabled="option.disabled"
-                >
-                  {{ option.label }}
-                </v-list-item-title>
+                  v-text="option.label"
+                />
               </v-list-item>
             </template>
           </v-radio-group>
         </v-list>
       </v-menu>
       <v-spacer />
-      <v-toolbar-title>{{ title }}</v-toolbar-title>
+      <v-toolbar-title v-text="title" />
       <v-spacer />
     </div>
   </mounting-portal>

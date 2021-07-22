@@ -37,16 +37,16 @@ describe('Timeline', () => {
   })
 
   it('create new timeline', function () {
-    cy.get('[data-test=createTimeline] > .v-btn__content > .v-icon').click()
+    cy.get('[data-test=createTimeline]').click()
     cy.get('#dg-input-elem').type('Alpha')
     cy.get('.dg-btn--cancel').click()
     cy.wait(500)
-    cy.get('[data-test=createTimeline] > .v-btn__content > .v-icon').click()
+    cy.get('[data-test=createTimeline]').click()
     cy.get('#dg-input-elem').type('Alpha')
     cy.get('.dg-btn--ok').click()
     cy.wait(500)
-    cy.get('.vue-portal-target > .v-toolbar__content > :nth-child(1)').click()
-    cy.contains('Refresh').click()
+    cy.get('[data-test=Timeline-View]').click()
+    cy.get('[data-test=Timeline-View-Refresh]').click()
     cy.contains('Alpha')
     cy.wait(500)
     cy.get('.v-item-group > :nth-child(1)').click()
@@ -55,25 +55,35 @@ describe('Timeline', () => {
 
   it('check menus', function () {
     cy.get('.v-item-group > :nth-child(1)').click()
-    cy.get('.vue-portal-target > .v-toolbar__content > :nth-child(1)').click()
-    cy.contains('Calendar').click()
-    cy.get('.vue-portal-target > .v-toolbar__content > :nth-child(4)').click()
-    cy.contains('UTC').click()
+    cy.get('[data-test=Timeline-View]').click()
+    cy.wait(100)
+    cy.get('[data-test=Timeline-View-Calendar]').click()
+    cy.wait(100)
+    cy.get('[data-test=Timeline-View]').click()
+    cy.wait(100)
+    cy.get('[data-test=Timeline-View-List]').click()
+    cy.wait(100)
+    cy.get('[data-test=Timeline-Time]').click()
+    cy.wait(100)
+    cy.get('[data-test=Timeline-Time-UTC]').click()
+    cy.wait(100)
+    cy.get('[data-test=Timeline-Time]').click()
+    cy.wait(100)
+    cy.get('[data-test=Timeline-Time-Local]').click()
     cy.wait(1000)
   })
 
   it('check calendar', function () {
     cy.get('.v-item-group > :nth-child(1)').click()
-    cy.get('.vue-portal-target > .v-toolbar__content > :nth-child(1)').click()
-    cy.contains('Calendar').click()
+    cy.get('[data-test=Timeline-View]').click()
+    cy.wait(100)
+    cy.get('[data-test=Timeline-View-Calendar]').click()
     cy.get('.col-9').contains('Alpha')
     cy.get('.vue-portal-target > .v-toolbar__content > :nth-child(1)').click()
     cy.get('[data-test=changeType]').contains('4 Days').click()
     cy.get('[data-test=typeDay]').click()
     cy.get('[data-test=changeType]').contains('Day').click()
     cy.get('[data-test=type4day]').click()
-    // cy.get('[data-test=changeType]').contains('4 Days').click()
-    // cy.get('[data-test=typeWeek]').click()
     cy.get('[data-test=searchDate]').click()
     const dateTime = add(new Date(), { days: 14 })
     cy.get('.v-text-field__slot > [data-test=searchDate]').type(
@@ -91,6 +101,8 @@ describe('Timeline', () => {
     cy.get('.v-item-group > :nth-child(1)').click()
     cy.get('[data-test=createActivity]').click()
     cy.get('[data-test=activityKind]').contains('CMD').click()
+    cy.get('[data-test=reserve]').click()
+    cy.get('[data-test=activityKind]').contains('RESERVE').click()
     cy.get('[data-test=script]').click()
     cy.get('[data-test=activityKind]').contains('SCRIPT')
     const startDateTime = add(new Date(), { minutes: 10 })
@@ -102,8 +114,10 @@ describe('Timeline', () => {
     cy.get(
       ':nth-child(2) > .v-input--selection-controls__input > .v-input--selection-controls__ripple'
     ).click()
-    cy.get('[data-test="Activity Data"]').type('Alpha cancel button')
-    cy.get(':nth-child(5) > .primary').click() // cancel
+    cy.get(
+      'tbody > :nth-child(1) > :nth-child(1) > .v-data-table__checkbox > .v-input--selection-controls__input > .v-input--selection-controls__ripple'
+    ).click()
+    cy.get(':nth-child(6) > .primary').click() // cancel
     cy.get('.v-data-footer__pagination').contains('–')
     cy.wait(1000)
   })
@@ -118,8 +132,8 @@ describe('Timeline', () => {
     cy.get('[data-test=startTime]').type(formatTime(startDateTime))
     cy.get('[data-test=stopDate]').type(formatDate(stopDateTime))
     cy.get('[data-test=stopTime]').type(formatTime(stopDateTime))
-    cy.get('[data-test="Activity Data"]').type('Update this later')
-    cy.get(':nth-child(5) > .success').click()
+    cy.get('[data-test=cmd]').type('Update this later')
+    cy.get('[data-test=create-submit-btn]').click()
     cy.wait(1000)
     cy.contains('cmd')
     cy.get('.v-data-footer__pagination').contains('1')
@@ -130,7 +144,7 @@ describe('Timeline', () => {
     cy.get('[data-test=activityActions]').click()
     cy.get('[data-test=viewActivity]').click()
     cy.get('.pa-3').contains('Timeline: Alpha')
-    cy.get('#footer').click()
+    cy.get('#footer > img').click()
     cy.get(':nth-child(8) > .v-icon').click()
     cy.get('.v-data-table__expanded__content > td').contains('created')
     cy.get(':nth-child(8) > .v-icon').click()
@@ -141,9 +155,7 @@ describe('Timeline', () => {
     cy.get('[data-test=activityActions]').click()
     cy.get('[data-test=updateActivity]').click()
     cy.get('.pa-3').contains('Update activity: Alpha/')
-    cy.get(
-      '.v-dialog__content--active > .v-dialog > .pa-3 > .v-card__text > .v-form > .v-sheet > :nth-child(5) > .primary'
-    ).click()
+    cy.get('[data-test=update-cancel-btn]').click()
     cy.wait(1000)
   })
 
@@ -158,18 +170,17 @@ describe('Timeline', () => {
     cy.get('[data-test=startTime]').type(formatTime(startDateTime))
     cy.get('[data-test=stopDate]').type(formatDate(stopDateTime))
     cy.get('[data-test=stopTime]').type(formatTime(stopDateTime))
-    cy.get('[data-test="Activity Data"]').clear()
-    cy.get('[data-test="Activity Data"]').type('Update again in calendar view')
-    cy.get(
-      '.v-dialog__content--active > .v-dialog > .pa-3 > .v-card__text > .v-form > .v-sheet > :nth-child(5) > .success'
-    ).click()
+    cy.get('[data-test=cmd]').clear()
+    cy.get('[data-test=cmd]').type('Update again in calendar view')
+    cy.get('[data-test=update-submit-btn]').click()
     cy.wait(1000)
   })
 
   it('view activity on calendar view', function () {
     cy.get('.v-item-group > :nth-child(1)').click()
-    cy.get('.vue-portal-target > .v-toolbar__content > :nth-child(1)').click()
-    cy.contains('Calendar').click()
+    cy.get('[data-test=Timeline-View]').click()
+    cy.wait(100)
+    cy.get('[data-test=Timeline-View-Calendar]').click()
     cy.wait(500)
     cy.get('.v-event-timed').click()
     cy.get('.menuable__content__active > .v-card > .v-card__text').contains(
@@ -177,14 +188,15 @@ describe('Timeline', () => {
     )
     cy.get('[data-test=viewActivityIcon]').click()
     cy.get('.pa-3').contains('Timeline: Alpha')
-    cy.get('#footer').click()
+    cy.get('#footer > img').click()
     cy.wait(500)
   })
 
   it('update activity on calendar view', function () {
     cy.get('.v-item-group > :nth-child(1)').click()
-    cy.get('.vue-portal-target > .v-toolbar__content > :nth-child(1)').click()
-    cy.contains('Calendar').click()
+    cy.get('[data-test=Timeline-View]').click()
+    cy.wait(100)
+    cy.get('[data-test=Timeline-View-Calendar]').click()
     cy.wait(500)
     cy.get('.v-event-timed').click()
     cy.get('.menuable__content__active > .v-card > .v-card__text').contains(
@@ -198,13 +210,11 @@ describe('Timeline', () => {
     cy.get('[data-test=startTime]').type(formatTime(startDateTime))
     cy.get('[data-test=stopDate]').type(formatDate(stopDateTime))
     cy.get('[data-test=stopTime]').type(formatTime(stopDateTime))
-    cy.get('[data-test="Activity Data"]').clear()
-    cy.get('[data-test="Activity Data"]').type(
+    cy.get('[data-test=cmd]').clear()
+    cy.get('[data-test=cmd]').type(
       'INST COLLECT with TYPE 0, DURATION 1, OPCODE 171, TEMP 0'
     )
-    cy.get(
-      '.v-dialog__content--active > .v-dialog > .pa-3 > .v-card__text > .v-form > .v-sheet > :nth-child(5) > .success'
-    ).click()
+    cy.get('[data-test=update-submit-btn]').click()
     cy.wait(500)
   })
 
@@ -213,14 +223,14 @@ describe('Timeline', () => {
     cy.get(
       ':nth-child(1) > :nth-child(7) > .row > .mt-1 > .v-btn__content > .v-icon'
     ).click()
-    cy.contains('Delete Activity').click()
+    cy.get('[data-test=deleteActivity]').click()
     cy.get('.dg-content').contains('from timeline: Alpha')
     cy.get('.dg-btn--cancel').click()
     cy.wait(500)
     cy.get(
       ':nth-child(1) > :nth-child(7) > .row > .mt-1 > .v-btn__content > .v-icon'
     ).click()
-    cy.contains('Delete Activity').click()
+    cy.get('[data-test=deleteActivity]').click()
     cy.get('.dg-btn--ok').click()
     cy.wait(500)
   })
@@ -253,11 +263,11 @@ describe('Timeline', () => {
   })
 
   it('create two new timelines', function () {
-    cy.get(':nth-child(4) > .v-btn__content > .v-icon').click()
+    cy.get('[data-test=createTimeline]').click()
     cy.get('#dg-input-elem').type('Beta')
     cy.get('.dg-btn--ok').click()
     cy.contains('Beta')
-    cy.get(':nth-child(4) > .v-btn__content > .v-icon').click()
+    cy.get('[data-test=createTimeline]').click()
     cy.get('#dg-input-elem').type('Gamma')
     cy.get('.dg-btn--ok').click()
     cy.contains('Gamma')
@@ -273,8 +283,8 @@ describe('Timeline', () => {
     cy.get('[data-test=startTime]').type(formatTime(startDateTime))
     cy.get('[data-test=stopDate]').type(formatDate(stopDateTime))
     cy.get('[data-test=stopTime]').type(formatTime(stopDateTime))
-    cy.get('[data-test="Activity Data"]').type('Test')
-    cy.get(':nth-child(5) > .success').click()
+    cy.get('[data-test=cmd]').type('Test')
+    cy.get(':nth-child(6) > .success').click()
     cy.get('[data-test=createActivity]').click()
     cy.wait(500)
     cy.get('.v-data-footer__pagination').contains('of 1')
@@ -290,8 +300,8 @@ describe('Timeline', () => {
     cy.get('[data-test=startTime]').type(formatTime(startDateTime))
     cy.get('[data-test=stopDate]').type(formatDate(stopDateTime))
     cy.get('[data-test=stopTime]').type(formatTime(stopDateTime))
-    cy.get('[data-test="Activity Data"]').type('Test')
-    cy.get(':nth-child(5) > .success').click()
+    cy.get('[data-test=cmd]').type('Test')
+    cy.get(':nth-child(6) > .success').click()
     cy.wait(500)
     cy.get('.v-data-footer__pagination').contains('of 2')
   })
@@ -307,8 +317,8 @@ describe('Timeline', () => {
     cy.get('[data-test=startTime]').type(formatTime(startDateTime))
     cy.get('[data-test=stopDate]').type(formatDate(stopDateTime))
     cy.get('[data-test=stopTime]').type(formatTime(stopDateTime))
-    cy.get('[data-test="Activity Data"]').type('Test')
-    cy.get(':nth-child(5) > .success').click()
+    cy.get('[data-test=cmd]').type('Test')
+    cy.get(':nth-child(6) > .success').click()
     cy.wait(1000)
     cy.contains('cmd')
     cy.get('.v-data-footer__pagination').contains('of 1')
@@ -354,6 +364,6 @@ describe('Timeline', () => {
     cy.get('.v-list-item > .row > :nth-child(1)').each(($el, index, $list) => {
       cy.wrap($el).click()
     })
-    cy.get(':nth-child(4) > .v-btn__content > .v-icon').click()
+    cy.get('[data-test=deleteSelectedTimelines]').click()
   })
 })

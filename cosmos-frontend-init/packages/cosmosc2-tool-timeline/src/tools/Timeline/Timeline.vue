@@ -125,10 +125,10 @@ export default {
         },
         {
           label: 'Time',
-          radioGroup: 'Locale', // Default radio selected
+          radioGroup: 'Local', // Default radio selected
           items: [
             {
-              label: 'Locale',
+              label: 'Local',
               radio: true,
               command: () => {
                 this.displayTimeInUtc = false
@@ -213,6 +213,7 @@ export default {
       }
     },
     alertHandler: function (event) {
+      // console.log('alertHandler', event)
       this.alert = event.text
       this.alertType = event.type
       this.showAlert = true

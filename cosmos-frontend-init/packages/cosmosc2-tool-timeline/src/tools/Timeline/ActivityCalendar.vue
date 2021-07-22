@@ -171,11 +171,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <th class="text-left">Kind</th>
-                  <td v-text="selectedActivity.kind" />
-                </tr>
-                <tr>
-                  <th class="text-left">Data</th>
+                  <th class="text-left" v-text="selectedActivity.kind" />
                   <td v-text="selectedActivity.data[selectedActivity.kind]" />
                 </tr>
                 <tr>

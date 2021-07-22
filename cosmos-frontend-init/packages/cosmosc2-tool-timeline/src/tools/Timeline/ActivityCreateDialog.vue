@@ -46,16 +46,19 @@
               </v-btn>
             </template>
             <v-list>
-              <v-list-item data-test="cmd" @click="kind = 'cmd'">
+              <v-list-item data-test="cmd" @click="changeKind('cmd')">
                 <v-list-item-title>CMD</v-list-item-title>
               </v-list-item>
-              <v-list-item data-test="script" @click="kind = 'script'">
+              <v-list-item data-test="script" @click="changeKind('script')">
                 <v-list-item-title>SCRIPT</v-list-item-title>
+              </v-list-item>
+              <v-list-item data-test="reserve" @click="changeKind('reserve')">
+                <v-list-item-title>RESERVE</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-menu>
         </v-toolbar>
-        <v-card-text>
+        <v-card-text class="mt-1">
           <v-form ref="form" @submit.prevent="createActivity()">
             <v-sheet>
               <v-row dense>
@@ -103,21 +106,41 @@
               </v-row>
               <v-row dense>
                 <v-text-field
+                  v-if="kind === 'cmd'"
                   v-model="activityData"
                   type="text"
-                  label="Activity Data"
-                  data-test="Activity Data"
+                  label="CMD"
+                  placeholder="INST COLLECT with TYPE 0, DURATION 1, OPCODE 171, TEMP 0"
+                  prefix="cmd('"
+                  suffix="')"
+                  hint="Timeline run commands with cmd_no_hazardous_check"
+                  data-test="cmd"
+                />
+                <script-select
+                  v-else-if="kind === 'script'"
+                  @file="fileHandeler"
                 />
               </v-row>
               <v-row>
                 <span class="ma-2 red--text" v-show="error" v-text="error" />
               </v-row>
               <v-row>
-                <v-btn color="success" type="submit" :disabled="error">
+                <v-btn
+                  color="success"
+                  type="submit"
+                  :disabled="!!error"
+                  data-test="create-submit-btn"
+                >
                   Ok
                 </v-btn>
                 <v-spacer />
-                <v-btn color="primary" @click="show = false">Cancel</v-btn>
+                <v-btn
+                  color="primary"
+                  @click="show = false"
+                  data-test="create-cancel-btn"
+                >
+                  Cancel
+                </v-btn>
               </v-row>
             </v-sheet>
           </v-form>
@@ -130,9 +153,13 @@
 <script>
 import { isValid, parse, format, getTime } from 'date-fns'
 import Api from '@cosmosc2/tool-common/src/services/api'
+import ScriptSelect from '@/tools/Timeline/ScriptSelect'
 import TimeFilters from './util/timeFilters.js'
 
 export default {
+  components: {
+    ScriptSelect,
+  },
   props: {
     timeline: {
       type: String,
@@ -156,6 +183,7 @@ export default {
       kindToLabel: {
         cmd: 'CMD',
         script: 'SCRIPT',
+        reserve: 'RESERVE',
       },
       activityData: '',
       rules: {
@@ -177,6 +205,9 @@ export default {
       if (start > stop) {
         return 'Invalid start time. Activity start before stop.'
       }
+      if (this.kind !== 'reserve' && !this.activityData) {
+        return 'No data is selected or inputted'
+      }
       return null
     },
     show: {
@@ -189,6 +220,16 @@ export default {
     },
   },
   methods: {
+    changeKind: function (inputKind) {
+      if (inputKind === this.kind) {
+        return
+      }
+      this.kind = inputKind
+      this.activityData = ''
+    },
+    fileHandeler: function (event) {
+      this.activityData = event ? event.script : null
+    },
     createActivity: function () {
       // Call the api to create a new activity to add to the activities array
       const path = `/cosmos-api/timeline/${this.timeline}/activities`
@@ -218,7 +259,8 @@ export default {
         .catch((error) => {
           if (error) {
             const alertObject = {
-              text: `Failed to create activity. ${error}`,
+              error: error,
+              text: 'Failed to create activity.',
               type: 'error',
             }
             this.$emit('alert', alertObject)

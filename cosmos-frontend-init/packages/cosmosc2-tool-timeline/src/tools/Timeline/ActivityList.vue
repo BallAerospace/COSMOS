@@ -41,11 +41,11 @@
       </v-toolbar>
     </v-sheet>
     <v-data-table
+      v-model="selected"
       :headers="activityHeaders"
       :items="listData"
       :single-expand="singleExpand"
       :expanded.sync="expanded"
-      v-model="selected"
       item-key="activityId"
       show-expand
       show-select
@@ -224,6 +224,9 @@ export default {
   },
   methods: {
     multiDeleteActivity() {
+      const toDelete = this.selected.map((activity) => {
+        return { name: activity.name, id: activity.start }
+      })
       this.$dialog
         .confirm(
           `${this.selected.length} selected activities. Are you sure you?`,
@@ -234,7 +237,7 @@ export default {
         )
         .then((dialog) => {
           return Api.post('/cosmos-api/timeline/activities/delete', {
-            multi: this.selectedData,
+            multi: toDelete,
           })
         })
         .then((response) => {
