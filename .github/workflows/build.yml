@@ -16,7 +16,7 @@ on:
     branches: [master]
 
 jobs:
-  Ruby Tests:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
