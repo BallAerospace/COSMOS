@@ -64,15 +64,16 @@ module Cosmos
   USERPATH = ENV['COSMOS_USERPATH']
 end
 
-ENV['COSMOS_SERVICE_PASSWORD'] = 'FOOBAR'
-ENV['COSMOS_PASSWORD'] = 'FOOBAR'
 require 'cosmos/top_level'
 require 'cosmos/script'
 # require 'cosmos/utilities/logger'
 # Create a easy alias to the base of the spec directory
 SPEC_DIR = File.dirname(__FILE__)
 $cosmos_scope = 'DEFAULT'
-#$cosmos_token = 'FOOBAR'
+$cosmos_token = 'FOOBAR'
+ENV['COSMOS_SCOPE'] = $cosmos_scope
+ENV['COSMOS_SERVICE_PASSWORD'] = $cosmos_token
+ENV['COSMOS_PASSWORD'] = $cosmos_token
 
 def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
   capture_io do |stdout|
@@ -118,6 +119,10 @@ def mock_redis
   # allow(pool).to receive(:with) { redis }
   # allow(ConnectionPool).to receive(:new).and_return(pool)
   Cosmos::Store.class_variable_set(:@@instance, nil)
+  #
+  require 'cosmos/models/auth_model'
+  Cosmos::AuthModel.set($cosmos_token, nil)
+  #
   redis
 end
 # Clean up the spec configuration directory

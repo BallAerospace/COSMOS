@@ -181,7 +181,7 @@ module Cosmos
           plw.write(:RAW_PACKET, :TLM, 'TGT1', 'PKT1', Time.now.to_nsec_from_epoch, true, "\x01\x02", nil, '0-0')
           sleep 0.1
           plw.stop
-          expect(stdout.string).to match("Error opening")
+          expect(stdout.string).to include("ERROR")
           plw.shutdown
           sleep 0.1
         end

@@ -38,9 +38,6 @@ module Cosmos
       @redis = mock_redis()
       setup_system()
 
-      require 'cosmos/models/auth_model'
-      Cosmos::AuthModel.set($cosmos_token, nil)
-
       %w(INST SYSTEM).each do |target|
         model = TargetModel.new(folder_name: target, name: target, scope: "DEFAULT")
         model.create

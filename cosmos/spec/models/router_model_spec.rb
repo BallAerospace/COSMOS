@@ -88,7 +88,8 @@ module Cosmos
         model.create
         keys = Store.scan(0)
         # This is an implementation detail but Redis keys are pretty critical so test it
-        expect(keys[1]).to contain_exactly("DEFAULT__cosmos_routers")
+        expect(keys[1]).to include("DEFAULT__cosmos_routers").at_most(1).times
+        # 21/07/2021 - G this needed to be changed to contains COSMOS__TOKEN
       end
     end
 

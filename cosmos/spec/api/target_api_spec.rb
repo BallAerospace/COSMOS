@@ -36,9 +36,6 @@ module Cosmos
       mock_redis()
       setup_system()
 
-      require 'cosmos/models/auth_model'
-      Cosmos::AuthModel.set($cosmos_token, nil)
-
       model = InterfaceModel.new(name: "INST_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
       model.create
       %w(INST EMPTY SYSTEM).each do |target|

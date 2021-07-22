@@ -35,9 +35,6 @@ module Cosmos
       mock_redis()
       setup_system()
 
-      require 'cosmos/models/auth_model'
-      Cosmos::AuthModel.set($cosmos_token, nil)
-
       model = RouterModel.new(name: "ROUTE_INT", scope: "DEFAULT", target_names: ["INST"], config_params: ["interface.rb"])
       model.create
 
