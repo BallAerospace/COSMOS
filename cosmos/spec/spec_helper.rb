@@ -71,6 +71,7 @@ require 'cosmos/script'
 SPEC_DIR = File.dirname(__FILE__)
 $cosmos_scope = 'DEFAULT'
 $cosmos_token = 'FOOBAR'
+$cosmos_authorize = false
 ENV['COSMOS_SCOPE'] = $cosmos_scope
 ENV['COSMOS_SERVICE_PASSWORD'] = $cosmos_token
 ENV['COSMOS_PASSWORD'] = $cosmos_token
