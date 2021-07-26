@@ -32,7 +32,7 @@
           />
           <v-btn color="primary" type="submit">Ok</v-btn>
           &nbsp;&nbsp;
-          <v-btn color="primary" type="submit" @click="json_content = null">
+          <v-btn color="primary" type="submit" @click.prevent="json_content = null">
             Cancel
           </v-btn>
         </v-form>
