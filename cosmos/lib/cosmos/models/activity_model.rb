@@ -109,8 +109,8 @@ module Cosmos
     # - A task MUST have a data object/hash.
     def validate_input(start:, stop:, kind:, data:)
       begin
-        dt_start = DateTime.strptime(start.to_s, '%s')
-        dt_stop = DateTime.strptime(stop.to_s, '%s')
+        DateTime.strptime(start.to_s, '%s')
+        DateTime.strptime(stop.to_s, '%s')
       rescue Date::Error
         raise ActivityInputError.new "failed validation input must be seconds: #{start}, #{stop}"
       end
@@ -135,8 +135,8 @@ module Cosmos
     def set_input(start:, stop:, updated_at:, kind: nil, data: nil, events: nil, fulfillment: nil)
       @updated_at = updated_at
       begin
-        dt_start = DateTime.strptime(start.to_s, '%s')
-        dt_stop = DateTime.strptime(stop.to_s, '%s')
+        DateTime.strptime(start.to_s, '%s')
+        DateTime.strptime(stop.to_s, '%s')
       rescue ArgumentError
         raise ActivityInputError.new "invalid input must be seconds: #{start}, #{stop}"
       end

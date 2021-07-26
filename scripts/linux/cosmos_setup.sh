@@ -16,15 +16,22 @@ if [ ! -f cosmos-ruby/cacert.pem ]; then
     echo "Downloading cert from curl"
     curl -q -L https://curl.se/ca/cacert.pem --output cosmos-ruby/cacert.pem
     if [ $? -ne 0 ]; then
-      echo "ERROR: Problem downloading cacert.pem file from https://curl.se/ca/cacert.pem" >&2
-      echo "cosmos_setup FAILED" >&2
+      echo "ERROR: Problem downloading cacert.pem file from https://curl.se/ca/cacert.pem" 1>&2
+      echo "cosmos_setup FAILED" 1>&2
       exit 1
     else
       echo "Successfully downloaded cosmos-ruby/cacert.pem file from: https://curl.se/ca/cacert.pem"
     fi
   fi
 else
-  echo Using existing cosmos-ruby/cacert.pem
+  echo "Using existing cosmos-ruby/cacert.pem"
+fi
+
+docker-compose -v
+if [ $? -ne 0 ]; then
+  echo "ERROR: docker-compose is not installed, please install and try again." 1>&2
+  echo "cosmos_setup FAILED" 1>&2
+  exit 1
 fi
 
 # These lines configure the host OS properly for Redis

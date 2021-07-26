@@ -26,41 +26,55 @@ if [ "$#" -eq 0 ]; then
   usage $0
 fi
 
-if [ "$1" == "cosmos" ]; then
-  # Start (and remove when done --rm) the cosmos-base container with the current working directory
-  # mapped as volume (-v) /cosmos/local and container working directory (-w) also set to /cosmos/local.
-  # This allows tools running in the container to have a consistent path to the current working directory.
-  # Run the command "ruby /cosmos/bin/cosmos" with all parameters starting at 2 since the first is 'cosmos'
-  args=`echo $@ | { read _ args; echo $args; }`
-  docker run --rm -v `pwd`:/cosmos/local -w /cosmos/local ballaerospace/cosmosc2-base ruby /cosmos/bin/cosmos $args
-elif [ "$1" == "start" ]; then
-  scripts/linux/cosmos_setup.sh
-  docker-compose -f compose.yaml -f compose-build.yaml build
-  docker-compose -f compose.yaml up -d
-elif [ "$1" == "stop" ]; then
-  docker-compose -f compose.yaml down
-elif [ "$1" == "restart" ]; then
-  docker-compose -f compose.yaml restart
-elif [ "$1" == "cleanup" ]; then
-  docker-compose -f compose.yaml down -v
-elif [ "$1" == "build" ]; then
-  scripts/linux/cosmos_setup.sh
-  docker-compose -f compose.yaml -f compose-build.yaml build
-elif [ "$1" == "run" ]; then
-  docker-compose -f compose.yaml up -d
-elif [ "$1" == "dev" ]; then
-  docker-compose -f compose.yaml -f compose-dev.yaml up -d
-elif [ "$1" == "dind" ]; then
-  docker build -t cosmos-build .
-  docker run --rm -ti -v /var/run/docker.sock:/var/run/docker.sock cosmos-build
-elif [ "$1" == "deploy" ]; then
-  scripts/linux/cosmos_deploy.sh $2
-elif [ "$1" == "test" ]; then
-  scripts/linux/cosmos_setup.sh
-  docker-compose -f compose.yaml -f compose-build.yaml build
-  scripts/linux/cosmos_test.sh $2
-elif [ "$1" == "util" ]; then
-  scripts/linux/cosmos_util.sh $2 $3
-else
-  usage $0
-fi
+case $1 in
+  cosmos )
+    # Start (and remove when done --rm) the cosmos-base container with the current working directory
+    # mapped as volume (-v) /cosmos/local and container working directory (-w) also set to /cosmos/local.
+    # This allows tools running in the container to have a consistent path to the current working directory.
+    # Run the command "ruby /cosmos/bin/cosmos" with all parameters starting at 2 since the first is 'cosmos'
+    args=`echo $@ | { read _ args; echo $args; }`
+    docker run --rm -v `pwd`:/cosmos/local -w /cosmos/local ballaerospace/cosmosc2-base ruby /cosmos/bin/cosmos $args
+    ;;
+  start )
+    scripts/linux/cosmos_setup.sh
+    docker-compose -f compose.yaml -f compose-build.yaml build
+    docker-compose -f compose.yaml up -d
+    ;;
+  stop )
+    docker-compose -f compose.yaml down
+    ;;
+  restart )
+    docker-compose -f compose.yaml restart
+    ;;
+  cleanup )
+    docker-compose -f compose.yaml down -v
+    ;;
+  build )
+    scripts/linux/cosmos_setup.sh
+    docker-compose -f compose.yaml -f compose-build.yaml build
+    ;;
+  run )
+    docker-compose -f compose.yaml up -d
+    ;;
+  dev )
+    docker-compose -f compose.yaml -f compose-dev.yaml up -d
+    ;;
+  dind )
+    docker build -t cosmos-build .
+    docker run --rm -ti -v /var/run/docker.sock:/var/run/docker.sock cosmos-build
+    ;;
+  deploy )
+    scripts/linux/cosmos_deploy.sh $2
+    ;;
+  test )
+    scripts/linux/cosmos_setup.sh
+    docker-compose -f compose.yaml -f compose-build.yaml build
+    scripts/linux/cosmos_test.sh $2
+    ;;
+  util )
+    scripts/linux/cosmos_util.sh $2 $3
+    ;;
+  * )
+    usage $0
+    ;;
+esac

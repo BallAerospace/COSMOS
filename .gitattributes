@@ -1,3 +1,4 @@
+# Declare everything else should always have LF line endings on checkout.
+* text eol=lf
 # Declare files that will always have CRLF line endings on checkout.
 *.bat text eol=crlf
-autohotkey/procedures/collect.rb text eol=crlf

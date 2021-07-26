@@ -17,6 +17,7 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+version: "3.9"
 
 services:
   cosmos-ruby:

@@ -266,7 +266,6 @@ module Cosmos
       it "raises error due to event longer then 24h" do
         name = "foobar"
         scope = "scope"
-        data = {"path" => "/file/path/file.txt"}
         dt_now = DateTime.now
         start = (dt_now + (1.0/24.0)).strftime("%s").to_i
         stop = (dt_now + (25.0/24.0)).strftime("%s").to_i
