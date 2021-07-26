@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e
+
 usage() {
   echo "Usage: $1 [encode, hash]" >&2
   echo "*  encode: encode a string to base64" >&2

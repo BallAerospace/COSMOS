@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e
+
 usage() {
   echo "Usage: $1 [rspec, cypress]" >&2
   echo "*  rspec: run tests against Ruby code" >&2

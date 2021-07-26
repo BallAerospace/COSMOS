@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e
+
 # Please download cacert.pem from https://curl.haxx.se/docs/caextract.html and place in this folder before running
 # Alternatively, if your org requires a different certificate authority file, please place that here as cacert.pem before running
 # This will allow docker to work through local SSL infrastructure such as decryption devices
@@ -28,7 +30,7 @@ else
 fi
 
 docker-compose -v
-if [ $? -ne 0 ]; then
+if [ "$?" -ne 0 ]; then
   echo "ERROR: docker-compose is not installed, please install and try again." 1>&2
   echo "cosmos_setup FAILED" 1>&2
   exit 1

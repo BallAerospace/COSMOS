@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+set -e
+
 usage() {
   echo "Usage: $1 [cosmos, start, stop, cleanup, build, deploy]" >&2
   echo "*  cosmos: run a cosmos command ('cosmos help' for more info)" 1>&2
