@@ -57,7 +57,8 @@
         >
           Set
         </v-btn>
-        <template v-else>
+        <v-container v-else>
+          <v-row>
           <v-btn
             type="submit"
             @click="verifyPassword"
@@ -67,8 +68,10 @@
           >
             Login
           </v-btn>
+            <v-spacer />
           <v-btn text small @click="showReset"> Change Password </v-btn>
-        </template>
+          </v-row>
+        </v-container>
       </v-form>
     </v-card-text>
     <v-alert :type="alertType" v-model="showAlert" dismissible>
