@@ -49,7 +49,7 @@
         <v-btn
           v-if="reset"
           type="submit"
-          @click="setPassword"
+          @click.prevent="setPassword"
           large
           :color="isSet ? 'warn' : 'success'"
           :disabled="!formValid"
@@ -57,18 +57,21 @@
         >
           Set
         </v-btn>
-        <template v-else>
-          <v-btn
-            type="submit"
-            @click="verifyPassword"
-            large
-            color="success"
-            :disabled="!formValid"
-          >
-            Login
-          </v-btn>
-          <v-btn text small @click="showReset"> Change Password </v-btn>
-        </template>
+        <v-container v-else>
+          <v-row>
+            <v-btn
+              type="submit"
+              @click.prevent="verifyPassword"
+              large
+              color="success"
+              :disabled="!formValid"
+            >
+              Login
+            </v-btn>
+            <v-spacer />
+            <v-btn text small @click="showReset"> Change Password </v-btn>
+          </v-row>
+        </v-container>
       </v-form>
     </v-card-text>
     <v-alert :type="alertType" v-model="showAlert" dismissible>
