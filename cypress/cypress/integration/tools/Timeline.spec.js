@@ -38,12 +38,12 @@ describe('Timeline', () => {
 
   it('create new timeline', function () {
     cy.get('[data-test=createTimeline]').click()
-    cy.get('#dg-input-elem').type('Alpha')
-    cy.get('.dg-btn--cancel').click()
+    cy.get('[data-test=inputTimelineName]').type('Alpha')
+    cy.get('[data-test=create-cancel-btn]').click()
     cy.wait(500)
     cy.get('[data-test=createTimeline]').click()
-    cy.get('#dg-input-elem').type('Alpha')
-    cy.get('.dg-btn--ok').click()
+    cy.get('[data-test=inputTimelineName]').type('Alpha')
+    cy.get('[data-test=create-submit-btn]').click()
     cy.wait(500)
     cy.get('[data-test=Timeline-View]').click()
     cy.get('[data-test=Timeline-View-Refresh]').click()
@@ -156,12 +156,7 @@ describe('Timeline', () => {
     cy.get('[data-test=updateActivity]').click()
     cy.get('.pa-3').contains('Update activity: Alpha/')
     cy.get('[data-test=update-cancel-btn]').click()
-    cy.wait(1000)
-  })
-
-  it('update activity from timeline', function () {
-    cy.get('.v-item-group > :nth-child(1)').click()
-    cy.get('[data-test=activityActions]').click()
+    cy.wait(500)
     cy.get('[data-test=updateActivity]').click()
     cy.get('.pa-3').contains('Update activity: Alpha/')
     const startDateTime = add(new Date(), { minutes: 20 })
@@ -264,12 +259,12 @@ describe('Timeline', () => {
 
   it('create two new timelines', function () {
     cy.get('[data-test=createTimeline]').click()
-    cy.get('#dg-input-elem').type('Beta')
-    cy.get('.dg-btn--ok').click()
+    cy.get('[data-test=inputTimelineName]').type('Beta')
+    cy.get('[data-test=create-submit-btn]').click()
     cy.contains('Beta')
     cy.get('[data-test=createTimeline]').click()
-    cy.get('#dg-input-elem').type('Gamma')
-    cy.get('.dg-btn--ok').click()
+    cy.get('[data-test=inputTimelineName]').type('Gamma')
+    cy.get('[data-test=create-submit-btn]').click()
     cy.contains('Gamma')
   })
 
