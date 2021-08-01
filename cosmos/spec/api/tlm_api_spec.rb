@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/api/tlm_api'
 require 'cosmos/microservices/interface_microservice'
 require 'cosmos/microservices/decom_microservice'
-require 'cosmos/microservices/cvt_microservice'
 require 'cosmos/script/extract'
 require 'cosmos/utilities/authorization'
 require 'cosmos/models/target_model'
@@ -44,11 +43,6 @@ module Cosmos
         model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
       end
 
-      @cm = CvtMicroservice.new("DEFAULT__CVT__INST_INT")
-      @cm.instance_variable_set("@topics", %w(DEFAULT__DECOM__{INST}__HEALTH_STATUS DEFAULT__DECOM__{INST}__IMAGE DEFAULT__DECOM__{INST}__ADCS))
-      @cm_thead = Thread.new { @cm.run }
-      sleep(0.01) # Allow the thread to run
-
       packet = System.telemetry.packet('INST', 'HEALTH_STATUS')
       packet.received_time = Time.now.sys
       packet.stored = false
@@ -59,7 +53,6 @@ module Cosmos
     end
 
     after(:each) do
-      @cm.shutdown
       Thread.list.each do |t|
         t.join if t != Thread.current
       end
@@ -550,19 +543,20 @@ module Cosmos
 
     describe "get_tlm_values" do
       it "complains about non-existant targets" do
-        expect { @api.get_tlm_values(["BLAH__HEALTH_STATUS__TEMP1__CONVERTED"]) }.to raise_error(RuntimeError, "Item 'BLAH HEALTH_STATUS TEMP1' does not exist")
+        expect { @api.get_tlm_values(["BLAH__HEALTH_STATUS__TEMP1__CONVERTED"]) }.to raise_error(RuntimeError, "Packet 'BLAH HEALTH_STATUS' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @api.get_tlm_values(["INST__BLAH__TEMP1__CONVERTED"]) }.to raise_error(RuntimeError, "Item 'INST BLAH TEMP1' does not exist")
+        expect { @api.get_tlm_values(["INST__BLAH__TEMP1__CONVERTED"]) }.to raise_error(RuntimeError, "Packet 'INST BLAH' does not exist")
       end
 
       it "complains about non-existant items" do
+        expect { @api.get_tlm_values(["INST__HEALTH_STATUS__BLAH__CONVERTED"]) }.to raise_error(RuntimeError, "Item 'INST HEALTH_STATUS BLAH' does not exist")
         expect { @api.get_tlm_values(["INST__LATEST__BLAH__CONVERTED"]) }.to raise_error(RuntimeError, "Item 'INST LATEST BLAH' does not exist")
       end
 
       it "complains about non-existant value_types" do
-        expect { @api.get_tlm_values(["INST__HEALTH_STATUS__TEMP1__MINE"]) }.to raise_error(RuntimeError, "Unknown value type MINE")
+        expect { @api.get_tlm_values(["INST__HEALTH_STATUS__TEMP1__MINE"]) }.to raise_error(RuntimeError, /Unknown value type MINE/)
       end
 
       it "complains about bad arguments" do
@@ -575,21 +569,24 @@ module Cosmos
       it "reads all the specified items" do
         items = []
         items << 'INST__HEALTH_STATUS__TEMP1__CONVERTED'
-        items << 'INST__HEALTH_STATUS__TEMP2__CONVERTED'
+        items << 'INST__LATEST__TEMP2__CONVERTED'
         items << 'INST__HEALTH_STATUS__TEMP3__CONVERTED'
-        items << 'INST__HEALTH_STATUS__TEMP4__CONVERTED'
+        items << 'INST__LATEST__TEMP4__CONVERTED'
+        items << 'INST__HEALTH_STATUS__DURATION__CONVERTED'
         vals = @api.get_tlm_values(items)
         expect(vals[0][0]).to eql(-100.0)
         expect(vals[1][0]).to eql(-100.0)
         expect(vals[2][0]).to eql(-100.0)
         expect(vals[3][0]).to eql(-100.0)
+        expect(vals[4][0]).to eql(0.0)
         expect(vals[0][1]).to eql :RED_LOW
         expect(vals[1][1]).to eql :RED_LOW
         expect(vals[2][1]).to eql :RED_LOW
         expect(vals[3][1]).to eql :RED_LOW
+        expect(vals[4][1]).to be_nil
       end
 
-      it "reads all the specified items with one conversion" do
+      it "reads all the specified raw items" do
         items = []
         items << 'INST__HEALTH_STATUS__TEMP1__RAW'
         items << 'INST__HEALTH_STATUS__TEMP2__RAW'

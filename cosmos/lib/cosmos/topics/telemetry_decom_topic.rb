@@ -54,6 +54,8 @@ module Cosmos
       # for the streaming_api to switch between a closed log file and the active Redis stream.
       # TODO: How do we handle various data rates?
       Store.write_topic("#{scope}__DECOM__{#{packet.target_name}}__#{packet.packet_name}", msg_hash, id, 4000)
+      # Also update the current value table with the latest decommutated data
+      CvtModel.set(json_hash, target_name: packet.target_name, packet_name: packet.packet_name, scope: scope)
     end
   end
 end

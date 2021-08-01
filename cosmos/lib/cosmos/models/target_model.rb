@@ -248,8 +248,6 @@ module Cosmos
 
       model = MicroserviceModel.get_model(name: "#{@scope}__DECOM__#{@name}", scope: @scope)
       model.destroy if model
-      model = MicroserviceModel.get_model(name: "#{@scope}__CVT__#{@name}", scope: @scope)
-      model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__COMMANDLOG__#{@name}", scope: @scope)
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__DECOMCMDLOG__#{@name}", scope: @scope)
@@ -406,20 +404,6 @@ module Cosmos
         work_dir: '/cosmos/lib/cosmos/microservices',
         topics: packet_topic_list,
         target_names: [@name],
-        plugin: plugin,
-        scope: @scope)
-      microservice.create
-      microservice.deploy(gem_path, variables)
-      Logger.info "Configured microservice #{microservice_name}"
-
-      # Current Value Table Microservice
-      microservice_name = "#{@scope}__CVT__#{@name}"
-      microservice = MicroserviceModel.new(
-        name: microservice_name,
-        folder_name: @folder_name,
-        cmd: ["ruby", "cvt_microservice.rb", microservice_name],
-        work_dir: '/cosmos/lib/cosmos/microservices',
-        topics: decom_topic_list,
         plugin: plugin,
         scope: @scope)
       microservice.create
