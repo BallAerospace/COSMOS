@@ -262,7 +262,7 @@ export default {
   methods: {
     addItem(item, startGraphing = true) {
       if (this.selectedGraphId === null) return
-      this.$refs['graph' + this.selectedGraphId][0].addItem(item)
+      this.$refs['graph' + this.selectedGraphId][0].addItems([item])
       if (startGraphing === true) {
         this.state = 'start'
       }
