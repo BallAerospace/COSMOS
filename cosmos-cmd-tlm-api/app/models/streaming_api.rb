@@ -38,6 +38,13 @@ class FileCacheFile
   attr_accessor :priority
 
   def initialize(s3_path, size, priority)
+    @rubys3_client = Aws::S3::Client.new
+    begin
+      @rubys3_client.head_bucket(bucket: 'logs')
+    rescue Aws::S3::Errors::NotFound
+      @rubys3_client.create_bucket(bucket: 'logs')
+    end
+
     @s3_path = s3_path
     @local_path = nil
     @reservation_count = 0
@@ -48,11 +55,10 @@ class FileCacheFile
   end
 
   def retrieve
-    rubys3_client = Aws::S3::Client.new
     local_path = "#{FileCache.instance.cache_dir}/#{File.basename(@s3_path)}"
     Cosmos::Logger.info("Retrieving #{@s3_path} from logs bucket")
     # Cosmos::Logger.debug "Retrieving #{@s3_path} from logs bucket"
-    rubys3_client.get_object(bucket: "logs", key: @s3_path, response_target: local_path)
+    @rubys3_client.get_object(bucket: "logs", key: @s3_path, response_target: local_path)
     if File.exist?(local_path)
       @size = File.size(local_path)
       @local_path = local_path
@@ -163,6 +169,13 @@ class FileCache
   def initialize(name = 'default', max_disk_usage = MAX_DISK_USAGE)
     @max_disk_usage = max_disk_usage
 
+    @rubys3_client = Aws::S3::Client.new
+    begin
+      @rubys3_client.head_bucket(bucket: 'logs')
+    rescue Aws::S3::Errors::NotFound
+      @rubys3_client.create_bucket(bucket: 'logs')
+    end
+
     # Create local file cache location
     @cache_dir = File.join(Dir.tmpdir, 'cosmos', 'file_cache', name)
     FileUtils.mkdir_p(@cache_dir)
@@ -188,8 +201,6 @@ class FileCache
   end
 
   def reserve_file(cmd_or_tlm, target_name, packet_name, start_time_nsec, end_time_nsec, type = :DECOM, timeout = 60, scope:)
-    rubys3_client = Aws::S3::Client.new
-
     # Get List of Files from S3
     total_resp = []
     token = nil
@@ -203,7 +214,7 @@ class FileCache
     end
     dates.each do |date|
       while true
-        resp = rubys3_client.list_objects_v2({
+        resp = @rubys3_client.list_objects_v2({
           bucket: "logs",
           max_keys: 1000,
           prefix: "#{scope}/#{type.to_s.downcase}logs/#{cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}/#{date}",
