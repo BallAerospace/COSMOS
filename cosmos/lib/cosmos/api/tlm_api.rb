@@ -375,7 +375,7 @@ module Cosmos
         raise "ERROR: Invalid number of arguments (#{args.length}) passed to #{function_name}()"
       end
       if packet_name == 'LATEST'
-        latest = 0
+        latest = -1
         TargetModel.packets(target_name, scope: scope).each do |packet|
           item = packet['items'].find { |item| item['name'] == item_name }
           if item
@@ -386,6 +386,7 @@ module Cosmos
             end
           end
         end
+        raise "Item '#{target_name} LATEST #{item_name}' does not exist" if latest == -1
       else
         # Determine if this item exists, it will raise appropriate errors if not
         TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)

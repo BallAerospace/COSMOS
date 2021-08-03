@@ -24,10 +24,10 @@ module Cosmos
   describe CvtModel do
     def update_temp1
       json_hash = {}
-      json_hash["TEMP1"]    = JSON.generate(1.as_json) # Values must be JSON encoded
-      json_hash["TEMP1__C"] = JSON.generate(2.as_json)
-      json_hash["TEMP1__F"] = JSON.generate("2.00".as_json)
-      json_hash["TEMP1__U"] = JSON.generate("2.00 C".as_json)
+      json_hash["TEMP1"]    = 1
+      json_hash["TEMP1__C"] = 2
+      json_hash["TEMP1__F"] = "2.00"
+      json_hash["TEMP1__U"] = "2.00 C"
       CvtModel.set(json_hash, target_name: "INST", packet_name: "HEALTH_STATUS", scope: "DEFAULT")
     end
 
@@ -90,14 +90,14 @@ module Cosmos
       it "falls down to the next type value if the requested type doesn't exist" do
         json_hash = {}
         # TEMP2 is RAW, CONVERTED, FORMATTED only
-        json_hash["TEMP2"]    = JSON.generate(3.as_json) # Values must be JSON encoded
-        json_hash["TEMP2__C"] = JSON.generate(4.as_json)
-        json_hash["TEMP2__F"] = JSON.generate("4.00".as_json)
+        json_hash["TEMP2"]    = 3 # Values must be JSON encoded
+        json_hash["TEMP2__C"] = 4
+        json_hash["TEMP2__F"] = "4.00"
         # TEMP3 is RAW, CONVERTED only
-        json_hash["TEMP3"]    = JSON.generate(5.as_json) # Values must be JSON encoded
-        json_hash["TEMP3__C"] = JSON.generate(6.as_json)
+        json_hash["TEMP3"]    = 5 # Values must be JSON encoded
+        json_hash["TEMP3__C"] = 6
         # TEMP3 is RAW only
-        json_hash["TEMP4"]    = JSON.generate(7.as_json) # Values must be JSON encoded
+        json_hash["TEMP4"]    = 7 # Values must be JSON encoded
         CvtModel.set(json_hash, target_name: "INST", packet_name: "HEALTH_STATUS", scope: "DEFAULT")
 
         # Verify TEMP2

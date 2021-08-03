@@ -24,7 +24,6 @@ require 'cosmos/script/extract'
 require 'cosmos/utilities/authorization'
 require 'cosmos/microservices/interface_microservice'
 require 'cosmos/microservices/decom_microservice'
-require 'cosmos/microservices/cvt_microservice'
 
 module Cosmos
   describe Api do

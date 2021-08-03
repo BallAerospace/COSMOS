@@ -98,6 +98,7 @@ def get_all_redis_keys
 end
 
 Cosmos.disable_warnings do
+  require 'redis'
   require 'mock_redis'
   class MockRedis
     module StreamMethods
