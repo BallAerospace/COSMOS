@@ -46,13 +46,13 @@ disconnect = script['disconnect']
 startup_time = Time.now - start_time
 path = File.join(Script::DEFAULT_BUCKET_NAME, scope, 'targets', name)
 
-def run_script_log(id, message, color = 'BLACK')
+def run_script_log(id, message, color = 'BLACK', message_log = true)
   line_to_write = Time.now.sys.formatted + " (SCRIPTRUNNER): " + message
-  RunningScript.message_log.write(line_to_write + "\n", true)
+  RunningScript.message_log.write(line_to_write + "\n", true) if message_log
   Cosmos::Store.publish(["script-api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: color }))
 end
 
-run_script_log(id, "Script #{path} spawned in #{startup_time} seconds")
+run_script_log(id, "Script #{path} spawned in #{startup_time} seconds", 'BLACK', false)
 
 begin
   running_script = RunningScript.new(id, scope, name, disconnect)
@@ -138,6 +138,7 @@ ensure
     end
     Cosmos::Store.publish(["script-api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :complete }))
   ensure
+    STDOUT.puts "Ensure stop_message_log"
     running_script.stop_message_log if running_script
   end
 end

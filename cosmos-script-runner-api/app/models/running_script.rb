@@ -173,7 +173,14 @@ class RunningScript
   @@cancel_limits = false
 
   def self.message_log(id = @@id)
-    @@message_log ||= Cosmos::MessageLog.new("sr_#{id}", File.join(RAILS_ROOT, 'log'))
+    unless @@message_log
+      if @@instance
+        @@message_log = Cosmos::MessageLog.new("sr_#{id}", File.join(RAILS_ROOT, 'log'), scope: @@instance.scope)
+      else
+        @@message_log = Cosmos::MessageLog.new("sr_#{id}", File.join(RAILS_ROOT, 'log'), scope: $cosmos_scope)
+      end
+    end
+    return @@message_log
   end
 
   def message_log
@@ -276,7 +283,6 @@ class RunningScript
       @details = { id: @id, name: @filename, scope: @scope }
     end
 
-
     # Update details in redis
     @details[:hostname] = Socket.gethostname
     @details[:state] = @state
@@ -376,7 +382,8 @@ class RunningScript
 
   def stop
     if @@run_thread
-      Cosmos.kill_thread(nil, @@run_thread)
+      @stop = true
+      Cosmos.kill_thread(self, @@run_thread)
       @@run_thread = nil
     end
   end
@@ -390,6 +397,10 @@ class RunningScript
   end
 
   # Private methods
+
+  def graceful_kill
+    @stop = true
+  end
 
   def initialize_variables
     @@error = nil
@@ -427,6 +438,7 @@ class RunningScript
 
   def filename=(filename)
     # Stop the message log so a new one will be created with the new filename
+    STDOUT.puts "filename=#{filename}"
     stop_message_log()
     @filename = filename
 
