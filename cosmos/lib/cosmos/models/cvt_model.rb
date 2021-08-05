@@ -25,9 +25,9 @@ module Cosmos
     # Stores telemetry item overrides which are returned on every request to get_item
     @overrides = {}
 
-    # Set multiple items in the current value table using the hash
+    # Set the current value table for a target, packet
     def self.set(hash, target_name:, packet_name:, scope:)
-      Store.mapped_hmset("#{scope}__tlm__{#{target_name}__#{packet_name}}", hash)
+      Store.hset("#{scope}__tlm__#{target_name}", packet_name, JSON.generate(hash.as_json))
     end
 
     # Set an item in the current value table
@@ -44,7 +44,9 @@ module Cosmos
       else
         raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
       end
-      Store.hset("#{scope}__tlm__{#{target_name}__#{packet_name}}", field, JSON.generate(value.as_json))
+      hash = JSON.parse(Store.hget("#{scope}__tlm__#{target_name}", packet_name))
+      hash[field] = value
+      Store.hset("#{scope}__tlm__#{target_name}", packet_name, JSON.generate(hash.as_json))
     end
 
     # Get an item from the current value table
@@ -66,12 +68,48 @@ module Cosmos
       else
         raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
       end
-
-      results = Store.hmget("#{scope}__tlm__{#{target_name}__#{packet_name}}", *types)
-      results.each do |result|
-        return JSON.parse(result) if result
+      hash = JSON.parse(Store.hget("#{scope}__tlm__#{target_name}", packet_name))
+      results = hash.values_at(*types).each do |result|
+        return result if result
       end
       return nil
+    end
+
+    # Return all item values and limit state from the CVT
+    #
+    # @param items [Array<String>] Items to return. Must be formatted as TGT__PKT__ITEM__TYPE
+    # @return [Array] Array of values
+    def self.get_tlm_values(items, scope: $cosmos_scope)
+      results = []
+      lookups = {}
+      # First generate a lookup hash of all the items represented so we can query the CVT
+      items.each { |item| _parse_item(lookups, item) }
+
+      lookups.each do |target_name, packet_hash|
+        packet_hash.each do |packet_name, items|
+          packet = Store.hget("#{scope}__tlm__#{target_name}", packet_name)
+          raise "Packet '#{target_name} #{packet_name}' does not exist" unless packet
+          hash = JSON.parse(packet)
+          items.each do |item_keys|
+            item_result = []
+            item_keys.each do |key|
+              item_result[0] = hash[key]
+              break if item_result[0] # We want the first value
+            end
+            # If we were able to find a value, try to get the limits state
+            if item_result[0]
+              # The last key is simply the name (RAW) so we can append __L
+              # If there is no limits then it returns nil which is acceptable
+              item_result[1] = hash["#{item_keys[-1]}__L"]
+              item_result[1] = item_result[1].intern if item_result[1] # Convert to symbol
+            else
+              raise "Item '#{target_name} #{packet_name} #{item_keys[-1]}' does not exist"
+            end
+            results << item_result
+          end
+        end
+      end
+      results
     end
 
     # Override a current value table item such that it always returns the same value
@@ -97,6 +135,31 @@ module Cosmos
           raise "Unknown type '#{type}' for #{target_name} #{packet_name} #{item_name}"
         end
       end
+    end
+
+    # PRIVATE METHODS
+
+    def self._parse_item(lookups, item)
+      target_name, packet_name, item_name, value_type = item.split('__')
+      raise ArgumentError, "items must be formatted as TGT__PKT__ITEM__TYPE" if target_name.nil? || packet_name.nil? || item_name.nil? || value_type.nil?
+
+      # We build lookup keys by including all the less formatted types to gracefully degrade lookups
+      # This allows the user to specify WITH_UNITS and if there is no conversions it will simply return the RAW value
+      case value_type.upcase
+      when 'RAW'
+        keys = [item_name]
+      when 'CONVERTED'
+        keys = ["#{item_name}__C", item_name]
+      when 'FORMATTED'
+        keys = ["#{item_name}__F", "#{item_name}__C", item_name]
+      when 'WITH_UNITS'
+        keys = ["#{item_name}__U", "#{item_name}__F", "#{item_name}__C", item_name]
+      else
+        raise "Unknown value type #{value_type}"
+      end
+      lookups[target_name] ||= {}
+      lookups[target_name][packet_name] ||= []
+      lookups[target_name][packet_name] << keys
     end
   end
 end

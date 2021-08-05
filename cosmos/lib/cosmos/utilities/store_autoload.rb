@@ -85,52 +85,8 @@ module Cosmos
       end
     end
 
-    unless $enterprise_cosmos
-      def get_tlm_values(items, scope: $cosmos_scope)
-        values = []
-        return values if items.empty?
-
-        @redis_pool.with do |redis|
-          promises = []
-          redis.pipelined do
-            items.each_with_index do |item, index|
-              target_name, packet_name, item_name, value_type = item.split('__')
-              raise ArgumentError, "items must be formatted as TGT__PKT__ITEM__TYPE" if target_name.nil? || packet_name.nil? || item_name.nil? || value_type.nil?
-              promises[index] = tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type.intern, scope: scope)
-            end
-          end
-          promises.each_with_index do |promise, index|
-            value_type = items[index].split('__')[-1]
-            result = promise.value
-            if result[0]
-              if value_type == :FORMATTED or value_type == :WITH_UNITS
-                values << [JSON.parse(result[0]).to_s]
-              else
-                values << [JSON.parse(result[0])]
-              end
-            elsif result[1]
-              if value_type == :FORMATTED or value_type == :WITH_UNITS
-                values << [JSON.parse(result[1]).to_s]
-              else
-                values << [JSON.parse(result[1])]
-              end
-            elsif result[2]
-              values << [JSON.parse(result[2]).to_s]
-            elsif result[3]
-              values << [JSON.parse(result[3]).to_s]
-            else
-              raise "Item '#{items[index].split('__')[0..2].join(' ')}' does not exist"
-            end
-            if result[-1]
-              values[-1] << JSON.parse(result[-1]).intern
-            else
-              values[-1] << nil
-            end
-          end
-        end
-
-        return values
-      end
+    def get_tlm_values(items, scope: $cosmos_scope)
+      CvtModel.get_tlm_values(items, scope: scope)
     end
 
     def get_cmd_item(target_name, packet_name, param_name, type: :WITH_UNITS, scope: $cosmos_scope)
@@ -158,22 +114,6 @@ module Cosmos
           return hash[param_name]
         end
       end
-    end
-
-    def tlm_variable_with_limits_state_gather(redis, target_name, packet_name, item_name, value_type, scope: $cosmos_scope)
-      case value_type
-      when :RAW
-        secondary_keys = [item_name, "#{item_name}__L"]
-      when :CONVERTED
-        secondary_keys = ["#{item_name}__C", item_name, "#{item_name}__L"]
-      when :FORMATTED
-        secondary_keys = ["#{item_name}__F", "#{item_name}__C", item_name, "#{item_name}__L"]
-      when :WITH_UNITS
-        secondary_keys = ["#{item_name}__U", "#{item_name}__F", "#{item_name}__C", item_name, "#{item_name}__L"]
-      else
-        raise "Unknown value type #{value_type}"
-      end
-      redis.hmget("#{scope}__tlm__{#{target_name}__#{packet_name}}", *secondary_keys)
     end
 
     ###########################################################################

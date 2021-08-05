@@ -91,7 +91,7 @@
             <v-col>
               {{ item.targetName }} {{ item.packetName }} {{ item.itemName }}
             </v-col>
-            <v-btn color="error" @click="deleteItem(item)">Remove</v-btn>
+            <v-btn color="error" @click="removeItems([item])">Remove</v-btn>
           </v-row></v-container
         >
         <v-btn color="primary" @click="editGraphClose()">Ok</v-btn>
@@ -154,7 +154,7 @@
             Edit {{ selectedItem.itemName }}
           </v-list-item-title>
         </v-list-item>
-        <v-list-item @click="deleteItem(selectedItem)">
+        <v-list-item @click="removeItems([selectedItem])">
           <v-list-item-title style="cursor: pointer">
             Delete {{ selectedItem.itemName }}
           </v-list-item-title>
@@ -257,6 +257,7 @@ export default {
       zoomOverview: false,
       cable: new Cable(),
       subscription: null,
+      needToUpdate: false,
       colors: [
         'blue',
         'red',
@@ -290,16 +291,7 @@ export default {
     this.title = 'Graph ' + this.id
     for (const [index, item] of this.items.entries()) {
       this.data.push([]) // initialize the empty data arrays
-      let key =
-        'TLM__' +
-        item.targetName +
-        '__' +
-        item.packetName +
-        '__' +
-        item.itemName +
-        '__' +
-        item.valueType
-      this.indexes[key] = index + 1
+      this.indexes[this.subscriptionKey(item)] = index + 1
     }
   },
   mounted() {
@@ -553,38 +545,28 @@ export default {
       }
       this.setGraphRange()
     },
+    graphStartDateTime: function (val) {
+      this.needToUpdate = true
+      if (val && typeof val === 'string') {
+        this.graphStartDateTime =
+          new Date(this.graphStartDateTime).getTime() * 1_000_000
+      }
+    },
+    graphEndDateTime: function (val) {
+      this.needToUpdate = true
+      if (val && typeof val === 'string') {
+        this.graphEndDateTime =
+          new Date(this.graphEndDateTime).getTime() * 1_000_000
+      }
+    },
   },
   methods: {
     editGraphClose() {
       this.editGraph = false
-
-      if (this.graphStartDateTime !== null) {
-        // Convert to COSMOS backend nanoseconds if necessary
-        if (typeof this.graphStartDateTime === 'string') {
-          this.graphStartDateTime =
-            new Date(this.graphStartDateTime).getTime() * 1_000_000
-        }
-        // If they're specifying an end time we're not streaming realtime
-        // thus stop any ongoing subscriptions and clear the data
-        if (this.graphEndDateTime !== null) {
-          if (this.subscription) {
-            this.subscription.unsubscribe()
-            this.subscription = null
-            this.data = [[]]
-            for (let i = 1; i <= this.items.length; i++) {
-              this.data.splice(i, 0, [])
-            }
-          }
-          // Convert to COSMOS backend nanoseconds if necessary
-          if (typeof this.graphEndDateTime === 'string') {
-            this.graphEndDateTime =
-              new Date(this.graphEndDateTime).getTime() * 1_000_000
-          }
-          this.subscribe(this.graphEndDateTime)
-        } else {
-          // No end date given so subscribe using the current start as the end
-          this.subscribe(this.data[0][0] * 1_000_000_000)
-        }
+      if (this.needToUpdate) {
+        this.removeItemsFromSubscription()
+        this.addItemsToSubscription()
+        this.needToUpdate = false
       }
     },
     handleResize() {
@@ -654,7 +636,7 @@ export default {
         .createSubscription('StreamingChannel', localStorage.scope, {
           received: (data) => this.received(data),
           connected: () => {
-            this.onConnected(endTime)
+            this.addItemsToSubscription(this.items, endTime)
           },
           // TODO: How should we handle server side disconnect
           // disconnected: () => console.log('disconnected'),
@@ -665,31 +647,6 @@ export default {
             this.subscription = subscription
           }
         })
-    },
-    onConnected(endTime) {
-      var items = []
-      this.items.forEach((item) => {
-        items.push(
-          'TLM__' +
-            item.targetName +
-            '__' +
-            item.packetName +
-            '__' +
-            item.itemName +
-            '__' +
-            item.valueType
-        )
-      })
-      CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
-        this.subscription.perform('add', {
-          scope: localStorage.scope,
-          mode: 'DECOM',
-          token: localStorage.token,
-          items: items,
-          start_time: this.graphStartDateTime,
-          end_time: endTime,
-        })
-      })
     },
     // throttle(cb, limit) {
     //   var wait = false
@@ -788,84 +745,83 @@ export default {
       }
     },
     changeType(event) {
-      this.deleteItem(this.selectedItem)
-      this.addItem(this.selectedItem, event)
+      this.removeItems([this.selectedItem])
+      this.addItems([this.selectedItem], event)
     },
-    addItem(item, type = 'CONVERTED') {
-      item.valueType = type // set the default type
-      this.items.push(item)
-      if (this.data === null) {
-        this.data = [[]]
+    addItems(items, type = 'CONVERTED') {
+      for (const item of items) {
+        item.valueType ||= type // set the default type
+        this.items.push(item)
+        if (this.data === null) {
+          this.data = [[]]
+        }
+        let index = this.data.length
+        let color = this.colors.shift()
+        this.graph.addSeries(
+          {
+            spanGaps: true,
+            item: item,
+            label: item.itemName,
+            stroke: color,
+            value: (self, rawValue) =>
+              rawValue == null ? '--' : rawValue.toFixed(2),
+          },
+          index
+        )
+        this.overview.addSeries(
+          {
+            spanGaps: true,
+            stroke: color,
+          },
+          index
+        )
+        let newData = Array(this.data[0].length)
+        this.data.splice(index, 0, newData)
+
+        this.indexes[this.subscriptionKey(item)] = index
       }
-      let index = this.data.length
-      let color = this.colors.shift()
-      this.graph.addSeries(
-        {
-          spanGaps: true,
-          item: item,
-          label: item.itemName,
-          stroke: color,
-          value: (self, rawValue) =>
-            rawValue == null ? '--' : rawValue.toFixed(2),
-        },
-        index
-      )
-      this.overview.addSeries(
-        {
-          spanGaps: true,
-          stroke: color,
-        },
-        index
-      )
-      let newData = Array(this.data[0].length)
-      this.data.splice(index, 0, newData)
 
-      let key =
-        'TLM__' +
-        item.targetName +
-        '__' +
-        item.packetName +
-        '__' +
-        item.itemName +
-        '__' +
-        item.valueType
-      this.indexes[key] = index
-
+      this.addItemsToSubscription(items)
+    },
+    addItemsToSubscription(
+      items = this.items,
+      endTime = this.graphEndDateTime
+    ) {
       if (this.subscription) {
         CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
           this.subscription.perform('add', {
             scope: localStorage.scope,
+            mode: 'DECOM',
             token: localStorage.token,
-            items: [key],
+            items: items.map(this.subscriptionKey),
             start_time: this.graphStartDateTime,
-            end_time: this.graphEndDateTime, // normally null which means continue in real-time
+            end_time: endTime,
           })
         })
       }
     },
-    deleteItem(item) {
-      let key =
-        'TLM__' +
-        item.targetName +
-        '__' +
-        item.packetName +
-        '__' +
-        item.itemName +
-        '__' +
-        item.valueType
-      this.subscription.perform('remove', {
-        scope: localStorage.scope,
-        items: [key],
-      })
-      const index = this.reorderIndexes(key)
-      // Put back the color so it's available for new series
-      this.colors.unshift(this.graph.series[index].stroke)
-      this.items.splice(index - 1, 1)
-      this.data.splice(index, 1)
-      this.graph.delSeries(index)
-      this.overview.delSeries(index)
-      this.graph.setData(this.data)
-      this.overview.setData(this.data)
+    removeItems(items) {
+      this.removeItemsFromSubscription(items)
+
+      for (const key of items.map(this.subscriptionKey)) {
+        const index = this.reorderIndexes(key)
+        // Put back the color so it's available for new series
+        this.colors.unshift(this.graph.series[index].stroke)
+        this.items.splice(index - 1, 1)
+        this.data.splice(index, 1)
+        this.graph.delSeries(index)
+        this.overview.delSeries(index)
+        this.graph.setData(this.data)
+        this.overview.setData(this.data)
+      }
+    },
+    removeItemsFromSubscription(items = this.items) {
+      if (this.subscription) {
+        this.subscription.perform('remove', {
+          scope: localStorage.scope,
+          items: items.map(this.subscriptionKey),
+        })
+      }
     },
     reorderIndexes(key) {
       let index = this.indexes[key]
@@ -933,6 +889,9 @@ export default {
           }
         }
       }
+    },
+    subscriptionKey(item) {
+      return `TLM__${item.targetName}__${item.packetName}__${item.itemName}__${item.valueType}`
     },
   },
 }

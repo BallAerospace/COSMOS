@@ -36,20 +36,11 @@
         </template>
         <span>Delete Timelines</span>
       </v-tooltip>
-      <v-tooltip top>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            icon
-            data-test="createTimeline"
-            @click="createTimeline()"
-            v-bind="attrs"
-            v-on="on"
-          >
-            <v-icon>mdi-calendar-plus</v-icon>
-          </v-btn>
-        </template>
-        <span>Create Timelines</span>
-      </v-tooltip>
+      <timeline-create-dialog
+        v-on="listeners"
+        v-model="showCreateDialog"
+        :timelines="timelines"
+      />
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -136,7 +127,7 @@
     <!-- menus -->
     <timeline-color-dialog
       v-on="listeners"
-      v-model="showColorMenu"
+      v-model="showColorDialog"
       :timeline="colorMenuTimeline"
       :timelineColor="colorMenuTimeline.color"
     />
@@ -146,10 +137,12 @@
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
 import TimelineColorDialog from '@/tools/Timeline/TimelineColorDialog'
+import TimelineCreateDialog from '@/tools/Timeline/TimelineCreateDialog'
 
 export default {
   components: {
     TimelineColorDialog,
+    TimelineCreateDialog,
   },
   props: {
     timelines: {
@@ -165,7 +158,8 @@ export default {
     return {
       selectedTimelinesOn: false,
       colorMenuTimeline: {},
-      showColorMenu: false,
+      showColorDialog: false,
+      showCreateDialog: false,
     }
   },
   computed: {
@@ -212,37 +206,7 @@ export default {
     },
     openTimelineColorDialog: function (timeline) {
       this.colorMenuTimeline = timeline
-      this.showColorMenu = true
-    },
-    createTimeline: function () {
-      this.$dialog
-        .prompt({
-          okText: 'Create',
-          cancelText: 'Cancel',
-          title: 'Create New Timeline',
-          body: 'Add a timeline to schedule activities on.',
-        })
-        .then((dialog) => {
-          return Api.post('/cosmos-api/timeline', {
-            name: dialog.data,
-          })
-        })
-        .then((response) => {
-          const alertObject = {
-            text: `Created new timeline: ${response.data.name}`,
-            type: 'success',
-          }
-          this.$emit('alert', alertObject)
-        })
-        .catch((error) => {
-          if (error) {
-            const alertObject = {
-              text: `Failed to create timeline. ${error}`,
-              type: 'error',
-            }
-            this.$emit('alert', alertObject)
-          }
-        })
+      this.showColorDialog = true
     },
     deleteTimeline: function (timeline) {
       this.$dialog

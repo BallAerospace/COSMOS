@@ -83,13 +83,23 @@ if RUBY_VERSION >= "2.7"
       @lex_io = StringIO.new('')
     end
 
+    if RUBY_VERSION >= "3.0"
+      def ripper_lex_without_warning(code)
+        RubyLex.ripper_lex_without_warning(code)
+      end
+    else
+      def ripper_lex_without_warning(code)
+        @lex.ripper_lex_without_warning(code)
+      end
+    end
+
     # @param text [String]
     # @return [Boolean] Whether the text contains the 'begin' keyword
     def contains_begin?(text)
       @lex.reinitialize
       @lex_io.string = text
       @lex.set_input(@lex_io)
-      tokens = @lex.ripper_lex_without_warning(text)
+      tokens = ripper_lex_without_warning(text)
       tokens.each do |token|
         if token[1] == :on_kw and token[2] == 'begin'
           return true
@@ -104,7 +114,7 @@ if RUBY_VERSION >= "2.7"
       @lex.reinitialize
       @lex_io.string = text
       @lex.set_input(@lex_io)
-      tokens = @lex.ripper_lex_without_warning(text)
+      tokens = ripper_lex_without_warning(text)
       tokens.each do |token|
         if token[1] == :on_kw
           if KEY_KEYWORDS.include?(token[2])
@@ -124,7 +134,7 @@ if RUBY_VERSION >= "2.7"
       @lex.reinitialize
       @lex_io.string = text
       @lex.set_input(@lex_io)
-      tokens = @lex.ripper_lex_without_warning(text)
+      tokens = ripper_lex_without_warning(text)
       tokens.each do |token|
         if token[1] == :on_kw
           if token[2] == 'begin' || token[2] == 'do'
@@ -148,7 +158,7 @@ if RUBY_VERSION >= "2.7"
       comments_removed = ""
       token_count = 0
       progress = 0.0
-      tokens = @lex.ripper_lex_without_warning(text)
+      tokens = ripper_lex_without_warning(text)
       tokens.each do |token|
         token_count += 1
         if token[1] != :on_comment
