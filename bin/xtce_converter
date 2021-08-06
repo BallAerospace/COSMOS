@@ -36,7 +36,7 @@ option_parser = OptionParser.new do |option_parser|
 
   # Create the system option
   option_parser.on("--system VALUE", "Use an alternative system.txt file") do |arg|
-    Cosmos::System.instance(File.join(USERPATH, 'config', 'system', arg))
+    Cosmos::System.instance(File.join(Cosmos::USERPATH, 'config', 'system', arg))
   end
 
   # Handle --import mode
