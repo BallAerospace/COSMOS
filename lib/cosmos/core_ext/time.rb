@@ -88,9 +88,9 @@ class Time
   # use_utc flag.
   def sys
     if @@use_utc
-      self.utc
+      self.dup.utc
     else
-      self.localtime
+      self.dup.localtime
     end
   end
 
