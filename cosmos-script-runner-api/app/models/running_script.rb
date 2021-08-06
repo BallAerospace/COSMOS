@@ -26,6 +26,7 @@ require 'cosmos/io/stderr'
 require 'childprocess'
 require 'cosmos/script/suite_runner'
 require 'cosmos/utilities/store'
+require 'cosmos/utilities/s3'
 
 RAILS_ROOT = File.expand_path(File.join(__dir__, '..', '..'))
 
@@ -175,9 +176,9 @@ class RunningScript
   def self.message_log(id = @@id)
     unless @@message_log
       if @@instance
-        @@message_log = Cosmos::MessageLog.new("sr_#{id}", File.join(RAILS_ROOT, 'log'), scope: @@instance.scope)
+        @@message_log = Cosmos::MessageLog.new("sr", File.join(RAILS_ROOT, 'log'), scope: @@instance.scope)
       else
-        @@message_log = Cosmos::MessageLog.new("sr_#{id}", File.join(RAILS_ROOT, 'log'), scope: $cosmos_scope)
+        @@message_log = Cosmos::MessageLog.new("sr", File.join(RAILS_ROOT, 'log'), scope: $cosmos_scope)
       end
     end
     return @@message_log
@@ -280,7 +281,7 @@ class RunningScript
       @details = JSON.parse(details)
     else
       # Create as much details as we know
-      @details = { id: @id, name: @filename, scope: @scope }
+      @details = { id: @id, name: @filename, scope: @scope, start_time: Time.now.to_s, update_time: Time.now.to_s }
     end
 
     # Update details in redis
@@ -1077,6 +1078,15 @@ class RunningScript
     if Cosmos::SuiteRunner.suite_results
       Cosmos::SuiteRunner.suite_results.complete
       Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :report, report: Cosmos::SuiteRunner.suite_results.report }))
+      log_dir = File.join(RAILS_ROOT, 'log')
+      filename = File.join(log_dir, File.build_timestamped_filename(['sr', 'report']))
+      File.open(filename, 'wb') do |file|
+        file.write(Cosmos::SuiteRunner.suite_results.report)
+      end
+      s3_key = File.join("#{@scope}/toollogs/sr/", File.basename(filename)[0..9].gsub("_", ""), File.basename(filename))
+      STDOUT.puts "move file to s3 #{filename}: #{s3_key}"
+      thread = Cosmos::S3Utilities.move_log_file_to_s3(filename, s3_key)
+      thread.join
     end
     Cosmos::Store.publish(["script-api", "cmd-running-script-channel:#{@id}"].compact.join(":"), JSON.generate("shutdown"))
   end

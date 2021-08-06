@@ -69,9 +69,16 @@ module Cosmos
         @file.close
         Cosmos.set_working_dir do
           File.chmod(0444, @filename)
-          s3_key = File.join(@remote_log_directory, @start_day, @filename)
+          s3_key = File.join(@remote_log_directory, @start_day, File.basename(@filename))
           STDOUT.puts "move file to s3 #{@filename}: #{s3_key}"
-          S3Utilities.move_log_file_to_s3(@filename, s3_key)
+          begin
+            thread = S3Utilities.move_log_file_to_s3(@filename, s3_key)
+            thread.join
+          rescue Exception => err
+            STDOUT.puts "Error moving message_log to S3"
+            STDOUT.puts err.formatted
+          end
+          STDOUT.puts "move file complete"
         end
       end
       @mutex.unlock if take_mutex
@@ -86,7 +93,7 @@ module Cosmos
       stop(false)
       Cosmos.set_working_dir do
         timed_filename = File.build_timestamped_filename([@tool_name, 'messages'])
-        @start_day = timed_filename[0..7] # YYYYMMDD
+        @start_day = timed_filename[0..9].gsub("_", "") # YYYYMMDD
         @filename = File.join(@log_dir, timed_filename)
         @file = File.open(@filename, 'a')
         STDOUT.puts "#{@filename}: #{@file}"
