@@ -57,6 +57,37 @@ module Cosmos
     end
 
     Cosmos.disable_warnings do
+      def load_s3(*args, **kw_args)
+        path = args[0]
+        text = ::Script.body(RunningScript.instance.scope, path)
+        Object.class_eval(text, path, 1)
+        true
+      end
+
+      def require(*args, **kw_args)
+        begin
+          super(*args, **kw_args)
+        rescue LoadError => err
+          begin
+            load_s3(*args, **kw_args)
+          rescue Exception
+            raise err
+          end
+        end
+      end
+
+      def load(*args, **kw_args)
+        begin
+          super(*args, **kw_args)
+        rescue LoadError => err
+          begin
+            load_s3(*args, **kw_args)
+          rescue Exception
+            raise err
+          end
+        end
+      end
+
       def prompt_for_script_abort
         RunningScript.instance.perform_pause
         return false # Not aborted - Retry
