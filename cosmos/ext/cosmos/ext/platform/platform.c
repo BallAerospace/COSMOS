@@ -32,23 +32,43 @@ VALUE cSegFault = Qnil;
 #include <signal.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
+#include <sys/stat.h>
 
 static void catch_sigsegv(int sig_num)
 {
   char *cosmos_log_dir = NULL;
   time_t rawtime;
   struct tm *timeinfo;
-  char filename[256];
+  struct stat stats;
+  char filename[256]; // Don't change this without changing logic below
   FILE *file = NULL;
 
   signal(SIGSEGV, SIG_DFL);
   signal(SIGILL, SIG_DFL);
 
   cosmos_log_dir = getenv("COSMOS_LOGS_DIR");
-  if (cosmos_log_dir == NULL)
+  // If the COSMOS_LOGS_DIR env var isn't set or if it's too big set to "."
+  // NOTE: filename is a buffer 256 in length. This buffer will be written to by
+  // sprintf which appends a null terminator so we have 255 bytes available minus
+  // the length of the fixed filename structure
+  if ((cosmos_log_dir == NULL) || (strlen(cosmos_log_dir) > (255 - strlen("/YYYY_MM_DD_HH_MM_SS_segfault.txt"))))
   {
     cosmos_log_dir = (char *)".";
   }
+  // Validate that we can write to this directory
+  if (stat(cosmos_log_dir, &stats) == 0)
+  {
+    if (!((stats.st_mode & W_OK)&& S_ISDIR(stats.st_mode)))
+    {
+      cosmos_log_dir = (char *)".";
+    }
+  }
+  else
+  {
+    cosmos_log_dir = (char *)".";
+  }
+
   time(&rawtime);
   timeinfo = localtime(&rawtime);
   sprintf(filename, "%s/%04u_%02u_%02u_%02u_%02u_%02u_segfault.txt",
@@ -72,12 +92,14 @@ static void catch_sigsegv(int sig_num)
 }
 #endif
 
+/* Uncomment and rebuild for testing the handler
 static VALUE segfault(VALUE self)
 {
   char *a = 0;
   *a = 50;
   return Qnil;
 }
+*/
 
 /*
  * Initialize methods for Platform specific C code
@@ -91,7 +113,8 @@ void Init_platform(void)
   signal(SIGILL, catch_sigsegv);
 #endif
 
-  mCosmos = rb_define_module("Cosmos");
-  cSegFault = rb_define_class_under(mCosmos, "SegFault", rb_cObject);
-  rb_define_singleton_method(cSegFault, "segfault", segfault, 0);
+  /* Uncomment and rebuild for testing */
+  // mCosmos = rb_define_module("Cosmos");
+  // cSegFault = rb_define_class_under(mCosmos, "SegFault", rb_cObject);
+  // rb_define_singleton_method(cSegFault, "segfault", segfault, 0);
 }

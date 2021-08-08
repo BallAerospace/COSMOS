@@ -39,20 +39,15 @@ static ID id_method_to_f = 0;
  */
 static VALUE polynomial_conversion_call(VALUE self, VALUE value, VALUE myself, VALUE buffer)
 {
-  volatile VALUE coeffs = Qnil;
-  long coeffs_length = 0;
   int index = 0;
-  double double_value = 0.0;
-  double coeff = 0.0;
   double converted = 0.0;
   double raised_to_power = 1.0;
-
-  coeffs = rb_ivar_get(self, id_ivar_coeffs);
-  coeffs_length = RARRAY_LEN(coeffs);
-  double_value = RFLOAT_VALUE(rb_funcall(value, id_method_to_f, 0));
+  volatile VALUE coeffs = rb_ivar_get(self, id_ivar_coeffs);
+  long coeffs_length = RARRAY_LEN(coeffs);
+  double double_value = RFLOAT_VALUE(rb_funcall(value, id_method_to_f, 0));
 
   /* Handle C0 */
-  coeff = RFLOAT_VALUE(rb_ary_entry(coeffs, 0));
+  double coeff = RFLOAT_VALUE(rb_ary_entry(coeffs, 0));
   converted += coeff;
 
   /* Handle Coefficients raised to a power */
