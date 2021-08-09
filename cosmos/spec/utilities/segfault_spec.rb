@@ -20,6 +20,14 @@
 require "spec_helper"
 require "cosmos"
 
+# In order to run this spec you must be in Linux
+# On Windows install WSL2 and type 'bash'
+# cd to the root of cosmos source
+# Uncomment various things (read the source) in ext/cosmos/ext/platform.c
+# 'rake build' from the root
+# 'export COSMOS_DEVEL=1'
+# 'rspec spec/utilities/segfault_spec.rb'
+
 module Cosmos
   describe SegFault do
     # NOTE: You have to uncomment each test individually
