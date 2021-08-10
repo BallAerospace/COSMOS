@@ -37,11 +37,12 @@ VALUE cSegFault = Qnil;
 
 static void catch_sigsegv(int sig_num)
 {
+  const int FILENAME_LEN = 256;
   char *cosmos_log_dir = NULL;
   time_t rawtime;
   struct tm *timeinfo;
   struct stat stats;
-  char filename[256]; // Don't change this without changing logic below
+  char filename[FILENAME_LEN];
   FILE *file = NULL;
 
   signal(SIGSEGV, SIG_DFL);
@@ -49,10 +50,10 @@ static void catch_sigsegv(int sig_num)
 
   cosmos_log_dir = getenv("COSMOS_LOGS_DIR");
   // If the COSMOS_LOGS_DIR env var isn't set or if it's too big set to "."
-  // NOTE: filename is a buffer 256 in length. This buffer will be written to by
-  // sprintf which appends a null terminator so we have 255 bytes available minus
-  // the length of the fixed filename structure
-  if ((cosmos_log_dir == NULL) || (strlen(cosmos_log_dir) > (255 - strlen("/YYYY_MM_DD_HH_MM_SS_segfault.txt"))))
+  // NOTE: The filename buffer will be written to by snprintf which appends
+  // a null terminator so we have 1 less byte available minus the length
+  // of the fixed filename structure
+  if ((cosmos_log_dir == NULL) || (strlen(cosmos_log_dir) > (FILENAME_LEN - 1 - strlen("/YYYY_MM_DD_HH_MM_SS_segfault.txt"))))
   {
     cosmos_log_dir = (char *)".";
   }
@@ -71,14 +72,25 @@ static void catch_sigsegv(int sig_num)
 
   time(&rawtime);
   timeinfo = localtime(&rawtime);
-  sprintf(filename, "%s/%04u_%02u_%02u_%02u_%02u_%02u_segfault.txt",
-          cosmos_log_dir,
-          1900 + timeinfo->tm_year,
-          1 + timeinfo->tm_mon,
-          timeinfo->tm_mday,
-          timeinfo->tm_hour,
-          timeinfo->tm_min,
-          timeinfo->tm_sec);
+  if (timeinfo == NULL)
+  {
+    // If localtime returns NULL we allocate our own and set to 1919 to make it interesting
+    timeinfo = (struct tm*)malloc(sizeof(struct tm));
+    strptime("1919-01-01 00:00:00", "%Y-%m-%d %H:%M:%S", timeinfo);
+  }
+  snprintf(filename, FILENAME_LEN, "%s/%04u_%02u_%02u_%02u_%02u_%02u_segfault.txt",
+           cosmos_log_dir,
+           1900 + timeinfo->tm_year,
+           1 + timeinfo->tm_mon,
+           timeinfo->tm_mday,
+           timeinfo->tm_hour,
+           timeinfo->tm_min,
+           timeinfo->tm_sec);
+
+  // Fortify warns about Path Manipulation here. We explictly allow this to let
+  // segfault files be written to a directory of their choosing.
+  // The input is validated above for length and to ensure it is a writable directory.
+  // If the checks fail the directory is set to the current directory without additional info.
   file = freopen(filename, "a", stderr);
   /* Using file removes a warning */
   if (file)
@@ -92,14 +104,13 @@ static void catch_sigsegv(int sig_num)
 }
 #endif
 
-/* Uncomment and rebuild for testing the handler
-static VALUE segfault(VALUE self)
-{
-  char *a = 0;
-  *a = 50;
-  return Qnil;
-}
-*/
+/* NOTE: Uncomment and rebuild for testing the handler */
+// static VALUE segfault(VALUE self)
+// {
+//   char *a = 0;
+//   *a = 50;
+//   return Qnil;
+// }
 
 /*
  * Initialize methods for Platform specific C code
@@ -113,7 +124,7 @@ void Init_platform(void)
   signal(SIGILL, catch_sigsegv);
 #endif
 
-  /* Uncomment and rebuild for testing */
+  /* NOTE: Uncomment and rebuild for testing the handler */
   // mCosmos = rb_define_module("Cosmos");
   // cSegFault = rb_define_class_under(mCosmos, "SegFault", rb_cObject);
   // rb_define_singleton_method(cSegFault, "segfault", segfault, 0);
