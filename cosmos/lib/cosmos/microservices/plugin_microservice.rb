@@ -22,18 +22,16 @@ require 'cosmos/topics/topic'
 require 'cosmos/utilities/s3'
 
 module Cosmos
-
   class PluginMicroservice < Microservice
-
     def initialize(name)
       super(name, is_plugin: true)
     end
 
     def run
       Dir.chdir @work_dir
+      # Fortify: Process Control
       exec(*@config["cmd"])
     end
-
   end
 end
 

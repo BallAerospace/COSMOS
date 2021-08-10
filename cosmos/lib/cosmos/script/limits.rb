@@ -27,7 +27,7 @@ module Cosmos
         if $disconnect
           Logger.info "DISCONNECT: #{method_name}(#{args}) ignored"
         else
-          $api_server.send(method_name, *args)
+          $api_server.public_send(method_name, *args)
         end
       end
     end

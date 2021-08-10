@@ -46,10 +46,7 @@ module Cosmos
       @tlm_packets.each do |name, packet|
         ids = packet.id_items
         ids.each do |id|
-          # Fortify doesn't like this due to Access Specifier Manipulation
-          # This is a SimulatedTarget and thus should not be used in production
-          # We're limiting it to setters by appending the '='
-          packet.send((id.name + '=').to_sym, id.id_value)
+          packet.public_send((id.name + '=').to_sym, id.id_value)
         end
       end
 

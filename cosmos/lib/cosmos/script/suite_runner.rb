@@ -41,19 +41,15 @@ module Cosmos
       @@suite_results
     end
 
-    def self.exec(result_string, suite_class, group_class = nil, script = nil)
+    def self.execute(result_string, suite_class, group_class = nil, script = nil)
       @@suite_results = SuiteResults.new
-      # @@started_success = false
       @@suites.each do |suite|
         if suite.class == suite_class
-          # @@started_success = @@suite_results.collect_metadata(@@instance)
-          # if @@started_success
           @@suite_results.start(result_string, suite_class, group_class, script, @@settings)
           loop do
             yield(suite)
             break if not @@settings['Loop'] or (ScriptStatus.instance.fail_count > 0 and @@settings['Break Loop On Error'])
           end
-          # end
           break
         end
       end
@@ -61,7 +57,7 @@ module Cosmos
 
     def self.start(suite_class, group_class = nil, script = nil)
       result = []
-      exec('', suite_class, group_class, script) do |suite|
+      execute('', suite_class, group_class, script) do |suite|
         if script
           result = suite.run_script(group_class, script)
           @@suite_results.process_result(result)
@@ -75,7 +71,7 @@ module Cosmos
     end
 
     def self.setup(suite_class, group_class = nil)
-      exec('Manual Setup', suite_class, group_class) do |suite|
+      execute('Manual Setup', suite_class, group_class) do |suite|
         if group_class
           result = suite.run_group_setup(group_class)
         else
@@ -89,7 +85,7 @@ module Cosmos
     end
 
     def self.teardown(suite_class, group_class = nil)
-      exec('Manual Teardown', suite_class, group_class) do |suite|
+      execute('Manual Teardown', suite_class, group_class) do |suite|
         if group_class
           result = suite.run_group_teardown(group_class)
         else

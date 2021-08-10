@@ -50,6 +50,8 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
         before(:all) do
           # If we're locally testing on a Windows box test for serial ports
           if Kernel.is_windows?
+            # Fortify: Process Control
+            # This is test code only to enable tests serial port tests on Windows
             result = `chgport 2>&1`
             @ports = !result.include?("No serial ports")
           end
