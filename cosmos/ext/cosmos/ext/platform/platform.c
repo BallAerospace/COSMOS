@@ -80,12 +80,12 @@ static void catch_sigsegv(int sig_num)
   }
   snprintf(filename, FILENAME_LEN, "%s/%04u_%02u_%02u_%02u_%02u_%02u_segfault.txt",
            cosmos_log_dir,
-           1900 + timeinfo_ptr->tm_year,
-           1 + timeinfo_ptr->tm_mon,
-           timeinfo_ptr->tm_mday,
-           timeinfo_ptr->tm_hour,
-           timeinfo_ptr->tm_min,
-           timeinfo_ptr->tm_sec);
+           1900 + timeinfo.tm_year,
+           1 + timeinfo.tm_mon,
+           timeinfo.tm_mday,
+           timeinfo.tm_hour,
+           timeinfo.tm_min,
+           timeinfo.tm_sec);
 
   // Fortify warns about Path Manipulation here. We explictly allow this to let
   // segfault files be written to a directory of their choosing.

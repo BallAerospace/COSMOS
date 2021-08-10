@@ -30,6 +30,11 @@ module Cosmos
     def run
       Dir.chdir @work_dir
       # Fortify: Process Control
+      # This is dangerous! However, plugins need to be able to run whatever they want.
+      # Only admins can install plugins and they need to be vetted for content.
+      # NOTE: In COSMOS EE each microservice gets its own container so the potential
+      # footprint is much smaller. In OpenSource COSMOS you're in the same container
+      # as all the other plugins.
       exec(*@config["cmd"])
     end
   end
