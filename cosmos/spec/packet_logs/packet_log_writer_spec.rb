@@ -153,6 +153,8 @@ module Cosmos
 
       it "cycles the log after a set amount of time" do
         # Monkey patch the constant so the test doesn't take forever
+        # Fortify says Access Specifier Manipulation
+        # but this is test code only
         LogWriter.__send__(:remove_const,:CYCLE_TIME_INTERVAL)
         LogWriter.const_set(:CYCLE_TIME_INTERVAL, 0.1)
 
@@ -170,6 +172,8 @@ module Cosmos
         expect(@files.keys.length).to eq 6
 
         # Monkey patch the constant back to the default
+        # Fortify says Access Specifier Manipulation
+        # but this is test code only
         LogWriter.__send__(:remove_const,:CYCLE_TIME_INTERVAL)
         LogWriter.const_set(:CYCLE_TIME_INTERVAL, 2)
       end

@@ -133,7 +133,7 @@ module Cosmos
             # Determine if the COSMOS color already exists, otherwise create a new one
             if Cosmos.constants.include? parameters[1].upcase.to_sym
               # We were given a named color that already exists in COSMOS
-              color = eval("Cosmos::#{parameters[1].upcase}")
+              color = parameters[1].upcase
             else
               if parameters.length < 4
                 # We were given a named color, but it didn't exist in COSMOS already
