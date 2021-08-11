@@ -44,12 +44,16 @@ module Cosmos
       $stdout = stdout
       Logger.level = level
       if block
+        # Fortify doesn't like this due to Access Specifier Manipulation
+        # but this is only test code
         Logger.send(method, "Message1") { "Block1" }
         json = JSON.parse(stdout.string)
         expect(json['log']).not_to match("Message1")
         expect(json['severity']).to match(method.upcase)
         expect(json['log']).to match("Block1")
       else
+        # Fortify doesn't like this due to Access Specifier Manipulation
+        # but this is only test code
         Logger.send(method, "Message1")
         json = JSON.parse(stdout.string)
         expect(json['severity']).to match(method.upcase)
@@ -63,8 +67,12 @@ module Cosmos
       $stdout = stdout
       Logger.level = level
       if block
+        # Fortify doesn't like this due to Access Specifier Manipulation
+        # but this is only test code
         Logger.send(method, "Message2") { "Block2" }
       else
+        # Fortify doesn't like this due to Access Specifier Manipulation
+        # but this is only test code
         Logger.send(method, "Message2")
       end
       expect(stdout.string).to be_empty
