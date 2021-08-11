@@ -59,7 +59,7 @@ module Cosmos
         topic_split = topic.gsub(/{|}/, '').split("__") # Remove the redis hashtag curly braces
         scope = topic_split[0]
         log_name = topic_split[1]
-        remote_log_directory = "#{scope}/textlogs/#{log_name}"
+        remote_log_directory = "#{scope}/text_logs/#{log_name}"
         tlws[topic] = TextLogWriter.new(remote_log_directory, true, @cycle_time, @cycle_size, redis_topic: topic)
       end
       return tlws

@@ -67,7 +67,7 @@ module Cosmos
         target_name = topic_split[2]
         packet_name = topic_split[3]
         type = @raw_or_decom.to_s.downcase
-        remote_log_directory = "#{scope}/#{type}logs/#{@cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}"
+        remote_log_directory = "#{scope}/#{type}_logs/#{@cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}"
         rt_label = "#{scope}__#{target_name}__#{packet_name}__rt__#{type}"
         stored_label = "#{scope}__#{target_name}__#{packet_name}__stored__#{type}"
         plws[topic] = {

@@ -27,15 +27,15 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     {
+      path: '/running-scripts',
+      name: 'RunningScripts',
+      component: () => import('./tools/ScriptRunner/RunningScripts.vue'),
+    },
+    {
       path: '/:id?',
       name: 'ScriptRunner',
       component: () => import('./tools/ScriptRunner/ScriptRunner.vue'),
       meta: { title: 'Script Runner', icon: 'mdi-run-fast' },
-    },
-    {
-      path: '/running-scripts',
-      name: 'RunningScripts',
-      component: () => import('./tools/ScriptRunner/RunningScripts.vue'),
     },
     // TODO: Create NotFoundComponent since we're doing history browser mode
     // See: https://router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations

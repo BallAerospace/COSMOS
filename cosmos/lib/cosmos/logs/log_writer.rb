@@ -141,31 +141,6 @@ module Cosmos
       end
     end
 
-    def move_file_to_s3(filename, s3_key)
-      Thread.new do
-        rubys3_client = Aws::S3::Client.new
-
-        # Ensure logs bucket exists
-        begin
-          rubys3_client.head_bucket(bucket: 'logs')
-        rescue Aws::S3::Errors::NotFound
-          rubys3_client.create_bucket(bucket: 'logs')
-        end
-
-        # Write to S3 Bucket
-        File.open(filename, 'rb') do |read_file|
-          rubys3_client.put_object(bucket: 'logs', key: s3_key, body: read_file)
-        end
-
-        Logger.info "logs/#{s3_key} written to S3"
-
-        File.delete(filename)
-        Logger.info("local file #{filename} deleted")
-      rescue => err
-        Logger.error("Error saving log file to bucket: #{filename}\n#{err.formatted}")
-      end
-    end
-
     def cycle_thread_body
       while true
         # The check against start_time needs to be mutex protected to prevent a packet coming in between the check
@@ -231,7 +206,7 @@ module Cosmos
             Logger.info "Log File Closed : #{@filename}"
             date = first_timestamp[0..7] # YYYYMMDD
             s3_key = File.join(@remote_log_directory, date, s3_filename)
-            move_file_to_s3(@filename, s3_key)
+            S3Utilities.move_log_file_to_s3(@filename, s3_key)
             # Now that the file is in S3, trim the Redis stream up until the previous file.
             # This keeps one file worth of data in Redis as a safety buffer
             Cosmos::Store.trim_topic(@redis_topic, @previous_file_redis_offset) if @redis_topic and @previous_file_redis_offset

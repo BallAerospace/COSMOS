@@ -53,5 +53,30 @@ module Cosmos
       end
       return total_size, oldest_list
     end
+
+    def self.move_log_file_to_s3(filename, s3_key)
+      Thread.new do
+        rubys3_client = Aws::S3::Client.new
+
+        # Ensure logs bucket exists
+        begin
+          rubys3_client.head_bucket(bucket: 'logs')
+        rescue Aws::S3::Errors::NotFound
+          rubys3_client.create_bucket(bucket: 'logs')
+        end
+
+        # Write to S3 Bucket
+        File.open(filename, 'rb') do |read_file|
+          rubys3_client.put_object(bucket: 'logs', key: s3_key, body: read_file)
+        end
+
+        Logger.info "logs/#{s3_key} written to S3"
+
+        File.delete(filename)
+        Logger.info("local file #{filename} deleted")
+      rescue => err
+        Logger.error("Error saving log file to bucket: #{filename}\n#{err.formatted}")
+      end
+    end
   end
 end

@@ -46,16 +46,16 @@ disconnect = script['disconnect']
 startup_time = Time.now - start_time
 path = File.join(Script::DEFAULT_BUCKET_NAME, scope, 'targets', name)
 
-def run_script_log(id, message, color = 'BLACK')
+def run_script_log(id, message, color = 'BLACK', message_log = true)
   line_to_write = Time.now.sys.formatted + " (SCRIPTRUNNER): " + message
-  RunningScript.message_log.write(line_to_write + "\n", true)
+  RunningScript.message_log.write(line_to_write + "\n", true) if message_log
   Cosmos::Store.publish(["script-api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: color }))
 end
 
-run_script_log(id, "Script #{path} spawned in #{startup_time} seconds")
-
 begin
   running_script = RunningScript.new(id, scope, name, disconnect)
+  run_script_log(id, "Script #{path} spawned in #{startup_time} seconds", 'BLACK')
+
   if script['suite_runner']
     script['suite_runner'] = JSON.parse(script['suite_runner']) # Convert to hash
     running_script.parse_options(script['suite_runner']['options'])

@@ -3,11 +3,14 @@
   "Statement": [
     {
       "Action": [
-        "s3:ListBucket"
+        "s3:ListBucket",
+        "s3:HeadBucket",
+        "s3:CreateBucket"
       ],
       "Effect": "Allow",
       "Resource": [
-        "arn:aws:s3:::config"
+        "arn:aws:s3:::config",
+        "arn:aws:s3:::logs"
       ]
     },
     {
@@ -20,7 +23,7 @@
       ],
       "Resource": [
         "arn:aws:s3:::config/*/targets_modified/*",
-        "arn:aws:s3:::logs/*/scriptlogs/*"
+        "arn:aws:s3:::logs/*/tool_logs/sr/*"
       ]
     },
     {

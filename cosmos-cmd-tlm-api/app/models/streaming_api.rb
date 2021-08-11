@@ -217,7 +217,7 @@ class FileCache
         resp = @rubys3_client.list_objects_v2({
           bucket: "logs",
           max_keys: 1000,
-          prefix: "#{scope}/#{type.to_s.downcase}logs/#{cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}/#{date}",
+          prefix: "#{scope}/#{type.to_s.downcase}_logs/#{cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}/#{date}",
           continuation_token: token
         })
         total_resp.concat(resp.contents)

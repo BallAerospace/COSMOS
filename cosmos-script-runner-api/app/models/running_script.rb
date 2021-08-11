@@ -26,6 +26,7 @@ require 'cosmos/io/stderr'
 require 'childprocess'
 require 'cosmos/script/suite_runner'
 require 'cosmos/utilities/store'
+require 'cosmos/utilities/s3'
 
 RAILS_ROOT = File.expand_path(File.join(__dir__, '..', '..'))
 
@@ -56,6 +57,43 @@ module Cosmos
     end
 
     Cosmos.disable_warnings do
+      def load_s3(*args, **kw_args)
+        path = args[0]
+
+        # Retrieve the text of the script from S3
+        text = ::Script.body(RunningScript.instance.scope, path)
+
+        # Execute the script directly without instrumentation because we are doing require/load
+        Object.class_eval(text, path, 1)
+
+        # Successful load/require returns true
+        true
+      end
+
+      def require(*args, **kw_args)
+        begin
+          super(*args, **kw_args)
+        rescue LoadError => err
+          begin
+            load_s3(*args, **kw_args)
+          rescue Exception
+            raise err
+          end
+        end
+      end
+
+      def load(*args, **kw_args)
+        begin
+          super(*args, **kw_args)
+        rescue LoadError => err
+          begin
+            load_s3(*args, **kw_args)
+          rescue Exception
+            raise err
+          end
+        end
+      end
+
       def prompt_for_script_abort
         RunningScript.instance.perform_pause
         return false # Not aborted - Retry
@@ -173,7 +211,14 @@ class RunningScript
   @@cancel_limits = false
 
   def self.message_log(id = @@id)
-    @@message_log ||= Cosmos::MessageLog.new("sr_#{id}", File.join(RAILS_ROOT, 'log'))
+    unless @@message_log
+      if @@instance
+        @@message_log = Cosmos::MessageLog.new("sr", File.join(RAILS_ROOT, 'log'), scope: @@instance.scope)
+      else
+        @@message_log = Cosmos::MessageLog.new("sr", File.join(RAILS_ROOT, 'log'), scope: $cosmos_scope)
+      end
+    end
+    return @@message_log
   end
 
   def message_log
@@ -273,9 +318,8 @@ class RunningScript
       @details = JSON.parse(details)
     else
       # Create as much details as we know
-      @details = { id: @id, name: @filename, scope: @scope }
+      @details = { id: @id, name: @filename, scope: @scope, start_time: Time.now.to_s, update_time: Time.now.to_s }
     end
-
 
     # Update details in redis
     @details[:hostname] = Socket.gethostname
@@ -376,7 +420,8 @@ class RunningScript
 
   def stop
     if @@run_thread
-      Cosmos.kill_thread(nil, @@run_thread)
+      @stop = true
+      Cosmos.kill_thread(self, @@run_thread)
       @@run_thread = nil
     end
   end
@@ -390,6 +435,10 @@ class RunningScript
   end
 
   # Private methods
+
+  def graceful_kill
+    @stop = true
+  end
 
   def initialize_variables
     @@error = nil
@@ -1065,6 +1114,15 @@ class RunningScript
     if Cosmos::SuiteRunner.suite_results
       Cosmos::SuiteRunner.suite_results.complete
       Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :report, report: Cosmos::SuiteRunner.suite_results.report }))
+      log_dir = File.join(RAILS_ROOT, 'log')
+      filename = File.join(log_dir, File.build_timestamped_filename(['sr', 'report']))
+      File.open(filename, 'wb') do |file|
+        file.write(Cosmos::SuiteRunner.suite_results.report)
+      end
+      s3_key = File.join("#{@scope}/tool_logs/sr/", File.basename(filename)[0..9].gsub("_", ""), File.basename(filename))
+      thread = Cosmos::S3Utilities.move_log_file_to_s3(filename, s3_key)
+      # Wait for the file to get moved to S3 because after this the process will likely die
+      thread.join
     end
     Cosmos::Store.publish(["script-api", "cmd-running-script-channel:#{@id}"].compact.join(":"), JSON.generate("shutdown"))
   end
