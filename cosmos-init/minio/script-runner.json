@@ -23,7 +23,7 @@
       ],
       "Resource": [
         "arn:aws:s3:::config/*/targets_modified/*",
-        "arn:aws:s3:::logs/*/toollogs/sr/*"
+        "arn:aws:s3:::logs/*/tool_logs/sr/*"
       ]
     },
     {

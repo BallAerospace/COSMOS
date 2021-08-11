@@ -52,10 +52,10 @@ def run_script_log(id, message, color = 'BLACK', message_log = true)
   Cosmos::Store.publish(["script-api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :output, line: line_to_write, color: color }))
 end
 
-run_script_log(id, "Script #{path} spawned in #{startup_time} seconds", 'BLACK', false)
-
 begin
   running_script = RunningScript.new(id, scope, name, disconnect)
+  run_script_log(id, "Script #{path} spawned in #{startup_time} seconds", 'BLACK')
+
   if script['suite_runner']
     script['suite_runner'] = JSON.parse(script['suite_runner']) # Convert to hash
     running_script.parse_options(script['suite_runner']['options'])
@@ -138,7 +138,6 @@ ensure
     end
     Cosmos::Store.publish(["script-api", "running-script-channel:#{id}"].compact.join(":"), JSON.generate({ type: :complete }))
   ensure
-    STDOUT.puts "Ensure stop_message_log"
     running_script.stop_message_log if running_script
   end
 end

@@ -59,8 +59,14 @@ module Cosmos
     Cosmos.disable_warnings do
       def load_s3(*args, **kw_args)
         path = args[0]
+
+        # Retrieve the text of the script from S3
         text = ::Script.body(RunningScript.instance.scope, path)
+
+        # Execute the script directly without instrumentation because we are doing require/load
         Object.class_eval(text, path, 1)
+
+        # Successful load/require returns true
         true
       end
 
@@ -470,7 +476,6 @@ class RunningScript
 
   def filename=(filename)
     # Stop the message log so a new one will be created with the new filename
-    STDOUT.puts "filename=#{filename}"
     stop_message_log()
     @filename = filename
 
@@ -1114,9 +1119,9 @@ class RunningScript
       File.open(filename, 'wb') do |file|
         file.write(Cosmos::SuiteRunner.suite_results.report)
       end
-      s3_key = File.join("#{@scope}/toollogs/sr/", File.basename(filename)[0..9].gsub("_", ""), File.basename(filename))
-      STDOUT.puts "move file to s3 #{filename}: #{s3_key}"
+      s3_key = File.join("#{@scope}/tool_logs/sr/", File.basename(filename)[0..9].gsub("_", ""), File.basename(filename))
       thread = Cosmos::S3Utilities.move_log_file_to_s3(filename, s3_key)
+      # Wait for the file to get moved to S3 because after this the process will likely die
       thread.join
     end
     Cosmos::Store.publish(["script-api", "cmd-running-script-channel:#{@id}"].compact.join(":"), JSON.generate("shutdown"))

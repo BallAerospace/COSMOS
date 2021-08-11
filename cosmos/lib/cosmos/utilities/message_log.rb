@@ -36,7 +36,7 @@ module Cosmos
     #   This will be inserted into the message log filename to help identify it.
     # @param log_dir [String] The filesystem path to store the message log file.
     def initialize(tool_name, log_dir, scope:)
-      @remote_log_directory = "#{scope}/toollogs/#{tool_name}/"
+      @remote_log_directory = "#{scope}/tool_logs/#{tool_name}/"
       @tool_name = tool_name
       @log_dir = log_dir
       @filename = ''
