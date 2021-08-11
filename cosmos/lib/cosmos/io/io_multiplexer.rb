@@ -48,19 +48,16 @@ module Cosmos
       first = true
       result = nil
       @streams.each do |stream|
-        super unless stream.respond_to?(method_name)
         if first
-          # Fortify says Access Specifier Manipulation
-          # but we check that the stream responds to the method
-          # and only then do we forward it on
-          result = stream.send(method_name, *args)
+          # Fortify Access Specifier Manipulation
+          # We're forwarding only public methods to the stream
+          result = stream.public_send(method_name, *args)
           result = self if result == stream
           first = false
         else
-          # Fortify says Access Specifier Manipulation
-          # but we check that the stream responds to the method
-          # and only then do we forward it on
-          stream.send(method_name, *args)
+          # Fortify Access Specifier Manipulation
+          # We're forwarding only public methods to the stream
+          stream.public_send(method_name, *args)
         end
       end
       result

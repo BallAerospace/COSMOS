@@ -157,23 +157,7 @@ module Cosmos
       raise Error.new(self, "Partial name '#{template_name}' must begin with an underscore.") if File.basename(template_name)[0] != '_'
       b = binding
       if options[:locals]
-        if RUBY_VERSION.split('.')[0..1].join.to_i >= 21
-          options[:locals].each {|key, value| b.local_variable_set(key, value) }
-        else
-          options[:locals].each do |key, value|
-            raise ArgumentError, "Non-word characters characters parsed" if key.to_s =~ /\W/
-            raise ArgumentError, "Non-word characters characters parsed" if value.to_s =~ /\W/
-            if value.is_a? String
-              # Fortify says Dynamic Code Evaluation: Code Injection
-              # Non-word characters (letter, number, underscore) are disallowed
-              b.eval("#{key} = '#{value}'")
-            else
-              # Fortify says Dynamic Code Evaluation: Code Injection
-              # Non-word characters (letter, number, underscore) are disallowed
-              b.eval("#{key} = #{value}")
-            end
-          end
-        end
+        options[:locals].each {|key, value| b.local_variable_set(key, value) }
       end
       # Assume the file is there. If not we raise a pretty obvious error
       if File.expand_path(template_name) == template_name # absolute path

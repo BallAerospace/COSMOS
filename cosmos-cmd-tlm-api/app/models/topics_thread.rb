@@ -67,7 +67,7 @@ class TopicsThread
 
   def transmit_results(results, force: false)
     if results.length > 0 or force
-      @channel.send(:transmit, JSON.generate(results.as_json))
+      @channel.public_send(:transmit, JSON.generate(results.as_json))
     end
   end
 

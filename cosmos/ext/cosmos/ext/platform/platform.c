@@ -40,7 +40,8 @@ static void catch_sigsegv(int sig_num)
   const int FILENAME_LEN = 256;
   char *cosmos_log_dir = NULL;
   time_t rawtime;
-  struct tm *timeinfo;
+  struct tm timeinfo;
+  struct tm *timeinfo_ptr;
   struct stat stats;
   char filename[FILENAME_LEN];
   FILE *file = NULL;
@@ -71,21 +72,20 @@ static void catch_sigsegv(int sig_num)
   }
 
   time(&rawtime);
-  timeinfo = localtime(&rawtime);
-  if (timeinfo == NULL)
+  timeinfo_ptr = localtime_r(&rawtime, &timeinfo);
+  if (timeinfo_ptr == NULL)
   {
-    // If localtime returns NULL we allocate our own and set to 1919 to make it interesting
-    timeinfo = (struct tm*)malloc(sizeof(struct tm));
-    strptime("1919-01-01 00:00:00", "%Y-%m-%d %H:%M:%S", timeinfo);
+    // If localtime returns NULL we set our own and set to 1919 to make it interesting
+    strptime("1919-01-01 00:00:00", "%Y-%m-%d %H:%M:%S", &timeinfo);
   }
   snprintf(filename, FILENAME_LEN, "%s/%04u_%02u_%02u_%02u_%02u_%02u_segfault.txt",
            cosmos_log_dir,
-           1900 + timeinfo->tm_year,
-           1 + timeinfo->tm_mon,
-           timeinfo->tm_mday,
-           timeinfo->tm_hour,
-           timeinfo->tm_min,
-           timeinfo->tm_sec);
+           1900 + timeinfo.tm_year,
+           1 + timeinfo.tm_mon,
+           timeinfo.tm_mday,
+           timeinfo.tm_hour,
+           timeinfo.tm_min,
+           timeinfo.tm_sec);
 
   // Fortify warns about Path Manipulation here. We explictly allow this to let
   // segfault files be written to a directory of their choosing.

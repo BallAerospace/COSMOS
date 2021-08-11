@@ -339,16 +339,16 @@ module Cosmos
       end
 
       it "creates target_id.txt as a hash" do
-        key = "DEFAULT/targets/INST/target_id.txt"
-        expect(@s3).to receive(:put_object).with(bucket: 'config', key: key, body: anything)
+        file = "DEFAULT/targets/INST/target_id.txt"
+        expect(@s3).to receive(:put_object).with(bucket: 'config', key: file, body: anything)
         model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
         model.create
         model.deploy(@target_dir, {})
       end
 
       it "archives the target to S3" do
-        key = "DEFAULT/target_archives/INST/INST_current.zip"
-        expect(@s3).to receive(:put_object).with(bucket: 'config', key: key, body: anything)
+        file = "DEFAULT/target_archives/INST/INST_current.zip"
+        expect(@s3).to receive(:put_object).with(bucket: 'config', key: file, body: anything)
         model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
         model.create
         model.deploy(@target_dir, {})

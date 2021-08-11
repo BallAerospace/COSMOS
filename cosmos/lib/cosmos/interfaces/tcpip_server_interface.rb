@@ -301,10 +301,10 @@ module Cosmos
     def change_raw_logging(method)
       if @raw_logger_pair
         @write_interface_infos.each do |interface_info|
-          interface_info.interface.raw_logger_pair.send(method) if interface_info.interface.raw_logger_pair
+          interface_info.interface.raw_logger_pair.public_send(method) if interface_info.interface.raw_logger_pair
         end
         @read_interface_infos.each do |interface_info|
-          interface_info.interface.raw_logger_pair.send(method) if interface_info.interface.raw_logger_pair
+          interface_info.interface.raw_logger_pair.public_send(method) if interface_info.interface.raw_logger_pair
         end
       end
     end
@@ -587,7 +587,7 @@ module Cosmos
           need_disconnect = false
           begin
             interface_bytes_written = interface_info.interface.bytes_written
-            interface_info.interface.send(method, packet_or_data)
+            interface_info.interface.public_send(method, packet_or_data)
             diff = interface_info.interface.bytes_written - interface_bytes_written
             @written_raw_data_time = interface_info.interface.written_raw_data_time
             @written_raw_data = interface_info.interface.written_raw_data

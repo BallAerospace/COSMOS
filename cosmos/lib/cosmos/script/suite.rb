@@ -354,7 +354,7 @@ module Cosmos
         result.group = object.class.to_s.split('::')[-1]
         result.script = method_name.to_s
         begin
-          object.send(method_name)
+          object.public_send(method_name)
           result.result = :PASS
 
           if RunningScript.instance and RunningScript.instance.exceptions
