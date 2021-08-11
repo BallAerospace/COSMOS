@@ -17,22 +17,33 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require "spec_helper"
-require "cosmos/utilities/message_log"
+require 'spec_helper'
+require 'cosmos/utilities/message_log'
+require 'cosmos/utilities/s3'
 
 module Cosmos
   describe MessageLog do
+    before(:each) do
+      thread = double("Thread")
+      allow(thread).to receive(:join)
+      allow(S3Utilities).to receive(:move_log_file_to_s3).and_return(thread)
+    end
+
     describe "initialize" do
       it "requires a tool name" do
         expect { MessageLog.new }.to raise_error(ArgumentError)
       end
 
       it "requires a log directory" do
-        expect { MessageLog.new('TEST') }.to raise_error(ArgumentError)
+        expect { MessageLog.new('TEST', scope: 'DEFAULT') }.to raise_error(ArgumentError)
+      end
+
+      it "requires a scope" do
+        expect { MessageLog.new('TEST', '.') }.to raise_error(ArgumentError)
       end
 
       it "accepts a tool name and path" do
-        log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)))
+        log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)), scope: 'DEFAULT')
         log.start
         log.stop
         expect(File.exist?(log.filename)).to be true
@@ -43,7 +54,7 @@ module Cosmos
 
     describe "write" do
       it "writes a message to the log" do
-        log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)))
+        log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)), scope: 'DEFAULT')
         log.write("Test message")
         log.stop
         expect(File.read(log.filename)).to eql "Test message"
@@ -53,7 +64,7 @@ module Cosmos
 
     describe "start" do
       it "creates a new message log" do
-        log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)))
+        log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)), scope: 'DEFAULT')
         log.start
         filename = log.filename
         # Allow a second to tick by so we have a unique filename
@@ -68,7 +79,7 @@ module Cosmos
 
     describe "stop" do
       it "closes the message log and mark it read-only" do
-        log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)))
+        log = MessageLog.new('TEST', File.expand_path(File.dirname(__FILE__)), scope: 'DEFAULT')
         log.start
         log.stop
         if Kernel.is_windows? or Process.uid != 0

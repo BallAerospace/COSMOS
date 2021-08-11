@@ -52,7 +52,6 @@ module Cosmos
     def write(message, flush = false)
       @mutex.synchronize do
         if @file.nil? or @file.closed? or (not File.exist?(@filename))
-          STDOUT.puts "message_log write start"
           start(false)
         end
 
@@ -63,22 +62,18 @@ module Cosmos
 
     # Closes the message log and marks it read only
     def stop(take_mutex = true)
-      STDOUT.puts "message_log stop"
       @mutex.lock if take_mutex
       if @file and not @file.closed?
         @file.close
         Cosmos.set_working_dir do
           File.chmod(0444, @filename)
           s3_key = File.join(@remote_log_directory, @start_day, File.basename(@filename))
-          STDOUT.puts "move file to s3 #{@filename}: #{s3_key}"
           begin
             thread = S3Utilities.move_log_file_to_s3(@filename, s3_key)
             thread.join
-          rescue Exception => err
-            STDOUT.puts "Error moving message_log to S3"
-            STDOUT.puts err.formatted
+          rescue StandardError => e
+            Logger.error e.formatted
           end
-          STDOUT.puts "move file complete"
         end
       end
       @mutex.unlock if take_mutex
@@ -89,14 +84,12 @@ module Cosmos
       @mutex.lock if take_mutex
       # Prevent starting files too fast
       sleep(0.1) until !File.exist?(File.join(@log_dir, File.build_timestamped_filename([@tool_name, 'messages'])))
-      STDOUT.puts 'message_log start stop'
       stop(false)
       Cosmos.set_working_dir do
         timed_filename = File.build_timestamped_filename([@tool_name, 'messages'])
         @start_day = timed_filename[0..9].gsub("_", "") # YYYYMMDD
         @filename = File.join(@log_dir, timed_filename)
         @file = File.open(@filename, 'a')
-        STDOUT.puts "#{@filename}: #{@file}"
       end
       @mutex.unlock if take_mutex
     end
