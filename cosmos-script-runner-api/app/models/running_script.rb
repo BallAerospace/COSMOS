@@ -154,8 +154,13 @@ module Cosmos
         sleep_time = 30000000 unless sleep_time # Handle infinite wait
         if sleep_time > 0.0
           end_time = Time.now.sys + sleep_time
+          count = 0
           until Time.now.sys >= end_time
             sleep(0.01)
+            count += 1
+            if (count % 100) == 0 # Approximately Every Second
+              Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :line, filename: RunningScript.instance.current_filename, line_no: RunningScript.instance.current_line_number, state: :waiting }))
+            end
             if RunningScript.instance.pause?
               RunningScript.instance.perform_pause
               return true
@@ -1079,8 +1084,15 @@ class RunningScript
   end
 
   def wait_for_go_or_stop(error = nil)
+    count = 0
     @go = false
-    sleep(0.01) until @go or @stop
+    until (@go or @stop)
+      sleep(0.01)
+      count += 1
+      if (count % 100) == 0 # Approximately Every Second
+        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :waiting }))
+      end
+    end
     @go = false
     mark_running()
     raise Cosmos::StopScript if @stop
@@ -1088,8 +1100,15 @@ class RunningScript
   end
 
   def wait_for_go_or_stop_or_retry(error = nil)
+    count = 0
     @go = false
-    sleep(0.01) until @go or @stop or @retry_needed
+    until (@go or @stop or @retry_needed)
+      sleep(0.01)
+      count += 1
+      if (count % 100) == 0 # Approximately Every Second
+        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :waiting }))
+      end
+    end
     @go = false
     mark_running()
     raise Cosmos::StopScript if @stop
@@ -1102,14 +1121,17 @@ class RunningScript
   end
 
   def mark_paused
+    @state = :paused
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :paused }))
   end
 
   def mark_error
+    @state = :error
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :error }))
   end
 
   def mark_stopped
+    @state = :stopped
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :stopped }))
     if Cosmos::SuiteRunner.suite_results
       Cosmos::SuiteRunner.suite_results.complete
