@@ -21,7 +21,6 @@ require 'cosmos/microservices/interface_microservice'
 
 module Cosmos
   class RouterMicroservice < InterfaceMicroservice
-
     def handle_packet(packet)
       @count += 1
       RouterStatusModel.set(@interface.as_json, scope: @scope)
@@ -39,7 +38,6 @@ module Cosmos
         Logger.error "Error routing command from #{@interface.name}\n#{err.formatted}"
       end
     end
-
   end
 end
 

@@ -65,9 +65,11 @@ module Cosmos
     # @return [Hash] Packet hash or raises an exception
     def self.packet(target_name, packet_name, type: :TLM, scope:)
       raise "Unknown type #{type} for #{target_name} #{packet_name}" unless VALID_TYPES.include?(type)
+
       # Assume it exists and just try to get it to avoid an extra call to Store.exist?
       json = Store.hget("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}", packet_name)
       raise "Packet '#{target_name} #{packet_name}' does not exist" if json.nil?
+
       JSON.parse(json)
     end
 
@@ -75,6 +77,7 @@ module Cosmos
     def self.packets(target_name, type: :TLM, scope:)
       raise "Unknown type #{type} for #{target_name}" unless VALID_TYPES.include?(type)
       raise "Target '#{target_name}' does not exist" unless get(name: target_name, scope: scope)
+
       result = []
       packets = Store.hgetall("#{scope}__cosmos#{type.to_s.downcase}__#{target_name}")
       packets.sort.each do |packet_name, packet_json|
@@ -85,21 +88,23 @@ module Cosmos
 
     def self.set_packet(target_name, packet_name, packet, type: :TLM, scope:)
       raise "Unknown type #{type} for #{target_name} #{packet_name}" unless VALID_TYPES.include?(type)
+
       Store.hset("#{scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
     end
 
     # @return [Hash] Item hash or raises an exception
     def self.packet_item(target_name, packet_name, item_name, type: :TLM, scope:)
       packet = packet(target_name, packet_name, type: type, scope: scope)
-      item = packet['items'].find {|item| item['name'] == item_name.to_s }
+      item = packet['items'].find { |item| item['name'] == item_name.to_s }
       raise "Item '#{packet['target_name']} #{packet['packet_name']} #{item_name}' does not exist" unless item
+
       item
     end
 
     # @return [Array<Hash>] Item hash array or raises an exception
     def self.packet_items(target_name, packet_name, items, type: :TLM, scope:)
       packet = packet(target_name, packet_name, type: type, scope: scope)
-      found = packet['items'].find_all {|item| items.map(&:to_s).include?(item['name']) }
+      found = packet['items'].find_all { |item| items.map(&:to_s).include?(item['name']) }
       if found.length != items.length # we didn't find them all
         found_items = found.collect { |item| item['name'] }
         not_found = []
@@ -147,7 +152,8 @@ module Cosmos
       id: nil,
       updated_at: nil,
       plugin: nil,
-      scope:)
+      scope:
+    )
       super("#{scope}__#{PRIMARY_KEY}", name: name, plugin: plugin, updated_at: updated_at, scope: scope)
       @folder_name = folder_name
       @requires = requires
@@ -195,6 +201,7 @@ module Cosmos
         target_path = gem_path + start_path + "**/*"
         Dir.glob(target_path) do |filename|
           next if filename == '.' or filename == '..' or File.directory?(filename)
+
           path = filename.split(gem_path)[-1]
           target_folder_path = path.split(start_path)[-1]
           key = "#{@scope}/targets/#{@name}/" + target_folder_path
@@ -209,7 +216,7 @@ module Cosmos
           end
           local_path = File.join(temp_dir, @name, target_folder_path)
           FileUtils.mkdir_p(File.dirname(local_path))
-          File.open(local_path, 'wb') {|file| file.write(data)}
+          File.open(local_path, 'wb') { |file| file.write(data) }
           found = true
           rubys3_client.put_object(bucket: 'config', key: key, body: data)
         end
@@ -265,10 +272,11 @@ module Cosmos
     # Called by the ERB template to render a partial
     def render(template_name, options = {})
       raise Error.new(self, "Partial name '#{template_name}' must begin with an underscore.") if File.basename(template_name)[0] != '_'
+
       b = binding
       b.local_variable_set(:target_name, @name)
       if options[:locals]
-        options[:locals].each {|key, value| b.local_variable_set(key, value) }
+        options[:locals].each { |key, value| b.local_variable_set(key, value) }
       end
 
       # Assume the file is there. If not we raise a pretty obvious error
@@ -392,6 +400,7 @@ module Cosmos
       Store.initialize_streams(decom_command_topic_list)
       # Might as well return if there are no packets
       return unless packet_topic_list.length > 0
+
       Store.initialize_streams(packet_topic_list)
       Store.initialize_streams(decom_topic_list)
 
@@ -405,7 +414,8 @@ module Cosmos
         topics: packet_topic_list,
         target_names: [@name],
         plugin: plugin,
-        scope: @scope)
+        scope: @scope
+      )
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"
@@ -419,7 +429,8 @@ module Cosmos
         work_dir: '/cosmos/lib/cosmos/microservices',
         topics: decom_topic_list,
         plugin: plugin,
-        scope: @scope)
+        scope: @scope
+      )
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"
@@ -441,7 +452,8 @@ module Cosmos
         topics: command_topic_list,
         target_names: [@name],
         plugin: plugin,
-        scope: @scope)
+        scope: @scope
+      )
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"
@@ -460,7 +472,8 @@ module Cosmos
         topics: decom_command_topic_list,
         target_names: [@name],
         plugin: plugin,
-        scope: @scope)
+        scope: @scope
+      )
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"
@@ -479,7 +492,8 @@ module Cosmos
         topics: packet_topic_list,
         target_names: [@name],
         plugin: plugin,
-        scope: @scope)
+        scope: @scope
+      )
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"
@@ -498,7 +512,8 @@ module Cosmos
         topics: decom_topic_list,
         target_names: [@name],
         plugin: plugin,
-        scope: @scope)
+        scope: @scope
+      )
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"

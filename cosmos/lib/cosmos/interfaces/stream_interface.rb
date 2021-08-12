@@ -62,6 +62,7 @@ module Cosmos
         data = nil
       end
       return nil if data.nil? or data.length <= 0
+
       read_interface_base(data)
       data
     end

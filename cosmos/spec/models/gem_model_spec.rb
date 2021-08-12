@@ -28,7 +28,7 @@ module Cosmos
       @scope = "DEFAULT"
       @s3 = instance_double("Aws::S3::Client") # .as_null_object
       @list_result = OpenStruct.new
-      @list_result.contents = [OpenStruct.new({key: 'cosmos-test1.gem'}), OpenStruct.new({key: 'cosmos-test2.gem'})]
+      @list_result.contents = [OpenStruct.new({ key: 'cosmos-test1.gem' }), OpenStruct.new({ key: 'cosmos-test2.gem' })]
       allow(@s3).to receive(:list_objects).and_return(@list_result)
       allow(@s3).to receive(:head_bucket).with(any_args)
       allow(@s3).to receive(:create_bucket)

@@ -96,6 +96,7 @@ module Cosmos
 
       xor = ConfigParser.handle_true_false_nil(xor)
       raise "Invalid XOR value of '#{xor}'. Must be TRUE or FALSE." if xor && !!xor != xor
+
       reflect = ConfigParser.handle_true_false_nil(reflect) if reflect
       raise "Invalid reflect value of '#{reflect}'. Must be TRUE or FALSE." if reflect && !!reflect != reflect
 

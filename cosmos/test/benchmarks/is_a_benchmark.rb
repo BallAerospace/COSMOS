@@ -26,7 +26,7 @@ value = "hi"
 Benchmark.bm(30) do |x|
   x.report("value.is_a?") { iterations.times { if value.is_a?(Integer); end } }
   x.report("value.respond_to?") { iterations.times { if value.respond_to?(:abs); end } }
-  x.report("type === value") { iterations.times { if Integer === value; end} }
+  x.report("type === value") { iterations.times { if Integer === value; end } }
   x.report("case when") do
     iterations.times do
       case value

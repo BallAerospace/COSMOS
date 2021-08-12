@@ -82,6 +82,7 @@ module Cosmos
               next if /in run_text/.match?(line)
               next if /running_script.rb/.match?(line)
               next if line&.match?(cosmos_lib)
+
               if /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\xFF]/.match?(line)
                 line.chomp!
                 line = line.inspect.remove_quotes

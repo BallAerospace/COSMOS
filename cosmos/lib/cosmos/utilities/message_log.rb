@@ -23,10 +23,8 @@ require 'fileutils'
 require 'cosmos/utilities/s3'
 
 module Cosmos
-
   # Handles writing message logs to a file
   class MessageLog
-
     # @return [String] The name of the message log file. Empty string until the
     #   write or start methods are called at which point it is set to the
     #   filename. Retains the last filename even after stop is called.

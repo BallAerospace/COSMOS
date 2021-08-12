@@ -44,8 +44,7 @@ module Cosmos
 
     def as_json
       { 'name' => @name,
-        'updated_at' => @updated_at
-      }
+        'updated_at' => @updated_at }
     end
 
     def deploy(gem_path, variables)
@@ -63,7 +62,8 @@ module Cosmos
           ["BUCKET", "logs"], # Bucket to monitor
           ["PREFIX", @scope + "/"], # Path into bucket to monitor
         ],
-        scope: @scope)
+        scope: @scope
+      )
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"
@@ -80,7 +80,8 @@ module Cosmos
           # ["CYCLE_SIZE", "50_000_000"] # Keep at most ~50MB per log
         ],
         topics: ["#{@scope}__cosmos_log_messages"],
-        scope: @scope)
+        scope: @scope
+      )
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"
@@ -97,7 +98,8 @@ module Cosmos
           # ["CYCLE_SIZE", "50_000_000"] # Keep at most ~50MB per log
         ],
         topics: ["#{@scope}__cosmos_notifications"],
-        scope: @scope)
+        scope: @scope
+      )
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"

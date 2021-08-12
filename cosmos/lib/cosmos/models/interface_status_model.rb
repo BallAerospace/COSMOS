@@ -81,7 +81,8 @@ module Cosmos
       rxcnt: 0,
       updated_at: nil,
       plugin: nil,
-      scope:)
+      scope:
+    )
       if self.class._get_type == 'INTERFACESTATUS'
         super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name, updated_at: updated_at, plugin: plugin, scope: scope)
       else

@@ -20,9 +20,7 @@
 require 'cosmos/processors/processor'
 
 module Cosmos
-
   class WatermarkProcessor < Processor
-
     # @param item_name [String] The name of the item to gather statistics on
     # @param value_type #See Processor::initialize
     def initialize(item_name, value_type = :CONVERTED)
@@ -56,7 +54,5 @@ module Cosmos
     def as_json
       { 'name' => @name, 'class' => self.class.name, 'params' => [@item_name, @value_type.to_s] }
     end
-
   end # class WatermarkProcessor
-
 end # module Cosmos

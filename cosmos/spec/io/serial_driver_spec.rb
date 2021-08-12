@@ -24,11 +24,10 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
   require 'cosmos/io/win32_serial_driver'
 
   module Cosmos
-
     describe SerialDriver do
       describe "instance" do
         it "enforces the parity to a known value" do
-          expect { SerialDriver.new('COM1',9600,:BLAH) }.to raise_error(ArgumentError, "Invalid parity: BLAH")
+          expect { SerialDriver.new('COM1', 9600, :BLAH) }.to raise_error(ArgumentError, "Invalid parity: BLAH")
         end
       end
 
@@ -41,7 +40,7 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
           expect(driver).to receive(:write)
           expect(driver).to receive(:read)
           allow(Win32SerialDriver).to receive(:new).and_return(driver)
-          driver = SerialDriver.new('COM1',9600)
+          driver = SerialDriver.new('COM1', 9600)
           driver.close
           driver.closed?
           driver.write("hi")
@@ -59,7 +58,7 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
             expect(driver).to receive(:write)
             expect(driver).to receive(:read)
             allow(PosixSerialDriver).to receive(:new).and_return(driver)
-            driver = SerialDriver.new('COM1',9600)
+            driver = SerialDriver.new('COM1', 9600)
             driver.close
             driver.closed?
             driver.write("hi")

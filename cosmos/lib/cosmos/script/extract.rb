@@ -24,6 +24,7 @@ module Cosmos
     SCANNING_REGULAR_EXPRESSION = %r{ (?:"(?:[^\\"]|\\.)*") | (?:'(?:[^\\']|\\.)*') | (?:\[(?:[^\\\[\]]|\\.)*\]) | \S+ }x # "
 
     private
+
     def add_cmd_parameter(keyword, value, packet, cmd_params)
       quotes_removed = value.remove_quotes
       if value == quotes_removed
@@ -55,6 +56,7 @@ module Cosmos
       first_half = split_string[0].split
       raise "ERROR: Both Target Name and Command Name must be given : #{text}" if first_half.length < 2
       raise "ERROR: Only Target Name and Command Name must be given before 'with' : #{text}" if first_half.length > 2
+
       target_name = first_half[0]
       cmd_name = first_half[1]
       cmd_params = {}
@@ -109,6 +111,7 @@ module Cosmos
     def extract_fields_from_tlm_text(text)
       split_string = text.split
       raise "ERROR: Telemetry Item must be specified as 'TargetName PacketName ItemName' : #{text}" if split_string.length != 3
+
       target_name = split_string[0]
       packet_name = split_string[1]
       item_name = split_string[2]
@@ -124,8 +127,10 @@ module Cosmos
       # set_tlm("TGT PKT ITEM ='new item'")
       split_string = text.split('=')
       raise error_msg if split_string.length < 2 || split_string[1].strip.empty?
+
       split_string = split_string[0].strip.split << split_string[1..-1].join('=').strip
       raise error_msg if split_string.length != 4 # Ensure tgt,pkt,item,value
+
       target_name = split_string[0]
       packet_name = split_string[1]
       item_name = split_string[2]
@@ -137,16 +142,19 @@ module Cosmos
     def extract_fields_from_check_text(text)
       split_string = text.split
       raise "ERROR: Check improperly specified: #{text}" if split_string.length < 3
+
       target_name = split_string[0]
       packet_name = split_string[1]
       item_name = split_string[2]
       comparison_to_eval = nil
       return [target_name, packet_name, item_name, comparison_to_eval] if split_string.length == 3
       raise "ERROR: Check improperly specified: #{text}" if split_string.length < 4
+
       split_string = text.split(/ /) # Split on regex spaces to preserve spaces in comparison
       index = split_string.rindex(item_name)
       comparison_to_eval = split_string[(index + 1)..(split_string.length - 1)].join(" ")
       raise "ERROR: Use '==' instead of '=': #{text}" if split_string[3] == '='
+
       return [target_name, packet_name, item_name, comparison_to_eval]
     end
   end

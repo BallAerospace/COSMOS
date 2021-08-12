@@ -23,7 +23,6 @@ require 'cosmos/interfaces/protocols/override_protocol'
 module Cosmos
   # An interface class that provides simulated telemetry and command responses
   class SimulatedTargetInterface < Interface
-
     # @param sim_target_file [String] Filename of the simulator target class
     def initialize(sim_target_file)
       super()
@@ -101,6 +100,7 @@ module Cosmos
               break if packet == :STOP
             end
             next if packet == :STOP
+
             return packet
           end
         end
@@ -142,6 +142,7 @@ module Cosmos
     end
 
     protected
+
     def first_pending_packet
       packet = nil
       unless @pending_packets.empty?

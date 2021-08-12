@@ -89,7 +89,7 @@ module Cosmos
         packets = []
         @api.get_target_list().each do |target_name|
           all = @api.get_all_telemetry(target_name)
-          all.each {|item| packets << [item['target_name'], item['packet_name']] }
+          all.each { |item| packets << [item['target_name'], item['packet_name']] }
         end
         stale = @api.get_stale().sort
         # Initially all packets are stale
@@ -99,7 +99,7 @@ module Cosmos
       it "gets stale packets for the specified target" do
         inst_packets = []
         all = @api.get_all_telemetry("INST")
-        all.each {|item| inst_packets << [item['target_name'], item['packet_name']] }
+        all.each { |item| inst_packets << [item['target_name'], item['packet_name']] }
         stale = @api.get_stale(target_name: "INST").sort
         # Initially all packets are stale
         expect(stale).to eql inst_packets.sort
@@ -166,7 +166,7 @@ module Cosmos
         expect(item['limits']['persistence_setting']).to eql(10)
         expect(item['limits']['enabled']).to be_nil
         expect(item['limits']['DEFAULT']).to eql({ 'red_low' => 0.0, 'yellow_low' => 1.0, 'yellow_high' => 2.0,
-            'red_high' => 3.0, 'green_low' => 4.0, 'green_high' => 5.0 })
+                                                   'red_high' => 3.0, 'green_low' => 4.0, 'green_high' => 5.0 })
       end
     end
 
@@ -179,7 +179,7 @@ module Cosmos
 
       it "returns all the limits groups" do
         expect(@api.get_limits_groups).to eql({ "FIRST" => [%w(INST HEALTH_STATUS TEMP1), %w(INST HEALTH_STATUS TEMP3)],
-            "SECOND" => [%w(INST HEALTH_STATUS TEMP2), %w(INST HEALTH_STATUS TEMP4)] })
+                                                "SECOND" => [%w(INST HEALTH_STATUS TEMP2), %w(INST HEALTH_STATUS TEMP4)] })
       end
     end
 
@@ -236,11 +236,11 @@ module Cosmos
       it "returns an offset and limits event hash" do
         # Load the events topic with two events ... only the last should be returned
         event = { type: :LIMITS_CHANGE, target_name: "BLAH", packet_name: "BLAH", item_name: "BLAH",
-          old_limits_state: :RED_LOW, new_limits_state: :RED_HIGH, time_nsec: 0, message: "nope" }
+                  old_limits_state: :RED_LOW, new_limits_state: :RED_HIGH, time_nsec: 0, message: "nope" }
         LimitsEventTopic.write(event, scope: "DEFAULT")
         time = Time.now.to_nsec_from_epoch
         event = { type: :LIMITS_CHANGE, target_name: "TGT", packet_name: "PKT", item_name: "ITEM",
-          old_limits_state: :GREEN, new_limits_state: :YELLOW_LOW, time_nsec: time, message: "message" }
+                  old_limits_state: :GREEN, new_limits_state: :YELLOW_LOW, time_nsec: time, message: "message" }
         LimitsEventTopic.write(event, scope: "DEFAULT")
         events = @api.get_limits_events()
         expect(events).to be_a Array
@@ -259,7 +259,7 @@ module Cosmos
 
       it "returns multiple offsets/events with multiple calls" do
         event = { type: :LIMITS_CHANGE, target_name: "TGT", packet_name: "PKT", item_name: "ITEM",
-          old_limits_state: :GREEN, new_limits_state: :YELLOW_LOW, time_nsec: 0, message: "message" }
+                  old_limits_state: :GREEN, new_limits_state: :YELLOW_LOW, time_nsec: 0, message: "message" }
         LimitsEventTopic.write(event, scope: "DEFAULT")
         events = @api.get_limits_events()
         expect(events[0][0]).to match(/\d{13}-\d/)
@@ -301,7 +301,7 @@ module Cosmos
 
     describe "get_out_of_limits" do
       it "returns all out of limits items" do
-        @api.inject_tlm("INST", "HEALTH_STATUS", {TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0}, type: :RAW)
+        @api.inject_tlm("INST", "HEALTH_STATUS", { TEMP1: 0, TEMP2: 0, TEMP3: 0, TEMP4: 0 }, type: :RAW)
         sleep 2
         items = @api.get_out_of_limits
         (0..3).each do |i|
@@ -316,7 +316,7 @@ module Cosmos
     describe "get_overall_limits_state" do
       it "returns the overall system limits state" do
         @api.inject_tlm("INST", "HEALTH_STATUS",
-          { 'TEMP1' => 0, 'TEMP2' => 0, 'TEMP3' => 0, 'TEMP4' => 0, 'GROUND1STATUS' => 1, 'GROUND2STATUS' => 1 })
+                        { 'TEMP1' => 0, 'TEMP2' => 0, 'TEMP3' => 0, 'TEMP4' => 0, 'GROUND1STATUS' => 1, 'GROUND2STATUS' => 1 })
         sleep(0.2)
         expect(@api.get_overall_limits_state).to eql "GREEN"
         # TEMP1 limits: -80.0 -70.0 60.0 80.0 -20.0 20.0

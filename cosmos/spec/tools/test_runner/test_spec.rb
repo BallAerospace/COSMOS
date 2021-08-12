@@ -26,48 +26,60 @@ class MySuite < Cosmos::TestSuite
   def setup
     Cosmos::Test.puts "#{Cosmos::Test.current_test_suite}::#{Cosmos::Test.current_test_group}::#{Cosmos::Test.current_test_case}"
   end
+
   def teardown
     Cosmos::Test.puts "#{Cosmos::Test.current_test_suite}::#{Cosmos::Test.current_test_group}::#{Cosmos::Test.current_test_case}"
   end
 end
+
 class MechTest < Cosmos::Test
   def setup
     # current_test and current_test_group are the same
     Cosmos::Test.puts "#{Cosmos::Test.current_test_suite}::#{Cosmos::Test.current_test}::#{Cosmos::Test.current_test_case}"
   end
+
   def test_mech1
     Cosmos::Test.puts "#{Cosmos::Test.current_test_suite}::#{Cosmos::Test.current_test_group}::#{Cosmos::Test.current_test_case}"
     raise "mech1_exception"
   end
+
   def test_mech2
     Cosmos::Test.puts "#{Cosmos::Test.current_test_suite}::#{Cosmos::Test.current_test_group}::#{Cosmos::Test.current_test_case}"
     puts "mech2_puts"
   end
+
   def test_mech3
     Cosmos::Test.puts "#{Cosmos::Test.current_test_suite}::#{Cosmos::Test.current_test_group}::#{Cosmos::Test.current_test_case}"
     raise Cosmos::SkipTestCase, "unimplemented"
   end
+
   def teardown
     Cosmos::Test.puts "#{Cosmos::Test.current_test_suite}::#{Cosmos::Test.current_test}::#{Cosmos::Test.current_test_case}"
   end
 end
+
 class ImageTest < Cosmos::Test
   def setup
     Cosmos::Test.puts "#{Cosmos::Test.current_test_suite}::#{Cosmos::Test.current_test}::#{Cosmos::Test.current_test_case}"
   end
+
   def test_image1
     Cosmos::Test.puts "#{Cosmos::Test.current_test_suite}::#{Cosmos::Test.current_test_group}::#{Cosmos::Test.current_test_case}"
     puts "image1_puts"
   end
+
   def test_image2
     Cosmos::Test.puts "#{Cosmos::Test.current_test_suite}::#{Cosmos::Test.current_test_group}::#{Cosmos::Test.current_test_case}"
     raise "image2_exception"
   end
+
   def test_image3
     Cosmos::Test.puts "#{Cosmos::Test.current_test_suite}::#{Cosmos::Test.current_test_group}::#{Cosmos::Test.current_test_case}"
     raise Cosmos::StopScript if $stop_script
+
     puts "more"
   end
+
   def teardown
     Cosmos::Test.puts "#{Cosmos::Test.current_test_suite}::#{Cosmos::Test.current_test}::#{Cosmos::Test.current_test_case}"
   end
@@ -116,8 +128,8 @@ module Cosmos
           #                        s:s  g:s  m:1  m:2  m:3  m:t  i:s  i:1  i:2  i:3  i:t  s:t
           expect(results).to eq(%i(PASS PASS FAIL PASS SKIP PASS PASS PASS FAIL PASS PASS PASS))
           expect(messages).to eq(["MySuite::MySuite::setup\n", "MySuite::MechTest::setup\n", "MySuite::MechTest::test_mech1\n", "MySuite::MechTest::test_mech2\n", "MySuite::MechTest::test_mech3\nunimplemented\n", "MySuite::MechTest::teardown\n", "MySuite::ImageTest::setup\n", "MySuite::ImageTest::test_image1\n", "MySuite::ImageTest::test_image2\n", "MySuite::ImageTest::test_image3\n", "MySuite::ImageTest::teardown\n", "MySuite::MySuite::teardown\n"])
-          expect(exceptions.map {|e| e.message }).to include("mech1_exception")
-          expect(exceptions.map {|e| e.message }).to include("image2_exception")
+          expect(exceptions.map { |e| e.message }).to include("mech1_exception")
+          expect(exceptions.map { |e| e.message }).to include("image2_exception")
         end
       end
 
@@ -141,7 +153,7 @@ module Cosmos
           end
           expect(results).to eq(%i(PASS PASS FAIL PASS PASS))
           expect(messages).to eq(["MySuite::ImageTest::setup\n", "MySuite::ImageTest::test_image1\n", "MySuite::ImageTest::test_image2\n", "MySuite::ImageTest::test_image3\n", "MySuite::ImageTest::teardown\n"])
-          expect(exceptions.map {|e| e.message }).to include("image2_exception")
+          expect(exceptions.map { |e| e.message }).to include("image2_exception")
         end
 
         it "stops upon StopScript" do
@@ -198,8 +210,8 @@ module Cosmos
             expect(stdout.string).to include("image2_exception")
           end
           expect(messages).to eq(["MySuite::MySuite::setup\n", "MySuite::ImageTest::test_image2\n", "MySuite::MechTest::teardown\n", "MySuite::MechTest::test_mech1\n", "MySuite::ImageTest::setup\n", "MySuite::MySuite::teardown\n"])
-          expect(exceptions.map {|e| e.message }).to include("mech1_exception")
-          expect(exceptions.map {|e| e.message }).to include("image2_exception")
+          expect(exceptions.map { |e| e.message }).to include("mech1_exception")
+          expect(exceptions.map { |e| e.message }).to include("image2_exception")
         end
       end
 
@@ -221,7 +233,7 @@ module Cosmos
             @suite.run_test(ImageTest) { |result| messages << result.message; exceptions.concat(result.exceptions) if result.exceptions }
           end
           expect(messages).to eq(["MySuite::ImageTest::test_image2\n", "MySuite::ImageTest::setup\n"])
-          expect(exceptions.map {|e| e.message }).to include("image2_exception")
+          expect(exceptions.map { |e| e.message }).to include("image2_exception")
 
           messages = []
           exceptions = []
@@ -231,7 +243,7 @@ module Cosmos
             @suite.run_test(MechTest) { |result| messages << result.message; exceptions.concat(result.exceptions) if result.exceptions }
           end
           expect(messages).to eq(["MySuite::MechTest::teardown\n", "MySuite::MechTest::test_mech1\n"])
-          expect(exceptions.map {|e| e.message }).to include("mech1_exception")
+          expect(exceptions.map { |e| e.message }).to include("mech1_exception")
         end
       end
 

@@ -30,9 +30,13 @@ module Cosmos
 
     class CrcStream < Stream
       def connect; end
+
       def connected?; true; end
+
       def disconnect; end
+
       def read; $buffer; end
+
       def write(data); $buffer = data; end
     end
 
@@ -45,237 +49,269 @@ module Cosmos
     describe "initialize" do
       it "complains if strip crc is not boolean" do
         ['ERROR', 0, nil].each do |strip_crc|
-          expect { @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            strip_crc, # strip crc
-            'ERROR', # bad strategy
-            -16, # bit offset
-            16], # bit size
-            :READ_WRITE) }.to raise_error(/Invalid strip CRC/)
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      strip_crc, # strip crc
+                                      'ERROR', # bad strategy
+                                      -16, # bit offset
+                                      16
+                                    ], # bit size
+                                    :READ_WRITE)
+          }.to raise_error(/Invalid strip CRC/)
         end
       end
 
       it "complains if bad strategy is not ERROR or DISCONNECT" do
         ['BAD', 0, nil].each do |strategy|
-          expect { @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'TRUE', # strip crc
-            strategy, # bad strategy
-            -16, # bit offset
-            16], # bit size
-            :READ_WRITE) }.to raise_error(/Invalid bad CRC strategy/)
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      'TRUE', # strip crc
+                                      strategy, # bad strategy
+                                      -16, # bit offset
+                                      16
+                                    ], # bit size
+                                    :READ_WRITE)
+          }.to raise_error(/Invalid bad CRC strategy/)
         end
       end
 
       it "complains if bit size is not 16, 32, or 64" do
         ['0', 0, nil].each do |bit_size|
-          expect { @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'TRUE', # strip crc
-            'ERROR', # bad strategy
-            128, # bit offset
-            bit_size], # bit size
-            :READ_WRITE) }.to raise_error(/Invalid bit size/)
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      'TRUE', # strip crc
+                                      'ERROR', # bad strategy
+                                      128, # bit offset
+                                      bit_size
+                                    ], # bit size
+                                    :READ_WRITE)
+          }.to raise_error(/Invalid bit size/)
         end
       end
 
       it "accepts a string bit size of 16, 32, or 64" do
         %w(16 32 64).each do |bit_size|
           @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'TRUE', # strip crc
-            'ERROR', # bad strategy
-            -32, # bit offset
-            bit_size], # bit size
-            :READ_WRITE)
+                                    nil, # item name
+                                    'TRUE', # strip crc
+                                    'ERROR', # bad strategy
+                                    -32, # bit offset
+                                    bit_size
+                                  ], # bit size
+                                  :READ_WRITE)
           expect(@interface.read_protocols[-1].instance_variable_get(:@bit_size)).to eq Integer(bit_size)
         end
       end
 
       it "complains if bit offset is not byte divisible" do
         [nil, 100, '100'].each do |offset|
-          expect { @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'TRUE', # strip crc
-            'ERROR', # bad strategy
-            offset, # bit offset
-            16], # bit size
-            :READ_WRITE) }.to raise_error(/Invalid bit offset/)
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      'TRUE', # strip crc
+                                      'ERROR', # bad strategy
+                                      offset, # bit offset
+                                      16
+                                    ], # bit size
+                                    :READ_WRITE)
+          }.to raise_error(/Invalid bit offset/)
         end
       end
 
       it "accepts a string for bit offset" do
         %w(0 32 -32).each do |offset|
           @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'TRUE', # strip crc
-            'ERROR', # bad strategy
-            offset, # bit offset
-            16], # bit size
-            :READ_WRITE)
+                                    nil, # item name
+                                    'TRUE', # strip crc
+                                    'ERROR', # bad strategy
+                                    offset, # bit offset
+                                    16
+                                  ], # bit size
+                                  :READ_WRITE)
           expect(@interface.read_protocols[-1].instance_variable_get(:@bit_offset)).to eq Integer(offset)
         end
       end
 
       it "complains if the endianness is not BIG_ENDIAN or LITTLE_ENDIAN" do
         ['ENDIAN', 0, nil].each do |endianness|
-          expect { @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'FALSE', # strip crc
-            'ERROR', # bad strategy
-            -16, # bit offset
-            16, # bit size
-            endianness, # endianness
-            0xDEAD, # poly
-            0x0, # seed
-            'TRUE', # xor
-            'TRUE', # reflect
-            ],
-            :READ_WRITE) }.to raise_error(/Invalid endianness/)
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      'FALSE', # strip crc
+                                      'ERROR', # bad strategy
+                                      -16, # bit offset
+                                      16, # bit size
+                                      endianness, # endianness
+                                      0xDEAD, # poly
+                                      0x0, # seed
+                                      'TRUE', # xor
+                                      'TRUE', # reflect
+                                    ],
+                                    :READ_WRITE)
+          }.to raise_error(/Invalid endianness/)
         end
       end
 
       it "complains if the poly is not a number" do
         ['TRUE', '123abc'].each do |poly|
-          expect { @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'FALSE', # strip crc
-            'ERROR', # bad strategy
-            -16, # bit offset
-            16, # bit size
-            'BIG_ENDIAN', # endianness
-            poly, # poly
-            0x0, # seed
-            'TRUE', # xor
-            'TRUE', # reflect
-            ],
-            :READ_WRITE) }.to raise_error(/Invalid poly/)
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      'FALSE', # strip crc
+                                      'ERROR', # bad strategy
+                                      -16, # bit offset
+                                      16, # bit size
+                                      'BIG_ENDIAN', # endianness
+                                      poly, # poly
+                                      0x0, # seed
+                                      'TRUE', # xor
+                                      'TRUE', # reflect
+                                    ],
+                                    :READ_WRITE)
+          }.to raise_error(/Invalid poly/)
         end
       end
 
       it "accepts nil and numeric polynomials" do
         ['0xABCD', 0xABCD, nil, '', 'NIL', 'NULL'].each do |poly|
-          expect { @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'FALSE', # strip crc
-            'ERROR', # bad strategy
-            -16, # bit offset
-            16, # bit size
-            'BIG_ENDIAN', # endianness
-            poly, # poly
-            0x0, # seed
-            'TRUE', # xor
-            'TRUE', # reflect
-            ],
-            :READ_WRITE) }.to_not raise_error
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      'FALSE', # strip crc
+                                      'ERROR', # bad strategy
+                                      -16, # bit offset
+                                      16, # bit size
+                                      'BIG_ENDIAN', # endianness
+                                      poly, # poly
+                                      0x0, # seed
+                                      'TRUE', # xor
+                                      'TRUE', # reflect
+                                    ],
+                                    :READ_WRITE)
+          }.to_not raise_error
         end
       end
 
       it "complains if the seed is not a number" do
         ['TRUE', '123abc'].each do |seed|
-          expect { @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'FALSE', # strip crc
-            'ERROR', # bad strategy
-            -16, # bit offset
-            16, # bit size
-            'LITTLE_ENDIAN', # endianness
-            0xABCD, # poly
-            seed, # seed
-            'TRUE', # xor
-            'TRUE', # reflect
-            ],
-            :READ_WRITE) }.to raise_error(/Invalid seed/)
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      'FALSE', # strip crc
+                                      'ERROR', # bad strategy
+                                      -16, # bit offset
+                                      16, # bit size
+                                      'LITTLE_ENDIAN', # endianness
+                                      0xABCD, # poly
+                                      seed, # seed
+                                      'TRUE', # xor
+                                      'TRUE', # reflect
+                                    ],
+                                    :READ_WRITE)
+          }.to raise_error(/Invalid seed/)
         end
       end
 
       it "accepts nil and numeric seeds" do
         ['0xABCD', 0xABCD, nil, '', 'NIL', 'NULL'].each do |seed|
-          expect { @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'FALSE', # strip crc
-            'ERROR', # bad strategy
-            -16, # bit offset
-            16, # bit size
-            'BIG_ENDIAN', # endianness
-            nil, # poly
-            seed, # seed
-            'TRUE', # xor
-            'TRUE', # reflect
-            ],
-            :READ_WRITE) }.to_not raise_error
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      'FALSE', # strip crc
+                                      'ERROR', # bad strategy
+                                      -16, # bit offset
+                                      16, # bit size
+                                      'BIG_ENDIAN', # endianness
+                                      nil, # poly
+                                      seed, # seed
+                                      'TRUE', # xor
+                                      'TRUE', # reflect
+                                    ],
+                                    :READ_WRITE)
+          }.to_not raise_error
         end
       end
 
       it "accepts nil TRUE FALSE for xor" do
         [nil, '', 'NIL', 'NULL', 'TRUE', 'FALSE'].each do |xor|
-          expect { @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'FALSE', # strip crc
-            'ERROR', # bad strategy
-            -16, # bit offset
-            16, # bit size
-            'BIG_ENDIAN', # endianness
-            0xABCD, # poly
-            0, # seed
-            xor, # xor
-            'TRUE', # reflect
-            ],
-            :READ_WRITE) }.to_not raise_error
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      'FALSE', # strip crc
+                                      'ERROR', # bad strategy
+                                      -16, # bit offset
+                                      16, # bit size
+                                      'BIG_ENDIAN', # endianness
+                                      0xABCD, # poly
+                                      0, # seed
+                                      xor, # xor
+                                      'TRUE', # reflect
+                                    ],
+                                    :READ_WRITE)
+          }.to_not raise_error
         end
       end
 
       it "complains if the xor is not boolean" do
         ['ERROR', 0].each do |xor|
-          expect { @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'FALSE', # strip crc
-            'ERROR', # bad strategy
-            -16, # bit offset
-            16, # bit size
-            'BIG_ENDIAN', # endianness
-            0xABCD, # poly
-            0, # seed
-            xor, # xor
-            'TRUE', # reflect
-            ],
-            :READ_WRITE) }.to raise_error(/Invalid XOR value/)
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      'FALSE', # strip crc
+                                      'ERROR', # bad strategy
+                                      -16, # bit offset
+                                      16, # bit size
+                                      'BIG_ENDIAN', # endianness
+                                      0xABCD, # poly
+                                      0, # seed
+                                      xor, # xor
+                                      'TRUE', # reflect
+                                    ],
+                                    :READ_WRITE)
+          }.to raise_error(/Invalid XOR value/)
         end
       end
 
       it "accepts nil TRUE FALSE for reflect" do
         [nil, '', 'NIL', 'NULL', 'TRUE', 'FALSE'].each do |reflect|
-          expect { @interface.add_protocol(CrcProtocol, [
-            nil, # item name
-            'FALSE', # strip crc
-            'ERROR', # bad strategy
-            -16, # bit offset
-            16, # bit size
-            'BIG_ENDIAN', # endianness
-            0xABCD, # poly
-            0, # seed
-            'TRUE', # xor
-            reflect, # reflect
-            ],
-            :READ_WRITE) }.to_not raise_error
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      'FALSE', # strip crc
+                                      'ERROR', # bad strategy
+                                      -16, # bit offset
+                                      16, # bit size
+                                      'BIG_ENDIAN', # endianness
+                                      0xABCD, # poly
+                                      0, # seed
+                                      'TRUE', # xor
+                                      reflect, # reflect
+                                    ],
+                                    :READ_WRITE)
+          }.to_not raise_error
         end
       end
 
       it "complains if the reflect is not boolean" do
         ['ERROR', 0].each do |reflect|
-          expect { @interface.add_protocol(CrcProtocol, [
-          nil, # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -16, # bit offset
-          16, # bit size
-          'BIG_ENDIAN', # endianness
-          0xABCD, # poly
-          0, # seed
-          'TRUE', # xor
-          reflect, # reflect
-          ],
-          :READ_WRITE) }.to raise_error(/Invalid reflect value/)
+          expect {
+            @interface.add_protocol(CrcProtocol, [
+                                      nil, # item name
+                                      'FALSE', # strip crc
+                                      'ERROR', # bad strategy
+                                      -16, # bit offset
+                                      16, # bit size
+                                      'BIG_ENDIAN', # endianness
+                                      0xABCD, # poly
+                                      0, # seed
+                                      'TRUE', # xor
+                                      reflect, # reflect
+                                    ],
+                                    :READ_WRITE)
+          }.to raise_error(/Invalid reflect value/)
         end
       end
     end
@@ -285,12 +321,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          nil, # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -32, # bit offset
-           32], # bit size
-          :WRITE)
+                                  nil, # item name
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -32, # bit offset
+                                  32
+                                ], # bit size
+                                :WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -307,12 +344,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'CRC', # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -16, # bit offset
-           16], # bit size
-          :READ_WRITE)
+                                  'CRC', # item name
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -16, # bit offset
+                                  16
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -332,12 +370,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'CRC', # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -32, # bit offset
-           32], # bit size
-          :READ_WRITE)
+                                  'CRC', # item name
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -32, # bit offset
+                                  32
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -357,12 +396,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'CRC', # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -64, # bit offset
-           64], # bit size
-          :READ_WRITE)
+                                  'CRC', # item name
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -64, # bit offset
+                                  64
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -386,18 +426,18 @@ module Cosmos
           @interface.instance_variable_set(:@stream, CrcStream.new)
           @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
           @interface.add_protocol(CrcProtocol, [
-            'CRC', # item name
-            'FALSE', # strip crc
-            'ERROR', # bad strategy
-            -16, # bit offset
-            16, # bit size
-            :BIG_ENDIAN, # endianness
-            0x8005, # poly
-            0x0, # seed
-            'TRUE', # xor
-            'TRUE', # reflect
-            ],
-            :READ_WRITE)
+                                    'CRC', # item name
+                                    'FALSE', # strip crc
+                                    'ERROR', # bad strategy
+                                    -16, # bit offset
+                                    16, # bit size
+                                    :BIG_ENDIAN, # endianness
+                                    0x8005, # poly
+                                    0x0, # seed
+                                    'TRUE', # xor
+                                    'TRUE', # reflect
+                                  ],
+                                  :READ_WRITE)
           @interface.target_names = ['TGT']
           packet = Packet.new('TGT', 'PKT')
           packet.append_item("DATA", 32, :UINT)
@@ -418,18 +458,18 @@ module Cosmos
           @interface.instance_variable_set(:@stream, CrcStream.new)
           @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
           @interface.add_protocol(CrcProtocol, [
-            'CRC', # item name
-            'FALSE', # strip crc
-            'ERROR', # bad strategy
-            -32, # bit offset
-            32, # bit size
-            :BIG_ENDIAN, # endianness
-            0x1EDC6F41, # poly
-            0x0, # seed
-            'FALSE', # xor
-            'FALSE', # reflect
-            ],
-            :READ_WRITE)
+                                    'CRC', # item name
+                                    'FALSE', # strip crc
+                                    'ERROR', # bad strategy
+                                    -32, # bit offset
+                                    32, # bit size
+                                    :BIG_ENDIAN, # endianness
+                                    0x1EDC6F41, # poly
+                                    0x0, # seed
+                                    'FALSE', # xor
+                                    'FALSE', # reflect
+                                  ],
+                                  :READ_WRITE)
           @interface.target_names = ['TGT']
           packet = Packet.new('TGT', 'PKT')
           packet.append_item("DATA", 32, :UINT)
@@ -450,18 +490,18 @@ module Cosmos
           @interface.instance_variable_set(:@stream, CrcStream.new)
           @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
           @interface.add_protocol(CrcProtocol, [
-            'CRC', # item name
-            'FALSE', # strip crc
-            'ERROR', # bad strategy
-            -64, # bit offset
-            64, # bit size
-            :BIG_ENDIAN, # endianness
-            0x000000000000001B, # poly
-            0x0, # seed
-            'FALSE', # xor
-            'FALSE', # reflect
-            ],
-            :READ_WRITE)
+                                    'CRC', # item name
+                                    'FALSE', # strip crc
+                                    'ERROR', # bad strategy
+                                    -64, # bit offset
+                                    64, # bit size
+                                    :BIG_ENDIAN, # endianness
+                                    0x000000000000001B, # poly
+                                    0x0, # seed
+                                    'FALSE', # xor
+                                    'FALSE', # reflect
+                                  ],
+                                  :READ_WRITE)
           @interface.target_names = ['TGT']
           packet = Packet.new('TGT', 'PKT')
           packet.append_item("DATA", 32, :UINT)
@@ -486,12 +526,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'CRC', # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -32, # bit offset
-           32], # bit size
-          :READ_WRITE)
+                                  'CRC', # item name
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -32, # bit offset
+                                  32
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -514,12 +555,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'CRC', # item name
-          'FALSE', # strip crc
-          'DISCONNECT', # bad strategy
-          -32, # bit offset
-           32], # bit size
-          :READ_WRITE)
+                                  'CRC', # item name
+                                  'FALSE', # strip crc
+                                  'DISCONNECT', # bad strategy
+                                  -32, # bit offset
+                                  32
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -541,12 +583,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'CRC', # item name
-          'TRUE', # strip crc
-          'ERROR', # bad strategy
-          -16, # bit offset
-           16], # bit size
-          :READ_WRITE)
+                                  'CRC', # item name
+                                  'TRUE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -16, # bit offset
+                                  16
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -566,12 +609,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'CRC', # item name
-          'TRUE', # strip crc
-          'ERROR', # bad strategy
-          -32, # bit offset
-           32], # bit size
-          :READ_WRITE)
+                                  'CRC', # item name
+                                  'TRUE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -32, # bit offset
+                                  32
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -591,12 +635,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'CRC', # item name
-          'TRUE', # strip crc
-          'ERROR', # bad strategy
-          -64, # bit offset
-           64], # bit size
-          :READ_WRITE)
+                                  'CRC', # item name
+                                  'TRUE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -64, # bit offset
+                                  64
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -619,12 +664,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'CRC', # item name
-          'TRUE', # strip crc
-          'ERROR', # bad strategy
-          32, # bit offset
-          16], # bit size
-          :READ_WRITE)
+                                  'CRC', # item name
+                                  'TRUE', # strip crc
+                                  'ERROR', # bad strategy
+                                  32, # bit offset
+                                  16
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -648,12 +694,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          nil, # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -32, # bit offset
-           32], # bit size
-          :READ)
+                                  nil, # item name
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -32, # bit offset
+                                  32
+                                ], # bit size
+                                :READ)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -669,12 +716,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'MYCRC', # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -32, # bit offset
-           32], # bit size
-          :READ_WRITE)
+                                  'MYCRC', # item name
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -32, # bit offset
+                                  32
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -688,12 +736,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'CRC', # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -48, # bit offset
-           16], # bit size
-          :READ_WRITE)
+                                  'CRC', # item name
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -48, # bit offset
+                                  16
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -711,12 +760,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'CRC', # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -32, # bit offset
-           32], # bit size
-          :READ_WRITE)
+                                  'CRC', # item name
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -32, # bit offset
+                                  32
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -734,12 +784,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          'CRC', # item name
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -64, # bit offset
-           64], # bit size
-          :READ_WRITE)
+                                  'CRC', # item name
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -64, # bit offset
+                                  64
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -761,12 +812,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          nil, # item name nil means append
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -16, # bit offset
-           16], # bit size
-          :READ_WRITE)
+                                  nil, # item name nil means append
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -16, # bit offset
+                                  16
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -784,12 +836,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          nil, # item name nil means append
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -32, # bit offset
-           32], # bit size
-          :READ_WRITE)
+                                  nil, # item name nil means append
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -32, # bit offset
+                                  32
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)
@@ -807,12 +860,13 @@ module Cosmos
         @interface.instance_variable_set(:@stream, CrcStream.new)
         @interface.add_protocol(BurstProtocol, [], :READ_WRITE)
         @interface.add_protocol(CrcProtocol, [
-          nil, # item name nil means append
-          'FALSE', # strip crc
-          'ERROR', # bad strategy
-          -64, # bit offset
-           64], # bit size
-          :READ_WRITE)
+                                  nil, # item name nil means append
+                                  'FALSE', # strip crc
+                                  'ERROR', # bad strategy
+                                  -64, # bit offset
+                                  64
+                                ], # bit size
+                                :READ_WRITE)
         @interface.target_names = ['TGT']
         packet = Packet.new('TGT', 'PKT')
         packet.append_item("DATA", 32, :UINT)

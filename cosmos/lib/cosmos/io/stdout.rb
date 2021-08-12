@@ -20,7 +20,6 @@
 require 'cosmos/io/io_multiplexer'
 
 module Cosmos
-
   # Adds STDOUT to the multiplexed streams
   class Stdout < IoMultiplexer
     @@instance = nil
@@ -41,5 +40,4 @@ module Cosmos
       false
     end
   end
-
 end

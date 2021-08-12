@@ -109,21 +109,21 @@ module Cosmos
       end
 
       it "processes parameters" do
-        target_name, cmd_name, params = @api.cmd("INST","COLLECT","TYPE" => "NORMAL","DURATION" => 5)
+        target_name, cmd_name, params = @api.cmd("INST", "COLLECT", "TYPE" => "NORMAL", "DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_name).to eql 'COLLECT'
         expect(params).to include('TYPE' => 'NORMAL', 'DURATION' => 5)
       end
 
       it "processes commands without parameters" do
-        target_name, cmd_name, params = @api.cmd("INST","ABORT")
+        target_name, cmd_name, params = @api.cmd("INST", "ABORT")
         expect(target_name).to eql 'INST'
         expect(cmd_name).to eql 'ABORT'
         expect(params).to be {}
       end
 
       it "complains about too many parameters" do
-        expect { @api.cmd("INST","COLLECT","TYPE","DURATION") }.to raise_error(/Invalid number of arguments/)
+        expect { @api.cmd("INST", "COLLECT", "TYPE", "DURATION") }.to raise_error(/Invalid number of arguments/)
       end
 
       it "warns about required parameters" do
@@ -144,7 +144,7 @@ module Cosmos
 
       it "times out if the interface does not process the command" do
         @process = false
-        expect { @api.cmd("INST","ABORT") }.to raise_error("Timeout waiting for cmd ack")
+        expect { @api.cmd("INST", "ABORT") }.to raise_error("Timeout waiting for cmd ack")
       end
     end
 
@@ -161,7 +161,7 @@ module Cosmos
       end
 
       it "processes parameters" do
-        target_name, cmd_no_range_check_name, params = @api.cmd_no_range_check("INST","COLLECT","TYPE" => "NORMAL","DURATION" => 5)
+        target_name, cmd_no_range_check_name, params = @api.cmd_no_range_check("INST", "COLLECT", "TYPE" => "NORMAL", "DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_no_range_check_name).to eql 'COLLECT'
         expect(params).to include('TYPE' => 'NORMAL', 'DURATION' => 5)
@@ -197,7 +197,7 @@ module Cosmos
       end
 
       it "processes parameters" do
-        target_name, cmd_no_hazardous_check_name, params = @api.cmd_no_hazardous_check("INST","COLLECT","TYPE" => "NORMAL","DURATION" => 5)
+        target_name, cmd_no_hazardous_check_name, params = @api.cmd_no_hazardous_check("INST", "COLLECT", "TYPE" => "NORMAL", "DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_no_hazardous_check_name).to eql 'COLLECT'
         expect(params).to include('TYPE' => 'NORMAL', 'DURATION' => 5)
@@ -240,7 +240,7 @@ module Cosmos
       end
 
       it "processes parameters" do
-        target_name, cmd_no_checks_name, params = @api.cmd_no_checks("INST","COLLECT","TYPE" => "NORMAL","DURATION" => 5)
+        target_name, cmd_no_checks_name, params = @api.cmd_no_checks("INST", "COLLECT", "TYPE" => "NORMAL", "DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_no_checks_name).to eql 'COLLECT'
         expect(params).to include('TYPE' => 'NORMAL', 'DURATION' => 5)
@@ -284,21 +284,21 @@ module Cosmos
       end
 
       it "processes parameters" do
-        target_name, cmd_name, params = @api.cmd_raw("INST","COLLECT","TYPE" => 0,"DURATION" => 5)
+        target_name, cmd_name, params = @api.cmd_raw("INST", "COLLECT", "TYPE" => 0, "DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_name).to eql 'COLLECT'
         expect(params).to include('TYPE' => 0, 'DURATION' => 5)
       end
 
       it "processes commands without parameters" do
-        target_name, cmd_name, params = @api.cmd_raw("INST","ABORT")
+        target_name, cmd_name, params = @api.cmd_raw("INST", "ABORT")
         expect(target_name).to eql 'INST'
         expect(cmd_name).to eql 'ABORT'
         expect(params).to be {}
       end
 
       it "complains about too many parameters" do
-        expect { @api.cmd_raw("INST","COLLECT","TYPE","DURATION") }.to raise_error(/Invalid number of arguments/)
+        expect { @api.cmd_raw("INST", "COLLECT", "TYPE", "DURATION") }.to raise_error(/Invalid number of arguments/)
       end
 
       it "warns about required parameters" do
@@ -331,7 +331,7 @@ module Cosmos
       end
 
       it "processes parameters" do
-        target_name, cmd_no_range_check_name, params = @api.cmd_raw_no_range_check("INST","COLLECT","TYPE" => 0,"DURATION" => 5)
+        target_name, cmd_no_range_check_name, params = @api.cmd_raw_no_range_check("INST", "COLLECT", "TYPE" => 0, "DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_no_range_check_name).to eql 'COLLECT'
         expect(params).to include('TYPE' => 0, 'DURATION' => 5)
@@ -367,7 +367,7 @@ module Cosmos
       end
 
       it "processes parameters" do
-        target_name, cmd_no_hazardous_check_name, params = @api.cmd_raw_no_hazardous_check("INST","COLLECT","TYPE" => 0,"DURATION" => 5)
+        target_name, cmd_no_hazardous_check_name, params = @api.cmd_raw_no_hazardous_check("INST", "COLLECT", "TYPE" => 0, "DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_no_hazardous_check_name).to eql 'COLLECT'
         expect(params).to include('TYPE' => 0, 'DURATION' => 5)
@@ -410,7 +410,7 @@ module Cosmos
       end
 
       it "processes parameters" do
-        target_name, cmd_no_checks_name, params = @api.cmd_raw_no_checks("INST","COLLECT","TYPE" => 0,"DURATION" => 5)
+        target_name, cmd_no_checks_name, params = @api.cmd_raw_no_checks("INST", "COLLECT", "TYPE" => 0, "DURATION" => 5)
         expect(target_name).to eql 'INST'
         expect(cmd_no_checks_name).to eql 'COLLECT'
         expect(params).to include('TYPE' => 0, 'DURATION' => 5)
@@ -480,7 +480,7 @@ module Cosmos
 
     describe "get_parameter" do
       it "returns parameter hash for state parameter" do
-        result = @api.get_parameter("INST","COLLECT","TYPE")
+        result = @api.get_parameter("INST", "COLLECT", "TYPE")
         expect(result['name']).to eql "TYPE"
         expect(result['states'].keys.sort).to eql %w[NORMAL SPECIAL]
         expect(result['states']['NORMAL']).to include("value" => 0)
@@ -488,7 +488,7 @@ module Cosmos
       end
 
       it "returns parameter hash for array parameter" do
-        result = @api.get_parameter("INST","ARYCMD","ARRAY")
+        result = @api.get_parameter("INST", "ARYCMD", "ARRAY")
         expect(result['name']).to eql "ARRAY"
         expect(result['bit_size']).to eql 64
         expect(result['array_size']).to eql 640
@@ -498,7 +498,7 @@ module Cosmos
 
     describe 'get_command' do
       it "returns hash for the command and parameters" do
-        result = @api.get_command("INST","COLLECT")
+        result = @api.get_command("INST", "COLLECT")
         expect(result).to be_a Hash
         expect(result['target_name']).to eql "INST"
         expect(result['packet_name']).to eql "COLLECT"
@@ -515,7 +515,7 @@ module Cosmos
           if parameter['name'] == 'TYPE'
             expect(parameter['default']).to eql 0
             expect(parameter['data_type']).to eql "UINT"
-            expect(parameter['states']).to eql({ "NORMAL" => { "value" => 0 }, "SPECIAL" => { "value" => 1, "hazardous" => "" }})
+            expect(parameter['states']).to eql({ "NORMAL" => { "value" => 0 }, "SPECIAL" => { "value" => 1, "hazardous" => "" } })
             expect(parameter['description']).to eql "Collect type"
             expect(parameter['required']).to be true
             expect(parameter['units']).to be_nil
@@ -538,15 +538,15 @@ module Cosmos
         expect(@api.get_cmd_hazardous("INST COLLECT with TYPE NORMAL")).to be false
         expect(@api.get_cmd_hazardous("INST COLLECT with TYPE SPECIAL")).to be true
 
-        expect(@api.get_cmd_hazardous("INST","COLLECT",{ "TYPE" => "NORMAL" })).to be false
-        expect(@api.get_cmd_hazardous("INST","COLLECT",{ "TYPE" => "SPECIAL" })).to be true
-        expect(@api.get_cmd_hazardous("INST","COLLECT",{ "TYPE" => 0 })).to be false
-        expect(@api.get_cmd_hazardous("INST","COLLECT",{ "TYPE" => 1 })).to be true
+        expect(@api.get_cmd_hazardous("INST", "COLLECT", { "TYPE" => "NORMAL" })).to be false
+        expect(@api.get_cmd_hazardous("INST", "COLLECT", { "TYPE" => "SPECIAL" })).to be true
+        expect(@api.get_cmd_hazardous("INST", "COLLECT", { "TYPE" => 0 })).to be false
+        expect(@api.get_cmd_hazardous("INST", "COLLECT", { "TYPE" => 1 })).to be true
       end
 
       it "returns whether the command is hazardous" do
         expect(@api.get_cmd_hazardous("INST CLEAR")).to be true
-        expect(@api.get_cmd_hazardous("INST","CLEAR")).to be true
+        expect(@api.get_cmd_hazardous("INST", "CLEAR")).to be true
       end
 
       it "raises with the wrong number of arguments" do

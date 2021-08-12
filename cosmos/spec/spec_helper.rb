@@ -34,9 +34,9 @@ if !ENV['COSMOS_NO_SIMPLECOV']
   if ENV['GITHUB_WORKFLOW']
     require 'codecov'
     SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
-      SimpleCov::Formatter::HTMLFormatter,
-      SimpleCov::Formatter::Codecov,
-    ])
+                                                                     SimpleCov::Formatter::HTMLFormatter,
+                                                                     SimpleCov::Formatter::Codecov,
+                                                                   ])
   end
   SimpleCov.start do
     merge_timeout 60 * 60 # merge the last hour of results
@@ -121,12 +121,11 @@ def mock_redis
   # allow(pool).to receive(:with) { redis }
   # allow(ConnectionPool).to receive(:new).and_return(pool)
   Cosmos::Store.class_variable_set(:@@instance, nil)
-  #
   require 'cosmos/models/auth_model'
   Cosmos::AuthModel.set($cosmos_token, nil)
-  #
   redis
 end
+
 # Clean up the spec configuration directory
 def clean_config
   %w(outputs/logs outputs/saved_config outputs/tmp outputs/tables outputs/handbooks procedures).each do |dir|

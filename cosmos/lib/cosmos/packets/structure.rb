@@ -22,12 +22,10 @@ require 'cosmos/packets/structure_item'
 require 'cosmos/ext/packet' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
-
   # Maintains knowledge of a raw binary structure. Uses structure_item to
   # create individual structure items which are read and written by
   # binary_accessor.
   class Structure
-
     # @return [Symbol] Default endianness for items in the structure. One of
     #   {BinaryAccessor::ENDIANNESS}
     attr_reader :default_endianness
@@ -73,6 +71,7 @@ module Cosmos
           @default_endianness = default_endianness
           if buffer
             raise TypeError, "wrong argument type #{buffer.class} (expected String)" unless String === buffer
+
             @buffer = buffer.force_encoding(ASCII_8BIT_STRING)
           else
             @buffer = nil
@@ -119,6 +118,7 @@ module Cosmos
       # @return [Integer] Size of the buffer in bytes
       def length
         return @buffer.length if @buffer
+
         return 0
       end
 
@@ -286,6 +286,7 @@ module Cosmos
     # @return (see #define)
     def append(item)
       raise ArgumentError, "Can't append an item after a variably sized item" if !@fixed_size
+
       if item.data_type == :DERIVED
         item.bit_offset = 0
       else
@@ -299,6 +300,7 @@ module Cosmos
     def get_item(name)
       item = @items[name.upcase]
       raise ArgumentError, "Unknown item: #{name}" unless item
+
       return item
     end
 
@@ -385,7 +387,7 @@ module Cosmos
     def read_all(value_type = :RAW, buffer = @buffer, top = true)
       item_array = []
       synchronize_allow_reads(top) do
-        @sorted_items.each {|item| item_array << [item.name, read_item(item, value_type, buffer)]}
+        @sorted_items.each { |item| item_array << [item.name, read_item(item, value_type, buffer)] }
       end
       return item_array
     end
@@ -404,6 +406,7 @@ module Cosmos
       synchronize_allow_reads(true) do
         @sorted_items.each do |item|
           next if ignored && ignored.include?(item.name)
+
           if (item.data_type != :BLOCK) ||
              (item.data_type == :BLOCK and value_type != :RAW and
               item.respond_to? :read_conversion and item.read_conversion)
@@ -472,10 +475,12 @@ module Cosmos
     end
 
     protected
+
     MUTEX = Mutex.new
 
     def setup_mutex
       return if @mutex
+
       MUTEX.synchronize do
         @mutex ||= Mutex.new
       end
@@ -484,7 +489,7 @@ module Cosmos
     # Take the structure mutex to ensure the buffer does not change while you perform activities
     def synchronize
       setup_mutex()
-      @mutex.synchronize {|| yield}
+      @mutex.synchronize { || yield }
     end
 
     # Take the structure mutex to ensure the buffer does not change while you perform activities
@@ -535,6 +540,7 @@ module Cosmos
 
     def internal_buffer_equals(buffer)
       raise ArgumentError, "Buffer class is #{buffer.class} but must be String" unless String === buffer
+
       @buffer = buffer.dup
       @buffer.force_encoding('ASCII-8BIT'.freeze)
       if @buffer.length != @defined_length
@@ -546,7 +552,5 @@ module Cosmos
         end
       end
     end
-
   end # class Structure
-
 end # module Cosmos

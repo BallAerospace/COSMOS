@@ -89,6 +89,7 @@ module Cosmos
         packet_hash.each do |packet_name, items|
           packet = Store.hget("#{scope}__tlm__#{target_name}", packet_name)
           raise "Packet '#{target_name} #{packet_name}' does not exist" unless packet
+
           hash = JSON.parse(packet)
           items.each do |item_keys|
             item_result = []

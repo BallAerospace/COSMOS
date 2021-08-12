@@ -25,14 +25,14 @@ module Cosmos
   module Api
     WHITELIST ||= []
     WHITELIST.concat([
-      'get_router',
-      'get_router_names',
-      'connect_router',
-      'disconnect_router',
-      'start_raw_logging_router',
-      'stop_raw_logging_router',
-      'get_all_router_info',
-    ])
+                       'get_router',
+                       'get_router_names',
+                       'connect_router',
+                       'disconnect_router',
+                       'start_raw_logging_router',
+                       'stop_raw_logging_router',
+                       'get_all_router_info',
+                     ])
 
     # Get information about a router
     #
@@ -42,6 +42,7 @@ module Cosmos
       authorize(permission: 'system', router_name: router_name, scope: scope, token: token)
       router = RouterModel.get(name: router_name, scope: scope)
       raise "Router '#{router_name}' does not exist" unless router
+
       router.merge(RouterStatusModel.get(name: router_name, scope: scope))
     end
 
@@ -107,9 +108,9 @@ module Cosmos
       info = []
       RouterStatusModel.all(scope: scope).each do |router_name, router|
         info << [router['name'], router['state'], router['clients'], router['txsize'], router['rxsize'],\
-                  router['txbytes'], router['rxbytes'], router['rxcnt'], router['txcnt']]
+                 router['txbytes'], router['rxbytes'], router['rxcnt'], router['txcnt']]
       end
-      info.sort! {|a,b| a[0] <=> b[0] }
+      info.sort! { |a, b| a[0] <=> b[0] }
       info
     end
   end

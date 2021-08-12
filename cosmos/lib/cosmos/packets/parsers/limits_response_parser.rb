@@ -18,7 +18,6 @@
 # copyright holder
 
 module Cosmos
-
   class LimitsResponseParser
     # @param parser [ConfigParser] Configuration parser
     # @param item [Packet] The current item
@@ -39,6 +38,7 @@ module Cosmos
       if cmd_or_tlm == PacketConfig::COMMAND
         raise @parser.error("LIMITS_RESPONSE only applies to telemetry items")
       end
+
       @usage = "LIMITS_RESPONSE <RESPONSE CLASS FILENAME> <RESPONSE SPECIFIC OPTIONS>"
       @parser.verify_num_parameters(1, nil, @usage)
     end
@@ -48,6 +48,7 @@ module Cosmos
       # require should be performed in target.txt
       klass = @parser.parameters[0].filename_to_class_name.to_class
       raise @parser.error("#{@parser.parameters[0].filename_to_class_name} class not found. Did you require the file in target.txt?", @usage) unless klass
+
       if @parser.parameters[1]
         item.limits.response = klass.new(*@parser.parameters[1..(@parser.parameters.length - 1)])
       else
@@ -56,6 +57,5 @@ module Cosmos
     rescue Exception => err
       raise @parser.error(err, @usage)
     end
-
   end
 end # module Cosmos

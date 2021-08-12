@@ -37,18 +37,19 @@ module Cosmos
       token = nil
       while true
         resp = rubys3_client.list_objects_v2({
-          bucket: bucket,
-          max_keys: 10000,
-          prefix: prefix,
-          continuation_token: token
-        })
+                                               bucket: bucket,
+                                               max_keys: 10000,
+                                               prefix: prefix,
+                                               continuation_token: token
+                                             })
         resp.contents.each do |item|
           total_size += item.size
         end
         oldest_list.concat(resp.contents)
-        oldest_list.sort! {|a,b| File.basename(a.key) <=> File.basename(b.key)}
+        oldest_list.sort! { |a, b| File.basename(a.key) <=> File.basename(b.key) }
         oldest_list = oldest_list[0..(max_list_length - 1)]
         break unless resp.is_truncated
+
         token = resp.next_continuation_token
       end
       return total_size, oldest_list

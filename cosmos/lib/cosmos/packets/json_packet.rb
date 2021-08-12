@@ -51,10 +51,13 @@ module Cosmos
       if value_type == :WITH_UNITS or value_type == :FORMATTED
         value = @json_hash["#{name}__F"]
         return value if value
+
         value = @json_hash["#{name}__C"]
         return value.to_s if value
+
         value = @json_hash[name]
         return value.to_s if value
+
         return nil
       end
       if value_type == :CONVERTED

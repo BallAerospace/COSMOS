@@ -23,22 +23,22 @@ module Cosmos
   module Api
     WHITELIST ||= []
     WHITELIST.concat([
-      'get_stale',
-      'get_out_of_limits',
-      'get_overall_limits_state',
-      'limits_enabled?',
-      'enable_limits',
-      'disable_limits',
-      'get_limits',
-      'set_limits',
-      'get_limits_groups',
-      'enable_limits_group',
-      'disable_limits_group',
-      'get_limits_sets',
-      'set_limits_set',
-      'get_limits_set',
-      'get_limits_events',
-    ])
+                       'get_stale',
+                       'get_out_of_limits',
+                       'get_overall_limits_state',
+                       'limits_enabled?',
+                       'enable_limits',
+                       'disable_limits',
+                       'get_limits',
+                       'set_limits',
+                       'get_limits_groups',
+                       'enable_limits_group',
+                       'disable_limits_group',
+                       'get_limits_sets',
+                       'set_limits_set',
+                       'get_limits_set',
+                       'get_limits_events',
+                     ])
 
     # Get the list of stale packets for a specific target or pass nil to list
     # all stale packets
@@ -67,6 +67,7 @@ module Cosmos
           _, msg_hash = Store.get_newest_message(topic)
           unless msg_hash && msg_hash['time'].to_i > stale_time
             next if with_limits_only && packet['items'].find { |item| item['limits'] }.nil?
+
             stale << [packet['target_name'], packet['packet_name']]
           end
         end
@@ -100,6 +101,7 @@ module Cosmos
       if ignored_items
         ignored_items.map! do |item|
           raise "Invalid ignored item: #{item}. Must be [TGT, PKT, ITEM] where ITEM can be nil." if item.length != 3
+
           item.join('__')
         end
       else
@@ -110,6 +112,7 @@ module Cosmos
         # Ignore this item if we match one of the ignored items. Checking against /^#{item}/
         # allows us to detect matches against a TGT__PKT__ with no item defined.
         next if ignored_items.detect { |item| "#{target_name}__#{packet_name}__#{item_name}" =~ /^#{item}/ }
+
         case overall
           # If our overall state is currently blue or green we can go to any state
         when 'BLUE', 'GREEN', 'GREEN_HIGH', 'GREEN_LOW'
@@ -167,6 +170,7 @@ module Cosmos
         end
       end
       raise "Item '#{target_name} #{packet_name} #{item_name}' does not exist" unless found_item
+
       TargetModel.set_packet(target_name, packet_name, packet, scope: scope)
     end
 
@@ -192,6 +196,7 @@ module Cosmos
         end
       end
       raise "Item '#{target_name} #{packet_name} #{item_name}' does not exist" unless found_item
+
       TargetModel.set_packet(target_name, packet_name, packet, scope: scope)
     end
 
@@ -210,6 +215,7 @@ module Cosmos
       item = TargetModel.packet_item(target_name, packet_name, item_name, scope: scope)
       item['limits'].each do |key, vals|
         next unless vals.is_a?(Hash)
+
         limits[key] = [vals['red_low'], vals['yellow_low'], vals['yellow_high'], vals['red_high']]
         limits[key].concat([vals['green_low'], vals['green_high']]) if vals['green_low']
       end
@@ -219,8 +225,8 @@ module Cosmos
     # Change the limits settings for a given item. By default, a new limits set called 'CUSTOM'
     # is created to avoid overriding existing limits.
     def set_limits(target_name, packet_name, item_name, red_low, yellow_low, yellow_high, red_high,
-        green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true,
-        scope: $cosmos_scope, token: $cosmos_token)
+                   green_low = nil, green_high = nil, limits_set = :CUSTOM, persistence = nil, enabled = true,
+                   scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm_set', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       packet = TargetModel.packet(target_name, packet_name, scope: scope)
       found_item = nil
@@ -245,11 +251,12 @@ module Cosmos
         end
       end
       raise "Item '#{target_name} #{packet_name} #{item_name}' does not exist" unless found_item
+
       TargetModel.set_packet(target_name, packet_name, packet, scope: scope)
 
       event = { type: :LIMITS_SETTINGS, target_name: target_name, packet_name: packet_name,
-        item_name: item_name, red_low: red_low, yellow_low: yellow_low, yellow_high: yellow_high, red_high: red_high,
-        green_low: green_low, green_high: green_high, limits_set: limits_set, persistence: persistence, enabled: enabled }
+                item_name: item_name, red_low: red_low, yellow_low: yellow_low, yellow_high: yellow_high, red_high: red_high,
+                green_low: green_low, green_high: green_high, limits_set: limits_set, persistence: persistence, enabled: enabled }
       LimitsEventTopic.write(event, scope: scope)
     end
 
@@ -326,6 +333,7 @@ module Cosmos
       group_name.upcase!
       group = get_limits_groups()[group_name]
       raise "LIMITS_GROUP #{group_name} undefined. Ensure your telemetry definition contains the line: LIMITS_GROUP #{group_name}" unless group
+
       Logger.info("Disabling Limits Group: #{group_name}")
       last_target_name = nil
       last_packet_name = nil

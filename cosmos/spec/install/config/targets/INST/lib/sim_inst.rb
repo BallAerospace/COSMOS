@@ -13,9 +13,7 @@
 require 'cosmos'
 
 module Cosmos
-
   class SimInst < SimulatedTarget
-
     SOLAR_PANEL_DFLTS = [-179.0, 179.0, -179.0, 179.0, -95.0]
 
     def initialize(target_name)
@@ -141,6 +139,7 @@ module Cosmos
         hs_packet.asciicmd = packet.read('string')
       when 'SLRPNLDEPLOY'
         return if @solar_panel_thread and @solar_panel_thread.alive?
+
         @solar_panel_thread = Thread.new do
           @solar_panel_thread_cancel = false
           (0..@solar_panel_positions.size - 1).to_a.reverse_each do |i|
@@ -299,7 +298,5 @@ module Cosmos
       @get_count += 1
       pending_packets
     end
-
   end # class SimInst
-
 end # module Cosmos

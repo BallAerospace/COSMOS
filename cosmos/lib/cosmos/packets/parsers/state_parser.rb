@@ -20,7 +20,6 @@
 require 'cosmos/packets/packet_item'
 
 module Cosmos
-
   class StateParser
     # @param parser [ConfigParser] Configuration parser
     # @param packet [Packet] The current packet
@@ -31,6 +30,7 @@ module Cosmos
     def self.parse(parser, packet, cmd_or_tlm, item, warnings)
       raise parser.error("Items with LIMITS can't define STATE") if item.limits.values
       raise parser.error("Items with UNITS can't define STATE") if item.units
+
       @parser = StateParser.new(parser)
       @parser.verify_parameters(cmd_or_tlm)
       @parser.create_state(packet, cmd_or_tlm, item, warnings)
@@ -68,6 +68,7 @@ module Cosmos
     end
 
     private
+
     def get_state_name
       @parser.parameters[0].upcase
     end
@@ -117,10 +118,10 @@ module Cosmos
       unless PacketItem::STATE_COLORS.include? color
         raise @parser.error("Invalid state color #{color}. Must be one of #{PacketItem::STATE_COLORS.join(' ')}.", @usage)
       end
+
       item.limits.enabled = true
       item.state_colors ||= {}
       item.state_colors[get_state_name()] = color
     end
-
   end
 end # module Cosmos

@@ -27,9 +27,13 @@ module Cosmos
     $data = "\x01\x02\x03\x04"
     class StreamStub < Stream
       def connect; end
+
       def connected?; true; end
+
       def disconnect; end
+
       def read; $data; end
+
       def write(data) $data = data; end
     end
 

@@ -56,6 +56,7 @@ module Cosmos
     end
 
     protected
+
     def get_target_interface_name(target_name)
       @interfaces.each do |interface_name, interface|
         return interface_name if interface.target_names.include?(target_name)
@@ -89,6 +90,7 @@ module Cosmos
           case keyword
           when 'TITLE'
             raise parser.error("#{keyword} not allowed in target #{filename}") if recursive
+
             parser.verify_num_parameters(1, 1, "#{keyword} <Title Text>")
             @title = params[0]
 
@@ -120,6 +122,7 @@ module Cosmos
 
           when 'AUTO_INTERFACE_TARGETS'
             raise parser.error("#{keyword} not allowed in target #{filename}") if recursive
+
             usage = "#{keyword}"
             parser.verify_num_parameters(0, 0, usage)
             @system_config.targets.each do |target_name, target|
@@ -128,18 +131,22 @@ module Cosmos
                 # Skip this target if it's already been assigned an interface
                 next if get_target_interface_name(target.name)
                 raise parser.error("Cannot use #{keyword} with target name substitutions: #{target.name} != #{target.original_name}") if target.name != target.original_name
+
                 process_file(target_filename, true)
               end
             end
 
           when 'INTERFACE_TARGET'
             raise parser.error("#{keyword} not allowed in target #{filename}") if recursive
+
             usage = "#{keyword} <Target Name> <Config File (defaults to cmd_tlm_server.txt)>"
             parser.verify_num_parameters(1, 2, usage)
             target = @system_config.targets[params[0].upcase]
             raise parser.error("Unknown target: #{params[0].upcase}") unless target
+
             interface_name = get_target_interface_name(target.name)
             raise parser.error("Target #{target.name} already mapped to interface #{interface_name}") if interface_name
+
             target_filename = params[1]
             target_filename = 'cmd_tlm_server.txt' unless target_filename
             target_filename = File.join(target.dir, target_filename)
@@ -154,6 +161,7 @@ module Cosmos
             parser.verify_num_parameters(2, nil, usage)
             interface_name = params[0].upcase
             raise parser.error("Interface '#{interface_name}' defined twice") if @interfaces[interface_name]
+
             # interface_class = Cosmos.require_class(params[1])
             # if params[2]
             #   current_interface_or_router = interface_class.new(*params[2..-1])
@@ -198,6 +206,7 @@ module Cosmos
               if target
                 interface_name = get_target_interface_name(target.name)
                 raise parser.error("Target #{target.name} already mapped to interface #{interface_name}") if interface_name
+
                 target.interface = current_interface_or_router
                 current_interface_or_router.target_names << target_name
               else
@@ -242,6 +251,7 @@ module Cosmos
               unless %w(READ WRITE READ_WRITE).include? params[0].upcase
                 raise parser.error("Invalid protocol type: #{params[0]}", usage)
               end
+
               begin
                 # klass = Cosmos.require_class(params[1])
                 # current_interface_or_router.add_protocol(klass, params[2..-1], params[0].upcase.intern)
@@ -256,6 +266,7 @@ module Cosmos
             parser.verify_num_parameters(2, nil, usage)
             router_name = params[0].upcase
             raise parser.error("Router '#{router_name}' defined twice") if @routers[router_name]
+
             # router_class = Cosmos.require_class(params[1])
             # if params[2]
             #  current_interface_or_router = router_class.new(*params[2..-1])
@@ -269,11 +280,13 @@ module Cosmos
 
           when 'ROUTE'
             raise parser.error("No current router for #{keyword}") unless current_interface_or_router and current_type == :ROUTER
+
             usage = "ROUTE <Interface Name>"
             parser.verify_num_parameters(1, 1, usage)
             interface_name = params[0].upcase
             interface = @interfaces[interface_name]
             raise parser.error("Unknown interface #{interface_name} mapped to router #{current_interface_or_router.name}") unless interface
+
             unless current_interface_or_router.interfaces.include? interface
               current_interface_or_router.interfaces << interface
               interface.routers << current_interface_or_router
@@ -301,7 +314,7 @@ module Cosmos
           else
             # blank lines will have a nil keyword and should not raise an exception
             raise parser.error("Unknown keyword: #{keyword}") unless keyword.nil?
-          end  # case
+          end # case
         end  # loop
       end
     end

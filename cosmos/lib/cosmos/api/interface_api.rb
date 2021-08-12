@@ -25,14 +25,14 @@ module Cosmos
   module Api
     WHITELIST ||= []
     WHITELIST.concat([
-      'get_interface',
-      'get_interface_names',
-      'connect_interface',
-      'disconnect_interface',
-      'start_raw_logging_interface',
-      'stop_raw_logging_interface',
-      'get_all_interface_info',
-    ])
+                       'get_interface',
+                       'get_interface_names',
+                       'connect_interface',
+                       'disconnect_interface',
+                       'start_raw_logging_interface',
+                       'stop_raw_logging_interface',
+                       'get_all_interface_info',
+                     ])
 
     # Get information about an interface
     #
@@ -43,6 +43,7 @@ module Cosmos
       authorize(permission: 'system', interface_name: interface_name, scope: scope, token: token)
       interface = InterfaceModel.get(name: interface_name, scope: scope)
       raise "Interface '#{interface_name}' does not exist" unless interface
+
       interface.merge(InterfaceStatusModel.get(name: interface_name, scope: scope))
     end
 
@@ -107,9 +108,9 @@ module Cosmos
       info = []
       InterfaceStatusModel.all(scope: scope).each do |int_name, int|
         info << [int['name'], int['state'], int['clients'], int['txsize'], int['rxsize'],
-                  int['txbytes'], int['rxbytes'], int['txcnt'], int['rxcnt']]
+                 int['txbytes'], int['rxbytes'], int['txcnt'], int['rxcnt']]
       end
-      info.sort! {|a,b| a[0] <=> b[0] }
+      info.sort! { |a, b| a[0] <=> b[0] }
       info
     end
   end

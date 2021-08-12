@@ -52,6 +52,7 @@ describe Kernel do
       def test(start)
         test2(start)
       end
+
       def test2(start)
         calling_method(start)
       end

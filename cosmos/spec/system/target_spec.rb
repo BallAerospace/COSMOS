@@ -26,7 +26,7 @@ require 'pathname'
 module Cosmos
   xdescribe Target do
     after(:all) do
-      FileUtils.rm_rf File.join(Cosmos::USERPATH,'target_spec_temp')
+      FileUtils.rm_rf File.join(Cosmos::USERPATH, 'target_spec_temp')
     end
 
     describe "initialize" do
@@ -35,39 +35,39 @@ module Cosmos
       end
 
       it "creates a target with the given substitute name" do
-        tgt = Target.new("TGT","TGT2")
+        tgt = Target.new("TGT", "TGT2")
         expect(tgt.name).to eql "TGT"
         expect(tgt.original_name).to eql "TGT2"
       end
 
       it "creates a target with the default dir" do
-        expect(Target.new("TGT").dir).to eql File.join('.','TGT')
+        expect(Target.new("TGT").dir).to eql File.join('.', 'TGT')
       end
 
       it "creates a target with an override path" do
-        saved = File.join(Cosmos::USERPATH,'saved')
-        expect(Target.new("TGT",nil,saved).dir).to eql File.join(saved,'TGT')
+        saved = File.join(Cosmos::USERPATH, 'saved')
+        expect(Target.new("TGT", nil, saved).dir).to eql File.join(saved, 'TGT')
       end
 
       it "records all the command and telemetry files in the target directory" do
-        tgt_path = File.join(Cosmos::USERPATH,'target_spec_temp')
+        tgt_path = File.join(Cosmos::USERPATH, 'target_spec_temp')
         tgt_name = "TEST"
-        cmd_tlm = File.join(tgt_path,tgt_name,'cmd_tlm')
+        cmd_tlm = File.join(tgt_path, tgt_name, 'cmd_tlm')
         FileUtils.mkdir_p(cmd_tlm)
-        File.open(File.join(cmd_tlm,'cmd1.txt'),'w') {}
-        File.open(File.join(cmd_tlm,'cmd2.txt'),'w') {}
-        File.open(File.join(cmd_tlm,'tlm1.txt'),'w') {}
-        File.open(File.join(cmd_tlm,'tlm2.txt'),'w') {}
-        File.open(File.join(cmd_tlm,'tlm2.txt~'),'w') {}
-        File.open(File.join(cmd_tlm,'tlm2.txt.mine'),'w') {}
-        File.open(File.join(cmd_tlm,'tlm3.xtce'),'w') {}
-        File.open(File.join(cmd_tlm,'tlm3.xtce~'),'w') {}
-        File.open(File.join(cmd_tlm,'tlm3.xtce.bak'),'w') {}
+        File.open(File.join(cmd_tlm, 'cmd1.txt'), 'w') {}
+        File.open(File.join(cmd_tlm, 'cmd2.txt'), 'w') {}
+        File.open(File.join(cmd_tlm, 'tlm1.txt'), 'w') {}
+        File.open(File.join(cmd_tlm, 'tlm2.txt'), 'w') {}
+        File.open(File.join(cmd_tlm, 'tlm2.txt~'), 'w') {}
+        File.open(File.join(cmd_tlm, 'tlm2.txt.mine'), 'w') {}
+        File.open(File.join(cmd_tlm, 'tlm3.xtce'), 'w') {}
+        File.open(File.join(cmd_tlm, 'tlm3.xtce~'), 'w') {}
+        File.open(File.join(cmd_tlm, 'tlm3.xtce.bak'), 'w') {}
 
-        tgt = Target.new(tgt_name,nil,tgt_path)
-        expect(tgt.dir).to eql File.join(tgt_path,tgt_name)
-        files = Dir[File.join(cmd_tlm,'*.txt')]
-        files.concat(Dir[File.join(cmd_tlm,'*.xtce')])
+        tgt = Target.new(tgt_name, nil, tgt_path)
+        expect(tgt.dir).to eql File.join(tgt_path, tgt_name)
+        files = Dir[File.join(cmd_tlm, '*.txt')]
+        files.concat(Dir[File.join(cmd_tlm, '*.xtce')])
         expect(files).not_to be_empty
         expect(tgt.cmd_tlm_files.length).to eql 5
         expect(tgt.cmd_tlm_files.sort).to eql files.sort
@@ -76,15 +76,15 @@ module Cosmos
       end
 
       it "processes a target.txt in the target directory" do
-        tgt_path = File.join(Cosmos::USERPATH,'target_spec_temp')
+        tgt_path = File.join(Cosmos::USERPATH, 'target_spec_temp')
         tgt_name = "TEST"
-        tgt_dir = File.join(tgt_path,tgt_name)
+        tgt_dir = File.join(tgt_path, tgt_name)
         FileUtils.mkdir_p(tgt_dir)
-        File.open(File.join(tgt_dir,'target.txt'),'w') do |file|
+        File.open(File.join(tgt_dir, 'target.txt'), 'w') do |file|
           file.puts("IGNORE_PARAMETER TEST")
         end
 
-        tgt = Target.new(tgt_name,nil,tgt_path)
+        tgt = Target.new(tgt_name, nil, tgt_path)
         expect(tgt.dir).to eql tgt_dir
         expect(tgt.ignored_parameters).to eql ["TEST"]
 
@@ -92,15 +92,15 @@ module Cosmos
       end
 
       it "processes an alternative target.txt in the target directory" do
-        tgt_path = File.join(Cosmos::USERPATH,'target_spec_temp')
+        tgt_path = File.join(Cosmos::USERPATH, 'target_spec_temp')
         tgt_name = "TEST"
-        tgt_dir = File.join(tgt_path,tgt_name)
+        tgt_dir = File.join(tgt_path, tgt_name)
         FileUtils.mkdir_p(tgt_dir)
-        File.open(File.join(tgt_dir,'target_other.txt'),'w') do |file|
+        File.open(File.join(tgt_dir, 'target_other.txt'), 'w') do |file|
           file.puts("IGNORE_PARAMETER BOB")
         end
 
-        tgt = Target.new(tgt_name,nil,tgt_path, 'target_other.txt')
+        tgt = Target.new(tgt_name, nil, tgt_path, 'target_other.txt')
         expect(tgt.dir).to eql tgt_dir
         expect(tgt.ignored_parameters).to eql ["BOB"]
 
@@ -299,23 +299,23 @@ module Cosmos
         end
 
         it "stores the filename" do
-          tgt_path = File.join(Cosmos::USERPATH,'target_spec_temp')
+          tgt_path = File.join(Cosmos::USERPATH, 'target_spec_temp')
           tgt_name = "TEST"
-          tgt_dir = File.join(tgt_path,tgt_name)
+          tgt_dir = File.join(tgt_path, tgt_name)
           FileUtils.mkdir_p(tgt_dir)
           FileUtils.mkdir_p(tgt_dir + '/cmd_tlm')
-          File.open(tgt_dir + '/cmd_tlm/tgt_cmds.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_cmds2.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_cmds3.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_tlm.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_tlm2.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_tlm3.txt', 'w') {|file| file.puts "# comment"}
-          File.open(File.join(tgt_dir,'target.txt'),'w') do |file|
+          File.open(tgt_dir + '/cmd_tlm/tgt_cmds.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_cmds2.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_cmds3.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_tlm.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_tlm2.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_tlm3.txt', 'w') { |file| file.puts "# comment" }
+          File.open(File.join(tgt_dir, 'target.txt'), 'w') do |file|
             file.puts("COMMANDS tgt_cmds2.txt")
             file.puts("TELEMETRY tgt_tlm3.txt")
           end
 
-          tgt = Target.new(tgt_name,nil,tgt_path)
+          tgt = Target.new(tgt_name, nil, tgt_path)
           expect(tgt.dir).to eql tgt_dir
           expect(tgt.cmd_tlm_files.length).to eql 2
           expect(tgt.cmd_tlm_files).to eql [tgt_dir + '/cmd_tlm/tgt_cmds2.txt', tgt_dir + '/cmd_tlm/tgt_tlm3.txt']
@@ -324,47 +324,47 @@ module Cosmos
         end
 
         it "filenames must exist" do
-          tgt_path = File.join(Cosmos::USERPATH,'target_spec_temp')
+          tgt_path = File.join(Cosmos::USERPATH, 'target_spec_temp')
           tgt_name = "TEST"
-          tgt_dir = File.join(tgt_path,tgt_name)
+          tgt_dir = File.join(tgt_path, tgt_name)
           FileUtils.mkdir_p(tgt_dir)
           FileUtils.mkdir_p(tgt_dir + '/cmd_tlm')
-          File.open(tgt_dir + '/cmd_tlm/tgt_cmds.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_cmds2.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_cmds3.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_tlm.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_tlm2.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_tlm3.txt', 'w') {|file| file.puts "# comment"}
-          File.open(File.join(tgt_dir,'target.txt'),'w') do |file|
+          File.open(tgt_dir + '/cmd_tlm/tgt_cmds.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_cmds2.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_cmds3.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_tlm.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_tlm2.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_tlm3.txt', 'w') { |file| file.puts "# comment" }
+          File.open(File.join(tgt_dir, 'target.txt'), 'w') do |file|
             file.puts("COMMANDS tgt_cmds4.txt")
             file.puts("TELEMETRY tgt_tlm4.txt")
           end
 
-          expect { Target.new(tgt_name,nil,tgt_path) }.to raise_error(ConfigParser::Error, /#{tgt_dir + '/cmd_tlm/tgt_cmds4.txt'} not found/)
+          expect { Target.new(tgt_name, nil, tgt_path) }.to raise_error(ConfigParser::Error, /#{tgt_dir + '/cmd_tlm/tgt_cmds4.txt'} not found/)
 
           FileUtils.rm_r(tgt_dir)
         end
 
         it "filename order must be preserved" do
-          tgt_path = File.join(Cosmos::USERPATH,'target_spec_temp')
+          tgt_path = File.join(Cosmos::USERPATH, 'target_spec_temp')
           tgt_name = "TEST"
-          tgt_dir = File.join(tgt_path,tgt_name)
+          tgt_dir = File.join(tgt_path, tgt_name)
           FileUtils.mkdir_p(tgt_dir)
           FileUtils.mkdir_p(tgt_dir + '/cmd_tlm')
-          File.open(tgt_dir + '/cmd_tlm/tgt_cmds.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_cmds2.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_cmds3.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_tlm.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_tlm2.txt', 'w') {|file| file.puts "# comment"}
-          File.open(tgt_dir + '/cmd_tlm/tgt_tlm3.txt', 'w') {|file| file.puts "# comment"}
-          File.open(File.join(tgt_dir,'target.txt'),'w') do |file|
+          File.open(tgt_dir + '/cmd_tlm/tgt_cmds.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_cmds2.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_cmds3.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_tlm.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_tlm2.txt', 'w') { |file| file.puts "# comment" }
+          File.open(tgt_dir + '/cmd_tlm/tgt_tlm3.txt', 'w') { |file| file.puts "# comment" }
+          File.open(File.join(tgt_dir, 'target.txt'), 'w') do |file|
             file.puts("COMMANDS tgt_cmds3.txt")
             file.puts("COMMANDS tgt_cmds2.txt")
             file.puts("TELEMETRY tgt_tlm3.txt")
             file.puts("TELEMETRY tgt_tlm.txt")
           end
 
-          tgt = Target.new(tgt_name,nil,tgt_path)
+          tgt = Target.new(tgt_name, nil, tgt_path)
           expect(tgt.dir).to eql tgt_dir
           expect(tgt.cmd_tlm_files.length).to eql 4
           expect(tgt.cmd_tlm_files).to eql [tgt_dir + '/cmd_tlm/tgt_cmds3.txt', tgt_dir + '/cmd_tlm/tgt_cmds2.txt', tgt_dir + '/cmd_tlm/tgt_tlm3.txt', tgt_dir + '/cmd_tlm/tgt_tlm.txt']

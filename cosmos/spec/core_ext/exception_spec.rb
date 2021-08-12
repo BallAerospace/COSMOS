@@ -79,8 +79,8 @@ describe Exception do
     rescue => err
       # Check to simulate being on UNIX or Windows
       if err.backtrace[0].include?(':') # windows
-        err.backtrace[0].gsub!(/[A-Z]:/,'')
-        file_name = __FILE__.gsub(/[A-Z]:/,'')
+        err.backtrace[0].gsub!(/[A-Z]:/, '')
+        file_name = __FILE__.gsub(/[A-Z]:/, '')
       else
         err.backtrace[0] = "C:" + err.backtrace[0]
         file_name = "C:#{__FILE__}"

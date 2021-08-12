@@ -211,6 +211,7 @@ module Cosmos
               'APPEND_ARRAY_PARAMETER', 'ALLOW_SHORT', 'HAZARDOUS', 'PROCESSOR', 'META',\
               'DISABLE_MESSAGES', 'HIDDEN', 'DISABLED'
             raise parser.error("No current packet for #{keyword}") unless @current_packet
+
             process_current_packet(parser, keyword, params)
 
           #######################################################################
@@ -222,6 +223,7 @@ module Cosmos
               'LIMITS', 'LIMITS_RESPONSE', 'UNITS', 'FORMAT_STRING', 'DESCRIPTION',\
               'MINIMUM_VALUE', 'MAXIMUM_VALUE', 'DEFAULT_VALUE', 'OVERFLOW', 'OVERLAP'
             raise parser.error("No current item for #{keyword}") unless @current_item
+
             process_current_item(parser, keyword, params)
 
           else
@@ -242,6 +244,7 @@ module Cosmos
 
       @telemetry.each do |target_name, packets|
         next if target_name == 'UNKNOWN'
+
         FileUtils.mkdir_p(File.join(output_dir, target_name, 'cmd_tlm'))
         filename = File.join(output_dir, target_name, 'cmd_tlm', target_name.downcase + '_tlm.txt')
         begin
@@ -259,6 +262,7 @@ module Cosmos
 
       @commands.each do |target_name, packets|
         next if target_name == 'UNKNOWN'
+
         FileUtils.mkdir_p(File.join(output_dir, target_name, 'cmd_tlm'))
         filename = File.join(output_dir, target_name, 'cmd_tlm', target_name.downcase + '_cmd.txt')
         begin
@@ -319,6 +323,7 @@ module Cosmos
     end
 
     protected
+
     def update_id_value_hash(hash)
       if @current_packet.id_items.length > 0
         key = []
@@ -349,6 +354,7 @@ module Cosmos
         if (@current_cmd_or_tlm == TELEMETRY) && (keyword.split('_')[1] == 'PARAMETER')
           raise parser.error("#{keyword} only applies to command packets")
         end
+
         usage = "#{keyword} <#{keyword.split('_')[1]} NAME>"
         finish_item()
         parser.verify_num_parameters(1, 1, usage)
@@ -437,6 +443,7 @@ module Cosmos
           # require should be performed in target.txt
           klass = params[0].filename_to_class_name.to_class
           raise parser.error("#{params[0].filename_to_class_name} class not found. Did you require the file in target.txt?", usage) unless klass
+
           conversion = klass.new(*params[1..(params.length - 1)])
           @current_item.public_send("#{keyword.downcase}=".to_sym, conversion)
           if klass != ProcessorConversion and (conversion.converted_type.nil? or conversion.converted_bit_size.nil?)
@@ -541,10 +548,12 @@ module Cosmos
         if @current_cmd_or_tlm == TELEMETRY
           raise parser.error("#{keyword} only applies to command parameters")
         end
+
         usage = "MINIMUM_VALUE <MINIMUM VALUE>"
         parser.verify_num_parameters(1, 1, usage)
         min = ConfigParser.handle_defined_constants(
-          params[0].convert_to_value, @current_item.data_type, @current_item.bit_size)
+          params[0].convert_to_value, @current_item.data_type, @current_item.bit_size
+        )
         @current_item.range = Range.new(min, @current_item.range.end)
 
       # Update the maximum value for the current command parameter
@@ -552,10 +561,12 @@ module Cosmos
         if @current_cmd_or_tlm == TELEMETRY
           raise parser.error("#{keyword} only applies to command parameters")
         end
+
         usage = "MAXIMUM_VALUE <MAXIMUM VALUE>"
         parser.verify_num_parameters(1, 1, usage)
         max = ConfigParser.handle_defined_constants(
-          params[0].convert_to_value, @current_item.data_type, @current_item.bit_size)
+          params[0].convert_to_value, @current_item.data_type, @current_item.bit_size
+        )
         @current_item.range = Range.new(@current_item.range.begin, max)
 
       # Update the default value for the current command parameter
@@ -563,14 +574,16 @@ module Cosmos
         if @current_cmd_or_tlm == TELEMETRY
           raise parser.error("#{keyword} only applies to command parameters")
         end
+
         usage = "DEFAULT_VALUE <DEFAULT VALUE>"
         parser.verify_num_parameters(1, 1, usage)
         if (@current_item.data_type == :STRING) ||
-            (@current_item.data_type == :BLOCK)
+           (@current_item.data_type == :BLOCK)
           @current_item.default = params[0]
         else
           @current_item.default = ConfigParser.handle_defined_constants(
-            params[0].convert_to_value, @current_item.data_type, @current_item.bit_size)
+            params[0].convert_to_value, @current_item.data_type, @current_item.bit_size
+          )
         end
 
       # Update the overflow type for the current command parameter

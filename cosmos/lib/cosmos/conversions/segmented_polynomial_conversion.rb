@@ -20,11 +20,9 @@
 require 'cosmos/conversions/conversion'
 
 module Cosmos
-
   # Segmented polynomial conversions consist of polynomial conversions that are
   # applied for a range of values.
   class SegmentedPolynomialConversion < Conversion
-
     # A polynomial conversion segment which applies the conversion from the
     # lower bound (inclusive) until another segment's lower bound is
     # encountered.
@@ -150,7 +148,5 @@ module Cosmos
       end
       { 'class' => self.class.name.to_s, 'params' => params }
     end
-
   end # class SegmentedPolynomialConversion
-
 end # module Cosmos

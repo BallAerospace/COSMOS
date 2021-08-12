@@ -92,14 +92,17 @@ module Cosmos
 
       it "should parse commands correctly" do
         expect(extract_fields_from_cmd_text("TARGET PACKET with KEY1 VALUE1, KEY2 2, KEY3 '3', KEY4 4.0")).to eql(
-          ['TARGET', 'PACKET', { 'KEY1' => 'VALUE1', 'KEY2' => 2, 'KEY3' => '3', 'KEY4' => 4.0 }])
+          ['TARGET', 'PACKET', { 'KEY1' => 'VALUE1', 'KEY2' => 2, 'KEY3' => '3', 'KEY4' => 4.0 }]
+        )
       end
 
       it "should handle multiple array parameters" do
         expect(extract_fields_from_cmd_text("TARGET PACKET with KEY1 [1,2,3,4], KEY2 2, KEY3 '3', KEY4 [5, 6, 7, 8]")).to eql(
-          ['TARGET', 'PACKET', { 'KEY1' => [1,2,3,4], 'KEY2' => 2, 'KEY3' => '3', 'KEY4' => [5,6,7,8] }])
+          ['TARGET', 'PACKET', { 'KEY1' => [1, 2, 3, 4], 'KEY2' => 2, 'KEY3' => '3', 'KEY4' => [5, 6, 7, 8] }]
+        )
         expect(extract_fields_from_cmd_text("TARGET PACKET with KEY1 [1,2,3,4], KEY2 2, KEY3 '3', KEY4 ['1', '2', '3', '4']")).to eql(
-          ['TARGET', 'PACKET', { 'KEY1' => [1,2,3,4], 'KEY2' => 2, 'KEY3' => '3', 'KEY4' => ['1', '2', '3', '4'] }])
+          ['TARGET', 'PACKET', { 'KEY1' => [1, 2, 3, 4], 'KEY2' => 2, 'KEY3' => '3', 'KEY4' => ['1', '2', '3', '4'] }]
+        )
       end
     end
 
@@ -137,7 +140,7 @@ module Cosmos
         expect(extract_fields_from_set_tlm_text("TARGET PACKET ITEM=5")).to eql(['TARGET', 'PACKET', 'ITEM', 5])
         expect(extract_fields_from_set_tlm_text("TARGET PACKET ITEM = 5.0")).to eql(['TARGET', 'PACKET', 'ITEM', 5.0])
         expect(extract_fields_from_set_tlm_text("TARGET PACKET ITEM = Ryan")).to eql(['TARGET', 'PACKET', 'ITEM', 'Ryan'])
-        expect(extract_fields_from_set_tlm_text("TARGET PACKET ITEM = [1,2,3]")).to eql(['TARGET', 'PACKET', 'ITEM', [1,2,3]])
+        expect(extract_fields_from_set_tlm_text("TARGET PACKET ITEM = [1,2,3]")).to eql(['TARGET', 'PACKET', 'ITEM', [1, 2, 3]])
       end
     end
 

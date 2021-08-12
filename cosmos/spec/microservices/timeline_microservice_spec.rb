@@ -25,7 +25,6 @@ require 'cosmos/microservices/timeline_microservice'
 
 module Cosmos
   describe TimelineMicroservice do
-
     # Turn on tests here these test can take up to three minutes so
     # if you want to test them set TEST = true
     TEST = false
@@ -33,7 +32,8 @@ module Cosmos
     def generate_timeline()
       timeline = TimelineModel.new(
         name: "TEST",
-        scope: "DEFAULT")
+        scope: "DEFAULT"
+      )
       timeline.create()
     end
 
@@ -45,7 +45,8 @@ module Cosmos
         start: now + start,
         stop: now + start + 120,
         kind: kind,
-        data: {kind => "INST ABORT"})
+        data: { kind => "INST ABORT" }
+      )
       activity.create()
       return activity
     end
@@ -58,14 +59,15 @@ module Cosmos
         start: now + 500,
         stop: now + 500 + 120,
         kind: "cmd",
-        data: {"cmd" => "INST ABORT"})
+        data: { "cmd" => "INST ABORT" }
+      )
       return JSON.generate(activity.as_json)
     end
 
     def valid_events?(events, check)
       ret = false
       events.each do |event|
-        ret = (event["event"] == check)? true : ret
+        ret = (event["event"] == check) ? true : ret
       end
       return ret
     end
@@ -76,27 +78,27 @@ module Cosmos
       allow(TimelineTopic).to receive(:read_topics) { sleep 5 }.with([]).and_yield(
         "topic",
         "id-1",
-        {"timeline"=>"TEST", "type"=>"activity", "kind"=>"create", "data"=>generate_json_activity},
+        { "timeline" => "TEST", "type" => "activity", "kind" => "create", "data" => generate_json_activity },
         nil
       ).and_yield(
         "topic",
         "id-1",
-        {"timeline"=>"TEST", "type"=>"activity", "kind"=>"delete", "data"=>generate_json_activity},
+        { "timeline" => "TEST", "type" => "activity", "kind" => "delete", "data" => generate_json_activity },
         nil
       ).and_yield(
         "topic",
         "id-2",
-        {"timeline"=>"FOO", "type"=>"timeline", "kind"=>"refresh", "data"=>'{"name":"FOO"}'},
+        { "timeline" => "FOO", "type" => "timeline", "kind" => "refresh", "data" => '{"name":"FOO"}' },
         nil
       ).and_yield(
         "topic",
         "id-3",
-        {"timeline"=>"BAR", "type"=>"timeline", "kind"=>"refresh", "data"=>'{"name":"BAR"}'},
+        { "timeline" => "BAR", "type" => "timeline", "kind" => "refresh", "data" => '{"name":"BAR"}' },
         nil
       ).and_yield(
         "topic",
         "id-4",
-        {"timeline"=>"TEST", "type"=>"timeline", "kind"=>"refresh", "data"=>'{"name":"TEST"}'},
+        { "timeline" => "TEST", "type" => "timeline", "kind" => "refresh", "data" => '{"name":"TEST"}' },
         nil
       )
       allow(TimelineTopic).to receive(:write_activity) { sleep 2 }
@@ -154,7 +156,7 @@ module Cosmos
       end
     end if TEST
 
-      describe "timeline" do
+    describe "timeline" do
       it "add a cmd while microservice is running" do
         allow_any_instance_of(Object).to receive(:cmd_no_hazardous_check) { sleep 2 }
         timeline_microservice = TimelineMicroservice.new("DEFAULT__TIMELINE__TEST")
@@ -201,7 +203,8 @@ module Cosmos
     describe "timeline" do
       it "add a script activity to run and complete" do
         allow_any_instance_of(Net::HTTP).to receive(:request).with(
-          an_instance_of(Net::HTTP::Post)).and_return(Net::HTTPResponse)
+          an_instance_of(Net::HTTP::Post)
+        ).and_return(Net::HTTPResponse)
         allow(Net::HTTPResponse).to receive(:body).and_return("test")
         allow(Net::HTTPResponse).to receive(:code).and_return(200)
         model = generate_activity(15, "script") # should be 15 seconds in the future
@@ -248,7 +251,8 @@ module Cosmos
     describe "timeline" do
       it "add a script activity to run and fail" do
         allow_any_instance_of(Net::HTTP).to receive(:request).with(
-          an_instance_of(Net::HTTP::Post)).and_raise("ERROR")
+          an_instance_of(Net::HTTP::Post)
+        ).and_raise("ERROR")
         model = generate_activity(15, "script") # should be 15 seconds in the future
         score = model.start
         array = ActivityModel.all(name: "TEST", scope: "DEFAULT", limit: 10)
@@ -267,6 +271,5 @@ module Cosmos
         expect(valid_events?(activity.events, "failed")).to eql(true)
       end
     end if TEST
-
   end
 end

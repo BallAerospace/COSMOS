@@ -287,7 +287,7 @@ else
       @rests.clear
       @readed.clear
       @here_readed.clear
-      @indent                    = 0
+      @indent = 0
       @indent_stack.clear
       @lex_state                 = EXPR_BEG
       @space_seen                = false
@@ -335,7 +335,6 @@ else
       @lex_state = reserve_state
       @quoted = reserve_quoted
     end
-
   end
   $VERBOSE = old_verbose
 

@@ -21,10 +21,8 @@ require 'cosmos'
 require 'cosmos/ccsds/ccsds_packet'
 
 module Cosmos
-
   # Unsegments CCSDS packets and perform other CCSDS processing tasks.
   class CcsdsParser
-
     # @return [Symbol] Indicates if the parser is :READY to start a new series
     #   of packets or is :IN_PROGRESS
     attr_reader :state
@@ -146,7 +144,5 @@ module Cosmos
 
     # Class to indicate errors that occur during the unsegmenting process
     class CcsdsSegmentationError < StandardError; end
-
   end # end class CcsdsParser
-
 end # module Cosmos

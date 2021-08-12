@@ -24,7 +24,6 @@ require 'cosmos/bridge/bridge_router_thread'
 
 module Cosmos
   class Bridge
-
     def initialize(filename)
       @config = BridgeConfig.new(filename)
       @threads = []
@@ -51,6 +50,5 @@ module Cosmos
         thread.stop
       end
     end
-
   end
 end

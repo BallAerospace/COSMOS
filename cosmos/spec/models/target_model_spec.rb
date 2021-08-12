@@ -286,6 +286,7 @@ module Cosmos
         params.each do |type, name|
           # Scope isn't included in as_json as it is part of the key used to get the model
           next if name == :scope
+
           expect(json.key?(name.to_s)).to be true
         end
       end
@@ -328,6 +329,7 @@ module Cosmos
       it "copies the target files to S3" do
         Dir.glob("#{@target_dir}/targets/#{@target}/**/*") do |filename|
           next unless File.file?(filename)
+
           # Files are stored in S3 with <SCOPE>/<TARGET NAME>/<file path>
           # Splitting on 'config' gives us the target and path so just prepend the scope
           filename = "#{@scope}#{filename.split("config")[-1]}"
@@ -379,23 +381,23 @@ module Cosmos
         expect(umodel).to receive(:deploy).with(@target_dir, variables).exactly(6).times
         # Verify the microservices that are started
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__DECOM__#{@target}")
-        ).and_return(umodel)
+                                                          name: "#{@scope}__DECOM__#{@target}"
+                                                        )).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__REDUCER__#{@target}")
-        ).and_return(umodel)
+                                                          name: "#{@scope}__REDUCER__#{@target}"
+                                                        )).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__COMMANDLOG__#{@target}")
-        ).and_return(umodel)
+                                                          name: "#{@scope}__COMMANDLOG__#{@target}"
+                                                        )).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__DECOMCMDLOG__#{@target}")
-        ).and_return(umodel)
+                                                          name: "#{@scope}__DECOMCMDLOG__#{@target}"
+                                                        )).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__PACKETLOG__#{@target}")
-        ).and_return(umodel)
+                                                          name: "#{@scope}__PACKETLOG__#{@target}"
+                                                        )).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
-                                                          name: "#{@scope}__DECOMLOG__#{@target}")
-        ).and_return(umodel)
+                                                          name: "#{@scope}__DECOMLOG__#{@target}"
+                                                        )).and_return(umodel)
         model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
         model.create
         model.deploy(@target_dir, variables)

@@ -83,6 +83,7 @@ class Float
     return { "json_class" => Float, "raw" => "Infinity" }  if self.infinite? ==  1
     return { "json_class" => Float, "raw" => "-Infinity" } if self.infinite? == -1
     return { "json_class" => Float, "raw" => "NaN" }       if self.nan?
+
     return self
   end
 end
@@ -185,6 +186,7 @@ module Cosmos
     # @param other [JsonRpc] Another JsonRpc to compare hash values with
     def <=>(other)
       return nil unless other.respond_to?(:as_json)
+
       self.as_json <=> other.as_json
     end
 
@@ -260,6 +262,7 @@ module Cosmos
       hash['keyword_params']['token'] = request_headers['HTTP_AUTHORIZATION'] if request_headers['HTTP_AUTHORIZATION']
       # Verify the jsonrpc version is correct and there is a method and id
       raise unless hash['jsonrpc'.freeze] == "2.0".freeze && hash['method'.freeze] && hash['id'.freeze]
+
       self.from_hash(hash)
     rescue
       raise "Invalid JSON-RPC 2.0 Request\n#{request_data.inspect}\n"
@@ -277,7 +280,6 @@ module Cosmos
 
   # Represents a JSON Remote Procedure Call Response
   class JsonRpcResponse < JsonRpc
-
     # @param id [Integer] The identifier which will be matched to the request
     def initialize(id)
       super()
@@ -301,10 +303,12 @@ module Cosmos
 
       # Verify the jsonrpc version is correct and there is an ID
       raise msg unless hash['jsonrpc'.freeze] == "2.0".freeze and hash.key?('id'.freeze)
+
       # If there is a result this is probably a good response
       if hash.key?('result'.freeze)
         # Can't have an error key in a good response
         raise msg if hash.key?('error'.freeze)
+
         JsonRpcSuccessResponse.from_hash(hash)
       elsif hash.key?('error'.freeze)
         # There was an error key so create an error response
@@ -318,7 +322,6 @@ module Cosmos
 
   # Represents a JSON Remote Procedure Call Success Response
   class JsonRpcSuccessResponse < JsonRpcResponse
-
     # @param id [Integer] The identifier which will be matched to the request
     def initialize(result, id)
       super(id)
@@ -341,7 +344,6 @@ module Cosmos
 
   # Represents a JSON Remote Procedure Call Error Response
   class JsonRpcErrorResponse < JsonRpcResponse
-
     # @param error [JsonRpcError] The error object
     # @param id [Integer] The identifier which will be matched to the request
     def initialize(error, id)
@@ -365,7 +367,6 @@ module Cosmos
 
   # Represents a JSON Remote Procedure Call Error
   class JsonRpcError < JsonRpc
-
     # Enumeration of JSON RPC error codes
     class ErrorCode
       PARSE_ERROR      = -32700

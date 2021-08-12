@@ -31,8 +31,10 @@ module Cosmos
 
     def self.verify(token, permission: nil)
       return false if token.nil? or token.empty?
+
       token_hash = hash(token)
       return true if Store.get(PRIMARY_KEY) == token_hash
+
       service_hash = Store.get(SERVICE_KEY)
       if ENV['COSMOS_SERVICE_PASSWORD'] and hash(ENV['COSMOS_SERVICE_PASSWORD']) != service_hash
         set_hash = hash(ENV['COSMOS_SERVICE_PASSWORD'])
@@ -40,11 +42,13 @@ module Cosmos
         service_hash = set_hash
       end
       return true if service_hash == token_hash and permission != 'admin'
+
       return false
     end
 
     def self.set(token, old_token, key = PRIMARY_KEY)
       raise "token must not be nil or empty" if token.nil? or token.empty?
+
       if is_set?(key)
         raise "old_token must not be nil or empty" if old_token.nil? or old_token.empty?
         raise "old_token incorrect" unless verify(old_token)
@@ -53,6 +57,7 @@ module Cosmos
     end
 
     private
+
     def self.hash(token)
       Digest::SHA2.hexdigest token
     end

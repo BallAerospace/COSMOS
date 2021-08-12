@@ -23,10 +23,8 @@
 require 'cosmos/ext/packet' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
-
   # Provides methods for binary reading and writing
   class BinaryAccessor
-
     # Constants for ruby packing directives
     PACK_8_BIT_INT = 'c'
     PACK_NATIVE_16_BIT_INT = 's'
@@ -84,6 +82,7 @@ module Cosmos
     OVERFLOW_TYPES = [:TRUNCATE, :SATURATE, :ERROR, :ERROR_ALLOW_HEX]
 
     protected
+
     # Determines the endianness of the host running this code
     #
     # This method is protected to force the use of the constant
@@ -259,7 +258,7 @@ module Cosmos
 
             if upper_bound > lower_bound
               # Combine bytes into a FixNum
-              temp_data[1..temp_upper].each_byte {|temp_value| temp = temp << 8; temp = temp + temp_value }
+              temp_data[1..temp_upper].each_byte { |temp_value| temp = temp << 8; temp = temp + temp_value }
             end
 
             # Shift off unwanted bits at end
@@ -483,6 +482,7 @@ module Cosmos
               if lower_bound < 0
                 raise(ArgumentError, "LITTLE_ENDIAN bitfield with bit_offset #{given_bit_offset} and bit_size #{given_bit_size} is invalid")
               end
+
               temp_data = buffer[lower_bound..upper_bound].reverse
             else
               temp_data = buffer[lower_bound..upper_bound]
@@ -563,6 +563,7 @@ module Cosmos
       end
 
       protected
+
       # Check the bit size and bit offset for problems. Recalulate the bit offset
       # and return back through the passed in pointer.
       def self.check_bit_offset_and_size(read_or_write, given_bit_offset, given_bit_size, data_type, buffer)
@@ -603,7 +604,7 @@ module Cosmos
                  # Not byte aligned with an even bit size
                  (!((byte_aligned(bit_offset)) && (even_bit_size(bit_size)))) &&
                  (lower_bound < buffer_length)
-             )
+              )
             result = false
           end
         end
@@ -680,6 +681,7 @@ module Cosmos
       end
 
       public
+
     end
 
     # Reads an array of binary data of any data type from a buffer
@@ -726,6 +728,7 @@ module Cosmos
       # Calculate number of items in the array
       # If there is a remainder then we have a problem
       raise ArgumentError, "array_size #{given_array_size} not a multiple of bit_size #{given_bit_size}" if array_size % bit_size != 0
+
       num_items = array_size / bit_size
 
       # Define bounds of string to access this item
@@ -1200,7 +1203,5 @@ module Cosmos
       end
       values
     end
-
   end # class BinaryAccessor
-
 end # module Cosmos

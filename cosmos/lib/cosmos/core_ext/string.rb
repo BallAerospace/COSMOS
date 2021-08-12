@@ -22,7 +22,6 @@ require 'cosmos/ext/string' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 # COSMOS specific additions to the Ruby String class
 class String
-
   # The printable range of ASCII characters
   PRINTABLE_RANGE = 32..126
   # Regular expression to identify a character that is not in the printable range
@@ -176,10 +175,13 @@ class String
     # @return [String] The string with leading and trailing quotes removed
     def remove_quotes
       return self if self.length < 2
+
       first_char = self[0]
       return self if (first_char != '"') && (first_char != "'")
+
       last_char = self[-1]
       return self if first_char != last_char
+
       return self[1..-2]
     end
   end
@@ -305,6 +307,7 @@ class String
     upcase_next = true
     length.times do |index|
       break if filename[index..index] == '.'
+
       if filename[index..index] == '_'
         upcase_next = true
       elsif upcase_next
@@ -356,5 +359,4 @@ class String
       return self
     end
   end
-
 end # class String

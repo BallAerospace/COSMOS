@@ -39,8 +39,9 @@ module Cosmos
       port_name = '\\\\.\\' + port_name if /^COM[0-9]{2,3}$/.match?(port_name)
 
       raise(ArgumentError, "Invalid baud rate: #{baud_rate}") unless baud_rate.between?(Win32::BAUD_RATES[0], Win32::BAUD_RATES[-1])
-      raise(ArgumentError, "Invalid data bits: #{data_bits}") unless [5,6,7,8].include?(data_bits)
+      raise(ArgumentError, "Invalid data bits: #{data_bits}") unless [5, 6, 7, 8].include?(data_bits)
       raise(ArgumentError, "Invalid parity: #{parity}") if parity and !SerialDriver::VALID_PARITY.include?(parity)
+
       case parity
       when SerialDriver::ODD
         parity = Win32::ODDPARITY
@@ -50,7 +51,8 @@ module Cosmos
         parity = Win32::NOPARITY
       end
 
-      raise(ArgumentError, "Invalid stop bits: #{stop_bits}") unless [1,2].include?(stop_bits)
+      raise(ArgumentError, "Invalid stop bits: #{stop_bits}") unless [1, 2].include?(stop_bits)
+
       if stop_bits == 1
         stop_bits = Win32::ONESTOPBIT
       else
@@ -142,6 +144,7 @@ module Cosmos
       while bytes_to_write > 0
         bytes_written = Win32.write_file(@handle, data, data.length)
         raise "Error writing to comm port" if bytes_written <= 0
+
         bytes_to_write -= bytes_written
         data = data[bytes_written..-1]
         raise Timeout::Error, "Write Timeout" if @write_timeout and (Time.now.sys - time > @write_timeout) and bytes_to_write > 0
@@ -158,9 +161,11 @@ module Cosmos
           buffer = nil
           @mutex.synchronize do
             break unless @handle
+
             buffer = Win32.read_file(@handle, @read_max_length - data.length)
           end
           break unless buffer
+
           data << buffer
           break if buffer.length <= 0 or data.length >= @read_max_length or !@handle
         end
@@ -168,6 +173,7 @@ module Cosmos
         if @read_timeout and sleep_time >= @read_timeout
           raise Timeout::Error, "Read Timeout"
         end
+
         sleep(@read_polling_period)
         sleep_time += @read_polling_period
       end

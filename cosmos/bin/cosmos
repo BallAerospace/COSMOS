@@ -172,6 +172,7 @@ def migrate(args)
       file.each do |line|
         next if line =~ /^\s*#/ # Ignore comments
         next if line.strip.empty? # Ignore empty lines
+
         # Convert TARGET to MAP_TARGET
         line.gsub!(/TARGET (\S+)/, 'MAP_TARGET \1')
         plugin.puts line
@@ -266,7 +267,7 @@ def get_redis_keys
   end
   keys.uniq!
   keys.sort!
-  keys.select {|item| !item[/^tlm__/] }.each do |key|
+  keys.select { |item| !item[/^tlm__/] }.each do |key|
     puts "#{key}\n  #{redis.hkeys(key)}"
   rescue Redis::CommandError
     begin
@@ -276,7 +277,7 @@ def get_redis_keys
       puts "Unknown key '#{key}'"
     end
   end
-  puts "Packets Defs: #{keys.select {|item| item[/^tlm__/]}}"
+  puts "Packets Defs: #{keys.select { |item| item[/^tlm__/] }}"
 end
 
 if not ARGV[0].nil? # argument(s) given

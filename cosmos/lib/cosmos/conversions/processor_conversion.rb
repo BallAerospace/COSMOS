@@ -20,10 +20,8 @@
 require 'cosmos/conversions/conversion'
 
 module Cosmos
-
   # Retrieves the result from an item processor
   class ProcessorConversion < Conversion
-
     # @param processor_name [String] The name of the associated processor
     # @param result_name [String] The name of the associated result in the processor
     # @param converted_type [String or nil] The datatype of the result of the processor
@@ -63,7 +61,5 @@ module Cosmos
     def as_json
       { 'class' => self.class.name.to_s, 'params' => [@processor_name, @result_name, @converted_type, @converted_bit_size] }
     end
-
   end # class ProcessorConversion
-
 end # module Cosmos

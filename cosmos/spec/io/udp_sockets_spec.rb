@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/io/udp_sockets'
 
 module Cosmos
-
   describe UdpWriteSocket do
     describe "initialize" do
       it "creates a socket" do
@@ -44,7 +43,7 @@ module Cosmos
       it "writes data" do
         udp_read  = UdpReadSocket.new(8888)
         udp_write = UdpWriteSocket.new('127.0.0.1', 8888)
-        udp_write.write("\x01\x02",2.0)
+        udp_write.write("\x01\x02", 2.0)
         expect(udp_read.read).to eql "\x01\x02"
         udp_read.close
         udp_write.close
@@ -54,7 +53,7 @@ module Cosmos
         allow_any_instance_of(UDPSocket).to receive(:write_nonblock) { raise Errno::EWOULDBLOCK }
         expect(IO).to receive(:fast_select).at_least(:once).and_return([], nil)
         udp_write = UdpWriteSocket.new('127.0.0.1', 8888)
-        expect { udp_write.write("\x01\x02",2.0) }.to raise_error(Timeout::Error)
+        expect { udp_write.write("\x01\x02", 2.0) }.to raise_error(Timeout::Error)
         udp_write.close
       end
     end
@@ -88,7 +87,7 @@ module Cosmos
       it "reads data" do
         udp_read  = UdpReadSocket.new(8888)
         udp_write = UdpWriteSocket.new('127.0.0.1', 8888)
-        udp_write.write("\x01\x02",2.0)
+        udp_write.write("\x01\x02", 2.0)
         expect(udp_read.read).to eql "\x01\x02"
         udp_read.close
         udp_write.close
@@ -122,7 +121,7 @@ module Cosmos
       it "reads data" do
         udp_read  = UdpReadWriteSocket.new(8888)
         udp_write = UdpWriteSocket.new('127.0.0.1', 8888)
-        udp_write.write("\x01\x02",2.0)
+        udp_write.write("\x01\x02", 2.0)
         expect(udp_read.read).to eql "\x01\x02"
         udp_read.close
         udp_write.close
@@ -133,7 +132,7 @@ module Cosmos
       it "writes data" do
         udp_read  = UdpReadSocket.new(8888)
         udp_write = UdpReadWriteSocket.new(0, "0.0.0.0", 8888, '127.0.0.1')
-        udp_write.write("\x01\x02",2.0)
+        udp_write.write("\x01\x02", 2.0)
         expect(udp_read.read).to eql "\x01\x02"
         udp_read.close
         udp_write.close

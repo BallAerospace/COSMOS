@@ -20,7 +20,6 @@
 require 'cosmos/io/io_multiplexer'
 
 module Cosmos
-
   # Adds STDERR to the multiplexed streams
   class Stderr < IoMultiplexer
     @@instance = nil
@@ -41,5 +40,4 @@ module Cosmos
       false
     end
   end
-
 end

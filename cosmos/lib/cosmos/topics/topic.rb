@@ -21,7 +21,6 @@ require 'cosmos/utilities/store'
 
 module Cosmos
   class Topic
-
     def self.initialize_streams(topics)
       Store.initialize_streams(topics)
     end

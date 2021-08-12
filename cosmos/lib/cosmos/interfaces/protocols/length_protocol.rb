@@ -123,11 +123,13 @@ module Cosmos
     end
 
     protected
+
     def calculate_length(buffer_length)
       length = (buffer_length / @length_bytes_per_count) - @length_value_offset
       if @max_length && length > @max_length
         raise "Calculated length #{length} larger than max_length #{@max_length}"
       end
+
       length
     end
 
@@ -142,6 +144,7 @@ module Cosmos
                                    @data,
                                    @length_endianness)
       raise "Length value received larger than max_length: #{length} > #{@max_length}" if @max_length and length > @max_length
+
       packet_length = (length * @length_bytes_per_count) + @length_value_offset
       # Ensure the calculated packet length is long enough to support the location of the length field
       # without overlap into the next packet

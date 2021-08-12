@@ -21,7 +21,6 @@ require "spec_helper"
 require "cosmos/utilities/metric"
 
 module Cosmos
-
   describe Metric do
     before(:each) do
       @metric = Metric.new(microservice: "foo", scope: "bar")

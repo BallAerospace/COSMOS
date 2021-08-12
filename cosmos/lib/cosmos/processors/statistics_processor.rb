@@ -20,9 +20,7 @@
 require 'cosmos/processors/processor'
 
 module Cosmos
-
   class StatisticsProcessor < Processor
-
     # @return [Array] The set of samples stored by the processor
     attr_accessor :samples
 
@@ -43,6 +41,7 @@ module Cosmos
       value = packet.read(@item_name, @value_type, buffer)
       # Don't process NaN or Infinite values
       return if value.to_f.nan? || value.to_f.infinite?
+
       @samples << value
       @samples = @samples[-@samples_to_average..-1] if @samples.length > @samples_to_average
       mean, stddev = Math.stddev_sample(@samples)
@@ -80,5 +79,4 @@ module Cosmos
       { 'name' => @name, 'class' => self.class.name, 'params' => [@item_name, @samples_to_average, @value_type.to_s] }
     end
   end # class StatisticsProcessor
-
 end # module Cosmos

@@ -113,6 +113,7 @@ module Cosmos
       # prompts, and other junk on initial connections
       if @initial_read_delay and @initial_read_delay_needed and @connect_complete_time
         return :STOP if Time.now < @connect_complete_time
+
         @initial_read_delay_needed = false
       end
       super(data)

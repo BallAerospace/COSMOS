@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/io/buffered_file'
 
 module Cosmos
-
   describe BufferedFile do
     DATA = "RyanSaysHelloToU"
 

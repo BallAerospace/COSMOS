@@ -20,7 +20,6 @@
 require 'cosmos/packets/limits_response'
 
 module Cosmos
-
   # Maintains knowledge of limits for a PacketItem
   class PacketItemLimits
     # Array of all limit states
@@ -79,6 +78,7 @@ module Cosmos
       if values
         raise ArgumentError, "values must be a Hash but is a #{values.class}" unless Hash === values
         raise ArgumentError, "values must be a Hash with a :DEFAULT key" unless values.keys.include?(:DEFAULT)
+
         @values = values.clone
       else
         @values = nil
@@ -87,12 +87,14 @@ module Cosmos
 
     def state=(state)
       raise ArgumentError, "state must be one of #{LIMITS_STATES} but is #{state}" unless LIMITS_STATES.include?(state)
+
       @state = state
     end
 
     def response=(response)
       if response
         raise ArgumentError, "response must be a Cosmos::LimitsResponse but is a #{response.class}" unless Cosmos::LimitsResponse === response
+
         @response = response.clone
       else
         @response = nil
@@ -144,6 +146,5 @@ module Cosmos
       hash['persistence_count'] = self.persistence_count
       hash
     end
-
   end
 end # module Cosmos

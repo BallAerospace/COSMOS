@@ -34,8 +34,10 @@ module Cosmos
       include Authorization
       def shutdown
       end
+
       def disconnect
       end
+
       def method_missing(name, *params, **kw_params)
         self.send(name, *params, **kw_params)
       end

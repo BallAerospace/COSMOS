@@ -22,7 +22,6 @@ require 'cosmos'
 require 'cosmos/processors/statistics_processor'
 
 module Cosmos
-
   describe StatisticsProcessor do
     describe "initialize" do
       it "takes an item_name, samples_to_average, and value_type" do
@@ -36,7 +35,7 @@ module Cosmos
     describe "call and reset" do
       it "generates statistics" do
         p = StatisticsProcessor.new('TEST', '5', 'RAW')
-        packet = Packet.new("tgt","pkt")
+        packet = Packet.new("tgt", "pkt")
         packet.append_item("TEST", 8, :UINT)
         packet.buffer = "\x01"
         p.call(packet, packet.buffer)
@@ -65,7 +64,7 @@ module Cosmos
 
       it "handles nil and infinity" do
         p = StatisticsProcessor.new('TEST', '5')
-        packet = Packet.new("tgt","pkt")
+        packet = Packet.new("tgt", "pkt")
         packet.append_item("TEST", 32, :FLOAT)
         packet.write("TEST", 1)
         p.call(packet, packet.buffer)

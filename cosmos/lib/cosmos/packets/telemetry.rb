@@ -21,7 +21,6 @@ require 'cosmos/packets/packet_config'
 require 'cosmos/ext/telemetry' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
-
   # Telemetry uses PacketConfig to parse the command and telemetry
   # configuration files. It contains all the knowledge of which telemetry packets
   # exist in the system and how to access them. This class is the API layer
@@ -63,6 +62,7 @@ module Cosmos
         upcase_target_name = target_name.to_s.upcase
         target_packets = @config.telemetry[upcase_target_name]
         raise "Telemetry target '#{upcase_target_name}' does not exist" unless target_packets
+
         target_packets
       end
 
@@ -179,11 +179,12 @@ module Cosmos
         target_upcase = target_name.to_s.upcase
         target_latest_data = @config.latest_data[target_upcase]
         raise "Telemetry Target '#{target_upcase}' does not exist" unless target_latest_data
+
         item_names = target_latest_data.keys
       else
         tlm_packet = packet(target_name, packet_name)
         item_names = []
-        tlm_packet.sorted_items.each {|item| item_names << item.name}
+        tlm_packet.sorted_items.each { |item| item_names << item.name }
       end
       item_names
     end
@@ -209,8 +210,10 @@ module Cosmos
       item_upcase = item_name.to_s.upcase
       target_latest_data = @config.latest_data[target_upcase]
       raise "Telemetry target '#{target_upcase}' does not exist" unless target_latest_data
+
       packets = @config.latest_data[target_upcase][item_upcase]
       raise "Telemetry item '#{target_upcase} #{LATEST_PACKET_NAME} #{item_upcase}' does not exist" unless packets
+
       return packets
     end
 
@@ -312,6 +315,7 @@ module Cosmos
       if !packet.identified?
         identified_packet = identify(packet.buffer(false), target_names)
         return nil unless identified_packet
+
         identified_packet = identified_packet.clone
         identified_packet.buffer = packet.buffer
         identified_packet.received_time = packet.received_time
@@ -392,13 +396,16 @@ module Cosmos
       if target && !target_names.include?(target)
         raise "Telemetry target '#{target.upcase}' does not exist"
       end
+
       stale = []
       @config.telemetry.each do |target_name, target_packets|
         next if target && target != target_name
         next if target_name == 'UNKNOWN'
+
         target_packets.each do |packet_name, packet|
           if packet.stale
             next if with_limits_only && packet.limits_items.empty?
+
             stale << packet
           end
         end
@@ -428,6 +435,7 @@ module Cosmos
     def first_non_hidden
       @config.telemetry.each do |target_name, target_packets|
         next if target_name == 'UNKNOWN'
+
         target_packets.each do |packet_name, packet|
           return packet unless packet.hidden
         end
@@ -457,9 +465,11 @@ module Cosmos
         packets(target_name).each do |packet_name, packet|
           # We don't audit against hidden or disabled packets
           next if !include_hidden and (packet.hidden || packet.disabled)
+
           packet.items.each_key do |item_name|
             # Skip ignored items
             next if !include_hidden and ignored_items.include? item_name
+
             strings << "#{target_name} #{packet_name} #{item_name}"
           end
         end
@@ -473,7 +483,5 @@ module Cosmos
     def all
       @config.telemetry
     end
-
   end # class Telemetry
-
 end # module Cosmos

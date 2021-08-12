@@ -21,9 +21,7 @@ require 'cosmos/microservices/microservice'
 require 'cosmos/topics/topic'
 
 module Cosmos
-
   class LogMicroservice < Microservice
-
     def initialize(name)
       super(name)
       @config['options'].each do |option|
@@ -52,8 +50,10 @@ module Cosmos
       plws = setup_plws
       while true
         break if @cancel_thread
+
         Topic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
           break if @cancel_thread
+
           log_data(plws, topic, msg_id, msg_hash, redis)
         end
       end
@@ -102,7 +102,6 @@ module Cosmos
       @error = err
       Logger.error("#{@name} error: #{err.formatted}")
     end
-
   end
 end
 

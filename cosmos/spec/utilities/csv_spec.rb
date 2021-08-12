@@ -34,7 +34,7 @@ module Cosmos
       @lines << "float,1.1,2.2,3.3\n"
       @lines << "string,test,text with space\n"
 
-      @test_file = File.open('cosmos_csv_spec.csv','w')
+      @test_file = File.open('cosmos_csv_spec.csv', 'w')
       @test_file.write(@lines.join(''))
       @test_file.close
 

@@ -20,9 +20,7 @@
 require 'cosmos/tools/cmd_tlm_server/interface_thread'
 
 module Cosmos
-
   class BridgeInterfaceThread < InterfaceThread
-
     protected
 
     def handle_packet(packet)
@@ -40,7 +38,5 @@ module Cosmos
         end
       end
     end
-
   end # class BridgeInterfaceThread
-
 end # module Cosmos

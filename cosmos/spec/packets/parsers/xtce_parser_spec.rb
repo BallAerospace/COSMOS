@@ -22,36 +22,36 @@ require 'cosmos'
 require 'cosmos/packets/packet_config'
 require 'tempfile'
 
-XTCE_START = <<END
-<?xml version="1.0" encoding="UTF-8"?>
-<xtce:SpaceSystem xmlns:xtce="http://www.omg.org/space/xtce" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="INST" xsi:schemaLocation="http://www.omg.org/space/xtce http://www.omg.org/spec/XTCE/20061101/06-11-06.xsd">
-  <xtce:TelemetryMetaData>
-    <xtce:ParameterTypeSet>
-      <xtce:IntegerParameterType name="A_Type" shortDescription="A" signed="false">
-        <xtce:UnitSet/>
+XTCE_START = <<~END
+  <?xml version="1.0" encoding="UTF-8"?>
+  <xtce:SpaceSystem xmlns:xtce="http://www.omg.org/space/xtce" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="INST" xsi:schemaLocation="http://www.omg.org/space/xtce http://www.omg.org/spec/XTCE/20061101/06-11-06.xsd">
+    <xtce:TelemetryMetaData>
+      <xtce:ParameterTypeSet>
+        <xtce:IntegerParameterType name="A_Type" shortDescription="A" signed="false">
+          <xtce:UnitSet/>
 END
-XTCE_END = <<END
-      </xtce:IntegerParameterType>
-    </xtce:ParameterTypeSet>
-    <xtce:ParameterSet>
-      <xtce:Parameter name="A" parameterTypeRef="A_Type">
-        <xtce:UnitSet/>
-      </xtce:Parameter>
-    </xtce:ParameterSet>
-    <xtce:ContainerSet>
-      <xtce:SequenceContainer name="B_Base" abstract="true">
-        <xtce:EntryList>
-          <xtce:ParameterRefEntry parameterRef="A"/>
-        </xtce:EntryList>
-      </xtce:SequenceContainer>
-      <xtce:SequenceContainer name="B" shortDescription="B">
-        <xtce:EntryList/>
-        <xtce:BaseContainer containerRef="B_Base">
-        </xtce:BaseContainer>
-      </xtce:SequenceContainer>
-    </xtce:ContainerSet>
-  </xtce:TelemetryMetaData>
-</xtce:SpaceSystem>
+XTCE_END = <<~END
+        </xtce:IntegerParameterType>
+      </xtce:ParameterTypeSet>
+      <xtce:ParameterSet>
+        <xtce:Parameter name="A" parameterTypeRef="A_Type">
+          <xtce:UnitSet/>
+        </xtce:Parameter>
+      </xtce:ParameterSet>
+      <xtce:ContainerSet>
+        <xtce:SequenceContainer name="B_Base" abstract="true">
+          <xtce:EntryList>
+            <xtce:ParameterRefEntry parameterRef="A"/>
+          </xtce:EntryList>
+        </xtce:SequenceContainer>
+        <xtce:SequenceContainer name="B" shortDescription="B">
+          <xtce:EntryList/>
+          <xtce:BaseContainer containerRef="B_Base">
+          </xtce:BaseContainer>
+        </xtce:SequenceContainer>
+      </xtce:ContainerSet>
+    </xtce:TelemetryMetaData>
+  </xtce:SpaceSystem>
 END
 
 module Cosmos

@@ -55,6 +55,5 @@ module Cosmos
         'label_list' => @label_list
       }
     end
-
   end
 end

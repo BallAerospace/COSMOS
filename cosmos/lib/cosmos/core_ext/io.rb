@@ -31,7 +31,6 @@ class IO
   SELECT_MAX_TIMEOUT = 0.016
 
   class << self
-
     # Alias the original IO.select method
     alias_method :__select__, :select
 

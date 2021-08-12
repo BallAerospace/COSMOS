@@ -18,7 +18,6 @@
 # copyright holder
 
 module Cosmos
-
   class FormatStringParser
     # @param parser [ConfigParser] Configuration parser
     # @param item [Packet] The current item
@@ -47,6 +46,7 @@ module Cosmos
     end
 
     private
+
     def test_format_string(item)
       case item.data_type
       when :INT, :UINT
@@ -61,6 +61,5 @@ module Cosmos
     rescue Exception
       raise @parser.error("Invalid FORMAT_STRING specified for type #{item.data_type}: #{@parser.parameters[0]}", @usage)
     end
-
   end
 end # module Cosmos

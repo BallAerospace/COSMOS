@@ -42,14 +42,16 @@ module CosmosIO
       # Read bytes for string length
       temp_string_length = self.read(length_num_bytes)
       return nil if (temp_string_length.nil?) || (temp_string_length.length != length_num_bytes)
+
       string_length = Cosmos::BinaryAccessor.read(0, length_num_bytes * 8, :UINT, temp_string_length, :BIG_ENDIAN)
 
       # Read String
       return nil if max_read_size and string_length > max_read_size
+
       string = self.read(string_length)
       return nil if (string.nil?) || (string.length != string_length)
+
       return string
     end
   end
-
 end

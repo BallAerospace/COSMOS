@@ -20,10 +20,8 @@
 require 'cosmos/conversions/conversion'
 
 module Cosmos
-
   # Converts a unix format time: Epoch Jan 1 1970, seconds and microseconds
   class UnixTimeConversion < Conversion
-
     # Initializes the time item to grab from the packet
     #
     # @param seconds_item_name [String] The telemetry item in the packet which
@@ -64,7 +62,5 @@ module Cosmos
     def as_json
       { 'class' => self.class.name.to_s, 'params' => [@seconds_item_name, @microseconds_item_name] }
     end
-
   end # class UnixTimeConversion
-
 end # module Cosmos

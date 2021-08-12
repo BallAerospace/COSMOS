@@ -119,6 +119,7 @@ module Cosmos
         params.each do |type, name|
           # Scope isn't included in as_json as it is part of the key used to get the model
           next if name == :scope
+
           expect(json.key?(name.to_s)).to be true
         end
       end

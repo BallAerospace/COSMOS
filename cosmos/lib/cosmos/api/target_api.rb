@@ -23,10 +23,10 @@ module Cosmos
   module Api
     WHITELIST ||= []
     WHITELIST.concat([
-      'get_target_list',
-      'get_target',
-      'get_all_target_info',
-    ])
+                       'get_target_list',
+                       'get_target',
+                       'get_all_target_info',
+                     ])
 
     # Returns the list of all target names
     #

@@ -375,9 +375,9 @@ module Cosmos
             result.message << error.message + "\n"
           else
             if error.class != StopScript and
-              (not RunningScript.instance or
-                not RunningScript.instance.exceptions or
-                not RunningScript.instance.exceptions.include? error)
+               (not RunningScript.instance or
+                 not RunningScript.instance.exceptions or
+                 not RunningScript.instance.exceptions.include? error)
               result.exceptions ||= []
               result.exceptions << error
               puts "*** Exception in Control Statement:"

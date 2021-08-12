@@ -54,7 +54,7 @@ module Cosmos
       tools.each do |name, tool|
         ordered_array << tool
       end
-      ordered_array.sort! {|a,b| a['position'] <=> b['position']}
+      ordered_array.sort! { |a, b| a['position'] <=> b['position'] }
       ordered_hash = {}
       ordered_array.each do |tool|
         ordered_hash[tool['name']] = tool
@@ -119,7 +119,8 @@ module Cosmos
       position: nil,
       updated_at: nil,
       plugin: nil,
-      scope:)
+      scope:
+    )
       super("#{scope}__#{PRIMARY_KEY}", name: name, plugin: plugin, updated_at: updated_at, scope: scope)
       @folder_name = folder_name
       @icon = icon
@@ -205,6 +206,7 @@ module Cosmos
 
     def deploy(gem_path, variables)
       return unless @folder_name
+
       rubys3_client = Aws::S3::Client.new
 
       # Ensure tools bucket exists
@@ -213,52 +215,53 @@ module Cosmos
       rescue Aws::S3::Errors::NotFound
         rubys3_client.create_bucket(bucket: 'tools')
 
-        policy = <<EOL
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": [
-        "s3:GetBucketLocation",
-        "s3:ListBucket"
-      ],
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": [
-          "*"
-        ]
-      },
-      "Resource": [
-        "arn:aws:s3:::tools"
-      ],
-      "Sid": ""
-    },
-    {
-      "Action": [
-        "s3:GetObject"
-      ],
-      "Effect": "Allow",
-      "Principal": {
-        "AWS": [
-          "*"
-        ]
-      },
-      "Resource": [
-        "arn:aws:s3:::tools/*"
-      ],
-      "Sid": ""
-    }
-  ]
-}
-EOL
+        policy = <<~EOL
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Action": [
+                  "s3:GetBucketLocation",
+                  "s3:ListBucket"
+                ],
+                "Effect": "Allow",
+                "Principal": {
+                  "AWS": [
+                    "*"
+                  ]
+                },
+                "Resource": [
+                  "arn:aws:s3:::tools"
+                ],
+                "Sid": ""
+              },
+              {
+                "Action": [
+                  "s3:GetObject"
+                ],
+                "Effect": "Allow",
+                "Principal": {
+                  "AWS": [
+                    "*"
+                  ]
+                },
+                "Resource": [
+                  "arn:aws:s3:::tools/*"
+                ],
+                "Sid": ""
+              }
+            ]
+          }
+        EOL
 
-        rubys3_client.put_bucket_policy({bucket: 'tools', policy: policy})
+        rubys3_client.put_bucket_policy({ bucket: 'tools', policy: policy })
       end
 
       variables["tool_name"] = @name
       start_path = "/tools/#{@folder_name}/"
       Dir.glob(gem_path + start_path + "**/*") do |filename|
         next if filename == '.' or filename == '..' or File.directory?(filename)
+
         key = filename.split(gem_path + '/tools/')[-1]
 
         # Load tool files
@@ -290,6 +293,5 @@ EOL
       end
       return tools
     end
-
   end
 end

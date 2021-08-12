@@ -133,6 +133,7 @@ module Cosmos
           if !(String === target_name)
             raise(ArgumentError, "target_name must be a String but is a #{target_name.class}")
           end
+
           @target_name = target_name.upcase.freeze
         else
           @target_name = nil
@@ -149,6 +150,7 @@ module Cosmos
           if !(String === packet_name)
             raise(ArgumentError, "packet_name must be a String but is a #{packet_name.class}")
           end
+
           @packet_name = packet_name.upcase.freeze
         else
           @packet_name = nil
@@ -164,6 +166,7 @@ module Cosmos
           if !(String === description)
             raise(ArgumentError, "description must be a String but is a #{description.class}")
           end
+
           @description = description.clone.freeze
         else
           @description = nil
@@ -179,6 +182,7 @@ module Cosmos
           if !(Time === received_time)
             raise(ArgumentError, "received_time must be a Time but is a #{received_time.class}")
           end
+
           @received_time = received_time.clone.freeze
         else
           @received_time = nil
@@ -195,6 +199,7 @@ module Cosmos
         if !(Integer === received_count)
           raise(ArgumentError, "received_count must be an Integer but is a #{received_count.class}")
         end
+
         @received_count = received_count
         @read_conversion_cache.clear if @read_conversion_cache
         @received_count
@@ -238,6 +243,7 @@ module Cosmos
     def read_id_values(buffer)
       return [] unless buffer
       return [] unless @id_items
+
       values = []
 
       @id_items.each do |item|
@@ -264,6 +270,7 @@ module Cosmos
     # the "shape" of the packet.  This value is cached and that packet should not be changed if this method is being used
     def config_name
       return @config_name if @config_name
+
       string = "#{@target_name} #{@packet_name}"
       @sorted_items.each do |item|
         string << " ITEM #{item.name} #{item.bit_offset} #{item.bit_size} #{item.data_type} #{item.array_size} #{item.endianness} #{item.overflow} #{item.states} #{item.read_conversion ? item.read_conversion.class : 'NO_CONVERSION'}"
@@ -308,6 +315,7 @@ module Cosmos
     def hazardous_description=(hazardous_description)
       if hazardous_description
         raise ArgumentError, "hazardous_description must be a String but is a #{hazardous_description.class}" unless String === hazardous_description
+
         @hazardous_description = hazardous_description.clone.freeze
       else
         @hazardous_description = nil
@@ -320,6 +328,7 @@ module Cosmos
     def given_values=(given_values)
       if given_values
         raise ArgumentError, "given_values must be a Hash but is a #{given_values.class}" unless Hash === given_values
+
         @given_values = given_values.clone
       else
         @given_values = nil
@@ -336,6 +345,7 @@ module Cosmos
     def limits_change_callback=(limits_change_callback)
       if limits_change_callback
         raise ArgumentError, "limits_change_callback must respond to call" unless limits_change_callback.respond_to?(:call)
+
         @limits_change_callback = limits_change_callback
       else
         @limits_change_callback = nil
@@ -372,6 +382,7 @@ module Cosmos
         if expected_next_offset and item.bit_offset != expected_next_offset
           return false
         end
+
         expected_next_offset = Packet.next_bit_offset(item)
       end
       true
@@ -725,6 +736,7 @@ module Cosmos
       upcase_skip_item_names = skip_item_names.map(&:upcase) if skip_item_names
       @sorted_items.each do |item|
         next if RESERVED_ITEM_NAMES.include?(item.name)
+
         write_item(item, item.default, :CONVERTED, buffer) unless skip_item_names and upcase_skip_item_names.include?(item.name)
       end
     end
@@ -790,9 +802,10 @@ module Cosmos
     def out_of_limits
       items = []
       return items unless @limits_items
+
       @limits_items.each do |item|
         if item.limits.enabled && item.limits.state &&
-          PacketItemLimits::OUT_OF_LIMITS_STATES.include?(item.limits.state)
+           PacketItemLimits::OUT_OF_LIMITS_STATES.include?(item.limits.state)
           items << [@target_name, @packet_name, item.name, item.limits.state]
         end
       end
@@ -803,7 +816,7 @@ module Cosmos
     #
     # @param state [Symbol] Must be one of PacketItemLimits::LIMITS_STATES
     def set_all_limits_states(state)
-      @sorted_items.each {|item| item.limits.state = state}
+      @sorted_items.each { |item| item.limits.state = state }
     end
 
     # Check all the items in the packet against their defined limits. Update
@@ -824,6 +837,7 @@ module Cosmos
       end
 
       return unless @limits_items
+
       @limits_items.each do |item|
         # Verify limits monitoring is enabled for this item
         if item.limits.enabled
@@ -862,6 +876,7 @@ module Cosmos
         end
       end
       return unless @processors
+
       @processors.each do |processor_name, processor|
         processor.reset
       end
@@ -931,7 +946,7 @@ module Cosmos
 
       if @meta
         @meta.each do |key, values|
-          config << "  META #{key.to_s.quote_if_necessary} #{values.map {|a| a..to_s.quote_if_necessary}.join(" ")}\n"
+          config << "  META #{key.to_s.quote_if_necessary} #{values.map { |a| a..to_s.quote_if_necessary }.join(" ")}\n"
         end
       end
 
@@ -994,10 +1009,12 @@ module Cosmos
     end
 
     protected
+
     # Performs packet specific processing on the packet.
     # Intended to only be run once for each packet received
     def process(buffer = @buffer)
       return unless @processors
+
       @processors.each do |processor_name, processor|
         processor.call(self, buffer)
       end

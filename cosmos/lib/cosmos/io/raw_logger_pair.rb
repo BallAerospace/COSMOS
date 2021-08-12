@@ -20,10 +20,8 @@
 require 'cosmos/io/raw_logger'
 
 module Cosmos
-
   # Holds a read/write pair of raw loggers
   class RawLoggerPair
-
     # @return [RawLogger] The read logger
     attr_accessor :read_logger
     # @return [RawLogger] The write logger

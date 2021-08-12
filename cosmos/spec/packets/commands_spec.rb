@@ -76,7 +76,7 @@ module Cosmos
       end
 
       it "returns all target names" do
-        expect(@cmd.target_names).to eql ["TGT1","TGT2"]
+        expect(@cmd.target_names).to eql ["TGT1", "TGT2"]
       end
     end
 
@@ -103,18 +103,18 @@ module Cosmos
 
     describe "params" do
       it "complains about non-existant targets" do
-        expect { @cmd.params("TGTX","PKT1") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
+        expect { @cmd.params("TGTX", "PKT1") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @cmd.params("TGT1","PKTX") }.to raise_error(RuntimeError, "Command packet 'TGT1 PKTX' does not exist")
+        expect { @cmd.params("TGT1", "PKTX") }.to raise_error(RuntimeError, "Command packet 'TGT1 PKTX' does not exist")
       end
 
       it "returns all items from packet TGT1/PKT1" do
-        items = @cmd.params("TGT1","PKT1")
+        items = @cmd.params("TGT1", "PKT1")
         expect(items.length).to eql 9
         Packet::RESERVED_ITEM_NAMES.each do |reserved|
-          expect(items.map {|item| item.name }).to include(reserved)
+          expect(items.map { |item| item.name }).to include(reserved)
         end
         expect(items[5].name).to eql "ITEM1"
         expect(items[6].name).to eql "ITEM2"
@@ -125,15 +125,15 @@ module Cosmos
 
     describe "packet" do
       it "complains about non-existant targets" do
-        expect { @cmd.packet("tgtX","pkt1") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
+        expect { @cmd.packet("tgtX", "pkt1") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @cmd.packet("TGT1","PKTX") }.to raise_error(RuntimeError, "Command packet 'TGT1 PKTX' does not exist")
+        expect { @cmd.packet("TGT1", "PKTX") }.to raise_error(RuntimeError, "Command packet 'TGT1 PKTX' does not exist")
       end
 
       it "returns the specified packet" do
-        pkt = @cmd.packet("TGT1","PKT1")
+        pkt = @cmd.packet("TGT1", "PKT1")
         expect(pkt.target_name).to eql "TGT1"
         expect(pkt.packet_name).to eql "PKT1"
       end
@@ -146,7 +146,7 @@ module Cosmos
 
       it "only checks the targets given" do
         buffer = "\x01\x02\x03\x04"
-        pkt = @cmd.identify(buffer,["TGT1"])
+        pkt = @cmd.identify(buffer, ["TGT1"])
         pkt.enable_method_missing
         expect(pkt.item1).to eql 1
         expect(pkt.item2).to eql 2
@@ -159,7 +159,7 @@ module Cosmos
         target = System.targets["TGT1"]
         target.cmd_unique_id_mode = false
         buffer = "\x01\x02\x03\x04"
-        pkt = @cmd.identify(buffer,["TGT1"])
+        pkt = @cmd.identify(buffer, ["TGT1"])
         pkt.enable_method_missing
         expect(pkt.item1).to eql 1
         expect(pkt.item2).to eql 2
@@ -167,7 +167,7 @@ module Cosmos
         expect(pkt.item4).to eql 4
         target.cmd_unique_id_mode = true
         buffer = "\x01\x02\x01\x02"
-        pkt = @cmd.identify(buffer,["TGT1"])
+        pkt = @cmd.identify(buffer, ["TGT1"])
         pkt.enable_method_missing
         expect(pkt.item1).to eql 1
         expect(pkt.item2).to eql 2
@@ -178,7 +178,7 @@ module Cosmos
 
       it "returns nil with unknown targets given" do
         buffer = "\x01\x02\x03\x04"
-        expect(@cmd.identify(buffer,["TGTX"])).to be_nil
+        expect(@cmd.identify(buffer, ["TGTX"])).to be_nil
       end
 
       context "with an unknown buffer" do
@@ -218,7 +218,7 @@ module Cosmos
           expect(pkt.item4).to eql 4
 
           # Now request the packet from the latest data table
-          pkt = @cmd.packet("TGT1","PKT1")
+          pkt = @cmd.packet("TGT1", "PKT1")
           pkt.enable_method_missing
           expect(pkt.item1).to eql 0
           expect(pkt.item2).to eql 0
@@ -246,19 +246,19 @@ module Cosmos
 
     describe "build_cmd" do
       it "complains about non-existant targets" do
-        expect { @cmd.build_cmd("tgtX","pkt1") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
+        expect { @cmd.build_cmd("tgtX", "pkt1") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @cmd.build_cmd("tgt1","pktX") }.to raise_error(RuntimeError, "Command packet 'TGT1 PKTX' does not exist")
+        expect { @cmd.build_cmd("tgt1", "pktX") }.to raise_error(RuntimeError, "Command packet 'TGT1 PKTX' does not exist")
       end
 
       it "complains about non-existant items" do
-        expect { @cmd.build_cmd("tgt1","pkt1",{ "itemX" => 1 }) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
+        expect { @cmd.build_cmd("tgt1", "pkt1", { "itemX" => 1 }) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
       it "creates a populated command packet with default values" do
-        cmd = @cmd.build_cmd("TGT1","PKT1")
+        cmd = @cmd.build_cmd("TGT1", "PKT1")
         cmd.enable_method_missing
         expect(cmd.item1).to eql 1
         expect(cmd.item2).to eql 2
@@ -267,11 +267,11 @@ module Cosmos
       end
 
       it "complains about out of range item values" do
-        expect { @cmd.build_cmd("tgt1","pkt1",{ "item2" => 1000 }) }.to raise_error(RuntimeError, "Command parameter 'TGT1 PKT1 ITEM2' = 1000 not in valid range of 0 to 254")
+        expect { @cmd.build_cmd("tgt1", "pkt1", { "item2" => 1000 }) }.to raise_error(RuntimeError, "Command parameter 'TGT1 PKT1 ITEM2' = 1000 not in valid range of 0 to 254")
       end
 
       it "ignores out of range item values if requested" do
-        cmd = @cmd.build_cmd("tgt1","pkt1",{ "item2" => 255 }, false)
+        cmd = @cmd.build_cmd("tgt1", "pkt1", { "item2" => 255 }, false)
         cmd.enable_method_missing
         expect(cmd.item1).to eql 1
         expect(cmd.item2).to eql 255
@@ -281,7 +281,7 @@ module Cosmos
 
       it "creates a command packet with override item values" do
         items = { "ITEM2" => 10, "ITEM4" => 11 }
-        cmd = @cmd.build_cmd("TGT1","PKT1",items)
+        cmd = @cmd.build_cmd("TGT1", "PKT1", items)
         cmd.enable_method_missing
         expect(cmd.item1).to eql 1
         expect(cmd.item2).to eql 10
@@ -291,24 +291,24 @@ module Cosmos
 
       it "creates a command packet with override item value states" do
         items = { "ITEM2" => "GOOD" }
-        cmd = @cmd.build_cmd("TGT1","PKT2",items)
+        cmd = @cmd.build_cmd("TGT1", "PKT2", items)
         cmd.enable_method_missing
         expect(cmd.item1).to eql 2
         expect(cmd.item2).to eql "GOOD"
-        expect(cmd.read("ITEM2",:RAW)).to eql 2
+        expect(cmd.read("ITEM2", :RAW)).to eql 2
       end
 
       it "complains about missing required parameters" do
-        expect { @cmd.build_cmd("tgt2","pkt3") }.to raise_error(RuntimeError, "Required command parameter 'TGT2 PKT3 ITEM2' not given")
+        expect { @cmd.build_cmd("tgt2", "pkt3") }.to raise_error(RuntimeError, "Required command parameter 'TGT2 PKT3 ITEM2' not given")
       end
 
       it "supports building raw commands" do
         items = { "ITEM2" => 10 }
-        cmd = @cmd.build_cmd("TGT2","PKT5",items,false,false)
+        cmd = @cmd.build_cmd("TGT2", "PKT5", items, false, false)
         expect(cmd.raw).to eql false
         expect(cmd.read("ITEM2")).to eql 20
         items = { "ITEM2" => 10 }
-        cmd = @cmd.build_cmd("TGT1","PKT1",items,false,true)
+        cmd = @cmd.build_cmd("TGT1", "PKT1", items, false, true)
         expect(cmd.raw).to eql true
         expect(cmd.read("ITEM2")).to eql 10
       end
@@ -318,7 +318,7 @@ module Cosmos
         packet.buffer = "\x00" * (packet.defined_length + 1)
         expect(packet.length).to eql 5
         items = { "ITEM2" => 10 }
-        cmd = @cmd.build_cmd("TGT1","PKT1",items)
+        cmd = @cmd.build_cmd("TGT1", "PKT1", items)
         expect(cmd.read("ITEM2")).to eql 10
         expect(cmd.length).to eql 4
       end
@@ -326,23 +326,23 @@ module Cosmos
 
     describe "format" do
       it "creates a string representation of a command" do
-        pkt = @cmd.packet("TGT1","PKT1")
+        pkt = @cmd.packet("TGT1", "PKT1")
         expect(@cmd.format(pkt)).to eql "cmd(\"TGT1 PKT1 with ITEM1 0, ITEM2 0, ITEM3 0, ITEM4 0\")"
 
-        pkt = @cmd.packet("TGT2","PKT4")
+        pkt = @cmd.packet("TGT2", "PKT4")
         string = ''
-        pkt.write("ITEM2","HELLO WORLD")
+        pkt.write("ITEM2", "HELLO WORLD")
         expect(@cmd.format(pkt)).to eql "cmd(\"TGT2 PKT4 with ITEM1 0, ITEM2 'HELLO WORLD'\")"
 
-        pkt = @cmd.packet("TGT2","PKT4")
+        pkt = @cmd.packet("TGT2", "PKT4")
         string = ''
-        pkt.write("ITEM2","HELLO WORLD")
+        pkt.write("ITEM2", "HELLO WORLD")
         pkt.raw = true
         expect(@cmd.format(pkt)).to eql "cmd_raw(\"TGT2 PKT4 with ITEM1 0, ITEM2 'HELLO WORLD'\")"
 
         # If the string is too big it should truncate it
-        (1..2028).each {|i| string << 'A' }
-        pkt.write("ITEM2",string)
+        (1..2028).each { |i| string << 'A' }
+        pkt.write("ITEM2", string)
         pkt.raw = false
         result = @cmd.format(pkt)
         expect(result).to match(/cmd\("TGT2 PKT4 with ITEM1 0, ITEM2 'AAAAAAAAAAA/)
@@ -350,41 +350,41 @@ module Cosmos
       end
 
       it "ignores parameters" do
-        pkt = @cmd.packet("TGT1","PKT1")
-        expect(@cmd.format(pkt,['ITEM3','ITEM4'])).to eql "cmd(\"TGT1 PKT1 with ITEM1 0, ITEM2 0\")"
+        pkt = @cmd.packet("TGT1", "PKT1")
+        expect(@cmd.format(pkt, ['ITEM3', 'ITEM4'])).to eql "cmd(\"TGT1 PKT1 with ITEM1 0, ITEM2 0\")"
       end
     end
 
     describe "cmd_hazardous?" do
       it "complains about non-existant targets" do
-        expect { @cmd.cmd_hazardous?("tgtX","pkt1") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
+        expect { @cmd.cmd_hazardous?("tgtX", "pkt1") }.to raise_error(RuntimeError, "Command target 'TGTX' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @cmd.cmd_hazardous?("tgt1","pktX") }.to raise_error(RuntimeError, "Command packet 'TGT1 PKTX' does not exist")
+        expect { @cmd.cmd_hazardous?("tgt1", "pktX") }.to raise_error(RuntimeError, "Command packet 'TGT1 PKTX' does not exist")
       end
 
       it "complains about non-existant items" do
-        expect { @cmd.cmd_hazardous?("tgt1","pkt1",{ "itemX" => 1 }) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
+        expect { @cmd.cmd_hazardous?("tgt1", "pkt1", { "itemX" => 1 }) }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
       it "returns true if the command overall is hazardous" do
-        hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT1")
+        hazardous, description = @cmd.cmd_hazardous?("TGT1", "PKT1")
         expect(hazardous).to be false
         expect(description).to be_nil
-        hazardous, description = @cmd.cmd_hazardous?("tgt2","pkt3")
+        hazardous, description = @cmd.cmd_hazardous?("tgt2", "pkt3")
         expect(hazardous).to be true
         expect(description).to eql "Hazardous"
       end
 
       it "returns true if a command parameter is hazardous" do
-        hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{ "ITEM2" => 0 })
+        hazardous, description = @cmd.cmd_hazardous?("TGT1", "PKT2", { "ITEM2" => 0 })
         expect(hazardous).to be true
         expect(description).to eql "Hazardous"
-        hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{ "ITEM2" => 1 })
+        hazardous, description = @cmd.cmd_hazardous?("TGT1", "PKT2", { "ITEM2" => 1 })
         expect(hazardous).to be true
         expect(description).to eql ""
-        hazardous, description = @cmd.cmd_hazardous?("TGT1","PKT2",{ "ITEM2" => 2 })
+        hazardous, description = @cmd.cmd_hazardous?("TGT1", "PKT2", { "ITEM2" => 2 })
         expect(hazardous).to be false
         expect(description).to be_nil
       end
@@ -392,15 +392,15 @@ module Cosmos
 
     describe "clear_counters" do
       it "clears the received counters in all packets" do
-        @cmd.packet("TGT1","PKT1").received_count = 1
-        @cmd.packet("TGT1","PKT2").received_count = 2
-        @cmd.packet("TGT2","PKT3").received_count = 3
-        @cmd.packet("TGT2","PKT4").received_count = 4
+        @cmd.packet("TGT1", "PKT1").received_count = 1
+        @cmd.packet("TGT1", "PKT2").received_count = 2
+        @cmd.packet("TGT2", "PKT3").received_count = 3
+        @cmd.packet("TGT2", "PKT4").received_count = 4
         @cmd.clear_counters
-        expect(@cmd.packet("TGT1","PKT1").received_count).to eql 0
-        expect(@cmd.packet("TGT1","PKT2").received_count).to eql 0
-        expect(@cmd.packet("TGT2","PKT3").received_count).to eql 0
-        expect(@cmd.packet("TGT2","PKT4").received_count).to eql 0
+        expect(@cmd.packet("TGT1", "PKT1").received_count).to eql 0
+        expect(@cmd.packet("TGT1", "PKT2").received_count).to eql 0
+        expect(@cmd.packet("TGT2", "PKT3").received_count).to eql 0
+        expect(@cmd.packet("TGT2", "PKT4").received_count).to eql 0
       end
     end
 

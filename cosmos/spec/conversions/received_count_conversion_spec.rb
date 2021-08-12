@@ -22,7 +22,6 @@ require 'cosmos/conversions/received_count_conversion'
 require 'cosmos/packets/packet'
 
 module Cosmos
-
   describe ReceivedCountConversion do
     describe "initialize" do
       it "initializes converted_type and converted_bit_size" do
@@ -35,9 +34,9 @@ module Cosmos
     describe "call" do
       it "calls the code to eval and return the result" do
         gc = ReceivedCountConversion.new()
-        packet = Packet.new("TGT","PKT")
+        packet = Packet.new("TGT", "PKT")
         packet.received_count = 100
-        expect(gc.call(nil,packet,nil)).to eql 100
+        expect(gc.call(nil, packet, nil)).to eql 100
       end
     end
 

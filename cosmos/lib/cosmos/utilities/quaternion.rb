@@ -118,13 +118,13 @@ module Cosmos
       q = Quaternion.new()
 
       q[0] =  (@data[3] * other[0]) - (@data[2] * other[1]) +
-        (@data[1] * other[2]) + (@data[0] * other[3])
-      q[1] =  (@data[2] * other[0]) + (@data[3] * other[1]) -
-        (@data[0] * other[2]) + (@data[1] * other[3])
+              (@data[1] * other[2]) + (@data[0] * other[3])
+      q[1] = (@data[2] * other[0]) + (@data[3] * other[1]) -
+             (@data[0] * other[2]) + (@data[1] * other[3])
       q[2] = -(@data[1] * other[0]) + (@data[0] * other[1]) +
-        (@data[3] * other[2]) + (@data[2] * other[3])
+             (@data[3] * other[2]) + (@data[2] * other[3])
       q[3] = -(@data[0] * other[0]) - (@data[1] * other[1]) -
-        (@data[2] * other[2]) + (@data[3] * other[3])
+             (@data[2] * other[2]) + (@data[3] * other[3])
 
       return q
     end
@@ -193,7 +193,7 @@ module Cosmos
         z = (f[0] * t[1] - f[1] * t[0]) / div
         w = div * 0.5
       end
-      return Quaternion.new([x,y,z,w])
+      return Quaternion.new([x, y, z, w])
     end
 
     # @param value [Numeric]

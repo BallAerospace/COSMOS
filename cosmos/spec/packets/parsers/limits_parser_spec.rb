@@ -159,7 +159,7 @@ module Cosmos
       end
 
       it "complains if the fourth through ninth parameter aren't numbers'" do
-        msgs = ['','','','','red low','yellow low','yellow high','red high','green low','green high']
+        msgs = ['', '', '', '', 'red low', 'yellow low', 'yellow high', 'red high', 'green low', 'green high']
         (4..9).each do |index|
           tf = Tempfile.new('unittest')
           tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'

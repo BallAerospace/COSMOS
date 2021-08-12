@@ -72,9 +72,11 @@ module Cosmos
 
     def initialize(name, is_plugin: false)
       raise "Microservice must be named" unless name
+
       @name = name
       split_name = name.split("__")
       raise "Microservice names should be scope, type, and then name" if split_name.length != 3
+
       @scope = split_name[0]
       Logger.scope = @scope
       @cancel_thread = false

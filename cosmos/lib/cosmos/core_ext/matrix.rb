@@ -22,7 +22,6 @@ include Math
 
 # COSMOS specific additions to the Ruby Matrix class
 class Matrix
-
   old_verbose = $VERBOSE; $VERBOSE = nil
   # Allow [i] to return an entire row instead of being forced to pass both the
   # row and column (i.e [i,j]) to return an individual element.
@@ -151,8 +150,7 @@ class Matrix
       end
     end
     # Ensure the final row is floating point for consistency
-    @rows[3].map! {|x| x.to_f }
+    @rows[3].map! { |x| x.to_f }
     return self
   end
-
 end

@@ -33,6 +33,7 @@ module Cosmos
       attr_accessor :target_name
 
       protected
+
       def handle_packet(packet)
         identified_packet = System.commands.identify(packet.buffer, [@target_name])
         if identified_packet

@@ -130,8 +130,8 @@ module Cosmos
           @pc.process_file(tf.path, "TGT1")
           tlm = Telemetry.new(@pc)
           pkt = tlm.packet("TGT1", "PKT1")
-          pkt.write("ITEM1", [0,1,2,1,0])
-          expect(pkt.read("ITEM1")).to eql ["FALSE","TRUE","ERROR","TRUE","FALSE"]
+          pkt.write("ITEM1", [0, 1, 2, 1, 0])
+          expect(pkt.read("ITEM1")).to eql ["FALSE", "TRUE", "ERROR", "TRUE", "FALSE"]
           tf.unlink
         end
 
@@ -210,7 +210,7 @@ module Cosmos
           @pc.process_file(tf.path, "TGT1")
           index = 1
           colors = [:RED, :YELLOW, :GREEN]
-          @pc.telemetry["TGT1"]["PKT1"].items["ITEM1"].states.each do |name,val|
+          @pc.telemetry["TGT1"]["PKT1"].items["ITEM1"].states.each do |name, val|
             expect(name).to eql "STATE#{index}"
             expect(val).to eql index
             expect(@pc.telemetry["TGT1"]["PKT1"].items["ITEM1"].state_colors[name]).to eql colors[index - 1]

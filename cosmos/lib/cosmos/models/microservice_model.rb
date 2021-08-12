@@ -80,7 +80,8 @@ module Cosmos
       container: nil,
       updated_at: nil,
       plugin: nil,
-      scope:)
+      scope:
+    )
       parts = name.split("__")
       if parts.length != 3
         raise "name '#{name}' must be formatted as SCOPE__TYPE__NAME"
@@ -88,6 +89,7 @@ module Cosmos
       if parts[0] != scope
         raise "name '#{name}' scope '#{parts[0]}' doesn't match scope parameter '#{scope}'"
       end
+
       super(PRIMARY_KEY, name: name, updated_at: updated_at, plugin: plugin, scope: scope)
       @folder_name = folder_name
       @cmd = cmd
@@ -172,6 +174,7 @@ module Cosmos
       start_path = "/microservices/#{@folder_name}/"
       Dir.glob(gem_path + start_path + "**/*") do |filename|
         next if filename == '.' or filename == '..' or File.directory?(filename)
+
         path = filename.split(gem_path)[-1]
         key = "#{@scope}/microservices/#{@name}/" + path.split(start_path)[-1]
 

@@ -233,12 +233,11 @@ module Cosmos
 
       if timed_out
         # Clean this command out of the array of items that require handshakes.
-        @handshake_cmds.delete_if {|hsc| hsc == handshake_cmd}
+        @handshake_cmds.delete_if { |hsc| hsc == handshake_cmd }
         raise "Timeout waiting for handshake from #{System.commands.format(packet, System.targets[packet.target_name].ignored_parameters)}"
       end
 
       process_handshake_results(handshake_cmd)
-
     rescue Exception => err
       # If anything goes wrong after successfully writing the packet to the LINC target
       # ensure that the packet gets updated in the CVT and logged to the packet log writer.
@@ -329,7 +328,7 @@ module Cosmos
 
           # Loop through all waiting commands to see if this handshake belongs to them
           this_handshake_guid = linc_handshake.get_cmd_guid(@fieldname_guid)
-          handshake_cmd_index = @handshake_cmds.index {|hsc| hsc.get_cmd_guid == this_handshake_guid}
+          handshake_cmd_index = @handshake_cmds.index { |hsc| hsc.get_cmd_guid == this_handshake_guid }
 
           # If command was waiting (ie the loop above found one), then remove it from waiters and signal it
           if handshake_cmd_index
@@ -347,7 +346,6 @@ module Cosmos
         end # of handshaking type check
       end
     end
-
   end # class LincInterface
 
   # The LincHandshakeCommand class is used only by the LincInterface.
@@ -356,7 +354,7 @@ module Cosmos
   class LincHandshakeCommand
     attr_accessor :handshake
 
-    def initialize(handshakes_mutex,cmd_guid)
+    def initialize(handshakes_mutex, cmd_guid)
       @cmd_guid = cmd_guid
       @handshakes_mutex = handshakes_mutex
       @resource = ConditionVariable.new
@@ -366,7 +364,7 @@ module Cosmos
     def wait_for_handshake(response_timeout)
       timed_out = false
 
-      @resource.wait(@handshakes_mutex,response_timeout)
+      @resource.wait(@handshakes_mutex, response_timeout)
       if @handshake
         timed_out = false
       else
@@ -413,37 +411,46 @@ module Cosmos
       # Get target name length
       target_name_length = data[0..0].unpack('C')[0]
       raise "Invalid target name length" if target_name_length == 0
+
       data = data[1..-1]
 
       # get target name
       raise "Data field too short for target name" if data.length < target_name_length
+
       # target_name = data[0..(target_name_length - 1)] # Unused
       data = data[target_name_length..-1]
 
       # get packet name length
       raise "Data field too short for packet name length" if data.length == 0
+
       packet_name_length = data[0..0].unpack('C')[0]
       raise "Invalid packet name length" if packet_name_length == 0
+
       data = data[1..-1]
 
       # get packet name
       raise "Data field too short for packet name" if data.length < packet_name_length
+
       packet_name = data[0..(packet_name_length - 1)]
       data = data[packet_name_length..-1]
 
       # get packet data length
       raise "Data field too short for packet data length" if data.length < 4
+
       packet_data_length = data[0..3].unpack('N')[0]
       raise "Invalid data length" if packet_data_length == 0
+
       data = data[4..-1]
 
       # get packet data
       raise "Data field too short for packet data" if data.length < packet_data_length
+
       packet_data = data[0..(packet_data_length - 1)]
       data = data[packet_data_length..-1]
 
       # get error source length
       raise "Data field too short for error source length" if data.length < 4
+
       error_source_length = data[0..3].unpack('N')[0]
       # note it is OK to have a 0 source length
       data = data[4..-1]

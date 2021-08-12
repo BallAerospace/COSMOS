@@ -73,7 +73,7 @@ module Cosmos
 
         # Files copied to S3 are named via the first_time, last_time, label
         expect(@files.keys).to contain_exactly("#{first_timestamp}__#{last_timestamp}__#{label}.bin",
-          "#{first_timestamp}__#{last_timestamp}__#{label}.idx")
+                                               "#{first_timestamp}__#{last_timestamp}__#{label}.idx")
 
         # Verify the COSMOS5 header on the binary file
         bin = @files["#{first_timestamp}__#{last_timestamp}__#{label}.bin"]
@@ -88,7 +88,7 @@ module Cosmos
         # puts idx.formatted
 
         # Verify the packets by using PacketLogReader
-        File.open('test_log.bin','wb') { |file| file.write bin }
+        File.open('test_log.bin', 'wb') { |file| file.write bin }
         reader = PacketLogReader.new
         reader.open('test_log.bin')
         pkt = reader.read
@@ -155,7 +155,7 @@ module Cosmos
         # Monkey patch the constant so the test doesn't take forever
         # Fortify says Access Specifier Manipulation
         # but this is test code only
-        LogWriter.__send__(:remove_const,:CYCLE_TIME_INTERVAL)
+        LogWriter.__send__(:remove_const, :CYCLE_TIME_INTERVAL)
         LogWriter.const_set(:CYCLE_TIME_INTERVAL, 0.1)
 
         time = Time.now.to_nsec_from_epoch
@@ -174,7 +174,7 @@ module Cosmos
         # Monkey patch the constant back to the default
         # Fortify says Access Specifier Manipulation
         # but this is test code only
-        LogWriter.__send__(:remove_const,:CYCLE_TIME_INTERVAL)
+        LogWriter.__send__(:remove_const, :CYCLE_TIME_INTERVAL)
         LogWriter.const_set(:CYCLE_TIME_INTERVAL, 2)
       end
 

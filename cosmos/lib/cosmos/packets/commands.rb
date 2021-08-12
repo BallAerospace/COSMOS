@@ -20,7 +20,6 @@
 require 'cosmos/packets/packet_config'
 
 module Cosmos
-
   # Commands uses PacketConfig to parse the command and telemetry
   # configuration files. It contains all the knowledge of which command packets
   # exist in the system and how to access them. This class is the API layer
@@ -60,6 +59,7 @@ module Cosmos
     def packets(target_name)
       target_packets = @config.commands[target_name.to_s.upcase]
       raise "Command target '#{target_name.to_s.upcase}' does not exist" unless target_packets
+
       target_packets
     end
 
@@ -71,6 +71,7 @@ module Cosmos
       target_packets = packets(target_name)
       packet = target_packets[packet_name.to_s.upcase]
       raise "Command packet '#{target_name.to_s.upcase} #{packet_name.to_s.upcase}' does not exist" unless packet
+
       packet
     end
 
@@ -191,7 +192,7 @@ module Cosmos
         items = packet.read_all(:FORMATTED)
         raw = false
       end
-      items.delete_if {|item_name, item_value| ignored_parameters.include?(item_name)}
+      items.delete_if { |item_name, item_value| ignored_parameters.include?(item_name) }
       return build_cmd_output_string(packet.target_name, packet.packet_name, items, raw)
     end
 
@@ -234,7 +235,7 @@ module Cosmos
             if value.length > 256
               value = value[0..255] + "...'"
             end
-            value.tr!('"',"'")
+            value.tr!('"', "'")
           elsif value.is_a?(Array)
             value = "[#{value.join(", ")}]"
           end
@@ -310,6 +311,7 @@ module Cosmos
         packets(target_name).each do |command_name, packet|
           # We don't audit against hidden or disabled packets/commands
           next if !include_hidden and (packet.hidden || packet.disabled)
+
           strings << "#{target_name} #{command_name}"
         end
       end
@@ -321,6 +323,7 @@ module Cosmos
     end
 
     protected
+
     def set_parameters(command, params, range_checking)
       given_item_names = []
       params.each do |item_name, value|
@@ -366,7 +369,5 @@ module Cosmos
         end
       end
     end
-
   end # class Commands
-
 end # module Cosmos

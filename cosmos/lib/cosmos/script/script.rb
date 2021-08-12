@@ -33,6 +33,7 @@ $cosmos_token = ENV['COSMOS_PASSWORD']
 module Cosmos
   module Script
     private
+
     include ApiShared
 
     # All methods are private so they can only be called by themselves and not
@@ -124,9 +125,9 @@ module Cosmos
       answer = ''
       files = Dir["#{directory}/#{filter}"]
       if select_files
-        files.select! {|f| !File.directory? f }
+        files.select! { |f| !File.directory? f }
       else
-        files.select! {|f| File.directory? f }
+        files.select! { |f| File.directory? f }
       end
       while answer.empty?
         print message + "\n" + files.join("\n") + "\n<Type file name>:"
@@ -135,15 +136,19 @@ module Cosmos
       end
       return answer
     end
+
     def save_file_dialog(directory = Cosmos::USERPATH, message = "Save File", filter = "*")
       _file_dialog(message, directory, filter)
     end
+
     def open_file_dialog(directory = Cosmos::USERPATH, message = "Open File", filter = "*")
       _file_dialog(message, directory, filter)
     end
+
     def open_files_dialog(directory = Cosmos::USERPATH, message = "Open File(s)", filter = "*")
       _file_dialog(message, directory, filter)
     end
+
     def open_directory_dialog(directory = Cosmos::USERPATH, message = "Open Directory")
       _file_dialog(message, directory, "*", false)
     end

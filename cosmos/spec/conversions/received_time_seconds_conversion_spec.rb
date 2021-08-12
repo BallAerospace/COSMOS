@@ -22,7 +22,6 @@ require 'cosmos/conversions/received_time_seconds_conversion'
 require 'cosmos/packets/packet'
 
 module Cosmos
-
   describe ReceivedTimeSecondsConversion do
     describe "initialize" do
       it "initializes converted_type and converted_bit_size" do
@@ -35,16 +34,16 @@ module Cosmos
     describe "call" do
       it "returns the formatted packet time" do
         gc = ReceivedTimeSecondsConversion.new()
-        packet = Packet.new("TGT","PKT")
-        time = Time.new(2020,1,31,12,15,30)
+        packet = Packet.new("TGT", "PKT")
+        time = Time.new(2020, 1, 31, 12, 15, 30)
         packet.received_time = time
-        expect(gc.call(nil,packet,nil)).to eql time.to_f
+        expect(gc.call(nil, packet, nil)).to eql time.to_f
       end
 
       it "returns 0.0 if packet time isn't set" do
         gc = ReceivedTimeSecondsConversion.new()
-        packet = Packet.new("TGT","PKT")
-        expect(gc.call(nil,packet,nil)).to eql 0.0
+        packet = Packet.new("TGT", "PKT")
+        expect(gc.call(nil, packet, nil)).to eql 0.0
       end
     end
 

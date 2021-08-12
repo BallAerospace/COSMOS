@@ -55,6 +55,7 @@ module Cosmos
       Dir[path].each do |filename|
         # There is no longer a system.txt in COSMOS 5 so ignore system_config.rb
         next if File.basename(filename) == 'system_config.rb'
+
         data = File.read(filename)
         part = nil
         if data.include?('parser.parse_file')

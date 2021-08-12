@@ -27,11 +27,11 @@ module Cosmos
     def self.write_packet(packet, scope:)
       topic = "#{scope}__COMMAND__{#{packet.target_name}}__#{packet.packet_name}"
       msg_hash = { time: packet.received_time.to_nsec_from_epoch,
-                  target_name: packet.target_name,
-                  packet_name: packet.packet_name,
-                  received_count: packet.received_count,
-                  stored: packet.stored,
-                  buffer: packet.buffer(false) }
+                   target_name: packet.target_name,
+                   packet_name: packet.packet_name,
+                   received_count: packet.received_count,
+                   stored: packet.stored,
+                   buffer: packet.buffer(false) }
       Store.write_topic(topic, msg_hash)
     end
 

@@ -18,9 +18,7 @@
 # copyright holder
 
 module Cosmos
-
   class Processor
-
     # @return [Symbol] The value type for the processor
     attr_reader :value_type
 
@@ -37,6 +35,7 @@ module Cosmos
       value_type = value_type.to_s.upcase.intern
       @value_type = value_type
       raise ArgumentError, "value_type must be RAW, CONVERTED, FORMATTED, or WITH_UNITS. Is #{@value_type}" unless Packet::VALUE_TYPES.include?(@value_type)
+
       @results = {}
     end
 
@@ -83,7 +82,5 @@ module Cosmos
     def as_json
       { 'name' => @name, 'class' => self.class.name, 'params' => [@value_type.to_s] }
     end
-
   end # class Processor
-
 end # module Cosmos

@@ -24,7 +24,6 @@ require 'tempfile'
 require 'tmpdir'
 
 module Cosmos
-
   describe ConfigParser do
     before(:each) do
       @cp = ConfigParser.new
@@ -41,7 +40,7 @@ module Cosmos
 
         @cp.parse_file(tf.path) do |keyword, params|
           expect(keyword).to eql "KEYWORD"
-          expect(params).to include('PARAM1','PARAM2','PARAM 3')
+          expect(params).to include('PARAM1', 'PARAM2', 'PARAM 3')
           expect(@cp.line).to eql line
           expect(@cp.line_number).to eql 1
         end
@@ -156,7 +155,7 @@ module Cosmos
 
         @cp.parse_file(tf.path, false, false) do |keyword, params|
           expect(keyword).to eql "KEYWORD"
-          expect(params).to include('PARAM1','PARAM2',"'PARAM 3'")
+          expect(params).to include('PARAM1', 'PARAM2', "'PARAM 3'")
           expect(@cp.line).to eql line
           expect(@cp.line_number).to eql 1
         end
@@ -185,14 +184,14 @@ module Cosmos
 
         @cp.parse_file(tf.path) do |keyword, params|
           expect(keyword).to eql "KEYWORD"
-          expect(params).to include('PARAM1','PARAM2','PARAM 3')
+          expect(params).to include('PARAM1', 'PARAM2', 'PARAM 3')
           expect(@cp.line).to eql "KEYWORD PARAM1 PARAM2 'PARAM 3'"
           expect(@cp.line_number).to eql 2
         end
 
         @cp.parse_file(tf.path, false, false) do |keyword, params|
           expect(keyword).to eql "KEYWORD"
-          expect(params).to include('PARAM1','PARAM2',"'PARAM 3'")
+          expect(params).to include('PARAM1', 'PARAM2', "'PARAM 3'")
           expect(@cp.line).to eql "KEYWORD PARAM1 PARAM2 'PARAM 3'"
           expect(@cp.line_number).to eql 2
         end
@@ -226,7 +225,7 @@ module Cosmos
         ConfigParser.message_callback = msg_callback
         @cp.parse_file(tf.path) do |keyword, params|
           expect(keyword).to eql "KEYWORD"
-          expect(params).to include('PARAM1','PARAM2','PARAM 3')
+          expect(params).to include('PARAM1', 'PARAM2', 'PARAM 3')
           expect(@cp.line).to eql line
           expect(@cp.line_number).to eql 1
         end
@@ -247,7 +246,7 @@ module Cosmos
 
         ConfigParser.message_callback = msg_callback
         ConfigParser.progress_callback = done_callback
-        @cp.parse_file(tf.path) {|k,p|}
+        @cp.parse_file(tf.path) { |k, p| }
         tf.unlink
       end
     end
@@ -376,7 +375,7 @@ module Cosmos
           expect(ConfigParser.handle_defined_constants("MIN", :INT, val)).to eql (-(2**val) / 2)
           expect(ConfigParser.handle_defined_constants("MAX", :INT, val)).to eql ((2**val) / 2 - 1)
         end
-        [8,16,32,64].each do |val|
+        [8, 16, 32, 64].each do |val|
           # Unsigned
           expect(ConfigParser.handle_defined_constants("MIN_UINT#{val}")).to eql 0
           expect(ConfigParser.handle_defined_constants("MAX_UINT#{val}")).to eql (2**val - 1)

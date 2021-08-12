@@ -105,8 +105,8 @@ module Cosmos
 
     describe "out_of_limits" do
       it "returns all out of limits telemetry items" do
-        @tlm.update!("TGT1","PKT1","\x00\x03\x03\x04\x05")
-        @tlm.packet("TGT1","PKT1").check_limits
+        @tlm.update!("TGT1", "PKT1", "\x00\x03\x03\x04\x05")
+        @tlm.packet("TGT1", "PKT1").check_limits
         items = @limits.out_of_limits
         expect(items[0][0]).to eql "TGT1"
         expect(items[0][1]).to eql "PKT1"
@@ -118,44 +118,44 @@ module Cosmos
     describe "overall_limits_state" do
       it "returns overall limits state of the system" do
         # Cause packet 2 to be green
-        @tlm.update!("TGT1","PKT2","\x03\x03")
-        @tlm.packet("TGT1","PKT2").check_limits
+        @tlm.update!("TGT1", "PKT2", "\x03\x03")
+        @tlm.packet("TGT1", "PKT2").check_limits
 
-        @tlm.packet("TGT1","PKT1").set_stale
+        @tlm.packet("TGT1", "PKT1").set_stale
         expect(@limits.overall_limits_state).to eq :STALE
 
         # Cause packet 1 to be all BLUE values
-        @tlm.update!("TGT1","PKT1","\x0a\x0a\x0a\x0a\x00")
-        @tlm.packet("TGT1","PKT1").check_limits(:TVAC)
+        @tlm.update!("TGT1", "PKT1", "\x0a\x0a\x0a\x0a\x00")
+        @tlm.packet("TGT1", "PKT1").check_limits(:TVAC)
         expect(@limits.overall_limits_state).to eq :GREEN
 
         # Cause packet 1 to have a GREEN value
-        @tlm.update!("TGT1","PKT1","\x0a\x0a\x0a\x08\x00")
-        @tlm.packet("TGT1","PKT1").check_limits(:TVAC)
+        @tlm.update!("TGT1", "PKT1", "\x0a\x0a\x0a\x08\x00")
+        @tlm.packet("TGT1", "PKT1").check_limits(:TVAC)
         expect(@limits.overall_limits_state).to eq :GREEN
 
         # Cause packet 1 to have a YELLOW value
-        @tlm.update!("TGT1","PKT1","\x0a\x0a\x0a\x07\x00")
-        @tlm.packet("TGT1","PKT1").check_limits(:TVAC)
+        @tlm.update!("TGT1", "PKT1", "\x0a\x0a\x0a\x07\x00")
+        @tlm.packet("TGT1", "PKT1").check_limits(:TVAC)
         expect(@limits.overall_limits_state).to eq :YELLOW
 
         # Cause packet 1 to have a YELLOW and a RED value
-        @tlm.update!("TGT1","PKT1","\x0a\x0a\x07\x06\x00")
-        @tlm.packet("TGT1","PKT1").check_limits(:TVAC)
+        @tlm.update!("TGT1", "PKT1", "\x0a\x0a\x07\x06\x00")
+        @tlm.packet("TGT1", "PKT1").check_limits(:TVAC)
         expect(@limits.overall_limits_state).to eq :RED
       end
 
       it "marks a stale packet green if all items are ignored" do
         # Cause packet 2 to be green
-        @tlm.update!("TGT1","PKT2","\x03\x03")
-        @tlm.packet("TGT1","PKT2").check_limits
+        @tlm.update!("TGT1", "PKT2", "\x03\x03")
+        @tlm.packet("TGT1", "PKT2").check_limits
 
-        @tlm.packet("TGT1","PKT1").set_stale
+        @tlm.packet("TGT1", "PKT1").set_stale
         expect(@limits.overall_limits_state).to eq :STALE
         # Ignore several items in pkt1 but leave one off
-        expect(@limits.overall_limits_state([%w(TGT1 PKT1 ITEM1),%w(TGT1 PKT1 ITEM2),%w(TGT1 PKT1 ITEM3)])).to eq :STALE
+        expect(@limits.overall_limits_state([%w(TGT1 PKT1 ITEM1), %w(TGT1 PKT1 ITEM2), %w(TGT1 PKT1 ITEM3)])).to eq :STALE
         # Ignore every item in pkt1
-        expect(@limits.overall_limits_state([%w(TGT1 PKT1 ITEM1),%w(TGT1 PKT1 ITEM2),%w(TGT1 PKT1 ITEM3),%w(TGT1 PKT1 ITEM4)])).to eq :GREEN
+        expect(@limits.overall_limits_state([%w(TGT1 PKT1 ITEM1), %w(TGT1 PKT1 ITEM2), %w(TGT1 PKT1 ITEM3), %w(TGT1 PKT1 ITEM4)])).to eq :GREEN
 
         # ignore the entire PKT1 packet
         expect(@limits.overall_limits_state).to eq :STALE
@@ -164,39 +164,39 @@ module Cosmos
 
       it "handles non-existant ignored telemetry items" do
         # Cause packet 2 to be green
-        @tlm.update!("TGT1","PKT2","\x03\x03")
-        @tlm.packet("TGT1","PKT2").check_limits
+        @tlm.update!("TGT1", "PKT2", "\x03\x03")
+        @tlm.packet("TGT1", "PKT2").check_limits
 
         # Ignore a non-existant value
-        @tlm.update!("TGT1","PKT1","\x0a\x0a\x0a\x07\x00")
-        @tlm.packet("TGT1","PKT1").check_limits(:TVAC)
+        @tlm.update!("TGT1", "PKT1", "\x0a\x0a\x0a\x07\x00")
+        @tlm.packet("TGT1", "PKT1").check_limits(:TVAC)
         expect(@limits.overall_limits_state([%w(TGT1 PKT1 BLAH)])).to eq :YELLOW
       end
 
       it "ignores specified telemetry items" do
         # Cause packet 2 to be green
-        @tlm.update!("TGT1","PKT2","\x03\x03")
-        @tlm.packet("TGT1","PKT2").check_limits
+        @tlm.update!("TGT1", "PKT2", "\x03\x03")
+        @tlm.packet("TGT1", "PKT2").check_limits
 
         # Cause packet 1 to have a YELLOW value but ignore it
-        @tlm.update!("TGT1","PKT1","\x0a\x0a\x0a\x07\x00")
-        @tlm.packet("TGT1","PKT1").check_limits(:TVAC)
+        @tlm.update!("TGT1", "PKT1", "\x0a\x0a\x0a\x07\x00")
+        @tlm.packet("TGT1", "PKT1").check_limits(:TVAC)
         expect(@limits.overall_limits_state([%w(TGT1 PKT1 ITEM4)])).to eq :GREEN
 
         # Cause packet 1 to have a YELLOW and a RED value but ignore them
-        @tlm.update!("TGT1","PKT1","\x0a\x0a\x07\x06\x00")
-        @tlm.packet("TGT1","PKT1").check_limits(:TVAC)
-        expect(@limits.overall_limits_state([%w(TGT1 PKT1 ITEM4),%w(TGT1 PKT1 ITEM3)])).to eq :GREEN
+        @tlm.update!("TGT1", "PKT1", "\x0a\x0a\x07\x06\x00")
+        @tlm.packet("TGT1", "PKT1").check_limits(:TVAC)
+        expect(@limits.overall_limits_state([%w(TGT1 PKT1 ITEM4), %w(TGT1 PKT1 ITEM3)])).to eq :GREEN
       end
 
       it "ignores specified telemetry packets" do
         # Cause packet 2 to be green
-        @tlm.update!("TGT1","PKT2","\x03\x03")
-        @tlm.packet("TGT1","PKT2").check_limits
+        @tlm.update!("TGT1", "PKT2", "\x03\x03")
+        @tlm.packet("TGT1", "PKT2").check_limits
 
         # Cause packet 1 to have a YELLOW and a RED value but ignore the packet
-        @tlm.update!("TGT1","PKT1","\x0a\x0a\x07\x06\x00")
-        @tlm.packet("TGT1","PKT1").check_limits(:TVAC)
+        @tlm.update!("TGT1", "PKT1", "\x0a\x0a\x07\x06\x00")
+        @tlm.packet("TGT1", "PKT1").check_limits(:TVAC)
         expect(@limits.overall_limits_state()).to eq :RED
         expect(@limits.overall_limits_state([%w(TGT1 PKT1)])).to eq :GREEN
       end
@@ -221,7 +221,7 @@ module Cosmos
 
       it "enables limits for all items in the group" do
         @limits.enable_group("group1")
-        pkt = @tlm.packet("TGT1","PKT1")
+        pkt = @tlm.packet("TGT1", "PKT1")
         expect(pkt.get_item("ITEM1").limits.enabled).to be true
         expect(pkt.get_item("ITEM2").limits.enabled).to be true
         expect(pkt.get_item("ITEM3").limits.enabled).to be true
@@ -236,7 +236,7 @@ module Cosmos
       end
 
       it "disables limits for all items in the group" do
-        pkt = @tlm.packet("TGT1","PKT1")
+        pkt = @tlm.packet("TGT1", "PKT1")
         pkt.enable_limits("ITEM1")
         pkt.enable_limits("ITEM2")
         expect(pkt.get_item("ITEM1").limits.enabled).to be true
@@ -250,65 +250,65 @@ module Cosmos
 
     describe "enabled?" do
       it "complains about non-existant targets" do
-        expect { @limits.enabled?("TGTX","PKT1","ITEM1") }.to raise_error(RuntimeError, "Telemetry target 'TGTX' does not exist")
+        expect { @limits.enabled?("TGTX", "PKT1", "ITEM1") }.to raise_error(RuntimeError, "Telemetry target 'TGTX' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @limits.enabled?("TGT1","PKTX","ITEM1") }.to raise_error(RuntimeError, "Telemetry packet 'TGT1 PKTX' does not exist")
+        expect { @limits.enabled?("TGT1", "PKTX", "ITEM1") }.to raise_error(RuntimeError, "Telemetry packet 'TGT1 PKTX' does not exist")
       end
 
       it "complains about non-existant items" do
-        expect { @limits.enabled?("TGT1","PKT1","ITEMX") }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
+        expect { @limits.enabled?("TGT1", "PKT1", "ITEMX") }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
       it "returns whether limits are enable for an item" do
-        pkt = @tlm.packet("TGT1","PKT1")
-        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be false
+        pkt = @tlm.packet("TGT1", "PKT1")
+        expect(@limits.enabled?("TGT1", "PKT1", "ITEM5")).to be false
         pkt.enable_limits("ITEM5")
-        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be true
+        expect(@limits.enabled?("TGT1", "PKT1", "ITEM5")).to be true
       end
     end
 
     describe "enable" do
       it "complains about non-existant targets" do
-        expect { @limits.enable("TGTX","PKT1","ITEM1") }.to raise_error(RuntimeError, "Telemetry target 'TGTX' does not exist")
+        expect { @limits.enable("TGTX", "PKT1", "ITEM1") }.to raise_error(RuntimeError, "Telemetry target 'TGTX' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @limits.enable("TGT1","PKTX","ITEM1") }.to raise_error(RuntimeError, "Telemetry packet 'TGT1 PKTX' does not exist")
+        expect { @limits.enable("TGT1", "PKTX", "ITEM1") }.to raise_error(RuntimeError, "Telemetry packet 'TGT1 PKTX' does not exist")
       end
 
       it "complains about non-existant items" do
-        expect { @limits.enable("TGT1","PKT1","ITEMX") }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
+        expect { @limits.enable("TGT1", "PKT1", "ITEMX") }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
       it "enables limits for an item" do
-        @tlm.packet("TGT1","PKT1")
-        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be false
-        @limits.enable("TGT1","PKT1","ITEM5")
-        expect(@limits.enabled?("TGT1","PKT1","ITEM5")).to be true
+        @tlm.packet("TGT1", "PKT1")
+        expect(@limits.enabled?("TGT1", "PKT1", "ITEM5")).to be false
+        @limits.enable("TGT1", "PKT1", "ITEM5")
+        expect(@limits.enabled?("TGT1", "PKT1", "ITEM5")).to be true
       end
     end
 
     describe "disable" do
       it "complains about non-existant targets" do
-        expect { @limits.disable("TGTX","PKT1","ITEM1") }.to raise_error(RuntimeError, "Telemetry target 'TGTX' does not exist")
+        expect { @limits.disable("TGTX", "PKT1", "ITEM1") }.to raise_error(RuntimeError, "Telemetry target 'TGTX' does not exist")
       end
 
       it "complains about non-existant packets" do
-        expect { @limits.disable("TGT1","PKTX","ITEM1") }.to raise_error(RuntimeError, "Telemetry packet 'TGT1 PKTX' does not exist")
+        expect { @limits.disable("TGT1", "PKTX", "ITEM1") }.to raise_error(RuntimeError, "Telemetry packet 'TGT1 PKTX' does not exist")
       end
 
       it "complains about non-existant items" do
-        expect { @limits.disable("TGT1","PKT1","ITEMX") }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
+        expect { @limits.disable("TGT1", "PKT1", "ITEMX") }.to raise_error(RuntimeError, "Packet item 'TGT1 PKT1 ITEMX' does not exist")
       end
 
       it "disables limits for an item" do
-        @tlm.packet("TGT1","PKT1")
-        @limits.enable("TGT1","PKT1","ITEM1")
-        expect(@limits.enabled?("TGT1","PKT1","ITEM1")).to be true
-        @limits.disable("TGT1","PKT1","ITEM1")
-        expect(@limits.enabled?("TGT1","PKT1","ITEM1")).to be false
+        @tlm.packet("TGT1", "PKT1")
+        @limits.enable("TGT1", "PKT1", "ITEM1")
+        expect(@limits.enabled?("TGT1", "PKT1", "ITEM1")).to be true
+        @limits.disable("TGT1", "PKT1", "ITEM1")
+        expect(@limits.enabled?("TGT1", "PKT1", "ITEM1")).to be false
       end
     end
 

@@ -22,7 +22,6 @@ require 'resolv'
 
 # COSMOS specific additions to the Ruby Socket class
 class Socket
-
   # @return [String] The IP address of the current machine
   def self.get_own_ip_address
     Resolv.getaddress Socket.gethostname

@@ -28,6 +28,7 @@ module Cosmos
       api = Win32API.new('Kernel32', 'CreateFile', [LP, DWORD, DWORD, LP, DWORD, DWORD, HANDLE], HANDLE)
       handle = api.call(filename, desired_access, share_mode, security_attributes, creation_disposition, flags_and_attributes, template_file)
       raise "Error during CreateFile: #{get_last_error_message()}" if handle == INVALID_HANDLE_VALUE
+
       handle
     end
 
@@ -36,6 +37,7 @@ module Cosmos
       api = Win32API.new('Kernel32', 'CloseHandle', [HANDLE], BOOL)
       result = api.call(handle)
       raise "Error closing handle: #{get_last_error_message()}" if result == 0
+
       result
     end
 
@@ -45,6 +47,7 @@ module Cosmos
       api = Win32API.new('Kernel32', 'GetCommState', [HANDLE, LP], BOOL)
       result = api.call(handle, dcb.buffer)
       raise "GetCommState Error: #{get_last_error_message()}" if result == 0
+
       dcb
     end
 
@@ -53,6 +56,7 @@ module Cosmos
       api = Win32API.new('Kernel32', 'SetCommState', [HANDLE, LP], BOOL)
       result = api.call(handle, dcb.buffer)
       raise "SetCommState Error: #{get_last_error_message()}" if result == 0
+
       result
     end
 
@@ -62,6 +66,7 @@ module Cosmos
       api = Win32API.new('Kernel32', 'SetCommTimeouts', [HANDLE, LP], BOOL)
       result = api.call(handle, comm_timeouts.buffer)
       raise "SetCommTimeouts Error: #{get_last_error_message()}" if result == 0
+
       result
     end
 
@@ -88,6 +93,7 @@ module Cosmos
     end
 
     protected
+
     def self.build_dcb
       dcb = Structure.new(:LITTLE_ENDIAN)
       dcb.define_item('DCBlength', 0, 32, :UINT)
@@ -198,7 +204,8 @@ module QDA
             'P', # pointer to read handle
             'P', # pointer to write handle
             'P', # pointer to security attributes
-            'L'] # pipe size
+            'L'
+          ] # pipe size
 
           createPipe = Cosmos::Win32API.new("kernel32", "CreatePipe", params, 'I')
 
@@ -206,7 +213,7 @@ module QDA
           sec_attrs = [SECURITY_ATTRIBUTES_SIZE, 0, 1].pack('III')
 
           raise_last_win_32_error if createPipe.Call(read_handle,
-                                                      write_handle, sec_attrs, 0).zero?
+                                                     write_handle, sec_attrs, 0).zero?
 
           [read_handle.unpack('I')[0], write_handle.unpack('I')[0]]
         end
@@ -215,12 +222,13 @@ module QDA
           params = [
             'L', # handle to an object
             'L', # specifies flags to change
-            'L'] # specifies new values for flags
+            'L'
+          ] # specifies new values for flags
 
           setHandleInformation = Cosmos::Win32API.new("kernel32",
-                                               "SetHandleInformation", params, 'I')
+                                                      "SetHandleInformation", params, 'I')
           raise_last_win_32_error if setHandleInformation.Call(handle,
-                                                                flags, value).zero?
+                                                               flags, value).zero?
           nil
         end
 
@@ -240,17 +248,18 @@ module QDA
             'L', # IN LPVOID lpEnvironment
             'L', # IN LPCSTR lpCurrentDirectory
             'P', # IN LPSTARTUPINFOA lpStartupInfo
-            'P']  # OUT LPPROCESS_INFORMATION lpProcessInformation
+            'P'
+          ] # OUT LPPROCESS_INFORMATION lpProcessInformation
 
           startupInfo = [STARTUP_INFO_SIZE, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW, 0,
-            0, 0, stdin, stdout, stderror].pack('IIIIIIIIIIIISSIIII')
+                         STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW, 0,
+                         0, 0, stdin, stdout, stderror].pack('IIIIIIIIIIIISSIIII')
 
           processInfo = [0, 0, 0, 0].pack('IIII')
           command << 0
 
           createProcess = Cosmos::Win32API.new("kernel32", "CreateProcess", params, 'I')
-          cp_args = [ 0, command, 0, 0, 1, 0, 0, 0, startupInfo, processInfo ]
+          cp_args = [0, command, 0, 0, 1, 0, 0, 0, startupInfo, processInfo]
           raise_last_win_32_error if createProcess.call(*cp_args).zero?
 
           hProcess, hThread,
@@ -268,13 +277,14 @@ module QDA
             'P', # pointer to data to write to file
             'L', # number of bytes to write
             'P', # pointer to number of bytes written
-            'L'] # pointer to structure for overlapped I/O
+            'L'
+          ] # pointer to structure for overlapped I/O
 
           written = [0].pack('I')
           writeFile = Cosmos::Win32API.new("kernel32", "WriteFile", params, 'I')
 
           raise_last_win_32_error if writeFile.call(hFile, buffer, buffer.size,
-                                                     written, 0).zero?
+                                                    written, 0).zero?
 
           written.unpack('I')[0]
         end
@@ -285,7 +295,8 @@ module QDA
             'P', # pointer to buffer that receives data
             'L', # number of bytes to read
             'P', # pointer to number of bytes read
-            'L'] # pointer to structure for data
+            'L'
+          ] # pointer to structure for data
 
           number = [0].pack('I')
           buffer = ' ' * 255
@@ -303,7 +314,8 @@ module QDA
             'L', # size, in bytes, of data buffer
             'L', # pointer to number of bytes read
             'P', # pointer to total number of bytes available
-            'L'] # pointer to unread bytes in this message
+            'L'
+          ] # pointer to unread bytes in this message
 
           available = [0].pack('I')
           peekNamedPipe = Cosmos::Win32API.new("kernel32", "PeekNamedPipe", params, 'I')
@@ -370,9 +382,9 @@ module QDA
         set_handle_information(child_error_r, HANDLE_FLAG_INHERIT, 0)
 
         create_process(command,
-                              child_in_r,
-                              child_out_w,
-                              child_error_w)
+                       child_in_r,
+                       child_out_w,
+                       child_error_w)
         # we have to close the handles, so the pipes terminate with the process
         close_handle(child_in_r)
         close_handle(child_out_w)

@@ -38,6 +38,7 @@ module Cosmos
     end
 
     private
+
     def initialize(commands, telemetry, output_dir)
       FileUtils.mkdir_p(output_dir)
 
@@ -65,9 +66,9 @@ module Cosmos
         # Create the xtce file for this target
         builder = Nokogiri::XML::Builder.new(:encoding => 'UTF-8') do |xml|
           xml['xtce'].SpaceSystem("xmlns:xtce" => "http://www.omg.org/space/xtce",
-            "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
-            "name" => target_name,
-            "xsi:schemaLocation" => "http://www.omg.org/space/xtce http://www.omg.org/spec/XTCE/20061101/06-11-06.xsd") do
+                                  "xmlns:xsi" => "http://www.w3.org/2001/XMLSchema-instance",
+                                  "name" => target_name,
+                                  "xsi:schemaLocation" => "http://www.omg.org/space/xtce http://www.omg.org/spec/XTCE/20061101/06-11-06.xsd") do
             create_telemetry(xml, telemetry, target_name)
             create_commands(xml, commands, target_name)
           end # SpaceSystem
@@ -141,6 +142,7 @@ module Cosmos
               xml['xtce'].ArgumentList do
                 packet.sorted_items.each do |item|
                   next if item.data_type == :DERIVED
+
                   to_xtce_item(item, 'Argument', xml)
                 end
               end # ArgumentList
@@ -172,6 +174,7 @@ module Cosmos
       items.each do |packet_name, packet|
         packet.sorted_items.each do |item|
           next if item.data_type == :DERIVED
+
           unique[item.name] ||= []
           unique[item.name] << item
         end
@@ -201,6 +204,7 @@ module Cosmos
         packed = packet.packed?
         packet.sorted_items.each do |item|
           next if item.data_type == :DERIVED
+
           # TODO: Handle nonunique item names
           if item.array_size
             # Requiring parameterRef for argument arrays appears to be a defect in the schema
@@ -270,6 +274,7 @@ module Cosmos
 
     def to_xtce_limits(item, xml)
       return unless item.limits && item.limits.values
+
       item.limits.values.each do |limits_set, limits_values|
         if limits_set == :DEFAULT
           xml['xtce'].DefaultAlarm do
@@ -305,6 +310,7 @@ module Cosmos
             item.states.each do |state_name, state_value|
               # Skip the special COSMOS 'ANY' enumerated state
               next if state_value == 'ANY'
+
               xml['xtce'].Enumeration(:value => state_value, :label => state_name)
             end
           end

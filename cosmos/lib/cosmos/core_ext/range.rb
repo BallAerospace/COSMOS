@@ -22,6 +22,6 @@ class Range
   # @return [Array<Float>] Array of each value within the Range converted to
   #   Float
   def to_a_to_f
-    collect {|value| value.to_f }
+    collect { |value| value.to_f }
   end
 end

@@ -18,7 +18,6 @@
 # copyright holder
 
 module Cosmos
-
   if RUBY_ENGINE == 'ruby'
     # Win32API is deprecated in 1.9.x so recreate it
     require 'fiddle'
@@ -79,7 +78,6 @@ module Cosmos
   # This class implements the Win32
   #
   class Win32
-
     # Data Types
     BOOL = 'i'
     BYTE = 'C'
@@ -146,11 +144,11 @@ module Cosmos
     CBR_256000 = 256000
 
     BAUD_RATES = [
-    CBR_110, CBR_300, CBR_600, CBR_1200, CBR_2400, CBR_4800, CBR_9600,
-    CBR_14400, CBR_19200, CBR_38400, CBR_56000, CBR_57600, CBR_115200,
-    CBR_128000, CBR_256000, 230400, 460800, 500000, 576000, 921600,
-    1000000, 1152000, 1500000, 2000000, 3000000, 3500000, 4000000
-  ]
+      CBR_110, CBR_300, CBR_600, CBR_1200, CBR_2400, CBR_4800, CBR_9600,
+      CBR_14400, CBR_19200, CBR_38400, CBR_56000, CBR_57600, CBR_115200,
+      CBR_128000, CBR_256000, 230400, 460800, 500000, 576000, 921600,
+      1000000, 1152000, 1500000, 2000000, 3000000, 3500000, 4000000
+    ]
 
     # Parity
     NOPARITY = 0
@@ -252,12 +250,12 @@ module Cosmos
 
     # Creates a Message Box
     def self.message_box(message, title = 'Error', options = 0)
-      Win32API.new('user32','MessageBox',['L', 'P', 'P', 'L'],'I').call(0, message, title, options)
+      Win32API.new('user32', 'MessageBox', ['L', 'P', 'P', 'L'], 'I').call(0, message, title, options)
     end
 
     # Gets the window handle for the foreground window or NULL
     def self.get_foreground_window
-      Win32API.new('user32','GetForegroundWindow',[],'I').call()
+      Win32API.new('user32', 'GetForegroundWindow', [], 'I').call()
     end
 
     # Gets the error code of the most recent error
@@ -288,7 +286,7 @@ module Cosmos
     def self.computer_name
       name = ' ' * 128
       size = [name.length].pack('i')
-      Win32API.new('kernel32','GetComputerName',['P','P'],'I').call(name, size)
+      Win32API.new('kernel32', 'GetComputerName', ['P', 'P'], 'I').call(name, size)
       name.unpack('A*')[0]
     end
 
@@ -296,7 +294,7 @@ module Cosmos
     def self.user_name
       name = ' ' * 128
       size = [name.length].pack('i')
-      Win32API.new('advapi32','GetUserName',['P','P'],'I').call(name, size)
+      Win32API.new('advapi32', 'GetUserName', ['P', 'P'], 'I').call(name, size)
       name.unpack('A*')[0]
     end
 
@@ -324,11 +322,9 @@ module Cosmos
 
     # Enable the Low Fragmentation Heap
     def self.enable_low_fragmentation_heap(heap_handle)
-      heap_set_information(heap_handle,   HEAP_COMPATIBILITY_INFORMATION, HEAP_LOW_FRAGMENTATION)
+      heap_set_information(heap_handle, HEAP_COMPATIBILITY_INFORMATION, HEAP_LOW_FRAGMENTATION)
       heap_info = heap_query_information(heap_handle, HEAP_COMPATIBILITY_INFORMATION)
       raise "Unable to enable Low Fragmentation Heap" if heap_info != HEAP_LOW_FRAGMENTATION
     end
-
   end # class Win32
-
 end # module Cosmos

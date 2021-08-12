@@ -49,6 +49,7 @@ module Cosmos
 
     def write_packet(packet)
       return :STOP if packet.target_name == @target_name && packet.packet_name == @packet_name
+
       return super(packet)
     end
   end

@@ -50,7 +50,8 @@ module Cosmos
       custom: nil,
       updated_at: nil,
       plugin: nil,
-      scope:)
+      scope:
+    )
       super("#{scope}__#{PRIMARY_KEY}", name: name, updated_at: updated_at, plugin: plugin, scope: scope)
       @state = state
       @count = count

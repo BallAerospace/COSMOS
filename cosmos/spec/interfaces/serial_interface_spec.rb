@@ -23,23 +23,22 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
   require 'cosmos/interfaces/serial_interface'
 
   module Cosmos
-
     describe SerialInterface do
       describe "initialize" do
         it "initializes the instance variables" do
-          i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
+          i = SerialInterface.new('COM1', 'COM1', '9600', 'NONE', '1', '0', '0', 'burst')
           expect(i.name).to eql "SerialInterface"
         end
 
         it "is not writeable if no write port given" do
-          i = SerialInterface.new('nil','COM1','9600','NONE','1','0','0','burst')
+          i = SerialInterface.new('nil', 'COM1', '9600', 'NONE', '1', '0', '0', 'burst')
           expect(i.write_allowed?).to be false
           expect(i.write_raw_allowed?).to be false
           expect(i.read_allowed?).to be true
         end
 
         it "is not readable if no read port given" do
-          i = SerialInterface.new('COM1','nil','9600','NONE','1','0','0','burst')
+          i = SerialInterface.new('COM1', 'nil', '9600', 'NONE', '1', '0', '0', 'burst')
           expect(i.write_allowed?).to be true
           expect(i.write_raw_allowed?).to be true
           expect(i.read_allowed?).to be false
@@ -60,7 +59,7 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
         xit "passes a new SerialStream to the stream protocol" do
           # Ensure the 'NONE' parity is converted to a symbol
           if @ports
-            i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
+            i = SerialInterface.new('COM1', 'COM1', '9600', 'NONE', '1', '0', '0', 'burst')
             expect(i.connected?).to be false
             i.connect
             expect(i.stream.instance_variable_get(:@flow_control)).to eq :NONE
@@ -73,7 +72,7 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
 
         xit "sets options on the interface" do
           if @ports
-            i = SerialInterface.new('nil','COM1','9600','NONE','1','0','0','burst')
+            i = SerialInterface.new('nil', 'COM1', '9600', 'NONE', '1', '0', '0', 'burst')
             i.set_option("FLOW_CONTROL", ["RTSCTS"])
             i.set_option("DATA_BITS", ["7"])
             i.connect
