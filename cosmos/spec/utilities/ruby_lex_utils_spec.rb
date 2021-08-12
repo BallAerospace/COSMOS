@@ -125,7 +125,7 @@ module Cosmos
 
       it "yields each segment" do
         text = <<~DOC
-          #{'          '}
+
                     if x
                     y
                     else
