@@ -642,9 +642,31 @@ export default {
         case 'line':
           if (data.filename !== null) {
             if (data.filename !== this.current_filename) {
-              this.editor.setValue(this.files[data.filename])
-              this.editor.clearSelection()
-              this.current_filename = data.filename
+              if (
+                this.files[data.filename] === null ||
+                this.files[data.filename] === undefined
+              ) {
+                // We don't have the contents of the running file (probably because connected to running script)
+                // Set the contents initially to an empty string so we don't start slamming the API
+                this.files[data.filename] = ''
+
+                // Request the script we need
+                Api.get('/script-api/scripts/' + data.filename)
+                  .then((response) => {
+                    // Success - Save thes script text and mark the current_filename as null
+                    // so it will get loaded in on the next line executed
+                    this.files[data.filename] = response.data.contents
+                    this.current_filename = null
+                  })
+                  .catch((err) => {
+                    // Error - Restore the file contents to null so we'll try the API again on the next line
+                    this.files[data.filename] = null
+                  })
+              } else {
+                this.editor.setValue(this.files[data.filename])
+                this.editor.clearSelection()
+                this.current_filename = data.filename
+              }
             }
           }
           if (this.marker && !this.fatal) {
