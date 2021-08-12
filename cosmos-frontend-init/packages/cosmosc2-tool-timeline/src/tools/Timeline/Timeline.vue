@@ -100,6 +100,7 @@ export default {
           items: [
             {
               label: 'Refresh',
+              icon: 'mdi-refresh',
               command: () => {
                 this.refresh()
               },
