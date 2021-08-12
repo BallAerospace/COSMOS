@@ -66,6 +66,7 @@ module Cosmos
     end
 
     protected
+
     def set_rate(packet_name, rate)
       packet = @tlm_packets[packet_name.upcase]
       packet.packet_rate = rate if packet

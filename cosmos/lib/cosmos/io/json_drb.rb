@@ -35,8 +35,10 @@ module Puma
       @runner and @runner.running
     end
   end
+
   class Runner
   end
+
   class Single < Runner
     def running
       @server and @server.running
@@ -137,8 +139,8 @@ module Cosmos
           # Create an http server to accept requests from clients
 
           server_config = {
-            :Host   => hostname,
-            :Port   => port,
+            :Host => hostname,
+            :Port => port,
             :Silent => true,
             :Verbose => false,
             :Threads => "0:#{max_threads}",
@@ -156,9 +158,10 @@ module Cosmos
           start_time = Time.now
           while true
             puma_threads = false
-            Thread.list.each {|thread| puma_threads = true if thread.inspect.match?(/puma/)}
+            Thread.list.each { |thread| puma_threads = true if thread.inspect.match?(/puma/) }
             break if !puma_threads
             break if (Time.now - start_time) > PUMA_THREAD_TIMEOUT
+
             sleep 0.25
           end
 
@@ -271,23 +274,28 @@ module Cosmos
               if NoMethodError === error
                 error_code = JsonRpcError::ErrorCode::METHOD_NOT_FOUND
                 response = JsonRpcErrorResponse.new(
-                  JsonRpcError.new(error_code, "Method not found", error), request.id)
+                  JsonRpcError.new(error_code, "Method not found", error), request.id
+                )
               elsif ArgumentError === error
                 error_code = JsonRpcError::ErrorCode::INVALID_PARAMS
                 response = JsonRpcErrorResponse.new(
-                  JsonRpcError.new(error_code, "Invalid params", error), request.id)
+                  JsonRpcError.new(error_code, "Invalid params", error), request.id
+                )
               elsif AuthError === error
                 error_code = JsonRpcError::ErrorCode::AUTH_ERROR
                 response = JsonRpcErrorResponse.new(
-                  JsonRpcError.new(error_code, error.message, error), request.id)
+                  JsonRpcError.new(error_code, error.message, error), request.id
+                )
               elsif ForbiddenError === error
                 error_code = JsonRpcError::ErrorCode::FORBIDDEN_ERROR
                 response = JsonRpcErrorResponse.new(
-                  JsonRpcError.new(error_code, error.message, error), request.id)
+                  JsonRpcError.new(error_code, error.message, error), request.id
+                )
               else
                 error_code = JsonRpcError::ErrorCode::OTHER_ERROR
                 response = JsonRpcErrorResponse.new(
-                  JsonRpcError.new(error_code, error.message, error), request.id)
+                  JsonRpcError.new(error_code, error.message, error), request.id
+                )
               end
             end
           end
@@ -295,7 +303,8 @@ module Cosmos
           if request.id
             error_code = JsonRpcError::ErrorCode::OTHER_ERROR
             response = JsonRpcErrorResponse.new(
-              JsonRpcError.new(error_code, "Cannot call unauthorized methods"), request.id)
+              JsonRpcError.new(error_code, "Cannot call unauthorized methods"), request.id
+            )
           end
         end
         response_data = process_response(response, start_time) if response
@@ -309,6 +318,7 @@ module Cosmos
     end
 
     protected
+
     def process_response(response, start_time)
       response_data = response.to_json(:allow_nan => true)
       STDOUT.puts response_data if JsonDRb.debug?
@@ -317,6 +327,5 @@ module Cosmos
       add_request_time(request_time)
       return response_data
     end
-
   end
 end

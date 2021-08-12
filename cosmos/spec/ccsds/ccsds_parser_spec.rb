@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/ccsds/ccsds_parser'
 
 module Cosmos
-
   describe CcsdsParser do
     before(:each) do
       @parser = CcsdsParser.new
@@ -53,7 +52,7 @@ module Cosmos
       it "returns standalone CCSDS packets" do
         pkt = CcsdsPacket.new
         pkt.write('CCSDSSEQFLAGS', CcsdsPacket::STANDALONE)
-        pkt.write('CCSDSDATA',"\x01\x02\x03\x04")
+        pkt.write('CCSDSDATA', "\x01\x02\x03\x04")
         expect(@parser.unsegment_packet(pkt)).to eql pkt.buffer
       end
 
@@ -61,11 +60,11 @@ module Cosmos
         pkt1 = CcsdsPacket.new
         pkt1.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt1.write('CCSDSSEQCNT', 0)
-        pkt1.write('CCSDSDATA',"\x01\x02\x03\x04")
+        pkt1.write('CCSDSDATA', "\x01\x02\x03\x04")
         pkt2 = CcsdsPacket.new
         pkt2.write('CCSDSSEQFLAGS', CcsdsPacket::LAST)
         pkt2.write('CCSDSSEQCNT', 1)
-        pkt2.write('CCSDSDATA',"\x05\x06\x07\x08")
+        pkt2.write('CCSDSDATA', "\x05\x06\x07\x08")
         expect(@parser.unsegment_packet(pkt1)).to eql nil
         expect(@parser.unsegment_packet(pkt2)).to eql pkt1.buffer + pkt2.read("CCSDSDATA")
       end
@@ -74,15 +73,15 @@ module Cosmos
         pkt1 = CcsdsPacket.new
         pkt1.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt1.write('CCSDSSEQCNT', 0)
-        pkt1.write('CCSDSDATA',"\x01\x02\x03\x04")
+        pkt1.write('CCSDSDATA', "\x01\x02\x03\x04")
         pkt2 = CcsdsPacket.new
         pkt2.write('CCSDSSEQFLAGS', CcsdsPacket::CONTINUATION)
         pkt2.write('CCSDSSEQCNT', 1)
-        pkt2.write('CCSDSDATA',"\x05\x06\x07\x08")
+        pkt2.write('CCSDSDATA', "\x05\x06\x07\x08")
         pkt3 = CcsdsPacket.new
         pkt3.write('CCSDSSEQFLAGS', CcsdsPacket::LAST)
         pkt3.write('CCSDSSEQCNT', 2)
-        pkt3.write('CCSDSDATA',"\x09\x0A\x0B\x0C")
+        pkt3.write('CCSDSDATA', "\x09\x0A\x0B\x0C")
         expect(@parser.unsegment_packet(pkt1)).to eql nil
         expect(@parser.unsegment_packet(pkt2)).to eql nil
         expect(@parser.unsegment_packet(pkt3)).to eql pkt1.buffer + pkt2.read("CCSDSDATA") + pkt3.read("CCSDSDATA")
@@ -104,11 +103,11 @@ module Cosmos
         pkt1 = CcsdsPacket.new
         pkt1.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt1.write('CCSDSSEQCNT', 0)
-        pkt1.write('CCSDSDATA',"\x01\x02\x03\x04")
+        pkt1.write('CCSDSDATA', "\x01\x02\x03\x04")
         pkt2 = CcsdsPacket.new
         pkt2.write('CCSDSSEQFLAGS', CcsdsPacket::CONTINUATION)
         pkt2.write('CCSDSSEQCNT', 2)
-        pkt2.write('CCSDSDATA',"\x05\x06\x07\x08")
+        pkt2.write('CCSDSDATA', "\x05\x06\x07\x08")
         expect(@parser.unsegment_packet(pkt1)).to eql nil
         expect { @parser.unsegment_packet(pkt2) }.to raise_error(CcsdsParser::CcsdsSegmentationError, /Missing packet/)
       end
@@ -117,11 +116,11 @@ module Cosmos
         pkt1 = CcsdsPacket.new
         pkt1.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt1.write('CCSDSSEQCNT', 0)
-        pkt1.write('CCSDSDATA',"\x01\x02\x03\x04")
+        pkt1.write('CCSDSDATA', "\x01\x02\x03\x04")
         pkt2 = CcsdsPacket.new
         pkt2.write('CCSDSSEQFLAGS', CcsdsPacket::LAST)
         pkt2.write('CCSDSSEQCNT', 2)
-        pkt2.write('CCSDSDATA',"\x05\x06\x07\x08")
+        pkt2.write('CCSDSDATA', "\x05\x06\x07\x08")
         expect(@parser.unsegment_packet(pkt1)).to eql nil
         expect { @parser.unsegment_packet(pkt2) }.to raise_error(CcsdsParser::CcsdsSegmentationError, /Missing packet/)
       end
@@ -130,11 +129,11 @@ module Cosmos
         pkt1 = CcsdsPacket.new
         pkt1.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt1.write('CCSDSSEQCNT', 0)
-        pkt1.write('CCSDSDATA',"\x01\x02\x03\x04")
+        pkt1.write('CCSDSDATA', "\x01\x02\x03\x04")
         pkt2 = CcsdsPacket.new
         pkt2.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt2.write('CCSDSSEQCNT', 1)
-        pkt2.write('CCSDSDATA',"\x05\x06\x07\x08")
+        pkt2.write('CCSDSDATA', "\x05\x06\x07\x08")
         expect(@parser.unsegment_packet(pkt1)).to eql nil
         expect { @parser.unsegment_packet(pkt2) }.to raise_error(CcsdsParser::CcsdsSegmentationError, "Unexpected first packet")
       end
@@ -143,10 +142,10 @@ module Cosmos
         pkt1 = CcsdsPacket.new
         pkt1.write('CCSDSSEQFLAGS', CcsdsPacket::FIRST)
         pkt1.write('CCSDSSEQCNT', 0)
-        pkt1.write('CCSDSDATA',"\x01\x02\x03\x04")
+        pkt1.write('CCSDSDATA', "\x01\x02\x03\x04")
         pkt2 = CcsdsPacket.new
         pkt2.write('CCSDSSEQFLAGS', CcsdsPacket::STANDALONE)
-        pkt2.write('CCSDSDATA',"\x05\x06\x07\x08")
+        pkt2.write('CCSDSDATA', "\x05\x06\x07\x08")
         expect(@parser.unsegment_packet(pkt1)).to eql nil
         expect { @parser.unsegment_packet(pkt2) }.to raise_error(CcsdsParser::CcsdsSegmentationError, "Unexpected standalone packet")
       end

@@ -34,9 +34,11 @@ module Cosmos
     def self.settings
       @@settings
     end
+
     def self.settings=(settings)
       @@settings = settings
     end
+
     def self.suite_results
       @@suite_results
     end
@@ -127,6 +129,7 @@ module Cosmos
           if object.instance_methods(false).include?(:name)
             raise FatalError.new("#{object} redefined the 'name' method. Delete the 'name' method and try again.")
           end
+
           # ObjectSpace.each_object appears to yield objects in the reverse
           # order that they were parsed by the interpreter so push each
           # Suite object to the front of the array to order as encountered
@@ -138,6 +141,7 @@ module Cosmos
           if object.methods(false).include?(:name)
             raise FatalError.new("#{object} redefined the 'self.name' method. Delete the 'self.name' method and try again.")
           end
+
           groups << object
         end
       end
@@ -153,9 +157,9 @@ module Cosmos
         groups_to_delete.each { |group| groups.delete(group) }
       end
       if groups.empty?
-        @@suites = @@suites.select {|suite| suite.class != UnassignedSuite}
+        @@suites = @@suites.select { |suite| suite.class != UnassignedSuite }
       else
-        unassigned_suite = @@suites.select {|suite| suite.class == UnassignedSuite}[0]
+        unassigned_suite = @@suites.select { |suite| suite.class == UnassignedSuite }[0]
         groups.each { |group| unassigned_suite.add_group(group) }
       end
 

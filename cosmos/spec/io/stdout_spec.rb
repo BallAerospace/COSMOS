@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/io/stdout'
 
 module Cosmos
-
   describe Stdout do
     describe "instance" do
       it "returns a single instance" do

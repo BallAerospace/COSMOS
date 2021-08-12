@@ -41,12 +41,11 @@ module Cosmos
 
       # Write to stream
       msg_hash = { time: packet.packet_time.to_nsec_from_epoch,
-        stored: packet.stored,
-        target_name: packet.target_name,
-        packet_name: packet.packet_name,
-        received_count: packet.received_count,
-        json_data: JSON.generate(json_hash.as_json)
-      }
+                   stored: packet.stored,
+                   target_name: packet.target_name,
+                   packet_name: packet.packet_name,
+                   received_count: packet.received_count,
+                   json_data: JSON.generate(json_hash.as_json) }
 
       # NOTE: The final parameter is important! (See DecomLogMicroservice)
       # It must be greater than the size of a log file to allow the decom_log_microservice

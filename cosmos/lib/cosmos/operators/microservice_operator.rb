@@ -27,7 +27,6 @@ module Cosmos
   # Creates new OperatorProcess objects based on querying the Redis key value store.
   # Any keys under 'cosmos_microservices' will be created into microservices.
   class MicroserviceOperator < Operator
-
     def initialize
       Logger.microservice_name = "MicroserviceOperator"
       super

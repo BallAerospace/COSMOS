@@ -159,6 +159,7 @@ module Cosmos
           parser.verify_num_parameters(1, 1, usage)
           filename = File.join(@dir, 'cmd_tlm', parameters[0])
           raise parser.error("#{filename} not found") unless File.exist?(filename)
+
           @cmd_tlm_files << filename
 
           # when 'AUTO_SCREEN_SUBSTITUTE'
@@ -203,6 +204,7 @@ module Cosmos
     end
 
     protected
+
     # Get the target directory and add the target's lib folder to the
     # search path if it exists
     def get_target_dir(path, gem_path)
@@ -228,7 +230,7 @@ module Cosmos
       end
       id_filename = File.join(@dir, 'target_id.txt')
       if File.exist?(id_filename)
-        File.open(id_filename, 'rb') {|file| @id = file.read.strip}
+        File.open(id_filename, 'rb') { |file| @id = file.read.strip }
       else
         @id = nil
       end

@@ -25,11 +25,11 @@ module Cosmos
   describe Quaternion do
     describe "initialize" do
       it "creates 0.0 elements" do
-        expect(Quaternion.new.data).to eql [0.0,0.0,0.0,0.0]
+        expect(Quaternion.new.data).to eql [0.0, 0.0, 0.0, 0.0]
       end
 
       it "takes an initialization array" do
-        expect(Quaternion.new([1.1,2.2,3.3,4.4]).data).to eql [1.1,2.2,3.3,4.4]
+        expect(Quaternion.new([1.1, 2.2, 3.3, 4.4]).data).to eql [1.1, 2.2, 3.3, 4.4]
       end
     end
 
@@ -44,8 +44,8 @@ module Cosmos
     describe "data and data=" do
       it "gets and set all elements" do
         q = Quaternion.new
-        q.data = [1.1,2.2,3.3,4.4]
-        expect(q.data).to eql [1.1,2.2,3.3,4.4]
+        q.data = [1.1, 2.2, 3.3, 4.4]
+        expect(q.data).to eql [1.1, 2.2, 3.3, 4.4]
       end
     end
 
@@ -65,27 +65,27 @@ module Cosmos
 
     describe "*" do
       it "multiplies quaternions" do
-        q1 = Quaternion.new([1,0,0,1])
-        q2 = Quaternion.new([0,1,0,1])
-        expect((q1 * q2).data).to eql [1,1,1,1]
-        q1 = Quaternion.new([0,1,0,1])
-        q2 = Quaternion.new([0,0,1,1])
-        expect((q1 * q2).data).to eql [1,1,1,1]
-        q1 = Quaternion.new([1,0,0,1])
-        q2 = Quaternion.new([0,0,1,1])
-        expect((q1 * q2).data).to eql [1,-1,1,1]
+        q1 = Quaternion.new([1, 0, 0, 1])
+        q2 = Quaternion.new([0, 1, 0, 1])
+        expect((q1 * q2).data).to eql [1, 1, 1, 1]
+        q1 = Quaternion.new([0, 1, 0, 1])
+        q2 = Quaternion.new([0, 0, 1, 1])
+        expect((q1 * q2).data).to eql [1, 1, 1, 1]
+        q1 = Quaternion.new([1, 0, 0, 1])
+        q2 = Quaternion.new([0, 0, 1, 1])
+        expect((q1 * q2).data).to eql [1, -1, 1, 1]
       end
     end
 
     describe "inverse" do
       it "returns the inverse" do
-        expect(Quaternion.new([1,2,3,4]).inverse.data).to eql [-1,-2,-3,4]
+        expect(Quaternion.new([1, 2, 3, 4]).inverse.data).to eql [-1, -2, -3, 4]
       end
     end
 
     describe "vecrot" do
       it "rotates the vector using the quaternion" do
-        expect(Quaternion.new([1,0,0,1]).vecrot([1,1,1])).to eql [2,2,-2]
+        expect(Quaternion.new([1, 0, 0, 1]).vecrot([1, 1, 1])).to eql [2, 2, -2]
       end
     end
 
@@ -105,9 +105,9 @@ module Cosmos
 
     describe "Quaternion.qfromc" do
       it "creates a quaternion from the matrix" do
-        q = Quaternion.qfromc(Matrix[[1,0,0],[0,1,0],[0,0,1]])
+        q = Quaternion.qfromc(Matrix[[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         expect(q).to be_a Quaternion
-        expect(q.data).to eql [0.0,0.0,0.0,1.0]
+        expect(q.data).to eql [0.0, 0.0, 0.0, 1.0]
       end
     end
   end

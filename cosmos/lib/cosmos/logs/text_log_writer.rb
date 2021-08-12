@@ -23,7 +23,6 @@ module Cosmos
   # Creates a text log. Can automatically cycle the log based on an elasped
   # time period or when the log file reaches a predefined size.
   class TextLogWriter < LogWriter
-
     # Write to the log file.
     #
     # If no log file currently exists in the filesystem, a new file will be
@@ -34,6 +33,7 @@ module Cosmos
     # @param redis_offset [Integer] The offset of this packet in its Redis stream
     def write(time_nsec_since_epoch, data, redis_offset)
       return if !@logging_enabled
+
       @mutex.synchronize do
         prepare_write(time_nsec_since_epoch, data.length, redis_offset)
         write_entry(time_nsec_since_epoch, data) if @file

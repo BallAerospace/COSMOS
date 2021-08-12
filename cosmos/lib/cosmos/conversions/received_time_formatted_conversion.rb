@@ -20,10 +20,8 @@
 require 'cosmos/conversions/conversion'
 
 module Cosmos
-
   # Converts the packet received time object into a formatted string.
   class ReceivedTimeFormattedConversion < Conversion
-
     # Initializes converted_type to :STRING and converted_bit_size to 0
     def initialize
       super()
@@ -40,7 +38,5 @@ module Cosmos
         return 'No Packet Received Time'
       end
     end
-
   end # class ReceivedTimeFormattedConversion
-
 end # module Cosmos

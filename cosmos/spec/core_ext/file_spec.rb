@@ -48,7 +48,7 @@ describe File do
     it "formats the time" do
       time = Time.now
       timestamp = sprintf("%04u_%02u_%02u_%02u_%02u_%02u", time.year, time.month, time.mday, time.hour, time.min, time.sec)
-      expect(File.build_timestamped_filename(nil,".txt",time)).to match(timestamp)
+      expect(File.build_timestamped_filename(nil, ".txt", time)).to match(timestamp)
     end
 
     it "allows empty tags" do
@@ -60,11 +60,11 @@ describe File do
     end
 
     it "includes the tags" do
-      expect(File.build_timestamped_filename(['this','is','a','test'])).to match('this_is_a_test')
+      expect(File.build_timestamped_filename(['this', 'is', 'a', 'test'])).to match('this_is_a_test')
     end
 
     it "changes the extension" do
-      expect(File.build_timestamped_filename(nil,".bin")).to match(".bin")
+      expect(File.build_timestamped_filename(nil, ".bin")).to match(".bin")
     end
   end
 

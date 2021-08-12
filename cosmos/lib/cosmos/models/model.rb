@@ -66,6 +66,7 @@ module Cosmos
     def self.from_json(json, scope:)
       json = JSON.parse(json) if String === json
       raise "json data is nil" if json.nil?
+
       json[:scope] = scope
       json.transform_keys!(&:to_sym)
       self.new(**json, scope: scope)

@@ -22,7 +22,6 @@ require 'cosmos'
 require 'cosmos/processors/watermark_processor'
 
 module Cosmos
-
   describe WatermarkProcessor do
     describe "initialize" do
       it "takes an item_name and value_type" do
@@ -35,7 +34,7 @@ module Cosmos
     describe "call and reset" do
       it "generates a high and low water mark" do
         p = WatermarkProcessor.new('TEST', 'RAW')
-        packet = Packet.new("tgt","pkt")
+        packet = Packet.new("tgt", "pkt")
         packet.append_item("TEST", 8, :UINT)
         packet.buffer = "\x01"
         p.call(packet, packet.buffer)

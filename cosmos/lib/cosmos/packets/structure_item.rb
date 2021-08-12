@@ -167,6 +167,7 @@ module Cosmos
 
     def data_type=(data_type)
       raise ArgumentError, "#{@name}: data_type must be a Symbol" unless Symbol === data_type
+
       case data_type
       when *DATA_TYPES
         # Valid data_type
@@ -196,6 +197,7 @@ module Cosmos
 
     def overflow=(overflow)
       raise ArgumentError, "#{@name}: overflow type must be a Symbol" unless Symbol === overflow
+
       case overflow
       when *BinaryAccessor::OVERFLOW_TYPES
         # Valid overflow
@@ -217,6 +219,7 @@ module Cosmos
       # offset.
       def <=>(other_item)
         return nil unless other_item.kind_of?(StructureItem)
+
         other_bit_offset = other_item.bit_offset
         other_bit_size = other_item.bit_size
 
@@ -308,10 +311,12 @@ module Cosmos
       return true unless (@bit_offset % 8) == 0
       # If we don't have an even number of bytes we're a bit field
       return true unless even_byte_multiple()
+
       false
     end
 
     protected
+
     # Verifies overall integrity of the StructureItem by checking for correct
     # LITTLE_ENDIAN bit fields
     def verify_overall

@@ -145,7 +145,7 @@ module Cosmos
             end
 
             @classificiation_banner = { 'display_text' => parameters[0],
-                                       'color' => color }
+                                        'color' => color }
 
           else
             # blank lines will have a nil keyword and should not raise an exception
@@ -181,6 +181,7 @@ module Cosmos
           unless File.exist? path
             raise parser.error("#{path} must exist", usage)
           end
+
           dirs = []
           configuration_dir = File.join(@userpath, 'config', 'targets')
           Dir.foreach(configuration_dir) { |dir_filename| dirs << dir_filename }
@@ -191,8 +192,9 @@ module Cosmos
                 # If any of the targets original directory name matches the
                 # current directory then it must have been already processed by
                 # DECLARE_TARGET so we skip it.
-                next if @targets.select {|name, target| target.original_name == dir_filename }.length > 0
+                next if @targets.select { |name, target| target.original_name == dir_filename }.length > 0
                 next if dir_filename == 'SYSTEM'
+
                 target = Target.new(dir_filename, nil, targets_config_dir)
                 @targets[target.name] = target
               else
@@ -276,6 +278,7 @@ module Cosmos
     end
 
     protected
+
     def unzip(zip_file_name)
       zip_dir = File.join(@paths['TMP'], File.basename(zip_file_name, ".*"))
       # Only unzip if we have to. We assume the unzipped directory structure is
@@ -340,16 +343,18 @@ module Cosmos
               # check for targets in other directories 1 level deep
               next if dir_filename[0] == '.'               # skip dot directories and ".."
               next if dir_filename != dir_filename.upcase  # skip non uppercase directories
+
               curr_dir = File.join(spec.gem_dir, dir_filename)
               target_name = dir_filename
             end
             # check for the cmd_tlm directory - if it has it, then we have found a target
-            if File.directory?(File.join(curr_dir,'cmd_tlm'))
+            if File.directory?(File.join(curr_dir, 'cmd_tlm'))
               # If any of the targets original directory name matches the
               # current directory then it must have been already processed by
               # DECLARE_TARGET so we skip it.
-              next if @targets.select {|name, target| target.original_name == target_name }.length > 0
-              target = Target.new(target_name,nil, nil, nil, spec.gem_dir)
+              next if @targets.select { |name, target| target.original_name == target_name }.length > 0
+
+              target = Target.new(target_name, nil, nil, nil, spec.gem_dir)
               @targets[target.name] = target
             end
           end
@@ -407,6 +412,5 @@ module Cosmos
         end
       end
     end
-
   end
 end

@@ -168,12 +168,12 @@ module Cosmos
       Logger.error("#{@interface ? @interface.name : ""}: Sync #{'not ' unless found}found. Discarding #{length} bytes of data.")
       if @data.length >= 0
         Logger.error(sprintf("Starting: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
-          @data.length >= 1 ? @data.getbyte(0) : 0,
-          @data.length >= 2 ? @data.getbyte(1) : 0,
-          @data.length >= 3 ? @data.getbyte(2) : 0,
-          @data.length >= 4 ? @data.getbyte(3) : 0,
-          @data.length >= 5 ? @data.getbyte(4) : 0,
-          @data.length >= 6 ? @data.getbyte(5) : 0))
+                             @data.length >= 1 ? @data.getbyte(0) : 0,
+                             @data.length >= 2 ? @data.getbyte(1) : 0,
+                             @data.length >= 3 ? @data.getbyte(2) : 0,
+                             @data.length >= 4 ? @data.getbyte(3) : 0,
+                             @data.length >= 5 ? @data.getbyte(4) : 0,
+                             @data.length >= 6 ? @data.getbyte(5) : 0))
       end
     end
 

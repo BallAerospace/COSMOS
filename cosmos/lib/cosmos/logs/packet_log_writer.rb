@@ -94,6 +94,7 @@ module Cosmos
     # @param redis_offset [Integer] The offset of this packet in its Redis stream
     def write(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id, redis_offset)
       return if !@logging_enabled
+
       @mutex.synchronize do
         prepare_write(time_nsec_since_epoch, data.length, redis_offset)
         write_entry(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id) if @file
@@ -184,6 +185,7 @@ module Cosmos
       if packet_index > COSMOS5_MAX_PACKET_INDEX
         raise "Packet Index Overflow"
       end
+
       target_table[packet_name] = packet_index
       @next_packet_index += 1
 
@@ -203,6 +205,7 @@ module Cosmos
 
     def write_entry(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id)
       raise ArgumentError.new("Length of id must be 64, got #{id.length}") if id and id.length != 64 # 64 hex digits, gets packed to 32 bytes with .pack('H*')
+
       length = COSMOS5_PRIMARY_FIXED_SIZE
       flags = 0
       flags |= COSMOS5_STORED_FLAG_MASK if stored
@@ -215,6 +218,7 @@ module Cosmos
         if target_index > COSMOS5_MAX_TARGET_INDEX
           raise "Target Index Overflow"
         end
+
         flags |= COSMOS5_TARGET_DECLARATION_ENTRY_TYPE_MASK
         length += COSMOS5_TARGET_DECLARATION_SECONDARY_FIXED_SIZE + target_name.length
         length += COSMOS5_ID_FIXED_SIZE if id

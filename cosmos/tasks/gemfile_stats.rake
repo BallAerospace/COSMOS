@@ -29,6 +29,7 @@ task :gemfile_stats do
     versions.each do |version|
       version_no = version['number']
       next if version_no.split('.')[0] < '3' # anything before 3 is another gem
+
       month = version['built_at'].split('-')[0..1].join('-')
       downloads = version['downloads_count'].to_i
       if gem_data.length > 0 && gem_data[-1][1] == version_no
@@ -42,13 +43,13 @@ task :gemfile_stats do
 
   # This is useful for testing to prevent server round trips
   # Simply comment out this line when working on the formatting below (after first running once)
-  File.open("gemdata.marshall", 'w') {|file| file.write(Marshal.dump(get_latest_gem_data())) }
+  File.open("gemdata.marshall", 'w') { |file| file.write(Marshal.dump(get_latest_gem_data())) }
   gem_data = Marshal.load(File.read("gemdata.marshall"))
 
   # Convert all the date text into Ruby Dates
-  gem_data.map! {|x| [Date.strptime(x[0], "%Y-%m"), x[1], x[2]]}
+  gem_data.map! { |x| [Date.strptime(x[0], "%Y-%m"), x[1], x[2]] }
   # Sort first by date and then version number
-  gem_data.sort_by! {|x| [x[0], x[1]] }
+  gem_data.sort_by! { |x| [x[0], x[1]] }
 
   excel = WIN32OLE.new('excel.application')
   excel.visible = true

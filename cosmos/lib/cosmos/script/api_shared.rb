@@ -26,6 +26,7 @@ module Cosmos
     DEFAULT_TLM_POLLING_RATE = 0.25
 
     private
+
     # Check the converted value of a telmetry item against a condition.
     # Always print the value of the telemetry item to STDOUT.
     # If the condition check fails, raise an error.
@@ -44,10 +45,12 @@ module Cosmos
     def check_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
       check(*args, type: :RAW, scope: scope, token: token)
     end
+
     # @deprecated Use check with type: :FORMATTED
     def check_formatted(*args, scope: $cosmos_scope, token: $cosmos_token)
       check(*args, type: :FORMATTED, scope: scope, token: token)
     end
+
     # @deprecated Use check with type: :WITH_UNITS
     def check_with_units(*args, scope: $cosmos_scope, token: $cosmos_token)
       check(*args, type: :WITH_UNITS, scope: scope, token: token)
@@ -82,6 +85,7 @@ module Cosmos
     # @param type [Symbol] Telemetry type, :RAW or :CONVERTED (default)
     def check_tolerance(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       raise "Invalid type '#{type}' for check_tolerance" unless %i(RAW CONVERTED).include?(type)
+
       target_name, packet_name, item_name, expected_value, tolerance =
         _check_tolerance_process_args(args, scope: scope, token: token)
       value = tlm(target_name, packet_name, item_name, type: type, scope: scope, token: token)
@@ -227,6 +231,7 @@ module Cosmos
     # @param type [Symbol] Telemetry type, :RAW or :CONVERTED (default)
     def wait_tolerance(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       raise "Invalid type '#{type}' for wait_tolerance" unless %i(RAW CONVERTED).include?(type)
+
       target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = _wait_tolerance_process_args(args, scope: scope, token: token)
       start_time = Time.now.sys
       value = tlm(target_name, packet_name, item_name, type: type, scope: scope, token: token)
@@ -331,6 +336,7 @@ module Cosmos
     # @param type [Symbol] Telemetry type, :RAW or :CONVERTED (default)
     def wait_check_tolerance(*args, type: :CONVERTED, scope: $cosmos_scope, token: $cosmos_token)
       raise "Invalid type '#{type}' for wait_check_tolerance" unless %i(RAW CONVERTED).include?(type)
+
       target_name, packet_name, item_name, expected_value, tolerance, timeout, polling_rate = _wait_tolerance_process_args(args, scope: scope, token: token)
       start_time = Time.now.sys
       value = tlm(target_name, packet_name, item_name, type: type, scope: scope, token: token)
@@ -537,6 +543,7 @@ module Cosmos
       path = procedure_name_with_extension if !path and procedure_name_with_extension and File.exist?(procedure_name_with_extension)
 
       raise LoadError, "Procedure not found -- #{procedure_name}" unless path
+
       path
     end
 
@@ -675,8 +682,7 @@ module Cosmos
                                                          timeout,
                                                          polling_rate,
                                                          scope: scope,
-                                                         token: token
-                                                      )
+                                                         token: token)
       time = Time.now.sys - start_time
       if success
         Logger.info "#{type}: #{target_name.upcase} #{packet_name.upcase} received #{value - initial_count} times after waiting #{time} seconds"
@@ -843,7 +849,7 @@ module Cosmos
 
     def cosmos_script_wait_implementation_array_tolerance(array_size, target_name, packet_name, item_name, value_type, expected_value, tolerance, timeout, polling_rate = DEFAULT_TLM_POLLING_RATE, scope: $cosmos_scope, token: $cosmos_token)
       statements = []
-      array_size.times {|i| statements << "(((#{expected_value[i]} - #{tolerance[i]})..(#{expected_value[i]} + #{tolerance[i]})).include? value[#{i}])"}
+      array_size.times { |i| statements << "(((#{expected_value[i]} - #{tolerance[i]})..(#{expected_value[i]} + #{tolerance[i]})).include? value[#{i}])" }
       exp_to_eval = statements.join(" && ")
       _cosmos_script_wait_implementation(target_name, packet_name, item_name, value_type, timeout, polling_rate, scope: scope, token: token) do
         exp_to_eval

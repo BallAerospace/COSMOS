@@ -28,7 +28,7 @@ guard :bundler do
 end
 
 guard :rspec, cmd: 'bundle exec rspec --color' do
-  watch('spec/spec_helper.rb')    { 'spec' }
+  watch('spec/spec_helper.rb') { 'spec' }
   watch(%r{^spec/.+_spec\.rb$})
   watch(%r{^lib/cosmos/(.+)\.rb$}) { |m| "spec/#{m[1]}/#{m[1]}_spec.rb" }
   watch(%r{^lib/cosmos/(.+)/(.+)\.rb$}) { |m| "spec/#{m[1]}/#{m[2]}_spec.rb" }

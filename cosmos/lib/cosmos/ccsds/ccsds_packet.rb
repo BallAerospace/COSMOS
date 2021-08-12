@@ -20,14 +20,12 @@
 require 'cosmos/packets/packet'
 
 module Cosmos
-
   # Packet which defines the required CCSDS items which include Version, Type,
   # Secondary Header Flag, APID, Sequence Flags, Sequence Count and Length. It
   # will optionally include a data item which will contain the rest of the
   # CCSDS packet data. This is optional to make it easier to subclass this
   # packet and add secondary header fields.
   class CcsdsPacket < Packet
-
     # CCSDS telemetry type
     TELEMETRY = 0
     # CCSDS telecommand type
@@ -66,7 +64,5 @@ module Cosmos
       define_item('CcsdsLength', 32, 16, :UINT)
       define_item('CcsdsData', 48, 0, :BLOCK) if include_ccsds_data
     end
-
   end
-
 end # module Cosmos

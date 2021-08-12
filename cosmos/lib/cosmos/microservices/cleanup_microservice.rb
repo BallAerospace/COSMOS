@@ -44,17 +44,19 @@ module Cosmos
       rubys3_client = Aws::S3::Client.new
       while true
         break if @cancel_thread
+
         @state = 'GETTING_OBJECTS'
         total_size, oldest_list = S3Utilities.get_total_size_and_oldest_list(@bucket, @prefix)
         delete_items = []
         oldest_list.each do |item|
           break if total_size <= @size
+
           delete_items << { :key => item.key }
           total_size -= item.size
         end
         if delete_items.length > 0
           @state = 'DELETING_OBJECTS'
-          rubys3_client.delete_objects({ bucket: @bucket, delete: { objects: delete_items } } )
+          rubys3_client.delete_objects({ bucket: @bucket, delete: { objects: delete_items } })
         end
         @count += 1
         @state = 'SLEEPING'

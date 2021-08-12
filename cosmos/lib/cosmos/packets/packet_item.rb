@@ -112,6 +112,7 @@ module Cosmos
       if format_string
         raise ArgumentError, "#{@name}: format_string must be a String but is a #{format_string.class}" unless String === format_string
         raise ArgumentError, "#{@name}: format_string invalid '#{format_string}'" unless /%.*(b|B|d|i|o|u|x|X|e|E|f|g|G|a|A|c|p|s|%)/.match?(format_string)
+
         @format_string = format_string.clone.freeze
       else
         @format_string = nil
@@ -121,6 +122,7 @@ module Cosmos
     def read_conversion=(read_conversion)
       if read_conversion
         raise ArgumentError, "#{@name}: read_conversion must be a Cosmos::Conversion but is a #{read_conversion.class}" unless Cosmos::Conversion === read_conversion
+
         @read_conversion = read_conversion.clone
       else
         @read_conversion = nil
@@ -130,6 +132,7 @@ module Cosmos
     def write_conversion=(write_conversion)
       if write_conversion
         raise ArgumentError, "#{@name}: write_conversion must be a Cosmos::Conversion but is a #{write_conversion.class}" unless Cosmos::Conversion === write_conversion
+
         @write_conversion = write_conversion.clone
       else
         @write_conversion = nil
@@ -165,6 +168,7 @@ module Cosmos
     def description=(description)
       if description
         raise ArgumentError, "#{@name}: description must be a String but is a #{description.class}" unless String === description
+
         @description = description.clone.freeze
       else
         @description = nil
@@ -174,6 +178,7 @@ module Cosmos
     def units_full=(units_full)
       if units_full
         raise ArgumentError, "#{@name}: units_full must be a String but is a #{units_full.class}" unless String === units_full
+
         @units_full = units_full.clone.freeze
       else
         @units_full = nil
@@ -183,6 +188,7 @@ module Cosmos
     def units=(units)
       if units
         raise ArgumentError, "#{@name}: units must be a String but is a #{units.class}" unless String === units
+
         @units = units.clone.freeze
       else
         @units = nil
@@ -197,20 +203,24 @@ module Cosmos
           case data_type
           when :INT, :UINT
             raise ArgumentError, "#{@name}: default must be a Integer but is a #{@default.class}" unless Integer === @default
+
             if @range
               raise ArgumentError, "#{@name}: minimum must be a Integer but is a #{@range.first.class}" unless Integer === @range.first
               raise ArgumentError, "#{@name}: maximum must be a Integer but is a #{@range.last.class}" unless Integer === @range.last
             end
           when :FLOAT
             raise ArgumentError, "#{@name}: default must be a Float but is a #{@default.class}" unless Float === @default or Integer === @default
+
             @default = @default.to_f
             if @range
               raise ArgumentError, "#{@name}: minimum must be a Float but is a #{@range.first.class}" unless Float === @range.first or Integer === @range.first
               raise ArgumentError, "#{@name}: maximum must be a Float but is a #{@range.last.class}" unless Float === @range.last or Integer === @range.last
+
               @range = ((@range.first.to_f)..(@range.last.to_f))
             end
           when :BLOCK, :STRING
             raise ArgumentError, "#{@name}: default must be a String but is a #{@default.class}" unless String === @default
+
             @default = @default.clone.freeze
           end
         end
@@ -220,6 +230,7 @@ module Cosmos
     def range=(range)
       if range
         raise ArgumentError, "#{@name}: range must be a Range but is a #{range.class}" unless Range === range
+
         @range = range.clone.freeze
       else
         @range = nil
@@ -229,6 +240,7 @@ module Cosmos
     def hazardous=(hazardous)
       if hazardous
         raise ArgumentError, "#{@name}: hazardous must be a Hash but is a #{hazardous.class}" unless Hash === hazardous
+
         @hazardous = hazardous.clone
       else
         @hazardous = nil
@@ -238,6 +250,7 @@ module Cosmos
     def state_colors=(state_colors)
       if state_colors
         raise ArgumentError, "#{@name}: state_colors must be a Hash but is a #{state_colors.class}" unless Hash === state_colors
+
         @state_colors = state_colors.clone
       else
         @state_colors = nil
@@ -247,6 +260,7 @@ module Cosmos
     def limits=(limits)
       if limits
         raise ArgumentError, "#{@name}: limits must be a PacketItemLimits but is a #{limits.class}" unless PacketItemLimits === limits
+
         @limits = limits.clone
       else
         @limits = nil
@@ -260,6 +274,7 @@ module Cosmos
     def meta=(meta)
       if meta
         raise ArgumentError, "#{@name}: meta must be a Hash but is a #{meta.class}" unless Hash === meta
+
         @meta = meta.clone
       else
         @meta = nil
@@ -402,7 +417,7 @@ module Cosmos
 
       if @meta
         @meta.each do |key, values|
-          config << "    META #{key.to_s.quote_if_necessary} #{values.map {|a| a.to_s.quote_if_necessary}.join(" ")}\n"
+          config << "    META #{key.to_s.quote_if_necessary} #{values.map { |a| a.to_s.quote_if_necessary }.join(" ")}\n"
         end
       end
 
@@ -472,6 +487,7 @@ module Cosmos
     end
 
     protected
+
     def parameter_config
       if @id_value
         value = @id_value

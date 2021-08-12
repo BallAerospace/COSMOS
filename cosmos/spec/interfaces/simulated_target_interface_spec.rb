@@ -23,32 +23,32 @@ require 'cosmos/interfaces/simulated_target_interface'
 module Cosmos
   xdescribe SimulatedTargetInterface do
     before(:all) do
-      File.open(File.join(File.dirname(__FILE__),'..','..','lib','test_inst.rb'),'w') do |file|
-        file.puts <<-DOC
-require 'cosmos/utilities/simulated_target'
-require 'cosmos/packets/packet'
-module Cosmos
-  class TestInst < SimulatedTarget
-    def initialize(target)
-      super(target)
-    end
-    def set_rates
-    end
-    def write(packet)
-    end
-    def read(count, time)
-      pkts = []
-      pkts << Packet.new("SYSTEM","LIMITS_CHANGE")
-      pkts << Packet.new("SYSTEM","LIMITS_CHANGE")
-    end
-  end
-end
+      File.open(File.join(File.dirname(__FILE__), '..', '..', 'lib', 'test_inst.rb'), 'w') do |file|
+        file.puts <<~DOC
+          require 'cosmos/utilities/simulated_target'
+          require 'cosmos/packets/packet'
+          module Cosmos
+            class TestInst < SimulatedTarget
+              def initialize(target)
+                super(target)
+              end
+              def set_rates
+              end
+              def write(packet)
+              end
+              def read(count, time)
+                pkts = []
+                pkts << Packet.new("SYSTEM","LIMITS_CHANGE")
+                pkts << Packet.new("SYSTEM","LIMITS_CHANGE")
+              end
+            end
+          end
         DOC
       end
     end
 
     after(:all) do
-      File.delete(File.join(File.dirname(__FILE__),'..','..','lib','test_inst.rb'))
+      File.delete(File.join(File.dirname(__FILE__), '..', '..', 'lib', 'test_inst.rb'))
     end
 
     describe "initialize" do
@@ -108,7 +108,7 @@ end
         sti.target_names = ['SYSTEM']
         expect(sti.connected?).to be false
         sti.connect
-        sti.write(Packet.new("SYSTEM","SETLOGLABEL"))
+        sti.write(Packet.new("SYSTEM", "SETLOGLABEL"))
       end
     end
 

@@ -39,7 +39,7 @@ opts = OptionParser.new do |opts|
     exit
   end
   opts.on("-i DIRECTORY/FILENAME", "--input DIRECTORY/FILENAME",
-    "Parse only the specified directory/filename (relative or absolute path)") do |arg|
+          "Parse only the specified directory/filename (relative or absolute path)") do |arg|
     options.filename = arg
   end
   opts.on("-s SORT", "--sort SORT", "Sort by the specified column. Must be one of LINES, COMMENTS, SLOC, or RATIO.") do |arg|
@@ -73,7 +73,7 @@ if options.filename
   if File.exist?(options.filename)
     if File.directory?(options.filename)
       # Dir only works with unix paths so swap backslashes
-      files = Dir[File.join(options.filename.gsub('\\','/'), '**', '*.rb')]
+      files = Dir[File.join(options.filename.gsub('\\', '/'), '**', '*.rb')]
     else
       files << options.filename
     end
@@ -111,7 +111,7 @@ files.each do |full_filename|
   end
 end
 
-results.sort_by! {|col| col[options.sort_column].finite? ? col[options.sort_column] : -1 } if options.sort_column
+results.sort_by! { |col| col[options.sort_column].finite? ? col[options.sort_column] : -1 } if options.sort_column
 
 # Print results to STDOUT
 total_files    = 0
@@ -135,5 +135,5 @@ end
 total_ratio = total_comments.to_f / total_slocs.to_f if total_slocs != 0
 puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-" * longest_path)
 puts sprintf("| %-#{longest_path}s | %8d | %8d | %8d | %6.2f |",
-  "Totals - #{total_files} Files", total_lines, total_comments, total_slocs, total_ratio)
+             "Totals - #{total_files} Files", total_lines, total_comments, total_slocs, total_ratio)
 puts sprintf("|-%-#{longest_path}s-|----------|----------|----------|--------|", "-" * longest_path)

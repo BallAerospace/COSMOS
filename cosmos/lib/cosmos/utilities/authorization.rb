@@ -32,9 +32,11 @@ rescue LoadError
 
     module Authorization
       private
+
       # Raises an exception if unauthorized, otherwise does nothing
       def authorize(permission: nil, target_name: nil, packet_name: nil, interface_name: nil, router_name: nil, scope: nil, token: nil)
         raise AuthError.new("Scope is required") unless scope
+
         if $cosmos_authorize
           raise AuthError.new("Token is required") unless token
           raise AuthError.new("Token is invalid for permission #{permission}") unless Cosmos::AuthModel.verify(token, permission: permission)

@@ -46,22 +46,22 @@ module Cosmos
         raw_logger = RawLogger.new('MYINT', :WRITE, @log_path, true, 100000)
         raw_logger.write("\x00\x01\x02\x03")
         raw_logger.stop
-        expect(Dir[File.join(@log_path,"*.bin")][-1]).to match("myint_raw_write")
+        expect(Dir[File.join(@log_path, "*.bin")][-1]).to match("myint_raw_write")
       end
 
       it "creates a raw read log" do
         raw_logger = RawLogger.new('MYINT', :READ, @log_path, true, 100000)
         raw_logger.write("\x00\x01\x02\x03")
         raw_logger.stop
-        expect(Dir[File.join(@log_path,"*.bin")][-1]).to match("myint_raw_read")
+        expect(Dir[File.join(@log_path, "*.bin")][-1]).to match("myint_raw_read")
       end
 
       it "uses the log directory" do
         raw_logger = RawLogger.new('raw_logger_spec_', :READ, @log_path, true, 100000)
         raw_logger.write("\x00\x01\x02\x03")
         raw_logger.stop
-        expect(Dir[File.join(@log_path,"*raw_logger_spec_*")][-1]).to match("raw_logger_spec_")
-        Dir[File.join(@log_path,"*raw_logger_spec_*")].each do |file|
+        expect(Dir[File.join(@log_path, "*raw_logger_spec_*")][-1]).to match("raw_logger_spec_")
+        Dir[File.join(@log_path, "*raw_logger_spec_*")].each do |file|
           File.delete file
         end
       end
@@ -73,7 +73,7 @@ module Cosmos
         raw_logger.write("\x00\x01\x02\x03")
         raw_logger.stop
         data = nil
-        File.open(Dir[File.join(@log_path,"*.bin")][-1],'rb') do |file|
+        File.open(Dir[File.join(@log_path, "*.bin")][-1], 'rb') do |file|
           data = file.read
         end
         expect(data).to eql "\x00\x01\x02\x03"
@@ -82,18 +82,18 @@ module Cosmos
       it "does not write data if logging is disabled" do
         raw_logger = RawLogger.new('MYINT', :WRITE, @log_path, false, 100000)
         raw_logger.write("\x00\x01\x02\x03")
-        expect(Dir[File.join(@log_path,"*.bin")]).to be_empty
+        expect(Dir[File.join(@log_path, "*.bin")]).to be_empty
       end
 
       it "cycles the log when it a size" do
         raw_logger = RawLogger.new('MYINT', :WRITE, @log_path, true, 200000)
         raw_logger.write("\x00\x01\x02\x03" * 25000) # size 100000
         raw_logger.write("\x00\x01\x02\x03" * 25000) # size 200000
-        expect(Dir[File.join(@log_path,"*.bin")].length).to eql 1
+        expect(Dir[File.join(@log_path, "*.bin")].length).to eql 1
         sleep(2)
         raw_logger.write("\x00") # size 200001
         raw_logger.stop
-        files = Dir[File.join(@log_path,"*.bin")]
+        files = Dir[File.join(@log_path, "*.bin")]
         expect(files.length).to eql 2
       end
 
@@ -138,7 +138,7 @@ module Cosmos
         raw_logger.write("\x00\x01\x02\x03")
         raw_logger.stop
         expect(raw_logger.logging_enabled).to be false
-        file = Dir[File.join(@log_path,"*.bin")][-1]
+        file = Dir[File.join(@log_path, "*.bin")][-1]
         expect(File.size(file)).not_to eql 0
       end
     end

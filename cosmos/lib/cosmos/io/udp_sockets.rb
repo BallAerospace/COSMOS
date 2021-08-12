@@ -43,7 +43,8 @@ module Cosmos
       multicast_interface_address = nil,
       ttl = 1,
       read_multicast = true,
-      write_multicast = true)
+      write_multicast = true
+    )
 
       @socket = UDPSocket.new
 
@@ -66,7 +67,8 @@ module Cosmos
           @socket.setsockopt(
             Socket::IPPROTO_IP,
             Socket::IP_MULTICAST_IF,
-            IPAddr.new(multicast_interface_address).hton) if multicast_interface_address
+            IPAddr.new(multicast_interface_address).hton
+          ) if multicast_interface_address
         end
 
         # Receive messages sent to the multicast address
@@ -99,6 +101,7 @@ module Cosmos
         end
         total_bytes_sent += bytes_sent
         break if total_bytes_sent >= num_bytes_to_send
+
         data_to_send = data[total_bytes_sent..-1]
       end
     end
@@ -130,6 +133,7 @@ module Cosmos
     # @return [Boolean] Whether the hostname is multicast
     def self.multicast?(host, port)
       return false if host.nil? || port.nil?
+
       Addrinfo.udp(host, port).ipv4_multicast?
     end
   end
@@ -148,7 +152,8 @@ module Cosmos
       src_port = nil,
       multicast_interface_address = nil,
       ttl = 1,
-      bind_address = "0.0.0.0")
+      bind_address = "0.0.0.0"
+    )
 
       super(
         src_port,
@@ -172,7 +177,8 @@ module Cosmos
       recv_port = 0,
       multicast_address = nil,
       multicast_interface_address = nil,
-      bind_address = "0.0.0.0")
+      bind_address = "0.0.0.0"
+    )
 
       super(
         recv_port,

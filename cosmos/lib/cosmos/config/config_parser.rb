@@ -155,9 +155,10 @@ module Cosmos
     # Called by the ERB template to render a partial
     def render(template_name, options = {})
       raise Error.new(self, "Partial name '#{template_name}' must begin with an underscore.") if File.basename(template_name)[0] != '_'
+
       b = binding
       if options[:locals]
-        options[:locals].each {|key, value| b.local_variable_set(key, value) }
+        options[:locals].each { |key, value| b.local_variable_set(key, value) }
       end
       # Assume the file is there. If not we raise a pretty obvious error
       if File.expand_path(template_name) == template_name # absolute path
@@ -187,6 +188,7 @@ module Cosmos
                    variables = {},
                    &block)
       raise Error.new(self, "Configuration file #{filename} does not exist.") unless filename && File.exist?(filename)
+
       @filename = filename
 
       # Create a temp file where we write the ERB parsed output
@@ -344,6 +346,7 @@ module Cosmos
     end
 
     protected
+
     # Writes the ERB parsed results
     def create_parsed_output_file(filename, run_erb, variables)
       begin
@@ -515,6 +518,5 @@ module Cosmos
         return nil
       end
     end
-
   end
 end

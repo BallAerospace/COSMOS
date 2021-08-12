@@ -21,7 +21,6 @@ require 'cosmos/api/api'
 require 'cosmos/io/raw_logger_pair'
 
 module Cosmos
-
   # Defines all the attributes and methods common to all interface classes
   # used by COSMOS.
   class Interface
@@ -168,7 +167,7 @@ module Cosmos
     # Connects the interface to its target(s). Must be implemented by a
     # subclass.
     def connect
-      (@read_protocols | @write_protocols).each {|protocol| protocol.connect_reset}
+      (@read_protocols | @write_protocols).each { |protocol| protocol.connect_reset }
     end
 
     # Indicates if the interface is connected to its target(s) or not. Must be
@@ -180,7 +179,7 @@ module Cosmos
     # Disconnects the interface from its target(s). Must be implemented by a
     # subclass.
     def disconnect
-      (@read_protocols | @write_protocols).each {|protocol| protocol.disconnect_reset}
+      (@read_protocols | @write_protocols).each { |protocol| protocol.disconnect_reset }
     end
 
     def read_interface
@@ -244,6 +243,7 @@ module Cosmos
     def write(packet)
       raise "Interface not connected for write: #{@name}" unless connected?
       raise "Interface not writable: #{@name}" unless write_allowed?
+
       _write do
         @write_count += 1
 

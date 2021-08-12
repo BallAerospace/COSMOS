@@ -17,14 +17,11 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-
 require 'spec_helper'
 require 'cosmos/models/notification_model'
 
 module Cosmos
-
   describe NotificationModel do
-
     describe "new" do
       it "returns a notification" do
         notification = NotificationModel.new(
@@ -32,7 +29,8 @@ module Cosmos
           severity: "INFO",
           url: "/tools/limitsmonitor",
           title: "test",
-          body: "foobar")
+          body: "foobar"
+        )
         expect(notification.time).not_to be_nil
         expect(notification.severity).to eql("INFO")
         expect(notification.url).to eql("/tools/limitsmonitor")
@@ -48,7 +46,8 @@ module Cosmos
           severity: "INFO",
           url: "/tools/limitsmonitor",
           title: "test",
-          body: "foobar")
+          body: "foobar"
+        )
         hash = notification.as_json
         expect(hash["time"]).not_to be_nil
         expect(hash["severity"]).to eql("INFO")
@@ -57,7 +56,5 @@ module Cosmos
         expect(hash["body"]).to eql("foobar")
       end
     end
-
-
   end
 end

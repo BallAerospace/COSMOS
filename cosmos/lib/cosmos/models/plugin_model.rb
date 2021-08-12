@@ -76,9 +76,9 @@ module Cosmos
           # Phase 1 Gather Variables
           variables = {}
           parser.parse_file(plugin_txt_path,
-            false,
-            true,
-            false) do |keyword, params|
+                            false,
+                            true,
+                            false) do |keyword, params|
             case keyword
             when 'VARIABLE'
               usage = "#{keyword} <Variable Name> <Default Value>"
@@ -169,7 +169,8 @@ module Cosmos
       name:,
       variables: {},
       updated_at: nil,
-      scope:)
+      scope:
+    )
       super("#{scope}__#{PRIMARY_KEY}", name: name, updated_at: updated_at, scope: scope)
       @variables = variables
     end

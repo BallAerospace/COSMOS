@@ -46,9 +46,11 @@ module Cosmos
     def run
       while true
         break if @cancel_thread
+
         begin
           Topic.read_topics(@topics) do |topic, msg_id, msg_hash, redis|
             break if @cancel_thread
+
             decom_packet(topic, msg_id, msg_hash, redis)
             @count += 1
           end
@@ -115,7 +117,8 @@ module Cosmos
             severity: "critical",
             url: "/tools/limitsmonitor",
             title: "#{packet.target_name} #{packet.packet_name} #{item.name} out of limits",
-            body: "Item went into #{item.limits.state} limit status.")
+            body: "Item went into #{item.limits.state} limit status."
+          )
           NotificationsTopic.write_notification(notification.as_json, scope: @scope)
           Logger.error message
         else
@@ -125,8 +128,8 @@ module Cosmos
 
       # The cosmos_limits_events topic can be listened to for all limits events, it is a continuous stream
       event = { type: :LIMITS_CHANGE, target_name: packet.target_name, packet_name: packet.packet_name,
-        item_name: item.name, old_limits_state: old_limits_state, new_limits_state: item.limits.state,
-        time_nsec: time_nsec, message: message }
+                item_name: item.name, old_limits_state: old_limits_state, new_limits_state: item.limits.state,
+                time_nsec: time_nsec, message: message }
       LimitsEventTopic.write(event, scope: @scope)
 
       if item.limits.response

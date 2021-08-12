@@ -62,7 +62,7 @@ module Cosmos
               capture_io do |stdout|
                 send(method_name, *method(method_name).parameters)
                 if state == 'disconnected'
-                  expect(stdout.string).to match(/DISCONNECT: #{method_name}/) #"
+                  expect(stdout.string).to match(/DISCONNECT: #{method_name}/) # "
                 end
               end
             end

@@ -37,19 +37,24 @@ module Cosmos
         super
         @connected = false
       end
+
       def read_allowed?
         raise 'test-error' if $read_allowed_raise
+
         super
       end
+
       def connect
         super
         @data = "\x00"
         @connected = true
         raise 'test-error' if $connect_raise
       end
+
       def connected?
         @connected
       end
+
       def disconnect
         $disconnect_count += 1
         @data = nil # Upon disconnect the read_interface should return nil
@@ -57,8 +62,10 @@ module Cosmos
         @connected = false
         super
       end
+
       def read_interface
         raise 'test-error' if $read_interface_raise
+
         sleep 0.1
         @data
       end
@@ -71,7 +78,7 @@ module Cosmos
       allow(System).to receive(:setup_targets).and_return(nil)
       interface = double("Interface").as_null_object
       allow(interface).to receive(:connected?).and_return(true)
-      allow(System).to receive(:targets).and_return({"TEST" => interface})
+      allow(System).to receive(:targets).and_return({ "TEST" => interface })
       allow(System).to receive_message_chain("telemetry.packets") { [["PKT", Packet.new("TEST", "PKT")]] }
       model = RouterModel.new(name: "TEST_INT", scope: "DEFAULT", target_names: ["TEST"], config_params: ["TestInterface"])
       model.create

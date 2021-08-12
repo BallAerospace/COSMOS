@@ -25,7 +25,6 @@ module Cosmos
   # Creates a log file of raw data for either reads or writes. Can automatically
   # cycle the log based on when the log file reaches a predefined size.
   class RawLogger
-
     # @return [String] The filename of the log
     attr_reader :filename
 
@@ -60,6 +59,7 @@ module Cosmos
       cycle_size = 2000000000
     )
       raise "log_type must be :READ or :WRITE" unless LOG_TYPES.include? log_type
+
       @log_type = log_type
       @orig_name = log_name
       @log_name = (log_name.to_s.downcase + '_raw_' + @log_type.to_s.downcase + '_' + self.object_id.to_s).freeze
@@ -92,6 +92,7 @@ module Cosmos
     def write(data)
       if @logging_enabled
         return if !data or data.length <= 0
+
         need_new_file = false
         @mutex.synchronize do
           if !@file or (@cycle_size and (@file.stat.size + data.length) > @cycle_size)
@@ -128,6 +129,7 @@ module Cosmos
     end
 
     protected
+
     # Starting a new log file is a critical operation so the entire method is
     # wrapped with a rescue and handled with handle_critical_exception
     def start_new_file

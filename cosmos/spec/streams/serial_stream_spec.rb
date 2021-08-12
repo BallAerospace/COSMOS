@@ -21,13 +21,12 @@ require 'spec_helper'
 require 'cosmos/streams/serial_stream'
 
 module Cosmos
-
   if RUBY_ENGINE == 'ruby' or Gem.win_platform?
 
     describe SerialStream do
       describe "initialize" do
         it "complains if neither a read or write port given" do
-          expect { SerialStream.new(nil,nil,9600,:EVEN,1,nil,nil) }.to raise_error("Either a write port or read port must be given")
+          expect { SerialStream.new(nil, nil, 9600, :EVEN, 1, nil, nil) }.to raise_error("Either a write port or read port must be given")
         end
       end
 
@@ -35,7 +34,7 @@ module Cosmos
         it "is connected when initialized" do
           driver = double("driver")
           expect(SerialDriver).to receive(:new).and_return(driver)
-          ss = SerialStream.new('COM1',nil,9600,:EVEN,1,nil,nil)
+          ss = SerialStream.new('COM1', nil, 9600, :EVEN, 1, nil, nil)
           expect(ss.connected?).to be true
         end
       end
@@ -44,7 +43,7 @@ module Cosmos
         it "raises an error if no read port given" do
           driver = double("driver")
           expect(SerialDriver).to receive(:new).and_return(driver)
-          ss = SerialStream.new('COM1',nil,9600,:EVEN,1,nil,nil)
+          ss = SerialStream.new('COM1', nil, 9600, :EVEN, 1, nil, nil)
           expect { ss.read }.to raise_error("Attempt to read from write only stream")
         end
 
@@ -52,7 +51,7 @@ module Cosmos
           driver = double("driver")
           expect(driver).to receive(:read).and_return 'test'
           expect(SerialDriver).to receive(:new).and_return(driver)
-          ss = SerialStream.new('COM1','COM1',9600,:EVEN,1,nil,nil)
+          ss = SerialStream.new('COM1', 'COM1', 9600, :EVEN, 1, nil, nil)
           expect(ss.read).to eql 'test'
         end
       end
@@ -61,7 +60,7 @@ module Cosmos
         it "raises an error if no write port given" do
           driver = double("driver")
           expect(SerialDriver).to receive(:new).and_return(driver)
-          ss = SerialStream.new(nil,'COM1',9600,:EVEN,1,nil,nil)
+          ss = SerialStream.new(nil, 'COM1', 9600, :EVEN, 1, nil, nil)
           expect { ss.write('') }.to raise_error("Attempt to write to read only stream")
         end
 
@@ -69,7 +68,7 @@ module Cosmos
           driver = double("driver")
           expect(driver).to receive(:write).with('test')
           expect(SerialDriver).to receive(:new).and_return(driver)
-          ss = SerialStream.new('COM1','COM1',9600,:EVEN,1,nil,nil)
+          ss = SerialStream.new('COM1', 'COM1', 9600, :EVEN, 1, nil, nil)
           ss.write('test')
         end
       end
@@ -80,7 +79,7 @@ module Cosmos
           expect(driver).to receive(:closed?).and_return(false)
           expect(driver).to receive(:close)
           expect(SerialDriver).to receive(:new).and_return(driver)
-          ss = SerialStream.new('COM1',nil,9600,:EVEN,1,nil,nil)
+          ss = SerialStream.new('COM1', nil, 9600, :EVEN, 1, nil, nil)
           expect(ss.connected?).to be true
           ss.disconnect
           expect(ss.connected?).to be false
@@ -91,7 +90,7 @@ module Cosmos
           expect(driver).to receive(:closed?).and_return(false)
           expect(driver).to receive(:close)
           expect(SerialDriver).to receive(:new).and_return(driver)
-          ss = SerialStream.new(nil,'COM1',9600,:EVEN,1,nil,nil)
+          ss = SerialStream.new(nil, 'COM1', 9600, :EVEN, 1, nil, nil)
           expect(ss.connected?).to be true
           ss.disconnect
           expect(ss.connected?).to be false
@@ -102,7 +101,7 @@ module Cosmos
           expect(driver).to receive(:closed?).and_return(false, true)
           expect(driver).to receive(:close).once
           expect(SerialDriver).to receive(:new).and_return(driver)
-          ss = SerialStream.new('COM1','COM1',9600,:EVEN,1,nil,nil)
+          ss = SerialStream.new('COM1', 'COM1', 9600, :EVEN, 1, nil, nil)
           expect(ss.connected?).to be true
           ss.disconnect
           expect(ss.connected?).to be false
@@ -117,13 +116,12 @@ module Cosmos
           expect(driver).to receive(:closed?).and_return(false)
           expect(driver).to receive(:close).once
           expect(SerialDriver).to receive(:new).and_return(driver)
-          ss = SerialStream.new(nil,'COM1',9600,:EVEN,1,nil,nil)
-          expect {ss.connect}.to_not raise_error
+          ss = SerialStream.new(nil, 'COM1', 9600, :EVEN, 1, nil, nil)
+          expect { ss.connect }.to_not raise_error
           ss.disconnect
         end
       end
     end
 
   end
-
 end

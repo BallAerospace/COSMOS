@@ -29,10 +29,10 @@ module Cosmos
     describe "self.get" do
       it "returns the specified interface" do
         model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT",
-          connect_on_startup: false, auto_reconnect: false) # Set a few things to check
+                                   connect_on_startup: false, auto_reconnect: false) # Set a few things to check
         model.create
         model = InterfaceModel.new(name: "SPEC_INT", scope: "DEFAULT",
-          connect_on_startup: true, auto_reconnect: true) # Set to opposite of TEST_INT
+                                   connect_on_startup: true, auto_reconnect: true) # Set to opposite of TEST_INT
         model.create
         test = InterfaceModel.get(name: "TEST_INT", scope: "DEFAULT")
         expect(test["name"]).to eq "TEST_INT"
@@ -42,10 +42,10 @@ module Cosmos
 
       it "works with same named routers" do
         model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT",
-          connect_on_startup: false, auto_reconnect: false) # Set a few things to check
+                                   connect_on_startup: false, auto_reconnect: false) # Set a few things to check
         model.create
         model = RouterModel.new(name: "TEST_INT", scope: "DEFAULT",
-          connect_on_startup: true, auto_reconnect: true) # Set to opposite
+                                connect_on_startup: true, auto_reconnect: true) # Set to opposite
         model.create
         test = InterfaceModel.get(name: "TEST_INT", scope: "DEFAULT")
         expect(test["name"]).to eq "TEST_INT"
@@ -77,10 +77,10 @@ module Cosmos
     describe "self.all" do
       it "returns all the parsed interfaces" do
         model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT",
-          connect_on_startup: false, auto_reconnect: false) # Set a few things to check
+                                   connect_on_startup: false, auto_reconnect: false) # Set a few things to check
         model.create
         model = InterfaceModel.new(name: "SPEC_INT", scope: "DEFAULT",
-          connect_on_startup: true, auto_reconnect: true) # Set to opposite of TEST_INT
+                                   connect_on_startup: true, auto_reconnect: true) # Set to opposite of TEST_INT
         model.create
         all = InterfaceModel.all(scope: "DEFAULT")
         expect(all.keys).to contain_exactly("TEST_INT", "SPEC_INT")
@@ -187,7 +187,7 @@ module Cosmos
         expect(interface.class).to eq Interface
         # Now instantiate a more complex option
         model = InterfaceModel.new(name: "TEST_INT", scope: "DEFAULT",
-          config_params: %w(tcpip_client_interface.rb 127.0.0.1 8080 8081 10.0 nil BURST 4 0xDEADBEEF))
+                                   config_params: %w(tcpip_client_interface.rb 127.0.0.1 8080 8081 10.0 nil BURST 4 0xDEADBEEF))
         interface = model.build
         expect(interface.class).to eq TcpipClientInterface
       end
@@ -202,6 +202,7 @@ module Cosmos
         params.each do |type, name|
           # Scope isn't included in as_json as it is part of the key used to get the model
           next if name == :scope
+
           expect(json.key?(name.to_s)).to be true
         end
       end

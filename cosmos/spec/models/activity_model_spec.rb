@@ -21,24 +21,24 @@ require 'spec_helper'
 require 'cosmos/models/activity_model'
 
 module Cosmos
-
   describe ActivityModel do
     before(:each) do
       mock_redis()
     end
 
     def generate_activity(name:, scope:, start:, kind: "cmd", stop: 1.0)
-        dt = DateTime.now.new_offset(0)
-        start_time = dt + (start/24.0)
-        end_time = dt + ((start+stop)/24.0)
-        data = {"test"=>"test"}
-        ActivityModel.new(
-          name: name,
-          scope: scope,
-          start: start_time.strftime("%s").to_i,
-          stop: end_time.strftime("%s").to_i,
-          kind: kind,
-          data: data)
+      dt = DateTime.now.new_offset(0)
+      start_time = dt + (start / 24.0)
+      end_time = dt + ((start + stop) / 24.0)
+      data = { "test" => "test" }
+      ActivityModel.new(
+        name: name,
+        scope: scope,
+        start: start_time.strftime("%s").to_i,
+        stop: end_time.strftime("%s").to_i,
+        kind: kind,
+        data: data
+      )
     end
 
     describe "self.activites" do
@@ -67,8 +67,8 @@ module Cosmos
         activity = generate_activity(name: name, scope: scope, start: 5.0)
         activity.create()
         dt = DateTime.now.new_offset(0)
-        start = (dt + (1/24.0)).strftime("%s").to_i
-        stop = (dt + (3/24.0)).strftime("%s").to_i
+        start = (dt + (1 / 24.0)).strftime("%s").to_i
+        stop = (dt + (3 / 24.0)).strftime("%s").to_i
         array = ActivityModel.get(name: name, scope: scope, start: start, stop: stop)
         expect(array.empty?).to eql(false)
         expect(array.length).to eql(1)
@@ -149,8 +149,8 @@ module Cosmos
         activity = generate_activity(name: name, scope: scope, start: 2.0)
         activity.create()
         dt = DateTime.now.new_offset(0)
-        min_score = (dt + (0.5/24.0)).strftime("%s").to_i
-        max_score = (dt + (3.0/24.0)).strftime("%s").to_i
+        min_score = (dt + (0.5 / 24.0)).strftime("%s").to_i
+        max_score = (dt + (3.0 / 24.0)).strftime("%s").to_i
         ret = ActivityModel.range_destroy(name: name, scope: scope, min: min_score, max: max_score)
         expect(ret).to eql(2)
         count = ActivityModel.count(name: name, scope: scope)
@@ -165,7 +165,7 @@ module Cosmos
         activity = generate_activity(name: name, scope: scope, start: 1.0, stop: 1.0)
         activity.create()
         model = generate_activity(name: name, scope: scope, start: 1.1, stop: 0.8)
-        expect{
+        expect {
           model.create()
         }.to raise_error(ActivityOverlapError)
       end
@@ -178,7 +178,7 @@ module Cosmos
         activity = generate_activity(name: name, scope: scope, start: 1.0, stop: 1.0)
         activity.create()
         model = generate_activity(name: name, scope: scope, start: 0.5, stop: 1.0)
-        expect{
+        expect {
           model.create()
         }.to raise_error(ActivityOverlapError)
       end
@@ -191,7 +191,7 @@ module Cosmos
         activity = generate_activity(name: name, scope: scope, start: 1.0, stop: 1.0)
         activity.create()
         model = generate_activity(name: name, scope: scope, start: 1.5, stop: 1.5)
-        expect{
+        expect {
           model.create()
         }.to raise_error(ActivityOverlapError)
       end
@@ -204,7 +204,7 @@ module Cosmos
         activity = generate_activity(name: name, scope: scope, start: 1.0, stop: 1.0)
         activity.create()
         model = generate_activity(name: name, scope: scope, start: 0.5, stop: 1.5)
-        expect{
+        expect {
           model.create()
         }.to raise_error(ActivityOverlapError)
       end
@@ -219,7 +219,7 @@ module Cosmos
         bar = generate_activity(name: name, scope: scope, start: 2.0, stop: 0.5)
         bar.create()
         activity = generate_activity(name: name, scope: scope, start: 0.5, stop: 1.7)
-        expect{
+        expect {
           activity.create()
         }.to raise_error(ActivityOverlapError)
       end
@@ -231,10 +231,10 @@ module Cosmos
         scope = "scope"
         foo = generate_activity(name: name, scope: scope, start: 1.0, stop: 0.5)
         foo.create()
-        bar= generate_activity(name: name, scope: scope, start: 2.0, stop: 0.5)
+        bar = generate_activity(name: name, scope: scope, start: 2.0, stop: 0.5)
         bar.create()
         activity = generate_activity(name: name, scope: scope, start: 1.0, stop: 0.5)
-        expect{
+        expect {
           activity.create()
         }.to raise_error(ActivityOverlapError)
       end
@@ -244,7 +244,7 @@ module Cosmos
       it "raises error due to invalid time" do
         name = "foobar"
         scope = "scope"
-        expect{
+        expect {
           ActivityModel.new(name: name, scope: scope, start: "foo", stop: "bar", kind: "cmd", data: {})
         }.to raise_error(ActivityInputError)
       end
@@ -256,7 +256,7 @@ module Cosmos
         scope = "scope"
         start = Time.now.to_i
         model = ActivityModel.new(name: name, scope: scope, start: start, stop: start, kind: "cmd", data: {})
-        expect{
+        expect {
           model.create()
         }.to raise_error(ActivityInputError)
       end
@@ -267,10 +267,10 @@ module Cosmos
         name = "foobar"
         scope = "scope"
         dt_now = DateTime.now
-        start = (dt_now + (1.0/24.0)).strftime("%s").to_i
-        stop = (dt_now + (25.0/24.0)).strftime("%s").to_i
+        start = (dt_now + (1.0 / 24.0)).strftime("%s").to_i
+        stop = (dt_now + (25.0 / 24.0)).strftime("%s").to_i
         activity = ActivityModel.new(name: name, scope: scope, start: start, stop: stop, kind: "cmd", data: {})
-        expect{
+        expect {
           activity.create()
         }.to raise_error(ActivityInputError)
       end
@@ -281,10 +281,10 @@ module Cosmos
         name = "foobar"
         scope = "scope"
         dt_now = DateTime.now
-        start = (dt_now + (1.5/24.0)).strftime("%s").to_i
-        stop = (dt_now + (1.0/24.0)).strftime("%s").to_i
+        start = (dt_now + (1.5 / 24.0)).strftime("%s").to_i
+        stop = (dt_now + (1.0 / 24.0)).strftime("%s").to_i
         model = ActivityModel.new(name: name, scope: scope, start: start, stop: stop, kind: "cmd", data: {})
-        expect{
+        expect {
           model.create()
         }.to raise_error(ActivityInputError)
       end
@@ -297,7 +297,7 @@ module Cosmos
         activity = generate_activity(name: name, scope: scope, start: 0.5, stop: 1.0)
         start = activity.start + 10
         stop = activity.stop + 10
-        expect{
+        expect {
           activity.update(start: start, stop: stop, kind: "error", data: {})
         }.to raise_error(ActivityError)
       end
@@ -313,7 +313,7 @@ module Cosmos
         model.create()
         new_start = activity.start + 3600
         new_stop = activity.stop + 3600
-        expect{
+        expect {
           activity.update(start: new_start, stop: new_stop, kind: "error", data: {})
         }.to raise_error(ActivityOverlapError)
       end
@@ -428,6 +428,5 @@ module Cosmos
         expect(activity.data).to eql(new_activity.data)
       end
     end
-
   end
 end

@@ -125,6 +125,7 @@ module Cosmos
     end
 
     protected
+
     def create_unique_filename(ext = extension)
       # Create a filename that doesn't exist
       attempt = nil
@@ -149,16 +150,16 @@ module Cosmos
           utc_now = Time.now.utc
           # Logger.debug("start:#{@start_time.to_f} now:#{utc_now.to_f} cycle:#{@cycle_time} new:#{(utc_now - @start_time) > @cycle_time}")
           if @logging_enabled and
-            (
-              # Cycle based on total time logging
-              (@cycle_time and (utc_now - @start_time) > @cycle_time) or
+             (
+               # Cycle based on total time logging
+               (@cycle_time and (utc_now - @start_time) > @cycle_time) or
 
-              # Cycle daily at a specific time
-              (@cycle_hour and @cycle_minute and utc_now.hour == @cycle_hour and utc_now.min == @cycle_minute and @start_time.yday != utc_now.yday) or
+               # Cycle daily at a specific time
+               (@cycle_hour and @cycle_minute and utc_now.hour == @cycle_hour and utc_now.min == @cycle_minute and @start_time.yday != utc_now.yday) or
 
-              # Cycle hourly at a specific time
-              (@cycle_minute and not @cycle_hour and utc_now.min == @cycle_minute and @start_time.hour != utc_now.hour)
-            )
+               # Cycle hourly at a specific time
+               (@cycle_minute and not @cycle_hour and utc_now.min == @cycle_minute and @start_time.hour != utc_now.hour)
+             )
             close_file(false)
           end
         end

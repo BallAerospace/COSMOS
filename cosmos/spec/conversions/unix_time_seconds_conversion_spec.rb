@@ -22,7 +22,6 @@ require 'cosmos/conversions/unix_time_seconds_conversion'
 require 'cosmos/packets/packet'
 
 module Cosmos
-
   describe UnixTimeSecondsConversion do
     describe "initialize" do
       it "initializes converted_type and converted_bit_size" do
@@ -35,35 +34,35 @@ module Cosmos
     describe "call" do
       it "returns the formatted packet time based on seconds" do
         gc = UnixTimeSecondsConversion.new('TIME')
-        packet = Packet.new("TGT","PKT")
-        packet.append_item("TIME",32,:UINT)
-        time = Time.new(2020,1,31,12,15,30).to_f
-        packet.write("TIME",time)
-        expect(gc.call(nil,packet,packet.buffer)).to eql time
+        packet = Packet.new("TGT", "PKT")
+        packet.append_item("TIME", 32, :UINT)
+        time = Time.new(2020, 1, 31, 12, 15, 30).to_f
+        packet.write("TIME", time)
+        expect(gc.call(nil, packet, packet.buffer)).to eql time
       end
 
       it "returns the formatted packet time based on seconds and microseconds" do
-        gc = UnixTimeSecondsConversion.new('TIME','TIME_US')
-        packet = Packet.new("TGT","PKT")
-        packet.append_item("TIME",32,:UINT)
-        time = Time.new(2020,1,31,12,15,30).to_f
-        packet.write("TIME",time)
-        packet.append_item("TIME_US",32,:UINT)
-        packet.write("TIME_US",500000)
-        expect(gc.call(nil,packet,packet.buffer)).to eql time + 0.5
+        gc = UnixTimeSecondsConversion.new('TIME', 'TIME_US')
+        packet = Packet.new("TGT", "PKT")
+        packet.append_item("TIME", 32, :UINT)
+        time = Time.new(2020, 1, 31, 12, 15, 30).to_f
+        packet.write("TIME", time)
+        packet.append_item("TIME_US", 32, :UINT)
+        packet.write("TIME_US", 500000)
+        expect(gc.call(nil, packet, packet.buffer)).to eql time + 0.5
       end
 
       it "complains if the seconds item doesn't exist" do
         gc = UnixTimeSecondsConversion.new('TIME')
-        packet = Packet.new("TGT","PKT")
-        expect { gc.call(nil,packet,packet.buffer) }.to raise_error("Packet item 'TGT PKT TIME' does not exist")
+        packet = Packet.new("TGT", "PKT")
+        expect { gc.call(nil, packet, packet.buffer) }.to raise_error("Packet item 'TGT PKT TIME' does not exist")
       end
 
       it "complains if the microseconds item doesn't exist" do
-        gc = UnixTimeSecondsConversion.new('TIME','TIME_US')
-        packet = Packet.new("TGT","PKT")
-        packet.append_item("TIME",32,:UINT)
-        expect { gc.call(nil,packet,packet.buffer) }.to raise_error("Packet item 'TGT PKT TIME_US' does not exist")
+        gc = UnixTimeSecondsConversion.new('TIME', 'TIME_US')
+        packet = Packet.new("TGT", "PKT")
+        packet.append_item("TIME", 32, :UINT)
+        expect { gc.call(nil, packet, packet.buffer) }.to raise_error("Packet item 'TGT PKT TIME_US' does not exist")
       end
     end
 
@@ -74,7 +73,7 @@ module Cosmos
       end
 
       it "returns the microseconds conversion" do
-        gc = UnixTimeSecondsConversion.new('TIME','TIME_US')
+        gc = UnixTimeSecondsConversion.new('TIME', 'TIME_US')
         expect(gc.to_s).to eql "Time.at(packet.read('TIME', :RAW, buffer), packet.read('TIME_US', :RAW, buffer)).sys.to_f"
       end
     end

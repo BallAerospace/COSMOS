@@ -18,11 +18,9 @@
 # copyright holder
 
 module Cosmos
-
   # Adds IO streams and then defers to the streams when using any of the Ruby
   # output methods such as print, puts, etc.
   class IoMultiplexer
-
     # Create the empty stream array
     def initialize
       @streams = []
@@ -78,7 +76,5 @@ module Cosmos
     def remove_stream(stream)
       @streams.delete(stream)
     end
-
   end # class IoMultiplexer
-
 end # module Cosmos

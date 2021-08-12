@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/streams/tcpip_client_stream'
 
 module Cosmos
-
   describe TcpipClientStream do
     before(:all) do
       addr = Socket.pack_sockaddr_in(8888, "0.0.0.0")
@@ -45,25 +44,25 @@ module Cosmos
 
     describe "initialize" do
       it "complains if the host is bad" do
-        expect { TcpipClientStream.new('asdf',8888,8888,nil,nil) }.to raise_error(/Invalid hostname/)
+        expect { TcpipClientStream.new('asdf', 8888, 8888, nil, nil) }.to raise_error(/Invalid hostname/)
       end
 
       it "uses the same socket if read_port == write_port" do
-        ss = TcpipClientStream.new('localhost',8888,8888,nil,nil)
+        ss = TcpipClientStream.new('localhost', 8888, 8888, nil, nil)
         ss.connect
         expect(ss.connected?).to be true
         ss.disconnect
       end
 
       it "creates the write socket" do
-        ss = TcpipClientStream.new('localhost',8888,nil,nil,nil)
+        ss = TcpipClientStream.new('localhost', 8888, nil, nil, nil)
         ss.connect
         expect(ss.connected?).to be true
         ss.disconnect
       end
 
       it "creates the read socket" do
-        ss = TcpipClientStream.new('localhost',nil,8888,nil,nil)
+        ss = TcpipClientStream.new('localhost', nil, 8888, nil, nil)
         ss.connect
         expect(ss.connected?).to be true
         ss.disconnect

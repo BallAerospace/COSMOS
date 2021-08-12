@@ -22,10 +22,8 @@ require 'termios' # Requires ruby-termios gem
 require 'timeout' # For Timeout::Error
 
 module Cosmos
-
   # Serial driver for use on Posix serial ports found on UNIX based systems
   class PosixSerialDriver
-
     # (see SerialDriver#initialize)
     def initialize(port_name = '/dev/ttyS0',
                    baud_rate = 9600,
@@ -44,9 +42,10 @@ module Cosmos
       end
 
       # Verify Parameters
-      raise(ArgumentError, "Invalid Data Bits: #{data_bits}") unless [5,6,7,8].include?(data_bits)
+      raise(ArgumentError, "Invalid Data Bits: #{data_bits}") unless [5, 6, 7, 8].include?(data_bits)
       raise(ArgumentError, "Invalid parity: #{parity}") if parity and !SerialDriver::VALID_PARITY.include?(parity)
-      raise(ArgumentError, "Invalid Stop Bits: #{stop_bits}") unless [1,2].include?(stop_bits)
+      raise(ArgumentError, "Invalid Stop Bits: #{stop_bits}") unless [1, 2].include?(stop_bits)
+
       @write_timeout = write_timeout
       @read_timeout = read_timeout
 
@@ -120,6 +119,7 @@ module Cosmos
         end
         total_bytes_sent += bytes_sent
         break if total_bytes_sent >= num_bytes_to_send
+
         data_to_send = data[total_bytes_sent..-1]
       end
     end
@@ -152,7 +152,5 @@ module Cosmos
 
       data
     end
-
   end # class PosixSerialDriver
-
 end # module Cosmos

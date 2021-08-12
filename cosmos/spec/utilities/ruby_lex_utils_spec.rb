@@ -50,91 +50,96 @@ module Cosmos
 
     describe "remove_comments" do
       it "removes comments" do
-        text = <<DOC
-# This is a comment
-blah = 5 # Inline comment
-# Another
-DOC
+        text = <<~DOC
+          # This is a comment
+          blah = 5 # Inline comment
+          # Another
+        DOC
         expect(@lex.remove_comments(text)).to eql "\nblah = 5 \n\n"
       end
     end
 
     describe "each_lexed_segment" do
       it "yields each segment" do
-        text = <<DOC
-begin
-  x = 0
-end
-DOC
+        text = <<~DOC
+          begin
+            x = 0
+          end
+        DOC
         expect { |b| @lex.each_lexed_segment(text, &b) }.to yield_successive_args(
-          ["begin\n",false,true,1],  # can't instrument begin
-          ["  x = 0\n",true,true,2],
-          ["end\n",false,false,3])  # can't instrument end
+          ["begin\n", false, true, 1], # can't instrument begin
+          ["  x = 0\n", true, true, 2],
+          ["end\n", false, false, 3]
+        ) # can't instrument end
       end
 
       it "handles multiple begins" do
-        text = <<DOC
-z = 5
-begin
-  a = 0
-  begin
-    x = 0
-  rescue
-    x = 1
-  end
-end
-DOC
+        text = <<~DOC
+          z = 5
+          begin
+            a = 0
+            begin
+              x = 0
+            rescue
+              x = 1
+            end
+          end
+        DOC
         expect { |b| @lex.each_lexed_segment(text, &b) }.to yield_successive_args(
-          ["z = 5\n",true,false,1],
-          ["begin\n",false,true,2],  # can't instrument begin
-          ["  a = 0\n",true, true,3],
-          ["  begin\n",false,true,4],
-          ["    x = 0\n",true,true,5],
-          ["  rescue\n",false,true,6],
-          ["    x = 1\n",true,true,7],
-          ["  end\n",false,true,8],
-          ["end\n",false,false,9])  # can't instrument end
+          ["z = 5\n", true, false, 1],
+          ["begin\n", false, true, 2], # can't instrument begin
+          ["  a = 0\n", true, true, 3],
+          ["  begin\n", false, true, 4],
+          ["    x = 0\n", true, true, 5],
+          ["  rescue\n", false, true, 6],
+          ["    x = 1\n", true, true, 7],
+          ["  end\n", false, true, 8],
+          ["end\n", false, false, 9]
+        ) # can't instrument end
       end
 
       it "handles multiline segments" do
-        text = <<DOC
-a = [10,
-11,
-12,
-13,
-14]
-DOC
+        text = <<~DOC
+          a = [10,
+          11,
+          12,
+          13,
+          14]
+        DOC
         expect { |b| @lex.each_lexed_segment(text, &b) }.to yield_successive_args(
-          ["a = [10,\n11,\n12,\n13,\n14]\n",true,false,1])
+          ["a = [10,\n11,\n12,\n13,\n14]\n", true, false, 1]
+        )
       end
 
       it "handles complex hash segments" do
-        text = <<DOC
-{ :X1 => 1,
-  :X2 => 2
-}.each {|x, y| puts x}
-DOC
+        text = <<~DOC
+          { :X1 => 1,
+            :X2 => 2
+          }.each {|x, y| puts x}
+        DOC
         expect { |b| @lex.each_lexed_segment(text, &b) }.to yield_successive_args(
-          ["{ :X1 => 1,\n  :X2 => 2\n", false,false,1],
-          ["}.each {|x, y| puts x}\n",false,false,3])
+          ["{ :X1 => 1,\n  :X2 => 2\n", false, false, 1],
+          ["}.each {|x, y| puts x}\n", false, false, 3]
+        )
       end
 
       it "yields each segment" do
-        text = <<DOC
-
-if x
-y
-else
-z
-end
-DOC
+        text = <<~DOC
+          #{'          '}
+                    if x
+                    y
+                    else
+                    z
+                    end
+        DOC
         expect { |b| @lex.each_lexed_segment(text, &b) }.to yield_successive_args(
-          ["\n",true,false,1],
-          ["if x\n",false,false,2], # can't instrument if
-          ["y\n",true,false,3],
-          ["else\n",false,false,4], # can't instrument else
-          ["z\n",true,false,5],
-          ["end\n",false,false,6])  # can't instrument end
+          ["\n", true, false, 1],
+          ["if x\n", false, false, 2], # can't instrument if
+          ["y\n", true, false, 3],
+          ["else\n", false, false, 4], # can't instrument else
+          ["z\n", true, false, 5],
+          ["end\n", false, false, 6]
+        )  # can't instrument end
       end
     end
   end

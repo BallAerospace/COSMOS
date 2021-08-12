@@ -26,7 +26,6 @@ module Cosmos
   # goes out of limits. This class must be subclassed and the call method
   # implemented. Do NOT use this class directly.
   class LimitsResponse
-
     include Api
 
     # @param packet [Packet] Packet the limits response is assigned to
@@ -50,6 +49,5 @@ module Cosmos
     def as_json
       { "class" => self.class.name.to_s }
     end
-
   end # class LimitsResponse
 end

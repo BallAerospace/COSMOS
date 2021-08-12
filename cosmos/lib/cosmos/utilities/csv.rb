@@ -35,6 +35,7 @@ module Cosmos
       @archive_file = ""
       Object::CSV.read(input_file).each do |line|
         next if line[0].strip()[0] == '#' # Ignore Ruby comment lines
+
         @hash[line[0]] = line[1..-1]
       end
     end
@@ -61,6 +62,7 @@ module Cosmos
     # @return [Boolean] Single value converted to a boolean (true or false)
     def bool(item, index = 0)
       raise "#{item} not found" unless keys.include?(item)
+
       if Range === index
         @hash[item][index].map do |x|
           case x.upcase
@@ -92,8 +94,9 @@ module Cosmos
     # @return [Integer] Single value converted to an integer
     def int(item, index = 0)
       raise "#{item} not found" unless keys.include?(item)
+
       if Range === index
-        @hash[item][index].map {|x| x.to_i }
+        @hash[item][index].map { |x| x.to_i }
       else
         @hash[item][index].to_i
       end
@@ -107,8 +110,9 @@ module Cosmos
     # @return [Float] Single value converted to a float
     def float(item, index = 0)
       raise "#{item} not found" unless keys.include?(item)
+
       if Range === index
-        @hash[item][index].map {|x| x.to_f }
+        @hash[item][index].map { |x| x.to_f }
       else
         @hash[item][index].to_f
       end
@@ -121,8 +125,9 @@ module Cosmos
     # @return [String] Single value converted to a string
     def string(item, index = 0)
       raise "#{item} not found" unless keys.include?(item)
+
       if Range === index
-        @hash[item][index].map {|x| x.to_s }
+        @hash[item][index].map { |x| x.to_s }
       else
         @hash[item][index].to_s
       end
@@ -136,13 +141,13 @@ module Cosmos
     # @return [Symbol] Single value converted to a symbol
     def symbol(item, index = 0)
       raise "#{item} not found" unless keys.include?(item)
+
       if Range === index
-        @hash[item][index].map {|x| x.intern }
+        @hash[item][index].map { |x| x.intern }
       else
         @hash[item][index].intern
       end
     end
     alias sym symbol
-
   end
 end

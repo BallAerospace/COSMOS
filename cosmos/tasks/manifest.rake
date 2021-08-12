@@ -24,8 +24,8 @@ task :manifest do
   # Ask git what all our files are
   files = `git ls-tree --full-tree -r --name-only HEAD`.split($\)
   # Remove all the directories
-  files.reject! {|f| File::Stat.new(f).directory? or f.include?("vendor") }
+  files.reject! { |f| File::Stat.new(f).directory? or f.include?("vendor") }
   # Write out the manifest file
-  File.open(fn, 'w') {|fp| fp.puts files.sort}
+  File.open(fn, 'w') { |fp| fp.puts files.sort }
   puts "Successfully created #{fn}."
 end

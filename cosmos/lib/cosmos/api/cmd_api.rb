@@ -25,25 +25,25 @@ module Cosmos
   module Api
     WHITELIST ||= []
     WHITELIST.concat([
-      'cmd',
-      'cmd_no_range_check',
-      'cmd_no_hazardous_check',
-      'cmd_no_checks',
-      'cmd_raw',
-      'cmd_raw_no_range_check',
-      'cmd_raw_no_hazardous_check',
-      'cmd_raw_no_checks',
-      'send_raw',
-      'get_all_commands',
-      'get_command',
-      'get_parameter',
-      'get_cmd_buffer',
-      'get_cmd_hazardous',
-      'get_cmd_value',
-      'get_cmd_time',
-      'get_all_cmd_info',
-      'get_cmd_cnt',
-    ])
+                       'cmd',
+                       'cmd_no_range_check',
+                       'cmd_no_hazardous_check',
+                       'cmd_no_checks',
+                       'cmd_raw',
+                       'cmd_raw_no_range_check',
+                       'cmd_raw_no_hazardous_check',
+                       'cmd_raw_no_checks',
+                       'send_raw',
+                       'get_all_commands',
+                       'get_command',
+                       'get_parameter',
+                       'get_cmd_buffer',
+                       'get_cmd_hazardous',
+                       'get_cmd_value',
+                       'get_cmd_time',
+                       'get_all_cmd_info',
+                       'get_cmd_cnt',
+                     ])
 
     # Send a command packet to a target.
     #
@@ -196,6 +196,7 @@ module Cosmos
       topic = "#{scope}__COMMAND__{#{target_name}}__#{command_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       return msg_hash['buffer'].b if msg_id # Return as binary
+
       nil
     end
 
@@ -264,6 +265,7 @@ module Cosmos
 
       packet['items'].each do |item|
         next unless params.keys.include?(item['name']) && item['states']
+
         # States are an array of the name followed by a hash of 'value' and sometimes 'hazardous'
         item['states'].each do |name, hash|
           # To be hazardous the state must be marked hazardous
@@ -314,6 +316,7 @@ module Cosmos
           TargetModel.packets(target_name, type: :CMD, scope: scope).each do |packet|
             cur_time = Store.instance.get_cmd_item(target_name, packet["packet_name"], 'RECEIVED_TIMESECONDS', type: :CONVERTED, scope: scope)
             next unless cur_time
+
             if cur_time > time
               time = cur_time
               command_name = packet["packet_name"]
@@ -372,7 +375,8 @@ module Cosmos
         'cmd_params' => cmd_params,
         'range_check' => range_check,
         'hazardous_check' => hazardous_check,
-        'raw' => raw }
+        'raw' => raw
+      }
       Logger.info build_cmd_output_string(target_name, cmd_name, cmd_params, packet, raw) if !packet["messages_disabled"]
       CommandTopic.send_command(command, scope: scope)
     end
@@ -390,7 +394,8 @@ module Cosmos
         params = []
         cmd_params.each do |key, value|
           next if Packet::RESERVED_ITEM_NAMES.include?(key)
-          item = packet['items'].find {|item| item['name'] == key.to_s }
+
+          item = packet['items'].find { |item| item['name'] == key.to_s }
 
           begin
             item_type = item['data_type'].intern
@@ -412,7 +417,7 @@ module Cosmos
             if value.length > 256
               value = value[0..255] + "...'"
             end
-            value.tr!('"',"'")
+            value.tr!('"', "'")
           elsif value.is_a?(Array)
             value = "[#{value.join(", ")}]"
           end

@@ -24,7 +24,7 @@ describe String do
   describe "formatted" do
     before(:each) do
       @data = []
-      (26..47).each {|x| @data << x }
+      (26..47).each { |x| @data << x }
       @data = @data.pack('C*')
     end
 
@@ -57,28 +57,28 @@ describe String do
     end
 
     it "does not show the ASCII" do
-      expect(@data.formatted(1,16,'',0,true,'',true)).to match('29         !"#\$%&\'()')
-      expect(@data.formatted(1,16,'',0,true,'',false)).not_to match('29         !"#\$%&\'()')
+      expect(@data.formatted(1, 16, '', 0, true, '', true)).to match('29         !"#\$%&\'()')
+      expect(@data.formatted(1, 16, '', 0, true, '', false)).not_to match('29         !"#\$%&\'()')
     end
 
     it "changes the ASCII separator" do
-      expect(@data.formatted(1,16,'',0,true,'',true,'__')).to match('29__       !"#\$%&\'()')
+      expect(@data.formatted(1, 16, '', 0, true, '', true, '__')).to match('29__       !"#\$%&\'()')
     end
 
     it "changes the ASCII unprintable character" do
-      expect(@data.formatted(1,16,'',0,true,'',true,'__','x')).to match('29__xxxxxx !"#\$%&\'()')
+      expect(@data.formatted(1, 16, '', 0, true, '', true, '__', 'x')).to match('29__xxxxxx !"#\$%&\'()')
     end
 
     it "changes the line separator" do
-      expect(@data.formatted(1,16,' ',0,true,': ',true,'  ',' ', '~').split("~")[0]).to eql "00000000: 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29         !\"#\$%&\'\(\)"
-      expect(@data.formatted(1,16,' ',0,true,': ',true,'  ',' ', '~').split("~")[1]).to eql "00000010: 2A 2B 2C 2D 2E 2F                                *+,-./          "
+      expect(@data.formatted(1, 16, ' ', 0, true, ': ', true, '  ', ' ', '~').split("~")[0]).to eql "00000000: 1A 1B 1C 1D 1E 1F 20 21 22 23 24 25 26 27 28 29         !\"#\$%&\'\(\)"
+      expect(@data.formatted(1, 16, ' ', 0, true, ': ', true, '  ', ' ', '~').split("~")[1]).to eql "00000010: 2A 2B 2C 2D 2E 2F                                *+,-./          "
     end
   end
 
   describe "simple_formatted" do
     before(:each) do
       @data = []
-      (26..47).each {|x| @data << x }
+      (26..47).each { |x| @data << x }
       @data = @data.pack('C*')
     end
 
@@ -96,12 +96,12 @@ describe String do
 
     it "splits on the given separator" do
       test = "thisXisXaXtest"
-      expect(test.remove_line(4,'X')).to eql "thisXisXaX"
+      expect(test.remove_line(4, 'X')).to eql "thisXisXaX"
     end
 
     it "does nothing if the line number isn't found" do
       test = "thisXisXaXtest"
-      expect(test.remove_line(5,'X')).to eql "thisXisXaXtest"
+      expect(test.remove_line(5, 'X')).to eql "thisXisXaXtest"
     end
   end
 
@@ -172,8 +172,8 @@ describe String do
       expect("x5".is_hex?).to be false
       expect("0xG".is_hex?).to be false
       expect("0xxA".is_hex?).to be false
-      (0..9).each {|x| expect("0x#{x}".is_hex?).to be true }
-      ('A'..'F').each {|x| expect("0x#{x}".is_hex?).to be true }
+      (0..9).each { |x| expect("0x#{x}".is_hex?).to be true }
+      ('A'..'F').each { |x| expect("0x#{x}".is_hex?).to be true }
     end
   end
 
@@ -200,7 +200,7 @@ describe String do
     end
 
     it "converts an array" do
-      expect("[0,1,2,3]".convert_to_value).to eql [0,1,2,3]
+      expect("[0,1,2,3]".convert_to_value).to eql [0, 1, 2, 3]
     end
 
     it "just returns the string if something goes wrong" do

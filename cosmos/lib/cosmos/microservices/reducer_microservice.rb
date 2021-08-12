@@ -73,8 +73,8 @@ module Cosmos
       end
       Store.initialize_streams(new_streams)
 
-      @minute_topics = new_streams.select {|stream| stream.include?(MINUTE_KEY) }
-      @hour_topics = new_streams.select {|stream| stream.include?(HOUR_KEY) }
+      @minute_topics = new_streams.select { |stream| stream.include?(MINUTE_KEY) }
+      @hour_topics = new_streams.select { |stream| stream.include?(HOUR_KEY) }
     end
 
     # TODO: This needs work to calculate decom stream offsets in case this process
@@ -207,13 +207,13 @@ module Cosmos
           end
           # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
           if key.include?("__AVG")
-            reduced[key] = values.sum { |v| v * num_samples} / total_samples.to_f
+            reduced[key] = values.sum { |v| v * num_samples } / total_samples.to_f
           end
         end
       end
       # Do the STDDEV calc last so we can use the previously calculated AVG
       if topic_key != MINUTE_KEY
-        data.keys.select {|k| k.include?("__STDDEV") }.each do |key|
+        data.keys.select { |k| k.include?("__STDDEV") }.each do |key|
           values = data[key]
           # puts "key:#{key} vals:#{values} total:#{total_samples}" if key.include?('COLLECTS')
           # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
@@ -238,11 +238,10 @@ module Cosmos
       target_name = messages[0][1]["target_name"]
       packet_name = messages[0][1]["packet_name"]
       msg_hash = { time: idi(messages[-1][0]) * 1_000_000, # Convert milliseconds to nanoseconds
-        target_name: target_name,
-        packet_name: packet_name,
-        num_samples: total_samples,
-        json_data: JSON.generate(reduced.as_json)
-      }
+                   target_name: target_name,
+                   packet_name: packet_name,
+                   num_samples: total_samples,
+                   json_data: JSON.generate(reduced.as_json) }
       id = @test ? "#{idi(messages[-1][0])}-0" : nil
       Store.write_topic("#{scope}__#{topic_key}__{#{target_name}}__#{packet_name}", msg_hash, id)
     end

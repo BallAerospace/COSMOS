@@ -20,7 +20,6 @@
 require 'rack'
 
 module Cosmos
-
   # JsonDrbRack implements a rack application that can be served by a
   # webserver to process COSMOS json_drb requests via http.
   class JsonDrbRack
@@ -39,7 +38,7 @@ module Cosmos
       request = Rack::Request.new(env)
 
       if request.post?
-        request_headers = Hash[*request.env.select {|k,v| k.start_with? 'HTTP_'}.sort.flatten]
+        request_headers = Hash[*request.env.select { |k, v| k.start_with? 'HTTP_' }.sort.flatten]
         request_data = request.body.read
         status, content_type, body = handle_post(request_data, request_headers)
       else
@@ -61,7 +60,8 @@ module Cosmos
       response_data, error_code = @drb.process_request(
         request_data: request_data,
         request_headers: request_headers,
-        start_time: Time.now.sys)
+        start_time: Time.now.sys
+      )
 
       # Convert json error code into html status code
       # see http://www.jsonrpc.org/historical/json-rpc-over-http.html#errors

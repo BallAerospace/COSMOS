@@ -20,9 +20,7 @@
 require 'cosmos/models/model'
 require 'cosmos/topics/timeline_topic'
 
-
 module Cosmos
-
   class ActivityError < StandardError; end
 
   class ActivityInputError < ActivityError; end
@@ -57,6 +55,7 @@ module Cosmos
       if start > stop
         raise ActivityInputError.new "start: #{start} must be before stop: #{stop}"
       end
+
       array = Store.zrangebyscore("#{scope}#{PRIMARY_KEY}__#{name}", start, stop, :limit => [0, limit])
       ret_array = Array.new
       array.each do |value|
@@ -159,7 +158,8 @@ module Cosmos
       updated_at: 0,
       duration: 0,
       fulfillment: nil,
-      events: nil)
+      events: nil
+    )
       super("#{scope}#{PRIMARY_KEY}__#{name}", name: name, scope: scope)
       set_input(
         fulfillment: fulfillment,
@@ -168,7 +168,8 @@ module Cosmos
         kind: kind,
         data: data,
         events: events,
-        updated_at: updated_at)
+        updated_at: updated_at
+      )
     end
 
     # validate_time will be called on create this will pull the time up to MAX_DURATION of an activity
@@ -204,6 +205,7 @@ module Cosmos
       unless collision.nil?
         raise ActivityOverlapError.new "no activities can overlap, collision: #{collision}"
       end
+
       @updated_at = Time.now.to_i
       add_event(status: 'created')
       Store.zadd(@primary_key, @start, JSON.generate(self.as_json))
@@ -218,6 +220,7 @@ module Cosmos
       if array.length == 0
         raise ActivityError.new "failed to find activity at: #{@start}"
       end
+
       validate_input(start: start, stop: stop, kind: kind, data: data)
       tmp_start = @start
       updated_at = Time.now.to_i
@@ -227,6 +230,7 @@ module Cosmos
       unless collision.nil?
         raise ActivityOverlapError.new "failed to update #{tmp_start}, no activities can overlap, collision: #{collision}"
       end
+
       add_event(status: 'updated')
       Store.multi do |multi|
         multi.zremrangebyscore(@primary_key, tmp_start, tmp_start)
@@ -306,9 +310,9 @@ module Cosmos
     def self.from_json(json, name:, scope:)
       json = JSON.parse(json) if String === json
       raise "json data is nil" if json.nil?
+
       json.transform_keys!(&:to_sym)
       self.new(**json, name: name, scope: scope)
     end
-
   end
 end

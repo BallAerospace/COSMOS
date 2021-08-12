@@ -22,9 +22,7 @@ require 'cosmos/models/activity_model'
 require 'cosmos/models/microservice_model'
 require 'cosmos/topics/timeline_topic'
 
-
 module Cosmos
-
   class TimelineError < StandardError; end
 
   class TimelineInputError < TimelineError; end
@@ -58,6 +56,7 @@ module Cosmos
       if force == false && z > 0
         raise TimelineError.new "timeline contains activities, must force remove"
       end
+
       Store.multi do |multi|
         multi.del(key)
         multi.hdel(PRIMARY_KEY, "#{scope}#{KEY}#{name}")
@@ -69,6 +68,7 @@ module Cosmos
       if name.nil? || scope.nil?
         raise TimelineInputError.new "name or scope must not be nil"
       end
+
       super(PRIMARY_KEY, name: "#{scope}#{KEY}#{name}", scope: scope)
       @updated_at = updated_at
       @timeline_name = name
@@ -83,6 +83,7 @@ module Cosmos
       if valid_color.nil?
         raise RuntimeError.new "invalid color but in hex format. #FF0000"
       end
+
       unless color.start_with?('#')
         color = "##{color}"
       end
@@ -103,6 +104,7 @@ module Cosmos
     def self.from_json(json, name:, scope:)
       json = JSON.parse(json) if String === json
       raise "json data is nil" if json.nil?
+
       json.transform_keys!(&:to_sym)
       self.new(**json, name: name, scope: scope)
     end
@@ -131,7 +133,8 @@ module Cosmos
         topics: topics,
         target_names: [],
         plugin: nil,
-        scope: @scope)
+        scope: @scope
+      )
       microservice.create
       notify(kind: 'create')
     end
@@ -140,6 +143,5 @@ module Cosmos
       model = MicroserviceModel.get_model(name: @name, scope: @scope)
       model.destroy if model
     end
-
   end
 end

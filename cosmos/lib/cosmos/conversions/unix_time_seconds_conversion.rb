@@ -20,11 +20,9 @@
 require 'cosmos/conversions/unix_time_conversion'
 
 module Cosmos
-
   # Converts a unix format time: Epoch Jan 1 1970, seconds and microseconds,
   # into a floating point number.
   class UnixTimeSecondsConversion < UnixTimeConversion
-
     # Initializes converted_type to :FLOAT and converted_bit_size to 64
     #
     # @param seconds_item_name [String] The telemetry item in the packet which
@@ -47,7 +45,5 @@ module Cosmos
     def to_s
       super << ".to_f"
     end
-
   end # class UnixTimeSecondsConversion
-
 end # module Cosmos

@@ -81,6 +81,5 @@ module Cosmos
       end
       return rubys3_client
     end
-
   end
 end

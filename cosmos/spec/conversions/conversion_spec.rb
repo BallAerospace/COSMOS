@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/conversions/conversion'
 
 module Cosmos
-
   describe Conversion do
     describe "call" do
       it "raises an exception" do

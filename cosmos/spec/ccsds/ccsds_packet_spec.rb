@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/ccsds/ccsds_packet'
 
 module Cosmos
-
   describe CcsdsPacket do
     describe "constants" do
       it "defines COMMAND and TELEMETRY" do

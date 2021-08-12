@@ -18,7 +18,6 @@
 # copyright holder
 
 module Cosmos
-
   class LimitsParser
     # @param parser [ConfigParser] Configuration parser
     # @param packet [Packet] The current packet
@@ -28,6 +27,7 @@ module Cosmos
     #   appended with any warnings found when parsing the limits
     def self.parse(parser, packet, cmd_or_tlm, item, warnings)
       raise parser.error("Items with STATE can't define LIMITS") if item.states
+
       @parser = LimitsParser.new(parser)
       @parser.verify_parameters(cmd_or_tlm)
       @parser.create_limits(packet, item, warnings)
@@ -42,6 +42,7 @@ module Cosmos
       if cmd_or_tlm == PacketConfig::COMMAND
         raise @parser.error("LIMITS only applies to telemetry items")
       end
+
       @usage = "LIMITS <LIMITS SET> <PERSISTENCE> <ENABLED/DISABLED> <RED LOW LIMIT> <YELLOW LOW LIMIT> <YELLOW HIGH LIMIT> <RED HIGH LIMIT> <GREEN LOW LIMIT (Optional)> <GREEN HIGH LIMIT (Optional)>"
       @parser.verify_num_parameters(7, 9, @usage)
     end
@@ -62,6 +63,7 @@ module Cosmos
     end
 
     private
+
     def initialize_limits_values(packet, item)
       limits_set = get_limits_set()
       # Values must be initialized with a :DEFAULT key
@@ -106,6 +108,7 @@ module Cosmos
       if enabled != 'ENABLED' and enabled != 'DISABLED'
         raise @parser.error("Initial LIMITS state must be ENABLED or DISABLED.", @usage)
       end
+
       enabled == 'ENABLED' ? true : false
     end
 
@@ -128,6 +131,7 @@ module Cosmos
       if (red_low > yellow_low) or (yellow_low >= yellow_high) or (yellow_high > red_high)
         raise @parser.error("Invalid limits specified. Ensure yellow limits are within red limits.", @usage)
       end
+
       [red_low, yellow_low, yellow_high, red_high]
     end
 
@@ -148,8 +152,8 @@ module Cosmos
       if (yellow_low > green_low) or (green_low >= green_high) or (green_high > yellow_high)
         raise @parser.error("Invalid limits specified. Ensure green limits are within yellow limits.", @usage)
       end
+
       [green_low, green_high]
     end
-
   end
 end # module Cosmos

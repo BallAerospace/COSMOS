@@ -26,13 +26,14 @@ module Cosmos
     class TcpipClientStream < TcpipSocketStream
       # Allow the connect_nonblock method to simply return
       def connect_nonblock(socket, addr); end
+
       def write(data); end
     end
     $VERBOSE = saved_verbose
 
     describe "connect" do
       it "passes a new TcpipClientStream to the stream protocol" do
-        i = LincInterface.new('localhost','8888')
+        i = LincInterface.new('localhost', '8888')
         i.target_names << "INST"
         expect(i.connected?).to be false
         i.connect
@@ -42,18 +43,18 @@ module Cosmos
 
     describe "write" do
       before(:each) do
-        @i = LincInterface.new('localhost','8888','true','2','nil','5','0','16','4','GSE_HDR_GUID','BIG_ENDIAN','GSE_HDR_LEN')
+        @i = LincInterface.new('localhost', '8888', 'true', '2', 'nil', '5', '0', '16', '4', 'GSE_HDR_GUID', 'BIG_ENDIAN', 'GSE_HDR_LEN')
         @i.target_names << "INST"
         @i.connect
       end
 
       it "returns an exception if its not connected" do
-        i = LincInterface.new('localhost','8888')
-        expect { i.write(Packet.new("TGT","PKT")) }.to raise_error("Interface not connected")
+        i = LincInterface.new('localhost', '8888')
+        expect { i.write(Packet.new("TGT", "PKT")) }.to raise_error("Interface not connected")
       end
 
       it "adds to the ignored list upon an error ignore command" do
-        cmd = System.commands.packet("INST","COSMOS_ERROR_IGNORE")
+        cmd = System.commands.packet("INST", "COSMOS_ERROR_IGNORE")
         cmd.restore_defaults
         cmd.write("CODE", 0x55)
         @i.write(cmd)
@@ -63,7 +64,7 @@ module Cosmos
       it "removes from the ignored list upon an error handle command" do
         @i.instance_variable_get(:@ignored_error_codes)["INST"] << 0x66
         expect(@i.instance_variable_get(:@ignored_error_codes)["INST"]).to include(0x66)
-        cmd = System.commands.packet("INST","COSMOS_ERROR_HANDLE")
+        cmd = System.commands.packet("INST", "COSMOS_ERROR_HANDLE")
         cmd.restore_defaults
         cmd.write("CODE", 0x66)
         @i.write(cmd)
@@ -71,9 +72,9 @@ module Cosmos
       end
 
       it "enables and disable handshakes upon command" do
-        enable = System.commands.packet("INST","COSMOS_HANDSHAKE_EN")
+        enable = System.commands.packet("INST", "COSMOS_HANDSHAKE_EN")
         enable.restore_defaults
-        disable = System.commands.packet("INST","COSMOS_HANDSHAKE_DS")
+        disable = System.commands.packet("INST", "COSMOS_HANDSHAKE_DS")
         disable.restore_defaults
 
         @i.write(enable)
@@ -85,30 +86,30 @@ module Cosmos
       end
 
       it "timeouts waiting for handshake" do
-        cmd = System.commands.packet("INST","LINC_COMMAND")
+        cmd = System.commands.packet("INST", "LINC_COMMAND")
         cmd.restore_defaults
         expect { @i.write(cmd) }.to raise_error(/Timeout/)
       end
 
       it "does not timeout if handshakes disabled" do
-        disable = System.commands.packet("INST","COSMOS_HANDSHAKE_DS")
+        disable = System.commands.packet("INST", "COSMOS_HANDSHAKE_DS")
         disable.restore_defaults
         @i.write(disable)
 
-        cmd = System.commands.packet("INST","LINC_COMMAND")
+        cmd = System.commands.packet("INST", "LINC_COMMAND")
         cmd.restore_defaults
         @i.write(cmd)
       end
 
       context "with successful handshake" do
         before(:each) do
-          @cmd = System.commands.packet("INST","LINC_COMMAND")
+          @cmd = System.commands.packet("INST", "LINC_COMMAND")
           @cmd.restore_defaults
-          @cmd.write("GSE_HDR_GUID",0xDEADBEEF)
-          @cmd.write("DATA",1)
-          @handshake = System.telemetry.packet("INST","HANDSHAKE")
+          @cmd.write("GSE_HDR_GUID", 0xDEADBEEF)
+          @cmd.write("DATA", 1)
+          @handshake = System.telemetry.packet("INST", "HANDSHAKE")
           @handshake.write("GSE_HDR_ID", 1001)
-          @handshake.write("STATUS","OK")
+          @handshake.write("STATUS", "OK")
           @handshake.write("CODE", 12345)
           @buffer = ''
           @buffer << ["INST".length].pack("C")
@@ -136,8 +137,8 @@ module Cosmos
 
         it "handles two simultaneous writes" do
           cmd2 = @cmd.clone
-          cmd2.write("GSE_HDR_GUID",0xBA5EBA11)
-          cmd2.write("DATA",2)
+          cmd2.write("GSE_HDR_GUID", 0xBA5EBA11)
+          cmd2.write("DATA", 2)
           handshake2 = @handshake.clone
           handshake2.write("GSE_HDR_ID", 1001)
           buffer = ''
@@ -215,7 +216,7 @@ module Cosmos
 
     describe "read" do
       before(:each) do
-        @i = LincInterface.new('localhost','8888','true','2','nil','5','0','16','4','GSE_HDR_GUID','BIG_ENDIAN','GSE_HDR_LEN')
+        @i = LincInterface.new('localhost', '8888', 'true', '2', 'nil', '5', '0', '16', '4', 'GSE_HDR_GUID', 'BIG_ENDIAN', 'GSE_HDR_LEN')
         @i.target_names << "INST"
         expect(@i.connected?).to be false
         @i.connect
@@ -223,9 +224,9 @@ module Cosmos
       end
 
       it "handles local commands" do
-        @handshake = System.telemetry.packet("INST","HANDSHAKE")
+        @handshake = System.telemetry.packet("INST", "HANDSHAKE")
         @handshake.write("GSE_HDR_ID", 1001)
-        @handshake.write("STATUS","OK")
+        @handshake.write("STATUS", "OK")
         @handshake.write("CODE", 12345)
         @handshake.write("ORIGIN", 1)
         buffer = ''

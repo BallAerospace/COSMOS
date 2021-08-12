@@ -20,10 +20,8 @@
 require 'cosmos/conversions/conversion'
 
 module Cosmos
-
   # Converts the packet received count as a derived telemetry item
   class ReceivedCountConversion < Conversion
-
     # Initializes converted_type to :UINT and converted_bit_size to 32
     def initialize
       super()
@@ -36,7 +34,5 @@ module Cosmos
     def call(value, packet, buffer)
       packet.received_count
     end
-
   end # class ReceivedCountConversion
-
 end # module Cosmos

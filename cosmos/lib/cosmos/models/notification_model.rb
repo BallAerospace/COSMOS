@@ -19,7 +19,6 @@
 
 module Cosmos
   class NotificationModel
-
     attr_reader :time, :severity, :url, :title, :body
 
     def initialize(time:, severity:, url:, title:, body:)
@@ -35,9 +34,7 @@ module Cosmos
         "severity" => @severity,
         "url" => @url,
         "title" => @title,
-        "body" => @body
-      }
+        "body" => @body }
     end
-
   end
 end

@@ -22,7 +22,6 @@ require 'cosmos'
 require 'cosmos/packets/packet_item_limits'
 
 module Cosmos
-
   describe PacketItemLimits do
     before(:each) do
       @l = PacketItemLimits.new
@@ -30,8 +29,8 @@ module Cosmos
 
     describe "values=" do
       it "sets the values Hash" do
-        @l.values = { :DEFAULT => [0,1,2,3,4,5] }
-        expect(@l.values[:DEFAULT]).to eql [0,1,2,3,4,5]
+        @l.values = { :DEFAULT => [0, 1, 2, 3, 4, 5] }
+        expect(@l.values[:DEFAULT]).to eql [0, 1, 2, 3, 4, 5]
       end
 
       it "allows nil values" do
@@ -95,22 +94,22 @@ module Cosmos
       it "complains about persistence_setting = nil" do
         if 0.class == Integer
           # Ruby version >= 2.4.0
-          expect { @l.persistence_setting = nil}.to raise_error(ArgumentError, "persistence_setting must be an Integer but is a NilClass")
+          expect { @l.persistence_setting = nil }.to raise_error(ArgumentError, "persistence_setting must be an Integer but is a NilClass")
         else
           # Ruby version < 2.4.0
-          expect { @l.persistence_setting = nil}.to raise_error(ArgumentError, "persistence_setting must be a Fixnum but is a NilClass")
+          expect { @l.persistence_setting = nil }.to raise_error(ArgumentError, "persistence_setting must be a Fixnum but is a NilClass")
         end
       end
 
       if 0.class == Integer
         # Ruby version >= 2.4.0
         it "complains about persistence_setting that aren't Integer" do
-          expect { @l.persistence_setting = 5.5}.to raise_error(ArgumentError, "persistence_setting must be an Integer but is a Float")
+          expect { @l.persistence_setting = 5.5 }.to raise_error(ArgumentError, "persistence_setting must be an Integer but is a Float")
         end
       else
         # Ruby version < 2.4.0
         it "complains about persistence_setting that aren't Fixnum" do
-          expect { @l.persistence_setting = 5.5}.to raise_error(ArgumentError, "persistence_setting must be a Fixnum but is a Float")
+          expect { @l.persistence_setting = 5.5 }.to raise_error(ArgumentError, "persistence_setting must be a Fixnum but is a Float")
         end
       end
     end
@@ -125,21 +124,21 @@ module Cosmos
       it "complains about persistence_count = nil" do
         if 0.class == Integer
           # Ruby version >= 2.4.0
-          expect { @l.persistence_count = nil}.to raise_error(ArgumentError, "persistence_count must be an Integer but is a NilClass")
+          expect { @l.persistence_count = nil }.to raise_error(ArgumentError, "persistence_count must be an Integer but is a NilClass")
         else
           # Ruby version < 2.4.0
-          expect { @l.persistence_count = nil}.to raise_error(ArgumentError, "persistence_count must be a Fixnum but is a NilClass")
+          expect { @l.persistence_count = nil }.to raise_error(ArgumentError, "persistence_count must be a Fixnum but is a NilClass")
         end
       end
 
       if 0.class == Integer
         it "complains about persistence_count that aren't Integer" do
-          expect { @l.persistence_count = 5.5}.to raise_error(ArgumentError, "persistence_count must be an Integer but is a Float")
+          expect { @l.persistence_count = 5.5 }.to raise_error(ArgumentError, "persistence_count must be an Integer but is a Float")
         end
       else
         # Ruby version < 2.4.0
         it "complains about persistence_count that aren't Fixnum" do
-          expect { @l.persistence_count = 5.5}.to raise_error(ArgumentError, "persistence_count must be a Fixnum but is a Float")
+          expect { @l.persistence_count = 5.5 }.to raise_error(ArgumentError, "persistence_count must be a Fixnum but is a Float")
         end
       end
     end
@@ -158,7 +157,7 @@ module Cosmos
     describe "to_hash" do
       it "creates a Hash" do
         @l.enabled = true
-        @l.values = { :DEFAULT => [0,1,2,3,4,5] }
+        @l.values = { :DEFAULT => [0, 1, 2, 3, 4, 5] }
         @l.state = :RED_LOW
         r = LimitsResponse.new()
         @l.response = r
@@ -167,9 +166,9 @@ module Cosmos
 
         hash = @l.to_hash
         expect(hash.keys.length).to eql 6
-        expect(hash.keys).to include('values','enabled','state','response','persistence_setting','persistence_count')
+        expect(hash.keys).to include('values', 'enabled', 'state', 'response', 'persistence_setting', 'persistence_count')
         expect(hash["enabled"]).to be true
-        expect(hash["values"]).to include(:DEFAULT => [0,1,2,3,4,5])
+        expect(hash["values"]).to include(:DEFAULT => [0, 1, 2, 3, 4, 5])
         expect(hash["state"]).to eql :RED_LOW
         expect(hash["response"]).to match("LimitsResponse")
         expect(hash["persistence_setting"]).to eql 1
@@ -178,14 +177,14 @@ module Cosmos
 
       it "creates a Hash without a response" do
         @l.enabled = true
-        @l.values = { :DEFAULT => [0,1,2,3,4,5] }
+        @l.values = { :DEFAULT => [0, 1, 2, 3, 4, 5] }
         @l.state = :RED_LOW
         @l.persistence_setting = 1
         @l.persistence_count = 2
 
         hash = @l.to_hash
         expect(hash["enabled"]).to be true
-        expect(hash["values"]).to include(:DEFAULT => [0,1,2,3,4,5])
+        expect(hash["values"]).to include(:DEFAULT => [0, 1, 2, 3, 4, 5])
         expect(hash["state"]).to eql :RED_LOW
         expect(hash["response"]).to be_nil
         expect(hash["persistence_setting"]).to eql 1

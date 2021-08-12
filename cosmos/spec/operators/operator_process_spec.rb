@@ -28,9 +28,8 @@ module Cosmos
         expect(spy).to receive(:start)
         expect(ChildProcess).to receive(:build).with('ruby', 'filename.rb', 'DEFAULT__SERVICE__NAME').and_return(spy)
 
-
         capture_io do |stdout|
-          op = OperatorProcess.new(['ruby','filename.rb','DEFAULT__SERVICE__NAME'], scope: 'DEFAULT')
+          op = OperatorProcess.new(['ruby', 'filename.rb', 'DEFAULT__SERVICE__NAME'], scope: 'DEFAULT')
           op.start
           expect(stdout.string).to include('filename.rb')
         end

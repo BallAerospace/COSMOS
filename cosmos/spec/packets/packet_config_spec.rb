@@ -89,6 +89,7 @@ module Cosmos
           # Check for missing ITEM definitions
           @item_keywords.each do |keyword|
             next if %w(META).include? keyword
+
             tf = Tempfile.new('unittest')
             tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
             tf.puts keyword
@@ -118,6 +119,7 @@ module Cosmos
 
           @item_keywords.each do |keyword|
             next if %w(GENERIC_READ_CONVERSION_START GENERIC_WRITE_CONVERSION_START).include? keyword
+
             tf = Tempfile.new('unittest')
             tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
             tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
@@ -131,6 +133,7 @@ module Cosmos
         it "builds the id value hash" do
           @tlm_keywords.each do |keyword|
             next if %w(PROCESSOR META).include? keyword
+
             tf = Tempfile.new('unittest')
             tf.puts 'TELEMETRY tgt1 pkt1 BIG_ENDIAN "Packet"'
             tf.puts 'ID_ITEM myitem 0 8 UINT 13 "Test Item id=1"'
@@ -172,6 +175,7 @@ module Cosmos
 
           @tlm_keywords.each do |keyword|
             next if %w(PROCESSOR META).include? keyword
+
             tf = Tempfile.new('unittest')
             tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
             case keyword
@@ -199,6 +203,7 @@ module Cosmos
           @item_keywords.each do |keyword|
             # The following can have an "unlimited" number of arguments
             next if %w(POLY_READ_CONVERSION POLY_WRITE_CONVERSION READ_CONVERSION WRITE_CONVERSION SEG_POLY_READ_CONVERSION SEG_POLY_WRITE_CONVERSION LIMITS_RESPONSE META).include? keyword
+
             tf = Tempfile.new('unittest')
             tf.puts 'TELEMETRY tgt1 pkt1 LITTLE_ENDIAN "Packet"'
             tf.puts 'ITEM myitem 0 8 UINT "Test Item"'
@@ -359,7 +364,7 @@ module Cosmos
           tf.close
           expect(@pc.limits_groups).to be_empty
           @pc.process_file(tf.path, "TGT1")
-          expect(@pc.limits_groups).to include('TVAC','VIBE')
+          expect(@pc.limits_groups).to include('TVAC', 'VIBE')
           tf.unlink
         end
       end
@@ -706,7 +711,7 @@ module Cosmos
           tf.puts '    UNITS Volts V'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1",:WITH_UNITS)).to eql "0 V"
+          expect(@pc.telemetry["TGT1"]["PKT1"].read("ITEM1", :WITH_UNITS)).to eql "0 V"
           tf.unlink
         end
       end

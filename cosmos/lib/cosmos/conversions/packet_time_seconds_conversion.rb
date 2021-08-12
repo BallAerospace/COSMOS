@@ -20,10 +20,8 @@
 require 'cosmos/conversions/conversion'
 
 module Cosmos
-
   # Converts the packet received time into floating point seconds.
   class PacketTimeSecondsConversion < Conversion
-
     # Initializes converted_type to :FLOAT and converted_bit_size to 64
     def initialize
       super()
@@ -41,7 +39,5 @@ module Cosmos
         return 0.0
       end
     end
-
   end # class PacketTimeSecondsConversion
-
 end # module Cosmos

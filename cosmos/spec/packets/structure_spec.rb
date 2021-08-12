@@ -22,7 +22,6 @@ require 'cosmos'
 require 'cosmos/packets/structure'
 
 module Cosmos
-
   describe Structure do
     describe "initialize" do
       it "complains about non string buffers" do
@@ -46,7 +45,7 @@ module Cosmos
       it "returns true if any items have been defined" do
         s = Structure.new
         expect(s.defined?).to be false
-        s.define_item("test1",0,8,:UINT)
+        s.define_item("test1", 0, 8, :UINT)
         expect(s.defined?).to be true
       end
     end
@@ -153,7 +152,7 @@ module Cosmos
       it "adds the item to items and sorted_items" do
         expect(@s.items["test1"]).to be_nil
         expect(@s.sorted_items[0]).to be_nil
-        si = StructureItem.new("test1",0,8,:UINT,:BIG_ENDIAN)
+        si = StructureItem.new("test1", 0, 8, :UINT, :BIG_ENDIAN)
         @s.define(si)
         expect(@s.items["TEST1"]).not_to be_nil
         expect(@s.sorted_items[0]).not_to be_nil
@@ -165,14 +164,14 @@ module Cosmos
       it "allows items to be defined on top of each other" do
         expect(@s.items["test1"]).to be_nil
         expect(@s.sorted_items[0]).to be_nil
-        si = StructureItem.new("test1",0,8,:UINT,:BIG_ENDIAN)
+        si = StructureItem.new("test1", 0, 8, :UINT, :BIG_ENDIAN)
         @s.define(si)
         expect(@s.sorted_items[0].name).to eql "TEST1"
         expect(@s.items["TEST1"].bit_offset).to eql 0
         expect(@s.items["TEST1"].bit_size).to eql 8
         expect(@s.items["TEST1"].data_type).to eql :UINT
         expect(@s.defined_length).to eql 1
-        si = StructureItem.new("test2",0,16,:INT,:BIG_ENDIAN)
+        si = StructureItem.new("test2", 0, 16, :INT, :BIG_ENDIAN)
         @s.define(si)
         expect(@s.sorted_items[1].name).to eql "TEST2"
         expect(@s.items["TEST2"].bit_offset).to eql 0
@@ -185,13 +184,13 @@ module Cosmos
       end
 
       it "overwrites existing items" do
-        si = StructureItem.new("test1",0,8,:UINT,:BIG_ENDIAN)
+        si = StructureItem.new("test1", 0, 8, :UINT, :BIG_ENDIAN)
         @s.define(si)
         expect(@s.sorted_items[0].name).to eql "TEST1"
         expect(@s.items["TEST1"].bit_size).to eql 8
         expect(@s.items["TEST1"].data_type).to eql :UINT
         expect(@s.defined_length).to eql 1
-        si = StructureItem.new("test1",0,16,:INT,:BIG_ENDIAN)
+        si = StructureItem.new("test1", 0, 16, :INT, :BIG_ENDIAN)
         @s.define(si)
         expect(@s.items.length).to eql 1
         expect(@s.sorted_items.length).to eql 1
@@ -368,7 +367,7 @@ module Cosmos
         s = Structure.new
         s.define_item("test1", 0, 8, :UINT, 16)
         buffer = "\x01\x02"
-        expect(s.read_item(s.get_item("test1"), :RAW, buffer)).to eql [1,2]
+        expect(s.read_item(s.get_item("test1"), :RAW, buffer)).to eql [1, 2]
       end
     end
 
@@ -390,9 +389,9 @@ module Cosmos
         s = Structure.new
         s.define_item("test1", 0, 8, :UINT, 16)
         buffer = "\x01\x02"
-        expect(s.read_item(s.get_item("test1"), :RAW, buffer)).to eql [1,2]
-        s.write_item(s.get_item("test1"), [3,4], :RAW, buffer)
-        expect(s.read_item(s.get_item("test1"), :RAW, buffer)).to eql [3,4]
+        expect(s.read_item(s.get_item("test1"), :RAW, buffer)).to eql [1, 2]
+        s.write_item(s.get_item("test1"), [3, 4], :RAW, buffer)
+        expect(s.read_item(s.get_item("test1"), :RAW, buffer)).to eql [3, 4]
       end
     end
 
@@ -426,7 +425,7 @@ module Cosmos
         s = Structure.new
         s.define_item("test1", 0, 8, :UINT, 16)
         buffer = "\x01\x02"
-        expect(s.read("test1", :RAW, buffer)).to eql [1,2]
+        expect(s.read("test1", :RAW, buffer)).to eql [1, 2]
       end
     end
 
@@ -448,9 +447,9 @@ module Cosmos
         s = Structure.new
         s.define_item("test1", 0, 8, :UINT, 16)
         buffer = "\x01\x02"
-        expect(s.read("test1", :RAW, buffer)).to eql [1,2]
-        s.write("test1", [3,4], :RAW, buffer)
-        expect(s.read("test1", :RAW, buffer)).to eql [3,4]
+        expect(s.read("test1", :RAW, buffer)).to eql [1, 2]
+        s.write("test1", [3, 4], :RAW, buffer)
+        expect(s.read("test1", :RAW, buffer)).to eql [3, 4]
       end
     end
 
@@ -466,7 +465,7 @@ module Cosmos
         expect(vals[0][0]).to eql "TEST1"
         expect(vals[1][0]).to eql "TEST2"
         expect(vals[2][0]).to eql "TEST3"
-        expect(vals[0][1]).to eql [1,2]
+        expect(vals[0][1]).to eql [1, 2]
         expect(vals[1][1]).to eql 0x0304
         expect(vals[2][1]).to eql 0x05060708
       end
@@ -482,7 +481,7 @@ module Cosmos
         expect(vals[0][0]).to eql "TEST1"
         expect(vals[1][0]).to eql "TEST2"
         expect(vals[2][0]).to eql "TEST3"
-        expect(vals[0][1]).to eql [1,2]
+        expect(vals[0][1]).to eql [1, 2]
         expect(vals[1][1]).to eql 0x0304
         expect(vals[2][1]).to eql 0x05060708
       end
@@ -492,7 +491,7 @@ module Cosmos
       it "prints out all the items and values" do
         s = Structure.new(:BIG_ENDIAN)
         s.append_item("test1", 8, :UINT, 16)
-        s.write("test1", [1,2])
+        s.write("test1", [1, 2])
         s.append_item("test2", 16, :UINT)
         s.write("test2", 3456)
         s.append_item("test3", 32, :BLOCK)
@@ -506,7 +505,7 @@ module Cosmos
       it "alters the indentation of the item" do
         s = Structure.new(:BIG_ENDIAN)
         s.append_item("test1", 8, :UINT, 16)
-        s.write("test1", [1,2])
+        s.write("test1", [1, 2])
         s.append_item("test2", 16, :UINT)
         s.write("test2", 3456)
         s.append_item("test3", 32, :BLOCK)
@@ -520,7 +519,7 @@ module Cosmos
       it "processes uses a different buffer" do
         s = Structure.new(:BIG_ENDIAN)
         s.append_item("test1", 8, :UINT, 16)
-        s.write("test1", [1,2])
+        s.write("test1", [1, 2])
         s.append_item("test2", 16, :UINT)
         s.write("test2", 3456)
         s.append_item("test3", 32, :BLOCK)
@@ -535,7 +534,7 @@ module Cosmos
       it "ignores items" do
         s = Structure.new(:BIG_ENDIAN)
         s.append_item("test1", 8, :UINT, 16)
-        s.write("test1", [1,2])
+        s.write("test1", [1, 2])
         s.append_item("test2", 16, :UINT)
         s.write("test2", 3456)
         s.append_item("test3", 32, :BLOCK)
@@ -549,7 +548,7 @@ module Cosmos
       it "returns the buffer" do
         s = Structure.new(:BIG_ENDIAN)
         s.append_item("test1", 8, :UINT, 16)
-        s.write("test1", [1,2])
+        s.write("test1", [1, 2])
         s.append_item("test2", 16, :UINT)
         s.write("test2", 0x0304)
         s.append_item("test3", 32, :UINT)
@@ -585,16 +584,16 @@ module Cosmos
       it "sets the buffer" do
         s = Structure.new(:BIG_ENDIAN)
         s.append_item("test1", 8, :UINT, 16)
-        s.write("test1", [1,2])
+        s.write("test1", [1, 2])
         s.append_item("test2", 16, :UINT)
         s.write("test2", 0x0304)
         s.append_item("test3", 32, :UINT)
         s.write("test3", 0x05060708)
-        expect(s.read("test1")).to eql [1,2]
+        expect(s.read("test1")).to eql [1, 2]
         expect(s.read("test2")).to eql 0x0304
         expect(s.read("test3")).to eql 0x05060708
         s.buffer = "\x00\x01\x02\x03\x04\x05\x06\x07"
-        expect(s.read("test1")).to eql [0,1]
+        expect(s.read("test1")).to eql [0, 1]
         expect(s.read("test2")).to eql 0x0203
         expect(s.read("test3")).to eql 0x04050607
       end
@@ -604,7 +603,7 @@ module Cosmos
       it "duplicates the structure with a new buffer" do
         s = Structure.new(:BIG_ENDIAN)
         s.append_item("test1", 8, :UINT, 16)
-        s.write("test1", [1,2])
+        s.write("test1", [1, 2])
         s.append_item("test2", 16, :UINT)
         s.write("test2", 0x0304)
         s.append_item("test3", 32, :UINT)
@@ -619,13 +618,13 @@ module Cosmos
         expect(s2.buffer(false)).to eql s.buffer(false)
         # But not the same object
         expect(s2.buffer(false)).to_not be s.buffer(false)
-        expect(s2.read("test1")).to eql [1,2]
+        expect(s2.read("test1")).to eql [1, 2]
         expect(s2.read("test2")).to eql 0x0304
         expect(s2.read("test3")).to eql 0x05060708
-        s2.write("test1", [0,0])
-        expect(s2.read("test1")).to eql [0,0]
+        s2.write("test1", [0, 0])
+        expect(s2.read("test1")).to eql [0, 0]
         # Ensure we didn't change the original
-        expect(s.read("test1")).to eql [1,2]
+        expect(s.read("test1")).to eql [1, 2]
       end
     end
 
@@ -633,19 +632,19 @@ module Cosmos
       it "enables reading by name" do
         s = Structure.new(:BIG_ENDIAN)
         s.append_item("test1", 8, :UINT, 16)
-        s.write("test1", [1,2])
+        s.write("test1", [1, 2])
         s.enable_method_missing
-        expect(s.test1).to eql [1,2]
+        expect(s.test1).to eql [1, 2]
       end
 
       it "enables writing by name" do
         s = Structure.new(:BIG_ENDIAN)
         s.append_item("test1", 8, :UINT, 16)
-        s.write("test1", [1,2])
+        s.write("test1", [1, 2])
         s.enable_method_missing
-        expect(s.test1).to eql [1,2]
-        s.test1 = [3,4]
-        expect(s.test1).to eql [3,4]
+        expect(s.test1).to eql [1, 2]
+        s.test1 = [3, 4]
+        expect(s.test1).to eql [3, 4]
       end
 
       it "raises an exception if there is no buffer" do

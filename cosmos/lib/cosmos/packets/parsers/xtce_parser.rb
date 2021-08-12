@@ -21,7 +21,6 @@ require 'nokogiri'
 require 'ostruct'
 
 module Cosmos
-
   class XtceParser
     attr_accessor :current_target_name
 
@@ -57,6 +56,7 @@ module Cosmos
     end
 
     private
+
     def initialize(commands, telemetry, warnings, filename, target_name = nil)
       reset_processing_variables()
       @commands = commands
@@ -83,10 +83,10 @@ module Cosmos
 
       # Remove abstract
       if @commands[@current_target_name]
-        @commands[@current_target_name].delete_if {|packet_name, packet| packet.abstract}
+        @commands[@current_target_name].delete_if { |packet_name, packet| packet.abstract }
       end
       if @telemetry[@current_target_name]
-        @telemetry[@current_target_name].delete_if {|packet_name, packet| packet.abstract}
+        @telemetry[@current_target_name].delete_if { |packet_name, packet| packet.abstract }
       end
 
       # Reverse order of packets for the target so ids work correctly
@@ -115,6 +115,7 @@ module Cosmos
       item_endianness = @current_packet.sorted_items.collect do |item|
         # Ignore COSMOS reserved items
         next if Packet::RESERVED_ITEM_NAMES.include?(item.name)
+
         # Strings and Blocks endianness don't matter so ignore them
         item.endianness if item.data_type != :STRING && item.data_type != :BLOCK
       end
@@ -460,8 +461,10 @@ module Cosmos
         # Look up the parameter and parameter type
         parameter = @parameters[element['parameterRef']]
         raise "parameterRef #{element['parameterRef']} not found" unless parameter
+
         parameter_type = @parameter_types[parameter.parameterTypeRef]
         raise "parameterTypeRef #{parameter.parameterTypeRef} not found" unless parameter_type
+
         if element.name == 'ArrayParameterRefEntry'
           array_type = parameter_type
           parameter_type = @parameter_types[array_type.arrayTypeRef]
@@ -476,17 +479,22 @@ module Cosmos
           # Requiring parameterRef for argument arrays appears to be a defect in the schema
           argument = @arguments[element['parameterRef']]
           raise "parameterRef #{element['parameterRef']} not found" unless argument
+
           argument_type = @argument_types[argument.argumentTypeRef]
           raise "argumentTypeRef #{argument.argumentTypeRef} not found" unless argument_type
+
           array_type = argument_type
           argument_type = @argument_types[array_type.arrayTypeRef]
           raise "arrayTypeRef #{array_type.arrayTypeRef} not found" unless argument_type
+
           refName = 'parameterRef'
         else
           argument = @arguments[element['argumentRef']]
           raise "argumentRef #{element['argumentRef']} not found" unless argument
+
           argument_type = @argument_types[argument.argumentTypeRef]
           raise "argumentTypeRef #{argument.argumentTypeRef} not found" unless argument_type
+
           refName = 'argumentRef'
         end
         object = argument
@@ -569,6 +577,7 @@ module Cosmos
 
     def set_min_max_default(item, type, data_type)
       return unless @current_cmd_or_tlm == PacketConfig::COMMAND
+
       # Need to set min, max, and default
       if data_type == :INT || data_type == :UINT
         if data_type == :INT
@@ -626,6 +635,7 @@ module Cosmos
 
     def set_limits(item, type)
       return unless @current_cmd_or_tlm == PacketConfig::TELEMETRY
+
       if type.limits
         item.limits.enabled = true
         values = {}
@@ -647,6 +657,7 @@ module Cosmos
 
     def xtce_recurse_element(element, &block)
       return unless yield(element)
+
       element.children.each do |child_element|
         xtce_recurse_element(child_element, &block)
       end

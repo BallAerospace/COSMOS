@@ -20,7 +20,6 @@
 require 'cosmos/ext/crc' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
-
   # Abstract base class which {Crc16}, {Crc32} and {Crc64} use. Do NOT use this
   # class directly but instead use one of the subclasses.
   class Crc
@@ -114,25 +113,25 @@ module Cosmos
 
     def bit_reverse_16(value)
       (BIT_REVERSE_TABLE[value & 0xFF] << 8) |
-      (BIT_REVERSE_TABLE[(value >> 8) & 0xFF])
+        (BIT_REVERSE_TABLE[(value >> 8) & 0xFF])
     end
 
     def bit_reverse_32(value)
       (BIT_REVERSE_TABLE[value & 0xFF] << 24) |
-      (BIT_REVERSE_TABLE[(value >> 8) & 0xFF] << 16) |
-      (BIT_REVERSE_TABLE[(value >> 16) & 0xFF] << 8) |
-      (BIT_REVERSE_TABLE[(value >> 24) & 0xFF])
+        (BIT_REVERSE_TABLE[(value >> 8) & 0xFF] << 16) |
+        (BIT_REVERSE_TABLE[(value >> 16) & 0xFF] << 8) |
+        (BIT_REVERSE_TABLE[(value >> 24) & 0xFF])
     end
 
     def bit_reverse_64(value)
       (BIT_REVERSE_TABLE[value & 0x00000000000000FF] << 56) |
-      (BIT_REVERSE_TABLE[(value >> 8) & 0x00000000000000FF] << 48) |
-      (BIT_REVERSE_TABLE[(value >> 16) & 0x00000000000000FF] << 40) |
-      (BIT_REVERSE_TABLE[(value >> 24) & 0x00000000000000FF] << 32) |
-      (BIT_REVERSE_TABLE[(value >> 32) & 0x00000000000000FF] << 24) |
-      (BIT_REVERSE_TABLE[(value >> 40) & 0x00000000000000FF] << 16) |
-      (BIT_REVERSE_TABLE[(value >> 48) & 0x00000000000000FF] << 8) |
-      (BIT_REVERSE_TABLE[(value >> 56) & 0x00000000000000FF])
+        (BIT_REVERSE_TABLE[(value >> 8) & 0x00000000000000FF] << 48) |
+        (BIT_REVERSE_TABLE[(value >> 16) & 0x00000000000000FF] << 40) |
+        (BIT_REVERSE_TABLE[(value >> 24) & 0x00000000000000FF] << 32) |
+        (BIT_REVERSE_TABLE[(value >> 32) & 0x00000000000000FF] << 24) |
+        (BIT_REVERSE_TABLE[(value >> 40) & 0x00000000000000FF] << 16) |
+        (BIT_REVERSE_TABLE[(value >> 48) & 0x00000000000000FF] << 8) |
+        (BIT_REVERSE_TABLE[(value >> 56) & 0x00000000000000FF])
     end
 
     if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
@@ -179,6 +178,7 @@ module Cosmos
     end
 
     protected
+
     # Compute a single entry in the crc lookup table
     def compute_table_entry(index, digits)
       # Start by shifting the index
@@ -275,5 +275,4 @@ module Cosmos
 
     alias calculate_crc64 calc
   end
-
 end # module Cosmos

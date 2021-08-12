@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/io/io_multiplexer'
 
 module Cosmos
-
   describe IoMultiplexer do
     before(:each) do
       @io = IoMultiplexer.new
@@ -93,7 +92,7 @@ module Cosmos
 
     describe "remove_default_io" do
       it "removes STDOUT and STDERR from the streams" do
-        f = File.open("unittest.txt",'w')
+        f = File.open("unittest.txt", 'w')
         @io.add_stream(STDOUT)
         @io.add_stream(STDERR)
         @io.add_stream(f)

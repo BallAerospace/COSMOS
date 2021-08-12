@@ -75,7 +75,7 @@ spec = Gem::Specification.new do |s|
   # Files are defined in Manifest.txt
   s.files =
     if test ?f, 'Manifest.txt'
-      files = File.readlines('Manifest.txt').map {|fn| fn.chomp.strip}
+      files = File.readlines('Manifest.txt').map { |fn| fn.chomp.strip }
       files.delete ''
       files
     else [] end

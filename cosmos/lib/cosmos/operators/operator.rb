@@ -97,6 +97,7 @@ module Cosmos
 
   class Operator
     attr_reader :processes, :cycle_time
+
     @@instance = nil
 
     CYCLE_TIME = 15.0 # cycle time to check for new microservices
@@ -147,6 +148,7 @@ module Cosmos
           Logger.info("Cycling #{@changed_processes.length} changed microservices...")
           shutdown_processes(@changed_processes)
           break if @shutdown
+
           @changed_processes.each { |name, p| p.start }
           @changed_processes = {}
         end
@@ -167,6 +169,7 @@ module Cosmos
       @mutex.synchronize do
         @processes.each do |name, p|
           break if @shutdown
+
           unless p.alive?
             # Respawn process
             p.stdout.rewind
@@ -210,12 +213,14 @@ module Cosmos
         start_new()
         respawn_dead()
         break if @shutdown
+
         sleep(@cycle_time)
         break if @shutdown
       end
 
       loop do
         break if @shutdown_complete
+
         sleep(1)
       end
     ensure

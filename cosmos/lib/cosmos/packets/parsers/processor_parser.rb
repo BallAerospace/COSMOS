@@ -20,7 +20,6 @@
 require 'cosmos/processors'
 
 module Cosmos
-
   class ProcessorParser
     # @param parser [ConfigParser] Configuration parser
     # @param packet [Packet] The current packet
@@ -41,6 +40,7 @@ module Cosmos
       if cmd_or_tlm == PacketConfig::COMMAND
         raise @parser.error("PROCESSOR only applies to telemetry packets")
       end
+
       @usage = "PROCESSOR <PROCESSOR NAME> <PROCESSOR CLASS FILENAME> <PROCESSOR SPECIFIC OPTIONS>"
       @parser.verify_num_parameters(2, nil, @usage)
     end
@@ -50,12 +50,14 @@ module Cosmos
       # require should be performed in target.txt
       klass = @parser.parameters[1].filename_to_class_name.to_class
       raise @parser.error("#{@parser.parameters[1].filename_to_class_name} class not found. Did you require the file in target.txt?", @usage) unless klass
+
       if @parser.parameters[2]
         processor = klass.new(*@parser.parameters[2..(@parser.parameters.length - 1)])
       else
         processor = klass.new
       end
       raise ArgumentError, "processor must be a Cosmos::Processor but is a #{processor.class}" unless Cosmos::Processor === processor
+
       processor.name = get_processor_name()
       packet.processors[processor.name] = processor
     rescue Exception => err
@@ -63,9 +65,9 @@ module Cosmos
     end
 
     private
+
     def get_processor_name
       @parser.parameters[0].to_s.upcase
     end
-
   end
 end # module Cosmos

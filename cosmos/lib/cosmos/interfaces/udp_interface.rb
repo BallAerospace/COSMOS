@@ -45,7 +45,8 @@ module Cosmos
       ttl = 128, # default for Windows
       write_timeout = 10.0,
       read_timeout = nil,
-      bind_address = '0.0.0.0')
+      bind_address = '0.0.0.0'
+    )
 
       super()
       @hostname = ConfigParser.handle_nil(hostname)
@@ -91,21 +92,24 @@ module Cosmos
           @write_dest_port,
           @hostname,
           @interface_address,
-          @ttl)
+          @ttl
+        )
         @write_socket = @read_socket
       else
         @read_socket = UdpReadSocket.new(
           @read_port,
           @hostname,
           @interface_address,
-          @bind_address) if @read_port
+          @bind_address
+        ) if @read_port
         @write_socket = UdpWriteSocket.new(
           @hostname,
           @write_dest_port,
           @write_src_port,
           @interface_address,
           @ttl,
-          @bind_address) if @write_dest_port
+          @bind_address
+        ) if @write_dest_port
       end
       @thread_sleeper = nil
     end
@@ -137,6 +141,7 @@ module Cosmos
 
     def read
       return super() if @read_port
+
       # Write only interface so stop the thread which calls read
       @thread_sleeper = Sleeper.new
       @thread_sleeper.sleep(1_000_000_000) while connected?

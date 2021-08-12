@@ -20,7 +20,6 @@
 require 'cosmos/packets/packet_config'
 
 module Cosmos
-
   # Limits uses PacketConfig to parse the command and telemetry
   # configuration files. It provides the API layer which other classes use to
   # access information about and manipulate limits. This includes getting,
@@ -85,6 +84,7 @@ module Cosmos
       end
       items_out_of_limits.each do |target_name, packet_name, item_name, limits_state|
         next if ignored_items && includes_item?(ignored_items, target_name, packet_name, item_name)
+
         case overall
         # If our overall state is currently blue or green we can go to any state
         when :BLUE, :GREEN, :GREEN_HIGH, :GREEN_LOW
@@ -243,21 +243,25 @@ module Cosmos
     end
 
     protected
+
     def get_packet(target_name, packet_name)
       raise "LATEST packet not valid" if packet_name.upcase == LATEST_PACKET_NAME
+
       packets = @config.telemetry[target_name.to_s.upcase]
       raise "Telemetry target '#{target_name.to_s.upcase}' does not exist" unless packets
+
       packet = packets[packet_name.to_s.upcase]
       raise "Telemetry packet '#{target_name.to_s.upcase} #{packet_name.to_s.upcase}' does not exist" unless packet
+
       return packet
     end
 
     def includes_item?(ignored_items, target_name, packet_name, item_name)
       ignored_items.each do |array_target_name, array_packet_name, array_item_name|
         if (array_target_name == target_name) &&
-            (array_packet_name == packet_name) &&
-            # If the item name is nil we're ignoring an entire packet
-            (array_item_name == item_name || array_item_name.nil?)
+           (array_packet_name == packet_name) &&
+           # If the item name is nil we're ignoring an entire packet
+           (array_item_name == item_name || array_item_name.nil?)
           return true
         end
       end

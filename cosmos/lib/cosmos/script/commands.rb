@@ -25,6 +25,7 @@ module Cosmos
     include Extract
 
     private
+
     # Format the command like it appears in a script
     def _cmd_string(target_name, cmd_name, cmd_params, raw)
       output_string = $disconnect ? 'DISCONNECT: ' : ''
@@ -40,12 +41,13 @@ module Cosmos
         params = []
         cmd_params.each do |key, value|
           next if Packet::RESERVED_ITEM_NAMES.include?(key)
+
           if value.is_a?(String)
             value = value.convert_to_value.to_s
             if value.length > 256
               value = value[0..255] + "...'"
             end
-            value.tr!('"',"'")
+            value.tr!('"', "'")
           elsif value.is_a?(Array)
             value = "[#{value.join(", ")}]"
           end
@@ -196,7 +198,7 @@ module Cosmos
     # Sends raw data through an interface from a file
     def send_raw_file(interface_name, filename)
       data = nil
-      File.open(filename, 'rb') {|file| data = file.read}
+      File.open(filename, 'rb') { |file| data = file.read }
       $api_server.send_raw(interface_name, data)
     end
 

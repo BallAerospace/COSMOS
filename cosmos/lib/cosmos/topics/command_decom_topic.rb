@@ -24,10 +24,10 @@ module Cosmos
     def self.write_packet(packet, scope:)
       topic = "#{scope}__DECOMCMD__{#{packet.target_name}}__#{packet.packet_name}"
       msg_hash = { time: packet.received_time.to_nsec_from_epoch,
-                  target_name: packet.target_name,
-                  packet_name: packet.packet_name,
-                  stored: packet.stored,
-                  received_count: packet.received_count }
+                   target_name: packet.target_name,
+                   packet_name: packet.packet_name,
+                   stored: packet.stored,
+                   received_count: packet.received_count }
       json_hash = {}
       packet.sorted_items.each do |item|
         json_hash[item.name] = packet.read_item(item, :RAW)

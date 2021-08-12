@@ -30,7 +30,7 @@ end
 
 begin
   Gem::Command.build_args = ARGV
-  rescue NoMethodError
+rescue NoMethodError
 end
 inst = Gem::DependencyInstaller.new
 begin

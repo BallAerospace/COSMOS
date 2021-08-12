@@ -21,10 +21,8 @@ require 'cosmos/conversions/conversion'
 require 'cosmos/ext/polynomial_conversion' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 
 module Cosmos
-
   # Performs a polynomial conversion on the value
   class PolynomialConversion < Conversion
-
     # @return [Array<Float>] The polynomial coefficients
     attr_accessor :coeffs
 
@@ -86,7 +84,5 @@ module Cosmos
     def as_json
       { 'class' => self.class.name.to_s, 'params' => @coeffs }
     end
-
   end # class PolynomialConversion
-
 end # module Cosmos

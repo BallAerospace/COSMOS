@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/conversions/segmented_polynomial_conversion'
 
 module Cosmos
-
   describe SegmentedPolynomialConversion do
     describe "initialize" do
       it "initializes converted_type and converted_bit_size" do
@@ -34,13 +33,13 @@ module Cosmos
     describe "call" do
       it "performs the conversion and return the result" do
         gc = SegmentedPolynomialConversion.new()
-        gc.add_segment(10, 1,2)
-        gc.add_segment(5,  2,2)
-        gc.add_segment(15, 3,2)
-        expect(gc.call(1,nil,nil)).to eql 4.0
-        expect(gc.call(5,nil,nil)).to eql 12.0
-        expect(gc.call(11,nil,nil)).to eql 23.0
-        expect(gc.call(20,nil,nil)).to eql 43.0
+        gc.add_segment(10, 1, 2)
+        gc.add_segment(5,  2, 2)
+        gc.add_segment(15, 3, 2)
+        expect(gc.call(1, nil, nil)).to eql 4.0
+        expect(gc.call(5, nil, nil)).to eql 12.0
+        expect(gc.call(11, nil, nil)).to eql 23.0
+        expect(gc.call(20, nil, nil)).to eql 43.0
       end
     end
 
@@ -49,8 +48,8 @@ module Cosmos
         expect(SegmentedPolynomialConversion.new().to_s).to eql ""
         gc = SegmentedPolynomialConversion.new()
         gc.add_segment(10, 1)
-        gc.add_segment(5,  2,2)
-        gc.add_segment(15, 3,2,3)
+        gc.add_segment(5,  2, 2)
+        gc.add_segment(15, 3, 2, 3)
         expect(gc.to_s).to eql "Lower Bound: 15 Polynomial: 3 + 2x + 3x^2\nLower Bound: 10 Polynomial: 1\nLower Bound: 5 Polynomial: 2 + 2x"
       end
     end

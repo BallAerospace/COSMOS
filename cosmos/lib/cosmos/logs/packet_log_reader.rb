@@ -101,6 +101,7 @@ module Cosmos
       # Read entry length
       length = @file.read(4)
       return nil if !length or length.length <= 0
+
       length = length.unpack('N')[0]
       entry = @file.read(length)
       flags = entry[0..1].unpack('n')[0]
@@ -119,6 +120,7 @@ module Cosmos
         if cmd_or_tlm != lookup_cmd_or_tlm
           raise "Packet type mismatch, packet:#{cmd_or_tlm}, lookup:#{lookup_cmd_or_tlm}"
         end
+
         return JsonPacket.new(cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, json_data)
       elsif flags & COSMOS5_ENTRY_TYPE_MASK == COSMOS5_RAW_PACKET_ENTRY_TYPE_MASK
         packet_index, time_nsec_since_epoch = entry[2..11].unpack('nQ>')
@@ -127,6 +129,7 @@ module Cosmos
         if cmd_or_tlm != lookup_cmd_or_tlm
           raise "Packet type mismatch, packet:#{cmd_or_tlm}, lookup:#{lookup_cmd_or_tlm}"
         end
+
         received_time = Time.from_nsec_from_epoch(time_nsec_since_epoch)
         if identify_and_define
           packet = identify_and_define_packet_data(cmd_or_tlm, target_name, packet_name, received_time, packet_data)
@@ -272,6 +275,7 @@ module Cosmos
     end
 
     protected
+
     def reset
       @file = nil
       @filename = nil

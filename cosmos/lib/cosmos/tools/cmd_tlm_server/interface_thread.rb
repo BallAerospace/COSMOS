@@ -18,7 +18,6 @@
 # copyright holder
 
 module Cosmos
-
   # Encapsulates an {Interface} in a Ruby thread. When the thread is started by
   # the {#start} method, it loops trying to connect. It then continously reads
   # from the interface while handling the packets it receives.
@@ -72,6 +71,7 @@ module Cosmos
           end
           while true
             break if @cancel_thread
+
             unless @interface.connected?
               begin
                 @mutex.synchronize do
@@ -116,7 +116,7 @@ module Cosmos
               @thread_sleeper.sleep(1)
               handle_connection_lost(nil) if !@interface.connected?
             end
-          end  # loop
+          end # loop
         rescue Exception => error
           if @fatal_exception_callback
             @fatal_exception_callback.call(error)
@@ -126,7 +126,7 @@ module Cosmos
           end
         end
         Logger.info "Stopped packet reading for #{@interface.name}"
-      end  # Thread.new
+      end # Thread.new
     end # def start
 
     # Disconnect from the interface and stop the thread
@@ -146,6 +146,7 @@ module Cosmos
     end
 
     protected
+
     def handle_packet(packet)
       if packet.stored
         # Stored telemetry does not update the current value table
@@ -290,5 +291,4 @@ module Cosmos
       end
     end
   end # class InterfaceThread
-
 end # module Cosmos

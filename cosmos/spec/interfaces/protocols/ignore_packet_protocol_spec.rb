@@ -37,9 +37,13 @@ module Cosmos
 
     class PreStream < Stream
       def connect; end
+
       def connected?; true; end
+
       def disconnect; end
+
       def read; $buffer; end
+
       def write(data); $buffer = data; end
     end
 
@@ -64,7 +68,7 @@ module Cosmos
     describe "read" do
       it "ignores the packet specified" do
         @interface.instance_variable_set(:@stream, PreStream.new)
-        pkt = System.telemetry.packet("SYSTEM","META")
+        pkt = System.telemetry.packet("SYSTEM", "META")
         # Ensure the ID items are set so this packet can be identified
         pkt.id_items.each do |item|
           pkt.write_item(item, item.id_value)
@@ -97,7 +101,7 @@ module Cosmos
       it "can be added multiple times to ignore different packets" do
         @interface.instance_variable_set(:@stream, PreStream.new)
 
-        pkt = System.telemetry.packet("INST","HEALTH_STATUS")
+        pkt = System.telemetry.packet("INST", "HEALTH_STATUS")
         # Ensure the ID items are set so this packet can be identified
         pkt.id_items.each do |item|
           pkt.write_item(item, item.id_value)
@@ -130,7 +134,7 @@ module Cosmos
         # Add another protocol to ignore another packet
         @interface.add_protocol(IgnorePacketProtocol, ['INST', 'ADCS'], :READ)
 
-        pkt = System.telemetry.packet("INST","ADCS")
+        pkt = System.telemetry.packet("INST", "ADCS")
         # Ensure the ID items are set so this packet can be identified
         pkt.id_items.each do |item|
           pkt.write_item(item, item.id_value)
@@ -151,7 +155,7 @@ module Cosmos
         sleep 0.2 # Allow thread to die
         expect(packet).to be_nil
 
-        pkt = System.telemetry.packet("INST","PARAMS")
+        pkt = System.telemetry.packet("INST", "PARAMS")
         # Ensure the ID items are set so this packet can be identified
         pkt.id_items.each do |item|
           pkt.write_item(item, item.id_value)
@@ -171,7 +175,7 @@ module Cosmos
       it "ignores the packet specified" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(IgnorePacketProtocol, ['SYSTEM', 'META'], :WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META")
+        pkt = System.telemetry.packet("SYSTEM", "META")
         pkt.write("COSMOS_VERSION", "TEST")
         pkt.received_time = Time.now
         $buffer = nil
@@ -190,21 +194,21 @@ module Cosmos
         @interface.add_protocol(IgnorePacketProtocol, ['INST', 'HEALTH_STATUS'], :WRITE)
         @interface.add_protocol(IgnorePacketProtocol, ['INST', 'ADCS'], :WRITE)
 
-        pkt = System.telemetry.packet("INST","HEALTH_STATUS")
+        pkt = System.telemetry.packet("INST", "HEALTH_STATUS")
         pkt.received_time = Time.now
         $buffer = nil
         @interface.write(pkt)
         # Verify the write was ignored
         expect($buffer).to be_nil
 
-        pkt = System.telemetry.packet("INST","ADCS")
+        pkt = System.telemetry.packet("INST", "ADCS")
         pkt.received_time = Time.now
         $buffer = nil
         @interface.write(pkt)
         # Verify the write was ignored
         expect($buffer).to be_nil
 
-        pkt = System.telemetry.packet("INST","PARAMS")
+        pkt = System.telemetry.packet("INST", "PARAMS")
         pkt.received_time = Time.now
         $buffer = nil
         @interface.write(pkt)
@@ -217,7 +221,7 @@ module Cosmos
       it "ignores the packet specified" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(IgnorePacketProtocol, ['SYSTEM', 'META'], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META")
+        pkt = System.telemetry.packet("SYSTEM", "META")
         pkt.write("COSMOS_VERSION", "TEST")
         pkt.received_time = Time.now
         $buffer = nil
@@ -240,7 +244,7 @@ module Cosmos
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(IgnorePacketProtocol, ['SYSTEM', 'META'], :READ_WRITE)
         $buffer = nil
-        pkt = Packet.new("TGT","PTK")
+        pkt = Packet.new("TGT", "PTK")
         pkt.append_item("ITEM", 8, :INT)
         pkt.write("ITEM", 33, :RAW)
         @interface.write(pkt)

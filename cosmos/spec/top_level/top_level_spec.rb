@@ -28,8 +28,8 @@ describe "HazardousError" do
     expect(error.target_name).to eql "TGT"
     error.cmd_name = "CMD"
     expect(error.cmd_name).to eql "CMD"
-    error.cmd_params = ["ID","BLAH"]
-    expect(error.cmd_params).to eql ["ID","BLAH"]
+    error.cmd_params = ["ID", "BLAH"]
+    expect(error.cmd_params).to eql ["ID", "BLAH"]
     error.hazardous_description = "Description"
     expect(error.hazardous_description).to eql "Description"
   end
@@ -38,7 +38,7 @@ end
 module Cosmos
   def self.cleanup_exceptions
     # Delete the 'exception' files
-    Dir[File.join(File.dirname(__FILE__),"*exception.txt")].each {|file| FileUtils.rm_f file }
+    Dir[File.join(File.dirname(__FILE__), "*exception.txt")].each { |file| FileUtils.rm_f file }
   end
 
   describe "FatalError" do
@@ -82,12 +82,12 @@ module Cosmos
         # Configure the user path to be local
         # ENV['COSMOS_USERPATH'] = File.dirname(__FILE__)
 
-        array = [1,2,3,4]
+        array = [1, 2, 3, 4]
         Cosmos.marshal_dump('marshal_test', array)
         array_load = Cosmos.marshal_load('marshal_test')
-        expect(File.exist?(File.join(Cosmos::PATH,'marshal_test'))).to be true
+        expect(File.exist?(File.join(Cosmos::PATH, 'marshal_test'))).to be true
         expect(array).to eql array_load
-        File.delete(File.join(Cosmos::PATH,'marshal_test'))
+        File.delete(File.join(Cosmos::PATH, 'marshal_test'))
       end
     end
 
@@ -104,7 +104,7 @@ module Cosmos
     it "rescues marshal dump errors in a Packet with a Mutex" do
       capture_io do |stdout|
         system_exit_count = $system_exit_count
-        pkt = Packet.new("TGT","PKT")
+        pkt = Packet.new("TGT", "PKT")
         pkt.append_item("ITEM", 16, :UINT)
         pkt.read_all
         Cosmos.marshal_dump('marshal_test', pkt)
@@ -119,11 +119,11 @@ module Cosmos
       expect(Cosmos.marshal_load('blah')).to be_nil
 
       # Attempt to load something that doesn't have the marshal header
-      File.open(File.join(Cosmos::PATH,'marshal_test'),'wb') {|f| f.puts "marshal!" }
+      File.open(File.join(Cosmos::PATH, 'marshal_test'), 'wb') { |f| f.puts "marshal!" }
       expect(Cosmos.marshal_load('marshal_test')).to be_nil
 
       # Attempt to load something that has a bad marshal
-      File.open(File.join(Cosmos::PATH,'marshal_test'),'wb') do |file|
+      File.open(File.join(Cosmos::PATH, 'marshal_test'), 'wb') do |file|
         file.write(Cosmos::COSMOS_MARSHAL_HEADER)
         file.write("\x00\x01")
       end
@@ -155,7 +155,7 @@ module Cosmos
     it "executes a command while capturing output" do
       if RUBY_ENGINE == 'ruby' and Kernel.is_windows?
         output = ''
-        allow(Logger).to receive(:error) {|str| output = str}
+        allow(Logger).to receive(:error) { |str| output = str }
         thread = Cosmos.run_process_check_output("ping 192.0.0.234 -n 1 -w 1000")
         sleep 0.1 while thread.alive?
         expect(output).to match("Pinging 192.0.0.234")
@@ -165,8 +165,8 @@ module Cosmos
 
   describe "hash_files" do
     xit "calculates a hashing sum across files in md5 mode" do
-      File.open(File.join(Cosmos::PATH,'test1.txt'),'w') {|f| f.puts "test1" }
-      File.open(File.join(Cosmos::PATH,'test2.txt'),'w') {|f| f.puts "test2" }
+      File.open(File.join(Cosmos::PATH, 'test1.txt'), 'w') { |f| f.puts "test1" }
+      File.open(File.join(Cosmos::PATH, 'test2.txt'), 'w') { |f| f.puts "test2" }
       digest = Cosmos.hash_files(["test1.txt", "test2.txt"])
       expect(digest.digest.length).to be 16
       expect(digest.hexdigest).to eql 'e51dfbea83de9c7e6b49560089d8a170'
@@ -175,8 +175,8 @@ module Cosmos
     end
 
     it "calculates a hashing sum across files in sha256 mode" do
-      File.open(File.join(Cosmos::PATH,'test1.txt'),'w') {|f| f.puts "test1" }
-      File.open(File.join(Cosmos::PATH,'test2.txt'),'w') {|f| f.puts "test2" }
+      File.open(File.join(Cosmos::PATH, 'test1.txt'), 'w') { |f| f.puts "test1" }
+      File.open(File.join(Cosmos::PATH, 'test2.txt'), 'w') { |f| f.puts "test2" }
       digest = Cosmos.hash_files(["test1.txt", "test2.txt"], nil, 'SHA256')
       expect(digest.digest.length).to be 32
       expect(digest.hexdigest).to eql '49789e7c809eb38ea34864b00e2cfd68825e0c07cd7b7d0c6fe2642ac87a919c'
@@ -184,7 +184,6 @@ module Cosmos
       File.delete(File.join(Cosmos::PATH, 'test2.txt'))
     end
   end
-
 
   describe "create_log_file" do
     it "creates a log file in System LOGS" do
@@ -211,6 +210,7 @@ module Cosmos
         rescue => err
           Dir.entries('outputs/logs').each do |entry|
             next if entry[0] == '.'
+
             begin
               FileUtils.rm(File.join('outputs', 'logs', entry))
             rescue
@@ -304,10 +304,10 @@ module Cosmos
 
   describe "require_class" do
     it "requires the class represented by the filename" do
-      filename = File.join(Cosmos::PATH,"lib","my_test_class.rb")
+      filename = File.join(Cosmos::PATH, "lib", "my_test_class.rb")
       File.delete(filename) if File.exist? filename
 
-      File.open(filename,'w') do |file|
+      File.open(filename, 'w') do |file|
         file.puts "class MyTestClass"
         file.puts "end"
       end
@@ -319,10 +319,10 @@ module Cosmos
     end
 
     it "requires the class represented by the classname" do
-      filename = File.join(Cosmos::PATH,"lib","my_other_test_class.rb")
+      filename = File.join(Cosmos::PATH, "lib", "my_other_test_class.rb")
       File.delete(filename) if File.exist? filename
 
-      File.open(filename,'w') do |file|
+      File.open(filename, 'w') do |file|
         file.puts "class MyOtherTestClass"
         file.puts "end"
       end
@@ -336,19 +336,19 @@ module Cosmos
 
   describe "require_file" do
     it "requires the file" do
-      filename = File.join(Cosmos::PATH,"lib","my_test_file.rb")
+      filename = File.join(Cosmos::PATH, "lib", "my_test_file.rb")
       File.delete(filename) if File.exist? filename
 
       expect { Cosmos.require_file("my_test_file.rb") }.to raise_error(LoadError, /Unable to require my_test_file.rb/)
 
-      File.open(filename,'w') do |file|
+      File.open(filename, 'w') do |file|
         file.puts "class MyTestFile"
         file.puts "  blah" # This will cause an error
         file.puts "end"
       end
       expect { Cosmos.require_file("my_test_file.rb") }.to raise_error(NameError, /Unable to require my_test_file.rb/)
 
-      File.open(filename,'w') do |file|
+      File.open(filename, 'w') do |file|
         file.puts "class MyTestFile"
         file.puts "end"
       end
@@ -362,9 +362,9 @@ module Cosmos
       @log_info = ''
       @log_warn = ''
       @log_error = ''
-      allow(Logger).to receive(:info) {|str| @log_info << str}
-      allow(Logger).to receive(:warn) {|str| @log_warn << str}
-      allow(Logger).to receive(:error) {|str| @log_error << str}
+      allow(Logger).to receive(:info) { |str| @log_info << str }
+      allow(Logger).to receive(:warn) { |str| @log_warn << str }
+      allow(Logger).to receive(:error) { |str| @log_error << str }
     end
 
     it "calls thread.kill if the thread is alive" do
@@ -402,9 +402,11 @@ module Cosmos
     it "calls graceful_kill on the owner" do
       class ThreadOwner
         attr_accessor :thread
+
         def initialize
           @thread = Thread.new { loop { sleep 1 } }
         end
+
         def graceful_kill
           @thread.kill
         end
@@ -420,7 +422,9 @@ module Cosmos
     it "logs an error if the thread doesn't die" do
       class MyAliveThread
         def alive?; true; end
+
         def kill; end
+
         def backtrace; []; end
       end
       Cosmos.kill_thread(nil, MyAliveThread.new)

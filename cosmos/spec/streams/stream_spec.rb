@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/streams/stream'
 
 module Cosmos
-
   describe Stream do
     describe "read, write, connected?, disconnect" do
       it "raises an error" do

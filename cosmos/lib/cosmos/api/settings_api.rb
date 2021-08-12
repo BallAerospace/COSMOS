@@ -23,11 +23,11 @@ module Cosmos
 
     WHITELIST ||= []
     WHITELIST.concat([
-      'list_settings',
-      'get_all_settings',
-      'get_setting',
-      'save_setting'
-    ])
+                       'list_settings',
+                       'get_all_settings',
+                       'get_setting',
+                       'save_setting'
+                     ])
 
     def list_settings(scope: $cosmos_scope, token: $cosmos_token)
       Store.instance.hkeys(SETTINGS_KEY)
@@ -36,7 +36,7 @@ module Cosmos
     def get_all_settings(scope: $cosmos_scope, token: $cosmos_token)
       Store.instance.hgetall(SETTINGS_KEY)
     end
-    
+
     def get_setting(name, scope: $cosmos_scope, token: $cosmos_token)
       Store.instance.hget(SETTINGS_KEY, name)
     end

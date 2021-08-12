@@ -25,7 +25,6 @@ require 'cosmos/streams/tcpip_socket_stream'
 require 'cosmos/config/config_parser'
 
 module Cosmos
-
   # TCP/IP Server which can both read and write on a single port or two
   # independent ports. A listen thread is setup which waits for client
   # connections. For each connection to the read port, a thread is spawned that
@@ -37,6 +36,7 @@ module Cosmos
     # Data class which stores the interface and associated information
     class InterfaceInfo
       attr_reader :interface, :hostname, :host_ip, :port
+
       def initialize(interface, hostname, host_ip, port)
         @interface = interface
         @hostname = hostname
@@ -217,8 +217,10 @@ module Cosmos
     def read
       raise "Interface not connected for read: #{@name}" unless connected?
       raise "Interface not readable: #{@name}" unless read_allowed?
+
       packet = @read_queue.pop
       return nil unless packet
+
       @read_count += 1
       packet
     end
@@ -228,6 +230,7 @@ module Cosmos
     def write(packet)
       raise "Interface not connected for write: #{@name}" unless connected?
       raise "Interface not writable: #{@name}" unless write_allowed?
+
       @write_count += 1
       @write_queue << packet.clone
       @write_condition_variable.broadcast
@@ -238,6 +241,7 @@ module Cosmos
     def write_raw(data)
       raise "Interface not connected for write_raw: #{@name}" unless connected?
       raise "Interface not write-rawable: #{@name}" unless write_raw_allowed?
+
       @write_raw_queue << data
       @write_raw_condition_variable.broadcast
       return data
@@ -256,8 +260,8 @@ module Cosmos
     # @return [Integer] The number of connected clients
     def num_clients
       interfaces = []
-      @write_interface_infos.each {|wii| interfaces << wii.interface}
-      @read_interface_infos.each {|rii| interfaces << rii.interface}
+      @write_interface_infos.each { |wii| interfaces << wii.interface }
+      @read_interface_infos.each { |rii| interfaces << rii.interface }
       interfaces.uniq.length
     end
 
@@ -288,6 +292,7 @@ module Cosmos
     end
 
     protected
+
     def shutdown_interfaces(interface_infos)
       @connection_mutex.synchronize do
         interface_infos.each do |interface_info|
@@ -465,6 +470,7 @@ module Cosmos
 
       loop do
         break if @cancel_threads
+
         begin
           packet = @write_queue.pop(true) # non_block to raise ThreadError
           break
@@ -483,6 +489,7 @@ module Cosmos
 
       loop do
         break if @cancel_threads
+
         begin
           data = @write_raw_queue.pop(true) # non_block to raise ThreadError
           break
@@ -500,7 +507,7 @@ module Cosmos
 
     def interface_disconnect(interface_info)
       Logger.instance.info "#{@name}: Tcpip server lost write connection to "\
-        "#{interface_info.hostname}(#{interface_info.host_ip}):#{interface_info.port}"
+                           "#{interface_info.hostname}(#{interface_info.host_ip}):#{interface_info.port}"
       interface_info.interface.disconnect
       interface_info.interface.raw_logger_pair.stop if interface_info.interface.raw_logger_pair
     end
@@ -524,6 +531,7 @@ module Cosmos
           thread_bytes_read = interface_bytes_read
         end
         return if !packet || @cancel_threads
+
         packet = read_thread_hook(packet) # Do work on received packet
         @read_raw_data_time = interface.read_raw_data_time
         @read_raw_data = interface.read_raw_data

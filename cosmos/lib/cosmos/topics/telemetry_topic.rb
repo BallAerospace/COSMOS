@@ -23,11 +23,11 @@ module Cosmos
   class TelemetryTopic < Topic
     def self.write_packet(packet, scope:)
       msg_hash = { time: packet.received_time.to_nsec_from_epoch,
-        stored: packet.stored,
-        target_name: packet.target_name,
-        packet_name: packet.packet_name,
-        received_count: packet.received_count,
-        buffer: packet.buffer(false) }
+                   stored: packet.stored,
+                   target_name: packet.target_name,
+                   packet_name: packet.packet_name,
+                   received_count: packet.received_count,
+                   buffer: packet.buffer(false) }
       Store.write_topic("#{scope}__TELEMETRY__{#{packet.target_name}}__#{packet.packet_name}", msg_hash)
     end
   end

@@ -43,6 +43,7 @@ module Cosmos
       loop do
         activity = @queue.pop
         break if activity.nil?
+
         run_activity(activity)
       end
       Logger.info "#{@timeline_name} timeine worker exiting"
@@ -79,15 +80,17 @@ module Cosmos
         request = Net::HTTP::Post.new(
           path,
           'Content-Type' => 'application/json',
-          'Authorization' => ENV['COSMOS_SERVICE_PASSWORD'] || 'invalid')
+          'Authorization' => ENV['COSMOS_SERVICE_PASSWORD'] || 'invalid'
+        )
         request.body = JSON.generate({
-          'scope' => @scope,
-          'timeline' => @timeline_name,
-          'id' => activity.start
-        })
+                                       'scope' => @scope,
+                                       'timeline' => @timeline_name,
+                                       'id' => activity.start
+                                     })
         hostname = ENV['COSMOS_SCRIPT_HOSTNAME'] || (ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-script-runner-api')
         response = Net::HTTP.new(hostname, 2902).request(request)
         raise "failed to call #{hostname}, for script: #{activity.data['script']}, response code: #{response.code}" if response.code != '200'
+
         activity.commit(status: 'completed', message: "#{activity.data['script']} => #{response.body}", fulfillment: true)
       rescue StandardError => e
         activity.commit(status: 'failed', message: e.message)
@@ -103,7 +106,6 @@ module Cosmos
         Logger.error "#{@timeline_name} clear_expired failed > #{activity.as_json} #{e.message}"
       end
     end
-
   end
 
   # Shared between the monitor thread and the manager thread to
@@ -121,6 +123,7 @@ module Cosmos
 
     def not_queued?(start)
       return false if @queue.index(start)
+
       @queue[@index] = start
       @index = @index + 1 >= @size ? 0 : @index + 1
       return true
@@ -151,7 +154,6 @@ module Cosmos
         @activities.delete_if { |h| h.start == input_activity.start }
       end
     end
-
   end
 
   # The timeline manager starts a thread pool and looks at the
@@ -196,6 +198,7 @@ module Cosmos
           request_update(start: start)
         end
         break if @cancel_thread
+
         sleep(1)
         break if @cancel_thread
       end
@@ -212,7 +215,8 @@ module Cosmos
         start: (now - 86_400 * 7),
         stop: (now - 82_800 * 7),
         kind: 'EXPIRE',
-        data: {})
+        data: {}
+      )
       @queue << activity
       return activity
     end
@@ -247,7 +251,6 @@ module Cosmos
   # manager. Timeline will then wait for an update on the timeline
   # stream this will trigger an update again to the schedule.
   class TimelineMicroservice < Microservice
-
     TIMELINE_METRIC_NAME = 'timeline_activities_duration_seconds'.freeze
 
     def initialize(name)
@@ -270,6 +273,7 @@ module Cosmos
         metric_labels = { 'timeline' => @timeline_name, 'thread' => 'microservice' }
         @metric.add_sample(name: TIMELINE_METRIC_NAME, value: diff, labels: metric_labels)
         break if @cancel_thread
+
         block_for_updates()
         break if @cancel_thread
       end
@@ -323,6 +327,7 @@ module Cosmos
     def create_activity_from_event(data)
       diff = data['start'] - Time.now.to_i
       return unless (2..3600).include? diff
+
       activity = ActivityModel.from_json(data, name: @timeline_name, scope: @scope)
       @schedule.add_activity(activity)
     end
@@ -332,6 +337,7 @@ module Cosmos
     def remove_activity_from_event(data)
       diff = data['start'] - Time.now.to_i
       return unless (2..3600).include? diff
+
       activity = ActivityModel.from_json(data, name: @timeline_name, scope: @scope)
       @schedule.remove_activity(activity)
     end

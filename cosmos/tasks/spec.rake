@@ -25,7 +25,6 @@ begin
     t.pattern = ['spec/*_spec.rb']
     t.rspec_opts = '-f d --warnings'
   end
-
 rescue LoadError
   puts "rspec not loaded. gem install rspec"
 end

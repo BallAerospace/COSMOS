@@ -23,7 +23,6 @@ require 'cosmos/packets/packet_item'
 require 'cosmos/conversions/generic_conversion'
 
 module Cosmos
-
   describe PacketItem do
     before(:each) do
       @pi = PacketItem.new("test", 0, 32, :UINT, :BIG_ENDIAN, nil)
@@ -160,7 +159,7 @@ module Cosmos
       end
 
       it "complains about description that aren't Strings" do
-        expect { @pi.description = 5.1}.to raise_error(ArgumentError, "#{@pi.name}: description must be a String but is a Float")
+        expect { @pi.description = 5.1 }.to raise_error(ArgumentError, "#{@pi.name}: description must be a String but is a Float")
       end
     end
 
@@ -177,7 +176,7 @@ module Cosmos
       end
 
       it "complains about units_full that aren't Strings" do
-        expect { @pi.units_full = 5.1}.to raise_error(ArgumentError, "#{@pi.name}: units_full must be a String but is a Float")
+        expect { @pi.units_full = 5.1 }.to raise_error(ArgumentError, "#{@pi.name}: units_full must be a String but is a Float")
       end
     end
 
@@ -196,7 +195,7 @@ module Cosmos
       end
 
       it "complains about units that aren't Strings" do
-        expect { @pi.units = 5.1}.to raise_error(ArgumentError, "#{@pi.name}: units must be a String but is a Float")
+        expect { @pi.units = 5.1 }.to raise_error(ArgumentError, "#{@pi.name}: units must be a String but is a Float")
       end
     end
 
@@ -251,10 +250,10 @@ module Cosmos
         expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: default must be a Float but is a String")
         pi = PacketItem.new("test", 0, 32, :FLOAT, :BIG_ENDIAN, nil)
         pi.default = 5
-        expect { pi.check_default_and_range_data_types  }.to_not raise_error
+        expect { pi.check_default_and_range_data_types }.to_not raise_error
         pi = PacketItem.new("test", 0, 32, :FLOAT, :BIG_ENDIAN, nil)
         pi.default = 5.5
-        expect { pi.check_default_and_range_data_types  }.to_not raise_error
+        expect { pi.check_default_and_range_data_types }.to_not raise_error
         pi = PacketItem.new("test", 0, 32, :STRING, :BIG_ENDIAN, nil)
         pi.default = 5.1
         expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: default must be a String but is a Float")
@@ -279,7 +278,7 @@ module Cosmos
         pi = PacketItem.new("test", 0, 32, :FLOAT, :BIG_ENDIAN, nil)
         pi.default = 5.5
         pi.range = (5..10)
-        expect { pi.check_default_and_range_data_types  }.to_not raise_error
+        expect { pi.check_default_and_range_data_types }.to_not raise_error
         pi.range = ('a'..'z')
         expect { pi.check_default_and_range_data_types }.to raise_error(ArgumentError, "TEST: minimum must be a Float but is a String")
         pi.range = (1.0..Rational(2))
@@ -300,13 +299,13 @@ module Cosmos
       end
 
       it "complains about ranges that aren't Ranges" do
-        expect { @pi.range = 5.1}.to raise_error(ArgumentError, "#{@pi.name}: range must be a Range but is a Float")
+        expect { @pi.range = 5.1 }.to raise_error(ArgumentError, "#{@pi.name}: range must be a Range but is a Float")
       end
     end
 
     describe "hazardous=" do
       it "accepts hazardous as a Hash" do
-        hazardous = { "TRUE" => nil,"FALSE" => "NO FALSE ALLOWED" }
+        hazardous = { "TRUE" => nil, "FALSE" => "NO FALSE ALLOWED" }
         @pi.hazardous = hazardous
         expect(@pi.hazardous).to eql hazardous
         expect(@pi.hazardous["TRUE"]).to eql hazardous["TRUE"]
@@ -325,7 +324,7 @@ module Cosmos
       end
 
       it "complains about hazardous that aren't Hashes" do
-        expect { @pi.hazardous = ""}.to raise_error(ArgumentError, "#{@pi.name}: hazardous must be a Hash but is a String")
+        expect { @pi.hazardous = "" }.to raise_error(ArgumentError, "#{@pi.name}: hazardous must be a Hash but is a String")
       end
     end
 
@@ -348,7 +347,7 @@ module Cosmos
       end
 
       it "complains about state_colors that aren't Hashes" do
-        expect { @pi.state_colors = ""}.to raise_error(ArgumentError, "#{@pi.name}: state_colors must be a Hash but is a String")
+        expect { @pi.state_colors = "" }.to raise_error(ArgumentError, "#{@pi.name}: state_colors must be a Hash but is a String")
       end
     end
 
@@ -373,7 +372,7 @@ module Cosmos
       end
 
       it "complains about limits that aren't PacketItemLimits" do
-        expect { @pi.limits = ""}.to raise_error(ArgumentError, "#{@pi.name}: limits must be a PacketItemLimits but is a String")
+        expect { @pi.limits = "" }.to raise_error(ArgumentError, "#{@pi.name}: limits must be a PacketItemLimits but is a String")
       end
     end
 
@@ -414,14 +413,14 @@ module Cosmos
         @pi.default = 0
         @pi.range = (0..100)
         @pi.required = true
-        @pi.hazardous = { "TRUE" => nil,"FALSE" => "NO!" }
+        @pi.hazardous = { "TRUE" => nil, "FALSE" => "NO!" }
         @pi.state_colors = { "TRUE" => :GREEN, "FALSE" => :RED }
         @pi.limits = PacketItemLimits.new
 
         hash = @pi.to_hash
         expect(hash.keys.length).to eql 22
         # Check the values from StructureItem
-        expect(hash.keys).to include('name','bit_offset','bit_size','data_type','endianness','array_size','overflow')
+        expect(hash.keys).to include('name', 'bit_offset', 'bit_size', 'data_type', 'endianness', 'array_size', 'overflow')
         expect(hash["name"]).to eql "TEST"
         expect(hash["bit_offset"]).to eql 0
         expect(hash["bit_size"]).to eql 32
@@ -430,20 +429,20 @@ module Cosmos
         expect(hash["array_size"]).to be_nil
         expect(hash["overflow"]).to eql :ERROR
         # Check the unique PacketItem values
-        expect(hash.keys).to include('format_string','read_conversion','write_conversion','id_value','states','description','units_full','units','default','range','required','hazardous','state_colors','limits')
+        expect(hash.keys).to include('format_string', 'read_conversion', 'write_conversion', 'id_value', 'states', 'description', 'units_full', 'units', 'default', 'range', 'required', 'hazardous', 'state_colors', 'limits')
         expect(hash["format_string"]).to eql "%5.1f"
         expect(hash["read_conversion"]).to match("value / 2")
         expect(hash["write_conversion"]).to match(/value \* 2/)
         expect(hash["id_value"]).to eql 10
-        expect(hash["states"]).to include("TRUE" => 1,"FALSE" => 0)
+        expect(hash["states"]).to include("TRUE" => 1, "FALSE" => 0)
         expect(hash["description"]).to eql "description"
         expect(hash["units_full"]).to eql "Celsius"
         expect(hash["units"]).to eql "C"
         expect(hash["default"]).to eql 0
         expect(hash["range"]).to eql (0..100)
         expect(hash["required"]).to be true
-        expect(hash["hazardous"]).to include("TRUE" => nil,"FALSE" => "NO!")
-        expect(hash["state_colors"]).to include("TRUE" => :GREEN,"FALSE" => :RED)
+        expect(hash["hazardous"]).to include("TRUE" => nil, "FALSE" => "NO!")
+        expect(hash["state_colors"]).to include("TRUE" => :GREEN, "FALSE" => :RED)
         expect(hash["limits"]).to eql PacketItemLimits.new.to_hash
         expect(hash["meta"]).to be_nil
       end

@@ -30,7 +30,6 @@ require 'thread'
 require 'fileutils'
 
 module Cosmos
-
   class System
     # @return [Hash<String,Target>] Hash of all the known targets
     instance_attr_reader :targets
@@ -89,6 +88,7 @@ module Cosmos
     def self.instance(target_names = nil, target_config_dir = nil)
       return @@instance if @@instance
       raise "System.instance parameters are required on first call" unless target_names and target_config_dir
+
       @@instance_mutex.synchronize do
         @@instance ||= self.new(target_names, target_config_dir)
         return @@instance
@@ -112,6 +112,7 @@ module Cosmos
       parser = ConfigParser.new
       folder_name = File.join(target_config_dir, target_name)
       raise parser.error("Target folder must exist '#{folder_name}'.") unless Dir.exist?(folder_name)
+
       target = Target.new(target_name, target_config_dir)
       @targets[target.name] = target
       target.cmd_tlm_files.each do |cmd_tlm_file|

@@ -27,10 +27,15 @@ module Cosmos
   describe TemplateProtocol do
     class TemplateStream < Stream
       def connect; end
+
       def connected?; true; end
+
       def disconnect; end
+
       def read_nonblock; []; end
+
       def write(buffer) $write_buffer = buffer; end
+
       def read; $read_buffer; end
     end
 
@@ -196,7 +201,7 @@ module Cosmos
         @interface.instance_variable_set(:@stream, TemplateStream.new)
         @interface.add_protocol(TemplateProtocol, %w(0xABCD 0xABCD 0 nil 1 true 0 nil false nil nil), :READ_WRITE)
         # Add extra target names to the interface to ensure we grab the correct one
-        @interface.target_names = ['BLAH','TGT','OTHER']
+        @interface.target_names = ['BLAH', 'TGT', 'OTHER']
         packet = Packet.new('TGT', 'CMD')
         packet.append_item("VOLTAGE", 16, :UINT)
         packet.get_item("VOLTAGE").default = 11

@@ -36,13 +36,13 @@ describe Math do
 
   describe "variance_population" do
     it "returns 0 if the same value" do
-      mean, var = variance_population([1,1,1,1])
+      mean, var = variance_population([1, 1, 1, 1])
       expect(mean).to eql 1.0
       expect(var).to eql 0.0
     end
 
     it "returns population variance" do
-      mean, var = variance_population([1,2,3])
+      mean, var = variance_population([1, 2, 3])
       expect(mean).to eql 2.0
       expect(var).to eql 2.0 / 3.0
     end
@@ -56,13 +56,13 @@ describe Math do
 
   describe "variance_sample" do
     it "returns 0 if the same value" do
-      mean, var = variance_sample([1,1,1,1])
+      mean, var = variance_sample([1, 1, 1, 1])
       expect(mean).to eql 1.0
       expect(var).to eql 0.0
     end
 
     it "returns sample variance" do
-      mean, var = variance_sample([1,2,3])
+      mean, var = variance_sample([1, 2, 3])
       expect(mean).to eql 2.0
       expect(var).to eql 1.0
     end
@@ -82,13 +82,13 @@ describe Math do
 
   describe "stddev_population" do
     it "returns 0 if the same value" do
-      mean, var = stddev_population([1,1,1,1])
+      mean, var = stddev_population([1, 1, 1, 1])
       expect(mean).to eql 1.0
       expect(var).to eql 0.0
     end
 
     it "returns population stddev" do
-      mean, var = stddev_population([1,2,3])
+      mean, var = stddev_population([1, 2, 3])
       expect(mean).to eql 2.0
       expect(var).to eql sqrt(2.0 / 3.0)
     end
@@ -96,13 +96,13 @@ describe Math do
 
   describe "stddev_sample" do
     it "returns 0 if the same value" do
-      mean, var = stddev_sample([1,1,1,1])
+      mean, var = stddev_sample([1, 1, 1, 1])
       expect(mean).to eql 1.0
       expect(var).to eql 0.0
     end
 
     it "returns sample stddev" do
-      mean, var = stddev_sample([1,2,3])
+      mean, var = stddev_sample([1, 2, 3])
       expect(mean).to eql 2.0
       expect(var).to eql 1.0
     end
@@ -110,15 +110,15 @@ describe Math do
 
   describe "luma_from_rgb_max_255" do
     it "returns 0 with 0 RGB" do
-      expect(luma_from_rgb_max_255(0,0,0)).to eql 0.0
+      expect(luma_from_rgb_max_255(0, 0, 0)).to eql 0.0
     end
 
     it "returns 1.0 with 255 RGB" do
-      expect(luma_from_rgb_max_255(255,255,255)).to eql 1.0
+      expect(luma_from_rgb_max_255(255, 255, 255)).to eql 1.0
     end
 
     it "returns about 0.5 with 127 RGB" do
-      expect(luma_from_rgb_max_255(127,127,127)).to be_within(0.01).of(0.5)
+      expect(luma_from_rgb_max_255(127, 127, 127)).to be_within(0.01).of(0.5)
     end
   end
 end

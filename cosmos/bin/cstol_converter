@@ -48,7 +48,7 @@ def parse_cmd(words)
       end
       params = args[i].split(" ")
 
-      str = str + " " + params[0].upcase + " " + parse_id(params[1],true, false, true)
+      str = str + " " + params[0].upcase + " " + parse_id(params[1], true, false, true)
     end
   end
   str = str + "\")"
@@ -100,18 +100,18 @@ def parse_expression(vars, quoted = false, in_eval = false)
   vars = vars.gsub(";", " ; ")
   # Add spaces around single character operators (/ < >)
   offset = 0
-  while (idx = vars.index(/[\/<>][^=]/,offset)) != nil
+  while (idx = vars.index(/[\/<>][^=]/, offset)) != nil
     # Add space before and after operator and increment offset
-    vars = vars.insert(idx," ")
-    vars = vars.insert(idx + 2," ")
+    vars = vars.insert(idx, " ")
+    vars = vars.insert(idx + 2, " ")
     offset = idx + 2
   end
   # Add spaces around single = operator (not /=, ==, <=, or >=)
   offset = 0
-  while (idx = vars.index(/[^\/=<>]=[^=]/,offset)) != nil
+  while (idx = vars.index(/[^\/=<>]=[^=]/, offset)) != nil
     # Add space before and after operator and increment offset
-    vars = vars.insert(idx + 1," ")
-    vars = vars.insert(idx + 3," ")
+    vars = vars.insert(idx + 1, " ")
+    vars = vars.insert(idx + 3, " ")
     offset = idx + 3
   end
 
@@ -141,7 +141,7 @@ def parse_expression(vars, quoted = false, in_eval = false)
       str = str + "inVar" + vars[0][1..-1]
 
     when /\$/ # $varName
-      str = str + parse_id(vars[i].tr('[]"', ''),quoted,in_eval)
+      str = str + parse_id(vars[i].tr('[]"', ''), quoted, in_eval)
 
     when /RAW/i
       if quoted
@@ -151,9 +151,9 @@ def parse_expression(vars, quoted = false, in_eval = false)
       end
       i = i + 2
     when /x#[0-9a-fA-F]+/i # Hex number
-      str = str + parse_id(vars[i].tr('[]"', ''),quoted)
+      str = str + parse_id(vars[i].tr('[]"', ''), quoted)
     when /b#[0-1]+/i # Binary number
-      str = str + parse_id(vars[i].tr('[]"', ''),quoted)
+      str = str + parse_id(vars[i].tr('[]"', ''), quoted)
 
     when /(\AVS\z|=|\/=|>|>=|<|<=)/ # Conditional operator
       str = str + parse_cond_operator(vars[i])
@@ -165,7 +165,7 @@ def parse_expression(vars, quoted = false, in_eval = false)
       temp = vars[i].tr('[]"', '')
       temp = temp.gsub(/DN\z|dn\z|DEG\z|deg\z|RAD\z|rad\z|V\z|A\z|v\z|a\z|c\z|C\z|f\z|F\z|DPS\z|M\z|MPS\z|m\z|mps\z/, '')
       if temp.match?(/[a-zA-Z]/)
-        str = str + parse_id(vars[i].tr('[]"', ''),quoted)
+        str = str + parse_id(vars[i].tr('[]"', ''), quoted)
       else
         str = str + temp
       end
@@ -181,7 +181,7 @@ def parse_expression(vars, quoted = false, in_eval = false)
         end
         i = i + 1
       else
-        str = str + parse_id(vars[i].tr('[]"', ''),quoted)
+        str = str + parse_id(vars[i].tr('[]"', ''), quoted)
       end
     when /[0-9]*:[0-9]*:[0-9]+/ # Timestamp
       str = str + parse_time(vars[i].tr('[]"', ''))
@@ -191,7 +191,7 @@ def parse_expression(vars, quoted = false, in_eval = false)
       str = str + "#{temp_number}"
       finished = true
     when /\d/ # Decimal number
-      str = str + parse_id(vars[i].tr('[]"', ''),quoted)
+      str = str + parse_id(vars[i].tr('[]"', ''), quoted)
 
     when /\w/ # Must stay low on the list to avoid matching other items
       # Check this keyword against the list of targets
@@ -229,7 +229,7 @@ def parse_id(id, quoted = false, in_eval = false, in_command = false, in_single_
   end
 
   if id.match?(/\$\w/) # $varName
-    id[1,1] = id[1,1].downcase
+    id[1, 1] = id[1, 1].downcase
     if quoted and !in_eval
       str = "'\#{" + id[1..-1] + "}'"
     else
@@ -238,7 +238,7 @@ def parse_id(id, quoted = false, in_eval = false, in_command = false, in_single_
     end
 
   elsif id.match(/^"/) != nil and
-         id.match(/"$/) != nil # Starts and ends with a quote
+        id.match(/"$/) != nil # Starts and ends with a quote
     if quoted
       str = "'" + id.upcase[1..-2] + "'"
     else
@@ -257,7 +257,7 @@ def parse_id(id, quoted = false, in_eval = false, in_command = false, in_single_
   elsif id.match?(/b#[0-1]+/i) # Binary number
     str = "0b" + id[2..-1]
 
-  elsif id.match(/\d+DN/i) or id.match(/-\d+DN/i)  # Decimal number with DN
+  elsif id.match(/\d+DN/i) or id.match(/-\d+DN/i) # Decimal number with DN
     str = id[0..-3]
   elsif id.match?(/\AVS\z|\Avs\z/)
     str = str + " == "
@@ -389,7 +389,7 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
   # Determine the number of spaces to indent this line by finding the first
   # non-whitespace character
   numSpaces = full_line.index(/\S/)
-  numSpaces.times {str = str + " "}
+  numSpaces.times { str = str + " " }
 
   # Handle lines with only comments
   if line == nil or line == ""
@@ -455,22 +455,22 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
         lowRange = line[(vsIdx + 2)..(colIdx - 1)]
         highRange = line[(colIdx + 1)..-1]
         str = str + "check_tolerance_raw(\"" + parse_tlm_item(words[2..3]) +
-          "\", ((" + parse_expression([highRange],false) + ") + (" +
-          parse_expression([lowRange],false) +
-          ")) / 2," + " ((" + parse_expression([highRange],false) + ") - (" +
-          parse_expression([lowRange],false) + "))/2)"
+              "\", ((" + parse_expression([highRange], false) + ") + (" +
+              parse_expression([lowRange], false) +
+              ")) / 2," + " ((" + parse_expression([highRange], false) + ") - (" +
+              parse_expression([lowRange], false) + "))/2)"
       else
         if wait_check_flag
           if @wait_match_string == "\"" + parse_tlm_item(words[2..3]) +
-            parse_cond_operator(words[4]) + parse_expression(words[5..-1],true) + "\""
+                                   parse_cond_operator(words[4]) + parse_expression(words[5..-1], true) + "\""
             @verify_wait_check = true
             # exit function with true flag, and skips check statement next parse
             return " "
           end
         end
         str = str + "check_raw(\"" + parse_tlm_item(words[2..3]) +
-          parse_cond_operator(words[4]) + parse_expression(words[5..-1],true) +
-          "\")"
+              parse_cond_operator(words[4]) + parse_expression(words[5..-1], true) +
+              "\")"
       end
 
     # If the next word starts with a variable indicator
@@ -484,13 +484,13 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
         lowRange = line[(vsIdx + 2)..(colIdx - 1)]
         highRange = line[(colIdx + 1)..-1]
         str = str + "check_expression(\"(" +
-          parse_expression([words[1]],true) + " >= (" +
-          parse_expression([lowRange],true) + ")) and (" +
-          parse_expression([words[1]],true) + " <= (" +
-          parse_expression([highRange],true) + "))\")"
+              parse_expression([words[1]], true) + " >= (" +
+              parse_expression([lowRange], true) + ")) and (" +
+              parse_expression([words[1]], true) + " <= (" +
+              parse_expression([highRange], true) + "))\")"
       else
         str = str + "check_expression(\"" +
-          parse_expression(words[1..-1],true) + "\")"
+              parse_expression(words[1..-1], true) + "\")"
       end
 
     # If the next word doesn't start with raw
@@ -503,34 +503,34 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
         lowRange = line[(vsIdx + 2)..(colIdx - 1)]
         highRange = line[(colIdx + 1)..-1]
         str = str + "check_tolerance(\"" +
-          parse_tlm_item(words[1..2]) + "\", ((" +
-          parse_expression([highRange],false) + ") + (" +
-          parse_expression([lowRange],false) + ")) / 2, ((" +
-          parse_expression([highRange],false) + ") - (" +
-          parse_expression([lowRange],false) + "))/2)"
+              parse_tlm_item(words[1..2]) + "\", ((" +
+              parse_expression([highRange], false) + ") + (" +
+              parse_expression([lowRange], false) + ")) / 2, ((" +
+              parse_expression([highRange], false) + ") - (" +
+              parse_expression([lowRange], false) + "))/2)"
       else
         if words[3]
           # if single integer comparison or variable, just parse single (for negative integer cases)
           if words.length <= 6
             if wait_check_flag
-              if @wait_match_string == "\"" + parse_tlm_item(words[1..2]) + parse_cond_operator(words[3]) + parse_id(words[4],true) + "\""
+              if @wait_match_string == "\"" + parse_tlm_item(words[1..2]) + parse_cond_operator(words[3]) + parse_id(words[4], true) + "\""
                 @verify_wait_check = true
                 # exit function with true flag, and skips check statement next parse
                 return ""
               end
             else
               str = str + "check(\"" + parse_tlm_item(words[1..2]) +
-                parse_cond_operator(words[3]) + parse_id(words[4],true) +
-                "\")"
+                    parse_cond_operator(words[3]) + parse_id(words[4], true) +
+                    "\")"
             end
           else
             str = str + "check(\"" + parse_tlm_item(words[1..2]) +
-              parse_cond_operator(words[3]) + parse_expression(words[4..-1],true) +
-              "\")"
+                  parse_cond_operator(words[3]) + parse_expression(words[4..-1], true) +
+                  "\")"
           end
         else
           str = str + "check(\"" + parse_tlm_item(words[1..2]) +
-            "\")"
+                "\")"
         end
       end
     end
@@ -552,20 +552,20 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
 
     # If it is a defined enum list, ignore definitions
     elsif words.length >= 6 and
-           words[4..-1].join(" ").match(/[A-Z]+\s+[A-Z]+(,\s*[A-Z]+)+/i)
+          words[4..-1].join(" ").match(/[A-Z]+\s+[A-Z]+(,\s*[A-Z]+)+/i)
       str = str + parse_id(words[2]) + " " + words[3] + " " +
-        parse_id(words[4])
+            parse_id(words[4])
 
     # If it is a defined range (one and only one colon), ignore range
     elsif words.length >= 6 and
-           words[4..-1].join(" ").count(":") == 1
+          words[4..-1].join(" ").count(":") == 1
       str = str + parse_id(words[2]) + " " + words[3] + " " +
-        parse_id(words[4])
+            parse_id(words[4])
 
     # Parse the expression
     elsif words.length >= 5
       str = str + parse_id(words[2]) + " " + words[3] + " " +
-        parse_expression(words[4..-1])
+            parse_expression(words[4..-1])
 
     else
       str = str + "# TODO unsupported: " + line
@@ -635,11 +635,11 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
     if $targetList.include?(words[1].upcase)
       # If there is no space between the equal sign reparse string
       str = str + "set_tlm(\"" + parse_tlm_item(words[1..2]) +
-        parse_cond_operator(words[3], true) + parse_id(words[4],true) + "\")"
+            parse_cond_operator(words[3], true) + parse_id(words[4], true) + "\")"
     else
       # there's no spaces between declaration
       str = str + parse_id(words[1]) + " " + words[2] + " " +
-        parse_expression(words[3..-1])
+            parse_expression(words[3..-1])
     end
 
   when "lock"
@@ -706,15 +706,15 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
     # Record messages without a label
     if words.length == 2 and words[1].match(/messages/i)
       str = str + "start_logging()\n"
-      numSpaces.times {str = str + " "}
+      numSpaces.times { str = str + " " }
       str = str + "start_new_server_message_log()"
 
     # Record message with a label
     elsif words.length == 3 and words[1].match(/messages/i)
       str = str + "set_log_label(" + words[2] + ")\n"
-      numSpaces.times {str = str + " "}
+      numSpaces.times { str = str + " " }
       str = str + "start_logging()\n"
-      numSpaces.times {str = str + " "}
+      numSpaces.times { str = str + " " }
       str = str + "start_new_server_message_log()"
 
     # Other cases not handled
@@ -741,7 +741,7 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
     else
       # Add the statement to require the function
       str = str + "load_utility(\"" + words[1].downcase + ".rb\")\n"
-      numSpaces.times {str = str + " "}
+      numSpaces.times { str = str + " " }
 
       # Split the list of arguments on commas
       listWords = words[2..-1].join().split(",")
@@ -806,14 +806,14 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
       # If there is a timeout
       if idx != nil
         str = str + "wait_expression(\"" +
-          parse_expression(words[1..(idx - 2)],true) + "\", " +
-          parse_expression([words[idx + 1]]) + ")"
+              parse_expression(words[1..(idx - 2)], true) + "\", " +
+              parse_expression([words[idx + 1]]) + ")"
 
       # No timeout given, so insert a default timeout
       else
         str = str + "wait_expression(\"" +
-          parse_expression(words[1..-1],true) + "\", " +
-          parse_time("::30") + ")"
+              parse_expression(words[1..-1], true) + "\", " +
+              parse_time("::30") + ")"
       end
 
     # If the next word starts with the raw keyword
@@ -828,29 +828,29 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
       if idx != nil
         # If the first part is a complex expression
         if words[1..(idx - 2)].include?("OR") ||
-            words[1..(idx - 2)].include?("or") ||
-            words[1..(idx - 2)].include?("AND") ||
-            words[1..(idx - 2)].include?("and")
+           words[1..(idx - 2)].include?("or") ||
+           words[1..(idx - 2)].include?("AND") ||
+           words[1..(idx - 2)].include?("and")
           str = str + "wait_expression(\"" +
-            parse_expression(words[1..(idx - 2)],true) + "\", "
+                parse_expression(words[1..(idx - 2)], true) + "\", "
 
         # If it is a single telemetry item
         else
           @wait_match_string = "\"" + parse_tlm_item(words[2..3]) +
-              parse_cond_operator(words[4]) +
-              parse_expression(words[5..(idx - 2)],true) + "\""
+                               parse_cond_operator(words[4]) +
+                               parse_expression(words[5..(idx - 2)], true) + "\""
           @verify_wait_check = false
 
           parse_line(@data_by_lines[@universal_index + 1], @out_file, true)
 
           if @verify_wait_check == true
             str = str + "wait_check_raw(\"" + parse_tlm_item(words[2..3]) +
-              parse_cond_operator(words[4]) +
-              parse_expression(words[5..(idx - 2)],true) + "\", "
+                  parse_cond_operator(words[4]) +
+                  parse_expression(words[5..(idx - 2)], true) + "\", "
           else
             str = str + "wait_raw(\"" + parse_tlm_item(words[2..3]) +
-              parse_cond_operator(words[4]) +
-              parse_expression(words[5..(idx - 2)],true) + "\", "
+                  parse_cond_operator(words[4]) +
+                  parse_expression(words[5..(idx - 2)], true) + "\", "
           end
         end
 
@@ -861,24 +861,24 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
       else
         # If it is a complex expression
         if words[1..-1].include?("OR") || words[1..-1].include?("or") ||
-            words[1..-1].include?("AND") || words[1..-1].include?("and")
+           words[1..-1].include?("AND") || words[1..-1].include?("and")
           str = str + "wait_expression(\"" +
-            parse_expression(words[1..-1],true) + "\", "
+                parse_expression(words[1..-1], true) + "\", "
 
         # If it is a single telemetry item
         else
           @wait_match_string = "\"" + parse_tlm_item(words[2..3]) +
-            parse_cond_operator(words[4]) + parse_id(words[5],true) + "\""
+                               parse_cond_operator(words[4]) + parse_id(words[5], true) + "\""
           @verify_wait_check = false
 
           parse_line(@data_by_lines[@universal_index + 1], @out_file, true)
 
           if @verify_wait_check == true
             str = str + "wait_check_raw(\"" + parse_tlm_item(words[2..3]) +
-            parse_cond_operator(words[4]) + parse_id(words[5],true) + "\", "
+                  parse_cond_operator(words[4]) + parse_id(words[5], true) + "\", "
           else
             str = str + "wait_raw(\"" + parse_tlm_item(words[2..3]) +
-            parse_cond_operator(words[4]) + parse_id(words[5],true) + "\", "
+                  parse_cond_operator(words[4]) + parse_id(words[5], true) + "\", "
           end
         end
 
@@ -899,26 +899,26 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
       if idx != nil
         # If the first part is a complex expression
         if words[1..(idx - 2)].include?("OR") ||
-            words[1..(idx - 2)].include?("or") ||
-            words[1..(idx - 2)].include?("AND") ||
-            words[1..(idx - 2)].include?("and")
+           words[1..(idx - 2)].include?("or") ||
+           words[1..(idx - 2)].include?("AND") ||
+           words[1..(idx - 2)].include?("and")
           str = str + "wait_expression(\"" +
-            parse_expression(words[1..(idx - 2)],true) + "\", "
+                parse_expression(words[1..(idx - 2)], true) + "\", "
 
         # If it is a single telemetry item
         else
           @wait_match_string = "\"" + parse_tlm_item(words[1..2]) +
-            parse_cond_operator(words[3]) + parse_id(words[4],true) + "\""
+                               parse_cond_operator(words[3]) + parse_id(words[4], true) + "\""
           @verify_wait_check = false
 
           parse_line(@data_by_lines[@universal_index + 1], @out_file, true)
 
           if @verify_wait_check == true
             str = str + "wait_check(\"" + parse_tlm_item(words[1..2]) +
-              parse_cond_operator(words[3]) +  parse_id(words[4],true) + "\", "
+                  parse_cond_operator(words[3]) +  parse_id(words[4], true) + "\", "
           else
             str = str + "wait(\"" + parse_tlm_item(words[1..2]) +
-              parse_cond_operator(words[3]) +  parse_id(words[4],true) + "\", "
+                  parse_cond_operator(words[3]) +  parse_id(words[4], true) + "\", "
           end
         end
 
@@ -929,24 +929,24 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
       else
         # If it is a complex expression
         if words[1..-1].include?("OR") || words[1..-1].include?("or") ||
-            words[1..-1].include?("AND") || words[1..-1].include?("and")
+           words[1..-1].include?("AND") || words[1..-1].include?("and")
           str = str + "wait_expression(\"" +
-            parse_expression(words[1..-1],true) + "\", "
+                parse_expression(words[1..-1], true) + "\", "
 
         # If it is a single telemetry item
         else
           @wait_match_string = "\"" + parse_tlm_item(words[1..2]) +
-            parse_cond_operator(words[3]) + parse_id(words[4],true) + "\""
+                               parse_cond_operator(words[3]) + parse_id(words[4], true) + "\""
           @verify_wait_check = false
 
           parse_line(@data_by_lines[@universal_index + 1], @out_file, true)
 
           if @verify_wait_check == true
             str = str + "wait_check(\"" + parse_tlm_item(words[1..2]) +
-            parse_cond_operator(words[3]) + parse_id(words[4],true) + "\", "
+                  parse_cond_operator(words[3]) + parse_id(words[4], true) + "\", "
           else
             str = str + "wait(\"" + parse_tlm_item(words[1..2]) +
-            parse_cond_operator(words[3]) + parse_id(words[4],true) + "\", "
+                  parse_cond_operator(words[3]) + parse_id(words[4], true) + "\", "
           end
         end
 
@@ -989,10 +989,10 @@ def parse_line(full_line, loc_out_file, wait_check_flag = false)
           expr = expr[0..quoteIdx - 1].strip
           expr = expr[0..-2] if expr[-1] == ','
         end
-        str = str + " \#{#{parse_expression([expr],true,true)}}#{remainder}\""
+        str = str + " \#{#{parse_expression([expr], true, true)}}#{remainder}\""
       else
         puts "****************** NOT STRING ******************"
-        str = str + " \#{" + parse_expression(expr,true,true) + "}\""
+        str = str + " \#{" + parse_expression(expr, true, true) + "}\""
       end
 
     # If there was no closing quote
@@ -1077,15 +1077,15 @@ $targetList = Cosmos::TargetModel.names(scope: options.scope)
 # Process all macros first
 unless mac_files.empty?
   puts "*****************************************************"
-  macros_file = File.open("macrosAutoGen.rb","w")
+  macros_file = File.open("macrosAutoGen.rb", "w")
   mac_files.each do |file|
     puts "  Parsing MAC file: " + file
 
     # Parse each line in the macro file
-    File.open(file,"r") do |infile|
+    File.open(file, "r") do |infile|
       out_file = File.open(File.join(Dir.pwd, file[0..-5] + "_macro.rb"), "w")
       infile.each do |line|
-        parse_line(line,@out_file)
+        parse_line(line, @out_file)
       end
       @out_file.close
     end
@@ -1124,7 +1124,7 @@ else
     puts "  Parsing PRC file: " + file
 
     # Open each procedure
-    File.open(file,"r") do |infile|
+    File.open(file, "r") do |infile|
       # Open its equivalent Ruby output file
       @out_file = File.open(File.join(Dir.pwd, File.basename(file)[0..-5] + ".rb"), "w")
 

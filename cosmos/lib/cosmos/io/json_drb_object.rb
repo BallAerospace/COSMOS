@@ -28,7 +28,6 @@ require 'uri'
 require 'httpclient'
 
 module Cosmos
-
   # Used to forward all method calls to the remote server object. Before using
   # this class ensure the remote service has been started in the server class:
   #
@@ -96,6 +95,7 @@ module Cosmos
         first_try = true
         loop do
           raise DRb::DRbConnError, "Shutdown" if @shutdown
+
           connect() if !@http or @request_in_progress
 
           response = make_request(method_name, method_params, keyword_params, first_try)
@@ -111,6 +111,7 @@ module Cosmos
     end
 
     private
+
     def connect
       if @request_in_progress
         disconnect()
@@ -143,7 +144,7 @@ module Cosmos
           'Authorization' => $cosmos_token || 'invalid'
         }
         res = @http.post(@uri,
-                         :body   => @request_data,
+                         :body => @request_data,
                          :header => headers)
         @response_data = res.body
         @request_in_progress = false
@@ -152,6 +153,7 @@ module Cosmos
       rescue => e
         disconnect()
         return false if first_try
+
         raise DRb::DRbConnError, e.message, e.backtrace
       end
       @response_data
@@ -175,7 +177,5 @@ module Cosmos
         raise DRb::DRbConnError, "No response from server"
       end
     end
-
   end # class JsonDRbObject
-
 end # module Cosmos

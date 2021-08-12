@@ -34,23 +34,23 @@ module Cosmos
     end
 
     def self.generate_default(filename)
-      default_config =<<EOF
-# Example Host Bridge Configuration for a Serial Port
-#
-# INTERFACE <Interface Name> <Interface File> <Interface Params...>
-# INTERFACE <Interface Name> serial_interface.rb <Write Port> <Read Port> <Baud Rate> <Parity ODD/EVEN/NONE> <Stop Bits> <Write Timeout> <Read Timeout> <Protocol Name> <Protocol Params>
-# INTERFACE <Interface Name> serial_interface.rb <Write Port> <Read Port> <Baud Rate> <Parity ODD/EVEN/NONE> <Stop Bits> <Write Timeout> <Read Timeout> BURST <Discard Leading Bytes> <Sync Pattern> <Add Sync On Write>
-# INTERFACE SERIAL_INT serial_interface.rb /dev/ttyS1 /dev/ttyS1 38400 ODD 1 10.0 nil BURST 4 0xDEADBEEF
-INTERFACE SERIAL_INT serial_interface.rb COM1 COM1 9600 NONE 1 10.0 nil BURST
-
-# ROUTER <Router Name> <Interface File> <Interface Params...>
-# ROUTER SERIAL_ROUTER tcpip_server_interface.rb <Write Port> <Read Port> <Write Timeout> <Read Timeout> <Protocol Name> <Protocol Params>
-# ROUTER SERIAL_ROUTER tcpip_server_interface.rb <Write Port> <Read Port> <Write Timeout> <Read Timeout> BURST <Discard Leading Bytes> <Sync Pattern> <Add Sync On Write>
-ROUTER SERIAL_ROUTER tcpip_server_interface.rb 2950 2950 10.0 nil BURST
-  # ROUTE <Interface Name>
-  ROUTE SERIAL_INT
-
-EOF
+      default_config = <<~EOF
+                # Example Host Bridge Configuration for a Serial Port
+                #
+                # INTERFACE <Interface Name> <Interface File> <Interface Params...>
+                # INTERFACE <Interface Name> serial_interface.rb <Write Port> <Read Port> <Baud Rate> <Parity ODD/EVEN/NONE> <Stop Bits> <Write Timeout> <Read Timeout> <Protocol Name> <Protocol Params>
+                # INTERFACE <Interface Name> serial_interface.rb <Write Port> <Read Port> <Baud Rate> <Parity ODD/EVEN/NONE> <Stop Bits> <Write Timeout> <Read Timeout> BURST <Discard Leading Bytes> <Sync Pattern> <Add Sync On Write>
+                # INTERFACE SERIAL_INT serial_interface.rb /dev/ttyS1 /dev/ttyS1 38400 ODD 1 10.0 nil BURST 4 0xDEADBEEF
+                INTERFACE SERIAL_INT serial_interface.rb COM1 COM1 9600 NONE 1 10.0 nil BURST
+        #{'        '}
+                # ROUTER <Router Name> <Interface File> <Interface Params...>
+                # ROUTER SERIAL_ROUTER tcpip_server_interface.rb <Write Port> <Read Port> <Write Timeout> <Read Timeout> <Protocol Name> <Protocol Params>
+                # ROUTER SERIAL_ROUTER tcpip_server_interface.rb <Write Port> <Read Port> <Write Timeout> <Read Timeout> BURST <Discard Leading Bytes> <Sync Pattern> <Add Sync On Write>
+                ROUTER SERIAL_ROUTER tcpip_server_interface.rb 2950 2950 10.0 nil BURST
+                  # ROUTE <Interface Name>
+                  ROUTE SERIAL_INT
+        #{'        '}
+      EOF
 
       Logger.info "Writing #{filename}"
       File.open(filename, 'w') do |file|
@@ -82,6 +82,7 @@ EOF
             parser.verify_num_parameters(2, nil, usage)
             interface_name = params[0].upcase
             raise parser.error("Interface '#{interface_name}' defined twice") if @interfaces[interface_name]
+
             interface_class = Cosmos.require_class(params[1])
             if params[2]
               current_interface_or_router = interface_class.new(*params[2..-1])
@@ -117,6 +118,7 @@ EOF
               unless %w(READ WRITE READ_WRITE).include? params[0].upcase
                 raise parser.error("Invalid protocol type: #{params[0]}", usage)
               end
+
               begin
                 klass = Cosmos.require_class(params[1])
                 current_interface_or_router.add_protocol(klass, params[2..-1], params[0].upcase.intern)
@@ -131,11 +133,12 @@ EOF
             parser.verify_num_parameters(2, nil, usage)
             router_name = params[0].upcase
             raise parser.error("Router '#{router_name}' defined twice") if @routers[router_name]
+
             router_class = Cosmos.require_class(params[1])
             if params[2]
-             current_interface_or_router = router_class.new(*params[2..-1])
+              current_interface_or_router = router_class.new(*params[2..-1])
             else
-             current_interface_or_router = router_class.new
+              current_interface_or_router = router_class.new
             end
             current_type = :ROUTER
             current_interface_or_router.name = router_name
@@ -143,11 +146,13 @@ EOF
 
           when 'ROUTE'
             raise parser.error("No current router for #{keyword}") unless current_interface_or_router and current_type == :ROUTER
+
             usage = "ROUTE <Interface Name>"
             parser.verify_num_parameters(1, 1, usage)
             interface_name = params[0].upcase
             interface = @interfaces[interface_name]
             raise parser.error("Unknown interface #{interface_name} mapped to router #{current_interface_or_router.name}") unless interface
+
             unless current_interface_or_router.interfaces.include? interface
               current_interface_or_router.interfaces << interface
               interface.routers << current_interface_or_router
@@ -156,7 +161,7 @@ EOF
           else
             # blank lines will have a nil keyword and should not raise an exception
             raise parser.error("Unknown keyword: #{keyword}") unless keyword.nil?
-          end  # case
+          end # case
         end  # loop
       end
     end

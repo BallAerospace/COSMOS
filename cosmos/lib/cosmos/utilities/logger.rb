@@ -174,6 +174,7 @@ module Cosmos
     # @return [Logger] The logger instance
     def self.instance
       return @@instance if @@instance
+
       @@mutex.synchronize do
         @@instance ||= self.new
       end
@@ -181,6 +182,7 @@ module Cosmos
     end
 
     protected
+
     def log_metric(data, scope:, &block)
       @mutex.synchronize do
         data[:time] = Time.now.to_nsec_from_epoch

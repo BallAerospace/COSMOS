@@ -30,6 +30,7 @@ describe Class do
           @@instance ||= self.new
           return @@instance
         end
+
         def initialize
           @test = "Test"
           @@instance = self
@@ -67,6 +68,7 @@ describe Class do
           @@instance ||= self.new
           return @@instance
         end
+
         def initialize
           @test = "Test"
           @@instance = self

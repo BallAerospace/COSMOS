@@ -22,27 +22,27 @@ require 'cosmos/models/timeline_model'
 require 'cosmos/models/activity_model'
 
 module Cosmos
-
   describe TimelineModel do
     before(:each) do
       mock_redis()
     end
 
     def generate_activity(name:, scope:, start:)
-        t = Time.now
-        start_time = t + (start * 60)
-        end_time = t + ((start + 10) * 60)
-        start = start_time.to_i
-        stop = end_time.to_i
-        kind = "cmd"
-        data = {"test"=>"test"}
-        ActivityModel.new(
-          name: name,
-          scope: scope,
-          start: start,
-          stop: stop,
-          kind: kind,
-          data: data)
+      t = Time.now
+      start_time = t + (start * 60)
+      end_time = t + ((start + 10) * 60)
+      start = start_time.to_i
+      stop = end_time.to_i
+      kind = "cmd"
+      data = { "test" => "test" }
+      ActivityModel.new(
+        name: name,
+        scope: scope,
+        start: start,
+        stop: stop,
+        kind: kind,
+        data: data
+      )
     end
 
     describe "self.get" do
@@ -59,7 +59,7 @@ module Cosmos
       end
     end
 
-   describe "self.all" do
+    describe "self.all" do
       it "returns all the timeline and values" do
         scope = "scope"
         model = TimelineModel.new(name: "foo", scope: scope)
@@ -143,7 +143,7 @@ module Cosmos
         TimelineModel.delete(name: name, scope: scope)
         activity = generate_activity(name: name, scope: scope, start: 1)
         activity.create()
-        expect{
+        expect {
           TimelineModel.delete(name: name, scope: scope)
         }.to raise_error(TimelineError)
       end
@@ -168,6 +168,5 @@ module Cosmos
         model.deploy()
       end
     end
-
   end
 end

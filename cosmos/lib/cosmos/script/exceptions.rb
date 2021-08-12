@@ -20,8 +20,10 @@
 module Cosmos
   # Error raised by the API when a check fails
   class CheckError < StandardError; end
+
   # Error raised by the API when a script should be stopped
   class StopScript < StandardError; end
+
   # Error raised by the API when a case should be skipped
   class SkipScript < StandardError; end
 end

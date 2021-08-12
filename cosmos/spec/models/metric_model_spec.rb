@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/models/metric_model'
 
 module Cosmos
-
   describe MetricModel do
     before(:each) do
       mock_redis()

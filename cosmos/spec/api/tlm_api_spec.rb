@@ -155,33 +155,33 @@ module Cosmos
 
     describe "tlm_variable" do
       it "complains about unknown targets, commands, and parameters" do
-        expect { @api.tlm_variable("BLAH HEALTH_STATUS COLLECTS",:RAW) }.to raise_error(/does not exist/)
-        expect { @api.tlm_variable("INST UNKNOWN COLLECTS",:RAW) }.to raise_error(/does not exist/)
-        expect { @api.tlm_variable("INST HEALTH_STATUS BLAH",:RAW) }.to raise_error(/does not exist/)
-        expect { @api.tlm_variable("BLAH", "HEALTH_STATUS", "COLLECTS",:RAW) }.to raise_error(/does not exist/)
-        expect { @api.tlm_variable("INST", "UNKNOWN", "COLLECTS",:RAW) }.to raise_error(/does not exist/)
-        expect { @api.tlm_variable("INST", "HEALTH_STATUS", "BLAH",:RAW) }.to raise_error(/does not exist/)
+        expect { @api.tlm_variable("BLAH HEALTH_STATUS COLLECTS", :RAW) }.to raise_error(/does not exist/)
+        expect { @api.tlm_variable("INST UNKNOWN COLLECTS", :RAW) }.to raise_error(/does not exist/)
+        expect { @api.tlm_variable("INST HEALTH_STATUS BLAH", :RAW) }.to raise_error(/does not exist/)
+        expect { @api.tlm_variable("BLAH", "HEALTH_STATUS", "COLLECTS", :RAW) }.to raise_error(/does not exist/)
+        expect { @api.tlm_variable("INST", "UNKNOWN", "COLLECTS", :RAW) }.to raise_error(/does not exist/)
+        expect { @api.tlm_variable("INST", "HEALTH_STATUS", "BLAH", :RAW) }.to raise_error(/does not exist/)
       end
 
       it "processes a string" do
-        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:CONVERTED)).to eql(-100.0)
-        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:RAW)).to eql 0
-        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:FORMATTED)).to eql "-100.000"
-        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1",:WITH_UNITS)).to eql "-100.000 C"
+        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1", :CONVERTED)).to eql(-100.0)
+        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1", :RAW)).to eql 0
+        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1", :FORMATTED)).to eql "-100.000"
+        expect(@api.tlm_variable("INST HEALTH_STATUS TEMP1", :WITH_UNITS)).to eql "-100.000 C"
       end
 
       it "returns the value using LATEST" do
-        expect(@api.tlm_variable("INST LATEST TEMP1",:CONVERTED)).to eql(-100.0)
-        expect(@api.tlm_variable("INST LATEST TEMP1",:RAW)).to eql 0
-        expect(@api.tlm_variable("INST LATEST TEMP1",:FORMATTED)).to eql "-100.000"
-        expect(@api.tlm_variable("INST LATEST TEMP1",:WITH_UNITS)).to eql "-100.000 C"
+        expect(@api.tlm_variable("INST LATEST TEMP1", :CONVERTED)).to eql(-100.0)
+        expect(@api.tlm_variable("INST LATEST TEMP1", :RAW)).to eql 0
+        expect(@api.tlm_variable("INST LATEST TEMP1", :FORMATTED)).to eql "-100.000"
+        expect(@api.tlm_variable("INST LATEST TEMP1", :WITH_UNITS)).to eql "-100.000 C"
       end
 
       it "processes parameters" do
-        expect(@api.tlm_variable("INST", "HEALTH_STATUS", "TEMP1",:CONVERTED)).to eql(-100.0)
-        expect(@api.tlm_variable("INST", "HEALTH_STATUS", "TEMP1",:RAW)).to eql 0
-        expect(@api.tlm_variable("INST", "HEALTH_STATUS", "TEMP1",:FORMATTED)).to eql "-100.000"
-        expect(@api.tlm_variable("INST", "HEALTH_STATUS", "TEMP1",:WITH_UNITS)).to eql "-100.000 C"
+        expect(@api.tlm_variable("INST", "HEALTH_STATUS", "TEMP1", :CONVERTED)).to eql(-100.0)
+        expect(@api.tlm_variable("INST", "HEALTH_STATUS", "TEMP1", :RAW)).to eql 0
+        expect(@api.tlm_variable("INST", "HEALTH_STATUS", "TEMP1", :FORMATTED)).to eql "-100.000"
+        expect(@api.tlm_variable("INST", "HEALTH_STATUS", "TEMP1", :WITH_UNITS)).to eql "-100.000 C"
       end
 
       it "complains with too many parameters" do
@@ -198,9 +198,9 @@ module Cosmos
         expect { @api.set_tlm("BLAH HEALTH_STATUS COLLECTS = 1") }.to raise_error(/does not exist/)
         expect { @api.set_tlm("INST UNKNOWN COLLECTS = 1") }.to raise_error(/does not exist/)
         expect { @api.set_tlm("INST HEALTH_STATUS BLAH = 1") }.to raise_error(/does not exist/)
-        expect { @api.set_tlm("BLAH", "HEALTH_STATUS", "COLLECTS",1) }.to raise_error(/does not exist/)
-        expect { @api.set_tlm("INST", "UNKNOWN", "COLLECTS",1) }.to raise_error(/does not exist/)
-        expect { @api.set_tlm("INST", "HEALTH_STATUS", "BLAH",1) }.to raise_error(/does not exist/)
+        expect { @api.set_tlm("BLAH", "HEALTH_STATUS", "COLLECTS", 1) }.to raise_error(/does not exist/)
+        expect { @api.set_tlm("INST", "UNKNOWN", "COLLECTS", 1) }.to raise_error(/does not exist/)
+        expect { @api.set_tlm("INST", "HEALTH_STATUS", "BLAH", 1) }.to raise_error(/does not exist/)
       end
 
       it "complains with too many parameters" do
@@ -311,13 +311,13 @@ module Cosmos
         expect { @api.override_tlm("BLAH HEALTH_STATUS COLLECTS = 1") }.to raise_error(/does not exist/)
         expect { @api.override_tlm("INST UNKNOWN COLLECTS = 1") }.to raise_error(/does not exist/)
         expect { @api.override_tlm("INST HEALTH_STATUS BLAH = 1") }.to raise_error(/does not exist/)
-        expect { @api.override_tlm("BLAH", "HEALTH_STATUS", "COLLECTS",1) }.to raise_error(/does not exist/)
-        expect { @api.override_tlm("INST", "UNKNOWN", "COLLECTS",1) }.to raise_error(/does not exist/)
-        expect { @api.override_tlm("INST", "HEALTH_STATUS", "BLAH",1) }.to raise_error(/does not exist/)
+        expect { @api.override_tlm("BLAH", "HEALTH_STATUS", "COLLECTS", 1) }.to raise_error(/does not exist/)
+        expect { @api.override_tlm("INST", "UNKNOWN", "COLLECTS", 1) }.to raise_error(/does not exist/)
+        expect { @api.override_tlm("INST", "HEALTH_STATUS", "BLAH", 1) }.to raise_error(/does not exist/)
       end
 
       it "complains with too many parameters" do
-        expect { @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", "TEMP2",0.0) }.to raise_error(/Invalid number of arguments/)
+        expect { @api.override_tlm("INST", "HEALTH_STATUS", "TEMP1", "TEMP2", 0.0) }.to raise_error(/Invalid number of arguments/)
       end
 
       it "overrides raw values" do
@@ -366,7 +366,7 @@ module Cosmos
       end
 
       it "complains with too many parameters" do
-        expect { @api.normalize_tlm("INST", "HEALTH_STATUS", "TEMP1",0.0) }.to raise_error(/Invalid number of arguments/)
+        expect { @api.normalize_tlm("INST", "HEALTH_STATUS", "TEMP1", 0.0) }.to raise_error(/Invalid number of arguments/)
       end
 
       it "clears all overrides" do
@@ -630,7 +630,7 @@ module Cosmos
         TelemetryDecomTopic.write_packet(packet, scope: "DEFAULT")
         sleep(0.01)
 
-        id = @api.subscribe_packets([["INST","HEALTH_STATUS"],["INST","ADCS"]])
+        id = @api.subscribe_packets([["INST", "HEALTH_STATUS"], ["INST", "ADCS"]])
         sleep(0.01)
 
         # Write some packets that should be returned and one that will not

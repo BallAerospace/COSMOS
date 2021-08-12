@@ -62,6 +62,7 @@ class Array
       first_value = self[0].to_f
       last_value = self[-1].to_f
       return 0 if first_value == last_value
+
       slope = last_index.to_f / (last_value - first_value)
       offset = -(slope * first_value)
       guess_index = ((slope * value.to_f) + offset).to_i
@@ -119,6 +120,7 @@ class Array
 
       # Return our best guess
       return 0 if guess_index < 0
+
       return last_index
     else # Brute force search
       # Calculate the initial delta
@@ -136,6 +138,7 @@ class Array
           # the value we are searching for is greater than the current value.
           # If so we skip this value since we don't want to round down.
           next if (delta == min_delta) and (value > self_value)
+
           min_delta = delta
           closest_index = index
         end
@@ -161,6 +164,7 @@ class Array
     end
 
     return index if self[index] <= value
+
     index -= 1 if index > 0
     return index
   end
@@ -183,6 +187,7 @@ class Array
     end
 
     return index if self[index] >= value
+
     index += 1 if (self.length - 1) > index
     return index
   end
@@ -199,6 +204,7 @@ class Array
   #   start_value and end_value
   def range_containing(start_value, end_value)
     raise "end_value: #{end_value} must be greater than start_value: #{start_value}" if end_value < start_value
+
     Range.new(index_lt_eq(start_value), index_gt_eq(end_value))
   end
 
@@ -214,6 +220,7 @@ class Array
   #   start_value and end_value
   def range_within(start_value, end_value)
     raise "end_value: #{end_value} must be greater than start_value: #{start_value}" if end_value < start_value
+
     range = Range.new(index_gt_eq(start_value), index_lt_eq(end_value))
     # Sometimes we get a backwards range so check for that and reverse it
     range = Range.new(range.last, range.first) if range.last < range.first
@@ -230,12 +237,13 @@ class Array
   # return [Float] The mean of all the elements in the array
   def mean
     return 0.0 if self.empty?
+
     return self.sum / self.length.to_f
   end
 
   # return [Array] A new array with each value of the original squared
   def squared
-    self.map {|value| value * value}
+    self.map { |value| value * value }
   end
 
   if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
@@ -306,7 +314,7 @@ class Array
 
     # Sort buckets by value, use block for sorting if given
     if block_given?
-      sorted_buckets = buckets.sort {|x, y| yield(x,y)}
+      sorted_buckets = buckets.sort { |x, y| yield(x, y) }
     else
       sorted_buckets = buckets.sort
     end
@@ -333,7 +341,7 @@ class Array
             buckets[first_value + index] ||= 0
           end
           if block_given?
-            sorted_buckets = buckets.sort {|val1, val2| yield(val1, val2) }
+            sorted_buckets = buckets.sort { |val1, val2| yield(val1, val2) }
           else
             sorted_buckets = buckets.sort
           end
@@ -358,6 +366,7 @@ class Array
         sorted_index = 0
         num_buckets.times do |bucket_index|
           break if sorted_index > (sorted_buckets.length - 1)
+
           sum = 0
           bucket_range = bucket_ranges[bucket_index]
           while bucket_range.include?(sorted_buckets[sorted_index][0])
@@ -376,6 +385,7 @@ class Array
         if excess_items > 0
           bucket_sizes.length.times do |bucket_size_index|
             break if excess_items <= 0
+
             bucket_sizes[bucket_size_index] += 1
             excess_items -= 1
           end
@@ -385,6 +395,7 @@ class Array
         first_index = 0
         num_buckets.times do |bucket_index|
           break if first_index > (sorted_buckets.length - 1)
+
           if bucket_index == (num_buckets - 1)
             last_index = sorted_buckets.length - 1
           else
@@ -392,15 +403,14 @@ class Array
             last_index = sorted_buckets.length - 1 if last_index > (sorted_buckets.length - 1)
           end
           sum = 0
-          sorted_buckets[first_index..last_index].each {|key, value| sum += value}
+          sorted_buckets[first_index..last_index].each { |key, value| sum += value }
           reduced_buckets[bucket_index] = [sorted_buckets[first_index][0], sorted_buckets[last_index][0], sum]
           first_index = first_index + bucket_sizes[bucket_index]
         end
       end
     else
-      sorted_buckets.each {|key, value| reduced_buckets << [key, key, value]}
+      sorted_buckets.each { |key, value| reduced_buckets << [key, key, value] }
     end
     reduced_buckets
   end
-
 end # class Array

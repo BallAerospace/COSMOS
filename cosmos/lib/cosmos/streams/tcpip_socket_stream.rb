@@ -24,7 +24,6 @@ require 'cosmos/streams/stream'
 require 'cosmos/config/config_parser'
 
 module Cosmos
-
   # Data {Stream} which reads and writes from Tcpip Sockets.
   class TcpipSocketStream < Stream
     attr_reader :write_socket
@@ -64,6 +63,7 @@ module Cosmos
           while true # Loop until we get some data
             data = @read_socket.read_nonblock(65535, exception: false)
             raise EOFError, 'end of file reached' unless data
+
             if data == :wait_readable
               # Wait for the socket to be ready for reading or for the timeout
               begin
@@ -129,6 +129,7 @@ module Cosmos
         if FAST_READ
           data = @read_socket.read_nonblock(65535, exception: false)
           raise EOFError, 'end of file reached' unless data
+
           data = '' if data == :wait_readable
         else
           data = @read_socket.read_nonblock(65535)
@@ -166,6 +167,7 @@ module Cosmos
           end
           total_bytes_sent += bytes_sent
           break if total_bytes_sent >= num_bytes_to_send
+
           data_to_send = data[total_bytes_sent..-1]
         end
       end
@@ -189,7 +191,5 @@ module Cosmos
       @pipe_writer.write('.')
       @connected = false
     end
-
   end # class TcpipSocketStream
-
 end # module Cosmos

@@ -24,12 +24,10 @@ require 'cosmos/streams/tcpip_socket_stream'
 require 'cosmos/config/config_parser'
 
 module Cosmos
-
   # Data {Stream} which reads and writes to TCPIP sockets. This class creates
   # the actual sockets based on the constructor parameters. The rest of the
   # interface is implemented by the super class {TcpipSocketStream}.
   class TcpipClientStream < TcpipSocketStream
-
     # @param hostname [String] The host to connect to
     # @param write_port [Integer|nil] The port to write. Pass nil to make this
     #   a read only stream.
@@ -90,6 +88,7 @@ module Cosmos
     end
 
     protected
+
     def connect_nonblock(socket, addr)
       socket.connect_nonblock(addr)
     rescue IO::WaitWritable
@@ -113,7 +112,5 @@ module Cosmos
     rescue IOError, Errno::ENOTSOCK
       raise "Connect canceled"
     end
-
   end # class TcpipClientStream
-
 end # module Cosmos

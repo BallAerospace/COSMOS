@@ -196,7 +196,7 @@ module Cosmos
     thread
   end
 
-   # Runs a hash algorithm over one or more files and returns the Digest object.
+  # Runs a hash algorithm over one or more files and returns the Digest object.
   # Handles windows/unix new line differences but changes in whitespace will
   # change the hash sum.
   #
@@ -216,6 +216,7 @@ module Cosmos
     Cosmos.set_working_dir do
       filenames.each do |filename|
         next if File.directory?(filename)
+
         # Read the file's data and add to the running hashing sum
         digest << File.read(filename)
       end
@@ -322,7 +323,7 @@ module Cosmos
       file.puts ""
       file.puts "Ruby Path:\n  #{$:.join("\n  ")}\n\n"
       file.puts "Gems:"
-      Gem.loaded_specs.values.map {|x| file.puts "#{x.name} #{x.version} #{x.platform}"}
+      Gem.loaded_specs.values.map { |x| file.puts "#{x.name} #{x.version} #{x.platform}" }
       file.puts ""
       file.puts "All Threads Backtraces:"
       Thread.list.each do |thread|
@@ -446,9 +447,11 @@ module Cosmos
       class_filename = class_name.class_name_to_filename
     end
     return class_name.to_class if class_name.to_class and defined? class_name.to_class
+
     self.require_file(class_filename, log_error)
     klass = class_name.to_class
     raise "Ruby class #{class_name} not found" unless klass
+
     klass
   end
 
@@ -460,7 +463,7 @@ module Cosmos
     require filename
   rescue Exception => err
     msg = "Unable to require #{filename} due to #{err.message}. "\
-      "Ensure #{filename} is in the COSMOS lib directory."
+          "Ensure #{filename} is in the COSMOS lib directory."
     Logger.error msg if log_error
     raise $!, msg, $!.backtrace
   end
@@ -469,7 +472,7 @@ module Cosmos
   def self.open_in_web_browser(filename)
     if filename
       if Kernel.is_windows?
-        self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/','\\')}\"\"")
+        self.run_process("cmd /c \"start \"\" \"#{filename.gsub('/', '\\')}\"\"")
       elsif Kernel.is_mac?
         self.run_process("open -a Safari \"#{filename}\"")
       else
@@ -479,6 +482,7 @@ module Cosmos
         else
           system_call = "#{which_firefox} \"#{filename}\""
         end
+
         self.run_process(system_call)
       end
     end

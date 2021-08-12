@@ -25,13 +25,12 @@ elsif RUBY_ENGINE == 'ruby'
 end
 
 module Cosmos
-
   # A platform independent serial driver
   class SerialDriver
     EVEN = :EVEN
     ODD  = :ODD
     NONE = :NONE
-    VALID_PARITY = [EVEN,ODD,NONE]
+    VALID_PARITY = [EVEN, ODD, NONE]
 
     # @param port_name [String] Name of the serial port
     # @param baud_rate [Integer] Serial port baud rate
@@ -52,6 +51,7 @@ module Cosmos
                    flow_control = :NONE,
                    data_bits = 8)
       raise(ArgumentError, "Invalid parity: #{parity}") unless VALID_PARITY.include? parity
+
       if Kernel.is_windows?
         @driver = Win32SerialDriver.new(port_name,
                                         baud_rate,
@@ -101,7 +101,5 @@ module Cosmos
     def read_nonblock
       @driver.read_nonblock
     end
-
   end # class SerialDriver
-
 end # module Cosmos

@@ -38,8 +38,9 @@ module Cosmos
         name: "DEFAULT__REDUCER__INST",
         folder_name: "INST",
         topics: @topics,
-        scope: "DEFAULT")
-        model.create
+        scope: "DEFAULT"
+      )
+      model.create
     end
 
     before(:each) do
@@ -68,7 +69,7 @@ module Cosmos
 
       it "leaves streams that exist" do
         Store.initialize_streams(["DEFAULT__REDUCED_MINUTE__{INST}__ADCS"])
-        100.times { Store.xadd("DEFAULT__REDUCED_MINUTE__{INST}__ADCS", {'test': 'data'}) }
+        100.times { Store.xadd("DEFAULT__REDUCED_MINUTE__{INST}__ADCS", { 'test': 'data' }) }
         @reducer.initialize_streams
         # The stream we've added to should NOT eql 0-0
         expect(Store.get_last_offset("DEFAULT__REDUCED_MINUTE__{INST}__ADCS")).to_not eql "0-0"

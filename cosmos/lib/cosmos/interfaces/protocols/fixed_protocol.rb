@@ -21,7 +21,6 @@ require 'cosmos/config/config_parser'
 require 'cosmos/interfaces/protocols/burst_protocol'
 
 module Cosmos
-
   # Delineates packets by identifying them and then
   # reading out their entire fixed length. Packets lengths can vary but
   # they must all be fixed.
@@ -64,6 +63,7 @@ module Cosmos
     end
 
     protected
+
     # Identifies an unknown buffer of data as a Packet. The raw data is
     # returned but the packet that matched is recorded so it can be set in the
     # read_packet callback.
@@ -94,7 +94,7 @@ module Cosmos
 
         if unique_id_mode
           target_packets.each do |packet_name, packet|
-            if packet.identify?(@data[@discard_leading_bytes .. -1])
+            if packet.identify?(@data[@discard_leading_bytes..-1])
               identified_packet = packet
               break
             end
@@ -103,7 +103,7 @@ module Cosmos
           # Do a hash lookup to quickly identify the packet
           if target_packets.length > 0
             packet = target_packets.first[1]
-            key = packet.read_id_values(@data[@discard_leading_bytes .. -1])
+            key = packet.read_id_values(@data[@discard_leading_bytes..-1])
             if @telemetry
               hash = System.telemetry.config.tlm_id_value_hash[target_name]
             else
@@ -119,6 +119,7 @@ module Cosmos
             # Check if need more data to finish packet
             return :STOP
           end
+
           # Set some variables so we can update the packet in
           # read_packet
           @received_time = Time.now.sys
@@ -133,6 +134,7 @@ module Cosmos
 
       unless identified_packet
         raise "Unknown data received by FixedProtocol" if @unknown_raise
+
         # Unknown packet? Just return all the current data
         @received_time = nil
         @target_name = nil
@@ -146,6 +148,7 @@ module Cosmos
 
     def reduce_to_single_packet
       return :STOP if @data.length < @min_id_size
+
       identify_and_finish_packet()
     end
   end

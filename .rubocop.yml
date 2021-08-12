@@ -1,24 +1,33 @@
-# Base our rules on Rails
-inherit_from:
-  - https://raw.githubusercontent.com/rails/rails/master/.rubocop.yml
-Style/StringLiterals:
-  Enabled: false # Don't care about single vs double quoted strings
-Layout/SpaceInsideBlockBraces:
-  Enabled: false # We have a lot of {|block| block } vs this { |block| block }
-Layout/IndentationConsistency:
-  Enabled: true
-  EnforcedStyle: normal # Rails uses the 'rails' style
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 2.7
 
-# Our code has a lot of instances of the following:
-Layout/EmptyLinesAroundModuleBody:
-  Enabled: false
-Layout/EmptyLinesAroundClassBody:
-  Enabled: false
-Style/AndOr:
-  Enabled: false
-Layout/SpaceAfterComma:
-  Enabled: false
-Style/HashSyntax:
-  Enabled: false
-Style/RedundantReturn:
-  Enabled: false
+# Layout
+Layout/LineLength:
+  Enabled: false # long lines are allowed
+
+# Style
+Style:
+  Enabled: false # For now disable all style
+# Style/StringLiterals:
+#   Enabled: false # Don't care about single vs double quoted strings
+# Style/UnpackFirst:
+#   Enabled: false # Use name.unpack1('A*') instead of name.unpack('A*')[0]
+# Style/MethodCallWithoutArgsParentheses:
+#   Enabled: false # Allow parens after a method call
+# Style/GlobalVars:
+#   Enabled: false # We need globals in several places
+# Style/MissingRespondToMissing:
+#   Enabled: false # TODO: We don't implement respond_to_missing? Should we?
+# Style/TrailingUnderscoreVariable:
+#   Enabled: false # I prefer "result, _ = method()" to result, = method()"
+
+# Metrics
+Metrics:
+  Enabled: false # For now disable all metrics
+# Metrics/MethodLength:
+#   Enabled: false # Methods can be long
+# Metrics/ClassLength:
+#   Enabled: false # Classes can be long
+# Metrics/AbcSize:
+#   Enabled: false # Assignment Branch Condition size

@@ -25,7 +25,7 @@ module Cosmos
 
     # Write an activity to the topic
     #
-    #```json
+    # ```json
     #  "timeline" => "foobar",
     #  "kind" => "created",
     #  "type" => "activity",
@@ -37,7 +37,7 @@ module Cosmos
     #    "data" => {"cmd"=>"INST ABORT"}
     #    "events" => [{"event"=>"created"}]
     #  }
-    #```
+    # ```
     def self.write_activity(activity, scope:)
       Store.write_topic("#{scope}#{PRIMARY_KEY}", activity)
     end

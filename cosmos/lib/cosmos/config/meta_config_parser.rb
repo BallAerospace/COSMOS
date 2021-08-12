@@ -26,6 +26,7 @@ class Array
     Psych.dump(self).split("\n")[1..-1].join("\n#{' ' * indentation}")
   end
 end
+
 class Hash
   def to_meta_config_yaml(indentation = 0)
     Psych.dump(self).split("\n")[1..-1].join("\n#{' ' * indentation}")

@@ -23,7 +23,6 @@ require 'cosmos/streams/tcpip_client_stream'
 module Cosmos
   # Base class for interfaces that act as a TCP/IP client
   class TcpipClientInterface < StreamInterface
-
     # @param hostname [String] Machine to connect to
     # @param write_port [Integer] Port to write commands to
     # @param read_port [Integer] Port to read telemetry from
@@ -39,7 +38,8 @@ module Cosmos
       write_timeout,
       read_timeout,
       protocol_type = nil,
-      *protocol_args)
+      *protocol_args
+    )
 
       super(protocol_type, protocol_args)
 

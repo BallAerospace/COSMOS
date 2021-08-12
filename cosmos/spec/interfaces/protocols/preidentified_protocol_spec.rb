@@ -37,9 +37,13 @@ module Cosmos
     saved_verbose = $VERBOSE; $VERBOSE = nil
     class PreStream < Stream
       def connect; end
+
       def connected?; true; end
+
       def disconnect; end
+
       def read; $buffer; end
+
       def write(data); $buffer = data; end
     end
     $VERBOSE = saved_verbose
@@ -47,8 +51,8 @@ module Cosmos
     it "handles receiving a bad packet length" do
       @interface.instance_variable_set(:@stream, PreStream.new)
       @interface.add_protocol(PreidentifiedProtocol, [nil, 5], :READ_WRITE)
-      pkt = System.telemetry.packet("SYSTEM","META")
-      time = Time.new(2020,1,31,12,15,30.5)
+      pkt = System.telemetry.packet("SYSTEM", "META")
+      time = Time.new(2020, 1, 31, 12, 15, 30.5)
       pkt.received_time = time
       @interface.write(pkt)
       expect { @interface.read }.to raise_error(RuntimeError)
@@ -67,8 +71,8 @@ module Cosmos
       it "creates a packet header" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedProtocol, [nil, 5], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META")
-        time = Time.new(2020,1,31,12,15,30.5)
+        pkt = System.telemetry.packet("SYSTEM", "META")
+        time = Time.new(2020, 1, 31, 12, 15, 30.5)
         pkt.received_time = time
         @interface.write(pkt)
         expect($buffer[0..0].unpack('C')[0]).to eql 0
@@ -91,8 +95,8 @@ module Cosmos
       it "creates a packet header with stored" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedProtocol, [nil, 5], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META").clone
-        time = Time.new(2020,1,31,12,15,30.5)
+        pkt = System.telemetry.packet("SYSTEM", "META").clone
+        time = Time.new(2020, 1, 31, 12, 15, 30.5)
         pkt.received_time = time
         pkt.stored = true
         @interface.write(pkt)
@@ -116,8 +120,8 @@ module Cosmos
       it "creates a packet header with extra" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedProtocol, [nil, 5], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META").clone
-        time = Time.new(2020,1,31,12,15,30.5)
+        pkt = System.telemetry.packet("SYSTEM", "META").clone
+        time = Time.new(2020, 1, 31, 12, 15, 30.5)
         pkt.received_time = time
         pkt.stored = false
         extra_data = { "vcid" => 2 }
@@ -150,8 +154,8 @@ module Cosmos
       it "creates a packet header with stored and extra" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedProtocol, [nil, 5], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META").clone
-        time = Time.new(2020,1,31,12,15,30.5)
+        pkt = System.telemetry.packet("SYSTEM", "META").clone
+        time = Time.new(2020, 1, 31, 12, 15, 30.5)
         pkt.received_time = time
         pkt.stored = true
         extra_data = { "vcid" => 2 }
@@ -184,8 +188,8 @@ module Cosmos
       it "handles a sync pattern" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedProtocol, ["DEAD"], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META")
-        time = Time.new(2020,1,31,12,15,30.5)
+        pkt = System.telemetry.packet("SYSTEM", "META")
+        time = Time.new(2020, 1, 31, 12, 15, 30.5)
         pkt.received_time = time
         @interface.write(pkt)
         expect($buffer[0..1]).to eql("\xDE\xAD")
@@ -209,8 +213,8 @@ module Cosmos
       it "handles a sync pattern with stored and extra" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedProtocol, ["DEAD", 5], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META").clone
-        time = Time.new(2020,1,31,12,15,30.5)
+        pkt = System.telemetry.packet("SYSTEM", "META").clone
+        time = Time.new(2020, 1, 31, 12, 15, 30.5)
         pkt.received_time = time
         pkt.stored = true
         extra_data = { "vcid" => 2 }
@@ -246,9 +250,9 @@ module Cosmos
       it "handles a sync pattern" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedProtocol, ["0x1234"], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META")
+        pkt = System.telemetry.packet("SYSTEM", "META")
         pkt.write("COSMOS_VERSION", "TEST")
-        time = Time.new(2020,1,31,12,15,30.5)
+        time = Time.new(2020, 1, 31, 12, 15, 30.5)
         pkt.received_time = time
         @interface.write(pkt)
         expect($buffer[0]).to eql "\x12"
@@ -259,7 +263,7 @@ module Cosmos
         expect(packet.identified?).to be true
         expect(packet.defined?).to be false
 
-        pkt2 = System.telemetry.update!("SYSTEM","META",packet.buffer)
+        pkt2 = System.telemetry.update!("SYSTEM", "META", packet.buffer)
         expect(pkt2.read('COSMOS_VERSION')).to eql 'TEST'
         expect(pkt2.identified?).to be true
         expect(pkt2.defined?).to be true
@@ -268,9 +272,9 @@ module Cosmos
       it "returns a packet" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedProtocol, [], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META")
+        pkt = System.telemetry.packet("SYSTEM", "META")
         pkt.write("COSMOS_VERSION", "TEST")
-        time = Time.new(2020,1,31,12,15,30.5)
+        time = Time.new(2020, 1, 31, 12, 15, 30.5)
         pkt.received_time = time
         @interface.write(pkt)
         packet = @interface.read
@@ -279,7 +283,7 @@ module Cosmos
         expect(packet.identified?).to be true
         expect(packet.defined?).to be false
 
-        pkt2 = System.telemetry.update!("SYSTEM","META",packet.buffer)
+        pkt2 = System.telemetry.update!("SYSTEM", "META", packet.buffer)
         expect(pkt2.read('COSMOS_VERSION')).to eql 'TEST'
         expect(pkt2.identified?).to be true
         expect(pkt2.defined?).to be true
@@ -290,8 +294,8 @@ module Cosmos
       it "creates a packet header" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedProtocol, [nil, 5, 2], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META")
-        time = Time.new(2020,1,31,12,15,30.5)
+        pkt = System.telemetry.packet("SYSTEM", "META")
+        time = Time.new(2020, 1, 31, 12, 15, 30.5)
         pkt.received_time = time
         @interface.write(pkt)
         expect($buffer[0..3].unpack('N')[0]).to eql time.to_f.to_i
@@ -313,8 +317,8 @@ module Cosmos
       it "handles a sync pattern" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedProtocol, ["DEAD", nil, 2], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META")
-        time = Time.new(2020,1,31,12,15,30.5)
+        pkt = System.telemetry.packet("SYSTEM", "META")
+        time = Time.new(2020, 1, 31, 12, 15, 30.5)
         pkt.received_time = time
         @interface.write(pkt)
         expect($buffer[0..1]).to eql("\xDE\xAD")
@@ -339,9 +343,9 @@ module Cosmos
       it "handles a sync pattern" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedProtocol, ["0x1234", nil, 2], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META")
+        pkt = System.telemetry.packet("SYSTEM", "META")
         pkt.write("COSMOS_VERSION", "TEST")
-        time = Time.new(2020,1,31,12,15,30.5)
+        time = Time.new(2020, 1, 31, 12, 15, 30.5)
         pkt.received_time = time
         @interface.write(pkt)
         expect($buffer[0]).to eql "\x12"
@@ -352,7 +356,7 @@ module Cosmos
         expect(packet.identified?).to be true
         expect(packet.defined?).to be false
 
-        pkt2 = System.telemetry.update!("SYSTEM","META",packet.buffer)
+        pkt2 = System.telemetry.update!("SYSTEM", "META", packet.buffer)
         expect(pkt2.read('COSMOS_VERSION')).to eql 'TEST'
         expect(pkt2.identified?).to be true
         expect(pkt2.defined?).to be true
@@ -361,9 +365,9 @@ module Cosmos
       it "returns a packet" do
         @interface.instance_variable_set(:@stream, PreStream.new)
         @interface.add_protocol(PreidentifiedProtocol, [nil, nil, 2], :READ_WRITE)
-        pkt = System.telemetry.packet("SYSTEM","META")
+        pkt = System.telemetry.packet("SYSTEM", "META")
         pkt.write("COSMOS_VERSION", "TEST")
-        time = Time.new(2020,1,31,12,15,30.5)
+        time = Time.new(2020, 1, 31, 12, 15, 30.5)
         pkt.received_time = time
         @interface.write(pkt)
         packet = @interface.read
@@ -372,7 +376,7 @@ module Cosmos
         expect(packet.identified?).to be true
         expect(packet.defined?).to be false
 
-        pkt2 = System.telemetry.update!("SYSTEM","META",packet.buffer)
+        pkt2 = System.telemetry.update!("SYSTEM", "META", packet.buffer)
         expect(pkt2.read('COSMOS_VERSION')).to eql 'TEST'
         expect(pkt2.identified?).to be true
         expect(pkt2.defined?).to be true

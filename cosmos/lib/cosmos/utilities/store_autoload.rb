@@ -44,6 +44,7 @@ module Cosmos
     def self.instance(pool_size = 100)
       # Logger.level = Logger::DEBUG
       return @@instance if @@instance
+
       @@instance_mutex.synchronize do
         @@instance ||= self.new(pool_size)
         return @@instance
@@ -55,6 +56,7 @@ module Cosmos
       def self.method_missing(message, *args, &block)
         self.instance.public_send(message, *args, &block)
       end
+
       # Delegate all unknown methods to redis through the @redis_pool
       def method_missing(message, *args, &block)
         @redis_pool.with { |redis| redis.public_send(message, *args, &block) }
@@ -64,6 +66,7 @@ module Cosmos
       def self.method_missing(message, *args, **kwargs, &block)
         self.instance.public_send(message, *args, **kwargs, &block)
       end
+
       # Delegate all unknown methods to redis through the @redis_pool
       def method_missing(message, *args, **kwargs, &block)
         @redis_pool.with { |redis| redis.public_send(message, *args, **kwargs, &block) }
@@ -107,10 +110,13 @@ module Cosmos
           # Start from the most complex down to the basic raw value
           value = hash["#{param_name}__U"]
           return value if value && type == :WITH_UNITS
+
           value = hash["#{param_name}__F"]
           return value if value && (type == :WITH_UNITS || type == :FORMATTED)
+
           value = hash["#{param_name}__C"]
           return value if value && (type == :WITH_UNITS || type == :FORMATTED || type == :CONVERTED)
+
           return hash[param_name]
         end
       end
@@ -123,6 +129,7 @@ module Cosmos
     def self.initialize_streams(topics)
       self.instance.initialize_streams(topics)
     end
+
     def initialize_streams(topics)
       @redis_pool.with do |redis|
         topics.each do |topic|
@@ -135,6 +142,7 @@ module Cosmos
     def self.get_oldest_message(topic)
       self.instance.get_oldest_message(topic)
     end
+
     def get_oldest_message(topic)
       @redis_pool.with do |redis|
         result = redis.xrange(topic, count: 1)
@@ -145,6 +153,7 @@ module Cosmos
     def self.get_newest_message(topic)
       self.instance.get_newest_message(topic)
     end
+
     def get_newest_message(topic)
       @redis_pool.with do |redis|
         result = redis.xrevrange(topic, count: 1)
@@ -155,6 +164,7 @@ module Cosmos
     def self.get_last_offset(topic)
       self.instance.get_last_offset(topic)
     end
+
     def get_last_offset(topic)
       @redis_pool.with do |redis|
         result = redis.xrevrange(topic, count: 1)
@@ -169,6 +179,7 @@ module Cosmos
     def self.read_topic_last(topic)
       self.instance.read_topic_last(topic)
     end
+
     def read_topic_last(topic)
       @redis_pool.with do |redis|
         # Default in xrevrange is range end '+', start '-' which means get all
@@ -196,6 +207,7 @@ module Cosmos
     def self.update_topic_offsets(topics)
       self.instance.update_topic_offsets(topics)
     end
+
     def update_topic_offsets(topics)
       offsets = []
       topics.each do |topic|
@@ -240,6 +252,7 @@ module Cosmos
     def self.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
       self.instance.write_topic(topic, msg_hash, id, maxlen, approximate)
     end
+
     def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
       # Logger.debug "write_topic topic:#{topic} id:#{id} hash:#{msg_hash}"
       @redis_pool.with do |redis|
@@ -254,6 +267,7 @@ module Cosmos
     def self.trim_topic(topic, minid, approximate = true, limit: 0)
       self.instance.trim_topic(topic, minid, approximate, limit: limit)
     end
+
     def trim_topic(topic, minid, approximate = true, limit: 0)
       @redis_pool.with do |redis|
         return redis.xtrim_minid(topic, minid, approximate: approximate, limit: limit)

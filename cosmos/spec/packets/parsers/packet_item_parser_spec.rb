@@ -132,7 +132,7 @@ module Cosmos
           tf.puts '  APPEND_ARRAY_ITEM ITEM6 32 BLOCK 64'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          expect(@pc.telemetry["TGT1"]["PKT1"].items.keys).to include('ITEM1','ITEM2','ITEM3','ITEM4','ITEM5','ITEM6')
+          expect(@pc.telemetry["TGT1"]["PKT1"].items.keys).to include('ITEM1', 'ITEM2', 'ITEM3', 'ITEM4', 'ITEM5', 'ITEM6')
           id_items = []
           id_items << @pc.telemetry["TGT1"]["PKT1"].items["ITEM1"]
           id_items << @pc.telemetry["TGT1"]["PKT1"].items["ITEM4"]
@@ -284,7 +284,7 @@ module Cosmos
           tf.puts '  APPEND_ARRAY_PARAMETER ITEM8 32 BLOCK 64'
           tf.close
           @pc.process_file(tf.path, "TGT1")
-          expect(@pc.commands["TGT1"]["PKT1"].items.keys).to include('ITEM1','ITEM2','ITEM3','ITEM4','ITEM5','ITEM6','ITEM7','ITEM8')
+          expect(@pc.commands["TGT1"]["PKT1"].items.keys).to include('ITEM1', 'ITEM2', 'ITEM3', 'ITEM4', 'ITEM5', 'ITEM6', 'ITEM7', 'ITEM8')
           tf.unlink
         end
 

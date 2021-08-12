@@ -30,10 +30,10 @@ module Cosmos
     describe "self.get" do
       it "returns the specified interface" do
         model = RouterModel.new(name: "TEST_ROUTE", scope: "DEFAULT",
-          connect_on_startup: false, auto_reconnect: false) # Set a few things to check
+                                connect_on_startup: false, auto_reconnect: false) # Set a few things to check
         model.create
         model = RouterModel.new(name: "SPEC_ROUTE", scope: "DEFAULT",
-          connect_on_startup: true, auto_reconnect: true) # Set to opposite of TEST_ROUTE
+                                connect_on_startup: true, auto_reconnect: true) # Set to opposite of TEST_ROUTE
         model.create
         all = RouterModel.all(scope: "DEFAULT")
         expect(all.keys).to contain_exactly("TEST_ROUTE", "SPEC_ROUTE")
@@ -59,10 +59,10 @@ module Cosmos
     describe "self.all" do
       it "returns all the parsed interfaces" do
         model = RouterModel.new(name: "TEST_ROUTE", scope: "DEFAULT",
-          connect_on_startup: false, auto_reconnect: false) # Set a few things to check
+                                connect_on_startup: false, auto_reconnect: false) # Set a few things to check
         model.create
         model = RouterModel.new(name: "SPEC_ROUTE", scope: "DEFAULT",
-          connect_on_startup: true, auto_reconnect: true) # Set to opposite of TEST_ROUTE
+                                connect_on_startup: true, auto_reconnect: true) # Set to opposite of TEST_ROUTE
         model.create
         all = RouterModel.all(scope: "DEFAULT")
         expect(all.keys).to contain_exactly("TEST_ROUTE", "SPEC_ROUTE")

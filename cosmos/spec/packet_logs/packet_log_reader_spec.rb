@@ -239,8 +239,9 @@ module Cosmos
 
       xit "returns all packets if the start time is before all" do
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, @time) do |packet|
+        @plr.each(Dir[File.join(@log_path, "*cmd.bin")][0], true, @time) do |packet|
           next if packet.packet_name == 'META'
+
           expect(packet.target_name).to eql @cmd_packets[index].target_name
           expect(packet.packet_name).to eql @cmd_packets[index].packet_name
           expect(packet.received_time).to eql @cmd_packets[index].received_time
@@ -252,7 +253,7 @@ module Cosmos
 
       xit "returns no packets if the start time is after all" do
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, @time + 100) do |packet|
+        @plr.each(Dir[File.join(@log_path, "*tlm.bin")][0], true, @time + 100) do |packet|
           index += 1
         end
         expect(index).to eql 0
@@ -260,8 +261,9 @@ module Cosmos
 
       xit "returns all packets after a start time" do
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, @time) do |packet|
+        @plr.each(Dir[File.join(@log_path, "*cmd.bin")][0], true, @time) do |packet|
           next if packet.packet_name == 'META'
+
           expect(packet.target_name).to eql @cmd_packets[index].target_name
           expect(packet.packet_name).to eql @cmd_packets[index].packet_name
           expect(packet.received_time).to eql @cmd_packets[index].received_time
@@ -271,8 +273,9 @@ module Cosmos
         expect(index).to eql 3
 
         index = 1 # @time + 1
-        @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, @time + 1) do |packet|
+        @plr.each(Dir[File.join(@log_path, "*tlm.bin")][0], true, @time + 1) do |packet|
           next if packet.packet_name == 'META'
+
           expect(packet.target_name).to eql @tlm_packets[index].target_name
           expect(packet.packet_name).to eql @tlm_packets[index].packet_name
           expect(packet.received_time).to eql @tlm_packets[index].received_time
@@ -284,7 +287,7 @@ module Cosmos
 
       xit "returns no packets if the end time is before all" do
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, nil, @time - 10) do |packet|
+        @plr.each(Dir[File.join(@log_path, "*tlm.bin")][0], true, nil, @time - 10) do |packet|
           index += 1
         end
         expect(index).to eql 0
@@ -292,8 +295,9 @@ module Cosmos
 
       xit "returns all packets if the end time is after all" do
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, nil, @time + 10) do |packet|
+        @plr.each(Dir[File.join(@log_path, "*cmd.bin")][0], true, nil, @time + 10) do |packet|
           next if packet.packet_name == 'META'
+
           expect(packet.target_name).to eql @cmd_packets[index].target_name
           expect(packet.packet_name).to eql @cmd_packets[index].packet_name
           expect(packet.received_time).to eql @cmd_packets[index].received_time
@@ -305,8 +309,9 @@ module Cosmos
 
       xit "returns all packets before an end time" do
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*cmd.bin")][0], true, nil, @time) do |packet|
+        @plr.each(Dir[File.join(@log_path, "*cmd.bin")][0], true, nil, @time) do |packet|
           next if packet.packet_name == 'META'
+
           expect(packet.target_name).to eql @cmd_packets[index].target_name
           expect(packet.packet_name).to eql @cmd_packets[index].packet_name
           expect(packet.received_time).to eql @cmd_packets[index].received_time
@@ -316,8 +321,9 @@ module Cosmos
         expect(index).to eql 1
 
         index = 0
-        @plr.each(Dir[File.join(@log_path,"*tlm.bin")][0], true, nil, @time + 1) do |packet|
+        @plr.each(Dir[File.join(@log_path, "*tlm.bin")][0], true, nil, @time + 1) do |packet|
           next if packet.packet_name == 'META'
+
           expect(packet.target_name).to eql @tlm_packets[index].target_name
           expect(packet.packet_name).to eql @tlm_packets[index].packet_name
           expect(packet.received_time).to eql @tlm_packets[index].received_time

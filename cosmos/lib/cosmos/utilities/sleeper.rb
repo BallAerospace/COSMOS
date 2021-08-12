@@ -18,7 +18,6 @@
 # copyright holder
 
 module Cosmos
-
   # Allows for a breakable sleep implementation using the self-pipe trick
   # See http://www.sitepoint.com/the-self-pipe-trick-explained/
   class Sleeper
@@ -49,5 +48,4 @@ module Cosmos
       end
     end
   end
-
 end # module Cosmos

@@ -50,6 +50,7 @@ module Cosmos
       elsif @parser.keyword.include?('PARAMETER') && cmd_or_tlm == PacketConfig::TELEMETRY
         raise @parser.error("PARAMETER types are only valid with COMMAND", @usage)
       end
+
       # The usage is formatted with brackets <XXX> around each option so
       # count the number of open brackets to determine the number of options
       max_options = @usage.count("<")
@@ -88,6 +89,7 @@ module Cosmos
     end
 
     private
+
     def append?
       @parser.keyword.include?("APPEND")
     end
@@ -99,6 +101,7 @@ module Cosmos
 
     def get_bit_offset
       return 0 if append?
+
       Integer(@parser.parameters[1])
     rescue => err # In case Integer fails
       raise @parser.error(err, @usage)
@@ -113,14 +116,15 @@ module Cosmos
 
     def get_array_size
       return nil unless @parser.keyword.include?('ARRAY')
+
       index = append? ? 3 : 4
       array_bit_size = Integer(@parser.parameters[index])
       items = array_bit_size / get_bit_size()
       if items >= BIG_ARRAY_SIZE
         warning = "Performance Issue!\n"\
-          "In #{@parser.filename}:#{@parser.line_number} your definition of:\n"\
-          "#{@parser.line}\n"\
-          "creates an array with #{items} elements. Consider creating a BLOCK if this is binary data."
+                  "In #{@parser.filename}:#{@parser.line_number} your definition of:\n"\
+                  "#{@parser.line}\n"\
+                  "creates an array with #{items} elements. Consider creating a BLOCK if this is binary data."
         Logger.warn(warning)
         @warnings << warning
       end
@@ -145,14 +149,17 @@ module Cosmos
 
     def get_range
       return nil if @parser.keyword.include?('ARRAY')
+
       data_type = get_data_type()
       return nil if data_type == :STRING or data_type == :BLOCK
 
       index = append? ? 3 : 4
       min = ConfigParser.handle_defined_constants(
-        @parser.parameters[index].convert_to_value, get_data_type(), get_bit_size())
+        @parser.parameters[index].convert_to_value, get_data_type(), get_bit_size()
+      )
       max = ConfigParser.handle_defined_constants(
-        @parser.parameters[index + 1].convert_to_value, get_data_type(), get_bit_size())
+        @parser.parameters[index + 1].convert_to_value, get_data_type(), get_bit_size()
+      )
       min..max
     end
 
@@ -165,20 +172,22 @@ module Cosmos
         # If the default value is 0x<data> (no quotes), it is treated as
         # binary data.  Otherwise, the default value is considered to be a string.
         if @parser.parameters[index].upcase.start_with?("0X") and
-            !@parser.line.include?("\"#{@parser.parameters[index]}\"") and
-            !@parser.line.include?("\'#{@parser.parameters[index]}\'")
+           !@parser.line.include?("\"#{@parser.parameters[index]}\"") and
+           !@parser.line.include?("\'#{@parser.parameters[index]}\'")
           return @parser.parameters[index].hex_to_byte_string
         else
           return @parser.parameters[index]
         end
       else
         return ConfigParser.handle_defined_constants(
-          @parser.parameters[index + 2].convert_to_value, get_data_type(), get_bit_size())
+          @parser.parameters[index + 2].convert_to_value, get_data_type(), get_bit_size()
+        )
       end
     end
 
     def get_id_value
       return nil unless @parser.keyword.include?('ID_')
+
       data_type = get_data_type
       if @parser.keyword.include?('ITEM')
         index = append? ? 3 : 4
@@ -190,6 +199,7 @@ module Cosmos
       if data_type == :DERIVED
         raise @parser.error("DERIVED data type not allowed for Identifier")
       end
+
       @parser.parameters[index]
     end
 
@@ -250,6 +260,7 @@ module Cosmos
 
     def id_usage
       return '' unless @parser.keyword.include?("ID")
+
       if @parser.keyword.include?("PARAMETER")
         "<DEFAULT AND ID VALUE> "
       else

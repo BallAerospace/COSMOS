@@ -21,10 +21,8 @@ require 'cosmos/conversions/conversion'
 require 'cosmos/packets/binary_accessor'
 
 module Cosmos
-
   # Performs a generic conversion by evaluating Ruby code
   class GenericConversion < Conversion
-
     # @return [String] The Ruby code to evaluate which should return the
     #   converted value
     attr_accessor :code_to_eval
@@ -41,6 +39,7 @@ module Cosmos
       if ConfigParser.handle_nil(converted_type)
         converted_type = converted_type.to_s.upcase.intern
         raise "Invalid type #{converted_type}" unless BinaryAccessor::DATA_TYPES.include?(converted_type)
+
         @converted_type = converted_type
       end
       @converted_bit_size = Integer(converted_bit_size) if ConfigParser.handle_nil(converted_bit_size)
@@ -74,7 +73,5 @@ module Cosmos
     def as_json
       { 'class' => self.class.name.to_s, 'params' => [@code_to_eval, @converted_type, @converted_bit_size] }
     end
-
   end # class GenericConversion
-
 end # module Cosmos

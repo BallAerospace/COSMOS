@@ -97,7 +97,8 @@ module Cosmos
       log_raw: false,
       updated_at: nil,
       plugin: nil,
-      scope:)
+      scope:
+    )
       if self.class._get_type == 'INTERFACE'
         super("#{scope}__#{INTERFACES_PRIMARY_KEY}", name: name, updated_at: updated_at, plugin: plugin, scope: scope)
       else
@@ -212,6 +213,7 @@ module Cosmos
         unless %w(READ WRITE READ_WRITE).include? parameters[0].upcase
           raise parser.error("Invalid protocol type: #{parameters[0]}", usage)
         end
+
         @protocols << parameters.dup
 
       when 'DONT_LOG'
@@ -240,7 +242,8 @@ module Cosmos
         cmd: ["ruby", "#{type.downcase}_microservice.rb", microservice_name],
         target_names: @target_names,
         plugin: @plugin,
-        scope: @scope)
+        scope: @scope
+      )
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured #{type.downcase} microservice #{microservice_name}"

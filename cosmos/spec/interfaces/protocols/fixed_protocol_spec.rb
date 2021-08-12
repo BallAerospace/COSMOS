@@ -50,7 +50,9 @@ module Cosmos
       $index = 0
       class FixedStream < Stream
         def connect; end
+
         def connected?; true; end
+
         def read
           case $index
           when 0
@@ -138,7 +140,9 @@ module Cosmos
         $buffer = packet.buffer.clone
         class FixedStream2 < Stream
           def connect; end
+
           def connected?; true; end
+
           def read
             # Prepend a matching sync pattern to test the discard
             "\x1A\xCF\xFC\x1D\x55\x55" << $buffer

@@ -20,7 +20,6 @@
 require 'cosmos/packets/packet'
 
 module Cosmos
-
   class PacketParser
     # @param parser [ConfigParser] Configuration parser
     # @param target_name [String] The name of the target to create the packet
@@ -96,6 +95,7 @@ module Cosmos
       if endianness != :BIG_ENDIAN and endianness != :LITTLE_ENDIAN
         raise @parser.error("Invalid endianness #{params[2]}. Must be BIG_ENDIAN or LITTLE_ENDIAN.", @usage)
       end
+
       Packet.new(target_name, packet_name, endianness, description)
     end
 
@@ -129,6 +129,5 @@ module Cosmos
       end
       packet
     end
-
   end
 end

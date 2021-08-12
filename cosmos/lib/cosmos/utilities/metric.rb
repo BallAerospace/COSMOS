@@ -20,7 +20,6 @@
 require 'cosmos/models/metric_model'
 
 module Cosmos
-
   class Metric
     # This class is designed to output metrics to the cosmos-cmd-tlm-api
     # InternalMetricsController. Output format can be read about here
@@ -44,6 +43,7 @@ module Cosmos
       if microservice.include? '|' or scope.include? '|'
         raise ArgumentError.new('invalid input must not contain: |')
       end
+
       @items = {}
       @scope = scope
       @microservice = microservice
@@ -69,7 +69,7 @@ module Cosmos
       # the value is added to @items and the count of the value is increased
       # if the count of the values exceed the size of the array it sets the
       # count back to zero and the array will over write older data.
-      key = "#{name}|" + labels.map {|k,v| "#{k}=#{v}"}.join(',')
+      key = "#{name}|" + labels.map { |k, v| "#{k}=#{v}" }.join(',')
       if not @items.has_key?(key)
         Logger.debug("new data for #{@scope}, #{key}")
         @items[key] = { 'values' => Array.new(@size), 'count' => 0 }
@@ -84,6 +84,7 @@ module Cosmos
       # get the percentile out of an ordered array
       len = sorted_values.length
       return sorted_values.first if len == 1
+
       k = ((percentile / 100.0) * (len - 1) + 1).floor - 1
       f = ((percentile / 100.0) * (len - 1) + 1).modulo(1)
       return sorted_values[k] + (f * (sorted_values[k + 1] - sorted_values[k]))
@@ -108,7 +109,7 @@ module Cosmos
       @items.each do |key, values|
         label_list = []
         name, labels = key.split('|')
-        metric_labels = labels.nil? ? {} : labels.split(',').map {|x| x.split('=')}.map {|k, v| { k => v }}.reduce({}, :merge)
+        metric_labels = labels.nil? ? {} : labels.split(',').map { |x| x.split('=') }.map { |k, v| { k => v } }.reduce({}, :merge)
         sorted_values = values['values'].compact.sort
         for percentile_value in [10, 50, 90, 95, 99]
           percentile_result = percentile(sorted_values, percentile_value)
@@ -130,7 +131,5 @@ module Cosmos
     def destroy
       MetricModel.destroy(scope: @scope, name: @microservice)
     end
-
   end
-
 end

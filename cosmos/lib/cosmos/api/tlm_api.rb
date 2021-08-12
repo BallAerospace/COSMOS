@@ -24,27 +24,27 @@ module Cosmos
   module Api
     WHITELIST ||= []
     WHITELIST.concat([
-      'tlm',
-      'tlm_raw',
-      'tlm_formatted',
-      'tlm_with_units',
-      'tlm_variable',
-      'set_tlm',
-      'inject_tlm',
-      'override_tlm',
-      'normalize_tlm',
-      'get_tlm_buffer',
-      'get_tlm_packet',
-      'get_tlm_values',
-      'get_all_telemetry',
-      'get_telemetry',
-      'get_item',
-      'subscribe_packets',
-      'get_packet',
-      'get_all_tlm_info',
-      'get_tlm_cnt',
-      'get_packet_derived_items',
-    ])
+                       'tlm',
+                       'tlm_raw',
+                       'tlm_formatted',
+                       'tlm_with_units',
+                       'tlm_variable',
+                       'set_tlm',
+                       'inject_tlm',
+                       'override_tlm',
+                       'normalize_tlm',
+                       'get_tlm_buffer',
+                       'get_tlm_packet',
+                       'get_tlm_values',
+                       'get_all_telemetry',
+                       'get_telemetry',
+                       'get_item',
+                       'subscribe_packets',
+                       'get_packet',
+                       'get_all_tlm_info',
+                       'get_tlm_cnt',
+                       'get_packet_derived_items',
+                     ])
 
     # Request a telemetry item from a packet.
     #
@@ -67,14 +67,17 @@ module Cosmos
     def tlm_raw(*args, scope: $cosmos_scope, token: $cosmos_token)
       tlm(*args, type: :RAW, scope: scope, token: token)
     end
+
     # @deprecated Use tlm with type: :FORMATTED
     def tlm_formatted(*args, scope: $cosmos_scope, token: $cosmos_token)
       tlm(*args, type: :FORMATTED, scope: scope, token: token)
     end
+
     # @deprecated Use tlm with type: :WITH_UNITS
     def tlm_with_units(*args, scope: $cosmos_scope, token: $cosmos_token)
       tlm(*args, type: :WITH_UNITS, scope: scope, token: token)
     end
+
     # @deprecated Use tlm with type:
     def tlm_variable(*args, scope: $cosmos_scope, token: $cosmos_token)
       tlm(*args[0..-2], type: args[-1].intern, scope: scope, token: token)
@@ -184,6 +187,7 @@ module Cosmos
       topic = "#{scope}__TELEMETRY__{#{target_name}}__#{packet_name}"
       msg_id, msg_hash = Store.instance.read_topic_last(topic)
       return msg_hash['buffer'].b if msg_id # Return as binary
+
       nil
     end
 
@@ -251,6 +255,7 @@ module Cosmos
       if !items.is_a?(Array) || !items[0].is_a?(String)
         raise ArgumentError, "items must be array of strings: ['TGT__PKT__ITEM__TYPE', ...]"
       end
+
       items.each_with_index do |item, index|
         target_name, packet_name, item_name, item_type = item.split('__')
         if packet_name == 'LATEST'
@@ -304,6 +309,7 @@ module Cosmos
       if !packets.is_a?(Array) || !packets[0].is_a?(Array)
         raise ArgumentError, "packets must be nested array: [['TGT','PKT'],...]"
       end
+
       result = [Time.now.to_nsec_from_epoch]
       packets.each do |target_name, packet_name|
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
@@ -357,7 +363,7 @@ module Cosmos
     def get_packet_derived_items(target_name, packet_name, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       packet = TargetModel.packet(target_name, packet_name, scope: scope)
-      return packet['items'].select {|item| item['data_type'] == 'DERIVED' }.map {|item| item['name']}
+      return packet['items'].select { |item| item['data_type'] == 'DERIVED' }.map { |item| item['name'] }
     end
 
     # PRIVATE

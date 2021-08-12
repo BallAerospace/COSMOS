@@ -55,6 +55,7 @@ module Cosmos
 
     def write_data(data)
       raise "Packet contains termination characters!" if data.index(@write_termination_characters)
+
       data = super(data)
       @write_termination_characters.each_byte do |byte|
         data << byte
@@ -63,6 +64,7 @@ module Cosmos
     end
 
     protected
+
     def reduce_to_single_packet
       index = @data.index(@read_termination_characters)
 

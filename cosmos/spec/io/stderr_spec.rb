@@ -21,7 +21,6 @@ require 'spec_helper'
 require 'cosmos/io/stderr'
 
 module Cosmos
-
   describe Stderr do
     describe "instance" do
       it "returns a single instance" do

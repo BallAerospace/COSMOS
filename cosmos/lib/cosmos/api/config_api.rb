@@ -21,12 +21,12 @@ module Cosmos
   module Api
     WHITELIST ||= []
     WHITELIST.concat([
-      'get_saved_config',
-      'list_configs',
-      'load_config',
-      'save_config',
-      'delete_config'
-    ])
+                       'get_saved_config',
+                       'list_configs',
+                       'load_config',
+                       'save_config',
+                       'delete_config'
+                     ])
 
     # Get a saved configuration zip file
     def get_saved_config(configuration_name = nil, scope: $cosmos_scope, token: $cosmos_token)

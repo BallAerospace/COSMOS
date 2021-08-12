@@ -109,6 +109,7 @@ module Math
   end
 
   protected
+
   def variance_generic(array)
     num_values = 0.0
     mean = 0.0

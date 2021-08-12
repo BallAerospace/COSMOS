@@ -22,7 +22,6 @@ require 'cosmos/interfaces/protocols/burst_protocol'
 module Cosmos
   # Delineates packets using the COSMOS preidentification system
   class PreidentifiedProtocol < BurstProtocol
-
     COSMOS4_STORED_FLAG_MASK = 0x80
     COSMOS4_EXTRA_FLAG_MASK = 0x40
 
@@ -96,9 +95,11 @@ module Cosmos
     end
 
     protected
+
     def read_length_field_followed_by_string(length_num_bytes)
       # Read bytes for string length
       return :STOP if @data.length < length_num_bytes
+
       string_length = @data[0..(length_num_bytes - 1)]
 
       case length_num_bytes
@@ -115,6 +116,7 @@ module Cosmos
 
       # Read String
       return :STOP if @data.length < (string_length + length_num_bytes)
+
       next_index = string_length + length_num_bytes
       string = @data[length_num_bytes..(next_index - 1)]
 
@@ -129,6 +131,7 @@ module Cosmos
       if @sync_pattern
         if @reduction_state == :START
           return :STOP if @data.length < @sync_pattern.length
+
           @data.replace(@data[(@sync_pattern.length)..-1])
           @reduction_state = :SYNC_REMOVED
         end
@@ -139,6 +142,7 @@ module Cosmos
       if @reduction_state == :SYNC_REMOVED and @mode == 4
         # Read and remove flags
         return :STOP if @data.length < 1
+
         flags = @data[0].unpack('C')[0] # byte
         @data.replace(@data[1..-1])
         @read_stored = false
@@ -155,6 +159,7 @@ module Cosmos
         # Read and remove extra
         @read_extra = read_length_field_followed_by_string(4)
         return :STOP if @read_extra == :STOP
+
         @read_extra = JSON.parse(@read_extra)
         @reduction_state = :FLAGS_REMOVED
       end
@@ -162,6 +167,7 @@ module Cosmos
       if @reduction_state == :FLAGS_REMOVED or (@reduction_state == :SYNC_REMOVED and @mode != 4)
         # Read and remove packet received time
         return :STOP if @data.length < 8
+
         time_seconds = @data[0..3].unpack('N')[0] # UINT32
         time_microseconds = @data[4..7].unpack('N')[0] # UINT32
         @read_received_time = Time.at(time_seconds, time_microseconds).sys
@@ -173,6 +179,7 @@ module Cosmos
         # Read and remove the target name
         @read_target_name = read_length_field_followed_by_string(1)
         return :STOP if @read_target_name == :STOP
+
         @reduction_state = :TARGET_NAME_REMOVED
       end
 
@@ -180,6 +187,7 @@ module Cosmos
         # Read and remove the packet name
         @read_packet_name = read_length_field_followed_by_string(1)
         return :STOP if @read_packet_name == :STOP
+
         @reduction_state = :PACKET_NAME_REMOVED
       end
 
@@ -187,6 +195,7 @@ module Cosmos
         # Read packet data and return
         packet_data = read_length_field_followed_by_string(4)
         return :STOP if packet_data == :STOP
+
         @reduction_state = :START
         return packet_data
       end
