@@ -67,7 +67,9 @@ class TopicsThread
 
   def transmit_results(results, force: false)
     if results.length > 0 or force
-      @channel.public_send(:transmit, JSON.generate(results.as_json))
+      # Fortify: This send is intentionally bypassing access control to get to the
+      # private transmit method
+      @channel.send(:transmit, JSON.generate(results.as_json))
     end
   end
 
