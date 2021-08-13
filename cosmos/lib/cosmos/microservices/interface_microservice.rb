@@ -46,13 +46,21 @@ module Cosmos
     end
 
     def stop
-      @thread.kill
+      Cosmos.kill_thread(self, @thread)
+    end
+
+    def graceful_kill
+      InterfaceTopic.shutdown(@interface.name, scope: @scope)
     end
 
     def run
       InterfaceTopic.receive_commands(@interface, scope: @scope) do |topic, msg_hash|
         # Check for a raw write to the interface
         if topic =~ /CMD}INTERFACE/
+          if msg_hash['shutdown']
+            Logger.info "#{@interface.name}: Shutdown requested"
+            return
+          end
           if msg_hash['connect']
             Logger.info "#{@interface.name}: Connect requested"
             @tlm.attempting()
@@ -167,13 +175,21 @@ module Cosmos
     end
 
     def stop
-      @thread.kill
+      Cosmos.kill_thread(self, @thread)
+    end
+
+    def graceful_kill
+      RouterTopic.shutdown(@router.name, scope: @scope)
     end
 
     def run
       RouterTopic.receive_telemetry(@router, scope: @scope) do |topic, msg_hash|
         # Check for commands to the router itself
         if /CMD}ROUTER/.match?(topic)
+          if msg_hash['shutdown']
+            Logger.info "#{@router.name}: Shutdown requested"
+            return
+          end
           if msg_hash['connect']
             Logger.info "#{@router.name}: Connect requested"
             @tlm.attempting()
@@ -498,8 +514,8 @@ module Cosmos
       @mutex.synchronize do
         # Need to make sure that @cancel_thread is set and the interface disconnected within
         # mutex to ensure that connect() is not called when we want to stop()
-        @handler_thread.stop
         @cancel_thread = true
+        @handler_thread.stop
         @interface_thread_sleeper.cancel
         @interface.disconnect
         if @interface_or_router == 'INTERFACE'

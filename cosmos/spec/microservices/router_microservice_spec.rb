@@ -142,7 +142,6 @@ module Cosmos
           expect(stdout.string).to include("Connection Lost")
 
           uservice.shutdown
-          uservice_thread.kill
         end
         sleep 0.1 # Allow threads to exit
       end

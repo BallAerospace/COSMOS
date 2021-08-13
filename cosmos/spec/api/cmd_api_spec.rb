@@ -47,18 +47,19 @@ module Cosmos
       # Create an Interface we can use in the InterfaceCmdHandlerThread
       # It has to have a valid list of target_names as that is what 'receive_commands'
       # in the Store uses to determine which topics to read
-      interface = Interface.new
-      interface.name = "INST_INT"
-      interface.target_names = %w[INST]
+      @interface = Interface.new
+      @interface.name = "INST_INT"
+      @interface.target_names = %w[INST]
       # Stub to make the InterfaceCmdHandlerThread happy
       @interface_data = ''
-      allow(interface).to receive(:connected?).and_return(true)
-      allow(interface).to receive(:write_interface) { |data| @interface_data = data }
-      @thread = InterfaceCmdHandlerThread.new(interface, nil, scope: 'DEFAULT')
+      allow(@interface).to receive(:connected?).and_return(true)
+      allow(@interface).to receive(:write_interface) { |data| @interface_data = data }
+      @thread = InterfaceCmdHandlerThread.new(@interface, nil, scope: 'DEFAULT')
       @process = true # Allow the command to be processed or not
 
       allow(redis).to receive(:xread).and_wrap_original do |m, *args|
         # Only use the first two arguments as the last argument is keyword block:
+        result = nil
         result = m.call(*args[0..1]) if @process
         # Create a slight delay to simulate the blocking call
         sleep 0.001 if result and result.length == 0
@@ -71,7 +72,7 @@ module Cosmos
     end
 
     after(:each) do
-      @int_thread.kill
+      InterfaceTopic.shutdown(@interface.name, scope: 'DEFAULT')
       count = 0
       while @int_thread.alive? or count < 100 do
         sleep 0.01
@@ -143,8 +144,12 @@ module Cosmos
       end
 
       it "times out if the interface does not process the command" do
-        @process = false
-        expect { @api.cmd("INST", "ABORT") }.to raise_error("Timeout waiting for cmd ack")
+        begin
+          @process = false
+          expect { @api.cmd("INST", "ABORT") }.to raise_error("Timeout waiting for cmd ack")
+        ensure
+          @process = true
+        end
       end
     end
 

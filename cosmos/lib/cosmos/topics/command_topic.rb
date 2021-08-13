@@ -21,8 +21,7 @@ require 'cosmos/topics/topic'
 
 module Cosmos
   class CommandTopic < Topic
-    COMMAND_ACK_TIMEOUT_MS = 5000
-    COMMAND_ACK_RETRY_MS = 250 # How much time to wait between ACK checks
+    COMMAND_ACK_TIMEOUT_S = 5
 
     def self.write_packet(packet, scope:)
       topic = "#{scope}__COMMAND__{#{packet.target_name}}__#{packet.packet_name}"
@@ -44,7 +43,8 @@ module Cosmos
       command['cmd_params'] = JSON.generate(command['cmd_params'].as_json)
       cmd_id = Store.write_topic("{#{scope}__CMD}TARGET__#{command['target_name']}", command)
       # TODO: This timeout is fine for most but can we get the write_timeout from the interface here?
-      (COMMAND_ACK_TIMEOUT_MS / COMMAND_ACK_RETRY_MS).times do
+      time = Time.now
+      while (Time.now - time) < COMMAND_ACK_TIMEOUT_S
         Topic.read_topics([ack_topic]) do |topic, msg_id, msg_hash, redis|
           if msg_hash["id"] == cmd_id
             if msg_hash["result"] == "SUCCESS"

@@ -107,12 +107,6 @@ module Cosmos
 
     after(:each) do
       shutdown_script()
-      # @int_thread.kill
-      # count = 0
-      # while @int_thread.alive? or count < 100 do
-      #   sleep 0.01
-      #   count += 1
-      # end
     end
 
     describe "check" do

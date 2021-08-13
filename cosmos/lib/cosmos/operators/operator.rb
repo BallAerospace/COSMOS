@@ -227,6 +227,10 @@ module Cosmos
       Logger.info("#{self.class} shutdown complete")
     end
 
+    def stop
+      @shutdown = true
+    end
+
     def self.run
       @@instance = self.new
       @@instance.run
@@ -234,6 +238,10 @@ module Cosmos
 
     def self.processes
       @@instance.processes
+    end
+
+    def self.instance
+      @@instance
     end
   end
 end

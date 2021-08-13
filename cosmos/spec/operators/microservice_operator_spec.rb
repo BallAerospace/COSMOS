@@ -74,7 +74,7 @@ module Cosmos
       end
 
       after(:each) do
-        @thread.kill
+        MicroserviceOperator.instance.stop
         @thread.join
       end
 

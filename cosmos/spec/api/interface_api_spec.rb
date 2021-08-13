@@ -43,7 +43,8 @@ module Cosmos
       allow(Aws::S3::Client).to receive(:new).and_return(dbl)
       allow(Zip::File).to receive(:open).and_return(true)
       allow_any_instance_of(Cosmos::Interface).to receive(:connected?).and_return(true)
-      allow_any_instance_of(Cosmos::Interface).to receive(:read_interface) { sleep }
+      @im_shutdown = false
+      allow_any_instance_of(Cosmos::Interface).to receive(:read_interface) { sleep(0.01) until @im_shutdown }
 
       model = MicroserviceModel.new(name: "DEFAULT__INTERFACE__INST_INT", scope: "DEFAULT", target_names: ["INST"])
       model.create
@@ -55,13 +56,8 @@ module Cosmos
     end
 
     after(:each) do
+      @im_shutdown = true
       @im.shutdown
-      sleep(0.5)
-      Thread.list.each do |t|
-        if t != Thread.current
-          t.kill
-        end
-      end
       sleep(0.1)
     end
 

@@ -57,5 +57,9 @@ module Cosmos
     def self.stop_raw_logging(interface_name, scope:)
       Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'log_raw' => 'false' })
     end
+
+    def self.shutdown(interface_name, scope:)
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'shutdown' => 'true' })
+    end
   end
 end

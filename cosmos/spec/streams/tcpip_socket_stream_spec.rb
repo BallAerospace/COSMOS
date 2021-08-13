@@ -55,7 +55,6 @@ module Cosmos
       #    end
       #    Cosmos.close_socket(socket)
       #    Cosmos.close_socket(server)
-      #    thread.kill
       #    sleep 0.1
       #  end
       # end

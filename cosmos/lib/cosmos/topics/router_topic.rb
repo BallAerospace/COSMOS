@@ -69,5 +69,9 @@ module Cosmos
     def self.stop_raw_logging(router_name, scope:)
       Store.write_topic("{#{scope}__CMD}ROUTER__#{router_name}", { 'log_raw' => 'false' })
     end
+
+    def self.shutdown(router_name, scope:)
+      Store.write_topic("{#{scope}__CMD}ROUTER__#{router_name}", { 'shutdown' => 'true' })
+    end
   end
 end

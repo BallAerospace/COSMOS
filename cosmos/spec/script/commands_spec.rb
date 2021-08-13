@@ -63,14 +63,14 @@ module Cosmos
         # Create an Interface we can use in the InterfaceCmdHandlerThread
         # It has to have a valid list of target_names as that is what 'receive_commands'
         # in the Store uses to determine which topics to read
-        interface = Interface.new
-        interface.name = "INST_INT"
-        interface.target_names = %w[INST]
+        @interface = Interface.new
+        @interface.name = "INST_INT"
+        @interface.target_names = %w[INST]
         # Stub to make the InterfaceCmdHandlerThread happy
         @interface_data = ''
-        allow(interface).to receive(:connected?).and_return(true)
-        allow(interface).to receive(:write_interface) { |data| @interface_data = data }
-        @thread = InterfaceCmdHandlerThread.new(interface, nil, scope: 'DEFAULT')
+        allow(@interface).to receive(:connected?).and_return(true)
+        allow(@interface).to receive(:write_interface) { |data| @interface_data = data }
+        @thread = InterfaceCmdHandlerThread.new(@interface, nil, scope: 'DEFAULT')
         @process = true # Allow the command to be processed or not
         @int_thread = Thread.new { @thread.run }
         sleep 0.01 # Allow thread to start
@@ -88,7 +88,7 @@ module Cosmos
 
     after(:each) do
       shutdown_script()
-      @int_thread.kill
+      InterfaceTopic.shutdown(@interface.name, scope: 'DEFAULT')
       count = 0
       while (@int_thread.alive? or count < 100) do
         sleep 0.01

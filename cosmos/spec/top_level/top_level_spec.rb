@@ -404,11 +404,16 @@ module Cosmos
         attr_accessor :thread
 
         def initialize
-          @thread = Thread.new { loop { sleep 1 } }
+          @run = true
+          @thread = Thread.new do
+            while @run
+              sleep(0.01)
+            end
+          end
         end
 
         def graceful_kill
-          @thread.kill
+          @run = false
         end
       end
       owner = ThreadOwner.new

@@ -142,7 +142,6 @@ module Cosmos
           expect(all["TEST_INT"]["state"]).to eql "CONNECTED"
 
           im.shutdown
-          im_thread.kill
         end
         sleep 0.1 # Allow threads to exit
       end
@@ -183,7 +182,6 @@ module Cosmos
           expect(all["TEST_INT"]["state"]).to eql "CONNECTED"
 
           im.shutdown
-          im_thread.kill
         end
         sleep 0.1 # Allow threads to exit
       end
@@ -244,7 +242,6 @@ module Cosmos
         expect($disconnect_count).to eql 1
 
         im.shutdown
-        im_thread.kill
       end
       sleep 0.1 # Allow threads to exit
     end
@@ -280,7 +277,6 @@ module Cosmos
         expect($disconnect_count).to eql 1
 
         im.shutdown
-        im_thread.kill
       end
       sleep 0.1 # Allow threads to exit
     end
@@ -317,7 +313,6 @@ module Cosmos
         expect($disconnect_count).to eql 1
 
         im.shutdown
-        im_thread.kill
       end
       sleep 0.1 # Allow threads to exit
     end

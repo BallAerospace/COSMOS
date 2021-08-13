@@ -36,13 +36,24 @@ module Cosmos
     end
 
     class PreStream < Stream
-      def connect; end
+      def initialize(*args)
+        super(*args)
+        @run = true
+      end
+
+      def connect; @run = true; end
 
       def connected?; true; end
 
-      def disconnect; end
+      def disconnect; @run = false; end
 
-      def read; $buffer; end
+      def read
+        if @run
+          $buffer
+        else
+          raise "Done"
+        end
+      end
 
       def write(data); $buffer = data; end
     end
@@ -88,12 +99,15 @@ module Cosmos
         @interface.write(pkt)
         packet = nil
         # Try to read the interface
-        # We put this in a thread because it calls it continuously
+        # We put this in a thread because it blocks and calls it continuously
         thread = Thread.new do
-          packet = @interface.read
+          begin
+            packet = @interface.read
+          rescue
+          end
         end
         sleep 0.1
-        thread.kill
+        @interface.disconnect
         sleep 0.2 # Allow thread to die
         expect(packet).to be_nil
       end
@@ -124,11 +138,15 @@ module Cosmos
         # Try to read the interface
         # We put this in a thread because it calls it continuously
         thread = Thread.new do
-          packet = @interface.read
+          begin
+            packet = @interface.read
+          rescue
+          end
         end
         sleep 0.1
-        thread.kill
+        @interface.disconnect
         sleep 0.2 # Allow thread to die
+        @interface.connect
         expect(packet).to be_nil
 
         # Add another protocol to ignore another packet
@@ -148,11 +166,15 @@ module Cosmos
         # Try to read the interface
         # We put this in a thread because it calls it continuously
         thread = Thread.new do
-          packet = @interface.read
+          begin
+            packet = @interface.read
+          rescue
+          end
         end
         sleep 0.1
-        thread.kill
+        @interface.disconnect
         sleep 0.2 # Allow thread to die
+        @interface.connect
         expect(packet).to be_nil
 
         pkt = System.telemetry.packet("INST", "PARAMS")
@@ -232,10 +254,13 @@ module Cosmos
         packet = nil
         # Try to read the interface
         thread = Thread.new do
-          packet = @interface.read
+          begin
+            packet = @interface.read
+          rescue
+          end
         end
         sleep 0.1
-        thread.kill
+        @interface.disconnect
         sleep 0.2 # Allow thread to die
         expect(packet).to be_nil
       end
