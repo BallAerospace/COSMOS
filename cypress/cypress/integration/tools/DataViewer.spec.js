@@ -32,7 +32,7 @@ describe('DataViewer', () => {
     cy.get('[data-test=new-packet]').should('be.visible').click()
     cy.selectTargetPacketItem('INST', 'ADCS')
     cy.get('[data-test=add-packet-button]').click()
-    cy.get('[data-test=start-button]').click()
+    cy.get('[data-test=start-button]').click({ force: true })
     cy.wait(100) // wait for the first packet to come in
     cy.get('[data-test=dump-component-text-area]').should('not.have.value', '')
   })
@@ -48,7 +48,7 @@ describe('DataViewer', () => {
     cy.wait(100) // wait for the first packet to come in
     // add another packet to the existing connection
     cy.get('[data-test=new-packet]').click()
-    cy.selectTargetPacketItem('INST', 'HEALTH_STATUS')
+    cy.selectTargetPacketItem('INST', 'ADCS')
     cy.get('[data-test=add-packet-button]').click()
     cy.get('[data-test=dump-component-text-area]').should('not.have.value', '')
   })
@@ -197,6 +197,7 @@ describe('DataViewer', () => {
 
     cy.get('[data-test=dump-component-play-pause]').click()
     cy.get('[data-test=dump-component-download]').click()
+    cy.wait(800)
     cy.task('readDownloads')
       .then((files) => {
         expect(files.length).to.eq(1)
