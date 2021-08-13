@@ -50,7 +50,7 @@ module Cosmos
       model.create
       @im = InterfaceMicroservice.new("DEFAULT__INTERFACE__INST_INT")
       @im_thread = Thread.new { @im.run }
-      sleep(0.5) # Allow the thread to run
+      sleep(1) # Allow the thread to run
 
       @api = ApiTest.new
     end

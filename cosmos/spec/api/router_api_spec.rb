@@ -50,7 +50,7 @@ module Cosmos
       model.create
       @im = RouterMicroservice.new("DEFAULT__INTERFACE__ROUTE_INT")
       @im_thread = Thread.new { @im.run }
-      sleep(0.5) # Allow the thread to run
+      sleep(1) # Allow the thread to run
 
       @api = ApiTest.new
     end
