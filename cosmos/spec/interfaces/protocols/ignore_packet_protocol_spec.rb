@@ -35,7 +35,7 @@ module Cosmos
       allow(@interface).to receive(:connected?) { true }
     end
 
-    class PreStream < Stream
+    class IgnorePreStream < Stream
       def initialize(*args)
         super(*args)
         @run = true
@@ -49,6 +49,7 @@ module Cosmos
 
       def read
         if @run
+          sleep(0.01)
           $buffer
         else
           raise "Done"
@@ -78,7 +79,8 @@ module Cosmos
 
     describe "read" do
       it "ignores the packet specified" do
-        @interface.instance_variable_set(:@stream, PreStream.new)
+        stream = IgnorePreStream.new
+        @interface.instance_variable_set(:@stream, stream)
         pkt = System.telemetry.packet("SYSTEM", "META")
         # Ensure the ID items are set so this packet can be identified
         pkt.id_items.each do |item|
@@ -108,12 +110,14 @@ module Cosmos
         end
         sleep 0.1
         @interface.disconnect
-        sleep 0.2 # Allow thread to die
+        stream.disconnect
+        thread.join
         expect(packet).to be_nil
       end
 
       it "can be added multiple times to ignore different packets" do
-        @interface.instance_variable_set(:@stream, PreStream.new)
+        stream = IgnorePreStream.new
+        @interface.instance_variable_set(:@stream, stream)
 
         pkt = System.telemetry.packet("INST", "HEALTH_STATUS")
         # Ensure the ID items are set so this packet can be identified
@@ -145,8 +149,10 @@ module Cosmos
         end
         sleep 0.1
         @interface.disconnect
-        sleep 0.2 # Allow thread to die
+        stream.disconnect
+        thread.join
         @interface.connect
+        stream.connect
         expect(packet).to be_nil
 
         # Add another protocol to ignore another packet
@@ -173,8 +179,10 @@ module Cosmos
         end
         sleep 0.1
         @interface.disconnect
-        sleep 0.2 # Allow thread to die
+        stream.disconnect
+        thread.join
         @interface.connect
+        stream.connect
         expect(packet).to be_nil
 
         pkt = System.telemetry.packet("INST", "PARAMS")
@@ -195,7 +203,8 @@ module Cosmos
 
     describe "write" do
       it "ignores the packet specified" do
-        @interface.instance_variable_set(:@stream, PreStream.new)
+        stream = IgnorePreStream.new
+        @interface.instance_variable_set(:@stream, stream)
         @interface.add_protocol(IgnorePacketProtocol, ['SYSTEM', 'META'], :WRITE)
         pkt = System.telemetry.packet("SYSTEM", "META")
         pkt.write("COSMOS_VERSION", "TEST")
@@ -212,7 +221,8 @@ module Cosmos
       end
 
       it "can be added multiple times to ignore different packets" do
-        @interface.instance_variable_set(:@stream, PreStream.new)
+        stream = IgnorePreStream.new
+        @interface.instance_variable_set(:@stream, stream)
         @interface.add_protocol(IgnorePacketProtocol, ['INST', 'HEALTH_STATUS'], :WRITE)
         @interface.add_protocol(IgnorePacketProtocol, ['INST', 'ADCS'], :WRITE)
 
@@ -241,7 +251,8 @@ module Cosmos
 
     describe "read/write" do
       it "ignores the packet specified" do
-        @interface.instance_variable_set(:@stream, PreStream.new)
+        stream = IgnorePreStream.new
+        @interface.instance_variable_set(:@stream, stream)
         @interface.add_protocol(IgnorePacketProtocol, ['SYSTEM', 'META'], :READ_WRITE)
         pkt = System.telemetry.packet("SYSTEM", "META")
         pkt.write("COSMOS_VERSION", "TEST")
@@ -261,12 +272,14 @@ module Cosmos
         end
         sleep 0.1
         @interface.disconnect
-        sleep 0.2 # Allow thread to die
+        stream.disconnect
+        thread.join
         expect(packet).to be_nil
       end
 
       it "reads and writes unknown packets" do
-        @interface.instance_variable_set(:@stream, PreStream.new)
+        stream = IgnorePreStream.new
+        @interface.instance_variable_set(:@stream, stream)
         @interface.add_protocol(IgnorePacketProtocol, ['SYSTEM', 'META'], :READ_WRITE)
         $buffer = nil
         pkt = Packet.new("TGT", "PTK")
