@@ -2,19 +2,26 @@ FROM ballaerospace/cosmosc2-base
 
 WORKDIR /src/
 COPY Gemfile .
-RUN apk add --virtual .build-dependencies \
-      build-base \
-      ruby-dev \
-      libressl-dev \
-      && bundle config set --local without 'development'\
-      && bundle install --quiet \
-      && apk del .build-dependencies \
-      && rm -rf /usr/lib/ruby/gems/*/cache/* \
-      /var/cache/apk/* \
-      /tmp/* \
-      /var/tmp/*
 
-COPY . .
+USER root
+
+RUN apk add --virtual .build-dependencies \
+     build-base \
+     ruby-dev \
+     libressl-dev \
+   && bundle config set --local without 'development'\
+   && bundle install --quiet \
+   && apk del .build-dependencies \
+   && rm -rf /usr/lib/ruby/gems/*/cache/* \
+     /var/cache/apk/* \
+     /tmp/* \
+     /var/tmp/*
+
+RUN ["chown", "-R", "cosmos:cosmos", "/src/"]
+
+USER ${USER_ID}:${GROUP_ID}
+
+COPY  --chown=${IMAGE_USER}:${IMAGE_GROUP} . .
 
 EXPOSE 2902
 

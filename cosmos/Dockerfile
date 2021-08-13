@@ -3,10 +3,16 @@ FROM ballaerospace/cosmosc2-ruby
 ENV RUBYLIB=/cosmos/lib
 ENV COSMOS_PATH="/cosmos"
 WORKDIR /cosmos/
-COPY Gemfile cosmos.gemspec Rakefile /cosmos/
-COPY bin/ /cosmos/bin/
-COPY tasks/ /cosmos/tasks/
-COPY ext/ /cosmos/ext/
+
+USER ${USER_ID}:${GROUP_ID}
+
+COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} Gemfile cosmos.gemspec Rakefile /cosmos/
+COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} bin/ /cosmos/bin/
+COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} tasks/ /cosmos/tasks/
+COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} ext/ /cosmos/ext/
+
+USER root
+
 RUN mkdir -p lib/cosmos/ext \
   && git config --global http.sslCAinfo /devel/cacert.pem \
   && apk add --virtual .build-dependencies build-base ruby-dev libressl-dev \
@@ -18,4 +24,6 @@ RUN mkdir -p lib/cosmos/ext \
   && apk del .build-dependencies \
   && rm -rf /usr/lib/ruby/gems/*/cache/* /var/cache/apk/* /tmp/* /var/tmp/*
 
-COPY . .
+USER ${USER_ID}:${GROUP_ID}
+
+COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} . .

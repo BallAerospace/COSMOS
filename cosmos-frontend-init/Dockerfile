@@ -2,6 +2,8 @@ FROM ballaerospace/cosmosc2-node AS cosmos-frontend-tmp
 
 WORKDIR /cosmos/plugins/
 
+USER root
+
 COPY ./*.json ./
 COPY ./cosmosc2-tool-base/*.json cosmosc2-tool-base/
 COPY ./packages/cosmosc2-tool-admin/*.json packages/cosmosc2-tool-admin/
@@ -88,6 +90,6 @@ COPY --from=cosmos-tmp4 /cosmos/plugins/gems/* /cosmos/plugins/gems/
 FROM ballaerospace/cosmosc2-base
 
 COPY ./init.sh /cosmos/plugins/init.sh
-COPY --from=cosmos-frontend-base-tmp /cosmos/plugins/gems/* /cosmos/plugins/gems/
+COPY --from=cosmos-frontend-base-tmp --chown=${uid}:${gid} /cosmos/plugins/gems/* /cosmos/plugins/gems/
 
 CMD [ "/cosmos/plugins/init.sh" ]
