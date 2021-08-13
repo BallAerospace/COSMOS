@@ -27,7 +27,7 @@ describe('AdminSettings', () => {
     window.localStorage['suppresswarning__clock_out_of_sync_with_server'] = true
     cy.reload()
     cy.get('[data-test=selectAllSuppressedWarnings').check({ force: true })
-    cy.get('[data-test=resetSuppressedWarnings').click()
+    cy.get('[data-test=resetSuppressedWarnings').click({ force: true })
     cy.then(() => {
       expect(
         window.localStorage['suppresswarning__clock_out_of_sync_with_server']
@@ -42,10 +42,14 @@ describe('AdminSettings', () => {
     cy.contains('Save Configuration').click()
     cy.get('.v-dialog:visible').within(() => {
       cy.get('input').clear().type(configName)
-      cy.contains('Ok').click()
-    })
-    cy.then(() => {
-      expect(window.localStorage['lastconfig__data_viewer']).to.eq(configName)
+      cy.contains('Ok')
+        .click()
+        .wait(1000)
+        .then(() => {
+          expect(window.localStorage['lastconfig__data_viewer']).to.eq(
+            configName
+          )
+        })
     })
     cy.visit('/tools/admin/settings')
     cy.get('[data-test=selectAllLastConfigs').check({ force: true })
