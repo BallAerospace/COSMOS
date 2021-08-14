@@ -54,7 +54,7 @@ describe('CmdTlmServer CmdPackets', () => {
     cy.visit('/tools/cmdsender/INST/ABORT')
     cy.hideNav()
     cy.contains('Aborts a collect')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.visit('/tools/cmdtlmserver/cmd-packets')
     cy.hideNav()
     cy.get('[data-test=cmd-packets-table]')
@@ -77,8 +77,10 @@ describe('CmdTlmServer CmdPackets', () => {
     // Send a command to ensure it's there
     cy.visit('/tools/cmdsender/INST/ABORT')
     cy.hideNav()
+    cy.scrollTo(0, 0)
     cy.contains('Aborts a collect')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
+    cy.wait(2000)
     cy.visit('/tools/cmdtlmserver/cmd-packets')
     cy.hideNav()
     cy.get('[data-test=cmd-packets-table]')
@@ -86,7 +88,7 @@ describe('CmdTlmServer CmdPackets', () => {
       .parent('tr')
       .within(() => {
         cy.get('td').eq(0).contains('INST')
-        cy.get('td').eq(3).click()
+        cy.get('button').eq(0).click({ force: true }).wait(4000)
       })
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('Raw Command Packet: INST ABORT')
@@ -102,7 +104,7 @@ describe('CmdTlmServer CmdPackets', () => {
       .parent('tr')
       .within(() => {
         cy.get('td').eq(0).contains('INST')
-        cy.get('td').eq(3).click()
+        cy.get('button').eq(0).click({ force: true }).wait(4000)
       })
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('Raw Command Packet: INST ABORT')
@@ -123,7 +125,7 @@ describe('CmdTlmServer CmdPackets', () => {
       .parent('tr')
       .within(() => {
         cy.get('td').eq(0).contains('INST')
-        cy.get('td').eq(4).click()
+        cy.get('button').eq(1).click({ force: true }).wait(4000)
       })
     cy.get('@windowOpen').should('be.calledWith', '/tools/cmdsender/INST/ABORT')
   })
