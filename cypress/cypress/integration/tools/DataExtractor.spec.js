@@ -31,6 +31,7 @@ describe('DataExtractor', () => {
     cy.task('clearDownloads')
     cy.visit('/tools/dataextractor')
     cy.hideNav()
+    cy.wait(1000)
   })
 
   it('loads and saves the configuration', function () {

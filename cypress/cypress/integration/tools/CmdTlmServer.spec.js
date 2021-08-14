@@ -97,6 +97,7 @@ describe('CmdTlmServer', () => {
     })
     cy.visit('/tools/cmdtlmserver')
     cy.hideNav()
+    cy.wait(5000)
     cy.contains('Log Messages')
     cy.visit('/tools/cmdsender')
     cy.contains('Command Sender')

@@ -20,6 +20,7 @@
 describe('ScriptRunner Debug', () => {
   it('runs Ruby Syntax check', () => {
     cy.visit('/tools/scriptrunner')
+    cy.wait(1000)
     cy.get('#editor').type('if{enter}end{enter}end{enter}')
     cy.get('.v-toolbar').contains('Script').click()
     cy.contains('Ruby Syntax Check').click()
@@ -39,6 +40,7 @@ describe('ScriptRunner Debug', () => {
 
   it('handles fatal exceptions', () => {
     cy.visit('/tools/scriptrunner')
+    cy.wait(1000)
     cy.get('#editor').type('if{enter}end{enter}end{enter}')
     cy.get('.v-toolbar').contains('Script').click()
     cy.contains('Ruby Syntax Check').click()
@@ -58,6 +60,7 @@ describe('ScriptRunner Debug', () => {
 
   it('keeps a debug command history', () => {
     cy.visit('/tools/scriptrunner')
+    cy.wait(1000)
     // Note we have to escape the { in cypress with {{}
     cy.focused().type(
       'x = 12345\nwait\nputs "x:#{{}x}"\nputs "one"\nputs "two"'
@@ -113,6 +116,7 @@ describe('ScriptRunner Debug', () => {
 
   it('retries failed checks', () => {
     cy.visit('/tools/scriptrunner')
+    cy.wait(1000)
     cy.focused().type('check_expression("1 == 2")')
     cy.get('[data-test=start-go-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
@@ -137,6 +141,7 @@ describe('ScriptRunner Debug', () => {
 
   it('does nothing for call stack when not running', () => {
     cy.visit('/tools/scriptrunner')
+    cy.wait(1000)
     cy.get('.v-toolbar').contains('Script').click()
     cy.contains('Show Call Stack').should('have.attr', 'disabled', 'disabled')
     cy.get('@consoleError').should('not.be.called')
@@ -144,6 +149,7 @@ describe('ScriptRunner Debug', () => {
 
   it('displays the call stack', () => {
     cy.visit('/tools/scriptrunner')
+    cy.wait(1000)
     cy.focused().type(
       'def one{enter}two(){enter}end{enter}def two{enter}wait{enter}end{enter}one(){enter}'
     )
@@ -169,6 +175,7 @@ describe('ScriptRunner Debug', () => {
 
   it('displays disconnect icon', () => {
     cy.visit('/tools/scriptrunner')
+    cy.wait(1000)
     cy.get('.v-toolbar').contains('Script').click()
     cy.contains('Toggle Disconnect').click()
     // Specify the icon inside the header since the menu has the same icon!

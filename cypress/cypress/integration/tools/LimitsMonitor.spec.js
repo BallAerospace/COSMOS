@@ -26,8 +26,9 @@ describe('LimitsMonitor', () => {
   it('temporarily hides items', function () {
     cy.visit('/tools/limitsmonitor')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=limits-row]:contains("TEMP2")', {
-      timeout: 30000,
+      timeout: 60000,
     }).should('have.length', 2)
     cy.wait(500)
 
@@ -61,8 +62,9 @@ describe('LimitsMonitor', () => {
   it('ignores items', function () {
     cy.visit('/tools/limitsmonitor')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=limits-row]:contains("TEMP2")', {
-      timeout: 30000,
+      timeout: 60000,
     }).should('have.length', 2)
     cy.wait(500)
 
@@ -108,6 +110,7 @@ describe('LimitsMonitor', () => {
   it('ignores entire packets', function () {
     cy.visit('/tools/limitsmonitor')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=overall-state]').invoke('val').should('eq', 'RED')
 
     // The INST1 and INST2 targets both have VALUE2 & VALUE4 as red
@@ -148,6 +151,7 @@ describe('LimitsMonitor', () => {
     // TODO: possibly remove this test. It relies on a target not entering red status, and therefore it's unreliable with the current demo code
     cy.visit('/tools/limitsmonitor')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=overall-state]').invoke('val').should('eq', 'RED')
     cy.wait(500)
 
@@ -242,6 +246,7 @@ describe('LimitsMonitor', () => {
   it('displays the limits log', () => {
     cy.visit('/tools/limitsmonitor')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('.v-tab').contains('Log').click({ force: true })
     // Just verify we see dates and the various red, yellow, green states
     cy.contains(format(new Date(), 'yyyy-MM-dd'))
@@ -259,6 +264,7 @@ describe('LimitsMonitor', () => {
     })
     cy.visit('/tools/limitsmonitor')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('INST')
     cy.visit('/tools/cmdsender')
     cy.contains('Command Sender')

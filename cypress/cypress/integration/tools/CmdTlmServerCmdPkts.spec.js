@@ -21,6 +21,7 @@ describe('CmdTlmServer CmdPackets', () => {
   it('displays the list of command', () => {
     cy.visit('/tools/cmdtlmserver/cmd-packets')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=cmd-packets-table]')
       .contains('ABORT', { timeout: 10000 })
       .parent('tr')
@@ -44,6 +45,7 @@ describe('CmdTlmServer CmdPackets', () => {
   it('displays the command count', () => {
     cy.visit('/tools/cmdtlmserver/cmd-packets')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=cmd-packets-table]')
       .contains('ABORT', { timeout: 10000 })
       .parent('tr')
@@ -77,6 +79,7 @@ describe('CmdTlmServer CmdPackets', () => {
     // Send a command to ensure it's there
     cy.visit('/tools/cmdsender/INST/ABORT')
     cy.hideNav()
+    cy.wait(1000)
     cy.scrollTo(0, 0)
     cy.contains('Aborts a collect')
     cy.get('button').contains('Send').click({ force: true })
@@ -120,6 +123,7 @@ describe('CmdTlmServer CmdPackets', () => {
     })
 
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=cmd-packets-table]')
       .contains('ABORT', { timeout: 10000 })
       .parent('tr')

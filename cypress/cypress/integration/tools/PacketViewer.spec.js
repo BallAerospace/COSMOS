@@ -54,6 +54,7 @@ describe('PacketViewer', () => {
   it('displays INST HEALTH_STATUS & polls the api', () => {
     cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('INST')
     cy.contains('HEALTH_STATUS')
     cy.contains('Health and status') // Description
@@ -68,6 +69,7 @@ describe('PacketViewer', () => {
   it('selects a target and packet to display', () => {
     cy.visit('/tools/packetviewer')
     cy.hideNav()
+    cy.wait(1000)
     cy.selectTargetPacketItem('INST', 'IMAGE')
     cy.contains('INST')
     cy.contains('IMAGE')
@@ -77,6 +79,7 @@ describe('PacketViewer', () => {
   it('gets details with right click', () => {
     cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('HEALTH_STATUS')
     cy.contains(/^TEMP1$/)
       .parent() // Go up a level to get the enclosing element
@@ -95,6 +98,7 @@ describe('PacketViewer', () => {
     })
     cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('INST')
     cy.contains('HEALTH_STATUS')
     cy.visit('/tools/cmdsender')
@@ -116,6 +120,7 @@ describe('PacketViewer', () => {
   it('changes the polling rate', function () {
     cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('TEMP1')
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Options').click()
@@ -145,12 +150,14 @@ describe('PacketViewer', () => {
   it('displays formatted items with units by default', function () {
     cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
+    cy.wait(1000)
     // Check for exactly 3 decimal points followed by units
     matchItem('TEMP1', /^-?\d+\.\d{3}\s\S$/)
   })
   it('displays formatted items with units', function () {
     cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('.v-toolbar').contains('View').click()
     cy.contains(/^Formatted Items with Units$/).click()
     // Check for exactly 3 decimal points followed by units
@@ -159,6 +166,7 @@ describe('PacketViewer', () => {
   it('displays raw items', function () {
     cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('.v-toolbar').contains('View').click()
     cy.contains('Raw').click()
     // // Check for a raw number 1 to 99999
@@ -167,6 +175,7 @@ describe('PacketViewer', () => {
   it('displays converted items', function () {
     cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('.v-toolbar').contains('View').click()
     cy.contains('Converted').click()
     // Check for unformatted decimal points (4+)
@@ -175,6 +184,7 @@ describe('PacketViewer', () => {
   it('displays formatted items', function () {
     cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('.v-toolbar').contains('View').click()
     cy.contains(/^Formatted Items$/).click()
     // Check for exactly 3 decimal points
@@ -183,6 +193,7 @@ describe('PacketViewer', () => {
   it('hides ignored items', function () {
     cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('CCSDSVER').should('exist')
     cy.get('.v-toolbar').contains('View').click()
     cy.contains(/^Hide Ignored/).click()
@@ -194,6 +205,7 @@ describe('PacketViewer', () => {
   it('displays derived last', function () {
     cy.visit('/tools/packetviewer/INST/HEALTH_STATUS')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('tbody>tr')
       .eq(0)
       .should('contain', '0')

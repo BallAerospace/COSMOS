@@ -58,6 +58,7 @@ describe('CommandSender', () => {
   it('selects a target and packet', () => {
     cy.visit('/tools/cmdsender')
     cy.hideNav()
+    cy.wait(1000)
     cy.selectTargetPacketItem('INST', 'ABORT')
     cy.get('button').contains('Send').click({ force: true })
     cy.contains('cmd("INST ABORT") sent')
@@ -65,6 +66,7 @@ describe('CommandSender', () => {
   it('displays INST COLLECT using the route', () => {
     cy.visit('/tools/cmdsender/INST/COLLECT')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('INST')
     cy.contains('COLLECT')
     cy.contains('Starts a collect')
@@ -74,6 +76,7 @@ describe('CommandSender', () => {
   it('displays state parameters with drop downs', () => {
     cy.visit('/tools/cmdsender/INST/COLLECT')
     cy.hideNav()
+    cy.wait(1000)
     selectValue('TYPE', 'SPECIAL')
     checkValue('TYPE', '1')
     selectValue('TYPE', 'NORMAL')
@@ -82,6 +85,7 @@ describe('CommandSender', () => {
   it('supports manually entered state values', () => {
     cy.visit('/tools/cmdsender/INST/COLLECT')
     cy.hideNav()
+    cy.wait(1000)
     setValue('TYPE', '3')
     // Typing in the state value should automatically switch the state
     cy.contains('TYPE')
@@ -106,6 +110,7 @@ describe('CommandSender', () => {
   it('warns for hazardous commands', () => {
     cy.visit('/tools/cmdsender/INST/CLEAR')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('Clears counters')
     cy.get('button').contains('Send').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
@@ -122,6 +127,7 @@ describe('CommandSender', () => {
   it('warns for required parameters', () => {
     cy.visit('/tools/cmdsender/INST/COLLECT')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('Starts a collect')
     cy.get('button').contains('Send').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
@@ -133,6 +139,7 @@ describe('CommandSender', () => {
   it('warns for hazardous parameters', () => {
     cy.visit('/tools/cmdsender/INST/COLLECT')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('Starts a collect')
     selectValue('TYPE', 'SPECIAL')
     cy.get('button').contains('Send').click({ force: true })
@@ -154,6 +161,7 @@ describe('CommandSender', () => {
   it('handles float values and scientific notation', () => {
     cy.visit('/tools/cmdsender/INST/FLTCMD')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('float parameter')
     setValue('FLOAT32', '123.456')
     setValue('FLOAT64', '12e3')
@@ -164,6 +172,7 @@ describe('CommandSender', () => {
   it('handles array values', () => {
     cy.visit('/tools/cmdsender/INST/ARYCMD')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('array parameter')
     setValue('ARRAY', '10')
     cy.get('button').contains('Send').click({ force: true })
@@ -180,12 +189,14 @@ describe('CommandSender', () => {
   it.skip('handles string values', () => {
     cy.visit('/tools/cmdsender/INST/ASCIICMD')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('ASCII command')
     cy.get('button').contains('Send').click({ force: true })
   })
   it('gets details with right click', () => {
     cy.visit('/tools/cmdsender/INST/COLLECT')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('Starts a collect')
     cy.contains('TYPE').rightclick()
     cy.contains('Details').click()
@@ -195,6 +206,7 @@ describe('CommandSender', () => {
   it('executes commands from history', () => {
     cy.visit('/tools/cmdsender')
     cy.hideNav()
+    cy.wait(1000)
     cy.selectTargetPacketItem('INST', 'CLEAR')
     cy.get('button').contains('Send').click({ force: true })
     cy.wait(500)
@@ -262,6 +274,7 @@ describe('CommandSender', () => {
   it.skip('sends raw data', () => {
     cy.visit('/tools/cmdsender')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Send Raw').click()
   })
@@ -272,6 +285,7 @@ describe('CommandSender', () => {
   it('ignores range checks', () => {
     cy.visit('/tools/cmdsender/INST/COLLECT')
     cy.hideNav()
+    cy.wait(1000)
     selectValue('TYPE', 'NORMAL') // Ensure TYPE is set since its required
     cy.get(
       ':nth-child(4) > :nth-child(2) > :nth-child(1) > .v-input > .v-input__control > .v-input__slot > .v-text-field__slot > [data-test=cmd-param-value]'
@@ -294,6 +308,7 @@ describe('CommandSender', () => {
   it('displays state values in hex', () => {
     cy.visit('/tools/cmdsender/INST/COLLECT')
     cy.hideNav()
+    cy.wait(1000)
     selectValue('TYPE', 'NORMAL') // Ensure TYPE is set since its required
     checkValue('TYPE', '0')
     cy.get('.v-toolbar').contains('Mode').click()
@@ -303,6 +318,7 @@ describe('CommandSender', () => {
   it('shows ignored parameters', () => {
     cy.visit('/tools/cmdsender/INST/ABORT')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('Aborts a collect')
     // All the ABORT parameters are ignored so the table shouldn't appear
     cy.contains('Parameters').should('not.exist')
@@ -314,6 +330,7 @@ describe('CommandSender', () => {
   it('disable parameter conversions', () => {
     cy.visit('/tools/cmdsender/INST/COLLECT')
     cy.hideNav()
+    cy.wait(1000)
     selectValue('TYPE', 'NORMAL') // Ensure TYPE is set since its required
     cy.get('.v-toolbar').contains('Mode').click()
     cy.contains('Disable Parameter').click()

@@ -23,6 +23,7 @@ describe('ScriptRunner', () => {
   //
   it('opens ready to type', () => {
     cy.visit('/tools/scriptrunner')
+    cy.wait(1000)
     cy.focused().type('this is a test')
     cy.contains('this is a test')
   })
@@ -32,6 +33,7 @@ describe('ScriptRunner', () => {
   //
   it('clears the editor on File->New', () => {
     cy.visit('/tools/scriptrunner')
+    cy.wait(1000)
     cy.get('#editor').type('this is a test')
     cy.contains('this is a test')
     cy.get('.v-toolbar').contains('File').click()
@@ -41,6 +43,7 @@ describe('ScriptRunner', () => {
 
   it('handles File Save, Save As, and Delete', () => {
     cy.visit('/tools/scriptrunner')
+    cy.wait(1000)
     cy.get('#editor').type('puts "File Save"')
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save File').click()
@@ -164,6 +167,7 @@ describe('ScriptRunner', () => {
 
   it('downloads an unnamed file', () => {
     cy.visit('/tools/scriptrunner')
+    cy.wait(1000)
     cy.get('#editor').type('this is a test\nanother line')
     // Download the file
     cy.get('.v-toolbar').contains('File').click()

@@ -49,6 +49,7 @@ describe('TlmGrapher', () => {
   it('adds items to a graph, starts, pauses, resumes and stops', () => {
     cy.visit('/tools/tlmgrapher')
     cy.hideNav()
+    cy.wait(1000)
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click({ force: true })
     cy.get('#tlmGrapherGraph1').contains('TEMP1')
@@ -77,6 +78,7 @@ describe('TlmGrapher', () => {
   it('edits a graph title', () => {
     cy.visit('/tools/tlmgrapher')
     cy.hideNav()
+    cy.wait(1000)
     cy.contains('Graph 1')
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click({ force: true })
@@ -118,6 +120,7 @@ describe('TlmGrapher', () => {
   it('adds multiple graphs', () => {
     cy.visit('/tools/tlmgrapher')
     cy.hideNav()
+    cy.wait(1000)
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click({ force: true })
     cy.get('.v-toolbar').contains('Graph').click({ force: true })
@@ -144,6 +147,7 @@ describe('TlmGrapher', () => {
   it('saves and loads the configuration', () => {
     cy.visit('/tools/tlmgrapher')
     cy.hideNav()
+    cy.wait(1000)
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP1')
     cy.contains('Add Item').click({ force: true })
     cy.selectTargetPacketItem('INST', 'HEALTH_STATUS', 'TEMP2')
@@ -216,6 +220,7 @@ describe('TlmGrapher', () => {
   it('shrinks and expands a graph width and height', () => {
     cy.visit('/tools/tlmgrapher')
     cy.hideNav()
+    cy.wait(1000)
     aliasWidthHeight()
     cy.get('#tlmGrapherGraph1').within(() => {
       cy.contains('Graph 1')
@@ -233,6 +238,7 @@ describe('TlmGrapher', () => {
   it('shrinks and expands a graph width', () => {
     cy.visit('/tools/tlmgrapher')
     cy.hideNav()
+    cy.wait(1000)
     aliasWidthHeight()
     cy.get('#tlmGrapherGraph1').within(() => {
       cy.contains('Graph 1')
@@ -250,6 +256,7 @@ describe('TlmGrapher', () => {
   it('shrinks and expands a graph height', () => {
     cy.visit('/tools/tlmgrapher')
     cy.hideNav()
+    cy.wait(1000)
     aliasWidthHeight()
     cy.get('#tlmGrapherGraph1').within(() => {
       cy.contains('Graph 1')
@@ -267,6 +274,7 @@ describe('TlmGrapher', () => {
   it('minimizes a graph', () => {
     cy.visit('/tools/tlmgrapher')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('#tlmGrapherGraph1').within(() => {
       cy.get('#chart').should('be.visible')
       cy.get('button')

@@ -23,6 +23,7 @@ describe('CmdTlmServer Status', () => {
   it('changes the limits set', () => {
     cy.visit('/tools/cmdtlmserver')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('.v-tab').contains('Status').click({ force: true })
     cy.wait(1000)
     cy.chooseVSelect('Limits Set', 'TVAC')

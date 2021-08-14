@@ -21,6 +21,7 @@ describe('CmdTlmServer Interfaces', () => {
   it('disconnects & connects an interface', () => {
     cy.visit('/tools/cmdtlmserver/interfaces')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=interfaces-table]')
       .contains('INST_INT', { timeout: 10000 })
       .parent()
@@ -64,6 +65,7 @@ describe('CmdTlmServer Interfaces', () => {
     // TODO: possibly remove this test. Sometimes it connects almost instantly, making this not testable
     cy.visit('/tools/cmdtlmserver/interfaces')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=interfaces-table]')
       .contains('EXAMPLE_INT', { timeout: 10000 })
       .parent()

@@ -21,6 +21,7 @@ describe('CmdTlmServer TlmPackets', () => {
   it('displays the list of telemetry', () => {
     cy.visit('/tools/cmdtlmserver/tlm-packets')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=tlm-packets-table]')
       .contains('HEALTH_STATUS', { timeout: 10000 })
       .parent('tr')
@@ -44,6 +45,7 @@ describe('CmdTlmServer TlmPackets', () => {
   it('displays the packet count', () => {
     cy.visit('/tools/cmdtlmserver/tlm-packets')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=tlm-packets-table]')
       .contains('HEALTH_STATUS', { timeout: 10000 })
       .parent('tr')
@@ -71,6 +73,7 @@ describe('CmdTlmServer TlmPackets', () => {
   it('displays a raw packet', () => {
     cy.visit('/tools/cmdtlmserver/tlm-packets')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=tlm-packets-table]', { timeout: 10000 })
       .contains('Target Name')
       .click({ force: true })
@@ -100,7 +103,7 @@ describe('CmdTlmServer TlmPackets', () => {
         })
     })
     cy.get('.v-dialog:visible').contains('Pause').click({ force: true })
-    cy.wait(1000) // Give it a bit to actually Pause
+    cy.wait(2000) // Give it a bit to actually Pause
     // Ensure it has paused the output
     cy.get('.v-dialog:visible').within(() => {
       cy.get('textarea').invoke('val').as('textArea')
@@ -136,6 +139,7 @@ describe('CmdTlmServer TlmPackets', () => {
     })
 
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=tlm-packets-table]', { timeout: 10000 })
       .contains('Target Name')
       .click({ force: true })

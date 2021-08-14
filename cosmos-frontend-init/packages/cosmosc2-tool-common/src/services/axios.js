@@ -31,8 +31,9 @@ instance.interceptors.response.use(
     if (error.response.status === 401) {
       delete localStorage.token
       CosmosAuth.login(location.href)
+      return error
     }
-    return error
+    throw error
   }
 )
 

@@ -21,11 +21,13 @@ describe('AdminSettings', () => {
   beforeEach(() => {
     cy.visit('/tools/admin/settings')
     cy.hideNav()
+    cy.wait(1000)
   })
 
   it('resets clock sync warning suppression', function () {
     window.localStorage['suppresswarning__clock_out_of_sync_with_server'] = true
     cy.reload()
+    cy.wait(1000)
     cy.get('[data-test=selectAllSuppressedWarnings').check({ force: true })
     cy.get('[data-test=resetSuppressedWarnings').click({ force: true })
     cy.then(() => {

@@ -24,6 +24,7 @@ describe('DataViewer', () => {
     cy.task('clearDownloads')
     cy.visit('/tools/dataviewer')
     cy.hideNav()
+    cy.wait(1000)
   })
 
   it('adds a raw packet to a new tab', () => {

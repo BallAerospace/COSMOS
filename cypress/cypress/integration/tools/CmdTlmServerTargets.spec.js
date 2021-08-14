@@ -21,6 +21,7 @@ describe('CmdTlmServer Targets', () => {
   it('displays the list of targets', () => {
     cy.visit('/tools/cmdtlmserver/targets')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=targets-table]').contains('INST', { timeout: 10000 })
     cy.get('[data-test=targets-table]').contains('INST2')
     cy.get('[data-test=targets-table]').contains('EXAMPLE')
@@ -37,6 +38,7 @@ describe('CmdTlmServer Targets', () => {
   it('displays the command count', () => {
     cy.visit('/tools/cmdtlmserver/targets')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=targets-table]', { timeout: 10000 })
       .contains('INST2_INT')
       .parent()
@@ -65,6 +67,7 @@ describe('CmdTlmServer Targets', () => {
   it('displays the telemetry count', () => {
     cy.visit('/tools/cmdtlmserver/targets')
     cy.hideNav()
+    cy.wait(1000)
     cy.get('[data-test=targets-table]', { timeout: 10000 })
       .contains('INST_INT')
       .parent()
