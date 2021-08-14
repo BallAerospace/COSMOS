@@ -73,17 +73,19 @@ describe('CmdTlmServer TlmPackets', () => {
     cy.hideNav()
     cy.get('[data-test=tlm-packets-table]', { timeout: 10000 })
       .contains('Target Name')
-      .click()
+      .click({ force: true })
     cy.get('[data-test=tlm-packets-table]')
       .contains('HEALTH_STATUS', { timeout: 10000 })
       .parent('tr')
       .within(() => {
         cy.get('td').eq(0).contains('INST')
-        cy.get('td').eq(3).click()
+        cy.get('button').eq(0).click({ force: true })
       })
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('Raw Telemetry Packet: INST HEALTH_STATUS')
-      cy.contains(/Packet Time: \d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/, { timeout: 10000 })
+      cy.contains(/Packet Time: \d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/, {
+        timeout: 10000,
+      })
       cy.contains(/Received Time: \d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}/)
       cy.get('textarea').invoke('val').should('include', 'Address')
       cy.get('textarea').invoke('val').should('include', '00000000:')
@@ -97,7 +99,7 @@ describe('CmdTlmServer TlmPackets', () => {
           expect(value).to.not.eq(textarea)
         })
     })
-    cy.get('.v-dialog:visible').contains('Pause').click()
+    cy.get('.v-dialog:visible').contains('Pause').click({ force: true })
     cy.wait(1000) // Give it a bit to actually Pause
     // Ensure it has paused the output
     cy.get('.v-dialog:visible').within(() => {
@@ -112,7 +114,7 @@ describe('CmdTlmServer TlmPackets', () => {
         })
     })
     // Resume the updates
-    cy.get('.v-dialog:visible').contains('Resume').click()
+    cy.get('.v-dialog:visible').contains('Resume').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
       cy.get('textarea').invoke('val').as('textArea')
     })
@@ -136,7 +138,7 @@ describe('CmdTlmServer TlmPackets', () => {
     cy.hideNav()
     cy.get('[data-test=tlm-packets-table]', { timeout: 10000 })
       .contains('Target Name')
-      .click()
+      .click({ force: true })
     cy.get('[data-test=tlm-packets-table]')
       .contains('HEALTH_STATUS', { timeout: 10000 })
       .parent('tr')
@@ -144,7 +146,7 @@ describe('CmdTlmServer TlmPackets', () => {
         cy.get('td')
           .eq(0)
           .contains(/^INST$/)
-        cy.get('td').eq(4).click()
+        cy.get('button').eq(1).click({ force: true })
       })
     cy.get('@windowOpen').should(
       'be.calledWith',
