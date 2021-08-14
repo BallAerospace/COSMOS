@@ -41,7 +41,7 @@ Cypress.Commands.add('chooseVSelect', (inputLabel, selection, options = {}) => {
   } else {
     el = list.contains(new RegExp(selectionExpression, 'i'))
   }
-  el.click()
+  el.click({ force: true })
 })
 
 Cypress.Commands.add(

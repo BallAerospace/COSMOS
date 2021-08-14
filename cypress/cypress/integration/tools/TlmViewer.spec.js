@@ -18,20 +18,27 @@
 */
 
 describe('TlmViewer', () => {
-  function showScreen(target, screen) {
+  function showScreen(target, screen, checkApi = true) {
     cy.visit('/tools/tlmviewer')
     cy.hideNav()
+    cy.wait(1000)
     cy.server()
     cy.route('POST', '/cosmos-api/api').as('api')
     cy.wait(100)
     cy.chooseVSelect('Select Target', target)
+    cy.scrollTo(0, 0)
+    cy.wait(1000)
     cy.chooseVSelect('Select Screen', screen)
-    cy.contains('Show Screen').click()
+    cy.scrollTo(0, 0)
+    cy.wait(1000)
+    cy.contains('Show Screen').click({ force: true })
     cy.contains(target + ' ' + screen).should('be.visible')
-    cy.wait('@api').should((xhr) => {
-      expect(xhr.status, 'successful POST').to.equal(200)
-    })
-    cy.get('.mdi-close-box').first().click()
+    if (checkApi) {
+      cy.wait('@api').should((xhr) => {
+        expect(xhr.status, 'successful POST').to.equal(200)
+      })
+    }
+    cy.get('.mdi-close-box').first().click({ force: true })
     cy.contains(target + ' ' + screen).should('not.exist')
     cy.get('@consoleError').should('not.be.called')
   }
@@ -49,7 +56,7 @@ describe('TlmViewer', () => {
     showScreen('INST', 'COMMANDING')
   })
   it('displays INST GRAPHS', () => {
-    showScreen('INST', 'GRAPHS')
+    showScreen('INST', 'GRAPHS', false)
   })
   it('displays INST GROUND', () => {
     showScreen('INST', 'GROUND')
