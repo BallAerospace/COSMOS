@@ -89,7 +89,9 @@ COPY --from=cosmos-tmp4 /cosmos/plugins/gems/* /cosmos/plugins/gems/
 
 FROM ballaerospace/cosmosc2-base
 
-COPY ./init.sh /cosmos/plugins/init.sh
-COPY --from=cosmos-frontend-base-tmp --chown=${uid}:${gid} /cosmos/plugins/gems/* /cosmos/plugins/gems/
+USER ${USER_ID}:${GROUP_ID}
+
+COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} ./init.sh /cosmos/plugins/init.sh
+COPY --from=cosmos-frontend-base-tmp --chown=${IMAGE_USER}:${IMAGE_GROUP} /cosmos/plugins/gems/* /cosmos/plugins/gems/
 
 CMD [ "/cosmos/plugins/init.sh" ]
