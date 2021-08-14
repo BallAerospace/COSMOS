@@ -24,6 +24,7 @@ describe('CmdTlmServer', () => {
   it('changes the polling rate', function () {
     cy.visit('/tools/cmdtlmserver')
     cy.hideNav()
+    cy.wait(5000) // Let things spin up
     cy.contains('td', 'CONNECTED')
     cy.wait(1000) // Let things spin up
     cy.get('[data-test=interfaces-table]')
@@ -99,7 +100,7 @@ describe('CmdTlmServer', () => {
     cy.contains('Log Messages')
     cy.visit('/tools/cmdsender')
     cy.contains('Command Sender')
-    cy.wait(1000) // Allow the initial Command Sender APIs to happen
+    cy.wait(5000) // Allow the initial Command Sender APIs to happen
     cy.server()
     cy.route('POST', '/cosmos-api/api').as('api')
     cy.wait('@api', {
