@@ -27,7 +27,7 @@ describe('CmdTlmServer Interfaces', () => {
       .children()
       .eq(2)
       .invoke('text')
-      .should('eq', 'CONNECTED')
+      .should('eq', ' CONNECTED ')
     // Disconnect
     cy.get('[data-test=interfaces-table]')
       .contains('INST_INT')
@@ -41,7 +41,7 @@ describe('CmdTlmServer Interfaces', () => {
       .children()
       .eq(2)
       .invoke('text')
-      .should('eq', 'DISCONNECTED')
+      .should('eq', ' DISCONNECTED ')
     cy.get('[data-test=log-messages]').contains('INST_INT: Disconnect')
     // Connect
     cy.get('[data-test=interfaces-table]')
@@ -56,7 +56,7 @@ describe('CmdTlmServer Interfaces', () => {
       .children()
       .eq(2)
       .invoke('text')
-      .should('eq', 'CONNECTED')
+      .should('eq', ' CONNECTED ')
     cy.get('[data-test=log-messages]').contains('INST_INT: Connection Success')
   })
 
@@ -72,7 +72,7 @@ describe('CmdTlmServer Interfaces', () => {
       .invoke('text')
       .then((connection) => {
         // Check for DISCONNECTED and if so click connect
-        if (connection === 'DISCONNECTED') {
+        if (connection === ' DISCONNECTED ') {
           cy.get('[data-test=interfaces-table]')
             .contains('EXAMPLE_INT')
             .parent()
@@ -105,7 +105,7 @@ describe('CmdTlmServer Interfaces', () => {
       .children()
       .eq(2)
       .invoke('text')
-      .should('eq', 'DISCONNECTED')
+      .should('eq', ' DISCONNECTED ')
     cy.get('[data-test=log-messages]').contains('EXAMPLE_INT: Disconnect')
     // Connect
     cy.get('[data-test=interfaces-table]')
@@ -120,7 +120,7 @@ describe('CmdTlmServer Interfaces', () => {
       .children()
       .eq(2)
       .invoke('text')
-      .should('eq', 'ATTEMPTING')
+      .should('eq', ' ATTEMPTING ')
     cy.get('[data-test=log-messages]').contains('EXAMPLE_INT: Connecting')
   })
 })
