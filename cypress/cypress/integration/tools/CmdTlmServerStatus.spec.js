@@ -23,7 +23,7 @@ describe('CmdTlmServer Status', () => {
   it('changes the limits set', () => {
     cy.visit('/tools/cmdtlmserver')
     cy.hideNav()
-    cy.get('.v-tab').contains('Status').click()
+    cy.get('.v-tab').contains('Status').click({ force: true })
     cy.wait(1000)
     cy.chooseVSelect('Limits Set', 'TVAC')
     // TODO: This message doesn't appear to be showing up
@@ -31,19 +31,5 @@ describe('CmdTlmServer Status', () => {
     cy.chooseVSelect('Limits Set', 'DEFAULT')
     // TODO: This message doesn't appear to be showing up
     // cy.get('[data-test=log-messages]').contains('Setting Limits Set: DEFAULT')
-  })
-  xit('lists API statistics', () => {
-    cy.visit('/tools/cmdtlmserver')
-    cy.hideNav()
-    cy.get('.v-tab').contains('Status').click()
-    cy.contains('API Status')
-    // TODO what do we really want to display here
-  })
-  xit('lists background tasks', () => {
-    cy.visit('/tools/cmdtlmserver')
-    cy.hideNav()
-    cy.get('.v-tab').contains('Status').click()
-    cy.contains('Background Tasks')
-    // TODO: Add background tasks to the demo
   })
 })
