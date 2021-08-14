@@ -33,6 +33,9 @@ describe('ScriptRunner Suite', () => {
       cy.contains('procedures').click()
       cy.get('[data-test=filename]').type('/' + filename)
       cy.contains('Ok').click()
+      if (cy.contains('Click OK to overwrite.')) {
+        cy.contains('Ok').click()
+      }
     })
   }
   function deleteFile() {
@@ -115,7 +118,7 @@ describe('ScriptRunner Suite', () => {
     cy.get('[data-test=teardown-suite]').should('be.enabled')
 
     // Run suite setup
-    cy.get('[data-test=setup-suite]').click()
+    cy.get('[data-test=setup-suite]').click({ force: true })
     // Wait for the results
     cy.get('.v-dialog:visible', { timeout: 20000 }).within(() => {
       cy.contains('Script Results')
@@ -128,7 +131,7 @@ describe('ScriptRunner Suite', () => {
     })
 
     // Run suite teardown
-    cy.get('[data-test=teardown-suite]').click()
+    cy.get('[data-test=teardown-suite]').click({ force: true })
     // Wait for the results
     cy.get('.v-dialog:visible', { timeout: 20000 }).within(() => {
       cy.contains('Script Results')
@@ -141,7 +144,7 @@ describe('ScriptRunner Suite', () => {
     })
 
     // Start the suite
-    cy.get('[data-test=start-suite]').click()
+    cy.get('[data-test=start-suite]').click({ force: true })
     checkRunningButtons()
 
     // Wait for the results
@@ -180,6 +183,7 @@ describe('ScriptRunner Suite', () => {
 
   it('starts a group', () => {
     cy.visit('/tools/scriptrunner')
+    cy.wait(500)
     cy.get('#editor').type('load "cosmos/script/suite.rb"\n')
     cy.get('#editor').type('class TestGroup1 < Cosmos::Group\n')
     cy.get('#editor').type('def setup; Cosmos::Group.puts("setup"); end\n')
@@ -202,7 +206,7 @@ describe('ScriptRunner Suite', () => {
     cy.get('[data-test=teardown-group]').should('be.enabled')
 
     // Run group setup
-    cy.get('[data-test=setup-group]').click()
+    cy.get('[data-test=setup-group]').click({ force: true })
     // Wait for the results
     cy.get('.v-dialog:visible', { timeout: 20000 }).within(() => {
       cy.contains('Script Results')
@@ -215,7 +219,7 @@ describe('ScriptRunner Suite', () => {
     })
 
     // Run group teardown
-    cy.get('[data-test=teardown-group]').click()
+    cy.get('[data-test=teardown-group]').click({ force: true })
     // Wait for the results
     cy.get('.v-dialog:visible', { timeout: 20000 }).within(() => {
       cy.contains('Script Results')
@@ -228,7 +232,7 @@ describe('ScriptRunner Suite', () => {
     })
 
     // Start the group
-    cy.get('[data-test=start-group]').click()
+    cy.get('[data-test=start-group]').click({ force: true })
     checkRunningButtons()
 
     // Wait for the results
@@ -283,7 +287,7 @@ describe('ScriptRunner Suite', () => {
     saveAs('test_suite3.rb')
 
     // Start the script
-    cy.get('[data-test=start-script]').click()
+    cy.get('[data-test=start-script]').click({ force: true })
     checkRunningButtons()
 
     // Wait for the results
@@ -318,7 +322,7 @@ describe('ScriptRunner Suite', () => {
     saveAs('test_suite4.rb')
 
     // Start the group
-    cy.get('[data-test=start-group]').click()
+    cy.get('[data-test=start-group]').click({ force: true })
     checkRunningButtons()
 
     // Wait for the results
@@ -338,7 +342,7 @@ describe('ScriptRunner Suite', () => {
     cy.get('[data-test=manual]').click({ force: true }) // uncheck Manual
 
     // Start the group
-    cy.get('[data-test=start-group]').click()
+    cy.get('[data-test=start-group]').click({ force: true })
     checkRunningButtons()
 
     // Wait for the results

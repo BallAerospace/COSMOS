@@ -242,7 +242,7 @@ describe('LimitsMonitor', () => {
   it('displays the limits log', () => {
     cy.visit('/tools/limitsmonitor')
     cy.hideNav()
-    cy.get('.v-tab').contains('Log').click()
+    cy.get('.v-tab').contains('Log').click({ force: true })
     // Just verify we see dates and the various red, yellow, green states
     cy.contains(format(new Date(), 'yyyy-MM-dd'))
     cy.contains('RED')

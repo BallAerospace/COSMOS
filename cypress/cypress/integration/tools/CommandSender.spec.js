@@ -59,7 +59,7 @@ describe('CommandSender', () => {
     cy.visit('/tools/cmdsender')
     cy.hideNav()
     cy.selectTargetPacketItem('INST', 'ABORT')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.contains('cmd("INST ABORT") sent')
   })
   it('displays INST COLLECT using the route', () => {
@@ -95,7 +95,7 @@ describe('CommandSender', () => {
     // Switch back to MANUALLY ENTERED
     selectValue('TYPE', 'MANUALLY ENTERED')
     setValue('TYPE', '3')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.contains(
       'Status: cmd("INST COLLECT with TYPE 3, DURATION 1, OPCODE 171, TEMP 0") sent'
     )
@@ -107,12 +107,12 @@ describe('CommandSender', () => {
     cy.visit('/tools/cmdsender/INST/CLEAR')
     cy.hideNav()
     cy.contains('Clears counters')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('No').click()
     })
     cy.contains('Hazardous command not sent')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('Yes').click()
     })
@@ -123,7 +123,7 @@ describe('CommandSender', () => {
     cy.visit('/tools/cmdsender/INST/COLLECT')
     cy.hideNav()
     cy.contains('Starts a collect')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
       // TODO: Make this clearer with 'TYPE is required'
       cy.contains('Error sending')
@@ -135,12 +135,12 @@ describe('CommandSender', () => {
     cy.hideNav()
     cy.contains('Starts a collect')
     selectValue('TYPE', 'SPECIAL')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('No').click()
     })
     cy.contains('Hazardous command not sent')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('Yes').click()
     })
@@ -157,7 +157,7 @@ describe('CommandSender', () => {
     cy.contains('float parameter')
     setValue('FLOAT32', '123.456')
     setValue('FLOAT64', '12e3')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.contains('("INST FLTCMD with FLOAT32 123.456, FLOAT64 12000") sent')
     checkHistory('cmd("INST FLTCMD with FLOAT32 123.456, FLOAT64 12000")')
   })
@@ -166,13 +166,13 @@ describe('CommandSender', () => {
     cy.hideNav()
     cy.contains('array parameter')
     setValue('ARRAY', '10')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('must be an Array')
       cy.get('button').click()
     })
     setValue('ARRAY', '[1,2,3,4]')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.contains('cmd("INST ARYCMD with ARRAY [ 1, 2, 3, 4 ], CRC 0") sent')
     checkHistory('cmd("INST ARYCMD with ARRAY [ 1, 2, 3, 4 ], CRC 0")')
   })
@@ -181,7 +181,7 @@ describe('CommandSender', () => {
     cy.visit('/tools/cmdsender/INST/ASCIICMD')
     cy.hideNav()
     cy.contains('ASCII command')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
   })
   it('gets details with right click', () => {
     cy.visit('/tools/cmdsender/INST/COLLECT')
@@ -196,7 +196,8 @@ describe('CommandSender', () => {
     cy.visit('/tools/cmdsender')
     cy.hideNav()
     cy.selectTargetPacketItem('INST', 'CLEAR')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
+    cy.wait(500)
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('Yes').click()
     })
@@ -204,6 +205,7 @@ describe('CommandSender', () => {
     checkHistory('cmd("INST CLEAR")')
     // Re-execute the command from the history
     cy.get('[data-test=sender-history]').click().type('{uparrow}{enter}')
+    cy.wait(500)
     // Should still get the hazardous warning dialog
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('Yes').click()
@@ -211,6 +213,7 @@ describe('CommandSender', () => {
     // Now history says it was sent twice (2)
     cy.contains('cmd("INST CLEAR") sent. (2)')
     cy.get('[data-test=sender-history]').click().type('{uparrow}{enter}')
+    cy.wait(500)
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('Yes').click()
     })
@@ -219,7 +222,7 @@ describe('CommandSender', () => {
 
     // Send a different command: INST SETPARAMS
     cy.selectTargetPacketItem('INST', 'SETPARAMS')
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.contains(
       'cmd("INST SETPARAMS with VALUE1 1, VALUE2 1, VALUE3 1, VALUE4 1, VALUE5 1") sent.'
     )
@@ -270,12 +273,12 @@ describe('CommandSender', () => {
     cy.visit('/tools/cmdsender/INST/COLLECT')
     cy.hideNav()
     selectValue('TYPE', 'NORMAL') // Ensure TYPE is set since its required
-    cy.contains('TEMP')
-      .parent()
-      .within(() => {
-        cy.get('[data-test=cmd-param-value]').clear().type('100{enter}')
-      })
-    cy.get('button').contains('Send').click()
+    cy.get(
+      ':nth-child(4) > :nth-child(2) > :nth-child(1) > .v-input > .v-input__control > .v-input__slot > .v-text-field__slot > [data-test=cmd-param-value]'
+    )
+      .clear()
+      .type('100{enter}')
+    cy.get('button').contains('Send').click({ force: true })
     // Dialog should pop up with error
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('not in valid range')
@@ -285,7 +288,7 @@ describe('CommandSender', () => {
     cy.contains('not in valid range')
     cy.get('.v-toolbar').contains('Mode').click()
     cy.contains('Ignore Range Checks').click()
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
     cy.contains('TEMP 100") sent')
   })
   it('displays state values in hex', () => {
@@ -314,6 +317,6 @@ describe('CommandSender', () => {
     selectValue('TYPE', 'NORMAL') // Ensure TYPE is set since its required
     cy.get('.v-toolbar').contains('Mode').click()
     cy.contains('Disable Parameter').click()
-    cy.get('button').contains('Send').click()
+    cy.get('button').contains('Send').click({ force: true })
   })
 })

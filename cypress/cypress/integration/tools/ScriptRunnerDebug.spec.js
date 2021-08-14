@@ -26,10 +26,10 @@ describe('ScriptRunner Debug', () => {
     cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('Syntax Check Failed')
-      cy.contains('unexpected keyword_end')
+      cy.contains("unexpected `end'")
       cy.contains('Ok').click()
     })
-    cy.get('[data-test=start-go-button]').click()
+    cy.get('[data-test=start-go-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'stopped'
@@ -45,10 +45,10 @@ describe('ScriptRunner Debug', () => {
     cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('Syntax Check Failed')
-      cy.contains('unexpected keyword_end')
+      cy.contains("unexpected `end'")
       cy.contains('Ok').click()
     })
-    cy.get('[data-test=start-go-button]').click()
+    cy.get('[data-test=start-go-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'stopped'
@@ -62,7 +62,7 @@ describe('ScriptRunner Debug', () => {
     cy.focused().type(
       'x = 12345\nwait\nputs "x:#{{}x}"\nputs "one"\nputs "two"'
     )
-    cy.get('[data-test=start-go-button]').click()
+    cy.get('[data-test=start-go-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'waiting'
@@ -100,7 +100,7 @@ describe('ScriptRunner Debug', () => {
     cy.get('[data-test=step-button]').click()
     cy.get('[data-test=state]').should('have.value', 'paused')
     // Go
-    cy.get('[data-test=start-go-button]').click()
+    cy.get('[data-test=start-go-button]').click({ force: true })
     cy.get('[data-test=state]').should('have.value', 'stopped')
     // Verify we were able to change the 'x' variable
     cy.get('[data-test=output-messages]').contains('x:67890')
@@ -114,7 +114,7 @@ describe('ScriptRunner Debug', () => {
   it('retries failed checks', () => {
     cy.visit('/tools/scriptrunner')
     cy.focused().type('check_expression("1 == 2")')
-    cy.get('[data-test=start-go-button]').click()
+    cy.get('[data-test=start-go-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'error'
@@ -122,16 +122,16 @@ describe('ScriptRunner Debug', () => {
     // Check for the initial check message
     cy.get('[data-test=output-messages] td:contains("1 == 2 is FALSE")').should(
       'have.length',
-      1
+      2
     )
-    cy.get('[data-test=pause-retry-button]').click() // Retry
+    cy.get('[data-test=pause-retry-button]').click({ force: true }) // Retry
     // Now we should have two error messages
     cy.get('[data-test=output-messages] td:contains("1 == 2 is FALSE")').should(
       'have.length',
-      2
+      4
     )
     cy.get('[data-test=state]').should('have.value', 'error')
-    cy.get('[data-test=start-go-button]').click()
+    cy.get('[data-test=start-go-button]').click({ force: true })
     cy.get('[data-test=output-messages]').contains('Script completed')
   })
 
@@ -147,12 +147,12 @@ describe('ScriptRunner Debug', () => {
     cy.focused().type(
       'def one{enter}two(){enter}end{enter}def two{enter}wait{enter}end{enter}one(){enter}'
     )
-    cy.get('[data-test=start-go-button]').click()
+    cy.get('[data-test=start-go-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'waiting'
     )
-    cy.get('[data-test=pause-retry-button]').click()
+    cy.get('[data-test=pause-retry-button]').click({ force: true })
     cy.get('[data-test=state]').should('have.value', 'paused')
 
     cy.get('.v-toolbar').contains('Script').click()
@@ -163,7 +163,7 @@ describe('ScriptRunner Debug', () => {
       cy.get('.row').eq(1).contains('in `one') // then one()
       cy.contains('Ok').click()
     })
-    cy.get('[data-test=stop-button]').click()
+    cy.get('[data-test=stop-button]').click({ force: true })
     cy.get('[data-test=state]').should('have.value', 'stopped')
   })
 

@@ -48,13 +48,19 @@ Cypress.Commands.add(
   'selectTargetPacketItem',
   (target, packet = null, item = null) => {
     cy.get('[data-test=select-target]').click({ force: true })
-    cy.contains('.v-list-item__title', new RegExp(`^${target}$`, 'i')).click()
+    cy.contains('.v-list-item__title', new RegExp(`^${target}$`, 'i')).click({
+      force: true,
+    })
     if (packet) {
       cy.get('[data-test=select-packet]').click({ force: true })
-      cy.contains('.v-list-item__title', new RegExp(`^${packet}$`, 'i')).click()
+      cy.contains('.v-list-item__title', new RegExp(`^${packet}$`, 'i')).click({
+        force: true,
+      })
       if (item) {
         cy.get('[data-test=select-item]').click({ force: true })
-        cy.contains('.v-list-item__title', new RegExp(`^${item}$`, 'i')).click()
+        cy.contains('.v-list-item__title', new RegExp(`^${item}$`, 'i')).click({
+          force: true,
+        })
       }
     }
   }
