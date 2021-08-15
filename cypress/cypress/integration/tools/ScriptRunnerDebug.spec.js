@@ -33,7 +33,7 @@ describe('ScriptRunner Debug', () => {
     cy.get('[data-test=start-go-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
-      'stopped'
+      'fatal'
     )
     cy.get('[data-test=output-messages]').contains('Exception')
   })

@@ -20,8 +20,8 @@
 describe('ScriptRunner Suite', () => {
   function saveAs(filename) {
     // Save as a suite so we get the suite controls
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('Save As...').click()
+    cy.get('.v-toolbar').contains('File').click({ force: true }).wait(1000)
+    cy.contains('Save As...').click({ force: true }).wait(1000)
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('File Save As')
       cy.contains('INST')
@@ -29,20 +29,32 @@ describe('ScriptRunner Suite', () => {
         .eq(0)
         .parent()
         .find('button')
-        .click()
-      cy.contains('procedures').click()
+        .click({ force: true })
+        .wait(1000)
+      cy.contains('procedures').click({ force: true }).wait(1000)
       cy.get('[data-test=filename]').type('/' + filename)
-      cy.contains('Ok').click()
-      if (cy.contains('Click OK to overwrite.')) {
-        cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true }).wait(1000)
+    })
+    cy.get('body').then(($body) => {
+      // synchronously query from body
+      // to find which element was created
+      if ($body.find('.v-alert__content').length) {
+        cy.contains('Ok').click({ force: true }).wait(1000)
+      }
+    })
+    cy.get('body').then(($body) => {
+      // synchronously query from body
+      // to find which element was created
+      if ($body.find('.v-alert__content').length) {
+        cy.contains('Ok').click({ force: true }).wait(1000)
       }
     })
   }
   function deleteFile() {
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('Delete').click()
+    cy.get('.v-toolbar').contains('File').click({ force: true }).wait(1000)
+    cy.contains('Delete').click({ force: true }).wait(1000)
     cy.get('.v-dialog:visible').within(() => {
-      cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true }).wait(1000)
     })
   }
   function checkRunningButtons() {
@@ -62,15 +74,15 @@ describe('ScriptRunner Suite', () => {
     cy.visit('/tools/scriptrunner')
     cy.wait(1000)
     // Open the file
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('Open').click()
+    cy.get('.v-toolbar').contains('File').click({ force: true }).wait(1000)
+    cy.contains('Open').click({ force: true }).wait(1000)
     cy.get('.v-dialog:visible').within(() => {
       cy.wait(1000) // allow the dialog to open
-      cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true }).wait(1000)
       cy.contains('Nothing selected')
       cy.get('[data-test=search]').type('script_suite')
-      cy.contains('script_suite').click()
-      cy.contains('Ok').click()
+      cy.contains('script_suite').click({ force: true }).wait(1000)
+      cy.contains('Ok').click({ force: true }).wait(1000)
     })
     // Verify filename
     cy.get('[data-test=filename]')
@@ -120,7 +132,7 @@ describe('ScriptRunner Suite', () => {
     cy.get('[data-test=teardown-suite]').should('be.enabled')
 
     // Run suite setup
-    cy.get('[data-test=setup-suite]').click({ force: true })
+    cy.get('[data-test=setup-suite]').click({ force: true }).wait(1000)
     // Wait for the results
     cy.get('.v-dialog:visible', { timeout: 20000 }).within(() => {
       cy.contains('Script Results')
@@ -129,11 +141,11 @@ describe('ScriptRunner Suite', () => {
         .should('include', 'setup:PASS')
         .should('include', 'Total Tests : 1')
         .should('include', 'Pass : 1')
-      cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true }).wait(1000)
     })
 
     // Run suite teardown
-    cy.get('[data-test=teardown-suite]').click({ force: true })
+    cy.get('[data-test=teardown-suite]').click({ force: true }).wait(1000)
     // Wait for the results
     cy.get('.v-dialog:visible', { timeout: 20000 }).within(() => {
       cy.contains('Script Results')
@@ -142,11 +154,11 @@ describe('ScriptRunner Suite', () => {
         .should('include', 'teardown:PASS')
         .should('include', 'Total Tests : 1')
         .should('include', 'Pass : 1')
-      cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true }).wait(1000)
     })
 
     // Start the suite
-    cy.get('[data-test=start-suite]').click({ force: true })
+    cy.get('[data-test=start-suite]').click({ force: true }).wait(1000)
     checkRunningButtons()
 
     // Wait for the results
@@ -158,7 +170,7 @@ describe('ScriptRunner Suite', () => {
         .should('include', 'teardown:PASS')
         .should('include', 'Total Tests : 3')
         .should('include', 'Pass : 3')
-      cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true }).wait(1000)
     })
 
     // Rewrite the script but remove setup and teardown
@@ -208,7 +220,7 @@ describe('ScriptRunner Suite', () => {
     cy.get('[data-test=teardown-group]').should('be.enabled')
 
     // Run group setup
-    cy.get('[data-test=setup-group]').click({ force: true })
+    cy.get('[data-test=setup-group]').click({ force: true }).wait(1000)
     // Wait for the results
     cy.get('.v-dialog:visible', { timeout: 20000 }).within(() => {
       cy.contains('Script Results')
@@ -217,11 +229,11 @@ describe('ScriptRunner Suite', () => {
         .should('include', 'setup:PASS')
         .should('include', 'Total Tests : 1')
         .should('include', 'Pass : 1')
-      cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true }).wait(1000)
     })
 
     // Run group teardown
-    cy.get('[data-test=teardown-group]').click({ force: true })
+    cy.get('[data-test=teardown-group]').click({ force: true }).wait(1000)
     // Wait for the results
     cy.get('.v-dialog:visible', { timeout: 20000 }).within(() => {
       cy.contains('Script Results')
@@ -230,11 +242,11 @@ describe('ScriptRunner Suite', () => {
         .should('include', 'teardown:PASS')
         .should('include', 'Total Tests : 1')
         .should('include', 'Pass : 1')
-      cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true }).wait(1000)
     })
 
     // Start the group
-    cy.get('[data-test=start-group]').click({ force: true })
+    cy.get('[data-test=start-group]').click({ force: true }).wait(1000)
     checkRunningButtons()
 
     // Wait for the results
@@ -246,7 +258,7 @@ describe('ScriptRunner Suite', () => {
         .should('not.include', 'TestGroup2')
         .should('include', 'Total Tests : 3')
         .should('include', 'Pass : 3')
-      cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true }).wait(1000)
     })
 
     // Rewrite the script but remove setup and teardown
@@ -290,7 +302,7 @@ describe('ScriptRunner Suite', () => {
     saveAs('test_suite3.rb')
 
     // Start the script
-    cy.get('[data-test=start-script]').click({ force: true })
+    cy.get('[data-test=start-script]').click({ force: true }).wait(1000)
     checkRunningButtons()
 
     // Wait for the results
@@ -301,7 +313,7 @@ describe('ScriptRunner Suite', () => {
         .should('include', 'test1')
         .and('include', 'Total Tests : 1')
         .and('include', 'Pass : 1')
-      cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true }).wait(1000)
     })
 
     deleteFile()
@@ -327,7 +339,7 @@ describe('ScriptRunner Suite', () => {
     saveAs('test_suite4.rb')
 
     // Start the group
-    cy.get('[data-test=start-group]').click({ force: true })
+    cy.get('[data-test=start-group]').click({ force: true }).wait(1000)
     checkRunningButtons()
 
     // Wait for the results
@@ -340,14 +352,14 @@ describe('ScriptRunner Suite', () => {
         .and('not.include', 'manual2')
         .and('include', 'Total Tests : 2')
         .and('include', 'Pass : 2')
-      cy.contains('Download').click()
-      cy.contains('Ok').click()
+      cy.contains('Download').click({ force: true }).wait(1000)
+      cy.contains('Ok').click({ force: true }).wait(1000)
     })
 
-    cy.get('[data-test=manual]').click({ force: true }) // uncheck Manual
+    cy.get('[data-test=manual]').click({ force: true }).wait(1000) // uncheck Manual
 
     // Start the group
-    cy.get('[data-test=start-group]').click({ force: true })
+    cy.get('[data-test=start-group]').click({ force: true }).wait(1000)
     checkRunningButtons()
 
     // Wait for the results
@@ -360,8 +372,8 @@ describe('ScriptRunner Suite', () => {
         .and('include', 'manual2')
         .and('include', 'Total Tests : 2')
         .and('include', 'Pass : 2')
-      cy.contains('Download').click()
-      cy.contains('Ok').click()
+      cy.contains('Download').click({ force: true }).wait(1000)
+      cy.contains('Ok').click({ force: true }).wait(1000)
     })
     deleteFile()
   })

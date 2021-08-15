@@ -27,6 +27,8 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
+import '@testing-library/cypress/add-commands'
+
 Cypress.Commands.add('chooseVSelect', (inputLabel, selection, options = {}) => {
   cy.get('label')
     .contains(new RegExp(`^${inputLabel}$`, 'i'))

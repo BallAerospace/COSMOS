@@ -41,7 +41,7 @@ describe('ScriptRunner Commands', () => {
       cy.contains('No').click()
     })
     cy.get('[data-test=state]').should('have.value', 'paused')
-    cy.get('[data-test=start-go-button]').click({ force: true })
+    cy.get('[data-test=start-go-button]').click({ force: true }).wait(1000)
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('Yes').click()
     })
@@ -170,8 +170,9 @@ describe('ScriptRunner Commands', () => {
     cy.get('.v-dialog:visible').should('not.exist')
 
     cy.get('.v-dialog:visible').within(() => {
-      cy.contains('FOUR').click()
+      cy.contains('FOUR').click().wait(1000)
     })
+    cy.wait(1000)
     cy.get('[data-test=state]').should('have.value', 'stopped')
     cy.get('[data-test=output-messages]').contains('TWO')
     cy.get('[data-test=output-messages]').contains('FOUR')
@@ -199,7 +200,7 @@ describe('ScriptRunner Commands', () => {
 
     // This check has to be outside the .v-dialog since it's a floating menu
     cy.get('.v-list-item__title').contains('def456').click()
-    cy.contains('Ok').click()
+    cy.contains('Ok').click().wait(1000)
 
     cy.get('[data-test=state]').should('have.value', 'stopped')
     cy.get('[data-test=output-messages]').contains('def456')

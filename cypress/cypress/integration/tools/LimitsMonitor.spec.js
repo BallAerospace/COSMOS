@@ -42,6 +42,7 @@ describe('LimitsMonitor', () => {
       .find('button')
       .eq(2) // hide item
       .click()
+      .wait(1000)
     cy.get('[data-test=label]')
       .contains('TEMP2')
       .parentsUntil('[data-test=limits-row]')
@@ -51,11 +52,12 @@ describe('LimitsMonitor', () => {
       .find('button')
       .eq(2) // hide item
       .click()
+      .wait(1000)
     cy.get('TEMP2').should('not.exist')
 
     // Now wait for them to come back
     cy.get('[data-test=limits-row]:contains("TEMP2")', {
-      timeout: 30000,
+      timeout: 60000,
     }).should('have.length', 2)
   })
 
