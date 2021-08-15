@@ -113,14 +113,15 @@ describe('DataExtractor', () => {
   })
 
   it('warns with no data', function () {
-    const start = sub(new Date(), { seconds: 1 })
+    const start = sub(new Date(), { seconds: 10 })
     cy.get('[data-test=startTime]')
       .clear({ force: true })
       .type(formatTime(start))
-    cy.get('[data-test=cmd-radio]').click({ force: true })
-    cy.selectTargetPacketItem('INST', 'ABORT', 'RECEIVED_TIMEFORMATTED')
-    cy.contains('Add Item').click()
-    cy.contains('Process').click()
+    cy.get('[data-test=cmd-radio]').click({ force: true }).wait(1000)
+    cy.selectTargetPacketItem('INST', 'ARYCMD', 'RECEIVED_TIMEFORMATTED')
+    cy.wait(1000)
+    cy.contains('Add Item').click().wait(1000)
+    cy.contains('Process').click().wait(1000)
     cy.contains('No data found').should('be.visible')
   })
 
@@ -233,7 +234,7 @@ describe('DataExtractor', () => {
     cy.hideNav()
     cy.wait(700)
     cy.get('button').contains('Send').click({ force: true })
-    cy.wait(100)
+    cy.wait(1000)
     cy.contains('cmd("INST ABORT") sent')
     cy.wait(500)
 
@@ -279,7 +280,7 @@ describe('DataExtractor', () => {
       expect(lines[0]).to.contain('TEMP1')
       expect(lines[0]).to.contain('TEMP2')
       expect(lines[0]).to.contain(',') // csv
-      expect(lines.length).to.be.greaterThan(300) // 5 min at 60Hz is 300 samples
+      expect(lines.length).to.be.greaterThan(290) // 5 min at 60Hz is 300 samples
     })
   })
 
@@ -302,7 +303,7 @@ describe('DataExtractor', () => {
       expect(lines[0]).to.contain('TEMP1')
       expect(lines[0]).to.contain('TEMP2')
       expect(lines[0]).to.contain('\t')
-      expect(lines.length).to.be.greaterThan(300) // 5 min at 60Hz is 300 samples
+      expect(lines.length).to.be.greaterThan(290) // 5 min at 60Hz is 300 samples
     })
   })
 
