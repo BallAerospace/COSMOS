@@ -70,8 +70,8 @@ class PluginsController < ModelController
     end
     begin
       render :json => Cosmos::PluginModel.install_phase2(params[:id], JSON.parse(params[:variables]), scope: params[:scope])
-    rescue
-      head :internal_server_error
+    rescue Exception => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 500) and return
     end
   end
 end
