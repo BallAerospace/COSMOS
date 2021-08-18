@@ -1,6 +1,6 @@
 ## Welcome to Ball Aerospace COSMOS
 
-**Note**: The `master/main` branch may be in an *unstable or even broken state* during development.
+**Note**: The `master/main` branch may be in an _unstable or even broken state_ during development.
 Please use [releases] instead of the `master/main` branch in order to get stable builds.
 
 > "The User Interface for Embedded Systems"
@@ -75,6 +75,10 @@ Before any contributions can be incorporated we do require all contributors to s
 [Contributor License Agreement](https://docs.google.com/forms/d/1ppnHUSXtY1GRTNPIyUaB1OYHbW5Ca67GFMgMRPBG8u0/viewform)
 
 This protects both you and us and you retain full rights to any code you write.
+
+Personally identifying information gathered as part of the CLA process is only used to ensure that contributions to the COSMOS project are done by known individuals who certify that code is authorized to be submitted to the project and is free from patents and other encumbrances. Access to this data is only available to COSMOS project leadership and is not used for any other purpose.
+
+FOR ALL CONTRIBUTIONS TO THE COSMOS PROJECT, EVEN IF A CLA HAS NOT BEEN FILLED OUT, BALL AEROSPACE MAINTAINS ALL RIGHTS TO ALL CODE IN THE COSMOS PROJECT INCLUDING THE RIGHT TO LICENSE IT UNDER COMMERCIAL TERMS.
 
 ## Code Status
 
