@@ -606,7 +606,7 @@ export default {
         if (suiteRunner) {
           data['suiteRunner'] = event
         }
-        Api.post(url, data).then((response) => {
+        Api.post(url, { data }).then((response) => {
           this.scriptStart(response.data)
         })
       } else {
@@ -738,8 +738,10 @@ export default {
     promptDialogCallback(value) {
       this.prompt.show = false
       Api.post('/script-api/running-script/' + this.scriptId + '/prompt', {
-        method: this.prompt.method,
-        answer: value,
+        data: {
+          method: this.prompt.method,
+          answer: value,
+        },
       })
     },
     handleScript(data) {
@@ -774,16 +776,20 @@ export default {
               Api.post(
                 '/script-api/running-script/' + this.scriptId + '/prompt',
                 {
-                  method: data.method,
-                  password: value, // Using password as a key automatically filters it from rails logs
+                  data: {
+                    method: data.method,
+                    password: value, // Using password as a key automatically filters it from rails logs
+                  },
                 }
               )
             } else {
               Api.post(
                 '/script-api/running-script/' + this.scriptId + '/prompt',
                 {
-                  method: data.method,
-                  answer: value,
+                  data: {
+                    method: data.method,
+                    answer: value,
+                  },
                 }
               )
             }
@@ -908,7 +914,9 @@ export default {
           }
           this.showSave = true
           Api.post('/script-api/scripts/' + this.tempFilename, {
-            text: this.editor.getValue(), // Pass in the raw file text
+            data: {
+              text: this.editor.getValue(), // Pass in the raw file text
+            },
           })
             .then((response) => {
               this.fileModified = ''
@@ -924,7 +932,9 @@ export default {
         // Save a file by posting the new contents
         this.showSave = true
         Api.post('/script-api/scripts/' + this.filename, {
-          text: this.editor.getValue(), // Pass in the raw file text
+          data: {
+            text: this.editor.getValue(), // Pass in the raw file text
+          },
         })
           .then((response) => {
             if (response.status == 200) {
@@ -968,12 +978,12 @@ export default {
     confirmDelete(action) {
       if (action === true) {
         // TODO: Delete instead of post
-        Api.post('/script-api/scripts/' + this.filename + '/delete', {}).then(
-          (response) => {
-            this.areYouSure = false
-            this.newFile()
-          }
-        )
+        Api.post('/script-api/scripts/' + this.filename + '/delete', {
+          data: {},
+        }).then((response) => {
+          this.areYouSure = false
+          this.newFile()
+        })
       }
     },
     download() {
@@ -989,17 +999,13 @@ export default {
 
     // ScriptRunner Script menu actions
     rubySyntaxCheck() {
-      Api.post(
-        '/script-api/scripts/syntax',
-        this.editor.getValue(),
-        {},
-        {},
-        {},
-        {
+      Api.post('/script-api/scripts/syntax', this.editor.getValue(), {
+        data: {},
+        headers: {
           Accept: 'application/json',
           'Content-Type': 'plain/text',
-        }
-      ).then((response) => {
+        },
+      }).then((response) => {
         this.infoTitle = response.data.title
         this.infoText = JSON.parse(response.data.description)
         this.infoDialog = true
@@ -1024,7 +1030,9 @@ export default {
         this.debugHistoryIndex = this.debugHistory.length
         // Post the code to /debug, output is processed by receive()
         Api.post('/script-api/running-script/' + this.scriptId + '/debug', {
-          args: this.debug,
+          data: {
+            args: this.debug,
+          },
         })
         this.debug = ''
       } else if (event.key === 'ArrowUp') {

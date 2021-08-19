@@ -152,7 +152,7 @@ export default {
       if (this.file !== null) {
         let formData = new FormData()
         formData.append('plugin', this.file, this.file.name)
-        Api[method](path, formData)
+        Api[method](path, { data: formData })
           .then((response) => {
             this.alert = 'Uploaded file ' + this.file.name
             this.alertType = 'success'
@@ -183,7 +183,9 @@ export default {
     variablesCallback(updated_variables) {
       this.showVariables = false
       Api.post('/cosmos-api/plugins/install/' + this.pluginId, {
-        variables: JSON.stringify(updated_variables),
+        data: {
+          variables: JSON.stringify(updated_variables),
+        },
       })
         .then((response) => {
           this.alert = 'Installed plugin ' + this.file.name

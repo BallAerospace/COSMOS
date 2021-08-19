@@ -97,7 +97,7 @@ export default {
       if (this.file !== null) {
         let formData = new FormData()
         formData.append('gem', this.file, this.file.name)
-        Api.post('/cosmos-api/gems', formData)
+        Api.post('/cosmos-api/gems', { data: formData })
           .then((response) => {
             this.alert = 'Uploaded gem ' + this.file.name
             this.alertType = 'success'
