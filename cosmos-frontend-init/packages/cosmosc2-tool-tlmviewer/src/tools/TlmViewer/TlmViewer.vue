@@ -193,7 +193,11 @@ export default {
       })
     },
     loadScreen(target, screen) {
-      return Api.get('/cosmos-api/screen/' + target + '/' + screen)
+      return Api.get('/cosmos-api/screen/' + target + '/' + screen, {
+        headers: {
+          Accept: 'text/plain',
+        },
+      })
     },
     pushScreen(definition) {
       this.definitions.push(definition)
