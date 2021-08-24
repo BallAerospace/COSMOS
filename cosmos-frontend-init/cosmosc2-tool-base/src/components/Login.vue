@@ -126,14 +126,12 @@ export default {
     },
   },
   created: function () {
-    Api.get('/cosmos-api/auth/token-exists', null, this.options).then(
-      (response) => {
-        this.isSet = !!response.data.result
-        if (!this.isSet) {
-          this.reset = true
-        }
+    Api.get('/cosmos-api/auth/token-exists', this.options).then((response) => {
+      this.isSet = !!response.data.result
+      if (!this.isSet) {
+        this.reset = true
       }
-    )
+    })
   },
   methods: {
     showReset: function () {
@@ -148,14 +146,12 @@ export default {
     },
     verifyPassword: function () {
       this.showAlert = false
-      Api.post(
-        '/cosmos-api/auth/verify',
-        {
+      Api.post('/cosmos-api/auth/verify', {
+        data: {
           token: this.password,
         },
-        null,
-        this.options
-      )
+        ...this.options,
+      })
         .then((response) => {
           if (response.data.result) {
             this.login()
@@ -173,15 +169,13 @@ export default {
     },
     setPassword: function () {
       this.showAlert = false
-      Api.post(
-        '/cosmos-api/auth/set',
-        {
+      Api.post('/cosmos-api/auth/set', {
+        data: {
           old_token: this.oldPassword,
           token: this.password,
         },
-        null,
-        this.options
-      )
+        ...this.options,
+      })
         .then(this.login)
         .catch((error) => {
           this.alert = error

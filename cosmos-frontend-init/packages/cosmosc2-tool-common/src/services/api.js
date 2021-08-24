@@ -22,13 +22,7 @@ import axios from './axios.js'
 const request = async function (
   method,
   url,
-  data = {},
-  params = {},
-  { noAuth = false, noScope = false } = {},
-  headers = {
-    Accept: 'application/json',
-    'Content-Type': 'application/json',
-  }
+  { data, params = {}, headers, noAuth = false, noScope = false } = {}
 ) {
   if (!noAuth) {
     try {
@@ -50,20 +44,41 @@ const request = async function (
   })
 }
 
+const acceptOnlyDefaultHeaders = {
+  Accept: 'application/json',
+}
+
+const fullDefaultHeaders = {
+  ...acceptOnlyDefaultHeaders,
+  'Content-Type': 'application/json',
+}
+
 export default {
-  get: function (path, params, options, headers) {
-    return request('get', path, null, params, options, headers)
+  get: function (
+    path,
+    { params, headers = acceptOnlyDefaultHeaders, noScope, noAuth } = {}
+  ) {
+    return request('get', path, { params, headers, noScope, noAuth })
   },
 
-  put: function (path, data, params, options, headers) {
-    return request('put', path, data, params, options, headers)
+  put: function (
+    path,
+    { data, params, headers = fullDefaultHeaders, noScope, noAuth } = {}
+  ) {
+    return request('put', path, { data, params, headers, noScope, noAuth })
   },
 
-  post: function (path, data, params, options, headers) {
-    return request('post', path, data, params, options, headers)
+  post: function (
+    path,
+    { data, params, headers = fullDefaultHeaders, noScope, noAuth } = {}
+  ) {
+    return request('post', path, { data, params, headers, noScope, noAuth })
   },
 
-  delete: function (path, params, options, headers) {
-    return request('delete', path, null, params, options, headers)
+  delete: function (
+    path,
+    { params, headers = acceptOnlyDefaultHeaders, noScope, noAuth } = {}
+  ) {
+    return request('delete', path, { params, headers, noScope, noAuth })
   },
 }

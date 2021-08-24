@@ -163,7 +163,9 @@ export default {
         }
 
         Api[method](url, {
-          json: content,
+          data: {
+            json: content,
+          },
         })
           .then((response) => {
             this.alert = 'Modified Microservice'

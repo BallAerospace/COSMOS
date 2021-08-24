@@ -242,10 +242,12 @@ export default {
       let data = {}
       data[this.kind] = this.activityData
       Api.post(path, {
-        start: startString,
-        stop: stopString,
-        kind: this.kind,
-        data,
+        data: {
+          start: startString,
+          stop: stopString,
+          kind: this.kind,
+          data,
+        },
       })
         .then((response) => {
           const activityTime = this.generateDateTime(response.data)

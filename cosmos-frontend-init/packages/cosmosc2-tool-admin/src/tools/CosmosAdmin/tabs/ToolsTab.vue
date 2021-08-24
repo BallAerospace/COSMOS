@@ -118,7 +118,9 @@ export default {
   methods: {
     sortChanged(evt) {
       Api.post('/cosmos-api/tools/position/' + this.tools[evt.oldIndex], {
-        position: evt.newIndex,
+        data: {
+          position: evt.newIndex,
+        },
       })
         .then((response) => {
           this.alert = 'Reordered tool ' + this.tools[evt.oldIndex]
@@ -155,13 +157,15 @@ export default {
     add() {
       if (this.name !== null && this.icon !== null && this.url !== null) {
         Api.post('/cosmos-api/tools', {
-          id: this.name,
-          json: JSON.stringify({
-            name: this.name,
-            icon: this.icon,
-            url: this.url,
-            window: 'NEW',
-          }),
+          data: {
+            id: this.name,
+            json: JSON.stringify({
+              name: this.name,
+              icon: this.icon,
+              url: this.url,
+              window: 'NEW',
+            }),
+          },
         })
           .then((response) => {
             this.alert = 'Added tool ' + this.name
@@ -218,7 +222,9 @@ export default {
         }
 
         Api[method](url, {
-          json: content,
+          data: {
+            json: content,
+          },
         })
           .then((response) => {
             this.alert = 'Modified Tool'

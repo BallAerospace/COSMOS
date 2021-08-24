@@ -126,7 +126,9 @@ export default {
     },
     submit: function () {
       Api.post('/cosmos-api/timeline', {
-        name: this.timelineName,
+        data: {
+          name: this.timelineName,
+        },
       })
         .then((response) => {
           const alertObject = {
