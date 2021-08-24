@@ -22,7 +22,7 @@
     Learn more about CSP policies at https://content-security-policy.com/#directive
   -->
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self' blob: data: https: http://localhost:* http://host.docker.internal:*; script-src 'unsafe-inline' 'unsafe-eval' https: http://localhost:* http://host.docker.internal:*; connect-src blob: https: wss: http://localhost:* http://host.docker.internal:* ws://localhost:* ws://host.docker.internal:*; style-src 'unsafe-inline' https: http://localhost:* http://host.docker.internal:*; object-src 'none';">
+    content="default-src 'self' blob: data: https: http://localhost:* http://host.docker.internal:*; script-src 'unsafe-inline' 'unsafe-eval' https: blob: http://localhost:* http://host.docker.internal:*; connect-src blob: https: wss: http://localhost:* http://host.docker.internal:* ws://localhost:* ws://host.docker.internal:*; style-src 'unsafe-inline' https: http://localhost:* http://host.docker.internal:*; object-src 'none';">
 
   <meta name="importmap-type" content="systemjs-importmap" />
   <!-- If you wish to turn off import-map-overrides for specific environments (prod), uncomment the line below -->
