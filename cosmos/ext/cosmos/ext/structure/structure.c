@@ -520,7 +520,7 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
     {
       string_length = upper_bound - lower_bound + 1;
       string = malloc(string_length + 1);
-      if (unsigned_char_array == NULL) {
+      if (string == NULL) {
         rb_raise(rb_eNoMemError, "malloc of %d returned NULL", string_length + 1);
       }
       memcpy(string, buffer + lower_bound, string_length);
