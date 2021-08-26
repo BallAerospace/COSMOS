@@ -493,6 +493,9 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
     if (BYTE_ALIGNED(bit_offset)) {
       string_length = upper_bound - lower_bound + 1;
       string = malloc(string_length + 1);
+      if (string == NULL) {
+        rb_raise(rb_eNoMemError, "malloc of %d returned NULL", string_length + 1);
+      }
       memcpy(string, buffer + lower_bound, string_length);
       string[string_length] = 0;
       if (param_data_type == symbol_STRING) {
@@ -538,6 +541,9 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
       string_length = ((bit_size - 1)/ 8) + 1;
       array_length = string_length + 4; /* Required number of bytes plus slack */
       unsigned_char_array = (unsigned char*) malloc(array_length);
+      if (unsigned_char_array == NULL) {
+        rb_raise(rb_eNoMemError, "malloc of %d returned NULL", array_length);
+      }
       read_bitfield(lower_bound, upper_bound, bit_offset, bit_size, given_bit_offset, given_bit_size, param_endianness, buffer, (int)buffer_length, unsigned_char_array);
 
       num_words = ((string_length - 1) / 4) + 1;
@@ -629,6 +635,9 @@ static VALUE binary_accessor_read(VALUE self, VALUE param_bit_offset, VALUE para
       string_length = ((bit_size - 1)/ 8) + 1;
       array_length = string_length + 4; /* Required number of bytes plus slack */
       unsigned_char_array = (unsigned char*) malloc(array_length);
+      if (unsigned_char_array == NULL) {
+        rb_raise(rb_eNoMemError, "malloc of %d returned NULL", array_length);
+      }
       read_bitfield(lower_bound, upper_bound, bit_offset, bit_size, given_bit_offset, given_bit_size, param_endianness, buffer, (int)buffer_length, unsigned_char_array);
 
       num_words = ((string_length - 1) / 4) + 1;
@@ -1001,6 +1010,9 @@ static VALUE binary_accessor_write(VALUE self, VALUE value, VALUE param_bit_offs
       string_length = ((bit_size - 1)/ 8) + 1;
       array_length = string_length + 4; /* Required number of bytes plus slack */
       unsigned_char_array = (unsigned char*) malloc(array_length);
+      if (unsigned_char_array == NULL) {
+        rb_raise(rb_eNoMemError, "malloc of %d returned NULL", array_length);
+      }
 
       num_words = ((string_length - 1) / 4) + 1;
       num_bytes = num_words * 4;
