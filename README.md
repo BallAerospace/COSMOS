@@ -1,9 +1,13 @@
 ## Welcome to Ball Aerospace COSMOS
 
+> "The User Interface for Embedded Systems"
+
 **Note**: The `master/main` branch may be in an _unstable or even broken state_ during development.
 Please use [releases] instead of the `master/main` branch in order to get stable builds.
 
-> "The User Interface for Embedded Systems"
+[![Cosmos Tests](https://github.com/BallAerospace/COSMOS/actions/workflows/build.yml/badge.svg)](https://github.com/BallAerospace/COSMOS/actions/workflows/build.yml)
+[![Code Climate](https://codeclimate.com/github/BallAerospace/COSMOS/badges/gpa.svg)](https://codeclimate.com/github/BallAerospace/COSMOS)
+[![Codecov](https://img.shields.io/codecov/c/github/codecov/example-python.svg)](https://codecov.io/gh/BallAerospace/COSMOS)
 
 [Documentation](http://cosmosrb.com)
 
@@ -79,12 +83,6 @@ This protects both you and us and you retain full rights to any code you write.
 Personally identifying information gathered as part of the CLA process is only used to ensure that contributions to the COSMOS project are done by known individuals who certify that code is authorized to be submitted to the project and is free from patents and other encumbrances. Access to this data is only available to COSMOS project leadership and is not used for any other purpose.
 
 FOR ALL CONTRIBUTIONS TO THE COSMOS PROJECT, EVEN IF A CLA HAS NOT BEEN FILLED OUT, BALL AEROSPACE MAINTAINS ALL RIGHTS TO ALL CODE IN THE COSMOS PROJECT INCLUDING THE RIGHT TO LICENSE IT UNDER COMMERCIAL TERMS.
-
-## Code Status
-
-- [![Build Status](https://github.com/BallAerospace/COSMOS/workflows/build/badge.svg)](https://github.com/BallAerospace/COSMOS/actions?query=workflow%3Abuild)
-- [![Code Climate](https://codeclimate.com/github/BallAerospace/COSMOS/badges/gpa.svg)](https://codeclimate.com/github/BallAerospace/COSMOS)
-- [![Codecov](https://img.shields.io/codecov/c/github/codecov/example-python.svg)](https://codecov.io/gh/BallAerospace/COSMOS)
 
 ## License
 
