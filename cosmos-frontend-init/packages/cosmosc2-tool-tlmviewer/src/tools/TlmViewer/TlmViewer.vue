@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <top-bar :title="title" />
+    <top-bar :title="title" :menus="menus" />
     <v-container>
       <v-row>
         <v-col>
@@ -245,8 +245,8 @@ export default {
         Promise.all(loadScreenPromises)
           .then((responses) => {
             // Then add all the screens in order
-            responses.forEach((response, index) => {
-              const definition = config[index]
+            config.forEach((definition, index) => {
+              const response = responses[index]
               setTimeout(() => {
                 this.pushScreen({
                   id: this.counter++,
@@ -258,20 +258,20 @@ export default {
             })
           })
           .then(() => {
-            this.$nextTick(this.refreshLayout) // Muuri probably stacked some, so refresh that
+            setTimeout(this.refreshLayout, 0) // Muuri probably stacked some, so refresh that
           })
       }
     },
     saveConfiguration: function (name) {
       localStorage['lastconfig__telemetry_viewer'] = name
-      const gridItems = this.grid.getItems().map((item) => item.getElement().id)
+      const gridItems = this.grid.getItems().map((item) => item.getElement().id) // TODO: this order isn't reliable for some reason
       const config = this.definitions
         .sort((a, b) => {
           // Sort by their current position on the page
           return gridItems.indexOf(this.screenId(a)) >
             gridItems.indexOf(this.screenId(b))
-            ? 1
-            : -1
+            ? -1
+            : 1
         })
         .map((def) => {
           return {
