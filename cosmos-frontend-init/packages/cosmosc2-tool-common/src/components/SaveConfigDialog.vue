@@ -19,47 +19,66 @@
 
 <template>
   <v-row justify="center">
-    <v-dialog v-model="show" @keydown.esc="show = false" width="300">
+    <v-dialog v-model="show" @keydown.esc="cancel" width="600">
       <v-card>
-        <v-card-title>Save Configuration</v-card-title>
-        <v-card-text>
-          <v-list>
-            <v-subheader>Existing Configurations</v-subheader>
-            <v-list-item-group color="primary">
-              <!-- TODO: Is there a way to make this un-selectable but still have delete work? -->
-              <v-list-item
-                flat
-                :ripple="false"
-                v-for="(config, i) in configs"
-                :key="i"
-              >
-                <v-list-item-content>
-                  <v-list-item-title
-                    @click="configName = config"
-                    v-text="config"
-                  />
-                </v-list-item-content>
-                <v-list-item-icon>
-                  <v-icon @click="deleteConfig(config)">mdi-delete</v-icon>
-                </v-list-item-icon>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-
+        <v-toolbar>
+          <v-card-title>Save Configuration</v-card-title>
+          <v-spacer />
           <v-text-field
+            label="search"
+            v-model="search"
+            type="text"
+            data-test="search"
+            prepend-icon="mdi-magnify"
+            clear-icon="mdi-close-circle-outline"
+            clearable
+            single-line
             hide-details
-            label="Configuration Name"
-            v-model="configName"
           />
-          <v-alert dense type="warning" v-if="warning"
-            >'{{ configName }}' already exists! Click 'OK' to
-            overwrite.</v-alert
+        </v-toolbar>
+        <v-card-text class="mt-3">
+          <v-data-table
+            show-select
+            single-select
+            item-key="configId"
+            :search="search"
+            :headers="headers"
+            :items="configs"
+            :items-per-page="5"
+            :footer-props="{ 'items-per-page-options': [5] }"
+            @item-selected="itemSelected"
+            @click:row="(item, slot) => slot.select(item)"
           >
+            <template v-slot:item.actions="{ item }">
+              <v-btn
+                icon
+                class="mt-1"
+                data-test="item-delete"
+                @click="deleteConfig(item)"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </template>
+          </v-data-table>
+          <v-row dense>
+            <v-text-field
+              v-model="configName"
+              hide-details
+              :disabled="!!selectedItem"
+              label="Configuration Name"
+              data-test="name-input-save-config-dialog"
+            />
+          </v-row>
+          <v-row dense>
+            <span class="ma-2 red--text" v-show="error" v-text="error" />
+          </v-row>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" text @click="success()">Ok</v-btn>
+          <v-btn color="success" :disabled="!!error" @click="success">
+            Ok
+          </v-btn>
           <v-spacer />
-          <v-btn color="primary" text @click="show = false">Cancel</v-btn>
+          <v-btn color="primary" @click="cancel">Cancel</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -67,7 +86,7 @@
 </template>
 
 <script>
-import { CosmosApi } from '../services/cosmos-api'
+import { CosmosApi } from '../services/cosmos-api.js'
 
 export default {
   props: {
@@ -79,10 +98,29 @@ export default {
       api: null,
       configName: '',
       configs: [],
-      warning: false,
+      headers: [
+        {
+          text: 'Configuration',
+          value: 'config',
+        },
+        {
+          text: 'Actions',
+          value: 'actions',
+          align: 'end',
+          sortable: false,
+        },
+      ],
+      search: null,
+      selectedItem: null,
     }
   },
   computed: {
+    error: function () {
+      if (this.configName === '') {
+        return 'Config must have a name'
+      }
+      return null
+    },
     show: {
       get() {
         return this.value
@@ -95,31 +133,68 @@ export default {
   created() {
     this.api = new CosmosApi()
   },
-  async mounted() {
-    this.configs = await this.api.list_configs(this.tool)
+  mounted() {
+    let configId = -1
+    this.api.list_configs(this.tool)
+      .then((response) => {
+        this.configs = response.map((config) => {
+          configId += 1
+          return { configId, config }
+        })
+      })
+      .catch((error) => {
+        this.$emit('warning', `Failed to connect to Cosmos. ${error}`)
+      })
   },
   methods: {
-    async success() {
-      let config = await this.api.load_config(this.tool, this.configName)
-      if (config !== null && this.warning === false) {
-        this.warning = true
-        return
+    itemSelected: function (item) {
+      if (item.value) {
+        this.selectedItem = item.item
+        this.configName = item.item.config
+      } else {
+        this.selectedItem = null
+        this.configName = ''
       }
-      this.warning = false
-      this.show = false
-      this.$emit('success', this.configName)
     },
-    deleteConfig(config) {
-      this.configs.splice(this.configs.indexOf(config), 1)
-      this.api.delete_config(this.tool, config)
+    success: function () {
+      this.$emit('success', this.configName)
+      this.show = false
+      this.search = null
+      this.selectedItem = null
+      this.configName = ''
+    },
+    cancel: function () {
+      this.show = false
+      this.search = null
+      this.selectedItem = null
+      this.configName = ''
+    },
+    deleteConfig: function (item) {
+      this.$dialog
+        .confirm(`Are you sure you want to delete: ${item.config}`, {
+          okText: 'Delete',
+          cancelText: 'Cancel',
+        })
+        .then((dialog) => {
+          if (this.configName === item.config) {
+            this.selectedItem = null
+            this.configName = ''
+          }
+          this.configs.splice(this.configs.indexOf(item.config), 1)
+          this.api.delete_config(this.tool, item.config)
+        })
+        .catch((error) => {
+          if (error) {
+            this.$emit(
+              'warning',
+              `Failed to delete config ${item.config} Error: ${error}`
+            )
+          }
+        })
     },
   },
 }
 </script>
 
 <style scoped>
-.theme--dark .v-card__title,
-.theme--dark .v-card__subtitle {
-  background-color: var(--v-secondary-darken3);
-}
 </style>

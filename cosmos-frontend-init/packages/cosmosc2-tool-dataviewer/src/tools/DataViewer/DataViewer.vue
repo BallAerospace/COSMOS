@@ -343,12 +343,14 @@ export default {
           items: [
             {
               label: 'Open Configuration',
+              icon: 'mdi-folder-open',
               command: () => {
                 this.openConfig = true
               },
             },
             {
               label: 'Save Configuration',
+              icon: 'mdi-content-save',
               command: () => {
                 this.saveConfig = true
               },
