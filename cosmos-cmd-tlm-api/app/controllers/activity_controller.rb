@@ -51,9 +51,9 @@ class ActivityController < ApplicationController
     rescue ArgumentError
       render :json => { 'status' => 'error', 'message' => 'Invalid date provided. Recommend ISO format' }, :status => 400
     rescue Cosmos::ActivityInputError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
     rescue StandardError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
     end
   end
 
@@ -100,11 +100,11 @@ class ActivityController < ApplicationController
     rescue ArgumentError, TypeError
       render :json => { 'status' => 'error', 'message' => "Invalid input: #{hash}" }, :status => 400
     rescue Cosmos::ActivityInputError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
     rescue Cosmos::ActivityOverlapError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 409
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 409
     rescue Cosmos::ActivityError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 418
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 418
     end
   end
 
@@ -203,9 +203,9 @@ class ActivityController < ApplicationController
       model.commit(status: hash['status'], message: hash['message'])
       render :json => model.as_json, :status => 200
     rescue ArgumentError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
     rescue Cosmos::ActivityError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 418
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 418
     end
   end
 
@@ -254,11 +254,11 @@ class ActivityController < ApplicationController
     rescue ArgumentError, TypeError
       render :json => { 'status' => 'error', 'message' => "Invalid input: #{hash}" }, :status => 400
     rescue Cosmos::ActivityInputError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
     rescue Cosmos::ActivityOverlapError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 409
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 409
     rescue Cosmos::ActivityError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 418
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 418
     end
   end
 
@@ -292,7 +292,7 @@ class ActivityController < ApplicationController
       ret = model.destroy()
       render :json => {"status" => ret}, :status => 204
     rescue Cosmos::ActivityError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
     end
   end
 
@@ -346,13 +346,13 @@ class ActivityController < ApplicationController
         model.create()
         ret << model.as_json
     rescue ArgumentError, TypeError => e
-        ret << { 'status' => 'error', 'message' => "Invalid input, #{e.message}", 'input' => input, status => 400 }
+        ret << { 'status' => 'error', 'message' => "Invalid input, #{e.message}", 'input' => input, 'type' => e.class,  status => 400 }
       rescue Cosmos::ActivityInputError => e
-        ret << { 'status' => 'error', 'message' => e.message, 'input' => input, status => 400 }
+        ret << { 'status' => 'error', 'message' => e.message, 'input' => input, 'type' => e.class, status => 400 }
       rescue Cosmos::ActivityOverlapError => e
-        ret << { 'status' => 'error', 'message' => e.message, 'input' => input, status => 409 }
+        ret << { 'status' => 'error', 'message' => e.message, 'input' => input, 'type' => e.class, status => 409 }
       rescue Cosmos::ActivityError => e
-        ret << { 'status' => 'error', 'message' => e.message, 'input' => input, status => 418 }
+        ret << { 'status' => 'error', 'message' => e.message, 'input' => input, 'type' => e.class, status => 418 }
       end
     end
     render :json => ret, :status => 200
@@ -400,9 +400,9 @@ class ActivityController < ApplicationController
       next if model.nil?
       begin
         check = model.destroy()
-        ret << { 'status' => 'removed', 'removed' => check, 'input' => input }
+        ret << { 'status' => 'removed', 'removed' => check, 'input' => input, 'type' => e.class }
       rescue Cosmos::ActivityError => e
-        ret << { 'status' => 'error', 'message' => e.message, 'input' => input }
+        ret << { 'status' => 'error', 'message' => e.message, 'input' => input, 'type' => e.class }
       end
     end
     render :json => ret, :status => 200

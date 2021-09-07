@@ -79,11 +79,11 @@ class TimelineController < ApplicationController
       model.deploy()
       render :json => model.as_json, :status => 201
     rescue RuntimeError, JSON::ParserError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
     rescue TypeError
-      render :json => { 'status' => 'error', 'message' => 'Invalid json object' }, :status => 400
+      render :json => { 'status' => 'error', 'message' => 'Invalid json object', 'type' => e.class }, :status => 400
     rescue Cosmos::TimelineInputError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
     end
   end
 
@@ -128,11 +128,11 @@ class TimelineController < ApplicationController
       model.notify(kind: 'update')
       render :json => model.as_json, :status => 200
     rescue RuntimeError, JSON::ParserError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
     rescue TypeError
-      render :json => { 'status' => 'error', 'message' => 'Invalid json object' }, :status => 400
+      render :json => { 'status' => 'error', 'message' => 'Invalid json object', 'type' => e.class }, :status => 400
     rescue Cosmos::TimelineInputError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
     end
   end
 
@@ -164,7 +164,7 @@ class TimelineController < ApplicationController
       model.notify(kind: 'delete')
       render :json => { 'name' => params[:name]}, :status => 204
     rescue Cosmos::TimelineError => e
-      render :json => { 'status' => 'error', 'message' => e.message }, :status => 400
+      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
     end
   end
 
