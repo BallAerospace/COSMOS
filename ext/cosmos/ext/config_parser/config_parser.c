@@ -74,7 +74,6 @@ static VALUE parse_loop(VALUE self, VALUE io, VALUE yield_non_keyword_lines, VAL
   int result = 0;
   long length = 0;
   int index = 0;
-  double float_pos = 0.0;
   double float_size = NUM2DBL(size);
   volatile VALUE progress_callback = rb_cvar_get(cConfigParser, id_cvar_progress_callback);
   volatile VALUE line = Qnil;
@@ -98,7 +97,7 @@ static VALUE parse_loop(VALUE self, VALUE io, VALUE yield_non_keyword_lines, VAL
 
     if (RTEST(progress_callback) && ((line_number % 10) == 0)) {
       if (float_size > 0.0) {
-        float_pos = NUM2DBL(rb_funcall(io, id_method_pos, 0));
+        double float_pos = NUM2DBL(rb_funcall(io, id_method_pos, 0));
         rb_funcall(progress_callback, id_method_call, 1, rb_float_new(float_pos / float_size));
       }
     }
