@@ -61,6 +61,7 @@ module Cosmos
       @stylesheet = File.read(app_style) if File.exist? app_style
 
       self.class.normalize_config_options(@options)
+      setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint) if @options.stay_on_top
 
       # Add a banner based on system configuration
       add_classification_banner
@@ -350,6 +351,7 @@ module Cosmos
       options.remember_geometry = true
       options.restore_position = true
       options.restore_size = true
+      options.stay_on_top = false
       options.redirect_io = true
       options.title = "COSMOS Tool"
       options.config_file = nil
@@ -399,6 +401,11 @@ module Cosmos
         # Create the defaultsize option
         option_parser.on("--defaultsize", "Start the tool in its default size") do |arg|
           options.startup_state = :DEFAULT
+        end
+
+        # Create the defaultsize option
+        option_parser.on("--stay-on-top", "Force the tool to stay on top of all other windows") do |arg|
+          options.stay_on_top = true
         end
 
         # Create the x and y position options
