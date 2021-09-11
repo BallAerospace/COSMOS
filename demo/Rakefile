@@ -39,14 +39,14 @@ def create_crc_file(official)
   crc = Cosmos::Crc32.new(Cosmos::Crc32::DEFAULT_POLY, Cosmos::Crc32::DEFAULT_SEED, true, false)
   File.open("config/data/crc.txt",'w') do |file|
     file.puts "USER_MODIFIED" unless official
-    Dir[File.join('lib','**','*')].each do |filename|
+    Dir[File.join('lib','**','*')].sort.each do |filename|
       next if File.directory?(filename)
       next if ignore.include?(filename)
       file_data = File.open(filename, 'rb').read.gsub("\x0D\x0A", "\x0A")
       file.puts "\"#{filename}\" #{sprintf("0x%08X", crc.calc(file_data))}"
       count += 1
     end
-    Dir[File.join('config','**','*')].each do |filename|
+    Dir[File.join('config','**','*')].sort.each do |filename|
       next if File.directory?(filename)
       next if ignore.include?(filename)
       next if File.basename(filename) == 'crc.txt'
@@ -54,14 +54,14 @@ def create_crc_file(official)
       file.puts "\"#{filename}\" #{sprintf("0x%08X", crc.calc(file_data))}"
       count += 1
     end
-    Dir[File.join('tools','**','*')].each do |filename|
+    Dir[File.join('tools','**','*')].sort.each do |filename|
       next if File.directory?(filename)
       next if ignore.include?(filename)
       file_data = File.open(filename, 'rb').read.gsub("\x0D\x0A", "\x0A")
       file.puts "\"#{filename}\" #{sprintf("0x%08X", crc.calc(file_data))}"
       count += 1
     end
-    Dir[File.join('procedures','**','*')].each do |filename|
+    Dir[File.join('procedures','**','*')].sort.each do |filename|
       next if File.directory?(filename)
       next if ignore.include?(filename)
       file_data = File.open(filename, 'rb').read.gsub("\x0D\x0A", "\x0A")
