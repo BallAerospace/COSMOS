@@ -31,6 +31,60 @@ describe Class do
       my = MyClass.new
       expect(MyClass.test).to eql "Test"
       expect(my.test).to eql "Test"
+      # No accessor methods are created
+      expect { my.test = "Blah" }.to raise_error(NoMethodError)
+    end
+
+    it "does not allow arbitrary code" do
+      expect {
+        class MyClass
+          instance_attr_reader "test;puts 'HI'"
+        end
+      }.to raise_error(ArgumentError)
+
+      expect {
+        class MyClass
+          instance_attr_reader "test\nputs 'HI'"
+        end
+      }.to raise_error(ArgumentError)
+    end
+  end
+
+  describe "instance_attr_accessor" do
+    it "adds instance attribute readers for class variables" do
+      class MyClass
+        instance_attr_accessor :test
+        @@instance = nil
+        def self.instance
+          @@instance ||= self.new
+          return @@instance
+        end
+        def initialize
+          @test = "Test"
+          @@instance = self
+        end
+      end
+
+      my = MyClass.new
+      expect(MyClass.test).to eql "Test"
+      expect(my.test).to eql "Test"
+      my.test = "Blah"
+      expect(MyClass.test).to eql "Blah"
+      expect(my.test).to eql "Blah"
+    end
+
+    it "does not allow arbitrary code" do
+      expect {
+        class MyClass
+          instance_attr_accessor "test;puts 'HI'"
+        end
+      }.to raise_error(ArgumentError)
+
+      expect {
+        class MyClass
+          instance_attr_accessor "test\nputs 'HI'"
+        end
+      }.to raise_error(ArgumentError)
     end
   end
 end

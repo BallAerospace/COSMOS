@@ -455,7 +455,7 @@ module Cosmos
     def self.post_options_parsed_hook(options)
       if options.input_files or options.dart
         normalize_config_options(options)
-        
+
         # Process config file
         raise "Configuration File must be specified for command line processing" unless options.config_file
 
@@ -675,7 +675,7 @@ module Cosmos
                 process_args = [batch_name, @input_filenames, @log_dir, output_extension, @batch_filenames, @packet_log_frame.time_start, @packet_log_frame.time_end]
               end
 
-              @tlm_extractor_processor.send(process_method, *process_args) do |input_file_index, packet_count, file_progress|
+              @tlm_extractor_processor.public_send(process_method, *process_args) do |input_file_index, packet_count, file_progress|
                 # Handle Cancel
                 break if @cancel
 
@@ -760,7 +760,7 @@ module Cosmos
                 process_args = [batch_name, @log_dir, output_extension, @batch_filenames, @packet_log_frame.time_start, @packet_log_frame.time_end, @dart_meta_frame.meta_filters]
               end
 
-              @tlm_extractor_processor.send(process_method, *process_args) do |percentage, message|
+              @tlm_extractor_processor.public_send(process_method, *process_args) do |percentage, message|
                 # Handle Cancel
                 break if @cancel
                 progress_dialog.append_text(message)

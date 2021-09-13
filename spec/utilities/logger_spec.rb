@@ -33,11 +33,11 @@ module Cosmos
       $stdout = stdout
       Logger.level = level
       if block
-        Logger.send(method, "Message1") { "Block1" }
+        Logger.public_send(method, "Message1") { "Block1" }
         expect(stdout.string).not_to match("Message1")
         expect(stdout.string).to match("#{method.upcase}: Block1")
       else
-        Logger.send(method, "Message1")
+        Logger.public_send(method, "Message1")
         expect(stdout.string).to match("#{method.upcase}: Message1")
       end
       Logger::instance.level = level + 1
@@ -46,7 +46,7 @@ module Cosmos
         expect(stdout.string).not_to match("Message2")
         expect(stdout.string).not_to match("Block2")
       else
-        Logger.send(method, "Message2")
+        Logger.public_send(method, "Message2")
         expect(stdout.string).not_to match("Message2")
       end
       $stdout = STDOUT

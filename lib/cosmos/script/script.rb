@@ -62,7 +62,7 @@ module Cosmos
         @cmd_tlm_server.disconnect
       else
         if $disconnect_all_targets
-          return @disconnected.send(method_name, *method_params)
+          return @disconnected.public_send(method_name, *method_params)
         elsif $disconnected_targets
           name_string = nil
           if method_params[0].is_a?(String)
@@ -79,7 +79,7 @@ module Cosmos
           if name_string
             target = name_string.split(" ")[0]
             if $disconnected_targets.include?(target)
-              return @disconnected.send(method_name, *method_params)
+              return @disconnected.public_send(method_name, *method_params)
             end
           end
         end

@@ -176,7 +176,7 @@ module Cosmos
             end
           end
 
-          object.send(method_name)
+          object.public_send(method_name)
           result.result = :PASS
 
           if defined? ScriptRunnerFrame
