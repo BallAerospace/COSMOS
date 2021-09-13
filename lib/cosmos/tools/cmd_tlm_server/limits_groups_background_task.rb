@@ -86,7 +86,7 @@ module Cosmos
       return if @sleeper.sleep(@initial_delay)
       loop do
         start = Time.now
-        check_methods.each {|method| self.send(method.intern) }
+        check_methods.each {|method| self.public_send(method.intern) }
         now = Time.now
         @status = "#{now.formatted}: Checking groups took #{now - start}s"
         sleep_time = @task_delay - (now - start)

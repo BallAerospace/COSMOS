@@ -40,11 +40,15 @@ module Cosmos
       result = nil
       @streams.each do |stream|
         if first
-          result = stream.send(method_name, *args)
+          # Fortify Access Specifier Manipulation
+          # We're forwarding only public methods to the stream
+          result = stream.public_send(method_name, *args)
           result = self if result == stream
           first = false
         else
-          stream.send(method_name, *args)
+          # Fortify Access Specifier Manipulation
+          # We're forwarding only public methods to the stream
+          stream.public_send(method_name, *args)
         end
       end
       result

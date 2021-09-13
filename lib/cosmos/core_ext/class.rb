@@ -35,6 +35,12 @@ class Class
   #   instance variables with class method readers
   def instance_attr_reader(*args)
     args.each do |arg|
+      # Non-word characters (letter, number, underscore) are disallowed
+      raise ArgumentError, "Non-word characters characters parsed" if arg =~ /\W/
+
+      # Fortify warns against Dynamic Code Evaluation: Code Injection here
+      # Fortify: Dynamic Code Evaluation: Code Injection
+      # This is true but we're whitelisting the input above
       self.class_eval("def #{arg};@#{arg};end")
       self.instance_eval("def #{arg};self.instance.#{arg};end")
     end
@@ -44,6 +50,12 @@ class Class
   #   instance variables with class method accessors (read and write)
   def instance_attr_accessor(*args)
     args.each do |arg|
+      # Non-word characters (letter, number, underscore) are disallowed
+      raise ArgumentError, "Non-word characters characters parsed" if arg =~ /\W/
+
+      # Fortify warns against Dynamic Code Evaluation: Code Injection here
+      # Fortify: Dynamic Code Evaluation: Code Injection
+      # This is true but we're whitelisting the input above
       self.class_eval("def #{arg};@#{arg};end")
       self.instance_eval("def #{arg};self.instance.#{arg};end")
       self.class_eval("def #{arg}=(arg);@#{arg} = arg;end")

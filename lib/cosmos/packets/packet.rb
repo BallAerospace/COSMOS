@@ -186,9 +186,9 @@ module Cosmos
         @read_conversion_cache.clear if @read_conversion_cache
         @received_count
       end
-      
-    end # if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']      
-      
+
+    end # if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
+
     # Tries to identify if a buffer represents the currently defined packet. It
     # does this by iterating over all the packet items that were created with
     # an ID value and checking whether that ID value is present at the correct
@@ -216,7 +216,7 @@ module Cosmos
 
       true
     end
-    
+
     # Reads the values from a buffer at the position of each id_item defined
     # in the packet.
     #
@@ -226,7 +226,7 @@ module Cosmos
       return [] unless buffer
       return [] unless @id_items
       values = []
-      
+
       @id_items.each do |item|
         begin
           values << read_item(item, :RAW, buffer)
@@ -234,10 +234,10 @@ module Cosmos
           values << nil
         end
       end
-      
+
       values
     end
-    
+
     # Returns @received_time unless a packet item called PACKET_TIME exists that returns
     # a Ruby Time object that represents a different timestamp for the packet
     def packet_time
@@ -259,7 +259,7 @@ module Cosmos
       end
 
       # Use the hashing algorithm established by Cosmos::System
-      digest = Digest.const_get(System.hashing_algorithm).send('new')
+      digest = Digest.const_get(System.hashing_algorithm).public_send('new')
       digest << string
       @config_name = digest.hexdigest
       @config_name

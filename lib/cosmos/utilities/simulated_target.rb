@@ -37,7 +37,7 @@ module Cosmos
       @tlm_packets.each do |name, packet|
         ids = packet.id_items
         ids.each do |id|
-          packet.send((id.name + '=').to_sym, id.id_value)
+          packet.public_send((id.name + '=').to_sym, id.id_value)
         end
       end
 

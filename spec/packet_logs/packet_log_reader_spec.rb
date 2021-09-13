@@ -206,7 +206,7 @@ module Cosmos
         end
 
         # Corrupt the second config
-        second_config_path = System.instance.send(:find_configuration, second_config_name)
+        second_config_path = System.instance.public_send(:find_configuration, second_config_name)
         md5 = File.basename(second_config_path, '.*')
         Zip::File.open(second_config_path) do |zip|
           zip.file.rename(File.join(md5, 'system.txt'), File.join(md5, 'system2.txt'))

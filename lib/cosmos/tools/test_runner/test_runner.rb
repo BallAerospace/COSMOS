@@ -865,13 +865,13 @@ module Cosmos
             suite = CustomTestSuite.new
             begin
               # Remove any previously defined suite setup methods
-              CustomTestSuite.send(:remove_method, :setup)
+              CustomTestSuite.public_send(:remove_method, :setup)
             rescue NameError
               # NameError is raised if no setup method was defined
             end
             begin
               # Remove any previously defined suite teardown methods
-              CustomTestSuite.send(:remove_method, :teardown)
+              CustomTestSuite.public_send(:remove_method, :teardown)
             rescue NameError
               # NameError is raised if no teardown method was defined
             end
@@ -884,7 +884,7 @@ module Cosmos
                   inst = @@test_suites.detect {|my_suite| my_suite.class.to_s == suite_node.text}
                   # Create a lambda which will call that one setup method
                   body = lambda { inst.setup }
-                  CustomTestSuite.send(:define_method, :setup, &body)
+                  CustomTestSuite.public_send(:define_method, :setup, &body)
                 end
                 if test_node.text == 'teardown'
                   cur_suite.teardown = true
@@ -892,7 +892,7 @@ module Cosmos
                   inst = @@test_suites.detect {|my_suite| my_suite.class.to_s == suite_node.text}
                   # Create a lambda which will call that one teardown method
                   body = lambda { inst.teardown}
-                  CustomTestSuite.send(:define_method, :teardown, &body)
+                  CustomTestSuite.public_send(:define_method, :teardown, &body)
                 end
               end
 

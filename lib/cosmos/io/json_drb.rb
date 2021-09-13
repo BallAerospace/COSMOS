@@ -262,7 +262,7 @@ module Cosmos
         if (@method_whitelist and @method_whitelist.include?(request.method.downcase())) or
            (!@method_whitelist and !JsonRpcRequest::DANGEROUS_METHODS.include?(request.method.downcase()))
           begin
-            result = @object.send(request.method.downcase().intern, *request.params)
+            result = @object.public_send(request.method.downcase().intern, *request.params)
             if request.id
               response = JsonRpcSuccessResponse.new(result, request.id)
             end

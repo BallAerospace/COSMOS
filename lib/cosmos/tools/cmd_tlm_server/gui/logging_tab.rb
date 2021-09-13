@@ -96,7 +96,7 @@ module Cosmos
         button_layout.addWidget(button, location[0], location[1])
         button.connect(SIGNAL('clicked()')) do
           begin
-            CmdTlmServer.instance.send(method, 'ALL')
+            CmdTlmServer.instance.public_send(method, 'ALL')
           rescue Exception => error
             statusBar.showMessage(error.message)
           end

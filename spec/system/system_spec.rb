@@ -359,7 +359,7 @@ module Cosmos
           expect(System.telemetry.packets('SYSTEM').keys).not_to include "TEST2"
 
           # Now remove system.txt from the third configuration and try to load it again to cause an error
-          #third_config_path = System.instance.send(:find_configuration, third_config_name)
+          #third_config_path = System.instance.public_send(:find_configuration, third_config_name)
           #FileUtils.mv File.join(third_config_path, 'system.txt'), File.join(third_config_path, 'system2.txt')
           #result, err = System.load_configuration(third_config_name)
           #expect(result).to eql original_config_name

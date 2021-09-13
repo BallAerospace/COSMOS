@@ -189,7 +189,7 @@ describe DartDatabaseCleaner do
       end
       model.reset_column_information
       model_name = table_name.upcase
-      Cosmos.send(:remove_const, model_name) if Cosmos.const_defined?(model_name)
+      Cosmos.public_send(:remove_const, model_name) if Cosmos.const_defined?(model_name)
       Cosmos.const_set(model_name, model)
 
       expect(model.column_names).to include("delete_me")
@@ -205,7 +205,7 @@ describe DartDatabaseCleaner do
         end
         model.reset_column_information
         model_name = table_name.upcase
-        Cosmos.send(:remove_const, model_name) if Cosmos.const_defined?(model_name)
+        Cosmos.public_send(:remove_const, model_name) if Cosmos.const_defined?(model_name)
         Cosmos.const_set(model_name, model)
 
         expect(model.column_names).to include("delete_me")

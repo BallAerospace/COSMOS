@@ -196,7 +196,7 @@ module Cosmos
           # TODO: Handle nonunique item names
           if item.array_size
             # Requiring parameterRef for argument arrays appears to be a defect in the schema
-            xml['xtce'].send("Array#{type}RefEntry".intern, :parameterRef => item.name) do
+            xml['xtce'].public_send("Array#{type}RefEntry".intern, :parameterRef => item.name) do
               set_fixed_value(xml, item) if !packed
               xml['xtce'].DimensionList do
                 xml['xtce'].Dimension do
@@ -211,9 +211,9 @@ module Cosmos
             end
           else
             if packed
-              xml['xtce'].send("#{type}RefEntry".intern, "#{type.downcase}Ref".intern => item.name)
+              xml['xtce'].public_send("#{type}RefEntry".intern, "#{type.downcase}Ref".intern => item.name)
             else
-              xml['xtce'].send("#{type}RefEntry".intern, "#{type.downcase}Ref".intern => item.name) do
+              xml['xtce'].public_send("#{type}RefEntry".intern, "#{type.downcase}Ref".intern => item.name) do
                 set_fixed_value(xml, item)
               end
             end
@@ -256,7 +256,7 @@ module Cosmos
         attrs[:shortDescription] = item.description if item.description
         attrs[:arrayTypeRef] = (item.name + '_Type')
         attrs[:numberOfDimensions] = '1' # COSMOS Only supports one-dimensional arrays
-        xml['xtce'].send('Array' + param_or_arg + 'Type', attrs)
+        xml['xtce'].public_send('Array' + param_or_arg + 'Type', attrs)
       end
     end
 
@@ -289,7 +289,7 @@ module Cosmos
         encoding = 'unsigned'
       end
       if item.states
-        xml['xtce'].send('Enumerated' + param_or_arg + 'Type', attrs) do
+        xml['xtce'].public_send('Enumerated' + param_or_arg + 'Type', attrs) do
           to_xtce_endianness(item, xml)
           to_xtce_units(item, xml)
           xml['xtce'].IntegerDataEncoding(:sizeInBits => item.bit_size, :encoding => encoding)
@@ -308,7 +308,7 @@ module Cosmos
           type_string = 'Integer' + param_or_arg + 'Type'
           attrs[:signed] = signed
         end
-        xml['xtce'].send(type_string, attrs) do
+        xml['xtce'].public_send(type_string, attrs) do
           to_xtce_endianness(item, xml)
           to_xtce_units(item, xml)
           if (item.read_conversion and item.read_conversion.class == PolynomialConversion) or (item.write_conversion and item.write_conversion.class == PolynomialConversion)
@@ -330,7 +330,7 @@ module Cosmos
       attrs = { :name => (item.name + '_Type'), :sizeInBits => item.bit_size }
       attrs[:initialValue] = item.default if item.default and !item.array_size
       attrs[:shortDescription] = item.description if item.description
-      xml['xtce'].send('Float' + param_or_arg + 'Type', attrs) do
+      xml['xtce'].public_send('Float' + param_or_arg + 'Type', attrs) do
         to_xtce_endianness(item, xml)
         to_xtce_units(item, xml)
         if (item.read_conversion and item.read_conversion.class == PolynomialConversion) or (item.write_conversion and item.write_conversion.class == PolynomialConversion)
@@ -359,7 +359,7 @@ module Cosmos
         end
       end
       attrs[:shortDescription] = item.description if item.description
-      xml['xtce'].send(string_or_binary + param_or_arg + 'Type', attrs) do
+      xml['xtce'].public_send(string_or_binary + param_or_arg + 'Type', attrs) do
         # Don't call to_xtce_endianness for Strings or Blocks
         to_xtce_units(item, xml)
         if string_or_binary == 'String'
@@ -382,9 +382,9 @@ module Cosmos
 
     def to_xtce_item(item, param_or_arg, xml)
       if item.array_size
-        xml['xtce'].send(param_or_arg, :name => item.name, "#{param_or_arg.downcase}TypeRef" => item.name + '_ArrayType')
+        xml['xtce'].public_send(param_or_arg, :name => item.name, "#{param_or_arg.downcase}TypeRef" => item.name + '_ArrayType')
       else
-        xml['xtce'].send(param_or_arg, :name => item.name, "#{param_or_arg.downcase}TypeRef" => item.name + '_Type')
+        xml['xtce'].public_send(param_or_arg, :name => item.name, "#{param_or_arg.downcase}TypeRef" => item.name + '_Type')
       end
     end
 
