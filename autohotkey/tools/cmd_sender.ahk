@@ -15,7 +15,7 @@ Sleep 1000
 Send {Enter}
 WinWaitActive Command Sender
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 4000
+Sleep 10000
 WinActivate Command Sender
 Sleep 500
 Click 60 600 ; Click in the Command History

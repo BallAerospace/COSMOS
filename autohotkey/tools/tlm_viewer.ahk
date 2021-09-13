@@ -3,7 +3,7 @@ SetKeyDelay 10
 
 Sleep 500
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 4000
+Sleep 10000
 
 WinActivate Telemetry Viewer
 Sleep 1000

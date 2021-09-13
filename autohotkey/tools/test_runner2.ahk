@@ -1,7 +1,7 @@
 SetWinDelay 500
 ; Start the CmdTlmServer
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 4000
+Sleep 10000
 
 WinActivate Test Runner
 WinWaitActive Test Runner
