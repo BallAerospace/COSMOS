@@ -4,7 +4,7 @@ SetKeyDelay 10
 Sleep 500
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
 WinActivate "INST ADCS"
-Sleep 4000
+Sleep 10000
 
 ; Close down command and telemetry server
 WinActivate Command and Telemetry Server

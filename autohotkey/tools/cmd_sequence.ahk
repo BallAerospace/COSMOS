@@ -1,7 +1,7 @@
 SetWinDelay 1000
 WinWaitActive Command Sequence
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 4000
+Sleep 10000
 WinActivate Command Sequence
 
 Send ^o ; Open
