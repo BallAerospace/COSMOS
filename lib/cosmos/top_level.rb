@@ -397,7 +397,7 @@ module Cosmos
   # @param hashing_algorithm [String] Hashing algorithm to use
   # @return [Digest::<algorithm>] The hashing sum object
   def self.hash_files(filenames, additional_data = nil, hashing_algorithm = 'MD5')
-    digest = Digest.const_get(hashing_algorithm).send('new')
+    digest = Digest.const_get(hashing_algorithm).public_send('new')
 
     Cosmos.set_working_dir do
       filenames.each do |filename|

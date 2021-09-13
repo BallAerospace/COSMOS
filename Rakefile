@@ -233,7 +233,7 @@ task :version => [:require_version] do
   # Create the crc.txt file
   crc = RakeCrc32.new
   File.open("data/crc.txt",'w') do |file|
-    Dir[File.join('lib','**','*.rb')].each do |filename|
+    Dir[File.join('lib','**','*.rb')].sort.each do |filename|
       file_data = File.open(filename, 'rb').read.gsub("\x0D\x0A", "\x0A")
       file.puts "\"#{filename}\" #{sprintf("0x%08X", crc.calc(file_data))}"
     end

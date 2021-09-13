@@ -3,7 +3,7 @@ SetTitleMatchMode 2 ; Contain the title anywhere to match
 WinWaitActive Packet Viewer
 Sleep 500
 Run ruby.exe %A_ScriptDir%/CmdTlmServer
-Sleep 4000
+Sleep 10000
 WinActivate Packet Viewer
 WinWaitActive Packet Viewer
 Sleep 500

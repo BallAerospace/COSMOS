@@ -1489,7 +1489,7 @@ module Cosmos
               @@output_thread = nil
             end
 
-            @script.setReadOnly(false)
+            @script.setReadOnly(false) unless @script.read_only
             @script.stop_highlight unless uncaught_exception
             select_tab_and_destroy_tabs_after_index(0)
             remove_tabs()
@@ -1722,7 +1722,8 @@ module Cosmos
         @active_script.setPlainText(data)
       end
       mark_breakpoints(filename)
-
+      @active_script.read_only = !File.writable?(filename)
+      @active_script.setReadOnly(@active_script.read_only)
       @active_script.stop_highlight
     end
 

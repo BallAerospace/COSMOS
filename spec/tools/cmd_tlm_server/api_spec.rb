@@ -102,12 +102,12 @@ DOC
     end
 
     def test_cmd_unknown(method)
-      expect { @api.send(method,"BLAH COLLECT with TYPE NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"INST UNKNOWN with TYPE NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"INST COLLECT with BLAH NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"BLAH","COLLECT","TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"INST","UNKNOWN","TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"INST","COLLECT","BLAH"=>"NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.public_send(method,"BLAH COLLECT with TYPE NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.public_send(method,"INST UNKNOWN with TYPE NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.public_send(method,"INST COLLECT with BLAH NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.public_send(method,"BLAH","COLLECT","TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.public_send(method,"INST","UNKNOWN","TYPE"=>"NORMAL") }.to raise_error(/does not exist/)
+      expect { @api.public_send(method,"INST","COLLECT","BLAH"=>"NORMAL") }.to raise_error(/does not exist/)
     end
 
     describe "cmd" do
@@ -571,12 +571,12 @@ DOC
     end
 
     def test_tlm_unknown(method)
-      expect { @api.send(method,"BLAH HEALTH_STATUS COLLECTS") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"INST UNKNOWN COLLECTS") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"INST HEALTH_STATUS BLAH") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"BLAH","HEALTH_STATUS","COLLECTS") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"INST","UNKNOWN","COLLECTS") }.to raise_error(/does not exist/)
-      expect { @api.send(method,"INST","HEALTH_STATUS","BLAH") }.to raise_error(/does not exist/)
+      expect { @api.public_send(method,"BLAH HEALTH_STATUS COLLECTS") }.to raise_error(/does not exist/)
+      expect { @api.public_send(method,"INST UNKNOWN COLLECTS") }.to raise_error(/does not exist/)
+      expect { @api.public_send(method,"INST HEALTH_STATUS BLAH") }.to raise_error(/does not exist/)
+      expect { @api.public_send(method,"BLAH","HEALTH_STATUS","COLLECTS") }.to raise_error(/does not exist/)
+      expect { @api.public_send(method,"INST","UNKNOWN","COLLECTS") }.to raise_error(/does not exist/)
+      expect { @api.public_send(method,"INST","HEALTH_STATUS","BLAH") }.to raise_error(/does not exist/)
     end
 
     describe "tlm" do

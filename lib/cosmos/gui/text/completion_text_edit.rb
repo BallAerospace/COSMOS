@@ -17,6 +17,7 @@ module Cosmos
   # This calss also includes many helper methods to access various
   # lines, indent selections, highlight lines and center the view.
   class CompletionTextEdit < Qt::PlainTextEdit
+    attr_accessor :read_only
     # Create a signal so users of CompletionTextEdit don't have to
     # subclass in order to listen to keyPressEvents
     signals 'key_pressed(QKeyEvent*)'
@@ -47,6 +48,7 @@ module Cosmos
 
       @last_hightlighted_line = 1
       @code_completion = nil
+      @read_only = false
       begin
         @code_completion = Completion.new(self)
       rescue

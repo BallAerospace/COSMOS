@@ -56,7 +56,7 @@ static VALUE buffered_file_read(VALUE self, VALUE arg_length) {
         rb_funcall(buffer, id_method_slice_bang, 1, rb_range_new(INT2FIX(0), INT2FIX(buffer_index - 1), Qfalse));
         buffer_length = RSTRING_LEN(buffer);
         buffer_index = 0;
-        rb_ivar_set(self, id_ivar_buffer_index, INT2FIX(0));
+        rb_ivar_set(self, id_ivar_buffer_index, INT2FIX(buffer_index));
       }
       super_arg = INT2FIX(length - buffer_length);
       rb_str_append(buffer, rb_funcall(rb_call_super(1, (VALUE*) &super_arg), id_method_to_s, 0));
@@ -70,7 +70,7 @@ static VALUE buffered_file_read(VALUE self, VALUE arg_length) {
       rb_funcall(buffer, id_method_slice_bang, 1, rb_range_new(INT2FIX(0), INT2FIX(buffer_index - 1), Qfalse));
       buffer_length = RSTRING_LEN(buffer);
       buffer_index = 0;
-      rb_ivar_set(self, id_ivar_buffer_index, INT2FIX(0));
+      rb_ivar_set(self, id_ivar_buffer_index, INT2FIX(buffer_index));
     }
     super_arg = INT2FIX(BUFFER_SIZE - buffer_length);
     rb_str_append(buffer, rb_funcall(rb_call_super(1, (VALUE*) &super_arg), id_method_to_s, 0));
