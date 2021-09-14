@@ -9,14 +9,11 @@
 # attribution addendums as found in the LICENSE.txt
 
 if RUBY_ENGINE == 'ruby' or Gem.win_platform?
-
   require 'spec_helper'
   require 'cosmos/interfaces/serial_interface'
 
   module Cosmos
-
-    describe SerialInterface do
-
+    describe SerialInterface, :if => `change port /query 2>&1` !~ /No serial ports/ do
       describe "initialize" do
         it "initializes the instance variables" do
           i = SerialInterface.new('COM1','COM1','9600','NONE','1','0','0','burst')
@@ -66,5 +63,4 @@ if RUBY_ENGINE == 'ruby' or Gem.win_platform?
       end
     end
   end
-
 end
