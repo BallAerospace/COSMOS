@@ -28,7 +28,7 @@ spec = Gem::Specification.new do |s|
     commands to and receive data from one or more embedded systems
     referred to as "targets". Out of the box functionality includes:
     Telemetry Display, Telemetry Graphing, Operational and Test Scripting,
-    Command Sending, Logging, Log File Playback, Table Management, and more.
+    Command Sending, Logging, and more.
   EOF
   s.authors = ['Ryan Melton', 'Jason Thomas']
   s.email = ['rmelton@ball.com', 'jmthomas@ball.com']
@@ -61,8 +61,6 @@ spec = Gem::Specification.new do |s|
     s.extensions << 'ext/cosmos/ext/config_parser/extconf.rb'
     s.extensions << 'ext/cosmos/ext/cosmos_io/extconf.rb'
     s.extensions << 'ext/cosmos/ext/crc/extconf.rb'
-    s.extensions << 'ext/cosmos/ext/line_graph/extconf.rb'
-    s.extensions << 'ext/cosmos/ext/low_fragmentation_array/extconf.rb'
     s.extensions << 'ext/cosmos/ext/packet/extconf.rb'
     s.extensions << 'ext/cosmos/ext/platform/extconf.rb'
     s.extensions << 'ext/cosmos/ext/polynomial_conversion/extconf.rb'
@@ -80,7 +78,7 @@ spec = Gem::Specification.new do |s|
       files
     else [] end
 
-  s.required_ruby_version = '>= 2.5'
+  s.required_ruby_version = '>= 2.7'
 
   # Runtime Dependencies
   s.add_runtime_dependency 'bundler', '>= 1.3'
@@ -119,5 +117,5 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'ruby-prof', ['~> 1.0', '< 1.3'] if RUBY_ENGINE == 'ruby' # MRI Only
   s.add_development_dependency 'rspec_junit_formatter'
 
-  s.post_install_message = "Thanks for installing Ball Aerospace COSMOS!\nStart your first project with: cosmos demo demo\n"
+  s.post_install_message = "Thanks for installing Ball Aerospace COSMOS!\n"
 end
