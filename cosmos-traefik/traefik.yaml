@@ -86,6 +86,7 @@ http:
     # The Minio S3 file server
     service-minio:
       loadBalancer:
+        passHostHeader: false
         servers:
           - url: "http://cosmos-minio:9000"
 # Declare the routes are currently coming from this file, not dynamically
