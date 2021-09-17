@@ -95,8 +95,6 @@ static VALUE line_clip_internal(double x0, double y0, double x1, double y1, doub
   volatile VALUE done = Qfalse;
   volatile VALUE clipped0 = Qfalse;
   volatile VALUE clipped1 = Qfalse;
-  double x = 0.0;
-  double y = 0.0;
 
   code0 = cal_code(x0, y0, xmin, ymin, xmax, ymax);
   code1 = cal_code(x1, y1, xmin, ymin, xmax, ymax);
@@ -117,8 +115,8 @@ static VALUE line_clip_internal(double x0, double y0, double x1, double y1, doub
     } else {
       /* Part of the line is inside the viewable area.  Figure out which part
        * of the line can be drawn. */
-      x = 0.0;
-      y = 0.0;
+      double x = 0.0;
+      double y = 0.0;
 
       if (code0 != 0) {
         codeout = code0;
@@ -178,27 +176,18 @@ static VALUE line_clip(VALUE self, VALUE x0, VALUE y0, VALUE x1, VALUE y1, VALUE
   volatile VALUE result_clipped0 = Qnil;
   volatile VALUE result_clipped1 = Qnil;
   volatile VALUE return_value = Qnil;
-  double double_x0 = 0.0;
-  double double_y0 = 0.0;
-  double double_x1 = 0.0;
-  double double_y1 = 0.0;
-  double double_xmin = 0.0;
-  double double_ymin = 0.0;
-  double double_xmax = 0.0;
-  double double_ymax = 0.0;
+  double double_x0 = RFLOAT_VALUE(rb_funcall(x0, id_method_to_f, 0));
+  double double_y0 = RFLOAT_VALUE(rb_funcall(y0, id_method_to_f, 0));
+  double double_x1 = RFLOAT_VALUE(rb_funcall(x1, id_method_to_f, 0));
+  double double_y1 = RFLOAT_VALUE(rb_funcall(y1, id_method_to_f, 0));
+  double double_xmin = RFLOAT_VALUE(rb_funcall(xmin, id_method_to_f, 0));
+  double double_ymin = RFLOAT_VALUE(rb_funcall(ymin, id_method_to_f, 0));
+  double double_xmax = RFLOAT_VALUE(rb_funcall(xmax, id_method_to_f, 0));
+  double double_ymax = RFLOAT_VALUE(rb_funcall(ymax, id_method_to_f, 0));
   double result_x0 = 0.0;
   double result_y0 = 0.0;
   double result_x1 = 0.0;
   double result_y1 = 0.0;
-
-  double_x0 = RFLOAT_VALUE(rb_funcall(x0, id_method_to_f, 0));
-  double_y0 = RFLOAT_VALUE(rb_funcall(y0, id_method_to_f, 0));
-  double_x1 = RFLOAT_VALUE(rb_funcall(x1, id_method_to_f, 0));
-  double_y1 = RFLOAT_VALUE(rb_funcall(y1, id_method_to_f, 0));
-  double_xmin = RFLOAT_VALUE(rb_funcall(xmin, id_method_to_f, 0));
-  double_ymin = RFLOAT_VALUE(rb_funcall(ymin, id_method_to_f, 0));
-  double_xmax = RFLOAT_VALUE(rb_funcall(xmax, id_method_to_f, 0));
-  double_ymax = RFLOAT_VALUE(rb_funcall(ymax, id_method_to_f, 0));
 
   result = line_clip_internal(double_x0, double_y0, double_x1, double_y1, double_xmin, double_ymin, double_xmax, double_ymax, &result_x0, &result_y0, &result_x1, &result_y1, &result_clipped0, &result_clipped1);
 
@@ -236,10 +225,8 @@ static long scale_value_to_graph_y_internal (double y, double y_max, double y_sc
 static VALUE scale_value_to_graph_y(int argc, VALUE* argv, VALUE self) {
   volatile VALUE y = Qnil;
   ID id_axis = 0;
-  long long_graph_top_y = 0;
-  double double_y = 0.0;
-  double double_y_max = 0.0;
-  double double_y_scale = 0.0;
+  double double_y_max;
+  double double_y_scale;
 
   switch (argc) {
     case 1:
@@ -256,8 +243,8 @@ static VALUE scale_value_to_graph_y(int argc, VALUE* argv, VALUE self) {
       break;
   };
 
-  long_graph_top_y = FIX2INT(rb_ivar_get(self, id_ivar_graph_top_y));
-  double_y = RFLOAT_VALUE(rb_funcall(y, id_method_to_f, 0));
+  long long_graph_top_y = FIX2INT(rb_ivar_get(self, id_ivar_graph_top_y));
+  double double_y = RFLOAT_VALUE(rb_funcall(y, id_method_to_f, 0));
 
   if (id_axis == id_LEFT) {
     double_y_max = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_left_y_max),   id_method_to_f, 0));
@@ -281,15 +268,10 @@ static long scale_value_to_graph_x_internal (double x, double x_min, double x_sc
  * This function converts an x value to an x coordinate on the graph
  */
 static VALUE scale_value_to_graph_x(VALUE self, VALUE x) {
-  long long_graph_left_x = 0;
-  double double_x = 0.0;
-  double double_x_min = 0.0;
-  double double_x_scale = 0.0;
-
-  long_graph_left_x = FIX2INT(rb_ivar_get(self, id_ivar_graph_left_x));
-  double_x = RFLOAT_VALUE(rb_funcall(x, id_method_to_f, 0));
-  double_x_min = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_min), id_method_to_f, 0));
-  double_x_scale = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_scale), id_method_to_f, 0));
+  long long_graph_left_x = FIX2INT(rb_ivar_get(self, id_ivar_graph_left_x));
+  double double_x = RFLOAT_VALUE(rb_funcall(x, id_method_to_f, 0));
+  double double_x_min = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_min), id_method_to_f, 0));
+  double double_x_scale = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_scale), id_method_to_f, 0));
 
   return INT2FIX(scale_value_to_graph_x_internal(double_x, double_x_min, double_x_scale, long_graph_left_x));
 }
@@ -301,10 +283,6 @@ static void draw_line_internal(VALUE dc, double x1, double y1, double x2, double
   volatile VALUE result = Qnil;
   volatile VALUE clipped1 = Qnil;
   volatile VALUE clipped2 = Qnil;
-  long x1_scaled = 0;
-  long y1_scaled = 0;
-  long x2_scaled = 0;
-  long y2_scaled = 0;
   double clipped_x1 = 0.0;
   double clipped_y1 = 0.0;
   double clipped_x2 = 0.0;
@@ -315,10 +293,10 @@ static void draw_line_internal(VALUE dc, double x1, double y1, double x2, double
 
   if (result == Qtrue) /* Line is visible so draw it */ {
     /* Scale to graph coordinates */
-    x1_scaled = scale_value_to_graph_x_internal(clipped_x1, x_min, x_scale, graph_left_x);
-    y1_scaled = scale_value_to_graph_y_internal(clipped_y1, y_max, y_scale, graph_top_y);
-    x2_scaled = scale_value_to_graph_x_internal(clipped_x2, x_min, x_scale, graph_left_x);
-    y2_scaled = scale_value_to_graph_y_internal(clipped_y2, y_max, y_scale, graph_top_y);
+    double x1_scaled = scale_value_to_graph_x_internal(clipped_x1, x_min, x_scale, graph_left_x);
+    double y1_scaled = scale_value_to_graph_y_internal(clipped_y1, y_max, y_scale, graph_top_y);
+    double x2_scaled = scale_value_to_graph_x_internal(clipped_x2, x_min, x_scale, graph_left_x);
+    double y2_scaled = scale_value_to_graph_y_internal(clipped_y2, y_max, y_scale, graph_top_y);
 
     /* Draw the line */
     if (RTEST(show_line)) {
@@ -339,30 +317,20 @@ static void draw_line_internal(VALUE dc, double x1, double y1, double x2, double
  * Draws a line between two points that is clipped to fit the visible graph if necessary
  */
 static VALUE draw_line(VALUE self, VALUE dc, VALUE x1, VALUE y1, VALUE x2, VALUE y2, VALUE show_line, VALUE point_size, VALUE axis, VALUE color) {
-  long long_graph_left_x = 0;
-  long long_graph_top_y = 0;
-  ID id_axis = 0;
-  double double_x1 = 0.0;
-  double double_y1 = 0.0;
-  double double_x2 = 0.0;
-  double double_y2 = 0.0;
-  double double_x_min = 0.0;
   double double_y_min = 0.0;
-  double double_x_max = 0.0;
   double double_y_max = 0.0;
-  double double_x_scale = 0.0;
   double double_y_scale = 0.0;
 
-  id_axis = SYM2ID(axis);
-  double_x_max = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_max), id_method_to_f, 0));
-  double_x_min = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_min), id_method_to_f, 0));
-  double_x1 = RFLOAT_VALUE(rb_funcall(x1, id_method_to_f, 0));
-  double_y1 = RFLOAT_VALUE(rb_funcall(y1, id_method_to_f, 0));
-  double_x2 = RFLOAT_VALUE(rb_funcall(x2, id_method_to_f, 0));
-  double_y2 = RFLOAT_VALUE(rb_funcall(y2, id_method_to_f, 0));
-  double_x_scale = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_scale), id_method_to_f, 0));
-  long_graph_left_x = FIX2INT(rb_ivar_get(self, id_ivar_graph_left_x));
-  long_graph_top_y = FIX2INT(rb_ivar_get(self, id_ivar_graph_top_y));
+  ID id_axis = SYM2ID(axis);
+  double double_x_max = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_max), id_method_to_f, 0));
+  double double_x_min = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_min), id_method_to_f, 0));
+  double double_x1 = RFLOAT_VALUE(rb_funcall(x1, id_method_to_f, 0));
+  double double_y1 = RFLOAT_VALUE(rb_funcall(y1, id_method_to_f, 0));
+  double double_x2 = RFLOAT_VALUE(rb_funcall(x2, id_method_to_f, 0));
+  double double_y2 = RFLOAT_VALUE(rb_funcall(y2, id_method_to_f, 0));
+  double double_x_scale = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_scale), id_method_to_f, 0));
+  long long_graph_left_x = FIX2INT(rb_ivar_get(self, id_ivar_graph_left_x));
+  long long_graph_top_y = FIX2INT(rb_ivar_get(self, id_ivar_graph_top_y));
 
   if (id_axis == id_LEFT) {
     double_y_max = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_left_y_max), id_method_to_f, 0));
@@ -383,37 +351,28 @@ static VALUE draw_line(VALUE self, VALUE dc, VALUE x1, VALUE y1, VALUE x2, VALUE
  * Draws all lines for the given axis
  */
 static VALUE draw_lines (VALUE self, VALUE dc, VALUE axis) {
-  long long_graph_left_x = 0;
-  long long_graph_top_y = 0;
-  long num_lines = 0;
   long line_index = 0;
   long line_length = 0;
   long point_index = 0;
-  ID id_axis = 0;
   volatile VALUE lines = Qnil;
   volatile VALUE line = Qnil;
   volatile VALUE x_values = Qnil;
   volatile VALUE y_values = Qnil;
   volatile VALUE color = Qnil;
-  volatile VALUE show_lines = Qnil;
-  volatile VALUE point_size = Qnil;
-  double double_x1 = 0.0;
-  double double_y1 = 0.0;
-  double double_x2 = 0.0;
-  double double_y2 = 0.0;
-  double double_x_min = 0.0;
-  double double_y_min = 0.0;
-  double double_x_max = 0.0;
-  double double_y_max = 0.0;
-  double double_x_scale = 0.0;
-  double double_y_scale = 0.0;
+  double double_x1;
+  double double_y1;
+  double double_x2;
+  double double_y2;
+  double double_y_min;
+  double double_y_max;
+  double double_y_scale;
 
-  id_axis = SYM2ID(axis);
-  double_x_max = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_max), id_method_to_f, 0));
-  double_x_min = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_min), id_method_to_f, 0));
-  double_x_scale = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_scale), id_method_to_f, 0));
-  long_graph_left_x = FIX2INT(rb_ivar_get(self, id_ivar_graph_left_x));
-  long_graph_top_y = FIX2INT(rb_ivar_get(self, id_ivar_graph_top_y));
+  ID id_axis = SYM2ID(axis);
+  double double_x_max = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_max), id_method_to_f, 0));
+  double double_x_min = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_min), id_method_to_f, 0));
+  double double_x_scale = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_scale), id_method_to_f, 0));
+  long long_graph_left_x = FIX2INT(rb_ivar_get(self, id_ivar_graph_left_x));
+  long long_graph_top_y = FIX2INT(rb_ivar_get(self, id_ivar_graph_top_y));
 
   if (id_axis == id_LEFT) {
     lines = rb_funcall(rb_ivar_get(self, id_ivar_lines), id_method_left, 0);
@@ -427,10 +386,10 @@ static VALUE draw_lines (VALUE self, VALUE dc, VALUE axis) {
     double_y_scale = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_right_y_scale), id_method_to_f, 0));
   }
 
-  show_lines = rb_ivar_get(self, id_ivar_show_lines);
-  point_size = rb_ivar_get(self, id_ivar_point_size);
+  volatile VALUE show_lines = rb_ivar_get(self, id_ivar_show_lines);
+  volatile VALUE point_size = rb_ivar_get(self, id_ivar_point_size);
 
-  num_lines = RARRAY_LEN(lines);
+  long num_lines = RARRAY_LEN(lines);
   for (line_index = 0; line_index < num_lines; line_index++) {
     line = rb_ary_entry(lines, line_index);
     x_values = rb_ary_entry(line, 0);
