@@ -115,8 +115,8 @@ static VALUE line_clip_internal(double x0, double y0, double x1, double y1, doub
     } else {
       /* Part of the line is inside the viewable area.  Figure out which part
        * of the line can be drawn. */
-      double x = 0.0;
-      double y = 0.0;
+      double x;
+      double y;
 
       if (code0 != 0) {
         codeout = code0;
@@ -317,9 +317,9 @@ static void draw_line_internal(VALUE dc, double x1, double y1, double x2, double
  * Draws a line between two points that is clipped to fit the visible graph if necessary
  */
 static VALUE draw_line(VALUE self, VALUE dc, VALUE x1, VALUE y1, VALUE x2, VALUE y2, VALUE show_line, VALUE point_size, VALUE axis, VALUE color) {
-  double double_y_min = 0.0;
-  double double_y_max = 0.0;
-  double double_y_scale = 0.0;
+  double double_y_min;
+  double double_y_max;
+  double double_y_scale;
 
   ID id_axis = SYM2ID(axis);
   double double_x_max = RFLOAT_VALUE(rb_funcall(rb_ivar_get(self, id_ivar_x_max), id_method_to_f, 0));
