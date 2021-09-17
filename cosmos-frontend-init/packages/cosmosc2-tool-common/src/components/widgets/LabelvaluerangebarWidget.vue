@@ -24,7 +24,7 @@
     :style="[defaultStyle, computedStyle]"
   >
     <labelvalue-widget :parameters="labelValueParameters" />
-    <rangebar-widget :parameters="rangebarParameters" />
+    <rangebar-widget :parameters="parameters" />
   </div>
 </template>
 
@@ -46,14 +46,6 @@ export default {
         this.parameters[1],
         this.parameters[2],
         'WITH_UNITS',
-      ]
-    },
-    rangebarParameters() {
-      return [
-        this.parameters[0],
-        this.parameters[1],
-        this.parameters[2],
-        'CONVERTED',
       ]
     },
     defaultStyle() {
