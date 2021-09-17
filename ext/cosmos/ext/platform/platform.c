@@ -34,7 +34,6 @@ VALUE cSegFault = Qnil;
     struct tm *timeinfo_ptr;
     struct stat stats;
     char filename[FILENAME_LEN];
-    char filename[256];
     FILE* file = NULL;
 
     signal(SIGSEGV, SIG_DFL);
