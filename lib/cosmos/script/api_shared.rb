@@ -832,6 +832,8 @@ module Cosmos
       while true
         work_start = Time.now.sys
         value = tlm_variable(target_name, packet_name, item_name, value_type)
+        # Fortify: Dynamic Code Evaluation: Code Injection
+        # TODO: Is there anyway to sanitize the exp_to_eval?
         if eval(exp_to_eval)
           return true, value
         end
@@ -846,6 +848,8 @@ module Cosmos
 
         if canceled
           value = tlm_variable(target_name, packet_name, item_name, value_type)
+          # Fortify: Dynamic Code Evaluation: Code Injection
+          # TODO: Is there anyway to sanitize the exp_to_eval?
           if eval(exp_to_eval)
             return true, value
           else
@@ -886,6 +890,8 @@ module Cosmos
 
       while true
         work_start = Time.now.sys
+        # Fortify: Dynamic Code Evaluation: Code Injection
+        # TODO: Is there anyway to sanitize the exp_to_eval?
         if eval(exp_to_eval, context)
           return true
         end
@@ -899,6 +905,8 @@ module Cosmos
         canceled = cosmos_script_sleep(sleep_time)
 
         if canceled
+          # Fortify: Dynamic Code Evaluation: Code Injection
+          # TODO: Is there anyway to sanitize the exp_to_eval?
           if eval(exp_to_eval, context)
             return true
           else
@@ -914,6 +922,8 @@ module Cosmos
       string = "value " + comparison_to_eval
       check_str = "CHECK: #{_upcase(target_name, packet_name, item_name)} #{comparison_to_eval}"
       value_str = "with value == #{value}"
+      # Fortify: Dynamic Code Evaluation: Code Injection
+      # TODO: Is there anyway to sanitize the comparison_to_eval?
       if eval(string)
         Logger.info "#{check_str} success #{value_str}"
       else

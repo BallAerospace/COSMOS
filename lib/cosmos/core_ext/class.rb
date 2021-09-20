@@ -38,7 +38,6 @@ class Class
       # Non-word characters (letter, number, underscore) are disallowed
       raise ArgumentError, "Non-word characters characters parsed" if arg =~ /\W/
 
-      # Fortify warns against Dynamic Code Evaluation: Code Injection here
       # Fortify: Dynamic Code Evaluation: Code Injection
       # This is true but we're whitelisting the input above
       self.class_eval("def #{arg};@#{arg};end")
@@ -53,7 +52,6 @@ class Class
       # Non-word characters (letter, number, underscore) are disallowed
       raise ArgumentError, "Non-word characters characters parsed" if arg =~ /\W/
 
-      # Fortify warns against Dynamic Code Evaluation: Code Injection here
       # Fortify: Dynamic Code Evaluation: Code Injection
       # This is true but we're whitelisting the input above
       self.class_eval("def #{arg};@#{arg};end")

@@ -45,7 +45,8 @@ VALUE cSegFault = Qnil;
     // a null terminator so we have 1 less byte available minus the length
     // of the fixed filename structure
     if ((cosmos_log_dir == NULL) || (strlen(cosmos_log_dir) > (FILENAME_LEN - 1 - strlen("/YYYY_MM_DD_HH_MM_SS_segfault.txt"))))
-      cosmos_log_dir = (char*) ".";
+    {
+      cosmos_log_dir = (char*)".";
     }
     // Validate that we can write to this directory
     if (stat(cosmos_log_dir, &stats) == 0)

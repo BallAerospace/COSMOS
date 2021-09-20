@@ -101,22 +101,22 @@ module Cosmos
     return color_r if (color_r.is_a? Qt::Color) || (color_r.is_a? Qt::Pen) || (color_r.is_a? Qt::LinearGradient)
 
     color = nil
-    key = color_r
-    key = key.to_i if key.is_a? Qt::Enum
+    color_key = color_r
+    color_key = color_key.to_i if color_key.is_a? Qt::Enum
 
     if color_r && color_g && color_b
-      key = (color_r.to_i << 24) + (color_g.to_i << 16) + (color_b.to_i << 8)
+      color_key = (color_r.to_i << 24) + (color_g.to_i << 16) + (color_b.to_i << 8)
     end
 
-    if Cosmos::COLORS[key]
-      color = Cosmos::COLORS[key]
+    if Cosmos::COLORS[color_key]
+      color = Cosmos::COLORS[color_key]
     else
       if color_r && color_g && color_b
         color = Qt::Color.new(color_r.to_i, color_g.to_i, color_b.to_i)
       else
         color = Qt::Color.new(color_r)
       end
-      Cosmos::COLORS[key] = color
+      Cosmos::COLORS[color_key] = color
     end
     color
   end
@@ -214,12 +214,12 @@ module Cosmos
   end
 
   def self.getCursor(shape)
-    key = shape
-    key = shape.to_i if shape.is_a? Qt::Enum
-    cursor = CURSORS[key]
+    shape_key = shape
+    shape_key = shape.to_i if shape.is_a? Qt::Enum
+    cursor = CURSORS[shape_key]
     unless cursor
       cursor = Qt::Cursor.new(shape)
-      CURSORS[key] = cursor
+      CURSORS[shape_key] = cursor
     end
     cursor
   end

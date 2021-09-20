@@ -61,6 +61,8 @@ module Cosmos
     end
 
     def eval_str(string_to_eval)
+      # Fortify: Dynamic Code Evaluation: Code Injection
+      # TODO: Not sure how to sanitize this string
       @screen.instance_eval(string_to_eval)
     end
 
