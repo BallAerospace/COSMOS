@@ -68,14 +68,15 @@ HORIZONTAL
     END
   END
 
-  VERTICALBOX
-    SECTIONHEADER "Range Columns 0-100"
-    HORIZONTAL
-      RANGECOLUMN <%= target_name %> HEALTH_STATUS TEMP2 0 100
-      VALUERANGECOLUMN <%= target_name %> HEALTH_STATUS TEMP2 0 100
-      LABELVALUERANGECOLUMN <%= target_name %> HEALTH_STATUS TEMP2 0 100
-    END
-  END
+  # TODO: Not yet implemented
+  #VERTICALBOX
+  #  SECTIONHEADER "Range Columns 0-100"
+  #  HORIZONTAL
+  #    RANGECOLUMN <%= target_name %> HEALTH_STATUS TEMP2 0 100
+  #    VALUERANGECOLUMN <%= target_name %> HEALTH_STATUS TEMP2 0 100
+  #    LABELVALUERANGECOLUMN <%= target_name %> HEALTH_STATUS TEMP2 0 100
+  #  END
+  #END
 END
 
 <%= render "_footer.txt" %>

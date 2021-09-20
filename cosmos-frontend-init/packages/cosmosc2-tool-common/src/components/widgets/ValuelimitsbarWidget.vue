@@ -23,8 +23,11 @@
     class="d-flex flex-row"
     :style="[defaultStyle, computedStyle]"
   >
-    <value-widget :parameters="parameters" />
-    <limitsbar-widget :parameters="limitsBarParameters" />
+    <value-widget :parameters="parameters" :settings="settings" />
+    <limitsbar-widget
+      :parameters="limitsBarParameters"
+      :settings="settings.filter((x) => x[0] == 1).map((x) => x.slice(1))"
+    />
   </div>
 </template>
 
