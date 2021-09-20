@@ -46,6 +46,7 @@ export default {
       height: 20, // px
       minValue: null,
       maxValue: null,
+      scale: 0,
       redLow: 0,
       yellowLow: 0,
       greenLow: 0,
@@ -177,25 +178,26 @@ export default {
         this.redHigh = 0
       }
 
+      let divisor = 80
+      if (this.redLow == 0) {
+        divisor += 10
+      }
+      if (this.redHigh == 0) {
+        divisor += 10
+      }
+      this.scale = (limitsSettings[3] - limitsSettings[0]) / divisor
+
       return limitsSettings
     },
     calcPosition(value, limitsSettings) {
       if (!value || !limitsSettings) {
         return
       }
-      let divisor = 0.8
-      if (this.redLow == 0) {
-        divisor += 0.1
-      }
-      if (this.redHigh == 0) {
-        divisor += 0.1
-      }
-      const scale = (limitsSettings[3] - limitsSettings[0]) / divisor
-      let lowValue = limitsSettings[0] - 0.1 * scale
+      let lowValue = limitsSettings[0] - 10 * this.scale
       if (this.minValue && this.minValue == limitsSettings[0]) {
         lowValue = limitsSettings[0]
       }
-      let highValue = limitsSettings[3] - 0.1 * scale
+      let highValue = limitsSettings[3] - 10 * this.scale
       if (this.maxValue && this.maxValue == limitsSettings[3]) {
         highValue = limitsSettings[3]
       }
@@ -213,7 +215,7 @@ export default {
       } else if (value > this.max) {
         return 100
       } else {
-        const result = parseInt(((value - lowValue) / scale) * 100.0)
+        const result = parseInt((value - lowValue) / this.scale)
         if (result > 100) {
           return 100
         } else if (result < 0) {
@@ -228,27 +230,18 @@ export default {
         return
       }
 
-      let scale = 80
-      if (this.redLow == 0) {
-        scale += 10
-      }
-      if (this.redHigh == 0) {
-        scale += 10
-      }
-
-      const range = 1.0 * (limitsSettings[3] - limitsSettings[0])
       this.yellowLow = Math.round(
-        ((limitsSettings[1] - limitsSettings[0]) / range) * scale
+        (limitsSettings[1] - limitsSettings[0]) / this.scale
       )
       this.yellowHigh = Math.round(
-        ((limitsSettings[3] - limitsSettings[2]) / range) * scale
+        (limitsSettings[3] - limitsSettings[2]) / this.scale
       )
       if (limitsSettings.length > 4) {
         this.greenLow = Math.round(
-          ((limitsSettings[4] - limitsSettings[1]) / range) * scale
+          (limitsSettings[4] - limitsSettings[1]) / this.scale
         )
         this.greenHigh = Math.round(
-          ((limitsSettings[2] - limitsSettings[5]) / range) * scale
+          (limitsSettings[2] - limitsSettings[5]) / this.scale
         )
         this.blue = Math.round(
           100 -
