@@ -39,8 +39,8 @@ module Cosmos
         @packet
       end
 
-      allow(System).to receive_message_chain(:telemetry,:identify!).and_return(nil)
-      allow(System).to receive_message_chain(:telemetry,:update!).and_return(@packet)
+      allow(System).to receive_message_chain(:telemetry,:packet).and_return(@packet)
+      allow(System).to receive_message_chain(:telemetry,:identify).and_return(nil)
       allow(System).to receive_message_chain(:telemetry,:identify_and_define_packet).and_return(@packet)
       targets = {'TGT'=>Target.new('TGT')}
       allow(System).to receive(:targets).and_return(targets)
@@ -237,6 +237,7 @@ module Cosmos
       it "handles unidentified packets" do
         capture_io do |stdout|
           @packet = Packet.new(nil,nil)
+          @packet.buffer = "\x01\x02"
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1
@@ -253,7 +254,7 @@ module Cosmos
         capture_io do |stdout|
           @packet.target_name = 'BOB'
           @packet.packet_name = 'SMITH'
-          allow(System).to receive_message_chain(:telemetry,:update!).and_raise(RuntimeError)
+          allow(System).to receive_message_chain(:telemetry,:packet).and_raise(RuntimeError)
           thread = InterfaceThread.new(@interface)
           thread.start
           sleep 0.1

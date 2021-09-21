@@ -462,21 +462,14 @@ module Cosmos
       extend(MethodMissing)
     end
 
-    protected
-
-    MUTEX = Mutex.new
-
-    def setup_mutex
-      return if @mutex
-      MUTEX.synchronize do
-        @mutex ||= Mutex.new
-      end
-    end
-
     # Take the structure mutex to ensure the buffer does not change while you perform activities
     def synchronize
       setup_mutex()
-      @mutex.synchronize {|| yield}
+      if @mutex.owned?
+        yield
+      else
+        @mutex.synchronize {|| yield}
+      end
     end
 
     # Take the structure mutex to ensure the buffer does not change while you perform activities
@@ -506,6 +499,17 @@ module Cosmos
         elsif @mutex_allow_reads == Thread.current
           yield
         end
+      end
+    end
+
+    protected
+
+    MUTEX = Mutex.new
+
+    def setup_mutex
+      return if @mutex
+      MUTEX.synchronize do
+        @mutex ||= Mutex.new
       end
     end
 

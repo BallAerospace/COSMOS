@@ -148,51 +148,54 @@ module Cosmos
         if packet.identified?
           begin
             # Preidentifed packet - place it into the current value table
-            identified_packet = System.telemetry.update!(packet.target_name,
-                                                         packet.packet_name,
-                                                         packet.buffer)
+            identified_packet = System.telemetry.packet(packet.target_name, packet.packet_name)
           rescue RuntimeError
             # Packet identified but we don't know about it
             # Clear packet_name and target_name and try to identify
             Logger.warn "Received unknown identified telemetry: #{packet.target_name} #{packet.packet_name}"
             packet.target_name = nil
             packet.packet_name = nil
-            identified_packet = System.telemetry.identify!(packet.buffer,
-                                                           @interface.target_names)
+            identified_packet = System.telemetry.identify(packet.buffer, @interface.target_names)
           end
         else
           # Packet needs to be identified
-          identified_packet = System.telemetry.identify!(packet.buffer,
-                                                         @interface.target_names)
+          identified_packet = System.telemetry.identify(packet.buffer, @interface.target_names)
         end
       end
 
-      if identified_packet
+      unknown = false
+      unless identified_packet
+        unknown = true
+        identified_packet = System.telemetry.packet('UNKNOWN', 'UNKNOWN')
+      end
+      
+      identified_packet.synchronize do
+        identified_packet.buffer = packet.buffer unless packet.stored
         identified_packet.received_time = packet.received_time
         identified_packet.stored = packet.stored
         identified_packet.extra = packet.extra
         packet = identified_packet
-      else
-        unknown_packet = System.telemetry.update!('UNKNOWN', 'UNKNOWN', packet.buffer)
-        unknown_packet.received_time = packet.received_time
-        unknown_packet.stored = packet.stored
-        unknown_packet.extra = packet.extra
-        packet = unknown_packet
-        data_length = packet.length
-        string = "#{@interface.name} - Unknown #{data_length} byte packet starting: "
-        num_bytes_to_print = [UNKNOWN_BYTES_TO_PRINT, data_length].min
-        data_to_print = packet.buffer(false)[0..(num_bytes_to_print - 1)]
-        data_to_print.each_byte do |byte|
-          string << sprintf("%02X", byte)
+        
+        if unknown
+          data_length = packet.length
+          string = "#{@interface.name} - Unknown #{data_length} byte packet starting: "
+          num_bytes_to_print = [UNKNOWN_BYTES_TO_PRINT, data_length].min
+          data_to_print = packet.buffer(false)[0..(num_bytes_to_print - 1)]
+          data_to_print.each_byte do |byte|
+            string << sprintf("%02X", byte)
+          end
+          Logger.error string
         end
-        Logger.error string
+
+        target = System.targets[packet.target_name]
+        target.tlm_cnt += 1 if target
+        packet.received_count += 1
+        @identified_packet_callback.call(packet) if @identified_packet_callback
+
+        # So we can release the mutex
+        packet = packet.clone
       end
-
-      target = System.targets[packet.target_name]
-      target.tlm_cnt += 1 if target
-      packet.received_count += 1
-      @identified_packet_callback.call(packet) if @identified_packet_callback
-
+      
       # Write to routers
       @interface.routers.each do |router|
         begin
