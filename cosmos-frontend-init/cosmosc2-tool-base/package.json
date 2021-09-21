@@ -11,7 +11,7 @@
 		"@astrouxds/rux-clock": "5.0.2",
 		"@astrouxds/rux-global-status-bar": "5.0.0",
 		"actioncable": "5.2.5",
-		"axios": "0.21.1",
+		"axios": "0.21.2",
 		"date-fns": "2.19.0",
 		"dotenv": "8.6.0",
 		"single-spa": "5.9.2",
