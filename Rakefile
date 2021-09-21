@@ -199,10 +199,12 @@ task :commit_release_ticket => [:require_version, :git_checkout] do
   system('git add lib/cosmos/version.rb')
   system('git add Manifest.txt')
   system("git commit -m \"Release COSMOS #{ENV['VERSION']}\"")
+  system("git push")
 end
 
 task :tag_release => [:require_version] do
   system("git tag -a v#{ENV['VERSION']} -m \"COSMOS #{ENV['VERSION']}\"")
+  system("git push --tags")
 end
 
 task :version => [:require_version] do
@@ -302,6 +304,9 @@ task :commit_release => [:commit_release_ticket, :tag_release]
 # 1. rake docker_build
 # 2. rake docker_run
 # 3. Follow the individual steps printed out
+# NOTE: When doing git push you will be asked for password
+#       You will need to enter a Github access token value
+#       Create one on Github, User -> Settings -> Developer settings -> Personal access tokens
 
 task :docker_build do
   _, platform, *_ = RUBY_PLATFORM.split("-")
@@ -319,12 +324,11 @@ task :docker_run do
   STDOUT.puts "1b. git config --global user.email \"me@ball.com\""
   STDOUT.puts "2. git checkout cosmos4"
   STDOUT.puts "3. git pull"
-  STDOUT.puts "4a. export VERSION=X.X.X"
-  STDOUT.puts "4b. export TRAVIS=1"
-  STDOUT.puts "5. rake release"
-  STDOUT.puts "6. rake commit_release"
-  STDOUT.puts "7. FROM THE HOST: cd devel; git push --follow-tags"
-  STDOUT.puts "9. export PATH=/opt/jruby/bin:$PATH"
+  STDOUT.puts "4. export VERSION=X.X.X"
+  STDOUT.puts "5. export TRAVIS=1"
+  STDOUT.puts "6. rake release"
+  STDOUT.puts "7. rake commit_release"
+  STDOUT.puts "8. export PATH=/opt/jruby/bin:$PATH"
   STDOUT.puts "9. rake gem"
   STDOUT.puts "10a. /usr/bin/gem push cosmos-X.X.X.gem"
   STDOUT.puts "10b. /usr/bin/gem push cosmos-X.X.X-java.gem"
@@ -337,6 +341,5 @@ task :docker_run do
   STDOUT.puts "17. git push --set-upstream origin vX.X.X"
   STDOUT.puts "18. Update release notes on github.com and cosmosrb.com"
 
-  system('mkdir devel')
-  system('docker run -it --rm -v ./devel:/devel cosmos-dev')
+  system('docker run -it --rm cosmos-dev')
 end
