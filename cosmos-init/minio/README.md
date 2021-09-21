@@ -1,1 +1,1 @@
-## minio-init
+## cosmos-init minio

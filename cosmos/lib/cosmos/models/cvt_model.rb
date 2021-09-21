@@ -81,34 +81,33 @@ module Cosmos
     # @return [Array] Array of values
     def self.get_tlm_values(items, scope: $cosmos_scope)
       results = []
-      lookups = {}
+      lookups = []
+      packet_lookup = {}
       # First generate a lookup hash of all the items represented so we can query the CVT
       items.each { |item| _parse_item(lookups, item) }
 
-      lookups.each do |target_name, packet_hash|
-        packet_hash.each do |packet_name, items|
+      lookups.each do |target_packet_key, target_name, packet_name, packet_values|
+        unless packet_lookup[target_packet_key]
           packet = Store.hget("#{scope}__tlm__#{target_name}", packet_name)
           raise "Packet '#{target_name} #{packet_name}' does not exist" unless packet
-
-          hash = JSON.parse(packet)
-          items.each do |item_keys|
-            item_result = []
-            item_keys.each do |key|
-              item_result[0] = hash[key]
-              break if item_result[0] # We want the first value
-            end
-            # If we were able to find a value, try to get the limits state
-            if item_result[0]
-              # The last key is simply the name (RAW) so we can append __L
-              # If there is no limits then it returns nil which is acceptable
-              item_result[1] = hash["#{item_keys[-1]}__L"]
-              item_result[1] = item_result[1].intern if item_result[1] # Convert to symbol
-            else
-              raise "Item '#{target_name} #{packet_name} #{item_keys[-1]}' does not exist"
-            end
-            results << item_result
-          end
+          packet_lookup[target_packet_key] = JSON.parse(packet)
         end
+        hash = packet_lookup[target_packet_key]
+        item_result = []
+        packet_values.each do |value|
+          item_result[0] = hash[value]
+          break if item_result[0] # We want the first value
+        end
+        # If we were able to find a value, try to get the limits state
+        if item_result[0]
+          # The last key is simply the name (RAW) so we can append __L
+          # If there is no limits then it returns nil which is acceptable
+          item_result[1] = hash["#{packet_values[-1]}__L"]
+          item_result[1] = item_result[1].intern if item_result[1] # Convert to symbol
+        else
+          raise "Item '#{target_name} #{packet_name} #{packet_values[-1]}' does not exist"
+        end
+        results << item_result
       end
       results
     end
@@ -141,6 +140,9 @@ module Cosmos
     # PRIVATE METHODS
 
     def self._parse_item(lookups, item)
+      # parse item and update lookups with packet_name and target_name and keys
+      #
+      # return an ordered array of hash with keys
       target_name, packet_name, item_name, value_type = item.split('__')
       raise ArgumentError, "items must be formatted as TGT__PKT__ITEM__TYPE" if target_name.nil? || packet_name.nil? || item_name.nil? || value_type.nil?
 
@@ -158,9 +160,7 @@ module Cosmos
       else
         raise "Unknown value type #{value_type}"
       end
-      lookups[target_name] ||= {}
-      lookups[target_name][packet_name] ||= []
-      lookups[target_name][packet_name] << keys
+      lookups << ["#{target_name}__#{packet_name}", target_name, packet_name, keys]
     end
   end
 end
