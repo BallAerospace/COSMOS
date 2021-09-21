@@ -171,7 +171,11 @@ export default {
             contents: response.data.contents,
           }
           if (response.data.suites) {
-            file['suites'] = JSON.parse(response.data.suites)
+            try {
+              file['suites'] = JSON.parse(response.data.suites)
+            } catch (e) {
+              file['suites'] = null
+            }
           }
           this.$emit('file', file)
           this.show = false
