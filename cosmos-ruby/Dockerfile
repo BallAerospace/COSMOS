@@ -24,6 +24,7 @@ RUN apk update \
     libressl \
     less \
     tini \
+    curl \
     git \
     libxml2-dev \
     libxslt-dev \
