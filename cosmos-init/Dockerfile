@@ -2,7 +2,7 @@ FROM ballaerospace/cosmosc2-base
 
 USER root
 
-COPY ./mc /usr/bin/mc
+COPY ./mc_2021-09-02T09-21-27Z /usr/bin/mc
 
 RUN chmod +x /usr/bin/mc
 
