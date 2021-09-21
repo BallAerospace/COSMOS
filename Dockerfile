@@ -55,6 +55,7 @@ ARG COSMOS_REPO=https://github.com/BallAerospace/COSMOS.git
 RUN gem install bundler --no-document
 RUN cd /devel \
   && git clone ${COSMOS_REPO} COSMOS \
+  && git checkout cosmos4 \
   && cd /devel/COSMOS \
   && bundle install
 
@@ -63,7 +64,7 @@ ARG COSMOS_DOCKER_REPO=https://github.com/BallAerospace/cosmos-docker.git
 # Download COSMOS docker files to support docker release
 RUN cd /devel \
   && git clone ${COSMOS_DOCKER_REPO}
-  
+
 ENV COSMOS_DEVEL /devel/COSMOS
 WORKDIR /devel/COSMOS
 CMD bash

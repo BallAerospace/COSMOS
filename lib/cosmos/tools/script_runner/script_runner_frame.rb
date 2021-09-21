@@ -973,8 +973,10 @@ module Cosmos
                 if debug_text =~ /^@\S+$/ || @script_binding.local_variables.include?(debug_text.to_sym)
                   debug_text = "puts #{debug_text}" # Automatically add puts to print it
                 end
+                # Fortify: Dynamic Code Evaluation: Code Injection
                 eval(debug_text, @script_binding, 'debug', 1)
               else
+                # Fortify: Dynamic Code Evaluation: Code Injection
                 Object.class_eval(debug_text, 'debug', 1)
               end
               handle_output_io()
