@@ -135,7 +135,6 @@
 "config/tools/limits_monitor/README.txt" 0x93B2C07E
 "config/tools/opengl_builder/README.txt" 0x93B2C07E
 "config/tools/script_runner/script_runner.txt" 0x10A9AF8F
-"config/tools/table_manager/CamTable_def.txt" 0xAD48022A
 "config/tools/table_manager/ConfigTables_def.txt" 0xC38DCB2A
 "config/tools/table_manager/ExampleTableDefinition.txt" 0x59060429
 "config/tools/table_manager/MCConfigurationTable_fsw1_def.txt" 0x12A3E04A
