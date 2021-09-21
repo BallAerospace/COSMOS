@@ -323,7 +323,7 @@ task :docker_run do
   STDOUT.puts "4b. export TRAVIS=1"
   STDOUT.puts "5. rake release"
   STDOUT.puts "6. rake commit_release"
-  STDOUT.puts "7. FROM THE HOST: cd devel; git push --follow-tags")
+  STDOUT.puts "7. FROM THE HOST: cd devel; git push --follow-tags"
   STDOUT.puts "9. export PATH=/opt/jruby/bin:$PATH"
   STDOUT.puts "9. rake gem"
   STDOUT.puts "10a. /usr/bin/gem push cosmos-X.X.X.gem"
