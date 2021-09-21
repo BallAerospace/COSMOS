@@ -169,8 +169,8 @@ task :build => [:devkit] do
   end
 end
 
-task :git_checkout_master do
-  system('git checkout master')
+task :git_checkout do
+  system('git checkout cosmos4')
 end
 
 task :install_crc do
@@ -192,7 +192,7 @@ task :gem => [:require_version] do
   system('gem build cosmos.gemspec')
 end
 
-task :commit_release_ticket => [:require_version, :git_checkout_master] do
+task :commit_release_ticket => [:require_version, :git_checkout] do
   system('git add data/crc.txt')
   system('git add demo/config/data/crc.txt')
   system('git add install/config/data/crc.txt')
@@ -297,7 +297,7 @@ if RUBY_ENGINE == 'ruby'
   end
 end
 
-task :release => [:require_version, :git_checkout_master, :build, :spec, :manifest, :version, :install_crc, :gem]
+task :release => [:require_version, :git_checkout, :build, :spec, :manifest, :version, :install_crc, :gem]
 task :commit_release => [:commit_release_ticket, :tag_release]
 
 task :docker_build do
@@ -312,8 +312,10 @@ end
 task :docker_run do
   STDOUT.puts "Note, this is not automated on purpose to ensure each step is successful (with user entry of credentials for github/rubygems.org)"
   STDOUT.puts "Steps to perform a COSMOS release:"
-  STDOUT.puts "1. git config --global user.name \"Last, First\""
-  STDOUT.puts "2. git config --global user.email \"me@ball.com\""
+  STDOUT.puts "1a. git config --global user.name \"Last, First\""
+  STDOUT.puts "1b. git config --global user.email \"me@ball.com\""
+  STDOUT.puts "1c. Ensure Ruby 2.5 is in your path"
+  STDOUT.puts "2. git checkout cosmos4"
   STDOUT.puts "3. git pull"
   STDOUT.puts "4. export VERSION=X.X.X"
   STDOUT.puts "5. rake release"
@@ -330,6 +332,6 @@ task :docker_run do
   STDOUT.puts "16. git checkout -b vX.X.X"
   STDOUT.puts "17. git push --set-upstream origin vX.X.X"
   STDOUT.puts "18. Update release notes on github.com and cosmosrb.com"
-  
+
   system('docker run -it --rm cosmos-dev')
 end
