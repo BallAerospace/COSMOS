@@ -54,8 +54,7 @@ ARG COSMOS_REPO=https://github.com/BallAerospace/COSMOS.git
 # Download and setup COSMOS devel area
 RUN gem install bundler --no-document
 RUN cd /devel \
-  && git clone ${COSMOS_REPO} COSMOS \
-  && git checkout cosmos4 \
+  && git clone -b cosmos4 ${COSMOS_REPO} COSMOS \
   && cd /devel/COSMOS \
   && bundle install
 
