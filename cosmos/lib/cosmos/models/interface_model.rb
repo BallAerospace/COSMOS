@@ -261,7 +261,7 @@ module Cosmos
       else
         status_model = RouterStatusModel.get_model(name: @name, scope: @scope)
       end
-      status_model.destroy if status_model.state.downcase == 'disconnected'
+      status_model.destroy if status_model
     end
   end
 end
