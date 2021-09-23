@@ -304,7 +304,7 @@ export default {
   methods: {
     updateSuiteMap() {
         this.suites = Object.keys(this.suiteMap)
-        if(this.suiteMap[this.suite] == undefined || this.suiteMap[this.suite].groups[this.groups] == undefined) {
+        if(this.suiteMap[this.suite] == undefined || this.suiteMap[this.suite].groups[this.group] == undefined) {
           this.initSuites()
         } else {
           this.groups = Object.keys(this.suiteMap[this.suite].groups)
