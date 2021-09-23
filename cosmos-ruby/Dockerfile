@@ -16,18 +16,17 @@ ADD gemrc /root/.gemrc
 
 RUN apk update \
   && apk add ruby \
-    ruby-etc \
-    ruby-bigdecimal \
-    ruby-io-console \
-    ruby-irb \
-    ca-certificates \
-    libressl \
-    less \
-    tini \
-    curl \
-    git \
-    libxml2-dev \
-    libxslt-dev \
+  ruby-etc \
+  ruby-bigdecimal \
+  ruby-io-console \
+  ruby-irb \
+  ca-certificates \
+  libressl \
+  less \
+  tini \
+  git \
+  libxml2-dev \
+  libxslt-dev \
   && gem install bundler || apk add ruby-bundler \
   && gem install rake || apk add ruby-rake \
   && bundle config build.nokogiri --use-system-libraries \

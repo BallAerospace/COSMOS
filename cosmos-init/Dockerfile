@@ -1,4 +1,4 @@
-FROM ballaerospace/cosmosc2-ruby AS cosmos-mc
+FROM ballaerospace/cosmosc2-base
 
 USER root
 
