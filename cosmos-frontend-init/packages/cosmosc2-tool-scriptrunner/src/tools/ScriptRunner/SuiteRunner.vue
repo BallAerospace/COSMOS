@@ -293,7 +293,7 @@ export default {
     this.initSuites()
   },
   // Watch the suiteMap so we can recreate the suites and set the initial value
-   watch: {
+  watch: {
     suiteMap: {
       handler: function (newVal, oldVal) {
         this.updateSuiteMap()
