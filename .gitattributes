@@ -1,4 +1,17 @@
-# Declare everything else should always have LF line endings on checkout.
-* text eol=lf
+# Declare all ruby files should always have LF line endings on checkout.
+*.rb text eol=lf
+# Declare all sh files should always have LF line endings on checkout.
+*.sh text eol=lf
+# Declare all c files should always have LF line endings on checkout.
+*.c text eol=lf
+# Declare all yaml files should always have LF line endings on checkout.
+*.yaml text eol=lf
+*.yml text eol=lf
+# Declare all js files should always have LF line endings on checkout.
+*.js text eol=lf
+# Declare all json files should always have LF line endings on checkout.
+*.json text eol=lf
+# Declare all md files should always have LF line endings on checkout.
+*.md text eol=lf
 # Declare files that will always have CRLF line endings on checkout.
 *.bat text eol=crlf
