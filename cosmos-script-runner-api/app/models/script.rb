@@ -62,7 +62,7 @@ class Script
     name = name.split('*')[0] # Split '*' that indicates modified
     rubys3_client = Aws::S3::Client.new
     begin
-      # First try opening a potentially modified version by looking for the underscore target
+      # First try opening a potentially modified version by looking for the modified target
       resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets_modified/#{name}")
     rescue
       # Now try the original

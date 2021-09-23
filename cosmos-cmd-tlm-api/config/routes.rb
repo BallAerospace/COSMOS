@@ -96,6 +96,7 @@ Rails.application.routes.draw do
     post "/auth/set" => "auth#set"
     get "/screen/:target" => "api#screens"
     get "/screen/:target/:screen" => "api#screen"
+    post "/screen" => "api#screen_save"
     get "/internal/health" => "internal_health#health"
     get "/internal/metrics" => "internal_metrics#index"
     get "/internal/status" => "internal_status#status"

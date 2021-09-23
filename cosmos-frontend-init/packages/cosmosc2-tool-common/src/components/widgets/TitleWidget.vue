@@ -33,5 +33,10 @@ export default {
       return this.parameters[0]
     },
   },
+  created() {
+    if (this.parameters.length < 1) {
+      throw new Error('Not enough parameters for TITLE.')
+    }
+  },
 }
 </script>

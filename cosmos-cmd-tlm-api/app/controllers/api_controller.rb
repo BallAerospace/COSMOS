@@ -45,6 +45,22 @@ class ApiController < ApplicationController
     end
   end
 
+  def screen_save
+    begin
+      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+    end
+    screen = Screen.create(params[:scope].upcase, params[:target].upcase, params[:screen].downcase, params[:text])
+    if screen
+      render :json => screen
+    else
+      head :not_found
+    end
+  end
+
   def api
     req = Rack::Request.new(request.env)
 
