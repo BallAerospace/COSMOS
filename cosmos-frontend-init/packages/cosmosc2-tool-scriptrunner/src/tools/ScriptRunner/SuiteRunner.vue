@@ -308,7 +308,7 @@ export default {
           this.initSuites()
         } else {
           this.groups = Object.keys(this.suiteMap[this.suite].groups)
-          this.scripts = this.suiteMap[this.suite].groups[this.groups].scripts
+          this.scripts = this.suiteMap[this.suite].groups[this.group].scripts
         }
     },
     initSuites() {
