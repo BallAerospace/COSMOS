@@ -94,7 +94,7 @@ export default {
   min-height: 88px !important;
   display: flex !important;
   align-items: center !important;
-  font-size:80px;
+  font-size: 80px;
 }
 // TODO: These cosmos styles are also defined in assets/stylesheets/layout/_overrides.scss
 // Can they somehow be reused here? We need to force the style down into the input

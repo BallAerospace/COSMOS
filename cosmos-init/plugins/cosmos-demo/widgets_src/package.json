@@ -5,9 +5,13 @@
   "scripts": {
     "build": "vue-cli-service build --target lib --formats umd-min src/HelloworldWidget.vue --name HelloworldWidget && vue-cli-service build --target lib --formats umd-min src/BigWidget.vue --name BigWidget"
   },
+  "resolutions": {
+    "acorn": "npm:acorn-with-stage3"
+  },
   "dependencies": {
-    "@cosmosc2/tool-common": "~5.0.1-beta.0",
-    "vue": "2.6.12"
+    "@cosmosc2/tool-common": "~5.0.1-beta.2",
+    "vue": "2.6.12",
+    "vuetify": "2.4.9"
   },
   "devDependencies": {
     "@vue/babel-preset-app": "4.5.13",

@@ -1,6 +1,6 @@
 {
   "name": "@cosmosc2/tool-cmdsender",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -11,8 +11,11 @@
     "test": "jest --config=./jest.config.js --coverage --ci --reporters=default --reporters=jest-junit",
     "test:components": "vue-cli-service test:components"
   },
+  "resolutions": {
+    "acorn": "npm:acorn-with-stage3"
+  },
   "dependencies": {
-    "@cosmosc2/tool-common": "~5.0.1-beta.1",
+    "@cosmosc2/tool-common": "5.0.1",
     "portal-vue": "2.1.7",
     "single-spa-vue": "2.2.0",
     "sprintf-js": "1.1.2",
