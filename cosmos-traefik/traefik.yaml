@@ -76,16 +76,19 @@ http:
     # The COSMOS cmd/tlm api service
     service-api:
       loadBalancer:
+        passHostHeader: false
         servers:
           - url: "http://cosmos-cmd-tlm-api:2901"
     # The COSMOS script api service
     service-script:
       loadBalancer:
+        passHostHeader: false
         servers:
           - url: "http://cosmos-script-runner-api:2902"
     # The Minio S3 file server
     service-minio:
       loadBalancer:
+        passHostHeader: false
         servers:
           - url: "http://cosmos-minio:9000"
 # Declare the routes are currently coming from this file, not dynamically

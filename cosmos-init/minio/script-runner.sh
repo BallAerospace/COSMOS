@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+mc --version
+
 # Use mc admin policy to create canned policies. Server provides a default set
 # of canned policies namely writeonly, readonly and readwrite (these policies
 # apply to all resources on the server). These can be overridden by custom

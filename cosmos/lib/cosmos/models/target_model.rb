@@ -263,6 +263,8 @@ module Cosmos
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__DECOMLOG__#{@name}", scope: @scope)
       model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__REDUCER__#{@name}", scope: @scope)
+      model.destroy if model
     end
 
     ##################################################

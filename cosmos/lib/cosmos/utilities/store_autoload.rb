@@ -88,10 +88,6 @@ module Cosmos
       end
     end
 
-    def get_tlm_values(items, scope: $cosmos_scope)
-      CvtModel.get_tlm_values(items, scope: scope)
-    end
-
     def get_cmd_item(target_name, packet_name, param_name, type: :WITH_UNITS, scope: $cosmos_scope)
       msg_id, msg_hash = read_topic_last("#{scope}__DECOMCMD__{#{target_name}}__#{packet_name}")
       if msg_id

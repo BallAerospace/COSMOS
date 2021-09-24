@@ -264,7 +264,7 @@ module Cosmos
         end
         authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       end
-      Store.instance.get_tlm_values(items, scope: scope)
+      CvtModel.get_tlm_values(items, scope: scope)
     end
 
     # Returns an array of all the telemetry packet hashes

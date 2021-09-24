@@ -91,6 +91,9 @@ Rails.application.routes.draw do
     match '/timeline/:name/activity/:id', to: 'activity#update', name: /[^\/]+/, id: /[^\/]+/, via: [:patch, :put]
     delete '/timeline/:name/activity/:id', to: 'activity#destroy', name: /[^\/]+/, id: /[^\/]+/
 
+    get '/storage/download/:object_id', to: 'storage#get_download_presigned_request', object_id: /[^\/]+/
+    get '/storage/upload/:object_id', to: 'storage#get_upload_presigned_request', object_id: /[^\/]+/
+
     # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
     post "/api" => "api#api"
     get "/auth/token-exists" => "auth#token_exists"

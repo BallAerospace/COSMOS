@@ -34,7 +34,7 @@ class ActivityController < ApplicationController
   # @return [String] the array of activities converted into json format.
   def index
     begin
-      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
@@ -122,7 +122,7 @@ class ActivityController < ApplicationController
   #```
   def count
     begin
-      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
@@ -150,7 +150,7 @@ class ActivityController < ApplicationController
   #```
   def show
     begin
-      authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
