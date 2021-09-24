@@ -30,6 +30,7 @@
           :parameters="widget.parameters"
           :settings="widget.settings"
           :widgets="widget.widgets"
+          :name="widget.name"
         />
       </v-col>
     </v-row>

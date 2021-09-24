@@ -12,7 +12,7 @@
     "test:components": "vue-cli-service test:components"
   },
   "dependencies": {
-    "@cosmosc2/tool-common": "~5.0.0",
+    "@cosmosc2/tool-common": "~5.0.1-beta.0",
     "actioncable": "5.2.5",
     "brace": "0.11.1",
     "date-fns": "2.19.0",

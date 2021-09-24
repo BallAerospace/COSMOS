@@ -93,3 +93,6 @@ VARIABLE templated_port 5025
     WORK_DIR .
     CMD ruby scpi_target.rb <%= templated_target_name %> <%= templated_port %>
 <% end %>
+
+WIDGET BIG
+WIDGET HELLOWORLD

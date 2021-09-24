@@ -38,7 +38,7 @@ case $1 in
     docker run --rm -v `pwd`:/cosmos/local -w /cosmos/local ballaerospace/cosmosc2-base ruby /cosmos/bin/cosmos $args
     ;;
   start )
-    scripts/linux/cosmos_setup.sh
+    ./cosmos-control.sh build
     docker-compose -f compose.yaml -f compose-build.yaml build
     docker-compose -f compose.yaml up -d
     ;;
@@ -53,6 +53,9 @@ case $1 in
     ;;
   build )
     scripts/linux/cosmos_setup.sh
+    cd cosmos-base && docker build -t ballaerospace/cosmosc2-base . && cd ..
+    cd cosmos-ruby && docker build -t ballaerospace/cosmosc2-ruby . && cd ..
+    cd cosmos-node && docker build -t ballaerospace/cosmosc2-node . && cd ..
     docker-compose -f compose.yaml -f compose-build.yaml build
     ;;
   run )

@@ -262,11 +262,24 @@ export default {
         if (keyword.includes('BUTTON')) {
           settings.push(['SCREEN', this])
         }
-        this.currentLayout.widgets.push({
-          type: componentName,
-          parameters: parameters,
-          settings: settings,
-        })
+        /* eslint-disable-next-line */
+        console.log(componentName)
+        if (Vue.options.components[componentName]) {
+          this.currentLayout.widgets.push({
+            type: componentName,
+            parameters: parameters,
+            settings: settings,
+          })
+        } else {
+          /* eslint-disable-next-line */
+          console.log("pushing dynamic widget")
+          this.currentLayout.widgets.push({
+            type: 'DynamicWidget',
+            parameters: parameters,
+            settings: settings,
+            name: componentName,
+          })
+        }
       }
     },
     applyGlobalSettings(widgets) {

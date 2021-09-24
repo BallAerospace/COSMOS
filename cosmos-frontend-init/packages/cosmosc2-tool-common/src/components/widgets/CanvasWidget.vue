@@ -26,6 +26,7 @@
       :parameters="widget.parameters"
       :settings="widget.settings"
       :widgets="widget.widgets"
+      :name="widget.name"
     />
   </svg>
 </template>

@@ -9,7 +9,6 @@ COPY ./cosmosc2-tool-base/*.json cosmosc2-tool-base/
 COPY ./packages/cosmosc2-tool-admin/*.json packages/cosmosc2-tool-admin/
 COPY ./packages/cosmosc2-tool-cmdsender/*.json packages/cosmosc2-tool-cmdsender/
 COPY ./packages/cosmosc2-tool-cmdtlmserver/*.json packages/cosmosc2-tool-cmdtlmserver/
-COPY ./packages/cosmosc2-tool-common/*.json packages/cosmosc2-tool-common/
 COPY ./packages/cosmosc2-tool-dataextractor/*.json packages/cosmosc2-tool-dataextractor/
 COPY ./packages/cosmosc2-tool-dataviewer/*.json packages/cosmosc2-tool-dataviewer/
 COPY ./packages/cosmosc2-tool-limitsmonitor/*.json packages/cosmosc2-tool-limitsmonitor/
@@ -18,6 +17,7 @@ COPY ./packages/cosmosc2-tool-scriptrunner/*.json packages/cosmosc2-tool-scriptr
 COPY ./packages/cosmosc2-tool-timeline/*.json packages/cosmosc2-tool-timeline/
 COPY ./packages/cosmosc2-tool-tlmgrapher/*.json packages/cosmosc2-tool-tlmgrapher/
 COPY ./packages/cosmosc2-tool-tlmviewer/*.json packages/cosmosc2-tool-tlmviewer/
+COPY ./packages/cosmosc2-tool-common/ packages/cosmosc2-tool-common/
 
 # This is a fix for a network issue with registry.yarnpkg.com, possibly caused by the Ball firewall.
 # Might resolve itself and allow this line to be removed in the future...
@@ -28,7 +28,6 @@ RUN yarn
 COPY ./docker-package-build.sh ./docker-package-install.sh ./babel.config.js ./.eslintrc.js ./.nycrc ./
 RUN chmod +x ./docker-package-build.sh ./docker-package-install.sh
 COPY ./cosmosc2-tool-base/ cosmosc2-tool-base/
-COPY ./packages/cosmosc2-tool-common/ packages/cosmosc2-tool-common/
 RUN ["/cosmos/plugins/docker-package-install.sh", "cosmosc2-tool-base"]
 
 # Build admin tool

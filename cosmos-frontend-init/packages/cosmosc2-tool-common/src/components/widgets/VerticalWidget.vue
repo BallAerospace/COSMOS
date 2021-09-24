@@ -27,6 +27,7 @@
       :parameters="widget.parameters"
       :settings="widget.settings"
       :widgets="widget.widgets"
+      :name="widget.name"
     />
   </div>
 </template>
@@ -35,5 +36,9 @@
 import Layout from './Layout'
 export default {
   mixins: [Layout],
+  mounted: function () {
+    /* eslint-disable-next-line */
+    console.log(this.widgets)
+  },
 }
 </script>

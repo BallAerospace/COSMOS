@@ -12,7 +12,7 @@
     "test:components": "vue-cli-service test:components"
   },
   "dependencies": {
-    "@cosmosc2/tool-common": "~5.0.0",
+    "@cosmosc2/tool-common": "~5.0.1-beta.0",
     "binary-search": "1.3.6",
     "lodash": "4.17.21",
     "muuri": "0.9.3",

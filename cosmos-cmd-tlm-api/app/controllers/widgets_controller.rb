@@ -1,4 +1,5 @@
-<!--
+# encoding: ascii-8bit
+
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,25 +16,11 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
 
-<template>
-  <div ref="container" class="d-flex flex-row">
-    <component
-      v-for="(widget, index) in widgets"
-      :key="index"
-      :is="widget.type"
-      :parameters="widget.parameters"
-      :settings="widget.settings"
-      :widgets="widget.widgets"
-      :name="widget.name"
-    />
-  </div>
-</template>
+require 'cosmos/models/widget_model'
 
-<script>
-import Layout from './Layout'
-export default {
-  mixins: [Layout],
-}
-</script>
+class WidgetsController < ModelController
+  def initialize
+    @model_class = Cosmos::WidgetModel
+  end
+end

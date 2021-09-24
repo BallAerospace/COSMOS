@@ -16,6 +16,9 @@ module.exports = {
       },
       public: 'localhost:2916/tools/tlmviewer',
     },
+    module: {
+      rules: [{ parser: { system: false } }],
+    },
   },
   chainWebpack(config) {
     config.module

@@ -12,4 +12,6 @@ COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} minio /cosmos/minio/
 COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} plugins /cosmos/plugins/
 COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} init.sh /cosmos/
 
+RUN cd /cosmos/plugins/cosmos-demo/ && rake build VERSION=5.0.0 --quiet
+
 CMD [ "/cosmos/init.sh" ]

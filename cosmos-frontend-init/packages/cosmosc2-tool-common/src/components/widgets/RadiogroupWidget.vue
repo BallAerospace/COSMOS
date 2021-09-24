@@ -30,6 +30,7 @@
       :is="widget.type"
       :parameters="widget.parameters"
       :settings="widget.settings"
+      :name="widget.name"
     />
   </v-radio-group>
 </template>

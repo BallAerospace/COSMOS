@@ -18,41 +18,35 @@
 -->
 
 <template>
-  <div>
-    <v-tabs v-model="curTab">
-      <v-tab v-for="(tab, index) in widgets" :key="index">
-        {{ tab.parameters[0] }}
-      </v-tab>
-    </v-tabs>
-    <v-tabs-items v-model="curTab">
-      <v-tab-item v-for="(tab, tabIndex) in widgets" :key="tabIndex">
-        <component
-          v-for="(widget, widgetIndex) in tab.widgets"
-          :key="`${tabIndex}-${widgetIndex}`"
-          :is="widget.type"
-          :parameters="widget.parameters"
-          :settings="widget.settings"
-          :widgets="widget.widgets"
-          :name="widget.name"
-        />
-      </v-tab-item>
-    </v-tabs-items>
-  </div>
+  <component :is="widgetType" v-bind="{ ...$props, ...$attrs }"></component>
 </template>
 
 <script>
-import Layout from './Layout'
 export default {
-  mixins: [Layout],
-  data: function () {
+  data() {
     return {
-      curTab: null,
+      widgetType: null,
     }
   },
-  watch: {
-    curTab: function () {
-      this.$emit('min-max-screen')
+  props: {
+    name: { default: null },
+  },
+  computed: {
+    url: function () {
+      let path =
+        window.location.origin + '/tools/widgets/' + this.name + '.umd.min.js'
+      /* eslint-disable-next-line */
+      console.log(path)
+      return path
     },
+  },
+  mounted() {
+    var self = this
+
+    /* eslint-disable-next-line */
+    System.import(/* webpackIgnore: true */ this.url).then(function (widget) {
+      self.widgetType = widget
+    })
   },
 }
 </script>

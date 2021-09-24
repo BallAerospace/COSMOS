@@ -210,52 +210,7 @@ module Cosmos
       rubys3_client = Aws::S3::Client.new
 
       # Ensure tools bucket exists
-      begin
-        rubys3_client.head_bucket(bucket: 'tools')
-      rescue Aws::S3::Errors::NotFound
-        rubys3_client.create_bucket(bucket: 'tools')
-
-        policy = <<~EOL
-          {
-            "Version": "2012-10-17",
-            "Statement": [
-              {
-                "Action": [
-                  "s3:GetBucketLocation",
-                  "s3:ListBucket"
-                ],
-                "Effect": "Allow",
-                "Principal": {
-                  "AWS": [
-                    "*"
-                  ]
-                },
-                "Resource": [
-                  "arn:aws:s3:::tools"
-                ],
-                "Sid": ""
-              },
-              {
-                "Action": [
-                  "s3:GetObject"
-                ],
-                "Effect": "Allow",
-                "Principal": {
-                  "AWS": [
-                    "*"
-                  ]
-                },
-                "Resource": [
-                  "arn:aws:s3:::tools/*"
-                ],
-                "Sid": ""
-              }
-            ]
-          }
-        EOL
-
-        rubys3_client.put_bucket_policy({ bucket: 'tools', policy: policy })
-      end
+      Cosmos::S3Utilities.ensure_public_bucket('tools')
 
       variables["tool_name"] = @name
       start_path = "/tools/#{@folder_name}/"

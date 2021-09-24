@@ -29,6 +29,7 @@ require 'cosmos/models/target_model'
 require 'cosmos/models/interface_model'
 require 'cosmos/models/router_model'
 require 'cosmos/models/tool_model'
+require 'cosmos/models/widget_model'
 require 'cosmos/models/microservice_model'
 require 'tmpdir'
 
@@ -135,7 +136,7 @@ module Cosmos
             case keyword
             when 'VARIABLE'
               # Ignore during phase 2
-            when 'TARGET', 'INTERFACE', 'ROUTER', 'MICROSERVICE', 'TOOL'
+            when 'TARGET', 'INTERFACE', 'ROUTER', 'MICROSERVICE', 'TOOL', 'WIDGET'
               if current_model
                 current_model.create
                 current_model.deploy(gem_path, variables)
@@ -190,7 +191,7 @@ module Cosmos
 
     # Undeploy all models associated with this plugin
     def undeploy
-      [ToolModel, TargetModel, InterfaceModel, RouterModel, MicroserviceModel].each do |model|
+      [ToolModel, TargetModel, InterfaceModel, RouterModel, MicroserviceModel, WidgetModel].each do |model|
         model.find_all_by_plugin(plugin: @name, scope: @scope).each do |name, model_instance|
           model_instance.destroy
         end
