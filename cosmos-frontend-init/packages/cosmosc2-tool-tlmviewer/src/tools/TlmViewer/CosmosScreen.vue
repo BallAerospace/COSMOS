@@ -45,7 +45,7 @@
             </div>
           </template>
           <span v-show="expand"> Minimize Screen </span>
-          <span v-show="!expand"> Minimize Screen </span>
+          <span v-show="!expand"> Maximize Screen </span>
         </v-tooltip>
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
@@ -110,7 +110,7 @@
         </v-toolbar>
         <v-card-text>
           <div v-show="inputType === 'file'">
-            <v-row class="mt-3"> Upload a the screen file. </v-row>
+            <v-row class="mt-3"> Upload the screen file. </v-row>
             <v-row>
               <v-file-input
                 v-model="file"
@@ -266,7 +266,10 @@ export default {
         return this.errors.toString()
       }
       if (this.currentDefinition === '' && !this.file) {
-        return 'input can not be blank.'
+        return 'Input can not be blank.'
+      }
+      if (this.currentDefinition === this.backup) {
+        return 'No changes have been made to save.'
       }
       return null
     },
