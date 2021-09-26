@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>COSMOS</title>
+
+  <link rel="stylesheet" href="/css/roboto.css" />
+  <link rel="stylesheet" href="/css/materialdesignicons-6.1.95.min.css" />
+  <link href="/css/vuetify-2.5.8.min.css" rel="stylesheet" />
+  <!-- COSMOSEE KEYCLOAK PLACEHOLDER -->
+
+  <!--
+    Remove this if you only support browsers that support async/await.
+    This is needed by babel to share largeish helper code for compiling async/await in older
+    browsers. More information at https://github.com/single-spa/create-single-spa/issues/112
+  -->
+  <script src="/js/runtime-0.13.9.min.js"></script>
+  <!--
+    This CSP allows any SSL-enabled host and for arbitrary eval(), but you should limit these directives further to increase your app's security.
+    Learn more about CSP policies at https://content-security-policy.com/#directive
+  -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self' blob: data: https: http://localhost:* http://host.docker.internal:*; script-src 'unsafe-inline' 'unsafe-eval' https: blob: http://localhost:* http://host.docker.internal:*; connect-src blob: https: wss: http://localhost:* http://host.docker.internal:* ws://localhost:* ws://host.docker.internal:*; style-src 'unsafe-inline' https: http://localhost:* http://host.docker.internal:*; object-src 'none';">
+
+  <meta name="importmap-type" content="systemjs-importmap" />
+  <!-- If you wish to turn off import-map-overrides for specific environments (prod), uncomment the line below -->
+  <!-- More info at https://github.com/joeldenning/import-map-overrides/blob/master/docs/configuration.md#domain-list -->
+  <!-- <meta name="import-map-overrides-domains" content="denylist:prod.example.com" /> -->
+
+  <!-- Shared dependencies go into this import map. Your shared dependencies must be of one of the following formats:
+
+    1. System.register (preferred when possible) - https://github.com/systemjs/systemjs/blob/master/docs/system-register.md
+    2. UMD - https://github.com/umdjs/umd
+    3. Global variable
+
+    More information about shared dependencies can be found at https://single-spa.js.org/docs/recommended-setup#sharing-with-import-maps.
+  -->
+  <script type="systemjs-importmap">
+    {
+      "imports": {
+        "single-spa": "/js/single-spa-5.9.3.min.js",
+        "vue": "/js/vue-2.6.14.min.js",
+        "vuetify": "/js/vuetify-2.5.8.min.js",
+        "portal-vue": "/js/portal-vue-2.1.7.umd.min.js",
+        "vue-router": "/js/vue-router-3.5.2.min.js",
+        "vuejs-dialog": "/js/vuejs-dialog-1.4.2.min.js",
+        "vuex": "/js/vuex-3.6.2.min.js",
+        "cosmosc2-tool-base": "/cosmosc2-tool-base.js"
+      }
+    }
+  </script>
+  <link rel="preload" href="/js/single-spa-5.9.3.min.js" as="script" />
+  <link rel="preload" href="/js/vue-2.6.14.min.js" as="script" />
+  <link rel="preload" href="/js/vuetify-2.5.8.min.js" as="script" />
+  <link rel="preload" href="/js/portal-vue-2.1.7.umd.min.js" as="script" />
+  <link rel="preload" href="/js/vue-router-3.5.2.min.js" as="script" />
+  <link rel="preload" href="/js/vuejs-dialog-1.4.2.min.js" as="script" />
+  <link rel="preload" href="/js/vuex-3.6.2.min.js" as="script" />
+  <script type="systemjs-importmap" src="/cosmos-api/map.json"></script>
+  <script src="/js/import-map-overrides-2.4.1.js"></script>
+  <script src="/js/system-6.10.3.min.js"></script>
+  <script src="/js/amd-6.10.3.min.js"></script>
+  <script src="/js/named-exports-6.10.3.min.js"></script>
+  <script src="/js/named-register-6.10.3.min.js"></script>
+  <script src="/js/use-default-6.10.3.min.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/authConstants.js"></script>
+</head>
+
+<body>
+  <div id="cosmos-main"></div>
+  <import-map-overrides-full show-when-local-storage="devtools"></import-map-overrides-full>
+  <script>
+  (function() {
+    Promise.all([
+      System.import('single-spa'),
+      System.import('vue'),
+      System.import('vuetify'),
+      System.import('portal-vue'),
+      System.import('vue-router'),
+      System.import('vuejs-dialog'),
+      System.import('vuex'),
+    ]).then(function (modules) {
+      System.import('cosmosc2-tool-base')
+    })
+  })()
+  </script>
+</body>
+
+</html>

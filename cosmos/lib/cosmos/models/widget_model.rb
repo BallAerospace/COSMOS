@@ -26,6 +26,7 @@ module Cosmos
     PRIMARY_KEY = 'cosmos_widgets'
 
     attr_accessor :name
+    attr_accessor :full_name
     attr_accessor :filename
     attr_accessor :s3_key
 
@@ -80,8 +81,9 @@ module Cosmos
       scope:
     )
       super("#{scope}__#{PRIMARY_KEY}", name: name, plugin: plugin, updated_at: updated_at, scope: scope)
-      @filename = @name.capitalize + 'Widget.umd.min.js'
-      @s3_key = 'widgets/' + @filename
+      @full_name = @name.capitalize + 'Widget'
+      @filename = @full_name + '.umd.min.js'
+      @s3_key = 'widgets/' + @full_name + '/' + @filename
     end
 
     def as_json
@@ -107,7 +109,7 @@ module Cosmos
       # Ensure tools bucket exists
       Cosmos::S3Utilities.ensure_public_bucket('tools')
 
-      filename = gem_path + "/tools/widgets/" + @filename
+      filename = gem_path + "/tools/widgets/" + @full_name + '/' + @filename
 
       # Load widget file
       data = File.read(filename, mode: "rb")

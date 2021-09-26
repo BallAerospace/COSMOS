@@ -1,0 +1,50 @@
+{
+  "name": "@cosmosc2/tool-scriptrunner",
+  "version": "5.0.1",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "test:unit": "vue-cli-service test:unit",
+    "lint": "vue-cli-service lint",
+    "serve:standalone": "vue-cli-service serve --mode standalone",
+    "test": "jest --config=./jest.config.js --coverage --ci --reporters=default --reporters=jest-junit",
+    "test:components": "vue-cli-service test:components"
+  },
+  "resolutions": {
+    "acorn": "npm:acorn-with-stage3"
+  },
+  "dependencies": {
+    "@cosmosc2/tool-common": "5.0.1",
+    "actioncable": "5.2.6",
+    "brace": "0.11.1",
+    "date-fns": "2.24.0",
+    "lodash": "4.17.21",
+    "axios": "0.21.4",
+    "portal-vue": "2.1.7",
+    "single-spa-vue": "2.5.1",
+    "sprintf-js": "1.1.2",
+    "systemjs-webpack-interop": "2.3.7",
+    "vue": "2.6.14",
+    "vue-multipane": "0.9.5",
+    "vue-router": "3.5.2",
+    "vuejs-dialog": "1.4.2",
+    "vuetify": "2.5.8",
+    "vuex": "3.6.2"
+  },
+  "devDependencies": {
+    "@vue/cli": "4.5.13",
+    "@vue/babel-preset-app": "4.5.13",
+    "@vue/cli-plugin-babel": "4.5.13",
+    "@vue/cli-plugin-eslint": "4.5.13",
+    "@vue/cli-plugin-router": "4.5.13",
+    "@vue/cli-plugin-unit-jest": "4.5.13",
+    "@vue/cli-plugin-vuex": "4.5.13",
+    "@vue/cli-service": "4.5.13",
+    "@vue/eslint-config-prettier": "6.0.0",
+    "@vue/test-utils": "1.2.2",
+    "vue-cli-plugin-single-spa": "3.1.2",
+    "vue-cli-plugin-vuetify": "2.4.2",
+    "vue-template-compiler": "2.6.14"
+  }
+}
