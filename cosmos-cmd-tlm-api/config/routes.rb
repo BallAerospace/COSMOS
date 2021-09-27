@@ -62,6 +62,11 @@ Rails.application.routes.draw do
     match '/roles/:id', to: 'roles#update', id: /[^\/]+/, via: [:patch, :put]
     delete '/roles/:id', to: 'roles#destroy', id: /[^\/]+/
 
+    resources :widgets, only: [:index, :create]
+    get '/widgets/:id', to: 'widgets#show', id: /[^\/]+/
+    match '/widgets/:id', to: 'widgets#update', id: /[^\/]+/, via: [:patch, :put]
+    delete '/widgets/:id', to: 'widgets#destroy', id: /[^\/]+/
+
     resources :permissions, only: [:index]
 
     post '/plugins/install/:id', to: 'plugins#install', id: /[^\/]+/

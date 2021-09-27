@@ -51,8 +51,7 @@ if "%1" == "util" (
 GOTO usage
 
 :startup
-  CALL scripts/windows/cosmos_setup
-  docker-compose -f compose.yaml -f compose-build.yaml build
+  CALL cosmos-control build
   docker-compose -f compose.yaml up -d
   @echo off
 GOTO :EOF
@@ -74,6 +73,9 @@ GOTO :EOF
 
 :build
   CALL scripts/windows/cosmos_setup
+  cd cosmos && docker build -t ballaerospace/cosmosc2-base . && cd ..
+  cd cosmos-ruby && docker build -t ballaerospace/cosmosc2-ruby . && cd ..
+  cd cosmos-node && docker build -t ballaerospace/cosmosc2-node . && cd ..
   docker-compose -f compose.yaml -f compose-build.yaml build
   @echo off
 GOTO :EOF

@@ -79,5 +79,55 @@ module Cosmos
         Logger.error("Error saving log file to bucket: #{filename}\n#{err.formatted}")
       end
     end
+
+    def self.ensure_public_bucket(bucket_name)
+      rubys3_client = Aws::S3::Client.new
+      begin
+        rubys3_client.head_bucket(bucket: bucket_name)
+      rescue Aws::S3::Errors::NotFound
+        rubys3_client.create_bucket(bucket: bucket_name)
+
+        policy = <<~EOL
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Action": [
+                  "s3:GetBucketLocation",
+                  "s3:ListBucket"
+                ],
+                "Effect": "Allow",
+                "Principal": {
+                  "AWS": [
+                    "*"
+                  ]
+                },
+                "Resource": [
+                  "arn:aws:s3:::#{bucket_name}"
+                ],
+                "Sid": ""
+              },
+              {
+                "Action": [
+                  "s3:GetObject"
+                ],
+                "Effect": "Allow",
+                "Principal": {
+                  "AWS": [
+                    "*"
+                  ]
+                },
+                "Resource": [
+                  "arn:aws:s3:::#{bucket_name}/*"
+                ],
+                "Sid": ""
+              }
+            ]
+          }
+        EOL
+
+        rubys3_client.put_bucket_policy({ bucket: bucket_name, policy: policy })
+      end
+    end
   end
 end
