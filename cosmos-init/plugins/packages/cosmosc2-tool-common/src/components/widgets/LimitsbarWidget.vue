@@ -44,6 +44,9 @@ export default {
     return {
       width: '100%', // users will override with px
       height: 20, // px
+      minValue: null,
+      maxValue: null,
+      scale: 0,
       redLow: 0,
       yellowLow: 0,
       greenLow: 0,
@@ -61,14 +64,15 @@ export default {
     cssProps() {
       const value = this.$store.state.tlmViewerValues[this.valueId][0]
       // TODO: Pass the current limits set
-      this.calcLimits(this.limitsSettings.DEFAULT)
+      let limits = this.modifyLimits(this.limitsSettings.DEFAULT)
+      this.calcLimits(limits)
       return {
         '--height': this.height + 'px',
         '--width': this.width,
         '--container-height': this.height - 5 + 'px',
         '--position':
           // TODO: Pass the current limits set
-          this.calcPosition(value, this.limitsSettings.DEFAULT) + '%',
+          this.calcPosition(value, limits) + '%',
         '--redlow-width': this.redLow + '%',
         '--redhigh-width': this.redHigh + '%',
         '--yellowlow-width': this.yellowLow + '%',
@@ -86,6 +90,15 @@ export default {
       .then((data) => {
         this.limitsSettings = data
       })
+
+    this.settings.forEach((setting) => {
+      if (setting[0] === 'MIN_VALUE') {
+        this.minValue = parseInt(setting[1])
+      }
+      if (setting[0] === 'MAX_VALUE') {
+        this.maxValue = parseInt(setting[1])
+      }
+    })
 
     let type = 'CONVERTED'
     if (this.parameters[3]) {
@@ -106,20 +119,88 @@ export default {
     this.$store.commit('tlmViewerDeleteItem', this.valueId)
   },
   methods: {
+    modifyLimits(limitsSettings) {
+      // By default the red bars take 10% of the display
+      this.redLow = 10
+      this.redHigh = 10
+
+      // Modify values to respect the user defined minimum
+      if (this.minValue) {
+        if (limitsSettings[0] <= this.minValue) {
+          limitsSettings[0] = this.minValue
+          // No red low will be displayed
+          this.redLow = 0
+        }
+        if (limitsSettings[1] <= this.minValue) {
+          limitsSettings[1] = this.minValue
+        }
+        if (limitsSettings[2] <= this.minValue) {
+          limitsSettings[2] = this.minValue
+        }
+        if (limitsSettings[3] <= this.minValue) {
+          limitsSettings[3] = this.minValue
+        }
+        if (limitsSettings.length > 4 && limitsSettings[4] <= this.minValue) {
+          limitsSettings[4] = this.minValue
+        }
+        if (limitsSettings.length > 4 && limitsSettings[5] <= this.minValue) {
+          limitsSettings[5] = this.minValue
+        }
+      }
+      if (this.maxValue) {
+        if (limitsSettings[0] >= this.maxValue) {
+          limitsSettings[0] = this.maxValue
+        }
+        if (limitsSettings[1] >= this.maxValue) {
+          limitsSettings[1] = this.maxValue
+        }
+        if (limitsSettings[2] >= this.maxValue) {
+          limitsSettings[2] = this.maxValue
+        }
+        if (limitsSettings[3] >= this.maxValue) {
+          limitsSettings[3] = this.maxValue
+          // No red high will be displayed
+          this.redHigh = 0
+        }
+        if (limitsSettings.length > 4 && limitsSettings[4] >= this.maxValue) {
+          limitsSettings[4] = this.maxValue
+        }
+        if (limitsSettings.length > 4 && limitsSettings[5] >= this.maxValue) {
+          limitsSettings[5] = this.maxValue
+        }
+      }
+      // If the red low matches yellow low there is no red low
+      if (limitsSettings[0] == limitsSettings[1]) {
+        this.redLow = 0
+      }
+      // If the red high matches yellow high there is no red high
+      if (limitsSettings[2] == limitsSettings[3]) {
+        this.redHigh = 0
+      }
+
+      let divisor = 80
+      if (this.redLow == 0) {
+        divisor += 10
+      }
+      if (this.redHigh == 0) {
+        divisor += 10
+      }
+      this.scale = (limitsSettings[3] - limitsSettings[0]) / divisor
+
+      return limitsSettings
+    },
     calcPosition(value, limitsSettings) {
       if (!value || !limitsSettings) {
         return
       }
-      let divisor = 0.8
-      if (limitsSettings[0] === limitsSettings[1]) {
-        divisor += 0.1
+      let lowValue = limitsSettings[0] - 10 * this.scale
+      if (this.minValue && this.minValue == limitsSettings[0]) {
+        lowValue = limitsSettings[0]
       }
-      if (limitsSettings[2] === limitsSettings[3]) {
-        divisor += 0.1
+      let highValue = limitsSettings[3] - 10 * this.scale
+      if (this.maxValue && this.maxValue == limitsSettings[3]) {
+        highValue = limitsSettings[3]
       }
-      const scale = (limitsSettings[3] - limitsSettings[0]) / divisor
-      const lowValue = limitsSettings[0] - 0.1 * scale
-      const highValue = limitsSettings[3] - 0.1 * scale
 
       if (value.raw) {
         if (value.raw === '-Infinity') {
@@ -134,7 +215,7 @@ export default {
       } else if (value > this.max) {
         return 100
       } else {
-        const result = parseInt(((value - lowValue) / scale) * 100.0)
+        const result = parseInt((value - lowValue) / this.scale)
         if (result > 100) {
           return 100
         } else if (result < 0) {
@@ -148,32 +229,19 @@ export default {
       if (!limitsSettings) {
         return
       }
-      let scale = 80
-      if (limitsSettings[0] === limitsSettings[1]) {
-        this.redLow = 0
-        scale += 10
-      } else {
-        this.redLow = 10
-      }
-      if (limitsSettings[2] === limitsSettings[3]) {
-        this.redHigh = 0
-        scale += 10
-      } else {
-        this.redHigh = 10
-      }
-      const range = 1.0 * (limitsSettings[3] - limitsSettings[0])
+
       this.yellowLow = Math.round(
-        ((limitsSettings[1] - limitsSettings[0]) / range) * scale
+        (limitsSettings[1] - limitsSettings[0]) / this.scale
       )
       this.yellowHigh = Math.round(
-        ((limitsSettings[3] - limitsSettings[2]) / range) * scale
+        (limitsSettings[3] - limitsSettings[2]) / this.scale
       )
       if (limitsSettings.length > 4) {
         this.greenLow = Math.round(
-          ((limitsSettings[4] - limitsSettings[1]) / range) * scale
+          (limitsSettings[4] - limitsSettings[1]) / this.scale
         )
         this.greenHigh = Math.round(
-          ((limitsSettings[2] - limitsSettings[5]) / range) * scale
+          (limitsSettings[2] - limitsSettings[5]) / this.scale
         )
         this.blue = Math.round(
           100 -
