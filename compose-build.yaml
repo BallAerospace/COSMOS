@@ -65,15 +65,9 @@ services:
     build:
       context: "cosmos-traefik"
 
-  cosmos-frontend-init:
-    build:
-      context: "cosmos-frontend-init"
-    depends_on:
-      - "cosmos-node"
-      - "cosmos-base"
-
   cosmos-init:
     build:
       context: "cosmos-init"
     depends_on:
+      - "cosmos-node"
       - "cosmos-base"

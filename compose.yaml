@@ -76,16 +76,6 @@ services:
       - "cosmos-redis"
       - "cosmos-minio"
 
-  cosmos-frontend-init:
-    image: "ballaerospace/cosmosc2-frontend-init:${COSMOS_TAG}"
-    restart: on-failure
-    depends_on:
-      - "cosmos-traefik"
-      - "cosmos-redis"
-      - "cosmos-minio"
-    env_file:
-      - ".env"
-
   cosmos-init:
     image: "ballaerospace/cosmosc2-init:${COSMOS_TAG}"
     restart: on-failure
