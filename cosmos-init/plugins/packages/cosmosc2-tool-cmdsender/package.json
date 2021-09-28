@@ -17,6 +17,7 @@
   "dependencies": {
     "@cosmosc2/tool-common": "5.0.1",
     "axios": "0.21.4",
+    "date-fns": "2.24.0",
     "portal-vue": "2.1.7",
     "single-spa-vue": "2.5.1",
     "sprintf-js": "1.1.2",
@@ -38,8 +39,20 @@
     "@vue/cli-service": "4.5.13",
     "@vue/eslint-config-prettier": "6.0.0",
     "@vue/test-utils": "1.2.2",
+    "babel-eslint": "10.1.0",
+    "babel-loader": "8.2.2",
+    "babel-plugin-istanbul": "6.0.0",
+    "eslint": "7.32.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "eslint-plugin-vue": "7.18.0",
+    "jest-junit": "12.3.0",
+    "prettier": "2.4.1",
+    "sass": "1.42.1",
+    "sass-loader": "10.2.0",
     "vue-cli-plugin-single-spa": "3.1.2",
     "vue-cli-plugin-vuetify": "2.4.2",
-    "vue-template-compiler": "2.6.14"
+    "vue-template-compiler": "2.6.14",
+    "webpack": "4.46.0"
   }
 }

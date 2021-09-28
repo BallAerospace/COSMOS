@@ -3,21 +3,5 @@
   "private": true,
   "workspaces": [
     "packages/*"
-  ],
-  "devDependencies": {
-    "@vue/eslint-config-prettier": "6.0.0",
-    "date-fns": "2.24.0",
-    "babel-eslint": "10.1.0",
-    "babel-loader": "8.2.2",
-    "babel-plugin-istanbul": "6.0.0",
-    "eslint": "7.32.0",
-    "eslint-config-prettier": "8.3.0",
-    "eslint-plugin-prettier": "4.0.0",
-    "eslint-plugin-vue": "7.18.0",
-    "jest-junit": "12.3.0",
-    "prettier": "2.4.1",
-    "sass": "1.42.1",
-    "sass-loader": "10.2.0",
-    "webpack": "4.46.0"
-  }
+  ]
 }
