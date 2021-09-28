@@ -17,6 +17,8 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+# For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+
 Rails.application.routes.draw do
   scope "cosmos-api" do
     resources :routers, only: [:index, :create]
@@ -94,17 +96,20 @@ Rails.application.routes.draw do
     get '/storage/download/:object_id', to: 'storage#get_download_presigned_request', object_id: /[^\/]+/
     get '/storage/upload/:object_id', to: 'storage#get_upload_presigned_request', object_id: /[^\/]+/
 
-    # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
-    post "/api" => "api#api"
-    get "/auth/token-exists" => "auth#token_exists"
-    post "/auth/verify" => "auth#verify"
-    post "/auth/set" => "auth#set"
     get "/screen/:target" => "api#screens"
     get "/screen/:target/:screen" => "api#screen"
     post "/screen" => "api#screen_save"
+
+    post "/api" => "api#api"
+
+    get "/auth/token-exists" => "auth#token_exists"
+    post "/auth/verify" => "auth#verify"
+    post "/auth/set" => "auth#set"
+
     get "/internal/health" => "internal_health#health"
     get "/internal/metrics" => "internal_metrics#index"
     get "/internal/status" => "internal_status#status"
+
     get "/time" => "time#get_current"
     get "map.json" => "tools#importmap"
   end

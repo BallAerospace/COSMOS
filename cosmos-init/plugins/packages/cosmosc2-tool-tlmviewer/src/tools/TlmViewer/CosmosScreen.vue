@@ -67,18 +67,12 @@
         </div>
       </v-expand-transition>
     </v-card>
+
     <v-dialog v-model="editDialog" width="600">
       <v-card>
         <v-toolbar>
           <v-toolbar-title>Edit Screen: {{ target }} {{ screen }}</v-toolbar-title>
           <v-spacer />
-          <div v-show="inputType === 'file'">
-            <v-progress-circular
-              class="mx-2"
-              :indeterminate="readingFile"
-              color="primary"
-            />
-          </div>
           <div class="mx-2">
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
@@ -91,68 +85,52 @@
               <span> Download Screen </span>
             </v-tooltip>
           </div>
-          <v-menu bottom right>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn data-test="czml-change-type" outlined v-bind="attrs" v-on="on">
-                <span v-text="inputTypeToLabel[inputType]" />
-                <v-icon right> mdi-menu-down </v-icon>
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item @click="inputType = 'txt'" data-test="typeTxt">
-                <v-list-item-title v-text="inputTypeToLabel['txt']" />
-              </v-list-item>
-              <v-list-item @click="inputType = 'file'" data-test="typeFile">
-                <v-list-item-title v-text="inputTypeToLabel['file']" />
-              </v-list-item>
-            </v-list>
-          </v-menu>
         </v-toolbar>
         <v-card-text>
-          <div v-show="inputType === 'file'">
-            <v-row class="mt-3"> Upload the screen file. </v-row>
-            <v-row>
-              <v-file-input
-                v-model="file"
-                truncate-length="15"
-                accept=".txt"
-              />
-            </v-row>
-          </div>
-          <div v-show="inputType !== 'file'">
-            <v-row>
-              <v-textarea
-                v-model="currentDefinition"
-                rows="12"
-                :rules="[rules.required]" 
-                data-test="screenTextInput"
-              />
-            </v-row>
-          </div>
-          <v-row class="my-3">
-            <span class="red--text" v-show="error" v-text="error" />
-          </v-row>
-          <v-row>
-            <div v-show="inputType !== 'file'">
+          <v-row class="mt-3"> Upload a screen file. </v-row>
+          <v-row no-gutters align="center">
+            <v-col cols="3">
               <v-btn
-                color="success"
-                @click="saveEdit"
-                :disabled="!!error"
-                data-test="editScreenSubmitBtn"
-              >
-                Save
-              </v-btn>
-            </div>
-            <div v-show="inputType === 'file'">
-              <v-btn
+                block
                 color="success"
                 @click="loadFile"
-                :disabled="!!error"
+                :disabled="!file"
+                :loading="loading"
                 data-test="editScreenLoadBtn"
               >
                 Load
               </v-btn>
-            </div>
+           </v-col>
+            <v-col cols="9">
+              <v-file-input
+                v-model="file"
+                truncate-length="15"
+                accept=".txt"
+                label="Click to select .txt screen file."
+              />
+            </v-col>
+          </v-row>
+          <v-row> Edit the screen definition. </v-row>
+          <v-row no-gutters>
+            <v-textarea
+              v-model="currentDefinition"
+              rows="12"
+              :rules="[rules.required]" 
+              data-test="screenTextInput"
+            />
+          </v-row>
+          <v-row class="my-3">
+            <span class="red--text" v-show="error" v-text="error" />
+          </v-row>
+          <v-row>
+            <v-btn
+              color="success"
+              @click="saveEdit"
+              :disabled="!!error"
+              data-test="editScreenSubmitBtn"
+            >
+              Save
+            </v-btn>
             <v-spacer />
             <v-btn
               color="primary"
@@ -232,13 +210,8 @@ export default {
         required: (value) => !!value || 'Required',
       },
       api: null,
-      readingFile: false,
+      loading: false,
       file: null,
-      inputType: 'txt',
-      inputTypeToLabel: {
-        txt: 'TXT',
-        file: 'FILE',
-      },
       currentDefinition: this.definition,
       backup: '',
       editDialog: false,
@@ -402,10 +375,10 @@ export default {
     loadFile: function () {
       const fileReader = new FileReader()
       fileReader.readAsText(this.file)
-      this.readingFile = true
+      this.loading = true
       const that = this
       fileReader.onload = function () {
-        that.readingFile = false
+        that.loading = false
         that.currentDefinition = fileReader.result
         that.inputType = 'txt'
         that.file = null
