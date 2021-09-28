@@ -53,9 +53,9 @@ case $1 in
     ;;
   build )
     scripts/linux/cosmos_setup.sh
-    cd cosmos-base && docker build -t ballaerospace/cosmosc2-base . && cd ..
-    cd cosmos-ruby && docker build -t ballaerospace/cosmosc2-ruby . && cd ..
-    cd cosmos-node && docker build -t ballaerospace/cosmosc2-node . && cd ..
+    docker-compose -f compose.yaml -f compose-build.yaml build cosmos-ruby
+    docker-compose -f compose.yaml -f compose-build.yaml build cosmos-base
+    docker-compose -f compose.yaml -f compose-build.yaml build cosmos-node
     docker-compose -f compose.yaml -f compose-build.yaml build
     ;;
   run )
