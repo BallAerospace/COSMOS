@@ -19,19 +19,30 @@
 
 <template>
   <div>
-    <v-row no-gutters align="center">
-      <v-col cols="4">
-        <v-file-input
-          v-model="file"
-          show-size
-          label="Click to Select .gem file to add to internal gem server"
-        />
-      </v-col>
-      <v-col cols="1" class="pl-2">
-        <v-btn color="primary" class="mr-4" @click="upload()">
+    <v-row no-gutters align="center" style="padding-left: 10px">
+      <v-col cols="3">
+        <v-btn
+          block
+          color="primary"
+          data-test="gemUpload"
+          :disabled="!file"
+          :loading="loading"
+          @click="upload"
+        >
           Upload
           <v-icon right dark>mdi-cloud-upload</v-icon>
         </v-btn>
+      </v-col>
+      <v-col cols="9">
+        <div class="px-4">
+          <v-file-input
+            show-size
+            v-model="file"
+            ref="fileInput"
+            accept=".gem"
+            label="Click to Select .gem file to add to internal gem server"
+          />
+        </div>
       </v-col>
     </v-row>
     <v-list data-test="gemList">
@@ -56,9 +67,8 @@
       v-model="showAlert"
       dismissible
       transition="scale-transition"
-    >
-      {{ alert }}
-    </v-alert>
+      v-text="alert"
+    />
   </div>
 </template>
 
@@ -69,6 +79,7 @@ export default {
   data() {
     return {
       file: null,
+      loading: false,
       gems: [],
       alert: '',
       alertType: 'success',
@@ -94,35 +105,29 @@ export default {
         })
     },
     upload() {
-      if (this.file !== null) {
-        let formData = new FormData()
-        formData.append('gem', this.file, this.file.name)
-        Api.post('/cosmos-api/gems', { data: formData })
-          .then((response) => {
-            this.alert = 'Uploaded gem ' + this.file.name
-            this.alertType = 'success'
-            this.showAlert = true
-            setTimeout(() => {
-              this.showAlert = false
-            }, 5000)
-            this.update()
-          })
-          .catch((error) => {
-            this.alert = error
-            this.alertType = 'error'
-            this.showAlert = true
-            setTimeout(() => {
-              this.showAlert = false
-            }, 5000)
-          })
-      } else {
-        this.alert = 'Please Select A Gem File'
-        this.alertType = 'warning'
-        this.showAlert = true
-        setTimeout(() => {
-          this.showAlert = false
-        }, 5000)
-      }
+      this.loading = true
+      let formData = new FormData()
+      formData.append('gem', this.file, this.file.name)
+      Api.post('/cosmos-api/gems', { data: formData })
+        .then((response) => {
+          this.alert = 'Uploaded gem ' + this.file.name
+          this.alertType = 'success'
+          this.showAlert = true
+          this.file = null
+          setTimeout(() => {
+            this.showAlert = false
+          }, 5000)
+          this.update()
+        })
+        .catch((error) => {
+          this.alert = error
+          this.alertType = 'error'
+          this.showAlert = true
+          setTimeout(() => {
+            this.showAlert = false
+          }, 5000)
+        })
+      this.loading = false
     },
     deleteGem(gem) {
       var self = this

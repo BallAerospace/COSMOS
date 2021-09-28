@@ -19,20 +19,30 @@
 
 <template>
   <div>
-    <v-row no-gutters align="center">
-      <v-col cols="4">
-        <v-file-input
-          ref="fileInput"
-          v-model="file"
-          show-size
-          label="Click to Select Plugin .gem File"
-        />
-      </v-col>
-      <v-col cols="1" class="pl-2">
-        <v-btn color="primary" class="mr-4" @click="upload()">
+    <v-row no-gutters align="center" style="padding-left: 10px">
+      <v-col cols="3">
+        <v-btn
+          block
+          color="primary"
+          data-test="pluginUpload"
+          :disabled="!file"
+          :loading="loading"
+          @click="upload()"
+        >
           Upload
           <v-icon right dark>mdi-cloud-upload</v-icon>
         </v-btn>
+      </v-col>
+      <v-col cols="9">
+        <div class="px-4">
+          <v-file-input
+            show-size
+            v-model="file"
+            ref="fileInput"
+            accept=".gem"
+            label="Click to Select Plugin .gem File"
+          />
+        </div>
       </v-col>
     </v-row>
     <!-- TODO This alert shows both success and failure. Make consistent with rest of COSMOS. -->
@@ -82,13 +92,12 @@
       </v-list-item>
     </v-list>
     <v-alert
-      :type="alertType"
-      v-model="showAlert"
       dismissible
       transition="scale-transition"
-    >
-      {{ alert }}
-    </v-alert>
+      :type="alertType"
+      v-model="showAlert"
+      v-text="alert"
+    />
     <variables-dialog
       :variables="variables"
       v-model="showVariables"
@@ -96,8 +105,8 @@
       @submit="variablesCallback"
     />
     <edit-dialog
-      :content="json_content"
       title="Plugin Details"
+      :content="json_content"
       :readonly="true"
       v-model="showDialog"
       v-if="showDialog"
@@ -110,11 +119,16 @@
 import Api from '@cosmosc2/tool-common/src/services/api'
 import VariablesDialog from '@/tools/CosmosAdmin/VariablesDialog'
 import EditDialog from '@/tools/CosmosAdmin/EditDialog'
+
 export default {
-  components: { VariablesDialog, EditDialog },
+  components: {
+    VariablesDialog,
+    EditDialog
+  },
   data() {
     return {
       file: null,
+      loading: false,
       plugins: [],
       alert: '',
       alertType: 'success',
@@ -143,42 +157,32 @@ export default {
         })
     },
     upload(existing = null) {
-      let method = 'post'
-      let path = '/cosmos-api/plugins'
-      if (existing != null) {
-        method = 'put'
-        path = '/cosmos-api/plugins/' + existing
-      }
-      if (this.file !== null) {
-        let formData = new FormData()
-        formData.append('plugin', this.file, this.file.name)
-        Api[method](path, { data: formData })
-          .then((response) => {
-            this.alert = 'Uploaded file ' + this.file.name
-            this.alertType = 'success'
-            this.showAlert = true
-            setTimeout(() => {
-              this.showAlert = false
-            }, 5000)
-            this.update()
-            //console.log(response.data.variables)
-            this.pluginId = this.file.name
-            this.variables = response.data.variables
-            this.showVariables = true
-          })
-          .catch((error) => {
-            this.alert = error
-            this.alertType = 'error'
-            this.showAlert = true
-          })
-      } else {
-        this.alert = 'Please Select A Plugin File'
-        this.alertType = 'warning'
-        this.showAlert = true
-        setTimeout(() => {
-          this.showAlert = false
-        }, 5000)
-      }
+      const method = (existing) ? 'put' : 'post'
+      const path = (existing) ? `/cosmos-api/plugins/${existing}` : '/cosmos-api/plugins'
+      this.loading = true
+      let formData = new FormData()
+      formData.append('plugin', this.file, this.file.name)
+      Api[method](path, { data: formData })
+        .then((response) => {
+          this.alert = 'Uploaded file ' + this.file.name
+          this.alertType = 'success'
+          this.showAlert = true
+          setTimeout(() => {
+            this.showAlert = false
+          }, 5000)
+          this.update()
+          //console.log(response.data.variables)
+          this.pluginId = this.file.name
+          this.variables = response.data.variables
+          this.showVariables = true
+          this.file = null
+        })
+        .catch((error) => {
+          this.alert = error
+          this.alertType = 'error'
+          this.showAlert = true
+        })
+      this.loading = false
     },
     variablesCallback(updated_variables) {
       this.showVariables = false

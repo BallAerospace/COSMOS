@@ -21,19 +21,25 @@
   <div>
     <v-row no-gutters align="center" style="padding-left: 10px">
       <v-col cols="3">
-        <v-text-field v-model="name" label="Tool Name" />
-      </v-col>
-      <v-col cols="2">
-        <v-text-field v-model="icon" label="Tool Icon" />
+        <v-btn
+          block
+          color="primary"
+          data-test="toolAdd"
+          @click="add()"
+          :disabled="!name || !url || !icon"
+        >
+          Add
+          <v-icon right dark v-text="icon" />
+        </v-btn>
       </v-col>
       <v-col cols="3">
-        <v-text-field v-model="url" label="Tool Url" />
+        <v-text-field v-model="icon" label="Tool Icon" class="px-2" />
       </v-col>
-      <v-col cols="1" class="pl-2">
-        <v-btn color="primary" class="mr-4" @click="add()">
-          Add
-          <v-icon right dark>$astro-add-small</v-icon>
-        </v-btn>
+      <v-col cols="3">
+        <v-text-field v-model="name" label="Tool Name" class="px-2" />
+      </v-col>
+      <v-col cols="3" class="px-2">
+        <v-text-field v-model="url" label="Tool Url" />
       </v-col>
     </v-row>
     <v-alert
@@ -118,10 +124,10 @@ export default {
   methods: {
     sortChanged(evt) {
       Api.post('/cosmos-api/tools/position/' + this.tools[evt.oldIndex], {
-        data: {
-          position: evt.newIndex,
-        },
-      })
+          data: {
+            position: evt.newIndex,
+          },
+        })
         .then((response) => {
           this.alert = 'Reordered tool ' + this.tools[evt.oldIndex]
           this.alertType = 'success'
@@ -144,6 +150,8 @@ export default {
       Api.get('/cosmos-api/tools')
         .then((response) => {
           this.tools = response.data
+          this.name = ''
+          this.url = ''
         })
         .catch((error) => {
           this.alert = error
@@ -155,43 +163,34 @@ export default {
         })
     },
     add() {
-      if (this.name !== null && this.icon !== null && this.url !== null) {
-        Api.post('/cosmos-api/tools', {
-          data: {
-            id: this.name,
-            json: JSON.stringify({
-              name: this.name,
-              icon: this.icon,
-              url: this.url,
-              window: 'NEW',
-            }),
-          },
+      Api.post('/cosmos-api/tools', {
+        data: {
+          id: this.name,
+          json: JSON.stringify({
+            name: this.name,
+            icon: this.icon,
+            url: this.url,
+            window: 'NEW',
+          }),
+        },
+      })
+        .then((response) => {
+          this.alert = 'Added tool ' + this.name
+          this.alertType = 'success'
+          this.showAlert = true
+          setTimeout(() => {
+            this.showAlert = false
+          }, 5000)
+          this.update()
         })
-          .then((response) => {
-            this.alert = 'Added tool ' + this.name
-            this.alertType = 'success'
-            this.showAlert = true
-            setTimeout(() => {
-              this.showAlert = false
-            }, 5000)
-            this.update()
-          })
-          .catch((error) => {
-            this.alert = error
-            this.alertType = 'error'
-            this.showAlert = true
-            setTimeout(() => {
-              this.showAlert = false
-            }, 5000)
-          })
-      } else {
-        this.alert = 'Please Fill All Fields'
-        this.alertType = 'warning'
-        this.showAlert = true
-        setTimeout(() => {
-          this.showAlert = false
-        }, 5000)
-      }
+        .catch((error) => {
+          this.alert = error
+          this.alertType = 'error'
+          this.showAlert = true
+          setTimeout(() => {
+            this.showAlert = false
+          }, 5000)
+        })
     },
     editTool(name) {
       var self = this
