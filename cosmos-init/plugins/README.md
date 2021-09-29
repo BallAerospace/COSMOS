@@ -36,7 +36,7 @@ NOTE: All commands are assumed to be executed from this (cosmos-frontend-init) d
         cosmos-frontend-init> cd ../traefik
         traefik> docker stop cosmos-traefik
         traefik> docker build -f Dockerfile-dev-base -t cosmos-traefik-dev-base .
-        traefik> docker run --network=cosmos -p 2900:80 -it --rm cosmos-traefik-dev-base
+        traefik> docker run --network=cosmos_default -p 2900:80 -it --rm cosmos-traefik-dev-base
 
 1.  Serve a local base application (App, Auth, AppBar, AppFooter, etc)
 
@@ -50,7 +50,7 @@ NOTE: All commands are assumed to be executed from this (cosmos-frontend-init) d
         cosmos-frontend-init> cd ../traefik
         traefik> docker stop cosmos-traefik
         traefik> docker build -f Dockerfile-dev -t cosmos-traefik-dev .
-        traefik> docker run --network=cosmos -p 2900:80 -it --rm cosmos-traefik-dev
+        traefik> docker run --network=cosmos_default -p 2900:80 -it --rm cosmos-traefik-dev
 
 1.  Run a local copy of the API server
 

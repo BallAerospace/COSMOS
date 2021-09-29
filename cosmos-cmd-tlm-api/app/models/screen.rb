@@ -26,22 +26,46 @@ class Screen
     rubys3_client = Aws::S3::Client.new
     resp = rubys3_client.list_objects_v2(bucket: DEFAULT_BUCKET_NAME)
     result = []
+    modified = []
     contents = resp.to_h[:contents]
     if contents
       contents.each do |object|
-        next unless object[:key].include?("#{scope}/targets/#{target}/screens/")
-        filename = object[:key].split('/')[-1]
-        next unless filename.include?(".txt")
-        next if filename[0] == '_' # underscore filenames are partials
-        result << File.basename(filename, ".txt").upcase
+        if object[:key].include?("#{scope}/targets_modified/#{target}/screens/")
+          filename = object[:key].split('/')[-1]
+          next unless filename.include?(".txt")
+          next if filename[0] == '_' # underscore filenames are partials
+          modified << File.basename(filename, ".txt").upcase
+        end
+        if object[:key].include?("#{scope}/targets/#{target}/screens/")
+          filename = object[:key].split('/')[-1]
+          next unless filename.include?(".txt")
+          next if filename[0] == '_' # underscore filenames are partials
+          result << File.basename(filename, ".txt").upcase
+        end
       end
     end
+    # Determine if there are any modified files and eliminate originals
+    result.map! do |file|
+      if modified.include?(file)
+        modified.delete(file)
+      else
+        file
+      end
+    end
+    # Concat any remaining modified files (new files not in original target)
+    result.concat(modified)
     result.sort
   end
 
   def self.find(scope, target, screen)
     rubys3_client = Aws::S3::Client.new
-    resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{target}/screens/#{screen}.txt")
+    begin
+      # First try opening a potentially modified version by looking for the modified target
+      resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets_modified/#{target}/screens/#{screen}.txt")
+    rescue
+      # Now try the original
+      resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{target}/screens/#{screen}.txt")
+    end
     @scope = scope
     @target = target
     file = resp.body.read
@@ -58,7 +82,26 @@ class Screen
       options[:locals].each {|key, value| b.local_variable_set(key, value) }
     end
     rubys3_client = Aws::S3::Client.new
-    resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{@scope}/targets/#{@target}/screens/#{template_name}")
+    begin
+      # First try opening a potentially modified version by looking for the modified target
+      resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets_modified/#{target}/screens/#{template_name}")
+    rescue
+      # Now try the original
+      resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{target}/screens/#{template_name}")
+    end
     ERB.new(resp.body.read).result(b)
+  end
+
+  def self.create(scope, target, screen, text = nil)
+    return false unless text
+    rubys3_client = Aws::S3::Client.new
+    rubys3_client.put_object(
+      # Use targets_modified to save modifications
+      # This keeps the original target clean (read-only)
+      key: "#{scope}/targets_modified/#{target}/screens/#{screen}.txt",
+      body: text,
+      bucket: DEFAULT_BUCKET_NAME,
+      content_type: 'text/plain')
+    true
   end
 end
