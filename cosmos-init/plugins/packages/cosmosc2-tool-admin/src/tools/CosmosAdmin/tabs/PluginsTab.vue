@@ -25,12 +25,15 @@
           block
           color="primary"
           data-test="pluginUpload"
-          :disabled="!file"
-          :loading="loading"
+          :disabled="!file || loadingPlugin"
+          :loading="loadingPlugin"
           @click="upload()"
         >
           Upload
           <v-icon right dark>mdi-cloud-upload</v-icon>
+        <template v-slot:loader>
+          <span>Loading...</span>
+        </template>
         </v-btn>
       </v-col>
       <v-col cols="9">
@@ -45,6 +48,14 @@
         </div>
       </v-col>
     </v-row>
+    <v-row no-gutters>
+      <v-progress-linear
+        :active="loading"
+        :indeterminate="loading"
+        absolute
+        bottom
+      />
+    </v-row>
     <!-- TODO This alert shows both success and failure. Make consistent with rest of COSMOS. -->
     <v-alert
       :type="alertType"
@@ -55,41 +66,44 @@
       {{ alert }}
     </v-alert>
     <v-list data-test="pluginList">
-      <v-list-item v-for="(plugin, i) in plugins" :key="i">
-        <v-list-item-content>
-          <v-list-item-title v-text="plugin" />
-        </v-list-item-content>
-        <v-list-item-icon>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="showPlugin(plugin)" v-bind="attrs" v-on="on">
-                mdi-eye
-              </v-icon>
-            </template>
-            <span>Show Plugin Details</span>
-          </v-tooltip>
-        </v-list-item-icon>
-        <v-list-item-icon>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="upgradePlugin(plugin)" v-bind="attrs" v-on="on">
-                mdi-update
-              </v-icon>
-            </template>
-            <span>Upgrade Plugin</span>
-          </v-tooltip>
-        </v-list-item-icon>
-        <v-list-item-icon>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deletePlugin(plugin)" v-bind="attrs" v-on="on">
-                mdi-delete
-              </v-icon>
-            </template>
-            <span>Delete Plugin</span>
-          </v-tooltip>
-        </v-list-item-icon>
-      </v-list-item>
+      <div v-for="(plugin, i) in plugins" :key="i">
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title v-text="plugin" />
+          </v-list-item-content>
+          <v-list-item-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon @click="showPlugin(plugin)" v-bind="attrs" v-on="on">
+                  mdi-eye
+                </v-icon>
+              </template>
+              <span>Show Plugin Details</span>
+            </v-tooltip>
+          </v-list-item-icon>
+          <v-list-item-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon @click="upgradePlugin(plugin)" v-bind="attrs" v-on="on">
+                  mdi-update
+                </v-icon>
+              </template>
+              <span>Upgrade Plugin</span>
+            </v-tooltip>
+          </v-list-item-icon>
+          <v-list-item-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon @click="deletePlugin(plugin)" v-bind="attrs" v-on="on">
+                  mdi-delete
+                </v-icon>
+              </template>
+              <span>Delete Plugin</span>
+            </v-tooltip>
+          </v-list-item-icon>
+        </v-list-item>
+        <v-divider />
+      </div>
     </v-list>
     <v-alert
       dismissible
@@ -99,17 +113,17 @@
       v-text="alert"
     />
     <variables-dialog
-      :variables="variables"
       v-model="showVariables"
       v-if="showVariables"
+      :variables="variables"
       @submit="variablesCallback"
     />
     <edit-dialog
       title="Plugin Details"
-      :content="json_content"
-      :readonly="true"
       v-model="showDialog"
       v-if="showDialog"
+      :content="json_content"
+      :readonly="true"
       @submit="dialogCallback"
     />
   </div>
@@ -128,7 +142,7 @@ export default {
   data() {
     return {
       file: null,
-      loading: false,
+      loadingPlugin: false,
       plugins: [],
       alert: '',
       alertType: 'success',
@@ -144,7 +158,7 @@ export default {
     this.update()
   },
   methods: {
-    update() {
+    update: function () {
       Api.get('/cosmos-api/plugins')
         .then((response) => {
           //console.log(response.data)
@@ -156,25 +170,25 @@ export default {
           this.showAlert = true
         })
     },
-    upload(existing = null) {
-      const method = (existing) ? 'put' : 'post'
-      const path = (existing) ? `/cosmos-api/plugins/${existing}` : '/cosmos-api/plugins'
-      this.loading = true
+    upload: function (existing = null) {
+      const method = (existing ? 'put' : 'post')
+      const path = (existing ? `/cosmos-api/plugins/${existing}` : '/cosmos-api/plugins')
+      this.loadingPlugin = true
       let formData = new FormData()
       formData.append('plugin', this.file, this.file.name)
       Api[method](path, { data: formData })
         .then((response) => {
-          this.alert = 'Uploaded file ' + this.file.name
+          this.loadingPlugin = false
+          this.alert = `Uploaded file ${this.file.name}`
           this.alertType = 'success'
           this.showAlert = true
           setTimeout(() => {
             this.showAlert = false
           }, 5000)
           this.update()
-          //console.log(response.data.variables)
           this.pluginId = this.file.name
           this.variables = response.data.variables
-          this.showVariables = true
+          this.showVariables = Object.keys(this.variables).length > 0
           this.file = null
         })
         .catch((error) => {
@@ -182,9 +196,8 @@ export default {
           this.alertType = 'error'
           this.showAlert = true
         })
-      this.loading = false
     },
-    variablesCallback(updated_variables) {
+    variablesCallback: function (updated_variables) {
       this.showVariables = false
       Api.post('/cosmos-api/plugins/install/' + this.pluginId, {
         data: {
@@ -206,7 +219,7 @@ export default {
           this.showAlert = true
         })
     },
-    showPlugin(name) {
+    showPlugin: function (name) {
       var self = this
       Api.get('/cosmos-api/plugins/' + name)
         .then((response) => {
@@ -222,19 +235,10 @@ export default {
           }, 5000)
         })
     },
-    dialogCallback(content) {
+    dialogCallback: function (content) {
       this.showDialog = false
     },
-    async upgradePlugin(plugin) {
-      this.file = null
-      this.$refs.fileInput.$refs.input.click()
-      // Wait for the file to be set by the dialog so upload works
-      while (this.file === null) {
-        await new Promise((resolve) => setTimeout(resolve, 500))
-      }
-      this.upload(plugin)
-    },
-    deletePlugin(plugin) {
+    deletePlugin: function (plugin) {
       var self = this
       this.$dialog
         .confirm('Are you sure you want to remove: ' + plugin, {
@@ -258,6 +262,15 @@ export default {
               self.showAlert = true
             })
         })
+    },
+    async upgradePlugin(plugin) {
+      this.file = null
+      this.$refs.fileInput.$refs.input.click()
+      // Wait for the file to be set by the dialog so upload works
+      while (this.file === null) {
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      }
+      this.upload(plugin)
     },
   },
 }

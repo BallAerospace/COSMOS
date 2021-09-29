@@ -25,14 +25,25 @@
           block
           color="primary"
           data-test="gemUpload"
-          :disabled="!file"
-          :loading="loading"
+          :disabled="!file || loadingGem"
+          :loading="loadingGem"
           @click="upload"
         >
           Upload
+          <template v-slot:loader>
+            <span>Loading...</span>
+          </template>
           <v-icon right dark>mdi-cloud-upload</v-icon>
         </v-btn>
       </v-col>
+      <v-row no-gutters>
+        <v-progress-linear
+          :active="loading"
+          :indeterminate="loading"
+          absolute
+          bottom
+        />
+      </v-row>
       <v-col cols="9">
         <div class="px-4">
           <v-file-input
@@ -46,21 +57,24 @@
       </v-col>
     </v-row>
     <v-list data-test="gemList">
-      <v-list-item v-for="(gem, i) in gems" :key="i">
-        <v-list-item-content>
-          <v-list-item-title v-text="gem" />
-        </v-list-item-content>
-        <v-list-item-icon>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deleteGem(gem)" v-bind="attrs" v-on="on">
-                mdi-delete
-              </v-icon>
-            </template>
-            <span>Delete Gem</span>
-          </v-tooltip>
-        </v-list-item-icon>
-      </v-list-item>
+      <div v-for="(gem, i) in gems" :key="i">
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title v-text="gem" />
+          </v-list-item-content>
+          <v-list-item-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon @click="deleteGem(gem)" v-bind="attrs" v-on="on">
+                  mdi-delete
+                </v-icon>
+              </template>
+              <span>Delete Gem</span>
+            </v-tooltip>
+          </v-list-item-icon>
+        </v-list-item>
+        <v-divider />
+      </div>
     </v-list>
     <v-alert
       :type="alertType"
@@ -79,7 +93,7 @@ export default {
   data() {
     return {
       file: null,
-      loading: false,
+      loadingGem: false,
       gems: [],
       alert: '',
       alertType: 'success',
@@ -105,7 +119,7 @@ export default {
         })
     },
     upload() {
-      this.loading = true
+      this.loadingGem = true
       let formData = new FormData()
       formData.append('gem', this.file, this.file.name)
       Api.post('/cosmos-api/gems', { data: formData })
@@ -113,6 +127,7 @@ export default {
           this.alert = 'Uploaded gem ' + this.file.name
           this.alertType = 'success'
           this.showAlert = true
+          this.loadingGem = false
           this.file = null
           setTimeout(() => {
             this.showAlert = false
@@ -127,7 +142,6 @@ export default {
             this.showAlert = false
           }, 5000)
         })
-      this.loading = false
     },
     deleteGem(gem) {
       var self = this

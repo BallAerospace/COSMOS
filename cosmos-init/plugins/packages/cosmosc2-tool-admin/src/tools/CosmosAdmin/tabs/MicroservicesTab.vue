@@ -28,45 +28,48 @@
       {{ alert }}
     </v-alert>
     <v-list data-test="microserviceList">
-      <v-list-item v-for="microservice in microservices" :key="microservice">
-        <v-list-item-content>
-          <v-list-item-title v-text="microservice" />
-          <v-list-item-subtitle v-if="microservice_status[microservice]">
-            Updated: {{ microservice_status[microservice].updated_at }}, State:
-            {{ microservice_status[microservice].state }}, Count:
-            {{ microservice_status[microservice].count }}, Error:
-            {{ microservice_status[microservice].error }}
-          </v-list-item-subtitle>
-        </v-list-item-content>
-        <v-list-item-icon>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon
-                @click="editMicroservice(microservice)"
-                v-bind="attrs"
-                v-on="on"
-              >
-                mdi-pencil
-              </v-icon>
-            </template>
-            <span>Edit Microservice</span>
-          </v-tooltip>
-        </v-list-item-icon>
-        <v-list-item-icon>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon
-                @click="deleteMicroservice(microservice)"
-                v-bind="attrs"
-                v-on="on"
-              >
-                mdi-delete
-              </v-icon>
-            </template>
-            <span>Delete Microservice</span>
-          </v-tooltip>
-        </v-list-item-icon>
-      </v-list-item>
+      <div v-for="microservice in microservices" :key="microservice">
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title v-text="microservice" />
+            <v-list-item-subtitle v-if="microservice_status[microservice]">
+              Updated: {{ microservice_status[microservice].updated_at }}, State:
+              {{ microservice_status[microservice].state }}, Count:
+              {{ microservice_status[microservice].count }}, Error:
+              {{ microservice_status[microservice].error }}
+            </v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  @click="editMicroservice(microservice)"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  mdi-pencil
+                </v-icon>
+              </template>
+              <span>Edit Microservice</span>
+            </v-tooltip>
+          </v-list-item-icon>
+          <v-list-item-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  @click="deleteMicroservice(microservice)"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  mdi-delete
+                </v-icon>
+              </template>
+              <span>Delete Microservice</span>
+            </v-tooltip>
+          </v-list-item-icon>
+        </v-list-item>
+        <v-divider />
+      </div>
     </v-list>
     <v-alert
       :type="alertType"

@@ -28,42 +28,42 @@
       {{ alert }}
     </v-alert>
     <v-list data-test="interfaceList">
-      <v-list-item
-        v-for="cosmos_interface in interfaces"
-        :key="cosmos_interface"
-      >
-        <v-list-item-content>
-          <v-list-item-title v-text="cosmos_interface" />
-        </v-list-item-content>
-        <v-list-item-icon>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon
-                @click="showInterface(cosmos_interface)"
-                v-bind="attrs"
-                v-on="on"
-              >
-                mdi-eye
-              </v-icon>
-            </template>
-            <span>Show Interface Details</span>
-          </v-tooltip>
-        </v-list-item-icon>
-        <v-list-item-icon>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon
-                @click="deleteInterface(cosmos_interface)"
-                v-bind="attrs"
-                v-on="on"
-              >
-                mdi-delete
-              </v-icon>
-            </template>
-            <span>Delete Interface</span>
-          </v-tooltip>
-        </v-list-item-icon>
-      </v-list-item>
+      <div v-for="cosmos_interface in interfaces" :key="cosmos_interface">
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title v-text="cosmos_interface" />
+          </v-list-item-content>
+          <v-list-item-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  @click="showInterface(cosmos_interface)"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  mdi-eye
+                </v-icon>
+              </template>
+              <span>Show Interface Details</span>
+            </v-tooltip>
+          </v-list-item-icon>
+          <v-list-item-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  @click="deleteInterface(cosmos_interface)"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  mdi-delete
+                </v-icon>
+              </template>
+              <span>Delete Interface</span>
+            </v-tooltip>
+          </v-list-item-icon>
+        </v-list-item>
+        <v-divider />
+      </div>
     </v-list>
     <v-alert
       :type="alertType"
