@@ -94,11 +94,14 @@
                 block
                 color="success"
                 @click="loadFile"
-                :disabled="!file"
-                :loading="loading"
+                :disabled="!file || loadingFile"
+                :loading="loadingFile"
                 data-test="editScreenLoadBtn"
               >
                 Load
+                <template v-slot:loader>
+                  <span>Loading...</span>
+                </template>
               </v-btn>
            </v-col>
             <v-col cols="9">
@@ -210,7 +213,7 @@ export default {
         required: (value) => !!value || 'Required',
       },
       api: null,
-      loading: false,
+      loadingFile: false,
       file: null,
       currentDefinition: this.definition,
       backup: '',
@@ -375,10 +378,10 @@ export default {
     loadFile: function () {
       const fileReader = new FileReader()
       fileReader.readAsText(this.file)
-      this.loading = true
+      this.loadingFile = true
       const that = this
       fileReader.onload = function () {
-        that.loading = false
+        that.loadingFile = false
         that.currentDefinition = fileReader.result
         that.inputType = 'txt'
         that.file = null
