@@ -51,31 +51,34 @@
       {{ alert }}
     </v-alert>
     <v-list data-test="toolList" id="toollist">
-      <v-list-item v-for="tool in tools" :key="tool">
-        <v-list-item-content>
-          <v-list-item-title v-text="tool" />
-        </v-list-item-content>
-        <v-list-item-icon>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="editTool(tool)" v-bind="attrs" v-on="on">
-                mdi-pencil
-              </v-icon>
-            </template>
-            <span>Edit Tool</span>
-          </v-tooltip>
-        </v-list-item-icon>
-        <v-list-item-icon>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deleteTool(tool)" v-bind="attrs" v-on="on">
-                mdi-delete
-              </v-icon>
-            </template>
-            <span>Delete Tool</span>
-          </v-tooltip>
-        </v-list-item-icon>
-      </v-list-item>
+      <div v-for="tool in tools" :key="tool">
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title v-text="tool" />
+          </v-list-item-content>
+          <v-list-item-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon @click="editTool(tool)" v-bind="attrs" v-on="on">
+                  mdi-pencil
+                </v-icon>
+              </template>
+              <span>Edit Tool</span>
+            </v-tooltip>
+          </v-list-item-icon>
+          <v-list-item-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon @click="deleteTool(tool)" v-bind="attrs" v-on="on">
+                  mdi-delete
+                </v-icon>
+              </template>
+              <span>Delete Tool</span>
+            </v-tooltip>
+          </v-list-item-icon>
+        </v-list-item>
+        <v-divider />
+      </div>
     </v-list>
     <v-alert
       :type="alertType"

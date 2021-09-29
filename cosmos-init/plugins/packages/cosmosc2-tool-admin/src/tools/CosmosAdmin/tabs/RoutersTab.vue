@@ -28,31 +28,34 @@
       {{ alert }}
     </v-alert>
     <v-list data-test="routerList">
-      <v-list-item v-for="router in routers" :key="router">
-        <v-list-item-content>
-          <v-list-item-title v-text="router" />
-        </v-list-item-content>
-        <v-list-item-icon>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="showRouter(router)" v-bind="attrs" v-on="on">
-                mdi-eye
-              </v-icon>
-            </template>
-            <span>Show Router Details</span>
-          </v-tooltip>
-        </v-list-item-icon>
-        <v-list-item-icon>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-icon @click="deleteRouter(router)" v-bind="attrs" v-on="on">
-                mdi-delete
-              </v-icon>
-            </template>
-            <span>Delete Router</span>
-          </v-tooltip>
-        </v-list-item-icon>
-      </v-list-item>
+      <div v-for="router in routers" :key="router">
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title v-text="router" />
+          </v-list-item-content>
+          <v-list-item-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon @click="showRouter(router)" v-bind="attrs" v-on="on">
+                  mdi-eye
+                </v-icon>
+              </template>
+              <span>Show Router Details</span>
+            </v-tooltip>
+          </v-list-item-icon>
+          <v-list-item-icon>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon @click="deleteRouter(router)" v-bind="attrs" v-on="on">
+                  mdi-delete
+                </v-icon>
+              </template>
+              <span>Delete Router</span>
+            </v-tooltip>
+          </v-list-item-icon>
+        </v-list-item>
+        <v-divider />
+      </div>
     </v-list>
     <v-alert
       :type="alertType"
