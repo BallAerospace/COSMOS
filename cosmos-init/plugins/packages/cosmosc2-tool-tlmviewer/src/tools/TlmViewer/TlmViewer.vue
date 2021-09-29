@@ -45,6 +45,7 @@
         <v-col>
           <v-btn
             class="primary"
+            :disabled="!selectedScreen"
             @click="() => showScreen(selectedTarget, selectedScreen)"
           >
             Show Screen
