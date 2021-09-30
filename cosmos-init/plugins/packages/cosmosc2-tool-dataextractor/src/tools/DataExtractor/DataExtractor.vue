@@ -21,6 +21,18 @@
   <div>
     <top-bar :menus="menus" :title="title" />
     <v-container>
+      <v-row no-gutters>
+        <v-alert
+          dense
+          outlined
+          dismissible
+          v-model="warning"
+          elevation="10"
+          :type="warningType"
+        >
+          {{ warningText }}
+        </v-alert>
+      </v-row>
       <v-row>
         <v-col>
           <v-text-field
@@ -72,138 +84,131 @@
         </v-col>
       </v-row>
       <v-row>
-        <div class="c-tlmgrapher__contents">
-          <target-packet-item-chooser
-            @click="addItem($event)"
-            buttonText="Add Item"
-            :mode="cmdOrTlm"
-            :chooseItem="true"
-            :allowAll="true"
-          />
-          <v-alert type="warning" v-model="warning" dismissible>
-            {{ warningText }}
-          </v-alert>
-          <v-alert type="error" v-model="error" dismissible>
-            {{ errorText }}
-          </v-alert>
-        </div>
+        <target-packet-item-chooser
+          @click="addItem($event)"
+          buttonText="Add Item"
+          :mode="cmdOrTlm"
+          :chooseItem="true"
+          :allowAll="true"
+        />
       </v-row>
-      <v-row>
-        <v-col>
-          <v-card scrollable>
-            <v-progress-linear
-              absolute
-              top
-              height="10"
-              :value="progress"
-              color="secondary"
-            />
-            <v-list data-test="itemList">
-              <v-subheader class="mt-3">
-                Items
-                <v-spacer />
-                <v-btn class="primary mr-4" @click="processItems">
-                  {{ processButtonText }}
-                </v-btn>
+      <v-row no-gutters>
+        <v-toolbar>
+          <v-progress-circular :value="progress" />
+          <v-spacer />
+          <v-toolbar-title> Items </v-toolbar-title>
+          <v-spacer />
+          <v-btn
+            class="primary mr-4"
+            @click="processItems"
+            :disabled="items.length < 1"
+            v-text="processButtonText"
+          />
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                @click="editAll = true"
+                v-bind="attrs"
+                v-on="on"
+                :disabled="items.length < 1"
+                data-test="editAll"
+              >
+                <v-icon> mdi-pencil </v-icon>
+              </v-btn>
+            </template>
+            <span>Edit All Items</span>
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                icon
+                @click="deleteAll"
+                v-bind="attrs"
+                v-on="on"
+                :disabled="items.length < 1"
+                data-test="deleteAll"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+            </template>
+            <span>Delete All Items</span>
+          </v-tooltip>
+        </v-toolbar>
+      </v-row>
+      <v-row no-gutters>
+        <v-list data-test="itemList" width="100%">
+          <div v-for="(item, i) in items" :key="i">
+            <v-list-item>
+              <v-list-item-icon>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      @click="editAll = true"
+                    <v-icon
+                      @click.stop="item.edit = true"
                       v-bind="attrs"
                       v-on="on"
-                      data-test="editAll"
                     >
-                      <v-icon> mdi-pencil </v-icon>
-                    </v-btn>
+                      mdi-pencil
+                    </v-icon>
                   </template>
-                  <span>Edit All Items</span>
+                  <span>Edit Item</span>
                 </v-tooltip>
+                <v-dialog
+                  v-model="item.edit"
+                  @keydown.esc="item.edit = false"
+                  max-width="700"
+                >
+                  <v-card>
+                    <v-card-title>Edit {{ getItemLabel(item) }}</v-card-title>
+                    <v-card-text>
+                      <v-col>
+                        <v-select
+                          hide-details
+                          :items="valueTypes"
+                          label="Value Type"
+                          outlined
+                          v-model="item.valueType"
+                        />
+                      </v-col>
+                      <!-- v-col v-if="uniqueOnly">
+                        <v-select
+                          :items="uniqueIgnoreOptions"
+                          label="Add to Unique Ignore List?:"
+                          outlined
+                          v-model="item.uniqueIgnoreAdd"
+                        />
+                      </v-col -->
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer />
+                      <v-btn color="primary" text @click="item.edit = false">
+                        Ok
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title v-text="getItemLabel(item)" />
+              </v-list-item-content>
+              <v-list-item-icon>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                      icon
-                      @click="deleteAll"
+                    <v-icon
+                      @click="deleteItem(item)"
                       v-bind="attrs"
                       v-on="on"
-                      data-test="deleteAll"
                     >
-                      <v-icon>mdi-delete</v-icon>
-                    </v-btn>
+                      mdi-delete
+                    </v-icon>
                   </template>
-                  <span>Delete All Items</span>
+                  <span>Delete Item</span>
                 </v-tooltip>
-              </v-subheader>
-              <v-list-item v-for="(item, i) in items" :key="i">
-                <v-list-item-icon>
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-icon
-                        @click.stop="item.edit = true"
-                        v-bind="attrs"
-                        v-on="on"
-                      >
-                        mdi-pencil
-                      </v-icon>
-                    </template>
-                    <span>Edit Item</span>
-                  </v-tooltip>
-                  <v-dialog
-                    v-model="item.edit"
-                    @keydown.esc="item.edit = false"
-                    max-width="700"
-                  >
-                    <v-card>
-                      <v-card-title>Edit {{ getItemLabel(item) }}</v-card-title>
-                      <v-card-text>
-                        <v-col>
-                          <v-select
-                            hide-details
-                            :items="valueTypes"
-                            label="Value Type"
-                            outlined
-                            v-model="item.valueType"
-                          />
-                        </v-col>
-                        <!-- v-col v-if="uniqueOnly">
-                          <v-select
-                            :items="uniqueIgnoreOptions"
-                            label="Add to Unique Ignore List?:"
-                            outlined
-                            v-model="item.uniqueIgnoreAdd"
-                          />
-                        </v-col -->
-                      </v-card-text>
-                      <v-card-actions>
-                        <v-spacer />
-                        <v-btn color="primary" text @click="item.edit = false">
-                          Ok
-                        </v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title v-text="getItemLabel(item)" />
-                </v-list-item-content>
-                <v-list-item-icon>
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-icon
-                        @click="deleteItem(item)"
-                        v-bind="attrs"
-                        v-on="on"
-                      >
-                        mdi-delete
-                      </v-icon>
-                    </template>
-                    <span>Delete Item</span>
-                  </v-tooltip>
-                </v-list-item-icon>
-              </v-list-item>
-            </v-list>
-          </v-card>
-        </v-col>
+              </v-list-item-icon>
+            </v-list-item>
+            <v-divider />
+          </div>
+        </v-list>
       </v-row>
     </v-container>
     <v-dialog v-model="editAll" @keydown.esc="editAll = false" max-width="700">
@@ -284,8 +289,7 @@ export default {
       utcOrLocal: 'loc',
       warning: false,
       warningText: '',
-      error: false,
-      errorText: '',
+      warningType: '',
       items: [],
       rawData: [],
       outputFile: [],
@@ -417,13 +421,14 @@ export default {
     },
     addItem(item) {
       // Traditional for loop so we can return if we find a match
-      for (var i = 0; i < this.items.length; i++) {
+      for (const listItem of this.items) {
         if (
-          this.items[i].itemName === item.itemName &&
-          this.items[i].packetName === item.packetName &&
-          this.items[i].targetName === item.targetName
+          listItem.itemName === item.itemName &&
+          listItem.packetName === item.packetName &&
+          listItem.targetName === item.targetName
         ) {
           this.warningText = 'This item has already been added!'
+          this.warningType = 'warning'
           this.warning = true
           return
         }
@@ -480,12 +485,6 @@ export default {
       this.endDateTime = endTemp.getTime() * 1_000_000
     },
     processItems() {
-      // Check for an empty list
-      if (this.items.length === 0) {
-        this.warningText = 'No items to process!'
-        this.warning = true
-        return
-      }
       // Check for a process in progress
       if (this.processButtonText === 'Cancel') {
         this.processReceived()
@@ -495,16 +494,19 @@ export default {
       this.setTimestamps()
       if (!this.startDateTime || !this.endDateTime) {
         this.warningText = 'Invalid date/time selected!'
+        this.warningType = 'warning'
         this.warning = true
         return
       }
       if (this.startDateTime === this.endDateTime) {
         this.warningText = 'Start date/time is equal to end date/time!'
+        this.warningType = 'warning'
         this.warning = true
         return
       }
       if (this.endDateTime - this.startDateTime < 0) {
         this.warningText = 'Start date/time is greater then end date/time!'
+        this.warningType = 'warning'
         this.warning = true
         return
       }
@@ -514,6 +516,7 @@ export default {
           'Note: End date/time is greater than current date/time. Data will continue to stream in real-time until ' +
           new Date(this.endDateTime / 1_000_000).toISOString() +
           ' is reached.'
+        this.warningType = 'warning'
         this.warning = true
       }
 
@@ -606,8 +609,9 @@ export default {
     },
     received(json_data) {
       if (json_data['error']) {
-        this.errorText = json_data['error']
-        this.error = true
+        this.warningType = 'error'
+        this.warningText = json_data['error']
+        this.warning = true
         return
       }
       const data = JSON.parse(json_data)
@@ -631,6 +635,7 @@ export default {
         let start = new Date(this.startDateTime / 1_000_000).toISOString()
         let end = new Date(this.endDateTime / 1_000_000).toISOString()
         this.warningText = `No data found for the items in the requested time range of ${start} to ${end}`
+        this.warningType = 'warning'
         this.warning = true
       } else {
         // Output the headers

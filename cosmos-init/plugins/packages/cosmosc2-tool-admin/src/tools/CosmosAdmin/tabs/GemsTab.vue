@@ -77,11 +77,11 @@
       </div>
     </v-list>
     <v-alert
-      :type="alertType"
-      v-model="showAlert"
       dismissible
-      transition="scale-transition"
+      v-model="showAlert"
       v-text="alert"
+      :type="alertType"
+      transition="scale-transition"
     />
   </div>
 </template>
@@ -135,6 +135,7 @@ export default {
           this.update()
         })
         .catch((error) => {
+          this.loadingPlugin = false
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
@@ -146,14 +147,14 @@ export default {
     deleteGem(gem) {
       var self = this
       this.$dialog
-        .confirm('Are you sure you want to remove: ' + gem, {
+        .confirm(`Are you sure you want to remove: ${gem}`, {
           okText: 'Delete',
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete('/cosmos-api/gems/' + gem)
+          Api.delete(`/cosmos-api/gems/${gem}`)
             .then((response) => {
-              self.alert = 'Removed gem ' + gem
+              self.alert = `Removed gem ${gem}`
               self.alertType = 'success'
               self.showAlert = true
               setTimeout(() => {

@@ -66,11 +66,11 @@
       {{ alert }}
     </v-alert>
     <edit-dialog
-      :content="json_content"
-      title="Target Details"
-      :readonly="true"
       v-model="showDialog"
       v-if="showDialog"
+      :content="jsonContent"
+      :title="`Target: ${dialogTitle}`"
+      :readonly="true"
       @submit="dialogCallback"
     />
   </div>
@@ -87,7 +87,8 @@ export default {
       alert: '',
       alertType: 'success',
       showAlert: false,
-      json_content: '',
+      jsonContent: '',
+      dialogTitle: '',
       showDialog: false,
     }
   },
@@ -111,18 +112,18 @@ export default {
     },
     add() {},
     showTarget(name) {
-      var self = this
-      Api.get('/cosmos-api/targets/' + name)
+      Api.get(`/cosmos-api/targets/${name}`)
         .then((response) => {
-          self.json_content = JSON.stringify(response.data, null, 1)
-          self.showDialog = true
+          this.jsonContent = JSON.stringify(response.data, null, '\t')
+          this.dialogTitle = name
+          this.showDialog = true
         })
         .catch((error) => {
-          self.alert = error
-          self.alertType = 'error'
-          self.showAlert = true
+          this.alert = error
+          this.alertType = 'error'
+          this.showAlert = true
           setTimeout(() => {
-            self.showAlert = false
+            this.showAlert = false
           }, 5000)
         })
     },
@@ -132,12 +133,12 @@ export default {
     deleteTarget(name) {
       var self = this
       this.$dialog
-        .confirm('Are you sure you want to remove: ' + name, {
+        .confirm(`Are you sure you want to remove: ${name}`, {
           okText: 'Delete',
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete('/cosmos-api/targets/' + name)
+          Api.delete(`/cosmos-api/targets/${name}`)
             .then((response) => {
               self.alert = 'Removed target ' + name
               self.alertType = 'success'

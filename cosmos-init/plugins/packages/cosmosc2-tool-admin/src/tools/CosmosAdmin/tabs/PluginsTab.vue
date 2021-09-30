@@ -72,34 +72,36 @@
             <v-list-item-title v-text="plugin" />
           </v-list-item-content>
           <v-list-item-icon>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon @click="showPlugin(plugin)" v-bind="attrs" v-on="on">
-                  mdi-eye
-                </v-icon>
-              </template>
-              <span>Show Plugin Details</span>
-            </v-tooltip>
-          </v-list-item-icon>
-          <v-list-item-icon>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon @click="upgradePlugin(plugin)" v-bind="attrs" v-on="on">
-                  mdi-update
-                </v-icon>
-              </template>
-              <span>Upgrade Plugin</span>
-            </v-tooltip>
-          </v-list-item-icon>
-          <v-list-item-icon>
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on, attrs }">
-                <v-icon @click="deletePlugin(plugin)" v-bind="attrs" v-on="on">
-                  mdi-delete
-                </v-icon>
-              </template>
-              <span>Delete Plugin</span>
-            </v-tooltip>
+            <div class="mx-3">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon @click="showPlugin(plugin)" v-bind="attrs" v-on="on">
+                    mdi-eye
+                  </v-icon>
+                </template>
+                <span>Show Plugin Details</span>
+              </v-tooltip>
+            </div>
+            <div class="mx-3">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon @click="upgradePlugin(plugin)" v-bind="attrs" v-on="on">
+                    mdi-update
+                  </v-icon>
+                </template>
+                <span>Upgrade Plugin</span>
+              </v-tooltip>
+            </div>
+            <div class="mx-3">
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-icon @click="deletePlugin(plugin)" v-bind="attrs" v-on="on">
+                    mdi-delete
+                  </v-icon>
+                </template>
+                <span>Delete Plugin</span>
+              </v-tooltip>
+            </div>
           </v-list-item-icon>
         </v-list-item>
         <v-divider />
@@ -119,10 +121,10 @@
       @submit="variablesCallback"
     />
     <edit-dialog
-      title="Plugin Details"
       v-model="showDialog"
       v-if="showDialog"
-      :content="json_content"
+      :title="`Plugin: ${dialogTitle}`"
+      :content="jsonContent"
       :readonly="true"
       @submit="dialogCallback"
     />
@@ -150,7 +152,8 @@ export default {
       pluginId: null,
       variables: {},
       showVariables: false,
-      json_content: '',
+      jsonContent: '',
+      dialogTitle: '',
       showDialog: false,
     }
   },
@@ -178,7 +181,6 @@ export default {
       formData.append('plugin', this.file, this.file.name)
       Api[method](path, { data: formData })
         .then((response) => {
-          this.loadingPlugin = false
           this.alert = `Uploaded file ${this.file.name}`
           this.alertType = 'success'
           this.showAlert = true
@@ -188,26 +190,29 @@ export default {
           this.update()
           this.pluginId = this.file.name
           this.variables = response.data.variables
-          this.showVariables = Object.keys(this.variables).length > 0
-          this.file = null
+          this.showVariables = true
         })
         .catch((error) => {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
+          this.loadingPlugin = false
+          this.file = null
         })
     },
     variablesCallback: function (updated_variables) {
       this.showVariables = false
-      Api.post('/cosmos-api/plugins/install/' + this.pluginId, {
+      Api.post(`/cosmos-api/plugins/install/${this.pluginId}`, {
         data: {
           variables: JSON.stringify(updated_variables),
         },
       })
         .then((response) => {
-          this.alert = 'Installed plugin ' + this.file.name
+          this.loadingPlugin = false
+          this.alert = `Installed plugin ${this.file.name}`
           this.alertType = 'success'
           this.showAlert = true
+          this.file = null
           setTimeout(() => {
             this.showAlert = false
           }, 5000)
@@ -217,21 +222,22 @@ export default {
           this.alert = error
           this.alertType = 'error'
           this.showAlert = true
+          this.loadingPlugin = false
         })
     },
     showPlugin: function (name) {
-      var self = this
-      Api.get('/cosmos-api/plugins/' + name)
+      Api.get(`/cosmos-api/plugins/${name}`)
         .then((response) => {
-          self.json_content = JSON.stringify(response.data, null, 1)
-          self.showDialog = true
+          this.jsonContent = JSON.stringify(response.data, null, '\t')
+          this.dialogTitle = name
+          this.showDialog = true
         })
         .catch((error) => {
-          self.alert = error
-          self.alertType = 'error'
-          self.showAlert = true
+          this.alert = error
+          this.alertType = 'error'
+          this.showAlert = true
           setTimeout(() => {
-            self.showAlert = false
+            this.showAlert = false
           }, 5000)
         })
     },
@@ -239,27 +245,27 @@ export default {
       this.showDialog = false
     },
     deletePlugin: function (plugin) {
-      var self = this
+      var that = this
       this.$dialog
-        .confirm('Are you sure you want to remove: ' + plugin, {
+        .confirm(`Are you sure you want to remove: ${plugin}`, {
           okText: 'Delete',
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete('/cosmos-api/plugins/' + plugin)
+          Api.delete(`/cosmos-api/plugins/${plugin}`)
             .then((response) => {
-              self.alert = 'Removed plugin ' + plugin
-              self.alertType = 'success'
-              self.showAlert = true
+              that.alert = `Removed plugin ${plugin}`
+              that.alertType = 'success'
+              that.showAlert = true
               setTimeout(() => {
-                self.showAlert = false
+                that.showAlert = false
               }, 5000)
-              self.update()
+              that.update()
             })
             .catch((error) => {
-              self.alert = error
-              self.alertType = 'error'
-              self.showAlert = true
+              that.alert = error
+              that.alertType = 'error'
+              that.showAlert = true
             })
         })
     },

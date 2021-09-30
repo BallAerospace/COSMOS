@@ -20,7 +20,7 @@
 <template>
   <div>
     <v-card>
-      <v-system-bar height="40">
+      <v-system-bar>
         <v-icon v-if="errors.length !== 0">mdi-alert</v-icon>
         <v-spacer />
         <span>{{ target }} {{ screen }}</span>
@@ -28,9 +28,9 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-btn icon data-test="editScreenIcon" @click="openEdit">
-                <v-icon> mdi-pencil </v-icon>
-              </v-btn>
+              <v-icon data-test="editScreenIcon" @click="openEdit">
+                mdi-pencil
+              </v-icon>
             </div>
           </template>
           <span> Edit Screen </span>
@@ -38,10 +38,20 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-btn icon data-test="minimizeScreenIcon" @click="minMaxTransition">
-                <v-icon v-show="expand"> mdi-window-minimize </v-icon>
-                <v-icon v-show="!expand"> mdi-window-maximize </v-icon>
-              </v-btn>
+              <v-icon
+                data-test="minimizeScreenIcon"
+                @click="minMaxTransition"
+                v-show="expand"
+              >
+                mdi-window-minimize
+              </v-icon>
+              <v-icon
+                data-test="maximizeScreenIcon"
+                @click="minMaxTransition"
+                v-show="!expand"
+              >
+                mdi-window-maximize
+              </v-icon>
             </div>
           </template>
           <span v-show="expand"> Minimize Screen </span>
@@ -50,9 +60,12 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-btn icon data-test="downloadScreenIcon" @click="$emit('close-screen')">
-                <v-icon> mdi-close-box </v-icon>
-              </v-btn>
+              <v-icon
+                data-test="downloadScreenIcon"
+                @click="$emit('close-screen')"
+              >
+                mdi-close-box
+              </v-icon>
             </div>
           </template>
           <span> Close Screen </span>

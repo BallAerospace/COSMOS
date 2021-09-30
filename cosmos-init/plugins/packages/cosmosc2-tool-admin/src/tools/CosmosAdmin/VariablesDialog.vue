@@ -20,18 +20,25 @@
 <template>
   <v-dialog persistent v-model="show" width="400">
     <v-card class="pa-3">
-      <v-card-title class="headline">Set Plugin Variables</v-card-title>
+      <v-toolbar>
+        <v-toolbar-title> Update Plugin Variables </v-toolbar-title>
+      </v-toolbar>
       <v-card-text>
         <v-form ref="form" @submit.prevent="$emit('submit', local_variables)">
-          <div v-for="(value, name) in local_variables" :key="name">
-            {{ name }}
-            <v-text-field
-              autofocus
-              type="text"
-              v-model="local_variables[name]"
-            />
-          </div>
-          <v-btn color="primary" type="submit">Ok</v-btn>
+          <v-row class="mt-3">
+            <div v-for="(value, name) in local_variables" :key="name">
+              <v-text-field
+                clearable
+                type="text"
+                :label="name"
+                v-model="local_variables[name]"
+              />
+              <v-divider />
+            </div>
+          </v-row>
+          <v-row class="mt-1">
+            <v-btn color="primary" type="submit">Ok</v-btn>
+          </v-row>
         </v-form>
       </v-card-text>
     </v-card>

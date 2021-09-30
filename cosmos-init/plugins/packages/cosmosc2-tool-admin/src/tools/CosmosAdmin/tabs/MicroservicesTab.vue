@@ -72,18 +72,18 @@
       </div>
     </v-list>
     <v-alert
-      :type="alertType"
-      v-model="showAlert"
       dismissible
+      v-model="showAlert"
+      :type="alertType"
       transition="scale-transition"
     >
       {{ alert }}
     </v-alert>
     <edit-dialog
-      :content="json_content"
-      title="Edit Microservice"
       v-model="showDialog"
       v-if="showDialog"
+      :content="jsonContent"
+      :title="`Microservice: ${dialogTitle}`"
       @submit="dialogCallback"
     />
   </div>
@@ -102,7 +102,8 @@ export default {
       alert: '',
       alertType: 'success',
       showAlert: false,
-      json_content: '',
+      jsonContent: '',
+      dialogTitle: '',
       showDialog: false,
     }
   },
@@ -114,18 +115,18 @@ export default {
       Api.get('/cosmos-api/microservice_status/all')
         .then((response) => {
           this.microservice_status = response.data
-          Api.get('/cosmos-api/microservices')
-            .then((response) => {
-              this.microservices = response.data
-            })
-            .catch((error) => {
-              this.alert = error
-              this.alertType = 'error'
-              this.showAlert = true
-              setTimeout(() => {
-                this.showAlert = false
-              }, 5000)
-            })
+        })
+        .catch((error) => {
+          this.alert = error
+          this.alertType = 'error'
+          this.showAlert = true
+          setTimeout(() => {
+            this.showAlert = false
+          }, 5000)
+        })
+      Api.get('/cosmos-api/microservices')
+        .then((response) => {
+          this.microservices = response.data
         })
         .catch((error) => {
           this.alert = error
@@ -138,19 +139,19 @@ export default {
     },
     add() {},
     editMicroservice(name) {
-      var self = this
-      Api.get('/cosmos-api/microservices/' + name)
+      Api.get(`/cosmos-api/microservices/${name}`)
         .then((response) => {
-          self.microservice_id = name
-          self.json_content = JSON.stringify(response.data, null, 1)
-          self.showDialog = true
+          this.microservice_id = name
+          this.dialogTitle = name
+          this.jsonContent = JSON.stringify(response.data, null, '\t')
+          this.showDialog = true
         })
         .catch((error) => {
-          self.alert = error
-          self.alertType = 'error'
-          self.showAlert = true
+          this.alert = error
+          this.alertType = 'error'
+          this.showAlert = true
           setTimeout(() => {
-            self.showAlert = false
+            this.showAlert = false
           }, 5000)
         })
     },
@@ -159,7 +160,7 @@ export default {
       if (content !== null) {
         let parsed = JSON.parse(content)
         let method = 'put'
-        let url = '/cosmos-api/microservices/' + this.microservice_id
+        let url = `/cosmos-api/microservices/${this.microservice_id}`
         if (parsed['name'] !== this.microservice_id) {
           method = 'post'
           url = '/cosmos-api/microservices'
@@ -187,7 +188,7 @@ export default {
       }
     },
     deleteMicroservice(name) {
-      var self = this
+      var that = this
       this.$dialog
         .confirm('Are you sure you want to remove: ' + name, {
           okText: 'Delete',
@@ -196,20 +197,20 @@ export default {
         .then(function (dialog) {
           Api.delete('/cosmos-api/microservices/' + name)
             .then((response) => {
-              self.alert = 'Removed microservice ' + name
-              self.alertType = 'success'
-              self.showAlert = true
+              that.alert = 'Removed microservice ' + name
+              that.alertType = 'success'
+              that.showAlert = true
               setTimeout(() => {
-                self.showAlert = false
+                that.showAlert = false
               }, 5000)
-              self.update()
+              that.update()
             })
             .catch((error) => {
-              self.alert = error
-              self.alertType = 'error'
-              self.showAlert = true
+              that.alert = error
+              that.alertType = 'error'
+              that.showAlert = true
               setTimeout(() => {
-                self.showAlert = false
+                that.showAlert = false
               }, 5000)
             })
         })

@@ -20,21 +20,80 @@
 <template>
   <v-dialog persistent v-model="show" width="600">
     <v-card class="pa-3">
-      <v-card-title class="headline">{{ title }}</v-card-title>
+      <v-toolbar>
+        <v-toolbar-title v-text="title" />
+        <v-spacer />
+        <div class="mx-2">
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <div v-on="on" v-bind="attrs">
+                <v-btn icon data-test="downloadIcon" @click="download">
+                  <v-icon> mdi-download </v-icon>
+                </v-btn>
+              </div>
+            </template>
+            <span> Download </span>
+          </v-tooltip>
+        </div>
+      </v-toolbar>
       <v-card-text>
-        <v-form ref="form" @submit.prevent="$emit('submit', json_content)">
-          <v-textarea
-            autofocus
-            solo
-            v-model="json_content"
-            rows="20"
-            :readonly="readonly"
-          />
-          <v-btn color="primary" type="submit">Ok</v-btn>
-          &nbsp;&nbsp;
-          <v-btn color="primary" type="submit" @click.prevent="close">
-            Cancel
-          </v-btn>
+        <v-form ref="form" @submit.prevent="submit">
+          <v-row class="mt-3"> Upload a file. </v-row>
+          <v-row no-gutters align="center">
+            <v-col cols="3">
+              <v-btn
+                block
+                color="success"
+                @click="loadFile"
+                :disabled="!file || loadingFile || readonly"
+                :loading="loadingFile"
+                data-test="editScreenLoadBtn"
+              >
+                Load
+                <template v-slot:loader>
+                  <span>Loading...</span>
+                </template>
+              </v-btn>
+           </v-col>
+            <v-col cols="9">
+              <v-file-input
+                v-model="file"
+                accept=".json"
+                label="Click to select .json file."
+                :disabled="readonly"
+              />
+            </v-col>
+          </v-row>
+          <v-row> Edit json content </v-row>
+          <v-row no-gutters>
+            <v-textarea
+              v-model="json_content"
+              rows="15"
+              :readonly="readonly"
+              data-test="editTextInput"
+            />
+          </v-row>
+          <v-row class="my-3">
+            <span class="red--text" v-show="error" v-text="error" />
+          </v-row>
+          <v-row>
+            <v-btn
+              color="success"
+              type="submit"
+              :disabled="!!error || readonly"
+              data-test="editSubmitBtn"
+            >
+              Save
+            </v-btn>
+            <v-spacer />
+            <v-btn
+              color="primary"
+              @click.prevent="close"
+              data-test="editCancelBtn"
+            >
+              Cancel
+            </v-btn>
+          </v-row>
         </v-form>
       </v-card-text>
     </v-card>
@@ -66,19 +125,45 @@ export default {
         this.$emit('input', value) // input is the default event when using v-model
       },
     },
+    error: function () {
+      if (this.json_content === '' && !this.file) {
+        return 'Input can not be blank.'
+      }
+      return null
+    },
   },
   methods: {
+    submit: function () {
+      $emit('submit', json_content)
+      this.json_content = null
+      this.show = !this.show
+    },
     close: function () {
       this.json_content = null
       this.show = !this.show
-    }
+    },
+    download: function() {
+      const blob = new Blob([this.json_content], {
+        type: 'text/plain',
+      })
+      // Make a link and then 'click' on it to start the download
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.setAttribute(
+        'download', `${this.title}.json`
+      )
+      link.click()
+    },
   }
 }
 </script>
 
 <style scoped>
-.theme--dark .v-card__title,
-.theme--dark .v-card__subtitle {
-  background-color: var(--v-secondary-darken3);
+.v-card {
+  background-color: var(--v-tertiary-darken2);
+}
+.v-textarea >>> textarea {
+  padding: 5px;
+  background-color: var(--v-tertiary-darken1) !important;
 }
 </style>

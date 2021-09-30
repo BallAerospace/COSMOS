@@ -74,8 +74,8 @@
       {{ alert }}
     </v-alert>
     <edit-dialog
-      :content="json_content"
-      title="Interface Details"
+      :content="jsonContent"
+      :title="`Interface: ${dialogTitle}`"
       :readonly="true"
       v-model="showDialog"
       v-if="showDialog"
@@ -95,7 +95,8 @@ export default {
       alert: '',
       alertType: 'success',
       showAlert: false,
-      json_content: '',
+      jsonContent: '',
+      dialogTitle: '',
       showDialog: false,
     }
   },
@@ -117,20 +118,19 @@ export default {
           }, 5000)
         })
     },
-    add() {},
     showInterface(name) {
-      var self = this
-      Api.get('/cosmos-api/interfaces/' + name)
+      Api.get(`/cosmos-api/interfaces/${name}`)
         .then((response) => {
-          self.json_content = JSON.stringify(response.data, null, 1)
-          self.showDialog = true
+          this.jsonContent = JSON.stringify(response.data, null, '\t')
+          this.dialogTitle = name
+          this.showDialog = true
         })
         .catch((error) => {
-          self.alert = error
-          self.alertType = 'error'
-          self.showAlert = true
+          this.alert = error
+          this.alertType = 'error'
+          this.showAlert = true
           setTimeout(() => {
-            self.showAlert = false
+            this.showAlert = false
           }, 5000)
         })
     },
@@ -138,29 +138,29 @@ export default {
       this.showDialog = false
     },
     deleteInterface(name) {
-      var self = this
+      var that = this
       this.$dialog
-        .confirm('Are you sure you want to remove: ' + name, {
+        .confirm(`Are you sure you want to remove: ${name}`, {
           okText: 'Delete',
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete('/cosmos-api/interfaces/' + name)
+          Api.delete(`/cosmos-api/interfaces/${name}`)
             .then((response) => {
-              self.alert = 'Removed interface ' + name
-              self.alertType = 'success'
-              self.showAlert = true
+              that.alert = `Removed interface ${name}`
+              that.alertType = 'success'
+              that.showAlert = true
               setTimeout(() => {
-                self.showAlert = false
+                that.showAlert = false
               }, 5000)
-              self.update()
+              that.update()
             })
             .catch((error) => {
-              self.alert = error
-              self.alertType = 'error'
-              self.showAlert = true
+              that.alert = error
+              that.alertType = 'error'
+              that.showAlert = true
               setTimeout(() => {
-                self.showAlert = false
+                that.showAlert = false
               }, 5000)
             })
         })

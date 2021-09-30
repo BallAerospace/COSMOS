@@ -53,6 +53,11 @@
     <v-list data-test="toolList" id="toollist">
       <div v-for="tool in tools" :key="tool">
         <v-list-item>
+          <v-list-item-icon>
+            <v-icon>
+              mdi-drag-horizontal
+            </v-icon>
+          </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title v-text="tool" />
           </v-list-item-content>
@@ -89,10 +94,10 @@
       {{ alert }}
     </v-alert>
     <edit-dialog
-      :content="json_content"
-      title="Edit Tool"
       v-model="showDialog"
       v-if="showDialog"
+      :content="jsonContent"
+      :title="`Tool: ${dialogTitle}`"
       @submit="dialogCallback"
     />
   </div>
@@ -114,7 +119,8 @@ export default {
       alert: '',
       alertType: 'success',
       showAlert: false,
-      json_content: '',
+      jsonContent: '',
+      dialogTitle: '',
       showDialog: false,
       tool_id: null,
     }
@@ -126,13 +132,13 @@ export default {
   },
   methods: {
     sortChanged(evt) {
-      Api.post('/cosmos-api/tools/position/' + this.tools[evt.oldIndex], {
+      Api.post(`/cosmos-api/tools/position/${this.tools[evt.oldIndex]}`, {
           data: {
             position: evt.newIndex,
           },
         })
         .then((response) => {
-          this.alert = 'Reordered tool ' + this.tools[evt.oldIndex]
+          this.alert = `Reordered tool ${this.tools[evt.oldIndex]}`
           this.alertType = 'success'
           this.showAlert = true
           setTimeout(() => {
@@ -178,7 +184,7 @@ export default {
         },
       })
         .then((response) => {
-          this.alert = 'Added tool ' + this.name
+          this.alert = `Added tool ${this.name}`
           this.alertType = 'success'
           this.showAlert = true
           setTimeout(() => {
@@ -196,19 +202,19 @@ export default {
         })
     },
     editTool(name) {
-      var self = this
-      Api.get('/cosmos-api/tools/' + name)
+      Api.get(`/cosmos-api/tools/${name}`)
         .then((response) => {
-          self.tool_id = name
-          self.json_content = JSON.stringify(response.data, null, 1)
-          self.showDialog = true
+          this.tool_id = name
+          this.jsonContent = JSON.stringify(response.data, null, '\t')
+          this.dialogTitle = name
+          this.showDialog = true
         })
         .catch((error) => {
-          self.alert = error
-          self.alertType = 'error'
-          self.showAlert = true
+          this.alert = error
+          this.alertType = 'error'
+          this.showAlert = true
           setTimeout(() => {
-            self.showAlert = false
+            this.showAlert = false
           }, 5000)
         })
     },
@@ -217,7 +223,7 @@ export default {
       if (content !== null) {
         let parsed = JSON.parse(content)
         let method = 'put'
-        let url = '/cosmos-api/tools/' + this.tool_id
+        let url = `/cosmos-api/tools/${this.tool_id}`
         if (parsed['name'] !== this.tool_id) {
           method = 'post'
           url = '/cosmos-api/tools'
@@ -247,14 +253,14 @@ export default {
     deleteTool(name) {
       var self = this
       this.$dialog
-        .confirm('Are you sure you want to remove: ' + name, {
+        .confirm(`Are you sure you want to remove: ${name}`, {
           okText: 'Delete',
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete('/cosmos-api/tools/' + name)
+          Api.delete(`/cosmos-api/tools/${name}`)
             .then((response) => {
-              self.alert = 'Removed tool ' + name
+              self.alert = `Removed tool ${name}`
               self.alertType = 'success'
               self.showAlert = true
               setTimeout(() => {
