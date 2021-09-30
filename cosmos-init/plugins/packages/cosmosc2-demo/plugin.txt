@@ -33,10 +33,12 @@ VARIABLE templated_port 5025
 
 <% if include_inst %>
   TARGET INST <%= inst_target_name %>
+    TLM_LOG_CYCLE_TIME 300
 <% end %>
 
 <% if include_inst2 %>
   TARGET INST <%= inst2_target_name %>
+    TLM_LOG_CYCLE_TIME 600
 <% end %>
 
 <% if include_example %>
