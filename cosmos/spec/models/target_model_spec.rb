@@ -302,9 +302,33 @@ module Cosmos
     end
 
     describe "handle_config" do
-      it "raises as there are no keywords below TARGET" do
+      it "parses tool specific keywords" do
         model = TargetModel.new(folder_name: "TEST", name: "TEST", scope: "DEFAULT")
-        expect { model.handle_config(nil, "TARGET", nil) }.to raise_error("Unsupported keyword for TARGET: TARGET")
+        model.create
+        parser = ConfigParser.new
+        tf = Tempfile.new
+        tf.puts "CMD_LOG_CYCLE_TIME 1"
+        tf.puts "CMD_LOG_CYCLE_SIZE 2"
+        tf.puts "CMD_DECOM_LOG_CYCLE_TIME 3"
+        tf.puts "CMD_DECOM_LOG_CYCLE_SIZE 4"
+        tf.puts "TLM_LOG_CYCLE_TIME 5"
+        tf.puts "TLM_LOG_CYCLE_SIZE 6"
+        tf.puts "TLM_DECOM_LOG_CYCLE_TIME 7"
+        tf.puts "TLM_DECOM_LOG_CYCLE_SIZE 8"
+        tf.close
+        parser.parse_file(tf.path) do |keyword, params|
+          model.handle_config(parser, keyword, params)
+        end
+        json = model.as_json
+        expect(json['cmd_log_cycle_time']).to eql 1
+        expect(json['cmd_log_cycle_size']).to eql 2
+        expect(json['cmd_decom_log_cycle_time']).to eql 3
+        expect(json['cmd_decom_log_cycle_size']).to eql 4
+        expect(json['tlm_log_cycle_time']).to eql 5
+        expect(json['tlm_log_cycle_size']).to eql 6
+        expect(json['tlm_decom_log_cycle_time']).to eql 7
+        expect(json['tlm_decom_log_cycle_size']).to eql 8
+        tf.unlink
       end
     end
 

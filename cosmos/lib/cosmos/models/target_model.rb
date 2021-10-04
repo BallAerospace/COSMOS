@@ -47,6 +47,14 @@ module Cosmos
     attr_accessor :cmd_unique_id_mode
     attr_accessor :tlm_unique_id_mode
     attr_accessor :id
+    attr_accessor :cmd_log_cycle_time
+    attr_accessor :cmd_log_cycle_size
+    attr_accessor :cmd_decom_log_cycle_time
+    attr_accessor :cmd_decom_log_cycle_size
+    attr_accessor :tlm_log_cycle_time
+    attr_accessor :tlm_log_cycle_size
+    attr_accessor :tlm_decom_log_cycle_time
+    attr_accessor :tlm_decom_log_cycle_size
 
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
@@ -152,9 +160,22 @@ module Cosmos
       id: nil,
       updated_at: nil,
       plugin: nil,
+      cmd_log_cycle_time: 600,
+      cmd_log_cycle_size: 50_000_000,
+      cmd_decom_log_cycle_time: 600,
+      cmd_decom_log_cycle_size: 50_000_000,
+      tlm_log_cycle_time: 600,
+      tlm_log_cycle_size: 50_000_000,
+      tlm_decom_log_cycle_time: 600,
+      tlm_decom_log_cycle_size: 50_000_000,
       scope:
     )
-      super("#{scope}__#{PRIMARY_KEY}", name: name, plugin: plugin, updated_at: updated_at, scope: scope)
+      super("#{scope}__#{PRIMARY_KEY}", name: name, plugin: plugin, updated_at: updated_at,
+        cmd_log_cycle_time: cmd_log_cycle_time, cmd_log_cycle_size: cmd_log_cycle_size,
+        cmd_decom_log_cycle_time: cmd_decom_log_cycle_time, cmd_decom_log_cycle_size: cmd_decom_log_cycle_size,
+        tlm_log_cycle_time: tlm_log_cycle_time, tlm_log_cycle_size: tlm_log_cycle_size,
+        tlm_decom_log_cycle_time: tlm_decom_log_cycle_time, tlm_decom_log_cycle_size: tlm_decom_log_cycle_size,
+        scope: scope)
       @folder_name = folder_name
       @requires = requires
       @ignored_parameters = ignored_parameters
@@ -164,6 +185,14 @@ module Cosmos
       @cmd_unique_id_mode = cmd_unique_id_mode
       @tlm_unique_id_mode = tlm_unique_id_mode
       @id = id
+      @cmd_log_cycle_time = cmd_log_cycle_time
+      @cmd_log_cycle_size = cmd_log_cycle_size
+      @cmd_decom_log_cycle_time = cmd_decom_log_cycle_time
+      @cmd_decom_log_cycle_size = cmd_decom_log_cycle_size
+      @tlm_log_cycle_time = tlm_log_cycle_time
+      @tlm_log_cycle_size = tlm_log_cycle_size
+      @tlm_decom_log_cycle_time = tlm_decom_log_cycle_time
+      @tlm_decom_log_cycle_size = tlm_decom_log_cycle_size
     end
 
     def as_json
@@ -180,6 +209,14 @@ module Cosmos
         'id' => @id,
         'updated_at' => @updated_at,
         'plugin' => @plugin,
+        'cmd_log_cycle_time' => @cmd_log_cycle_time,
+        'cmd_log_cycle_size' => @cmd_log_cycle_size,
+        'cmd_decom_log_cycle_time' => @cmd_decom_log_cycle_time,
+        'cmd_decom_log_cycle_size' => @cmd_decom_log_cycle_size,
+        'tlm_log_cycle_time' => @tlm_log_cycle_time,
+        'tlm_log_cycle_size' => @tlm_log_cycle_size,
+        'tlm_decom_log_cycle_time' => @tlm_decom_log_cycle_time,
+        'tlm_decom_log_cycle_size' => @tlm_decom_log_cycle_size,
       }
     end
 
@@ -187,8 +224,37 @@ module Cosmos
       "TARGET #{@folder_name} #{@name}\n"
     end
 
+    # Handles Target specific configuration keywords
     def handle_config(parser, keyword, parameters)
-      raise "Unsupported keyword for TARGET: #{keyword}"
+      case keyword
+      when 'CMD_LOG_CYCLE_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Maximum time between files in seconds>")
+        @cmd_log_cycle_time = parameters[0].to_i
+      when 'CMD_LOG_CYCLE_SIZE'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Maximum file size in bytes>")
+        @cmd_log_cycle_size = parameters[0].to_i
+      when 'CMD_DECOM_LOG_CYCLE_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Maximum time between files in seconds>")
+        @cmd_decom_log_cycle_time = parameters[0].to_i
+      when 'CMD_DECOM_LOG_CYCLE_SIZE'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Maximum file size in bytes>")
+        @cmd_decom_log_cycle_size = parameters[0].to_i
+      when 'TLM_LOG_CYCLE_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Maximum time between files in seconds>")
+        @tlm_log_cycle_time = parameters[0].to_i
+      when 'TLM_LOG_CYCLE_SIZE'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Maximum file size in bytes>")
+        @tlm_log_cycle_size = parameters[0].to_i
+      when 'TLM_DECOM_LOG_CYCLE_TIME'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Maximum time between files in seconds>")
+        @tlm_decom_log_cycle_time = parameters[0].to_i
+      when 'TLM_DECOM_LOG_CYCLE_SIZE'
+        parser.verify_num_parameters(1, 1, "#{keyword} <Maximum file size in bytes>")
+        @tlm_decom_log_cycle_size = parameters[0].to_i
+      else
+        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Target: #{keyword} #{parameters.join(" ")}")
+      end
+      return nil
     end
 
     def deploy(gem_path, variables)
@@ -446,10 +512,9 @@ module Cosmos
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [
           ["RAW_OR_DECOM", "RAW"],
-          ["CMD_OR_TLM", "CMD"]
-          # The following options are optional (600 and 50_000_000 are the defaults)
-          # ["CYCLE_TIME", "600"], # Keep at most 10 minutes per log
-          # ["CYCLE_SIZE", "50_000_000"] # Keep at most ~50MB per log
+          ["CMD_OR_TLM", "CMD"],
+          ["CYCLE_TIME", @cmd_log_cycle_time],
+          ["CYCLE_SIZE", @cmd_log_cycle_size]
         ],
         topics: command_topic_list,
         target_names: [@name],
@@ -469,7 +534,9 @@ module Cosmos
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [
           ["RAW_OR_DECOM", "DECOM"],
-          ["CMD_OR_TLM", "CMD"]
+          ["CMD_OR_TLM", "CMD"],
+          ["CYCLE_TIME", @cmd_decom_log_cycle_time],
+          ["CYCLE_SIZE", @cmd_decom_log_cycle_size]
         ],
         topics: decom_command_topic_list,
         target_names: [@name],
@@ -489,7 +556,9 @@ module Cosmos
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [
           ["RAW_OR_DECOM", "RAW"],
-          ["CMD_OR_TLM", "TLM"]
+          ["CMD_OR_TLM", "TLM"],
+          ["CYCLE_TIME", @tlm_log_cycle_time],
+          ["CYCLE_SIZE", @tlm_log_cycle_size]
         ],
         topics: packet_topic_list,
         target_names: [@name],
@@ -509,7 +578,9 @@ module Cosmos
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [
           ["RAW_OR_DECOM", "DECOM"],
-          ["CMD_OR_TLM", "TLM"]
+          ["CMD_OR_TLM", "TLM"],
+          ["CYCLE_TIME", @tlm_decom_log_cycle_time],
+          ["CYCLE_SIZE", @tlm_decom_log_cycle_size]
         ],
         topics: decom_topic_list,
         target_names: [@name],
