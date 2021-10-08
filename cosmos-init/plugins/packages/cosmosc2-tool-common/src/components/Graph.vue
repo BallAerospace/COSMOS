@@ -24,28 +24,151 @@
         :class="selectedGraphId === id ? 'active' : 'inactive'"
         v-show="!hideSystemBar"
       >
+        <div v-show="errors.length !== 0" class="mx-2">
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <div v-on="on" v-bind="attrs">
+                <v-icon data-test="errorGraphIcon" @click="errorDialog = true">
+                  mdi-alert
+                </v-icon>
+              </div>
+            </template>
+            <span> Errors </span>
+          </v-tooltip>
+        </div>
+
+        <v-tooltip top>
+          <template v-slot:activator="{ on, attrs }">
+            <div v-on="on" v-bind="attrs">
+              <v-icon data-test="editGraphIcon" @click="editGraph = true">
+                mdi-pencil
+              </v-icon>
+            </div>
+          </template>
+          <span> Edit </span>
+        </v-tooltip>
+
         <v-spacer />
         <span>{{ title }}</span>
         <v-spacer />
-        <v-icon v-if="calcFullSize" @click="collapseAll">
-          mdi-arrow-collapse
-        </v-icon>
-        <v-icon v-else @click="expandAll">mdi-arrow-expand</v-icon>
-        <v-icon v-if="fullWidth" @click="collapseWidth">
-          mdi-arrow-collapse-horizontal
-        </v-icon>
-        <v-icon v-else @click="expandWidth">mdi-arrow-expand-horizontal</v-icon>
-        <v-icon v-if="fullHeight" @click="collapseHeight">
-          mdi-arrow-collapse-vertical
-        </v-icon>
-        <v-icon v-else @click="expandHeight">mdi-arrow-expand-vertical</v-icon>
-        <v-icon @click="minMaxTransition">mdi-window-minimize</v-icon>
-        <v-icon @click="$emit('close-graph')">mdi-close-box</v-icon>
+
+        <div v-show="expand">
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <div v-on="on" v-bind="attrs">
+                <v-icon
+                  data-test="collapseAll"
+                  v-show="calcFullSize"
+                  @click="collapseAll"
+                >
+                  mdi-arrow-collapse
+                </v-icon>
+                <v-icon
+                  data-test="expandAll"
+                  v-show="!calcFullSize"
+                  @click="expandAll"
+                >
+                  mdi-arrow-expand
+                </v-icon>
+              </div>
+            </template>
+            <span v-show="calcFullSize"> Collapse </span>
+            <span v-show="!calcFullSize"> Expand </span>
+          </v-tooltip>
+        </div>
+
+        <div v-show="expand">
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <div v-on="on" v-bind="attrs">
+                <v-icon
+                  data-test="collapseWidth"
+                  v-show="fullWidth"
+                  @click="collapseWidth"
+                >
+                  mdi-arrow-collapse-horizontal
+                </v-icon>
+                <v-icon
+                  data-test="expandWidth"
+                  v-show="!fullWidth"
+                  @click="expandWidth"
+                >
+                  mdi-arrow-expand-horizontal
+                </v-icon>
+              </div>
+            </template>
+            <span v-show="fullWidth"> Collapse Width </span>
+            <span v-show="!fullWidth"> Expand Width </span>
+          </v-tooltip>
+        </div>
+
+        <div v-show="expand">
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <div v-on="on" v-bind="attrs">
+                <v-icon
+                  data-test="collapseVertical"
+                  v-show="fullHeight"
+                  @click="collapseHeight"
+                >
+                  mdi-arrow-collapse-vertical
+                </v-icon>
+                <v-icon
+                  data-test="expandVertical"
+                  v-show="!fullHeight"
+                  @click="expandHeight"
+                >
+                  mdi-arrow-expand-vertical
+                </v-icon>
+              </div>
+            </template>
+            <span v-show="fullHeight"> Collapse Height </span>
+            <span v-show="!fullHeight"> Expand Height </span>
+          </v-tooltip>
+        </div>
+
+        <v-tooltip top>
+          <template v-slot:activator="{ on, attrs }">
+            <div v-on="on" v-bind="attrs">
+              <v-icon
+                data-test="minimizeScreenIcon"
+                @click="minMaxTransition"
+                v-show="expand"
+              >
+                mdi-window-minimize
+              </v-icon>
+              <v-icon
+                data-test="maximizeScreenIcon"
+                @click="minMaxTransition"
+                v-show="!expand"
+              >
+                mdi-window-maximize
+              </v-icon>
+            </div>
+          </template>
+          <span v-show="expand"> Minimize </span>
+          <span v-show="!expand"> Maximize </span>
+        </v-tooltip>
+
+        <v-tooltip top>
+          <template v-slot:activator="{ on, attrs }">
+            <div v-on="on" v-bind="attrs">
+              <v-icon
+                data-test="closeGraphIcon"
+                @click="$emit('close-graph')"
+              >
+                mdi-close-box
+              </v-icon>
+            </div>
+          </template>
+          <span> Close </span>
+        </v-tooltip>
       </v-system-bar>
+
       <v-expand-transition>
         <div class="pa-1" id="chart" ref="chart" v-show="expand">
-          <div :id="'chart' + id"></div>
-          <div :id="'overview' + id" v-show="!hideOverview"></div>
+          <div :id="`chart${id}`"></div>
+          <div :id="`overview${id}`" v-show="!hideOverview"></div>
         </div>
       </v-expand-transition>
     </v-card>
@@ -55,25 +178,31 @@
       v-model="editGraph"
       @keydown.esc="$emit('input')"
       @input="editGraphClose()"
-      max-width="500"
+      max-width="600"
     >
+      <v-system-bar>
+        <v-spacer />
+        <span>Edit Graph</span>
+        <v-spacer />
+      </v-system-bar>
       <v-card class="pa-3">
-        <v-card-title class="headline">Edit Graph</v-card-title>
-        <v-text-field
-          class="pb-2"
-          label="Title"
-          v-model="title"
-          hide-details
-          data-test="edit-title"
-        />
+        <v-row dense>
+          <v-text-field
+            class="pb-2"
+            label="Title"
+            v-model="title"
+            hide-details
+            data-test="editGraphTitle"
+          />
+        </v-row>
         <v-card-text class="pa-0">
           Select a start date/time for the graph. Leave blank for start now.
         </v-card-text>
         <date-time-chooser
           :required="false"
-          @date-time="graphStartDateTime = $event"
           dateLabel="Start Date"
           timeLabel="Start Time"
+          @date-time="graphStartDateTime = $event"
         />
         <v-card-text class="pa-0">
           Select a end date/time for the graph. Leave blank for continuous
@@ -84,17 +213,94 @@
           timeLabel="End Time"
           @date-time="graphEndDateTime = $event"
         />
-        <v-text-field label="Min Y" v-model="graphMinY" hide-details />
-        <v-text-field label="Max Y" v-model="graphMaxY" hide-details />
-        <v-container fluid>
-          <v-row v-for="(item, key) in items" :key="key">
-            <v-col>
-              {{ item.targetName }} {{ item.packetName }} {{ item.itemName }}
-            </v-col>
-            <v-btn color="error" @click="removeItems([item])">Remove</v-btn>
-          </v-row></v-container
-        >
-        <v-btn color="primary" @click="editGraphClose()">Ok</v-btn>
+        <v-card-text class="pa-0">
+          Optional Y axis settings.
+        </v-card-text>
+        <v-row dense>
+          <v-col class="px-2">
+            <v-text-field
+              hide-details
+              label="Min Y"
+              v-model="graphMinY"
+              type="number"
+            />
+          </v-col>
+          <v-col class="px-2">
+            <v-text-field
+              hide-details
+              label="Max Y"
+              v-model="graphMaxY"
+              type="number"
+            />
+          </v-col>
+        </v-row>
+          <v-data-table
+            item-key="itemId"
+            class="elevation-1 my-2"
+            :headers="itemHeaders"
+            :items="editItems"
+            :items-per-page="5"
+            :footer-props="{
+              'items-per-page-options': [5],
+            }"
+          >
+          <template v-slot:item.actions="{ item }">
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <div v-on="on" v-bind="attrs">
+                  <v-btn
+                    icon
+                    :data-test="`deleteItemIcon${item.itemId}`"
+                    @click="() => removeItems([item])"
+                  >
+                    <v-icon> mdi-delete </v-icon>
+                  </v-btn>
+                </div>
+              </template>
+              <span> Remove </span>
+            </v-tooltip>
+          </template>
+          <template v-slot:no-data>
+            <span>Currently no items on this graph</span>
+          </template>
+        </v-data-table>
+        <v-card-actions>
+          <v-btn color="primary" @click="editGraphClose()">
+            Ok
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Error dialog -->
+    <v-dialog v-model="errorDialog" max-width="600">
+      <v-system-bar>
+        <v-spacer />
+        <span>Errors</span>
+        <v-spacer />
+      </v-system-bar>
+      <v-card class="pa-3">
+        <v-row dense>
+          <v-text-field
+            readonly
+            hide-details
+            v-model="title"
+            class="pb-2"
+            label="Graph Title"
+          />
+        </v-row>
+        <v-row class="my-3">
+          <v-textarea
+            readonly
+            rows="8"
+            :value="error"
+          />
+        </v-row>
+        <v-row>
+          <v-btn block @click="clearErrors">
+            Clear
+          </v-btn>
+        </v-row>
       </v-card>
     </v-dialog>
 
@@ -118,19 +324,19 @@
 
     <!-- Edit Item dialog -->
     <v-dialog
+      max-width="600"
       v-if="editItem"
       v-model="editItem"
       @keydown.esc="editItem = false"
-      max-width="500"
     >
       <v-card class="pa-3">
         <v-card-title class="headline">Edit Item</v-card-title>
         <v-select
-          hide-details
-          :items="valueTypes"
-          label="Value Type"
           outlined
-          v-model="this.selectedItem.valueType"
+          hide-details
+          label="Value Type"
+          :items="valueTypes"
+          v-model="selectedItem.valueType"
           @change="changeType($event)"
         />
         <v-card-actions>
@@ -228,6 +434,12 @@ export default {
   },
   data() {
     return {
+      itemHeaders: [
+        { text: 'Target Name', value: 'targetName' },
+        { text: 'Packet Name', value: 'packetName' },
+        { text: 'Item Name', value: 'itemName' },
+        { text: 'Actions', value: 'actions', sortable: false },
+      ],
       valueTypes: ['CONVERTED', 'RAW'],
       active: true,
       expand: true,
@@ -258,6 +470,8 @@ export default {
       cable: new Cable(),
       subscription: null,
       needToUpdate: false,
+      errorDialog: false,
+      errors: [],
       colors: [
         'blue',
         'red',
@@ -283,12 +497,26 @@ export default {
     }
   },
   computed: {
-    calcFullSize() {
+    calcFullSize: function () {
       return this.fullWidth || this.fullHeight
+    },
+    editItems: function () {
+      if (!this.items) return []
+      let itemId = 0
+      return this.items.map((item) => {
+        itemId += 1
+        return {...item, itemId}
+      })
+    },
+    error: function () {
+      if (this.errorDialog && this.errors.length > 0) {
+        return JSON.stringify(this.errors, null, 4)
+      }
+      return null
     },
   },
   created() {
-    this.title = 'Graph ' + this.id
+    this.title = `Graph ${this.id}`
     for (const [index, item] of this.items.entries()) {
       this.data.push([]) // initialize the empty data arrays
       this.indexes[this.subscriptionKey(item)] = index + 1
@@ -435,7 +663,7 @@ export default {
     this.graph = new uPlot(
       chartOpts,
       this.data,
-      document.getElementById('chart' + this.id)
+      document.getElementById(`chart${this.id}`)
     )
 
     const overviewOpts = {
@@ -478,7 +706,7 @@ export default {
     this.overview = new uPlot(
       overviewOpts,
       this.data,
-      document.getElementById('overview' + this.id)
+      document.getElementById(`overview${this.id}`)
     )
     //console.timeEnd('chart')
 
@@ -489,7 +717,7 @@ export default {
       this.subscribe()
     }
   },
-  beforeDestroy() {
+  beforeDestroy: function () {
     if (this.subscription) {
       this.subscription.unsubscribe()
     }
@@ -561,7 +789,10 @@ export default {
     },
   },
   methods: {
-    editGraphClose() {
+    clearErrors: function () {
+      this.errors = []
+    },
+    editGraphClose: function () {
       this.editGraph = false
       if (this.needToUpdate) {
         this.removeItemsFromSubscription()
@@ -569,47 +800,47 @@ export default {
         this.needToUpdate = false
       }
     },
-    handleResize() {
+    handleResize: function () {
       // TODO: Should this method be throttled?
       this.graph.setSize(this.getSize('chart'))
       this.overview.setSize(this.getSize('overview'))
     },
-    resize() {
+    resize: function () {
       this.graph.setSize(this.getSize('chart'))
       this.overview.setSize(this.getSize('overview'))
       this.$emit('resize', this.id)
     },
-    expandAll() {
+    expandAll: function () {
       this.fullWidth = true
       this.fullHeight = true
       this.resize()
     },
-    collapseAll() {
+    collapseAll: function () {
       this.fullWidth = false
       this.fullHeight = false
       this.resize()
     },
-    expandWidth() {
+    expandWidth: function () {
       this.fullWidth = true
       this.resize()
     },
-    collapseWidth() {
+    collapseWidth: function () {
       this.fullWidth = false
       this.resize()
     },
-    expandHeight() {
+    expandHeight: function () {
       this.fullHeight = true
       this.resize()
     },
-    collapseHeight() {
+    collapseHeight: function () {
       this.fullHeight = false
       this.resize()
     },
-    minMaxTransition() {
+    minMaxTransition: function () {
       this.expand = !this.expand
       this.$emit('min-max-graph', this.id)
     },
-    setGraphRange() {
+    setGraphRange: function () {
       let pad = 0.1
       if (
         this.graphMinY ||
@@ -631,22 +862,31 @@ export default {
         return uPlot.rangeNum(min, max, pad, true)
       }
     },
-    subscribe(endTime = null) {
+    subscribe: function (endTime = null) {
       this.cable
         .createSubscription('StreamingChannel', localStorage.scope, {
           received: (data) => this.received(data),
           connected: () => {
             this.addItemsToSubscription(this.items, endTime)
           },
-          // TODO: How should we handle server side disconnect
-          // disconnected: () => console.log('disconnected'),
-        })
-        .then((subscription) => {
-          // Store the subscription if we haven't already
-          if (this.subscription === null) {
-            this.subscription = subscription
-          }
-        })
+        disconnected: () => {
+          this.errors.push({
+            type: 'disconnected',
+            message: 'COSMOS backend connection disconnected',
+            time: new Date().getTime()
+          })
+        },
+        rejected: () => {
+          this.errors.push({
+            type: 'rejected',
+            message: 'COSMOS backend connection rejected',
+            time: new Date().getTime()
+          })
+        },
+      })
+      .then((subscription) => {
+        this.subscription = subscription
+      })
     },
     // throttle(cb, limit) {
     //   var wait = false
@@ -660,7 +900,7 @@ export default {
     //     }
     //   }
     // },
-    getSize(type) {
+    getSize: function (type) {
       const navDrawer = document.getElementById('cosmos-nav-drawer')
       const navDrawerWidth = navDrawer.classList.contains(
         'v-navigation-drawer--open'
@@ -670,10 +910,8 @@ export default {
       const viewWidth =
         Math.max(document.documentElement.clientWidth, window.innerWidth || 0) -
         navDrawerWidth
-      const viewHeight = Math.max(
-        document.documentElement.clientHeight,
-        window.innerHeight || 0
-      )
+      const viewHeight = 
+        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
 
       const chooser = document.getElementsByClassName('c-chooser')[0]
       let height = 100
@@ -688,7 +926,7 @@ export default {
           height = height / 2.0 + 10 // 5px padding top and bottom
         }
       }
-      let width = viewWidth - 120
+      let width = viewWidth - 60 // 30px padding left and right
       if (!this.fullWidth) {
         width = width / 2.0 - 10 // 5px padding left and right
       }
@@ -697,7 +935,7 @@ export default {
         height: this.height || height,
       }
     },
-    getScales() {
+    getScales: function () {
       return {
         scales: {
           x: {
@@ -715,7 +953,7 @@ export default {
         },
       }
     },
-    getAxes(type) {
+    getAxes: function (type) {
       let strokeColor = 'rgba(0, 0, 0, .1)'
       let axisColor = 'black'
       if (this.$vuetify.theme.dark) {
@@ -744,19 +982,16 @@ export default {
         ],
       }
     },
-    changeType(event) {
+    changeType: function (event) {
       this.removeItems([this.selectedItem])
       this.addItems([this.selectedItem], event)
     },
-    addItems(items, type = 'CONVERTED') {
-      for (const item of items) {
+    addItems: function (itemArray, type = 'CONVERTED') {
+      for (const item of itemArray) {
         item.valueType ||= type // set the default type
         this.items.push(item)
-        if (this.data === null) {
-          this.data = [[]]
-        }
-        let index = this.data.length
-        let color = this.colors.shift()
+        const index = this.data.length
+        const color = this.colors.shift()
         this.graph.addSeries(
           {
             spanGaps: true,
@@ -768,23 +1003,15 @@ export default {
           },
           index
         )
-        this.overview.addSeries(
-          {
-            spanGaps: true,
-            stroke: color,
-          },
-          index
-        )
+        this.overview.addSeries({spanGaps: true, stroke: color}, index)
         let newData = Array(this.data[0].length)
         this.data.splice(index, 0, newData)
-
         this.indexes[this.subscriptionKey(item)] = index
       }
-
-      this.addItemsToSubscription(items)
+      this.addItemsToSubscription(itemArray)
     },
-    addItemsToSubscription(
-      items = this.items,
+    addItemsToSubscription: function (
+      itemArray = this.items,
       endTime = this.graphEndDateTime
     ) {
       if (this.subscription) {
@@ -793,17 +1020,17 @@ export default {
             scope: localStorage.scope,
             mode: 'DECOM',
             token: localStorage.token,
-            items: items.map(this.subscriptionKey),
+            items: itemArray.map(this.subscriptionKey),
             start_time: this.graphStartDateTime,
             end_time: endTime,
           })
         })
       }
     },
-    removeItems(items) {
-      this.removeItemsFromSubscription(items)
+    removeItems: function (itemArray) {
+      this.removeItemsFromSubscription(itemArray)
 
-      for (const key of items.map(this.subscriptionKey)) {
+      for (const key of itemArray.map(this.subscriptionKey)) {
         const index = this.reorderIndexes(key)
         // Put back the color so it's available for new series
         this.colors.unshift(this.graph.series[index].stroke)
@@ -815,15 +1042,15 @@ export default {
         this.overview.setData(this.data)
       }
     },
-    removeItemsFromSubscription(items = this.items) {
+    removeItemsFromSubscription: function (itemArray = this.items) {
       if (this.subscription) {
         this.subscription.perform('remove', {
           scope: localStorage.scope,
-          items: items.map(this.subscriptionKey),
+          items: itemArray.map(this.subscriptionKey),
         })
       }
     },
-    reorderIndexes(key) {
+    reorderIndexes: function (key) {
       let index = this.indexes[key]
       delete this.indexes[key]
       for (var i in this.indexes) {
@@ -833,7 +1060,7 @@ export default {
       }
       return index
     },
-    received(json_data) {
+    received: function (json_data) {
       // TODO: Shouldn't get errors but should we handle this every time?
       // if (json_data.error) {
       //   console.log(json_data.error)
@@ -870,10 +1097,10 @@ export default {
         this.$emit('started', this.graphStartDateTime)
       }
     },
-    bs_comparator(element, needle) {
+    bs_comparator: function (element, needle) {
       return element - needle
     },
-    set_data_at_index(index, time, new_data) {
+    set_data_at_index: function (index, time, new_data) {
       this.data[0][index] = time
       for (const [key, value] of Object.entries(new_data)) {
         if (key == 'time') {
@@ -890,7 +1117,7 @@ export default {
         }
       }
     },
-    subscriptionKey(item) {
+    subscriptionKey: function (item) {
       return `TLM__${item.targetName}__${item.packetName}__${item.itemName}__${item.valueType}`
     },
   },

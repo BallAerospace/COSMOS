@@ -21,18 +21,19 @@
   <div>
     <top-bar :menus="menus" :title="title" />
     <v-container>
-      <v-row no-gutters>
-        <v-alert
-          dense
-          outlined
-          dismissible
-          v-model="warning"
-          elevation="10"
-          :type="warningType"
-        >
-          {{ warningText }}
-        </v-alert>
-      </v-row>
+      <v-snackbar
+        v-model="showAlert"
+        :top="true"
+        :type="alertType"
+        :icon="alertType"
+        :timeout="5000"
+      >
+        <v-icon> mdi-{{ alertType }} </v-icon>
+        {{ alert }}
+        <template v-slot:action="{ attrs }">
+          <v-btn text v-bind="attrs" @click="showAlert = false"> Close </v-btn>
+        </template>
+      </v-snackbar>
       <v-row>
         <v-col>
           <v-text-field
@@ -268,9 +269,11 @@ export default {
   },
   data() {
     return {
+      alert: '',
+      alertType: 'success',
+      showAlert: false,
       title: 'Data Extractor',
       toolName: 'data-exporter',
-      api: null,
       openConfig: false,
       saveConfig: false,
       progress: 0,
@@ -287,9 +290,6 @@ export default {
       },
       cmdOrTlm: 'tlm',
       utcOrLocal: 'loc',
-      warning: false,
-      warningText: '',
-      warningType: '',
       items: [],
       rawData: [],
       outputFile: [],
@@ -402,24 +402,68 @@ export default {
       ],
     }
   },
-  created() {
-    this.api = new CosmosApi()
+  mounted: function () {
+    const previousConfig = localStorage['lastconfig__data_exporter']
+    if (previousConfig) {
+      this.openConfiguration(previousConfig)
+    }
   },
-  destroyed() {
+  destroyed: function () {
     if (this.subscription) {
       this.subscription.unsubscribe()
     }
     this.cable.disconnect()
   },
   methods: {
-    async openConfiguration(name) {
-      const config = await this.api.load_config(this.toolName, name)
-      this.items = JSON.parse(config)
+    alertHandler: function (event) {
+      this.alert = event.text
+      this.alertType = event.type
+      this.showAlert = true
     },
-    saveConfiguration(name) {
-      this.api.save_config(this.toolName, name, JSON.stringify(this.items))
+    openConfiguration: function (name) {
+      localStorage['lastconfig__data_exporter'] = name
+      new CosmosApi()
+        .load_config(this.toolName, name)
+        .then((response) => {
+          if (response) {
+            this.items = JSON.parse(response)
+            this.alertHandler({
+              text: `Loading configuartion: ${name}`,
+              type: 'success',
+            })
+          }
+        })
+        .catch((error) => {
+          if (error) {
+            this.alertHandler({
+              text: `Failed to load configuration: ${name}. ${error}`,
+              type: 'error',
+            })
+            localStorage['lastconfig__data_exporter'] = null
+          }
+        })
     },
-    addItem(item) {
+    saveConfiguration: function (name) {
+      localStorage['lastconfig__data_exporter'] = name
+      new CosmosApi()
+        .save_config(this.toolName, name, JSON.stringify(this.items))
+        .then((response) => {
+          // console.log(response)
+          this.alertHandler({
+            text: `Saved configuartion: ${name}`,
+            type: 'success',
+          })
+        })
+        .catch((error) => {
+          if (error) {
+            this.alertHandler({
+              text: `Failed to save configuration: ${name}.\n${error}`,
+              type: 'error',
+            })
+          }
+        })
+    },
+    addItem: function (item) {
       // Traditional for loop so we can return if we find a match
       for (const listItem of this.items) {
         if (
@@ -427,9 +471,10 @@ export default {
           listItem.packetName === item.packetName &&
           listItem.targetName === item.targetName
         ) {
-          this.warningText = 'This item has already been added!'
-          this.warningType = 'warning'
-          this.warning = true
+          this.alertHandler({
+            text: 'This item has already been added!',
+            type: 'warning',
+          })
           return
         }
       }
@@ -439,29 +484,27 @@ export default {
       item.uniqueIgnoreAdd = 'NO'
       this.items.push(item)
     },
-    deleteItem(item) {
+    deleteItem: function (item) {
       var index = this.items.indexOf(item)
       this.items.splice(index, 1)
     },
-    deleteAll() {
+    deleteAll: function () {
       this.items = []
     },
-    editAllValueTypes() {
+    editAllValueTypes: function () {
       this.editAll = false
       for (let item of this.items) {
         item.valueType = this.allItemValueType
       }
     },
-    getItemLabel(item) {
+    getItemLabel: function (item) {
       var type = ''
       if (item.valueType !== 'CONVERTED') {
-        type = ' (' + item.valueType + ')'
+        type = ` (${item.valueType})`
       }
-      return (
-        item.targetName + ' - ' + item.packetName + ' - ' + item.itemName + type
-      )
+      return `${item.targetName} - ${item.packetName} - ${item.itemName} + ${type}`
     },
-    setTimestamps() {
+    setTimestamps: function () {
       this.startDateTimeFilename = this.startDate + '_' + this.startTime
       // Replace the colons and dashes with underscores in the filename
       this.startDateTimeFilename = this.startDateTimeFilename.replace(
@@ -484,7 +527,7 @@ export default {
       this.startDateTime = startTemp.getTime() * 1_000_000
       this.endDateTime = endTemp.getTime() * 1_000_000
     },
-    processItems() {
+    processItems: function () {
       // Check for a process in progress
       if (this.processButtonText === 'Cancel') {
         this.processReceived()
@@ -493,31 +536,34 @@ export default {
       // Check for an empty time period
       this.setTimestamps()
       if (!this.startDateTime || !this.endDateTime) {
-        this.warningText = 'Invalid date/time selected!'
-        this.warningType = 'warning'
-        this.warning = true
+        this.alertHandler({
+          text: 'Invalid date/time selected!',
+          type: 'warning',
+        })
         return
       }
       if (this.startDateTime === this.endDateTime) {
-        this.warningText = 'Start date/time is equal to end date/time!'
-        this.warningType = 'warning'
-        this.warning = true
+        this.alertHandler({
+          text: 'Start date/time is equal to end date/time!',
+          type: 'warning',
+        })
         return
       }
       if (this.endDateTime - this.startDateTime < 0) {
-        this.warningText = 'Start date/time is greater then end date/time!'
-        this.warningType = 'warning'
-        this.warning = true
+        this.alertHandler({
+          text: 'Start date/time is greater then end date/time!',
+          type: 'warning',
+        })
         return
       }
       // Check for a future End Time
       if (new Date(this.endDateTime / 1_000_000) > Date.now()) {
-        this.warningText =
-          'Note: End date/time is greater than current date/time. Data will continue to stream in real-time until ' +
-          new Date(this.endDateTime / 1_000_000).toISOString() +
-          ' is reached.'
-        this.warningType = 'warning'
-        this.warning = true
+        this.alertHandler({
+          text: `Note: End date/time is greater than current date/time. Data will
+            continue to stream in real-time until
+            ${new Date(this.endDateTime / 1_000_000).toISOString()} is reached.`,
+          type: 'warning',
+        })
       }
 
       this.progress = 0
@@ -527,19 +573,23 @@ export default {
           received: (data) => this.received(data),
           connected: () => this.onConnected(),
           disconnected: () => {
-            this.warningText = 'COSMOS backend connection disconnected.'
-            this.warning = true
+            this.alertHandler({
+              text: 'COSMOS backend connection disconnected.',
+              type: 'warning',
+            })
           },
           rejected: () => {
-            this.warningText = 'COSMOS backend connection rejected.'
-            this.warning = true
+            this.alertHandler({
+              text: 'COSMOS backend connection rejected.',
+              type: 'warning',
+            })
           },
         })
         .then((subscription) => {
           this.subscription = subscription
         })
     },
-    onConnected() {
+    onConnected: function () {
       this.foundKeys = []
       this.columnHeaders = []
       this.columnMap = {}
@@ -570,7 +620,7 @@ export default {
         })
       })
     },
-    buildHeaders(itemKeys) {
+    buildHeaders: function (itemKeys) {
       if (
         this.foundKeys.includes(itemKeys[0]) &&
         this.foundKeys.includes(itemKeys[1])
@@ -607,11 +657,12 @@ export default {
         }
       })
     },
-    received(json_data) {
-      if (json_data['error']) {
-        this.warningType = 'error'
-        this.warningText = json_data['error']
-        this.warning = true
+    received: function (json_data) {
+      if (json_data.error) {
+        this.alertHandler({
+          type: 'error',
+          text: json_data.error,
+        })
         return
       }
       const data = JSON.parse(json_data)
@@ -627,19 +678,18 @@ export default {
         this.processReceived()
       }
     },
-    processReceived() {
+    processReceived: function () {
       this.progress = 95 // Indicate we're almost done
       this.subscription.unsubscribe()
 
       if (this.rawData.length === 0) {
         let start = new Date(this.startDateTime / 1_000_000).toISOString()
         let end = new Date(this.endDateTime / 1_000_000).toISOString()
-        this.warningText = `No data found for the items in the requested time range of ${start} to ${end}`
-        this.warningType = 'warning'
-        this.warning = true
+        this.alertHandler({
+          text: `No data found for the items in the requested time range of ${start} to ${end}`,
+          type: 'warning',
+        })
       } else {
-        // Output the headers
-        this.warning = false
         let headers = ''
         if (this.matlabHeader) {
           headers += '% '

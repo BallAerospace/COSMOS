@@ -32,45 +32,48 @@
             prepend-icon="mdi-magnify"
             clear-icon="mdi-close-circle-outline"
             clearable
+            autofocus
             single-line
             hide-details
           />
         </v-toolbar>
-        <v-card-text class="mt-3">
-          <v-data-table
-            show-select
-            single-select
-            item-key="configId"
-            :search="search"
-            :headers="headers"
-            :items="configs"
-            :items-per-page="5"
-            :footer-props="{ 'items-per-page-options': [5] }"
-            @item-selected="itemSelected"
-            @click:row="(item, slot) => slot.select(item)"
-          >
-            <template v-slot:item.actions="{ item }">
-              <v-btn
-                class="mt-1"
-                data-test="item-delete"
-                icon
-                @click="() => deleteConfig(item)"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-            </template>
-          </v-data-table>
-          <v-row dense>
-            <span class="ma-2 red--text" v-show="error" v-text="error" />
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="success" :disabled="!!error" @click="success">
-            Ok
-          </v-btn>
-          <v-spacer />
-          <v-btn color="primary" @click="cancel">Cancel</v-btn>
-        </v-card-actions>
+        <form v-on:submit.prevent="success">
+          <v-card-text class="mt-3">
+            <v-data-table
+              show-select
+              single-select
+              item-key="configId"
+              :search="search"
+              :headers="headers"
+              :items="configs"
+              :items-per-page="5"
+              :footer-props="{ 'items-per-page-options': [5] }"
+              @item-selected="itemSelected"
+              @click:row="(item, slot) => slot.select(item)"
+            >
+              <template v-slot:item.actions="{ item }">
+                <v-btn
+                  class="mt-1"
+                  data-test="item-delete"
+                  icon
+                  @click="() => deleteConfig(item)"
+                >
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </template>
+            </v-data-table>
+            <v-row dense>
+              <span class="ma-2 red--text" v-show="error" v-text="error" />
+            </v-row>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="success" :disabled="!!error" @click="success">
+              Ok
+            </v-btn>
+            <v-spacer />
+            <v-btn color="primary" @click="cancel">Cancel</v-btn>
+          </v-card-actions>
+        </form>
       </v-card>
     </v-dialog>
   </v-row>

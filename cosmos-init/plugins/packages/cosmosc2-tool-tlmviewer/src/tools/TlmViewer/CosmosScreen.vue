@@ -21,7 +21,18 @@
   <div>
     <v-card>
       <v-system-bar>
-        <v-icon v-if="errors.length !== 0">mdi-alert</v-icon>
+        <div v-show="errors.length !== 0">
+          <v-tooltip top>
+            <template v-slot:activator="{ on, attrs }">
+              <div v-on="on" v-bind="attrs">
+                <v-icon data-test="errorGraphIcon" @click="errorDialog = true">
+                  mdi-alert
+                </v-icon>
+              </div>
+            </template>
+            <span> Errors </span>
+          </v-tooltip>
+        </div>
         <v-spacer />
         <span>{{ target }} {{ screen }}</span>
         <v-spacer />
@@ -61,7 +72,7 @@
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
               <v-icon
-                data-test="downloadScreenIcon"
+                data-test="closeScreenIcon"
                 @click="$emit('close-screen')"
               >
                 mdi-close-box
@@ -81,24 +92,26 @@
       </v-expand-transition>
     </v-card>
 
+    <!-- Edit dialog -->
     <v-dialog v-model="editDialog" width="600">
       <v-card>
-        <v-toolbar>
-          <v-toolbar-title>Edit Screen: {{ target }} {{ screen }}</v-toolbar-title>
+        <v-system-bar>
+          <v-spacer />
+          <span> Edit Screen: {{ target }} {{ screen }} </span>
           <v-spacer />
           <div class="mx-2">
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <div v-on="on" v-bind="attrs">
-                  <v-btn icon data-test="downloadScreenIcon" @click="downloadScreen">
-                    <v-icon> mdi-download </v-icon>
-                  </v-btn>
+                  <v-icon data-test="downloadScreenIcon" @click="downloadScreen">
+                    mdi-download
+                  </v-icon>
                 </div>
               </template>
               <span> Download Screen </span>
             </v-tooltip>
           </div>
-        </v-toolbar>
+        </v-system-bar>
         <v-card-text>
           <v-row class="mt-3"> Upload a screen file. </v-row>
           <v-row no-gutters align="center">
@@ -136,13 +149,13 @@
             />
           </v-row>
           <v-row class="my-3">
-            <span class="red--text" v-show="error" v-text="error" />
+            <span class="red--text" v-show="editErrors" v-text="editErrors" />
           </v-row>
           <v-row>
             <v-btn
               color="success"
               @click="saveEdit"
-              :disabled="!!error"
+              :disabled="!!editErrors"
               data-test="editScreenSubmitBtn"
             >
               Save
@@ -159,6 +172,30 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <!-- Error dialog -->
+    <v-dialog v-model="errorDialog" max-width="600">
+      <v-system-bar>
+        <v-spacer />
+        <span> Screen: {{ target }} {{ screen }} Errors </span>
+        <v-spacer />
+      </v-system-bar>
+      <v-card class="pa-3">
+        <v-row class="my-3">
+          <v-textarea
+            readonly
+            rows="13"
+            :value="error"
+          />
+        </v-row>
+        <v-row>
+          <v-btn block @click="clearErrors">
+            Clear
+          </v-btn>
+        </v-row>
+      </v-card>
+    </v-dialog>
+
   </div>
 </template>
 
@@ -247,18 +284,22 @@ export default {
       pollingPeriod: 1,
       showSaveAlert: false,
       errors: [],
+      errorDialog: false,
     }
   },
   computed: {
-    error: function () {
-      if (this.editDialog && this.errors.length > 0) {
-        return this.errors.toString()
-      }
+    editErrors: function () {
       if (this.currentDefinition === '' && !this.file) {
         return 'Input can not be blank.'
       }
       if (this.currentDefinition === this.backup) {
         return 'No changes have been made to save.'
+      }
+      return null
+    },
+    error: function () {
+      if (this.errorDialog && this.errors.length > 0) {
+        return JSON.stringify(this.errors, null, 4)
       }
       return null
     },
@@ -268,9 +309,17 @@ export default {
   // in the widget stack and are typically thrown on create()
   errorCaptured(err, vm, info) {
     if (err.usage) {
-      this.errors.push(err.usage)
+      this.errors.push({
+        type: 'usage',
+        message: err.usage,
+        time: new Date().getTime(),
+      })
     } else {
-      this.errors.push(err)
+      this.errors.push({
+        type: 'error',
+        message: err,
+        time: new Date().getTime(),
+      })
     }
     return false
   },
@@ -292,6 +341,9 @@ export default {
     }
   },
   methods: {
+    clearErrors: function () {
+      this.errors = []
+    },
     parseDefinition: function () {
       // Each time we start over and parse the screen definition
       this.showSaveAlert = false

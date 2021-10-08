@@ -20,7 +20,7 @@
 <template>
   <v-row justify="center">
     <v-dialog v-model="show" @keydown.esc="cancel" width="600">
-      <v-card>
+      <v-card class="pa-3">
         <v-toolbar>
           <v-card-title>Save Configuration</v-card-title>
           <v-spacer />
@@ -36,50 +36,53 @@
             hide-details
           />
         </v-toolbar>
-        <v-card-text class="mt-3">
-          <v-data-table
-            show-select
-            single-select
-            item-key="configId"
-            :search="search"
-            :headers="headers"
-            :items="configs"
-            :items-per-page="5"
-            :footer-props="{ 'items-per-page-options': [5] }"
-            @item-selected="itemSelected"
-            @click:row="(item, slot) => slot.select(item)"
-          >
-            <template v-slot:item.actions="{ item }">
-              <v-btn
-                icon
-                class="mt-1"
-                data-test="item-delete"
-                @click="deleteConfig(item)"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-            </template>
-          </v-data-table>
-          <v-row dense>
-            <v-text-field
-              v-model="configName"
-              hide-details
-              :disabled="!!selectedItem"
-              label="Configuration Name"
-              data-test="name-input-save-config-dialog"
-            />
-          </v-row>
-          <v-row dense>
-            <span class="ma-2 red--text" v-show="error" v-text="error" />
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="success" :disabled="!!error" @click="success">
-            Ok
-          </v-btn>
-          <v-spacer />
-          <v-btn color="primary" @click="cancel">Cancel</v-btn>
-        </v-card-actions>
+        <form v-on:submit.prevent="success">
+          <v-card-text class="mt-3">
+            <v-data-table
+              show-select
+              single-select
+              item-key="configId"
+              :search="search"
+              :headers="headers"
+              :items="configs"
+              :items-per-page="5"
+              :footer-props="{ 'items-per-page-options': [5] }"
+              @item-selected="itemSelected"
+              @click:row="(item, slot) => slot.select(item)"
+            >
+              <template v-slot:item.actions="{ item }">
+                <v-btn
+                  icon
+                  class="mt-1"
+                  data-test="item-delete"
+                  @click="deleteConfig(item)"
+                >
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </template>
+            </v-data-table>
+            <v-row dense>
+              <v-text-field
+                v-model="configName"
+                hide-details
+                autofocus
+                :disabled="!!selectedItem"
+                label="Configuration Name"
+                data-test="name-input-save-config-dialog"
+              />
+            </v-row>
+            <v-row dense>
+              <span class="ma-2 red--text" v-show="error" v-text="error" />
+            </v-row>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="success" :disabled="!!error" @click="success">
+              Ok
+            </v-btn>
+            <v-spacer />
+            <v-btn color="primary" @click="cancel">Cancel</v-btn>
+          </v-card-actions>
+        </form>
       </v-card>
     </v-dialog>
   </v-row>

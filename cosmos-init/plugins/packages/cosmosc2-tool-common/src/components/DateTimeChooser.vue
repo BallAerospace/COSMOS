@@ -32,29 +32,25 @@
             <!-- We set the :name attribute to be unique to avoid auto-completion -->
             <v-text-field
               :label="dateLabel"
-              :name="'date' + Date.now()"
+              :name="`date${Date.now()}`"
               :rules="dateRules"
               v-model="date"
               v-on="on"
+              type="date"
               prepend-icon="mdi-calendar"
               data-test="dateChooser"
             />
           </template>
-          <v-date-picker
-            v-model="date"
-            @change="onChange"
-            :show-current="false"
-            no-title
-          />
         </v-menu>
       </v-col>
       <v-col>
         <!-- We set the :name attribute to be unique to avoid auto-completion -->
         <v-text-field
           :label="timeLabel"
-          :name="'time' + Date.now()"
+          :name="`time${Date.now()}`"
           :rules="timeRules"
           v-model="time"
+          type="time"
           @change="onChange"
           prepend-icon="mdi-clock"
           data-test="timeChooser"
