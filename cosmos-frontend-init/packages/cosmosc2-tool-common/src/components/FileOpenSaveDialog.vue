@@ -170,11 +170,15 @@ export default {
             name: this.selectedFile,
             contents: response.data.contents,
           }
-          if (response.data.suites) {
+          if (response.data.suites && !this.warning) {
             try {
-              file['suites'] = JSON.parse(response.data.suites)
+              file['suites'] = JSON.parse(response.data.suites[response.data.suites.length -1])
             } catch (e) {
+              this.disableButtons = false
+              this.warningText = "Error Opening as Suite:\n" + response.data.suites[0] + '\n\nClick OK to open as a script'
+              this.warning = true
               file['suites'] = null
+              return
             }
           }
           this.$emit('file', file)
