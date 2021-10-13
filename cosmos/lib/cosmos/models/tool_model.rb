@@ -222,7 +222,7 @@ module Cosmos
         # Load tool files
         data = File.read(filename, mode: "rb")
         data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
-        rubys3_client.put_object(bucket: 'tools', key: key, body: data)
+        rubys3_client.put_object(bucket: 'tools', cache_control: 'no-cache', key: key, body: data)
       end
     end
 
