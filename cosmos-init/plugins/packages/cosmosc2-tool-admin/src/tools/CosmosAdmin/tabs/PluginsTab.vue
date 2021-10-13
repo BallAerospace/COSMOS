@@ -25,46 +25,38 @@
           block
           color="primary"
           data-test="pluginUpload"
-          :disabled="!file || loadingPlugin"
+          :disabled="!files.length"
           :loading="loadingPlugin"
           @click="upload()"
         >
           Upload
           <v-icon right dark>mdi-cloud-upload</v-icon>
-        <template v-slot:loader>
-          <span>Loading...</span>
-        </template>
+          <template v-slot:loader>
+            <span>Loading...</span>
+          </template>
         </v-btn>
       </v-col>
       <v-col cols="9">
         <div class="px-4">
           <v-file-input
+            multiple
             show-size
-            v-model="file"
+            v-model="files"
             ref="fileInput"
             accept=".gem"
-            label="Click to Select Plugin .gem File"
+            label="Click to select plugin .gem file(s)"
           />
         </div>
       </v-col>
     </v-row>
-    <v-row no-gutters>
-      <v-progress-linear
-        :active="loading"
-        :indeterminate="loading"
-        absolute
-        bottom
-      />
-    </v-row>
     <!-- TODO This alert shows both success and failure. Make consistent with rest of COSMOS. -->
     <v-alert
-      :type="alertType"
-      v-model="showAlert"
       dismissible
       transition="scale-transition"
-    >
-      {{ alert }}
-    </v-alert>
+      :type="alertType"
+      v-model="showAlert"
+      v-text="alert"
+    />
     <v-list data-test="pluginList">
       <div v-for="(plugin, i) in plugins" :key="i">
         <v-list-item>
@@ -85,7 +77,11 @@
             <div class="mx-3">
               <v-tooltip bottom>
                 <template v-slot:activator="{ on, attrs }">
-                  <v-icon @click="upgradePlugin(plugin)" v-bind="attrs" v-on="on">
+                  <v-icon
+                    @click="upgradePlugin(plugin)"
+                    v-bind="attrs"
+                    v-on="on"
+                  >
                     mdi-update
                   </v-icon>
                 </template>
@@ -95,7 +91,11 @@
             <div class="mx-3">
               <v-tooltip bottom>
                 <template v-slot:activator="{ on, attrs }">
-                  <v-icon @click="deletePlugin(plugin)" v-bind="attrs" v-on="on">
+                  <v-icon
+                    @click="deletePlugin(plugin)"
+                    v-bind="attrs"
+                    v-on="on"
+                  >
                     mdi-delete
                   </v-icon>
                 </template>
@@ -107,16 +107,8 @@
         <v-divider />
       </div>
     </v-list>
-    <v-alert
-      dismissible
-      transition="scale-transition"
-      :type="alertType"
-      v-model="showAlert"
-      v-text="alert"
-    />
     <variables-dialog
       v-model="showVariables"
-      v-if="showVariables"
       :variables="variables"
       @submit="variablesCallback"
     />
@@ -139,18 +131,17 @@ import EditDialog from '@/tools/CosmosAdmin/EditDialog'
 export default {
   components: {
     VariablesDialog,
-    EditDialog
+    EditDialog,
   },
   data() {
     return {
-      file: null,
+      files: [],
       loadingPlugin: false,
       plugins: [],
       alert: '',
       alertType: 'success',
       showAlert: false,
-      pluginId: null,
-      variables: {},
+      variables: [],
       showVariables: false,
       jsonContent: '',
       dialogTitle: '',
@@ -164,7 +155,6 @@ export default {
     update: function () {
       Api.get('/cosmos-api/plugins')
         .then((response) => {
-          //console.log(response.data)
           this.plugins = response.data
         })
         .catch((error) => {
@@ -174,22 +164,33 @@ export default {
         })
     },
     upload: function (existing = null) {
-      const method = (existing ? 'put' : 'post')
-      const path = (existing ? `/cosmos-api/plugins/${existing}` : '/cosmos-api/plugins')
+      const method = existing ? 'put' : 'post'
+      const path = existing
+        ? `/cosmos-api/plugins/${existing}`
+        : '/cosmos-api/plugins'
       this.loadingPlugin = true
-      let formData = new FormData()
-      formData.append('plugin', this.file, this.file.name)
-      Api[method](path, { data: formData })
-        .then((response) => {
-          this.alert = `Uploaded file ${this.file.name}`
+      const promises = this.files.map((file) => {
+        const formData = new FormData()
+        formData.append('plugin', file, file.name)
+        return Api[method](path, { data: formData })
+      })
+      Promise.all(promises)
+        .then((responses) => {
+          this.alert = `Uploaded ${responses.length} file${
+            responses.length > 1 ? 's' : ''
+          }`
           this.alertType = 'success'
           this.showAlert = true
           setTimeout(() => {
             this.showAlert = false
           }, 5000)
           this.update()
-          this.pluginId = this.file.name
-          this.variables = response.data.variables
+          this.variables = responses.map((response) => {
+            return {
+              name: response.data.name,
+              variables: response.data.variables,
+            }
+          })
           this.showVariables = true
         })
         .catch((error) => {
@@ -197,22 +198,28 @@ export default {
           this.alertType = 'error'
           this.showAlert = true
           this.loadingPlugin = false
-          this.file = null
+          this.files = []
         })
     },
-    variablesCallback: function (updated_variables) {
+    variablesCallback: function (updatedVariables) {
       this.showVariables = false
-      Api.post(`/cosmos-api/plugins/install/${this.pluginId}`, {
-        data: {
-          variables: JSON.stringify(updated_variables),
-        },
+      const promises = updatedVariables.map((plugin) => {
+        return Api.post(`/cosmos-api/plugins/install/${plugin.name}`, {
+          data: {
+            variables: JSON.stringify(plugin.variables),
+          },
+        })
       })
-        .then((response) => {
+      Promise.all(promises)
+        .then((responses) => {
           this.loadingPlugin = false
-          this.alert = `Installed plugin ${this.file.name}`
+          this.alert = `Installed ${responses.length} plugin${
+            responses.length > 1 ? 's' : ''
+          }`
           this.alertType = 'success'
           this.showAlert = true
-          this.file = null
+          this.files = []
+          this.variables = []
           setTimeout(() => {
             this.showAlert = false
           }, 5000)
@@ -270,10 +277,10 @@ export default {
         })
     },
     async upgradePlugin(plugin) {
-      this.file = null
+      this.files = []
       this.$refs.fileInput.$refs.input.click()
       // Wait for the file to be set by the dialog so upload works
-      while (this.file === null) {
+      while (this.files.length === 0) {
         await new Promise((resolve) => setTimeout(resolve, 500))
       }
       this.upload(plugin)

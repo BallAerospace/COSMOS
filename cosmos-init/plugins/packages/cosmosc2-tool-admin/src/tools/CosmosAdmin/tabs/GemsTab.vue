@@ -25,7 +25,7 @@
           block
           color="primary"
           data-test="gemUpload"
-          :disabled="!file || loadingGem"
+          :disabled="!files.length"
           :loading="loadingGem"
           @click="upload"
         >
@@ -36,26 +36,26 @@
           <v-icon right dark>mdi-cloud-upload</v-icon>
         </v-btn>
       </v-col>
-      <v-row no-gutters>
-        <v-progress-linear
-          :active="loading"
-          :indeterminate="loading"
-          absolute
-          bottom
-        />
-      </v-row>
       <v-col cols="9">
         <div class="px-4">
           <v-file-input
+            multiple
             show-size
-            v-model="file"
+            v-model="files"
             ref="fileInput"
             accept=".gem"
-            label="Click to Select .gem file to add to internal gem server"
+            label="Click to select .gem file(s) to add to internal gem server"
           />
         </div>
       </v-col>
     </v-row>
+    <v-alert
+      dismissible
+      v-model="showAlert"
+      v-text="alert"
+      :type="alertType"
+      transition="scale-transition"
+    />
     <v-list data-test="gemList">
       <div v-for="(gem, i) in gems" :key="i">
         <v-list-item>
@@ -76,23 +76,15 @@
         <v-divider />
       </div>
     </v-list>
-    <v-alert
-      dismissible
-      v-model="showAlert"
-      v-text="alert"
-      :type="alertType"
-      transition="scale-transition"
-    />
   </div>
 </template>
 
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
 export default {
-  components: {},
   data() {
     return {
-      file: null,
+      files: [],
       loadingGem: false,
       gems: [],
       alert: '',
@@ -120,15 +112,20 @@ export default {
     },
     upload() {
       this.loadingGem = true
-      let formData = new FormData()
-      formData.append('gem', this.file, this.file.name)
-      Api.post('/cosmos-api/gems', { data: formData })
-        .then((response) => {
-          this.alert = 'Uploaded gem ' + this.file.name
+      const promises = this.files.map((file) => {
+        const formData = new FormData()
+        formData.append('gem', file, file.name)
+        return Api.post('/cosmos-api/gems', { data: formData })
+      })
+      Promise.all(promises)
+        .then((responses) => {
+          this.alert = `Uploaded ${responses.length} gem${
+            responses.length > 1 ? 's' : ''
+          }`
           this.alertType = 'success'
           this.showAlert = true
           this.loadingGem = false
-          this.file = null
+          this.files = []
           setTimeout(() => {
             this.showAlert = false
           }, 5000)
