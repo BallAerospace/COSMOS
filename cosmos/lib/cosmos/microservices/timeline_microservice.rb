@@ -17,6 +17,7 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/utilities/authentication'
 require 'cosmos/microservices/microservice'
 require 'cosmos/models/activity_model'
 require 'cosmos/models/notification_model'
@@ -24,7 +25,6 @@ require 'cosmos/models/timeline_model'
 require 'cosmos/topics/timeline_topic'
 
 require 'cosmos/script'
-$cosmos_token = ENV['COSMOS_SERVICE_PASSWORD']
 
 module Cosmos
   # The Timeline worker is a very simple thread pool worker. Once
@@ -36,6 +36,16 @@ module Cosmos
       @timeline_name = name
       @scope = scope
       @queue = queue
+      @authentication = generate_auth()
+    end
+
+    # generate the auth object
+    def generate_auth
+      if ENV['COSMOS_API_USER'].nil? || ENV['COSMOS_API_CLIENT'].nil?
+        return CosmosAuthentication.new()
+      else
+        return CosmosKeycloakAuthentication.new(ENV['COSMOS_KEYCLOAK_URL'])
+      end
     end
 
     def run
@@ -76,18 +86,17 @@ module Cosmos
     def run_script(activity)
       Logger.info "#{@timeline_name} run_script > #{activity.as_json}"
       begin
-        path = "/scripts/#{activity.data['script']}/run"
         request = Net::HTTP::Post.new(
-          path,
+          "/script-api/scripts/#{activity.data['script']}/run?scope=#{@scope}",
           'Content-Type' => 'application/json',
-          'Authorization' => ENV['COSMOS_SERVICE_PASSWORD'] || 'invalid'
+          'Authorization' => @authentication.token()
         )
         request.body = JSON.generate({
-                                       'scope' => @scope,
-                                       'timeline' => @timeline_name,
-                                       'id' => activity.start
-                                     })
-        hostname = ENV['COSMOS_SCRIPT_HOSTNAME'] || (ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-script-runner-api')
+          'scope' => @scope,
+          'timeline' => @timeline_name,
+          'id' => activity.start
+        })
+        hostname = ENV['COSMOS_SCRIPT_HOSTNAME'] || 'cosmos-script-runner-api'
         response = Net::HTTP.new(hostname, 2902).request(request)
         raise "failed to call #{hostname}, for script: #{activity.data['script']}, response code: #{response.code}" if response.code != '200'
 

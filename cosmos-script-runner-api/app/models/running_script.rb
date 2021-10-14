@@ -272,17 +272,19 @@ class RunningScript
     process.cwd = File.join(RAILS_ROOT, 'scripts')
 
     # Set proper secrets for running script
-    process.environment["SECRET_KEY_BASE"] = nil
-    process.environment["COSMOS_REDIS_USERNAME"] = ENV["COSMOS_SR_REDIS_USERNAME"]
-    process.environment["COSMOS_REDIS_PASSWORD"] = ENV["COSMOS_SR_REDIS_PASSWORD"]
-    process.environment["COSMOS_MINIO_USERNAME"] = ENV["COSMOS_SR_MINIO_USERNAME"]
-    process.environment["COSMOS_MINIO_PASSWORD"] = ENV["COSMOS_SR_MINIO_PASSWORD"]
-    process.environment["COSMOS_PASSWORD"] = ENV["COSMOS_SERVICE_PASSWORD"]
-    process.environment["COSMOS_SR_REDIS_USERNAME"] = nil
-    process.environment["COSMOS_SR_REDIS_PASSWORD"] = nil
-    process.environment["COSMOS_SR_MINIO_USERNAME"] = nil
-    process.environment["COSMOS_SR_MINIO_PASSWORD"] = nil
-    process.environment["COSMOS_SERVICE_PASSWORD"] = nil
+    process.environment['SECRET_KEY_BASE'] = nil
+    process.environment['COSMOS_REDIS_USERNAME'] = ENV['COSMOS_SR_REDIS_USERNAME']
+    process.environment['COSMOS_REDIS_PASSWORD'] = ENV['COSMOS_SR_REDIS_PASSWORD']
+    process.environment['COSMOS_MINIO_USERNAME'] = ENV['COSMOS_SR_MINIO_USERNAME']
+    process.environment['COSMOS_MINIO_PASSWORD'] = ENV['COSMOS_SR_MINIO_PASSWORD']
+    process.environment['COSMOS_SR_REDIS_USERNAME'] = nil
+    process.environment['COSMOS_SR_REDIS_PASSWORD'] = nil
+    process.environment['COSMOS_SR_MINIO_USERNAME'] = nil
+    process.environment['COSMOS_SR_MINIO_PASSWORD'] = nil
+    process.environment['COSMOS_API_USER'] = ENV['COSMOS_API_USER']
+    process.environment['COSMOS_API_PASSWORD'] = ENV['COSMOS_API_PASSWORD'] || ENV['COSMOS_SERVICE_PASSWORD']
+    process.environment['COSMOS_API_CLIENT'] = ENV['COSMOS_API_CLIENT']
+    process.environment['COSMOS_API_SECRET'] = ENV['COSMOS_API_SECRET']
 
     process.start
     id
