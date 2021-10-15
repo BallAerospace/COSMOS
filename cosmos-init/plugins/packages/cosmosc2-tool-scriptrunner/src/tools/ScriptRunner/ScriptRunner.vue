@@ -20,7 +20,7 @@
 <template>
   <div>
     <top-bar :menus="menus" :title="title" />
-    <v-alert dense dismissible :type="alertType" v-if="alertType">
+    <v-alert dense dismissible :type="alertType" v-model="showAlert">
       {{ alertText }}
     </v-alert>
     <suite-runner
@@ -212,6 +212,7 @@
       v-model="fileOpen"
       type="open"
       @file="setFile($event)"
+      @error="setError($event)"
     />
     <file-open-save-dialog
       v-if="showSaveAs"
@@ -219,6 +220,7 @@
       type="save"
       :inputFilename="filename"
       @filename="saveAsFilename($event)"
+      @error="setError($event)"
     />
     <v-dialog v-model="areYouSure" max-width="350">
       <v-card>
@@ -319,6 +321,7 @@ export default {
         // },
       },
       showSave: false,
+      showAlert: false,
       alertType: null,
       alertText: '',
       state: ' ',
@@ -869,6 +872,11 @@ export default {
           break
       }
     },
+    setError(event) {
+      this.alertType = 'error'
+      this.alertText = 'Error: ' + event
+      this.showAlert = true
+    },
 
     // ScriptRunner File menu actions
     newFile() {
@@ -893,6 +901,7 @@ export default {
           this.alertType = 'warning'
           this.alertText =
             'Processing ' + this.filename + ' resulted in: ' + file.suites
+          this.showAlert = true
         } else {
           this.suiteRunner = true
           this.suiteMap = file.suites
@@ -954,10 +963,25 @@ export default {
                 response.status +
                 ' Text: ' +
                 response.statusText
+              this.showAlert = true
             }
           })
-          .catch((error) => {
+          .catch(({ response }) => {
             this.showSave = false
+            // 422 error means we couldn't parse the script file into Suites
+            // response.data.suites holds the parse result
+            if (response.status == 422) {
+              this.alertType = 'error'
+              this.alertText = response.data.suites
+            } else {
+              this.alertType = 'error'
+              this.alertText =
+                'Error saving file. Code: ' +
+                response.status +
+                ' Text: ' +
+                response.statusText
+            }
+            this.showAlert = true
           })
       }
     },

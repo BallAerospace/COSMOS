@@ -91,11 +91,8 @@ class Script
     end
     temp.delete
     puts "Processed #{name} in #{Time.now - start} seconds"
-    if results
-      puts "Results: #{results}"
-      # Return the last result to avoid any warnings as the file is parsed
-      return results[-1]
-    end
+    puts "Results: #{results}"
+    return results, $?.success?
   end
 
   def self.create(scope, name, text = nil)
