@@ -19,6 +19,7 @@
 
 <template>
   <div>
+
     <v-tooltip top>
       <template v-slot:activator="{ on, attrs }">
         <v-btn
@@ -33,34 +34,41 @@
       </template>
       <span> Create activity</span>
     </v-tooltip>
+
     <v-dialog persistent v-model="show" width="600">
-      <v-card class="pa-3">
-        <v-toolbar>
-          <v-toolbar-title>Create activity: {{ timeline }}</v-toolbar-title>
-          <v-spacer />
-          <v-menu>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn data-test="activityKind" outlined v-bind="attrs" v-on="on">
-                <span>{{ kindToLabel[kind] }}</span>
-                <v-icon right> mdi-menu-down </v-icon>
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item data-test="cmd" @click="changeKind('cmd')">
-                <v-list-item-title>CMD</v-list-item-title>
-              </v-list-item>
-              <v-list-item data-test="script" @click="changeKind('script')">
-                <v-list-item-title>SCRIPT</v-list-item-title>
-              </v-list-item>
-              <v-list-item data-test="reserve" @click="changeKind('reserve')">
-                <v-list-item-title>RESERVE</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-toolbar>
-        <v-card-text class="mt-1">
-          <v-form ref="form" @submit.prevent="createActivity()">
-            <v-sheet>
+      <v-card>
+        <form @submit.prevent="createActivity">
+
+          <v-system-bar>
+            <v-spacer />
+            <span>Create activity: {{ timeline }}</span>
+            <v-spacer />
+            <v-menu>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon 
+                  data-test="activityKind"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  mdi-menu-down
+                </v-icon>
+              </template>
+              <v-list>
+                <v-list-item data-test="cmd" @click="changeKind('cmd')">
+                  <v-list-item-title>CMD</v-list-item-title>
+                </v-list-item>
+                <v-list-item data-test="script" @click="changeKind('script')">
+                  <v-list-item-title>SCRIPT</v-list-item-title>
+                </v-list-item>
+                <v-list-item data-test="reserve" @click="changeKind('reserve')">
+                  <v-list-item-title>RESERVE</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-system-bar>
+
+          <v-card-text>
+            <div class="pa-3">
               <v-row dense>
                 <v-text-field
                   v-model="startDate"
@@ -126,27 +134,30 @@
               </v-row>
               <v-row>
                 <v-btn
-                  color="success"
+                  @click.prevent="createActivity"
                   type="submit"
-                  :disabled="!!error"
+                  color="success"
                   data-test="create-submit-btn"
+                  :disabled="!!error"
                 >
                   Ok
                 </v-btn>
                 <v-spacer />
                 <v-btn
-                  color="primary"
                   @click="show = false"
+                  color="primary"
                   data-test="create-cancel-btn"
                 >
                   Cancel
                 </v-btn>
               </v-row>
-            </v-sheet>
-          </v-form>
-        </v-card-text>
+            </div>
+          </v-card-text>
+
+        </form>
       </v-card>
     </v-dialog>
+
   </div>
 </template>
 
