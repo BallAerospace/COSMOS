@@ -18,27 +18,33 @@
 -->
 
 <template>
-  <v-row justify="center">
-    <v-dialog v-model="show" @keydown.esc="cancel" width="600">
-      <v-card>
-        <v-toolbar>
-          <v-card-title>Open Configuration</v-card-title>
+
+  <v-dialog v-model="show" @keydown.esc="cancel" width="600">
+    <v-card>
+      <form v-on:submit.prevent="success">
+
+        <v-system-bar>
           <v-spacer />
-          <v-text-field
-            label="search"
-            v-model="search"
-            type="text"
-            data-test="search"
-            prepend-icon="mdi-magnify"
-            clear-icon="mdi-close-circle-outline"
-            clearable
-            autofocus
-            single-line
-            hide-details
-          />
-        </v-toolbar>
-        <form v-on:submit.prevent="success">
-          <v-card-text class="mt-3">
+          <span>Open Configuration</span>
+          <v-spacer />
+        </v-system-bar>
+
+        <v-card-text>
+          <div class="pa-3">
+            <v-row dense>
+              <v-text-field
+                label="search"
+                v-model="search"
+                type="text"
+                data-test="search"
+                prepend-icon="mdi-magnify"
+                clear-icon="mdi-close-circle-outline"
+                clearable
+                autofocus
+                single-line
+                hide-details
+              />
+            </v-row>
             <v-data-table
               show-select
               single-select
@@ -65,18 +71,32 @@
             <v-row dense>
               <span class="ma-2 red--text" v-show="error" v-text="error" />
             </v-row>
-          </v-card-text>
-          <v-card-actions>
-            <v-btn color="success" :disabled="!!error" @click="success">
-              Ok
-            </v-btn>
-            <v-spacer />
-            <v-btn color="primary" @click="cancel">Cancel</v-btn>
-          </v-card-actions>
-        </form>
-      </v-card>
-    </v-dialog>
-  </v-row>
+            <v-row>
+              <v-btn
+                @click.prevent="success"
+                type="submit"
+                color="success"
+                data-test="open-config-submit-btn"
+                :disabled="!!error"
+              >
+                Ok
+              </v-btn>
+              <v-spacer />
+              <v-btn
+                @click="cancel"
+                color="primary"
+                data-test="open-config-cancel-btn"
+              >
+                Cancel
+              </v-btn>
+            </v-row>
+          </div>
+        </v-card-text>
+
+      </form>
+    </v-card>
+  </v-dialog>
+
 </template>
 
 <script>

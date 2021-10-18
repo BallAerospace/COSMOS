@@ -19,6 +19,7 @@
 
 <template>
   <div>
+
     <div v-if="!activity.fulfillment">
       <v-tooltip v-if="icon" top>
         <template v-slot:activator="{ on, attrs }">
@@ -34,36 +35,41 @@
         <v-list-item-title> Update Activity </v-list-item-title>
       </v-list-item>
     </div>
+
     <v-dialog v-model="show" width="600">
-      <v-card class="pa-3">
-        <v-toolbar>
-          <v-toolbar-title>
-            Update activity: {{ activity.name }}/{{ activity.start }}
-          </v-toolbar-title>
-          <v-spacer />
-          <v-menu>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn outlined v-bind="attrs" v-on="on">
-                <span>{{ kindToLabel[kind] }}</span>
-                <v-icon right> mdi-menu-down </v-icon>
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item data-test="cmd" @click="changeKind('cmd')">
-                <v-list-item-title>CMD</v-list-item-title>
-              </v-list-item>
-              <v-list-item data-test="script" @click="changeKind('script')">
-                <v-list-item-title>SCRIPT</v-list-item-title>
-              </v-list-item>
-              <v-list-item data-test="reserve" @click="changeKind('reserve')">
-                <v-list-item-title>RESERVE</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-toolbar>
-        <v-card-text class="mt-1">
-          <v-form ref="form" @submit.prevent="updateActivity()">
-            <v-sheet>
+      <v-card>
+        <form v-on:submit.prevent="updateActivity">
+
+          <v-system-bar>
+            <v-spacer />
+            <span> Update activity: {{ activity.name }}/{{ activity.start }} </span>
+            <v-spacer />
+            <v-menu>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon 
+                  data-test="activityKind"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  mdi-menu-down
+                </v-icon>
+              </template>
+              <v-list>
+                <v-list-item data-test="cmd" @click="changeKind('cmd')">
+                  <v-list-item-title>CMD</v-list-item-title>
+                </v-list-item>
+                <v-list-item data-test="script" @click="changeKind('script')">
+                  <v-list-item-title>SCRIPT</v-list-item-title>
+                </v-list-item>
+                <v-list-item data-test="reserve" @click="changeKind('reserve')">
+                  <v-list-item-title>RESERVE</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-system-bar>
+
+          <v-card-text>
+            <div class="pa-3">
               <v-row dense>
                 <v-text-field
                   v-model="startDate"
@@ -129,27 +135,30 @@
               </v-row>
               <v-row>
                 <v-btn
+                  @click.prevent="updateActivity"
                   color="success"
                   type="submit"
-                  :disabled="!!error"
                   data-test="update-submit-btn"
+                  :disabled="!!error"
                 >
                   Update
                 </v-btn>
                 <v-spacer />
                 <v-btn
-                  color="primary"
                   @click="show = false"
+                  color="primary"
                   data-test="update-cancel-btn"
                 >
                   Cancel
                 </v-btn>
               </v-row>
-            </v-sheet>
-          </v-form>
-        </v-card-text>
+            </div>
+          </v-card-text>
+
+        </form>
       </v-card>
     </v-dialog>
+
   </div>
 </template>
 

@@ -18,68 +18,98 @@
 -->
 
 <template>
-  <v-dialog v-model="show" width="400">
+  <v-dialog v-model="show" width="600">
     <v-card>
-      <v-card-title>{{ title }}</v-card-title>
-      <v-sheet class="pl-4 pr-4">
-        <v-text-field
-          label="Search"
-          v-model="search"
-          @input="handleSearch"
-          autofocus
-          flat
-          solo-inverted
-          hide-details
-          clearable
-          clear-icon="$astro-close-large"
-          data-test="search"
-        />
-      </v-sheet>
-      <v-card-text>
-        <v-treeview
-          ref="tree"
-          :items="tree"
-          :search="search"
-          :open-on-click="type === 'open'"
-          return-object
-          @update:active="activeFile"
-          activatable
-          dense
-        >
-          <template v-slot:prepend="{ item, open }">
-            <v-icon v-if="!item.file">
-              {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
-            </v-icon>
-            <v-icon v-else>
-              {{ 'mdi-language-ruby' }}
-            </v-icon>
-          </template></v-treeview
-        >
-        <v-alert dense type="warning" v-if="warning">{{ warningText }}</v-alert>
-        <v-text-field
-          v-if="type === 'save'"
-          hide-details
-          label="Filename"
-          v-model="selectedFile"
-          data-test="filename"
-        />
-      </v-card-text>
-      <v-card-actions>
-        <v-btn color="primary" text @click="ok()" :disabled="disableButtons">
-          Ok
-        </v-btn>
-        <v-spacer />
-        <v-btn
-          color="primary"
-          text
-          @click="show = false"
-          :disabled="disableButtons"
-        >
-          Cancel
-        </v-btn>
-      </v-card-actions>
+      <form v-on:submit.prevent="success">
+
+        <v-system-bar>
+          <v-spacer />
+          <span> {{title}} </span>
+          <v-spacer />
+        </v-system-bar>
+
+        <v-card-text>
+          <div class="pa-3">
+
+            <v-row dense>
+              <v-text-field
+                @input="handleSearch"
+                v-model="search"
+                flat
+                autofocus
+                solo-inverted
+                hide-details
+                clearable
+                label="Search"
+                data-test="file-open-save-search"
+              />
+            </v-row>
+
+            <v-row dense class="mt-2">
+              <v-treeview
+                v-model="tree"
+                @update:active="activeFile"
+                dense
+                activatable
+                return-object
+                ref="tree"
+                style="width: 100%"
+                :items="items"
+                :search="search"
+                :open-on-click="type === 'open'"
+              >
+                <template v-slot:prepend="{ item, open }">
+                  <v-icon v-if="!item.file">
+                    {{ open ? 'mdi-folder-open' : 'mdi-folder' }}
+                  </v-icon>
+                  <v-icon v-else>
+                    {{ 'mdi-language-ruby' }}
+                  </v-icon>
+                </template>
+              </v-treeview>
+            </v-row>
+
+            <v-row class="my-2">
+              <v-text-field
+                v-model="selectedFile"
+                hide-details
+                label="Filename"
+                data-test="filename"
+                :disabled="type === 'open'"
+              />
+            </v-row>
+
+            <v-row dense>
+              <span class="my-2 red--text" v-show="error" v-text="error" />
+            </v-row>
+
+            <v-row class="mt-2">
+              <v-btn
+                @click.prevent="success"
+                type="submit"
+                color="success"
+                data-test="file-open-save-submit-btn"
+                :disabled="disableButtons || !!error"
+              >
+                {{ submit }}
+              </v-btn>
+              <v-spacer />
+              <v-btn
+                @click="show = false"
+                color="primary"
+                data-test="file-open-save-cancel-btn"
+                :disabled="disableButtons"
+              >
+                Cancel
+              </v-btn>
+            </v-row>
+          </div>
+        </v-card-text>
+
+      </form>
     </v-card>
   </v-dialog>
+
 </template>
 
 <script>
@@ -101,22 +131,14 @@ export default {
   data() {
     return {
       tree: [],
+      items: [],
       id: 1,
       search: null,
       selectedFile: null,
-      warning: false,
-      warningText: '',
       disableButtons: false,
     }
   },
   computed: {
-    title() {
-      if (this.type === 'open') {
-        return 'File Open'
-      } else {
-        return 'File Save As...'
-      }
-    },
     show: {
       get() {
         return this.value
@@ -125,89 +147,129 @@ export default {
         this.$emit('input', value) // input is the default event when using v-model
       },
     },
+    title: function () {
+      if (this.type === 'open') {
+        return 'File Open'
+      } else {
+        return 'File Save As...'
+      }
+    },
+    submit: function () {
+      if (this.type === 'open') {
+        return 'OPEN' 
+      } else {
+        return 'SAVE'
+      }
+    },
+    error: function () {
+      if (this.selectedFile === '' || this.selectedFile === null) {
+        return 'No file seleted must select a file'
+      }
+      if (!this.selectedFile.match(/.*\/.*\/.*\..*/)) {
+        return `${this.selectedFile} is not a valid path / filename.`
+      }
+      return null
+    },
   },
   created() {
-    Api.get('/script-api/scripts').then((response) => {
-      this.tree = []
-      this.id = 1
-      for (let file of response.data) {
-        this.filepath = file
-        this.insertFile(this.tree, 1, file)
-        this.id++
-      }
-      if (this.inputFilename) {
-        this.selectedFile = this.inputFilename
-      }
-    })
+    Api.get('/script-api/scripts')
+      .then((response) => {
+        this.items = []
+        this.id = 1
+        for (let file of response.data) {
+          this.filepath = file
+          this.insertFile(this.items, 1, file)
+          this.id++
+        }
+        if (this.inputFilename) {
+          this.selectedFile = this.inputFilename
+        }
+      })
+      .catch((error) => {
+        this.$emit('error', `Failed to connect to Cosmos. ${error}`)
+      })
   },
   methods: {
-    handleSearch(input) {
+    clear: function () {
+      this.show = false
+      this.overwrite = false
+      this.disableButtons = false
+    },
+    handleSearch: function (input) {
       if (input) {
         this.$refs.tree.updateAll(true)
       } else {
         this.$refs.tree.updateAll(false)
       }
     },
-    activeFile(file) {
+    activeFile: function (file) {
       if (file.length === 0) {
         this.selectedFile = null
       } else {
         this.selectedFile = file[0].path
-        this.warning = false
       }
     },
-    ok() {
-      if (this.selectedFile === null) {
-        this.warningText = 'Nothing selected'
-        this.warning = true
-        return
+    exists: function (root, name) {
+      let found = false
+      for (let item of root) {
+        if (item.path === name) {
+          return true
+        }
+        if (item.children) {
+          found = found || this.exists(item.children, name)
+        }
       }
+      return found
+    },
+    success: function () {
       if (this.type === 'open') {
-        // Disable the buttons because the API call can take a bit
-        this.disableButtons = true
-        Api.get('/script-api/scripts/' + this.selectedFile).then((response) => {
+        this.openSuccess()
+      } else {
+        this.saveSuccess()
+      }
+    },
+    openSuccess: function () {
+      // Disable the buttons because the API call can take a bit
+      this.disableButtons = true
+      Api.get(`/script-api/scripts/${this.selectedFile}`)
+        .then((response) => {
           const file = {
             name: this.selectedFile,
             contents: response.data.contents,
           }
           if (response.data.suites) {
-            file['suites'] = JSON.parse(response.data.suites)
+            try {
+              file['suites'] = JSON.parse(response.data.suites)
+            } catch (e) {
+              this.$emit('error', response.data.suites)
+            }
           }
           this.$emit('file', file)
-          this.show = false
+          this.clear()
         })
+        .catch((error) => {
+          this.$emit('error', `Failed to open ${this.selectedFile}. ${error}`)
+          this.clear()
+        })
+    },
+    saveSuccess: function () {
+      const found = this.exists(this.items, this.selectedFile)
+      if (found) {
+        this.$dialog
+          .confirm(`Are you sure you want to overwrite: ${this.selectedFile}`, {
+            okText: 'Overwrite',
+            cancelText: 'Cancel',
+          })
+          .then((dialog) => {
+            this.$emit('filename', this.selectedFile)
+            this.clear()
+          })
       } else {
-        if (!this.checkValid(this.selectedFile)) {
-          this.warningText =
-            this.selectedFile + ' is not a valid path / filename.'
-          this.warning = true
-          return
-        }
-        this.found = false
-        this.checkExists(this.tree, this.selectedFile)
-        if (this.found && !this.warning) {
-          this.warningText =
-            this.selectedFile + ' already exists. Click OK to overwrite.'
-          this.warning = true
-          return
-        } else {
-          this.$emit('filename', this.selectedFile)
-          this.show = false
-        }
+        this.$emit('filename', this.selectedFile)
+        this.clear()
       }
     },
-    checkValid(filename) {
-      // Require a path 2 levels deep with a file extension, e.g. INST/lib/inst.rb
-      if (filename.match(/.*\/.*\/.*\..*/)) return true
-      return false
-    },
-    checkExists(root, name) {
-      for (let item of root) {
-        if (item.path === name) this.found = true
-        if (item.children) this.checkExists(item.children, name)
-      }
-    },
-    insertFile(root, level, path) {
+    insertFile: function (root, level, path) {
       var parts = path.split('/')
       // When there is only 1 part we're at the root so push the filename
       if (parts.length === 1) {
