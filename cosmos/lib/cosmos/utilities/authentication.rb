@@ -103,7 +103,7 @@ module Cosmos
       @log[0] = "Make Request: #{uri.to_s} #{headers.to_s} #{data.to_s}"
       STDOUT.puts @log[0] if JsonDRb.debug?
       resp = HTTPClient.new().post(uri, :body => data, :header => headers)
-      log[1] = "Make Response: #{resp.status} #{resp.headers} #{resp.body}"
+      @log[1] = "Make Response: #{resp.status} #{resp.headers} #{resp.body}"
       STDOUT.puts @log[1] if JsonDRb.debug?
       JSON.parse(resp.body) if String === resp.body
     end
@@ -140,7 +140,7 @@ module Cosmos
       @log[0] = "Refresh Request: #{uri.to_s} #{headers.to_s} #{data.to_s}"
       STDOUT.puts @log[0] if JsonDRb.debug?
       resp = HTTPClient.new().post(uri, :body => data, :header => headers)
-      log[1] = "Refresh Response: #{resp.status} #{resp.headers} #{resp.body}"
+      @log[1] = "Refresh Response: #{resp.status} #{resp.headers} #{resp.body}"
       STDOUT.puts @log[1] if JsonDRb.debug?
       JSON.parse(resp.body) if String === resp.body
     end
