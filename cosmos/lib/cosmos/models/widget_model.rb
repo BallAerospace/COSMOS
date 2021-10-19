@@ -38,7 +38,7 @@ module Cosmos
 
     def self.names(scope: nil)
       array = []
-      all(scope: scope).each do |name, widget|
+      all(scope: scope).each do |name, _widget|
         array << name
       end
       array
@@ -55,7 +55,7 @@ module Cosmos
     def self.all_scopes
       result = {}
       scopes = Cosmos::ScopeModel.all
-      scopes.each do |key, scope|
+      scopes.each do |key, _scope|
         widgets = all(scope: key)
         result.merge!(widgets)
       end
@@ -114,9 +114,10 @@ module Cosmos
       # Load widget file
       data = File.read(filename, mode: "rb")
       data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
-      rubys3_client.put_object(bucket: 'tools', cache_control: 'no-cache', key: @s3_key, body: data)
+      # TODO: support widgets that aren't just a single js file (and its associated map file)
+      rubys3_client.put_object(bucket: 'tools', content_type: 'application/javascript', cache_control: 'no-cache', key: @s3_key, body: data)
       data = File.read(filename + '.map', mode: "rb")
-      rubys3_client.put_object(bucket: 'tools', cache_control: 'no-cache', key: @s3_key  + '.map', body: data)
+      rubys3_client.put_object(bucket: 'tools', content_type: 'application/json', cache_control: 'no-cache', key: @s3_key + '.map', body: data)
     end
 
     def undeploy

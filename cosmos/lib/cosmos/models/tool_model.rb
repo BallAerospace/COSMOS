@@ -20,6 +20,7 @@
 require 'cosmos/models/model'
 require 'cosmos/models/scope_model'
 require 'cosmos/utilities/s3'
+require 'rack'
 
 module Cosmos
   class ToolModel < Model
@@ -42,7 +43,7 @@ module Cosmos
 
     def self.names(scope: nil)
       array = []
-      all(scope: scope).each do |name, tool|
+      all(scope: scope).each do |name, _tool|
         array << name
       end
       array
@@ -51,7 +52,7 @@ module Cosmos
     def self.all(scope: nil)
       ordered_array = []
       tools = unordered_all(scope: scope)
-      tools.each do |name, tool|
+      tools.each do |_name, tool|
         ordered_array << tool
       end
       ordered_array.sort! { |a, b| a['position'] <=> b['position'] }
@@ -65,7 +66,7 @@ module Cosmos
     def self.all_scopes
       result = {}
       scopes = Cosmos::ScopeModel.all
-      scopes.each do |key, scope|
+      scopes.each do |key, _scope|
         tools = unordered_all(scope: key)
         result.merge!(tools)
       end
@@ -91,7 +92,7 @@ module Cosmos
       next_position = position + 1
 
       # Go through all the tools and reorder
-      all(scope: scope).each do |tool_name, tool|
+      all(scope: scope).each do |_tool_name, tool|
         tool_model = from_json(tool, scope: scope)
         # Update the requested model to the new position
         if tool_model.name == name
@@ -140,7 +141,7 @@ module Cosmos
     def create(update: false, force: false)
       unless @position
         tools = self.class.all(scope: @scope)
-        _, tool = tools.max_by { |tool_name, tool| tool['position'] }
+        _, tool = tools.max_by { |_tool_name, tool| tool['position'] }
         if tool
           @position = tool['position'] + 1
         else
@@ -219,10 +220,13 @@ module Cosmos
 
         key = filename.split(gem_path + '/tools/')[-1]
 
+        extension = filename.split('.')[-1]
+        content_type = Rack::Mime.mime_type(".#{extension}")
+
         # Load tool files
         data = File.read(filename, mode: "rb")
         data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
-        rubys3_client.put_object(bucket: 'tools', cache_control: 'no-cache', key: key, body: data)
+        rubys3_client.put_object(bucket: 'tools', content_type: content_type, cache_control: 'no-cache', key: key, body: data)
       end
     end
 
