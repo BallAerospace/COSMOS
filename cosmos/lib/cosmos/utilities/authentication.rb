@@ -20,6 +20,9 @@
 
 module Cosmos
 
+  # Basic exception for known errors
+  class CosmosAuthenticationError < StandardError; end
+
   # Cosmos base / open source authentication code
   class CosmosAuthentication
 
@@ -27,7 +30,7 @@ module Cosmos
     def initialize()
       @token = ENV['COSMOS_API_PASSWORD'] || ENV['COSMOS_SERVICE_PASSWORD']
       if @token.nil?
-        raise DRb::DRbConnError, "Authentication requires environment variables COSMOS_API_PASSWORD or COSMOS_SERVICE_PASSWORD"
+        raise CosmosAuthenticationError, "Authentication requires environment variables COSMOS_API_PASSWORD or COSMOS_SERVICE_PASSWORD"
       end
     end
 
@@ -41,9 +44,17 @@ module Cosmos
   # Cosmos enterprise Keycloak authentication code
   class CosmosKeycloakAuthentication < CosmosAuthentication
 
-    # @param url [String] The url of the cosmos-keycloak-api
-    def initialize(url)
+    # @param url [String] The url of the cosmos or keycloak in the cluster
+    # @param user [String] The user that is being authenticated
+    # @param password [String] The password that is being used
+    # @param client [String] The keycloak client that us being used
+    # @param secret [String] The secret that is being used
+    def initialize(url, user = nil, password = nil, client = nil, secret = nil)
       @url = url
+      @user = user || ENV['COSMOS_API_USER']
+      @password = password || ENV['COSMOS_API_PASSWORD']
+      @client = client || ENV['COSMOS_API_CLIENT']
+      @secret = secret || ENV['COSMOS_API_SECRET']
       @auth_mutex = Mutex.new
       @refresh_token = nil
       @expires_at = nil
@@ -68,9 +79,11 @@ module Cosmos
       "Bearer #{@token}"
     end
 
+    private
+
+    # Make the token and save token to instance
     def _make_token(current_time)
       oath = _make_token_request()
-      raise DRb::DRbConnError, "make failed authentication: #{@log[0]} ::: #{@log[1]}" unless oath
       @token = oath['access_token']
       @refresh_token = oath['refresh_token']
       @expires_at = current_time + oath['expires_in']
@@ -89,28 +102,19 @@ module Cosmos
       #     "session_state": "",
       #     "scope": "openid email profile"
       # }
-      data = "username=#{ENV['COSMOS_API_USER']}"
-      data << "&password=#{ENV['COSMOS_API_PASSWORD']}"
-      data << "&client_id=#{ENV['COSMOS_API_CLIENT']}"
-      data << "&client_secret=#{ENV['COSMOS_API_SECRET']}"
-      data << '&grant_type=password'
-      data << '&scope=openid'
+      data = "username=#{@user}&password=#{@password}"
+      data << "&client_id=#{@client}&client_secret=#{@secret}"
+      data << '&grant_type=password&scope=openid'
       headers = {
         'Content-Type' => 'application/x-www-form-urlencoded',
         'User-Agent' => 'CosmosKeycloakAuthorization / 5.0.0 (ruby/cosmos/lib/utilities/authentication)',
       }
-      uri = URI("#{@url}/auth/realms/COSMOS/protocol/openid-connect/token")
-      @log[0] = "Make Request: #{uri.to_s} #{headers.to_s} #{data.to_s}"
-      STDOUT.puts @log[0] if JsonDRb.debug?
-      resp = HTTPClient.new().post(uri, :body => data, :header => headers)
-      @log[1] = "Make Response: #{resp.status} #{resp.headers} #{resp.body}"
-      STDOUT.puts @log[1] if JsonDRb.debug?
-      JSON.parse(resp.body) if String === resp.body
+      return _make_request(headers, data)
     end
 
+    # Refresh the token and save token to instance
     def _refresh_token(current_time)
       oath = _make_refresh_request()
-      raise DRb::DRbConnError, "refresh failed authentication: #{@log[0]} ::: #{@log[1]}" unless oath
       @token = oath["access_token"]
       @refresh_token = oath["refresh_token"]
       @expires_at = current_time + oath["expires_in"]
@@ -129,20 +133,27 @@ module Cosmos
       #     "session_state": "",
       #     "scope": "openid email profile"
       # }
-      data = "client_id=#{ENV['COSMOS_API_CLIENT']}"
-      data << "&refresh_token=#{@refresh_token}"
-      data << "&grant_type=refresh_token"
+      data = "client_id=#{@cleint}&refresh_token=#{@refresh_token}&grant_type=refresh_token"
       headers = {
         'Content-Type' => 'application/x-www-form-urlencoded',
         'User-Agent' => 'CosmosKeycloakAuthorization / 5.0.0 (ruby/cosmos/lib/utilities/authentication)',
       }
+      return _make_request(headers, data)
+    end
+
+    # Make the post request to keycloak
+    def _make_request(headers, data)
       uri = URI("#{@url}/auth/realms/COSMOS/protocol/openid-connect/token")
-      @log[0] = "Refresh Request: #{uri.to_s} #{headers.to_s} #{data.to_s}"
+      @log[0] = "make request uri: #{uri.to_s} header: #{headers.to_s} body: #{data.to_s}"
       STDOUT.puts @log[0] if JsonDRb.debug?
       resp = HTTPClient.new().post(uri, :body => data, :header => headers)
-      @log[1] = "Refresh Response: #{resp.status} #{resp.headers} #{resp.body}"
+      @log[1] = "make response status: #{resp.status} header: #{resp.headers} body: #{resp.body}"
       STDOUT.puts @log[1] if JsonDRb.debug?
-      JSON.parse(resp.body) if String === resp.body
+      if resp.status >= 200 && resp.status <= 299
+        return JSON.parse(resp.body)
+      else
+        raise CosmosAuthenticationError, "authentication request failed #{@log[0]} ::: #{@log[1]}"
+      end
     end
 
   end

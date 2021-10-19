@@ -205,7 +205,12 @@ module Cosmos
       if ENV['COSMOS_API_USER'].nil? || ENV['COSMOS_API_CLIENT'].nil?
         return CosmosAuthentication.new()
       else
-        return CosmosKeycloakAuthentication.new(ENV['COSMOS_KEYCLOAK_URL'])
+        k_url = ENV['COSMOS_KEYCLOAK_URL'] || ENV['COSMOS_API_URL']
+        user = ENV['COSMOS_API_USER']
+        password = ENV['COSMOS_API_PASSWORD']
+        client = ENV['COSMOS_API_CLIENT']
+        secret = ENV['COSMOS_API_SECRET']
+        return CosmosKeycloakAuthentication.new(k_url, user, password, client, secret)
       end
     end
 
