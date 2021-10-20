@@ -12,6 +12,7 @@ cacert.pem
 .idea
 .rubocop-http*
 .nyc_output
+cosmos/cosmos/
 cosmos/spec/install/outputs
 cosmos/spec/examples.txt
 coverage/

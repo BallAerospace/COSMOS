@@ -1,6 +1,8 @@
 Dockerfile
+Gemfile.lock
 .git
 .gitignore
+cosmos/
 coverage/
 spec/
 test/

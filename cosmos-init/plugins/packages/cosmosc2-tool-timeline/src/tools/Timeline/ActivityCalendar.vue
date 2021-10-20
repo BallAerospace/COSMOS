@@ -124,33 +124,12 @@
         :activator="selectedElement"
         offset-x
       >
-        <v-card min-width="400px" flat v-if="selectedOpen">
-          <v-toolbar dark>
-            <v-toolbar-title v-text="selectedActivity.name" />
+        <v-card flat min-width="400px" v-if="selectedOpen">
+          <v-system-bar>
             <v-spacer />
-            <activity-event-dialog
-              icon
-              v-model="showCreateDialog"
-              :activity="selectedActivity"
-              :display-time-in-utc="displayTimeInUtc"
-            />
-            <activity-update-dialog
-              icon
-              v-model="showUpdateDialog"
-              v-on="$listeners"
-              @close="activityCallback"
-              :activity="selectedActivity"
-              :display-time-in-utc="displayTimeInUtc"
-            />
-            <activity-delete-dialog
-              icon
-              v-on="$listeners"
-              @close="activityCallback"
-              :activity="selectedActivity"
-              :display-time-in-utc="displayTimeInUtc"
-              :activity-start-time="generateDateTime(selectedActivity)"
-            />
-          </v-toolbar>
+            <span> Activity: {{ selectedActivity.name }}/{{ selectedActivity.start }} </span>
+            <v-spacer />
+          </v-system-bar>
           <v-card-text>
             <v-simple-table dense>
               <tbody>
@@ -181,6 +160,31 @@
               </tbody>
             </v-simple-table>
           </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <activity-event-dialog
+              icon
+              v-model="showCreateDialog"
+              :activity="selectedActivity"
+              :display-time-in-utc="displayTimeInUtc"
+            />
+            <activity-update-dialog
+              icon
+              v-model="showUpdateDialog"
+              v-on="$listeners"
+              @close="activityCallback"
+              :activity="selectedActivity"
+              :display-time-in-utc="displayTimeInUtc"
+            />
+            <activity-delete-dialog
+              icon
+              v-on="$listeners"
+              @close="activityCallback"
+              :activity="selectedActivity"
+              :display-time-in-utc="displayTimeInUtc"
+              :activity-start-time="generateDateTime(selectedActivity)"
+            />
+          </v-card-actions>
         </v-card>
       </v-menu>
     </v-sheet>

@@ -19,6 +19,7 @@
 
 <template>
   <div>
+
     <v-tooltip v-if="icon" top>
       <template v-slot:activator="{ on, attrs }">
         <div v-on="on" v-bind="attrs">
@@ -29,50 +30,62 @@
       </template>
       <span> View Activity </span>
     </v-tooltip>
+
     <v-list-item v-else data-test="viewActivity" @click.stop="show = !show">
       <v-list-item-title> View Activity </v-list-item-title>
     </v-list-item>
-    <v-dialog v-model="show" width="55%">
-      <v-card class="pa-3" max-height="70%">
-        <v-toolbar>
-          <v-toolbar-title>Timeline: {{ activity.name }}</v-toolbar-title>
-        </v-toolbar>
-        <v-row dense class="mt-2">
-          <v-col>
-            <v-simple-table dense>
-              <tbody>
-                <tr>
-                  <th class="text-left" width="100">Fulfilled</th>
-                  <td v-text="activity.fulfillment" />
-                </tr>
-                <tr>
-                  <th class="text-left" width="100">Start Time</th>
-                  <td>
-                    {{ activity.start | dateTime(displayTimeInUtc) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th class="text-left">Stop Time</th>
-                  <td>
-                    {{ activity.stop | dateTime(displayTimeInUtc) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th class="text-left" v-text="activity.kind" />
-                  <td v-text="activity.data[activity.kind]" />
-                </tr>
-              </tbody>
-            </v-simple-table>
-          </v-col>
-          <v-col>
-            <event-timeline
-              :events="activity.events"
-              :display-time-in-utc="displayTimeInUtc"
-            />
-          </v-col>
-        </v-row>
+
+    <v-dialog v-model="show" width="600" max-height="70%">
+      <v-card>
+
+        <v-system-bar>
+          <v-spacer />
+          <span> Timeline: {{ activity.name }}/{{ activity.start }} </span>
+          <v-spacer />
+        </v-system-bar>
+        
+        <v-card-text>
+          <div class="pa-3">
+            <v-row dense>
+              <v-col>
+                <v-simple-table dense>
+                  <tbody>
+                    <tr>
+                      <th class="text-left" width="100">Fulfilled</th>
+                      <td v-text="activity.fulfillment" />
+                    </tr>
+                    <tr>
+                      <th class="text-left" width="100">Start Time</th>
+                      <td>
+                        {{ activity.start | dateTime(displayTimeInUtc) }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="text-left">Stop Time</th>
+                      <td>
+                        {{ activity.stop | dateTime(displayTimeInUtc) }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th class="text-left" v-text="activity.kind" />
+                      <td v-text="activity.data[activity.kind]" />
+                    </tr>
+                  </tbody>
+                </v-simple-table>
+              </v-col>
+              <v-col>
+                <event-timeline
+                  :events="activity.events"
+                  :display-time-in-utc="displayTimeInUtc"
+                />
+              </v-col>
+            </v-row>
+          </div>
+        </v-card-text>
+
       </v-card>
     </v-dialog>
+
   </div>
 </template>
 

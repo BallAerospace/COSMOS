@@ -28,7 +28,6 @@ require 'cosmos/script/exceptions'
 $api_server = nil
 $disconnect = false
 $cosmos_scope = ENV['COSMOS_SCOPE'] || 'DEFAULT'
-$cosmos_token = ENV['COSMOS_PASSWORD']
 
 module Cosmos
   module Script
@@ -185,13 +184,43 @@ module Cosmos
 
   # Provides a proxy to the JsonDRbObject which communicates with the API server
   class ServerProxy
+
+    # pull cosmos-cmd-tlm-api url from environment variables
+    def generate_url
+      schema = ENV['COSMOS_API_SCHEMA'] || 'http'
+      hostname = ENV['COSMOS_API_HOSTNAME'] || (ENV['COSMOS_DEVEL'] ? '127.0.0.1' : 'cosmos-cmd-tlm-api')
+      port = ENV['COSMOS_API_PORT'] || '2901'
+      port = port.to_i
+      return "#{schema}://#{hostname}:#{port}"
+    end
+
+    # pull cosmos-cmd-tlm-api timeout from environment variables
+    def generate_timeout
+      timeout = ENV['COSMOS_API_TIMEOUT'] || '1.0'
+      return timeout.to_f
+    end
+
+    # generate the auth object
+    def generate_auth
+      if ENV['COSMOS_API_USER'].nil? || ENV['COSMOS_API_CLIENT'].nil?
+        return CosmosAuthentication.new()
+      else
+        k_url = ENV['COSMOS_KEYCLOAK_URL'] || ENV['COSMOS_API_URL']
+        user = ENV['COSMOS_API_USER']
+        password = ENV['COSMOS_API_PASSWORD']
+        client = ENV['COSMOS_API_CLIENT']
+        secret = ENV['COSMOS_API_SECRET']
+        return CosmosKeycloakAuthentication.new(k_url, user, password, client, secret)
+      end
+    end
+
     # Create a JsonDRbObject connection to the API server
     def initialize
-      hostname = ENV['COSMOS_API_HOSTNAME'] || (ENV['COSMOS_DEVEL'] ? '127.0.0.1:2900' : 'cosmos-cmd-tlm-api:2901')
-      port = hostname.split(":")[1] || "2900"
-      port = port.to_i
-      hostname = hostname.split(":")[0]
-      @json_drb = JsonDRbObject.new(hostname, port)
+      @json_drb = JsonDRbObject.new(
+        url: generate_url(),
+        timeout: generate_timeout(),
+        authentication: generate_auth()
+      )
     end
 
     # Ruby method which captures any method calls on this object. This allows
