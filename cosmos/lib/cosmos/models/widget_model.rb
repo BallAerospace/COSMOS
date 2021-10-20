@@ -111,11 +111,7 @@ module Cosmos
 
       filename = gem_path + "/tools/widgets/" + @full_name + '/' + @filename
 
-      cache_control = 'no-cache'
-      # Allow caching for files that have a filename versioning strategy
-      has_version_number = /(-|_|\.)\d+(-|_|\.)\d+(-|_|\.)\d+\./.match(@filename)
-      has_content_hash = /\.[a-f0-9]{20}\./.match(@filename)
-      cache_control = nil if has_version_number or has_content_hash
+      cache_control = Cosmos::S3Utilities.get_cache_control(@filename)
 
       # Load widget file
       data = File.read(filename, mode: "rb")
