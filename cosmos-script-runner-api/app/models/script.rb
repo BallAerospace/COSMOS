@@ -79,12 +79,14 @@ class Script
     temp.close
     # We open a new ruby process so as to not pollute the API with require
     results = nil
+    success = true
     if new_process
       check_process = IO.popen("ruby 2>&1", 'r+')
       check_process.write("require 'json'; require 'cosmos/script/suite_runner'; require '#{temp.path}'; puts Cosmos::SuiteRunner.build_suites.to_json")
       check_process.close_write
       results = check_process.readlines
       check_process.close
+      success = $?.success?
     else
       require temp.path
       Cosmos::SuiteRunner.build_suites
@@ -92,7 +94,7 @@ class Script
     temp.delete
     puts "Processed #{name} in #{Time.now - start} seconds"
     puts "Results: #{results}"
-    return results, $?.success?
+    return results, success
   end
 
   def self.create(scope, name, text = nil)
