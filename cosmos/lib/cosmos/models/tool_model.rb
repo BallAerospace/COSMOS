@@ -223,10 +223,12 @@ module Cosmos
         extension = filename.split('.')[-1]
         content_type = Rack::Mime.mime_type(".#{extension}")
 
+        cache_control = Cosmos::S3Utilities.get_cache_control(filename)
+
         # Load tool files
         data = File.read(filename, mode: "rb")
         data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
-        rubys3_client.put_object(bucket: 'tools', content_type: content_type, cache_control: 'no-cache', key: key, body: data)
+        rubys3_client.put_object(bucket: 'tools', content_type: content_type, cache_control: cache_control, key: key, body: data)
       end
     end
 
