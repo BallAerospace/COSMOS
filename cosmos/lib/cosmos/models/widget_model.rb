@@ -111,13 +111,19 @@ module Cosmos
 
       filename = gem_path + "/tools/widgets/" + @full_name + '/' + @filename
 
+      cache_control = 'no-cache'
+      # Allow caching for files that have a filename versioning strategy
+      has_version_number = /(-|_|\.)\d+(-|_|\.)\d+(-|_|\.)\d+\./.match(@filename)
+      has_content_hash = /\.[a-f0-9]{20}\./.match(@filename)
+      cache_control = nil if has_version_number or has_content_hash
+
       # Load widget file
       data = File.read(filename, mode: "rb")
       data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
       # TODO: support widgets that aren't just a single js file (and its associated map file)
-      rubys3_client.put_object(bucket: 'tools', content_type: 'application/javascript', cache_control: 'no-cache', key: @s3_key, body: data)
+      rubys3_client.put_object(bucket: 'tools', content_type: 'application/javascript', cache_control: cache_control, key: @s3_key, body: data)
       data = File.read(filename + '.map', mode: "rb")
-      rubys3_client.put_object(bucket: 'tools', content_type: 'application/json', cache_control: 'no-cache', key: @s3_key + '.map', body: data)
+      rubys3_client.put_object(bucket: 'tools', content_type: 'application/json', cache_control: cache_control, key: @s3_key + '.map', body: data)
     end
 
     def undeploy
