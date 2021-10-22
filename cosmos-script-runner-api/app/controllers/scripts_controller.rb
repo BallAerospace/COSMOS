@@ -39,11 +39,14 @@ class ScriptsController < ApplicationController
     end
     file = Script.body(params[:scope], params[:name])
     if file
+      success = true
       results = { "contents" => file }
       if params[:name].include?('suite')
-        results['suites'] = Script.process_suite(params[:name], file)
+        results['suites'], success = Script.process_suite(params[:name], file)
       end
-      render :json => results
+      # If the parsing of the Suite was not successful return a 422 (Unprocessable Entity)
+      status = success ? 200 : 422
+      render :json => results, status: status
     else
       head :not_found
     end
@@ -61,9 +64,11 @@ class ScriptsController < ApplicationController
     if success
       results = {}
       if params[:name].include?('suite')
-        results['suites'] = Script.process_suite(params[:name], params[:text])
+        results['suites'], success = Script.process_suite(params[:name], params[:text])
       end
-      render :json => results
+      # If the parsing of the Suite was not successful return a 422 (Unprocessable Entity)
+      status = success ? 200 : 422
+      render :json => results, status: status
     else
       head :error
     end

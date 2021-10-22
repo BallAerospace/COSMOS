@@ -341,6 +341,7 @@ class RunningScript
                           JSON.generate({ type: :file, filename: @filename, scope: @scope, text: @body }))
     if name.include?("suite")
       # Process the suite file in this context so we can load it
+      # TODO: Do we need to worry about success or failure of the suite processing?
       ::Script.process_suite(name, @body, new_process: false)
       # Call load_utility to parse the suite and allow for individual methods to be executed
       load_utility(name)
@@ -1108,7 +1109,7 @@ class RunningScript
       sleep(0.01)
       count += 1
       if (count % 100) == 0 # Approximately Every Second
-        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :waiting }))
+        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :error }))
       end
     end
     @go = false

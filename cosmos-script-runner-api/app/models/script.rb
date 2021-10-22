@@ -79,23 +79,24 @@ class Script
     temp.close
     # We open a new ruby process so as to not pollute the API with require
     results = nil
+    success = true
     if new_process
       check_process = IO.popen("ruby 2>&1", 'r+')
       check_process.write("require 'json'; require 'cosmos/script/suite_runner'; require '#{temp.path}'; puts Cosmos::SuiteRunner.build_suites.to_json")
       check_process.close_write
       results = check_process.readlines
       check_process.close
+      # Once close is called Ruby sets the $? variable which is a Process::Status instance
+      # See https://www.rubydoc.info/stdlib/core/IO.popen & https://www.rubydoc.info/stdlib/core/Process/Status
+      success = $?.success?
     else
       require temp.path
       Cosmos::SuiteRunner.build_suites
     end
     temp.delete
     puts "Processed #{name} in #{Time.now - start} seconds"
-    if results
-      puts "Results: #{results}"
-      # Return the last result to avoid any warnings as the file is parsed
-      return results[-1]
-    end
+    puts "Results: #{results}"
+    return results, success
   end
 
   def self.create(scope, name, text = nil)
