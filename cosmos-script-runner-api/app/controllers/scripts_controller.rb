@@ -39,6 +39,7 @@ class ScriptsController < ApplicationController
     end
     file = Script.body(params[:scope], params[:name])
     if file
+      success = true
       results = { "contents" => file }
       if params[:name].include?('suite')
         results['suites'], success = Script.process_suite(params[:name], file)
