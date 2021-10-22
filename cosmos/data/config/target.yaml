@@ -13,3 +13,60 @@ TARGET:
         The target name. While this is almost always the same as Folder Name
         it can be different to create multiple targets based on the same target folder.
       values: .*
+  modifiers:
+    CMD_LOG_CYCLE_TIME:
+      summary: Command binary logs can be cycled on a time interval.
+      parameters:
+        - name: Time
+          required: true
+          description: Maximum time between files in seconds (default = 600)
+          values: \d+
+    CMD_LOG_CYCLE_SIZE:
+      summary: Command binary logs can be cycled after a certain log file size is reached.
+      parameters:
+        - name: Size
+          required: true
+          description: Maximum file size in bytes (default = 50_000_000)
+          values: \d+
+    CMD_DECOM_LOG_CYCLE_TIME:
+      summary: Command decommutation logs can be cycled on a time interval.
+      parameters:
+        - name: Time
+          required: true
+          description: Maximum time between files in seconds (default = 600)
+          values: \d+
+    CMD_DECOM_LOG_CYCLE_SIZE:
+      summary: Command decommutation logs can be cycled after a certain log file size is reached.
+      parameters:
+        - name: Size
+          required: true
+          description: Maximum file size in bytes (default = 50_000_000)
+          values: \d+
+    TLM_LOG_CYCLE_TIME:
+      summary: Telemetry binary logs can be cycled on a time interval.
+      parameters:
+        - name: Time
+          required: true
+          description: Maximum time between files in seconds (default = 600)
+          values: \d+
+    TLM_LOG_CYCLE_SIZE:
+      summary: Telemetry binary logs can be cycled after a certain log file size is reached.
+      parameters:
+        - name: Size
+          required: true
+          description: Maximum file size in bytes (default = 50_000_000)
+          values: \d+
+    TLM_DECOM_LOG_CYCLE_TIME:
+      summary: Telemetry decommutation logs can be cycled on a time interval.
+      parameters:
+        - name: Time
+          required: true
+          description: Maximum time between files in seconds (default = 600)
+          values: \d+
+    TLM_DECOM_LOG_CYCLE_SIZE:
+      summary: Telemetry decommutation logs can be cycled after a certain log file size is reached.
+      parameters:
+        - name: Size
+          required: true
+          description: Maximum file size in bytes (default = 50_000_000)
+          values: \d+

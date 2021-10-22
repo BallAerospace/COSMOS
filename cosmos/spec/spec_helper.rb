@@ -58,11 +58,9 @@ require 'rspec'
 ENV['COSMOS_USERPATH'] = File.join(File.dirname(File.expand_path(__FILE__)), 'install')
 # Disable Redis and Fluentd in the Logger
 ENV['COSMOS_NO_STORE'] = 'true'
-
-# TODO: This is a hack until we figure out COSMOS_USERPATH
-module Cosmos
-  USERPATH = ENV['COSMOS_USERPATH']
-end
+# Set some passwords
+ENV['COSMOS_API_PASSWORD'] = 'cosmos'
+ENV['COSMOS_SERVICE_PASSWORD'] = 'cosmos'
 
 require 'cosmos/top_level'
 require 'cosmos/script'
