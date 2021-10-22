@@ -512,7 +512,10 @@ export default {
       this.scriptStart(this.$route.params.id)
     }
     this.autoSaveInterval = setInterval(() => {
-      this.saveFile('auto')
+      // Only save if visibile (rather than open in another tab for example)
+      if (document.visibilityState === 'visible') {
+        this.saveFile('auto')
+      }
     }, 60000) // Save every minute
   },
   beforeDestroy() {
@@ -641,6 +644,7 @@ export default {
       switch (data.type) {
         case 'file':
           this.files[data.filename] = data.text
+          this.filename = data.filename
           break
         case 'line':
           if (data.filename !== null) {

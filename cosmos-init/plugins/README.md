@@ -63,4 +63,5 @@ NOTE: All commands are assumed to be executed from this (cosmos-init) directory
         # Look for the container with name including cmd-tlm-api
         cosmos-cmd-tlm-api> docker stop cosmos_cosmos-cmd-tlm-api_1
         # Set all the environment variables in the .env file
-        cosmos-cmd-tlm-api> rails s
+        cosmos-cmd-tlm-api> bundle install
+        cosmos-cmd-tlm-api> bundle exec rails s

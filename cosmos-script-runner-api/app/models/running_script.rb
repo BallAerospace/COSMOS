@@ -1109,7 +1109,7 @@ class RunningScript
       sleep(0.01)
       count += 1
       if (count % 100) == 0 # Approximately Every Second
-        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :waiting }))
+        Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :line, filename: @current_filename, line_no: @current_line_number, state: :error }))
       end
     end
     @go = false
