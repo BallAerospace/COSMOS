@@ -60,7 +60,6 @@ ENV['COSMOS_USERPATH'] = File.join(File.dirname(File.expand_path(__FILE__)), 'in
 ENV['COSMOS_NO_STORE'] = 'true'
 # Set some passwords
 ENV['COSMOS_API_PASSWORD'] = 'cosmos'
-ENV['COSMOS_SERVICE_PASSWORD'] = 'cosmos'
 
 # TODO: This is a hack until we figure out COSMOS_USERPATH
 module Cosmos
