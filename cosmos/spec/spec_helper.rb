@@ -62,6 +62,11 @@ ENV['COSMOS_NO_STORE'] = 'true'
 ENV['COSMOS_API_PASSWORD'] = 'cosmos'
 ENV['COSMOS_SERVICE_PASSWORD'] = 'cosmos'
 
+# TODO: This is a hack until we figure out COSMOS_USERPATH
+module Cosmos
+  USERPATH = ENV['COSMOS_USERPATH']
+end
+
 require 'cosmos/top_level'
 require 'cosmos/script'
 # require 'cosmos/utilities/logger'
