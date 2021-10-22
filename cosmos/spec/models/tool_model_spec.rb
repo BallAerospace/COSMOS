@@ -170,7 +170,7 @@ module Cosmos
         name = "DEMO"
         dir = File.join(SPEC_DIR, "install")
         expect(s3).to receive(:head_bucket)
-        expect(s3).to receive(:put_object).with(bucket: 'tools', key: "#{name}/index.html", body: anything)
+        expect(s3).to receive(:put_object).with(bucket: 'tools', key: "#{name}/index.html", body: anything, cache_control: "no-cache", content_type: "text/html")
 
         model = ToolModel.new(folder_name: folder, name: name, scope: scope)
         model.create
