@@ -512,8 +512,11 @@ export default {
       this.scriptStart(this.$route.params.id)
     }
     this.autoSaveInterval = setInterval(() => {
-      // Only save if visibile (rather than open in another tab for example)
-      if (document.visibilityState === 'visible') {
+      // Only save if modified and visible (e.g. not open in another tab)
+      if (
+        this.fileModified.length > 0 &&
+        document.visibilityState === 'visible'
+      ) {
         this.saveFile('auto')
       }
     }, 60000) // Save every minute
@@ -920,7 +923,7 @@ export default {
         if (type === 'menu') {
           // Menu driven saves on a new file should prompt SaveAs
           this.saveAs()
-        } else if (type === 'start' || (type === 'auto' && this.fileModified)) {
+        } else {
           if (this.tempFilename === null) {
             this.tempFilename =
               format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_temp.rb'

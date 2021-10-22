@@ -86,6 +86,8 @@ class Script
       check_process.close_write
       results = check_process.readlines
       check_process.close
+      # Once close is called Ruby sets the $? variable which is a Process::Status instance
+      # See https://www.rubydoc.info/stdlib/core/IO.popen & https://www.rubydoc.info/stdlib/core/Process/Status
       success = $?.success?
     else
       require temp.path
