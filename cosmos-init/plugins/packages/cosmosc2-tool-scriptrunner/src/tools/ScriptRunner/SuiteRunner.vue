@@ -296,12 +296,24 @@ export default {
   watch: {
     suiteMap: {
       handler: function (newVal, oldVal) {
-        this.initSuites()
+        this.updateSuiteMap()
       },
       deep: true, // Deep watcher because suiteMap is a nested Object
     },
   },
   methods: {
+    updateSuiteMap() {
+      this.suites = Object.keys(this.suiteMap)
+      if (
+        this.suiteMap[this.suite] == undefined ||
+        this.suiteMap[this.suite].groups[this.group] == undefined
+      ) {
+        this.initSuites()
+      } else {
+        this.groups = Object.keys(this.suiteMap[this.suite].groups)
+        this.scripts = this.suiteMap[this.suite].groups[this.group].scripts
+      }
+    },
     initSuites() {
       this.suites = Object.keys(this.suiteMap)
       this.suiteChanged(this.suites[0])
