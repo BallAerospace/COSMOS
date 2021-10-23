@@ -1,6 +1,4 @@
 ---
-DYNAMIC:
-  summary: Widget built dynamically
 VERTICAL:
   summary: Places the widgets it encapsulates vertically on
     the screen. The screen defaults to a vertical layout, so if no layout widgets
