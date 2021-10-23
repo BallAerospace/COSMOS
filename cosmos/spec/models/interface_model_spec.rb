@@ -233,7 +233,8 @@ module Cosmos
     describe "undeploy" do
       it "calls destroy on a deployed MicroserviceModel" do
         intmodel = double(InterfaceStatusModel)
-        expect(intmodel).to receive(:state).and_return("DISCONNECTED")
+        expect(intmodel).to receive(:destroy)
+        expect(InterfaceStatusModel).to receive(:get_model).and_return(intmodel)
         umodel = double(MicroserviceModel)
         expect(umodel).to receive(:destroy)
         expect(MicroserviceModel).to receive(:get_model).and_return(umodel)

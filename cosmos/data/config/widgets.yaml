@@ -1,4 +1,6 @@
 ---
+DYNAMIC:
+  summary: Widget built dynamically
 VERTICAL:
   summary: Places the widgets it encapsulates vertically on
     the screen. The screen defaults to a vertical layout, so if no layout widgets
@@ -67,9 +69,9 @@ MATRIXBYCOLUMNS:
       required: false
       description: Vertical spacing between matrix items in pixels (default = 0)
       values: .*
-# SCROLLWINDOW:
-#   summary: Places the widgets inside of it into a scrollable
-#     area. The SCROLLWINDOW widget sizes itself to fit the screen in which it is contained.
+SCROLLWINDOW:
+   summary: Places the widgets inside of it into a scrollable area.
+    The SCROLLWINDOW widget sizes itself to fit the screen in which it is contained.
 TABBOOK:
   summary: Creates a tabbed area in which to place TABITEM widgets
     to form a tabbed layout.
@@ -378,36 +380,36 @@ LABELVALUE:
         together with any additional space to the left and right. 'LEFT' or 'RIGHT'
         pushes them to the respective side with the space going on the opposite.
       values: ["SPLIT", "CENTER", "LEFT", "RIGHT"]
-# LABELVALUEDESC:
-#   summary: Displays a LABEL widget to show the telemetry
-#     items description followed by a VALUE widget to display the items value.
-#   parameters:
-#     - name: Target name
-#       required: true
-#       description: The target name
-#       values: .+
-#     - name: Packet name
-#       required: true
-#       description: The packet name
-#       values: .+
-#     - name: Item name
-#       required: true
-#       description: The item name
-#       values: .+
-#     - name: Description
-#       required: false
-#       description:
-#         The description to display in the label (default is to display
-#         the description text associated with the telemetry item)
-#       values: .*
-#     - name: Value type
-#       required: false
-#       description: The type of the value to display. Default is CONVERTED.
-#       values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
-#     - name: Number of characters
-#       required: false
-#       description: The number of characters wide to make the value box (default = 12)
-#       values: .*
+LABELVALUEDESC:
+  summary: Displays a LABEL widget to show the telemetry
+    items description followed by a VALUE widget to display the items value.
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: .+
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Description
+      required: false
+      description:
+        The description to display in the label (default is to display
+        the description text associated with the telemetry item)
+      values: .*
+    - name: Value type
+      required: false
+      description: The type of the value to display. Default is CONVERTED.
+      values: <%= %w(RAW CONVERTED FORMATTED WITH_UNITS) %>
+    - name: Number of characters
+      required: false
+      description: The number of characters wide to make the value box (default = 12)
+      values: .*
 # LABELFORMATVALUE:
 #   summary: Displays a LABEL widget to show the telemetry
 #     items name followed by a formatted VALUE widget to display the items value.
