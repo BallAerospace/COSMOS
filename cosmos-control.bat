@@ -72,7 +72,7 @@ GOTO :EOF
 GOTO :EOF
 
 :build
-  CALL scripts/windows/cosmos_setup
+  CALL scripts\windows\cosmos_setup
   docker-compose -f compose.yaml -f compose-build.yaml build cosmos-ruby
   docker-compose -f compose.yaml -f compose-build.yaml build cosmos-base
   docker-compose -f compose.yaml -f compose-build.yaml build cosmos-node
@@ -100,18 +100,18 @@ GOTO :EOF
   REM Send the remaining arguments to cosmos_deploy
   set args=%*
   call set args=%%args:*%1=%%
-  CALL scripts/windows/cosmos_deploy %args%
+  CALL scripts\windows\cosmos_deploy %args%
   @echo off
 GOTO :EOF
 
 :test
   REM Building COSMOS
-  CALL scripts/windows/cosmos_setup
+  CALL scripts\windows\cosmos_setup
   docker-compose -f compose.yaml -f compose-build.yaml build
   set args=%*
   call set args=%%args:*%1=%%
   REM Running tests
-  CALL scripts/windows/cosmos_test %args%
+  CALL scripts\windows\cosmos_test %args%
   @echo off
 GOTO :EOF
 
@@ -119,7 +119,7 @@ GOTO :EOF
   REM Send the remaining arguments to cosmos_util
   set args=%*
   call set args=%%args:*%1=%%
-  CALL scripts/windows/cosmos_util %args%
+  CALL scripts\windows\cosmos_util %args%
   @echo off
 GOTO :EOF
 
