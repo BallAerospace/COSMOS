@@ -659,7 +659,6 @@ export default {
         return
       }
       const data = JSON.parse(json_data)
-      console.log(data)
       // Initially we just build up the list of data
       if (data.length > 0) {
         this.buildHeaders(Object.keys(data[0]))
