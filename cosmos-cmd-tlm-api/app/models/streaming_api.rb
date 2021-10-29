@@ -56,19 +56,15 @@ class FileCacheFile
 
   def retrieve
     local_path = "#{FileCache.instance.cache_dir}/#{File.basename(@s3_path)}"
-    Cosmos::Logger.info("Retrieving #{@s3_path} from logs bucket")
-    # Cosmos::Logger.debug "Retrieving #{@s3_path} from logs bucket"
+    Cosmos::Logger.info "Retrieving #{@s3_path} from logs bucket"
     @rubys3_client.get_object(bucket: "logs", key: @s3_path, response_target: local_path)
     if File.exist?(local_path)
       @size = File.size(local_path)
       @local_path = local_path
     end
-    Cosmos::Logger.info("Successfully retrieved #{@s3_path} from logs bucket")
-    # Cosmos::Logger.debug "Successfully retrieved #{@s3_path} from logs bucket"
   rescue => err
     @error = err
-    Cosmos::Logger.error("Failed to retreive #{@s3_path}\n#{err.formatted}")
-    # Cosmos::Logger.debug "Failed to retreive #{@s3_path}\n#{err.formatted}"
+    Cosmos::Logger.error "Failed to retrieve #{@s3_path}\n#{err.formatted}"
   end
 
   def reserve
@@ -201,6 +197,7 @@ class FileCache
   end
 
   def reserve_file(cmd_or_tlm, target_name, packet_name, start_time_nsec, end_time_nsec, type = :DECOM, timeout = 60, scope:)
+    # Cosmos::Logger.debug "reserve_file #{cmd_or_tlm}:#{target_name}:#{packet_name} start:#{start_time_nsec / 1_000_000_000} end:#{end_time_nsec / 1_000_000_000} type:#{type} timeout:#{timeout}"
     # Get List of Files from S3
     total_resp = []
     token = nil
@@ -212,12 +209,14 @@ class FileCache
       dates << cur_date.strftime("%Y%m%d")
       cur_date += 1.day
     end
+    prefixes = []
     dates.each do |date|
       while true
+        prefixes << "#{scope}/#{type.to_s.downcase}_logs/#{cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}/#{date}"
         resp = @rubys3_client.list_objects_v2({
           bucket: "logs",
           max_keys: 1000,
-          prefix: "#{scope}/#{type.to_s.downcase}_logs/#{cmd_or_tlm.to_s.downcase}/#{target_name}/#{packet_name}/#{date}",
+          prefix: prefixes[-1],
           continuation_token: token
         })
         total_resp.concat(resp.contents)
@@ -232,7 +231,6 @@ class FileCache
       s3_path = item.key
       if file_in_time_range(s3_path, start_time_nsec, end_time_nsec)
         file = @cached_files.add(s3_path, item.size, index)
-        # Cosmos::Logger.debug file.inspect
         files << file
       end
     end
@@ -246,9 +244,10 @@ class FileCache
         return file.local_path if file.local_path
         sleep(1)
       end
-
       # Remove reservations if we timeout
       file.unreserve
+    else
+      Cosmos::Logger.info "No files found for #{prefixes}"
     end
 
     return nil
@@ -473,6 +472,7 @@ class LoggedStreamingThread < StreamingThread
           delta = redis_time - oldest_time
           # Start streaming from calculated redis time
           offset = ((first_object.start_time + delta) / 1_000_000).to_s + '-0'
+          # Cosmos::Logger.debug "stream from Redis offset:#{offset} redis_time:#{redis_time} delta:#{delta}"
           objects.each {|object| object.offset = offset}
           @thread_mode = :STREAM
         end
@@ -489,19 +489,19 @@ class LoggedStreamingThread < StreamingThread
       # Get next file from file cache
       file_end_time = first_object.end_time
       file_end_time = Time.now.to_nsec_from_epoch unless file_end_time
-      file_path = FileCache.instance.reserve_file(first_object.cmd_or_tlm, first_object.target_name, first_object.packet_name, first_object.start_time, file_end_time, @stream_mode, scope: @scope) # TODO: look at how @stream_mode is being used
+      file_path = FileCache.instance.reserve_file(first_object.cmd_or_tlm, first_object.target_name, first_object.packet_name,
+        first_object.start_time, file_end_time, @stream_mode, scope: @scope) # TODO: look at how @stream_mode is being used
       # puts file_path
       if file_path
         file_path_split = File.basename(file_path).split("__")
         file_end_time = DateTime.strptime(file_path_split[1], FileCache::TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND # TODO: get format from different class' constant?
-        # Cosmos::Logger.debug("file:#{file_path} end:#{file_end_time}")
 
         # Scan forward to find first packet needed
         # Stream forward until packet > end_time or no more packets
         results = []
         plr = Cosmos::PacketLogReader.new()
         topic_without_hashtag = first_object.topic.gsub(/{|}/, '') # This removes all curly braces, and we don't allow curly braces in our keys
-        plr.each(file_path, false, Time.from_nsec_from_epoch(first_object.start_time), Time.from_nsec_from_epoch(first_object.end_time)) do |packet|
+        done = plr.each(file_path, false, Time.from_nsec_from_epoch(first_object.start_time), Time.from_nsec_from_epoch(first_object.end_time)) do |packet|
           time = packet.received_time if packet.respond_to? :received_time
           time ||= packet.packet_time
           result = nil
@@ -527,8 +527,13 @@ class LoggedStreamingThread < StreamingThread
         # Move to the next file
         FileCache.instance.unreserve_file(file_path)
         objects.each {|object| object.start_time = file_end_time}
+
+        if done # We reached the end time
+          @cancel_thread = true
+          transmit_results([], force: true)
+        end
       else
-        Cosmos::Logger.info("Switch stream from file to Redis")
+        Cosmos::Logger.info "Switch stream from file to Redis"
         # TODO: What if there is no new data in the Redis stream?
 
         # Switch to stream from Redis
@@ -545,7 +550,7 @@ class LoggedStreamingThread < StreamingThread
             # Start streaming from calculated redis time
             offset = ((first_object.start_time + delta) / 1_000_000).to_s + '-0'
           end
-          Cosmos::Logger.debug("Oldest Redis id:#{msg_id} msg time:#{oldest_time} last object time:#{first_object.start_time} offset:#{offset}")
+          Cosmos::Logger.debug "Oldest Redis id:#{msg_id} msg time:#{oldest_time} last object time:#{first_object.start_time} offset:#{offset}"
           objects.each {|object| object.offset = offset}
           @thread_mode = :STREAM
         else
