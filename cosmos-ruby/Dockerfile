@@ -21,6 +21,7 @@ RUN apk update \
   ruby-io-console \
   ruby-irb \
   ca-certificates \
+  curl \
   libressl \
   less \
   tini \
