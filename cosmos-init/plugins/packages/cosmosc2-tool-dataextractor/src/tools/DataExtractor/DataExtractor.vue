@@ -195,11 +195,7 @@
               <v-list-item-icon>
                 <v-tooltip bottom>
                   <template v-slot:activator="{ on, attrs }">
-                    <v-icon
-                      @click="deleteItem(item)"
-                      v-bind="attrs"
-                      v-on="on"
-                    >
+                    <v-icon @click="deleteItem(item)" v-bind="attrs" v-on="on">
                       mdi-delete
                     </v-icon>
                   </template>
@@ -561,7 +557,9 @@ export default {
         this.alertHandler({
           text: `Note: End date/time is greater than current date/time. Data will
             continue to stream in real-time until
-            ${new Date(this.endDateTime / 1_000_000).toISOString()} is reached.`,
+            ${new Date(
+              this.endDateTime / 1_000_000
+            ).toISOString()} is reached.`,
           type: 'warning',
         })
       }
@@ -637,13 +635,8 @@ export default {
       itemKeys.forEach((item) => {
         if (item === 'time') return
         this.columnMap[item] = Object.keys(this.columnMap).length
-        const [
-          cmdTlm,
-          targetName,
-          packetName,
-          itemName,
-          valueType,
-        ] = item.split('__')
+        const [cmdTlm, targetName, packetName, itemName, valueType] =
+          item.split('__')
         if (this.columnMode === 'full') {
           this.columnHeaders.push(
             targetName + ' ' + packetName + ' ' + itemName

@@ -50,7 +50,9 @@ module Cosmos
     #   Packets found with a timestamp after this time are ignored. Pass nil
     #   to return all packets.
     # @yieldparam packet [Packet]
+    # @return [Boolean] Whether we reached the end_time while reading
     def each(filename, identify_and_define = true, start_time = nil, end_time = nil)
+      reached_end_time = false
       open(filename)
 
       # seek_to_time(start_time) if start_time
@@ -62,12 +64,17 @@ module Cosmos
         time = packet.packet_time
         if time
           next if start_time and time < start_time
-          break if end_time and time > end_time
+          # If we reach the end_time that means we found all the packets we asked for
+          # This can be used by callers to know they are done reading
+          if end_time and time > end_time
+            reached_end_time = true
+            break
+          end
         end
-
         yield packet
       end
-    ensure
+      reached_end_time
+    ensure # No implicit return value in the ensure block
       close()
     end
 

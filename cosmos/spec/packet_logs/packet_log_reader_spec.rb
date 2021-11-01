@@ -74,8 +74,9 @@ module Cosmos
         s3 = double("Aws::S3::Client").as_null_object
         allow(Aws::S3::Client).to receive(:new).and_return(s3)
         plw = PacketLogWriter.new(@log_path, 'spec')
-        time = Time.now.to_nsec_from_epoch
-        @times = [time, time + 1, time + 2]
+        @start_time = Time.now
+        time = @start_time.to_nsec_from_epoch
+        @times = [time, time + Time::NSEC_PER_SECOND, time + 2 * Time::NSEC_PER_SECOND]
         if cmd_or_tlm == :CMD
           @pkt = System.commands.packet("INST", "COLLECT")
           @pkt.write("DURATION", 10.0)
@@ -237,100 +238,96 @@ module Cosmos
         end
       end
 
-      xit "returns all packets if the start time is before all" do
-        index = 0
-        @plr.each(Dir[File.join(@log_path, "*cmd.bin")][0], true, @time) do |packet|
-          next if packet.packet_name == 'META'
-
-          expect(packet.target_name).to eql @cmd_packets[index].target_name
-          expect(packet.packet_name).to eql @cmd_packets[index].packet_name
-          expect(packet.received_time).to eql @cmd_packets[index].received_time
-          expect(packet.read('LABEL')).to eql @cmd_packets[index].read('LABEL')
-          index += 1
+      context "with start and end times" do
+        before(:each) do
+          setup_logfile(:TLM, :RAW_PACKET)
         end
-        expect(index).to eql 3
-      end
-
-      xit "returns no packets if the start time is after all" do
-        index = 0
-        @plr.each(Dir[File.join(@log_path, "*tlm.bin")][0], true, @time + 100) do |packet|
-          index += 1
+        after(:each) do
+          FileUtils.rm_f @logfile
         end
-        expect(index).to eql 0
-      end
 
-      xit "returns all packets after a start time" do
-        index = 0
-        @plr.each(Dir[File.join(@log_path, "*cmd.bin")][0], true, @time) do |packet|
-          next if packet.packet_name == 'META'
-
-          expect(packet.target_name).to eql @cmd_packets[index].target_name
-          expect(packet.packet_name).to eql @cmd_packets[index].packet_name
-          expect(packet.received_time).to eql @cmd_packets[index].received_time
-          expect(packet.read('LABEL')).to eql @cmd_packets[index].read('LABEL')
-          index += 1
+        it "returns all packets if the start time is before all" do
+          index = 0
+          reached_end_time = @plr.each(@logfile, true, @start_time - 1) do |packet|
+            expect(packet.packet_time.to_nsec_from_epoch).to eql @times[index]
+            index += 1
+          end
+          expect(index).to eql 3
+          expect(reached_end_time).to be false
         end
-        expect(index).to eql 3
 
-        index = 1 # @time + 1
-        @plr.each(Dir[File.join(@log_path, "*tlm.bin")][0], true, @time + 1) do |packet|
-          next if packet.packet_name == 'META'
-
-          expect(packet.target_name).to eql @tlm_packets[index].target_name
-          expect(packet.packet_name).to eql @tlm_packets[index].packet_name
-          expect(packet.received_time).to eql @tlm_packets[index].received_time
-          expect(packet.read('PACKET')).to eql @tlm_packets[index].read('PACKET')
-          index += 1
+        it "returns no packets if the start time is after all" do
+          index = 0
+          reached_end_time = @plr.each(@logfile, true, @start_time + 10) do |packet|
+            index += 1
+          end
+          expect(index).to eql 0
+          expect(reached_end_time).to be false
         end
-        expect(index).to eql 3
-      end
 
-      xit "returns no packets if the end time is before all" do
-        index = 0
-        @plr.each(Dir[File.join(@log_path, "*tlm.bin")][0], true, nil, @time - 10) do |packet|
-          index += 1
+        it "returns all packets after a start time" do
+          index = 1
+          reached_end_time = @plr.each(@logfile, true, @start_time + 1) do |packet|
+            puts "i:#{index} time:#{packet.received_time}"
+            expect(packet.packet_time.to_nsec_from_epoch).to eql @times[index]
+            index += 1
+          end
+          expect(index).to eql 3
+          expect(reached_end_time).to be false
+
+          index = 2
+          reached_end_time = @plr.each(@logfile, true, @start_time + 2) do |packet|
+            expect(packet.packet_time.to_nsec_from_epoch).to eql @times[index]
+            index += 1
+          end
+          expect(index).to eql 3
+          expect(reached_end_time).to be false
         end
-        expect(index).to eql 0
-      end
 
-      xit "returns all packets if the end time is after all" do
-        index = 0
-        @plr.each(Dir[File.join(@log_path, "*cmd.bin")][0], true, nil, @time + 10) do |packet|
-          next if packet.packet_name == 'META'
-
-          expect(packet.target_name).to eql @cmd_packets[index].target_name
-          expect(packet.packet_name).to eql @cmd_packets[index].packet_name
-          expect(packet.received_time).to eql @cmd_packets[index].received_time
-          expect(packet.read('LABEL')).to eql @cmd_packets[index].read('LABEL')
-          index += 1
+        it "returns no packets if the end time is before all" do
+          index = 0
+          reached_end_time = @plr.each(@logfile, true, nil, @start_time - 1) do |packet|
+            index += 1
+          end
+          expect(index).to eql 0
+          expect(reached_end_time).to be true
         end
-        expect(index).to eql 3
-      end
 
-      xit "returns all packets before an end time" do
-        index = 0
-        @plr.each(Dir[File.join(@log_path, "*cmd.bin")][0], true, nil, @time) do |packet|
-          next if packet.packet_name == 'META'
-
-          expect(packet.target_name).to eql @cmd_packets[index].target_name
-          expect(packet.packet_name).to eql @cmd_packets[index].packet_name
-          expect(packet.received_time).to eql @cmd_packets[index].received_time
-          expect(packet.read('LABEL')).to eql @cmd_packets[index].read('LABEL')
-          index += 1
+        it "returns all packets if the end time is after all" do
+          index = 0
+          reached_end_time = @plr.each(@logfile, true, nil, @start_time + 4) do |packet|
+            expect(packet.packet_time.to_nsec_from_epoch).to eql @times[index]
+            index += 1
+          end
+          expect(index).to eql 3
+          expect(reached_end_time).to be false
         end
-        expect(index).to eql 1
 
-        index = 0
-        @plr.each(Dir[File.join(@log_path, "*tlm.bin")][0], true, nil, @time + 1) do |packet|
-          next if packet.packet_name == 'META'
+        it "returns all packets before an end time" do
+          index = 0
+          reached_end_time = @plr.each(@logfile, true, nil, @start_time + 1) do |packet|
+            expect(packet.packet_time.to_nsec_from_epoch).to eql @times[index]
+            index += 1
+          end
+          expect(index).to eql 2 # Since we're exactly at the end time we get the packet
+          expect(reached_end_time).to be true
 
-          expect(packet.target_name).to eql @tlm_packets[index].target_name
-          expect(packet.packet_name).to eql @tlm_packets[index].packet_name
-          expect(packet.received_time).to eql @tlm_packets[index].received_time
-          expect(packet.read('PACKET')).to eql @tlm_packets[index].read('PACKET')
-          index += 1
+          index = 0
+          reached_end_time = @plr.each(@logfile, true, nil, @start_time + 1.99) do |packet|
+            expect(packet.packet_time.to_nsec_from_epoch).to eql @times[index]
+            index += 1
+          end
+          expect(index).to eql 2 # Still 2 since we didn't go over
+          expect(reached_end_time).to be true
+
+          index = 0
+          reached_end_time = @plr.each(@logfile, true, nil, @start_time + 2.01) do |packet|
+            expect(packet.packet_time.to_nsec_from_epoch).to eql @times[index]
+            index += 1
+          end
+          expect(index).to eql 3 # Got them all
+          expect(reached_end_time).to be false # We didn't reach the end time before we ran out of packets
         end
-        expect(index).to eql 2
       end
     end
 
