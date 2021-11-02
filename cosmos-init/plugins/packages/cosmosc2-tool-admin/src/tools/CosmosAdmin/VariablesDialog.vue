@@ -21,13 +21,11 @@
   <v-dialog persistent v-model="show" width="600">
     <v-card>
       <form v-on:submit.prevent="submit">
-
         <v-system-bar>
           <v-spacer />
           <span> Update Plugin Variables </span>
           <v-spacer />
         </v-system-bar>
-
         <v-card-text>
           <div class="pa-3">
             <template v-for="(plugin, index) of localVariables">
@@ -48,11 +46,17 @@
               />
             </template>
             <v-row class="mt-1">
-              <v-btn color="primary" type="submit">Ok</v-btn>
+              <v-btn
+                block
+                color="primary"
+                type="submit"
+                data-test="variables-dialog-ok"
+              >
+                Ok
+              </v-btn>
             </v-row>
           </div>
         </v-card-text>
-
       </form>
     </v-card>
   </v-dialog>
@@ -102,10 +106,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.theme--dark .v-card__title,
-.theme--dark .v-card__subtitle {
-  background-color: var(--v-secondary-darken3);
-}
-</style>
