@@ -19,9 +19,11 @@ import '@cosmosc2/tool-common/src/assets/stylesheets/layout/layout.scss'
 import vuetify from './plugins/vuetify'
 import 'vuejs-dialog/dist/vuejs-dialog.min.css'
 import PortalVue from 'portal-vue'
+import Notify from '@cosmosc2/tool-common/src/plugins/notify'
 
 Vue.use(PortalVue)
 Vue.use(VuejsDialog)
+Vue.use(Notify)
 
 const vueLifecycles = singleSpaVue({
   Vue,
