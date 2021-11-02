@@ -105,34 +105,16 @@ export default {
   },
   methods: {
     update() {
-      Api.get('/cosmos-api/interfaces')
-        .then((response) => {
-          this.interfaces = response.data
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get('/cosmos-api/interfaces').then((response) => {
+        this.interfaces = response.data
+      })
     },
     showInterface(name) {
-      Api.get(`/cosmos-api/interfaces/${name}`)
-        .then((response) => {
-          this.jsonContent = JSON.stringify(response.data, null, '\t')
-          this.dialogTitle = name
-          this.showDialog = true
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get(`/cosmos-api/interfaces/${name}`).then((response) => {
+        this.jsonContent = JSON.stringify(response.data, null, '\t')
+        this.dialogTitle = name
+        this.showDialog = true
+      })
     },
     dialogCallback(content) {
       this.showDialog = false
@@ -145,24 +127,16 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete(`/cosmos-api/interfaces/${name}`)
-            .then((response) => {
-              that.alert = `Removed interface ${name}`
-              that.alertType = 'success'
-              that.showAlert = true
-              setTimeout(() => {
-                that.showAlert = false
-              }, 5000)
-              that.update()
-            })
-            .catch((error) => {
-              that.alert = error
-              that.alertType = 'error'
-              that.showAlert = true
-              setTimeout(() => {
-                that.showAlert = false
-              }, 5000)
-            })
+          return Api.delete(`/cosmos-api/interfaces/${name}`)
+        })
+        .then((response) => {
+          that.alert = `Removed interface ${name}`
+          that.alertType = 'success'
+          that.showAlert = true
+          setTimeout(() => {
+            that.showAlert = false
+          }, 5000)
+          that.update()
         })
     },
   },
