@@ -20,9 +20,18 @@
 <template>
   <div>
     <top-bar :menus="menus" :title="title" />
-    <v-alert dense dismissible :type="alertType" v-model="showAlert">
+    <v-snackbar
+      v-model="showAlert"
+      :top="true"
+      :color="alertType"
+      :timeout="3000"
+    >
+      <v-icon> mdi-{{ alertType }} </v-icon>
       {{ alertText }}
-    </v-alert>
+      <template v-slot:action="{ attrs }">
+        <v-btn text v-bind="attrs" @click="showAlert = false"> Close </v-btn>
+      </template>
+    </v-snackbar>
     <suite-runner
       v-if="suiteRunner"
       :suiteMap="suiteMap"
@@ -77,32 +86,55 @@
         <v-col cols="4">
           <v-row no-gutters>
             <v-spacer />
-            <v-btn
-              color="primary"
-              @click="startOrGo"
-              class="mr-2"
-              :disabled="startOrGoDisabled"
-              data-test="start-go-button"
-            >
-              {{ startOrGoButton }}
-            </v-btn>
-            <v-btn
-              color="primary"
-              @click="pauseOrRetry"
-              class="mr-2"
-              :disabled="pauseOrRetryDisabled"
-              data-test="pause-retry-button"
-            >
-              {{ pauseOrRetryButton }}
-            </v-btn>
-            <v-btn
-              color="primary"
-              @click="stop"
-              data-test="stop-button"
-              :disabled="stopDisabled"
-            >
-              Stop
-            </v-btn>
+            <div v-if="startOrGoButton === 'Start'">
+              <v-btn
+                @click="startHandeler"
+                color="primary"
+                class="mx-2"
+                data-test="start-button"
+                :disabled="startOrGoDisabled"
+              >
+                <span> Start </span>
+              </v-btn>
+              <v-btn
+                @click="environmentHandeler"
+                class="mx-1"
+                data-test="env-button"
+              >
+                <v-icon>
+                  {{ environmentOn ? 'mdi-library' : 'mdi-run' }}
+                </v-icon>
+              </v-btn>
+            </div>
+            <div v-else>
+              <v-btn
+                @click="go"
+                color="primary"
+                class="mr-2"
+                :disabled="startOrGoDisabled"
+                data-test="go-button"
+              >
+                Go
+              </v-btn>
+              <v-btn
+                color="primary"
+                @click="pauseOrRetry"
+                class="mr-2"
+                :disabled="pauseOrRetryDisabled"
+                data-test="pause-retry-button"
+              >
+                {{ pauseOrRetryButton }}
+              </v-btn>
+
+              <v-btn
+                color="primary"
+                @click="stop"
+                data-test="stop-button"
+                :disabled="stopDisabled"
+              >
+                Stop
+              </v-btn>
+            </div>
           </v-row>
         </v-col>
       </v-row>
@@ -155,23 +187,78 @@
         </v-container>
         <v-card>
           <v-card-title>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <div v-on="on" v-bind="attrs">
+                  <v-btn
+                    icon
+                    class="mx-2"
+                    data-test="download-log"
+                    @click="downloadLog"
+                  >
+                    <v-icon> mdi-download </v-icon>
+                  </v-btn>
+                </div>
+              </template>
+              <span> Download Log </span>
+            </v-tooltip>
             Log Messages
+            <v-menu :close-on-content-click="false" offset-y>
+              <template v-slot:activator="{ on, attrs }">
+                <div v-on="on" v-bind="attrs">
+                  <v-tooltip top>
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-btn
+                        icon
+                        data-test="searchClearLogs"
+                        class="mx-2"
+                        v-on="on"
+                        v-bind="attrs"
+                      >
+                        <v-icon v-if="search === ''"> mdi-magnify </v-icon>
+                        <v-icon v-else @click="search = ''">
+                          mdi-cancel
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>
+                      {{ search === '' ? 'Search Log' : 'Clear Search' }}
+                    </span>
+                  </v-tooltip>
+                </div>
+              </template>
+              <v-card outlined width="500px">
+                <div class="pa-3">
+                  <v-text-field
+                    v-model="search"
+                    single-line
+                    hide-details
+                    autofocus
+                    label="Search"
+                    data-test="search-output-messages"
+                  />
+                </div>
+              </v-card>
+            </v-menu>
+            <div v-show="search" class="mx-2">
+              <span> Search: {{ search }} </span>
+            </div>
             <v-spacer />
-            <v-text-field
-              v-model="search"
-              append-icon="$astro-search"
-              label="Search"
-              single-line
-              hide-details
-              data-test="search-output-messages"
-            />
-            <v-icon
-              @click="downloadLog"
-              class="pa-2 mt-3"
-              data-test="download-log"
-            >
-              mdi-download
-            </v-icon>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <div v-on="on" v-bind="attrs">
+                  <v-btn
+                    icon
+                    class="mx-2"
+                    data-test="clear-log"
+                    @click="clearLog"
+                  >
+                    <v-icon> mdi-delete </v-icon>
+                  </v-btn>
+                </div>
+              </template>
+              <span> Clear Log </span>
+            </v-tooltip>
           </v-card-title>
           <v-data-table
             :headers="headers"
@@ -190,23 +277,26 @@
     </multipane>
     <ask-dialog
       v-if="ask.show"
+      v-model="ask.show"
       :question="ask.question"
       :default="ask.default"
       :password="ask.password"
       :answerRequired="ask.answerRequired"
-      @submit="ask.callback"
+      @response="ask.callback"
     />
     <prompt-dialog
       v-if="prompt.show"
+      v-model="prompt.show"
       :title="prompt.title"
       :subtitle="prompt.subtitle"
       :message="prompt.message"
       :details="prompt.details"
       :buttons="prompt.buttons"
       :layout="prompt.layout"
-      @submit="prompt.callback"
+      @response="prompt.callback"
     />
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
+    <environment-dialog v-if="environmentOpen" v-model="environmentOpen" />
     <file-open-save-dialog
       v-if="fileOpen"
       v-model="fileOpen"
@@ -222,50 +312,89 @@
       @filename="saveAsFilename($event)"
       @error="setError($event)"
     />
-    <v-dialog v-model="areYouSure" max-width="350">
+    <!-- START -->
+    <v-dialog v-model="startDialog" width="600">
       <v-card>
-        <v-card-title class="headline"> Are you sure? </v-card-title>
-        <v-card-text>Permanently delete file {{ filename }}! </v-card-text>
+        <v-system-bar>
+          <v-spacer />
+          <span> Start with Environment Options </span>
+          <v-spacer />
+        </v-system-bar>
+        <v-card-text>
+          <div class="pa-3">
+            <environment-chooser @selected="selectedHandeler" />
+          </div>
+        </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" text @click="confirmDelete(true)"> Ok </v-btn>
-          <v-btn color="primary" text @click="confirmDelete(false)">
+          <v-btn
+            @click="cancelCallback"
+            class="mx-2"
+            outlined
+            data-test="environment-dialog-cancel"
+          >
             Cancel
+          </v-btn>
+          <v-btn
+            @click="optionCallback"
+            class="mx-2"
+            color="primary"
+            data-test="environment-dialog-start"
+          >
+            Start
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="infoDialog" max-width="750">
+    <!-- INFO -->
+    <v-dialog v-model="infoDialog" width="600">
       <v-card>
-        <v-card-title class="headline">{{ infoTitle }}</v-card-title>
-        <v-card-text class="mb-0">
-          <v-container>
+        <v-system-bar>
+          <v-spacer />
+          <span> {{ infoTitle }} </span>
+          <v-spacer />
+        </v-system-bar>
+        <v-card-text>
+          <div class="pa-3">
             <v-row no-gutters v-for="(line, index) in infoText" :key="index">
-              {{ line }}
+              <span v-text="line" />
             </v-row>
-          </v-container>
+            <v-row>
+              <v-btn block color="primary" @click="infoDialog = false">
+                Ok
+              </v-btn>
+            </v-row>
+          </div>
         </v-card-text>
-        <v-card-actions>
-          <v-btn color="primary" text @click="infoDialog = false">Ok</v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="resultsDialog" max-width="750">
+    <!-- RESULTS -->
+    <v-dialog v-model="resultsDialog" width="600">
       <v-card>
-        <v-card-title class="headline">Script Results</v-card-title>
-        <v-card-text class="mb-0 pb-0">
-          <v-textarea
-            readonly
-            hide-details
-            dense
-            auto-grow
-            :value="scriptResults"
-          />
+        <v-system-bar>
+          <v-spacer />
+          <span> Script Results </span>
+          <v-spacer />
+        </v-system-bar>
+        <v-card-text>
+          <div class="pa-3">
+            <v-textarea
+              readonly
+              hide-details
+              dense
+              auto-grow
+              :value="scriptResults"
+            />
+          </div>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" text @click="resultsDialog = false">Ok</v-btn>
           <v-spacer />
-          <v-btn color="primary" text @click="downloadResults">Download</v-btn>
+          <v-btn class="mx-2" outlined @click="downloadResults">
+            Download
+          </v-btn>
+          <v-btn class="mx-2" color="primary" @click="resultsDialog = false">
+            Ok
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -282,6 +411,8 @@ import 'brace/theme/twilight'
 import { toDate, format } from 'date-fns'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import FileOpenSaveDialog from '@cosmosc2/tool-common/src/components/FileOpenSaveDialog'
+import EnvironmentChooser from '@cosmosc2/tool-common/src/components/EnvironmentChooser'
+import EnvironmentDialog from '@cosmosc2/tool-common/src/components/EnvironmentDialog'
 import ActionCable from 'actioncable'
 import AskDialog from './AskDialog.vue'
 import PromptDialog from './PromptDialog.vue'
@@ -293,6 +424,8 @@ const NEW_FILENAME = '<Untitled>'
 export default {
   components: {
     FileOpenSaveDialog,
+    EnvironmentChooser,
+    EnvironmentDialog,
     AskDialog,
     PromptDialog,
     SuiteRunner,
@@ -320,12 +453,16 @@ export default {
         //   },
         // },
       },
+      environmentOn: false,
+      environmentOpen: false,
+      environmentOptions: [],
       showSave: false,
       showAlert: false,
       alertType: null,
       alertText: '',
       state: ' ',
       scriptId: null,
+      startDialog: false,
       startOrGoButton: 'Start',
       startOrGoDisabled: false,
       pauseOrRetryButton: 'Pause',
@@ -380,7 +517,7 @@ export default {
   computed: {
     fullFilename() {
       if (this.fileModified.length > 0) {
-        return this.filename + ' ' + this.fileModified
+        return `${this.filename} ${this.fileModified}`
       } else {
         return this.filename
       }
@@ -447,10 +584,21 @@ export default {
           label: 'Script',
           items: [
             {
-              label: 'Show Running Scripts',
+              label: 'Open Running Scripts',
+              icon: 'mdi-run',
               command: () => {
                 let routeData = this.$router.resolve({ name: 'RunningScripts' })
                 window.open(routeData.href, '_blank')
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Show Environment',
+              icon: 'mdi-eye',
+              command: () => {
+                this.environmentOpen = !this.environmentOpen
               },
             },
             {
@@ -492,6 +640,13 @@ export default {
         },
       ]
     },
+  },
+  created() {
+    Api.get('/script-api/running-script').then((response) => {
+      this.alertType = 'success'
+      this.alertText = `Currently ${response.data.length} running scripts.`
+      this.showAlert = true
+    })
   },
   mounted() {
     this.editor = ace.edit('editor')
@@ -539,7 +694,11 @@ export default {
   },
   methods: {
     suiteRunnerButton(event) {
-      this.startOrGo(event, 'suiteRunner')
+      if (this.startOrGoButton === 'Start') {
+        this.start(event, 'suiteRunner')
+      } else {
+        this.go(event, 'suiteRunner')
+      }
     },
     keydown(event) {
       // NOTE: Chrome does not allow overriding Ctrl-N, Ctrl-Shift-N, Ctrl-T, Ctrl-Shift-T, Ctrl-W
@@ -598,36 +757,62 @@ export default {
       this.marker = null
       this.editor.setReadOnly(false)
     },
-    startOrGo(event, suiteRunner = null) {
-      if (this.startOrGoButton === 'Start') {
-        this.saveFile('start')
-
-        let filename = this.filename
-        if (this.filename === NEW_FILENAME) {
-          // NEW_FILENAME so use tempFilename created by saveFile()
-          filename = this.tempFilename
-        }
-        let url = '/script-api/scripts/' + filename + '/run'
-        if (this.showDisconnect) {
-          url += '/disconnect'
-        }
-        let data = { scope: localStorage.scope }
-        if (suiteRunner) {
-          data['suiteRunner'] = event
-        }
-        Api.post(url, { data }).then((response) => {
-          this.scriptStart(response.data)
-        })
+    selectedHandeler: function (event) {
+      this.environmentOptions = event ? event : null
+    },
+    environmentHandeler: function (event) {
+      this.environmentOn = !this.environmentOn
+      const environmentValue = this.environmentOn ? 'ON' : 'OFF'
+      this.alertType = 'success'
+      this.alertText = `Environment dialog toggled: ${environmentValue}`
+      this.showAlert = true
+    },
+    startHandeler: function () {
+      if (this.environmentOn) {
+        this.startDialog = true
       } else {
-        Api.post('/script-api/running-script/' + this.scriptId + '/go')
+        this.start()
       }
+    },
+    optionCallback: function () {
+      this.startDialog = false
+      this.start()
+    },
+    cancelCallback: function () {
+      this.startDialog = false
+    },
+    start(event, suiteRunner = null) {
+      this.saveFile('start')
+      let filename = this.filename
+      if (this.filename === NEW_FILENAME) {
+        // NEW_FILENAME so use tempFilename created by saveFile()
+        filename = this.tempFilename
+      }
+      let url = `/script-api/scripts/${filename}/run`
+      if (this.showDisconnect) {
+        url += '/disconnect'
+      }
+      let data = {
+        scope: localStorage.scope,
+        environment: this.environmentOptions,
+      }
+      if (suiteRunner) {
+        data['suiteRunner'] = event
+      }
+      Api.post(url, { data }).then((response) => {
+        this.scriptStart(response.data)
+      })
+      this.environmentOptions = []
+    },
+    go(event, suiteRunner = null) {
+      Api.post(`/script-api/running-script/${this.scriptId}/go`)
     },
     pauseOrRetry() {
       if (this.pauseOrRetryButton === 'Pause') {
-        Api.post('/script-api/running-script/' + this.scriptId + '/pause')
+        Api.post(`/script-api/running-script/${this.scriptId}/pause`)
       } else {
         this.pauseOrRetryButton = 'Pause'
-        Api.post('/script-api/running-script/' + this.scriptId + '/retry')
+        Api.post(`/script-api/running-script/${this.scriptId}/retry`)
       }
     },
     stop() {
@@ -637,11 +822,11 @@ export default {
         this.editor.session.removeMarker(this.marker)
         this.scriptComplete()
       } else {
-        Api.post('/script-api/running-script/' + this.scriptId + '/stop')
+        Api.post(`/script-api/running-script/${this.scriptId}/stop`)
       }
     },
     step() {
-      Api.post('/script-api/running-script/' + this.scriptId + '/step')
+      Api.post(`/script-api/running-script/${this.scriptId}/step`)
     },
     received(data) {
       switch (data.type) {
@@ -747,7 +932,7 @@ export default {
     },
     promptDialogCallback(value) {
       this.prompt.show = false
-      Api.post('/script-api/running-script/' + this.scriptId + '/prompt', {
+      Api.post(`/script-api/running-script/${this.scriptId}/prompt`, {
         data: {
           method: this.prompt.method,
           answer: value,
@@ -783,37 +968,26 @@ export default {
           this.ask.callback = (value) => {
             this.ask.show = false // Close the dialog
             if (this.ask.password) {
-              Api.post(
-                '/script-api/running-script/' + this.scriptId + '/prompt',
-                {
-                  data: {
-                    method: data.method,
-                    password: value, // Using password as a key automatically filters it from rails logs
-                  },
-                }
-              )
+              Api.post(`/script-api/running-script/${this.scriptId}/prompt`, {
+                data: {
+                  method: data.method,
+                  password: value, // Using password as a key automatically filters it from rails logs
+                },
+              })
             } else {
-              Api.post(
-                '/script-api/running-script/' + this.scriptId + '/prompt',
-                {
-                  data: {
-                    method: data.method,
-                    answer: value,
-                  },
-                }
-              )
+              Api.post(`/script-api/running-script/${this.scriptId}/prompt`, {
+                data: {
+                  method: data.method,
+                  answer: value,
+                },
+              })
             }
           }
           this.ask.show = true // Display the dialog
           break
         case 'prompt_for_hazardous':
           this.prompt.title = 'Hazardous Command'
-          this.prompt.message =
-            'Warning: Command ' +
-            data.args[0] +
-            ' ' +
-            data.args[1] +
-            ' is Hazardous. '
+          this.prompt.message = `Warning: Command ${data.args[0]} ${data.args[1]} is Hazardous. `
           if (data.args[2]) {
             this.prompt.message += data.args[2] + ' '
           }
@@ -881,10 +1055,9 @@ export default {
     },
     setError(event) {
       this.alertType = 'error'
-      this.alertText = 'Error: ' + event
+      this.alertText = `Error: ${event}`
       this.showAlert = true
     },
-
     // ScriptRunner File menu actions
     newFile() {
       this.filename = NEW_FILENAME
@@ -906,8 +1079,7 @@ export default {
       if (file.suites) {
         if (typeof file.suites === 'string') {
           this.alertType = 'warning'
-          this.alertText =
-            'Processing ' + this.filename + ' resulted in: ' + file.suites
+          this.alertText = `Processing ${this.filename} resulted in: ${file.suites}`
           this.showAlert = true
         } else {
           this.suiteRunner = true
@@ -929,7 +1101,7 @@ export default {
               format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_temp.rb'
           }
           this.showSave = true
-          Api.post('/script-api/scripts/' + this.tempFilename, {
+          Api.post(`/script-api/scripts/${this.tempFilename}`, {
             data: {
               text: this.editor.getValue(), // Pass in the raw file text
             },
@@ -947,7 +1119,7 @@ export default {
       } else {
         // Save a file by posting the new contents
         this.showSave = true
-        Api.post('/script-api/scripts/' + this.filename, {
+        Api.post(`/script-api/scripts/${this.filename}`, {
           data: {
             text: this.editor.getValue(), // Pass in the raw file text
           },
@@ -965,11 +1137,7 @@ export default {
             } else {
               this.showSave = false
               this.alertType = 'error'
-              this.alertText =
-                'Error saving file. Code: ' +
-                response.status +
-                ' Text: ' +
-                response.statusText
+              this.alertText = `Error saving file. Code: ${response.status} Text: ${response.statusText}`
               this.showAlert = true
             }
           })
@@ -982,11 +1150,7 @@ export default {
               this.alertText = response.data.suites
             } else {
               this.alertType = 'error'
-              this.alertText =
-                'Error saving file. Code: ' +
-                response.status +
-                ' Text: ' +
-                response.statusText
+              this.alertText = `Error saving file. Code: ${response.status} Text: ${response.statusText}`
             }
             this.showAlert = true
           })
@@ -998,24 +1162,35 @@ export default {
     saveAsFilename(filename) {
       this.filename = filename
       if (this.tempFilename) {
-        Api.post('/script-api/scripts/' + this.tempFilename + '/delete')
+        Api.post(`/script-api/scripts/${this.tempFilename}/delete`)
         this.tempFilename = null
       }
       this.saveFile()
     },
     delete() {
-      this.areYouSure = true
-    },
-    confirmDelete(action) {
-      if (action === true) {
-        // TODO: Delete instead of post
-        Api.post('/script-api/scripts/' + this.filename + '/delete', {
-          data: {},
-        }).then((response) => {
-          this.areYouSure = false
+      // TODO: Delete instead of post
+      this.$dialog
+        .confirm(`Permanently delete file: ${this.filename}`, {
+          okText: 'Delete',
+          cancelText: 'Cancel',
+        })
+        .then((dialog) => {
+          return Api.post(`/script-api/scripts/${this.filename}/delete`, {
+            data: {},
+          })
+        })
+        .then((response) => {
           this.newFile()
         })
-      }
+        .catch((error) => {
+          if (error) {
+            const alertObject = {
+              text: `Failed Multi-Delete. ${error}`,
+              type: 'error',
+            }
+            this.$emit('alert', alertObject)
+          }
+        })
     },
     download() {
       const blob = new Blob([this.editor.getValue()], {
@@ -1030,8 +1205,8 @@ export default {
 
     // ScriptRunner Script menu actions
     rubySyntaxCheck() {
-      Api.post('/script-api/scripts/syntax', this.editor.getValue(), {
-        data: {},
+      Api.post('/script-api/scripts/syntax', {
+        data: this.editor.getValue(),
         headers: {
           Accept: 'application/json',
           'Content-Type': 'plain/text',
@@ -1043,7 +1218,7 @@ export default {
       })
     },
     showCallStack() {
-      Api.post('/script-api/running-script/' + this.scriptId + '/backtrace')
+      Api.post(`/script-api/running-script/${this.scriptId}/backtrace`)
     },
     toggleDebug() {
       this.showDebug = !this.showDebug
@@ -1060,7 +1235,7 @@ export default {
         this.debugHistory.push(this.debug)
         this.debugHistoryIndex = this.debugHistory.length
         // Post the code to /debug, output is processed by receive()
-        Api.post('/script-api/running-script/' + this.scriptId + '/debug', {
+        Api.post(`/script-api/running-script/${this.scriptId}/debug`, {
           data: {
             args: this.debug,
           },
@@ -1109,6 +1284,16 @@ export default {
         format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_sr_message_log.txt'
       )
       link.click()
+    },
+    clearLog: function () {
+      this.$dialog
+        .confirm('Are you sure you want to clear the logs?', {
+          okText: 'Clear',
+          cancelText: 'Cancel',
+        })
+        .then((dialog) => {
+          this.messages = []
+        })
     },
   },
 }

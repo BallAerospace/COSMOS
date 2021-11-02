@@ -19,83 +19,89 @@
 
 <template>
   <v-dialog persistent v-model="show" width="600">
-    <v-card class="pa-3">
-      <v-toolbar>
-        <v-toolbar-title v-text="title" />
-        <v-spacer />
-        <div class="mx-2">
-          <v-tooltip top>
-            <template v-slot:activator="{ on, attrs }">
-              <div v-on="on" v-bind="attrs">
-                <v-btn icon data-test="downloadIcon" @click="download">
-                  <v-icon> mdi-download </v-icon>
+    <v-card>
+      <form v-on:submit.prevent="submit">
+
+        <v-system-bar>
+          <v-spacer />
+          <span v-text="title" />
+          <v-spacer />
+          <div class="mx-2">
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <div v-on="on" v-bind="attrs">
+                  <v-btn icon data-test="downloadIcon" @click="download">
+                    <v-icon> mdi-download </v-icon>
+                  </v-btn>
+                </div>
+              </template>
+              <span> Download </span>
+            </v-tooltip>
+          </div>
+        </v-system-bar>
+
+        <v-card-text>
+          <div class="pa-3">
+            <v-row class="mt-3"> Upload a file. </v-row>
+            <v-row no-gutters align="center">
+              <v-col cols="3">
+                <v-btn
+                  block
+                  color="success"
+                  @click="loadFile"
+                  :disabled="!file || loadingFile || readonly"
+                  :loading="loadingFile"
+                  data-test="editScreenLoadBtn"
+                >
+                  Load
+                  <template v-slot:loader>
+                    <span>Loading...</span>
+                  </template>
                 </v-btn>
-              </div>
-            </template>
-            <span> Download </span>
-          </v-tooltip>
-        </div>
-      </v-toolbar>
-      <v-card-text>
-        <v-form ref="form" @submit.prevent="submit">
-          <v-row class="mt-3"> Upload a file. </v-row>
-          <v-row no-gutters align="center">
-            <v-col cols="3">
-              <v-btn
-                block
-                color="success"
-                @click="loadFile"
-                :disabled="!file || loadingFile || readonly"
-                :loading="loadingFile"
-                data-test="editScreenLoadBtn"
-              >
-                Load
-                <template v-slot:loader>
-                  <span>Loading...</span>
-                </template>
-              </v-btn>
-           </v-col>
-            <v-col cols="9">
-              <v-file-input
-                v-model="file"
-                accept=".json"
-                label="Click to select .json file."
-                :disabled="readonly"
+              </v-col>
+              <v-col cols="9">
+                <v-file-input
+                  v-model="file"
+                  accept=".json"
+                  label="Click to select .json file."
+                  :disabled="readonly"
+                />
+              </v-col>
+            </v-row>
+            <v-row> Edit json content </v-row>
+            <v-row no-gutters>
+              <v-textarea
+                v-model="json_content"
+                rows="15"
+                :readonly="readonly"
+                data-test="editTextInput"
               />
-            </v-col>
-          </v-row>
-          <v-row> Edit json content </v-row>
-          <v-row no-gutters>
-            <v-textarea
-              v-model="json_content"
-              rows="15"
-              :readonly="readonly"
-              data-test="editTextInput"
-            />
-          </v-row>
-          <v-row class="my-3">
-            <span class="red--text" v-show="error" v-text="error" />
-          </v-row>
-          <v-row>
-            <v-btn
-              color="success"
-              type="submit"
-              :disabled="!!error || readonly"
-              data-test="editSubmitBtn"
-            >
-              Save
-            </v-btn>
-            <v-spacer />
-            <v-btn
-              color="primary"
-              @click.prevent="close"
-              data-test="editCancelBtn"
-            >
-              Cancel
-            </v-btn>
-          </v-row>
-        </v-form>
-      </v-card-text>
+            </v-row>
+            <v-row class="my-3">
+              <span class="red--text" v-show="error" v-text="error" />
+            </v-row>
+            <v-row>
+              <v-btn
+                color="success"
+                type="submit"
+                :disabled="!!error || readonly"
+                data-test="editSubmitBtn"
+              >
+                Save
+              </v-btn>
+              <v-spacer />
+              <v-btn
+                color="primary"
+                @click.prevent="close"
+                data-test="editCancelBtn"
+              >
+                Cancel
+              </v-btn>
+            </v-row>
+          </div>
+        </v-card-text>
+
+      </form>
     </v-card>
   </v-dialog>
 </template>

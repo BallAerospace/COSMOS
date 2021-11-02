@@ -77,6 +77,9 @@ Rails.application.routes.draw do
     match '/plugins/:id', to: 'plugins#update', id: /[^\/]+/, via: [:patch, :put]
     delete '/plugins/:id', to: 'plugins#destroy', id: /[^\/]+/
 
+    resources :environment, only: [:index, :create]
+    delete '/environment/:name', to: 'environment#destroy', name: /[^\/]+/
+
     resources :timeline, only: [:index, :create]
     get '/timeline/:name', to: 'timeline#show', name: /[^\/]+/
     post '/timeline/:name/color', to: 'timeline#color', name: /[^\/]+/

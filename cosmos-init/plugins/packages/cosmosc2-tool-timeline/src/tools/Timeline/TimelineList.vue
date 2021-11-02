@@ -27,7 +27,7 @@
           <v-btn
             icon
             data-test="deleteSelectedTimelines"
-            @click="deleteSelectedTimelines()"
+            @click="deleteSelectedTimelinesWrapper()"
             v-bind="attrs"
             v-on="on"
           >
@@ -36,97 +36,99 @@
         </template>
         <span>Delete Timelines</span>
       </v-tooltip>
-      <timeline-create-dialog
-        v-on="listeners"
-        v-model="showCreateDialog"
-        :timelines="timelines"
-      />
       <v-tooltip top>
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             icon
-            data-test="setSelectedActivitiesOn"
-            @click="setSelectedActivitiesOn()"
-            v-bind="attrs"
             v-on="on"
+            v-bind="attrs"
+            data-test="setSelectedActivities"
+            @click="setSelectedActivitiesOn()"
           >
-            <v-icon v-show="!selectedTimelinesOn">mdi-check</v-icon>
+            <v-icon v-show="!selectedTimelinesOn">mdi-calendar-multiple</v-icon>
             <v-icon v-show="selectedTimelinesOn">mdi-close</v-icon>
           </v-btn>
         </template>
         <span>Select Multiple Timelines</span>
       </v-tooltip>
-    </v-toolbar>
-    <v-list>
-      <v-list-item-group :multiple="selectedTimelinesOn">
-        <template v-for="(timeline, index) in sortedTimelines">
-          <v-list-item
-            :key="timeline.name"
-            data-test="selectTimeline"
-            @click="select(timeline, !selectedTimelinesOn)"
+      <v-tooltip top>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            icon
+            v-on="on"
+            v-bind="attrs"
+            data-test="createTimeline"
+            @click="showCreateDialog = true"
           >
-            <v-row>
-              <v-col>
-                <v-list-item-content class="mt-2">
-                  <v-badge
-                    dot
-                    bordered
-                    inline
-                    tile
-                    :color="timeline.color"
-                    :value="timeline.messages"
-                  >
-                    <v-list-item-title
-                      class="font-weight-bold"
-                      v-text="timeline.name"
-                    />
-                  </v-badge>
-                </v-list-item-content>
-              </v-col>
-              <v-col :cols="2">
-                <v-list-item-content>
-                  <v-menu offset-y>
-                    <template v-slot:activator="{ on, attrs }">
-                      <v-btn
-                        data-test="timelineActions"
-                        icon
-                        v-bind="attrs"
-                        v-on="on"
-                      >
-                        <v-icon>mdi-dots-vertical</v-icon>
-                      </v-btn>
-                    </template>
-                    <v-list>
-                      <v-list-item>
-                        <v-list-item-title
-                          data-test="openTimelineColorDialog"
-                          @click="openTimelineColorDialog(timeline)"
-                        >
-                          Color
-                        </v-list-item-title>
-                      </v-list-item>
-                      <v-divider />
-                      <v-list-item>
-                        <v-list-item-title
-                          data-test="deleteTimeline"
-                          @click="deleteTimeline(timeline)"
-                        >
-                          Delete
-                        </v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </v-list-item-content>
-              </v-col>
-            </v-row>
-          </v-list-item>
-          <v-divider v-if="index < sortedTimelines.length - 1" :key="index" />
+            <v-icon>mdi-calendar-plus</v-icon>
+          </v-btn>
         </template>
-      </v-list-item-group>
-    </v-list>
+        <span>Create Timelines</span>
+      </v-tooltip>
+    </v-toolbar>
+    <div class="my-1">
+      <div v-for="item in sortedTimelines" :key="item.name">
+        <v-card outlined class="my-1" @click="select(item)">
+          <v-card-title
+            :class="selected(item) ? 'selected-title' : 'available-title'"
+          >
+            <v-badge
+              dot
+              bordered
+              inline
+              tile
+              :color="item.color"
+              :value="item.messages"
+            >
+              <span :data-test="`selectItem-${item.name}`" v-text="item.name" />
+            </v-badge>
+            <v-spacer />
+            <v-icon class="mx-2">
+              {{ selected(item) ? 'mdi-eye' : 'mdi-eye-off' }}
+            </v-icon>
+          </v-card-title>
+          <v-card-actions>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  @click.stop="openTimelineColorDialog(item)"
+                  v-on="on"
+                  v-bind="attrs"
+                  class="mx-2"
+                  :data-test="`openTimelineColorDialog-${item.name}`"
+                >
+                  mdi-palette
+                </v-icon>
+              </template>
+              <span> Change Timeline Color </span>
+            </v-tooltip>
+            <v-spacer />
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon
+                  @click.stop="deleteTimeline(item)"
+                  v-on="on"
+                  v-bind="attrs"
+                  class="mx-2"
+                  :data-test="`deleteTimeline-${item.name}`"
+                >
+                  mdi-delete
+                </v-icon>
+              </template>
+              <span> Delete Timeline </span>
+            </v-tooltip>
+          </v-card-actions>
+        </v-card>
+      </div>
+    </div>
     <!-- menus -->
+    <timeline-create-dialog
+      v-if="showCreateDialog"
+      v-model="showCreateDialog"
+      :timelines="timelines"
+    />
     <timeline-color-dialog
-      v-on="listeners"
+      v-if="showColorDialog"
       v-model="showColorDialog"
       :timeline="colorMenuTimeline"
       :timelineColor="colorMenuTimeline.color"
@@ -156,6 +158,7 @@ export default {
   },
   data() {
     return {
+      selectedTimelinesTracker: new Map(),
       selectedTimelinesOn: false,
       colorMenuTimeline: {},
       showColorDialog: false,
@@ -181,26 +184,37 @@ export default {
     },
   },
   methods: {
-    select: function (timeline, single = false, onlyDeselect = false) {
+    selected: function (event) {
+      return this.selectedTimelinesTracker.get(event.name)
+    },
+    select: function (event) {
       let newVal = null
-      if (single) {
-        newVal = [timeline]
-      } else {
+      let newMap = null
+      if (this.selectedTimelinesOn) {
         newVal = [...this.selectedTimelines]
-        const index = newVal.indexOf(timeline)
+        newMap = new Map(this.selectedTimelinesTracker)
+        const index = newVal.indexOf(event)
         if (index >= 0) {
           // remove it
           newVal.splice(index, 1)
+          newMap.delete(event.name)
         } else {
           // add it
-          newVal.push(timeline)
+          newVal.push(event)
+          newMap.set(event.name, 1)
         }
+      } else {
+        newVal = [event]
+        newMap = new Map()
+        newMap.set(event.name, 1)
       }
       this.selectedTimelines = newVal
+      this.selectedTimelinesTracker = newMap
     },
     setSelectedActivitiesOn: function () {
       if (this.selectedTimelinesOn || this.selectedTimelines.length > 1) {
         this.selectedTimelines = []
+        this.selectedTimelinesTracker = new Map()
       }
       this.selectedTimelinesOn = !this.selectedTimelinesOn
     },
@@ -239,6 +253,30 @@ export default {
           }
         })
     },
+    deleteSelectedTimelinesWrapper: function () {
+      if (this.selectedTimelines.length < 1) {
+        const alertObject = {
+          text: 'At least one timeline must be selected.',
+          type: 'error',
+        }
+        this.$emit('alert', alertObject)
+        return
+      }
+      const selectedTimelineNames = this.selectedTimelines
+        .map((e) => e.name)
+        .join(', ')
+      this.$dialog
+        .confirm(
+          `Are you sure you want to delete: ${selectedTimelineNames} Timelines?`,
+          {
+            type: 'hard',
+            verification: 'delete',
+          }
+        )
+        .then((dialog) => {
+          this.deleteSelectedTimelines()
+        })
+    },
     deleteSelectedTimelines: function () {
       for (const timeline of this.selectedTimelines) {
         Api.delete(`/cosmos-api/timeline/${timeline.name}`).catch((error) => {
@@ -265,8 +303,10 @@ export default {
 </script>
 
 <style scoped>
-.theme--dark .v-card__title,
-.theme--dark .v-card__subtitle {
-  background-color: var(--v-secondary-darken3);
+.selected-title {
+  background-color: var(--v-secondary-base);
+}
+.available-title {
+  background-color: var(--v-primary-darken2);
 }
 </style>

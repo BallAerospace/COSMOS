@@ -18,11 +18,9 @@
 -->
 
 <template>
-
   <v-dialog v-model="show" @keydown.esc="cancel" width="600">
     <v-card>
       <form v-on:submit.prevent="success">
-
         <v-system-bar>
           <v-spacer />
           <span>Save Configuration</span>
@@ -81,30 +79,24 @@
               <span class="ma-2 red--text" v-show="error" v-text="error" />
             </v-row>
             <v-row>
+              <v-spacer />
+              <v-btn outlined class="mx-2" @click="cancel"> Cancel </v-btn>
               <v-btn
                 @click.prevent="success"
                 type="submit"
-                color="success"
+                color="primary"
+                class="mx-2"
                 data-test="save-config-submit-btn"
                 :disabled="!!error"
               >
                 Ok
               </v-btn>
-              <v-spacer />
-              <v-btn
-                color="primary"
-                @click="cancel"
-              >
-                Cancel
-              </v-btn>
             </v-row>
           </div>
         </v-card-text>
-
       </form>
     </v-card>
   </v-dialog>
-
 </template>
 
 <script>
@@ -117,7 +109,6 @@ export default {
   },
   data() {
     return {
-      api: null,
       configName: '',
       configs: [],
       headers: [
@@ -152,12 +143,10 @@ export default {
       },
     },
   },
-  created() {
-    this.api = new CosmosApi()
-  },
   mounted() {
     let configId = -1
-    this.api.list_configs(this.tool)
+    new CosmosApi()
+      .list_configs(this.tool)
       .then((response) => {
         this.configs = response.map((config) => {
           configId += 1
@@ -203,7 +192,7 @@ export default {
             this.configName = ''
           }
           this.configs.splice(this.configs.indexOf(item.config), 1)
-          this.api.delete_config(this.tool, item.config)
+          new CosmosApi().delete_config(this.tool, item.config)
         })
         .catch((error) => {
           if (error) {
@@ -217,6 +206,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-</style>

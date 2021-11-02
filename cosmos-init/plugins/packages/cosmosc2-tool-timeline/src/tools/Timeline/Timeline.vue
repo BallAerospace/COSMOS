@@ -25,7 +25,6 @@
         v-model="showAlert"
         :top="true"
         :color="alertType"
-        :icon="alertType"
         :timeout="5000"
       >
         <v-icon> mdi-{{ alertType }} </v-icon>
@@ -64,6 +63,10 @@
           <span v-else> No timelines selected </span>
         </v-col>
       </v-row>
+      <environment-dialog
+        v-if="environmentOpen"
+        v-model="environmentOpen"
+      />
     </v-container>
   </div>
 </template>
@@ -71,6 +74,7 @@
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
 import Cable from '@cosmosc2/tool-common/src/services/cable.js'
+import EnvironmentDialog from '@cosmosc2/tool-common/src/components/EnvironmentDialog'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 import TimelineList from '@/tools/Timeline/TimelineList'
 import ActivityCalendar from '@/tools/Timeline/ActivityCalendar'
@@ -78,6 +82,7 @@ import ActivityList from '@/tools/Timeline/ActivityList'
 
 export default {
   components: {
+    EnvironmentDialog,
     TopBar,
     TimelineList,
     ActivityCalendar,
@@ -90,13 +95,13 @@ export default {
       api: null,
       alert: '',
       alertType: 'success',
+      environmentOpen: false,
       showAlert: false,
       activityView: 'list',
       displayTimeInUtc: false,
       menus: [
         {
-          label: 'View',
-          radioGroup: 'List', // Default radio selected
+          label: 'Options',
           items: [
             {
               label: 'Refresh',
@@ -106,38 +111,42 @@ export default {
               },
             },
             {
+              label: 'Show Environment',
+              icon: 'mdi-eye',
+              command: () => {
+                this.environmentOpen = !this.environmentOpen
+              },
+            },
+            {
               divider: true,
             },
             {
               label: 'List',
-              radio: true,
+              icon: 'mdi-view-list',
               command: () => {
                 this.activityView = 'list'
               },
             },
             {
               label: 'Calendar',
-              radio: true,
+              icon: 'mdi-calendar',
               command: () => {
                 this.activityView = 'calendar'
               },
             },
-          ],
-        },
-        {
-          label: 'Time',
-          radioGroup: 'Local', // Default radio selected
-          items: [
             {
-              label: 'Local',
-              radio: true,
+              divider: true,
+            },
+            {
+              label: 'Local (LST)',
+              icon: 'mdi-map-marker',
               command: () => {
                 this.displayTimeInUtc = false
               },
             },
             {
-              label: 'UTC',
-              radio: true,
+              label: 'UTC (UTC)',
+              icon: 'mdi-web',
               command: () => {
                 this.displayTimeInUtc = true
               },

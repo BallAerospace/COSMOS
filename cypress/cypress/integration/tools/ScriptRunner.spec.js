@@ -18,12 +18,20 @@
 */
 
 describe('ScriptRunner', () => {
+  beforeEach(() => {
+    cy.visit('/tools/scriptrunner')
+    cy.hideNav()
+    cy.wait(1000)
+  })
+
+  afterEach(() => {
+    //
+  })
+
   //
   // Test the basic functionality of the application, not running scripts
   //
   it('opens ready to type', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
     cy.focused().type('this is a test')
     cy.contains('this is a test')
   })
@@ -32,55 +40,63 @@ describe('ScriptRunner', () => {
   // Test the File menu
   //
   it('clears the editor on File->New', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
     cy.get('#editor').type('this is a test')
     cy.contains('this is a test')
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('New').click()
+    cy.get('.v-toolbar').contains('File').click({ force: true })
+    cy.contains('New').click({ force: true })
     cy.contains('this is a test').should('not.exist')
+    cy.wait(1000)
   })
 
-  it('handles File Save, Save As, and Delete', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
+  it('handles File Save new file', () => {
     cy.get('#editor').type('puts "File Save"')
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('Save File').click()
+    cy.get('.v-toolbar').contains('File').click({ force: true })
+    cy.contains('Save File').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('File Save As')
       cy.get('[data-test=filename]').invoke('val').should('include', 'Untitled')
       cy.get('[data-test=filename]').clear().type('temp.rb')
-      cy.contains('Ok').click()
       cy.contains('temp.rb is not a valid path / filename')
       cy.contains('INST')
         .parentsUntil('button')
         .eq(0)
         .parent()
         .find('button')
-        .click()
-      cy.contains('procedures').click()
+        .click({ force: true })
+      cy.contains('procedures').click({ force: true })
       // Verify the filename includes what we just clicked on
       cy.get('[data-test=filename]')
         .invoke('val')
         .should('include', 'INST/procedures')
       cy.get('[data-test=filename]').type('/temp.rb')
-      cy.contains('Ok').click()
+      cy.get('[data-test=file-open-save-submit-btn]').click({ force: true })
     })
     cy.get('.v-dialog:visible').should('not.exist')
     cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb')
+    cy.wait(1000)
+  })
 
+  it('handles File Save overwrite', () => {
+    cy.get('.v-toolbar').contains('File').click({ force: true })
+    cy.contains('Open').click({ force: true })
+    cy.get('.v-dialog:visible').within(() => {
+      cy.contains('No file selected')
+      cy.contains('INST').click({ force: true })
+      cy.contains('procedures').click({ force: true })
+      cy.contains('temp.rb').click({ force: true })
+      cy.get('[data-test=file-open-save-submit-btn]').click({ force: true })
+    })
     // Type a little and verify it indicates the change
     cy.get('#editor').type('\n# comment1')
     cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb *')
     // Save and verify it no longer indicates change
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('Save File').click()
+    cy.get('.v-toolbar').contains('File').click({ force: true })
+    cy.contains('Save File').click({ force: true })
     cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb')
@@ -91,18 +107,34 @@ describe('ScriptRunner', () => {
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb *')
     // File->Save As
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('Save As...').click()
+    cy.get('.v-toolbar').contains('File').click({ force: true })
+    cy.contains('Save As...').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('File Save As')
       cy.get('[data-test=filename]')
         .invoke('val')
         .should('include', 'INST/procedures/temp.rb')
-      cy.contains('Ok').click()
-      cy.contains('Click OK to overwrite')
-      cy.contains('Ok').click()
+      cy.contains('SAVE').click({ force: true })
     })
+    cy.get('.dg-main-content').within(() => {
+      cy.get('.dg-content').contains('Are you sure')
+      cy.get('.dg-btn--ok').click({ force: true })
+    })
+    cy.wait(1000)
+  })
+
+  it('handles Save (ctrl + s)', () => {
+    cy.get('.v-toolbar').contains('File').click({ force: true })
+    cy.contains('Open').click({ force: true })
+    cy.get('.v-dialog:visible').within(() => {
+      cy.contains('No file selected')
+      cy.contains('INST').click({ force: true })
+      cy.contains('procedures').click({ force: true })
+      cy.contains('temp.rb').click({ force: true })
+      cy.get('[data-test=file-open-save-submit-btn]').click({ force: true })
+    })
+    // Type a little and verify it indicates the change
     cy.get('.v-dialog:visible').should('not.exist')
     cy.get('[data-test=filename]')
       .invoke('val')
@@ -119,31 +151,27 @@ describe('ScriptRunner', () => {
       .should('eq', 'INST/procedures/temp.rb')
 
     // Clear the editor
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('New File').click()
+    cy.get('.v-toolbar').contains('File').click({ force: true })
+    cy.contains('New File').click({ force: true })
     cy.contains('puts "File Save"').should('not.exist')
+    cy.wait(1000)
+  })
 
-    // Open the file
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('Open').click()
+  it('handles Download and Delete', () => {
+    cy.get('.v-toolbar').contains('File').click({ force: true })
+    cy.contains('Open').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
-      cy.contains('Ok').click()
-      cy.contains('Nothing selected')
-      cy.get('[data-test=search]').type('temp')
-      cy.contains('temp.rb')
-      cy.get('[data-test=search]').clear()
-      cy.contains('temp.rb').should('not.exist')
-      cy.get('[data-test=search]').type('temp')
-      cy.contains('temp.rb').click()
-      cy.contains('Ok').click()
+      cy.contains('No file selected')
+      cy.contains('INST').click({ force: true })
+      cy.contains('procedures').click({ force: true })
+      cy.contains('temp.rb').click({ force: true })
+      cy.get('[data-test=file-open-save-submit-btn]').click({ force: true })
     })
-
     // Verify we loaded the file contents
     cy.contains('puts "File Save"')
-
     // Download the file
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('Download').click()
+    cy.get('.v-toolbar').contains('File').click({ force: true })
+    cy.contains('Download').click({ force: true })
     // Can't test the contents because Chrome insists on popping up:
     // "This type of file can harm your computer. Do you want to keep <filename> anyway? Keep Discard"
     // after much googling there doesn't appear to be a way to disable it
@@ -155,23 +183,21 @@ describe('ScriptRunner', () => {
     //     expect(lines[2]).to.contain('# comment2')
     //   }
     // )
-
     // Delete the file
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('Delete').click()
-    cy.get('.v-dialog:visible').within(() => {
-      cy.contains('Ok').click()
+    cy.get('.v-toolbar').contains('File').click({ force: true })
+    cy.contains('Delete').click({ force: true })
+    cy.get('.dg-main-content').within(() => {
+      cy.get('.dg-content').contains('Permanently delete file')
+      cy.get('.dg-btn--ok').click({ force: true })
     })
     cy.contains('puts "File Save"').should('not.exist')
   })
 
   it('downloads an unnamed file', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
     cy.get('#editor').type('this is a test\nanother line')
     // Download the file
-    cy.get('.v-toolbar').contains('File').click()
-    cy.contains('Download').click()
+    cy.get('.v-toolbar').contains('File').click({ force: true })
+    cy.contains('Download').click({ force: true })
     cy.readFile('cypress/downloads/_Untitled_.txt').then((contents) => {
       var lines = contents.split('\n')
       expect(lines[0]).to.contain('this is a test')

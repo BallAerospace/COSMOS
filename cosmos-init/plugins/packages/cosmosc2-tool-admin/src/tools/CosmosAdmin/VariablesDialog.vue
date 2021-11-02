@@ -18,35 +18,42 @@
 -->
 
 <template>
-  <v-dialog persistent v-model="show" width="400">
-    <v-card class="pa-3">
-      <v-toolbar>
-        <v-toolbar-title> Update Plugin Variables </v-toolbar-title>
-      </v-toolbar>
-      <v-card-text>
-        <v-form ref="form" @submit.prevent="submit">
-          <template v-for="(plugin, index) of localVariables">
-            <v-row class="mt-3" :key="plugin.name">
-              <h3>{{ plugin.name }}</h3>
-              <div v-for="(value, name) in plugin.variables" :key="name">
-                <v-text-field
-                  clearable
-                  type="text"
-                  :label="name"
-                  v-model="plugin.variables[name]"
-                />
-              </div>
+  <v-dialog persistent v-model="show" width="600">
+    <v-card>
+      <form v-on:submit.prevent="submit">
+
+        <v-system-bar>
+          <v-spacer />
+          <span> Update Plugin Variables </span>
+          <v-spacer />
+        </v-system-bar>
+
+        <v-card-text>
+          <div class="pa-3">
+            <template v-for="(plugin, index) of localVariables">
+              <v-row class="mt-3" :key="plugin.name">
+                <h3>{{ plugin.name }}</h3>
+                <div v-for="(value, name) in plugin.variables" :key="name">
+                  <v-text-field
+                    clearable
+                    type="text"
+                    :label="name"
+                    v-model="plugin.variables[name]"
+                  />
+                </div>
+              </v-row>
+              <v-divider
+                :key="plugin.name"
+                v-if="index != localVariables.length - 1"
+              />
+            </template>
+            <v-row class="mt-1">
+              <v-btn color="primary" type="submit">Ok</v-btn>
             </v-row>
-            <v-divider
-              :key="plugin.name"
-              v-if="index != localVariables.length - 1"
-            />
-          </template>
-          <v-row class="mt-1">
-            <v-btn color="primary" type="submit">Ok</v-btn>
-          </v-row>
-        </v-form>
-      </v-card-text>
+          </div>
+        </v-card-text>
+
+      </form>
     </v-card>
   </v-dialog>
 </template>

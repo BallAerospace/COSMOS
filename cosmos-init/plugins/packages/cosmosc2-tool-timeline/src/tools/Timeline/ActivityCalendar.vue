@@ -81,7 +81,7 @@
         </v-menu>
         <activity-create-dialog
           v-on="$listeners"
-          v-model="showActivityDialog"
+          v-model="showCreateDialog"
           :timeline="activities[0].name"
           :display-time-in-utc="displayTimeInUtc"
         />
@@ -93,8 +93,8 @@
     <!-- The calendar view -->
     <v-sheet height="900" class="mt-1">
       <v-calendar
-        ref="calendar"
         v-model="focus"
+        ref="calendar"
         color="primary"
         :events="calendarData"
         :event-color="getEventColor"
@@ -127,7 +127,9 @@
         <v-card flat min-width="400px" v-if="selectedOpen">
           <v-system-bar>
             <v-spacer />
-            <span> Activity: {{ selectedActivity.name }}/{{ selectedActivity.start }} </span>
+            <span>
+              Activity: {{ selectedActivity.name }}/{{ selectedActivity.start }}
+            </span>
             <v-spacer />
           </v-system-bar>
           <v-card-text>
@@ -161,41 +163,75 @@
             </v-simple-table>
           </v-card-text>
           <v-card-actions>
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <div v-on="on" v-bind="attrs">
+                  <v-icon
+                    class="ma-2"
+                    data-test="viewActivityIcon"
+                    @click="eventDialog"
+                  >
+                    mdi-eye
+                  </v-icon>
+                </div>
+              </template>
+              <span> View Activity </span>
+            </v-tooltip>
+            <div v-if="!selectedActivity.fulfillment">
+              <v-tooltip top>
+                <template v-slot:activator="{ on, attrs }">
+                  <div v-on="on" v-bind="attrs">
+                    <v-icon
+                      class="ma-2"
+                      data-test="updateActivityIcon"
+                      @click="updateDialog"
+                    >
+                      mdi-pencil
+                    </v-icon>
+                  </div>
+                </template>
+                <span> Update Activity </span>
+              </v-tooltip>
+            </div>
             <v-spacer />
-            <activity-event-dialog
-              icon
-              v-model="showCreateDialog"
-              :activity="selectedActivity"
-              :display-time-in-utc="displayTimeInUtc"
-            />
-            <activity-update-dialog
-              icon
-              v-model="showUpdateDialog"
-              v-on="$listeners"
-              @close="activityCallback"
-              :activity="selectedActivity"
-              :display-time-in-utc="displayTimeInUtc"
-            />
-            <activity-delete-dialog
-              icon
-              v-on="$listeners"
-              @close="activityCallback"
-              :activity="selectedActivity"
-              :display-time-in-utc="displayTimeInUtc"
-              :activity-start-time="generateDateTime(selectedActivity)"
-            />
+            <v-tooltip top>
+              <template v-slot:activator="{ on, attrs }">
+                <div v-on="on" v-bind="attrs">
+                  <v-icon
+                    class="ma-2"
+                    data-test="deleteActivityIcon"
+                    @click="deleteDialog"
+                  >
+                    mdi-delete
+                  </v-icon>
+                </div>
+              </template>
+              <span> Delete Activity </span>
+            </v-tooltip>
           </v-card-actions>
         </v-card>
       </v-menu>
     </v-sheet>
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
+    <activity-event-dialog
+      v-if="showActivityDialog"
+      v-model="showActivityDialog"
+      :activity="selectedActivity"
+      :display-time-in-utc="displayTimeInUtc"
+    />
+    <activity-update-dialog
+      v-if="showUpdateDialog"
+      v-model="showUpdateDialog"
+      :activity="selectedActivity"
+      :display-time-in-utc="displayTimeInUtc"
+      @close="activityCallback"
+    />
   </div>
 </template>
 
 <script>
 import { isValid, parse, format, getTime } from 'date-fns'
 import ActivityCreateDialog from '@/tools/Timeline/ActivityCreateDialog'
-import ActivityDeleteDialog from '@/tools/Timeline/ActivityDeleteDialog'
 import ActivityEventDialog from '@/tools/Timeline/ActivityEventDialog'
 import ActivityUpdateDialog from '@/tools/Timeline/ActivityUpdateDialog'
 import TimeFilters from './util/timeFilters.js'
@@ -203,7 +239,6 @@ import TimeFilters from './util/timeFilters.js'
 export default {
   components: {
     ActivityCreateDialog,
-    ActivityDeleteDialog,
     ActivityEventDialog,
     ActivityUpdateDialog,
   },
@@ -309,9 +344,6 @@ export default {
         return date.toLocaleString() // TODO: support other locales besides en-US
       }
     },
-    createActivity() {
-      this.showActivityDialog = true
-    },
     activityCallback(activity_content) {
       this.selectedOpen = false
       this.selectedActivity = activity_content
@@ -349,9 +381,10 @@ export default {
       this.focus = this.searchDate
     },
     showActivity({ nativeEvent, event }) {
-      const activity = this.activities[event.key.timelineIndex].activities[
-        event.key.activityIndex
-      ]
+      const activity =
+        this.activities[event.key.timelineIndex].activities[
+          event.key.activityIndex
+        ]
       const open = () => {
         this.selectedActivity = activity
         this.selectedElement = nativeEvent.target
@@ -359,15 +392,56 @@ export default {
           requestAnimationFrame(() => (this.selectedOpen = true))
         )
       }
-
       if (this.selectedOpen) {
         this.selectedOpen = false
         requestAnimationFrame(() => requestAnimationFrame(() => open()))
       } else {
         open()
       }
-
       nativeEvent.stopPropagation()
+    },
+
+    createActivity() {
+      this.showCreateDialog = !this.showCreateDialog
+    },
+    eventDialog() {
+      this.showActivityDialog = !this.showActivityDialog
+    },
+    updateDialog() {
+      this.showUpdateDialog = !this.showUpdateDialog
+    },
+    deleteDialog() {
+      const activityTime = this.generateDateTime(this.selectedActivity)
+      this.$dialog
+        .confirm(
+          `Are you sure you want to remove activity: ${activityTime} (${this.selectedActivity.start}) from timeline: ${this.selectedActivity.name}`,
+          {
+            okText: 'Delete',
+            cancelText: 'Cancel',
+          }
+        )
+        .then((dialog) => {
+          return Api.delete(
+            `/cosmos-api/timeline/${this.selectedActivity.name}/activity/${this.selectedActivity.start}`
+          )
+        })
+        .then((response) => {
+          const alertObject = {
+            text: `Deleted activity: ${activityTime} (${this.selectedActivity.start}) from timeline: ${this.selectedActivity.name}`,
+            type: 'warning',
+          }
+          this.$emit('alert', alertObject)
+          this.$emit('close')
+        })
+        .catch((error) => {
+          if (error) {
+            const alertObject = {
+              text: `Failed to delete activity ${this.selectedActivity.start} from timeline: ${this.selectedActivity.name}. Error: ${error}`,
+              type: 'error',
+            }
+            this.$emit('alert', alertObject)
+          }
+        })
     },
   },
 }

@@ -18,6 +18,16 @@
 */
 
 describe('ScriptRunner Suite', () => {
+  beforeEach(() => {
+    cy.visit('/tools/scriptrunner')
+    cy.hideNav()
+    cy.wait(1000)
+  })
+
+  afterEach(() => {
+    //
+  })
+
   function saveAs(filename) {
     // Save as a suite so we get the suite controls
     cy.get('.v-toolbar').contains('File').click({ force: true }).wait(1000)
@@ -32,35 +42,35 @@ describe('ScriptRunner Suite', () => {
         .click({ force: true })
         .wait(1000)
       cy.contains('procedures').click({ force: true }).wait(1000)
-      cy.get('[data-test=filename]').type('/' + filename)
-      cy.contains('Ok').click({ force: true }).wait(1000)
+      cy.get('[data-test=filename]').type(`/${filename}`)
+      cy.get('[data-test=file-open-save-submit-btn]').click({ force: true })
+      cy.wait(1000)
     })
     cy.get('body').then(($body) => {
       // synchronously query from body
       // to find which element was created
       if ($body.find('.v-alert__content').length) {
-        cy.contains('Ok').click({ force: true }).wait(1000)
+        cy.contains('Save').click({ force: true }).wait(1000)
       }
     })
     cy.get('body').then(($body) => {
       // synchronously query from body
       // to find which element was created
       if ($body.find('.v-alert__content').length) {
-        cy.contains('Ok').click({ force: true }).wait(1000)
+        cy.contains('Save').click({ force: true }).wait(1000)
       }
     })
   }
   function deleteFile() {
     cy.get('.v-toolbar').contains('File').click({ force: true }).wait(1000)
     cy.contains('Delete').click({ force: true }).wait(1000)
-    cy.get('.v-dialog:visible').within(() => {
-      cy.contains('Ok').click({ force: true }).wait(1000)
+    cy.get('.dg-main-content').within(() => {
+      cy.get('.dg-content').contains('Permanently delete file')
+      cy.get('.dg-btn--ok').click({ force: true })
     })
   }
   function checkRunningButtons() {
     // After script starts the Script Start/Go and all Suite buttons should be disabled
-    cy.get('[data-test=start-go-button]').contains('Go')
-    cy.get('[data-test=start-go-button]').should('be.disabled')
     cy.get('[data-test=start-suite]').should('be.disabled')
     cy.get('[data-test=start-group]').should('be.disabled')
     cy.get('[data-test=start-script]').should('be.disabled')
@@ -71,18 +81,15 @@ describe('ScriptRunner Suite', () => {
   }
 
   it('loads Suite controls when opening a suite', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
     // Open the file
     cy.get('.v-toolbar').contains('File').click({ force: true }).wait(1000)
     cy.contains('Open').click({ force: true }).wait(1000)
     cy.get('.v-dialog:visible').within(() => {
       cy.wait(1000) // allow the dialog to open
-      cy.contains('Ok').click({ force: true }).wait(1000)
-      cy.contains('Nothing selected')
-      cy.get('[data-test=search]').type('script_suite')
+      cy.get('[data-test=file-open-save-search]').type('script_suite')
       cy.contains('script_suite').click({ force: true }).wait(1000)
-      cy.contains('Ok').click({ force: true }).wait(1000)
+      cy.get('[data-test=file-open-save-submit-btn]').click({ force: true })
+      cy.wait(1000)
     })
     // Verify filename
     cy.get('[data-test=filename]')
@@ -107,12 +114,10 @@ describe('ScriptRunner Suite', () => {
     cy.get('[data-test=start-group]').should('be.enabled')
     cy.get('[data-test=start-script]').should('be.enabled')
     // Verify Script Start button is disabled
-    cy.get('[data-test=start-go-button]').should('be.disabled')
+    cy.get('[data-test=start-button]').should('be.disabled')
   })
 
   it('starts a suite', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
     cy.get('#editor').type('load "cosmos/script/suite.rb"\n')
     cy.get('#editor').type('class TestGroup < Cosmos::Group\n')
     cy.get('#editor').type('def test_test; puts "test"; end\n')
@@ -196,8 +201,6 @@ describe('ScriptRunner Suite', () => {
   })
 
   it('starts a group', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
     cy.get('#editor').type('load "cosmos/script/suite.rb"\n')
     cy.get('#editor').type('class TestGroup1 < Cosmos::Group\n')
     cy.get('#editor').type('def setup; Cosmos::Group.puts("setup"); end\n')
@@ -287,8 +290,6 @@ describe('ScriptRunner Suite', () => {
   })
 
   it('starts a script', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
     cy.get('#editor').type('load "cosmos/script/suite.rb"\n')
     cy.get('#editor').type('class TestGroup < Cosmos::Group\n')
     cy.get('#editor').type('def test_test1; Cosmos::Group.puts "test1"; end\n')
@@ -320,8 +321,6 @@ describe('ScriptRunner Suite', () => {
   })
 
   it('handles manual mode', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
     cy.get('#editor').type('load "cosmos/script/suite.rb"\n')
     cy.get('#editor').type('class TestGroup < Cosmos::Group\n')
     cy.get('#editor').type(

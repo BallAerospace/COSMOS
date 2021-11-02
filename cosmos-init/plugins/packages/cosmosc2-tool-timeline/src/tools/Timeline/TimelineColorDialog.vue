@@ -19,61 +19,58 @@
 
 <template>
   <div>
-
     <v-dialog v-model="show" width="600">
       <v-card>
         <form v-on:submit.prevent="submitHandler">
-
           <v-system-bar>
             <v-spacer />
             <span> Timeline: {{ timeline.name }} </span>
             <v-spacer />
           </v-system-bar>
-
           <v-card-text>
             <div class="pa-3">
               <v-row dense>
                 <v-sheet dark class="pa-4">
-                  <pre v-text="showColor" />
+                  <pre v-text="color" />
                 </v-sheet>
               </v-row>
               <v-row dense align="center" justify="center">
                 <v-color-picker
                   v-model="color"
                   hide-canvas
+                  hide-inputs
                   hide-mode-switch
                   show-swatches
                   :swatches="swatches"
-                  mode="rgb"
                   width="100%"
                   swatches-max-height="100"
                 />
               </v-row>
               <v-row>
-                <v-btn
-                  @click.prevent="submitHandler"
-                  type="submit"
-                  color="success"
-                  data-test="color-submit-btn"
-                >
-                  Ok
-                </v-btn>
                 <v-spacer />
                 <v-btn
                   @click="show = false"
-                  color="primary"
+                  outlined
+                  class="mx-2"
                   data-test="color-cancel-btn"
                 >
                   Cancel
                 </v-btn>
+                <v-btn
+                  @click.prevent="submitHandler"
+                  class="mx-2"
+                  color="primary"
+                  type="submit"
+                  data-test="color-submit-btn"
+                >
+                  Ok
+                </v-btn>
               </v-row>
             </div>
           </v-card-text>
-
         </form>
       </v-card>
     </v-dialog>
-
   </div>
 </template>
 
@@ -87,8 +84,7 @@ export default {
   },
   data() {
     return {
-      type: 'hex',
-      hex: '#000000',
+      color: this.timeline.color,
       swatches: [
         ['#FF0000', '#AA0000', '#550000'],
         ['#FFFF00', '#AAAA00', '#555500'],
@@ -107,33 +103,13 @@ export default {
         this.$emit('input', value) // input is the default event when using v-model
       },
     },
-    color: {
-      get() {
-        return this.hex
-      },
-      set(v) {
-        this.hex = v
-      },
-    },
-    showColor() {
-      if (typeof this.color === 'string') return this.color
-
-      return JSON.stringify(
-        Object.keys(this.color).reduce((color, key) => {
-          color[key] = Number(this.color[key].toFixed(2))
-          return color
-        }, {}),
-        null,
-        2
-      )
-    },
   },
   methods: {
     submitHandler(event) {
       const path = `/cosmos-api/timeline/${this.timeline.name}/color`
       Api.post(path, {
         data: {
-          color: this.hex,
+          color: this.color,
         },
       })
         .then((response) => {

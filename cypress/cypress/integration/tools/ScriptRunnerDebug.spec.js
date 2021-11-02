@@ -18,39 +18,45 @@
 */
 
 describe('ScriptRunner Debug', () => {
-  it('runs Ruby Syntax check', () => {
+  beforeEach(() => {
     cy.visit('/tools/scriptrunner')
+    cy.hideNav()
     cy.wait(1000)
-    cy.get('#editor').type('if{enter}end{enter}end{enter}')
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Ruby Syntax Check').click()
+  })
+
+  afterEach(() => {
+    //
+  })
+
+  it('runs Ruby Syntax check', () => {
+    cy.focused().type('if{enter}end{enter}end{enter}')
+    cy.get('.v-toolbar').contains('Script').click({ force: true })
+    cy.contains('Ruby Syntax Check').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('Syntax Check Failed')
       cy.contains("unexpected `end'")
-      cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true })
     })
-    cy.get('[data-test=start-go-button]').click({ force: true })
+    cy.get('[data-test=start-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
-      'fatal'
+      'stopped'
     )
     cy.get('[data-test=output-messages]').contains('Exception')
   })
 
   it('handles fatal exceptions', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
-    cy.get('#editor').type('if{enter}end{enter}end{enter}')
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Ruby Syntax Check').click()
+    cy.focused().type('if{enter}end{enter}end{enter}')
+    cy.get('.v-toolbar').contains('Script').click({ force: true })
+    cy.contains('Ruby Syntax Check').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
       // New files automatically open File Save As
       cy.contains('Syntax Check Failed')
       cy.contains("unexpected `end'")
-      cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true })
     })
-    cy.get('[data-test=start-go-button]').click({ force: true })
+    cy.get('[data-test=start-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'stopped'
@@ -59,19 +65,17 @@ describe('ScriptRunner Debug', () => {
   })
 
   it('keeps a debug command history', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
     // Note we have to escape the { in cypress with {{}
     cy.focused().type(
       'x = 12345\nwait\nputs "x:#{{}x}"\nputs "one"\nputs "two"'
     )
-    cy.get('[data-test=start-go-button]').click({ force: true })
+    cy.get('[data-test=start-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'waiting'
     )
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Toggle Debug').click()
+    cy.get('.v-toolbar').contains('Script').click({ force: true })
+    cy.contains('Toggle Debug').click({ force: true })
     cy.get('[data-test=debug-text]').should('be.visible')
     cy.get('[data-test=debug-text]').type('x{enter}')
     cy.get('[data-test=output-messages]').contains('12345')
@@ -98,27 +102,25 @@ describe('ScriptRunner Debug', () => {
     cy.get('[data-test=debug-text]').type('{esc}') // escape clears the debug
     cy.get('[data-test=debug-text]').should('have.value', '')
     // Step
-    cy.get('[data-test=step-button]').click()
+    cy.get('[data-test=step-button]').click({ force: true })
     cy.get('[data-test=state]').should('have.value', 'paused')
-    cy.get('[data-test=step-button]').click()
+    cy.get('[data-test=step-button]').click({ force: true })
     cy.get('[data-test=state]').should('have.value', 'paused')
     // Go
-    cy.get('[data-test=start-go-button]').click({ force: true })
+    cy.get('[data-test=go-button]').click({ force: true })
     cy.get('[data-test=state]').should('have.value', 'stopped')
     // Verify we were able to change the 'x' variable
     cy.get('[data-test=output-messages]').contains('x:67890')
     cy.get('[data-test=output-messages]').contains('Script completed')
 
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Toggle Debug').click()
+    cy.get('.v-toolbar').contains('Script').click({ force: true })
+    cy.contains('Toggle Debug').click({ force: true })
     cy.get('[data-test=debug-text]').should('not.exist')
   })
 
   it('retries failed checks', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
     cy.focused().type('check_expression("1 == 2")')
-    cy.get('[data-test=start-go-button]').click({ force: true })
+    cy.get('[data-test=start-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'error'
@@ -135,25 +137,21 @@ describe('ScriptRunner Debug', () => {
       4
     )
     cy.get('[data-test=state]').should('have.value', 'error')
-    cy.get('[data-test=start-go-button]').click({ force: true })
+    cy.get('[data-test=go-button]').click({ force: true })
     cy.get('[data-test=output-messages]').contains('Script completed')
   })
 
   it('does nothing for call stack when not running', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
-    cy.get('.v-toolbar').contains('Script').click()
+    cy.get('.v-toolbar').contains('Script').click({ force: true })
     cy.contains('Show Call Stack').should('have.attr', 'disabled', 'disabled')
     cy.get('@consoleError').should('not.be.called')
   })
 
   it('displays the call stack', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
     cy.focused().type(
       'def one{enter}two(){enter}end{enter}def two{enter}wait{enter}end{enter}one(){enter}'
     )
-    cy.get('[data-test=start-go-button]').click({ force: true })
+    cy.get('[data-test=start-button]').click({ force: true })
     cy.get('[data-test=state]', { timeout: 30000 }).should(
       'have.value',
       'waiting'
@@ -161,27 +159,25 @@ describe('ScriptRunner Debug', () => {
     cy.get('[data-test=pause-retry-button]').click({ force: true })
     cy.get('[data-test=state]').should('have.value', 'paused')
 
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Show Call Stack').click()
+    cy.get('.v-toolbar').contains('Script').click({ force: true })
+    cy.contains('Show Call Stack').click({ force: true })
     cy.get('.v-dialog:visible').within(() => {
       cy.contains('Call Stack')
       cy.get('.row').eq(0).contains('in `two') // Top of the stack is two()
       cy.get('.row').eq(1).contains('in `one') // then one()
-      cy.contains('Ok').click()
+      cy.contains('Ok').click({ force: true })
     })
     cy.get('[data-test=stop-button]').click({ force: true })
     cy.get('[data-test=state]').should('have.value', 'stopped')
   })
 
   it('displays disconnect icon', () => {
-    cy.visit('/tools/scriptrunner')
-    cy.wait(1000)
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Toggle Disconnect').click()
+    cy.get('.v-toolbar').contains('Script').click({ force: true })
+    cy.contains('Toggle Disconnect').click({ force: true })
     // Specify the icon inside the header since the menu has the same icon!
     cy.get('.v-icon.mdi-connection').should('be.visible')
-    cy.get('.v-toolbar').contains('Script').click()
-    cy.contains('Toggle Disconnect').click()
+    cy.get('.v-toolbar').contains('Script').click({ force: true })
+    cy.contains('Toggle Disconnect').click({ force: true })
     cy.get('.v-icon.mdi-connection').should('not.be.visible')
   })
 })

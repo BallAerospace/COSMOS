@@ -236,7 +236,7 @@ class RunningScript
     array.each do |member|
       items << JSON.parse(member)
     end
-    items.sort {|a,b| b['id'] <=> a['id']}
+    items.sort { |a, b| b['id'] <=> a['id'] }
   end
 
   def self.find(id)
@@ -248,26 +248,33 @@ class RunningScript
     end
   end
 
-  def self.spawn(scope, name, suiteRunner = nil, disconnect = false)
+  def self.spawn(scope, name, suite_runner = nil, disconnect = false, environment = nil)
     runner_path = File.join(RAILS_ROOT, 'scripts', 'run_script.rb')
-    id = Cosmos::Store.incr('running-script-id')
+    running_script_id = Cosmos::Store.incr('running-script-id')
     if RUBY_ENGINE != 'ruby'
       ruby_process_name = 'jruby'
     else
       ruby_process_name = 'ruby'
     end
     start_time = Time.now
-    details = { id: id, scope: scope, name: name, start_time: start_time.to_s, disconnect: disconnect }
+    details = {
+      id: running_script_id,
+      scope: scope,
+      name: name,
+      start_time: start_time.to_s,
+      disconnect: disconnect,
+      environment: environment
+    }
     Cosmos::Store.sadd('running-scripts', details.to_json)
     details[:hostname] = Socket.gethostname
     # details[:pid] = process.pid
     details[:state] = :spawning
     details[:line_no] = 1
     details[:update_time] = start_time.to_s
-    details[:suite_runner] = suiteRunner.to_json if suiteRunner
-    Cosmos::Store.set("running-script:#{id}", details.to_json)
+    details[:suite_runner] = suite_runner.to_json if suite_runner
+    Cosmos::Store.set("running-script:#{running_script_id}", details.to_json)
 
-    process = ChildProcess.build(ruby_process_name, runner_path.to_s, id.to_s)
+    process = ChildProcess.build(ruby_process_name, runner_path.to_s, running_script_id.to_s)
     process.io.inherit! # Helps with debugging
     process.cwd = File.join(RAILS_ROOT, 'scripts')
 
@@ -287,7 +294,7 @@ class RunningScript
     process.environment['COSMOS_API_SECRET'] = ENV['COSMOS_API_SECRET']
 
     process.start
-    id
+    running_script_id
   end
 
   # Parameters are passed to RunningScript.new as strings because

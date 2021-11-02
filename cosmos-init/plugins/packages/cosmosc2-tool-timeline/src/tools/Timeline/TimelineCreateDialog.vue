@@ -18,90 +18,56 @@
 -->
 
 <template>
-  <div>
-
-    <v-tooltip top>
-      <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          icon
-          data-test="createTimeline"
-          @click="show = !show"
-          v-bind="attrs"
-          v-on="on"
-        >
-          <v-icon>mdi-calendar-plus</v-icon>
-        </v-btn>
-      </template>
-      <span>Create Timelines</span>
-    </v-tooltip>
-
-    <v-dialog persistent v-model="show" width="600">
-      <v-card>
-        <form v-on:submit.prevent="submit">
-
-          <v-system-bar>
-            <v-spacer />
-            <span>Create Timeline</span>
-            <v-spacer />
-          </v-system-bar>
-          <v-card-text>
-            <div class="pa-3">
-              <v-row>
-                Add a timeline to schedule activities on.
-              </v-row>
-              <v-row>
-                <v-text-field
-                  v-model="timelineName"
-                  autofocus
-                  type="text"
-                  label="Timeline Name"
-                  data-test="inputTimelineName"
-                  :rules="[rules.required]"
-                />
-              </v-row>
-              <v-row dense>
-                <v-sheet dark class="pa-4">
-                  <pre v-text="showColor" />
-                </v-sheet>
-              </v-row>
-              <v-row align="center" justify="center">
-                <v-color-picker
-                  v-model="color"
-                  hide-canvas
-                  hide-mode-switch
-                  show-swatches
-                  mode="rgb"
-                  width="100%"
-                  swatches-max-height="100"
-                  :swatches="swatches"
-                />
-              </v-row>
-              <v-row class="my-3">
-                <span class="red--text" v-show="error" v-text="error" />
-              </v-row>
-              <v-row>
-                <v-btn
-                  @click.prevent="submit"
-                  type="submit"
-                  color="success"
-                  data-test="create-submit-btn"
-                  :disabled="!!error"
-                >
-                  Ok
-                </v-btn>
-                <v-spacer />
-                <v-btn color="primary" @click="clear" data-test="create-cancel-btn">
-                  Cancel
-                </v-btn>
-              </v-row>
-            </div>
-          </v-card-text>
-
-        </form>
-      </v-card>
-    </v-dialog>
-
-  </div>
+  <v-dialog persistent v-model="show" width="600">
+    <v-card>
+      <form v-on:submit.prevent="submit">
+        <v-system-bar>
+          <v-spacer />
+          <span>Create Timeline</span>
+          <v-spacer />
+        </v-system-bar>
+        <v-card-text>
+          <div class="pa-3">
+            <v-row> Add a timeline to schedule activities on. </v-row>
+            <v-row>
+              <v-text-field
+                v-model="timelineName"
+                autofocus
+                type="text"
+                label="Timeline Name"
+                data-test="inputTimelineName"
+                :rules="[rules.required]"
+              />
+            </v-row>
+            <v-row class="my-3">
+              <span class="red--text" v-show="error" v-text="error" />
+            </v-row>
+            <v-row>
+              <v-spacer />
+              <v-btn
+                @click="clear"
+                outlined
+                class="mx-2"
+                data-test="create-cancel-btn"
+              >
+                Cancel
+              </v-btn>
+              <v-btn
+                @click.prevent="submit"
+                class="mx-2"
+                type="submit"
+                color="primary"
+                data-test="create-submit-btn"
+                :disabled="!!error"
+              >
+                Ok
+              </v-btn>
+            </v-row>
+          </div>
+        </v-card-text>
+      </form>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -121,21 +87,10 @@ export default {
         required: (value) => !!value || 'Required',
       },
       timelineName: '',
-      hex: '#000000',
-      swatches: [
-        ['#FF0000', '#AA0000', '#550000'],
-        ['#FFFF00', '#AAAA00', '#555500'],
-        ['#00FF00', '#00AA00', '#005500'],
-        ['#00FFFF', '#00AAAA', '#005555'],
-        ['#0000FF', '#0000AA', '#000055'],
-      ],
     }
   },
   computed: {
     error: function () {
-      if (this.show === false) {
-        return null
-      }
       if (this.timelineName === '') {
         return 'Timeline name can not be blank.'
       }
@@ -155,27 +110,6 @@ export default {
         this.$emit('input', value) // input is the default event when using v-model
       },
     },
-    color: {
-      get() {
-        return this.hex
-      },
-      set(v) {
-        this.hex = v
-      },
-    },
-    showColor: function () {
-      if (typeof this.color === 'string') return this.color
-
-      return JSON.stringify(
-        Object.keys(this.color).reduce((color, key) => {
-          color[key] = Number(this.color[key].toFixed(2))
-          return color
-        }, {}),
-        null,
-        2
-      )
-    },
-
   },
   methods: {
     clear: function () {
@@ -186,7 +120,6 @@ export default {
       Api.post('/cosmos-api/timeline', {
         data: {
           name: this.timelineName,
-          color: this.hex,
         },
       })
         .then((response) => {

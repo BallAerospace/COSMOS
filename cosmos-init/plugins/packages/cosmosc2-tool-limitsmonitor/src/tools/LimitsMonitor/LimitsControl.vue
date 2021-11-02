@@ -32,101 +32,111 @@
           data-test="overall-state"
         />
       </v-row>
-      <v-row
-        no-gutters
-        v-for="item in items"
-        :key="item.key"
-        data-test="limits-row"
-      >
-        <v-col>
-          <labelvaluelimitsbar-widget
-            v-if="item.limits"
-            :parameters="item.parameters"
-            :settings="[
-              ['0', 'WIDTH', '150'],
-              ['1', 'WIDTH', '200'],
-              ['2', 'WIDTH', '200'],
-            ]"
-          />
-          <labelvalue-widget
-            v-else
-            :parameters="item.parameters"
-            :settings="[
-              ['0', 'WIDTH', '150'],
-              ['1', 'WIDTH', '200'],
-            ]"
-          />
-        </v-col>
-        <v-col cols="2">
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                icon
-                small
-                class="primary mr-2"
-                @click="ignorePacket(item.key)"
-                v-bind="attrs"
-                v-on="on"
-              >
-                <v-icon> mdi-close-circle-multiple </v-icon>
-              </v-btn>
-            </template>
-            <span>Ignore Entire Packet</span>
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                icon
-                small
-                class="primary mr-2"
-                @click="ignoreItem(item.key)"
-                v-bind="attrs"
-                v-on="on"
-              >
-                <v-icon> mdi-close-circle </v-icon>
-              </v-btn>
-            </template>
-            <span>Ignore Item</span>
-          </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                icon
-                small
-                class="primary mr-2"
-                @click="removeItem(item.key)"
-                v-bind="attrs"
-                v-on="on"
-              >
-                <v-icon> mdi-eye-off </v-icon>
-              </v-btn>
-            </template>
-            <span>Temporarily Hide Item</span>
-          </v-tooltip>
-        </v-col>
-      </v-row>
+
+      <div v-for="(item, index) in items" :key="item.key">
+        <v-row data-test="limits-row" class="my-0">
+          <v-col class="py-1">
+            <labelvaluelimitsbar-widget
+              v-if="item.limits"
+              :parameters="item.parameters"
+              :settings="[
+                ['0', 'WIDTH', '150'],
+                ['1', 'WIDTH', '200'],
+                ['2', 'WIDTH', '200'],
+              ]"
+            />
+            <labelvalue-widget
+              v-else
+              :parameters="item.parameters"
+              :settings="[
+                ['0', 'WIDTH', '150'],
+                ['1', 'WIDTH', '200'],
+              ]"
+            />
+          </v-col>
+          <v-col cols="2" class="py-1">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  icon
+                  class="mr-2"
+                  @click="ignorePacket(item.key)"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon> mdi-close-circle-multiple </v-icon>
+                </v-btn>
+              </template>
+              <span>Ignore Entire Packet</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  icon
+                  class="mr-2"
+                  @click="ignoreItem(item.key)"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon> mdi-close-circle </v-icon>
+                </v-btn>
+              </template>
+              <span>Ignore Item</span>
+            </v-tooltip>
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  icon
+                  class="mr-2"
+                  @click="removeItem(item.key)"
+                  v-bind="attrs"
+                  v-on="on"
+                >
+                  <v-icon> mdi-eye-off </v-icon>
+                </v-btn>
+              </template>
+              <span>Temporarily Hide Item</span>
+            </v-tooltip>
+          </v-col>
+        </v-row>
+        <v-divider v-if="index < items.length - 1" :key="index" />
+      </div>
     </v-container>
-    <v-dialog v-model="ignoredItemsDialog" max-width="500">
+    <v-dialog v-model="ignoredItemsDialog" max-width="600">
       <v-card>
-        <v-card-title class="headline">Ignored Items</v-card-title>
-        <v-card-text class="mb-0 pb-0">
-          <v-row
-            no-gutters
-            v-for="(item, index) in ignoredFormatted"
-            :key="index"
-          >
-            {{ item }}
-            <v-spacer />
-            <v-btn icon small @click="restoreItem(item, index)">
-              <v-icon> mdi-delete </v-icon>
-            </v-btn>
-          </v-row>
+        <v-system-bar>
+          <v-spacer />
+          <span>Ignored Items</span>
+          <v-spacer />
+        </v-system-bar>
+        <v-card-text>
+          <div class="my-2">
+            <div v-for="(item, index) in ignoredFormatted" :key="index">
+              <v-row class="ma-1">
+                <span class="font-weight-black"> {{ item }} </span>
+                <v-spacer />
+                <v-btn small icon @click="restoreItem(item, index)">
+                  <v-icon> mdi-delete </v-icon>
+                </v-btn>
+              </v-row>
+              <v-divider
+                v-if="index < ignoredFormatted.length - 1"
+                :key="index"
+              />
+            </div>
+            <v-row class="mt-2">
+              <v-spacer />
+              <v-btn
+                @click="ignoredItemsDialog = false"
+                class="mx-2"
+                color="primary"
+              >
+                Ok
+              </v-btn>
+            </v-row>
+            <v-divider v-if="index < items.length - 1" :key="index" />
+          </div>
         </v-card-text>
-        <v-card-actions>
-          <v-btn color="primary" text @click="ignoredItemsDialog = false">
-            Ok
-          </v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
@@ -155,7 +165,7 @@ export default {
   computed: {
     textFieldClass() {
       if (this.overallState) {
-        return 'textfield-' + this.overallState.toLowerCase()
+        return `textfield-${this.overallState.toLowerCase()}`
       } else {
         return ''
       }
@@ -164,7 +174,7 @@ export default {
       if (this.ignored.length === 0) {
         return this.overallState
       } else {
-        return this.overallState + ' (Some items ignored)'
+        return `${this.overallState} (Some items ignored)`
       }
     },
     ignoredFormatted() {
@@ -239,7 +249,7 @@ export default {
     },
     ignorePacket(item) {
       let [target_name, packet_name, item_name] = item.split('__')
-      let newIgnored = target_name + '__' + packet_name
+      let newIgnored = `${target_name}__${packet_name}`
       this.ignored.push(newIgnored)
 
       while (true) {
@@ -263,7 +273,7 @@ export default {
       this.updateOutOfLimits()
     },
     removeItem(item) {
-      let index = this.itemList.findIndex((arrayItem) =>
+      const index = this.itemList.findIndex((arrayItem) =>
         arrayItem.includes(item)
       )
       this.items.splice(index, 1)
@@ -291,7 +301,7 @@ export default {
         )
         // If we find an existing item we update the state and re-calc overall state
         if (index !== -1) {
-          this.itemList[index] = itemName + '__' + message.new_limits_state
+          this.itemList[index] = `${itemName}__${message.new_limits_state}`
           this.calcOverallState()
           continue
         }
@@ -324,7 +334,7 @@ export default {
         } else {
           itemInfo['limits'] = true
         }
-        this.itemList.push(itemName + '__' + message.new_limits_state)
+        this.itemList.push(`${itemName}__${message.new_limits_state}`)
         this.items.push(itemInfo)
         this.calcOverallState()
       }
@@ -339,9 +349,6 @@ export default {
 </script>
 
 <style scoped>
-.v-card {
-  padding: 10px;
-}
 /* TODO: Color the border */
 .textfield-green >>> .v-text-field__slot input,
 .textfield-green >>> .v-text-field__slot label {

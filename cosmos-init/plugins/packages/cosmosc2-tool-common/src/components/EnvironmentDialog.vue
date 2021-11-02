@@ -18,23 +18,20 @@
 -->
 
 <template>
-
-  <v-dialog v-model="show" @keydown.esc="cancel" width="600">
+  <v-dialog v-model="show" width="600">
     <v-card>
-      <form v-on:submit.prevent="success">
-
+      <form v-on:submit.prevent="addEnvironment">
         <v-system-bar>
           <v-spacer />
-          <span>Open Configuration</span>
+          <span>Environment Variables</span>
           <v-spacer />
         </v-system-bar>
-
         <v-card-text>
           <div class="pa-3">
-            <v-row dense>
+            <v-row dense class="mb-2">
               <v-text-field
-                label="search"
                 v-model="search"
+                label="search"
                 type="text"
                 data-test="search"
                 prepend-icon="mdi-magnify"
@@ -46,74 +43,76 @@
               />
             </v-row>
             <v-data-table
-              show-select
-              single-select
-              item-key="configId"
+              item-key="name"
+              hide-default-header
               :search="search"
               :headers="headers"
-              :items="configs"
+              :items="environment"
               :items-per-page="5"
               :footer-props="{ 'items-per-page-options': [5] }"
-              @item-selected="itemSelected"
-              @click:row="(item, slot) => slot.select(item)"
             >
               <template v-slot:item.actions="{ item }">
                 <v-btn
+                  @click="deleteEnvironment(item)"
+                  icon
                   class="mt-1"
                   data-test="item-delete"
-                  icon
-                  @click="deleteConfig(item)"
                 >
                   <v-icon>mdi-delete</v-icon>
                 </v-btn>
               </template>
             </v-data-table>
             <v-row dense>
-              <span class="ma-2 red--text" v-show="error" v-text="error" />
+              <v-col>
+                <v-text-field v-model="key" label="Key" />
+              </v-col>
+              <v-col>
+                <v-text-field v-model="keyValue" label="Value" />
+              </v-col>
             </v-row>
-            <v-row>
+            <v-row dense>
               <v-btn
-                @click.prevent="success"
+                @click.prevent="addEnvironment"
+                block
                 type="submit"
-                color="success"
-                data-test="open-config-submit-btn"
-                :disabled="!!error"
-              >
-                Ok
-              </v-btn>
-              <v-spacer />
-              <v-btn
-                @click="cancel"
                 color="primary"
-                data-test="open-config-cancel-btn"
+                data-test="addEnvironment"
+                :disabled="!key || !keyValue"
               >
-                Cancel
+                Add
               </v-btn>
             </v-row>
           </div>
         </v-card-text>
-
       </form>
     </v-card>
   </v-dialog>
-
 </template>
 
 <script>
-import { CosmosApi } from '../services/cosmos-api.js'
+import Api from '../services/api'
 
 export default {
   props: {
-    tool: String,
     value: Boolean, // value is the default prop when using v-model
   },
   data() {
     return {
-      configs: [],
+      alert: '',
+      alertType: 'success',
+      showAlert: false,
+      search: '',
+      key: '',
+      keyValue: '',
+      environment: [],
       headers: [
         {
-          text: 'Configuration',
-          value: 'config',
+          text: 'Key',
+          value: 'key',
+        },
+        {
+          text: 'Value',
+          value: 'value',
         },
         {
           text: 'Actions',
@@ -122,17 +121,9 @@ export default {
           sortable: false,
         },
       ],
-      search: null,
-      selectedItem: null,
     }
   },
   computed: {
-    error: function () {
-      if (this.selectedItem === '' || this.selectedItem === null) {
-        return 'Must select a config'
-      }
-      return null
-    },
     show: {
       get() {
         return this.value
@@ -143,62 +134,73 @@ export default {
     },
   },
   mounted() {
-    let configId = -1
-    new CosmosApi().list_configs(this.tool)
-      .then((response) => {
-        this.configs = response.map((config) => {
-          configId += 1
-          return { configId, config }
-        })
-      })
-      .catch((error) => {
-        this.$emit('warning', `Failed to connect to Cosmos. ${error}`)
-      })
+    this.update()
   },
   methods: {
-    itemSelected: function (item) {
-      if (item.value) {
-        this.selectedItem = item.item
-      } else {
-        this.selectedItem = null
-      }
+    alertHandler: function (event) {
+      // console.log('alertHandler', event)
+      this.alert = event.text
+      this.alertType = event.type
+      this.showAlert = true
     },
-    success: function () {
-      this.$emit('success', this.selectedItem.config)
-      this.show = false
-      this.search = null
-      this.selectedItem = null
+    update: function () {
+      Api.get('/cosmos-api/environment')
+        .then((response) => {
+          this.environment = response.data
+        })
+        .catch((error) => {
+          // TODO: $error.something
+        })
     },
-    cancel: function () {
-      this.show = false
-      this.search = null
-      this.selectedItem = null
+    addEnvironment: function () {
+      Api.post('/cosmos-api/environment', {
+        data: {
+          key: this.key.toUpperCase(),
+          value: this.keyValue,
+        },
+      })
+        .then((response) => {
+          const alertEvent = {
+            text: `New environment variable: ${response.data.name}`,
+            type: 'success',
+          }
+          this.update()
+        })
+        .catch((error) => {
+          const alertEvent = {
+            text: `Failed to add environment variable: ${error}`,
+            type: 'error',
+          }
+          this.alertHandler(alertEvent)
+        })
+      this.key = ''
+      this.keyValue = ''
     },
-    deleteConfig: function (item) {
+    deleteEnvironment: function (env) {
       this.$dialog
-        .confirm(`Are you sure you want to delete: ${item.config}`, {
+        .confirm(`Are you sure you want to delete: ${env.key}=${env.value}`, {
           okText: 'Delete',
           cancelText: 'Cancel',
         })
         .then((dialog) => {
-          if (this.selectedItem.config === item.config) {
-            this.selectedItem = null
+          return Api.delete(`/cosmos-api/environment/${env.name}`)
+        })
+        .then((response) => {
+          const alertEvent = {
+            text: `Removed environment variable: ${env.name}`,
+            type: 'success',
           }
-          this.configs.splice(this.configs.indexOf(item), 1)
-          new CosmosApi().delete_config(this.tool, item.config)
+          this.alertHandler(alertEvent)
+          this.update()
         })
         .catch((error) => {
-          if (error) {
-            this.$emit(
-              'warning',
-              `Failed to delete config ${item.config} Error: ${error}`
-            )
+          const alertEvent = {
+            text: `Failed to delete environment: ${error}`,
+            type: 'error',
           }
+          this.alertHandler(alertEvent)
         })
     },
   },
 }
 </script>
-
-<style scoped>
-</style>

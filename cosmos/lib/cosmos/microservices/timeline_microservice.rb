@@ -93,6 +93,7 @@ module Cosmos
         )
         request.body = JSON.generate({
           'scope' => @scope,
+          'environment' => activity.data['environment'],
           'timeline' => @timeline_name,
           'id' => activity.start
         })

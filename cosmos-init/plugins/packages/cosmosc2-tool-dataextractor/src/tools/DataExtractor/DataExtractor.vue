@@ -79,7 +79,7 @@
         </v-col>
         <v-col>
           <v-radio-group v-model="utcOrLocal" row hide-details class="mt-0">
-            <v-radio label="Local" value="loc" data-test="local-radio" />
+            <v-radio label="LST" value="loc" data-test="lst-radio" />
             <v-radio label="UTC" value="utc" data-test="utc-radio" />
           </v-radio-group>
         </v-col>

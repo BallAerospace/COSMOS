@@ -28,17 +28,23 @@
       </v-tabs>
       <router-view :refreshInterval="refreshInterval" />
       <v-dialog v-model="optionsDialog" max-width="300">
-        <v-card class="pa-3">
-          <v-card-title class="headline">Options</v-card-title>
-          <v-text-field
-            min="0"
-            max="10000"
-            step="100"
-            type="number"
-            label="Refresh Interval (ms)"
-            :value="refreshInterval"
-            @change="refreshInterval = $event"
-          />
+        <v-card>
+          <v-system-bar>
+            <v-spacer />
+            <span>Options</span>
+            <v-spacer />
+          </v-system-bar>
+          <div class="pa-3">
+            <v-text-field
+              min="0"
+              max="10000"
+              step="100"
+              type="number"
+              label="Refresh Interval (ms)"
+              :value="refreshInterval"
+              @change="refreshInterval = $event"
+            />
+          </div>
         </v-card>
       </v-dialog>
     </v-card>

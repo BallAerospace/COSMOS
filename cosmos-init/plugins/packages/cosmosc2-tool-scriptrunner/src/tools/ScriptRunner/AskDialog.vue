@@ -18,32 +18,52 @@
 -->
 
 <template>
-  <v-dialog persistent v-model="show" width="400">
-    <v-card class="pa-3">
-      <v-card-title class="headline">Ask</v-card-title>
-      <v-card-text>
-        {{ question }}
-        <v-form
-          v-model="valid"
-          ref="form"
-          @submit.prevent="$emit('submit', value)"
-        >
-          <v-text-field
-            autofocus
-            :type="password ? 'password' : 'text'"
-            v-model="value"
-            :rules="rules"
-          />
-          <v-btn color="primary" :disabled="!valid" type="submit">Ok</v-btn>
-          <v-btn
-            class="ma-1"
-            color="secondary"
-            @click="$emit('submit', 'Cancel')"
-          >
-            Cancel
-          </v-btn>
-        </v-form>
-      </v-card-text>
+  <v-dialog persistent v-model="show" width="600">
+    <v-card>
+      <v-form v-model="valid" v-on:submit.prevent="submitHandeler">
+        <v-system-bar>
+          <v-spacer />
+          <span> User Input Required </span>
+          <v-spacer />
+        </v-system-bar>
+        <v-card-text>
+          <div class="px-3">
+            <v-row>
+              <v-card-title v-text="question" />
+            </v-row>
+            <v-row class="my-1">
+              <v-text-field
+                v-model="inputValue"
+                autofocus
+                data-test="ask-value-input"
+                :type="password ? 'password' : 'text'"
+                :rules="rules"
+              />
+            </v-row>
+            <v-row class="my-1">
+              <v-spacer />
+              <v-btn
+                @click="cancelHandeler"
+                outlined
+                class="mx-1"
+                data-test="ask-cancel"
+              >
+                Cancel
+              </v-btn>
+              <v-btn
+                @click.prevent="submitHandeler"
+                class="mx-1"
+                color="primary"
+                type="submit"
+                data-test="ask-cancel"
+                :disabled="!valid"
+              >
+                Ok
+              </v-btn>
+            </v-row>
+          </div>
+        </v-card-text>
+      </v-form>
     </v-card>
   </v-dialog>
 </template>
@@ -67,11 +87,11 @@ export default {
       type: Boolean,
       default: true,
     },
+    value: Boolean, // value is the default prop when using v-model
   },
   data() {
     return {
-      show: true,
-      value: '',
+      inputValue: '',
       valid: false,
       rules: [(v) => !!v || 'Required'],
     }
@@ -79,19 +99,30 @@ export default {
   created() {
     if (this.default) {
       this.valid = true
-      this.value = this.default
+      this.inputValue = this.default
     }
     if (this.answerRequired === false) {
       this.valid = true
       this.rules = [(v) => true]
     }
   },
+  computed: {
+    show: {
+      get() {
+        return this.value
+      },
+      set(value) {
+        this.$emit('input', value) // input is the default event when using v-model
+      },
+    },
+  },
+  methods: {
+    submitHandeler: function () {
+      this.$emit('response', this.inputValue)
+    },
+    cancelHandeler: function () {
+      this.$emit('response', 'Cancel')
+    },
+  },
 }
 </script>
-
-<style scoped>
-.theme--dark .v-card__title,
-.theme--dark .v-card__subtitle {
-  background-color: var(--v-secondary-darken3);
-}
-</style>

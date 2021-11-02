@@ -18,165 +18,171 @@
 -->
 
 <template>
-  <v-row justify="center">
-    <v-dialog v-model="show" width="550">
-      <v-card>
-        <v-card-title>
-          {{ targetName }} {{ packetName }} {{ itemName }}
-        </v-card-title>
-        <v-card-subtitle>{{ details.description }}</v-card-subtitle>
-        <v-card-text>
-          <v-container fluid>
-            <v-row no-gutters v-if="type === 'tlm'">
-              <v-col cols="3" class="label">Item Values</v-col>
-              <v-col />
-              <v-container fluid class="ml-5 pa-0">
-                <v-row no-gutters>
-                  <v-col cols="4" class="label">Raw Value</v-col>
-                  <v-col>{{ rawValue }}</v-col>
-                </v-row>
-                <v-row no-gutters>
-                  <v-col cols="4" class="label">Converted Value</v-col>
-                  <v-col>{{ convertedValue }}</v-col>
-                </v-row>
-                <v-row no-gutters>
-                  <v-col cols="4" class="label">Formatted Value</v-col>
-                  <v-col>{{ formattedValue }}</v-col>
-                </v-row>
-                <v-row no-gutters>
-                  <v-col cols="4" class="label">With Units Value</v-col>
-                  <v-col>{{ unitsValue }}</v-col>
-                </v-row>
-              </v-container>
-            </v-row>
-            <v-row no-gutters>
-              <v-col cols="3" class="label">Bit Offset</v-col>
-              <v-col>{{ details.bit_offset }}</v-col>
-            </v-row>
-            <v-row no-gutters>
-              <v-col cols="3" class="label">Bit Size</v-col>
-              <v-col>{{ details.bit_size }}</v-col>
-            </v-row>
-            <v-row v-if="details.array_size" no-gutters>
-              <v-col cols="3" class="label">Array Size</v-col>
-              <v-col>{{ details.array_size }}</v-col>
-            </v-row>
-            <v-row no-gutters>
-              <v-col cols="3" class="label">Data Type</v-col>
-              <v-col>{{ details.data_type }}</v-col>
-            </v-row>
-            <v-row no-gutters v-if="type === 'cmd'">
-              <v-col cols="3" class="label">Minimum</v-col>
-              <v-col>{{ details.minimum }}</v-col>
-            </v-row>
-            <v-row no-gutters v-if="type === 'cmd'">
-              <v-col cols="3" class="label">Maximum</v-col>
-              <v-col>{{ details.maximum }}</v-col>
-            </v-row>
-            <v-row no-gutters v-if="type === 'cmd'">
-              <v-col cols="3" class="label">Default</v-col>
-              <v-col>{{ details.default }}</v-col>
-            </v-row>
-            <v-row no-gutters>
-              <v-col cols="3" class="label">Format String</v-col>
-              <v-col>{{ details.format_string }}</v-col>
-            </v-row>
-            <v-row no-gutters>
-              <v-col cols="3" class="label">Read Conversion</v-col>
-              <v-col v-if="details.read_conversion">
-                Class: {{ details.read_conversion.class }}
-                <br />
-                Params:
-                {{ details.read_conversion.params }}
-              </v-col>
-              <v-col v-else></v-col>
-            </v-row>
-            <v-row no-gutters>
-              <v-col cols="3" class="label">Write Conversion</v-col>
-              <v-col v-if="details.write_conversion">
-                Class: {{ details.write_conversion.class }}
-                <br />
-                Params:
-                {{ details.write_conversion.params }}
-              </v-col>
-              <v-col v-else></v-col>
-            </v-row>
-            <v-row no-gutters>
-              <v-col cols="3" class="label">Id Value</v-col>
-              <v-col>{{ details.id_value }}</v-col>
-            </v-row>
-            <v-row no-gutters>
-              <v-col cols="3" class="label">Units Full</v-col>
-              <v-col>{{ details.units_full }}</v-col>
-            </v-row>
-            <v-row no-gutters>
-              <v-col cols="3" class="label">Units Abbr</v-col>
-              <v-col>{{ details.units }}</v-col>
-            </v-row>
-            <v-row no-gutters>
-              <v-col cols="3" class="label">Endianness</v-col>
-              <v-col>{{ details.endianness }}</v-col>
-            </v-row>
-            <v-row no-gutters v-if="details.states">
-              <v-col cols="3" class="label">States</v-col>
-              <v-col />
-              <v-container fluid class="ml-5 pa-0">
-                <v-row
-                  no-gutters
-                  v-for="(state, key) in details.states"
-                  :key="key"
-                >
-                  <v-col cols="4" class="label">{{ key }}</v-col>
-                  <v-col>{{ state.value }}</v-col>
-                </v-row>
-              </v-container>
-            </v-row>
-            <v-row no-gutters v-else>
-              <v-col cols="3" class="label">States</v-col>
-              <v-col>None</v-col>
-            </v-row>
-            <v-row no-gutters v-if="details.limits">
-              <v-col cols="3" class="label">Limits</v-col>
-              <v-col></v-col>
-              <v-container fluid class="ml-5 pa-0">
-                <v-row
-                  no-gutters
-                  v-for="(limit, key) in details.limits"
-                  :key="key"
-                >
-                  <v-col cols="4" class="label">{{ key }}</v-col>
-                  {{ formatLimit(limit) }}
-                  <v-col></v-col>
-                </v-row>
-              </v-container>
-            </v-row>
-            <v-row no-gutters v-else>
-              <v-col cols="3" class="label">Limits</v-col>
-              <v-col>None</v-col>
-            </v-row>
-            <v-row no-gutters v-if="details.meta">
-              <v-col cols="3" class="label">Meta</v-col>
-              <v-col></v-col>
-              <v-container fluid class="ml-5 pa-0">
-                <v-row
-                  no-gutters
-                  v-for="(value, key) in details.meta"
-                  :key="key"
-                >
-                  <v-col cols="4" class="label">{{ key }}</v-col>
-                  <v-col>{{ value }}</v-col>
-                </v-row>
-              </v-container>
-            </v-row>
-            <v-row v-else no-gutters>
-              <v-col cols="3" class="label">Meta</v-col>
-              <v-col>None</v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-  </v-row>
+  <v-dialog v-model="show" width="600">
+    <v-card>
+
+      <v-system-bar>
+        <v-spacer />
+        <span> Details </span>
+        <v-spacer />
+      </v-system-bar>
+
+      <v-card-title>
+        {{ targetName }} {{ packetName }} {{ itemName }}
+      </v-card-title>
+      <v-card-subtitle>{{ details.description }}</v-card-subtitle>
+      <v-card-text>
+        <v-container fluid>
+          <v-row no-gutters v-if="type === 'tlm'">
+            <v-col cols="3" class="label">Item Values</v-col>
+            <v-col />
+            <v-container fluid class="ml-5 pa-0">
+              <v-row no-gutters>
+                <v-col cols="4" class="label">Raw Value</v-col>
+                <v-col>{{ rawValue }}</v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="4" class="label">Converted Value</v-col>
+                <v-col>{{ convertedValue }}</v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="4" class="label">Formatted Value</v-col>
+                <v-col>{{ formattedValue }}</v-col>
+              </v-row>
+              <v-row no-gutters>
+                <v-col cols="4" class="label">With Units Value</v-col>
+                <v-col>{{ unitsValue }}</v-col>
+              </v-row>
+            </v-container>
+          </v-row>
+          <v-row no-gutters>
+            <v-col cols="3" class="label">Bit Offset</v-col>
+            <v-col>{{ details.bit_offset }}</v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col cols="3" class="label">Bit Size</v-col>
+            <v-col>{{ details.bit_size }}</v-col>
+          </v-row>
+          <v-row v-if="details.array_size" no-gutters>
+            <v-col cols="3" class="label">Array Size</v-col>
+            <v-col>{{ details.array_size }}</v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col cols="3" class="label">Data Type</v-col>
+            <v-col>{{ details.data_type }}</v-col>
+          </v-row>
+          <v-row no-gutters v-if="type === 'cmd'">
+            <v-col cols="3" class="label">Minimum</v-col>
+            <v-col>{{ details.minimum }}</v-col>
+          </v-row>
+          <v-row no-gutters v-if="type === 'cmd'">
+            <v-col cols="3" class="label">Maximum</v-col>
+            <v-col>{{ details.maximum }}</v-col>
+          </v-row>
+          <v-row no-gutters v-if="type === 'cmd'">
+            <v-col cols="3" class="label">Default</v-col>
+            <v-col>{{ details.default }}</v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col cols="3" class="label">Format String</v-col>
+            <v-col>{{ details.format_string }}</v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col cols="3" class="label">Read Conversion</v-col>
+            <v-col v-if="details.read_conversion">
+              Class: {{ details.read_conversion.class }}
+              <br />
+              Params:
+              {{ details.read_conversion.params }}
+            </v-col>
+            <v-col v-else></v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col cols="3" class="label">Write Conversion</v-col>
+            <v-col v-if="details.write_conversion">
+              Class: {{ details.write_conversion.class }}
+              <br />
+              Params:
+              {{ details.write_conversion.params }}
+            </v-col>
+            <v-col v-else></v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col cols="3" class="label">Id Value</v-col>
+            <v-col>{{ details.id_value }}</v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col cols="3" class="label">Units Full</v-col>
+            <v-col>{{ details.units_full }}</v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col cols="3" class="label">Units Abbr</v-col>
+            <v-col>{{ details.units }}</v-col>
+          </v-row>
+          <v-row no-gutters>
+            <v-col cols="3" class="label">Endianness</v-col>
+            <v-col>{{ details.endianness }}</v-col>
+          </v-row>
+          <v-row no-gutters v-if="details.states">
+            <v-col cols="3" class="label">States</v-col>
+            <v-col />
+            <v-container fluid class="ml-5 pa-0">
+              <v-row
+                no-gutters
+                v-for="(state, key) in details.states"
+                :key="key"
+              >
+                <v-col cols="4" class="label">{{ key }}</v-col>
+                <v-col>{{ state.value }}</v-col>
+              </v-row>
+            </v-container>
+          </v-row>
+          <v-row no-gutters v-else>
+            <v-col cols="3" class="label">States</v-col>
+            <v-col>None</v-col>
+          </v-row>
+          <v-row no-gutters v-if="details.limits">
+            <v-col cols="3" class="label">Limits</v-col>
+            <v-col></v-col>
+            <v-container fluid class="ml-5 pa-0">
+              <v-row
+                no-gutters
+                v-for="(limit, key) in details.limits"
+                :key="key"
+              >
+                <v-col cols="4" class="label">{{ key }}</v-col>
+                {{ formatLimit(limit) }}
+                <v-col></v-col>
+              </v-row>
+            </v-container>
+          </v-row>
+          <v-row no-gutters v-else>
+            <v-col cols="3" class="label">Limits</v-col>
+            <v-col>None</v-col>
+          </v-row>
+          <v-row no-gutters v-if="details.meta">
+            <v-col cols="3" class="label">Meta</v-col>
+            <v-col></v-col>
+            <v-container fluid class="ml-5 pa-0">
+              <v-row
+                no-gutters
+                v-for="(value, key) in details.meta"
+                :key="key"
+              >
+                <v-col cols="4" class="label">{{ key }}</v-col>
+                <v-col>{{ value }}</v-col>
+              </v-row>
+            </v-container>
+          </v-row>
+          <v-row v-else no-gutters>
+            <v-col cols="3" class="label">Meta</v-col>
+            <v-col>None</v-col>
+          </v-row>
+        </v-container>
+      </v-card-text>
+
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -325,10 +331,6 @@ export default {
 </script>
 
 <style scoped>
-.theme--dark .v-card__title,
-.theme--dark .v-card__subtitle {
-  background-color: var(--v-secondary-darken3);
-}
 .label {
   font-weight: bold;
   text-transform: capitalize;

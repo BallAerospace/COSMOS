@@ -42,14 +42,14 @@
     </v-sheet>
     <v-data-table
       v-model="selected"
+      item-key="activityId"
+      class="mt-1"
+      show-expand
+      show-select
       :headers="activityHeaders"
       :items="listData"
       :single-expand="singleExpand"
       :expanded.sync="expanded"
-      item-key="activityId"
-      show-expand
-      show-select
-      class="elevation-1"
     >
       <template v-slot:item.actions="{ item }">
         <v-row>
@@ -66,26 +66,36 @@
               </v-btn>
             </template>
             <v-list>
-              <v-list-item-group :multiple="false">
-                <activity-event-dialog
-                  v-model="showActivityDialog"
-                  :activity="item"
-                  :display-time-in-utc="displayTimeInUtc"
-                />
+              <v-list-item-group>
+                <v-list-item
+                  data-test="viewActivity"
+                  @click="eventDialog(item)"
+                >
+                  <v-list-item-icon>
+                    <v-icon> mdi-eye </v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title> View Activity </v-list-item-title>
+                </v-list-item>
                 <v-divider />
-                <activity-update-dialog
-                  v-model="showUpdateDialog"
-                  v-on="$listeners"
-                  :activity="item"
-                  :display-time-in-utc="displayTimeInUtc"
-                />
+                <v-list-item
+                  data-test="updateActivity"
+                  @click="updateDialog(item)"
+                >
+                  <v-list-item-icon>
+                    <v-icon> mdi-pencil </v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title> Update Activity </v-list-item-title>
+                </v-list-item>
                 <v-divider />
-                <activity-delete-dialog
-                  v-on="$listeners"
-                  :activity="item"
-                  :display-time-in-utc="displayTimeInUtc"
-                  :activity-start-time="generateDateTime(item)"
-                />
+                <v-list-item
+                  data-test="deleteActivity"
+                  @click="deleteDialog(item)"
+                >
+                  <v-list-item-icon>
+                    <v-icon> mdi-delete </v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title> Delete Activity </v-list-item-title>
+                </v-list-item>
               </v-list-item-group>
             </v-list>
           </v-menu>
@@ -107,6 +117,19 @@
       </template>
     </v-data-table>
     <!-- Note we're using v-if here so it gets re-created each time and refreshes the list -->
+    <activity-event-dialog
+      v-if="showActivityDialog"
+      v-model="showActivityDialog"
+      :activity="selectedActivity"
+      :display-time-in-utc="displayTimeInUtc"
+    />
+    <activity-update-dialog
+      v-if="showUpdateDialog"
+      v-model="showUpdateDialog"
+      :activity="selectedActivity"
+      :display-time-in-utc="displayTimeInUtc"
+      @close="activityCallback"
+    />
   </div>
 </template>
 
@@ -115,7 +138,6 @@ import Api from '@cosmosc2/tool-common/src/services/api'
 import { isValid, parse, format, getTime } from 'date-fns'
 import ActivityCreateDialog from '@/tools/Timeline/ActivityCreateDialog'
 import ActivityEventDialog from '@/tools/Timeline/ActivityEventDialog'
-import ActivityDeleteDialog from '@/tools/Timeline/ActivityDeleteDialog'
 import ActivityUpdateDialog from '@/tools/Timeline/ActivityUpdateDialog'
 import EventTimeline from '@/tools/Timeline/EventTimeline'
 import TimeFilters from './util/timeFilters.js'
@@ -123,7 +145,6 @@ import TimeFilters from './util/timeFilters.js'
 export default {
   components: {
     ActivityCreateDialog,
-    ActivityDeleteDialog,
     ActivityEventDialog,
     ActivityUpdateDialog,
     EventTimeline,
@@ -148,6 +169,7 @@ export default {
       selectedActivitiesOn: false,
       selectedOpen: false,
       singleExpand: false,
+      selectedActivity: null,
       expanded: [],
       selected: [],
       activityHeaders: [
@@ -223,7 +245,48 @@ export default {
     // console.log(this.activities)
   },
   methods: {
-    multiDeleteActivity() {
+    eventDialog: function (activity) {
+      this.selectedActivity = activity
+      this.showActivityDialog = !this.showActivityDialog
+    },
+    updateDialog: function (activity) {
+      this.selectedActivity = activity
+      this.showUpdateDialog = !this.showUpdateDialog
+    },
+    deleteDialog: function (activity) {
+      const activityTime = this.generateDateTime(activity)
+      this.$dialog
+        .confirm(
+          `Are you sure you want to remove activity: ${activityTime} (${activity.start}) from timeline: ${activity.name}`,
+          {
+            okText: 'Delete',
+            cancelText: 'Cancel',
+          }
+        )
+        .then((dialog) => {
+          return Api.delete(
+            `/cosmos-api/timeline/${activity.name}/activity/${activity.start}`
+          )
+        })
+        .then((response) => {
+          const alertObject = {
+            text: `Deleted activity: ${activityTime} (${activity.start}) from timeline: ${activity.name}`,
+            type: 'warning',
+          }
+          this.$emit('alert', alertObject)
+          this.$emit('close')
+        })
+        .catch((error) => {
+          if (error) {
+            const alertObject = {
+              text: `Failed to delete activity ${activity.start} from timeline: ${activity.name}. Error: ${error}`,
+              type: 'error',
+            }
+            this.$emit('alert', alertObject)
+          }
+        })
+    },
+    multiDeleteActivity: function () {
       const toDelete = this.selected.map((activity) => {
         return { name: activity.name, id: activity.start }
       })

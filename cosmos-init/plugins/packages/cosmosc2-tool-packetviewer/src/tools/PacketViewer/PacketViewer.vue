@@ -20,81 +20,78 @@
 <template>
   <div>
     <top-bar :menus="menus" :title="title" />
-    <v-container>
-      <v-row no-gutters>
-        <v-col>
-          <target-packet-item-chooser
-            :initialTargetName="this.$route.params.target"
-            :initialPacketName="this.$route.params.packet"
-            @on-set="packetChanged($event)"
+    <target-packet-item-chooser
+      :initialTargetName="this.$route.params.target"
+      :initialPacketName="this.$route.params.packet"
+      @on-set="packetChanged($event)"
+    />
+    <v-card>
+      <v-card-title>
+        Items
+        <v-spacer />
+        <v-text-field
+          v-model="search"
+          append-icon="$astro-search"
+          label="Search"
+          single-line
+          hide-details
+        />
+      </v-card-title>
+      <v-data-table
+        :headers="headers"
+        :items="rows"
+        :search="search"
+        calculate-widths
+        disable-pagination
+        hide-default-footer
+        multi-sort
+        dense
+      >
+        <template v-slot:item.index="{ item }">
+          <span>
+            {{
+              rows
+                .map(function (x) {
+                  return x.name
+                })
+                .indexOf(item.name)
+            }}
+          </span>
+        </template>
+        <template v-slot:item.value="{ item }">
+          <value-widget
+            :value="item.value"
+            :limitsState="item.limitsState"
+            :parameters="[targetName, packetName, item.name]"
+            :settings="['WIDTH', '50']"
           />
-        </v-col>
-      </v-row>
-      <v-row no-gutters>
-        <v-col>
-          <v-card>
-            <v-card-title>
-              Items
-              <v-spacer />
-              <v-text-field
-                v-model="search"
-                append-icon="$astro-search"
-                label="Search"
-                single-line
-                hide-details
-              />
-            </v-card-title>
-            <v-data-table
-              :headers="headers"
-              :items="rows"
-              :search="search"
-              calculate-widths
-              disable-pagination
-              hide-default-footer
-              multi-sort
-              dense
-            >
-              <template v-slot:item.index="{ item }">
-                <span>
-                  {{
-                    rows
-                      .map(function (x) {
-                        return x.name
-                      })
-                      .indexOf(item.name)
-                  }}
-                </span>
-              </template>
-              <template v-slot:item.value="{ item }">
-                <value-widget
-                  :value="item.value"
-                  :limitsState="item.limitsState"
-                  :parameters="[targetName, packetName, item.name]"
-                  :settings="['WIDTH', '50']"
-                />
-              </template>
-            </v-data-table>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-
+        </template>
+      </v-data-table>
+    </v-card>
     <v-dialog
       v-model="optionsDialog"
       @keydown.esc="optionsDialog = false"
       max-width="300"
     >
-      <v-card class="pa-3">
-        <v-card-title class="headline">Options</v-card-title>
-        <v-text-field
-          min="0"
-          max="10000"
-          step="100"
-          type="number"
-          label="Refresh Interval (ms)"
-          :value="refreshInterval"
-          @change="refreshInterval = $event"
-        />
+      <v-card>
+        <v-system-bar>
+          <v-spacer />
+          <span>Options</span>
+          <v-spacer />
+        </v-system-bar>
+        <v-card-text>
+          <div class="pa-3">
+            <v-text-field
+              min="0"
+              max="10000"
+              step="100"
+              type="number"
+              label="Refresh Interval (ms)"
+              :value="refreshInterval"
+              @change="refreshInterval = $event"
+            />
+          </div>
+        </v-card-text>
       </v-card>
     </v-dialog>
   </div>
@@ -307,9 +304,3 @@ export default {
   },
 }
 </script>
-
-<style scoped>
-.container {
-  background-color: var(--v-tertiary-darken2);
-}
-</style>

@@ -18,66 +18,84 @@
 -->
 
 <template>
-  <v-row justify="center">
-    <v-dialog persistent v-model="show" width="400">
-      <v-card>
-        <v-card-title>{{ title }}</v-card-title>
-        <v-card-subtitle v-if="subtitle !== ''">{{ subtitle }}</v-card-subtitle>
-        <v-card-text>
-          {{ message }}
-        </v-card-text>
-        <v-card-text v-if="details !== ''">
-          {{ details }}
-        </v-card-text>
-        <v-divider />
-        <v-card-actions :class="layoutClass">
-          <template v-if="layout === 'combo'">
-            <v-select
-              v-model="selectedItem"
-              label="Select"
-              class="ma-1"
-              @change="selectOkDisabled = false"
-              :items="computedButtons"
-              data-test="select"
-            />
-            <v-btn
-              class="ma-1"
-              color="secondary"
-              :disabled="selectOkDisabled"
-              @click="$emit('submit', selectedItem)"
-            >
-              Ok
-            </v-btn>
-            <v-btn
-              class="ma-1"
-              color="secondary"
-              @click="$emit('submit', 'Cancel')"
-            >
-              Cancel
-            </v-btn>
-          </template>
-          <template v-else>
-            <v-btn
-              class="ma-1"
-              v-for="(button, index) in computedButtons"
-              :key="index"
-              color="secondary"
-              @click="$emit('submit', button.value)"
-            >
-              {{ button.text }}
-            </v-btn>
-            <v-btn
-              class="ma-1"
-              color="secondary"
-              @click="$emit('submit', 'Cancel')"
-            >
-              Cancel
-            </v-btn>
-          </template>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-row>
+  <v-dialog persistent v-model="show" width="600">
+    <v-card>
+      <v-system-bar>
+        <v-spacer />
+        <span v-text="title" />
+        <v-spacer />
+      </v-system-bar>
+      <v-card-text>
+        <div class="pa-2">
+          <v-row v-if="subtitle">
+            <v-card-subtitle v-text="subtitle" />
+          </v-row>
+          <v-row class="mt-1">
+            <span v-text="message" />
+          </v-row>
+          <v-row v-if="details" class="mt-1">
+            <span v-text="details" />
+          </v-row>
+          <div v-if="layout === 'combo'">
+            <v-row class="mt-1">
+              <v-select
+                @change="selectOkDisabled = false"
+                v-model="selectedItem"
+                label="Select"
+                color="secondary"
+                class="ma-1"
+                data-test="prompt-select"
+                :items="computedButtons"
+              />
+            </v-row>
+            <v-row class="mt-1">
+              <v-spacer />
+              <v-btn
+                @click="cancelHandeler"
+                outlined
+                data-test="prompt-cancel"
+                class="mx-1"
+              >
+                Cancel
+              </v-btn>
+              <v-btn
+                @click="submitHandeler"
+                class="mx-1"
+                color="primary"
+                data-test="prompt-ok"
+                :disabled="selectOkDisabled"
+              >
+                Ok
+              </v-btn>
+            </v-row>
+          </div>
+          <div v-else>
+            <v-row class="my-1">
+              <v-spacer />
+              <v-btn
+                @click="cancelHandeler"
+                outlined
+                data-test="prompt-cancel"
+                class="mx-1"
+              >
+                Cancel
+              </v-btn>
+              <div v-for="(button, index) in computedButtons" :key="index">
+                <v-btn
+                  @click="submitWrapper(button.value)"
+                  class="mx-1"
+                  :data-test="`prompt-${button.text}`"
+                  :color="button.value ? 'primary' : ''"
+                >
+                  {{ button.text }}
+                </v-btn>
+              </div>
+            </v-row>
+          </div>
+        </div>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -107,20 +125,28 @@ export default {
       type: String,
       default: 'horizontal', // Also 'vertical' or 'combo' when means ComboBox
     },
+    value: Boolean, // value is the default prop when using v-model
   },
   data() {
     return {
-      show: true,
       selectOkDisabled: true,
       selectedItem: null,
     }
   },
   computed: {
+    show: {
+      get() {
+        return this.value
+      },
+      set(value) {
+        this.$emit('input', value) // input is the default event when using v-model
+      },
+    },
     computedButtons() {
       if (this.buttons.length === 0) {
         return [
-          { text: 'Yes', value: true },
           { text: 'No', value: false },
+          { text: 'Yes', value: true },
         ]
       } else {
         return this.buttons
@@ -129,18 +155,23 @@ export default {
     layoutClass() {
       let layout = 'd-flex align-start'
       if (this.layout === 'vertical') {
-        return layout + ' flex-column'
+        return `${layout} flex-column`
       } else {
-        return layout + ' flex-row'
+        return `${layout} flex-row`
       }
+    },
+  },
+  methods: {
+    submitWrapper: function (output) {
+      this.selectedItem = output
+      this.submitHandeler()
+    },
+    submitHandeler: function () {
+      this.$emit('response', this.selectedItem)
+    },
+    cancelHandeler: function () {
+      this.$emit('response', 'Cancel')
     },
   },
 }
 </script>
-
-<style scoped>
-.theme--dark .v-card__title,
-.theme--dark .v-card__subtitle {
-  background-color: var(--v-secondary-darken3);
-}
-</style>

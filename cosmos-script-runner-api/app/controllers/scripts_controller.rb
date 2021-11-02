@@ -82,8 +82,10 @@ class ScriptsController < ApplicationController
     rescue Cosmos::ForbiddenError => e
       render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
     end
-    suiteRunner = params[:suiteRunner] ? params[:suiteRunner].as_json : nil
-    running_script_id = Script.run(params[:scope], params[:name], suiteRunner, params[:disconnect] == 'disconnect')
+    suite_runner = params[:suiteRunner] ? params[:suiteRunner].as_json : nil
+    disconnect = params[:disconnect] == 'disconnect'
+    environment = params[:environment]
+    running_script_id = Script.run(params[:scope], params[:name], suite_runner, disconnect, environment)
     if running_script_id
       render :plain => running_script_id.to_s
     else

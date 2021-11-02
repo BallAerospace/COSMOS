@@ -21,16 +21,13 @@
   <v-dialog v-model="show" width="600">
     <v-card>
       <form v-on:submit.prevent="success">
-
         <v-system-bar>
           <v-spacer />
-          <span> {{title}} </span>
+          <span> {{ title }} </span>
           <v-spacer />
         </v-system-bar>
-
         <v-card-text>
           <div class="pa-3">
-
             <v-row dense>
               <v-text-field
                 @input="handleSearch"
@@ -44,7 +41,6 @@
                 data-test="file-open-save-search"
               />
             </v-row>
-
             <v-row dense class="mt-2">
               <v-treeview
                 v-model="tree"
@@ -68,7 +64,6 @@
                 </template>
               </v-treeview>
             </v-row>
-
             <v-row class="my-2">
               <v-text-field
                 v-model="selectedFile"
@@ -78,38 +73,36 @@
                 :disabled="type === 'open'"
               />
             </v-row>
-
             <v-row dense>
               <span class="my-2 red--text" v-show="error" v-text="error" />
             </v-row>
-
             <v-row class="mt-2">
-              <v-btn
-                @click.prevent="success"
-                type="submit"
-                color="success"
-                data-test="file-open-save-submit-btn"
-                :disabled="disableButtons || !!error"
-              >
-                {{ submit }}
-              </v-btn>
               <v-spacer />
               <v-btn
                 @click="show = false"
-                color="primary"
+                outlined
+                class="mx-2"
                 data-test="file-open-save-cancel-btn"
                 :disabled="disableButtons"
               >
                 Cancel
               </v-btn>
+              <v-btn
+                @click.prevent="success"
+                type="submit"
+                color="primary"
+                class="mx-2"
+                data-test="file-open-save-submit-btn"
+                :disabled="disableButtons || !!error"
+              >
+                {{ submit }}
+              </v-btn>
             </v-row>
           </div>
         </v-card-text>
-
       </form>
     </v-card>
   </v-dialog>
-
 </template>
 
 <script>
@@ -156,14 +149,14 @@ export default {
     },
     submit: function () {
       if (this.type === 'open') {
-        return 'OPEN' 
+        return 'OPEN'
       } else {
         return 'SAVE'
       }
     },
     error: function () {
       if (this.selectedFile === '' || this.selectedFile === null) {
-        return 'No file seleted must select a file'
+        return 'No file selected must select a file'
       }
       if (!this.selectedFile.match(/.*\/.*\/.*\..*/)) {
         return `${this.selectedFile} is not a valid path / filename.`
