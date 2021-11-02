@@ -38,6 +38,13 @@ axiosInstance.interceptors.response.use(
       let body = `HTTP ${error.response.status} - `
       if (error.response?.data?.message) {
         body += `${error.response.data.message}`
+      } else if (error.response?.data?.exception) {
+        body += `${error.response.data.exception}`
+      } else if (error.response?.data?.error?.message) {
+        if (error.response.data.error.class) {
+          body += `${error.response.data.error.class} `
+        }
+        body += `${error.response.data.error.message}`
       } else {
         body += `${error.response?.data}`
       }
