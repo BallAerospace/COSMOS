@@ -21,6 +21,9 @@ module Cosmos
   if RUBY_ENGINE == 'ruby'
     # Win32API is deprecated in 1.9.x so recreate it
     require 'fiddle'
+
+    POINTER_TYPE = Fiddle::SIZEOF_VOIDP == Fiddle::SIZEOF_LONG_LONG ? 'q*' : 'l!*'
+
     class Win32API
       # Cache to hold already opened dll files
       DLL_CACHE = {}
@@ -53,7 +56,7 @@ module Cosmos
             arg = nil if arg == 0
 
             # Convert argument into array of longs
-            args[index], = [arg].pack("p").unpack("l!*")
+            args[index], = [arg].pack("p").unpack(POINTER_TYPE)
           when 'I'
             # Handle intergers larger than 2^31 - 1
             args[index], = [arg].pack("I").unpack("i")
