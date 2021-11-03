@@ -72,98 +72,96 @@ module Cosmos
 
       Logger.info "Processing Bridge configuration in file: #{File.expand_path(filename)}"
 
-      Cosmos.set_working_dir do
-        parser = ConfigParser.new
-        parser.parse_file(filename) do |keyword, params|
+      parser = ConfigParser.new
+      parser.parse_file(filename) do |keyword, params|
+        case keyword
+
+        when 'INTERFACE'
+          usage = "INTERFACE <Name> <Filename> <Specific Parameters>"
+          parser.verify_num_parameters(2, nil, usage)
+          interface_name = params[0].upcase
+          raise parser.error("Interface '#{interface_name}' defined twice") if @interfaces[interface_name]
+
+          interface_class = Cosmos.require_class(params[1])
+          if params[2]
+            current_interface_or_router = interface_class.new(*params[2..-1])
+          else
+            current_interface_or_router = interface_class.new
+          end
+          current_type = :INTERFACE
+          current_interface_or_router.name = interface_name
+          current_interface_or_router.config_params = params[1..-1]
+          @interfaces[interface_name] = current_interface_or_router
+
+        when 'RECONNECT_DELAY', 'LOG_RAW', 'OPTION', 'PROTOCOL'
+          raise parser.error("No current interface or router for #{keyword}") unless current_interface_or_router
+
           case keyword
 
-          when 'INTERFACE'
-            usage = "INTERFACE <Name> <Filename> <Specific Parameters>"
+          when 'RECONNECT_DELAY'
+            parser.verify_num_parameters(1, 1, "#{keyword} <Delay in Seconds>")
+            current_interface_or_router.reconnect_delay = Float(params[0])
+
+          when 'LOG_RAW',
+            parser.verify_num_parameters(0, nil, "#{keyword} <Raw Logger Class File (optional)> <Raw Logger Parameters (optional)>")
+            current_interface_or_router.raw_logger_pair = RawLoggerPair.new(current_interface_or_router.name, Dir.pwd, params)
+            current_interface_or_router.start_raw_logging
+
+          when 'OPTION'
+            parser.verify_num_parameters(2, nil, "#{keyword} <Option Name> <Option Value 1> <Option Value 2 (optional)> <etc>")
+            current_interface_or_router.set_option(params[0], params[1..-1])
+
+          when 'PROTOCOL'
+            usage = "#{keyword} <READ WRITE READ_WRITE> <protocol filename or classname> <Protocol specific parameters>"
             parser.verify_num_parameters(2, nil, usage)
-            interface_name = params[0].upcase
-            raise parser.error("Interface '#{interface_name}' defined twice") if @interfaces[interface_name]
-
-            interface_class = Cosmos.require_class(params[1])
-            if params[2]
-              current_interface_or_router = interface_class.new(*params[2..-1])
-            else
-              current_interface_or_router = interface_class.new
-            end
-            current_type = :INTERFACE
-            current_interface_or_router.name = interface_name
-            current_interface_or_router.config_params = params[1..-1]
-            @interfaces[interface_name] = current_interface_or_router
-
-          when 'RECONNECT_DELAY', 'LOG_RAW', 'OPTION', 'PROTOCOL'
-            raise parser.error("No current interface or router for #{keyword}") unless current_interface_or_router
-
-            case keyword
-
-            when 'RECONNECT_DELAY'
-              parser.verify_num_parameters(1, 1, "#{keyword} <Delay in Seconds>")
-              current_interface_or_router.reconnect_delay = Float(params[0])
-
-            when 'LOG_RAW',
-              parser.verify_num_parameters(0, nil, "#{keyword} <Raw Logger Class File (optional)> <Raw Logger Parameters (optional)>")
-              current_interface_or_router.raw_logger_pair = RawLoggerPair.new(current_interface_or_router.name, Dir.pwd, params)
-              current_interface_or_router.start_raw_logging
-
-            when 'OPTION'
-              parser.verify_num_parameters(2, nil, "#{keyword} <Option Name> <Option Value 1> <Option Value 2 (optional)> <etc>")
-              current_interface_or_router.set_option(params[0], params[1..-1])
-
-            when 'PROTOCOL'
-              usage = "#{keyword} <READ WRITE READ_WRITE> <protocol filename or classname> <Protocol specific parameters>"
-              parser.verify_num_parameters(2, nil, usage)
-              unless %w(READ WRITE READ_WRITE).include? params[0].upcase
-                raise parser.error("Invalid protocol type: #{params[0]}", usage)
-              end
-
-              begin
-                klass = Cosmos.require_class(params[1])
-                current_interface_or_router.add_protocol(klass, params[2..-1], params[0].upcase.intern)
-              rescue LoadError, StandardError => error
-                raise parser.error(error.message, usage)
-              end
-
-            end # end case keyword for all keywords that require a current interface or router
-
-          when 'ROUTER'
-            usage = "ROUTER <Name> <Filename> <Specific Parameters>"
-            parser.verify_num_parameters(2, nil, usage)
-            router_name = params[0].upcase
-            raise parser.error("Router '#{router_name}' defined twice") if @routers[router_name]
-
-            router_class = Cosmos.require_class(params[1])
-            if params[2]
-              current_interface_or_router = router_class.new(*params[2..-1])
-            else
-              current_interface_or_router = router_class.new
-            end
-            current_type = :ROUTER
-            current_interface_or_router.name = router_name
-            @routers[router_name] = current_interface_or_router
-
-          when 'ROUTE'
-            raise parser.error("No current router for #{keyword}") unless current_interface_or_router and current_type == :ROUTER
-
-            usage = "ROUTE <Interface Name>"
-            parser.verify_num_parameters(1, 1, usage)
-            interface_name = params[0].upcase
-            interface = @interfaces[interface_name]
-            raise parser.error("Unknown interface #{interface_name} mapped to router #{current_interface_or_router.name}") unless interface
-
-            unless current_interface_or_router.interfaces.include? interface
-              current_interface_or_router.interfaces << interface
-              interface.routers << current_interface_or_router
+            unless %w(READ WRITE READ_WRITE).include? params[0].upcase
+              raise parser.error("Invalid protocol type: #{params[0]}", usage)
             end
 
+            begin
+              klass = Cosmos.require_class(params[1])
+              current_interface_or_router.add_protocol(klass, params[2..-1], params[0].upcase.intern)
+            rescue LoadError, StandardError => error
+              raise parser.error(error.message, usage)
+            end
+
+          end # end case keyword for all keywords that require a current interface or router
+
+        when 'ROUTER'
+          usage = "ROUTER <Name> <Filename> <Specific Parameters>"
+          parser.verify_num_parameters(2, nil, usage)
+          router_name = params[0].upcase
+          raise parser.error("Router '#{router_name}' defined twice") if @routers[router_name]
+
+          router_class = Cosmos.require_class(params[1])
+          if params[2]
+            current_interface_or_router = router_class.new(*params[2..-1])
           else
-            # blank lines will have a nil keyword and should not raise an exception
-            raise parser.error("Unknown keyword: #{keyword}") unless keyword.nil?
-          end # case
-        end  # loop
-      end
+            current_interface_or_router = router_class.new
+          end
+          current_type = :ROUTER
+          current_interface_or_router.name = router_name
+          @routers[router_name] = current_interface_or_router
+
+        when 'ROUTE'
+          raise parser.error("No current router for #{keyword}") unless current_interface_or_router and current_type == :ROUTER
+
+          usage = "ROUTE <Interface Name>"
+          parser.verify_num_parameters(1, 1, usage)
+          interface_name = params[0].upcase
+          interface = @interfaces[interface_name]
+          raise parser.error("Unknown interface #{interface_name} mapped to router #{current_interface_or_router.name}") unless interface
+
+          unless current_interface_or_router.interfaces.include? interface
+            current_interface_or_router.interfaces << interface
+            interface.routers << current_interface_or_router
+          end
+
+        else
+          # blank lines will have a nil keyword and should not raise an exception
+          raise parser.error("Unknown keyword: #{keyword}") unless keyword.nil?
+        end # case
+      end  # loop
     end
   end
 end
