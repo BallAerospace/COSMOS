@@ -542,51 +542,54 @@ export default {
       this.sendDisabled = true
       this.ignoredParams = []
       this.rows = []
-      this.api.get_target(this.targetName).then(
-        (target) => {
-          this.ignoredParams = target.ignored_parameters
-          this.api.get_command(this.targetName, this.commandName).then(
-            (command) => {
-              command.items.forEach((parameter) => {
-                if (reserved.includes(parameter.name)) return
-                if (
-                  !this.ignoredParams.includes(parameter.name) ||
-                  this.showIgnoredParams
-                ) {
-                  let val = parameter.default
-                  if (parameter.required) {
-                    val = ''
-                  }
-                  if (parameter.format_string) {
-                    val = sprintf(parameter.format_string, parameter.default)
-                  }
-                  this.rows.push({
-                    parameter_name: parameter.name,
-                    val_and_states: {
-                      val: val,
-                      states: parameter.states,
-                      selected_state: null,
-                      selected_state_label: '',
-                      manual_value: null,
-                    },
-                    description: parameter.description,
-                    units: parameter.units,
-                    type: parameter.data_type,
-                  })
+      this.api
+        .get_target(this.targetName)
+        .then(
+          (target) => {
+            this.ignoredParams = target.ignored_parameters
+            return this.api.get_command(this.targetName, this.commandName)
+          },
+          (error) => {
+            this.displayError('getting ignored parameters', error)
+          }
+        )
+        .then(
+          (command) => {
+            command.items.forEach((parameter) => {
+              if (reserved.includes(parameter.name)) return
+              if (
+                !this.ignoredParams.includes(parameter.name) ||
+                this.showIgnoredParams
+              ) {
+                let val = parameter.default
+                if (parameter.required) {
+                  val = ''
                 }
-              })
-              this.sendDisabled = false
-              this.status = ''
-            },
-            (error) => {
-              this.displayError('getting command parameters', error)
-            }
-          )
-        },
-        (error) => {
-          this.displayError('getting ignored parameters', error)
-        }
-      )
+                if (parameter.format_string) {
+                  val = sprintf(parameter.format_string, parameter.default)
+                }
+                this.rows.push({
+                  parameter_name: parameter.name,
+                  val_and_states: {
+                    val: val,
+                    states: parameter.states,
+                    selected_state: null,
+                    selected_state_label: '',
+                    manual_value: null,
+                  },
+                  description: parameter.description,
+                  units: parameter.units,
+                  type: parameter.data_type,
+                })
+              }
+            })
+            this.sendDisabled = false
+            this.status = ''
+          },
+          (error) => {
+            this.displayError('getting command parameters', error)
+          }
+        )
     },
 
     statusChange(event) {
