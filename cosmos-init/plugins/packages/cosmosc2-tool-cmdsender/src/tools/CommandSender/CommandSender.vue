@@ -102,59 +102,112 @@
       v-model="viewDetails"
     />
 
-    <v-dialog v-model="displayErrorDialog" max-width="300">
-      <v-card class="pa-3">
-        <v-card-title class="headline">Error</v-card-title>
-        <v-card-text>{{ status }}</v-card-text>
-        <v-btn color="primary" @click="displayErrorDialog = false">Ok</v-btn>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="displaySendHazardous" max-width="300">
-      <v-card class="pa-3">
-        <v-card-title class="headline">Hazardous</v-card-title>
-        <v-card-text>
-          Warning: Command {{ targetName }} {{ commandName }} is Hazardous.
-          Send?
-        </v-card-text>
-        <v-btn @click="sendHazardousCmd" class="primary mr-4">Yes</v-btn>
-        <v-btn @click="cancelHazardousCmd" class="primary">No</v-btn>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="displaySendRaw" max-width="400">
+    <v-dialog v-model="displayErrorDialog" max-width="600">
       <v-card>
-        <v-card-title class="headline">Send Raw</v-card-title>
-        <v-container>
-          <v-row no-gutters>
-            <v-col>Interface:</v-col>
-            <v-col>
-              <v-select
-                solo
-                hide-details
-                dense
-                :items="interfaces"
-                item-text="label"
-                item-value="value"
-                v-model="selectedInterface"
-              />
-            </v-col>
-          </v-row>
-          <v-row no-gutters>
-            <v-col>Filename:</v-col>
-            <v-col>
-              <input type="file" @change="selectRawCmdFile($event)" />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-btn @click="cancelRawCmd" class="primary" block>Cancel</v-btn>
-            </v-col>
-            <v-col>
-              <v-btn @click="sendRawCmd" class="primary" block>Ok</v-btn>
-            </v-col>
-          </v-row>
-        </v-container>
+        <v-system-bar>
+          <v-spacer />
+          <span> Error </span>
+          <v-spacer />
+        </v-system-bar>
+        <v-card-text>
+          <div class="mx-1">
+            <v-row class="my-2">
+              <v-card-text>
+                <span v-text="status" />
+              </v-card-text>
+            </v-row>
+            <v-row>
+              <v-spacer />
+              <v-btn
+                @click="displayErrorDialog = false"
+                color="primary"
+                data-test="error-dialog-ok"
+              >
+                Ok
+              </v-btn>
+            </v-row>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="displaySendHazardous" max-width="600">
+      <v-card>
+        <v-system-bar>
+          <v-spacer />
+          <span> Hazardous Warning </span>
+          <v-spacer />
+        </v-system-bar>
+        <v-card-text>
+          <div class="mx-1">
+            <v-row class="my-2">
+              <span>
+                Warning: Command {{ targetName }} {{ commandName }} is
+                Hazardous. Send?
+              </span>
+            </v-row>
+            <v-row>
+              <v-spacer />
+              <v-btn
+                @click="cancelHazardousCmd"
+                outlined
+                data-test="send-hazardous-no"
+              >
+                No
+              </v-btn>
+              <v-btn
+                @click="sendHazardousCmd"
+                class="primary mx-1"
+                data-test="send-hazardous-yes"
+              >
+                Yes
+              </v-btn>
+            </v-row>
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="displaySendRaw" max-width="600">
+      <v-card>
+        <v-system-bar>
+          <v-spacer />
+          <span> Send Raw </span>
+          <v-spacer />
+        </v-system-bar>
+        <v-card-text>
+          <div class="mx-1">
+            <v-row class="my-2">
+              <v-col>Interface:</v-col>
+              <v-col>
+                <v-select
+                  solo
+                  hide-details
+                  dense
+                  :items="interfaces"
+                  item-text="label"
+                  item-value="value"
+                  v-model="selectedInterface"
+                />
+              </v-col>
+            </v-row>
+            <v-row no-gutters>
+              <v-col>Filename:</v-col>
+              <v-col>
+                <input type="file" @change="selectRawCmdFile($event)" />
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-spacer />
+              <v-btn @click="cancelRawCmd" outlined data-test="raw-cancel">
+                Cancel
+              </v-btn>
+              <v-btn @click="sendRawCmd" class="primary" data-test="raw-ok">
+                Ok
+              </v-btn>
+            </v-row>
+          </div>
+        </v-card-text>
       </v-card>
     </v-dialog>
   </div>
@@ -707,7 +760,7 @@ export default {
     },
 
     displayError(context, error, showDialog = false) {
-      this.status = 'Error ' + context + ' due to ' + error.name
+      this.status = `Error ${context} due to ${error.name}`
       if (error.message && error.message != '') {
         this.status += ': '
         this.status += error.message

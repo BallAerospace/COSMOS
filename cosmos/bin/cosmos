@@ -318,6 +318,7 @@ if not ARGV[0].nil? # argument(s) given
   #   puts `ruby /cosmos/bin/xtce_converter #{ARGV[1..-1].join(' ')}`
 
   when 'bridge'
+    ENV['COSMOS_NO_STORE'] = '1'
     filename = ARGV[1]
     filename = 'bridge.txt' unless filename
     bridge = Cosmos::Bridge.new(filename)
@@ -330,6 +331,7 @@ if not ARGV[0].nil? # argument(s) given
     end
 
   when 'bridgesetup'
+    ENV['COSMOS_NO_STORE'] = '1'
     filename = ARGV[1]
     filename = 'bridge.txt' unless filename
     unless File.exist?(filename)

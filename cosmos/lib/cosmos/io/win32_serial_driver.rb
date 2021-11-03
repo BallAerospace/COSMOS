@@ -71,6 +71,7 @@ module Cosmos
                                   Win32::NULL,
                                   Win32::OPEN_EXISTING,
                                   Win32::FILE_ATTRIBUTE_NORMAL)
+
       @mutex = Mutex.new
 
       # Configure the Comm Port - See: https://msdn.microsoft.com/en-us/library/windows/desktop/aa363214(v=vs.85).aspx

@@ -26,6 +26,7 @@ module Cosmos
     # Create a file
     def self.create_file(filename, desired_access, share_mode, security_attributes, creation_disposition, flags_and_attributes, template_file = NULL)
       api = Win32API.new('Kernel32', 'CreateFile', [LP, DWORD, DWORD, LP, DWORD, DWORD, HANDLE], HANDLE)
+
       handle = api.call(filename, desired_access, share_mode, security_attributes, creation_disposition, flags_and_attributes, template_file)
       raise "Error during CreateFile: #{get_last_error_message()}" if handle == INVALID_HANDLE_VALUE
 
