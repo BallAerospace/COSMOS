@@ -28,15 +28,17 @@ class ScriptAutocompleteController < ApplicationController
     end
 
     autocomplete_data = Cosmos::TargetModel.all(scope: params[:scope]).flat_map do |target_name, target_info|
-      Cosmos::TargetModel.packets(target_name, type: :CMD, scope: params[:scope]).map { |packet|
+      Cosmos::TargetModel.packets(target_name, type: :CMD, scope: params[:scope]).map do |packet|
         {
           :caption => build_command_caption(packet),
           :snippet => build_command_snippet(packet, target_info),
           :meta => 'command',
         }
-      }
+      end
     end
+    autocomplete_data.sort_by! { |command| command[:caption] }
 
+    response.headers['Cache-Control'] = 'must-revalidate'
     render :json => autocomplete_data, :status => 200
   end
 
@@ -56,9 +58,13 @@ class ScriptAutocompleteController < ApplicationController
     ]
 
     caption = build_command_caption(command)
-    filtered_items = command['items'].select { |item| !reserved_params.include?(item['name']) and !target_info['ignored_parameters'].include?(item['name']) }
+    filtered_items = command['items'].select do |item|
+      !reserved_params.include?(item['name']) and !target_info['ignored_parameters'].include?(item['name'])
+    end
     if filtered_items.any?
-      params = filtered_items.each_with_index.map { |item, index| "#{item['name']} ${#{index + 1}:#{item['default'] || 0}}" }
+      params = filtered_items.each_with_index.map do |item, index|
+        "#{item['name']} ${#{index + 1}:#{item['default'] || 0}}"
+      end
       return "#{caption} with #{params.join(', ')}"
     end
     caption
