@@ -97,35 +97,17 @@ export default {
   },
   methods: {
     update() {
-      Api.get('/cosmos-api/targets')
-        .then((response) => {
-          this.targets = response.data
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get('/cosmos-api/targets').then((response) => {
+        this.targets = response.data
+      })
     },
     add() {},
     showTarget(name) {
-      Api.get(`/cosmos-api/targets/${name}`)
-        .then((response) => {
-          this.jsonContent = JSON.stringify(response.data, null, '\t')
-          this.dialogTitle = name
-          this.showDialog = true
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get(`/cosmos-api/targets/${name}`).then((response) => {
+        this.jsonContent = JSON.stringify(response.data, null, '\t')
+        this.dialogTitle = name
+        this.showDialog = true
+      })
     },
     dialogCallback(content) {
       this.showDialog = false
@@ -138,24 +120,16 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete(`/cosmos-api/targets/${name}`)
-            .then((response) => {
-              self.alert = 'Removed target ' + name
-              self.alertType = 'success'
-              self.showAlert = true
-              setTimeout(() => {
-                self.showAlert = false
-              }, 5000)
-              self.update()
-            })
-            .catch((error) => {
-              self.alert = error
-              self.alertType = 'error'
-              self.showAlert = true
-              setTimeout(() => {
-                self.showAlert = false
-              }, 5000)
-            })
+          return Api.delete(`/cosmos-api/targets/${name}`)
+        })
+        .then((response) => {
+          self.alert = 'Removed target ' + name
+          self.alertType = 'success'
+          self.showAlert = true
+          setTimeout(() => {
+            self.showAlert = false
+          }, 5000)
+          self.update()
         })
     },
   },

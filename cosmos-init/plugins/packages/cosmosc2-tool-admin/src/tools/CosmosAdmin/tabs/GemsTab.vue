@@ -97,18 +97,9 @@ export default {
   },
   methods: {
     update() {
-      Api.get('/cosmos-api/gems')
-        .then((response) => {
-          this.gems = response.data
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get('/cosmos-api/gems').then((response) => {
+        this.gems = response.data
+      })
     },
     upload() {
       this.loadingGem = true
@@ -133,12 +124,6 @@ export default {
         })
         .catch((error) => {
           this.loadingPlugin = false
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
         })
     },
     deleteGem(gem) {
@@ -149,24 +134,16 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete(`/cosmos-api/gems/${gem}`)
-            .then((response) => {
-              self.alert = `Removed gem ${gem}`
-              self.alertType = 'success'
-              self.showAlert = true
-              setTimeout(() => {
-                self.showAlert = false
-              }, 5000)
-              self.update()
-            })
-            .catch((error) => {
-              self.alert = error
-              self.alertType = 'error'
-              self.showAlert = true
-              setTimeout(() => {
-                self.showAlert = false
-              }, 5000)
-            })
+          return Api.delete(`/cosmos-api/gems/${gem}`)
+        })
+        .then((response) => {
+          self.alert = `Removed gem ${gem}`
+          self.alertType = 'success'
+          self.showAlert = true
+          setTimeout(() => {
+            self.showAlert = false
+          }, 5000)
+          self.update()
         })
     },
   },

@@ -153,15 +153,9 @@ export default {
   },
   methods: {
     update: function () {
-      Api.get('/cosmos-api/plugins')
-        .then((response) => {
-          this.plugins = response.data
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-        })
+      Api.get('/cosmos-api/plugins').then((response) => {
+        this.plugins = response.data
+      })
     },
     upload: function (existing = null) {
       const method = existing ? 'put' : 'post'
@@ -194,9 +188,6 @@ export default {
           this.showVariables = true
         })
         .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
           this.loadingPlugin = false
           this.files = []
         })
@@ -226,27 +217,15 @@ export default {
           this.update()
         })
         .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
           this.loadingPlugin = false
         })
     },
     showPlugin: function (name) {
-      Api.get(`/cosmos-api/plugins/${name}`)
-        .then((response) => {
-          this.jsonContent = JSON.stringify(response.data, null, '\t')
-          this.dialogTitle = name
-          this.showDialog = true
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get(`/cosmos-api/plugins/${name}`).then((response) => {
+        this.jsonContent = JSON.stringify(response.data, null, '\t')
+        this.dialogTitle = name
+        this.showDialog = true
+      })
     },
     dialogCallback: function (content) {
       this.showDialog = false
@@ -259,21 +238,16 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete(`/cosmos-api/plugins/${plugin}`)
-            .then((response) => {
-              that.alert = `Removed plugin ${plugin}`
-              that.alertType = 'success'
-              that.showAlert = true
-              setTimeout(() => {
-                that.showAlert = false
-              }, 5000)
-              that.update()
-            })
-            .catch((error) => {
-              that.alert = error
-              that.alertType = 'error'
-              that.showAlert = true
-            })
+          return Api.delete(`/cosmos-api/plugins/${plugin}`)
+        })
+        .then((response) => {
+          that.alert = `Removed plugin ${plugin}`
+          that.alertType = 'success'
+          that.showAlert = true
+          setTimeout(() => {
+            that.showAlert = false
+          }, 5000)
+          that.update()
         })
     },
     async upgradePlugin(plugin) {
