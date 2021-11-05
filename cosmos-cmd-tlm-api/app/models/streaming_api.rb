@@ -491,7 +491,6 @@ class LoggedStreamingThread < StreamingThread
       file_end_time = Time.now.to_nsec_from_epoch unless file_end_time
       file_path = FileCache.instance.reserve_file(first_object.cmd_or_tlm, first_object.target_name, first_object.packet_name,
         first_object.start_time, file_end_time, @stream_mode, scope: @scope) # TODO: look at how @stream_mode is being used
-      # puts file_path
       if file_path
         file_path_split = File.basename(file_path).split("__")
         file_end_time = DateTime.strptime(file_path_split[1], FileCache::TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND # TODO: get format from different class' constant?
@@ -572,7 +571,6 @@ end
 class RealtimeStreamingThread < StreamingThread
   def thread_body
     topics, offsets, objects_by_topic = @collection.realtime_topics_offsets_and_objects
-    # puts "topics:#{topics} offsets:#{offsets} objects:#{objects_by_topic}"
     redis_thread_body(topics, offsets, objects_by_topic)
   end
 end
@@ -604,16 +602,14 @@ class StreamingApi
       @packet_name = key_split[2]
       type = nil
       if stream_mode == :RAW
-        # value_type is implied to be :RAW and this must be a whole packet
-        @value_type = :RAW
         type = (@cmd_or_tlm == :CMD) ? 'COMMAND' : 'TELEMETRY'
-      else
-        # value_type must be specified and this might be a whole packet or just an item
-        @value_type = key_split[-1].to_s.intern
+      elsif stream_mode == :DECOM
         type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
         if key_split.length > 4
           @item_name = key_split[3]
         end
+      else # Reduced
+        type = stream_mode
       end
       @start_time = start_time
       @end_time = end_time
@@ -696,18 +692,18 @@ class StreamingApi
     @collection = StreamingObjectCollection.new
     @realtime_thread = nil
     @logged_threads = []
+    # Cosmos::Logger.level = Cosmos::Logger::DEBUG
   end
 
   def add(data)
-    # Cosmos::Logger.info "start:#{Time.at(data["start_time"].to_i/1_000_000_000.0).formatted}" if data["start_time"]
-    # Cosmos::Logger.info "end:#{Time.at(data["end_time"].to_i/1_000_000_000.0).formatted}" if data["end_time"]
+    # Cosmos::Logger.debug "start:#{Time.at(data["start_time"].to_i/1_000_000_000.0).formatted}" if data["start_time"]
+    # Cosmos::Logger.debug "end:#{Time.at(data["end_time"].to_i/1_000_000_000.0).formatted}" if data["end_time"]
     @mutex.synchronize do
       start_time = nil
       start_time = data["start_time"].to_i if data["start_time"]
       end_time = nil
       end_time = data["end_time"].to_i if data["end_time"]
       stream_mode = data["mode"].to_s.intern
-      # @stream_mode = stream_mode
       scope = data["scope"]
       token = data["token"]
       keys = []
@@ -723,6 +719,7 @@ class StreamingApi
       end
       if start_time
         objects_by_topic.each do |topic, objects|
+          # Cosmos::Logger.debug "topic:#{topic} objs:#{objects} mode:#{stream_mode}"
           objects.each {|object| object.thread_id = @thread_id}
           thread = LoggedStreamingThread.new(@thread_id, @channel, @collection, stream_mode, scope: scope)
           thread.start

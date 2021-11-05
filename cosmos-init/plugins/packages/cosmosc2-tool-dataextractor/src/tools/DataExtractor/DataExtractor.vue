@@ -84,6 +84,25 @@
           </v-radio-group>
         </v-col>
       </v-row>
+      <v-row no-gutters>
+        <v-col>
+          <v-radio-group v-model="reduced" row hide-details>
+            <span class="mr-5">Data Reduction:</span>
+            <v-radio label="None" value="DECOM" data-test="not-reduced" />
+            <v-radio
+              label="Minute"
+              value="REDUCED_MINUTE"
+              data-test="min-reduced"
+            />
+            <v-radio
+              label="Hour"
+              value="REDUCED_HOUR"
+              data-test="hour-reduced"
+            />
+            <v-radio label="Day" value="REDUCED_DAY" data-test="day-reduced" />
+          </v-radio-group>
+        </v-col>
+      </v-row>
       <v-row>
         <target-packet-item-chooser
           @click="addItem($event)"
@@ -286,6 +305,7 @@ export default {
       },
       cmdOrTlm: 'tlm',
       utcOrLocal: 'loc',
+      reduced: 'DECOM',
       items: [],
       rawData: [],
       outputFile: [],
@@ -607,10 +627,11 @@ export default {
             item.valueType
         )
       })
+      console.log(this.reduced)
       CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
         this.subscription.perform('add', {
           scope: localStorage.scope,
-          mode: 'DECOM',
+          mode: this.reduced,
           token: localStorage.token,
           items: items,
           start_time: this.startDateTime,
