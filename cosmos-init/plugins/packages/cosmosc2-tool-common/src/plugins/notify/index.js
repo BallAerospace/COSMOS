@@ -47,7 +47,11 @@ class Notify {
   //   }
   // }
 
-  toast = function ({ title, body, severity, duration }) {
+  toast = function ({ title, body, severity, duration, logToConsole }) {
+    if (logToConsole) {
+      // eslint-disable-next-line no-console
+      console.log(`${severity.toUpperCase()} - ${title}: ${body}`)
+    }
     this.mount()
     this.$root.toast(
       {
@@ -59,23 +63,23 @@ class Notify {
     )
   }
 
-  critical = function ({ title, body, duration }) {
-    this.toast({ title, body, duration, severity: 'critical' })
+  critical = function ({ title, body, duration, logToConsole }) {
+    this.toast({ title, body, duration, logToConsole, severity: 'critical' })
   }
-  serious = function ({ title, body, duration }) {
-    this.toast({ title, body, duration, severity: 'serious' })
+  serious = function ({ title, body, duration, logToConsole }) {
+    this.toast({ title, body, duration, logToConsole, severity: 'serious' })
   }
-  caution = function ({ title, body, duration }) {
-    this.toast({ title, body, duration, severity: 'caution' })
+  caution = function ({ title, body, duration, logToConsole }) {
+    this.toast({ title, body, duration, logToConsole, severity: 'caution' })
   }
-  normal = function ({ title, body, duration }) {
-    this.toast({ title, body, duration, severity: 'normal' })
+  normal = function ({ title, body, duration, logToConsole }) {
+    this.toast({ title, body, duration, logToConsole, severity: 'normal' })
   }
-  standby = function ({ title, body, duration }) {
-    this.toast({ title, body, duration, severity: 'standby' })
+  standby = function ({ title, body, duration, logToConsole }) {
+    this.toast({ title, body, duration, logToConsole, severity: 'standby' })
   }
-  off = function ({ title, body, duration }) {
-    this.toast({ title, body, duration, severity: 'off' })
+  off = function ({ title, body, duration, logToConsole }) {
+    this.toast({ title, body, duration, logToConsole, severity: 'off' })
   }
 }
 
