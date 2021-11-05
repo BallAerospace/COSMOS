@@ -35,9 +35,9 @@ class EnvironmentController < ApplicationController
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     environments = @model_class.all(scope: params[:scope])
     ret = Array.new
@@ -70,9 +70,9 @@ class EnvironmentController < ApplicationController
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     if params['key'].nil? || params['value'].nil?
       render :json => {
@@ -90,11 +90,11 @@ class EnvironmentController < ApplicationController
       model.create()
       render :json => model.as_json, :status => 201
     rescue RuntimeError, JSON::ParserError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue TypeError
-      render :json => { 'status' => 'error', 'message' => 'Invalid json object', 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => 'Invalid json object', 'type' => e.class }, :status => 400
     rescue Cosmos::EnvironmentError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 409
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 409
     end
   end
 
@@ -107,9 +107,9 @@ class EnvironmentController < ApplicationController
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     model = @model_class.get(name: params[:name], scope: params[:scope])
     if model.nil?
@@ -123,7 +123,7 @@ class EnvironmentController < ApplicationController
       ret = @model_class.destroy(name: params[:name], scope: params[:scope])
       render :json => { 'name' => params[:name]}, :status => 204
     rescue Cosmos::EnvironmentError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     end
   end
 

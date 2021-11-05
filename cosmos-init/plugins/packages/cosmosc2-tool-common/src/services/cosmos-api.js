@@ -482,6 +482,10 @@ export class CosmosApi {
     return this.exec('get_setting', [name])
   }
 
+  get_settings(array) {
+    return this.exec('get_settings', array)
+  }
+
   save_setting(name, data) {
     return this.exec('save_setting', [name, data])
   }

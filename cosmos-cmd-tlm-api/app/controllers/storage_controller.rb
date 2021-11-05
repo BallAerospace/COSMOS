@@ -24,9 +24,9 @@ class StorageController < ApplicationController
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
 
     render :json => get_presigned_request(:get_object), :status => 201
@@ -36,9 +36,9 @@ class StorageController < ApplicationController
     begin
       authorize(permission: 'system_set', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
 
     render :json => get_presigned_request(:put_object), :status => 201

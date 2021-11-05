@@ -28,7 +28,7 @@
       {{ alert }}
     </v-alert>
     <v-list data-test="targetList">
-      <div v-for="target in targets" :key="target">
+      <div v-for="(target, index) in targets" :key="target">
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title v-text="target" />
@@ -54,7 +54,7 @@
             </v-tooltip>
           </v-list-item-icon>
         </v-list-item>
-        <v-divider />
+        <v-divider v-if="index < targets.length - 1" :key="index" />
       </div>
     </v-list>
     <v-alert
@@ -123,13 +123,13 @@ export default {
           return Api.delete(`/cosmos-api/targets/${name}`)
         })
         .then((response) => {
-          self.alert = 'Removed target ' + name
-          self.alertType = 'success'
-          self.showAlert = true
+          this.alert = 'Removed target ' + name
+          this.alertType = 'success'
+          this.showAlert = true
           setTimeout(() => {
-            self.showAlert = false
+            this.showAlert = false
           }, 5000)
-          self.update()
+          this.update()
         })
     },
   },

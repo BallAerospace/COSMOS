@@ -19,22 +19,37 @@
 
 <template>
   <div>
-    <v-row no-gutters align="center" style="padding-left: 10px">
-      <v-col cols="3">
-        <v-btn
-          block
-          color="primary"
-          data-test="gemUpload"
-          :disabled="!files.length"
-          :loading="loadingGem"
-          @click="upload"
-        >
-          Upload
-          <template v-slot:loader>
-            <span>Loading...</span>
-          </template>
-          <v-icon right dark>mdi-cloud-upload</v-icon>
-        </v-btn>
+    <v-row no-gutters align="center" class="px-2">
+      <v-col>
+        <div class="px-2">
+          <v-btn
+            block
+            data-test="gemDownload"
+            :disabled="files.length > 0"
+            @click="showDownloadDialog = true"
+          >
+            Download
+            <v-icon right dark>mdi-cloud-download</v-icon>
+          </v-btn>
+        </div>
+      </v-col>
+      <v-col>
+        <div class="px-2">
+          <v-btn
+            block
+            color="primary"
+            data-test="gemUpload"
+            :disabled="files.length < 1"
+            :loading="loadingGem"
+            @click="upload()"
+          >
+            Upload
+            <template v-slot:loader>
+              <span>Loading...</span>
+            </template>
+            <v-icon right dark>mdi-cloud-upload</v-icon>
+          </v-btn>
+        </div>
       </v-col>
       <v-col cols="9">
         <div class="px-4">
@@ -57,7 +72,7 @@
       transition="scale-transition"
     />
     <v-list data-test="gemList">
-      <div v-for="(gem, i) in gems" :key="i">
+      <div v-for="(gem, index) in gems" :key="index">
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title v-text="gem" />
@@ -73,17 +88,24 @@
             </v-tooltip>
           </v-list-item-icon>
         </v-list-item>
-        <v-divider />
+        <v-divider v-if="index < gems.length - 1" :key="index" />
       </div>
     </v-list>
+    <download-dialog v-model="showDownloadDialog" />
   </div>
 </template>
 
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
+import DownloadDialog from '@/tools/CosmosAdmin/DownloadDialog'
+
 export default {
+  components: {
+    DownloadDialog,
+  },
   data() {
     return {
+      showDownloadDialog: false,
       files: [],
       loadingGem: false,
       gems: [],
@@ -101,7 +123,7 @@ export default {
         this.gems = response.data
       })
     },
-    upload() {
+    upload: function () {
       this.loadingGem = true
       const promises = this.files.map((file) => {
         const formData = new FormData()
@@ -126,8 +148,7 @@ export default {
           this.loadingPlugin = false
         })
     },
-    deleteGem(gem) {
-      var self = this
+    deleteGem: function (gem) {
       this.$dialog
         .confirm(`Are you sure you want to remove: ${gem}`, {
           okText: 'Delete',
@@ -137,13 +158,13 @@ export default {
           return Api.delete(`/cosmos-api/gems/${gem}`)
         })
         .then((response) => {
-          self.alert = `Removed gem ${gem}`
-          self.alertType = 'success'
-          self.showAlert = true
+          this.alert = `Removed gem ${gem}`
+          this.alertType = 'success'
+          this.showAlert = true
           setTimeout(() => {
-            self.showAlert = false
+            this.showAlert = false
           }, 5000)
-          self.update()
+          this.update()
         })
     },
   },

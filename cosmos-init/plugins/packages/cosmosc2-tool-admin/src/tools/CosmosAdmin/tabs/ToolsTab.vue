@@ -51,7 +51,7 @@
       {{ alert }}
     </v-alert>
     <v-list data-test="toolList" id="toollist">
-      <div v-for="tool in tools" :key="tool">
+      <div v-for="(tool, index) in tools" :key="tool">
         <v-list-item>
           <v-list-item-icon>
             <v-icon> mdi-drag-horizontal </v-icon>
@@ -80,7 +80,7 @@
             </v-tooltip>
           </v-list-item-icon>
         </v-list-item>
-        <v-divider />
+        <v-divider v-if="index < tools.length - 1" :key="index" />
       </div>
     </v-list>
     <v-alert
@@ -207,7 +207,6 @@ export default {
       }
     },
     deleteTool(name) {
-      var self = this
       this.$dialog
         .confirm(`Are you sure you want to remove: ${name}`, {
           okText: 'Delete',
@@ -217,13 +216,13 @@ export default {
           return Api.delete(`/cosmos-api/tools/${name}`)
         })
         .then((response) => {
-          self.alert = `Removed tool ${name}`
-          self.alertType = 'success'
-          self.showAlert = true
+          this.alert = `Removed tool ${name}`
+          this.alertType = 'success'
+          this.showAlert = true
           setTimeout(() => {
-            self.showAlert = false
+            this.showAlert = false
           }, 5000)
-          self.update()
+          this.update()
         })
     },
   },

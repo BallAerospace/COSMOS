@@ -22,9 +22,9 @@ class ApiController < ApplicationController
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     render :json => Screen.all(params[:scope].upcase, params[:target].upcase)
   end
@@ -33,9 +33,9 @@ class ApiController < ApplicationController
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     screen = Screen.find(params[:scope].upcase, params[:target].upcase, params[:screen].downcase)
     if screen
@@ -49,9 +49,9 @@ class ApiController < ApplicationController
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     screen = Screen.create(params[:scope].upcase, params[:target].upcase, params[:screen].downcase, params[:text])
     if screen

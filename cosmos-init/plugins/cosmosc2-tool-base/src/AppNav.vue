@@ -26,48 +26,48 @@
             <img :src="logo" alt="COSMOS" />
           </v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>COSMOS</v-list-item-title>
+            <v-list-item-title class="font-weight-bold">
+              COSMOS
+            </v-list-item-title>
             <!-- v-list-item-subtitle>Enterprise Edition</v-list-item-subtitle -->
           </v-list-item-content>
         </v-list-item>
-        <v-divider />
-        <v-list-item v-for="(tool, name) in shownTools" :key="name">
-          <v-list-item-icon>
-            <a :href="tool.url" onclick="singleSpaNavigate(event)">
-              <v-icon>{{ tool.icon }}</v-icon>
-            </a>
-          </v-list-item-icon>
-
+        <v-list-item class="my-0">
           <v-list-item-content>
-            <a :href="tool.url" onclick="singleSpaNavigate(event)">
-              <v-list-item-title>{{ name }}</v-list-item-title>
-            </a>
+            <div v-for="(tool, name) in adminTools" :key="name">
+              <v-btn
+                block
+                small
+                :href="tool.url"
+                onclick="singleSpaNavigate(event)"
+              >
+                Admin
+              </v-btn>
+            </div>
           </v-list-item-content>
-
-          <v-list-item-icon>
-            <a :href="tool.url" target="_blank">
-              <v-icon>mdi-arrow-top-right-thin-circle-outline</v-icon>
-            </a>
-          </v-list-item-icon>
         </v-list-item>
-      </v-list>
-
-      <template v-slot:append>
-        <div v-for="(tool, name) in adminTools" :key="name" class="pa-2">
-          <v-btn
-            block
-            small
-            rounded
-            color="primary"
-            :href="tool.url"
-            onclick="singleSpaNavigate(event)"
-          >
-            Admin
-          </v-btn>
+        <v-divider />
+        <div v-for="(tool, name) in shownTools" :key="name">
+          <v-list-item>
+            <v-list-item-icon>
+              <a :href="tool.url" onclick="singleSpaNavigate(event)">
+                <v-icon>{{ tool.icon }}</v-icon>
+              </a>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <a :href="tool.url" onclick="singleSpaNavigate(event)">
+                <v-list-item-title>{{ name }}</v-list-item-title>
+              </a>
+            </v-list-item-content>
+            <v-list-item-icon>
+              <a :href="tool.url" target="_blank">
+                <v-icon>mdi-arrow-top-right-thin-circle-outline</v-icon>
+              </a>
+            </v-list-item-icon>
+          </v-list-item>
         </div>
-      </template>
+      </v-list>
     </v-navigation-drawer>
-
     <v-app-bar app color="tertiary darken-3" id="cosmos-app-toolbar">
       <v-app-bar-nav-icon @click="drawer = !drawer" />
       <span style="width: 100%"><span id="cosmos-menu"></span></span>
@@ -157,6 +157,9 @@ export default {
 </script>
 
 <style scoped>
+.v-list-item--two-line .v-list-item__icon {
+  margin: 0px;
+}
 .v-list >>> .v-label {
   margin-left: 5px;
 }

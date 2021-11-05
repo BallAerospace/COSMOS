@@ -36,9 +36,9 @@ class ActivityController < ApplicationController
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     now = DateTime.now.new_offset(0)
     begin
@@ -49,11 +49,11 @@ class ActivityController < ApplicationController
       model = @model_class.get(name: params[:name], scope: params[:scope], start: start, stop: stop)
       render :json => model.as_json(), :status => 200
     rescue ArgumentError
-      render :json => { 'status' => 'error', 'message' => 'Invalid date provided. Recommend ISO format' }, :status => 400
+      render :json => { :status => 'error', :message => 'Invalid date provided. Recommend ISO format' }, :status => 400
     rescue Cosmos::ActivityInputError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue StandardError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     end
   end
 
@@ -83,9 +83,9 @@ class ActivityController < ApplicationController
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
       hash = params.to_unsafe_h.slice(:start, :stop, :kind, :data).to_h
@@ -98,13 +98,13 @@ class ActivityController < ApplicationController
       model.create()
       render :json => model.as_json, :status => 201
     rescue ArgumentError, TypeError
-      render :json => { 'status' => 'error', 'message' => "Invalid input: #{hash}" }, :status => 400
+      render :json => { :status => 'error', :message => "Invalid input: #{hash}" }, :status => 400
     rescue Cosmos::ActivityInputError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue Cosmos::ActivityOverlapError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 409
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 409
     rescue Cosmos::ActivityError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 418
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 418
     end
   end
 
@@ -124,9 +124,9 @@ class ActivityController < ApplicationController
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     count = @model_class.count(name: params[:name], scope: params[:scope])
     render :json => {
@@ -152,13 +152,13 @@ class ActivityController < ApplicationController
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     model = @model_class.score(name: params[:name], score: params[:id], scope: params[:scope])
     if model.nil?
-      render :json => { 'status' => 'error', 'message' => 'not found' }, :status => 404
+      render :json => { :status => 'error', :message => 'not found' }, :status => 404
     else
       render :json => model.as_json, :status => 200
     end
@@ -189,13 +189,13 @@ class ActivityController < ApplicationController
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     model = @model_class.score(name: params[:name], score: params[:id], scope: params[:scope])
     if model.nil?
-      render :json => { 'status' => 'error', 'message' => 'not found' }, :status => 404
+      render :json => { :status => 'error', :message => 'not found' }, :status => 404
       return
     end
     begin
@@ -203,9 +203,9 @@ class ActivityController < ApplicationController
       model.commit(status: hash['status'], message: hash['message'])
       render :json => model.as_json, :status => 200
     rescue ArgumentError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue Cosmos::ActivityError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 418
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 418
     end
   end
 
@@ -236,13 +236,13 @@ class ActivityController < ApplicationController
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     model = @model_class.score(name: params[:name], score: params[:id], scope: params[:scope])
     if model.nil?
-      render :json => { 'status' => 'error', 'message' => 'not found' }, :status => 404
+      render :json => { :status => 'error', :message => 'not found' }, :status => 404
       return
     end
     begin
@@ -252,13 +252,13 @@ class ActivityController < ApplicationController
       model.update(start: hash['start'], stop: hash['stop'], kind: hash['kind'], data: hash['data'])
       render :json => model.as_json, :status => 200
     rescue ArgumentError, TypeError
-      render :json => { 'status' => 'error', 'message' => "Invalid input: #{hash}" }, :status => 400
+      render :json => { :status => 'error', :message => "Invalid input: #{hash}" }, :status => 400
     rescue Cosmos::ActivityInputError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue Cosmos::ActivityOverlapError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 409
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 409
     rescue Cosmos::ActivityError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 418
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 418
     end
   end
 
@@ -279,20 +279,20 @@ class ActivityController < ApplicationController
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     model = @model_class.score(name: params[:name], score: params[:id], scope: params[:scope])
     if model.nil?
-      render :json => { 'status' => 'error', 'message' => 'not found' }, :status => 404
+      render :json => { :status => 'error', :message => 'not found' }, :status => 404
       return
     end
     begin
       ret = model.destroy()
       render :json => {"status" => ret}, :status => 204
     rescue Cosmos::ActivityError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     end
   end
 
@@ -326,13 +326,13 @@ class ActivityController < ApplicationController
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     input_activities = params.to_unsafe_h.slice(:multi).to_h['multi']
     unless input_activities.is_a?(Array)
-      render(:json => { 'status' => 'error', 'message' => 'invalid input, must be json list/array' }, :status => 400) and return
+      render(:json => { :status => 'error', :message => 'invalid input, must be json list/array' }, :status => 400) and return
     end
     ret = Array.new
     input_activities.each do |input|
@@ -346,13 +346,13 @@ class ActivityController < ApplicationController
         model.create()
         ret << model.as_json
     rescue ArgumentError, TypeError => e
-        ret << { 'status' => 'error', 'message' => "Invalid input, #{e.message}", 'input' => input, 'type' => e.class,  status => 400 }
+        ret << { :status => 'error', :message => "Invalid input, #{e.message}", 'input' => input, 'type' => e.class,  status => 400 }
       rescue Cosmos::ActivityInputError => e
-        ret << { 'status' => 'error', 'message' => e.message, 'input' => input, 'type' => e.class, status => 400 }
+        ret << { :status => 'error', :message => e.message, 'input' => input, 'type' => e.class, status => 400 }
       rescue Cosmos::ActivityOverlapError => e
-        ret << { 'status' => 'error', 'message' => e.message, 'input' => input, 'type' => e.class, status => 409 }
+        ret << { :status => 'error', :message => e.message, 'input' => input, 'type' => e.class, status => 409 }
       rescue Cosmos::ActivityError => e
-        ret << { 'status' => 'error', 'message' => e.message, 'input' => input, 'type' => e.class, status => 418 }
+        ret << { :status => 'error', :message => e.message, 'input' => input, 'type' => e.class, status => 418 }
       end
     end
     render :json => ret, :status => 200
@@ -385,13 +385,13 @@ class ActivityController < ApplicationController
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     input_activities = params.to_unsafe_h.slice(:multi).to_h['multi']
     unless input_activities.is_a?(Array)
-      render(:json => { 'status' => 'error', 'message' => 'invalid input' }, :status => 400) and return
+      render(:json => { :status => 'error', :message => 'invalid input' }, :status => 400) and return
     end
     ret = Array.new
     input_activities.each do |input|
@@ -402,7 +402,7 @@ class ActivityController < ApplicationController
         check = model.destroy()
         ret << { 'status' => 'removed', 'removed' => check, 'input' => input, 'type' => e.class }
       rescue Cosmos::ActivityError => e
-        ret << { 'status' => 'error', 'message' => e.message, 'input' => input, 'type' => e.class }
+        ret << { :status => 'error', :message => e.message, 'input' => input, 'type' => e.class }
       end
     end
     render :json => ret, :status => 200
