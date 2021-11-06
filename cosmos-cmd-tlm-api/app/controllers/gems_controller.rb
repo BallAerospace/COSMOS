@@ -63,7 +63,7 @@ class GemsController < ApplicationController
   # Remove a gem
   def destroy
     begin
-      authorize(permission: 'super_admin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'superadmin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
       render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
