@@ -24,6 +24,7 @@ require 'cosmos/script/api_shared'
 require 'cosmos/script/commands'
 require 'cosmos/script/limits'
 require 'cosmos/script/exceptions'
+require 'cosmos/utilities/authentication'
 
 $api_server = nil
 $disconnect = false
@@ -202,7 +203,7 @@ module Cosmos
 
     # generate the auth object
     def generate_auth
-      if ENV['COSMOS_API_USER'].nil? || ENV['COSMOS_API_CLIENT'].nil?
+      if ENV['COSMOS_API_USER'].nil?
         return CosmosAuthentication.new()
       else
         return CosmosKeycloakAuthentication.new(ENV['COSMOS_KEYCLOAK_URL'])
