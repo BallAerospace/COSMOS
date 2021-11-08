@@ -5,7 +5,7 @@ import singleSpaVue from 'single-spa-vue'
 
 import App from './App.vue'
 import router from './router'
-import store from './store'
+import store from '@cosmosc2/tool-common/src/plugins/store'
 
 // Register these globally so they don't have to be imported every time
 import AstroBadge from '@cosmosc2/tool-common/src/components/icons/AstroBadge'
