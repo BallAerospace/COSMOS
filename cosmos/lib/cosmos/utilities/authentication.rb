@@ -70,7 +70,6 @@ module Cosmos
 
     # Load the token from the environment
     def token()
-
       @auth_mutex.synchronize do
         @log = [nil, nil]
         current_time = Time.now.to_i
@@ -89,8 +88,9 @@ module Cosmos
 
     # Make the token and save token to instance
     def _make_token(current_time)
+      client_id = ENV['COSMOS_API_CLIENT'] || 'api'
       data = "username=#{ENV['COSMOS_API_USER']}&password=#{ENV['COSMOS_API_PASSWORD']}"
-      data << "&client_id=#{ENV['COSMOS_API_CLIENT']}&client_secret=#{ENV['COSMOS_API_SECRET']}"
+      data << "&client_id=#{client_id}"
       data << '&grant_type=password&scope=openid'
       headers = {
         'Content-Type' => 'application/x-www-form-urlencoded',
@@ -105,7 +105,8 @@ module Cosmos
 
     # Refresh the token and save token to instance
     def _refresh_token(current_time)
-      data = "client_id=#{ENV['COSMOS_API_CLIENT']}&refresh_token=#{@refresh_token}&grant_type=refresh_token"
+      client_id = ENV['COSMOS_API_CLIENT'] || 'api'
+      data = "client_id=#{client_id}&refresh_token=#{@refresh_token}&grant_type=refresh_token"
       headers = {
         'Content-Type' => 'application/x-www-form-urlencoded',
         'User-Agent' => 'CosmosKeycloakAuthorization / 5.0.0 (ruby/cosmos/lib/utilities/authentication)',
@@ -122,7 +123,12 @@ module Cosmos
       uri = URI("#{@url}/auth/realms/COSMOS/protocol/openid-connect/token")
       @log[0] = "request uri: #{uri.to_s} header: #{headers.to_s} body: #{data.to_s}"
       STDOUT.puts @log[0] if JsonDRb.debug?
-      resp = HTTPClient.new().post(uri, :body => data, :header => headers)
+      saved_verbose = $VERBOSE; $VERBOSE = nil
+      begin
+        resp = HTTPClient.new().post(uri, :body => data, :header => headers)
+      ensure
+        $VERBOSE = saved_verbose
+      end
       @log[1] = "response status: #{resp.status} header: #{resp.headers} body: #{resp.body}"
       STDOUT.puts @log[1] if JsonDRb.debug?
       if resp.status >= 200 && resp.status <= 299

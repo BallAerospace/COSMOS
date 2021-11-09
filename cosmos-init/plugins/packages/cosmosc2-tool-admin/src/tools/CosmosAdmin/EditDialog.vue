@@ -21,7 +21,6 @@
   <v-dialog persistent v-model="show" width="600">
     <v-card>
       <form v-on:submit.prevent="submit">
-
         <v-system-bar>
           <v-spacer />
           <span v-text="title" />
@@ -100,7 +99,6 @@
             </v-row>
           </div>
         </v-card-text>
-
       </form>
     </v-card>
   </v-dialog>
@@ -148,19 +146,17 @@ export default {
       this.json_content = null
       this.show = !this.show
     },
-    download: function() {
+    download: function () {
       const blob = new Blob([this.json_content], {
         type: 'text/plain',
       })
       // Make a link and then 'click' on it to start the download
       const link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
-      link.setAttribute(
-        'download', `${this.title}.json`
-      )
+      link.setAttribute('download', `${this.title}.json`)
       link.click()
     },
-  }
+  },
 }
 </script>
 

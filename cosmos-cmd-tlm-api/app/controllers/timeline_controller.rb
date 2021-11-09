@@ -32,9 +32,9 @@ class TimelineController < ApplicationController
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     timelines = @model_class.all
     ret = Array.new
@@ -69,9 +69,9 @@ class TimelineController < ApplicationController
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
       model = @model_class.new(name: params['name'], color: params['color'], scope: params[:scope])
@@ -79,11 +79,11 @@ class TimelineController < ApplicationController
       model.deploy()
       render :json => model.as_json, :status => 201
     rescue RuntimeError, JSON::ParserError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue TypeError
-      render :json => { 'status' => 'error', 'message' => 'Invalid json object', 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => 'Invalid json object', 'type' => e.class }, :status => 400
     rescue Cosmos::TimelineInputError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     end
   end
 
@@ -110,9 +110,9 @@ class TimelineController < ApplicationController
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     model = @model_class.get(name: params[:name], scope: params[:scope])
     if model.nil?
@@ -128,11 +128,11 @@ class TimelineController < ApplicationController
       model.notify(kind: 'update')
       render :json => model.as_json, :status => 200
     rescue RuntimeError, JSON::ParserError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     rescue TypeError
-      render :json => { 'status' => 'error', 'message' => 'Invalid json object', 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => 'Invalid json object', 'type' => e.class }, :status => 400
     rescue Cosmos::TimelineInputError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     end
   end
 
@@ -145,9 +145,9 @@ class TimelineController < ApplicationController
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     model = @model_class.get(name: params[:name], scope: params[:scope])
     if model.nil?
@@ -164,7 +164,7 @@ class TimelineController < ApplicationController
       model.notify(kind: 'delete')
       render :json => { 'name' => params[:name]}, :status => 204
     rescue Cosmos::TimelineError => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 400
+      render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     end
   end
 

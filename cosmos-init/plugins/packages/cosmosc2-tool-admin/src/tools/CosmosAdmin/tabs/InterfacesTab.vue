@@ -28,7 +28,10 @@
       {{ alert }}
     </v-alert>
     <v-list data-test="interfaceList">
-      <div v-for="cosmos_interface in interfaces" :key="cosmos_interface">
+      <div
+        v-for="(cosmos_interface, index) in interfaces"
+        :key="cosmos_interface"
+      >
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title v-text="cosmos_interface" />
@@ -62,7 +65,7 @@
             </v-tooltip>
           </v-list-item-icon>
         </v-list-item>
-        <v-divider />
+        <v-divider v-if="index < interfaces.length - 1" :key="index" />
       </div>
     </v-list>
     <v-alert
@@ -105,64 +108,37 @@ export default {
   },
   methods: {
     update() {
-      Api.get('/cosmos-api/interfaces')
-        .then((response) => {
-          this.interfaces = response.data
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get('/cosmos-api/interfaces').then((response) => {
+        this.interfaces = response.data
+      })
     },
     showInterface(name) {
-      Api.get(`/cosmos-api/interfaces/${name}`)
-        .then((response) => {
-          this.jsonContent = JSON.stringify(response.data, null, '\t')
-          this.dialogTitle = name
-          this.showDialog = true
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get(`/cosmos-api/interfaces/${name}`).then((response) => {
+        this.jsonContent = JSON.stringify(response.data, null, '\t')
+        this.dialogTitle = name
+        this.showDialog = true
+      })
     },
     dialogCallback(content) {
       this.showDialog = false
     },
     deleteInterface(name) {
-      var that = this
       this.$dialog
         .confirm(`Are you sure you want to remove: ${name}`, {
           okText: 'Delete',
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete(`/cosmos-api/interfaces/${name}`)
-            .then((response) => {
-              that.alert = `Removed interface ${name}`
-              that.alertType = 'success'
-              that.showAlert = true
-              setTimeout(() => {
-                that.showAlert = false
-              }, 5000)
-              that.update()
-            })
-            .catch((error) => {
-              that.alert = error
-              that.alertType = 'error'
-              that.showAlert = true
-              setTimeout(() => {
-                that.showAlert = false
-              }, 5000)
-            })
+          return Api.delete(`/cosmos-api/interfaces/${name}`)
+        })
+        .then((response) => {
+          this.alert = `Removed interface ${name}`
+          this.alertType = 'success'
+          this.showAlert = true
+          setTimeout(() => {
+            this.showAlert = false
+          }, 5000)
+          this.update()
         })
     },
   },

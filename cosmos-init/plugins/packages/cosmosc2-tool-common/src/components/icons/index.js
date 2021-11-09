@@ -79,6 +79,22 @@ const AstroStatusColors = {
   off: '#9ea7ad',
 }
 
+const getStatusColorContrast = function (severity) {
+  const black = '#000000'
+  const white = '#ffffff'
+
+  const statusColor = AstroStatusColors[severity]
+  if (statusColor) {
+    const r = Number(`0x${statusColor.slice(1, 3)}`)
+    const g = Number(`0x${statusColor.slice(3, 5)}`)
+    const b = Number(`0x${statusColor.slice(5, 7)}`)
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000 // https://www.w3.org/TR/AERT/#color-contrast
+
+    if (brightness > 128) return black
+  }
+  return white
+}
+
 const AstroStatuses = Object.keys(AstroStatusColors)
 
 export {
@@ -86,4 +102,5 @@ export {
   AstroIconVuetifyValues,
   AstroStatuses,
   AstroStatusColors,
+  getStatusColorContrast,
 }

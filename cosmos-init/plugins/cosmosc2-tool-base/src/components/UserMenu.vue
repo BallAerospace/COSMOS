@@ -23,9 +23,9 @@
     <v-menu
       v-model="showUserMenu"
       transition="slide-y-transition"
+      offset-y
       :close-on-content-click="false"
       :nudge-width="120"
-      offset-y
       :nudge-bottom="20"
     >
       <template v-slot:activator="{ on, attrs }">
@@ -36,18 +36,12 @@
 
       <v-card>
         <v-card-text class="text-center">
-          <v-btn
-            v-if="authenticated"
-            @click="logout"
-            color="primary"
-            small
-            rounded
-          >
-            Logout
-          </v-btn>
-          <v-btn v-else @click="login" color="primary" small rounded>
-            Login
-          </v-btn>
+          <div v-if="authenticated">
+            <v-btn block @click="logout" color="primary"> Logout </v-btn>
+          </div>
+          <div v-else>
+            <v-btn block @click="login" color="primary"> Login </v-btn>
+          </div>
         </v-card-text>
       </v-card>
     </v-menu>

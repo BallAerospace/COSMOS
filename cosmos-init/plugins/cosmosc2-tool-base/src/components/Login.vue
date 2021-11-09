@@ -151,21 +151,15 @@ export default {
           token: this.password,
         },
         ...this.options,
-      })
-        .then((response) => {
-          if (response.data.result) {
-            this.login()
-          } else {
-            this.alert = 'Incorrect password'
-            this.alertType = 'warning'
-            this.showAlert = true
-          }
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
+      }).then((response) => {
+        if (response.data.result) {
+          this.login()
+        } else {
+          this.alert = 'Incorrect password'
+          this.alertType = 'warning'
           this.showAlert = true
-        })
+        }
+      })
     },
     setPassword: function () {
       this.showAlert = false
@@ -175,13 +169,7 @@ export default {
           token: this.password,
         },
         ...this.options,
-      })
-        .then(this.login)
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-        })
+      }).then(this.login)
     },
   },
 }
