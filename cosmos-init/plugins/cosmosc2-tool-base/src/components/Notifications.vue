@@ -184,6 +184,8 @@ import {
 } from '../util/AstroStatus'
 import Cable from '../../../packages/cosmosc2-tool-common/src/services/cable.js'
 
+const NOTIFICATION_HISTORY_MAX_LENGTH = 100
+
 export default {
   props: {
     size: {
@@ -329,8 +331,8 @@ export default {
     },
     received: function (data) {
       const parsed = JSON.parse(data)
-      if (parsed.length > 100) {
-        parsed.splice(0, parsed.length - 100)
+      if (parsed.length > NOTIFICATION_HISTORY_MAX_LENGTH) {
+        parsed.splice(0, parsed.length - NOTIFICATION_HISTORY_MAX_LENGTH)
       }
       let foundToast = false
       parsed.forEach((notification) => {
@@ -350,15 +352,22 @@ export default {
       if (this.showToast && foundToast) {
         this.$notify[this.toastNotification.severity]({
           ...this.toastNotification,
+          type: 'notification',
           duration:
             this.toastNotification.severity === 'critical' ? null : 5000,
+          saveToHistory: false,
         })
       }
 
-      if (this.notifications.length + parsed.length > 100) {
+      if (
+        this.notifications.length + parsed.length >
+        NOTIFICATION_HISTORY_MAX_LENGTH
+      ) {
         this.notifications.splice(
           0,
-          this.notifications.length + parsed.length - 100
+          this.notifications.length +
+            parsed.length -
+            NOTIFICATION_HISTORY_MAX_LENGTH
         )
       }
       this.notifications = this.notifications.concat(parsed)

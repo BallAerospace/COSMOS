@@ -649,6 +649,10 @@ export default {
     })
   },
   mounted() {
+    this.$notify.normal({
+      title: 'this is the title',
+      body: 'this is the body, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten, it is long like a pine marten.',
+    })
     this.editor = ace.edit('editor')
     this.editor.setTheme('ace/theme/twilight')
     this.editor.session.setMode('ace/mode/ruby')

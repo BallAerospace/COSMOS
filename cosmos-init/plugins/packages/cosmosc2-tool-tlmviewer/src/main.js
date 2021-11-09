@@ -23,7 +23,7 @@ import Notify from '@cosmosc2/tool-common/src/plugins/notify'
 
 Vue.use(PortalVue)
 Vue.use(VuejsDialog)
-Vue.use(Notify)
+Vue.use(Notify, { store })
 
 const vueLifecycles = singleSpaVue({
   Vue,

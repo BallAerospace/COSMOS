@@ -72,6 +72,7 @@
       <v-app-bar-nav-icon @click="drawer = !drawer" />
       <span style="width: 100%"><span id="cosmos-menu"></span></span>
       <div class="justify-right mr-2 pt-2"><scope-selector /></div>
+      <div class="justify-right"><alert-history /></div>
       <div class="justify-right"><notifications /></div>
       <div class="justify-right"><user-menu /></div>
     </v-app-bar>
@@ -83,12 +84,14 @@ import Api from '../../packages/cosmosc2-tool-common/src/services/api'
 import logo from '../public/img/logo.png'
 import { registerApplication, start } from 'single-spa'
 import ScopeSelector from './components/ScopeSelector.vue'
+import AlertHistory from './components/AlertHistory.vue'
 import Notifications from './components/Notifications.vue'
 import UserMenu from './components/UserMenu.vue'
 
 export default {
   components: {
     ScopeSelector,
+    AlertHistory,
     Notifications,
     UserMenu,
   },

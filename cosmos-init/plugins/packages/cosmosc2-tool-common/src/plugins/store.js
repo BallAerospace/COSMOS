@@ -27,11 +27,22 @@ const NOTIFY_HISTORY_MAX_LENGTH = 100
 if (!window.hasOwnProperty('CosmosStore')) {
   window.CosmosStore = new Vuex.Store({
     state: {
+      notifyHistory: [],
       tlmViewerItems: [],
       tlmViewerValues: {},
     },
     getters: {},
     mutations: {
+      notifyAddHistory: function (state, notification) {
+        if (state.notifyHistory.length >= NOTIFY_HISTORY_MAX_LENGTH) {
+          state.notifyHistory.length = NOTIFY_HISTORY_MAX_LENGTH - 1
+        }
+        state.notifyHistory.unshift(notification)
+      },
+      notifyClearHistory: function (state) {
+        state.notifyHistory = []
+      },
+
       tlmViewerUpdateValues: function (state, values) {
         for (let i = 0; i < values.length; i++) {
           Vue.set(state.tlmViewerValues, state.tlmViewerItems[i], values[i])
