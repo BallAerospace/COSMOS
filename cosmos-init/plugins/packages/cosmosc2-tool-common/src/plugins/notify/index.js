@@ -20,8 +20,9 @@
 import Toast from './Toast.vue'
 
 class Notify {
-  constructor(Vue, globalOptions = {}) {
+  constructor(Vue, options = {}) {
     this.Vue = Vue
+    this.$store = options.store
     this.mounted = false
     this.$root = null
   }
@@ -39,47 +40,152 @@ class Notify {
     this.mounted = true
   }
 
-  // destroy = function () {
-  //   if (this.mounted) {
-  //     const el = this.$root.$el
-  //     el.remove()
-  //     this.mounted = false
-  //   }
-  // }
-
-  toast = function ({ title, body, severity, duration, logToConsole }) {
+  open = function ({
+    method,
+    title,
+    body,
+    severity,
+    duration,
+    type = 'alert',
+    logToConsole = false,
+    saveToHistory = true,
+  }) {
+    this.mount()
     if (logToConsole) {
       // eslint-disable-next-line no-console
       console.log(`${severity.toUpperCase()} - ${title}: ${body}`)
     }
-    this.mount()
+    if (saveToHistory) {
+      this.$store.commit('notifyAddHistory', { title, body, severity })
+    }
+    this[method]({ title, body, severity, duration, type })
+  }
+
+  toast = function ({ title, body, severity, duration, type }) {
     this.$root.toast(
       {
         title,
         body,
         severity,
+        type,
       },
       duration
     )
   }
 
-  critical = function ({ title, body, duration, logToConsole }) {
-    this.toast({ title, body, duration, logToConsole, severity: 'critical' })
+  critical = function ({
+    title,
+    body,
+    type,
+    duration,
+    logToConsole,
+    saveToHistory,
+  }) {
+    this.open({
+      method: 'toast',
+      severity: 'critical',
+      title,
+      body,
+      type,
+      duration,
+      logToConsole,
+      saveToHistory,
+    })
   }
-  serious = function ({ title, body, duration, logToConsole }) {
-    this.toast({ title, body, duration, logToConsole, severity: 'serious' })
+  serious = function ({
+    title,
+    body,
+    type,
+    duration,
+    logToConsole,
+    saveToHistory,
+  }) {
+    this.open({
+      method: 'toast',
+      severity: 'serious',
+      title,
+      body,
+      type,
+      duration,
+      logToConsole,
+      saveToHistory,
+    })
   }
-  caution = function ({ title, body, duration, logToConsole }) {
-    this.toast({ title, body, duration, logToConsole, severity: 'caution' })
+  caution = function ({
+    title,
+    body,
+    type,
+    duration,
+    logToConsole,
+    saveToHistory,
+  }) {
+    this.open({
+      method: 'toast',
+      severity: 'caution',
+      title,
+      body,
+      type,
+      duration,
+      logToConsole,
+      saveToHistory,
+    })
   }
-  normal = function ({ title, body, duration, logToConsole }) {
-    this.toast({ title, body, duration, logToConsole, severity: 'normal' })
+  normal = function ({
+    title,
+    body,
+    type,
+    duration,
+    logToConsole,
+    saveToHistory,
+  }) {
+    this.open({
+      method: 'toast',
+      severity: 'normal',
+      title,
+      body,
+      type,
+      duration,
+      logToConsole,
+      saveToHistory,
+    })
   }
-  standby = function ({ title, body, duration, logToConsole }) {
-    this.toast({ title, body, duration, logToConsole, severity: 'standby' })
+  standby = function ({
+    title,
+    body,
+    type,
+    duration,
+    logToConsole,
+    saveToHistory,
+  }) {
+    this.open({
+      method: 'toast',
+      severity: 'standby',
+      title,
+      body,
+      type,
+      duration,
+      logToConsole,
+      saveToHistory,
+    })
   }
-  off = function ({ title, body, duration, logToConsole }) {
-    this.toast({ title, body, duration, logToConsole, severity: 'off' })
+  off = function ({
+    title,
+    body,
+    type,
+    duration,
+    logToConsole,
+    saveToHistory,
+  }) {
+    this.open({
+      method: 'toast',
+      severity: 'off',
+      title,
+      body,
+      type,
+      duration,
+      logToConsole,
+      saveToHistory,
+    })
   }
 }
 

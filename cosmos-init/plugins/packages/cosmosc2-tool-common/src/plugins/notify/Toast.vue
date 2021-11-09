@@ -6,6 +6,9 @@
       class="toast-notification"
       @click="expand"
     >
+      <v-icon class="mr-1 notification-text">
+        {{ toastNotificationIcon }}
+      </v-icon>
       <div class="toast-content" :style="contentStyle">
         <span class="text-subtitle-1 mr-1 notification-text">
           {{ toastNotification.title }}:
@@ -25,8 +28,10 @@ import {
   AstroStatusColors,
   getStatusColorContrast,
 } from '../../components/icons'
+import vuetify from '../vuetify.js'
 
 export default {
+  vuetify,
   data: function () {
     return {
       showToast: false,
@@ -39,6 +44,15 @@ export default {
     }
   },
   computed: {
+    toastNotificationIcon: function () {
+      switch (this.toastNotification.type) {
+        case 'notification':
+          return 'mdi-bell'
+        case 'alert':
+        default:
+          return 'mdi-alert-box'
+      }
+    },
     toastStyle: function () {
       return `
         --toast-bg-color:${AstroStatusColors[this.toastNotification.severity]};
