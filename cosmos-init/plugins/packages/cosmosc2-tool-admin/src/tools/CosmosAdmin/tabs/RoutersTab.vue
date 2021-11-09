@@ -28,7 +28,7 @@
       {{ alert }}
     </v-alert>
     <v-list data-test="routerList">
-      <div v-for="router in routers" :key="router">
+      <div v-for="(router, index) in routers" :key="index">
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title v-text="router" />
@@ -54,7 +54,7 @@
             </v-tooltip>
           </v-list-item-icon>
         </v-list-item>
-        <v-divider />
+        <v-divider v-if="index < routers.length - 1" :key="index" />
       </div>
     </v-list>
     <v-alert

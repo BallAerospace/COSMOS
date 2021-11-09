@@ -20,7 +20,6 @@
 <template>
   <div>
     <top-bar :title="title" />
-
     <v-card>
       <v-tabs v-model="curTab" fixed-tabs>
         <v-tab v-for="(tab, index) in tabs" :key="index" :to="tab.path">

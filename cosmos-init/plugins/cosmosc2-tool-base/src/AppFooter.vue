@@ -20,7 +20,9 @@
 <template>
   <v-footer id="footer" app color="tertiary darken-3" height="33">
     <img :src="logo" alt="COSMOS" width="20" height="20" />
-    <span class="footer-text" style="margin-left: 5px">COSMOS &copy; 2021</span>
+    <span class="footer-text" style="margin-left: 5px">
+      COSMOS {{ cosmosVersion }} &copy; 2021
+    </span>
     <v-spacer />
     <a :href="sourceUrl" class="white--text text-decoration-underline">
       Source
@@ -31,9 +33,9 @@
 </template>
 
 <script>
+import ClockFooter from './components/ClockFooter.vue'
 import { CosmosApi } from '../../packages/cosmosc2-tool-common/src/services/cosmos-api'
 import logo from '../public/img/logo.png'
-import ClockFooter from './components/ClockFooter.vue'
 
 export default {
   components: {
@@ -41,9 +43,9 @@ export default {
   },
   data() {
     return {
-      api: new CosmosApi(),
       logo: logo,
       sourceUrl: '',
+      cosmosVersion: '',
     }
   },
   created: function () {
@@ -51,9 +53,12 @@ export default {
   },
   methods: {
     getSourceUrl: function () {
-      this.api.get_setting('source_url').then((response) => {
-        this.sourceUrl = response
-      })
+      new CosmosApi()
+        .get_settings(['source_url', 'version'])
+        .then((response) => {
+          this.sourceUrl = response[0]
+          this.cosmosVersion = `(${response[1]})`
+        })
     },
   },
 }

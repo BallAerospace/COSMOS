@@ -28,7 +28,7 @@
       {{ alert }}
     </v-alert>
     <v-list data-test="microserviceList">
-      <div v-for="microservice in microservices" :key="microservice">
+      <div v-for="(microservice, index) in microservices" :key="microservice">
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title v-text="microservice" />
@@ -68,7 +68,7 @@
             </v-tooltip>
           </v-list-item-icon>
         </v-list-item>
-        <v-divider />
+        <v-divider v-if="index < microservices.length - 1" :key="index" />
       </div>
     </v-list>
     <v-alert
@@ -155,23 +155,22 @@ export default {
       }
     },
     deleteMicroservice(name) {
-      var that = this
       this.$dialog
-        .confirm('Are you sure you want to remove: ' + name, {
+        .confirm(`Are you sure you want to remove: ${name}`, {
           okText: 'Delete',
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          return Api.delete('/cosmos-api/microservices/' + name)
+          return Api.delete(`/cosmos-api/microservices/${name}`)
         })
         .then((response) => {
-          that.alert = 'Removed microservice ' + name
-          that.alertType = 'success'
-          that.showAlert = true
+          this.alert = `Removed microservice ${name}`
+          this.alertType = 'success'
+          this.showAlert = true
           setTimeout(() => {
-            that.showAlert = false
+            this.showAlert = false
           }, 5000)
-          that.update()
+          this.update()
         })
     },
   },

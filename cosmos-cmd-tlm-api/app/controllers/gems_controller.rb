@@ -23,9 +23,9 @@ class GemsController < ApplicationController
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     render :json => Cosmos::GemModel.names
   end
@@ -35,9 +35,9 @@ class GemsController < ApplicationController
     begin
       authorize(permission: 'admin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     file = params[:gem]
     if file
@@ -63,11 +63,11 @@ class GemsController < ApplicationController
   # Remove a gem
   def destroy
     begin
-      authorize(permission: 'super_admin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(permission: 'superadmin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     if params[:id]
       result = Cosmos::GemModel.destroy(params[:id])

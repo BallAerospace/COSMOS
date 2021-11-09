@@ -28,9 +28,9 @@ class InternalStatusController < ActionController::Base
 
   def status
     begin
-      render :json => { 'status' => Cosmos::PingModel.get() }, :status => 200
+      render :json => { :status => Cosmos::PingModel.get() }, :status => 200
     rescue => e
-      render :json => { 'status' => 'error', 'message' => e.message, 'type' => e.class }, :status => 500
+      render :json => { :status => 'error', :message => e.message, :type => e.class }, :status => 500
     end
   end
 

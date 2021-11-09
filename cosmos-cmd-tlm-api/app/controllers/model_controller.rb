@@ -24,9 +24,9 @@ class ModelController < ApplicationController
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     render :json => @model_class.names(scope: params[:scope])
   end
@@ -35,9 +35,9 @@ class ModelController < ApplicationController
     begin
       authorize(permission: 'admin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     model = @model_class.from_json(params[:json], scope: params[:scope])
     if update_model
@@ -52,9 +52,9 @@ class ModelController < ApplicationController
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     if params[:id].downcase == 'all'
       render :json => @model_class.all(scope: params[:scope])
@@ -71,9 +71,9 @@ class ModelController < ApplicationController
     begin
       authorize(permission: 'admin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 401) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { 'status' => 'error', 'message' => e.message }, :status => 403) and return
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     @model_class.new(name: params[:id], scope: params[:scope]).destroy
   end
