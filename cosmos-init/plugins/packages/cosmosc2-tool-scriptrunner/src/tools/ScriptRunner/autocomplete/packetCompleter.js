@@ -19,8 +19,10 @@
 
 import Api from '@cosmosc2/tool-common/src/services/api'
 
-const toMethodCallSyntaxRegex = (word) =>
-  new RegExp(`(^|[{\\(\\s])${word}[\\s\\(]['"]`)
+const toMethodCallSyntaxRegex = (word) => {
+  const params = '(\\S+\\s)?(\\S+\\s)?\\S*' // Only allow a few tokens after the keyword to avoid autocompleteception
+  return new RegExp(`(^|[{\\(\\s])${word}[\\s\\(]['"]${params}$`)
+}
 
 export default class PacketCompleter {
   constructor(type) {
