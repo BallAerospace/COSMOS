@@ -19,23 +19,32 @@
 
 import Api from '@cosmosc2/tool-common/src/services/api'
 
-const cmdRegex = /(^|\s)cmd\(['"`]/
+const toMethodCallSyntaxRegex = (word) =>
+  new RegExp(`(^|[{\\(\\s])${word}[\\s\\(]['"]`)
 
-export default class CommandCompleter {
-  constructor() {
-    this.commandAutocompleteData = [] // Data for the Ace autocomplete feature
-    Api.get('/cosmos-api/autocomplete/commands').then((response) => {
-      this.commandAutocompleteData = response.data
+export default class PacketCompleter {
+  constructor(type) {
+    this.keywordExpressions = [] // Keywords that trigger the autocomplete feature
+    this.autocompleteData = [] // Data to populate the autocomplete list
+
+    Api.get(`/cosmos-api/autocomplete/keywords/${type}`).then((response) => {
+      this.keywordExpressions = response.data.map(toMethodCallSyntaxRegex)
+    })
+    Api.get(`/cosmos-api/autocomplete/data/${type}`).then((response) => {
+      this.autocompleteData = response.data
     })
   }
 
   getCompletions = function (editor, session, position, prefix, callback) {
     let matches = []
-    const lineUntilCursor = session.doc.$lines[position.row]
-      .slice(0, position.column)
-      .trim()
-    if (!!lineUntilCursor.match(cmdRegex)) {
-      matches = this.commandAutocompleteData
+    const lineBeforeCursor = session.doc.$lines[position.row].slice(
+      0,
+      position.column
+    )
+    if (
+      this.keywordExpressions.some((regex) => lineBeforeCursor.match(regex))
+    ) {
+      matches = this.autocompleteData
     }
 
     callback(null, [

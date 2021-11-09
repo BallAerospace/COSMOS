@@ -96,7 +96,8 @@ Rails.application.routes.draw do
     match '/timeline/:name/activity/:id', to: 'activity#update', name: /[^\/]+/, id: /[^\/]+/, via: [:patch, :put]
     delete '/timeline/:name/activity/:id', to: 'activity#destroy', name: /[^\/]+/, id: /[^\/]+/
 
-    get '/autocomplete/commands', to: 'script_autocomplete#get_command_ace_autocomplete_data'
+    get '/autocomplete/keywords/:type', to: 'script_autocomplete#get_keywords', type: /[^\/]+/
+    get '/autocomplete/data/:type', to: 'script_autocomplete#get_ace_autocomplete_data', type: /[^\/]+/
 
     get '/storage/download/:object_id', to: 'storage#get_download_presigned_request', object_id: /[^\/]+/
     get '/storage/upload/:object_id', to: 'storage#get_upload_presigned_request', object_id: /[^\/]+/
