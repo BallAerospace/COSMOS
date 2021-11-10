@@ -30,7 +30,7 @@ class ScriptAutocompleteController < ApplicationController
 
   # TODO: Where do these come from? I found them hard-coded in CommandSender.vue
   RESERVED_PARAMS = %w(PACKET_TIMESECONDS PACKET_TIMEFORMATTED
-                       RECEIVED_TIMESECONDSRECEIVED_TIMEFORMATTED RECEIVED_COUNT)
+                       RECEIVED_TIMESECONDS RECEIVED_TIMEFORMATTED RECEIVED_COUNT)
 
   def get_keywords
     keywords = params[:type].upcase == 'TLM' ? TLM_KEYWORDS : CMD_KEYWORDS
@@ -48,7 +48,7 @@ class ScriptAutocompleteController < ApplicationController
 
     autocomplete_data = build_autocomplete_data(params[:type], params[:scope])
 
-    response.headers['Cache-Control'] = 'must-revalidate'
+    response.headers['Cache-Control'] = 'must-revalidate' # TODO: Browser is ignoring this and not caching anything for some reason. Future enhancement
     render :json => autocomplete_data, :status => 200
   end
 

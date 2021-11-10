@@ -20,7 +20,7 @@
 import Api from '@cosmosc2/tool-common/src/services/api'
 
 const toMethodCallSyntaxRegex = (word) => {
-  const params = '(\\S+\\s)?(\\S+\\s)?\\S*' // Only allow a few tokens after the keyword to avoid autocompleteception
+  const params = '(\\S+\\s?){0,2}' // Only allow a couple tokens after the keyword to avoid autocompleteception
   return new RegExp(`(^|[{\\(\\s])${word}[\\s\\(]['"]${params}$`)
 }
 
