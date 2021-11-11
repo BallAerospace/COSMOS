@@ -77,15 +77,17 @@
                   <v-list-item-title> View Activity </v-list-item-title>
                 </v-list-item>
                 <v-divider />
-                <v-list-item
-                  data-test="updateActivity"
-                  @click="updateDialog(item)"
-                >
-                  <v-list-item-icon>
-                    <v-icon> mdi-pencil </v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-title> Update Activity </v-list-item-title>
-                </v-list-item>
+                <div v-if="!item.fulfillment">
+                  <v-list-item
+                    data-test="updateActivity"
+                    @click="updateDialog(item)"
+                  >
+                    <v-list-item-icon>
+                      <v-icon> mdi-pencil </v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title> Update Activity </v-list-item-title>
+                  </v-list-item>
+                </div>
                 <v-divider />
                 <v-list-item
                   data-test="deleteActivity"
