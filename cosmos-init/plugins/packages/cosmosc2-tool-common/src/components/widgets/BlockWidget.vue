@@ -61,13 +61,15 @@
 
 <script>
 import VWidget from './VWidget'
+import WidthSetter from './WidthSetter'
 import DetailsDialog from '../../components/DetailsDialog'
 import 'sprintf-js'
+
 export default {
   components: {
     DetailsDialog,
   },
-  data() {
+  data: function () {
     return {
       width: 400,
       height: 600,
@@ -77,12 +79,11 @@ export default {
       formatter: '%02X',
     }
   },
-  mixins: [VWidget],
-  created() {
+  mixins: [VWidget, WidthSetter],
+  created: function () {
     if (this.parameters[3]) {
       this.width = parseInt(this.parameters[3])
     }
-    this.settings.unshift(['WIDTH', this.width])
     if (this.parameters[4]) {
       this.height = parseInt(this.parameters[4])
     }
@@ -101,14 +102,14 @@ export default {
     // parameter[9] is the type ... see getType()
   },
   methods: {
-    getType() {
+    getType: function () {
       var type = 'RAW'
       if (this.parameters[9]) {
         type = this.parameters[9]
       }
       return type
     },
-    formatValue(data) {
+    formatValue: function (data) {
       var text = ''
       if (data && data.raw) {
         var space = ' '

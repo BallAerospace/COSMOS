@@ -1,4 +1,4 @@
-<!--
+/*
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,41 +15,28 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
+*/
 
-<template>
-  <component :is="widgetType" v-bind="{ ...$props, ...$attrs }"></component>
-</template>
-
-<script>
 export default {
-  data() {
+  data: function () {
     return {
-      widgetType: null,
+      originalWidthSetting: null,
     }
   },
-  props: {
-    name: { default: null },
+  created: function () {
+    this.originalWidthSetting = ['WIDTH', this.width]
+    this.resetWidth()
   },
-  computed: {
-    url: function () {
-      let path =
-        window.location.origin +
-        '/tools/widgets/' +
-        this.name +
-        '/' +
-        this.name +
-        '.umd.min.js'
-      return path
+  beforeUpdate: function () {
+    this.resetWidth()
+  },
+  methods: {
+    resetWidth: function () {
+      // This sets 'WIDTH' when it gets created, but that is lost if it gets
+      // re-rendered by CosmosScreen.vue parsing the config string again
+      if (!this.settings.some((setting) => setting[0] === 'WIDTH')) {
+        this.settings.unshift(this.originalWidthSetting)
+      }
     },
   },
-  mounted() {
-    var self = this
-
-    /* eslint-disable-next-line */
-    System.import(/* webpackIgnore: true */ this.url).then(function (widget) {
-      self.widgetType = widget
-    })
-  },
 }
-</script>
