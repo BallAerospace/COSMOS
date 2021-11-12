@@ -21,7 +21,6 @@
   <v-dialog persistent v-model="show" width="600">
     <v-card>
       <form v-on:submit.prevent="submit">
-
         <v-system-bar>
           <v-spacer />
           <span v-text="title" />
@@ -30,9 +29,9 @@
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <div v-on="on" v-bind="attrs">
-                  <v-btn icon data-test="downloadIcon" @click="download">
-                    <v-icon> mdi-download </v-icon>
-                  </v-btn>
+                  <v-icon data-test="downloadIcon" @click="download">
+                    mdi-download
+                  </v-icon>
                 </div>
               </template>
               <span> Download </span>
@@ -81,26 +80,27 @@
               <span class="red--text" v-show="error" v-text="error" />
             </v-row>
             <v-row>
-              <v-btn
-                color="success"
-                type="submit"
-                :disabled="!!error || readonly"
-                data-test="editSubmitBtn"
-              >
-                Save
-              </v-btn>
               <v-spacer />
               <v-btn
-                color="primary"
                 @click.prevent="close"
+                outlined
+                class="mx-2"
                 data-test="editCancelBtn"
               >
                 Cancel
               </v-btn>
+              <v-btn
+                class="mx-2"
+                color="primary"
+                type="submit"
+                data-test="editSubmitBtn"
+                :disabled="!!error || readonly"
+              >
+                Save
+              </v-btn>
             </v-row>
           </div>
         </v-card-text>
-
       </form>
     </v-card>
   </v-dialog>
@@ -148,19 +148,17 @@ export default {
       this.json_content = null
       this.show = !this.show
     },
-    download: function() {
+    download: function () {
       const blob = new Blob([this.json_content], {
         type: 'text/plain',
       })
       // Make a link and then 'click' on it to start the download
       const link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
-      link.setAttribute(
-        'download', `${this.title}.json`
-      )
+      link.setAttribute('download', `${this.title}.json`)
       link.click()
     },
-  }
+  },
 }
 </script>
 

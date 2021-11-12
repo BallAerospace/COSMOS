@@ -28,13 +28,13 @@
       {{ alert }}
     </v-alert>
     <v-list data-test="microserviceList">
-      <div v-for="microservice in microservices" :key="microservice">
+      <div v-for="(microservice, index) in microservices" :key="microservice">
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title v-text="microservice" />
             <v-list-item-subtitle v-if="microservice_status[microservice]">
-              Updated: {{ microservice_status[microservice].updated_at }}, State:
-              {{ microservice_status[microservice].state }}, Count:
+              Updated: {{ microservice_status[microservice].updated_at }},
+              State: {{ microservice_status[microservice].state }}, Count:
               {{ microservice_status[microservice].count }}, Error:
               {{ microservice_status[microservice].error }}
             </v-list-item-subtitle>
@@ -68,7 +68,7 @@
             </v-tooltip>
           </v-list-item-icon>
         </v-list-item>
-        <v-divider />
+        <v-divider v-if="index < microservices.length - 1" :key="index" />
       </div>
     </v-list>
     <v-alert
@@ -112,48 +112,21 @@ export default {
   },
   methods: {
     update() {
-      Api.get('/cosmos-api/microservice_status/all')
-        .then((response) => {
-          this.microservice_status = response.data
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
-      Api.get('/cosmos-api/microservices')
-        .then((response) => {
-          this.microservices = response.data
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get('/cosmos-api/microservice_status/all').then((response) => {
+        this.microservice_status = response.data
+      })
+      Api.get('/cosmos-api/microservices').then((response) => {
+        this.microservices = response.data
+      })
     },
     add() {},
     editMicroservice(name) {
-      Api.get(`/cosmos-api/microservices/${name}`)
-        .then((response) => {
-          this.microservice_id = name
-          this.dialogTitle = name
-          this.jsonContent = JSON.stringify(response.data, null, '\t')
-          this.showDialog = true
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get(`/cosmos-api/microservices/${name}`).then((response) => {
+        this.microservice_id = name
+        this.dialogTitle = name
+        this.jsonContent = JSON.stringify(response.data, null, '\t')
+        this.showDialog = true
+      })
     },
     dialogCallback(content) {
       this.showDialog = false
@@ -170,49 +143,34 @@ export default {
           data: {
             json: content,
           },
+        }).then((response) => {
+          this.alert = 'Modified Microservice'
+          this.alertType = 'success'
+          this.showAlert = true
+          setTimeout(() => {
+            this.showAlert = false
+          }, 5000)
+          this.update()
         })
-          .then((response) => {
-            this.alert = 'Modified Microservice'
-            this.alertType = 'success'
-            this.showAlert = true
-            setTimeout(() => {
-              this.showAlert = false
-            }, 5000)
-            this.update()
-          })
-          .catch((error) => {
-            this.alert = error
-            this.alertType = 'error'
-            this.showAlert = true
-          })
       }
     },
     deleteMicroservice(name) {
-      var that = this
       this.$dialog
-        .confirm('Are you sure you want to remove: ' + name, {
+        .confirm(`Are you sure you want to remove: ${name}`, {
           okText: 'Delete',
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete('/cosmos-api/microservices/' + name)
-            .then((response) => {
-              that.alert = 'Removed microservice ' + name
-              that.alertType = 'success'
-              that.showAlert = true
-              setTimeout(() => {
-                that.showAlert = false
-              }, 5000)
-              that.update()
-            })
-            .catch((error) => {
-              that.alert = error
-              that.alertType = 'error'
-              that.showAlert = true
-              setTimeout(() => {
-                that.showAlert = false
-              }, 5000)
-            })
+          return Api.delete(`/cosmos-api/microservices/${name}`)
+        })
+        .then((response) => {
+          this.alert = `Removed microservice ${name}`
+          this.alertType = 'success'
+          this.showAlert = true
+          setTimeout(() => {
+            this.showAlert = false
+          }, 5000)
+          this.update()
         })
     },
   },

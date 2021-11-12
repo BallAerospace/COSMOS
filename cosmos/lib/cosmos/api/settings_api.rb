@@ -26,6 +26,7 @@ module Cosmos
                        'list_settings',
                        'get_all_settings',
                        'get_setting',
+                       'get_settings',
                        'save_setting'
                      ])
 
@@ -39,6 +40,14 @@ module Cosmos
 
     def get_setting(name, scope: $cosmos_scope, token: $cosmos_token)
       Store.instance.hget(SETTINGS_KEY, name)
+    end
+
+    def get_settings(*args, scope: $cosmos_scope, token: $cosmos_token)
+      ret = []
+      args.each do |name|
+        ret << Store.instance.hget(SETTINGS_KEY, name)
+      end
+      return ret
     end
 
     def save_setting(name, data, scope: $cosmos_scope, token: $cosmos_token)

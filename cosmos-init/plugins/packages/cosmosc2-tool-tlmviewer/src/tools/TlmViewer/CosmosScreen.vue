@@ -103,7 +103,10 @@
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <div v-on="on" v-bind="attrs">
-                  <v-icon data-test="downloadScreenIcon" @click="downloadScreen">
+                  <v-icon
+                    data-test="downloadScreenIcon"
+                    @click="downloadScreen"
+                  >
                     mdi-download
                   </v-icon>
                 </div>
@@ -129,7 +132,7 @@
                   <span>Loading...</span>
                 </template>
               </v-btn>
-           </v-col>
+            </v-col>
             <v-col cols="9">
               <v-file-input
                 v-model="file"
@@ -144,7 +147,7 @@
             <v-textarea
               v-model="currentDefinition"
               rows="12"
-              :rules="[rules.required]" 
+              :rules="[rules.required]"
               data-test="screenTextInput"
             />
           </v-row>
@@ -152,21 +155,23 @@
             <span class="red--text" v-show="editErrors" v-text="editErrors" />
           </v-row>
           <v-row>
-            <v-btn
-              color="success"
-              @click="saveEdit"
-              :disabled="!!editErrors"
-              data-test="editScreenSubmitBtn"
-            >
-              Save
-            </v-btn>
             <v-spacer />
             <v-btn
-              color="primary"
               @click="cancelEdit"
+              class="mx-2"
+              outlined
               data-test="editScreenCancelBtn"
             >
               Cancel
+            </v-btn>
+            <v-btn
+              @click="saveEdit"
+              class="mx-2"
+              color="primary"
+              data-test="editScreenSubmitBtn"
+              :disabled="!!editErrors"
+            >
+              Save
             </v-btn>
           </v-row>
         </v-card-text>
@@ -182,20 +187,13 @@
       </v-system-bar>
       <v-card class="pa-3">
         <v-row class="my-3">
-          <v-textarea
-            readonly
-            rows="13"
-            :value="error"
-          />
+          <v-textarea readonly rows="13" :value="error" />
         </v-row>
         <v-row>
-          <v-btn block @click="clearErrors">
-            Clear
-          </v-btn>
+          <v-btn block @click="clearErrors"> Clear </v-btn>
         </v-row>
       </v-card>
     </v-dialog>
-
   </div>
 </template>
 
@@ -282,7 +280,6 @@ export default {
       original_target_name: null,
       force_substitute: false,
       pollingPeriod: 1,
-      showSaveAlert: false,
       errors: [],
       errorDialog: false,
     }
@@ -346,7 +343,6 @@ export default {
     },
     parseDefinition: function () {
       // Each time we start over and parse the screen definition
-      this.showSaveAlert = false
       this.errors = []
       this.namedWidgets = {}
       this.layoutStack = []
@@ -384,9 +380,8 @@ export default {
               case 'END':
                 this.configParser.verify_num_parameters(0, 0, `${keyword}`)
                 this.layoutStack.pop()
-                this.currentLayout = this.layoutStack[
-                  this.layoutStack.length - 1
-                ]
+                this.currentLayout =
+                  this.layoutStack[this.layoutStack.length - 1]
                 break
               case 'SETTING':
               case 'SUBSETTING':
@@ -463,23 +458,18 @@ export default {
             screen: this.screen,
             text: this.currentDefinition,
           },
-        }).catch((error) => {
-          this.saveAlert = error
-          this.showSaveAlert = true
         })
         this.editDialog = false
       })
     },
-    downloadScreen: function() {
+    downloadScreen: function () {
       const blob = new Blob([this.currentDefinition], {
         type: 'text/plain',
       })
       // Make a link and then 'click' on it to start the download
       const link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
-      link.setAttribute(
-        'download', `${this.target}_${this.screen}.txt`
-      )
+      link.setAttribute('download', `${this.target}_${this.screen}.txt`)
       link.click()
     },
     minMaxTransition: function () {

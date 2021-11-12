@@ -18,23 +18,43 @@
 */
 
 import axios from 'axios'
+import Vue from 'vue'
 
-const instance = axios.create({
+const vueInstance = new Vue()
+
+const axiosInstance = axios.create({
   baseURL: location.origin,
   timeout: 10000,
   params: {},
 })
 
-instance.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response.status === 401) {
       delete localStorage.token
       CosmosAuth.login(location.href)
-      return error
+    } else {
+      let body = `HTTP ${error.response.status} - `
+      if (error.response?.data?.message) {
+        body += `${error.response.data.message}`
+      } else if (error.response?.data?.exception) {
+        body += `${error.response.data.exception}`
+      } else if (error.response?.data?.error?.message) {
+        if (error.response.data.error.class) {
+          body += `${error.response.data.error.class} `
+        }
+        body += `${error.response.data.error.message}`
+      } else {
+        body += `${error.response?.data}`
+      }
+      vueInstance.$notify.serious({
+        title: 'Network error',
+        body,
+      })
     }
     throw error
   }
 )
 
-export default instance
+export default axiosInstance

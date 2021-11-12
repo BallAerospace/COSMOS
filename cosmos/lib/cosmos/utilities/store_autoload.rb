@@ -22,10 +22,10 @@ require 'json'
 require 'thread'
 require 'connection_pool'
 
-begin
+if ENV['COSMOS_REDIS_CLUSTER']
   require 'enterprise-cosmos/utilities/store'
   $enterprise_cosmos = true
-rescue LoadError
+else
   $enterprise_cosmos = false
 end
 

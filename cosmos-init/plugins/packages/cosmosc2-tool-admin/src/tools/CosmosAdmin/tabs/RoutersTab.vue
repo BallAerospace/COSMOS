@@ -28,7 +28,7 @@
       {{ alert }}
     </v-alert>
     <v-list data-test="routerList">
-      <div v-for="router in routers" :key="router">
+      <div v-for="(router, index) in routers" :key="index">
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title v-text="router" />
@@ -54,7 +54,7 @@
             </v-tooltip>
           </v-list-item-icon>
         </v-list-item>
-        <v-divider />
+        <v-divider v-if="index < routers.length - 1" :key="index" />
       </div>
     </v-list>
     <v-alert
@@ -97,35 +97,17 @@ export default {
   },
   methods: {
     update() {
-      Api.get('/cosmos-api/routers')
-        .then((response) => {
-          this.routers = response.data
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get('/cosmos-api/routers').then((response) => {
+        this.routers = response.data
+      })
     },
     add() {},
     showRouter(name) {
-      Api.get(`/cosmos-api/routers/${name}`)
-        .then((response) => {
-          this.jsonContent = JSON.stringify(response.data, null, '\t')
-          this.dialogTitle = name
-          this.showDialog = true
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get(`/cosmos-api/routers/${name}`).then((response) => {
+        this.jsonContent = JSON.stringify(response.data, null, '\t')
+        this.dialogTitle = name
+        this.showDialog = true
+      })
     },
     dialogCallback(content) {
       this.showDialog = false
@@ -138,24 +120,16 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete(`/cosmos-api/routers/${name}`)
-            .then((response) => {
-              self.alert = `Removed router ${name}`
-              self.alertType = 'success'
-              self.showAlert = true
-              setTimeout(() => {
-                self.showAlert = false
-              }, 5000)
-              self.update()
-            })
-            .catch((error) => {
-              self.alert = error
-              self.alertType = 'error'
-              self.showAlert = true
-              setTimeout(() => {
-                self.showAlert = false
-              }, 5000)
-            })
+          return Api.delete(`/cosmos-api/routers/${name}`)
+        })
+        .then((response) => {
+          self.alert = `Removed router ${name}`
+          self.alertType = 'success'
+          self.showAlert = true
+          setTimeout(() => {
+            self.showAlert = false
+          }, 5000)
+          self.update()
         })
     },
   },

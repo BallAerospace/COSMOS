@@ -19,22 +19,37 @@
 
 <template>
   <div>
-    <v-row no-gutters align="center" style="padding-left: 10px">
-      <v-col cols="3">
-        <v-btn
-          block
-          color="primary"
-          data-test="pluginUpload"
-          :disabled="!files.length"
-          :loading="loadingPlugin"
-          @click="upload()"
-        >
-          Upload
-          <v-icon right dark>mdi-cloud-upload</v-icon>
-          <template v-slot:loader>
-            <span>Loading...</span>
-          </template>
-        </v-btn>
+    <v-row no-gutters align="center" class="px-2">
+      <v-col>
+        <div class="px-2">
+          <v-btn
+            block
+            data-test="pluginDownload"
+            :disabled="files.length > 0"
+            @click="showDownloadDialog = true"
+          >
+            Download
+            <v-icon right dark>mdi-cloud-download</v-icon>
+          </v-btn>
+        </div>
+      </v-col>
+      <v-col>
+        <div class="px-2">
+          <v-btn
+            block
+            color="primary"
+            data-test="pluginUpload"
+            :disabled="files.length < 1"
+            :loading="loadingPlugin"
+            @click="upload()"
+          >
+            Upload
+            <v-icon right dark>mdi-cloud-upload</v-icon>
+            <template v-slot:loader>
+              <span>Loading...</span>
+            </template>
+          </v-btn>
+        </div>
       </v-col>
       <v-col cols="9">
         <div class="px-4">
@@ -58,7 +73,7 @@
       v-text="alert"
     />
     <v-list data-test="pluginList">
-      <div v-for="(plugin, i) in plugins" :key="i">
+      <div v-for="(plugin, index) in plugins" :key="index">
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title v-text="plugin" />
@@ -104,34 +119,37 @@
             </div>
           </v-list-item-icon>
         </v-list-item>
-        <v-divider />
+        <v-divider v-if="index < plugins.length - 1" :key="index" />
       </div>
     </v-list>
     <variables-dialog
-      v-model="showVariables"
+      v-model="showVariableDialog"
       :variables="variables"
       @submit="variablesCallback"
     />
     <edit-dialog
-      v-model="showDialog"
-      v-if="showDialog"
+      v-model="showEditDialog"
+      v-if="showEditDialog"
       :title="`Plugin: ${dialogTitle}`"
       :content="jsonContent"
       :readonly="true"
       @submit="dialogCallback"
     />
+    <download-dialog v-model="showDownloadDialog" />
   </div>
 </template>
 
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
-import VariablesDialog from '@/tools/CosmosAdmin/VariablesDialog'
+import DownloadDialog from '@/tools/CosmosAdmin/DownloadDialog'
 import EditDialog from '@/tools/CosmosAdmin/EditDialog'
+import VariablesDialog from '@/tools/CosmosAdmin/VariablesDialog'
 
 export default {
   components: {
-    VariablesDialog,
+    DownloadDialog,
     EditDialog,
+    VariablesDialog,
   },
   data() {
     return {
@@ -142,10 +160,11 @@ export default {
       alertType: 'success',
       showAlert: false,
       variables: [],
-      showVariables: false,
       jsonContent: '',
       dialogTitle: '',
-      showDialog: false,
+      showDownloadDialog: false,
+      showEditDialog: false,
+      showVariableDialog: false,
     }
   },
   mounted() {
@@ -153,15 +172,9 @@ export default {
   },
   methods: {
     update: function () {
-      Api.get('/cosmos-api/plugins')
-        .then((response) => {
-          this.plugins = response.data
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-        })
+      Api.get('/cosmos-api/plugins').then((response) => {
+        this.plugins = response.data
+      })
     },
     upload: function (existing = null) {
       const method = existing ? 'put' : 'post'
@@ -191,18 +204,15 @@ export default {
               variables: response.data.variables,
             }
           })
-          this.showVariables = true
+          this.showVariableDialog = true
         })
         .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
           this.loadingPlugin = false
           this.files = []
         })
     },
     variablesCallback: function (updatedVariables) {
-      this.showVariables = false
+      this.showVariableDialog = false
       const promises = updatedVariables.map((plugin) => {
         return Api.post(`/cosmos-api/plugins/install/${plugin.name}`, {
           data: {
@@ -226,54 +236,36 @@ export default {
           this.update()
         })
         .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
           this.loadingPlugin = false
         })
     },
     showPlugin: function (name) {
-      Api.get(`/cosmos-api/plugins/${name}`)
-        .then((response) => {
-          this.jsonContent = JSON.stringify(response.data, null, '\t')
-          this.dialogTitle = name
-          this.showDialog = true
-        })
-        .catch((error) => {
-          this.alert = error
-          this.alertType = 'error'
-          this.showAlert = true
-          setTimeout(() => {
-            this.showAlert = false
-          }, 5000)
-        })
+      Api.get(`/cosmos-api/plugins/${name}`).then((response) => {
+        this.jsonContent = JSON.stringify(response.data, null, '\t')
+        this.dialogTitle = name
+        this.showEditDialog = true
+      })
     },
     dialogCallback: function (content) {
-      this.showDialog = false
+      this.showEditDialog = false
     },
     deletePlugin: function (plugin) {
-      var that = this
       this.$dialog
         .confirm(`Are you sure you want to remove: ${plugin}`, {
           okText: 'Delete',
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          Api.delete(`/cosmos-api/plugins/${plugin}`)
-            .then((response) => {
-              that.alert = `Removed plugin ${plugin}`
-              that.alertType = 'success'
-              that.showAlert = true
-              setTimeout(() => {
-                that.showAlert = false
-              }, 5000)
-              that.update()
-            })
-            .catch((error) => {
-              that.alert = error
-              that.alertType = 'error'
-              that.showAlert = true
-            })
+          return Api.delete(`/cosmos-api/plugins/${plugin}`)
+        })
+        .then((response) => {
+          this.alert = `Removed plugin ${plugin}`
+          this.alertType = 'success'
+          this.showAlert = true
+          setTimeout(() => {
+            this.showAlert = false
+          }, 5000)
+          this.update()
         })
     },
     async upgradePlugin(plugin) {

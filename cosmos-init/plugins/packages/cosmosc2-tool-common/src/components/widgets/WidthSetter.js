@@ -17,10 +17,26 @@
 # copyright holder
 */
 
-import Vue from 'vue'
-import Vuex from 'vuex'
-// import cloneDeep from 'lodash/cloneDeep'
-
-Vue.use(Vuex)
-
-export default new Vuex.Store({})
+export default {
+  data: function () {
+    return {
+      originalWidthSetting: null,
+    }
+  },
+  created: function () {
+    this.originalWidthSetting = ['WIDTH', this.width]
+    this.resetWidth()
+  },
+  beforeUpdate: function () {
+    this.resetWidth()
+  },
+  methods: {
+    resetWidth: function () {
+      // This sets 'WIDTH' when it gets created, but that is lost if it gets
+      // re-rendered by CosmosScreen.vue parsing the config string again
+      if (!this.settings.some((setting) => setting[0] === 'WIDTH')) {
+        this.settings.unshift(this.originalWidthSetting)
+      }
+    },
+  },
+}

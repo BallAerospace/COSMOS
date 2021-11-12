@@ -276,16 +276,12 @@ export default {
       for (const timeline of timelinesToUpdate) {
         timeline.messages = 0
         if (name || !this.activities[timeline.name]) {
-          Api.get(`/cosmos-api/timeline/${timeline.name}/activities`)
-            .then((response) => {
+          Api.get(`/cosmos-api/timeline/${timeline.name}/activities`).then(
+            (response) => {
               this.activities[timeline.name] = response.data
               this.activities = { ...this.activities } // New object reference to force reactivity
-            })
-            .catch((error) => {
-              this.alert = error
-              this.alertType = 'error'
-              this.showAlert = true
-            })
+            }
+          )
         }
       }
     },

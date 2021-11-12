@@ -482,7 +482,6 @@ export default {
       areYouSure: false,
       subscription: null,
       cable: null,
-      marker: null,
       fatal: false,
       search: '',
       messages: [],
@@ -754,7 +753,6 @@ export default {
       this.pauseOrRetryDisabled = true
       this.stopDisabled = true
       this.fatal = false
-      this.marker = null
       this.editor.setReadOnly(false)
     },
     selectedHandeler: function (event) {
@@ -819,7 +817,7 @@ export default {
       // We previously encountered a fatal error so remove the marker
       // and cleanup by calling scriptComplete()
       if (this.fatal) {
-        this.editor.session.removeMarker(this.marker)
+        this.removeAllRunningMarkers()
         this.scriptComplete()
       } else {
         Api.post(`/script-api/running-script/${this.scriptId}/stop`)
@@ -864,10 +862,10 @@ export default {
               }
             }
           }
-          if (this.marker && !this.fatal) {
-            this.editor.session.removeMarker(this.marker)
+          if (!this.fatal) {
+            this.removeAllRunningMarkers()
           }
-          var marker = null
+          let marker = null
           switch (data.state) {
             case 'running':
               marker = 'runningMarker'
@@ -898,7 +896,7 @@ export default {
           }
           this.state = data.state
           if (marker) {
-            this.marker = this.editor.session.addMarker(
+            this.editor.session.addMarker(
               new this.Range(data.line_no - 1, 0, data.line_no - 1, 1),
               marker,
               'fullLine'
@@ -922,6 +920,7 @@ export default {
         case 'complete':
           // Don't complete on fatal because we just sit there on the fatal line
           if (!this.fatal) {
+            this.removeAllRunningMarkers()
             this.scriptComplete()
           }
         default:
@@ -1294,6 +1293,12 @@ export default {
         .then((dialog) => {
           this.messages = []
         })
+    },
+    removeAllRunningMarkers: function () {
+      const allMarkers = this.editor.session.getMarkers()
+      Object.keys(allMarkers)
+        .filter((key) => allMarkers[key].type === 'fullLine')
+        .forEach((marker) => this.editor.session.removeMarker(marker))
     },
   },
 }

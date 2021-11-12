@@ -124,27 +124,6 @@
       </v-card>
     </v-menu>
 
-    <!-- Toast -->
-    <v-slide-y-transition>
-      <v-sheet
-        v-show="showToast"
-        :style="toastStyle"
-        class="toast-notification"
-        @click="openDialog(toastNotification, true)"
-      >
-        <div class="toast-content">
-          <span class="text-subtitle-1 mr-1">
-            {{ toastNotification.title }}:
-          </span>
-          <span class="text-body-2">
-            {{ toastNotification.body }}
-          </span>
-        </div>
-        <v-spacer />
-        <v-btn text @click.stop="toast = false"> Dismiss </v-btn>
-      </v-sheet>
-    </v-slide-y-transition>
-
     <!-- Dialog for viewing full notification -->
     <v-dialog v-model="notificationDialog" width="600">
       <v-card>
@@ -182,7 +161,7 @@
       <v-card>
         <v-card-title> Notification settings </v-card-title>
         <v-card-text>
-          <v-switch v-model="showToastSetting" label="Show toasts" />
+          <v-switch v-model="showToast" label="Show toasts" />
         </v-card-text>
         <v-divider />
         <v-card-actions>
@@ -205,6 +184,8 @@ import {
 } from '../util/AstroStatus'
 import Cable from '../../../packages/cosmosc2-tool-common/src/services/cable.js'
 
+const NOTIFICATION_HISTORY_MAX_LENGTH = 100
+
 export default {
   props: {
     size: {
@@ -219,13 +200,11 @@ export default {
       subscription: null,
       notifications: [],
       showNotificationPane: false,
-      toast: false,
       toastNotification: {},
-      toastTimeout: null,
       notificationDialog: false,
       selectedNotification: {},
       settingsDialog: false,
-      showToastSetting: true,
+      showToast: true,
     }
   },
   computed: {
@@ -268,14 +247,6 @@ export default {
       }
       return result
     },
-    showToast: function () {
-      return this.showToastSetting && this.toast
-    },
-    toastStyle: function () {
-      return `--toast-bg-color:${
-        AstroStatusColors[this.toastNotification.severity]
-      };`
-    },
   },
   watch: {
     showNotificationPane: function (val) {
@@ -288,17 +259,12 @@ export default {
         }
       }
     },
-    showToastSetting: function (val) {
+    showToast: function (val) {
       localStorage.notoast = !val
-      if (val) {
-        // Don't show an old toast when turning this setting on
-        this.toast = false
-        clearTimeout(this.toastTimeout)
-      }
     },
   },
   created: function () {
-    this.showToastSetting = localStorage.notoast === 'false'
+    this.showToast = localStorage.notoast === 'false'
     this.subscribe()
   },
   destroyed: function () {
@@ -341,10 +307,6 @@ export default {
       }
       this.selectedNotification = notification
       this.notificationDialog = true
-      if (clearToast) {
-        this.toast = false
-        clearTimeout(this.toastTimeout)
-      }
     },
     navigate: function (url) {
       window.open(url, '_blank')
@@ -369,8 +331,8 @@ export default {
     },
     received: function (data) {
       const parsed = JSON.parse(data)
-      if (parsed.length > 100) {
-        parsed.splice(0, parsed.length - 100)
+      if (parsed.length > NOTIFICATION_HISTORY_MAX_LENGTH) {
+        parsed.splice(0, parsed.length - NOTIFICATION_HISTORY_MAX_LENGTH)
       }
       let foundToast = false
       parsed.forEach((notification) => {
@@ -379,30 +341,36 @@ export default {
         notification.severity = notification.severity || 'normal'
         if (
           !notification.read && // Don't toast read notifications
-          ['critical', 'serious'].includes(notification.severity) && // Toast for these statuses
-          (!this.toast || notification.severity === 'critical') // Ok to override a toast only if this one is 'critical'
+          (['critical', 'serious'].includes(notification.severity) || // Toast for these statuses
+            notification.severity === 'critical') // Ok to override a toast only if this one is 'critical'
         ) {
           foundToast = true
-          if (notification.severity === 'critical') {
-            clearTimeout(this.toastTimeout)
-          }
           this.toastNotification = notification
         }
       })
-      if (this.notifications.length + parsed.length > 100) {
+
+      if (this.showToast && foundToast) {
+        this.$notify[this.toastNotification.severity]({
+          ...this.toastNotification,
+          type: 'notification',
+          duration:
+            this.toastNotification.severity === 'critical' ? null : 5000,
+          saveToHistory: false,
+        })
+      }
+
+      if (
+        this.notifications.length + parsed.length >
+        NOTIFICATION_HISTORY_MAX_LENGTH
+      ) {
         this.notifications.splice(
           0,
-          this.notifications.length + parsed.length - 100
+          this.notifications.length +
+            parsed.length -
+            NOTIFICATION_HISTORY_MAX_LENGTH
         )
       }
       this.notifications = this.notifications.concat(parsed)
-      this.toast = this.toast || foundToast
-      if (foundToast && this.toastNotification.severity === 'serious') {
-        // 'critical' notifications are persistent, 'serious' ones hide after a few seconds
-        this.toastTimeout = setTimeout(() => {
-          this.toast = false
-        }, 5000)
-      }
     },
   },
   filters: {
@@ -427,24 +395,5 @@ export default {
 .overlay {
   height: 100vh;
   width: 100vw;
-}
-
-.v-sheet.toast-notification {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background-color: var(--toast-bg-color) !important;
-  display: flex;
-  align-items: center;
-  padding: 14px;
-  cursor: pointer;
-}
-
-.toast-notification .toast-content {
-  white-space: nowrap;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
 }
 </style>

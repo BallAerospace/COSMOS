@@ -53,16 +53,11 @@ export default {
   },
   methods: {
     load: function () {
-      this.api
-        .get_setting('classification_banner')
-        .then((response) => {
-          if (response) {
-            this.classification = JSON.parse(response)
-          }
-        })
-        .catch((error) => {
-          //console.error('Error loading classification banner:', error) // TODO: Do we need to do anything here?
-        })
+      this.api.get_setting('classification_banner').then((response) => {
+        if (response) {
+          this.classification = JSON.parse(response)
+        }
+      })
     },
   },
 }

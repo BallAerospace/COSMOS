@@ -4,6 +4,7 @@ import router from './router'
 
 Vue.config.productionTip = false
 
+import store from '../../packages/cosmosc2-tool-common/src/plugins/store'
 import '../../packages/cosmosc2-tool-common/src/assets/stylesheets/layout/layout.scss'
 import vuetify from './plugins/vuetify'
 
@@ -19,6 +20,7 @@ const options = CosmosAuth.getInitOptions()
 CosmosAuth.init(options).then(() => {
   new Vue({
     router,
+    store,
     vuetify,
     render: (h) => h(App),
   }).$mount('#cosmos-main')
