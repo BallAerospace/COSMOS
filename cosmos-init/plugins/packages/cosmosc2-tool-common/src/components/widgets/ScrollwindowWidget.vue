@@ -18,36 +18,38 @@
 -->
 
 <template>
-  <div>
-    <v-banner single-line>{{ parameters.join(' ') }}</v-banner>
-    <vertical-widget
-      :style="contentStyle"
-      :parameters="parameters"
-      :settings="settings"
-      :widgets="widgets"
-    />
-  </div>
+  <verticalbox-widget
+    :parameters="parameters"
+    :settings="settings"
+    :widgets="widgets"
+    :content-style="scrollwindowStyle"
+  />
 </template>
 
 <script>
-import VerticalWidget from './VerticalWidget'
 import Layout from './Layout'
+import VerticalboxWidget from './VerticalboxWidget'
 
 export default {
   mixins: [Layout],
   components: {
-    VerticalWidget,
+    VerticalboxWidget,
   },
-  props: {
-    contentStyle: {
-      type: String,
+  watch: {
+    settings: console.log,
+  },
+  computed: {
+    maxHeight: function () {
+      return Number(
+        this.settings.find((setting) => setting[0] === 'HEIGHT')?.at(1) ?? 180
+      )
+    },
+    scrollwindowStyle: function () {
+      return `
+        max-height: ${this.maxHeight}px;
+        overflow-y: scroll;
+      `
     },
   },
 }
 </script>
-
-<style scoped>
-.v-banner >>> div {
-  background-color: var(--v-tertiary-darken2) !important;
-}
-</style>
