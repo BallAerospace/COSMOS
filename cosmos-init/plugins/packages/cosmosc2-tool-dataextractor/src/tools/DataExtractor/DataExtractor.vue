@@ -444,7 +444,7 @@ export default {
           if (response) {
             this.items = JSON.parse(response)
             this.alertHandler({
-              text: `Loading configuartion: ${name}`,
+              text: `Loading configuration: ${name}`,
               type: 'success',
             })
           }
@@ -464,9 +464,8 @@ export default {
       new CosmosApi()
         .save_config(this.toolName, name, JSON.stringify(this.items))
         .then((response) => {
-          // console.log(response)
           this.alertHandler({
-            text: `Saved configuartion: ${name}`,
+            text: `Saved configuration: ${name}`,
             type: 'success',
           })
         })
@@ -627,7 +626,6 @@ export default {
             item.valueType
         )
       })
-      console.log(this.reduced)
       CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
         this.subscription.perform('add', {
           scope: localStorage.scope,
