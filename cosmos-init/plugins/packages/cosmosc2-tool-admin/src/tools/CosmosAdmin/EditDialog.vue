@@ -29,9 +29,9 @@
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
                 <div v-on="on" v-bind="attrs">
-                  <v-btn icon data-test="downloadIcon" @click="download">
-                    <v-icon> mdi-download </v-icon>
-                  </v-btn>
+                  <v-icon data-test="downloadIcon" @click="download">
+                    mdi-download
+                  </v-icon>
                 </div>
               </template>
               <span> Download </span>
@@ -80,21 +80,23 @@
               <span class="red--text" v-show="error" v-text="error" />
             </v-row>
             <v-row>
-              <v-btn
-                color="success"
-                type="submit"
-                :disabled="!!error || readonly"
-                data-test="editSubmitBtn"
-              >
-                Save
-              </v-btn>
               <v-spacer />
               <v-btn
-                color="primary"
                 @click.prevent="close"
+                outlined
+                class="mx-2"
                 data-test="editCancelBtn"
               >
                 Cancel
+              </v-btn>
+              <v-btn
+                class="mx-2"
+                color="primary"
+                type="submit"
+                data-test="editSubmitBtn"
+                :disabled="!!error || readonly"
+              >
+                Save
               </v-btn>
             </v-row>
           </div>
