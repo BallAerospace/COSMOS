@@ -28,9 +28,9 @@ class ScriptAutocompleteController < ApplicationController
                     wait wait_raw wait_tolerance wait_tolerance_raw wait_check wait_check_raw
                     wait_check_tolerance wait_check_tolerance_raw)
 
-  # TODO: Where do these come from? I found them hard-coded in CommandSender.vue
-  RESERVED_PARAMS = %w(PACKET_TIMESECONDS PACKET_TIMEFORMATTED
-                       RECEIVED_TIMESECONDS RECEIVED_TIMEFORMATTED RECEIVED_COUNT)
+  def get_reserved_item_names
+    render :json => Cosmos::Packet::RESERVED_ITEM_NAMES, :status => 200
+  end
 
   def get_keywords
     keywords = params[:type].upcase == 'TLM' ? TLM_KEYWORDS : CMD_KEYWORDS
@@ -74,7 +74,7 @@ class ScriptAutocompleteController < ApplicationController
   def build_snippet(packet, target_info)
     caption = build_caption(packet)
     filtered_items = packet['items'].select do |item|
-      !RESERVED_PARAMS.include?(item['name']) and !target_info['ignored_parameters'].include?(item['name'])
+      !Cosmos::Packet::RESERVED_ITEM_NAMES.include?(item['name']) and !target_info['ignored_parameters'].include?(item['name'])
     end
     if filtered_items.any?
       params = filtered_items.each_with_index.map do |item, index|

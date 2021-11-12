@@ -214,12 +214,14 @@
 </template>
 
 <script>
+import Api from '@cosmosc2/tool-common/src/services/api'
 import TargetPacketItemChooser from '@cosmosc2/tool-common/src/components/TargetPacketItemChooser'
 import CommandParameterEditor from '@/tools/CommandSender/CommandParameterEditor'
 import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 import DetailsDialog from '@cosmosc2/tool-common/src/components/DetailsDialog'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 import 'sprintf-js'
+
 export default {
   components: {
     DetailsDialog,
@@ -258,6 +260,7 @@ export default {
       viewDetails: false,
       contextMenuShown: false,
       parameterName: '',
+      reservedItemNames: [],
       x: 0,
       y: 0,
       contextMenuOptions: [
@@ -322,6 +325,11 @@ export default {
     }
   },
   created() {
+    Api.get(`/cosmos-api/autocomplete/reserved-item-names`).then((response) => {
+      this.reservedItemNames = response.data
+      // eslint-disable-next-line no-console
+      console.log('reservedItemNames', this.reservedItemNames)
+    })
     this.api = new CosmosApi()
     // If we're passed in the route then manually call commandChanged to update
     if (this.$route.params.target) {
@@ -532,13 +540,6 @@ export default {
     },
 
     updateCmdParams() {
-      const reserved = [
-        'PACKET_TIMESECONDS',
-        'PACKET_TIMEFORMATTED',
-        'RECEIVED_TIMESECONDS',
-        'RECEIVED_TIMEFORMATTED',
-        'RECEIVED_COUNT',
-      ]
       this.sendDisabled = true
       this.ignoredParams = []
       this.rows = []
@@ -556,7 +557,7 @@ export default {
         .then(
           (command) => {
             command.items.forEach((parameter) => {
-              if (reserved.includes(parameter.name)) return
+              if (this.reservedItemNames.includes(parameter.name)) return
               if (
                 !this.ignoredParams.includes(parameter.name) ||
                 this.showIgnoredParams
