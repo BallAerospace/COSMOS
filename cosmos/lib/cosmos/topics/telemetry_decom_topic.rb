@@ -47,12 +47,7 @@ module Cosmos
                    received_count: packet.received_count,
                    json_data: JSON.generate(json_hash.as_json) }
 
-      # NOTE: The final parameter is important! (See DecomLogMicroservice)
-      # It must be greater than the size of a log file to allow the decom_log_microservice
-      # to write and close the previous log file and still have data available
-      # for the streaming_api to switch between a closed log file and the active Redis stream.
-      # TODO: How do we handle various data rates?
-      Store.write_topic("#{scope}__DECOM__{#{packet.target_name}}__#{packet.packet_name}", msg_hash, id, 4000)
+      Store.write_topic("#{scope}__DECOM__{#{packet.target_name}}__#{packet.packet_name}", msg_hash, id)
       # Also update the current value table with the latest decommutated data
       CvtModel.set(json_hash, target_name: packet.target_name, packet_name: packet.packet_name, scope: scope)
     end

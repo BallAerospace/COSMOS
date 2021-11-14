@@ -118,6 +118,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    reduced: {
+      type: Boolean,
+      default: false,
+    }
   },
   computed: {
     actualButtonText() {
@@ -187,6 +191,9 @@ export default {
       this.updatePackets()
       this.itemNames = []
     },
+    reduced: function (newVal, oldVal) {
+      this.updateItems()
+    },
   },
   methods: {
     updatePackets() {
@@ -244,6 +251,14 @@ export default {
               label: packet.items[i]['name'],
               value: packet.items[i]['name'],
             })
+            if (this.reduced) {
+              ['__MIN','__MAX','__AVG','__STDDEV'].forEach((ext) => {
+                this.itemNames.push({
+                  label: `${packet.items[i]['name']}${ext}`,
+                  value: `${packet.items[i]['name']}${ext}`,
+                })
+              })
+            }
           }
           if (!this.selectedItemName) {
             this.selectedItemName = this.itemNames[0].value

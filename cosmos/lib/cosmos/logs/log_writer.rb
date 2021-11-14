@@ -197,7 +197,8 @@ module Cosmos
       @last_offset = redis_offset # This is needed for the redis offset marker entry at the end of the log file
     end
 
-    # Closing a log file isn't critical so we just log an error
+    # Closing a log file isn't critical so we just log an error. NOTE: This also trims the Redis stream
+    # to keep a full file's worth of data in the stream. This is what prevents continuous stream growth.
     def close_file(take_mutex = true)
       @mutex.lock if take_mutex
       begin

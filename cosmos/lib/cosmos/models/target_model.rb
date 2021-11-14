@@ -20,6 +20,7 @@
 require 'cosmos/models/model'
 require 'cosmos/models/microservice_model'
 require 'cosmos/topics/limits_event_topic'
+require 'cosmos/microservices/reducer_microservice'
 require 'cosmos/system'
 require 'cosmos/utilities/s3'
 require 'cosmos/utilities/zip'
@@ -447,6 +448,9 @@ module Cosmos
       decom_command_topic_list = []
       packet_topic_list = []
       decom_topic_list = []
+      reduced_min_list = []
+      reduced_hour_list = []
+      reduced_day_list = []
       begin
         system.commands.packets(@name).each do |packet_name, packet|
           command_topic_list << "#{@scope}__COMMAND__{#{@name}}__#{packet_name}"
@@ -458,7 +462,10 @@ module Cosmos
       begin
         system.telemetry.packets(@name).each do |packet_name, packet|
           packet_topic_list << "#{@scope}__TELEMETRY__{#{@name}}__#{packet_name}"
-          decom_topic_list << "#{@scope}__DECOM__{#{@name}}__#{packet_name}"
+          decom_topic_list  << "#{@scope}__DECOM__{#{@name}}__#{packet_name}"
+          reduced_min_list  << "#{@scope}__#{ReducerMicroservice::MINUTE_KEY}__{#{@name}}__#{packet_name}"
+          reduced_hour_list << "#{@scope}__#{ReducerMicroservice::HOUR_KEY}__{#{@name}}__#{packet_name}"
+          reduced_day_list  << "#{@scope}__#{ReducerMicroservice::DAY_KEY}__{#{@name}}__#{packet_name}"
         end
       rescue
         # No telemetry packets for this target
@@ -511,7 +518,7 @@ module Cosmos
         cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [
-          ["RAW_OR_DECOM", "RAW"],
+          ["LOG_TYPE", "RAW"],
           ["CMD_OR_TLM", "CMD"],
           ["CYCLE_TIME", @cmd_log_cycle_time],
           ["CYCLE_SIZE", @cmd_log_cycle_size]
@@ -533,7 +540,7 @@ module Cosmos
         cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [
-          ["RAW_OR_DECOM", "DECOM"],
+          ["LOG_TYPE", "DECOM"],
           ["CMD_OR_TLM", "CMD"],
           ["CYCLE_TIME", @cmd_decom_log_cycle_time],
           ["CYCLE_SIZE", @cmd_decom_log_cycle_size]
@@ -555,7 +562,7 @@ module Cosmos
         cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [
-          ["RAW_OR_DECOM", "RAW"],
+          ["LOG_TYPE", "RAW"],
           ["CMD_OR_TLM", "TLM"],
           ["CYCLE_TIME", @tlm_log_cycle_time],
           ["CYCLE_SIZE", @tlm_log_cycle_size]
@@ -577,12 +584,78 @@ module Cosmos
         cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [
-          ["RAW_OR_DECOM", "DECOM"],
+          ["LOG_TYPE", "DECOM"],
           ["CMD_OR_TLM", "TLM"],
           ["CYCLE_TIME", @tlm_decom_log_cycle_time],
           ["CYCLE_SIZE", @tlm_decom_log_cycle_size]
         ],
         topics: decom_topic_list,
+        target_names: [@name],
+        plugin: plugin,
+        scope: @scope
+      )
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
+
+      # Reduced Minute Log Microservice
+      microservice_name = "#{@scope}__MIN_LOG__#{@name}"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        folder_name: @folder_name,
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        options: [
+          ["LOG_TYPE", "REDUCED"],
+          ["CMD_OR_TLM", "TLM"],
+          ["CYCLE_TIME", 3600], # 1 hr
+          ["CYCLE_SIZE", @tlm_decom_log_cycle_size]
+        ],
+        topics: reduced_min_list,
+        target_names: [@name],
+        plugin: plugin,
+        scope: @scope
+      )
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
+
+      # Reduced Hour Log Microservice
+      microservice_name = "#{@scope}__HOUR_LOG__#{@name}"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        folder_name: @folder_name,
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        options: [
+          ["LOG_TYPE", "REDUCED"],
+          ["CMD_OR_TLM", "TLM"],
+          ["CYCLE_TIME", 86400], # 1 day
+          ["CYCLE_SIZE", @tlm_decom_log_cycle_size]
+        ],
+        topics: reduced_hour_list,
+        target_names: [@name],
+        plugin: plugin,
+        scope: @scope
+      )
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
+
+      # Reduced Day Log Microservice
+      microservice_name = "#{@scope}__DAY_LOG__#{@name}"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        folder_name: @folder_name,
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        options: [
+          ["LOG_TYPE", "REDUCED"],
+          ["CMD_OR_TLM", "TLM"],
+          ["CYCLE_TIME", 86400 * 14], # 2 weeks
+          ["CYCLE_SIZE", @tlm_decom_log_cycle_size]
+        ],
+        topics: reduced_day_list,
         target_names: [@name],
         plugin: plugin,
         scope: @scope

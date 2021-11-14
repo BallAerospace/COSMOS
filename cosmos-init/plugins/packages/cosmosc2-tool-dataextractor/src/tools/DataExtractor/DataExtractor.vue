@@ -110,6 +110,7 @@
           :mode="cmdOrTlm"
           :chooseItem="true"
           :allowAll="true"
+          :reduced="this.reduced != 'DECOM'"
         />
       </v-row>
       <v-row no-gutters>
