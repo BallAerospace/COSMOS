@@ -155,21 +155,23 @@
             <span class="red--text" v-show="editErrors" v-text="editErrors" />
           </v-row>
           <v-row>
-            <v-btn
-              color="success"
-              @click="saveEdit"
-              :disabled="!!editErrors"
-              data-test="editScreenSubmitBtn"
-            >
-              Save
-            </v-btn>
             <v-spacer />
             <v-btn
-              color="primary"
               @click="cancelEdit"
+              class="mx-2"
+              outlined
               data-test="editScreenCancelBtn"
             >
               Cancel
+            </v-btn>
+            <v-btn
+              @click="saveEdit"
+              class="mx-2"
+              color="primary"
+              data-test="editScreenSubmitBtn"
+              :disabled="!!editErrors"
+            >
+              Save
             </v-btn>
           </v-row>
         </v-card-text>
@@ -383,10 +385,11 @@ export default {
                 break
               case 'SETTING':
               case 'SUBSETTING':
-                // Just push it onto the settings array and the widget will figure it out
-                this.currentLayout.widgets[
-                  this.currentLayout.widgets.length - 1
-                ].settings.push(parameters)
+                const widget =
+                  this.currentLayout.widgets[
+                    this.currentLayout.widgets.length - 1
+                  ] ?? this.currentLayout
+                widget.settings.push(parameters)
                 break
               case 'GLOBAL_SETTING':
                 this.globalSettings.push(parameters)

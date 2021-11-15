@@ -243,7 +243,7 @@ export default {
       Api.get(`/cosmos-api/plugins/${name}`).then((response) => {
         this.jsonContent = JSON.stringify(response.data, null, '\t')
         this.dialogTitle = name
-        this.showDialog = true
+        this.showEditDialog = true
       })
     },
     dialogCallback: function (content) {

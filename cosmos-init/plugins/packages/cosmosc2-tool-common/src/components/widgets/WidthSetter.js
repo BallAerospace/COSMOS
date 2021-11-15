@@ -1,4 +1,4 @@
-<!--
+/*
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,39 +15,28 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
-
-<template>
-  <div>
-    <v-banner single-line>{{ parameters.join(' ') }}</v-banner>
-    <vertical-widget
-      :style="contentStyle"
-      :parameters="parameters"
-      :settings="settings"
-      :widgets="widgets"
-    />
-  </div>
-</template>
-
-<script>
-import VerticalWidget from './VerticalWidget'
-import Layout from './Layout'
+*/
 
 export default {
-  mixins: [Layout],
-  components: {
-    VerticalWidget,
+  data: function () {
+    return {
+      originalWidthSetting: null,
+    }
   },
-  props: {
-    contentStyle: {
-      type: String,
+  created: function () {
+    this.originalWidthSetting = ['WIDTH', this.width]
+    this.resetWidth()
+  },
+  beforeUpdate: function () {
+    this.resetWidth()
+  },
+  methods: {
+    resetWidth: function () {
+      // This sets 'WIDTH' when it gets created, but that is lost if it gets
+      // re-rendered by CosmosScreen.vue parsing the config string again
+      if (!this.settings.some((setting) => setting[0] === 'WIDTH')) {
+        this.settings.unshift(this.originalWidthSetting)
+      }
     },
   },
 }
-</script>
-
-<style scoped>
-.v-banner >>> div {
-  background-color: var(--v-tertiary-darken2) !important;
-}
-</style>

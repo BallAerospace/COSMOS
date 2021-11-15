@@ -25,15 +25,16 @@
 
 <script>
 import Widget from './Widget'
+import WidthSetter from './WidthSetter'
 
 export default {
-  mixins: [Widget],
+  mixins: [Widget, WidthSetter],
   props: {
     value: {
       default: null,
     },
   },
-  data() {
+  data: function () {
     return {
       valueId: null,
       scaleFactor: 1.0,
@@ -49,14 +50,13 @@ export default {
       return parseInt(parseFloat(value) * this.scaleFactor)
     },
   },
-  created() {
+  created: function () {
     if (this.parameters[3]) {
       this.scaleFactor = parseFloat(this.parameters[3])
     }
     if (this.parameters[4]) {
       this.width = parseInt(this.parameters[4])
     }
-    this.settings.unshift(['WIDTH', this.width])
     // If they're not passing us the value we have to register
     if (this.value === null) {
       var type = 'CONVERTED'
@@ -74,7 +74,7 @@ export default {
       this.$store.commit('tlmViewerAddItem', this.valueId)
     }
   },
-  destroyed() {
+  destroyed: function () {
     this.$store.commit('tlmViewerDeleteItem', this.valueId)
   },
 }

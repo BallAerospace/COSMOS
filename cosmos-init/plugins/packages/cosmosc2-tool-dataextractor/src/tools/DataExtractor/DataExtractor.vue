@@ -444,7 +444,6 @@ export default {
       new CosmosApi()
         .save_config(this.toolName, name, JSON.stringify(this.items))
         .then((response) => {
-          // console.log(response)
           this.alertHandler({
             text: `Saved configuartion: ${name}`,
             type: 'success',
