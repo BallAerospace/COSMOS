@@ -418,7 +418,7 @@ import ActionCable from 'actioncable'
 import AskDialog from './AskDialog.vue'
 import PromptDialog from './PromptDialog.vue'
 import SuiteRunner from './SuiteRunner.vue'
-import PacketCompleter from './autocomplete/packetCompleter.js'
+import { CmdCompleter, TlmCompleter } from './autocomplete'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
 const NEW_FILENAME = '<Untitled>'
@@ -658,10 +658,7 @@ export default {
     this.editor.$blockScrolling = Infinity
     this.editor.setOption('enableBasicAutocompletion', true)
     this.editor.setOption('enableLiveAutocompletion', true)
-    this.editor.completers = [
-      new PacketCompleter('cmd'),
-      new PacketCompleter('tlm'),
-    ]
+    this.editor.completers = [new CmdCompleter(), new TlmCompleter()]
     this.editor.setHighlightActiveLine(false)
     this.editor.focus()
     // We listen to tokenizerUpdate rather than change because this

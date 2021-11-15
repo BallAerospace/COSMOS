@@ -54,25 +54,41 @@ class ScriptAutocompleteController < ApplicationController
 
   # private
   def build_autocomplete_data(type, scope)
-    meta = type.upcase == 'TLM' ? 'telemetry' : 'command'
     autocomplete_data = Cosmos::TargetModel.all(scope: scope).flat_map do |target_name, target_info|
-      Cosmos::TargetModel.packets(target_name, type: type.upcase.intern, scope: scope).map do |packet|
-        {
-          :caption => build_caption(packet),
-          :snippet => build_snippet(packet, target_info),
-          :meta => meta,
-        }
+      Cosmos::TargetModel.packets(target_name, type: type.upcase.intern, scope: scope).flat_map do |packet|
+        packet_to_autocomplete_hashes(packet, target_info, type)
       end
     end
     autocomplete_data.sort_by { |packet| packet[:caption] }
   end
 
-  def build_caption(packet)
+  def target_packet_name(packet)
     "#{packet['target_name']} #{packet['packet_name']}"
   end
 
-  def build_snippet(packet, target_info)
-    caption = build_caption(packet)
+  def packet_to_autocomplete_hashes(packet, target_info, type)
+    if type.upcase == 'TLM'
+      return packet['items'].map do |item|
+        {
+          :caption => "#{target_packet_name(packet)} #{item['name']}",
+          :snippet => "#{target_packet_name(packet)} #{item['name']}",
+          :meta => 'telemetry',
+        }
+      end
+    else
+      # There's only one autocomplete option for each command packet
+      return [
+        {
+          :caption => target_packet_name(packet),
+          :snippet => build_cmd_snippet(packet, target_info),
+          :meta => 'command',
+        }
+      ]
+    end
+  end
+
+  def build_cmd_snippet(packet, target_info)
+    caption = target_packet_name(packet)
     filtered_items = packet['items'].select do |item|
       !Cosmos::Packet::RESERVED_ITEM_NAMES.include?(item['name']) and !target_info['ignored_parameters'].include?(item['name'])
     end

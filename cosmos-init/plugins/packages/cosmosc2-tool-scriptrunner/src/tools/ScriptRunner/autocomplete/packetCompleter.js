@@ -23,20 +23,26 @@ const toMethodCallSyntaxRegex = (word) => {
   // create regex to find the opening of a ruby method call
   const prefix = '(^|[{\\(\\s])' // Allowable characters before the method name: start of line or { or ( or a space
   const opening = '[\\s\\(][\'"]' // Opening sequence for a method call and a string argument: ( or a space, then ' or "
-  const params = '(\\S+\\s?){0,2}' // Only allow up to a couple tokens after the keyword to avoid autocompleteception
+  const params = '(\\S+\\s?){0,3}' // Only allow up to a few tokens after the keyword to avoid autocompleteception
   return new RegExp(`${prefix}${word}${opening}${params}$`) // ensure end of line because it's sliced to the current cursor position
 }
 
 export default class PacketCompleter {
-  constructor(type) {
+  constructor(
+    type,
+    dataReadyCallback = () => {},
+    expressionsReadyCallback = () => {}
+  ) {
     this.keywordExpressions = [] // Keywords that trigger the autocomplete feature
     this.autocompleteData = [] // Data to populate the autocomplete list
 
     Api.get(`/cosmos-api/autocomplete/keywords/${type}`).then((response) => {
       this.keywordExpressions = response.data.map(toMethodCallSyntaxRegex)
+      expressionsReadyCallback()
     })
     Api.get(`/cosmos-api/autocomplete/data/${type}`).then((response) => {
       this.autocompleteData = response.data
+      dataReadyCallback()
     })
   }
 
