@@ -56,6 +56,7 @@
             v-model="startTime"
             label="Start Time"
             type="time"
+            step="1"
             :rules="[rules.required]"
             data-test="startTime"
           >
@@ -64,6 +65,7 @@
             v-model="endTime"
             label="End Time"
             type="time"
+            step="1"
             :rules="[rules.required]"
             data-test="endTime"
           >

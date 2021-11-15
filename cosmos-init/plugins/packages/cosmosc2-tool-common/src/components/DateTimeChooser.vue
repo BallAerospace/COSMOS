@@ -51,6 +51,7 @@
           :rules="timeRules"
           v-model="time"
           type="time"
+          step="1"
           @change="onChange"
           prepend-icon="mdi-clock"
           data-test="timeChooser"
