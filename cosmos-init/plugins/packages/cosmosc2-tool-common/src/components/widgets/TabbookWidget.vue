@@ -30,6 +30,7 @@
           v-for="(widget, widgetIndex) in tab.widgets"
           :key="`${tabIndex}-${widgetIndex}`"
           :is="widget.type"
+          :target="widget.target"
           :parameters="widget.parameters"
           :settings="widget.settings"
           :widgets="widget.widgets"

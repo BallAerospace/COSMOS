@@ -28,6 +28,7 @@
       v-for="(widget, index) in widgets"
       :key="index"
       :is="widget.type"
+      :target="widget.target"
       :parameters="widget.parameters"
       :settings="widget.settings"
       :name="widget.name"

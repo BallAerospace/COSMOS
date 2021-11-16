@@ -528,12 +528,14 @@ export default {
         if (Vue.options.components[componentName]) {
           this.currentLayout.widgets.push({
             type: componentName,
+            target: this.target,
             parameters: parameters,
             settings: settings,
           })
         } else {
           this.currentLayout.widgets.push({
             type: 'DynamicWidget',
+            target: this.target,
             parameters: parameters,
             settings: settings,
             name: componentName,
