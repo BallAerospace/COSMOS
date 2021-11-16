@@ -21,7 +21,7 @@ VERTICAL
     #  SETTING IMAGE true "ground_on.png" 100 200
     #  SETTING IMAGE false "ground_off.png" 100 200
     CANVASLINE 10 10 640 10 blue 3
-    CANVASIMAGE "satellite.png" 50 150
+    CANVASIMAGE "satellite.png" 50 150 150 150
     # We're using the converted value and specifing a default of "ground_error.png"
     # if none of the IMAGE settings match the value
     CANVASIMAGEVALUE <%= target_name %> HEALTH_STATUS GROUND1STATUS CONVERTED "ground_error.png" 400 100
