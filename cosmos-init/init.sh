@@ -1,8 +1,6 @@
 #!/bin/sh
 set -e
 
-/cosmos/minio/script-runner.sh
-
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-base-5.0.1.*.gem
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-cmdtlmserver-5.0.1.*.gem
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-limitsmonitor-5.0.1.*.gem

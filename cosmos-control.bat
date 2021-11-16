@@ -73,10 +73,10 @@ GOTO :EOF
 
 :build
   CALL scripts\windows\cosmos_setup
-  docker-compose -f compose.yaml -f compose-build.yaml build cosmos-ruby
-  docker-compose -f compose.yaml -f compose-build.yaml build cosmos-base
-  docker-compose -f compose.yaml -f compose-build.yaml build cosmos-node
-  docker-compose -f compose.yaml -f compose-build.yaml build
+  docker-compose -f compose.yaml -f compose-build.yaml build cosmos-ruby || exit /b
+  docker-compose -f compose.yaml -f compose-build.yaml build cosmos-base || exit /b
+  docker-compose -f compose.yaml -f compose-build.yaml build cosmos-node || exit /b
+  docker-compose -f compose.yaml -f compose-build.yaml build || exit /b
   @echo off
 GOTO :EOF
 
