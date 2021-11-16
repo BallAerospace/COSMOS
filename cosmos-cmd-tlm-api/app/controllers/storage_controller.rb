@@ -46,16 +46,18 @@ class StorageController < ApplicationController
 
   #private
   def get_presigned_request(method)
+    bucket = params[:bucket]
+    bucket ||= BUCKET_NAME
     rubys3_client = Aws::S3::Client.new
     begin
-      rubys3_client.head_bucket(bucket: BUCKET_NAME)
+      rubys3_client.head_bucket(bucket: bucket)
     rescue Aws::S3::Errors::NotFound
-      rubys3_client.create_bucket(bucket: BUCKET_NAME)
+      rubys3_client.create_bucket(bucket: bucket)
     end
     s3_presigner = Aws::S3::Presigner.new
 
     url, headers = s3_presigner.presigned_request(
-      method, bucket: BUCKET_NAME, key: params[:object_id]
+      method, bucket: bucket, key: params[:object_id]
     )
     {
       :url => '/files/' + url.split('/')[3..-1].join('/'),
