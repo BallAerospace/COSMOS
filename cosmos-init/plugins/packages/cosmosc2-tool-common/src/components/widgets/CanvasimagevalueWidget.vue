@@ -63,7 +63,7 @@ export default {
       return this.$store.state.tlmViewerValues[this.valueId][0]
     },
     showDefault: function () {
-      return !this.images.some((image) => image.value === this.selectedValue)
+      return !this.images.some((image) => image.value == this.selectedValue)
     },
   },
   watch: {
