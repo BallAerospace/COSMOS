@@ -94,8 +94,13 @@ class ScriptAutocompleteController < ApplicationController
     end
     if filtered_items.any?
       params = filtered_items.each_with_index.map do |item, index|
+        default = item['default'] || 0
+        if item.key? 'states'
+          default_state = item['states'].find { |_key, val| val['value'] == default } [0]
+          default = default_state if default_state
+        end
         # map to Ace autocomplete data syntax to allow tabbing through items: "staticText ${position:defaultValue}"
-        "#{item['name']} ${#{index + 1}:#{item['default'] || 0}}"
+        "#{item['name']} ${#{index + 1}:#{default}}"
       end
       return "#{caption} with #{params.join(', ')}"
     end
