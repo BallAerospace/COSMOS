@@ -408,6 +408,7 @@ import Api from '@cosmosc2/tool-common/src/services/api'
 import * as ace from 'brace'
 import 'brace/mode/ruby'
 import 'brace/theme/twilight'
+import 'brace/ext/language_tools'
 import { toDate, format } from 'date-fns'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import FileOpenSaveDialog from '@cosmosc2/tool-common/src/components/FileOpenSaveDialog'
@@ -417,6 +418,7 @@ import ActionCable from 'actioncable'
 import AskDialog from './AskDialog.vue'
 import PromptDialog from './PromptDialog.vue'
 import SuiteRunner from './SuiteRunner.vue'
+import { CmdCompleter, TlmCompleter } from './autocomplete'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
 const NEW_FILENAME = '<Untitled>'
@@ -654,6 +656,9 @@ export default {
     this.editor.session.setTabSize(2)
     this.editor.session.setUseWrapMode(true)
     this.editor.$blockScrolling = Infinity
+    this.editor.setOption('enableBasicAutocompletion', true)
+    this.editor.setOption('enableLiveAutocompletion', true)
+    this.editor.completers = [new CmdCompleter(), new TlmCompleter()]
     this.editor.setHighlightActiveLine(false)
     this.editor.focus()
     // We listen to tokenizerUpdate rather than change because this
