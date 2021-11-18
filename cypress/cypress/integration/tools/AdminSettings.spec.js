@@ -28,8 +28,8 @@ describe('AdminSettings', () => {
     window.localStorage['suppresswarning__clock_out_of_sync_with_server'] = true
     cy.reload()
     cy.wait(1000)
-    cy.get('[data-test=selectAllSuppressedWarnings').check({ force: true })
-    cy.get('[data-test=resetSuppressedWarnings').click({ force: true })
+    cy.get('[data-test=selectAllSuppressedWarnings]').check({ force: true })
+    cy.get('[data-test=resetSuppressedWarnings]').click({ force: true })
     cy.then(() => {
       expect(
         window.localStorage['suppresswarning__clock_out_of_sync_with_server']
@@ -43,7 +43,9 @@ describe('AdminSettings', () => {
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save Configuration').click()
     cy.get('.v-dialog:visible').within(() => {
-      cy.get('input').clear().type(configName)
+      cy.get('[data-test=name-input-save-config-dialog]')
+        .clear()
+        .type(configName)
       cy.contains('Ok')
         .click()
         .wait(1000)
@@ -54,8 +56,8 @@ describe('AdminSettings', () => {
         })
     })
     cy.visit('/tools/admin/settings')
-    cy.get('[data-test=selectAllLastConfigs').check({ force: true })
-    cy.get('[data-test=clearLastConfigs').click()
+    cy.get('[data-test=selectAllLastConfigs]').check({ force: true })
+    cy.get('[data-test=clearLastConfigs]').click()
     cy.then(() => {
       expect(window.localStorage['lastconfig__data_viewer']).to.eq(undefined)
     })
@@ -66,9 +68,9 @@ describe('AdminSettings', () => {
     const bannerHeight = '32'
     const bannerTextColor = 'aaa'
     const bannerBackgroundColor = '123'
-    cy.get('[data-test=classificationBannerText').clear().type(bannerText)
-    cy.get('[data-test=displayTopBanner').check({ force: true })
-    cy.get('[data-test=classificationBannerTopHeight')
+    cy.get('[data-test=classificationBannerText]').clear().type(bannerText)
+    cy.get('[data-test=displayTopBanner]').check({ force: true })
+    cy.get('[data-test=classificationBannerTopHeight]')
       .clear()
       .type(bannerHeight)
     cy.chooseVSelect('Background color', 'Custom', {
@@ -86,7 +88,7 @@ describe('AdminSettings', () => {
     cy.get('[data-test=classificationBannerCustomFontColor]')
       .clear()
       .type(bannerTextColor)
-    cy.get('[data-test=saveClassificationBanner').click()
+    cy.get('[data-test=saveClassificationBanner]').click()
     cy.reload()
     cy.get('#app').should(
       'have.attr',

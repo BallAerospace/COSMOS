@@ -61,7 +61,7 @@ describe('DataViewer', () => {
 
   it('renames a tab', () => {
     cy.get('[data-test=new-tab]').click({ force: true }).wait(1000)
-    cy.get('[data-test=tab').rightclick({ force: true }).wait(1000)
+    cy.get('[data-test=tab]').rightclick({ force: true }).wait(1000)
     cy.get('[data-test=context-menu-rename]')
       .find('div')
       .click({ force: true })
@@ -71,7 +71,7 @@ describe('DataViewer', () => {
       .type('Testing tab name')
     cy.get('[data-test=rename]').click({ force: true }).wait(1000)
     cy.get('.v-tab').should('contain', 'Testing tab name')
-    cy.get('[data-test=tab').rightclick({ force: true }).wait(1000)
+    cy.get('[data-test=tab]').rightclick({ force: true }).wait(1000)
     cy.get('[data-test=context-menu-rename]')
       .find('div')
       .click({ force: true })
@@ -93,12 +93,12 @@ describe('DataViewer', () => {
       'contain',
       'INST ADCS'
     )
-    cy.get('[data-test=delete-packet').click({ force: true }).wait(1000)
+    cy.get('[data-test=delete-packet]').click({ force: true }).wait(1000)
     cy.get('.v-window-item > .v-card > .v-card__title').should(
       'contain',
       'This tab is empty'
     )
-    cy.get('[data-test=tab').rightclick({ force: true }).wait(1000)
+    cy.get('[data-test=tab]').rightclick({ force: true }).wait(1000)
     cy.get('[data-test=context-menu-delete]')
       .find('div')
       .click({ force: true })
@@ -305,7 +305,9 @@ describe('DataViewer', () => {
     cy.get('.v-toolbar').contains('File').click({ force: true }).wait(1000)
     cy.contains('Save Configuration').click({ force: true }).wait(1000)
     cy.get('.v-dialog:visible').within(() => {
-      cy.get('input').clear({ force: true }).type(config)
+      cy.get('[data-test=name-input-save-config-dialog]')
+        .clear({ force: true })
+        .type(config)
       cy.contains('Ok').click({ force: true }).wait(1000)
     })
     cy.get('.v-dialog:visible').should('not.exist')
@@ -313,7 +315,9 @@ describe('DataViewer', () => {
     cy.get('.v-toolbar').contains('File').click({ force: true }).wait(1000)
     cy.contains('Save Configuration').click({ force: true }).wait(1000)
     cy.get('.v-dialog:visible').within(() => {
-      cy.get('input').clear({ force: true }).type(config)
+      cy.get('[data-test=name-input-save-config-dialog]')
+        .clear({ force: true })
+        .type(config)
       cy.contains('Ok').click({ force: true }).wait(1000)
       cy.contains("'" + config + "' already exists")
       cy.contains('Cancel').click({ force: true }).wait(1000)

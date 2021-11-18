@@ -115,7 +115,12 @@
               <v-row class="ma-1">
                 <span class="font-weight-black"> {{ item }} </span>
                 <v-spacer />
-                <v-btn small icon @click="restoreItem(item, index)">
+                <v-btn
+                  small
+                  icon
+                  @click="restoreItem(item, index)"
+                  data-test="delete-ignored-item"
+                >
                   <v-icon> mdi-delete </v-icon>
                 </v-btn>
               </v-row>
