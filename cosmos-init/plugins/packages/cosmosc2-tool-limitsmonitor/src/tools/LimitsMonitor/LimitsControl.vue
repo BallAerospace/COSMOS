@@ -290,12 +290,7 @@ export default {
     },
     handleMessages(messages) {
       for (let message of messages) {
-        let itemName =
-          message.target_name +
-          '__' +
-          message.packet_name +
-          '__' +
-          message.item_name
+        let itemName = `${message.target_name}__${message.packet_name}__${message.item_name}`
         const index = this.itemList.findIndex((arrayItem) =>
           arrayItem.includes(itemName)
         )

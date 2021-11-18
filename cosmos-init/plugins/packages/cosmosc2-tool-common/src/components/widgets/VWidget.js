@@ -103,14 +103,9 @@ export default {
   created() {
     // If they're not passing us the value and limitsState we have to register
     if (this.value === null || this.limitsState === null) {
-      this.valueId =
-        this.parameters[0] +
-        '__' +
-        this.parameters[1] +
-        '__' +
-        this.parameters[2] +
-        '__' +
-        this.getType()
+      this.valueId = `${this.parameters[0]}__${this.parameters[1]}__${
+        this.parameters[2]
+      }__${this.getType()}`
 
       this.$store.commit('tlmViewerAddItem', this.valueId)
     }
