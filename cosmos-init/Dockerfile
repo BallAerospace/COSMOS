@@ -92,15 +92,7 @@ COPY --from=cosmos-tmp4 /cosmos/plugins/gems/* /cosmos/plugins/gems/
 
 FROM ballaerospace/cosmosc2-base
 
-USER root
-
-COPY ./minio/mc_20210902 /usr/bin/mc
-RUN chmod +x /usr/bin/mc
-
-USER ${USER_ID}:${GROUP_ID}
-
 COPY --from=cosmos-frontend-base-tmp --chown=${IMAGE_USER}:${IMAGE_GROUP} /cosmos/plugins/gems/* /cosmos/plugins/gems/
-COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} ./minio /cosmos/minio/
 COPY --chown=${IMAGE_USER}:${IMAGE_GROUP} ./init.sh /cosmos/
 
 CMD [ "/cosmos/init.sh" ]

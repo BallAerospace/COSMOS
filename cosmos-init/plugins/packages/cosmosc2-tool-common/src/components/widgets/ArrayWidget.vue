@@ -107,7 +107,7 @@ export default {
 
       if (Array.isArray(data)) {
         for (const value of data) {
-          if (this.formatter) {
+          if (this.formatter?.toLowerCase() !== 'nil') {
             text += sprintf(this.formatter, value)
           } else {
             text += value

@@ -27,6 +27,7 @@
       <v-col v-for="(widget, cindex) in chunk" :key="'c' + cindex">
         <component
           :is="widget.type"
+          :target="widget.target"
           :parameters="widget.parameters"
           :settings="widget.settings"
           :widgets="widget.widgets"

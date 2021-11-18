@@ -39,6 +39,10 @@ services:
     depends_on:
       - "cosmos-ruby"
 
+  cosmos-minio-init:
+    build:
+      context: "cosmos-minio-init"
+
   cosmos-redis:
     build:
       context: "cosmos-redis"

@@ -34,7 +34,7 @@ require 'json'
 require 'redis'
 require 'erb'
 
-$redis_url = ENV['COSMOS_REDIS_URL']
+$redis_url = "redis://#{ENV['COSMOS_REDIS_HOSTNAME']}:#{ENV['COSMOS_REDIS_PORT']}"
 
 # Build the OpenStruct and OptionParser here as constants so we can use in methods
 MIGRATE_OPTIONS = OpenStruct.new

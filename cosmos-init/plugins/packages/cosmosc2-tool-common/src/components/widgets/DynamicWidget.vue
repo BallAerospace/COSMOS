@@ -18,7 +18,11 @@
 -->
 
 <template>
-  <component :is="widgetType" v-bind="{ ...$props, ...$attrs }"></component>
+  <component
+    :is="widgetType"
+    :target="widget.target"
+    v-bind="{ ...$props, ...$attrs }"
+  ></component>
 </template>
 
 <script>

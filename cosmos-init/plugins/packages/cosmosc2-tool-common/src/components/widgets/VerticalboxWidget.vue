@@ -21,6 +21,7 @@
   <div>
     <v-banner single-line>{{ parameters.join(' ') }}</v-banner>
     <vertical-widget
+      :style="contentStyle"
       :parameters="parameters"
       :settings="settings"
       :widgets="widgets"
@@ -31,10 +32,16 @@
 <script>
 import VerticalWidget from './VerticalWidget'
 import Layout from './Layout'
+
 export default {
   mixins: [Layout],
   components: {
     VerticalWidget,
+  },
+  props: {
+    contentStyle: {
+      type: String,
+    },
   },
 }
 </script>

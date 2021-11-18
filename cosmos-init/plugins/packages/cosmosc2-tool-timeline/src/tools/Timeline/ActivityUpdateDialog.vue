@@ -57,6 +57,7 @@
                   <v-text-field
                     v-model="startTime"
                     type="time"
+                    step="1"
                     label="Start Time"
                     class="mx-1"
                     :rules="[rules.required]"
@@ -75,6 +76,7 @@
                   <v-text-field
                     v-model="stopTime"
                     type="time"
+                    step="1"
                     label="End Time"
                     class="mx-1"
                     :rules="[rules.required]"

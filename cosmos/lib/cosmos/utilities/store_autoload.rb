@@ -77,7 +77,7 @@ module Cosmos
       Redis.exists_returns_integer = true
       @redis_username = ENV['COSMOS_REDIS_USERNAME']
       @redis_key = ENV['COSMOS_REDIS_PASSWORD']
-      @redis_url = ENV['COSMOS_REDIS_URL']
+      @redis_url = "redis://#{ENV['COSMOS_REDIS_HOSTNAME']}:#{ENV['COSMOS_REDIS_PORT']}"
       @redis_pool = ConnectionPool.new(size: pool_size) { build_redis() }
       @topic_offsets = {}
     end
@@ -245,25 +245,81 @@ module Cosmos
       end
     end
 
-    def self.write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
+    # Add new entry to the redis stream.
+    # > https://www.rubydoc.info/github/redis/redis-rb/Redis:xadd
+    #
+    # @example Without options
+    #   COSMOS::Store().write_topic('MANGO__TOPIC', {'message' => 'something'})
+    # @example With options
+    #   COSMOS::Store().write_topic('MANGO__TOPIC', {'message' => 'something'}, id: '0-0', maxlen: 1000, approximate: false)
+    #
+    # @param topic [String] the stream / topic
+    # @param msg_hash [Hash]   one or multiple field-value pairs
+    #
+    # @option opts [String]  :id          the entry id, default value is `*`, it means auto generation
+    # @option opts [Integer] :maxlen      max length of entries
+    # @option opts [Boolean] :approximate whether to add `~` modifier of maxlen or not
+    #
+    # @return [String] the entry id
+    def self.write_topic(topic, msg_hash, id = '*', maxlen = nil, approximate = true)
       self.instance.write_topic(topic, msg_hash, id, maxlen, approximate)
     end
 
-    def write_topic(topic, msg_hash, id = nil, maxlen = 1000, approximate = true)
+    # Add new entry to the redis stream.
+    # > https://www.rubydoc.info/github/redis/redis-rb/Redis:xadd
+    #
+    # @example Without options
+    #   store.write_topic('MANGO__TOPIC', {'message' => 'something'})
+    # @example With options
+    #   store.write_topic('MANGO__TOPIC', {'message' => 'something'}, id: '0-0', maxlen: 1000, approximate: true)
+    #
+    # @param topic [String] the stream / topic
+    # @param msg_hash [Hash]   one or multiple field-value pairs
+    #
+    # @option opts [String]  :id          the entry id, default value is `*`, it means auto generation, 
+    #   if `nil` id is passed it will be changed to `*`
+    # @option opts [Integer] :maxlen      max length of entries, default value is `nil`, it means will grow forever
+    # @option opts [Boolean] :approximate whether to add `~` modifier of maxlen or not, default value is `true`
+    #
+    # @return [String] the entry id
+    def write_topic(topic, msg_hash, id = '*', maxlen = nil, approximate = true)
+      id = '*' if id.nil?
       # Logger.debug "write_topic topic:#{topic} id:#{id} hash:#{msg_hash}"
       @redis_pool.with do |redis|
-        if id
-          return redis.xadd(topic, msg_hash, id: id, approximate: approximate)
-        else
-          return redis.xadd(topic, msg_hash, approximate: approximate)
-        end
+        return redis.xadd(topic, msg_hash, id: id, maxlen: maxlen, approximate: approximate)
       end
     end
 
+    # Trims older entries of the redis stream if needed.
+    # > https://www.rubydoc.info/github/redis/redis-rb/Redis:xtrim
+    #
+    # @example Without options
+    #   COSMOS::Store.trim_topic('MANGO__TOPIC', 1000)
+    # @example With options
+    #   COSMOS::Store.trim_topic('MANGO__TOPIC', 1000, approximate: true, limit: 0)
+    #
+    # @param topic  [String]  the stream key
+    # @param minid  [Integer] max length of entries to trim
+    # @param limit  [Boolean] whether to add `~` modifier of maxlen or not
+    #
+    # @return [Integer] the number of entries actually deleted
     def self.trim_topic(topic, minid, approximate = true, limit: 0)
       self.instance.trim_topic(topic, minid, approximate, limit: limit)
     end
 
+    # Trims older entries of the redis stream if needed.
+    # > https://www.rubydoc.info/github/redis/redis-rb/Redis:xtrim
+    #
+    # @example Without options
+    #   store.trim_topic('MANGO__TOPIC', 1000)
+    # @example With options
+    #   store.trim_topic('MANGO__TOPIC', 1000, approximate: true, limit: 0)
+    #
+    # @param topic  [String]  the stream key
+    # @param minid  [Integer] mid id length of entries to trim
+    # @param limit  [Boolean] whether to add `~` modifier of maxlen or not
+    #
+    # @return [Integer] the number of entries actually deleted
     def trim_topic(topic, minid, approximate = true, limit: 0)
       @redis_pool.with do |redis|
         return redis.xtrim_minid(topic, minid, approximate: approximate, limit: limit)

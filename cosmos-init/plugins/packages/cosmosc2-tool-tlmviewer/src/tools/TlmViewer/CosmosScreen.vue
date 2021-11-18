@@ -385,10 +385,11 @@ export default {
                 break
               case 'SETTING':
               case 'SUBSETTING':
-                // Just push it onto the settings array and the widget will figure it out
-                this.currentLayout.widgets[
-                  this.currentLayout.widgets.length - 1
-                ].settings.push(parameters)
+                const widget =
+                  this.currentLayout.widgets[
+                    this.currentLayout.widgets.length - 1
+                  ] ?? this.currentLayout
+                widget.settings.push(parameters)
                 break
               case 'GLOBAL_SETTING':
                 this.globalSettings.push(parameters)
@@ -527,12 +528,14 @@ export default {
         if (Vue.options.components[componentName]) {
           this.currentLayout.widgets.push({
             type: componentName,
+            target: this.target,
             parameters: parameters,
             settings: settings,
           })
         } else {
           this.currentLayout.widgets.push({
             type: 'DynamicWidget',
+            target: this.target,
             parameters: parameters,
             settings: settings,
             name: componentName,
