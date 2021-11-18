@@ -1,4 +1,4 @@
-<!--
+/*
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,26 +15,25 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
+*/
 
-<template>
-  <div ref="container" class="d-flex flex-row">
-    <component
-      v-for="(widget, index) in widgets"
-      :key="index"
-      :is="widget.type"
-      :target="widget.target"
-      :parameters="widget.parameters"
-      :settings="widget.settings"
-      :widgets="widget.widgets"
-      :name="widget.name"
-    />
-  </div>
-</template>
+import Api from '../../services/api'
 
-<script>
-import Layout from './Layout'
 export default {
-  mixins: [Layout],
+  props: {
+    target: {
+      type: String,
+      require: true,
+    },
+  },
+  methods: {
+    getPresignedUrl: async function (fileName) {
+      const response = await Api.get(
+        `/cosmos-api/storage/download/${encodeURIComponent(
+          `${localStorage.scope}/targets/${this.target}/public/${fileName}`
+        )}?bucket=config`
+      )
+      return response.data.url
+    },
+  },
 }
-</script>

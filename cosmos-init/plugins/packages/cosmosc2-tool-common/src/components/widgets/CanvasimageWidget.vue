@@ -19,38 +19,48 @@
 
 <template>
   <image
-    :href="calcHref"
+    v-if="imageUrl"
+    :href="imageUrl"
     :x="parameters[1]"
     :y="parameters[2]"
-    :width="calcWidth"
-    :height="calcHeight"
+    :width="width"
+    :height="height"
   />
 </template>
 
 <script>
 import Widget from './Widget'
+import ImageLoader from './ImageLoader'
+
 export default {
-  mixins: [Widget],
+  mixins: [Widget, ImageLoader],
+  data: function () {
+    return {
+      imageUrl: null,
+    }
+  },
   computed: {
-    calcHref() {
-      if (this.parameters[0].includes('http')) {
-        return this.parameters[0]
-      } else {
-        return 'img/' + this.parameters[0]
-      }
-    },
-    calcWidth() {
+    width: function () {
       if (this.parameters[3]) {
-        return this.parameters[3] + 'px'
+        return `${this.parameters[3]}px`
       }
       return '100%'
     },
-    calcHeight() {
+    height: function () {
       if (this.parameters[4]) {
-        return this.parameters[4] + 'px'
+        return `${this.parameters[4]}px`
       }
       return '100%'
     },
+  },
+  created: function () {
+    if (!this.parameters[0].startsWith('http')) {
+      this.getPresignedUrl(this.parameters[0]).then((response) => {
+        this.imageUrl = response
+      })
+    } else {
+      this.imageUrl = this.parameters[0]
+    }
   },
 }
 </script>

@@ -21,10 +21,10 @@ VERTICAL
     #  SETTING IMAGE true "ground_on.png" 100 200
     #  SETTING IMAGE false "ground_off.png" 100 200
     CANVASLINE 10 10 640 10 blue 3
-    CANVASIMAGE "satellite.png" 50 150
+    CANVASIMAGE "satellite.png" 90 130 200 200
     # We're using the converted value and specifing a default of "ground_error.png"
     # if none of the IMAGE settings match the value
-    CANVASIMAGEVALUE <%= target_name %> HEALTH_STATUS GROUND1STATUS CONVERTED "ground_error.png" 400 100
+    CANVASIMAGEVALUE <%= target_name %> HEALTH_STATUS GROUND1STATUS CONVERTED "ground_error.png" 400 100 180 180
       SETTING IMAGE CONNECTED "ground_on.png" 400 100
       SETTING IMAGE UNAVAILABLE "ground_off.png" 400 100
       # If the image is clicked the "<%= target_name %> HS" screen will popup at 100, 100
@@ -32,7 +32,7 @@ VERTICAL
     CANVASLABEL 380 300 "Ground Station #1"
     CANVASLABELVALUE <%= target_name %> HEALTH_STATUS GROUND1STATUS 520 300
     # The default type is RAW and no default means anything over 10 will be blank
-    CANVASIMAGEVALUE <%= target_name %> HEALTH_STATUS GROUND2STATUS
+    CANVASIMAGEVALUE <%= target_name %> HEALTH_STATUS GROUND2STATUS RAW "ground_error.png" 400 350 180 180
       SETTING IMAGE 1 "ground_on.png" 400 350
       SETTING IMAGE 0 "ground_off.png" 400 350
       # This is an example of using a range of values with a particular image

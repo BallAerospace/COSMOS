@@ -18,104 +18,111 @@
 -->
 
 <template>
-  <image
-    :href="calcHref"
-    :x="calcX"
-    :y="calcY"
-    :width="calcWidth"
-    :height="calcHeight"
-  />
+  <g>
+    <image
+      v-for="image in images"
+      :key="image.value"
+      v-show="image.value == selectedValue"
+      :href="image.url"
+      :x="image.x"
+      :y="image.y"
+      :width="image.width"
+      :height="image.height"
+    />
+    <image
+      v-if="defaultImage"
+      v-show="showDefault"
+      :href="defaultImage.url"
+      :x="defaultImage.x"
+      :y="defaultImage.y"
+      :width="defaultImage.width"
+      :height="defaultImage.height"
+    />
+  </g>
 </template>
 
 <script>
 import Widget from './Widget'
-import get from 'lodash/get'
-import set from 'lodash/set'
+import ImageLoader from './ImageLoader'
 
 export default {
-  mixins: [Widget],
-  data() {
+  mixins: [Widget, ImageLoader],
+  data: function () {
     return {
-      valueId: 0,
-      imageLookup: {},
-      defaultLookup: {},
+      images: [],
+      defaultImage: null,
     }
   },
   computed: {
-    calcHref() {
-      const value = this.$store.state.tlmViewerValues[this.valueId][0]
-      const href = get(this.imageLookup, [value, 'img'], this.defaultLookup.img)
-      if (href && href.includes('http')) {
-        return href
-      } else {
-        return 'img/' + href
-      }
+    valueId: function () {
+      return `${this.parameters[0]}__${this.parameters[1]}__${
+        this.parameters[2]
+      }__${this.parameters[3] || 'RAW'}`
     },
-    calcX() {
-      const value = this.$store.state.tlmViewerValues[this.valueId][0]
-      return get(this.imageLookup, [value, 'x'], this.defaultLookup.x)
+    selectedValue: function () {
+      return this.$store.state.tlmViewerValues[this.valueId][0]
     },
-    calcY() {
-      const value = this.$store.state.tlmViewerValues[this.valueId][0]
-      return get(this.imageLookup, [value, 'y'], this.defaultLookup.y)
-    },
-    calcWidth() {
-      const value = this.$store.state.tlmViewerValues[this.valueId][0]
-      return get(this.imageLookup, [value, 'width'], this.defaultLookup.width)
-    },
-    calcHeight() {
-      const value = this.$store.state.tlmViewerValues[this.valueId][0]
-      return get(this.imageLookup, [value, 'height'], this.defaultLookup.height)
+    showDefault: function () {
+      return !this.images.some((image) => image.value == this.selectedValue)
     },
   },
-  created() {
-    let theType = 'RAW'
-    if (this.parameters[3]) {
-      theType = this.parameters[3]
-    }
-    this.valueId =
-      this.parameters[0] +
-      '__' +
-      this.parameters[1] +
-      '__' +
-      this.parameters[2] +
-      '__' +
-      theType
-    this.$store.commit('tlmViewerAddItem', this.valueId)
+  watch: {
+    valueId: {
+      immediate: true,
+      handler: function (val) {
+        this.$store.commit('tlmViewerAddItem', val)
+      },
+    },
+  },
+  created: function () {
+    // Set value images data
+    const promises = this.settings
+      .filter((setting) => setting[0] === 'IMAGE')
+      .map(async (setting) => {
+        let url = setting[2]
+        if (!url.startsWith('http')) {
+          url = await this.getPresignedUrl(url)
+        }
 
-    let width = '100%'
-    if (this.parameters[7]) {
-      width = this.parameters[7] + 'px'
-    }
-    let height = '100%'
-    if (this.parameters[8]) {
-      height = this.parameters[8] + 'px'
-    }
+        return {
+          url,
+          value: setting[1],
+          x: setting[3],
+          y: setting[4],
+          width: setting[5],
+          height: setting[6],
+        }
+      })
+    Promise.all(promises).then((images) => {
+      this.images = images
+    })
+
+    // Set default image data
     if (this.parameters[4]) {
-      this.defaultLookup = {
-        img: this.parameters[4],
+      const defaultImage = {
         x: this.parameters[5],
         y: this.parameters[6],
-        width: width,
-        height: height,
+        width: this.parameters[7] ? `${this.parameters[7]}px` : '100%',
+        height: this.parameters[8] ? `${this.parameters[8]}px` : '100%',
+      }
+
+      let url = this.parameters[4]
+      if (!url.startsWith('http')) {
+        this.getPresignedUrl(url).then((response) => {
+          this.defaultImage = {
+            ...defaultImage,
+            url: response,
+          }
+        })
+      } else {
+        this.defaultImage = {
+          ...defaultImage,
+          url,
+        }
       }
     }
-
-    this.settings.forEach((setting) => {
-      switch (setting[0]) {
-        case 'IMAGE':
-          set(this.imageLookup, setting[1], {
-            img: setting[2],
-            x: setting[3],
-            y: setting[4],
-            width: setting[5],
-            height: setting[6],
-          })
-          break
-      }
-    })
   },
-  destroyed() {
+  destroyed: function () {
     this.$store.commit('tlmViewerDeleteItem', this.valueId)
   },
 }
