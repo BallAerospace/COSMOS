@@ -1,6 +1,6 @@
 development:
   adapter: redis
-  url: <%= "redis://#{ENV['COSMOS_REDIS_USERNAME']}:#{ENV['COSMOS_REDIS_PASSWORD']}@#{ENV['COSMOS_REDIS_HOST']}" %>
+  url: <%= "redis://#{ENV['COSMOS_REDIS_USERNAME']}:#{ENV['COSMOS_REDIS_PASSWORD']}@#{ENV['COSMOS_REDIS_HOSTNAME']}:#{ENV['COSMOS_REDIS_PORT']}" %>
   # Doesn't appear to be used but it matches the script channel_prefix convention
   channel_prefix: cosmos-api
 
@@ -9,6 +9,6 @@ test:
 
 production:
   adapter: redis
-  url: <%= "redis://#{ENV['COSMOS_REDIS_USERNAME']}:#{ENV['COSMOS_REDIS_PASSWORD']}@#{ENV['COSMOS_REDIS_HOST']}" %>
+  url: <%= "redis://#{ENV['COSMOS_REDIS_USERNAME']}:#{ENV['COSMOS_REDIS_PASSWORD']}@#{ENV['COSMOS_REDIS_HOSTNAME']}:#{ENV['COSMOS_REDIS_PORT']}" %>
   # Doesn't appear to be used but it matches the script channel_prefix convention
   channel_prefix: cosmos-api

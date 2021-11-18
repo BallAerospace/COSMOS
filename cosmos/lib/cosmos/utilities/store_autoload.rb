@@ -77,7 +77,7 @@ module Cosmos
       Redis.exists_returns_integer = true
       @redis_username = ENV['COSMOS_REDIS_USERNAME']
       @redis_key = ENV['COSMOS_REDIS_PASSWORD']
-      @redis_url = ENV['COSMOS_REDIS_URL']
+      @redis_url = "redis://#{ENV['COSMOS_REDIS_HOSTNAME']}:#{ENV['COSMOS_REDIS_PORT']}"
       @redis_pool = ConnectionPool.new(size: pool_size) { build_redis() }
       @topic_offsets = {}
     end

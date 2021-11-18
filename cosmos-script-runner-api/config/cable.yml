@@ -1,6 +1,6 @@
 development:
   adapter: redis
-  url: <%= "redis://#{ENV['COSMOS_REDIS_USERNAME']}:#{ENV['COSMOS_REDIS_PASSWORD']}@#{ENV['COSMOS_REDIS_HOST']}" %>
+  url: <%= "redis://#{ENV['COSMOS_REDIS_USERNAME']}:#{ENV['COSMOS_REDIS_PASSWORD']}@#{ENV['COSMOS_REDIS_HOSTNAME']}:#{ENV['COSMOS_REDIS_PORT']}" %>
   # The channel_prefix is used in scripts/run_script.rb to subscribe to the channel
   # and app/models/running_script.rb to publish to the channel
   channel_prefix: script-api
@@ -10,7 +10,7 @@ test:
 
 production:
   adapter: redis
-  url: <%= "redis://#{ENV['COSMOS_REDIS_USERNAME']}:#{ENV['COSMOS_REDIS_PASSWORD']}@#{ENV['COSMOS_REDIS_HOST']}" %>
+  url: <%= "redis://#{ENV['COSMOS_REDIS_USERNAME']}:#{ENV['COSMOS_REDIS_PASSWORD']}@#{ENV['COSMOS_REDIS_HOSTNAME']}:#{ENV['COSMOS_REDIS_PORT']}" %>
   # The channel_prefix is used in scripts/run_script.rb to subscribe to the channel
   # and app/models/running_script.rb to publish to the channel
   channel_prefix: script-api
