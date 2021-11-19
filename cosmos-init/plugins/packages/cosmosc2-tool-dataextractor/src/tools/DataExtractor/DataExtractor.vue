@@ -727,7 +727,7 @@ export default {
           // This pulls out the attributes we requested
           const keys = Object.keys(packet)
           keys.forEach((key) => {
-            if (key === 'time') return // Skip time field
+            if (key === 'time' || key === 'packet') return // Skip time and packet fields
             // Get the value and put it into the correct column
             if (typeof packet[key] === 'object') {
               row[this.columnMap[key]] = '"' + packet[key]['raw'] + '"'

@@ -394,6 +394,7 @@ class StreamingThread
     return nil unless keys_remain
     result = {}
     objects.each do |object|
+      # Cosmos::Logger.debug("item:#{object.item_name} key:#{object.key} type:#{object.value_type}")
       if object.item_name
         result[object.key] = json_packet.read(object.item_name, object.value_type)
       else # whole packet
@@ -607,14 +608,20 @@ class StreamingApi
         type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
         if key_split.length > 4
           @item_name = key_split[3]
+          @value_type = key_split[4]
         end
       else # Reduced
         type = stream_mode
+        # Reduced items are passed as TGT__PKT__ITEM__REDUCETYPE__VALUETYPE
+        # e.g. INST__HEALTH_STATUS__TEMP1__AVG__CONVERTED
+        @item_name = "#{key_split[3]}__#{key_split[4]}"
+        @value_type = key_split[5]
       end
       @start_time = start_time
       @end_time = end_time
       authorize(permission: @cmd_or_tlm.to_s.downcase, target_name: @target_name, packet_name: @packet_name, scope: scope, token: token)
       @topic = "#{@scope}__#{type}__{#{@target_name}}__#{@packet_name}"
+      Cosmos::Logger.info("Streaming from #{@topic}")
       @offset = nil
       @offset = Cosmos::Store.get_last_offset(@topic) unless @start_time
       @thread_id = thread_id
