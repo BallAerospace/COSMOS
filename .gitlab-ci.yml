@@ -20,11 +20,11 @@ unit-test-job:   # This job runs in the test stage.
   tags:
     - ruby
   script:
-    - cd cosmos; rake spec
+    - cd cosmos; bundle install; rake spec
 
 lint-test-job:   # This job also runs in the test stage.
   stage: test    # It can run at the same time as unit-test-job (in parallel).
   tags:
     - ruby
   script:
-    - rubocop
+    - cd cosmos; rubocop
