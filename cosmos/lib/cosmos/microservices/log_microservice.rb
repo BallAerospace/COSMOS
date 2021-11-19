@@ -75,10 +75,10 @@ module Cosmos
         day_label = "#{scope}__#{target_name}__#{packet_name}__day__#{type}"
         plws[topic] = {
           :RT => PacketLogWriter.new(remote_log_directory, rt_label, true, @cycle_time, @cycle_size, redis_topic: topic),
-          :STORED => PacketLogWriter.new(remote_log_directory, stored_label, true, @cycle_time, @cycle_size, redis_topic: topic)
-          :MIN => PacketLogWriter.new(remote_log_directory, min_label, true, @cycle_time, @cycle_size, redis_topic: topic)
-          :HOUR => PacketLogWriter.new(remote_log_directory, hour_label, true, @cycle_time, @cycle_size, redis_topic: topic)
-          :DAY => PacketLogWriter.new(remote_log_directory, day_label, true, @cycle_time, @cycle_size, redis_topic: topic)
+          :STORED => PacketLogWriter.new(remote_log_directory, stored_label, true, @cycle_time, @cycle_size, redis_topic: topic),
+          :MIN => PacketLogWriter.new(remote_log_directory, min_label, true, @cycle_time, @cycle_size, redis_topic: topic),
+          :HOUR => PacketLogWriter.new(remote_log_directory, hour_label, true, @cycle_time, @cycle_size, redis_topic: topic),
+          :DAY => PacketLogWriter.new(remote_log_directory, day_label, true, @cycle_time, @cycle_size, redis_topic: topic),
         }
       end
       return plws

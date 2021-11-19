@@ -20,7 +20,6 @@
 require 'cosmos/models/model'
 require 'cosmos/models/microservice_model'
 require 'cosmos/topics/limits_event_topic'
-require 'cosmos/microservices/reducer_microservice'
 require 'cosmos/system'
 require 'cosmos/utilities/s3'
 require 'cosmos/utilities/zip'
