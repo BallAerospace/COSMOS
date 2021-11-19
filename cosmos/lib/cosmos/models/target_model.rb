@@ -331,6 +331,12 @@ module Cosmos
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__REDUCER__#{@name}", scope: @scope)
       model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__MINLOG__#{@name}", scope: @scope)
+      model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__HOURLOG__#{@name}", scope: @scope)
+      model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__DAYLOG__#{@name}", scope: @scope)
+      model.destroy if model
     end
 
     ##################################################
@@ -462,9 +468,11 @@ module Cosmos
         system.telemetry.packets(@name).each do |packet_name, packet|
           packet_topic_list << "#{@scope}__TELEMETRY__{#{@name}}__#{packet_name}"
           decom_topic_list  << "#{@scope}__DECOM__{#{@name}}__#{packet_name}"
-          reduced_min_list  << "#{@scope}__#{ReducerMicroservice::MINUTE_KEY}__{#{@name}}__#{packet_name}"
-          reduced_hour_list << "#{@scope}__#{ReducerMicroservice::HOUR_KEY}__{#{@name}}__#{packet_name}"
-          reduced_day_list  << "#{@scope}__#{ReducerMicroservice::DAY_KEY}__{#{@name}}__#{packet_name}"
+          # NOTE: ideally use the constants defined in reducer_microservice.rb but that
+          # leads to a circular dependency so just use the names
+          reduced_min_list  << "#{@scope}__REDUCED_MINUTE__{#{@name}}__#{packet_name}"
+          reduced_hour_list << "#{@scope}__REDUCED_HOUR__{#{@name}}__#{packet_name}"
+          reduced_day_list  << "#{@scope}__REDUCED_DAY__{#{@name}}__#{packet_name}"
         end
       rescue
         # No telemetry packets for this target
@@ -598,7 +606,7 @@ module Cosmos
       Logger.info "Configured microservice #{microservice_name}"
 
       # Reduced Minute Log Microservice
-      microservice_name = "#{@scope}__MIN_LOG__#{@name}"
+      microservice_name = "#{@scope}__MINLOG__#{@name}"
       microservice = MicroserviceModel.new(
         name: microservice_name,
         folder_name: @folder_name,
@@ -620,7 +628,7 @@ module Cosmos
       Logger.info "Configured microservice #{microservice_name}"
 
       # Reduced Hour Log Microservice
-      microservice_name = "#{@scope}__HOUR_LOG__#{@name}"
+      microservice_name = "#{@scope}__HOURLOG__#{@name}"
       microservice = MicroserviceModel.new(
         name: microservice_name,
         folder_name: @folder_name,
@@ -642,7 +650,7 @@ module Cosmos
       Logger.info "Configured microservice #{microservice_name}"
 
       # Reduced Day Log Microservice
-      microservice_name = "#{@scope}__DAY_LOG__#{@name}"
+      microservice_name = "#{@scope}__DAYLOG__#{@name}"
       microservice = MicroserviceModel.new(
         name: microservice_name,
         folder_name: @folder_name,

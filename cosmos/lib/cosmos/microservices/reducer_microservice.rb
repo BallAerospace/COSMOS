@@ -27,6 +27,7 @@ module Cosmos
     MINUTE_METRIC = 'reducer_minute_duration'
     HOUR_METRIC = 'reducer_hour_duration'
     DAY_METRIC = 'reducer_day_duration'
+    # NOTE: Changing these requires a change in target_model.rb
     MINUTE_KEY = 'REDUCED_MINUTE'
     HOUR_KEY = 'REDUCED_HOUR'
     DAY_KEY = 'REDUCED_DAY'
