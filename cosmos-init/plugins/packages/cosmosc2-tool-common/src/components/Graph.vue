@@ -443,7 +443,7 @@ export default {
       valueTypes: ['CONVERTED', 'RAW'],
       active: true,
       expand: true,
-      fullWidth: true,
+      fullWidth: false,
       fullHeight: true,
       graph: null,
       editGraph: false,

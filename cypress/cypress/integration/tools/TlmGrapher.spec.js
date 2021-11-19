@@ -160,6 +160,10 @@ describe('TlmGrapher', () => {
   it('shrinks and expands a graph width', () => {
     aliasWidthHeight()
     cy.get('#gridItem0').within(() => {
+      cy.get('[data-test=expandWidth]').click({ force: true })
+    })
+    checkWidthHeight('eq', 1, 'eq', 1)
+    cy.get('#gridItem0').within(() => {
       cy.contains('Graph 0')
       cy.get('[data-test=collapseWidth]').click({ force: true })
     })
