@@ -608,14 +608,14 @@ class StreamingApi
         type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'
         if key_split.length > 4
           @item_name = key_split[3]
-          @value_type = key_split[4]
+          @value_type = key_split[4].intern
         end
       else # Reduced
         type = stream_mode
         # Reduced items are passed as TGT__PKT__ITEM__REDUCETYPE__VALUETYPE
         # e.g. INST__HEALTH_STATUS__TEMP1__AVG__CONVERTED
         @item_name = "#{key_split[3]}__#{key_split[4]}"
-        @value_type = key_split[5]
+        @value_type = key_split[5].intern
       end
       @start_time = start_time
       @end_time = end_time

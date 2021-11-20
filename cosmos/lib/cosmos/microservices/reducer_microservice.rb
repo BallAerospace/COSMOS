@@ -71,7 +71,8 @@ module Cosmos
         # Set the target for use in the metric ... should only ever be one
         @target ||= target_name
         REDUCER_KEYS.each do |key|
-          stream_name = "#{scope}__#{key}__{#{target_name}}__#{packet_name}"
+          # NOTE: target_name already contains the brackets, e.g '{INST}'
+          stream_name = "#{scope}__#{key}__#{target_name}__#{packet_name}"
           new_streams << stream_name unless Store.exists?(stream_name)
         end
       end
@@ -99,7 +100,8 @@ module Cosmos
         # Get reduced stream offsets
         scope, _, target_name, packet_name = topic.split('__')
         REDUCER_KEYS.each do |key|
-          stream_name = "#{scope}__#{key}__{#{target_name}}__#{packet_name}"
+          # NOTE: target_name already contains the brackets, e.g '{INST}'
+          stream_name = "#{scope}__#{key}__#{target_name}__#{packet_name}"
           id, msg = Store.get_oldest_message(stream_name)
           if msg
             @offsets[stream_name] = ns_ms(msg['time'])
