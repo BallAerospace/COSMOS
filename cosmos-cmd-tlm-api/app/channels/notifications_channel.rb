@@ -25,8 +25,11 @@ class NotificationsChannel < ApplicationCable::Channel
   end
 
   def unsubscribed
-    @broadcasters[uuid].kill
-    @broadcasters[uuid] = nil
-    @broadcasters.delete(uuid)
+    if @broadcasters[uuid]
+      stop_stream_from uuid
+      @broadcasters[uuid].kill
+      @broadcasters[uuid] = nil
+      @broadcasters.delete(uuid)
+    end
   end
 end
