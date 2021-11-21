@@ -47,5 +47,10 @@ export default {
       if (val.length === 1 || (!this.scope && val.length)) this.scope = val[0]
     },
   },
+  created: function () {
+    if (localStorage.scope == null) {
+      localStorage.scope = 'DEFAULT'
+    }
+  },
 }
 </script>
