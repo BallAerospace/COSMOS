@@ -63,14 +63,7 @@ export default {
       if (this.parameters[5]) {
         type = this.parameters[5]
       }
-      this.valueId =
-        this.parameters[0] +
-        '__' +
-        this.parameters[1] +
-        '__' +
-        this.parameters[2] +
-        '__' +
-        type
+      this.valueId = `${this.parameters[0]}__${this.parameters[1]}__${this.parameters[2]}__${type}`
       this.$store.commit('tlmViewerAddItem', this.valueId)
     }
   },
