@@ -42,6 +42,7 @@ export default {
   watch: {
     scope: function (val) {
       localStorage.scope = val
+      location.reload()
     },
     scopes: function (val) {
       if (val.length === 1 || (!this.scope && val.length)) this.scope = val[0]
