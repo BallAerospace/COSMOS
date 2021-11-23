@@ -103,22 +103,6 @@ module Cosmos
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"
-
-      # Limits Events Log Microservice
-      microservice_name = "#{@scope}__LIMITSEVENTS__LOG"
-      microservice = MicroserviceModel.new(
-        name: microservice_name,
-        cmd: ["ruby", "text_log_microservice.rb", microservice_name],
-        work_dir: '/cosmos/lib/cosmos/microservices',
-        options: [
-          ["CYCLE_TIME", "3600"], # Keep at most 1 hour per log
-        ],
-        topics: ["#{@scope}__cosmos_limits_events"],
-        scope: @scope
-      )
-      microservice.create
-      microservice.deploy(gem_path, variables)
-      Logger.info "Configured microservice #{microservice_name}"
     end
 
     def undeploy
@@ -127,8 +111,6 @@ module Cosmos
       model = MicroserviceModel.get_model(name: "#{@scope}__COSMOS__LOG", scope: @scope)
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__NOTIFICATION__LOG", scope: @scope)
-      model.destroy if model
-      model = MicroserviceModel.get_model(name: "#{@scope}__LIMITSEVENTS__LOG", scope: @scope)
       model.destroy if model
     end
 

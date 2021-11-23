@@ -33,33 +33,33 @@ module Cosmos
           ack_topic = topic.split("__")
           ack_topic[1] = 'ACK' + ack_topic[1]
           ack_topic = ack_topic.join("__")
-          Store.write_topic(ack_topic, { 'result' => result, 'id' => msg_id })
+          Store.write_topic(ack_topic, { 'result' => result, 'id' => msg_id }, '*', 100)
         end
       end
     end
 
     def self.write_raw(interface_name, data, scope:)
-      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'raw' => data })
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'raw' => data }, '*', 100)
     end
 
     def self.connect_interface(interface_name, scope:)
-      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'connect' => 'true' })
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'connect' => 'true' }, '*', 100)
     end
 
     def self.disconnect_interface(interface_name, scope:)
-      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'disconnect' => 'true' })
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'disconnect' => 'true' }, '*', 100)
     end
 
     def self.start_raw_logging(interface_name, scope:)
-      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'log_raw' => 'true' })
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'log_raw' => 'true' }, '*', 100)
     end
 
     def self.stop_raw_logging(interface_name, scope:)
-      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'log_raw' => 'false' })
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'log_raw' => 'false' }, '*', 100)
     end
 
     def self.shutdown(interface_name, scope:)
-      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'shutdown' => 'true' })
+      Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface_name}", { 'shutdown' => 'true' }, '*', 100)
     end
   end
 end
