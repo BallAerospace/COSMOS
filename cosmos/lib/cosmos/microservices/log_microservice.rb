@@ -102,8 +102,8 @@ module Cosmos
       when :REDUCED
         packet_type = :JSON_PACKET
         data_key = "json_data"
-        # Name is SCOPE__<MIN|HOUR|DAY>_LOG__TARGET
-        log_key = @name.split('__')[1].split('_')[0].intern
+        # Second part of the topic is REDUCED_MINUTE, REDUCED_HOUR, and REDUCED_DAY (see reducer_microservice.rb)
+        log_key = topic_split[1].split('_')[1].intern
       end
       # NOTE: The PacketLogWriter class writes packets until the file is closed due to being
       # a certain size or after a certain time period. The write method handles all this logic.
