@@ -23,10 +23,6 @@ IGNORE_ITEM CCSDSSEQFLAGS
 IGNORE_ITEM CCSDSSEQCNT
 IGNORE_ITEM CCSDSLENGTH
 
-IGNORE_ITEM RECEIVED_COUNT
-IGNORE_ITEM RECEIVED_TIMESECONDS
-IGNORE_ITEM RECEIVED_TIMEFORMATTED
-
 # Explicitly define command and telemetry files
 # If not given then all the files in cmd/tlm will be processed in
 # alphabetical order
