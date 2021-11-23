@@ -101,7 +101,7 @@ export default {
       if (this.type === 'Telemetry') {
         this.api
           .get_tlm_values([
-            `${this.targetName}__${this.packetName}__PACKET_TIMEFORMATTED__CONVERTE`,
+            `${this.targetName}__${this.packetName}__PACKET_TIMEFORMATTED__CONVERTED`,
             `${this.targetName}__${this.packetName}__RECEIVED_TIMEFORMATTED__CONVERTED`,
           ])
           .then((values) => {

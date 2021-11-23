@@ -426,7 +426,7 @@ export default {
         .save_config(this.toolName, name, JSON.stringify(this.items))
         .then((response) => {
           this.$notify.normal({
-            title: 'Saved configuartion',
+            title: 'Saved configuration',
             body: name,
           })
         })
