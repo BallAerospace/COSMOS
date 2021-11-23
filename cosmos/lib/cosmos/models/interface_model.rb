@@ -247,6 +247,29 @@ module Cosmos
       microservice.create
       microservice.deploy(gem_path, variables)
       Logger.info "Configured #{type.downcase} microservice #{microservice_name}"
+
+      topic_list = ["#{@scope}__CMD}INTERFACE__#{@name}"]
+      @target_names.each do |target_name|
+        topic_list << "#{@scope}__CMD}TARGET__#{target_name}"
+        topic_list << "#{@scope}__ACKCMD}TARGET__#{target_name}"
+      end
+
+      # InterfaceLog Microservice
+      microservice_name = "#{@scope}__#{type}LOG__#{@name}"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        cmd: ["ruby", "text_log_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        options: [
+          ["CYCLE_TIME", "3600"], # Keep at most 1 hour per log
+        ],
+        topics: topic_list,
+        scope: @scope
+      )
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
+
       microservice
     end
 

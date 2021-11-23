@@ -198,7 +198,9 @@ module Cosmos
           if scope
             Store.write_topic("#{scope}__cosmos_log_messages", data)
           else
-            Store.write_topic("cosmos_log_messages", data)
+            # The base cosmos_log_messages doesn't have an associated logger
+            # so it must be limited to prevent unbounded stream growth
+            Store.write_topic("cosmos_log_messages", data, '*', 1000)
           end
         end
       end
@@ -219,7 +221,9 @@ module Cosmos
           if scope
             Store.write_topic("#{scope}__cosmos_log_messages", data)
           else
-            Store.write_topic("cosmos_log_messages", data)
+            # The base cosmos_log_messages doesn't have an associated logger
+            # so it must be limited to prevent unbounded stream growth
+            Store.write_topic("cosmos_log_messages", data, '*', 1000)
           end
         end
       end
