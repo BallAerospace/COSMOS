@@ -126,35 +126,37 @@ export default {
     },
   },
   created() {
-    Api.get('/cosmos-api/tools/all').then((response) => {
-      this.appNav = response.data
+    Api.get('/cosmos-api/tools/all', { params: { scope: 'DEFAULT' } }).then(
+      (response) => {
+        this.appNav = response.data
 
-      // Register apps and start single-spa
-      for (var key of Object.keys(this.appNav)) {
-        if (this.appNav[key].shown) {
-          let folder_name = this.appNav[key].folder_name
-          let name = '@cosmosc2/tool-' + folder_name
-          registerApplication({
-            name: name,
-            app: () => System.import(name),
-            activeWhen: ['/tools/' + folder_name],
-          })
-        }
-      }
-      start({
-        urlRerouteOnly: true,
-      })
-
-      // Redirect / to the first tool
-      if (window.location.pathname == '/') {
-        for (var key of Object.keys(this.shownTools)) {
+        // Register apps and start single-spa
+        for (var key of Object.keys(this.appNav)) {
           if (this.appNav[key].shown) {
-            history.replaceState(null, '', this.appNav[key].url)
-            break
+            let folder_name = this.appNav[key].folder_name
+            let name = '@cosmosc2/tool-' + folder_name
+            registerApplication({
+              name: name,
+              app: () => System.import(name),
+              activeWhen: ['/tools/' + folder_name],
+            })
+          }
+        }
+        start({
+          urlRerouteOnly: true,
+        })
+
+        // Redirect / to the first tool
+        if (window.location.pathname == '/') {
+          for (var key of Object.keys(this.shownTools)) {
+            if (this.appNav[key].shown) {
+              history.replaceState(null, '', this.appNav[key].url)
+              break
+            }
           }
         }
       }
-    })
+    )
   },
 }
 </script>
