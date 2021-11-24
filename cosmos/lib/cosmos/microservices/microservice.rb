@@ -78,6 +78,7 @@ module Cosmos
       raise "Microservice names should be scope, type, and then name" if split_name.length != 3
 
       @scope = split_name[0]
+      $cosmos_scope = @scope
       Logger.scope = @scope
       @cancel_thread = false
       @metric = Metric.new(microservice: @name, scope: @scope)

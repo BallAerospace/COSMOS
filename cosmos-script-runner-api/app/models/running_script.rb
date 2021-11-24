@@ -1049,13 +1049,13 @@ class RunningScript
       string.each_line do |out_line|
         begin
           json = JSON.parse(out_line)
-          time_formatted = json["@timestamp"]
-          out_line = json["log"]
+          time_formatted = json["@timestamp"] if json["@timestamp"]
+          out_line = json["log"] if json["log"]
         rescue
           # Regular output
         end
 
-        if out_line[0..1] == '20' and out_line[10] == ' ' and out_line[23..24] == ' ('
+        if out_line.length >= 25 and out_line[0..1] == '20' and out_line[10] == ' ' and out_line[23..24] == ' ('
           line_to_write = out_line
         else
           if filename
