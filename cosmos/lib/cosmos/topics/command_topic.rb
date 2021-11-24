@@ -41,7 +41,7 @@ module Cosmos
       # Save the existing cmd_params Hash and JSON generate before writing to the topic
       cmd_params = command['cmd_params']
       command['cmd_params'] = JSON.generate(command['cmd_params'].as_json)
-      cmd_id = Store.write_topic("{#{scope}__CMD}TARGET__#{command['target_name']}", command)
+      cmd_id = Store.write_topic("{#{scope}__CMD}TARGET__#{command['target_name']}", command, '*', 100)
       # TODO: This timeout is fine for most but can we get the write_timeout from the interface here?
       time = Time.now
       while (Time.now - time) < COMMAND_ACK_TIMEOUT_S
