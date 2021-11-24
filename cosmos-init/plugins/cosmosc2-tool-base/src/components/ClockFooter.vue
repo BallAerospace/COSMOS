@@ -80,7 +80,7 @@ export default {
     return {
       localDate: new Date(),
       displayLocal: localStorage.clock_zone === 'local',
-      display24h: !localStorage.clozk_12h,
+      display24h: !localStorage.clock_12h,
       dateMode: localStorage.clock_dateMode || 'monthFirst',
       intervalCount: 0,
       showMenu: false,

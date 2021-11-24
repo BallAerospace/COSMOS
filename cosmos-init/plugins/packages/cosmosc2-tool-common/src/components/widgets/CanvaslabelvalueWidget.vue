@@ -56,13 +56,7 @@ export default {
     },
   },
   created() {
-    this.valueId =
-      this.parameters[0] +
-      '__' +
-      this.parameters[1] +
-      '__' +
-      this.parameters[2] +
-      '__CONVERTED'
+    this.valueId = `${this.parameters[0]}__${this.parameters[1]}__${this.parameters[2]}__CONVERTED`
     this.$store.commit('tlmViewerAddItem', this.valueId)
   },
   destroyed() {

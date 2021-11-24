@@ -21,19 +21,6 @@
   <div>
     <top-bar :menus="menus" :title="title" />
     <v-container>
-      <v-snackbar
-        v-model="showAlert"
-        :top="true"
-        :type="alertType"
-        :icon="alertType"
-        :timeout="5000"
-      >
-        <v-icon> mdi-{{ alertType }} </v-icon>
-        {{ alert }}
-        <template v-slot:action="{ attrs }">
-          <v-btn text v-bind="attrs" @click="showAlert = false"> Close </v-btn>
-        </template>
-      </v-snackbar>
       <v-row>
         <v-col>
           <v-text-field
@@ -287,9 +274,6 @@ export default {
   },
   data() {
     return {
-      alert: '',
-      alertType: 'success',
-      showAlert: false,
       title: 'Data Extractor',
       toolName: 'data-exporter',
       openConfig: false,
@@ -434,11 +418,6 @@ export default {
     this.cable.disconnect()
   },
   methods: {
-    alertHandler: function (event) {
-      this.alert = event.text
-      this.alertType = event.type
-      this.showAlert = true
-    },
     openConfiguration: function (name) {
       localStorage['lastconfig__data_exporter'] = name
       new CosmosApi()
@@ -446,17 +425,17 @@ export default {
         .then((response) => {
           if (response) {
             this.items = JSON.parse(response)
-            this.alertHandler({
-              text: `Loading configuration: ${name}`,
-              type: 'success',
+            this.$notify.normal({
+              title: 'Loading configuartion',
+              body: name,
             })
           }
         })
         .catch((error) => {
           if (error) {
-            this.alertHandler({
-              text: `Failed to load configuration: ${name}. ${error}`,
-              type: 'error',
+            this.$notify.serious({
+              title: `Failed to load configuration ${name}`,
+              body: error,
             })
             localStorage['lastconfig__data_exporter'] = null
           }
@@ -467,16 +446,16 @@ export default {
       new CosmosApi()
         .save_config(this.toolName, name, JSON.stringify(this.items))
         .then((response) => {
-          this.alertHandler({
-            text: `Saved configuration: ${name}`,
-            type: 'success',
+          this.$notify.normal({
+            title: 'Saved configuration',
+            body: name,
           })
         })
         .catch((error) => {
           if (error) {
-            this.alertHandler({
-              text: `Failed to save configuration: ${name}.\n${error}`,
-              type: 'error',
+            this.$notify.serious({
+              title: `Failed to save configuration: ${name}`,
+              body: error,
             })
           }
         })
@@ -489,9 +468,8 @@ export default {
           listItem.packetName === item.packetName &&
           listItem.targetName === item.targetName
         ) {
-          this.alertHandler({
-            text: 'This item has already been added!',
-            type: 'warning',
+          this.$notify.caution({
+            body: 'This item has already been added!',
           })
           return
         }
@@ -554,35 +532,32 @@ export default {
       // Check for an empty time period
       this.setTimestamps()
       if (!this.startDateTime || !this.endDateTime) {
-        this.alertHandler({
-          text: 'Invalid date/time selected!',
-          type: 'warning',
+        this.$notify.caution({
+          body: 'Invalid date/time selected!',
         })
         return
       }
       if (this.startDateTime === this.endDateTime) {
-        this.alertHandler({
-          text: 'Start date/time is equal to end date/time!',
-          type: 'warning',
+        this.$notify.caution({
+          body: 'Start date/time is equal to end date/time!',
         })
         return
       }
       if (this.endDateTime - this.startDateTime < 0) {
-        this.alertHandler({
-          text: 'Start date/time is greater then end date/time!',
-          type: 'warning',
+        this.$notify.caution({
+          body: 'Start date/time is greater then end date/time!',
         })
         return
       }
       // Check for a future End Time
       if (new Date(this.endDateTime / 1_000_000) > Date.now()) {
-        this.alertHandler({
-          text: `Note: End date/time is greater than current date/time. Data will
+        this.$notify.caution({
+          title: 'Note',
+          body: `End date/time is greater than current date/time. Data will
             continue to stream in real-time until
             ${new Date(
               this.endDateTime / 1_000_000
             ).toISOString()} is reached.`,
-          type: 'warning',
         })
       }
 
@@ -593,15 +568,13 @@ export default {
           received: (data) => this.received(data),
           connected: () => this.onConnected(),
           disconnected: () => {
-            this.alertHandler({
-              text: 'COSMOS backend connection disconnected.',
-              type: 'warning',
+            this.$notify.caution({
+              body: 'COSMOS backend connection disconnected.',
             })
           },
           rejected: () => {
-            this.alertHandler({
-              text: 'COSMOS backend connection rejected.',
-              type: 'warning',
+            this.$notify.caution({
+              body: 'COSMOS backend connection rejected.',
             })
           },
         })
@@ -618,15 +591,7 @@ export default {
       var items = []
       this.items.forEach((item, index) => {
         items.push(
-          item.cmdOrTlm +
-            '__' +
-            item.targetName +
-            '__' +
-            item.packetName +
-            '__' +
-            item.itemName +
-            '__' +
-            item.valueType
+          `${item.cmdOrTlm}__${item.targetName}__${item.packetName}__${item.itemName}__${item.valueType}`
         )
       })
       CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
@@ -674,9 +639,8 @@ export default {
     },
     received: function (json_data) {
       if (json_data.error) {
-        this.alertHandler({
-          type: 'error',
-          text: json_data.error,
+        this.$notify.serious({
+          body: json_data.error,
         })
         return
       }
@@ -700,9 +664,8 @@ export default {
       if (this.rawData.length === 0) {
         let start = new Date(this.startDateTime / 1_000_000).toISOString()
         let end = new Date(this.endDateTime / 1_000_000).toISOString()
-        this.alertHandler({
-          text: `No data found for the items in the requested time range of ${start} to ${end}`,
-          type: 'warning',
+        this.$notify.caution({
+          body: `No data found for the items in the requested time range of ${start} to ${end}`,
         })
       } else {
         let headers = ''

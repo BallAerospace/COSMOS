@@ -29,8 +29,8 @@ class StreamingChannel < ApplicationCable::Channel
       stop_stream_from uuid
       @broadcasters[uuid].kill
       @broadcasters[uuid] = nil
+      @broadcasters.delete(uuid)
     end
-    @broadcasters.delete(uuid)
   end
 
   # data holds the following keys:

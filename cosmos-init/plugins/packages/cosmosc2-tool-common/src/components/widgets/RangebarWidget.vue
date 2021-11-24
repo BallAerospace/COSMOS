@@ -58,14 +58,7 @@ export default {
   },
   created() {
     const type = this.parameters[5] ? this.parameters[5] : 'CONVERTED'
-    this.valueId =
-      this.parameters[0] +
-      '__' +
-      this.parameters[1] +
-      '__' +
-      this.parameters[2] +
-      '__' +
-      type
+    this.valueId = `${this.parameters[0]}__${this.parameters[1]}__${this.parameters[2]}__${type}`
     this.$store.commit('tlmViewerAddItem', this.valueId)
 
     if (this.parameters[6]) {

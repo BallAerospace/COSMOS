@@ -10,7 +10,10 @@
         {{ toastNotificationIcon }}
       </v-icon>
       <div class="toast-content" :style="contentStyle">
-        <span class="text-subtitle-1 mr-1 notification-text">
+        <span
+          v-if="toastNotification.title"
+          class="text-subtitle-1 mr-1 notification-text"
+        >
           {{ toastNotification.title }}:
         </span>
         <span class="text-body-2 notification-text">

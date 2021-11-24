@@ -134,6 +134,7 @@ export default {
         data: {
           position: evt.newIndex,
         },
+        params: { scope: 'DEFAULT' },
       }).then((response) => {
         this.alert = `Reordered tool ${this.tools[evt.oldIndex]}`
         this.alertType = 'success'
@@ -145,11 +146,13 @@ export default {
       })
     },
     update() {
-      Api.get('/cosmos-api/tools').then((response) => {
-        this.tools = response.data
-        this.name = ''
-        this.url = ''
-      })
+      Api.get('/cosmos-api/tools', { params: { scope: 'DEFAULT' } }).then(
+        (response) => {
+          this.tools = response.data
+          this.name = ''
+          this.url = ''
+        }
+      )
     },
     add() {
       Api.post('/cosmos-api/tools', {
@@ -162,6 +165,7 @@ export default {
             window: 'NEW',
           }),
         },
+        params: { scope: 'DEFAULT' },
       }).then((response) => {
         this.alert = `Added tool ${this.name}`
         this.alertType = 'success'
@@ -173,7 +177,9 @@ export default {
       })
     },
     editTool(name) {
-      Api.get(`/cosmos-api/tools/${name}`).then((response) => {
+      Api.get(`/cosmos-api/tools/${name}`, {
+        params: { scope: 'DEFAULT' },
+      }).then((response) => {
         this.tool_id = name
         this.jsonContent = JSON.stringify(response.data, null, '\t')
         this.dialogTitle = name
@@ -195,6 +201,7 @@ export default {
           data: {
             json: content,
           },
+          params: { scope: 'DEFAULT' },
         }).then((response) => {
           this.alert = 'Modified Tool'
           this.alertType = 'success'
@@ -213,7 +220,9 @@ export default {
           cancelText: 'Cancel',
         })
         .then(function (dialog) {
-          return Api.delete(`/cosmos-api/tools/${name}`)
+          return Api.delete(`/cosmos-api/tools/${name}`, {
+            params: { scope: 'DEFAULT' },
+          })
         })
         .then((response) => {
           this.alert = `Removed tool ${name}`

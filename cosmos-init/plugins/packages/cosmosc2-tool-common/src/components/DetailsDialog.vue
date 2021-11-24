@@ -20,7 +20,6 @@
 <template>
   <v-dialog v-model="show" width="600">
     <v-card>
-
       <v-system-bar>
         <v-spacer />
         <span> Details </span>
@@ -164,11 +163,7 @@
             <v-col cols="3" class="label">Meta</v-col>
             <v-col></v-col>
             <v-container fluid class="ml-5 pa-0">
-              <v-row
-                no-gutters
-                v-for="(value, key) in details.meta"
-                :key="key"
-              >
+              <v-row no-gutters v-for="(value, key) in details.meta" :key="key">
                 <v-col cols="4" class="label">{{ key }}</v-col>
                 <v-col>{{ value }}</v-col>
               </v-row>
@@ -180,7 +175,6 @@
           </v-row>
         </v-container>
       </v-card-text>
-
     </v-card>
   </v-dialog>
 </template>
@@ -240,30 +234,10 @@ export default {
           this.updater = setInterval(() => {
             this.api
               .get_tlm_values([
-                this.targetName +
-                  '__' +
-                  this.packetName +
-                  '__' +
-                  this.itemName +
-                  '__RAW',
-                this.targetName +
-                  '__' +
-                  this.packetName +
-                  '__' +
-                  this.itemName +
-                  '__CONVERTED',
-                this.targetName +
-                  '__' +
-                  this.packetName +
-                  '__' +
-                  this.itemName +
-                  '__FORMATTED',
-                this.targetName +
-                  '__' +
-                  this.packetName +
-                  '__' +
-                  this.itemName +
-                  '__WITH_UNITS',
+                `${this.targetName}__${this.packetName}__${this.itemName}__RAW`,
+                `${this.targetName}__${this.packetName}__${this.itemName}__CONVERTED`,
+                `${this.targetName}__${this.packetName}__${this.itemName}__FORMATTED`,
+                `${this.targetName}__${this.packetName}__${this.itemName}__WITH_UNITS`,
               ])
               .then((values) => {
                 this.rawValue = values[0][0]

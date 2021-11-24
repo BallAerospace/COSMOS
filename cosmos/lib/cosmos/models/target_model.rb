@@ -331,12 +331,6 @@ module Cosmos
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__REDUCER__#{@name}", scope: @scope)
       model.destroy if model
-      model = MicroserviceModel.get_model(name: "#{@scope}__MINLOG__#{@name}", scope: @scope)
-      model.destroy if model
-      model = MicroserviceModel.get_model(name: "#{@scope}__HOURLOG__#{@name}", scope: @scope)
-      model.destroy if model
-      model = MicroserviceModel.get_model(name: "#{@scope}__DAYLOG__#{@name}", scope: @scope)
-      model.destroy if model
     end
 
     ##################################################

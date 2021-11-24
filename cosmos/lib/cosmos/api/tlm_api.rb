@@ -132,7 +132,7 @@ module Cosmos
 
       InterfaceModel.all(scope: scope).each do |name, interface|
         if interface['target_names'].include? target_name
-          Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface['name']}", inject)
+          Store.write_topic("{#{scope}__CMD}INTERFACE__#{interface['name']}", inject, '*', 100)
         end
       end
     end

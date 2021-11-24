@@ -108,6 +108,8 @@ module Cosmos
     def undeploy
       model = MicroserviceModel.get_model(name: "#{@scope}__CLEANUP__S3", scope: @scope)
       model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__COSMOS__LOG", scope: @scope)
+      model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__NOTIFICATION__LOG", scope: @scope)
       model.destroy if model
     end

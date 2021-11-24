@@ -99,8 +99,8 @@ describe('LimitsMonitor', () => {
     cy.contains('Show Ignored').click()
     cy.get('.v-dialog:visible').within(() => {
       // Find the items and delete them to restore them
-      cy.contains('INST HEALTH_STATUS TEMP2').find('button').click()
-      cy.contains('INST2 HEALTH_STATUS TEMP2').find('button').click()
+      cy.get('[data-test=delete-ignored-item]').eq(0).click()
+      cy.get('[data-test=delete-ignored-item]').eq(0).click() // {multiple:true} wasn't working for some reason
       cy.contains('Ok').click()
     })
     // Now we find both items again
@@ -138,9 +138,7 @@ describe('LimitsMonitor', () => {
     cy.contains('Show Ignored').click()
     cy.get('.v-dialog:visible').within(() => {
       // Find the existing item and delete it
-      cy.contains(/INST\d? PARAMS/)
-        .find('button')
-        .click()
+      cy.get('[data-test=delete-ignored-item]').click()
       cy.contains(/INST\d? PARAMS/).should('not.exist')
       cy.contains('Ok').click()
     })

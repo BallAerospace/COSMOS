@@ -45,7 +45,9 @@ describe('DataExtractor', () => {
     cy.get('.v-toolbar').contains('File').click()
     cy.contains('Save Configuration').click()
     cy.get('.v-dialog:visible').within(() => {
-      cy.get('input').clear({ force: true }).type(config)
+      cy.get('[data-test=name-input-save-config-dialog]')
+        .clear({ force: true })
+        .type(config)
       cy.contains('Ok').click()
     })
     cy.get('.v-dialog:visible').should('not.exist')
@@ -68,10 +70,11 @@ describe('DataExtractor', () => {
     cy.contains('Open Configuration').click()
     cy.get('.v-dialog:visible').within(() => {
       cy.contains(config)
-        .parents('.v-list-item')
+        .parent()
+        .children()
         .eq(0)
         .within(() => {
-          cy.get('button').click()
+          cy.get('.v-simple-checkbox').click()
         })
       cy.contains('Cancel').click()
     })
@@ -91,9 +94,8 @@ describe('DataExtractor', () => {
     cy.get('.container').should('not.contain', 'Invalid')
   })
 
-  it('warns with no items', function () {
-    cy.contains('Process').click()
-    cy.contains('No items to process').should('be.visible')
+  it("doesn't start with no items", function () {
+    cy.contains('Process').should('be.disabled')
   })
 
   it('warns with duplicate item', function () {
@@ -112,7 +114,7 @@ describe('DataExtractor', () => {
     )
   })
 
-  it('warns with no data', function () {
+  it.only('warns with no data', function () {
     const start = sub(new Date(), { seconds: 10 })
     cy.get('[data-test=startTime]')
       .clear({ force: true })

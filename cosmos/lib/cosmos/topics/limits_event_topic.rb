@@ -49,7 +49,7 @@ module Cosmos
         raise "Invalid limits event type '#{event[:type]}'"
       end
 
-      Store.write_topic("#{scope}__cosmos_limits_events", event)
+      Store.write_topic("#{scope}__cosmos_limits_events", event, '*', 1000)
     end
 
     def self.read(offset = nil, count: 100, scope:)

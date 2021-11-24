@@ -115,7 +115,12 @@
               <v-row class="ma-1">
                 <span class="font-weight-black"> {{ item }} </span>
                 <v-spacer />
-                <v-btn small icon @click="restoreItem(item, index)">
+                <v-btn
+                  @click="restoreItem(item, index)"
+                  small
+                  icon
+                  :data-test="`remove-ignore-${index}`"
+                >
                   <v-icon> mdi-delete </v-icon>
                 </v-btn>
               </v-row>
@@ -290,12 +295,7 @@ export default {
     },
     handleMessages(messages) {
       for (let message of messages) {
-        let itemName =
-          message.target_name +
-          '__' +
-          message.packet_name +
-          '__' +
-          message.item_name
+        let itemName = `${message.target_name}__${message.packet_name}__${message.item_name}`
         const index = this.itemList.findIndex((arrayItem) =>
           arrayItem.includes(itemName)
         )
