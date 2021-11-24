@@ -407,6 +407,9 @@ module Cosmos
         expect(MicroserviceModel).to receive(:new).with(hash_including(
                                                           name: "#{@scope}__DECOM__#{@target}"
                                                         )).and_return(umodel)
+        # expect(MicroserviceModel).to receive(:new).with(hash_including(
+        #                                                   name: "#{@scope}__REDUCER__#{@target}"
+        #                                                 )).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
                                                           name: "#{@scope}__COMMANDLOG__#{@target}"
                                                         )).and_return(umodel)
