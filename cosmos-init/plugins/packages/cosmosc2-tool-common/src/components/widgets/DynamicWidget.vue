@@ -18,11 +18,7 @@
 -->
 
 <template>
-  <component
-    :is="widgetType"
-    :target="widget.target"
-    v-bind="{ ...$props, ...$attrs }"
-  ></component>
+  <component :is="widgetType" v-bind="{ ...$props, ...$attrs }"></component>
 </template>
 
 <script>
@@ -48,7 +44,7 @@ export default {
     },
   },
   mounted() {
-    var self = this
+    const self = this
 
     /* eslint-disable-next-line */
     System.import(/* webpackIgnore: true */ this.url).then(function (widget) {
