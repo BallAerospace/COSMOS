@@ -327,8 +327,6 @@ export default {
   created() {
     Api.get(`/cosmos-api/autocomplete/reserved-item-names`).then((response) => {
       this.reservedItemNames = response.data
-      // eslint-disable-next-line no-console
-      console.log('reservedItemNames', this.reservedItemNames)
     })
     this.api = new CosmosApi()
     // If we're passed in the route then manually call commandChanged to update

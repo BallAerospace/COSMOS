@@ -35,9 +35,6 @@ export default {
   components: {
     VerticalboxWidget,
   },
-  watch: {
-    settings: console.log,
-  },
   computed: {
     maxHeight: function () {
       return Number(
