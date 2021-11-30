@@ -33,14 +33,7 @@ export default {
   },
   computed: {
     url: function () {
-      let path =
-        window.location.origin +
-        '/tools/widgets/' +
-        this.name +
-        '/' +
-        this.name +
-        '.umd.min.js'
-      return path
+      return `${window.location.origin}/tools/widgets/${this.name}/${this.name}.umd.min.js`
     },
   },
   mounted() {
