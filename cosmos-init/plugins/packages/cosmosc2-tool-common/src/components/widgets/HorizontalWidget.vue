@@ -21,6 +21,7 @@
   <div ref="container" class="d-flex flex-row">
     <component
       v-for="(widget, index) in widgets"
+      v-on="$listeners"
       :key="index"
       :is="widget.type"
       :target="widget.target"

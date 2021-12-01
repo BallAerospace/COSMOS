@@ -19,6 +19,7 @@
 
 <template>
   <verticalbox-widget
+    v-on="$listeners"
     :parameters="parameters"
     :settings="settings"
     :widgets="widgets"

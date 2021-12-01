@@ -21,6 +21,7 @@
   <div>
     <v-banner single-line>{{ parameters.join(' ') }}</v-banner>
     <vertical-widget
+      v-on="$listeners"
       :style="contentStyle"
       :parameters="parameters"
       :settings="settings"
