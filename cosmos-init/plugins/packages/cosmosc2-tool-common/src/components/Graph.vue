@@ -153,10 +153,7 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-icon
-                data-test="closeGraphIcon"
-                @click="$emit('close-graph')"
-              >
+              <v-icon data-test="closeGraphIcon" @click="$emit('close-graph')">
                 mdi-close-box
               </v-icon>
             </div>
@@ -213,9 +210,7 @@
           timeLabel="End Time"
           @date-time="graphEndDateTime = $event"
         />
-        <v-card-text class="pa-0">
-          Optional Y axis settings.
-        </v-card-text>
+        <v-card-text class="pa-0"> Optional Y axis settings. </v-card-text>
         <v-row dense>
           <v-col class="px-2">
             <v-text-field
@@ -265,9 +260,7 @@
           </template>
         </v-data-table>
         <v-card-actions>
-          <v-btn color="primary" @click="editGraphClose()">
-            Ok
-          </v-btn>
+          <v-btn color="primary" @click="editGraphClose()"> Ok </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -290,16 +283,10 @@
           />
         </v-row>
         <v-row class="my-3">
-          <v-textarea
-            readonly
-            rows="8"
-            :value="error"
-          />
+          <v-textarea readonly rows="8" :value="error" />
         </v-row>
         <v-row>
-          <v-btn block @click="clearErrors">
-            Clear
-          </v-btn>
+          <v-btn block @click="clearErrors"> Clear </v-btn>
         </v-row>
       </v-card>
     </v-dialog>
@@ -505,7 +492,7 @@ export default {
       let itemId = 0
       return this.items.map((item) => {
         itemId += 1
-        return {...item, itemId}
+        return { ...item, itemId }
       })
     },
     error: function () {
@@ -873,14 +860,14 @@ export default {
           this.errors.push({
             type: 'disconnected',
             message: 'COSMOS backend connection disconnected',
-            time: new Date().getTime()
+              time: new Date().getTime(),
           })
         },
         rejected: () => {
           this.errors.push({
             type: 'rejected',
             message: 'COSMOS backend connection rejected',
-            time: new Date().getTime()
+              time: new Date().getTime(),
           })
         },
       })
@@ -910,8 +897,10 @@ export default {
       const viewWidth =
         Math.max(document.documentElement.clientWidth, window.innerWidth || 0) -
         navDrawerWidth
-      const viewHeight = 
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      const viewHeight = Math.max(
+        document.documentElement.clientHeight,
+        window.innerHeight || 0
+      )
 
       const chooser = document.getElementsByClassName('c-chooser')[0]
       let height = 100
@@ -1003,7 +992,7 @@ export default {
           },
           index
         )
-        this.overview.addSeries({spanGaps: true, stroke: color}, index)
+        this.overview.addSeries({ spanGaps: true, stroke: color }, index)
         let newData = Array(this.data[0].length)
         this.data.splice(index, 0, newData)
         this.indexes[this.subscriptionKey(item)] = index

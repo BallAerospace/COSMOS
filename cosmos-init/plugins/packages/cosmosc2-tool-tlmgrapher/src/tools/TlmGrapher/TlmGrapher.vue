@@ -31,7 +31,17 @@
         <v-icon> mdi-{{ alertType }} </v-icon>
         {{ alert }}
         <template v-slot:action="{ attrs }">
-          <v-btn text v-bind="attrs" @click="showAlert = false"> Close </v-btn>
+          <v-btn
+            text
+            v-bind="attrs"
+            @click="
+              () => {
+                showAlert = false
+              }
+            "
+          >
+            Close
+          </v-btn>
         </template>
       </v-snackbar>
 
@@ -72,10 +82,10 @@
               :secondsGraphed="settings.secondsGraphed.value"
               :pointsSaved="settings.pointsSaved.value"
               :pointsGraphed="settings.pointsGraphed.value"
-              @close-graph="closeGraph(graph)"
-              @min-max-graph="minMaxGraph(graph)"
-              @resize="resize(graph)"
-              @click="graphSelected(graph)"
+              @close-graph="() => closeGraph(graph)"
+              @min-max-graph="() => minMaxGraph(graph)"
+              @resize="() => resize(graph)"
+              @click="() => graphSelected(graph)"
               @started="graphStarted"
             />
           </div>
@@ -274,23 +284,18 @@ export default {
       this.graphs.push(id)
       this.counter += 1
       this.$nextTick(function () {
-        var items = this.grid.add(
-          this.$refs[`gridItem${id}`],
-          { active: false }
-        )
+        var items = this.grid.add(this.$refs[`gridItem${id}`], {
+          active: false,
+        })
         this.grid.show(items)
         this.selectedGraphId = id
         setTimeout(() => {
           this.grid.refreshItems().layout()
-          },
-          MURRI_REFRESH_TIME
-        )
+        }, MURRI_REFRESH_TIME)
       })
     },
     closeGraph: function (id) {
-      var items = this.grid.getItems([
-        document.getElementById(`gridItem${id}`),
-      ])
+      var items = this.grid.getItems([document.getElementById(`gridItem${id}`)])
       this.grid.remove(items)
       this.graphs.splice(this.graphs.indexOf(id), 1)
       this.selectedGraphId = null
@@ -304,7 +309,8 @@ export default {
     },
     minMaxGraph: function (id) {
       this.selectedGraphId = id
-      setTimeout(() => {
+      setTimeout(
+        () => {
         this.grid.refreshItems().layout()
         },
         MURRI_REFRESH_TIME * 2 // Double the time since there is more animation
@@ -312,7 +318,8 @@ export default {
     },
     resize: function (id) {
       this.selectedGraphId = id
-      setTimeout(() => {
+      setTimeout(
+        () => {
         this.grid.refreshItems().layout()
         },
         MURRI_REFRESH_TIME * 2 // Double the time since there is more animation
