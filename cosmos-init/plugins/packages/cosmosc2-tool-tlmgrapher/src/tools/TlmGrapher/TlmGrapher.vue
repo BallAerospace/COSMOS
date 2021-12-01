@@ -56,12 +56,29 @@
         </v-row>
       </div>
 
-      <div v-show="this.selectedGraphId !== null">
-        <target-packet-item-chooser
-          @click="addItem"
-          buttonText="Add Item"
-          :chooseItem="true"
-        />
+      <div v-show="this.selectedGraphId !== null" class="row">
+        <div class="col-11">
+          <target-packet-item-chooser
+            @click="addItem"
+            buttonText="Add Item"
+            :chooseItem="true"
+          />
+        </div>
+        <div class="col-1 text-right">
+          <v-btn
+            v-show="state === 'pause'"
+            class="pulse"
+            v-on:click="
+              () => {
+                state = 'start'
+              }
+            "
+            color="primary"
+            fab
+          >
+            <v-icon large>mdi-play</v-icon>
+          </v-btn>
+        </div>
       </div>
 
       <div class="grid">
@@ -441,5 +458,19 @@ export default {
   cursor: pointer;
   border-radius: 6px;
   margin: 5px;
+}
+
+.pulse {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 </style>
