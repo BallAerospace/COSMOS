@@ -18,11 +18,7 @@
 -->
 
 <template>
-  <component
-    :is="widgetType"
-    :target="widget.target"
-    v-bind="{ ...$props, ...$attrs }"
-  ></component>
+  <component :is="widgetType" v-bind="{ ...$props, ...$attrs }"></component>
 </template>
 
 <script>
@@ -37,18 +33,11 @@ export default {
   },
   computed: {
     url: function () {
-      let path =
-        window.location.origin +
-        '/tools/widgets/' +
-        this.name +
-        '/' +
-        this.name +
-        '.umd.min.js'
-      return path
+      return `${window.location.origin}/tools/widgets/${this.name}/${this.name}.umd.min.js`
     },
   },
   mounted() {
-    var self = this
+    const self = this
 
     /* eslint-disable-next-line */
     System.import(/* webpackIgnore: true */ this.url).then(function (widget) {
