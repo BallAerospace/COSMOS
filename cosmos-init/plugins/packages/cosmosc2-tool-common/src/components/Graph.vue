@@ -164,8 +164,12 @@
 
       <v-expand-transition>
         <div class="pa-1" id="chart" ref="chart" v-show="expand">
-          <div :id="`chart${id}`"></div>
-          <div :id="`overview${id}`" v-show="!hideOverview"></div>
+          <div :id="`chart${id}`" @mousedown="mousedown"></div>
+          <div
+            :id="`overview${id}`"
+            v-show="!hideOverview"
+            @mousedown="mousedown"
+          ></div>
         </div>
       </v-expand-transition>
     </v-card>
@@ -229,16 +233,16 @@
             />
           </v-col>
         </v-row>
-          <v-data-table
-            item-key="itemId"
-            class="elevation-1 my-2"
-            :headers="itemHeaders"
-            :items="editItems"
-            :items-per-page="5"
-            :footer-props="{
-              'items-per-page-options': [5],
-            }"
-          >
+        <v-data-table
+          item-key="itemId"
+          class="elevation-1 my-2"
+          :headers="itemHeaders"
+          :items="editItems"
+          :items-per-page="5"
+          :footer-props="{
+            'items-per-page-options': [5],
+          }"
+        >
           <template v-slot:item.actions="{ item }">
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
@@ -776,6 +780,9 @@ export default {
     },
   },
   methods: {
+    mousedown: function ($event) {
+      this.$emit('mousedown', $event) // Bubble from the two graph divs
+    },
     clearErrors: function () {
       this.errors = []
     },
@@ -856,24 +863,24 @@ export default {
           connected: () => {
             this.addItemsToSubscription(this.items, endTime)
           },
-        disconnected: () => {
-          this.errors.push({
-            type: 'disconnected',
-            message: 'COSMOS backend connection disconnected',
+          disconnected: () => {
+            this.errors.push({
+              type: 'disconnected',
+              message: 'COSMOS backend connection disconnected',
               time: new Date().getTime(),
-          })
-        },
-        rejected: () => {
-          this.errors.push({
-            type: 'rejected',
-            message: 'COSMOS backend connection rejected',
+            })
+          },
+          rejected: () => {
+            this.errors.push({
+              type: 'rejected',
+              message: 'COSMOS backend connection rejected',
               time: new Date().getTime(),
-          })
-        },
-      })
-      .then((subscription) => {
-        this.subscription = subscription
-      })
+            })
+          },
+        })
+        .then((subscription) => {
+          this.subscription = subscription
+        })
     },
     // throttle(cb, limit) {
     //   var wait = false
