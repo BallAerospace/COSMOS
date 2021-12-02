@@ -42,7 +42,7 @@ module Cosmos
         raise "Set '#{event[:set]}' does not exist!" unless sets.key?(event[:set])
 
         # Set all existing sets to "false"
-        sets = sets.transform_values! { |key, value| "false" }
+        sets = sets.transform_values! { |_key, _value| "false" }
         sets[event[:set]] = "true" # Enable the requested set
         Store.hmset("#{scope}__limits_sets", *sets)
       else
@@ -88,9 +88,13 @@ module Cosmos
       Store.hgetall("#{scope}__limits_sets")
     end
 
-    def self.delete(target_name, packet_name, scope:)
+    def self.current_set(scope:)
+      self.sets(scope: scope).key('true') || "DEFAULT"
+    end
+
+    def self.delete(_target_name, _packet_name, scope:)
       limits = Store.hgetall("#{scope}__current_limits")
-      limits.each do |item, limits_state|
+      limits.each do |item, _limits_state|
         Store.hdel("#{scope}__current_limits", item)
       end
     end

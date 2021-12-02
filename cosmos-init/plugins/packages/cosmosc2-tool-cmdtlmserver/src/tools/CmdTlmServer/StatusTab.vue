@@ -28,7 +28,6 @@
             <v-select
               label="Limits Set"
               :items="limitsSets"
-              @change="limitsChange"
               v-model="currentLimitsSet"
               data-test="limits-set"
             />
@@ -103,9 +102,17 @@ export default {
       currentLimitsSet: '',
     }
   },
+  watch: {
+    currentLimitsSet: function (newVal, oldVal) {
+      !!oldVal && this.limitsChange(newVal)
+    },
+  },
   created() {
     this.api.get_limits_sets().then((sets) => {
       this.limitsSets = sets
+    })
+    this.api.get_current_limits_set().then((result) => {
+      this.currentLimitsSet = result
     })
   },
   methods: {
