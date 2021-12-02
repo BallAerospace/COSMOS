@@ -153,10 +153,7 @@
         <v-tooltip top>
           <template v-slot:activator="{ on, attrs }">
             <div v-on="on" v-bind="attrs">
-              <v-icon
-                data-test="closeGraphIcon"
-                @click="$emit('close-graph')"
-              >
+              <v-icon data-test="closeGraphIcon" @click="$emit('close-graph')">
                 mdi-close-box
               </v-icon>
             </div>
@@ -167,8 +164,12 @@
 
       <v-expand-transition>
         <div class="pa-1" id="chart" ref="chart" v-show="expand">
-          <div :id="`chart${id}`"></div>
-          <div :id="`overview${id}`" v-show="!hideOverview"></div>
+          <div :id="`chart${id}`" @mousedown="mousedown"></div>
+          <div
+            :id="`overview${id}`"
+            v-show="!hideOverview"
+            @mousedown="mousedown"
+          ></div>
         </div>
       </v-expand-transition>
     </v-card>
@@ -213,9 +214,7 @@
           timeLabel="End Time"
           @date-time="graphEndDateTime = $event"
         />
-        <v-card-text class="pa-0">
-          Optional Y axis settings.
-        </v-card-text>
+        <v-card-text class="pa-0"> Optional Y axis settings. </v-card-text>
         <v-row dense>
           <v-col class="px-2">
             <v-text-field
@@ -234,16 +233,16 @@
             />
           </v-col>
         </v-row>
-          <v-data-table
-            item-key="itemId"
-            class="elevation-1 my-2"
-            :headers="itemHeaders"
-            :items="editItems"
-            :items-per-page="5"
-            :footer-props="{
-              'items-per-page-options': [5],
-            }"
-          >
+        <v-data-table
+          item-key="itemId"
+          class="elevation-1 my-2"
+          :headers="itemHeaders"
+          :items="editItems"
+          :items-per-page="5"
+          :footer-props="{
+            'items-per-page-options': [5],
+          }"
+        >
           <template v-slot:item.actions="{ item }">
             <v-tooltip top>
               <template v-slot:activator="{ on, attrs }">
@@ -265,9 +264,7 @@
           </template>
         </v-data-table>
         <v-card-actions>
-          <v-btn color="primary" @click="editGraphClose()">
-            Ok
-          </v-btn>
+          <v-btn color="primary" @click="editGraphClose()"> Ok </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -290,16 +287,10 @@
           />
         </v-row>
         <v-row class="my-3">
-          <v-textarea
-            readonly
-            rows="8"
-            :value="error"
-          />
+          <v-textarea readonly rows="8" :value="error" />
         </v-row>
         <v-row>
-          <v-btn block @click="clearErrors">
-            Clear
-          </v-btn>
+          <v-btn block @click="clearErrors"> Clear </v-btn>
         </v-row>
       </v-card>
     </v-dialog>
@@ -505,7 +496,7 @@ export default {
       let itemId = 0
       return this.items.map((item) => {
         itemId += 1
-        return {...item, itemId}
+        return { ...item, itemId }
       })
     },
     error: function () {
@@ -789,6 +780,9 @@ export default {
     },
   },
   methods: {
+    mousedown: function ($event) {
+      this.$emit('mousedown', $event) // Bubble from the two graph divs
+    },
     clearErrors: function () {
       this.errors = []
     },
@@ -869,24 +863,24 @@ export default {
           connected: () => {
             this.addItemsToSubscription(this.items, endTime)
           },
-        disconnected: () => {
-          this.errors.push({
-            type: 'disconnected',
-            message: 'COSMOS backend connection disconnected',
-            time: new Date().getTime()
-          })
-        },
-        rejected: () => {
-          this.errors.push({
-            type: 'rejected',
-            message: 'COSMOS backend connection rejected',
-            time: new Date().getTime()
-          })
-        },
-      })
-      .then((subscription) => {
-        this.subscription = subscription
-      })
+          disconnected: () => {
+            this.errors.push({
+              type: 'disconnected',
+              message: 'COSMOS backend connection disconnected',
+              time: new Date().getTime(),
+            })
+          },
+          rejected: () => {
+            this.errors.push({
+              type: 'rejected',
+              message: 'COSMOS backend connection rejected',
+              time: new Date().getTime(),
+            })
+          },
+        })
+        .then((subscription) => {
+          this.subscription = subscription
+        })
     },
     // throttle(cb, limit) {
     //   var wait = false
@@ -910,8 +904,10 @@ export default {
       const viewWidth =
         Math.max(document.documentElement.clientWidth, window.innerWidth || 0) -
         navDrawerWidth
-      const viewHeight = 
-        Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+      const viewHeight = Math.max(
+        document.documentElement.clientHeight,
+        window.innerHeight || 0
+      )
 
       const chooser = document.getElementsByClassName('c-chooser')[0]
       let height = 100
@@ -1003,7 +999,7 @@ export default {
           },
           index
         )
-        this.overview.addSeries({spanGaps: true, stroke: color}, index)
+        this.overview.addSeries({ spanGaps: true, stroke: color }, index)
         let newData = Array(this.data[0].length)
         this.data.splice(index, 0, newData)
         this.indexes[this.subscriptionKey(item)] = index
