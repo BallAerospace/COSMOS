@@ -38,6 +38,8 @@
 import Widget from './Widget'
 import { CosmosApi } from '../../services/cosmos-api.js'
 
+const DEFAULT_LIMITS_SET = 'DEFAULT'
+
 export default {
   mixins: [Widget],
   data() {
@@ -58,21 +60,21 @@ export default {
       limitsSettings: {
         DEFAULT: [],
       },
+      currentLimitsSet: DEFAULT_LIMITS_SET,
     }
   },
   computed: {
-    cssProps() {
+    cssProps: function () {
       const value = this.$store.state.tlmViewerValues[this.valueId][0]
-      // TODO: Pass the current limits set
-      let limits = this.modifyLimits(this.limitsSettings.DEFAULT)
+      let limits = this.modifyLimits(
+        this.limitsSettings[this.selectedLimitsSet]
+      )
       this.calcLimits(limits)
       return {
         '--height': this.height + 'px',
         '--width': this.width,
         '--container-height': this.height - 5 + 'px',
-        '--position':
-          // TODO: Pass the current limits set
-          this.calcPosition(value, limits) + '%',
+        '--position': this.calcPosition(value, limits) + '%',
         '--redlow-width': this.redLow + '%',
         '--redhigh-width': this.redHigh + '%',
         '--yellowlow-width': this.yellowLow + '%',
@@ -82,6 +84,11 @@ export default {
         '--blue-width': this.blue + '%',
       }
     },
+    selectedLimitsSet: function () {
+      return this.limitsSettings.hasOwnProperty(this.currentLimitsSet)
+        ? this.currentLimitsSet
+        : DEFAULT_LIMITS_SET
+    },
   },
   created() {
     this.api = new CosmosApi()
@@ -90,6 +97,9 @@ export default {
       .then((data) => {
         this.limitsSettings = data
       })
+    this.api.get_current_limits_set().then((result) => {
+      this.currentLimitsSet = result
+    })
 
     this.settings.forEach((setting) => {
       if (setting[0] === 'MIN_VALUE') {

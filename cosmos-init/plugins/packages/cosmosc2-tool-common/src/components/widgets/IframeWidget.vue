@@ -18,31 +18,24 @@
 -->
 
 <template>
-  <component :is="widgetType" v-bind="{ ...$props, ...$attrs }"></component>
+  <iframe :src="src" :width="width" :height="height" />
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      widgetType: null,
-    }
-  },
-  props: {
-    name: { default: null },
-  },
-  computed: {
-    url: function () {
-      return `${window.location.origin}/tools/widgets/${this.name}/${this.name}.umd.min.js`
-    },
-  },
-  mounted() {
-    const self = this
+import Widget from './Widget'
 
-    /* eslint-disable-next-line */
-    System.import(/* webpackIgnore: true */ this.url).then(function (widget) {
-      self.widgetType = widget
-    })
+export default {
+  mixins: [Widget],
+  computed: {
+    src: function () {
+      return this.parameters[0]
+    },
+    width: function () {
+      return this.parameters[1] + 'px'
+    },
+    height: function () {
+      return this.parameters[2] + 'px'
+    },
   },
 }
 </script>

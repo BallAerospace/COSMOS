@@ -68,17 +68,21 @@ export default {
     onClick() {
       const lines = this.eval.split(';')
       // Create local references to variables so users don't need to use 'this'
+      const self = this // needed for $emit
       const screen = this.screen
       const api = this.api
       lines.forEach((line) => {
-        eval(line.trim())
-          .then((success) => {})
-          .catch((err) => {
-            if (err.message.includes('HazardousError')) {
-              this.lastCmd = err.message.split('\n')[2]
-              this.displaySendHazardous = true
-            }
-          })
+        const result = eval(line.trim())
+        if (result instanceof Promise) {
+          result
+            .then((success) => {})
+            .catch((err) => {
+              if (err.message.includes('HazardousError')) {
+                this.lastCmd = err.message.split('\n')[2]
+                this.displaySendHazardous = true
+              }
+            })
+        }
       })
     },
     sendHazardousCmd() {

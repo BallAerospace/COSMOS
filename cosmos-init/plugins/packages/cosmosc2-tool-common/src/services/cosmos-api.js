@@ -190,6 +190,10 @@ export class CosmosApi {
     return this.exec('get_limits_sets', [])
   }
 
+  get_current_limits_set() {
+    return this.exec('get_current_limits_set', [])
+  }
+
   set_limits_set(limits_set) {
     return this.exec('set_limits_set', [limits_set])
   }

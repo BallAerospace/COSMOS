@@ -314,7 +314,7 @@ export default {
     } else {
       this.errors.push({
         type: 'error',
-        message: err,
+        message: `${err}`,
         time: new Date().getTime(),
       })
     }

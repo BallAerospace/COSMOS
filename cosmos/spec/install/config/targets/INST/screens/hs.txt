@@ -10,7 +10,7 @@ VERTICAL
   VERTICALBOX
     SECTIONHEADER "General Telemetry"
     NAMED_WIDGET COLLECT_TYPE COMBOBOX NORMAL SPECIAL
-    BUTTON 'Start Collect' 'target_name = get_target_name("INST"); cmd("#{target_name} COLLECT with TYPE NORMAL, DURATION 5")'
+    BUTTON 'Start Collect' 'target_name = get_target_name("INST"); api.cmd("#{target_name} COLLECT with TYPE NORMAL, DURATION 5")'
     FORMATVALUE INST HEALTH_STATUS COLLECTS "0x%08X"
     LABELVALUE INST HEALTH_STATUS COLLECT_TYPE
     LABELVALUE INST HEALTH_STATUS DURATION
