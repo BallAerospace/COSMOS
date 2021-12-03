@@ -419,6 +419,7 @@ import AskDialog from './AskDialog.vue'
 import PromptDialog from './PromptDialog.vue'
 import SuiteRunner from './SuiteRunner.vue'
 import { CmdCompleter, TlmCompleter } from './autocomplete'
+import { SleepAnnotator } from './annotations'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
 const NEW_FILENAME = '<Untitled>'
@@ -665,6 +666,10 @@ export default {
     // is the background process that updates as changes are processed
     // while change fires immediately before the UndoManager is updated.
     this.editor.session.on('tokenizerUpdate', this.onChange)
+
+    const sleepAnnotator = new SleepAnnotator()
+    this.editor.session.on('change', sleepAnnotator.annotate)
+
     window.addEventListener('keydown', this.keydown)
     this.cable = ActionCable.createConsumer('/script-api/cable')
     if (this.$route.params.id) {
