@@ -667,7 +667,7 @@ export default {
     // while change fires immediately before the UndoManager is updated.
     this.editor.session.on('tokenizerUpdate', this.onChange)
 
-    const sleepAnnotator = new SleepAnnotator()
+    const sleepAnnotator = new SleepAnnotator(this.editor)
     this.editor.session.on('change', sleepAnnotator.annotate)
 
     window.addEventListener('keydown', this.keydown)

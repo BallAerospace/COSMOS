@@ -19,17 +19,33 @@
 
 export default class RegexAnnotator {
   #id
+  #editor
   #pattern
   #text
   #type
 
-  constructor({ pattern, text, type }) {
+  constructor(editor, { pattern, text, type }) {
     this.#id = `regexAnnotator-${Math.floor(Math.random() * 10000000)}`
+    this.#editor = editor
     this.#pattern = pattern
     this.#text = text
     this.#type = type
   }
 
+  // Re-annotate the entire document
+  refresh = () => {
+    const session = this.#editor.session
+    this.#removeAllAnnotations(session)
+    const event = {
+      lines: session.doc.$lines,
+      action: 'insert',
+      start: { row: 0 },
+      end: { row: session.doc.$lines.length },
+    }
+    this.annotate(event, session)
+  }
+
+  // Update annotations for the changed lines
   annotate = ($event, session) => {
     if ($event.lines.length > 1) {
       // They created or deleted a line (or multiple lines), so first need to shift all the existing annotations
@@ -91,6 +107,14 @@ export default class RegexAnnotator {
         }
         return annotation
       })
+    )
+  }
+
+  #removeAllAnnotations = (session) => {
+    session.setAnnotations(
+      session
+        .getAnnotations()
+        .filter((annotation) => annotation.cosmosId !== this.#id)
     )
   }
 }

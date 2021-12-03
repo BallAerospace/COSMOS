@@ -20,11 +20,11 @@
 import RegexAnnotator from './regexAnnotator.js'
 
 export default class SleepAnnotator extends RegexAnnotator {
-  constructor() {
+  constructor(editor) {
     const prefix = '(^|[{\\s])' // Allowable characters before the keyword: start of line or { or a space
     const keyword = 'sleep' // The keyword this annotation looks for
     const suffix = '[\\(\\s]' // Allowable characters after the keyword: ( or a space
-    super({
+    super(editor, {
       pattern: new RegExp(`${prefix}${keyword}${suffix}`),
       text: 'Use `wait` instead of `sleep` in COSMOS scripts', // because we override wait to make it work better, but not sleep
       type: 'warning',
