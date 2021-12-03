@@ -58,6 +58,7 @@ export default {
         DEFAULT: [],
       },
       currentLimitsSet: DEFAULT_LIMITS_SET,
+      currentSetRefreshInterval: null,
     }
   },
   computed: {
@@ -95,9 +96,11 @@ export default {
       .then((data) => {
         this.limitsSettings = data
       })
-    this.api.get_current_limits_set().then((result) => {
-      this.currentLimitsSet = result
-    })
+    this.getCurrentLimitsSet()
+    this.currentSetRefreshInterval = setInterval(
+      this.getCurrentLimitsSet,
+      60 * 1000
+    )
 
     let type = 'CONVERTED'
     if (this.parameters[3]) {
@@ -109,6 +112,7 @@ export default {
   },
   destroyed() {
     this.$store.commit('tlmViewerDeleteItem', this.valueId)
+    clearInterval(this.currentSetRefreshInterval)
   },
   methods: {
     calcPosition(value, limitsSettings) {
@@ -196,6 +200,11 @@ export default {
         this.greenHigh = 0
         this.blue = 0
       }
+    },
+    getCurrentLimitsSet: function () {
+      this.api.get_current_limits_set().then((result) => {
+        this.currentLimitsSet = result
+      })
     },
   },
 }
