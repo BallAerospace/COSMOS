@@ -41,8 +41,17 @@
         hide-default-footer
         multi-sort
       >
-        <template v-slot:item.actions="{ item }">
-          <v-btn color="primary" @click="connect(item.id)">Connect</v-btn>
+        <template v-slot:item.connect="{ item }">
+          <v-btn color="primary" @click="connectScript(item)">
+            <span>Connect</span>
+            <v-icon right> mdi-eye-outline </v-icon>
+          </v-btn>
+        </template>
+        <template v-slot:item.stop="{ item }">
+          <v-btn color="primary" @click="stopScript(item)">
+            <span>Stop</span>
+            <v-icon right> mdi-close-circle-outline </v-icon>
+          </v-btn>
         </template>
       </v-data-table>
     </v-card>
@@ -67,13 +76,18 @@ export default {
       search: '',
       data: [],
       headers: [
+        {
+          text: 'Connect',
+          value: 'connect',
+          sortable: false,
+          filterable: false,
+        },
         { text: 'Id', value: 'id' },
         { text: 'Name', value: 'name' },
-        { text: 'Bucket', value: 'bucket' },
         { text: 'Start Time', value: 'start_time' },
         {
-          text: 'Actions',
-          value: 'actions',
+          text: 'Stop',
+          value: 'stop',
           sortable: false,
           filterable: false,
         },
@@ -84,13 +98,39 @@ export default {
     this.getRunningScripts()
   },
   methods: {
-    getRunningScripts() {
+    getRunningScripts: function () {
       Api.get('/script-api/running-script').then((response) => {
         this.data = response.data
       })
     },
-    connect(id) {
-      this.$router.push({ name: 'ScriptRunner', params: { id: id } })
+    connectScript: function (script) {
+      this.$router.push({ name: 'ScriptRunner', params: { id: script.id } })
+    },
+    stopScript: function (script) {
+      this.$dialog
+        .confirm(
+          `Are you sure you want to stop script: ${script.id} ${script.name}`,
+          {
+            okText: 'Stop',
+            cancelText: 'Cancel',
+          }
+        )
+        .then((dialog) => {
+          return Api.post(`/script-api/running-script/${script.id}/stop`)
+        })
+        .then((response) => {
+          this.$notify.normal({
+            body: `Stopped script: ${script.id} ${script.name}`,
+          })
+          this.getRunningScripts()
+        })
+        .catch((error) => {
+          if (error) {
+            this.$notify.caution({
+              body: `Failed to stop script: ${script.id} ${script.name}`,
+            })
+          }
+        })
     },
   },
 }

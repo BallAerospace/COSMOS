@@ -54,18 +54,28 @@
               v-model="fullFilename"
               id="filename"
               data-test="filename"
-            >
-            </v-text-field>
+            />
             <v-text-field
+              v-model="scriptId"
+              label="Script ID"
+              data-test="id"
               class="shrink ml-2 script-state"
-              style="width: 120px"
-              outlined
+              style="width: 100px"
               dense
+              outlined
               readonly
               hide-details
-              label="Script State"
+            />
+            <v-text-field
               v-model="state"
+              label="Script State"
               data-test="state"
+              class="shrink ml-2 script-state"
+              style="width: 120px"
+              dense
+              outlined
+              readonly
+              hide-details
             />
             <v-progress-circular
               v-if="state === 'Connecting...'"
@@ -422,6 +432,10 @@ import { CmdCompleter, TlmCompleter } from './autocomplete'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
 const NEW_FILENAME = '<Untitled>'
+const START = 'Start'
+const GO = 'Go'
+const PAUSE = 'Pause'
+const RETRY = 'Retry'
 
 export default {
   components: {
@@ -463,13 +477,13 @@ export default {
       alertType: null,
       alertText: '',
       state: ' ',
-      scriptId: null,
+      scriptId: ' ',
       startDialog: false,
-      startOrGoButton: 'Start',
+      startOrGoButton: START,
       startOrGoDisabled: false,
-      pauseOrRetryButton: 'Pause',
-      pauseOrRetryDisabled: true,
-      stopDisabled: true,
+      pauseOrRetryButton: PAUSE,
+      pauseOrRetryDisabled: false,
+      stopDisabled: false,
       showDebug: false,
       debug: '',
       debugHistory: [],
@@ -689,7 +703,7 @@ export default {
       clearInterval(this.autoSaveInterval)
     }
     if (this.tempFilename) {
-      Api.post('/script-api/scripts/' + this.tempFilename + '/delete')
+      Api.post(`/script-api/scripts/${this.tempFilename}/delete`)
     }
     if (this.subscription) {
       this.subscription.unsubscribe()
@@ -698,7 +712,7 @@ export default {
   },
   methods: {
     suiteRunnerButton(event) {
-      if (this.startOrGoButton === 'Start') {
+      if (this.startOrGoButton === START) {
         this.start(event, 'suiteRunner')
       } else {
         this.go(event, 'suiteRunner')
@@ -739,7 +753,7 @@ export default {
       this.pauseOrRetryDisabled = true
       this.stopDisabled = true
       this.state = 'Connecting...'
-      this.startOrGoButton = 'Go'
+      this.startOrGoButton = GO
       this.scriptId = id
       this.editor.setReadOnly(true)
       this.subscription = this.cable.subscriptions.create(
@@ -751,8 +765,8 @@ export default {
     },
     scriptComplete() {
       this.disableSuiteButtons = false
-      this.startOrGoButton = 'Start'
-      this.pauseOrRetryButton = 'Pause'
+      this.startOrGoButton = START
+      this.pauseOrRetryButton = PAUSE
       // Disable start if suiteRunner
       this.startOrGoDisabled = this.suiteRunner
       this.pauseOrRetryDisabled = true
@@ -811,10 +825,10 @@ export default {
       Api.post(`/script-api/running-script/${this.scriptId}/go`)
     },
     pauseOrRetry() {
-      if (this.pauseOrRetryButton === 'Pause') {
+      if (this.pauseOrRetryButton === PAUSE) {
         Api.post(`/script-api/running-script/${this.scriptId}/pause`)
       } else {
-        this.pauseOrRetryButton = 'Pause'
+        this.pauseOrRetryButton = PAUSE
         Api.post(`/script-api/running-script/${this.scriptId}/retry`)
       }
     },
@@ -838,33 +852,29 @@ export default {
           this.filename = data.filename
           break
         case 'line':
-          if (data.filename !== null) {
-            if (data.filename !== this.current_filename) {
-              if (
-                this.files[data.filename] === null ||
-                this.files[data.filename] === undefined
-              ) {
-                // We don't have the contents of the running file (probably because connected to running script)
-                // Set the contents initially to an empty string so we don't start slamming the API
-                this.files[data.filename] = ''
+          if (data.filename && data.filename !== this.current_filename) {
+            if (!this.files[data.filename]) {
+              // We don't have the contents of the running file (probably because connected to running script)
+              // Set the contents initially to an empty string so we don't start slamming the API
+              this.files[data.filename] = ''
 
-                // Request the script we need
-                Api.get('/script-api/scripts/' + data.filename)
-                  .then((response) => {
-                    // Success - Save thes script text and mark the current_filename as null
-                    // so it will get loaded in on the next line executed
-                    this.files[data.filename] = response.data.contents
-                    this.current_filename = null
-                  })
-                  .catch((err) => {
-                    // Error - Restore the file contents to null so we'll try the API again on the next line
-                    this.files[data.filename] = null
-                  })
-              } else {
-                this.editor.setValue(this.files[data.filename])
-                this.editor.clearSelection()
-                this.current_filename = data.filename
-              }
+              // Request the script we need
+              Api.get(`/script-api/scripts/${data.filename}`)
+                .then((response) => {
+                  // Success - Save thes script text and mark the current_filename as null
+                  // so it will get loaded in on the next line executed
+                  this.files[data.filename] = response.data.contents
+                  this.filename = data.filename
+                  this.current_filename = null
+                })
+                .catch((err) => {
+                  // Error - Restore the file contents to null so we'll try the API again on the next line
+                  this.files[data.filename] = null
+                })
+            } else {
+              this.editor.setValue(this.files[data.filename])
+              this.editor.clearSelection()
+              this.current_filename = data.filename
             }
           }
           if (!this.fatal) {
@@ -877,7 +887,7 @@ export default {
               this.startOrGoDisabled = false
               this.pauseOrRetryDisabled = false
               this.stopDisabled = false
-              this.pauseOrRetryButton = 'Pause'
+              this.pauseOrRetryButton = PAUSE
               break
             case 'waiting':
               marker = 'waitingMarker'
@@ -887,7 +897,10 @@ export default {
               break
             case 'error':
               marker = 'errorMarker'
-              this.pauseOrRetryButton = 'Retry'
+              this.pauseOrRetryButton = RETRY
+              this.startOrGoDisabled = false
+              this.pauseOrRetryDisabled = false
+              this.stopDisabled = false
               break
             case 'fatal':
               marker = 'fatalMarker'
@@ -1273,10 +1286,7 @@ export default {
       link.click()
     },
     downloadLog() {
-      let output = ''
-      for (let msg of this.messages) {
-        output += msg.message + '\n'
-      }
+      const output = this.messages.join('\n')
       const blob = new Blob([output], {
         type: 'text/plain',
       })
