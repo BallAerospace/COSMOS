@@ -21,6 +21,7 @@
   <div>
     <v-banner single-line>{{ parameters.join(' ') }}</v-banner>
     <horizontal-widget
+      v-on="$listeners"
       :parameters="parameters"
       :settings="settings"
       :widgets="widgets"

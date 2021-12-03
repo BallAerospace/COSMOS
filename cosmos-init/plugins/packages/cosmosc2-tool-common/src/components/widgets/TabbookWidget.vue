@@ -28,6 +28,7 @@
       <v-tab-item v-for="(tab, tabIndex) in widgets" :key="tabIndex">
         <component
           v-for="(widget, widgetIndex) in tab.widgets"
+          v-on="$listeners"
           :key="`${tabIndex}-${widgetIndex}`"
           :is="widget.type"
           :target="widget.target"

@@ -68,6 +68,7 @@
             :definition="def.definition"
             @close-screen="closeScreen(def.id)"
             @min-max-screen="refreshLayout"
+            @add-new-screen="($event) => showScreen(...$event)"
           />
         </div>
       </div>

@@ -31,7 +31,17 @@
         <v-icon> mdi-{{ alertType }} </v-icon>
         {{ alert }}
         <template v-slot:action="{ attrs }">
-          <v-btn text v-bind="attrs" @click="showAlert = false"> Close </v-btn>
+          <v-btn
+            text
+            v-bind="attrs"
+            @click="
+              () => {
+                showAlert = false
+              }
+            "
+          >
+            Close
+          </v-btn>
         </template>
       </v-snackbar>
 
@@ -46,12 +56,29 @@
         </v-row>
       </div>
 
-      <div v-show="this.selectedGraphId !== null">
-        <target-packet-item-chooser
-          @click="addItem"
-          buttonText="Add Item"
-          :chooseItem="true"
-        />
+      <div v-show="this.selectedGraphId !== null" class="row">
+        <div class="col-11">
+          <target-packet-item-chooser
+            @click="addItem"
+            buttonText="Add Item"
+            :chooseItem="true"
+          />
+        </div>
+        <div class="col-1 text-right">
+          <v-btn
+            v-show="state === 'pause'"
+            class="pulse"
+            v-on:click="
+              () => {
+                state = 'start'
+              }
+            "
+            color="primary"
+            fab
+          >
+            <v-icon large>mdi-play</v-icon>
+          </v-btn>
+        </div>
       </div>
 
       <div class="grid">
@@ -72,10 +99,11 @@
               :secondsGraphed="settings.secondsGraphed.value"
               :pointsSaved="settings.pointsSaved.value"
               :pointsGraphed="settings.pointsGraphed.value"
-              @close-graph="closeGraph(graph)"
-              @min-max-graph="minMaxGraph(graph)"
-              @resize="resize(graph)"
-              @click="graphSelected(graph)"
+              @close-graph="() => closeGraph(graph)"
+              @min-max-graph="() => minMaxGraph(graph)"
+              @resize="() => resize(graph)"
+              @click="() => graphSelected(graph)"
+              @mousedown="mousedown"
               @started="graphStarted"
             />
           </div>
@@ -249,6 +277,12 @@ export default {
     }
   },
   methods: {
+    mousedown: function ($event) {
+      // Only respond to left button mousedown events
+      if ($event.button === 0 || $event.which === 1) {
+        this.state = 'pause'
+      }
+    },
     alertHandler: function (event) {
       this.alert = event.text
       this.alertType = event.type
@@ -274,23 +308,18 @@ export default {
       this.graphs.push(id)
       this.counter += 1
       this.$nextTick(function () {
-        var items = this.grid.add(
-          this.$refs[`gridItem${id}`],
-          { active: false }
-        )
+        var items = this.grid.add(this.$refs[`gridItem${id}`], {
+          active: false,
+        })
         this.grid.show(items)
         this.selectedGraphId = id
         setTimeout(() => {
           this.grid.refreshItems().layout()
-          },
-          MURRI_REFRESH_TIME
-        )
+        }, MURRI_REFRESH_TIME)
       })
     },
     closeGraph: function (id) {
-      var items = this.grid.getItems([
-        document.getElementById(`gridItem${id}`),
-      ])
+      var items = this.grid.getItems([document.getElementById(`gridItem${id}`)])
       this.grid.remove(items)
       this.graphs.splice(this.graphs.indexOf(id), 1)
       this.selectedGraphId = null
@@ -304,16 +333,18 @@ export default {
     },
     minMaxGraph: function (id) {
       this.selectedGraphId = id
-      setTimeout(() => {
-        this.grid.refreshItems().layout()
+      setTimeout(
+        () => {
+          this.grid.refreshItems().layout()
         },
         MURRI_REFRESH_TIME * 2 // Double the time since there is more animation
       )
     },
     resize: function (id) {
       this.selectedGraphId = id
-      setTimeout(() => {
-        this.grid.refreshItems().layout()
+      setTimeout(
+        () => {
+          this.grid.refreshItems().layout()
         },
         MURRI_REFRESH_TIME * 2 // Double the time since there is more animation
       )
@@ -427,5 +458,19 @@ export default {
   cursor: pointer;
   border-radius: 6px;
   margin: 5px;
+}
+
+.pulse {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 </style>

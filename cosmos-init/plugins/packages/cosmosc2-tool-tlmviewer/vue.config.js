@@ -4,6 +4,9 @@ module.exports = {
   filenameHashing: false,
   transpileDependencies: ['uplot', 'vuetify'],
   configureWebpack: {
+    module: {
+      rules: [{ parser: { system: false } }],
+    },
     devServer: {
       port: 2920,
       watchOptions: {

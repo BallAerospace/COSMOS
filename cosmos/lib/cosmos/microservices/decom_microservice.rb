@@ -54,24 +54,26 @@ module Cosmos
             decom_packet(topic, msg_id, msg_hash, redis)
             @count += 1
           end
-        rescue => err
-          @error = err
-          Logger.error("Decom error: #{err.formatted}")
+        rescue => e
+          @error = e
+          Logger.error("Decom error: #{e.formatted}")
         end
       end
     end
 
-    def decom_packet(topic, msg_id, msg_hash, redis)
+    def decom_packet(topic, _msg_id, msg_hash, _redis)
       start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       target_name = msg_hash["target_name"]
       packet_name = msg_hash["packet_name"]
+
+      current_limits_set = LimitsEventTopic.current_set(scope: @scope)
 
       packet = System.telemetry.packet(target_name, packet_name)
       packet.stored = ConfigParser.handle_true_false(msg_hash["stored"])
       packet.received_time = Time.from_nsec_from_epoch(msg_hash["time"].to_i)
       packet.received_count = msg_hash["received_count"].to_i
       packet.buffer = msg_hash["buffer"]
-      packet.check_limits # Process all the limits and call the limits_change_callback (as necessary)
+      packet.check_limits(current_limits_set.intern) # Process all the limits and call the limits_change_callback (as necessary)
 
       # Id should match packet time to allow for easy querying of Redis
       previous_id_time, previous_id_count = @id_by_topic[topic]
@@ -135,11 +137,11 @@ module Cosmos
       if item.limits.response
         begin
           item.limits.response.call(packet, item, old_limits_state)
-        rescue Exception => err
-          @error = err
+        rescue Exception => e
+          @error = e
           Logger.error "#{packet.target_name} #{packet.packet_name} #{item.name} Limits Response Exception!"
           Logger.error "Called with old_state = #{old_limits_state}, new_state = #{item.limits.state}"
-          Logger.error err.formatted
+          Logger.error e.formatted
         end
       end
 

@@ -19,6 +19,7 @@
 
 <template>
   <verticalbox-widget
+    v-on="$listeners"
     :parameters="parameters"
     :settings="settings"
     :widgets="widgets"
@@ -34,9 +35,6 @@ export default {
   mixins: [Layout],
   components: {
     VerticalboxWidget,
-  },
-  watch: {
-    settings: console.log,
   },
   computed: {
     maxHeight: function () {

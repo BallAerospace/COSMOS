@@ -9,7 +9,7 @@ VERTICAL
 
   VERTICALBOX
     SECTIONHEADER "General Telemetry"
-    BUTTON 'Start Collect' 'cmd("<%= target_name %> COLLECT with TYPE NORMAL, DURATION 5")'
+    BUTTON 'Start Collect' 'api.cmd("<%= target_name %> COLLECT with TYPE NORMAL, DURATION 5")'
     FORMATVALUE <%= target_name %> HEALTH_STATUS COLLECTS "0x%08X"
     LABELVALUE <%= target_name %> HEALTH_STATUS COLLECT_TYPE
     LABELVALUE <%= target_name %> HEALTH_STATUS DURATION

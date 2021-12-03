@@ -26,6 +26,7 @@
     >
       <v-col v-for="(widget, cindex) in chunk" :key="'c' + cindex">
         <component
+          v-on="$listeners"
           :is="widget.type"
           :target="widget.target"
           :parameters="widget.parameters"

@@ -30,5 +30,7 @@ SCROLLWINDOW
 
     LABELVALUEDESC <%= target_name %> HEALTH_STATUS TEMP1
     LABELFORMATVALUE <%= target_name %> HEALTH_STATUS TEMP1 %0.6f
+
+    BUTTON 'Open ADCS Screen' "self.$emit('add-new-screen', ['INST', 'ADCS'])"
   END
 END
