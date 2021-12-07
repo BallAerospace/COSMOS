@@ -100,6 +100,7 @@ export default {
       ],
       limitsSets: [],
       currentLimitsSet: '',
+      currentSetRefreshInterval: null,
     }
   },
   watch: {
@@ -111,9 +112,14 @@ export default {
     this.api.get_limits_sets().then((sets) => {
       this.limitsSets = sets
     })
-    this.api.get_current_limits_set().then((result) => {
-      this.currentLimitsSet = result
-    })
+    this.getCurrentLimitsSet()
+    this.currentSetRefreshInterval = setInterval(
+      this.getCurrentLimitsSet,
+      60 * 1000
+    )
+  },
+  destroyed: function () {
+    clearInterval(this.currentSetRefreshInterval)
   },
   methods: {
     // update() {
@@ -148,6 +154,11 @@ export default {
     //     }
     //   })
     // },
+    getCurrentLimitsSet: function () {
+      this.api.get_current_limits_set().then((result) => {
+        this.currentLimitsSet = result
+      })
+    },
     limitsChange(value) {
       this.api.set_limits_set(value)
     },
