@@ -118,6 +118,7 @@ export default {
         return ['open', 'save'].indexOf(value) !== -1
       },
     },
+    requireTargetParentDir: Boolean, // Require that the save filename be nested in a directory with the name of a target
     inputFilename: String, // passed if this is a 'save' dialog
     value: Boolean, // value is the default prop when using v-model
   },
@@ -129,6 +130,7 @@ export default {
       search: null,
       selectedFile: null,
       disableButtons: false,
+      targets: [],
     }
   },
   computed: {
@@ -158,10 +160,29 @@ export default {
       if (this.selectedFile === '' || this.selectedFile === null) {
         return 'No file selected must select a file'
       }
-      if (!this.selectedFile.match(/.*\/.*\/.*\..*/)) {
-        return `${this.selectedFile} is not a valid path / filename.`
+      if (
+        !this.selectedFile.match(this.validFilenameRegex) ||
+        this.selectedFile.match(/\.\.|\/\/|\.\/|\/\./) // Block .'s and /'s next to each other (block path traversal)
+      ) {
+        let message = `${this.selectedFile} is not a valid filename. Must `
+        if (this.requireTargetParentDir) {
+          message += 'be in a target directory and '
+        }
+        message += "only contain alphanumeric characters and / ! - _ . * ' ( )"
+        return message
       }
       return null
+    },
+    validFilenameRegex: function () {
+      const alphanumeric = '0-9a-zA-Z'
+      const charset = `${alphanumeric}\\/\\!\\-\\_\\.\\*\\'\\(\\)` // From https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-keys.html a-z A-Z 0-9 / ! - _ . * ' ( )
+      let expression = `[${charset}]+\\.[${alphanumeric}]+`
+      if (this.requireTargetParentDir) {
+        const targets = `(${this.targets.join('|')})`
+        expression = `\\/?${targets}\\/${expression}`
+      }
+      console.log(new RegExp(expression))
+      return new RegExp(expression)
     },
   },
   created() {
@@ -181,6 +202,11 @@ export default {
       .catch((error) => {
         this.$emit('error', `Failed to connect to Cosmos. ${error}`)
       })
+    if (this.requireTargetParentDir) {
+      Api.get('/cosmos-api/targets').then((response) => {
+        this.targets = response.data
+      })
+    }
   },
   methods: {
     clear: function () {
