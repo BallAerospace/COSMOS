@@ -12,6 +12,8 @@ cacert.pem
 .idea
 .rubocop-http*
 .nyc_output
+cosmos/*_exception.txt
+cosmos/*_unexpected.txt
 cosmos/cosmos/
 cosmos/spec/install/outputs
 cosmos/spec/examples.txt

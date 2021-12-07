@@ -140,11 +140,11 @@ module Cosmos
     it "returns a Thread" do
       if Kernel.is_windows?
         capture_io do |stdout|
-          thread = Cosmos.run_process("ping google.com -n 2 -w 1000 > nul")
+          thread = Cosmos.run_process("ping 127.0.0.1 -n 2 -w 1000 > nul")
           sleep 0.1
           expect(thread).to be_a Thread
           expect(thread.alive?).to be true
-          sleep 2
+          sleep 2.1
           expect(thread.alive?).to be false
         end
       end
@@ -156,9 +156,9 @@ module Cosmos
       if RUBY_ENGINE == 'ruby' and Kernel.is_windows?
         output = ''
         allow(Logger).to receive(:error) { |str| output = str }
-        thread = Cosmos.run_process_check_output("ping 192.0.0.234 -n 1 -w 1000")
+        thread = Cosmos.run_process_check_output("ping 127.0.0.1 -n 1 -w 1000")
         sleep 0.1 while thread.alive?
-        expect(output).to match("Pinging 192.0.0.234")
+        expect(output).to match("Pinging 127.0.0.1")
       end
     end
   end

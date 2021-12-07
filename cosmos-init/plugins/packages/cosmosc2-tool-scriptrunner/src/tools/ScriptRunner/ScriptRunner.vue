@@ -470,6 +470,7 @@ export default {
         //   },
         // },
       },
+      current_filename: null,
       environmentOn: false,
       environmentOpen: false,
       environmentOptions: [],
@@ -657,13 +658,6 @@ export default {
       ]
     },
   },
-  created() {
-    Api.get('/script-api/running-script').then((response) => {
-      this.alertType = 'success'
-      this.alertText = `Currently ${response.data.length} running scripts.`
-      this.showAlert = true
-    })
-  },
   mounted() {
     this.editor = ace.edit('editor')
     this.editor.setTheme('ace/theme/twilight')
@@ -686,9 +680,24 @@ export default {
 
     window.addEventListener('keydown', this.keydown)
     this.cable = ActionCable.createConsumer('/script-api/cable')
-    if (this.$route.params.id) {
-      this.scriptStart(this.$route.params.id)
-    }
+    Api.get('/script-api/running-script').then((response) => {
+      const loadRunningScript = response.data.find(
+        (s) => `${s.id}` === this.$route.params.id
+      )
+      if (loadRunningScript) {
+        this.filename = loadRunningScript.name
+        this.scriptStart(loadRunningScript.id)
+      } else if (this.$route.params.id) {
+        this.$notify.caution({
+          title: '404 Not Found',
+          body: `Failed to load running script id: ${this.$route.params.id}`,
+        })
+      } else {
+        this.alertType = 'success'
+        this.alertText = `Currently ${response.data.length} running scripts.`
+        this.showAlert = true
+      }
+    })
     this.autoSaveInterval = setInterval(() => {
       // Only save if modified and visible (e.g. not open in another tab)
       if (
@@ -869,7 +878,6 @@ export default {
                   // Success - Save thes script text and mark the current_filename as null
                   // so it will get loaded in on the next line executed
                   this.files[data.filename] = response.data.contents
-                  this.filename = data.filename
                   this.current_filename = null
                 })
                 .catch((err) => {
