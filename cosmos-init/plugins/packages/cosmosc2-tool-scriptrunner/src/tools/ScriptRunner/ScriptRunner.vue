@@ -167,7 +167,25 @@
         >
           Saving...
         </v-snackbar>
-        <pre id="editor"></pre>
+        <pre id="editor" @contextmenu.prevent="showExecuteSelectionMenu"></pre>
+        <v-menu
+          v-model="executeSelectionMenu"
+          :position-x="menuX"
+          :position-y="menuY"
+          absolute
+          offset-y
+        >
+          <v-list>
+            <v-list-item
+              v-for="item in executeSelectionMenuItems"
+              :key="item.label"
+            >
+              <v-list-item-title @click="item.command">
+                {{ item.label }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </div>
       <multipane-resizer><hr /></multipane-resizer>
       <div id="messages" class="mt-2 pane" ref="messagesDiv">
@@ -528,6 +546,9 @@ export default {
       infoText: [],
       resultsDialog: false,
       scriptResults: '',
+      executeSelectionMenu: false,
+      menuX: 0,
+      menuY: 0,
     }
   },
   computed: {
@@ -656,6 +677,14 @@ export default {
         },
       ]
     },
+    executeSelectionMenuItems: function () {
+      return [
+        {
+          label: 'Execute selection',
+          command: this.executeSelection,
+        },
+      ]
+    },
   },
   created() {
     Api.get('/script-api/running-script').then((response) => {
@@ -716,6 +745,45 @@ export default {
     this.cable.disconnect()
   },
   methods: {
+    showExecuteSelectionMenu: function ($event) {
+      this.menuX = $event.pageX
+      this.menuY = $event.pageY
+      this.executeSelectionMenu = true
+    },
+    executeSelection: function () {
+      const text = this.editor.getSelectedText()
+      if (this.state === 'error') {
+        // Execute via debugger
+        const lines = text.split('\n')
+        for (const line of lines) {
+          this.debug = line.trim()
+          this.debugKeydown({ key: 'Enter' })
+        }
+      } else {
+        // Create a new temp script and open in new tab
+        const selectionTempFilename =
+          format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_temp.rb'
+        Api.post(`/script-api/scripts/${selectionTempFilename}`, {
+          data: {
+            text,
+          },
+        })
+          .then((response) => {
+            return Api.post(
+              `/script-api/scripts/${selectionTempFilename}/run`,
+              {
+                data: {
+                  scope: localStorage.scope,
+                  environment: this.environmentOptions,
+                },
+              }
+            )
+          })
+          .then((response) => {
+            window.open(`/tools/scriptrunner/${response.data}`)
+          })
+      }
+    },
     suiteRunnerButton(event) {
       if (this.startOrGoButton === START) {
         this.start(event, 'suiteRunner')
@@ -924,7 +992,9 @@ export default {
               marker,
               'fullLine'
             )
-            this.editor.gotoLine(data.line_no)
+            if (this.editor.getSelectedText() === '') {
+              this.editor.gotoLine(data.line_no)
+            }
           }
           break
         case 'output':
