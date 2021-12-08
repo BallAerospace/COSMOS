@@ -318,6 +318,7 @@
       v-if="showSaveAs"
       v-model="showSaveAs"
       type="save"
+      require-target-parent-dir
       :inputFilename="filename"
       @filename="saveAsFilename($event)"
       @error="setError($event)"
