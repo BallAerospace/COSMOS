@@ -682,7 +682,7 @@ export default {
     this.cable = ActionCable.createConsumer('/script-api/cable')
     Api.get('/script-api/running-script').then((response) => {
       const loadRunningScript = response.data.find(
-        (s) => `${s.id}` === this.$route.params.id
+        (s) => `${s.id}` === `${this.$route.params.id}`
       )
       if (loadRunningScript) {
         this.filename = loadRunningScript.name
