@@ -74,6 +74,8 @@ services:
       - "cosmos-minio"
     env_file:
       - ".env"
+    extra_hosts:
+      - host.docker.internal:host-gateway
 
   cosmos-traefik:
     image: "ballaerospace/cosmosc2-traefik:${COSMOS_TAG}"
