@@ -181,7 +181,6 @@ export default {
         const targets = `(${this.targets.join('|')})`
         expression = `\\/?${targets}\\/${expression}`
       }
-      console.log(new RegExp(expression))
       return new RegExp(expression)
     },
   },
