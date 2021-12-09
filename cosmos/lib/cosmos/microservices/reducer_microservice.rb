@@ -20,96 +20,52 @@
 require 'cosmos/microservices/microservice'
 require 'cosmos/topics/topic'
 require 'cosmos/packets/json_packet'
+require 'cosmos/utilities/s3'
 require 'rufus-scheduler'
 
 module Cosmos
+  # Architecture of the ReducerMicroservice: Get a list of all the files in logs/SCOPE/reduced_logs/tlm/TGT/PKT/YYYYMMDD
+  # Once we know the last file present we know where we left off
+  # Now go get all the files in logs/SCOPE/decom_logs/tlm/TGT/PKT/YYYYMMDD corresponding to that latest file
+  # Start processing minute data, each minute data completed kick off hour, each hour completed kick off day
   class ReducerMicroservice < Microservice
     MINUTE_METRIC = 'reducer_minute_duration'
     HOUR_METRIC = 'reducer_hour_duration'
     DAY_METRIC = 'reducer_day_duration'
-    # NOTE: Changing these requires a change in target_model.rb
-    MINUTE_KEY = 'REDUCED_MINUTE'
-    HOUR_KEY = 'REDUCED_HOUR'
-    DAY_KEY = 'REDUCED_DAY'
-    REDUCER_KEYS = [MINUTE_KEY, HOUR_KEY, DAY_KEY]
 
     # How long to wait for any currently running jobs to complete before killing them
     SHUTDOWN_DELAY_SECS = 1
 
     def run
-      @test = false # Set to true to override ID values in Redis for testing
-      initialize_streams
-      get_initial_offsets
+      @topics.each do |topic|
+        scope, _, target_name, packet_name = topic.split('__')
+        total_size, oldest_list = S3Utilities.get_total_size_and_oldest_list('logs', "#{@scope}/reduced_logs/tlm/#{target_name}/#{packet_name}")
+        puts oldest_list
+
+        total_size, oldest_list = S3Utilities.get_total_size_and_oldest_list('logs', "#{@scope}/decom_logs/tlm/#{target_name}/#{packet_name}")
+        puts oldest_list
+      end
 
       # Note it takes several seconds to create the scheduler
-      @scheduler = Rufus::Scheduler.new
-      @scheduler.cron '* * * * *' do
-        reduce_minute
-      end
-      @scheduler.cron '0 * * * *' do
-        reduce_hour
-      end
-      @scheduler.cron '0 0 * * *' do
-        reduce_day
-      end
+      # @scheduler = Rufus::Scheduler.new
+      # @scheduler.cron '* * * * *', first: :now do
+      #   reduce_minute
+      # end
+      # @scheduler.cron '0 * * * *', first: :now do
+      #   reduce_hour
+      # end
+      # @scheduler.cron '0 0 * * *', first: :now do
+      #   reduce_day
+      # end
 
       # Let the current thread join the scheduler thread and
       #  block until shutdown is called
-      @scheduler.join
+      # @scheduler.join
     end
 
     def shutdown
-      @scheduler.shutdown(wait: SHUTDOWN_DELAY_SECS) if @scheduler
+      # @scheduler.shutdown(wait: SHUTDOWN_DELAY_SECS) if @scheduler
       super()
-    end
-
-    def initialize_streams
-      new_streams = []
-      @topics.each do |topic|
-        scope, _, target_name, packet_name = topic.split('__')
-
-        # Set the target for use in the metric ... should only ever be one
-        @target ||= target_name
-        REDUCER_KEYS.each do |key|
-          # NOTE: target_name already contains the brackets, e.g '{INST}'
-          stream_name = "#{scope}__#{key}__#{target_name}__#{packet_name}"
-          new_streams << stream_name unless Store.exists?(stream_name)
-        end
-      end
-      Store.initialize_streams(new_streams)
-
-      @minute_topics =
-        new_streams.select { |stream| stream.include?(MINUTE_KEY) }
-      @hour_topics = new_streams.select { |stream| stream.include?(HOUR_KEY) }
-    end
-
-    # TODO: This needs work to calculate decom stream offsets in case this process
-    # dies and comes back. We need to calculate where to begin based on what's been
-    # processed in the reduced minute data.
-    def get_initial_offsets
-      @offsets = {}
-      @topics.each do |topic|
-        # Get decom stream offsets
-        id, msg = Store.get_oldest_message(topic)
-        if msg
-          @offsets[topic] = ns_ms(msg['time'])
-        else
-          @offsets[topic] = 0
-        end
-
-        # Get reduced stream offsets
-        scope, _, target_name, packet_name = topic.split('__')
-        REDUCER_KEYS.each do |key|
-          # NOTE: target_name already contains the brackets, e.g '{INST}'
-          stream_name = "#{scope}__#{key}__#{target_name}__#{packet_name}"
-          id, msg = Store.get_oldest_message(stream_name)
-          if msg
-            @offsets[stream_name] = ns_ms(msg['time'])
-          else
-            @offsets[stream_name] = 0
-          end
-        end
-      end
     end
 
     def metric(name)
@@ -127,10 +83,16 @@ module Cosmos
 
     def reduce_minute
       metric(MINUTE_METRIC) do
-        # Reducing data to minute requires grabbing from the decom topics passed in
-        @topics.each do |topic|
-          process_topic(topic, Time::MSEC_PER_MINUTE, MINUTE_KEY)
-        end
+        file_path =
+          FileCache.instance.reserve_file(
+            first_object.cmd_or_tlm,
+            first_object.target_name,
+            first_object.packet_name,
+            first_object.start_time,
+            file_end_time,
+            @stream_mode,
+            scope: @scope,
+          ) # TODO: look at how @stream_mode is being used
       end
     end
 
