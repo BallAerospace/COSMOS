@@ -1,4 +1,4 @@
-FROM alpine:3.14.1
+FROM alpine:3.14.3
 
 LABEL maintainer="cosmos@ballaerospace.com"
 

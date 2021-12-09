@@ -36,6 +36,9 @@ module Cosmos
 
       when :LIMITS_SETTINGS
         # Limits updated in limits_api.rb to avoid circular reference to TargetModel
+        unless sets(scope: scope).has_key?(event[:limits_set])
+          Store.hset("#{scope}__limits_sets", event[:limits_set], 'false')
+        end
 
       when :LIMITS_SET
         sets = sets(scope: scope)
@@ -89,7 +92,7 @@ module Cosmos
     end
 
     def self.current_set(scope:)
-      self.sets(scope: scope).key('true') || "DEFAULT"
+      sets(scope: scope).key('true') || "DEFAULT"
     end
 
     def self.delete(_target_name, _packet_name, scope:)
