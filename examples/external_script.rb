@@ -17,15 +17,15 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos'
-require 'cosmos/script'
-
 ENV['COSMOS_API_SCHEMA'] = 'http'
 ENV['COSMOS_API_HOSTNAME'] = 'host.docker.internal'
 ENV['COSMOS_API_PORT'] = '2900'
 ENV['COSMOS_API_PASSWORD'] = 'cosmos'
 
 ENV['COSMOS_NO_STORE'] = '1'
+
+require 'cosmos'
+require 'cosmos/script'
 
 puts get_target_list()
 
