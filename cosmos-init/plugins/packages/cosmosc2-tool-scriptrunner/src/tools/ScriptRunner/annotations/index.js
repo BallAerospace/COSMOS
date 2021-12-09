@@ -1,5 +1,4 @@
-# encoding: ascii-8bit
-
+/*
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -16,21 +15,8 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
+*/
 
-ENV['COSMOS_API_SCHEMA'] = 'http'
-ENV['COSMOS_API_HOSTNAME'] = 'host.docker.internal'
-ENV['COSMOS_API_PORT'] = '2900'
-ENV['COSMOS_API_PASSWORD'] = 'cosmos'
+import SleepAnnotator from './sleepAnnotator.js'
 
-ENV['COSMOS_NO_STORE'] = '1'
-
-require 'cosmos'
-require 'cosmos/script'
-
-puts get_target_list()
-
-puts get_all_target_info()
-
-puts tlm('INST ADCS POSX')
-
-puts cmd("INST ABORT")
+export { SleepAnnotator }

@@ -311,6 +311,7 @@ export default {
         }
         // Only process items who have gone out of limits
         if (
+          message.new_limits_state &&
           !(
             message.new_limits_state.includes('YELLOW') ||
             message.new_limits_state.includes('RED')

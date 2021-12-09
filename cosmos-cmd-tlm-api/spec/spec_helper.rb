@@ -60,8 +60,22 @@ end
 
 # Disable Redis and Fluentd in the Logger
 ENV['COSMOS_NO_STORE'] = 'true'
+# Set some passwords
+ENV['COSMOS_API_PASSWORD'] = 'cosmos'
+# Set internal cosmos password
+ENV['COSMOS_SERVICE_PASSWORD'] = 'cosmosservice'
+# Set redis username
+ENV['COSMOS_REDIS_USERNAME'] = 'cosmos'
+# Set redis password
+ENV['COSMOS_REDIS_PASSWORD'] = 'cosmospassword'
+# Set minio password
+ENV['COSMOS_MINIO_USERNAME'] = 'cosmosminio'
+# Set minio password
+ENV['COSMOS_MINIO_PASSWORD'] = 'cosmosminiopassword'
+# Set cosmos scope
+ENV['COSMOS_SCOPE'] = 'DEFAULT'
 
-$cosmos_scope = 'DEFAULT'
+$cosmos_scope = ENV['COSMOS_SCOPE']
 
 def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
   require 'cosmos/system'

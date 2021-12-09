@@ -1,5 +1,4 @@
-# encoding: ascii-8bit
-
+/*
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -16,21 +15,19 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
+*/
 
-ENV['COSMOS_API_SCHEMA'] = 'http'
-ENV['COSMOS_API_HOSTNAME'] = 'host.docker.internal'
-ENV['COSMOS_API_PORT'] = '2900'
-ENV['COSMOS_API_PASSWORD'] = 'cosmos'
+import RegexAnnotator from './regexAnnotator.js'
 
-ENV['COSMOS_NO_STORE'] = '1'
-
-require 'cosmos'
-require 'cosmos/script'
-
-puts get_target_list()
-
-puts get_all_target_info()
-
-puts tlm('INST ADCS POSX')
-
-puts cmd("INST ABORT")
+export default class SleepAnnotator extends RegexAnnotator {
+  constructor(editor) {
+    const prefix = '(^|[{\\s])' // Allowable characters before the keyword: start of line or { or a space
+    const keyword = 'sleep' // The keyword this annotation looks for
+    const suffix = '[\\(\\s]' // Allowable characters after the keyword: ( or a space
+    super(editor, {
+      pattern: new RegExp(`${prefix}${keyword}${suffix}`),
+      text: 'Use `wait` instead of `sleep` in COSMOS scripts', // because we override wait to make it work better, but not sleep
+      type: 'warning',
+    })
+  }
+}

@@ -268,7 +268,7 @@ module Cosmos
         it "returns all packets after a start time" do
           index = 1
           reached_end_time = @plr.each(@logfile, true, @start_time + 1) do |packet|
-            puts "i:#{index} time:#{packet.received_time}"
+            # puts "i:#{index} time:#{packet.received_time}"
             expect(packet.packet_time.to_nsec_from_epoch).to eql @times[index]
             index += 1
           end

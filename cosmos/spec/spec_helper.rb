@@ -60,6 +60,18 @@ ENV['COSMOS_USERPATH'] = File.join(File.dirname(File.expand_path(__FILE__)), 'in
 ENV['COSMOS_NO_STORE'] = 'true'
 # Set some passwords
 ENV['COSMOS_API_PASSWORD'] = 'cosmos'
+# Set internal cosmos password
+ENV['COSMOS_SERVICE_PASSWORD'] = 'cosmosservice'
+# Set redis username
+ENV['COSMOS_REDIS_USERNAME'] = 'cosmos'
+# Set redis password
+ENV['COSMOS_REDIS_PASSWORD'] = 'cosmospassword'
+# Set minio password
+ENV['COSMOS_MINIO_USERNAME'] = 'cosmosminio'
+# Set minio password
+ENV['COSMOS_MINIO_PASSWORD'] = 'cosmosminiopassword'
+# Set cosmos scope
+ENV['COSMOS_SCOPE'] = 'DEFAULT'
 
 # TODO: This is a hack until we figure out COSMOS_USERPATH
 module Cosmos
@@ -71,12 +83,9 @@ require 'cosmos/script'
 # require 'cosmos/utilities/logger'
 # Create a easy alias to the base of the spec directory
 SPEC_DIR = File.dirname(__FILE__)
-$cosmos_scope = 'DEFAULT'
-$cosmos_token = 'FOOBAR'
+$cosmos_scope = ENV['COSMOS_SCOPE']
+$cosmos_token = ENV['COSMOS_API_PASSWORD']
 $cosmos_authorize = false
-ENV['COSMOS_SCOPE'] = $cosmos_scope
-ENV['COSMOS_SERVICE_PASSWORD'] = $cosmos_token
-ENV['COSMOS_PASSWORD'] = $cosmos_token
 
 def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
   capture_io do |stdout|
