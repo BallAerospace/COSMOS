@@ -108,7 +108,7 @@
                       >
                         <v-radio
                           label="Top"
-                          :value="true"
+                          value
                           data-test="dump-component-settings-newest-top"
                         />
                         <v-radio
