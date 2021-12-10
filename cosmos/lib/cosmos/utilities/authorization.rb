@@ -42,6 +42,10 @@ rescue LoadError
           raise AuthError.new("Token is invalid for permission #{permission}") unless Cosmos::AuthModel.verify(token, permission: permission)
         end
       end
+
+      def user_info(_token)
+        {} # EE does stuff here
+      end
     end
   end
 end

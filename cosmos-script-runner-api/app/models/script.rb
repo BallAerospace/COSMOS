@@ -74,9 +74,9 @@ class Script
     resp.body.read
   end
 
-  def self.lock(scope, name)
+  def self.lock(scope, name, user)
     name = name.split('*')[0] # Split '*' that indicates modified
-    Cosmos::Store.hset("#{scope}__script-locks", name, 'true') # TODO: username instead of 'true'
+    Cosmos::Store.hset("#{scope}__script-locks", name, user)
   end
 
   def self.unlock(scope, name)
@@ -86,7 +86,9 @@ class Script
 
   def self.locked?(scope, name)
     name = name.split('*')[0] # Split '*' that indicates modified
-    Cosmos::Store.hget("#{scope}__script-locks", name)
+    locked_by = Cosmos::Store.hget("#{scope}__script-locks", name)
+    locked_by ||= false
+    locked_by
   end
 
   def self.process_suite(name, contents, new_process: true)

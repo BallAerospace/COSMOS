@@ -29,7 +29,7 @@
     </v-snackbar>
     <v-snackbar v-model="showReadOnlyToast" top :timeout="-1" color="orange">
       <v-icon> mdi-pencil-off </v-icon>
-      Someone else is editing this script. Editor is in read-only mode
+      {{ lockedBy }} is editing this script. Editor is in read-only mode
       <template v-slot:action="{ attrs }">
         <v-btn text v-bind="attrs" color="danger" @click="confirmLocalUnlock">
           Unlock
@@ -532,7 +532,7 @@ export default {
       tempFilename: null,
       fileModified: '',
       fileOpen: false,
-      readOnly: false,
+      lockedBy: null,
       showReadOnlyToast: false,
       showSaveAs: false,
       areYouSure: false,
@@ -573,6 +573,9 @@ export default {
     }
   },
   computed: {
+    readOnly: function () {
+      return !!this.lockedBy
+    },
     fullFilename() {
       if (this.fileModified.length > 0) {
         return `${this.filename} ${this.fileModified}`
@@ -1207,7 +1210,7 @@ export default {
       this.filename = file.name.split('*')[0]
       this.editor.session.setValue(file.contents)
       this.fileModified = ''
-      this.readOnly = locked
+      this.lockedBy = locked
       if (file.suites) {
         if (typeof file.suites === 'string') {
           this.alertType = 'warning'
@@ -1441,7 +1444,7 @@ export default {
           }
         )
         .then(() => {
-          this.readOnly = false
+          this.lockedBy = null
           return this.lockFile() // Re-lock it as this user so it's locked for anyone else who opens it
         })
     },

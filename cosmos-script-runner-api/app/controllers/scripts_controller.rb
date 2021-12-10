@@ -41,7 +41,12 @@ class ScriptsController < ApplicationController
     if file
       success = true
       locked = Script.locked?(params[:scope], params[:name])
-      Script.lock(params[:scope], params[:name]) unless locked
+      unless locked
+        user = user_info(request.headers['HTTP_AUTHORIZATION'])
+        username = user['name']
+        username ||= 'Someone else' # Generic name that makes sense in the lock toast in Script Runner (EE has the actual username)
+        Script.lock(params[:scope], params[:name], username)
+      end
       results = {
         "contents" => file,
         "locked" => locked
@@ -106,7 +111,10 @@ class ScriptsController < ApplicationController
     rescue Cosmos::ForbiddenError => e
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
-    Script.lock(params[:scope], params[:name])
+    user = user_info(request.headers['HTTP_AUTHORIZATION'])
+    username = user['name']
+    username ||= 'Someone else' # Generic name that makes sense in the lock toast in Script Runner (EE has the actual username)
+    Script.lock(params[:scope], params[:name], username)
     render status: 200
   end
 
@@ -118,7 +126,11 @@ class ScriptsController < ApplicationController
     rescue Cosmos::ForbiddenError => e
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
-    Script.unlock(params[:scope], params[:name]) # TODO: check if locked by this user first
+    user = user_info(request.headers['HTTP_AUTHORIZATION'])
+    username = user['name']
+    username ||= 'Someone else'
+    locked_by = Script.locked?(params[:scope], params[:name])
+    Script.unlock(params[:scope], params[:name]) if username == locked_by
     render status: 200
   end
 
