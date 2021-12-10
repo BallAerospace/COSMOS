@@ -40,7 +40,12 @@ class ScriptsController < ApplicationController
     file = Script.body(params[:scope], params[:name])
     if file
       success = true
-      results = { "contents" => file }
+      locked = Script.locked?(params[:scope], params[:name])
+      Script.lock(params[:scope], params[:name]) unless locked
+      results = {
+        "contents" => file,
+        "locked" => locked
+      }
       if params[:name].include?('suite')
         results['suites'], success = Script.process_suite(params[:name], file)
       end
@@ -91,6 +96,30 @@ class ScriptsController < ApplicationController
     else
       head :not_found
     end
+  end
+
+  def lock
+    begin
+      authorize(permission: 'script_edit', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+    end
+    Script.lock(params[:scope], params[:name])
+    render status: 200
+  end
+
+  def unlock
+    begin
+      authorize(permission: 'script_edit', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+    end
+    Script.unlock(params[:scope], params[:name]) # TODO: check if locked by this user first
+    render status: 200
   end
 
   def destroy

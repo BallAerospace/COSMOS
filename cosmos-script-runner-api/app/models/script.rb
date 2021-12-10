@@ -23,6 +23,8 @@ require 'cosmos/script/suite_runner'
 require 'cosmos/tools/test_runner/test'
 require 'cosmos/utilities/s3'
 
+Cosmos.require_file 'cosmos/utilities/store'
+
 class Script
   DEFAULT_BUCKET_NAME = 'config'
 
@@ -35,6 +37,7 @@ class Script
     if contents
       contents.each do |object|
         next unless object[:key].include?("#{scope}/targets")
+
         if object[:key].include?("procedures") || object[:key].include?("lib")
           if object[:key].include?("#{scope}/targets_modified")
             modified << object[:key].split('/')[2..-1].join('/')
@@ -71,11 +74,26 @@ class Script
     resp.body.read
   end
 
+  def self.lock(scope, name)
+    name = name.split('*')[0] # Split '*' that indicates modified
+    Cosmos::Store.hset("#{scope}__script-locks", name, 'true') # TODO: username instead of 'true'
+  end
+
+  def self.unlock(scope, name)
+    name = name.split('*')[0] # Split '*' that indicates modified
+    Cosmos::Store.hdel("#{scope}__script-locks", name)
+  end
+
+  def self.locked?(scope, name)
+    name = name.split('*')[0] # Split '*' that indicates modified
+    Cosmos::Store.hget("#{scope}__script-locks", name)
+  end
+
   def self.process_suite(name, contents, new_process: true)
     start = Time.now
     temp = Tempfile.new(['suite', '.rb'])
     # Remove any carriage returns which ruby doesn't like
-    temp.write(contents.gsub(/\r/," "))
+    temp.write(contents.gsub(/\r/, " "))
     temp.close
     # We open a new ruby process so as to not pollute the API with require
     results = nil
@@ -101,6 +119,7 @@ class Script
 
   def self.create(scope, name, text = nil)
     return false unless text
+
     rubys3_client = Aws::S3::Client.new
     rubys3_client.put_object(
       # Use targets_modified to save modifications
@@ -108,7 +127,8 @@ class Script
       key: "#{scope}/targets_modified/#{name}",
       body: text,
       bucket: DEFAULT_BUCKET_NAME,
-      content_type: 'text/plain')
+      content_type: 'text/plain'
+    )
     true
   end
 
@@ -136,7 +156,7 @@ class Script
         # Results is an array of strings like this: ":2: syntax error ..."
         # Normally the procedure comes before the first colon but since we
         # are writing to the process this is blank so we throw it away
-        results.map! {|result| result.split(':')[1..-1].join(':')}
+        results.map! { |result| result.split(':')[1..-1].join(':') }
         return { "title" => "Syntax Check Failed", "description" => results.to_json }
       end
     else
