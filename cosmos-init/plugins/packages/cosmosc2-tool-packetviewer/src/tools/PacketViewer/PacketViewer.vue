@@ -21,8 +21,8 @@
   <div>
     <top-bar :menus="menus" :title="title" />
     <target-packet-item-chooser
-      :initialTargetName="this.$route.params.target"
-      :initialPacketName="this.$route.params.packet"
+      :initial-target-name="this.$route.params.target"
+      :initial-packet-name="this.$route.params.packet"
       @on-set="packetChanged($event)"
     />
     <v-card>
@@ -61,7 +61,7 @@
         <template v-slot:item.value="{ item }">
           <value-widget
             :value="item.value"
-            :limitsState="item.limitsState"
+            :limits-state="item.limitsState"
             :parameters="[targetName, packetName, item.name]"
             :settings="['WIDTH', '50']"
           />

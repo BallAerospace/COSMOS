@@ -22,12 +22,12 @@
     <limitscolumn-widget
       :parameters="limitsColumnParameters"
       :settings="settings"
-      :widgetIndex="0"
+      :widget-index="0"
     />
     <value-widget
       :parameters="parameters"
       :settings="settings"
-      :widgetIndex="1"
+      :widget-index="1"
     />
   </div>
 </template>

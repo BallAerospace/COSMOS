@@ -131,7 +131,7 @@
       v-if="showColorDialog"
       v-model="showColorDialog"
       :timeline="colorMenuTimeline"
-      :timelineColor="colorMenuTimeline.color"
+      :timeline-color="colorMenuTimeline.color"
     />
   </div>
 </template>

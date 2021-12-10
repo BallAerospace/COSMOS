@@ -34,8 +34,8 @@
     </v-snackbar>
     <suite-runner
       v-if="suiteRunner"
-      :suiteMap="suiteMap"
-      :disableButtons="disableSuiteButtons"
+      :suite-map="suiteMap"
+      :disable-buttons="disableSuiteButtons"
       @button="suiteRunnerButton"
     />
     <v-container id="sc-controls">
@@ -309,7 +309,7 @@
       :question="ask.question"
       :default="ask.default"
       :password="ask.password"
-      :answerRequired="ask.answerRequired"
+      :answer-required="ask.answerRequired"
       @response="ask.callback"
     />
     <prompt-dialog
@@ -337,7 +337,7 @@
       v-model="showSaveAs"
       type="save"
       require-target-parent-dir
-      :inputFilename="filename"
+      :input-filename="filename"
       @filename="saveAsFilename($event)"
       @error="setError($event)"
     />

@@ -201,8 +201,8 @@
         </v-card-text>
         <date-time-chooser
           :required="false"
-          dateLabel="Start Date"
-          timeLabel="Start Time"
+          date-label="Start Date"
+          time-label="Start Time"
           @date-time="graphStartDateTime = $event"
         />
         <v-card-text class="pa-0">
@@ -210,8 +210,8 @@
           real-time graphing.
         </v-card-text>
         <date-time-chooser
-          dateLabel="End Date"
-          timeLabel="End Time"
+          date-label="End Date"
+          time-label="End Time"
           @date-time="graphEndDateTime = $event"
         />
         <v-card-text class="pa-0"> Optional Y axis settings. </v-card-text>

@@ -24,7 +24,7 @@
       :parameters="labelName"
       :settings="settings"
       :style="computedStyle"
-      :widgetIndex="1"
+      :widget-index="1"
     />
   </div>
 </template>

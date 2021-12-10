@@ -60,8 +60,8 @@
         <div class="col-11">
           <target-packet-item-chooser
             @click="addItem"
-            buttonText="Add Item"
-            chooseItem
+            button-text="Add Item"
+            choose-item
           />
         </div>
         <div class="col-1 text-right">
@@ -94,11 +94,11 @@
               :ref="`graph${graph}`"
               :id="graph"
               :state="state"
-              :startTime="startTime"
-              :selectedGraphId="selectedGraphId"
-              :secondsGraphed="settings.secondsGraphed.value"
-              :pointsSaved="settings.pointsSaved.value"
-              :pointsGraphed="settings.pointsGraphed.value"
+              :start-time="startTime"
+              :selected-graph-id="selectedGraphId"
+              :seconds-graphed="settings.secondsGraphed.value"
+              :points-saved="settings.pointsSaved.value"
+              :points-graphed="settings.pointsGraphed.value"
               @close-graph="() => closeGraph(graph)"
               @min-max-graph="() => minMaxGraph(graph)"
               @resize="() => resize(graph)"
