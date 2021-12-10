@@ -78,8 +78,8 @@
           @click="addItem($event)"
           buttonText="Add Item"
           :mode="cmdOrTlm"
-          :chooseItem="true"
-          :allowAll="true"
+          chooseItem
+          allowAll
         />
       </v-row>
       <v-row no-gutters>

@@ -21,12 +21,7 @@
   <div>
     <top-bar :menus="menus" :title="title" />
     <v-container dense>
-      <v-snackbar
-        v-model="showAlert"
-        :top="true"
-        :color="alertType"
-        :timeout="5000"
-      >
+      <v-snackbar v-model="showAlert" top :color="alertType" :timeout="5000">
         <v-icon> mdi-{{ alertType }} </v-icon>
         {{ alert }}
         <template v-slot:action="{ attrs }">
@@ -63,10 +58,7 @@
           <span v-else> No timelines selected </span>
         </v-col>
       </v-row>
-      <environment-dialog
-        v-if="environmentOpen"
-        v-model="environmentOpen"
-      />
+      <environment-dialog v-if="environmentOpen" v-model="environmentOpen" />
     </v-container>
   </div>
 </template>

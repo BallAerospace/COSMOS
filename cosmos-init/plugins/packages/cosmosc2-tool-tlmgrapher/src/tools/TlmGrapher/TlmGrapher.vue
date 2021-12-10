@@ -23,7 +23,7 @@
     <div>
       <v-snackbar
         v-model="showAlert"
-        :top="true"
+        top
         :type="alertType"
         :icon="alertType"
         :timeout="5000"
@@ -61,7 +61,7 @@
           <target-packet-item-chooser
             @click="addItem"
             buttonText="Add Item"
-            :chooseItem="true"
+            chooseItem
           />
         </div>
         <div class="col-1 text-right">
