@@ -12,7 +12,7 @@
     "@cypress/vue": "2.2.3",
     "@cypress/webpack-dev-server": "1.2.0",
     "@testing-library/cypress": "8.0.0",
-    "@vue/cli-plugin-babel": "4.5.13",
+    "@vue/cli-plugin-babel": "4.5.15",
     "@vue/eslint-config-prettier": "6.0.0",
     "babel-eslint": "10.1.0",
     "babel-plugin-istanbul": "6.0.0",
