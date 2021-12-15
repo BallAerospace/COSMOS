@@ -75,6 +75,8 @@ SCROLLWINDOW:
       required: false
       description: Maximum height of the scroll window in pixels (default = 180)
       values: .*
+IFRAME:
+  summary: Open external tools in an Iframe within COSMOS.
 TABBOOK:
   summary: Creates a tabbed area in which to place TABITEM widgets
     to form a tabbed layout.

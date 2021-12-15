@@ -1,4 +1,4 @@
-<!--
+/*
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,36 +15,8 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
+*/
 
-<template>
-  <div ref="container" class="d-flex flex-row" :style="computedStyle">
-    <value-widget
-      :parameters="getParameters"
-      :settings="settings"
-      :format-string="parameters[3]"
-    />
-  </div>
-</template>
+import SleepAnnotator from './sleepAnnotator.js'
 
-<script>
-import Widget from './Widget'
-import ValueWidget from './ValueWidget.vue'
-
-export default {
-  mixins: [Widget],
-  components: {
-    ValueWidget,
-  },
-  computed: {
-    getParameters() {
-      return [
-        this.parameters[0],
-        this.parameters[1],
-        this.parameters[2],
-        this.parameters[4],
-      ]
-    },
-  },
-}
-</script>
+export { SleepAnnotator }

@@ -79,7 +79,7 @@
     <edit-dialog
       :content="jsonContent"
       :title="`Interface: ${dialogTitle}`"
-      :readonly="true"
+      readonly
       v-model="showDialog"
       v-if="showDialog"
       @submit="dialogCallback"

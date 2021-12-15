@@ -23,13 +23,13 @@
       :parameters="labelName"
       :settings="settings"
       :style="computedStyle"
-      :widgetIndex="0"
+      :widget-index="0"
     />
     <value-widget
       :parameters="parameters"
       :settings="settings"
       :style="computedStyle"
-      :widgetIndex="1"
+      :widget-index="1"
     />
   </div>
 </template>

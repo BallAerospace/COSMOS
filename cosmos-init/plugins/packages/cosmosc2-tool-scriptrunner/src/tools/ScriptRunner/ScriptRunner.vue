@@ -20,22 +20,38 @@
 <template>
   <div>
     <top-bar :menus="menus" :title="title" />
-    <v-snackbar
-      v-model="showAlert"
-      :top="true"
-      :color="alertType"
-      :timeout="3000"
-    >
+    <v-snackbar v-model="showAlert" top :color="alertType" :timeout="3000">
       <v-icon> mdi-{{ alertType }} </v-icon>
       {{ alertText }}
       <template v-slot:action="{ attrs }">
         <v-btn text v-bind="attrs" @click="showAlert = false"> Close </v-btn>
       </template>
     </v-snackbar>
+    <v-snackbar v-model="showReadOnlyToast" top :timeout="-1" color="orange">
+      <v-icon> mdi-pencil-off </v-icon>
+      {{ lockedBy }} is editing this script. Editor is in read-only mode
+      <template v-slot:action="{ attrs }">
+        <v-btn text v-bind="attrs" color="danger" @click="confirmLocalUnlock">
+          Unlock
+        </v-btn>
+        <v-btn
+          text
+          v-bind="attrs"
+          @click="
+            () => {
+              showReadOnlyToast = false
+            }
+          "
+        >
+          dismiss
+        </v-btn>
+      </template>
+    </v-snackbar>
+
     <suite-runner
       v-if="suiteRunner"
-      :suiteMap="suiteMap"
-      :disableButtons="disableSuiteButtons"
+      :suite-map="suiteMap"
+      :disable-buttons="disableSuiteButtons"
       @button="suiteRunnerButton"
     />
     <v-container id="sc-controls">
@@ -54,18 +70,28 @@
               v-model="fullFilename"
               id="filename"
               data-test="filename"
-            >
-            </v-text-field>
+            />
             <v-text-field
+              v-model="scriptId"
+              label="Script ID"
+              data-test="id"
               class="shrink ml-2 script-state"
-              style="width: 120px"
-              outlined
+              style="width: 100px"
               dense
+              outlined
               readonly
               hide-details
-              label="Script State"
+            />
+            <v-text-field
               v-model="state"
+              label="Script State"
               data-test="state"
+              class="shrink ml-2 script-state"
+              style="width: 120px"
+              dense
+              outlined
+              readonly
+              hide-details
             />
             <v-progress-circular
               v-if="state === 'Connecting...'"
@@ -100,6 +126,7 @@
                 @click="environmentHandeler"
                 class="mx-1"
                 data-test="env-button"
+                :disabled="startOrGoDisabled"
               >
                 <v-icon>
                   {{ environmentOn ? 'mdi-library' : 'mdi-run' }}
@@ -157,7 +184,25 @@
         >
           Saving...
         </v-snackbar>
-        <pre id="editor"></pre>
+        <pre id="editor" @contextmenu.prevent="showExecuteSelectionMenu"></pre>
+        <v-menu
+          v-model="executeSelectionMenu"
+          :position-x="menuX"
+          :position-y="menuY"
+          absolute
+          offset-y
+        >
+          <v-list>
+            <v-list-item
+              v-for="item in executeSelectionMenuItems"
+              :key="item.label"
+            >
+              <v-list-item-title @click="item.command">
+                {{ item.label }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </div>
       <multipane-resizer><hr /></multipane-resizer>
       <div id="messages" class="mt-2 pane" ref="messagesDiv">
@@ -281,7 +326,7 @@
       :question="ask.question"
       :default="ask.default"
       :password="ask.password"
-      :answerRequired="ask.answerRequired"
+      :answer-required="ask.answerRequired"
       @response="ask.callback"
     />
     <prompt-dialog
@@ -308,7 +353,8 @@
       v-if="showSaveAs"
       v-model="showSaveAs"
       type="save"
-      :inputFilename="filename"
+      require-target-parent-dir
+      :input-filename="filename"
       @filename="saveAsFilename($event)"
       @error="setError($event)"
     />
@@ -419,9 +465,14 @@ import AskDialog from './AskDialog.vue'
 import PromptDialog from './PromptDialog.vue'
 import SuiteRunner from './SuiteRunner.vue'
 import { CmdCompleter, TlmCompleter } from './autocomplete'
+import { SleepAnnotator } from './annotations'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
 const NEW_FILENAME = '<Untitled>'
+const START = 'Start'
+const GO = 'Go'
+const PAUSE = 'Pause'
+const RETRY = 'Retry'
 
 export default {
   components: {
@@ -455,6 +506,7 @@ export default {
         //   },
         // },
       },
+      current_filename: null,
       environmentOn: false,
       environmentOpen: false,
       environmentOptions: [],
@@ -463,13 +515,13 @@ export default {
       alertType: null,
       alertText: '',
       state: ' ',
-      scriptId: null,
+      scriptId: ' ',
       startDialog: false,
-      startOrGoButton: 'Start',
+      startOrGoButton: START,
       startOrGoDisabled: false,
-      pauseOrRetryButton: 'Pause',
-      pauseOrRetryDisabled: true,
-      stopDisabled: true,
+      pauseOrRetryButton: PAUSE,
+      pauseOrRetryDisabled: false,
+      stopDisabled: false,
       showDebug: false,
       debug: '',
       debugHistory: [],
@@ -480,6 +532,8 @@ export default {
       tempFilename: null,
       fileModified: '',
       fileOpen: false,
+      lockedBy: null,
+      showReadOnlyToast: false,
       showSaveAs: false,
       areYouSure: false,
       subscription: null,
@@ -513,9 +567,15 @@ export default {
       infoText: [],
       resultsDialog: false,
       scriptResults: '',
+      executeSelectionMenu: false,
+      menuX: 0,
+      menuY: 0,
     }
   },
   computed: {
+    readOnly: function () {
+      return !!this.lockedBy
+    },
     fullFilename() {
       if (this.fileModified.length > 0) {
         return `${this.filename} ${this.fileModified}`
@@ -641,13 +701,24 @@ export default {
         },
       ]
     },
+    executeSelectionMenuItems: function () {
+      return [
+        {
+          label: 'Execute selection',
+          command: this.executeSelection,
+        },
+      ]
+    },
   },
-  created() {
-    Api.get('/script-api/running-script').then((response) => {
-      this.alertType = 'success'
-      this.alertText = `Currently ${response.data.length} running scripts.`
-      this.showAlert = true
-    })
+  watch: {
+    readOnly: function (val) {
+      this.showReadOnlyToast = val
+      this.startOrGoDisabled = val
+      this.editor.setReadOnly(val)
+    },
+  },
+  created: function () {
+    window.onbeforeunload = this.unlockFile
   },
   mounted() {
     this.editor = ace.edit('editor')
@@ -665,11 +736,30 @@ export default {
     // is the background process that updates as changes are processed
     // while change fires immediately before the UndoManager is updated.
     this.editor.session.on('tokenizerUpdate', this.onChange)
+
+    const sleepAnnotator = new SleepAnnotator(this.editor)
+    this.editor.session.on('change', sleepAnnotator.annotate)
+
     window.addEventListener('keydown', this.keydown)
     this.cable = ActionCable.createConsumer('/script-api/cable')
-    if (this.$route.params.id) {
-      this.scriptStart(this.$route.params.id)
-    }
+    Api.get('/script-api/running-script').then((response) => {
+      const loadRunningScript = response.data.find(
+        (s) => `${s.id}` === `${this.$route.params.id}`
+      )
+      if (loadRunningScript) {
+        this.filename = loadRunningScript.name
+        this.scriptStart(loadRunningScript.id)
+      } else if (this.$route.params.id) {
+        this.$notify.caution({
+          title: '404 Not Found',
+          body: `Failed to load running script id: ${this.$route.params.id}`,
+        })
+      } else {
+        this.alertType = 'success'
+        this.alertText = `Currently ${response.data.length} running scripts.`
+        this.showAlert = true
+      }
+    })
     this.autoSaveInterval = setInterval(() => {
       // Only save if modified and visible (e.g. not open in another tab)
       if (
@@ -685,11 +775,12 @@ export default {
     this.editor.container.remove()
   },
   destroyed() {
+    this.unlockFile()
     if (this.autoSaveInterval != null) {
       clearInterval(this.autoSaveInterval)
     }
     if (this.tempFilename) {
-      Api.post('/script-api/scripts/' + this.tempFilename + '/delete')
+      Api.post(`/script-api/scripts/${this.tempFilename}/delete`)
     }
     if (this.subscription) {
       this.subscription.unsubscribe()
@@ -697,8 +788,47 @@ export default {
     this.cable.disconnect()
   },
   methods: {
+    showExecuteSelectionMenu: function ($event) {
+      this.menuX = $event.pageX
+      this.menuY = $event.pageY
+      this.executeSelectionMenu = true
+    },
+    executeSelection: function () {
+      const text = this.editor.getSelectedText()
+      if (this.state === 'error') {
+        // Execute via debugger
+        const lines = text.split('\n')
+        for (const line of lines) {
+          this.debug = line.trim()
+          this.debugKeydown({ key: 'Enter' })
+        }
+      } else {
+        // Create a new temp script and open in new tab
+        const selectionTempFilename =
+          format(Date.now(), 'yyyy_MM_dd_HH_mm_ss') + '_temp.rb'
+        Api.post(`/script-api/scripts/${selectionTempFilename}`, {
+          data: {
+            text,
+          },
+        })
+          .then((response) => {
+            return Api.post(
+              `/script-api/scripts/${selectionTempFilename}/run`,
+              {
+                data: {
+                  scope: localStorage.scope,
+                  environment: this.environmentOptions,
+                },
+              }
+            )
+          })
+          .then((response) => {
+            window.open(`/tools/scriptrunner/${response.data}`)
+          })
+      }
+    },
     suiteRunnerButton(event) {
-      if (this.startOrGoButton === 'Start') {
+      if (this.startOrGoButton === START) {
         this.start(event, 'suiteRunner')
       } else {
         this.go(event, 'suiteRunner')
@@ -739,7 +869,7 @@ export default {
       this.pauseOrRetryDisabled = true
       this.stopDisabled = true
       this.state = 'Connecting...'
-      this.startOrGoButton = 'Go'
+      this.startOrGoButton = GO
       this.scriptId = id
       this.editor.setReadOnly(true)
       this.subscription = this.cable.subscriptions.create(
@@ -751,8 +881,8 @@ export default {
     },
     scriptComplete() {
       this.disableSuiteButtons = false
-      this.startOrGoButton = 'Start'
-      this.pauseOrRetryButton = 'Pause'
+      this.startOrGoButton = START
+      this.pauseOrRetryButton = PAUSE
       // Disable start if suiteRunner
       this.startOrGoDisabled = this.suiteRunner
       this.pauseOrRetryDisabled = true
@@ -811,10 +941,10 @@ export default {
       Api.post(`/script-api/running-script/${this.scriptId}/go`)
     },
     pauseOrRetry() {
-      if (this.pauseOrRetryButton === 'Pause') {
+      if (this.pauseOrRetryButton === PAUSE) {
         Api.post(`/script-api/running-script/${this.scriptId}/pause`)
       } else {
-        this.pauseOrRetryButton = 'Pause'
+        this.pauseOrRetryButton = PAUSE
         Api.post(`/script-api/running-script/${this.scriptId}/retry`)
       }
     },
@@ -838,33 +968,28 @@ export default {
           this.filename = data.filename
           break
         case 'line':
-          if (data.filename !== null) {
-            if (data.filename !== this.current_filename) {
-              if (
-                this.files[data.filename] === null ||
-                this.files[data.filename] === undefined
-              ) {
-                // We don't have the contents of the running file (probably because connected to running script)
-                // Set the contents initially to an empty string so we don't start slamming the API
-                this.files[data.filename] = ''
+          if (data.filename && data.filename !== this.current_filename) {
+            if (!this.files[data.filename]) {
+              // We don't have the contents of the running file (probably because connected to running script)
+              // Set the contents initially to an empty string so we don't start slamming the API
+              this.files[data.filename] = ''
 
-                // Request the script we need
-                Api.get('/script-api/scripts/' + data.filename)
-                  .then((response) => {
-                    // Success - Save thes script text and mark the current_filename as null
-                    // so it will get loaded in on the next line executed
-                    this.files[data.filename] = response.data.contents
-                    this.current_filename = null
-                  })
-                  .catch((err) => {
-                    // Error - Restore the file contents to null so we'll try the API again on the next line
-                    this.files[data.filename] = null
-                  })
-              } else {
-                this.editor.setValue(this.files[data.filename])
-                this.editor.clearSelection()
-                this.current_filename = data.filename
-              }
+              // Request the script we need
+              Api.get(`/script-api/scripts/${data.filename}`)
+                .then((response) => {
+                  // Success - Save thes script text and mark the current_filename as null
+                  // so it will get loaded in on the next line executed
+                  this.files[data.filename] = response.data.contents
+                  this.current_filename = null
+                })
+                .catch((err) => {
+                  // Error - Restore the file contents to null so we'll try the API again on the next line
+                  this.files[data.filename] = null
+                })
+            } else {
+              this.editor.setValue(this.files[data.filename])
+              this.editor.clearSelection()
+              this.current_filename = data.filename
             }
           }
           if (!this.fatal) {
@@ -877,7 +1002,7 @@ export default {
               this.startOrGoDisabled = false
               this.pauseOrRetryDisabled = false
               this.stopDisabled = false
-              this.pauseOrRetryButton = 'Pause'
+              this.pauseOrRetryButton = PAUSE
               break
             case 'waiting':
               marker = 'waitingMarker'
@@ -887,7 +1012,10 @@ export default {
               break
             case 'error':
               marker = 'errorMarker'
-              this.pauseOrRetryButton = 'Retry'
+              this.pauseOrRetryButton = RETRY
+              this.startOrGoDisabled = false
+              this.pauseOrRetryDisabled = false
+              this.stopDisabled = false
               break
             case 'fatal':
               marker = 'fatalMarker'
@@ -906,7 +1034,9 @@ export default {
               marker,
               'fullLine'
             )
-            this.editor.gotoLine(data.line_no)
+            if (this.editor.getSelectedText() === '') {
+              this.editor.gotoLine(data.line_no)
+            }
           }
           break
         case 'output':
@@ -1074,12 +1204,13 @@ export default {
       this.fileOpen = true
     },
     // Called by the FileOpenDialog to set the file contents
-    setFile(file) {
+    setFile({ file, locked }) {
       this.suiteRunner = false
       // Split off the ' *' which indicates a file is modified on the server
       this.filename = file.name.split('*')[0]
       this.editor.session.setValue(file.contents)
       this.fileModified = ''
+      this.lockedBy = locked
       if (file.suites) {
         if (typeof file.suites === 'string') {
           this.alertType = 'warning'
@@ -1159,6 +1290,7 @@ export default {
             this.showAlert = true
           })
       }
+      this.lockFile() // Ensure this file is locked for editing
     },
     saveAs() {
       this.showSaveAs = true
@@ -1273,10 +1405,7 @@ export default {
       link.click()
     },
     downloadLog() {
-      let output = ''
-      for (let msg of this.messages) {
-        output += msg.message + '\n'
-      }
+      const output = this.messages.join('\n')
       const blob = new Blob([output], {
         type: 'text/plain',
       })
@@ -1304,6 +1433,28 @@ export default {
       Object.keys(allMarkers)
         .filter((key) => allMarkers[key].type === 'fullLine')
         .forEach((marker) => this.editor.session.removeMarker(marker))
+    },
+    confirmLocalUnlock: function () {
+      this.$dialog
+        .confirm(
+          'Are you sure you want to unlock this script for editing? If another user is editing this script, your changes might conflict with each other.',
+          {
+            okText: 'Force Unlock',
+            cancelText: 'Cancel',
+          }
+        )
+        .then(() => {
+          this.lockedBy = null
+          return this.lockFile() // Re-lock it as this user so it's locked for anyone else who opens it
+        })
+    },
+    lockFile: function () {
+      return Api.post(`/script-api/scripts/${this.filename}/lock`)
+    },
+    unlockFile: function () {
+      if (this.filename !== NEW_FILENAME && !this.readOnly) {
+        Api.post(`/script-api/scripts/${this.filename}/unlock`)
+      }
     },
   },
 }

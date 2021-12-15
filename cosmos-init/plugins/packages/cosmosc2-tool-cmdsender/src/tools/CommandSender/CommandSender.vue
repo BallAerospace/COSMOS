@@ -22,12 +22,12 @@
     <top-bar :menus="menus" :title="title" />
 
     <target-packet-item-chooser
-      :initialTargetName="this.$route.params.target"
-      :initialPacketName="this.$route.params.packet"
+      :initial-target-name="this.$route.params.target"
+      :initial-packet-name="this.$route.params.packet"
       @on-set="commandChanged($event)"
       @click="buildCmd($event)"
       :disabled="sendDisabled"
-      buttonText="Send"
+      button-text="Send"
       mode="cmd"
     />
 
@@ -57,7 +57,7 @@
         <template v-slot:item.val_and_states="{ item }">
           <command-parameter-editor
             v-model="item.val_and_states"
-            :statesInHex="statesInHex"
+            :states-in-hex="statesInHex"
           />
         </template>
       </v-data-table>
@@ -95,9 +95,9 @@
       </v-list>
     </v-menu>
     <details-dialog
-      :targetName="targetName"
-      :packetName="commandName"
-      :itemName="parameterName"
+      :target-name="targetName"
+      :packet-name="commandName"
+      :item-name="parameterName"
       :type="'cmd'"
       v-model="viewDetails"
     />

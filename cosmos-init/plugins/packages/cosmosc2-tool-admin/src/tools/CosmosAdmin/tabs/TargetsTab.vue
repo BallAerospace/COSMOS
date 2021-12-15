@@ -70,7 +70,7 @@
       v-if="showDialog"
       :content="jsonContent"
       :title="`Target: ${dialogTitle}`"
-      :readonly="true"
+      readonly
       @submit="dialogCallback"
     />
   </div>

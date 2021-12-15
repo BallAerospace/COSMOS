@@ -1,4 +1,4 @@
-<!--
+/*
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,36 +15,19 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
--->
+*/
 
-<template>
-  <div ref="container" class="d-flex flex-row" :style="computedStyle">
-    <value-widget
-      :parameters="getParameters"
-      :settings="settings"
-      :format-string="parameters[3]"
-    />
-  </div>
-</template>
+import RegexAnnotator from './regexAnnotator.js'
 
-<script>
-import Widget from './Widget'
-import ValueWidget from './ValueWidget.vue'
-
-export default {
-  mixins: [Widget],
-  components: {
-    ValueWidget,
-  },
-  computed: {
-    getParameters() {
-      return [
-        this.parameters[0],
-        this.parameters[1],
-        this.parameters[2],
-        this.parameters[4],
-      ]
-    },
-  },
+export default class SleepAnnotator extends RegexAnnotator {
+  constructor(editor) {
+    const prefix = '(^|[{\\s])' // Allowable characters before the keyword: start of line or { or a space
+    const keyword = 'sleep' // The keyword this annotation looks for
+    const suffix = '[\\(\\s]' // Allowable characters after the keyword: ( or a space
+    super(editor, {
+      pattern: new RegExp(`${prefix}${keyword}${suffix}`),
+      text: 'Use `wait` instead of `sleep` in COSMOS scripts', // because we override wait to make it work better, but not sleep
+      type: 'warning',
+    })
+  }
 }
-</script>
