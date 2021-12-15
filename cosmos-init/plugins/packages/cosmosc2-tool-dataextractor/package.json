@@ -8,7 +8,6 @@
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
     "serve:standalone": "vue-cli-service serve --mode standalone",
-    "test": "jest --config=./jest.config.js --coverage --ci --reporters=default --reporters=jest-junit",
     "test:components": "vue-cli-service test:components"
   },
   "resolutions": {
@@ -30,13 +29,13 @@
     "vuex": "3.6.2"
   },
   "devDependencies": {
-    "@vue/cli": "4.5.13",
-    "@vue/babel-preset-app": "4.5.13",
-    "@vue/cli-plugin-babel": "4.5.13",
-    "@vue/cli-plugin-eslint": "4.5.13",
-    "@vue/cli-plugin-router": "4.5.13",
-    "@vue/cli-plugin-vuex": "4.5.13",
-    "@vue/cli-service": "4.5.13",
+    "@vue/cli": "4.5.15",
+    "@vue/babel-preset-app": "4.5.15",
+    "@vue/cli-plugin-babel": "4.5.15",
+    "@vue/cli-plugin-eslint": "4.5.15",
+    "@vue/cli-plugin-router": "4.5.15",
+    "@vue/cli-plugin-vuex": "4.5.15",
+    "@vue/cli-service": "4.5.15",
     "@vue/eslint-config-prettier": "6.0.0",
     "@vue/test-utils": "1.2.2",
     "babel-eslint": "10.1.0",
@@ -46,7 +45,6 @@
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-prettier": "4.0.0",
     "eslint-plugin-vue": "7.18.0",
-    "jest-junit": "12.3.0",
     "prettier": "2.4.1",
     "sass": "1.42.1",
     "sass-loader": "10.2.0",
