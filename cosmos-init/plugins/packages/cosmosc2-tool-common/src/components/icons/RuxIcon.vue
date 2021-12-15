@@ -19,6 +19,7 @@
 
 <template>
   <span id="rux-icon" :title="label" :style="style" :size="size">
+    <!-- Camel case props becase svg -->
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 128 128"

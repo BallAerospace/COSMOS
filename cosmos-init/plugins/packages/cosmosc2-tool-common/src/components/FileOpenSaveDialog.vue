@@ -262,7 +262,7 @@ export default {
               this.$emit('error', response.data.suites)
             }
           }
-          this.$emit('file', file)
+          this.$emit('file', { file, locked: response.data.locked })
           this.clear()
         })
         .catch((error) => {

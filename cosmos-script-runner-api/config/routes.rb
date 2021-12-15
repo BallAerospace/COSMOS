@@ -5,7 +5,9 @@ Rails.application.routes.draw do
     get  "/scripts/*name" => "scripts#body", format: false, defaults: { format: 'html' }
     post "/scripts/*name/run(/:disconnect)" => "scripts#run", format: false, defaults: { format: 'html' }
     post "/scripts/*name/delete" => "scripts#destroy", format: false, defaults: { format: 'html' }
-    # Must be last so /run and /delete will match first
+    post "/scripts/*name/lock" => "scripts#lock"
+    post "/scripts/*name/unlock" => "scripts#unlock"
+    # Must be last so /run, /delete, etc will match first
     post "/scripts/*name" => "scripts#create", format: false, defaults: { format: 'html' }
 
     get  "/running-script" => "running_script#index"

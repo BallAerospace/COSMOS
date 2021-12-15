@@ -59,9 +59,9 @@
     </v-menu>
 
     <details-dialog
-      :targetName="parameters[0]"
-      :packetName="parameters[1]"
-      :itemName="parameters[2]"
+      :target-name="parameters[0]"
+      :packet-name="parameters[1]"
+      :item-name="parameters[2]"
       v-model="viewDetails"
     />
   </div>
