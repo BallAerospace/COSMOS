@@ -65,9 +65,12 @@ export default {
     this.api
       .get_tlm_packet(this.targetName, this.packetName, this.valueType)
       .then((packetItems) => {
-        this.imageData = packetItems.find(
+        const foundPacket = packetItems.find(
           (item) => item[0] === this.itemName
-        )[1]
+        )
+        if (foundPacket) {
+          this.imageData = foundPacket[1]
+        }
       })
       .finally(() => {
         this.subscribe()
