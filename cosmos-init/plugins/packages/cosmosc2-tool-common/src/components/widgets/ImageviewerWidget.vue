@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 import Widget from '@cosmosc2/tool-common/src/components/widgets/Widget'
 import Cable from '@cosmosc2/tool-common/src/services/cable.js'
 
@@ -34,6 +35,7 @@ export default {
   mixins: [Widget],
   data: function () {
     return {
+      api: new CosmosApi(),
       cable: new Cable(),
       subscription: null,
       imageData: '',
@@ -44,11 +46,32 @@ export default {
       return `data:image/${this.parameters[3]};base64, ${this.imageData}`
     },
     itemFullName: function () {
-      return `TLM__${this.parameters[0]}__${this.parameters[1]}__${this.parameters[2]}__CONVERTED`
+      return `TLM__${this.targetName}__${this.packetName}__${this.itemName}__${this.valueType}`
+    },
+    targetName: function () {
+      return this.parameters[0]
+    },
+    packetName: function () {
+      return this.parameters[1]
+    },
+    itemName: function () {
+      return this.parameters[2]
+    },
+    valueType: function () {
+      return 'CONVERTED'
     },
   },
   created: function () {
-    this.subscribe()
+    this.api
+      .get_tlm_packet(this.targetName, this.packetName, this.valueType)
+      .then((packetItems) => {
+        this.imageData = packetItems.find(
+          (item) => item[0] === this.itemName
+        )[1]
+      })
+      .finally(() => {
+        this.subscribe()
+      })
   },
   destroyed: function () {
     if (this.subscription) {
