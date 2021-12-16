@@ -18,6 +18,7 @@
 # copyright holder
 
 require 'cosmos/models/model'
+require 'cosmos/models/cvt_model'
 require 'cosmos/models/microservice_model'
 require 'cosmos/topics/limits_event_topic'
 require 'cosmos/system'
@@ -270,7 +271,7 @@ module Cosmos
 
           path = filename.split(gem_path)[-1]
           target_folder_path = path.split(start_path)[-1]
-          key = "#{@scope}/targets/#{@name}/" + target_folder_path
+          key = "#{@scope}/targets/#{@name}/#{target_folder_path}"
 
           # Load target files
           @filename = filename # For render
@@ -319,18 +320,17 @@ module Cosmos
       Store.del("#{@scope}__cosmostlm__#{@name}")
       Store.del("#{@scope}__cosmoscmd__#{@name}")
 
-      model = MicroserviceModel.get_model(name: "#{@scope}__DECOM__#{@name}", scope: @scope)
-      model.destroy if model
-      model = MicroserviceModel.get_model(name: "#{@scope}__COMMANDLOG__#{@name}", scope: @scope)
-      model.destroy if model
-      model = MicroserviceModel.get_model(name: "#{@scope}__DECOMCMDLOG__#{@name}", scope: @scope)
-      model.destroy if model
-      model = MicroserviceModel.get_model(name: "#{@scope}__PACKETLOG__#{@name}", scope: @scope)
-      model.destroy if model
-      model = MicroserviceModel.get_model(name: "#{@scope}__DECOMLOG__#{@name}", scope: @scope)
-      model.destroy if model
-      # model = MicroserviceModel.get_model(name: "#{@scope}__REDUCER__#{@name}", scope: @scope)
-      # model.destroy if model
+      microservices = [
+        "#{@scope}__DECOM__#{@name}",
+        "#{@scope}__COMMANDLOG__#{@name}",
+        "#{@scope}__DECOMCMDLOG__#{@name}",
+        "#{@scope}__PACKETLOG__#{@name}",
+        "#{@scope}__DECOMLOG__#{@name}",
+      ]
+      for microservice in microservices do
+        model = MicroserviceModel.get_model(name: microservice, scope: @scope)
+        model.destroy if model
+      end
     end
 
     ##################################################
@@ -418,6 +418,11 @@ module Cosmos
         packets.each do |packet_name, packet|
           Logger.info "Configuring tlm packet: #{target_name} #{packet_name}"
           Store.hset("#{@scope}__cosmostlm__#{target_name}", packet_name, JSON.generate(packet.as_json))
+          json_hash = Hash.new
+          packet.sorted_items.each do |item|
+            json_hash[item.name] = nil
+          end
+          CvtModel.set(json_hash, target_name: packet.target_name, packet_name: packet.packet_name, scope: @scope)
         end
       end
       system.commands.all.each do |target_name, packets|
