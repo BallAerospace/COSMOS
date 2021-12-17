@@ -31,7 +31,13 @@
       <v-icon> mdi-pencil-off </v-icon>
       {{ lockedBy }} is editing this script. Editor is in read-only mode
       <template v-slot:action="{ attrs }">
-        <v-btn text v-bind="attrs" color="danger" @click="confirmLocalUnlock">
+        <v-btn
+          text
+          v-bind="attrs"
+          color="danger"
+          @click="confirmLocalUnlock"
+          data-test="unlock-button"
+        >
           Unlock
         </v-btn>
         <v-btn
@@ -576,11 +582,7 @@ export default {
       return !!this.lockedBy
     },
     fullFilename() {
-      if (this.fileModified.length > 0) {
-        return `${this.filename} ${this.fileModified}`
-      } else {
-        return this.filename
-      }
+      return `${this.filename} ${this.fileModified}`.trim()
     },
     menus: function () {
       return [
@@ -674,7 +676,7 @@ export default {
             {
               label: 'Show Call Stack',
               icon: 'mdi-format-list-numbered',
-              disabled: !this.scriptId,
+              disabled: !this.scriptId || this.scriptId === ' ',
               command: () => {
                 this.showCallStack()
               },
@@ -856,7 +858,7 @@ export default {
       if (this.editor.getReadOnly() === true) {
         return
       }
-      if (this.editor.session.getUndoManager().dirtyCounter > 0) {
+      if (this.editor.session.getUndoManager().canUndo()) {
         this.fileModified = '*'
       } else {
         this.fileModified = ''

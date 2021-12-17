@@ -231,7 +231,7 @@ describe('ScriptRunner Commands', () => {
     cy.get('[data-test=output-messages]').contains('Ok')
   })
 
-  it.only('enable environment dialog for prompt and cancel', () => {
+  it('enable environment dialog for prompt and cancel', () => {
     cy.focused().type(
       ['value = ENV["USER"]', 'puts "env user: " + value'].join('\n')
     )
@@ -250,7 +250,7 @@ describe('ScriptRunner Commands', () => {
     )
   })
 
-  it.only('enable environment dialog for prompt and start', () => {
+  it('enable environment dialog for prompt and start', () => {
     cy.focused().type(
       ['value = ENV["USER"]', 'puts "env user: " + value'].join('\n')
     )
