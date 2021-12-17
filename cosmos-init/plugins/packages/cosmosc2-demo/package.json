@@ -14,11 +14,11 @@
     "vuetify": "2.5.8"
   },
   "devDependencies": {
-    "@vue/babel-preset-app": "4.5.13",
-    "@vue/cli": "4.5.13",
-    "@vue/cli-plugin-babel": "4.5.13",
-    "@vue/cli-plugin-eslint": "4.5.13",
-    "@vue/cli-service": "4.5.13",
+    "@vue/babel-preset-app": "4.5.15",
+    "@vue/cli": "4.5.15",
+    "@vue/cli-plugin-babel": "4.5.15",
+    "@vue/cli-plugin-eslint": "4.5.15",
+    "@vue/cli-service": "4.5.15",
     "@vue/eslint-config-prettier": "6.0.0",
     "babel-eslint": "10.1.0",
     "babel-loader": "8.2.2",
