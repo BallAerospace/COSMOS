@@ -643,6 +643,25 @@ export default {
           ],
         },
         {
+          label: 'Edit',
+          items: [
+            {
+              label: 'Find',
+              icon: 'mdi-magnify',
+              command: () => {
+                this.editor.execCommand('find')
+              },
+            },
+            {
+              label: 'Replace',
+              icon: 'mdi-find-replace',
+              command: () => {
+                this.editor.execCommand('replace')
+              },
+            },
+          ],
+        },
+        {
           label: 'Script',
           items: [
             {
