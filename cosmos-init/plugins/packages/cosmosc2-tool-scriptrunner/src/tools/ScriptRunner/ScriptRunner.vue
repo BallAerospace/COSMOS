@@ -449,12 +449,10 @@
 
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
-// TODO: brace appears to be abandened. Some guy put together this: https://github.com/aminoeditor/vue-ace
-// or we just try to use ace directly ...
-import * as ace from 'brace'
-import 'brace/mode/ruby'
-import 'brace/theme/twilight'
-import 'brace/ext/language_tools'
+import * as ace from 'ace-builds'
+import 'ace-builds/src-min-noconflict/mode-ruby'
+import 'ace-builds/src-min-noconflict/theme-twilight'
+import 'ace-builds/src-min-noconflict/ext-language_tools'
 import { toDate, format } from 'date-fns'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import FileOpenSaveDialog from '@cosmosc2/tool-common/src/components/FileOpenSaveDialog'
@@ -543,7 +541,7 @@ export default {
       messages: [],
       headers: [{ text: 'Message', value: 'message' }],
       maxArrayLength: 30,
-      Range: ace.acequire('ace/range').Range,
+      Range: ace.require('ace/range').Range,
       ask: {
         show: false,
         question: '',
