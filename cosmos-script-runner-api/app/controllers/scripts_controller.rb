@@ -40,7 +40,17 @@ class ScriptsController < ApplicationController
     file = Script.body(params[:scope], params[:name])
     if file
       success = true
-      results = { "contents" => file }
+      locked = Script.locked?(params[:scope], params[:name])
+      unless locked
+        user = user_info(request.headers['HTTP_AUTHORIZATION'])
+        username = user['name']
+        username ||= 'Someone else' # Generic name that makes sense in the lock toast in Script Runner (EE has the actual username)
+        Script.lock(params[:scope], params[:name], username)
+      end
+      results = {
+        "contents" => file,
+        "locked" => locked
+      }
       if params[:name].include?('suite')
         results['suites'], success = Script.process_suite(params[:name], file)
       end
@@ -91,6 +101,37 @@ class ScriptsController < ApplicationController
     else
       head :not_found
     end
+  end
+
+  def lock
+    begin
+      authorize(permission: 'script_edit', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+    end
+    user = user_info(request.headers['HTTP_AUTHORIZATION'])
+    username = user['name']
+    username ||= 'Someone else' # Generic name that makes sense in the lock toast in Script Runner (EE has the actual username)
+    Script.lock(params[:scope], params[:name], username)
+    render status: 200
+  end
+
+  def unlock
+    begin
+      authorize(permission: 'script_edit', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+    end
+    user = user_info(request.headers['HTTP_AUTHORIZATION'])
+    username = user['name']
+    username ||= 'Someone else'
+    locked_by = Script.locked?(params[:scope], params[:name])
+    Script.unlock(params[:scope], params[:name]) if username == locked_by
+    render status: 200
   end
 
   def destroy

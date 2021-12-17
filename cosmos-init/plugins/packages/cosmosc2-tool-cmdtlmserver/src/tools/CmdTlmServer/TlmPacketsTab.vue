@@ -63,8 +63,8 @@
     </v-data-table>
     <raw-dialog
       type="Telemetry"
-      :targetName="target_name"
-      :packetName="packet_name"
+      :target-name="target_name"
+      :packet-name="packet_name"
       :visible="viewRaw"
       @display="rawDisplayCallback"
     />

@@ -22,7 +22,7 @@
     <value-widget
       :parameters="getParameters"
       :settings="settings"
-      :formatString="parameters[3]"
+      :format-string="parameters[3]"
     />
   </div>
 </template>

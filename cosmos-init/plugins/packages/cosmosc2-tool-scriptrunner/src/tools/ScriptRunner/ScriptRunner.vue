@@ -20,22 +20,38 @@
 <template>
   <div>
     <top-bar :menus="menus" :title="title" />
-    <v-snackbar
-      v-model="showAlert"
-      :top="true"
-      :color="alertType"
-      :timeout="3000"
-    >
+    <v-snackbar v-model="showAlert" top :color="alertType" :timeout="3000">
       <v-icon> mdi-{{ alertType }} </v-icon>
       {{ alertText }}
       <template v-slot:action="{ attrs }">
         <v-btn text v-bind="attrs" @click="showAlert = false"> Close </v-btn>
       </template>
     </v-snackbar>
+    <v-snackbar v-model="showReadOnlyToast" top :timeout="-1" color="orange">
+      <v-icon> mdi-pencil-off </v-icon>
+      {{ lockedBy }} is editing this script. Editor is in read-only mode
+      <template v-slot:action="{ attrs }">
+        <v-btn text v-bind="attrs" color="danger" @click="confirmLocalUnlock">
+          Unlock
+        </v-btn>
+        <v-btn
+          text
+          v-bind="attrs"
+          @click="
+            () => {
+              showReadOnlyToast = false
+            }
+          "
+        >
+          dismiss
+        </v-btn>
+      </template>
+    </v-snackbar>
+
     <suite-runner
       v-if="suiteRunner"
-      :suiteMap="suiteMap"
-      :disableButtons="disableSuiteButtons"
+      :suite-map="suiteMap"
+      :disable-buttons="disableSuiteButtons"
       @button="suiteRunnerButton"
     />
     <v-container id="sc-controls">
@@ -110,6 +126,7 @@
                 @click="environmentHandeler"
                 class="mx-1"
                 data-test="env-button"
+                :disabled="startOrGoDisabled"
               >
                 <v-icon>
                   {{ environmentOn ? 'mdi-library' : 'mdi-run' }}
@@ -309,7 +326,7 @@
       :question="ask.question"
       :default="ask.default"
       :password="ask.password"
-      :answerRequired="ask.answerRequired"
+      :answer-required="ask.answerRequired"
       @response="ask.callback"
     />
     <prompt-dialog
@@ -337,7 +354,7 @@
       v-model="showSaveAs"
       type="save"
       require-target-parent-dir
-      :inputFilename="filename"
+      :input-filename="filename"
       @filename="saveAsFilename($event)"
       @error="setError($event)"
     />
@@ -515,6 +532,8 @@ export default {
       tempFilename: null,
       fileModified: '',
       fileOpen: false,
+      lockedBy: null,
+      showReadOnlyToast: false,
       showSaveAs: false,
       areYouSure: false,
       subscription: null,
@@ -554,6 +573,9 @@ export default {
     }
   },
   computed: {
+    readOnly: function () {
+      return !!this.lockedBy
+    },
     fullFilename() {
       if (this.fileModified.length > 0) {
         return `${this.filename} ${this.fileModified}`
@@ -688,6 +710,16 @@ export default {
       ]
     },
   },
+  watch: {
+    readOnly: function (val) {
+      this.showReadOnlyToast = val
+      this.startOrGoDisabled = val
+      this.editor.setReadOnly(val)
+    },
+  },
+  created: function () {
+    window.onbeforeunload = this.unlockFile
+  },
   mounted() {
     this.editor = ace.edit('editor')
     this.editor.setTheme('ace/theme/twilight')
@@ -743,6 +775,7 @@ export default {
     this.editor.container.remove()
   },
   destroyed() {
+    this.unlockFile()
     if (this.autoSaveInterval != null) {
       clearInterval(this.autoSaveInterval)
     }
@@ -1171,12 +1204,13 @@ export default {
       this.fileOpen = true
     },
     // Called by the FileOpenDialog to set the file contents
-    setFile(file) {
+    setFile({ file, locked }) {
       this.suiteRunner = false
       // Split off the ' *' which indicates a file is modified on the server
       this.filename = file.name.split('*')[0]
       this.editor.session.setValue(file.contents)
       this.fileModified = ''
+      this.lockedBy = locked
       if (file.suites) {
         if (typeof file.suites === 'string') {
           this.alertType = 'warning'
@@ -1256,6 +1290,7 @@ export default {
             this.showAlert = true
           })
       }
+      this.lockFile() // Ensure this file is locked for editing
     },
     saveAs() {
       this.showSaveAs = true
@@ -1398,6 +1433,28 @@ export default {
       Object.keys(allMarkers)
         .filter((key) => allMarkers[key].type === 'fullLine')
         .forEach((marker) => this.editor.session.removeMarker(marker))
+    },
+    confirmLocalUnlock: function () {
+      this.$dialog
+        .confirm(
+          'Are you sure you want to unlock this script for editing? If another user is editing this script, your changes might conflict with each other.',
+          {
+            okText: 'Force Unlock',
+            cancelText: 'Cancel',
+          }
+        )
+        .then(() => {
+          this.lockedBy = null
+          return this.lockFile() // Re-lock it as this user so it's locked for anyone else who opens it
+        })
+    },
+    lockFile: function () {
+      return Api.post(`/script-api/scripts/${this.filename}/lock`)
+    },
+    unlockFile: function () {
+      if (this.filename !== NEW_FILENAME && !this.readOnly) {
+        Api.post(`/script-api/scripts/${this.filename}/unlock`)
+      }
     },
   },
 }
