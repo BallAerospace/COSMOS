@@ -132,7 +132,7 @@
       v-if="showEditDialog"
       :title="`Plugin: ${dialogTitle}`"
       :content="jsonContent"
-      :readonly="true"
+      readonly
       @submit="dialogCallback"
     />
     <download-dialog v-model="showDownloadDialog" />

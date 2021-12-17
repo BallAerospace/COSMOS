@@ -27,7 +27,7 @@
     <limitsbar-widget
       :parameters="limitsBarParameters"
       :settings="settings.filter((x) => x[0] == 1).map((x) => x.slice(1))"
-      :widgetIndex="3"
+      :widget-index="3"
     />
   </div>
 </template>

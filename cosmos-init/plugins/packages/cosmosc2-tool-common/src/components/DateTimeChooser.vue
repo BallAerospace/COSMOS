@@ -22,7 +22,7 @@
     <v-row>
       <v-col>
         <v-menu
-          :close-on-content-click="true"
+          close-on-content-click
           transition="scale-transition"
           offset-y
           max-width="290px"

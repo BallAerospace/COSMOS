@@ -22,17 +22,17 @@
     <label-widget
       :parameters="[parameters[2]]"
       :settings="settings"
-      :widgetIndex="0"
+      :widget-index="0"
     />
     <limitscolumn-widget
       :parameters="limitsColumnParameters"
       :settings="settings"
-      :widgetIndex="1"
+      :widget-index="1"
     />
     <value-widget
       :parameters="parameters"
       :settings="settings"
-      :widgetIndex="2"
+      :widget-index="2"
     />
   </div>
 </template>

@@ -76,10 +76,10 @@
       <v-row>
         <target-packet-item-chooser
           @click="addItem($event)"
-          buttonText="Add Item"
+          button-text="Add Item"
           :mode="cmdOrTlm"
-          :chooseItem="true"
-          :allowAll="true"
+          choose-item
+          allow-all
         />
       </v-row>
       <v-row no-gutters>
