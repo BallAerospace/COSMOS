@@ -29,7 +29,7 @@ class S3File
   attr_reader :error
   attr_accessor :priority
 
-  def initialize(s3_path, size, priority)
+  def initialize(s3_path, size = 0, priority = 0)
     @rubys3_client = Aws::S3::Client.new
     begin
       @rubys3_client.head_bucket(bucket: 'logs')

@@ -124,7 +124,7 @@ module Cosmos
       @cancel_threads = true
     end
 
-    protected
+    # implementation details
 
     def create_unique_filename(ext = extension)
       # Create a filename that doesn't exist
@@ -234,12 +234,20 @@ module Cosmos
       '.log'.freeze
     end
 
+    def first_time
+      Time.from_nsec_from_epoch(@first_time)
+    end
+
+    def last_time
+      Time.from_nsec_from_epoch(@last_time)
+    end
+
     def first_timestamp
-      Time.from_nsec_from_epoch(@first_time).to_timestamp # "YYYYMMDDHHmmSSNNNNNNNNN"
+      first_time().to_timestamp # "YYYYMMDDHHmmSSNNNNNNNNN"
     end
 
     def last_timestamp
-      Time.from_nsec_from_epoch(@last_time).to_timestamp # "YYYYMMDDHHmmSSNNNNNNNNN"
+      last_time().to_timestamp # "YYYYMMDDHHmmSSNNNNNNNNN"
     end
   end
 end

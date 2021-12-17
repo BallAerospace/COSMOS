@@ -66,3 +66,15 @@ NOTE: All commands are assumed to be executed from this (cosmos-init) directory
         # except set COSMOS_REDIS_HOSTNAME=127.0.0.1
         cosmos-cmd-tlm-api> bundle install
         cosmos-cmd-tlm-api> bundle exec rails s
+
+# MINIO development
+
+Note running COSMOS in development mode (cosmos-control.bat dev) already does this step. This is only necessary to debug a minio container running in production mode.
+
+1.  Run a development version of minio
+
+        > docker ps
+        # Look for the container with name including minio
+        > docker stop cosmos_cosmos-minio_1
+        > docker run --name cosmos_cosmos-minio_1 --network=cosmos_default -v cosmos_cosmos-minio-v:/data -p 9000:9000 -e "MINIO_ROOT_USER=cosmosminio" -e "MINIO_ROOT_PASSWORD=cosmosminiopassword" minio/minio:RELEASE.2021-06-17T00-10-46Z server /data
+

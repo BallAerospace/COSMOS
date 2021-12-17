@@ -47,7 +47,7 @@ module Cosmos
       label,
       logging_enabled = true,
       cycle_time = nil,
-      cycle_size = 1000000000,
+      cycle_size = 1_000_000_000,
       cycle_hour = nil,
       cycle_minute = nil,
       redis_topic: nil
@@ -92,7 +92,7 @@ module Cosmos
     # @param data [String] Binary string of data
     # @param id [Integer] Target ID
     # @param redis_offset [Integer] The offset of this packet in its Redis stream
-    def write(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id, redis_offset)
+    def write(entry_type, cmd_or_tlm, target_name, packet_name, time_nsec_since_epoch, stored, data, id = nil, redis_offset = '0-0')
       return if !@logging_enabled
 
       @mutex.synchronize do

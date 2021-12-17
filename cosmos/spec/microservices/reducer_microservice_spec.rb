@@ -20,71 +20,76 @@
 require 'spec_helper'
 require 'cosmos/microservices/reducer_microservice'
 require 'cosmos/topics/telemetry_decom_topic'
+require 'fileutils'
 
 module Cosmos
   describe ReducerMicroservice do
+    before(:all) do
+      setup_system()
+      @log_path = File.expand_path(File.join(SPEC_DIR, 'install', 'outputs', 'logs'))
+    end
+
     before(:each) do
       mock_redis()
-      setup_system()
-      allow(System).to receive(:setup_targets).and_return(nil)
-      %w(INST SYSTEM).each do |target|
-        model = TargetModel.new(folder_name: target, name: target, scope: "DEFAULT")
-        model.create
-        model.update_store(File.join(SPEC_DIR, 'install', 'config', 'targets'))
-      end
-
-      @topics = %w(DEFAULT__DECOM__{INST}__HEALTH_STATUS DEFAULT__DECOM__{INST}__IMAGE DEFAULT__DECOM__{INST}__ADCS)
-      model = MicroserviceModel.new(
-        name: "DEFAULT__REDUCER__INST",
-        folder_name: "INST",
-        topics: @topics,
-        scope: "DEFAULT"
-      )
-      model.create
-
-      # TODO: Can't seem to connect to local minio
-      # ENV['COSMOS_S3_URL'] = 'http://localhost:2900/minio'
-      # ENV['COSMOS_MINIO_USERNAME'] = 'cosmosminio'
-      # ENV['COSMOS_MINIO_PASSWORD'] = 'cosmosminiopassword'
-
       @reducer = ReducerMicroservice.new("DEFAULT__REDUCER__INST")
-
-      @s3 = Aws::S3::Client.new(stub_responses: true)
-      allow(Aws::S3::Client).to receive(:new).and_return(@s3)
     end
 
-    after(:each) do
-      @reducer.shutdown
-      sleep 0.1
-    end
+    def setup_logfile
+      @s3_file = double(S3File)
+      allow(S3File).to receive(:new).and_return(@s3_file)
 
-    describe "initialize_streams" do
-      it "adds streams to Redis" do
-        @s3.stub_responses(:list_objects_v2, { contents: [{key: "filename", size: 0}] })
-        @reducer.run
-        # @reducer.initialize_streams
-        # ReducerMicroservice::REDUCER_KEYS.each do |key|
-        #   @topics.each do |topic|
-        #     scope, _, tgt, pkt = topic.split("__")
-        #     stream = "#{scope}__#{key}__#{tgt}__#{pkt}"
-        #     expect(Store.exists?(stream)).to be true
-        #     expect(Store.get_last_offset(stream)).to eql "0-0"
-        #     expect(Store.xlen(stream)).to eql 0
-        #   end
-        # end
+      allow(File).to receive(:delete).and_return(nil)
+      s3 = double("Aws::S3::Client").as_null_object
+      allow(Aws::S3::Client).to receive(:new).and_return(s3)
+
+      # Create a fake filename that matches what happens when we copy a file to S3
+      # This is critical since we split on '__' to pull out the scope, target, packet
+      plw = PacketLogWriter.new(@log_path, 'START__END__DEFAULT__INST__HEALTH_STATUS__rt__decom')
+      @start_time = Time.now
+      @pkt = System.telemetry.packet("INST", "HEALTH_STATUS")
+      @pkt.received_time = @start_time
+      collects = 0
+      @pkt.write("COLLECTS", collects)
+
+      90.times do
+        json_hash = TelemetryDecomTopic.build_json(@pkt)
+        plw.write(:JSON_PACKET, :TLM, @pkt.target_name, @pkt.packet_name, @pkt.received_time.to_nsec_from_epoch,
+          true, JSON.generate(json_hash.as_json))
+        @pkt.received_time += 20
+        collects += 1
+        @pkt.write("COLLECTS", collects)
       end
+      @logfile = plw.filename
+      # @logfile = File.join(SPEC_DIR, "install/20211215233932929797300__20211215234933511878600__DEFAULT__INST__HEALTH_STATUS__rt__decom.bin")
+      allow(@s3_file).to receive(:retrieve).and_return(nil)
+      allow(@s3_file).to receive(:local_path).and_return(@logfile)
+      allow(@s3_file).to receive(:delete).and_return(nil)
 
-      # it "leaves streams that exist" do
-      #   Store.initialize_streams(["DEFAULT__REDUCED_MINUTE__{INST}__ADCS"])
-      #   100.times { Store.xadd("DEFAULT__REDUCED_MINUTE__{INST}__ADCS", { 'test': 'data' }) }
-      #   @reducer.initialize_streams
-      #   # The stream we've added to should NOT eql 0-0
-      #   expect(Store.get_last_offset("DEFAULT__REDUCED_MINUTE__{INST}__ADCS")).to_not eql "0-0"
-      #   expect(Store.xlen("DEFAULT__REDUCED_MINUTE__{INST}__ADCS")).to eql 100
-      # end
+      @output_files = []
+      allow(S3Utilities).to receive(:move_log_file_to_s3) do |filename, s3_key|
+        # puts "filename:#{filename} s3:#{s3_key}"
+        log_file = File.join(@log_path, s3_key.split('/')[-1])
+        FileUtils.move filename, log_file
+        @output_files << log_file
+      end
     end
 
-    # describe "reduce_minute" do
+    describe "reduce_minute" do
+      it "reduces data" do
+        setup_logfile()
+        ReducerModel.add_decom(filename: @logfile, scope: "DEFAULT")
+        @reducer.reduce_minute
+        @reducer.shutdown
+        sleep 0.1
+        plr = PacketLogReader.new
+        @output_files.each do |file|
+          puts "output file:#{file}"
+          plr.each(file) do |packet|
+            puts "collects min:#{packet.read("COLLECTS__MIN")} max:#{packet.read("COLLECTS__MAX")} avg:#{packet.read("COLLECTS__AVG")} stddev:#{packet.read("COLLECTS__STDDEV")} samples:#{packet.read("COLLECTS__SAMPLES")}"
+          end
+        end
+      end
+    end
     #   it "reduces 60s of decom data" do
     #     @reducer.initialize_streams
     #     @reducer.get_initial_offsets
