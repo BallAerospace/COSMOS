@@ -63,7 +63,7 @@ export default {
         }
       }
       const formatted = this.formatValue(value)
-      if (this.limitsLetter !== '') {
+      if (localStorage.colorblindMode === 'true' && this.limitsLetter !== '') {
         return `${formatted} (${this.limitsLetter})`
       }
       return formatted
