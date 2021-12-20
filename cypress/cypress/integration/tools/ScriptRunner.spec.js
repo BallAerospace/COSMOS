@@ -57,7 +57,7 @@ describe('ScriptRunner', () => {
       cy.contains('File Save As')
       cy.get('[data-test=filename]').invoke('val').should('include', 'Untitled')
       cy.get('[data-test=filename]').clear().type('temp.rb')
-      cy.contains('temp.rb is not a valid path / filename')
+      cy.contains('temp.rb is not a valid filename')
       cy.contains('INST')
         .parentsUntil('button')
         .eq(0)
@@ -88,6 +88,13 @@ describe('ScriptRunner', () => {
       cy.contains('procedures').click({ force: true })
       cy.contains('temp.rb').click({ force: true })
       cy.get('[data-test=file-open-save-submit-btn]').click({ force: true })
+    })
+    cy.get('body').then(($body) => {
+      // Make sure the file isn't locked
+      if ($body.text().includes('Editor is in read-only mode')) {
+        cy.get('[data-test=unlock-button]').click({ force: true })
+        cy.contains('Force Unlock').click({ force: true })
+      }
     })
     // Type a little and verify it indicates the change
     cy.get('#editor').type('\n# comment1')
@@ -134,12 +141,18 @@ describe('ScriptRunner', () => {
       cy.contains('temp.rb').click({ force: true })
       cy.get('[data-test=file-open-save-submit-btn]').click({ force: true })
     })
+    cy.get('body').then(($body) => {
+      // Make sure the file isn't locked
+      if ($body.text().includes('Editor is in read-only mode')) {
+        cy.get('[data-test=unlock-button]').click({ force: true })
+        cy.contains('Force Unlock').click({ force: true })
+      }
+    })
     // Type a little and verify it indicates the change
     cy.get('.v-dialog:visible').should('not.exist')
     cy.get('[data-test=filename]')
       .invoke('val')
       .should('eq', 'INST/procedures/temp.rb')
-
     // Type more and verify the Ctrl-S shortcut
     cy.get('#editor').type('\n# comment3')
     cy.get('[data-test=filename]')

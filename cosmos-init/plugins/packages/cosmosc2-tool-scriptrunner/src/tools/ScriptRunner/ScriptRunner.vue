@@ -31,7 +31,13 @@
       <v-icon> mdi-pencil-off </v-icon>
       {{ lockedBy }} is editing this script. Editor is in read-only mode
       <template v-slot:action="{ attrs }">
-        <v-btn text v-bind="attrs" color="danger" @click="confirmLocalUnlock">
+        <v-btn
+          text
+          v-bind="attrs"
+          color="danger"
+          @click="confirmLocalUnlock"
+          data-test="unlock-button"
+        >
           Unlock
         </v-btn>
         <v-btn
@@ -449,12 +455,11 @@
 
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
-// TODO: brace appears to be abandened. Some guy put together this: https://github.com/aminoeditor/vue-ace
-// or we just try to use ace directly ...
-import * as ace from 'brace'
-import 'brace/mode/ruby'
-import 'brace/theme/twilight'
-import 'brace/ext/language_tools'
+import * as ace from 'ace-builds'
+import 'ace-builds/src-min-noconflict/mode-ruby'
+import 'ace-builds/src-min-noconflict/theme-twilight'
+import 'ace-builds/src-min-noconflict/ext-language_tools'
+import 'ace-builds/src-min-noconflict/ext-searchbox'
 import { toDate, format } from 'date-fns'
 import { Multipane, MultipaneResizer } from 'vue-multipane'
 import FileOpenSaveDialog from '@cosmosc2/tool-common/src/components/FileOpenSaveDialog'
@@ -543,7 +548,7 @@ export default {
       messages: [],
       headers: [{ text: 'Message', value: 'message' }],
       maxArrayLength: 30,
-      Range: ace.acequire('ace/range').Range,
+      Range: ace.require('ace/range').Range,
       ask: {
         show: false,
         question: '',
@@ -577,11 +582,7 @@ export default {
       return !!this.lockedBy
     },
     fullFilename() {
-      if (this.fileModified.length > 0) {
-        return `${this.filename} ${this.fileModified}`
-      } else {
-        return this.filename
-      }
+      return `${this.filename} ${this.fileModified}`.trim()
     },
     menus: function () {
       return [
@@ -642,6 +643,25 @@ export default {
           ],
         },
         {
+          label: 'Edit',
+          items: [
+            {
+              label: 'Find',
+              icon: 'mdi-magnify',
+              command: () => {
+                this.editor.execCommand('find')
+              },
+            },
+            {
+              label: 'Replace',
+              icon: 'mdi-find-replace',
+              command: () => {
+                this.editor.execCommand('replace')
+              },
+            },
+          ],
+        },
+        {
           label: 'Script',
           items: [
             {
@@ -675,7 +695,7 @@ export default {
             {
               label: 'Show Call Stack',
               icon: 'mdi-format-list-numbered',
-              disabled: !this.scriptId,
+              disabled: !this.scriptId || this.scriptId === ' ',
               command: () => {
                 this.showCallStack()
               },
@@ -857,7 +877,7 @@ export default {
       if (this.editor.getReadOnly() === true) {
         return
       }
-      if (this.editor.session.getUndoManager().dirtyCounter > 0) {
+      if (this.editor.session.getUndoManager().canUndo()) {
         this.fileModified = '*'
       } else {
         this.fileModified = ''
