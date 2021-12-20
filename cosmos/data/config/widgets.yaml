@@ -77,6 +77,46 @@ SCROLLWINDOW:
       values: .*
 IFRAME:
   summary: Open external tools in an Iframe within COSMOS.
+  parameters:
+    - name: URL
+      required: true
+      description: The path to the page to display in the iframe
+      values: .*
+    - name: Width
+      required: false
+      description: Width of the widget
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the widget
+      values: .*
+IMAGEVIEWER:
+  summary: Display a base64 image from a TLM packet
+  parameters:
+    - name: Target name
+      required: true
+      description: The target name
+      values: .+
+    - name: Packet name
+      required: true
+      description: The packet name
+      values: .+
+    - name: Item name
+      required: true
+      description: The item name
+      values: .+
+    - name: Format
+      required: true
+      description: The image format of the base64 data (e.g. jpg, png, etc)
+      values: .+
+    - name: Width
+      required: false
+      description: Width of the widget
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the widget
+      values: .*
 TABBOOK:
   summary: Creates a tabbed area in which to place TABITEM widgets
     to form a tabbed layout.
