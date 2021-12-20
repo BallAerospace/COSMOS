@@ -32,62 +32,101 @@ module Cosmos
     before(:each) do
       mock_redis()
       @reducer = ReducerMicroservice.new("DEFAULT__REDUCER__INST")
-    end
 
-    def setup_logfile
+      # Override S3Utilities to save off and store and files destined for S3
+      @decom_files = []
+      @reduced_files = []
+      allow(S3Utilities).to receive(:move_log_file_to_s3) do |filename, s3_key|
+        # puts "move_log_file_to_s3 filename:#{filename} key:#{s3_key}"
+        log_file = File.join(@log_path, s3_key.split('/')[-1])
+        # We only care about saving the bin files, not the index files
+        if File.extname(log_file) == ".bin"
+          FileUtils.move filename, log_file
+          if log_file.include?("decom")
+            @decom_files << log_file
+            # Add the file to the ReducerModel like we would in the real system
+            ReducerModel.add_decom(filename: log_file, scope: "DEFAULT")
+          end
+          @reduced_files << log_file if log_file.include?("reduced")
+        end
+      end
+
+      # Allow S3File to simply return the files in @decom_files
       @s3_file = double(S3File)
       allow(S3File).to receive(:new).and_return(@s3_file)
+      allow(@s3_file).to receive(:retrieve).and_return(nil)
+      allow(@s3_file).to receive(:delete).and_return(nil)
+      allow(@s3_file).to receive(:local_path) do
+        @decom_files.shift # return the first file in the array
+      end
+    end
 
-      allow(File).to receive(:delete).and_return(nil)
-      s3 = double("Aws::S3::Client").as_null_object
-      allow(Aws::S3::Client).to receive(:new).and_return(s3)
+    after(:each) do
+      # Clean up all the bin files we created
+      Dir["#{@log_path}/*.bin"].each do |file|
+        File.delete(file)
+      end
+    end
 
-      # Create a fake filename that matches what happens when we copy a file to S3
+    def setup_logfile(start_time:, num_pkts:, time_delta:)
+      # Create a filename that matches what happens when we create a decom packet
       # This is critical since we split on '__' to pull out the scope, target, packet
-      plw = PacketLogWriter.new(@log_path, 'START__END__DEFAULT__INST__HEALTH_STATUS__rt__decom')
-      @start_time = Time.now
+      plw = PacketLogWriter.new(@log_path, 'DEFAULT__INST__HEALTH_STATUS__rt__decom')
       @pkt = System.telemetry.packet("INST", "HEALTH_STATUS")
-      @pkt.received_time = @start_time
-      collects = 0
+      @pkt.received_time = start_time
+      collects = 1
       @pkt.write("COLLECTS", collects)
 
-      90.times do
+      num_pkts.times do
         json_hash = TelemetryDecomTopic.build_json(@pkt)
         plw.write(:JSON_PACKET, :TLM, @pkt.target_name, @pkt.packet_name, @pkt.received_time.to_nsec_from_epoch,
           true, JSON.generate(json_hash.as_json))
-        @pkt.received_time += 20
+        @pkt.received_time += time_delta
         collects += 1
         @pkt.write("COLLECTS", collects)
       end
-      @logfile = plw.filename
-      # @logfile = File.join(SPEC_DIR, "install/20211215233932929797300__20211215234933511878600__DEFAULT__INST__HEALTH_STATUS__rt__decom.bin")
-      allow(@s3_file).to receive(:retrieve).and_return(nil)
-      allow(@s3_file).to receive(:local_path).and_return(@logfile)
-      allow(@s3_file).to receive(:delete).and_return(nil)
-
-      @output_files = []
-      allow(S3Utilities).to receive(:move_log_file_to_s3) do |filename, s3_key|
-        # puts "filename:#{filename} s3:#{s3_key}"
-        log_file = File.join(@log_path, s3_key.split('/')[-1])
-        FileUtils.move filename, log_file
-        @output_files << log_file
-      end
+      plw.close_file
     end
 
     describe "reduce_minute" do
-      it "reduces data" do
-        setup_logfile()
-        ReducerModel.add_decom(filename: @logfile, scope: "DEFAULT")
+      it "reduces 60s of data" do
+        start_time = Time.at(1641020400) # 2022/01/01 00:00:00
+        setup_logfile(start_time: start_time, num_pkts: 60, time_delta: 1) # 60s of data
         @reducer.reduce_minute
         @reducer.shutdown
         sleep 0.1
         plr = PacketLogReader.new
-        @output_files.each do |file|
-          puts "output file:#{file}"
-          plr.each(file) do |packet|
-            puts "collects min:#{packet.read("COLLECTS__MIN")} max:#{packet.read("COLLECTS__MAX")} avg:#{packet.read("COLLECTS__AVG")} stddev:#{packet.read("COLLECTS__STDDEV")} samples:#{packet.read("COLLECTS__SAMPLES")}"
-          end
+        puts "process:#{@reduced_files[0]}"
+        plr.open(@reduced_files[0])
+        pkt = plr.read
+        expect(pkt.read("COLLECTS__SAMPLES")).to eql(60)
+        expect(pkt.read("COLLECTS__MIN")).to eql(1)
+        expect(pkt.read("COLLECTS__MAX")).to eql(60)
+        expect(pkt.read("COLLECTS__AVG")).to eql(30.5)
+        expect(pkt.read("COLLECTS__STDDEV")).to be_within(0.001).of(17.318)
+        plr.close
+      end
+
+      it "reduces 60s of data across time boundary" do
+        start_time = Time.at(1641020430) # 2022/01/01 00:00:30
+        setup_logfile(start_time: start_time, num_pkts: 60, time_delta: 1) # 60s of data
+        @reducer.reduce_minute
+        @reducer.shutdown
+        sleep 0.1
+        plr = PacketLogReader.new
+        plr.each(@reduced_files[0]) do |packet|
+          puts "collects min:#{packet.read("COLLECTS__MIN")} max:#{packet.read("COLLECTS__MAX")} avg:#{packet.read("COLLECTS__AVG")} stddev:#{packet.read("COLLECTS__STDDEV")} samples:#{packet.read("COLLECTS__SAMPLES")}"
         end
+        plr.open(@reduced_files[0])
+        pkt = plr.read
+        expect(pkt.read("COLLECTS__SAMPLES")).to eql(30)
+        expect(pkt.read("COLLECTS__MIN")).to eql(1)
+        expect(pkt.read("COLLECTS__MAX")).to eql(30)
+        pkt = plr.read
+        expect(pkt.read("COLLECTS__SAMPLES")).to eql(30)
+        expect(pkt.read("COLLECTS__MIN")).to eql(31)
+        expect(pkt.read("COLLECTS__MAX")).to eql(60)
+        plr.close
       end
     end
     #   it "reduces 60s of decom data" do

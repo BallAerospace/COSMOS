@@ -33,8 +33,11 @@ module Cosmos
     # How long to wait for any currently running jobs to complete before killing them
     SHUTDOWN_DELAY_SECS = 1
 
+    # @param name [String] Microservice name formatted as <SCOPE>__REDUCER__<TARGET>
+    #   where <SCOPE> and <TARGET> are variables representing the scope name and target name
     def initialize(name)
       super(name, is_plugin: false)
+      @target_name = name.split('__')[-1]
       @packet_logs = {}
     end
 
@@ -57,8 +60,9 @@ module Cosmos
     end
 
     def shutdown
-      @packet_logs.each { |_, log| log.shutdown }
       @scheduler.shutdown(wait: SHUTDOWN_DELAY_SECS) if @scheduler
+      # Make sure all the existing logs are properly closed down
+      @packet_logs.each { |_, log| log.shutdown }
       super()
     end
 
@@ -78,7 +82,6 @@ module Cosmos
     def reduce_minute
       metric(MINUTE_METRIC) do
         ReducerModel.all_decom(scope: @scope).each do |file|
-          puts "file:#{file}"
           if process_file(file, "minute", 60, 3600)
             ReducerModel.rm_decom(filename: file, scope: @scope)
           end
@@ -87,19 +90,23 @@ module Cosmos
     end
 
     def reduce_hour
-      # metric(HOUR_METRIC) do
-      #   ReducerModel.all_minute(scope: @scope).each do |file|
-      #     process_file(file)
-      #   end
-      # end
+      metric(HOUR_METRIC) do
+        ReducerModel.all_minute(scope: @scope).each do |file|
+          if process_file(file, "hour", 3600, 3600 * 24)
+            ReducerModel.rm_minute(filename: file, scope: @scope)
+          end
+        end
+      end
     end
 
     def reduce_day
-      # metric(DAY_METRIC) do
-      #   ReducerModel.all_hour(scope: @scope).each do |filename|
-      #     process_file(filename)
-      #   end
-      # end
+      metric(DAY_METRIC) do
+        ReducerModel.all_hour(scope: @scope).each do |filename|
+          if process_file(file, "day", 3600 * 24, 3600 * 24 * 30)
+            ReducerModel.rm_hour(filename: file, scope: @scope)
+          end
+        end
+      end
     end
 
     def process_file(filename, type, entry_seconds, file_seconds)
@@ -108,17 +115,20 @@ module Cosmos
 
       # Determine if we already have a PacketLogWriter created
       start_time, end_time, scope, target_name, packet_name, _ = filename.split('__')
+      if @target_name != target_name
+        raise "Target name in file #{filename} does not match microservice target name #{@target_name}"
+      end
       plw = @packet_logs["#{scope}__#{target_name}__#{packet_name}__#{type}"]
       unless plw
         # Create a new PacketLogWriter for this reduced data
         remote_log_directory = "#{scope}/reduced_logs/tlm/#{target_name}/#{packet_name}"
         rt_label = "#{scope}__#{target_name}__#{packet_name}__reduced__#{type}"
-        puts "log_dir:#{remote_log_directory} rt_label:#{rt_label}"
         plw = PacketLogWriter.new(remote_log_directory, rt_label)
         @packet_logs["#{scope}__#{target_name}__#{packet_name}__#{type}"] = plw
       end
 
       reduced = {}
+      data_keys = nil
       entry_time = nil
       current_time = nil
       previous_time = nil
@@ -130,24 +140,17 @@ module Cosmos
         previous_time = current_time
         current_time = data['PACKET_TIMESECONDS']
         entry_time ||= current_time
-        puts "current:#{current_time} previous:#{previous_time}"
+        data_keys ||= data.keys
 
         # Determine if we've rolled over a entry boundary
-        # We have to use current mod less than previous mod because
-        # we don't know the data rates. We also have to check for current - previous > mod
-        # in case the data rate is so slow we don't have multiple samples
+        # We have to use current % entry_seconds < previous % entry_seconds because
+        # we don't know the data rates. We also have to check for current - previous >= entry_seconds
+        # in case the data rate is so slow we don't have multiple samples per entry
         if previous_time && ((current_time % entry_seconds < previous_time % entry_seconds) ||
           (current_time - previous_time >= entry_seconds))
-          # We've collected all the values so calculate the AVG and STDDEV
-          if type == "minute"
-            data.keys.each do |key|
-              reduced["#{key}__SAMPLES"] = reduced["#{key}__VALS"].length
-              reduced["#{key}__AVG"], reduced["#{key}__STDDEV"] =
-                Math.stddev_population(reduced["#{key}__VALS"])
-              # Remove the raw values as they're only used for AVG / STDDEV calculation
-              data.delete("#{key}__VALS")
-            end
-          end
+          puts "roll over entry boundary cur_time:#{current_time}"
+
+          reduce(type, data_keys, reduced)
           plw.write(:JSON_PACKET, :TLM, target_name, packet_name, entry_time * Time::NSEC_PER_SECOND, false, JSON.generate(reduced.as_json))
 
           # Check to see if we should start a new log file
@@ -170,16 +173,6 @@ module Cosmos
           reduced["#{key}__MIN"] = value if value < reduced["#{key}__MIN"]
           reduced["#{key}__MAX"] ||= value
           reduced["#{key}__MAX"] = value if value > reduced["#{key}__MAX"]
-        #   else
-        #     total_samples = num_samples * values.length
-        #     reduced[key] = values.min if key.include?('__MIN')
-        #     reduced[key] = values.max if key.include?('__MAX')
-
-        #     # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
-        #     if key.include?('__AVG')
-        #       reduced[key] =
-        #         values.sum { |v| v * num_samples } / total_samples.to_f
-        #     end
         end
 
         # # Do the STDDEV calc last so we can use the previously calculated AVG
@@ -212,39 +205,33 @@ module Cosmos
         #     end
         # end
       end
-      file.delete
+      file.delete # Remove the local copy
+      # Write out the final data now that the file is done
+      reduce(type, data_keys, reduced)
+      plw.write(:JSON_PACKET, :TLM, target_name, packet_name, entry_time * Time::NSEC_PER_SECOND, false, JSON.generate(reduced.as_json))
       true
     end
 
+    def reduce(type, data_keys, reduced)
+      # We've collected all the values so calculate the AVG and STDDEV
+      if type == "minute"
+        data_keys.each do |key|
+          reduced["#{key}__SAMPLES"] = reduced["#{key}__VALS"].length
+          reduced["#{key}__AVG"], reduced["#{key}__STDDEV"] = Math.stddev_population(reduced["#{key}__VALS"])
+          # Remove the raw values as they're only used for AVG / STDDEV calculation
+          reduced.delete("#{key}__VALS")
+        end
+      else
+        # total_samples = num_samples * values.length
+        # reduced[key] = values.min if key.include?('__MIN')
+        # reduced[key] = values.max if key.include?('__MAX')
 
-      # target_name = messages[0][1]['target_name']
-      # packet_name = messages[0][1]['packet_name']
-      # msg_hash = {
-      #   time: idi(messages[-1][0]) * 1_000_000, # Convert milliseconds to nanoseconds
-      #   target_name: target_name,
-      #   packet_name: packet_name,
-      #   num_samples: total_samples,
-      #   json_data: JSON.generate(reduced.as_json),
-      # }
-      # id = @test ? "#{idi(messages[-1][0])}-0" : nil
-      # Store.write_topic(
-      #   "#{scope}__#{topic_key}__{#{target_name}}__#{packet_name}",
-      #   msg_hash,
-      #   id,
-      # )
-
-    private
-
-    # Convert String of nanoseconds to Integer milliseconds
-    def ns_ms(nanoseconds)
-      nanoseconds.to_i / 1_000_000
-    end
-
-    # Return the ID integer (idi) from a Redis Stream ID
-    def idi(id)
-      # See https://redis.io/topics/streams-intro for more info
-      # Stream IDs are formatted as timestamp dash sequence, e.g. 1519073278252-0
-      id.split('-')[0].to_i
+        # # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
+        # if key.include?('__AVG')
+        #   reduced[key] =
+        #     values.sum { |v| v * num_samples } / total_samples.to_f
+        # end
+      end
     end
   end
 end
