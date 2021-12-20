@@ -62,7 +62,11 @@ export default {
           value = null
         }
       }
-      return this.formatValue(value)
+      const formatted = this.formatValue(value)
+      if (this.limitsLetter !== '') {
+        return `${formatted} (${this.limitsLetter})`
+      }
+      return formatted
     },
     valueClass: function () {
       return 'value shrink pa-1 ' + 'cosmos-' + this.limitsColor
@@ -98,6 +102,25 @@ export default {
             return 'white'
         }
       }
+      return ''
+    },
+    limitsLetter() {
+      let limitsState = this.limitsState
+      if (limitsState === null) {
+        if (this.$store.state.tlmViewerValues[this.valueId]) {
+          limitsState = this.$store.state.tlmViewerValues[this.valueId][1]
+        } else {
+          limitsState = null
+        }
+      }
+      if (limitsState != null) {
+        let c = limitsState.charAt(0)
+        if (limitsState.endsWith('_LOW')) {
+          c = c.toLowerCase()
+        }
+        return c
+      }
+      return ''
     },
   },
   created() {
