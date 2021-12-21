@@ -35,6 +35,9 @@ module Cosmos
 
       # Override S3Utilities to save off and store and files destined for S3
       @decom_files = []
+      @minute_files = []
+      @hour_files = []
+      @day_files = []
       @reduced_files = []
       allow(S3Utilities).to receive(:move_log_file_to_s3) do |filename, s3_key|
         # puts "move_log_file_to_s3 filename:#{filename} key:#{s3_key}"
@@ -46,18 +49,40 @@ module Cosmos
             @decom_files << log_file
             # Add the file to the ReducerModel like we would in the real system
             ReducerModel.add_decom(filename: log_file, scope: "DEFAULT")
+          elsif log_file.include?("minute")
+            @minute_files << log_file
+            # Add the file to the ReducerModel like we would in the real system
+            ReducerModel.add_minute(filename: log_file, scope: "DEFAULT")
+          elsif log_file.include?("hour")
+            @hour_files << log_file
+            # Add the file to the ReducerModel like we would in the real system
+            ReducerModel.add_hour(filename: log_file, scope: "DEFAULT")
+          elsif log_file.include?("day")
+            @day_files << log_file
           end
           @reduced_files << log_file if log_file.include?("reduced")
         end
       end
 
       # Allow S3File to simply return the files in @decom_files
+      @s3_filename = ''
       @s3_file = double(S3File)
-      allow(S3File).to receive(:new).and_return(@s3_file)
+      allow(S3File).to receive(:new) do |filename|
+        @s3_filename = filename
+        @s3_file
+      end
       allow(@s3_file).to receive(:retrieve).and_return(nil)
       allow(@s3_file).to receive(:delete).and_return(nil)
       allow(@s3_file).to receive(:local_path) do
-        @decom_files.shift # return the first file in the array
+        # return the first file in the appropriate array of files
+        case @s3_filename
+        when /decom/
+          @decom_files.shift
+        when /minute/
+          @minute_files.shift
+        when /hour/
+          @hour_files.shift
+        end
       end
     end
 
@@ -95,15 +120,28 @@ module Cosmos
         @reducer.reduce_minute
         @reducer.shutdown
         sleep 0.1
+
+        # We should have reduced the data into a single file
+        expect(@reduced_files.length).to eql 1
+
+        # All decom files should have been removed since they were processed
+        expect(ReducerModel.all_decom(scope: "DEFAULT")).to be_empty
+        files = ReducerModel.all_minute(scope: "DEFAULT")
+        expect(files.length).to eql 1
+        # Start and end times are the same since there is only one entry
+        expect(File.basename(files[0])).to eql "20220101000000000000000__20220101000000000000000__DEFAULT__INST__HEALTH_STATUS__reduced__minute.bin"
+
+        # 60s of data reduces to a single entry
         plr = PacketLogReader.new
-        puts "process:#{@reduced_files[0]}"
         plr.open(@reduced_files[0])
         pkt = plr.read
-        expect(pkt.read("COLLECTS__SAMPLES")).to eql(60)
-        expect(pkt.read("COLLECTS__MIN")).to eql(1)
-        expect(pkt.read("COLLECTS__MAX")).to eql(60)
-        expect(pkt.read("COLLECTS__AVG")).to eql(30.5)
-        expect(pkt.read("COLLECTS__STDDEV")).to be_within(0.001).of(17.318)
+        expect(pkt.read("COLLECTS_SAMPLES")).to eql(60)
+        expect(pkt.read("COLLECTS_MIN")).to eql(1)
+        expect(pkt.read("COLLECTS_MAX")).to eql(60)
+        expect(pkt.read("COLLECTS_AVG")).to eql(30.5)
+        expect(pkt.read("COLLECTS_STDDEV")).to be_within(0.001).of(17.318)
+        pkt = plr.read
+        expect(pkt).to be_nil # no more packets
         plr.close
       end
 
@@ -113,127 +151,80 @@ module Cosmos
         @reducer.reduce_minute
         @reducer.shutdown
         sleep 0.1
+
+        # All decom files should have been removed since they were processed
+        expect(ReducerModel.all_decom(scope: "DEFAULT")).to be_empty
+        expect(ReducerModel.all_minute(scope: "DEFAULT").length).to eql 1
+
+        # Since we reduced across time boundaries we should have 2 packets with the data split
         plr = PacketLogReader.new
-        plr.each(@reduced_files[0]) do |packet|
-          puts "collects min:#{packet.read("COLLECTS__MIN")} max:#{packet.read("COLLECTS__MAX")} avg:#{packet.read("COLLECTS__AVG")} stddev:#{packet.read("COLLECTS__STDDEV")} samples:#{packet.read("COLLECTS__SAMPLES")}"
-        end
         plr.open(@reduced_files[0])
         pkt = plr.read
-        expect(pkt.read("COLLECTS__SAMPLES")).to eql(30)
-        expect(pkt.read("COLLECTS__MIN")).to eql(1)
-        expect(pkt.read("COLLECTS__MAX")).to eql(30)
+        expect(pkt.read("COLLECTS_SAMPLES")).to eql(30)
+        expect(pkt.read("COLLECTS_MIN")).to eql(1)
+        expect(pkt.read("COLLECTS_MAX")).to eql(30)
         pkt = plr.read
-        expect(pkt.read("COLLECTS__SAMPLES")).to eql(30)
-        expect(pkt.read("COLLECTS__MIN")).to eql(31)
-        expect(pkt.read("COLLECTS__MAX")).to eql(60)
+        expect(pkt.read("COLLECTS_SAMPLES")).to eql(30)
+        expect(pkt.read("COLLECTS_MIN")).to eql(31)
+        expect(pkt.read("COLLECTS_MAX")).to eql(60)
+        plr.close
+      end
+
+      it "creates another reduced file at 1hr" do
+        start_time = Time.at(1641020400) # 2022/01/01 00:00:00
+        # One sample per minute and 61 samples which will overflow into a new log file
+        setup_logfile(start_time: start_time, num_pkts: 62, time_delta: 60)
+        @reducer.reduce_minute
+        @reducer.shutdown
+        sleep 0.1
+
+        # All decom files should have been removed since they were processed
+        expect(ReducerModel.all_decom(scope: "DEFAULT")).to be_empty
+        files = ReducerModel.all_minute(scope: "DEFAULT")
+        expect(files.length).to eql 2
+        expect(File.basename(files[0])).to eql "20220101000000000000000__20220101005900000000000__DEFAULT__INST__HEALTH_STATUS__reduced__minute.bin"
+        expect(File.basename(files[1])).to eql "20220101010000000000000__20220101010100000000000__DEFAULT__INST__HEALTH_STATUS__reduced__minute.bin"
+
+        # Since we rolled over we should have 2 output files
+        expect(@reduced_files.length).to eql 2
+        index = 0
+        @reduced_files.each do |file|
+          plr = PacketLogReader.new
+          plr.each(file) do |pkt|
+            expect(pkt.packet_time).to eql(start_time + index)
+            expect(pkt.read("COLLECTS_SAMPLES")).to eql(1)
+            index += 60
+          end
+        end
+      end
+    end
+
+    describe "reduce_hour" do
+      it "reduces 1h of decom data" do
+        start_time = Time.at(1641020400) # 2022/01/01 00:00:00
+        # Create 1hr of log data but force a roll over so we actually create the file
+        setup_logfile(start_time: start_time, num_pkts: 62, time_delta: 60)
+        @reducer.reduce_minute
+        @reducer.reduce_hour
+        @reducer.shutdown
+        sleep 0.1
+
+        # All decom files should have been removed since they were processed
+        expect(ReducerModel.all_decom(scope: "DEFAULT").length).to eql 0
+        # We rolled over so there is one minute file remaining
+        expect(ReducerModel.all_minute(scope: "DEFAULT").length).to eql 1
+        files = ReducerModel.all_hour(scope: "DEFAULT")
+        expect(files.length).to eql 1 # We create 1 hour file
+
+        plr = PacketLogReader.new
+        plr.open(files[0])
+        pkt = plr.read
+        expect(pkt.read("COLLECTS_SAMPLES")).to eql(60)
+        expect(pkt.read("COLLECTS_MIN")).to eql(1)
+        expect(pkt.read("COLLECTS_MAX")).to eql(60)
         plr.close
       end
     end
-    #   it "reduces 60s of decom data" do
-    #     @reducer.initialize_streams
-    #     @reducer.get_initial_offsets
-
-    #     start_time = Time.now.sys
-    #     packet = System.telemetry.packet("INST", "HEALTH_STATUS")
-    #     offset = 0
-    #     6.times do
-    #       packet.received_time = start_time + offset
-    #       TelemetryDecomTopic.write_packet(packet, id: "#{packet.received_time.to_i * 1000}-0", scope: "DEFAULT")
-    #       offset += 10 # seconds
-    #     end
-    #     @reducer.reduce_minute # Initially shouldn't process due to not enough data
-    #     expect(Store.xlen("DEFAULT__REDUCED_MINUTE__{INST}__HEALTH_STATUS")).to eql 0
-
-    #     packet.received_time = start_time + offset
-    #     offset += 10
-    #     TelemetryDecomTopic.write_packet(packet, id: "#{packet.received_time.to_i * 1000}-0", scope: "DEFAULT")
-    #     @reducer.reduce_minute # <= Do the work!
-
-    #     # One minute of data should be processed
-    #     expect(Store.xlen("DEFAULT__REDUCED_MINUTE__{INST}__HEALTH_STATUS")).to eql 1
-    #     result = Store.read_topics(["DEFAULT__REDUCED_MINUTE__{INST}__HEALTH_STATUS"], ['0-0'])
-    #     msg_hash = result["DEFAULT__REDUCED_MINUTE__{INST}__HEALTH_STATUS"][0][1]
-    #     expect(msg_hash['target_name']).to eql "INST"
-    #     expect(msg_hash['packet_name']).to eql "HEALTH_STATUS"
-    #     data = JSON.parse(msg_hash['json_data'])
-    #     expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f + 10
-    #     expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + 60
-    #     expect(data['PACKET_TIMESECONDS__STDDEV']).to be_within(0.1).of(17)
-
-    #     # Throw in another minute of data
-    #     6.times do
-    #       packet.received_time = start_time + offset
-    #       TelemetryDecomTopic.write_packet(packet, id: "#{packet.received_time.to_i * 1000}-0", scope: "DEFAULT")
-    #       offset += 10 # seconds
-    #     end
-    #     @reducer.reduce_minute # <= Do the work!
-
-    #     # 2 minutes of data should be processed
-    #     expect(Store.xlen("DEFAULT__REDUCED_MINUTE__{INST}__HEALTH_STATUS")).to eql 2
-    #     result = Store.read_topics(["DEFAULT__REDUCED_MINUTE__{INST}__HEALTH_STATUS"], ['0-0'])
-    #     msg_hash = result["DEFAULT__REDUCED_MINUTE__{INST}__HEALTH_STATUS"][1][1]
-    #     expect(msg_hash['target_name']).to eql "INST"
-    #     expect(msg_hash['packet_name']).to eql "HEALTH_STATUS"
-    #     data = JSON.parse(msg_hash['json_data'])
-    #     expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f + 70
-    #     expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + 120
-    #     expect(data['PACKET_TIMESECONDS__STDDEV']).to be_within(0.1).of(17)
-    #   end
-    # end
-
-    # describe "reduce_hour" do
-    #   it "reduces 1h of decom data" do
-    #     @reducer.initialize_streams
-    #     @reducer.get_initial_offsets
-
-    #     start_time = Time.now.sys
-    #     packet = System.telemetry.packet("INST", "HEALTH_STATUS")
-    #     offset = 0
-    #     370.times do |i|
-    #       packet.received_time = start_time + offset
-    #       packet.write("COLLECTS", rand(10))
-    #       TelemetryDecomTopic.write_packet(packet, id: "#{(packet.received_time.to_f * 1000).to_i}-0", scope: "DEFAULT")
-    #       offset += 10 # seconds
-    #     end
-
-    #     @reducer.reduce_minute
-    #     @reducer.reduce_hour
-
-    #     # 1 hour of data should be reduced
-    #     expect(Store.xlen("DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS")).to eql 1
-    #     result = Store.read_topics(["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"], ['0-0'])
-    #     expect(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"].length).to eql 1
-    #     data = JSON.parse(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"][0][1]['json_data'])
-    #     expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f + 70
-    #     expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + 3660 # 1 hr
-    #     expect(data['COLLECTS__MIN']).to eql 0
-    #     expect(data['COLLECTS__MAX']).to eql 9
-    #     expect(data['COLLECTS__STDDEV']).to be_within(0.3).of(2.8)
-
-    #     # Throw in another hour of data
-    #     360.times do |i|
-    #       packet.received_time = start_time + offset
-    #       packet.write("COLLECTS", rand(10))
-    #       packet.write("GROUND1STATUS", 1)
-    #       TelemetryDecomTopic.write_packet(packet, id: "#{(packet.received_time.to_f * 1000).to_i}-0", scope: "DEFAULT")
-    #       offset += 10 # seconds
-    #     end
-
-    #     @reducer.reduce_minute
-    #     @reducer.reduce_hour
-
-    #     # 2 hours of data should be reduced
-    #     expect(Store.xlen("DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS")).to eql 2
-    #     result = Store.read_topics(["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"], ['0-0'])
-    #     expect(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"].length).to eql 2
-    #     data = JSON.parse(result["DEFAULT__REDUCED_HOUR__{INST}__HEALTH_STATUS"][1][1]['json_data'])
-    #     expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f + 3670 # First hour includes extra minute
-    #     expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + (3660 + 3600) # 2 hr
-    #     expect(data['COLLECTS__MIN']).to eql 0
-    #     expect(data['COLLECTS__MAX']).to eql 9
-    #     expect(data['COLLECTS__STDDEV']).to be_within(0.3).of(2.8)
-    #   end
-    # end
 
     # describe "reduce_day" do
     #   it "reduces 1 day of decom data" do

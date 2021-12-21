@@ -62,7 +62,9 @@ module Cosmos
     def shutdown
       @scheduler.shutdown(wait: SHUTDOWN_DELAY_SECS) if @scheduler
       # Make sure all the existing logs are properly closed down
-      @packet_logs.each { |_, log| log.shutdown }
+      @packet_logs.each do |name, log|
+        log.shutdown
+      end
       super()
     end
 
@@ -138,7 +140,7 @@ module Cosmos
         # Ignore anything except numbers, this automatically ignores limits, formatted and units values
         data.select! { |key, value| value.is_a?(Numeric) }
         previous_time = current_time
-        current_time = data['PACKET_TIMESECONDS']
+        current_time = packet.packet_time.to_f
         entry_time ||= current_time
         data_keys ||= data.keys
 
@@ -148,62 +150,56 @@ module Cosmos
         # in case the data rate is so slow we don't have multiple samples per entry
         if previous_time && ((current_time % entry_seconds < previous_time % entry_seconds) ||
           (current_time - previous_time >= entry_seconds))
-          puts "roll over entry boundary cur_time:#{current_time}"
+          # puts "roll over entry boundary cur_time:#{current_time}"
+
+          # Check to see if we should start a new log file
+          # We compare the current entry_time to see if it will push us over
+          # puts "entry_time:#{entry_time} first:#{plw.first_time} diff:#{entry_time - plw.first_time.to_f} filetime:#{file_seconds}" if plw.first_time
+          if plw.first_time && (entry_time - plw.first_time.to_f) >= file_seconds
+            # puts "\n\n!!!!!!!!!!!!!!!!NEW FILE!!!!!!!!!!!!!!!!!!!!!!!!\n\n"
+            # puts "old filename:#{plw.filename}"
+            plw.start_new_file # Automatically closes the current file
+          end
 
           reduce(type, data_keys, reduced)
           plw.write(:JSON_PACKET, :TLM, target_name, packet_name, entry_time * Time::NSEC_PER_SECOND, false, JSON.generate(reduced.as_json))
-
-          # Check to see if we should start a new log file
-          if (plw.last_time - plw.first_time) >= file_seconds
-            puts "\n\n!!!!!!!!!!!!!!!!NEW FILE!!!!!!!!!!!!!!!!!!!!!!!!\n\n"
-            puts "old filename:#{plw.filename}"
-            plw.start_new_file # Automatically closes the current file
-            puts "new filename:#{plw.filename}"
-          end
 
           # Reset all our sample variables
           entry_time = current_time
           reduced = {}
         end
 
+        # Update statistics for this packet values
         data.each do |key, value|
-          reduced["#{key}__VALS"] ||= []
-          reduced["#{key}__VALS"] << value
-          reduced["#{key}__MIN"] ||= value
-          reduced["#{key}__MIN"] = value if value < reduced["#{key}__MIN"]
-          reduced["#{key}__MAX"] ||= value
-          reduced["#{key}__MAX"] = value if value > reduced["#{key}__MAX"]
+          if type == 'minute'
+            reduced["#{key}__VALS"] ||= []
+            reduced["#{key}__VALS"] << value
+            reduced["#{key}_MIN"] ||= value
+            reduced["#{key}_MIN"] = value if value < reduced["#{key}_MIN"]
+            reduced["#{key}_MAX"] ||= value
+            reduced["#{key}_MAX"] = value if value > reduced["#{key}_MAX"]
+          else
+            reduced[key] ||= value
+            if key.match(/_MIN$/) && value < reduced[key]
+              reduced[key] = value
+            end
+            if key.match(/_MAX$/) && value > reduced[key]
+              reduced[key] = value
+            end
+            if key.match(/_AVG$/)
+              reduced["#{key}__VALS"] ||= []
+              reduced["#{key}__VALS"] << value
+            end
+            if key.match(/_STDDEV$/)
+              reduced["#{key}__VALS"] ||= []
+              reduced["#{key}__VALS"] << value
+            end
+            if key.match(/_SAMPLES$/)
+              reduced["#{key}__VALS"] ||= []
+              reduced["#{key}__VALS"] << value
+            end
+          end
         end
-
-        # # Do the STDDEV calc last so we can use the previously calculated AVG
-        # if type != "minute"
-        #   data
-        #     .keys
-        #     .select { |k| k.include?('__STDDEV') }
-        #     .each do |key|
-        #       values = data[key]
-
-        #       # puts "key:#{key} vals:#{values} total:#{total_samples}" if key.include?('COLLECTS')
-        #       # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
-        #       avg_key = "#{key[0...-8]}__AVG"
-        #       avg_vals = data[avg_key]
-
-        #       # puts "avg key:#{avg_key} vals:#{avg_vals} reduced:#{reduced[avg_key]}" if key.include?('COLLECTS')
-        #       s2 = 0
-        #       values.each_with_index do |val, i|
-        #         # puts "i:#{i} std:#{val} avg:#{avg_vals[i]}" if key.include?('COLLECTS')
-        #         s2 += (num_samples * (avg_vals[i]**2 + val**2))
-        #       end
-
-        #       # puts "s2:#{s2} samples:#{num_samples} total:#{num_samples * values.length}" if key.include?('COLLECTS')
-        #       # Note: For very large numbers with very small deviations this sqrt can fail.  If so then just set the stddev to 0.
-        #       begin
-        #         reduced[key] = Math.sqrt(s2 / total_samples - reduced[avg_key]**2)
-        #       rescue Exception
-        #         reduced[key] = 0.0
-        #       end
-        #     end
-        # end
       end
       file.delete # Remove the local copy
       # Write out the final data now that the file is done
@@ -216,21 +212,49 @@ module Cosmos
       # We've collected all the values so calculate the AVG and STDDEV
       if type == "minute"
         data_keys.each do |key|
-          reduced["#{key}__SAMPLES"] = reduced["#{key}__VALS"].length
-          reduced["#{key}__AVG"], reduced["#{key}__STDDEV"] = Math.stddev_population(reduced["#{key}__VALS"])
+          reduced["#{key}_SAMPLES"] = reduced["#{key}__VALS"].length
+          reduced["#{key}_AVG"], reduced["#{key}_STDDEV"] = Math.stddev_population(reduced["#{key}__VALS"])
           # Remove the raw values as they're only used for AVG / STDDEV calculation
           reduced.delete("#{key}__VALS")
         end
       else
-        # total_samples = num_samples * values.length
-        # reduced[key] = values.min if key.include?('__MIN')
-        # reduced[key] = values.max if key.include?('__MAX')
-
-        # # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
-        # if key.include?('__AVG')
-        #   reduced[key] =
-        #     values.sum { |v| v * num_samples } / total_samples.to_f
-        # end
+        # Sort so we calculate the average first, then samples, then stddev
+        data_keys.sort.each do |key|
+          case key
+          when /_AVG$/
+            weighted_sum = 0
+            base_name = key.split('_')[0..-2].join('_')
+            samples = reduced["#{base_name}_SAMPLES__VALS"]
+            reduced["#{key}__VALS"].each_with_index do |val, i|
+              weighted_sum += (val * samples[i])
+            end
+            reduced[key] = weighted_sum / samples.sum
+          when /_SAMPLES$/
+            reduced[key] = reduced["#{key}__VALS"].sum
+          when /_STDDEV$/
+            base_name = key.split('_')[0..-2].join('_')
+            # Do the STDDEV calc last so we can use the previously calculated AVG
+            # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
+            samples = reduced["#{base_name}_SAMPLES__VALS"]
+            avg = reduced["#{base_name}_AVG__VALS"]
+            s2 = 0
+            reduced["#{key}__VALS"].each_with_index do |val, i|
+              # puts "i:#{i} val:#{val} samples[i]:#{samples[i]} avg[i]:#{avg[i]}"
+              s2 += (samples[i] * avg[i]**2 + val**2)
+            end
+            # Note: For very large numbers with very small deviations this sqrt can fail.
+            # If so then just set the stddev to 0.
+            begin
+              reduced[key] = Math.sqrt(s2 / samples.sum - reduced["#{base_name}_AVG"])
+            rescue Exception
+              reduced[key] = 0.0
+            end
+          end
+        end
+        data_keys.each do |key|
+          # Remove the raw values as they're only used for AVG / STDDEV calculation
+          reduced.delete("#{key}__VALS")
+        end
       end
     end
   end

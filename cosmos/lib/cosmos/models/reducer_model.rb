@@ -32,7 +32,7 @@ module Cosmos
         Store.sadd("#{scope}__#{key}", filename)
       end
       define_singleton_method("all_#{type}") do |scope: nil|
-        Store.smembers("#{scope}__#{key}")
+        Store.smembers("#{scope}__#{key}").sort
       end
       define_singleton_method("rm_#{type}") do |filename:, scope: nil|
         Store.srem("#{scope}__#{key}", filename)
