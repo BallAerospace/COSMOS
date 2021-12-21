@@ -72,7 +72,7 @@ module Cosmos
           rubys3_client.put_object(bucket: 'logs', key: s3_key, body: read_file)
         end
         Logger.info "logs/#{s3_key} written to S3"
-        ReducerModel.decom_file(s3_key) # Mark the new file for data reduction
+        ReducerModel.add_file(s3_key) # Record the new file for data reduction
 
         File.delete(filename)
         Logger.info("local file #{filename} deleted")

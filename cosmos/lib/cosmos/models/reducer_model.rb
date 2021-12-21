@@ -38,5 +38,16 @@ module Cosmos
         Store.srem("#{scope}__#{key}", filename)
       end
     end
+
+    def self.add_file(s3_key)
+      case s3_key
+      when /decom/
+        self.add_decom(s3_key)
+      when /minute/
+        self.add_minute(s3_key)
+      when /hour/
+        self.add_hour(s3_key)
+      end
+    end
   end
 end
