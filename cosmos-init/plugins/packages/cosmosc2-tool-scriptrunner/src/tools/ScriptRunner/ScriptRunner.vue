@@ -727,6 +727,10 @@ export default {
           label: 'Execute selection',
           command: this.executeSelection,
         },
+        {
+          label: 'Run from here',
+          command: this.runFromCursor,
+        },
       ]
     },
   },
@@ -813,8 +817,20 @@ export default {
       this.menuY = $event.pageY
       this.executeSelectionMenu = true
     },
+    runFromCursor: function () {
+      const text = this.editor.session.doc
+        .getLines(
+          this.editor.getCursorPosition().row,
+          this.editor.session.doc.getLength()
+        )
+        .join('\n')
+      this.executeText(text)
+    },
     executeSelection: function () {
       const text = this.editor.getSelectedText()
+      this.executeText(text)
+    },
+    executeText: function (text) {
       if (this.state === 'error') {
         // Execute via debugger
         const lines = text.split('\n')
