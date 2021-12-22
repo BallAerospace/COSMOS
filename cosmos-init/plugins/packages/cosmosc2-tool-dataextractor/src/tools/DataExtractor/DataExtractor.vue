@@ -473,11 +473,11 @@ export default {
       }
     },
     getItemLabel: function (item) {
-      var type = ''
+      let label = `${item.targetName} - ${item.packetName} - ${item.itemName}`
       if (item.valueType !== 'CONVERTED') {
-        type = ` (${item.valueType})`
+        label += ` + (${item.valueType})`
       }
-      return `${item.targetName} - ${item.packetName} - ${item.itemName} + ${type}`
+      return label
     },
     setTimestamps: function () {
       this.startDateTimeFilename = this.startDate + '_' + this.startTime
