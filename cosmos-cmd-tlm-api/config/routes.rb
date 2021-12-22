@@ -119,5 +119,7 @@ Rails.application.routes.draw do
 
     get "/time" => "time#get_current"
     get "map.json" => "tools#importmap"
+
+    post "/redis/exec" => "redis#execute_raw"
   end
 end
