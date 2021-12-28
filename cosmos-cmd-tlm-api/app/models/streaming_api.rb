@@ -356,6 +356,8 @@ class StreamingApi
       @packet_name = key_split[2]
       type = nil
       if stream_mode == :RAW
+        # value_type is implied to be :RAW and this must be a whole packet
+        @value_type = :RAW
         type = (@cmd_or_tlm == :CMD) ? 'COMMAND' : 'TELEMETRY'
       elsif stream_mode == :DECOM
         type = (@cmd_or_tlm == :CMD) ? 'DECOMCMD' : 'DECOM'

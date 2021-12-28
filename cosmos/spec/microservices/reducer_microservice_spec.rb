@@ -108,6 +108,7 @@ module Cosmos
           true, JSON.generate(json_hash.as_json))
         @pkt.received_time += time_delta
         collects += 1
+        collects = 1 if collects > 65535
         @pkt.write("COLLECTS", collects)
       end
       plw.close_file
@@ -172,7 +173,7 @@ module Cosmos
 
       it "creates another reduced file at 1hr" do
         start_time = Time.at(1641020400) # 2022/01/01 00:00:00
-        # One sample per minute and 61 samples which will overflow into a new log file
+        # One sample per minute and 62 samples which will overflow into a new log file
         setup_logfile(start_time: start_time, num_pkts: 62, time_delta: 60)
         @reducer.reduce_minute
         @reducer.shutdown
@@ -194,6 +195,31 @@ module Cosmos
             expect(pkt.packet_time).to eql(start_time + index)
             expect(pkt.read("COLLECTS_SAMPLES")).to eql(1)
             index += 60
+          end
+        end
+      end
+
+      it "reduces at 1h packet time deltas" do
+        start_time = Time.at(1641020400) # 2022/01/01 00:00:00
+        # time delta is 1hr but we should still create the minute files
+        setup_logfile(start_time: start_time, num_pkts: 2, time_delta: 3600)
+        @reducer.reduce_minute
+        @reducer.shutdown
+        sleep 0.1
+
+        # All decom files should have been removed since they were processed
+        expect(ReducerModel.all_decom(scope: "DEFAULT")).to be_empty
+        files = ReducerModel.all_minute(scope: "DEFAULT")
+        expect(files.length).to eql 2
+
+        # We should have 2 output files
+        index = 0
+        files.each do |file|
+          plr = PacketLogReader.new
+          plr.each(file) do |pkt|
+            expect(pkt.packet_time).to eql(start_time + index)
+            expect(pkt.read("COLLECTS_SAMPLES")).to eql(1)
+            index += 3600
           end
         end
       end
@@ -224,68 +250,91 @@ module Cosmos
         expect(pkt.read("COLLECTS_MAX")).to eql(60)
         plr.close
       end
+
+      it "reduces 4hrs of decom data" do
+        start_time = Time.at(1641020400) # 2022/01/01 00:00:00
+        # Create log data at every 15 min
+        setup_logfile(start_time: start_time, num_pkts: 16, time_delta: 900)
+        @reducer.reduce_minute
+        @reducer.reduce_hour
+        @reducer.shutdown
+        sleep 0.1
+
+        # All decom files should have been removed since they were processed
+        expect(ReducerModel.all_decom(scope: "DEFAULT").length).to eql 0
+        # TODO: Why is there 1 minute file
+        #puts "min len:#{ReducerModel.all_minute(scope: "DEFAULT").length}"
+        files = ReducerModel.all_hour(scope: "DEFAULT")
+        expect(files.length).to eql 1 # We create 1 hour file
+
+        index = 1
+        plr = PacketLogReader.new
+        plr.each(files[0]) do |pkt|
+          # 4 samples since we are at 15 min intervals
+          expect(pkt.read("COLLECTS_SAMPLES")).to eql(4)
+          expect(pkt.read("COLLECTS_MIN")).to eql(index)
+          expect(pkt.read("COLLECTS_MAX")).to eql(index + 3)
+          index += 4
+        end
+      end
+
+      it "creates another reduced file at 1 day" do
+        start_time = Time.at(1641020400) # 2022/01/01 00:00:00
+        # Create log data at every hour
+        setup_logfile(start_time: start_time, num_pkts: 26, time_delta: 3600)
+        @reducer.reduce_minute
+        @reducer.reduce_hour
+        @reducer.shutdown
+        sleep 0.1
+
+        # All decom files should have been removed since they were processed
+        expect(ReducerModel.all_decom(scope: "DEFAULT").length).to eql 0
+        files = ReducerModel.all_hour(scope: "DEFAULT")
+        expect(files.length).to eql 2 # We create 2 hour files
+
+        index = 1
+        plr = PacketLogReader.new
+        files.each do |file|
+          plr.each(file) do |pkt|
+            # 1 sample since we are at hour intervals
+            expect(pkt.read("COLLECTS_SAMPLES")).to eql(1)
+            expect(pkt.read("COLLECTS_MIN")).to eql(index)
+            expect(pkt.read("COLLECTS_MAX")).to eql(index)
+            index += 1
+          end
+        end
+        expect(index).to eql 26
+      end
     end
 
-    # describe "reduce_day" do
-    #   it "reduces 1 day of decom data" do
-    #     @reducer.initialize_streams
-    #     @reducer.get_initial_offsets
+    describe "reduce_day" do
+      it "reduces 1 day of decom data" do
+        start_time = Time.at(1640995200) # 2022/01/01 00:00:00 GMT
+        # Create 1 day of log data but force a roll over so we actually create the file
+        setup_logfile(start_time: start_time, num_pkts: 50, time_delta: 3600)
+        @reducer.reduce_minute
+        @reducer.reduce_hour
+        @reducer.reduce_day
+        @reducer.shutdown
+        sleep 0.1
 
-    #     start_time = Time.now.sys
-    #     packet = System.telemetry.packet("INST", "HEALTH_STATUS")
-    #     offset = 0
-    #     370.times do # Initial hour
-    #       packet.received_time = start_time + offset
-    #       packet.write("COLLECTS", rand(10))
-    #       TelemetryDecomTopic.write_packet(packet, id: "#{packet.received_time.to_i}000-0", scope: "DEFAULT")
-    #       offset += 10 # seconds
-    #     end
+        # All decom files should have been removed since they were processed
+        expect(ReducerModel.all_decom(scope: "DEFAULT").length).to eql 0
+        # Rollover on hour so we have a remaining hour file
+        expect(ReducerModel.all_hour(scope: "DEFAULT").length).to eql 1
+        # 1 reduced day created
+        expect(@day_files.length).to eql 1
 
-    #     # Throw in 24 hours of data
-    #     (24 * 360).times do
-    #       packet.received_time = start_time + offset
-    #       packet.write("COLLECTS", rand(10))
-    #       TelemetryDecomTopic.write_packet(packet, id: "#{packet.received_time.to_i}000-0", scope: "DEFAULT")
-    #       offset += 10 # seconds
-    #     end
-
-    #     @reducer.reduce_minute
-    #     @reducer.reduce_hour
-    #     @reducer.reduce_day
-
-    #     # 1 day of data should be reduced
-    #     expect(Store.xlen("DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS")).to eql 1
-    #     result = Store.read_topics(["DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS"], ['0-0'])
-    #     data = JSON.parse(result["DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS"][0][1]['json_data'])
-    #     expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f + 70 + 3600 # First min and first hour
-    #     expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + (3660 + 24 * 3600)
-    #     expect(data['COLLECTS__MIN']).to eql 0
-    #     expect(data['COLLECTS__MAX']).to eql 9
-    #     expect(data['COLLECTS__STDDEV']).to be_within(0.3).of(2.8)
-
-    #     # Throw in another 24 hours of data
-    #     (24 * 360).times do
-    #       packet.received_time = start_time + offset
-    #       packet.write("COLLECTS", rand(10))
-    #       TelemetryDecomTopic.write_packet(packet, id: "#{packet.received_time.to_i}000-0", scope: "DEFAULT")
-    #       offset += 10 # seconds
-    #     end
-
-    #     @reducer.reduce_minute
-    #     @reducer.reduce_hour
-    #     @reducer.reduce_day
-
-    #     # 2 days of data should be reduced
-    #     expect(Store.xlen("DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS")).to eql 2
-    #     result = Store.read_topics(["DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS"], ['0-0'])
-    #     expect(result["DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS"].length).to eql 2
-    #     data = JSON.parse(result["DEFAULT__REDUCED_DAY__{INST}__HEALTH_STATUS"][1][1]['json_data'])
-    #     expect(data['PACKET_TIMESECONDS__MIN']).to eql start_time.to_f + 70 + 25 * 3600 # First min and first hour plus 1 day
-    #     expect(data['PACKET_TIMESECONDS__MAX']).to eql start_time.to_f + (3660 + 48 * 3600)
-    #     expect(data['COLLECTS__MIN']).to eql 0
-    #     expect(data['COLLECTS__MAX']).to eql 9
-    #     expect(data['COLLECTS__STDDEV']).to be_within(0.3).of(2.8)
-    #   end
-    # end
+        index = 1
+        plr = PacketLogReader.new
+        plr.each(@day_files[0]) do |pkt|
+          expect(pkt.read("COLLECTS_SAMPLES")).to eql(24)
+          expect(pkt.read("COLLECTS_MIN")).to eql(index)
+          expect(pkt.read("COLLECTS_MAX")).to eql(index + 23)
+          index += 24
+        end
+        expect(index).to eql 49 # Check that we got 2 packets
+      end
+    end
   end
 end
