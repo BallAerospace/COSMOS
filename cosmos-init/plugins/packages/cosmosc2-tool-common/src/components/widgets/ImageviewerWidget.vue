@@ -65,7 +65,7 @@ export default {
     this.api
       .get_tlm_packet(this.targetName, this.packetName, this.valueType)
       .then((packetItems) => {
-        const foundPacket = packetItems.find(
+        const foundPacket = packetItems?.find(
           (item) => item[0] === this.itemName
         )
         if (foundPacket) {

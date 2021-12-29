@@ -54,6 +54,11 @@ const TabsList = [
     component: () => import('@/tools/CosmosAdmin/tabs/ToolsTab'),
   },
   {
+    displayName: 'Redis',
+    path: 'redis',
+    component: () => import('@/tools/CosmosAdmin/tabs/RedisTab'),
+  },
+  {
     displayName: 'Settings',
     path: 'settings',
     component: () => import('@/tools/CosmosAdmin/tabs/SettingsTab'),
