@@ -45,12 +45,25 @@ module Cosmos
     # we only need to test one of the sets (decom) rather than all (minute, hour)
     describe "add_decom, all_decom, rm_decom" do
       it "adds, lists and removes a file to the decom set" do
-        ReducerModel.add_decom(filename: "DEFAULT/spec/file.bin", scope: "DEFAULT")
-        expect(ReducerModel.all_decom(scope: "DEFAULT")).to include("DEFAULT/spec/file.bin")
+        filename = "20211229191610578229500__20211229192610563836500__DEFAULT__INST__HEALTH_STATUS__rt__decom.bin"
+        ReducerModel.add_decom(filename: filename, scope: "DEFAULT")
+        expect(ReducerModel.all_decom(scope: "DEFAULT")).to include(filename)
         expect(ReducerModel.all_minute(scope: "DEFAULT")).to be_empty
         expect(ReducerModel.all_hour(scope: "DEFAULT")).to be_empty
-        expect(ReducerModel.rm_decom(filename: "DEFAULT/spec/file.bin", scope: "DEFAULT"))
+        expect(ReducerModel.rm_decom(filename: filename, scope: "DEFAULT"))
         expect(ReducerModel.all_decom(scope: "DEFAULT")).to be_empty
+      end
+    end
+
+    describe "add_file" do
+      it "adds a file to correct spot" do
+        decom_filename = "20211229191610578229500__20211229192610563836500__DEFAULT__INST__HEALTH_STATUS__rt__decom.bin"
+        ReducerModel.add_file(decom_filename)
+        expect(ReducerModel.all_decom(scope: "DEFAULT")).to eql [decom_filename]
+        minute_filename = "20211229191610578229500__20211229192610563836500__DEFAULT__INST__HEALTH_STATUS__reduced__minute.bin"
+        ReducerModel.add_file(minute_filename)
+        expect(ReducerModel.all_decom(scope: "DEFAULT")).to eql [decom_filename]
+        expect(ReducerModel.all_minute(scope: "DEFAULT")).to eql [minute_filename]
       end
     end
   end

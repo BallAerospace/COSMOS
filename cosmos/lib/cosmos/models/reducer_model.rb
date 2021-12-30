@@ -25,6 +25,7 @@ module Cosmos
       decom: 'cosmos__reducer__decom'.freeze,
       minute: 'cosmos__reducer__minute'.freeze,
       hour: 'cosmos__reducer__hour'.freeze,
+      # day not necessary because that's the final reduction state
     }
 
     KEYS.each do |type, key|
@@ -40,13 +41,16 @@ module Cosmos
     end
 
     def self.add_file(s3_key)
+      # s3_key is formatted like STARTTIME__ENDTIME__SCOPE__TARGET__PACKET__TYPE.bin
+      # e.g. 20211229191610578229500__20211229192610563836500__DEFAULT__INST__HEALTH_STATUS__rt__decom.bin
+      _, _, scope, _ = s3_key.split('__')
       case s3_key
-      when /decom/
-        self.add_decom(s3_key)
-      when /minute/
-        self.add_minute(s3_key)
-      when /hour/
-        self.add_hour(s3_key)
+      when /__decom\.bin$/
+        self.add_decom(filename: s3_key, scope: scope)
+      when /__minute\.bin$/
+        self.add_minute(filename: s3_key, scope: scope)
+      when /__hour\.bin$/
+        self.add_hour(filename: s3_key, scope: scope)
       end
     end
   end
