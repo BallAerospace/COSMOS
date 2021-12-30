@@ -246,6 +246,8 @@ module Cosmos
         JSON.generate(reduced.as_json),
       )
       true
+    rescue => e
+      Logger.error("Reducer Error #{e}\n#{e.backtrace}")
     end
 
     def reduce(type, data_keys, reduced)
