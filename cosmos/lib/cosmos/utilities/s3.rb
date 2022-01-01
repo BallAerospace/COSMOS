@@ -18,6 +18,7 @@
 # copyright holder
 
 autoload(:Aws, 'cosmos/utilities/s3_autoload.rb')
+require 'cosmos/models/reducer_model'
 
 module Cosmos
   class S3Utilities
@@ -70,8 +71,8 @@ module Cosmos
         File.open(filename, 'rb') do |read_file|
           rubys3_client.put_object(bucket: 'logs', key: s3_key, body: read_file)
         end
-
         Logger.info "logs/#{s3_key} written to S3"
+        ReducerModel.add_file(s3_key) # Record the new file for data reduction
 
         File.delete(filename)
         Logger.info("local file #{filename} deleted")
