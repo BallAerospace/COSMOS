@@ -26,44 +26,27 @@ module Cosmos
       mock_redis()
     end
 
-    describe "singleton_methods" do
-      it "returns methods for decom, minute, and hour" do
-        methods = ReducerModel.singleton_methods
-        expect(methods).to include(:add_decom)
-        expect(methods).to include(:add_minute)
-        expect(methods).to include(:add_hour)
-        expect(methods).to include(:all_decom)
-        expect(methods).to include(:all_minute)
-        expect(methods).to include(:all_hour)
-        expect(methods).to include(:rm_decom)
-        expect(methods).to include(:rm_minute)
-        expect(methods).to include(:rm_hour)
-      end
-    end
+    describe "add_file, rm_file, all_files" do
+      it "adds a file, removes a file, lists all files" do
+        inst_filename = "20211229191610578229500__20211229192610563836500__DEFAULT__INST__HEALTH_STATUS__rt__decom.bin"
+        ReducerModel.add_file(inst_filename)
+        # NOTE: Indentical except INST2
+        inst2_filename = "20211229191610578229500__20211229192610563836500__DEFAULT__INST2__HEALTH_STATUS__rt__decom.bin"
+        ReducerModel.add_file(inst2_filename)
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST", scope: "DEFAULT")).to eql [inst_filename]
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST2", scope: "DEFAULT")).to eql [inst2_filename]
+        ReducerModel.rm_file(inst_filename)
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST", scope: "DEFAULT")).to eql []
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST2", scope: "DEFAULT")).to eql [inst2_filename]
+        ReducerModel.rm_file(inst2_filename)
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST2", scope: "DEFAULT")).to eql []
 
-    # Since this methods all share a common implementation (due to define_singleton_method)
-    # we only need to test one of the sets (decom) rather than all (minute, hour)
-    describe "add_decom, all_decom, rm_decom" do
-      it "adds, lists and removes a file to the decom set" do
-        filename = "20211229191610578229500__20211229192610563836500__DEFAULT__INST__HEALTH_STATUS__rt__decom.bin"
-        ReducerModel.add_decom(filename: filename, scope: "DEFAULT")
-        expect(ReducerModel.all_decom(scope: "DEFAULT")).to include(filename)
-        expect(ReducerModel.all_minute(scope: "DEFAULT")).to be_empty
-        expect(ReducerModel.all_hour(scope: "DEFAULT")).to be_empty
-        expect(ReducerModel.rm_decom(filename: filename, scope: "DEFAULT"))
-        expect(ReducerModel.all_decom(scope: "DEFAULT")).to be_empty
-      end
-    end
-
-    describe "add_file" do
-      it "adds a file to correct spot" do
-        decom_filename = "20211229191610578229500__20211229192610563836500__DEFAULT__INST__HEALTH_STATUS__rt__decom.bin"
-        ReducerModel.add_file(decom_filename)
-        expect(ReducerModel.all_decom(scope: "DEFAULT")).to eql [decom_filename]
         minute_filename = "20211229191610578229500__20211229192610563836500__DEFAULT__INST__HEALTH_STATUS__reduced__minute.bin"
         ReducerModel.add_file(minute_filename)
-        expect(ReducerModel.all_decom(scope: "DEFAULT")).to eql [decom_filename]
-        expect(ReducerModel.all_minute(scope: "DEFAULT")).to eql [minute_filename]
+        expect(ReducerModel.all_files(type: :MINUTE, target: "INST", scope: "DEFAULT")).to eql [minute_filename]
+        expect(ReducerModel.all_files(type: :MINUTE, target: "BLAH", scope: "DEFAULT")).to eql []
+        ReducerModel.rm_file(minute_filename)
+        expect(ReducerModel.all_files(type: :MINUTE, target: "INST", scope: "DEFAULT")).to eql []
       end
     end
   end

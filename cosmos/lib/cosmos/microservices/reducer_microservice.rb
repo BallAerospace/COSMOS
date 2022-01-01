@@ -50,13 +50,16 @@ module Cosmos
     def run
       # Note it takes several seconds to create the scheduler
       @scheduler = Rufus::Scheduler.new
+      # Run every minute
       @scheduler.cron '* * * * *', first: :now do
         reduce_minute
       end
-      @scheduler.cron '0 * * * *', first: :now do
+      # Run every 15 minutes
+      @scheduler.cron '*/15 * * * *', first: :now do
         reduce_hour
       end
-      @scheduler.cron '0 0 * * *', first: :now do
+      # Run hourly at minute 5 to allow the hour reducer to finish
+      @scheduler.cron '5 * * * *', first: :now do
         reduce_day
       end
 
@@ -83,7 +86,7 @@ module Cosmos
         name: name,
         value: elapsed,
         labels: {
-          'target' => @target,
+          'target' => @target_name,
         },
       )
     end
@@ -91,10 +94,10 @@ module Cosmos
     def reduce_minute
       metric(MINUTE_METRIC) do
         ReducerModel
-          .all_decom(scope: @scope)
+          .all_files(type: :DECOM, target: @target_name, scope: @scope)
           .each do |file|
             if process_file(file, 'minute', MINUTE_ENTRY_SECS, MINUTE_FILE_SECS)
-              ReducerModel.rm_decom(filename: file, scope: @scope)
+              ReducerModel.rm_file(file)
             end
           end
       end
@@ -103,10 +106,10 @@ module Cosmos
     def reduce_hour
       metric(HOUR_METRIC) do
         ReducerModel
-          .all_minute(scope: @scope)
+          .all_files(type: :MINUTE, target: @target_name, scope: @scope)
           .each do |file|
             if process_file(file, 'hour', HOUR_ENTRY_SECS, HOUR_FILE_SECS)
-              ReducerModel.rm_minute(filename: file, scope: @scope)
+              ReducerModel.rm_file(file)
             end
           end
       end
@@ -115,10 +118,10 @@ module Cosmos
     def reduce_day
       metric(DAY_METRIC) do
         ReducerModel
-          .all_hour(scope: @scope)
+          .all_files(type: :HOUR, target: @target_name, scope: @scope)
           .each do |file|
             if process_file(file, 'day', DAY_ENTRY_SECS, DAY_FILE_SECS)
-              ReducerModel.rm_hour(filename: file, scope: @scope)
+              ReducerModel.rm_file(file)
             end
           end
       end

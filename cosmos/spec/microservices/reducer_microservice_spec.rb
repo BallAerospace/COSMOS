@@ -45,18 +45,14 @@ module Cosmos
         # We only care about saving the bin files, not the index files
         if File.extname(log_file) == ".bin"
           FileUtils.move filename, log_file
+          # Add the file to the ReducerModel like we would in the real system
+          ReducerModel.add_file(log_file)
           if log_file.include?("decom")
             @decom_files << log_file
-            # Add the file to the ReducerModel like we would in the real system
-            ReducerModel.add_decom(filename: log_file, scope: "DEFAULT")
           elsif log_file.include?("minute")
             @minute_files << log_file
-            # Add the file to the ReducerModel like we would in the real system
-            ReducerModel.add_minute(filename: log_file, scope: "DEFAULT")
           elsif log_file.include?("hour")
             @hour_files << log_file
-            # Add the file to the ReducerModel like we would in the real system
-            ReducerModel.add_hour(filename: log_file, scope: "DEFAULT")
           elsif log_file.include?("day")
             @day_files << log_file
           end
@@ -126,8 +122,8 @@ module Cosmos
         expect(@reduced_files.length).to eql 1
 
         # All decom files should have been removed since they were processed
-        expect(ReducerModel.all_decom(scope: "DEFAULT")).to be_empty
-        files = ReducerModel.all_minute(scope: "DEFAULT")
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST", scope: "DEFAULT")).to be_empty
+        files = ReducerModel.all_files(type: :MINUTE, target: "INST", scope: "DEFAULT")
         expect(files.length).to eql 1
         # Start and end times are the same since there is only one entry
         expect(File.basename(files[0])).to eql "20220101000000000000000__20220101000000000000000__DEFAULT__INST__HEALTH_STATUS__reduced__minute.bin"
@@ -154,8 +150,8 @@ module Cosmos
         sleep 0.1
 
         # All decom files should have been removed since they were processed
-        expect(ReducerModel.all_decom(scope: "DEFAULT")).to be_empty
-        expect(ReducerModel.all_minute(scope: "DEFAULT").length).to eql 1
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST", scope: "DEFAULT")).to be_empty
+        expect(ReducerModel.all_files(type: :MINUTE, target: "INST", scope: "DEFAULT").length).to eql 1
 
         # Since we reduced across time boundaries we should have 2 packets with the data split
         plr = PacketLogReader.new
@@ -180,8 +176,8 @@ module Cosmos
         sleep 0.1
 
         # All decom files should have been removed since they were processed
-        expect(ReducerModel.all_decom(scope: "DEFAULT")).to be_empty
-        files = ReducerModel.all_minute(scope: "DEFAULT")
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST", scope: "DEFAULT")).to be_empty
+        files = ReducerModel.all_files(type: :MINUTE, target: "INST", scope: "DEFAULT")
         expect(files.length).to eql 2
         expect(File.basename(files[0])).to eql "20220101000000000000000__20220101005900000000000__DEFAULT__INST__HEALTH_STATUS__reduced__minute.bin"
         expect(File.basename(files[1])).to eql "20220101010000000000000__20220101010100000000000__DEFAULT__INST__HEALTH_STATUS__reduced__minute.bin"
@@ -208,8 +204,8 @@ module Cosmos
         sleep 0.1
 
         # All decom files should have been removed since they were processed
-        expect(ReducerModel.all_decom(scope: "DEFAULT")).to be_empty
-        files = ReducerModel.all_minute(scope: "DEFAULT")
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST", scope: "DEFAULT")).to be_empty
+        files = ReducerModel.all_files(type: :MINUTE, target: "INST", scope: "DEFAULT")
         expect(files.length).to eql 2
 
         # We should have 2 output files
@@ -236,10 +232,10 @@ module Cosmos
         sleep 0.1
 
         # All decom files should have been removed since they were processed
-        expect(ReducerModel.all_decom(scope: "DEFAULT").length).to eql 0
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST", scope: "DEFAULT").length).to eql 0
         # We rolled over so there is one minute file remaining
-        expect(ReducerModel.all_minute(scope: "DEFAULT").length).to eql 1
-        files = ReducerModel.all_hour(scope: "DEFAULT")
+        expect(ReducerModel.all_files(type: :MINUTE, target: "INST", scope: "DEFAULT").length).to eql 1
+        files = ReducerModel.all_files(type: :HOUR, target: "INST", scope: "DEFAULT")
         expect(files.length).to eql 1 # We create 1 hour file
 
         plr = PacketLogReader.new
@@ -261,10 +257,10 @@ module Cosmos
         sleep 0.1
 
         # All decom files should have been removed since they were processed
-        expect(ReducerModel.all_decom(scope: "DEFAULT").length).to eql 0
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST", scope: "DEFAULT").length).to eql 0
         # TODO: Why is there 1 minute file
-        #puts "min len:#{ReducerModel.all_minute(scope: "DEFAULT").length}"
-        files = ReducerModel.all_hour(scope: "DEFAULT")
+        #puts "min len:#{ReducerModel.all_files(type: :MINUTE, target: "INST", scope: "DEFAULT").length}"
+        files = ReducerModel.all_files(type: :HOUR, target: "INST", scope: "DEFAULT")
         expect(files.length).to eql 1 # We create 1 hour file
 
         index = 1
@@ -288,8 +284,8 @@ module Cosmos
         sleep 0.1
 
         # All decom files should have been removed since they were processed
-        expect(ReducerModel.all_decom(scope: "DEFAULT").length).to eql 0
-        files = ReducerModel.all_hour(scope: "DEFAULT")
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST", scope: "DEFAULT").length).to eql 0
+        files = ReducerModel.all_files(type: :HOUR, target: "INST", scope: "DEFAULT")
         expect(files.length).to eql 2 # We create 2 hour files
 
         index = 1
@@ -319,9 +315,9 @@ module Cosmos
         sleep 0.1
 
         # All decom files should have been removed since they were processed
-        expect(ReducerModel.all_decom(scope: "DEFAULT").length).to eql 0
+        expect(ReducerModel.all_files(type: :DECOM, target: "INST", scope: "DEFAULT").length).to eql 0
         # Rollover on hour so we have a remaining hour file
-        expect(ReducerModel.all_hour(scope: "DEFAULT").length).to eql 1
+        expect(ReducerModel.all_files(type: :HOUR, target: "INST", scope: "DEFAULT").length).to eql 1
         # 1 reduced day created
         expect(@day_files.length).to eql 1
 

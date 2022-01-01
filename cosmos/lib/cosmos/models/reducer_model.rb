@@ -20,38 +20,45 @@
 require 'cosmos/utilities/store'
 
 module Cosmos
+  # Tracks the files which are being stored in S3 for data reduction purposes.
+  # Files are stored in a Redis set by spliting their filenames and storing in
+  # a set named SCOPE__TARGET__reducer__TYPE, e.g. DEFAULT__INST__reducer__decom
+  # Where TYPE can be 'decom', 'minute', or 'hour'. 'day' is not necessary because
+  # day is the final reduction state. As files are reduced they are removed from
+  # the set. Thus the sets contain the active set of files to be reduced.
   class ReducerModel
-    KEYS = {
-      decom: 'cosmos__reducer__decom'.freeze,
-      minute: 'cosmos__reducer__minute'.freeze,
-      hour: 'cosmos__reducer__hour'.freeze,
-      # day not necessary because that's the final reduction state
-    }
-
-    KEYS.each do |type, key|
-      define_singleton_method("add_#{type}") do |filename:, scope: nil|
-        Store.sadd("#{scope}__#{key}", filename)
-      end
-      define_singleton_method("all_#{type}") do |scope: nil|
-        Store.smembers("#{scope}__#{key}").sort
-      end
-      define_singleton_method("rm_#{type}") do |filename:, scope: nil|
-        Store.srem("#{scope}__#{key}", filename)
-      end
-    end
-
     def self.add_file(s3_key)
       # s3_key is formatted like STARTTIME__ENDTIME__SCOPE__TARGET__PACKET__TYPE.bin
       # e.g. 20211229191610578229500__20211229192610563836500__DEFAULT__INST__HEALTH_STATUS__rt__decom.bin
-      _, _, scope, _ = s3_key.split('__')
+      _, _, scope, target, _ = s3_key.split('__')
       case s3_key
       when /__decom\.bin$/
-        self.add_decom(filename: s3_key, scope: scope)
+        Store.sadd("#{scope}__#{target}__reducer__decom", s3_key)
       when /__minute\.bin$/
-        self.add_minute(filename: s3_key, scope: scope)
+        Store.sadd("#{scope}__#{target}__reducer__minute", s3_key)
       when /__hour\.bin$/
-        self.add_hour(filename: s3_key, scope: scope)
+        Store.sadd("#{scope}__#{target}__reducer__hour", s3_key)
+      else
+        raise "Unknown file #{s3_key}"
       end
+    end
+
+    def self.rm_file(s3_key)
+      _, _, scope, target, _ = s3_key.split('__')
+      case s3_key
+      when /__decom\.bin$/
+        Store.srem("#{scope}__#{target}__reducer__decom", s3_key)
+      when /__minute\.bin$/
+        Store.srem("#{scope}__#{target}__reducer__minute", s3_key)
+      when /__hour\.bin$/
+        Store.srem("#{scope}__#{target}__reducer__hour", s3_key)
+      else
+        raise "Unknown file #{s3_key}"
+      end
+    end
+
+    def self.all_files(type:, target:, scope:)
+      Store.smembers("#{scope}__#{target}__reducer__#{type.downcase}").sort
     end
   end
 end
