@@ -44,7 +44,7 @@ Cypress.on('window:before:load', (win) => {
 })
 
 Cypress.on('window:load', (win) => {
-  win.localStorage.token = 'password'
+  win.localStorage.cosmosToken = 'password'
   win.localStorage.scope = 'DEFAULT'
 })
 

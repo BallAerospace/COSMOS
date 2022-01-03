@@ -104,7 +104,7 @@ export default {
             this.subscription.perform('add', {
               scope: localStorage.scope,
               mode: 'DECOM',
-              token: localStorage.token,
+              token: localStorage.cosmosToken,
               items: [this.itemFullName],
             })
           },

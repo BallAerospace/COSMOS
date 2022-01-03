@@ -45,7 +45,7 @@ export class CosmosApi {
         },
         {
           headers: {
-            Authorization: localStorage.getItem('token'),
+            Authorization: localStorage.cosmosToken,
             'Content-Type': 'application/json-rpc',
           },
         }
