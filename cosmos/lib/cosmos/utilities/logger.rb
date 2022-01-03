@@ -21,7 +21,6 @@ require 'cosmos/core_ext/class'
 require 'cosmos/core_ext/time'
 require 'cosmos/utilities/store'
 require 'socket'
-require 'thread'
 require 'logger'
 require 'time'
 
@@ -75,7 +74,6 @@ module Cosmos
       @detail_string = nil
       @container_name = Socket.gethostname
       @microservice_name = nil
-      @metric_tag = @container_name + ".metric"
       @tag = @container_name + ".log"
       @mutex = Mutex.new
       @no_store = ENV['COSMOS_NO_STORE']
@@ -107,14 +105,6 @@ module Cosmos
     # (see #debug)
     def fatal(message = nil, scope: @scope, &block)
       log_message(FATAL_SEVERITY_STRING, message, scope: scope, &block) if @level <= FATAL
-    end
-
-    # @param data [Hash] The hash to print if the log level is at or below the
-    #   method name log level.
-    # @param block [Proc] Block to call which should return a string to append
-    #   to the log message
-    def metric(data = {}, scope: @scope, &block)
-      log_metric(data, scope: scope, &block) if @level <= INFO
     end
 
     # (see #debug)
@@ -162,15 +152,6 @@ module Cosmos
       end
     end
 
-    # (see #metric)
-    def self.metric(data = {}, scope: nil, &block)
-      if scope
-        self.instance.metric(data, scope: scope, &block)
-      else
-        self.instance.metric(data, &block)
-      end
-    end
-
     # @return [Logger] The logger instance
     def self.instance
       return @@instance if @@instance
@@ -183,30 +164,7 @@ module Cosmos
 
     protected
 
-    def log_metric(data, scope:, &block)
-      @mutex.synchronize do
-        data[:time] = Time.now.to_nsec_from_epoch
-        data[:@timestamp] = Time.now.xmlschema(3)
-        data[:microservice_name] = @microservice_name if @microservice_name
-        data[:detail] = @detail_string if @detail_string
-        data[:container_name] = @container_name
-        if block_given?
-          data = yield
-        end
-        puts data.to_json if @stdout
-        unless @no_store
-          if scope
-            Store.write_topic("#{scope}__cosmos_log_messages", data)
-          else
-            # The base cosmos_log_messages doesn't have an associated logger
-            # so it must be limited to prevent unbounded stream growth
-            Store.write_topic("cosmos_log_messages", data, '*', 1000)
-          end
-        end
-      end
-    end
-
-    def log_message(severity_string, message, scope:, &block)
+    def log_message(severity_string, message, scope:)
       @mutex.synchronize do
         data = { time: Time.now.to_nsec_from_epoch, '@timestamp' => Time.now.xmlschema(3), severity: severity_string }
         data[:microservice_name] = @microservice_name if @microservice_name
