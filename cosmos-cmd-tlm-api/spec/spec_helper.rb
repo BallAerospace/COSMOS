@@ -64,6 +64,10 @@ ENV['COSMOS_NO_STORE'] = 'true'
 ENV['COSMOS_API_PASSWORD'] = 'cosmos'
 # Set internal cosmos password
 ENV['COSMOS_SERVICE_PASSWORD'] = 'cosmosservice'
+# Set redis host
+ENV['COSMOS_REDIS_HOSTNAME'] = '127.0.0.1'
+# Set redis port
+ENV['COSMOS_REDIS_PORT'] = '6379'
 # Set redis username
 ENV['COSMOS_REDIS_USERNAME'] = 'cosmos'
 # Set redis password
@@ -76,6 +80,7 @@ ENV['COSMOS_MINIO_PASSWORD'] = 'cosmosminiopassword'
 ENV['COSMOS_SCOPE'] = 'DEFAULT'
 
 $cosmos_scope = ENV['COSMOS_SCOPE']
+$cosmos_token = ENV['COSMOS_API_PASSWORD']
 
 def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
   require 'cosmos/system'
@@ -85,6 +90,7 @@ def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
 end
 
 def mock_redis
+  require 'redis'
   require 'mock_redis'
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
@@ -92,6 +98,10 @@ def mock_redis
   # allow(pool).to receive(:with) { redis }
   # allow(ConnectionPool).to receive(:new).and_return(pool)
   Cosmos::Store.class_variable_set(:@@instance, nil)
+
+  $cosmos_authorize = false
+  require 'cosmos/models/auth_model'
+  Cosmos::AuthModel.set($cosmos_token, nil)
   redis
 end
 

@@ -55,7 +55,7 @@ RSpec.describe StreamingApi, type: :model do
     end
 
     # Ensure the FileCache is clear so we don't leak the s3 mock
-    FileCache.class_variable_set(:@@instance, nil)
+    S3FileCache.class_variable_set(:@@instance, nil)
 
     @file_start_time = 1614890937274290500 # these are the unix epoch values for the timestamps in the file names in spec/fixtures/files
     @file_end_time = 1614891537276524900
