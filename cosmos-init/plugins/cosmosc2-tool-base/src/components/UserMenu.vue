@@ -62,7 +62,7 @@ export default {
   data: function () {
     return {
       showUserMenu: false,
-      authenticated: !!localStorage.token,
+      authenticated: !!localStorage.cosmosToken,
     }
   },
   computed: {

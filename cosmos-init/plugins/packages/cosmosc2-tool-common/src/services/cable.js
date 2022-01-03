@@ -32,7 +32,7 @@ export default class Cable {
         {
           channel,
           scope,
-          token: localStorage.token,
+          token: localStorage.cosmosToken,
           ...additionalOptions,
         },
         callbacks

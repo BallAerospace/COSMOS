@@ -138,7 +138,7 @@ export default {
       this.reset = true
     },
     login: function () {
-      localStorage.token = this.password
+      localStorage.cosmosToken = this.password
       const redirect = new URLSearchParams(window.location.search).get(
         'redirect'
       )

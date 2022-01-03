@@ -32,7 +32,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response.status === 401) {
-      delete localStorage.token
+      delete localStorage.cosmosToken
       CosmosAuth.login(location.href)
     } else {
       let body = `HTTP ${error.response.status} - `
