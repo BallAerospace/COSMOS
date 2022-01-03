@@ -87,6 +87,8 @@ def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
   dir = File.join(__dir__, '..', '..', 'cosmos', 'spec', 'install', 'config', 'targets')
   Cosmos::System.class_variable_set(:@@instance, nil)
   Cosmos::System.instance(targets, dir)
+  require 'cosmos/utilities/logger'
+  Cosmos::Logger.stdout = false
 end
 
 def mock_redis
