@@ -190,9 +190,6 @@ module Cosmos
 
           # Check to see if we should start a new log file
           # We compare the current entry_time to see if it will push us over
-          # if plw.first_time
-          #   puts "entry_time:#{entry_time} first:#{plw.first_time} diff:#{entry_time - plw.first_time.to_f} filetime:#{file_seconds}"
-          # end
           if plw.first_time &&
                (entry_time - plw.first_time.to_f) >= file_seconds
             Logger.debug("Reducer: (1) start new file! old filename: #{plw.filename}")

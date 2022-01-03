@@ -45,22 +45,26 @@ module Cosmos
         # We only care about saving the bin files, not the index files
         if File.extname(log_file) == ".bin"
           FileUtils.move filename, log_file
-          # Add the file to the ReducerModel like we would in the real system
-          ReducerModel.add_file(log_file)
           if log_file.include?("decom")
             @decom_files << log_file
+            # Add the file to the ReducerModel like we would in the real system
+            ReducerModel.add_file(log_file)
           elsif log_file.include?("minute")
             @minute_files << log_file
+            # Add the file to the ReducerModel like we would in the real system
+            ReducerModel.add_file(log_file)
           elsif log_file.include?("hour")
             @hour_files << log_file
+            # Add the file to the ReducerModel like we would in the real system
+            ReducerModel.add_file(log_file)
           elsif log_file.include?("day")
             @day_files << log_file
+            # Day files aren't added to ReducerModel because they are fully reduced
           end
           @reduced_files << log_file if log_file.include?("reduced")
         end
       end
 
-      # Allow S3File to simply return the files in @decom_files
       @s3_filename = ''
       @s3_file = double(S3File)
       allow(S3File).to receive(:new) do |filename|
