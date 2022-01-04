@@ -140,8 +140,9 @@ module Cosmos
       plw = @packet_logs["#{scope}__#{target_name}__#{packet_name}__#{type}"]
       unless plw
         # Create a new PacketLogWriter for this reduced data
-        remote_log_directory =
-          "#{scope}/reduced_logs/tlm/#{target_name}/#{packet_name}"
+        # e.g. DEFAULT/reduced_minute_logs/tlm/INST/HEALTH_STATUS/20220101/
+        # 20220101204857274290500__20220101205857276524900__DEFAULT__INST__HEALTH_STATUS__reduced__minute.bin
+        remote_log_directory = "#{scope}/reduced_#{type}_logs/tlm/#{target_name}/#{packet_name}"
         rt_label = "#{scope}__#{target_name}__#{packet_name}__reduced__#{type}"
         plw = PacketLogWriter.new(remote_log_directory, rt_label)
         @packet_logs["#{scope}__#{target_name}__#{packet_name}__#{type}"] = plw
