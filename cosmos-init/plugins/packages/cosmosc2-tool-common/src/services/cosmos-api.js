@@ -214,6 +214,10 @@ export class CosmosApi {
   // End CmdTlmServer APIs
   // ***********************************************
 
+  get_oldest_logfile() {
+    return this.exec('get_oldest_logfile', [])
+  }
+
   get_target(target_name) {
     return this.exec('get_target', [target_name])
   }

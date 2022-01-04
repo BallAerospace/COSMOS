@@ -27,6 +27,8 @@
             v-model="startDate"
             label="Start Date"
             type="date"
+            :min="oldestLogDate"
+            :max="todaysDate"
             :rules="[rules.required]"
             data-test="startDate"
           />
@@ -34,6 +36,8 @@
             v-model="endDate"
             label="End Date"
             type="date"
+            :min="oldestLogDate"
+            :max="todaysDate"
             :rules="[rules.required]"
             data-test="endDate"
           />
@@ -280,6 +284,8 @@ export default {
       saveConfig: false,
       progress: 0,
       processButtonText: 'Process',
+      todaysDate: format(new Date(), 'yyyy-MM-dd'),
+      oldestLogDate: format(new Date(), 'yyyy-MM-dd'),
       startDate: format(new Date(), 'yyyy-MM-dd'),
       startTime: format(new Date(), 'HH:mm:ss'),
       endTime: format(new Date(), 'HH:mm:ss'),
@@ -404,6 +410,14 @@ export default {
         },
       ],
     }
+  },
+  created: function() {
+    new CosmosApi().get_oldest_logfile({ params: { scope: localStorage.scope } }).then((response) => {
+      // Server returns time as UTC so create date with 'Z'
+      let date = new Date(response + 'Z')
+      this.startTime = format(date, 'HH:mm:ss')
+      this.oldestLogDate = format(date, 'yyyy-MM-dd')
+    })
   },
   mounted: function () {
     const previousConfig = localStorage['lastconfig__data_exporter']
