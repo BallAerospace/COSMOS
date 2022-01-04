@@ -493,7 +493,7 @@ export default {
         Object.keys(modeGroups).forEach((mode) => {
           this.subscription.perform('add', {
             scope: localStorage.scope,
-            token: localStorage.token,
+            token: localStorage.cosmosToken,
             packets: modeGroups[mode].map(this.subscriptionKey),
             mode: mode,
             ...this.startEndTime,

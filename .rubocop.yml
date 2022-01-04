@@ -1,3 +1,6 @@
+inherit_from:
+  - node_modules/@prettier/plugin-ruby/rubocop.yml
+
 AllCops:
   NewCops: enable
   TargetRubyVersion: 2.7

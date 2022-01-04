@@ -101,6 +101,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'tzinfo-data', '~> 1'
 
   # Development Dependencies
+  s.add_development_dependency 'dead_end', '~> 3.0'
   s.add_development_dependency 'diff-lcs', '~> 1.3' if RUBY_ENGINE == 'ruby' # Get latest for MRI
   s.add_development_dependency 'rspec', '~> 3.5'
   s.add_development_dependency 'flog', '~> 4.0'

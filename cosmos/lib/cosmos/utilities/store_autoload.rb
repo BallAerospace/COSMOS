@@ -341,6 +341,6 @@ class Redis
   def xtrim_minid(key, minid, approximate: true, limit: nil)
     args = [:xtrim, key, :MINID, (approximate ? '~' : nil), minid].compact
     args.concat([:LIMIT, limit]) if limit
-    execute_raw(args)
+    synchronize { |client| client.call(args) }
   end
 end

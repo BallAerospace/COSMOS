@@ -329,8 +329,8 @@ module Cosmos
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__DECOMLOG__#{@name}", scope: @scope)
       model.destroy if model
-      # model = MicroserviceModel.get_model(name: "#{@scope}__REDUCER__#{@name}", scope: @scope)
-      # model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__REDUCER__#{@name}", scope: @scope)
+      model.destroy if model
     end
 
     ##################################################
@@ -458,7 +458,7 @@ module Cosmos
       begin
         system.telemetry.packets(@name).each do |packet_name, packet|
           packet_topic_list << "#{@scope}__TELEMETRY__{#{@name}}__#{packet_name}"
-          decom_topic_list << "#{@scope}__DECOM__{#{@name}}__#{packet_name}"
+          decom_topic_list  << "#{@scope}__DECOM__{#{@name}}__#{packet_name}"
         end
       rescue
         # No telemetry packets for this target
@@ -488,21 +488,20 @@ module Cosmos
       microservice.deploy(gem_path, variables)
       Logger.info "Configured microservice #{microservice_name}"
 
-      # TODO: Removed pending new reducer implementation to avoid run-away streams
-      # # Reducer Microservice
-      # microservice_name = "#{@scope}__REDUCER__#{@name}"
-      # microservice = MicroserviceModel.new(
-      #   name: microservice_name,
-      #   folder_name: @folder_name,
-      #   cmd: ["ruby", "reducer_microservice.rb", microservice_name],
-      #   work_dir: '/cosmos/lib/cosmos/microservices',
-      #   topics: decom_topic_list,
-      #   plugin: plugin,
-      #   scope: @scope
-      # )
-      # microservice.create
-      # microservice.deploy(gem_path, variables)
-      # Logger.info "Configured microservice #{microservice_name}"
+      # Reducer Microservice
+      microservice_name = "#{@scope}__REDUCER__#{@name}"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        folder_name: @folder_name,
+        cmd: ["ruby", "reducer_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        topics: decom_topic_list,
+        plugin: plugin,
+        scope: @scope
+      )
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
 
       # CommandLog Microservice
       microservice_name = "#{@scope}__COMMANDLOG__#{@name}"

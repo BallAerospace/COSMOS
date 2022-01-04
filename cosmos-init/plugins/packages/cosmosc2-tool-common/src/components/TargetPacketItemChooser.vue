@@ -118,6 +118,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    reduced: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     actualButtonText() {
@@ -187,6 +191,9 @@ export default {
       this.updatePackets()
       this.itemNames = []
     },
+    reduced: function (newVal, oldVal) {
+      this.updateItems()
+    },
   },
   methods: {
     updatePackets() {
@@ -240,10 +247,29 @@ export default {
           }
           var arrayLength = packet.items.length
           for (var i = 0; i < arrayLength; i++) {
-            this.itemNames.push({
-              label: packet.items[i]['name'],
-              value: packet.items[i]['name'],
-            })
+            if (this.reduced) {
+              // We're currently only reducing numeric data which means
+              // no arrays, no states, and only UINT, INT, FLOAT
+              if (
+                !packet.items[i]['array_size'] &&
+                !packet.items[i]['states'] &&
+                (packet.items[i]['data_type'] === 'UINT' ||
+                  packet.items[i]['data_type'] === 'INT' ||
+                  packet.items[i]['data_type'] === 'FLOAT')
+              ) {
+                ;['__MIN', '__MAX', '__AVG', '__STDDEV'].forEach((ext) => {
+                  this.itemNames.push({
+                    label: `${packet.items[i]['name']}${ext}`,
+                    value: `${packet.items[i]['name']}${ext}`,
+                  })
+                })
+              }
+            } else {
+              this.itemNames.push({
+                label: packet.items[i]['name'],
+                value: packet.items[i]['name'],
+              })
+            }
           }
           if (!this.selectedItemName) {
             this.selectedItemName = this.itemNames[0].value

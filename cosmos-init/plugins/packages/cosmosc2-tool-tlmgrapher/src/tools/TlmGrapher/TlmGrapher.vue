@@ -373,7 +373,7 @@ export default {
         .then((response) => {
           this.setLocalStorageConfig(name)
           this.alertHandler({
-            text: `Saved configuartion: ${name}`,
+            text: `Saved configuration: ${name}`,
             type: 'success',
           })
         })

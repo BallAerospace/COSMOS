@@ -73,6 +73,25 @@
           </v-radio-group>
         </v-col>
       </v-row>
+      <v-row no-gutters>
+        <v-col>
+          <v-radio-group v-model="reduced" row hide-details>
+            <span class="mr-5">Data Reduction:</span>
+            <v-radio label="None" value="DECOM" data-test="not-reduced" />
+            <v-radio
+              label="Minute"
+              value="REDUCED_MINUTE"
+              data-test="min-reduced"
+            />
+            <v-radio
+              label="Hour"
+              value="REDUCED_HOUR"
+              data-test="hour-reduced"
+            />
+            <v-radio label="Day" value="REDUCED_DAY" data-test="day-reduced" />
+          </v-radio-group>
+        </v-col>
+      </v-row>
       <v-row>
         <target-packet-item-chooser
           @click="addItem($event)"
@@ -80,6 +99,7 @@
           :mode="cmdOrTlm"
           choose-item
           allow-all
+          :reduced="this.reduced != 'DECOM'"
         />
       </v-row>
       <v-row no-gutters>
@@ -272,6 +292,7 @@ export default {
       },
       cmdOrTlm: 'tlm',
       utcOrLocal: 'loc',
+      reduced: 'DECOM',
       items: [],
       rawData: [],
       outputFile: [],
@@ -576,8 +597,8 @@ export default {
       CosmosAuth.updateToken(CosmosAuth.defaultMinValidity).then(() => {
         this.subscription.perform('add', {
           scope: localStorage.scope,
-          mode: 'DECOM',
-          token: localStorage.token,
+          mode: this.reduced,
+          token: localStorage.cosmosToken,
           items: items,
           start_time: this.startDateTime,
           end_time: this.endDateTime,
@@ -669,7 +690,7 @@ export default {
           // This pulls out the attributes we requested
           const keys = Object.keys(packet)
           keys.forEach((key) => {
-            if (key === 'time') return // Skip time field
+            if (key === 'time' || key === 'packet') return // Skip time and packet fields
             // Get the value and put it into the correct column
             if (typeof packet[key] === 'object') {
               row[this.columnMap[key]] = '"' + packet[key]['raw'] + '"'
