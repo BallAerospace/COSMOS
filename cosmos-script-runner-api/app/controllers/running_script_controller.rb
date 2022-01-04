@@ -18,7 +18,6 @@
 # copyright holder
 
 class RunningScriptController < ApplicationController
-
   def index
     begin
       authorize(permission: 'script_view', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -57,6 +56,7 @@ class RunningScriptController < ApplicationController
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", "stop")
+      Cosmos::Logger.info("Script stopped: #{running_script}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       head :ok
     else
       head :not_found
@@ -74,6 +74,7 @@ class RunningScriptController < ApplicationController
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", "pause")
+      Cosmos::Logger.info("Script paused: #{running_script}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       head :ok
     else
       head :not_found
@@ -91,6 +92,7 @@ class RunningScriptController < ApplicationController
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", "retry")
+      Cosmos::Logger.info("Script retried: #{running_script}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       head :ok
     else
       head :not_found
@@ -108,6 +110,7 @@ class RunningScriptController < ApplicationController
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", "go")
+      Cosmos::Logger.info("Script resumed: #{running_script}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       head :ok
     else
       head :not_found
@@ -125,6 +128,7 @@ class RunningScriptController < ApplicationController
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", "step")
+      Cosmos::Logger.info("Script stepped: #{running_script}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       head :ok
     else
       head :not_found
@@ -147,6 +151,7 @@ class RunningScriptController < ApplicationController
       else
         ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method], result: params[:answer] })
       end
+      Cosmos::Logger.info("Script prompt action #{params[:method]}: #{running_script}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       head :ok
     else
       head :not_found
@@ -164,6 +169,7 @@ class RunningScriptController < ApplicationController
     running_script = RunningScript.find(params[:id].to_i)
     if running_script
       ActionCable.server.broadcast("cmd-running-script-channel:#{params[:id]}", { method: params[:method], args: params[:args] })
+      Cosmos::Logger.info("Script method action #{params[:method]}: #{running_script}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       head :ok
     else
       head :not_found

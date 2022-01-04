@@ -64,21 +64,21 @@ class ActivityController < ApplicationController
   # json [String] The json of the activity (see below)
   # @return [String] the activity converted into json format
   # Request Headers
-  #```json
+  # ```json
   #  {
   #    "Authorization": "token/password",
   #    "Content-Type": "application/json"
   #  }
-  #```
+  # ```
   # Request Post Body
-  #```json
+  # ```json
   #  {
   #    "start": "2031-04-16T01:02:00",
   #    "stop": "2031-04-16T01:02:00",
   #    "kind": "cmd",
   #    "data": {"cmd"=>"INST ABORT"}
   #  }
-  #```
+  # ```
   def create
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -92,10 +92,12 @@ class ActivityController < ApplicationController
       if hash['start'].nil? || hash['stop'].nil?
         raise ArgumentError.new 'post body must contain start and stop'
       end
+
       hash['start'] = DateTime.parse(hash['start']).strftime('%s').to_i
       hash['stop'] = DateTime.parse(hash['stop']).strftime('%s').to_i
       model = @model_class.from_json(hash.symbolize_keys, name: params[:name], scope: params[:scope])
       model.create()
+      Cosmos::Logger.info("Activity created: #{params[:name]} #{hash}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       render :json => model.as_json, :status => 201
     rescue ArgumentError, TypeError
       render :json => { :status => 'error', :message => "Invalid input: #{hash}" }, :status => 400
@@ -114,12 +116,12 @@ class ActivityController < ApplicationController
   # scope [String] the scope of the timeline, `TEST`
   # @return [String] the object/hash converted into json format
   # Request Headers
-  #```json
+  # ```json
   #  {
   #    "Authorization": "token/password",
   #    "Content-Type": "application/json"
   #  }
-  #```
+  # ```
   def count
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -142,12 +144,12 @@ class ActivityController < ApplicationController
   # id [String] the start/id of the activity, `1620248449`
   # @return [String] the activity as a object/hash converted into json format
   # Request Headers
-  #```json
+  # ```json
   #  {
   #    "Authorization": "token/password",
   #    "Content-Type": "application/json"
   #  }
-  #```
+  # ```
   def show
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -172,19 +174,19 @@ class ActivityController < ApplicationController
   # json [String] The json of the event (see #event_model)
   # @return [String] the activity as a object/hash converted into json format
   # Request Headers
-  #```json
+  # ```json
   #  {
   #    "Authorization": "token/password",
   #    "Content-Type": "application/json"
   #  }
-  #```
+  # ```
   # Request Post Body
-  #```json
+  # ```json
   #  {
   #    "status": "system42-ready",
   #    "message": "script was completed"
   #  }
-  #```
+  # ```
   def event
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -201,6 +203,7 @@ class ActivityController < ApplicationController
     begin
       hash = params.to_unsafe_h.slice(:status, :message).to_h
       model.commit(status: hash['status'], message: hash['message'])
+      Cosmos::Logger.info("Event created for activity: #{params[:name]} #{hash}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       render :json => model.as_json, :status => 200
     rescue ArgumentError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
@@ -217,21 +220,21 @@ class ActivityController < ApplicationController
   # json [String] The json of the event (see #activity_model)
   # @return [String] the activity as a object/hash converted into json format
   # Request Headers
-  #```json
+  # ```json
   #  {
   #    "Authorization": "token/password",
   #    "Content-Type": "application/json"
   #  }
-  #```
+  # ```
   # Request Post Body
-  #```json
+  # ```json
   #  {
   #    "start": "2031-04-16T01:02:00+00:00",
   #    "stop": "2031-04-16T01:02:00+00:00",
   #    "kind": "cmd",
   #    "data": {"cmd"=>"INST ABORT"}
   #  }
-  #```
+  # ```
   def update
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -250,6 +253,7 @@ class ActivityController < ApplicationController
       hash['start'] = DateTime.parse(hash['start']).strftime('%s').to_i
       hash['stop'] = DateTime.parse(hash['stop']).strftime('%s').to_i
       model.update(start: hash['start'], stop: hash['stop'], kind: hash['kind'], data: hash['data'])
+      Cosmos::Logger.info("Activity updated: #{params[:name]} #{hash}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       render :json => model.as_json, :status => 200
     rescue ArgumentError, TypeError
       render :json => { :status => 'error', :message => "Invalid input: #{hash}" }, :status => 400
@@ -269,12 +273,12 @@ class ActivityController < ApplicationController
   # id [String] the score or id of the activity, `1620248449`
   # @return [String] object/hash converted into json format but with a 204 no-content status code
   # Request Headers
-  #```json
+  # ```json
   #  {
   #    "Authorization": "token/password",
   #    "Content-Type": "application/json"
   #  }
-  #```
+  # ```
   def destroy
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -290,7 +294,8 @@ class ActivityController < ApplicationController
     end
     begin
       ret = model.destroy()
-      render :json => {"status" => ret}, :status => 204
+      Cosmos::Logger.info("Activity destroyed: #{params[:name]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
+      render :json => { "status" => ret }, :status => 204
     rescue Cosmos::ActivityError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     end
@@ -302,14 +307,14 @@ class ActivityController < ApplicationController
   # json [String] The json of the event (see #activity_model)
   # @return [String] the activity as a object/hash converted into json format
   # Request Headers
-  #```json
+  # ```json
   #  {
   #    "Authorization": "token/password",
   #    "Content-Type": "application/json"
   #  }
-  #```
+  # ```
   # Request Post Body
-  #```json
+  # ```json
   #  {
   #    "multi": [
   #      {
@@ -321,7 +326,7 @@ class ActivityController < ApplicationController
   #      }
   #    ]
   #  }
-  #```
+  # ```
   def multi_create
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -334,9 +339,11 @@ class ActivityController < ApplicationController
     unless input_activities.is_a?(Array)
       render(:json => { :status => 'error', :message => 'invalid input, must be json list/array' }, :status => 400) and return
     end
+
     ret = Array.new
     input_activities.each do |input|
       next if input.is_a?(Hash) == false || input['start'].nil? || input['stop'].nil? || input['name'].nil?
+
       begin
         hash = input.dup
         name = hash.delete('name')
@@ -344,9 +351,10 @@ class ActivityController < ApplicationController
         hash['stop'] = DateTime.parse(hash['stop']).strftime('%s').to_i
         model = @model_class.from_json(hash.symbolize_keys, name: name, scope: params[:scope])
         model.create()
+        Cosmos::Logger.info("Activity created: #{name} #{hash}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
         ret << model.as_json
-    rescue ArgumentError, TypeError => e
-        ret << { :status => 'error', :message => "Invalid input, #{e.message}", 'input' => input, 'type' => e.class,  status => 400 }
+      rescue ArgumentError, TypeError => e
+        ret << { :status => 'error', :message => "Invalid input, #{e.message}", 'input' => input, 'type' => e.class, status => 400 }
       rescue Cosmos::ActivityInputError => e
         ret << { :status => 'error', :message => e.message, 'input' => input, 'type' => e.class, status => 400 }
       rescue Cosmos::ActivityOverlapError => e
@@ -364,14 +372,14 @@ class ActivityController < ApplicationController
   # json [String] The json below
   # @return [String] the activity as a object/hash converted into json format
   # Request Headers
-  #```json
+  # ```json
   #  {
   #    "Authorization": "token/password",
   #    "Content-Type": "application/json"
   #  }
-  #```
+  # ```
   # Request Post Body
-  #```json
+  # ```json
   #  {
   #    "multi": [
   #      {
@@ -380,7 +388,7 @@ class ActivityController < ApplicationController
   #      }
   #    ]
   #  }
-  #```
+  # ```
   def multi_destroy
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -393,13 +401,17 @@ class ActivityController < ApplicationController
     unless input_activities.is_a?(Array)
       render(:json => { :status => 'error', :message => 'invalid input' }, :status => 400) and return
     end
+
     ret = Array.new
     input_activities.each do |input|
       next if input.is_a?(Hash) == false || input['id'].nil? || input['name'].nil?
+
       model = @model_class.score(name: input['name'], score: input['id'], scope: params[:scope])
       next if model.nil?
+
       begin
         check = model.destroy()
+        Cosmos::Logger.info("Activity destroyed: #{input['name']}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
         ret << { 'status' => 'removed', 'removed' => check, 'input' => input, 'type' => e.class }
       rescue Cosmos::ActivityError => e
         ret << { :status => 'error', :message => e.message, 'input' => input, 'type' => e.class }
@@ -407,5 +419,4 @@ class ActivityController < ApplicationController
     end
     render :json => ret, :status => 200
   end
-
 end

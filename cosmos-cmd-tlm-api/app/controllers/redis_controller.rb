@@ -40,6 +40,7 @@ class RedisController < ApplicationController
     end
 
     result = Cosmos::Store.execute_raw(args)
+    Cosmos::Logger.info("Redis command executed: #{args} - with result #{result}", user: user_info(request.headers['HTTP_AUTHORIZATION']))
     render :json => { :result => result }, :status => 201
   end
 end

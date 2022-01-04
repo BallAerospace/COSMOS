@@ -41,10 +41,12 @@ class StorageController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
 
-    render :json => get_presigned_request(:put_object), :status => 201
+    result = get_presigned_request(:put_object)
+    Cosmos::Logger.info("S3 upload presigned request generated: #{params[:bucket] || BUCKET_NAME}/#{params[:object_id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
+    render :json => result, :status => 201
   end
 
-  #private
+  # private
   def get_presigned_request(method)
     bucket = params[:bucket]
     bucket ||= BUCKET_NAME
