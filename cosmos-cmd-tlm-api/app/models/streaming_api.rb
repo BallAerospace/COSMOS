@@ -247,7 +247,7 @@ class LoggedStreamingThread < StreamingThread
         first_object.start_time, file_end_time, @stream_mode, scope: @scope) # TODO: look at how @stream_mode is being used
       if file_path
         file_path_split = File.basename(file_path).split("__")
-        file_end_time = DateTime.strptime(file_path_split[1], FileCache::TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND # TODO: get format from different class' constant?
+        file_end_time = DateTime.strptime(file_path_split[1], S3FileCache::TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND # TODO: get format from different class' constant?
 
         # Scan forward to find first packet needed
         # Stream forward until packet > end_time or no more packets
@@ -278,7 +278,7 @@ class LoggedStreamingThread < StreamingThread
         @last_file_redis_offset = plr.redis_offset
 
         # Move to the next file
-        FileCache.instance.unreserve_file(file_path)
+        S3FileCache.instance.unreserve_file(file_path)
         objects.each {|object| object.start_time = file_end_time}
 
         if done # We reached the end time
