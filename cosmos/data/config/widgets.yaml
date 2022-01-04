@@ -75,6 +75,17 @@ SCROLLWINDOW:
       required: false
       description: Maximum height of the scroll window in pixels (default = 180)
       values: .*
+SPACER:
+  summary: Places a fixed size spacer in between widgets.
+  parameters:
+    - name: Width
+      required: false
+      description: Width of the widget
+      values: .*
+    - name: Height
+      required: false
+      description: Height of the widget
+      values: .*
 IFRAME:
   summary: Open external tools in an Iframe within COSMOS.
   parameters:
