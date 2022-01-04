@@ -415,8 +415,11 @@ export default {
     new CosmosApi().get_oldest_logfile({ params: { scope: localStorage.scope } }).then((response) => {
       // Server returns time as UTC so create date with 'Z'
       let date = new Date(response + 'Z')
-      this.startTime = format(date, 'HH:mm:ss')
       this.oldestLogDate = format(date, 'yyyy-MM-dd')
+      // Set the start date / time to the earliest data found
+      // This clues the user in to how much data they have to work with
+      this.startDate = format(date, 'yyyy-MM-dd')
+      this.startTime = format(date, 'HH:mm:ss')
     })
   },
   mounted: function () {
