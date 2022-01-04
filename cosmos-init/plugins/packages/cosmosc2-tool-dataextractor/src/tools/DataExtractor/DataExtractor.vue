@@ -598,7 +598,7 @@ export default {
         this.subscription.perform('add', {
           scope: localStorage.scope,
           mode: this.reduced,
-          token: localStorage.token,
+          token: localStorage.cosmosToken,
           items: items,
           start_time: this.startDateTime,
           end_time: this.endDateTime,

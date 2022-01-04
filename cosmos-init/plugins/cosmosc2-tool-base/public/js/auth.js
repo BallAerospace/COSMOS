@@ -24,7 +24,7 @@ const emptyPromise = function (resolution = null) {
 }
 class Auth {
   updateToken(value) {
-    if (!localStorage.token) this.login(location.href)
+    if (!localStorage.cosmosToken) this.login(location.href)
     return emptyPromise()
   }
   login(redirect) {
@@ -33,7 +33,7 @@ class Auth {
       location = `/login?redirect=${encodeURI(redirect)}`
   }
   logout() {
-    delete localStorage.token
+    delete localStorage.cosmosToken
     location.reload()
   }
   getInitOptions() {}

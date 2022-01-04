@@ -30,7 +30,7 @@ const request = async function (
     } catch (error) {
       CosmosAuth.login()
     }
-    headers['Authorization'] = localStorage.getItem('token')
+    headers['Authorization'] = localStorage.cosmosToken
   }
   if (!noScope && !params['scope']) {
     params['scope'] = localStorage.scope
