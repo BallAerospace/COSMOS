@@ -83,73 +83,68 @@ module Cosmos
     #   below the method name log level.
     # @param block [Proc] Block to call which should return a string to append
     #   to the log message
-    def debug(message = nil, scope: @scope, &block)
-      log_message(DEBUG_SEVERITY_STRING, message, scope: scope, &block) if @level <= DEBUG
+    def debug(message = nil, scope: @scope, user: nil, &block)
+      log_message(DEBUG_SEVERITY_STRING, message, scope: scope, user: user, &block) if @level <= DEBUG
     end
 
     # (see #debug)
-    def info(message = nil, scope: @scope, &block)
-      log_message(INFO_SEVERITY_STRING, message, scope: scope, &block) if @level <= INFO
+    def info(message = nil, scope: @scope, user: nil, &block)
+      log_message(INFO_SEVERITY_STRING, message, scope: scope, user: user, &block) if @level <= INFO
     end
 
     # (see #debug)
-    def warn(message = nil, scope: @scope, &block)
-      log_message(WARN_SEVERITY_STRING, message, scope: scope, &block) if @level <= WARN
+    def warn(message = nil, scope: @scope, user: nil, &block)
+      log_message(WARN_SEVERITY_STRING, message, scope: scope, user: user, &block) if @level <= WARN
     end
 
     # (see #debug)
-    def error(message = nil, scope: @scope, &block)
-      log_message(ERROR_SEVERITY_STRING, message, scope: scope, &block) if @level <= ERROR
+    def error(message = nil, scope: @scope, user: nil, &block)
+      log_message(ERROR_SEVERITY_STRING, message, scope: scope, user: user, &block) if @level <= ERROR
     end
 
     # (see #debug)
-    def fatal(message = nil, scope: @scope, &block)
-      log_message(FATAL_SEVERITY_STRING, message, scope: scope, &block) if @level <= FATAL
+    def fatal(message = nil, scope: @scope, user: nil, &block)
+      log_message(FATAL_SEVERITY_STRING, message, scope: scope, user: user, &block) if @level <= FATAL
     end
 
     # (see #debug)
-    def self.debug(message = nil, scope: nil, &block)
-      if scope
-        self.instance.debug(message, scope: scope, &block)
-      else
-        self.instance.debug(message, &block)
-      end
+    def self.debug(message = nil, scope: nil, user: nil, &block)
+      args = {}
+      args[:scope] = scope if scope
+      args[:user] = user if user
+      self.instance.debug(message, **args, &block)
     end
 
     # (see #debug)
-    def self.info(message = nil, scope: nil, &block)
-      if scope
-        self.instance.info(message, scope: scope, &block)
-      else
-        self.instance.info(message, &block)
-      end
+    def self.info(message = nil, scope: nil, user: nil, &block)
+      args = {}
+      args[:scope] = scope if scope
+      args[:user] = user if user
+      self.instance.info(message, **args, &block)
     end
 
     # (see #debug)
-    def self.warn(message = nil, scope: nil, &block)
-      if scope
-        self.instance.warn(message, scope: scope, &block)
-      else
-        self.instance.warn(message, &block)
-      end
+    def self.warn(message = nil, scope: nil, user: nil, &block)
+      args = {}
+      args[:scope] = scope if scope
+      args[:user] = user if user
+      self.instance.warn(message, **args, &block)
     end
 
     # (see #debug)
-    def self.error(message = nil, scope: nil, &block)
-      if scope
-        self.instance.error(message, scope: scope, &block)
-      else
-        self.instance.error(message, &block)
-      end
+    def self.error(message = nil, scope: nil, user: nil, &block)
+      args = {}
+      args[:scope] = scope if scope
+      args[:user] = user if user
+      self.instance.error(message, **args, &block)
     end
 
     # (see #debug)
-    def self.fatal(message = nil, scope: nil, &block)
-      if scope
-        self.instance.fatal(message, scope: scope, &block)
-      else
-        self.instance.fatal(message, &block)
-      end
+    def self.fatal(message = nil, scope: nil, user: nil, &block)
+      args = {}
+      args[:scope] = scope if scope
+      args[:user] = user if user
+      self.instance.fatal(message, **args, &block)
     end
 
     # @return [Logger] The logger instance
@@ -164,11 +159,12 @@ module Cosmos
 
     protected
 
-    def log_message(severity_string, message, scope:)
+    def log_message(severity_string, message, scope:, user:)
       @mutex.synchronize do
         data = { time: Time.now.to_nsec_from_epoch, '@timestamp' => Time.now.xmlschema(3), severity: severity_string }
         data[:microservice_name] = @microservice_name if @microservice_name
         data[:detail] = @detail_string if @detail_string
+        data[:user] = user['name'] || 'Unknown' if user # EE: If a user is passed, put its name ('Unknown' if it doesn't have a name). Don't include user data if no user was passed
         if block_given?
           message = yield
         end
