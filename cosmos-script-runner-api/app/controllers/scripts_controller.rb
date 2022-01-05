@@ -76,6 +76,7 @@ class ScriptsController < ApplicationController
       if params[:name].include?('suite')
         results['suites'], success = Script.process_suite(params[:name], params[:text])
       end
+      Cosmos::Logger.info("Script created: #{params[:name]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION'])) if success
       # If the parsing of the Suite was not successful return a 422 (Unprocessable Entity)
       status = success ? 200 : 422
       render :json => results, status: status
@@ -97,6 +98,7 @@ class ScriptsController < ApplicationController
     environment = params[:environment]
     running_script_id = Script.run(params[:scope], params[:name], suite_runner, disconnect, environment)
     if running_script_id
+      Cosmos::Logger.info("Script started: #{params[:name]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       render :plain => running_script_id.to_s
     else
       head :not_found
@@ -144,6 +146,7 @@ class ScriptsController < ApplicationController
     end
     destroyed = Script.destroy(params[:scope], params[:name])
     if destroyed
+      Cosmos::Logger.info("Script destroyed: #{params[:name]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       head :ok
     else
       head :not_found

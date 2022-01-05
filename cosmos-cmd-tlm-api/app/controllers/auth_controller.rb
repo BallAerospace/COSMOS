@@ -25,7 +25,6 @@ begin
   require 'enterprise-cosmos/controllers/auth_controller'
 rescue LoadError
   class AuthController < ApplicationController
-
     def token_exists
       result = Cosmos::AuthModel.is_set?
       render :json => {
@@ -42,11 +41,10 @@ rescue LoadError
 
     def set
       result = Cosmos::AuthModel.set(params[:token], params[:old_token])
+      Cosmos::Logger.info("Password changed", user: user_info(request.headers['HTTP_AUTHORIZATION']))
       render :json => {
         result: result
       }
     end
-
   end
-
 end

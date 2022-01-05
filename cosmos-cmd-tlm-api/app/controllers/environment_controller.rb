@@ -22,7 +22,6 @@ require 'digest'
 require 'cosmos/models/environment_model'
 
 class EnvironmentController < ApplicationController
-  #
   def initialize
     @model_class = Cosmos::EnvironmentModel
   end
@@ -41,7 +40,7 @@ class EnvironmentController < ApplicationController
     end
     environments = @model_class.all(scope: params[:scope])
     ret = Array.new
-    environments.each do |environment, value|
+    environments.each do |_environment, value|
       ret << value
     end
     render :json => ret, :status => 200
@@ -53,19 +52,19 @@ class EnvironmentController < ApplicationController
   # json [String] The json of the environment name (see below)
   # @return [String] the environment converted into json format
   # Request Headers
-  #```json
+  # ```json
   #  {
   #    "Authorization": "token/password",
   #    "Content-Type": "application/json"
   #  }
-  #```
+  # ```
   # Request Post Body
-  #```json
+  # ```json
   #  {
   #    "key": "ENVIRONMENT_KEY",
   #    "value": "VALUE"
   #  }
-  #```
+  # ```
   def create
     begin
       authorize(permission: 'scripts', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
@@ -86,8 +85,10 @@ class EnvironmentController < ApplicationController
       unless @model_class.get(name: name, scope: params[:scope]).nil?
         raise Cosmos::EnvironmentError.new "key: #{params['key']} value: #{params['value']} pair already available."
       end
+
       model = @model_class.new(name: name, key: params['key'], value: params['value'], scope: params[:scope])
       model.create()
+      Cosmos::Logger.info("Environment variable created: #{name} #{params['key']} #{params['value']}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       render :json => model.as_json, :status => 201
     rescue RuntimeError, JSON::ParserError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
@@ -121,10 +122,10 @@ class EnvironmentController < ApplicationController
     end
     begin
       ret = @model_class.destroy(name: params[:name], scope: params[:scope])
-      render :json => { 'name' => params[:name]}, :status => 204
+      Cosmos::Logger.info("Environment variable destroyed: #{params[:name]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
+      render :json => { 'name' => params[:name] }, :status => 204
     rescue Cosmos::EnvironmentError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
     end
   end
-
 end

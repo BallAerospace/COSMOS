@@ -77,6 +77,7 @@ class TimelineController < ApplicationController
       model = @model_class.new(name: params['name'], color: params['color'], scope: params[:scope])
       model.create()
       model.deploy()
+      Cosmos::Logger.info("Timeline created: #{params['name']}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       render :json => model.as_json, :status => 201
     rescue RuntimeError, JSON::ParserError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400
@@ -162,6 +163,7 @@ class TimelineController < ApplicationController
       ret = @model_class.delete(name: params[:name], scope: params[:scope], force: use_force)
       model.undeploy()
       model.notify(kind: 'delete')
+      Cosmos::Logger.info("Timeline destroyed: #{params[:name]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       render :json => { 'name' => params[:name]}, :status => 204
     rescue Cosmos::TimelineError => e
       render :json => { :status => 'error', :message => e.message, 'type' => e.class }, :status => 400

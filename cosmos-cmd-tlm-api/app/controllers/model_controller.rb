@@ -42,8 +42,10 @@ class ModelController < ApplicationController
     model = @model_class.from_json(params[:json], scope: params[:scope])
     if update_model
       model.update
+      Cosmos::Logger.info("#{@model_class.name} updated: #{params[:json]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
     else
       model.create
+      Cosmos::Logger.info("#{@model_class.name} created: #{params[:json]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
     end
     head :ok
   end
@@ -76,5 +78,6 @@ class ModelController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     @model_class.new(name: params[:id], scope: params[:scope]).destroy
+    Cosmos::Logger.info("#{@model_class.name} destroyed: #{params[:id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
   end
 end

@@ -27,7 +27,7 @@ class PluginsController < ModelController
   end
 
   # Add a new plugin
-  def create
+  def create(update = false)
     begin
       authorize(permission: 'admin', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
     rescue Cosmos::AuthError => e
@@ -41,7 +41,9 @@ class PluginsController < ModelController
       begin
         gem_file_path = temp_dir + '/' + file.original_filename
         FileUtils.cp(file.tempfile.path, gem_file_path)
-        render :json => Cosmos::PluginModel.install_phase1(gem_file_path, @variables, scope: params[:scope])
+        result = Cosmos::PluginModel.install_phase1(gem_file_path, @variables, scope: params[:scope])
+        Cosmos::Logger.info("Plugin created: #{params[:plugin]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION'])) unless update
+        render :json => result
       rescue
         head :internal_server_error
       ensure
@@ -56,7 +58,8 @@ class PluginsController < ModelController
     # Grab the existing plugin we're updating so we can display existing variables
     @variables = @model_class.get(name: params[:id], scope: params[:scope])['variables']
     destroy()
-    create()
+    create(true)
+    Cosmos::Logger.info("Plugin updated: #{params[:id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
     @variables = nil
   end
 
@@ -69,7 +72,9 @@ class PluginsController < ModelController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
-      render :json => Cosmos::PluginModel.install_phase2(params[:id], JSON.parse(params[:variables]), scope: params[:scope])
+      result = Cosmos::PluginModel.install_phase2(params[:id], JSON.parse(params[:variables]), scope: params[:scope])
+      Cosmos::Logger.info("Plugin installed: #{params[:id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
+      render :json => result
     rescue Exception => e
       render(:json => { :status => 'error', :message => e.message }, :status => 500) and return
     end

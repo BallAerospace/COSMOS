@@ -54,6 +54,7 @@ class ApiController < ApplicationController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     screen = Screen.create(params[:scope].upcase, params[:target].upcase, params[:screen].downcase, params[:text])
+    Cosmos::Logger.info("Screen saved: #{params[:target]} #{params[:screen]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
     if screen
       render :json => screen
     else
@@ -68,6 +69,7 @@ class ApiController < ApplicationController
       request_headers = Hash[*request.env.select {|k,v| k.start_with? 'HTTP_'}.sort.flatten]
       request_data = req.body.read
       status, content_type, body = handle_post(request_data, request_headers)
+      Cosmos::Logger.info("User performed API action: #{request_data} #{request_headers}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
     else
       status       = 405
       content_type = "text/plain"
