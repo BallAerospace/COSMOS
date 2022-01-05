@@ -27,7 +27,7 @@ export default new Router({
   base: process.env.BASE_URL,
   routes: [
     {
-      path: '/',
+      path: '/:target?/:packet?/:item?',
       name: 'TlmGrapher',
       component: () => import('./tools/TlmGrapher/TlmGrapher.vue'),
       meta: { title: 'Telemetry Grapher', icon: 'mdi-chart-line' },

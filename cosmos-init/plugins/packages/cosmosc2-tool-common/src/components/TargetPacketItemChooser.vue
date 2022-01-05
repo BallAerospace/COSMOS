@@ -184,6 +184,7 @@ export default {
         this.targetNameChanged(this.selectedTargetName)
       }
       this.updatePackets()
+      this.updateItems()
     })
   },
   watch: {
