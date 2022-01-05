@@ -693,6 +693,13 @@ export default {
               },
             },
             {
+              label: 'View Instrumented Script',
+              icon: 'mdi-code-braces-box',
+              command: () => {
+                this.showInstrumented()
+              },
+            },
+            {
               label: 'Show Call Stack',
               icon: 'mdi-format-list-numbered',
               disabled: !this.scriptId || this.scriptId === ' ',
@@ -1378,6 +1385,19 @@ export default {
     // ScriptRunner Script menu actions
     rubySyntaxCheck() {
       Api.post('/script-api/scripts/syntax', {
+        data: this.editor.getValue(),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'plain/text',
+        },
+      }).then((response) => {
+        this.infoTitle = response.data.title
+        this.infoText = JSON.parse(response.data.description)
+        this.infoDialog = true
+      })
+    },
+    showInstrumented() {
+      Api.post('/script-api/scripts/instrumented', {
         data: this.editor.getValue(),
         headers: {
           Accept: 'application/json',

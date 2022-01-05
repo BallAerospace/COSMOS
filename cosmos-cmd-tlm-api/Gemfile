@@ -21,14 +21,14 @@ gem 'prometheus-client', '~> 2.1.0'
 # gem 'bcrypt', '~> 3.1.7'
 
 # Reduces boot times through caching; required in config/boot.rb
-gem 'bootsnap', '>= 1.4.2', require: false
+gem 'bootsnap', '>= 1.9.3', require: false
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 gem 'rack-cors', '~> 1.1'
 
 group :development do
   gem 'ruby-debug-ide', '~> 0.7.2'
-  gem 'debase', '~> 0.2.4.1'
+  gem 'debase', '0.2.5.beta2'
 end
 
 group :development, :test do
