@@ -399,7 +399,7 @@
       </v-card>
     </v-dialog>
     <!-- INFO -->
-    <v-dialog v-model="infoDialog" width="600">
+    <v-dialog v-model="infoDialog" :width="infoDialogWidth">
       <v-card>
         <v-system-bar>
           <v-spacer />
@@ -568,6 +568,7 @@ export default {
         callback: () => {},
       },
       infoDialog: false,
+      infoDialogWidth: 600,
       infoTitle: '',
       infoText: [],
       resultsDialog: false,
@@ -1221,6 +1222,7 @@ export default {
         case 'backtrace':
           this.infoTitle = 'Call Stack'
           this.infoText = data.args
+          this.infoDialogWidth = 600
           this.infoDialog = true
           break
         default:
@@ -1393,6 +1395,7 @@ export default {
       }).then((response) => {
         this.infoTitle = response.data.title
         this.infoText = JSON.parse(response.data.description)
+        this.infoDialogWidth = 600
         this.infoDialog = true
       })
     },
@@ -1406,6 +1409,7 @@ export default {
       }).then((response) => {
         this.infoTitle = response.data.title
         this.infoText = JSON.parse(response.data.description)
+        this.infoDialogWidth = 'auto'
         this.infoDialog = true
       })
     },

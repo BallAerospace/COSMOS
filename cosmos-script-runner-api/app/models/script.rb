@@ -178,7 +178,7 @@ class Script
           text,
           File.build_timestamped_filename,
           true,
-        ),
+        ).split("\n").to_json,
     }
   end
 
