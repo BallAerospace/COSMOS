@@ -155,10 +155,12 @@ module Cosmos
       previous_time = nil
       plr = Cosmos::PacketLogReader.new
       plr.each(file.local_path) do |packet|
-        data = packet.read_all(:CONVERTED)
+        # Ignore anything except numbers like STRING or BLOCK items
+        data = packet.read_all(:RAW).select { |key, value| value.is_a?(Numeric) }
+        converted_data = packet.read_all(:CONVERTED).select { |key, value| value.is_a?(Numeric) }
+        # Merge in the converted data which overwrites the raw
+        data.merge!(converted_data)
 
-        # Ignore anything except numbers, this automatically ignores limits, formatted and units values
-        data.select! { |key, value| value.is_a?(Numeric) }
         previous_time = current_time
         current_time = packet.packet_time.to_f
         entry_time ||= current_time
