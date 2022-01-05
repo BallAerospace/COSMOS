@@ -618,6 +618,23 @@ module Cosmos
         expect(vals[2][1]).to eql :RED_LOW
         expect(vals[3][1]).to eql :RED_LOW
       end
+
+      it "returns even when requesting items that do not yet exist in CVT" do
+        items = []
+        items << 'INST__HEALTH_STATUS__TEMP1__CONVERTED'
+        items << 'INST__PARAMS__VALUE1__CONVERTED'
+        items << 'INST__MECH__SLRPNL1__CONVERTED'
+        items << 'INST__ADCS__POSX__CONVERTED'
+        vals = @api.get_tlm_values(items)
+        expect(vals[0][0]).to eql -100.0
+        expect(vals[1][0]).to be_nil
+        expect(vals[2][0]).to be_nil
+        expect(vals[3][0]).to be_nil
+        expect(vals[0][1]).to eql :RED_LOW
+        expect(vals[1][1]).to be_nil
+        expect(vals[2][1]).to be_nil
+        expect(vals[3][1]).to be_nil
+      end
     end
 
     describe "subscribe_packets, get_packet" do

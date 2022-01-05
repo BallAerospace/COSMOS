@@ -45,22 +45,26 @@ module Cosmos
         # We only care about saving the bin files, not the index files
         if File.extname(log_file) == ".bin"
           FileUtils.move filename, log_file
-          # Add the file to the ReducerModel like we would in the real system
-          ReducerModel.add_file(log_file)
           if log_file.include?("decom")
             @decom_files << log_file
+            # Add the file to the ReducerModel like we would in the real system
+            ReducerModel.add_file(log_file)
           elsif log_file.include?("minute")
             @minute_files << log_file
+            # Add the file to the ReducerModel like we would in the real system
+            ReducerModel.add_file(log_file)
           elsif log_file.include?("hour")
             @hour_files << log_file
+            # Add the file to the ReducerModel like we would in the real system
+            ReducerModel.add_file(log_file)
           elsif log_file.include?("day")
             @day_files << log_file
+            # Day files aren't added to ReducerModel because they are fully reduced
           end
           @reduced_files << log_file if log_file.include?("reduced")
         end
       end
 
-      # Allow S3File to simply return the files in @decom_files
       @s3_filename = ''
       @s3_file = double(S3File)
       allow(S3File).to receive(:new) do |filename|
@@ -97,6 +101,9 @@ module Cosmos
       @pkt.received_time = start_time
       collects = 1
       @pkt.write("COLLECTS", collects)
+      seqflag = 0
+      @pkt.write("CCSDSSEQFLAGS", seqflag)
+      @pkt.write("TEMP1", 0)
 
       num_pkts.times do
         json_hash = TelemetryDecomTopic.build_json(@pkt)
@@ -106,6 +113,9 @@ module Cosmos
         collects += 1
         collects = 1 if collects > 65535
         @pkt.write("COLLECTS", collects)
+        seqflag += 1
+        seqflag %= 4
+        @pkt.write("CCSDSSEQFLAGS", seqflag)
       end
       plw.close_file
     end
@@ -132,11 +142,24 @@ module Cosmos
         plr = PacketLogReader.new
         plr.open(@reduced_files[0])
         pkt = plr.read
+        # SAMPLES does not have a conversion
         expect(pkt.read("COLLECTS_SAMPLES")).to eql(60)
         expect(pkt.read("COLLECTS_MIN")).to eql(1)
         expect(pkt.read("COLLECTS_MAX")).to eql(60)
         expect(pkt.read("COLLECTS_AVG")).to eql(30.5)
         expect(pkt.read("COLLECTS_STDDEV")).to be_within(0.001).of(17.318)
+        # CCSDSSEQFLAGS has states
+        expect(pkt.read("CCSDSSEQFLAGS_SAMPLES")).to eql(60)
+        expect(pkt.read("CCSDSSEQFLAGS_MIN")).to eql(0)
+        expect(pkt.read("CCSDSSEQFLAGS_MAX")).to eql(3)
+        expect(pkt.read("CCSDSSEQFLAGS_AVG")).to eql(1.5)
+        expect(pkt.read("CCSDSSEQFLAGS_STDDEV")).to be_within(0.001).of(1.118)
+        # TEMP1 has a read and write conversion
+        expect(pkt.read("TEMP1_SAMPLES")).to eql(60)
+        expect(pkt.read("TEMP1_MIN")).to be_within(0.1).of(0)
+        expect(pkt.read("TEMP1_MAX")).to be_within(0.1).of(0)
+        expect(pkt.read("TEMP1_AVG")).to be_within(0.1).of(0)
+        expect(pkt.read("TEMP1_STDDEV")).to be_within(0.1).of(0)
         pkt = plr.read
         expect(pkt).to be_nil # no more packets
         plr.close

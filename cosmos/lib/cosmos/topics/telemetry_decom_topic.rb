@@ -47,11 +47,11 @@ module Cosmos
       json_hash = {}
       packet.sorted_items.each do |item|
         json_hash[item.name] = packet.read_item(item, :RAW)
-        json_hash[item.name + "__C"] = packet.read_item(item, :CONVERTED) if item.read_conversion or item.states
-        json_hash[item.name + "__F"] = packet.read_item(item, :FORMATTED) if item.format_string
-        json_hash[item.name + "__U"] = packet.read_item(item, :WITH_UNITS) if item.units
+        json_hash["#{item.name}__C"] = packet.read_item(item, :CONVERTED) if item.read_conversion or item.states
+        json_hash["#{item.name}__F"] = packet.read_item(item, :FORMATTED) if item.format_string
+        json_hash["#{item.name}__U"] = packet.read_item(item, :WITH_UNITS) if item.units
         limits_state = item.limits.state
-        json_hash[item.name + "__L"] = limits_state if limits_state
+        json_hash["#{item.name}__L"] = limits_state if limits_state
       end
       json_hash
     end

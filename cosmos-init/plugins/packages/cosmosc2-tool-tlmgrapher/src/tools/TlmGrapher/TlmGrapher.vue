@@ -59,6 +59,9 @@
       <div v-show="this.selectedGraphId !== null" class="row">
         <div class="col-11">
           <target-packet-item-chooser
+            :initial-target-name="this.$route.params.target.toUpperCase()"
+            :initial-packet-name="this.$route.params.packet.toUpperCase()"
+            :initial-item-name="this.$route.params.item.toUpperCase()"
             @click="addItem"
             button-text="Add Item"
             choose-item
@@ -272,7 +275,14 @@ export default {
       dragHandle: '.v-system-bar',
     })
     const previousConfig = this.getLocalStorageConfig()
-    if (previousConfig) {
+    // If we're passed in the route then manually addItem
+    if (this.$route.params.target) {
+      this.addItem({
+        targetName: this.$route.params.target.toUpperCase(),
+        packetName: this.$route.params.packet.toUpperCase(),
+        itemName: this.$route.params.item.toUpperCase(),
+      })
+    } else if (previousConfig) {
       this.openConfiguration(previousConfig)
     }
   },

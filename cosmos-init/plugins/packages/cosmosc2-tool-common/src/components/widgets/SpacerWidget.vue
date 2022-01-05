@@ -1,4 +1,4 @@
-/*
+<!--
 # Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
@@ -15,28 +15,24 @@
 # This program may also be used under the terms of a commercial or
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
-*/
+-->
 
-import Vue from 'vue'
-import Router from 'vue-router'
+<template>
+  <div :style="style" />
+</template>
 
-Vue.use(Router)
+<script>
+import Widget from './Widget'
 
-export default new Router({
-  mode: 'history',
-  base: process.env.BASE_URL,
-  routes: [
-    {
-      path: '/:target?/:packet?/:item?',
-      name: 'TlmGrapher',
-      component: () => import('./tools/TlmGrapher/TlmGrapher.vue'),
-      meta: { title: 'Telemetry Grapher', icon: 'mdi-chart-line' },
+export default {
+  mixins: [Widget],
+  computed: {
+    style: function () {
+      return [
+        `width: ${this.parameters[0]}px;`,
+        `height: ${this.parameters[1]}px;`,
+      ].join('')
     },
-    // TODO: Create NotFoundComponent since we're doing history browser mode
-    // See: https://router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations
-    // {
-    //   path: '*',
-    //   component: NotFoundComponent
-    // }
-  ],
-})
+  },
+}
+</script>

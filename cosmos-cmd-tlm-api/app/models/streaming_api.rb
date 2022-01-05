@@ -188,10 +188,12 @@ end
 class LoggedStreamingThread < StreamingThread
   ALLOWABLE_START_TIME_OFFSET_NSEC = 60 * Time::NSEC_PER_SECOND
 
-  def initialize(thread_id, channel, collection, max_batch_size = 100, scope:)
-    super(channel, collection, max_batch_size)
+  def initialize(thread_id, channel, collection, stream_mode, max_batch_size = 100, scope:)
+    super(channel, collection, stream_mode, max_batch_size)
     @thread_id = thread_id
     @thread_mode = :SETUP
+    # Reduced has no Redis streams so go direct to file
+    @thread_mode = :FILE if stream_mode.to_s.upcase.include?("REDUCED")
     @scope = scope
   end
 
@@ -247,7 +249,7 @@ class LoggedStreamingThread < StreamingThread
         first_object.start_time, file_end_time, @stream_mode, scope: @scope) # TODO: look at how @stream_mode is being used
       if file_path
         file_path_split = File.basename(file_path).split("__")
-        file_end_time = DateTime.strptime(file_path_split[1], FileCache::TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND # TODO: get format from different class' constant?
+        file_end_time = DateTime.strptime(file_path_split[1], S3FileCache::TIMESTAMP_FORMAT).to_f * Time::NSEC_PER_SECOND # TODO: get format from different class' constant?
 
         # Scan forward to find first packet needed
         # Stream forward until packet > end_time or no more packets
@@ -278,7 +280,7 @@ class LoggedStreamingThread < StreamingThread
         @last_file_redis_offset = plr.redis_offset
 
         # Move to the next file
-        FileCache.instance.unreserve_file(file_path)
+        S3FileCache.instance.unreserve_file(file_path)
         objects.each {|object| object.start_time = file_end_time}
 
         if done # We reached the end time
@@ -367,18 +369,19 @@ class StreamingApi
         end
       else # Reduced
         type = stream_mode
-        # Reduced items are passed as TGT__PKT__ITEM__REDUCETYPE__VALUETYPE
-        # e.g. INST__HEALTH_STATUS__TEMP1__AVG__CONVERTED
-        @item_name = "#{key_split[3]}__#{key_split[4]}"
-        @value_type = key_split[5].intern
+        # Reduced items are passed as TGT__PKT__ITEM_REDUCETYPE__VALUETYPE
+        # e.g. INST__HEALTH_STATUS__TEMP1_AVG__CONVERTED
+        # Note there is NOT a double underscore between item name and reduce type
+        @item_name = key_split[3]
+        @value_type = key_split[4].intern
       end
       @start_time = start_time
       @end_time = end_time
       authorize(permission: @cmd_or_tlm.to_s.downcase, target_name: @target_name, packet_name: @packet_name, scope: scope, token: token)
       @topic = "#{@scope}__#{type}__{#{@target_name}}__#{@packet_name}"
-      Cosmos::Logger.info("Streaming from #{@topic}")
       @offset = nil
       @offset = Cosmos::Store.get_last_offset(@topic) unless @start_time
+      Cosmos::Logger.info("Streaming from #{@topic} start:#{@start_time} end:#{@end_time} offset:#{@offset}")
       @thread_id = thread_id
     end
   end

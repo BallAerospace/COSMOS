@@ -140,8 +140,9 @@ module Cosmos
       plw = @packet_logs["#{scope}__#{target_name}__#{packet_name}__#{type}"]
       unless plw
         # Create a new PacketLogWriter for this reduced data
-        remote_log_directory =
-          "#{scope}/reduced_logs/tlm/#{target_name}/#{packet_name}"
+        # e.g. DEFAULT/reduced_minute_logs/tlm/INST/HEALTH_STATUS/20220101/
+        # 20220101204857274290500__20220101205857276524900__DEFAULT__INST__HEALTH_STATUS__reduced__minute.bin
+        remote_log_directory = "#{scope}/reduced_#{type}_logs/tlm/#{target_name}/#{packet_name}"
         rt_label = "#{scope}__#{target_name}__#{packet_name}__reduced__#{type}"
         plw = PacketLogWriter.new(remote_log_directory, rt_label)
         @packet_logs["#{scope}__#{target_name}__#{packet_name}__#{type}"] = plw
@@ -154,10 +155,12 @@ module Cosmos
       previous_time = nil
       plr = Cosmos::PacketLogReader.new
       plr.each(file.local_path) do |packet|
-        data = packet.read_all(:CONVERTED)
+        # Ignore anything except numbers like STRING or BLOCK items
+        data = packet.read_all(:RAW).select { |key, value| value.is_a?(Numeric) }
+        converted_data = packet.read_all(:CONVERTED).select { |key, value| value.is_a?(Numeric) }
+        # Merge in the converted data which overwrites the raw
+        data.merge!(converted_data)
 
-        # Ignore anything except numbers, this automatically ignores limits, formatted and units values
-        data.select! { |key, value| value.is_a?(Numeric) }
         previous_time = current_time
         current_time = packet.packet_time.to_f
         entry_time ||= current_time
@@ -190,9 +193,6 @@ module Cosmos
 
           # Check to see if we should start a new log file
           # We compare the current entry_time to see if it will push us over
-          # if plw.first_time
-          #   puts "entry_time:#{entry_time} first:#{plw.first_time} diff:#{entry_time - plw.first_time.to_f} filetime:#{file_seconds}"
-          # end
           if plw.first_time &&
                (entry_time - plw.first_time.to_f) >= file_seconds
             Logger.debug("Reducer: (1) start new file! old filename: #{plw.filename}")

@@ -105,7 +105,8 @@ module Cosmos
           item_result[1] = hash["#{packet_values[-1]}__L"]
           item_result[1] = item_result[1].intern if item_result[1] # Convert to symbol
         else
-          raise "Item '#{target_name} #{packet_name} #{packet_values[-1]}' does not exist"
+          raise "Item '#{target_name} #{packet_name} #{packet_values[-1]}' does not exist" unless hash.key?(packet_values[-1])
+          item_result[1] = nil
         end
         results << item_result
       end

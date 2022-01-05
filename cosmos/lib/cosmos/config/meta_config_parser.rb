@@ -50,7 +50,7 @@ module Cosmos
       tf.write(output)
       tf.close
       begin
-        data = Psych.load_file(tf.path)
+        data = Psych.safe_load(File.read(tf.path), aliases: true)
       rescue => error
         error_file = "#{filename}.err"
         File.open(error_file, 'w') { |file| file.puts output }
