@@ -170,13 +170,13 @@ class Script
     RunningScript.spawn(scope, name, suite_runner, disconnect, environment)
   end
 
-  def self.instrumented(text)
+  def self.instrumented(filename, text)
     {
       'title' => 'Instrumented Script',
       'description' =>
         RunningScript.instrument_script(
           text,
-          File.build_timestamped_filename,
+          filename,
           true,
         ).split("\n").to_json,
     }

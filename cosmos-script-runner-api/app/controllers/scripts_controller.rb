@@ -174,7 +174,7 @@ class ScriptsController < ApplicationController
     rescue Cosmos::ForbiddenError => e
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
-    script = Script.instrumented(request.body.read)
+    script = Script.instrumented(params[:name], request.body.read)
     if script
       render :json => script
     else

@@ -1400,7 +1400,7 @@ export default {
       })
     },
     showInstrumented() {
-      Api.post('/script-api/scripts/instrumented', {
+      Api.post(`/script-api/scripts/${this.filename}/instrumented`, {
         data: this.editor.getValue(),
         headers: {
           Accept: 'application/json',
