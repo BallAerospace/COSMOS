@@ -18,11 +18,9 @@
 -->
 
 <template>
-
   <v-dialog v-model="show" @keydown.esc="cancel" width="600">
     <v-card>
       <form v-on:submit.prevent="success">
-
         <v-system-bar>
           <v-spacer />
           <span>Open Configuration</span>
@@ -92,11 +90,9 @@
             </v-row>
           </div>
         </v-card-text>
-
       </form>
     </v-card>
   </v-dialog>
-
 </template>
 
 <script>
@@ -144,7 +140,8 @@ export default {
   },
   mounted() {
     let configId = -1
-    new CosmosApi().list_configs(this.tool)
+    new CosmosApi()
+      .list_configs(this.tool)
       .then((response) => {
         this.configs = response.map((config) => {
           configId += 1
@@ -200,5 +197,4 @@ export default {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

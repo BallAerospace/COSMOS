@@ -49,6 +49,20 @@ export default {
             this.viewDetails = true
           },
         },
+        {
+          title: 'Graph',
+          action: () => {
+            window.open(
+              '/tools/tlmgrapher/' +
+                this.parameters[0] +
+                '/' +
+                this.parameters[1] +
+                '/' +
+                this.parameters[2],
+              '_blank'
+            )
+          },
+        },
       ],
     }
   },
