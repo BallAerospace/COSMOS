@@ -19,6 +19,7 @@
 
 require 'cosmos/models/target_model'
 require 'cosmos/models/cvt_model'
+require 'cosmos/utilities/s3'
 
 module Cosmos
   module Api
@@ -44,6 +45,7 @@ module Cosmos
                        'get_all_tlm_info',
                        'get_tlm_cnt',
                        'get_packet_derived_items',
+                       'get_oldest_logfile',
                      ])
 
     # Request a telemetry item from a packet.
@@ -364,6 +366,19 @@ module Cosmos
       authorize(permission: 'tlm', target_name: target_name, packet_name: packet_name, scope: scope, token: token)
       packet = TargetModel.packet(target_name, packet_name, scope: scope)
       return packet['items'].select { |item| item['data_type'] == 'DERIVED' }.map { |item| item['name'] }
+    end
+
+    def get_oldest_logfile(scope: $cosmos_scope, token: $cosmos_token)
+      authorize(permission: 'tlm', scope: scope, token: token)
+      _, list = S3Utilities.get_total_size_and_oldest_list('logs', "#{scope}/decom_logs", 1_000_000_000)
+      # The list is a S3 structure containing the file paths
+      # Request the path by calling the key method. Returns something like this:
+      # DEFAULT/decom_logs/tlm/INST2/MECH/20220104/20220104165449021942700__20220104170449148642700__DEFAULT__INST2__MECH__rt__decom.bin
+      # Thus we split and take the start date/time part of the filename
+      start = list[0].key.split('/')[-1].split('__')[0]
+      # Format as YYYY-MM-DD HH:MM:SS for use by the frontend
+      # utc_time = Time.utc(start[0,4], start[4,2], start[6,2], start[8,2], start[10,2], start[12,2])
+      return "#{start[0,4]}-#{start[4,2]}-#{start[6,2]} #{start[8,2]}:#{start[10,2]}:#{start[12,2]}"
     end
 
     # PRIVATE

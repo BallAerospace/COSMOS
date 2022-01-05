@@ -38,9 +38,8 @@ module Cosmos
         Store.sadd("#{scope}__#{target}__reducer__minute", s3_key)
       when /__hour\.bin$/
         Store.sadd("#{scope}__#{target}__reducer__hour", s3_key)
-      else
-        raise "Unknown file #{s3_key}"
       end
+      # No else clause because add_file is called with raw files which are ignored
     end
 
     def self.rm_file(s3_key)
@@ -53,6 +52,8 @@ module Cosmos
       when /__hour\.bin$/
         Store.srem("#{scope}__#{target}__reducer__hour", s3_key)
       else
+        # We should only remove files that were previously in the set
+        # Thus if we don't match the s3_key it is an error
         raise "Unknown file #{s3_key}"
       end
     end

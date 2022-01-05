@@ -27,6 +27,8 @@
             v-model="startDate"
             label="Start Date"
             type="date"
+            :min="oldestLogDate"
+            :max="todaysDate"
             :rules="[rules.required]"
             data-test="startDate"
           />
@@ -34,6 +36,8 @@
             v-model="endDate"
             label="End Date"
             type="date"
+            :min="oldestLogDate"
+            :max="todaysDate"
             :rules="[rules.required]"
             data-test="endDate"
           />
@@ -274,12 +278,15 @@ export default {
   },
   data() {
     return {
+      api: null,
       title: 'Data Extractor',
       toolName: 'data-exporter',
       openConfig: false,
       saveConfig: false,
       progress: 0,
       processButtonText: 'Process',
+      todaysDate: format(new Date(), 'yyyy-MM-dd'),
+      oldestLogDate: format(new Date(), 'yyyy-MM-dd'),
       startDate: format(new Date(), 'yyyy-MM-dd'),
       startTime: format(new Date(), 'HH:mm:ss'),
       endTime: format(new Date(), 'HH:mm:ss'),
@@ -405,6 +412,20 @@ export default {
       ],
     }
   },
+  created: function () {
+    this.api = new CosmosApi()
+    this.api
+      .get_oldest_logfile({ params: { scope: localStorage.scope } })
+      .then((response) => {
+        // Server returns time as UTC so create date with 'Z'
+        let date = new Date(response + 'Z')
+        this.oldestLogDate = format(date, 'yyyy-MM-dd')
+        // Set the start date / time to the earliest data found
+        // This clues the user in to how much data they have to work with
+        this.startDate = format(date, 'yyyy-MM-dd')
+        this.startTime = format(date, 'HH:mm:ss')
+      })
+  },
   mounted: function () {
     const previousConfig = localStorage['lastconfig__data_exporter']
     if (previousConfig) {
@@ -420,7 +441,7 @@ export default {
   methods: {
     openConfiguration: function (name) {
       localStorage['lastconfig__data_exporter'] = name
-      new CosmosApi()
+      this.api
         .load_config(this.toolName, name)
         .then((response) => {
           if (response) {
@@ -443,7 +464,7 @@ export default {
     },
     saveConfiguration: function (name) {
       localStorage['lastconfig__data_exporter'] = name
-      new CosmosApi()
+      this.api
         .save_config(this.toolName, name, JSON.stringify(this.items))
         .then((response) => {
           this.$notify.normal({

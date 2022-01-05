@@ -54,8 +54,8 @@ RSpec.describe StreamingApi, type: :model do
       end
     end
 
-    # Ensure the FileCache is clear so we don't leak the s3 mock
-    FileCache.class_variable_set(:@@instance, nil)
+    # Ensure the S3FileCache is clear so we don't leak the s3 mock
+    S3FileCache.class_variable_set(:@@instance, nil)
 
     @file_start_time = 1614890937274290500 # these are the unix epoch values for the timestamps in the file names in spec/fixtures/files
     @file_end_time = 1614891537276524900
@@ -280,7 +280,7 @@ RSpec.describe StreamingApi, type: :model do
         end
 
         context 'from files' do
-          it 'has start time and end time within the file\'s time range' do
+          it 'has start time and end time within the file time range' do
             msg1 = { 'time' => @start_time.to_i * 1_000_000_000 } # newest is now
             allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
             msg2 = { 'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago
@@ -296,7 +296,7 @@ RSpec.describe StreamingApi, type: :model do
             expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
           end
 
-          it 'has start time within the file\'s time range and end time after the file' do
+          it 'has start time within the file time range and end time after the file' do
             msg1 = { 'time' => @start_time.to_i * 1_000_000_000 } # newest is now
             allow(Cosmos::Store.instance).to receive(:get_newest_message).and_return([nil, msg1])
             msg2 = { 'time' => (@start_time.to_i - 100) * 1_000_000_000 } # oldest is 100s ago

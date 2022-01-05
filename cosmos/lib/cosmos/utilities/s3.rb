@@ -22,7 +22,7 @@ require 'cosmos/models/reducer_model'
 
 module Cosmos
   class S3Utilities
-    def self.get_total_size_and_oldest_list(bucket, prefix, max_list_length = 1000)
+    def self.get_total_size_and_oldest_list(bucket, prefix, max_list_length = 10000)
       rubys3_client = Aws::S3::Client.new
       oldest_list = []
       total_size = 0
@@ -39,7 +39,7 @@ module Cosmos
       while true
         resp = rubys3_client.list_objects_v2({
                                                bucket: bucket,
-                                               max_keys: 10000,
+                                               max_keys: 1000,
                                                prefix: prefix,
                                                continuation_token: token
                                              })

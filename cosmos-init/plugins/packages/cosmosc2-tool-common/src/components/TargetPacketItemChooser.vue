@@ -257,7 +257,7 @@ export default {
                   packet.items[i]['data_type'] === 'INT' ||
                   packet.items[i]['data_type'] === 'FLOAT')
               ) {
-                ;['__MIN', '__MAX', '__AVG', '__STDDEV'].forEach((ext) => {
+                ;['_MIN', '_MAX', '_AVG', '_STDDEV'].forEach((ext) => {
                   this.itemNames.push({
                     label: `${packet.items[i]['name']}${ext}`,
                     value: `${packet.items[i]['name']}${ext}`,

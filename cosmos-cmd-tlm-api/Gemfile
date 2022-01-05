@@ -28,7 +28,8 @@ gem 'rack-cors', '~> 1.1'
 
 group :development do
   gem 'ruby-debug-ide', '~> 0.7.2'
-  gem 'debase', '~> 0.2.4.1'
+  # This is the only version of this gem that works with Ruby 3.x
+  gem 'debase', '0.2.5.beta2'
 end
 
 group :development, :test do
