@@ -401,11 +401,14 @@ module Cosmos
       it "creates and deploys Target microservices" do
         variables = { "test" => "example" }
         umodel = double(MicroserviceModel)
-        expect(umodel).to receive(:create).exactly(5).times
-        expect(umodel).to receive(:deploy).with(@target_dir, variables).exactly(5).times
+        expect(umodel).to receive(:create).exactly(6).times
+        expect(umodel).to receive(:deploy).with(@target_dir, variables).exactly(6).times
         # Verify the microservices that are started
         expect(MicroserviceModel).to receive(:new).with(hash_including(
                                                           name: "#{@scope}__DECOM__#{@target}"
+                                                        )).and_return(umodel)
+        expect(MicroserviceModel).to receive(:new).with(hash_including(
+                                                          name: "#{@scope}__REDUCER__#{@target}"
                                                         )).and_return(umodel)
         expect(MicroserviceModel).to receive(:new).with(hash_including(
                                                           name: "#{@scope}__COMMANDLOG__#{@target}"
@@ -422,16 +425,6 @@ module Cosmos
         model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
         model.create
         model.deploy(@target_dir, variables)
-      end
-
-      it "doesn't deploy microservices with no packets" do
-        @target = "EMPTY"
-        umodel = double(MicroserviceModel)
-        expect(umodel).to_not receive(:create)
-        expect(umodel).to_not receive(:deploy)
-        model = TargetModel.new(folder_name: @target, name: @target, scope: @scope, plugin: @target)
-        model.create
-        model.deploy(@target_dir, {})
       end
     end
 
@@ -454,8 +447,8 @@ module Cosmos
         orig_keys << "cosmos_microservices"
 
         umodel = double(MicroserviceModel)
-        expect(umodel).to receive(:destroy).exactly(10).times
-        expect(MicroserviceModel).to receive(:get_model).and_return(umodel).exactly(10).times
+        expect(umodel).to receive(:destroy).exactly(12).times
+        expect(MicroserviceModel).to receive(:get_model).and_return(umodel).exactly(12).times
         inst_model = TargetModel.new(folder_name: "INST", name: "INST", scope: "DEFAULT", plugin: "INST")
         inst_model.create
         inst_model.deploy(@target_dir, {})

@@ -19,7 +19,6 @@
 
 require 'redis'
 require 'json'
-require 'thread'
 require 'connection_pool'
 
 if ENV['COSMOS_REDIS_CLUSTER']
@@ -226,7 +225,7 @@ module Cosmos
       self.instance.read_topics(topics, offsets, timeout_ms, &block)
     end
     unless $enterprise_cosmos
-      def read_topics(topics, offsets = nil, timeout_ms = 1000, &block)
+      def read_topics(topics, offsets = nil, timeout_ms = 1000)
         # Logger.debug "read_topics: #{topics}, #{offsets} pool:#{@redis_pool}"
         @redis_pool.with do |redis|
           offsets = update_topic_offsets(topics) unless offsets
@@ -276,7 +275,7 @@ module Cosmos
     # @param topic [String] the stream / topic
     # @param msg_hash [Hash]   one or multiple field-value pairs
     #
-    # @option opts [String]  :id          the entry id, default value is `*`, it means auto generation, 
+    # @option opts [String]  :id          the entry id, default value is `*`, it means auto generation,
     #   if `nil` id is passed it will be changed to `*`
     # @option opts [Integer] :maxlen      max length of entries, default value is `nil`, it means will grow forever
     # @option opts [Boolean] :approximate whether to add `~` modifier of maxlen or not, default value is `true`
@@ -324,6 +323,16 @@ module Cosmos
       @redis_pool.with do |redis|
         return redis.xtrim_minid(topic, minid, approximate: approximate, limit: limit)
       end
+    end
+
+    # Execute any Redis command. Args must be an array (e.g. ["KEYS", "*"])
+    def self.execute_raw(args)
+      self.instance.execute_raw(args)
+    end
+
+    # Execute any Redis command. Args must be an array (e.g. ["KEYS", "*"])
+    def execute_raw(args)
+      synchronize { |client| client.call(args) }
     end
   end
 end

@@ -42,6 +42,9 @@
           <div v-else>
             <v-btn block @click="login" color="primary"> Login </v-btn>
           </div>
+          <div>
+            <v-switch label="Colorblind mode" v-model="colorblindMode" />
+          </div>
         </v-card-text>
       </v-card>
     </v-menu>
@@ -59,8 +62,18 @@ export default {
   data: function () {
     return {
       showUserMenu: false,
-      authenticated: !!localStorage.token,
+      authenticated: !!localStorage.cosmosToken,
     }
+  },
+  computed: {
+    colorblindMode: {
+      get: function () {
+        return localStorage.colorblindMode === 'true'
+      },
+      set: function (val) {
+        localStorage.colorblindMode = val
+      },
+    },
   },
   methods: {
     logout: function () {

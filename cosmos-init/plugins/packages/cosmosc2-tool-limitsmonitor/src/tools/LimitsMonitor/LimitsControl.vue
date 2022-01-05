@@ -157,6 +157,12 @@ export default {
     LabelvalueWidget,
     LabelvaluelimitsbarWidget,
   },
+  props: {
+    value: {
+      type: Array,
+      default: () => [],
+    },
+  },
   data() {
     return {
       api: null,
@@ -188,6 +194,15 @@ export default {
   },
   created() {
     this.api = new CosmosApi()
+    for (let item of this.value) {
+      if (item.match(/.+__.+__.+/)) {
+        // TARGET__PACKET__ITEM
+        this.ignoreItem(item, true)
+      } else {
+        // TARGET__PACKET
+        this.ignorePacket(item, true)
+      }
+    }
     this.updateOutOfLimits()
   },
   mounted() {
@@ -252,10 +267,11 @@ export default {
       }
       this.overallState = overall
     },
-    ignorePacket(item) {
+    ignorePacket(item, noUpdate) {
       let [target_name, packet_name, item_name] = item.split('__')
       let newIgnored = `${target_name}__${packet_name}`
       this.ignored.push(newIgnored)
+      noUpdate || this.updateIgnored()
 
       while (true) {
         let index = this.itemList.findIndex((item) => item.includes(newIgnored))
@@ -268,13 +284,15 @@ export default {
       }
       this.calcOverallState()
     },
-    ignoreItem(item) {
+    ignoreItem(item, noUpdate) {
       this.ignored.push(item)
+      noUpdate || this.updateIgnored()
       this.removeItem(item)
       this.calcOverallState()
     },
     restoreItem(item, index) {
       this.ignored.splice(index, 1)
+      this.updateIgnored()
       this.updateOutOfLimits()
     },
     removeItem(item) {
@@ -283,6 +301,9 @@ export default {
       )
       this.items.splice(index, 1)
       this.itemList.splice(index, 1)
+    },
+    updateIgnored() {
+      this.$emit('input', this.ignored)
     },
     update() {
       if (this.$store.state.tlmViewerItems.length !== 0) {

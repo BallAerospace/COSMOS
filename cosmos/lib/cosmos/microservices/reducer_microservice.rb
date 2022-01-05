@@ -20,6 +20,8 @@
 require 'cosmos/microservices/microservice'
 require 'cosmos/topics/topic'
 require 'cosmos/packets/json_packet'
+require 'cosmos/utilities/s3_file_cache'
+require 'cosmos/models/reducer_model'
 require 'rufus-scheduler'
 
 module Cosmos
@@ -27,86 +29,53 @@ module Cosmos
     MINUTE_METRIC = 'reducer_minute_duration'
     HOUR_METRIC = 'reducer_hour_duration'
     DAY_METRIC = 'reducer_day_duration'
-    MINUTE_KEY = 'REDUCED_MINUTE'
-    HOUR_KEY = 'REDUCED_HOUR'
-    DAY_KEY = 'REDUCED_DAY'
-    REDUCER_KEYS = [MINUTE_KEY, HOUR_KEY, DAY_KEY]
 
     # How long to wait for any currently running jobs to complete before killing them
-    SHUTDOWN_DELAY_SECS = 1
+    SHUTDOWN_DELAY_SECS = 5
+    MINUTE_ENTRY_SECS = 60
+    MINUTE_FILE_SECS = 3600
+    HOUR_ENTRY_SECS = 3600
+    HOUR_FILE_SECS = 3600 * 24
+    DAY_ENTRY_SECS = 3600 * 24
+    DAY_FILE_SECS = 3600 * 24 * 30
+
+    # @param name [String] Microservice name formatted as <SCOPE>__REDUCER__<TARGET>
+    #   where <SCOPE> and <TARGET> are variables representing the scope name and target name
+    def initialize(name)
+      super(name, is_plugin: false)
+      @target_name = name.split('__')[-1]
+      @packet_logs = {}
+    end
 
     def run
-      @test = false # Set to true to override ID values in Redis for testing
-      initialize_streams
-      get_initial_offsets
-
       # Note it takes several seconds to create the scheduler
       @scheduler = Rufus::Scheduler.new
-      @scheduler.cron '* * * * *' do
+      # Run every minute
+      @scheduler.cron '* * * * *', first: :now do
         reduce_minute
       end
-      @scheduler.cron '0 * * * *' do
+      # Run every 15 minutes
+      @scheduler.cron '*/15 * * * *', first: :now do
         reduce_hour
       end
-      @scheduler.cron '0 0 * * *' do
+      # Run hourly at minute 5 to allow the hour reducer to finish
+      @scheduler.cron '5 * * * *', first: :now do
         reduce_day
       end
 
       # Let the current thread join the scheduler thread and
-      #  block until shutdown is called
+      # block until shutdown is called
       @scheduler.join
     end
 
     def shutdown
       @scheduler.shutdown(wait: SHUTDOWN_DELAY_SECS) if @scheduler
+
+      # Make sure all the existing logs are properly closed down
+      @packet_logs.each do |name, log|
+        log.shutdown
+      end
       super()
-    end
-
-    def initialize_streams
-      new_streams = []
-      @topics.each do |topic|
-        scope, _, target_name, packet_name = topic.split('__')
-
-        # Set the target for use in the metric ... should only ever be one
-        @target ||= target_name
-        REDUCER_KEYS.each do |key|
-          stream_name = "#{scope}__#{key}__#{target_name}__#{packet_name}"
-          new_streams << stream_name unless Store.exists?(stream_name)
-        end
-      end
-      Store.initialize_streams(new_streams)
-
-      @minute_topics =
-        new_streams.select { |stream| stream.include?(MINUTE_KEY) }
-      @hour_topics = new_streams.select { |stream| stream.include?(HOUR_KEY) }
-    end
-
-    # TODO: This needs work to calculate decom stream offsets in case this process
-    # dies and comes back. We need to calculate where to begin based on what's been
-    # processed in the reduced minute data.
-    def get_initial_offsets
-      @offsets = {}
-      @topics.each do |topic|
-        # Get decom stream offsets
-        id, msg = Store.get_oldest_message(topic)
-        if msg
-          @offsets[topic] = ns_ms(msg['time'])
-        else
-          @offsets[topic] = 0
-        end
-
-        # Get reduced stream offsets
-        scope, _, target_name, packet_name = topic.split('__')
-        REDUCER_KEYS.each do |key|
-          stream_name = "#{scope}__#{key}__#{target_name}__#{packet_name}"
-          id, msg = Store.get_oldest_message(stream_name)
-          if msg
-            @offsets[stream_name] = ns_ms(msg['time'])
-          else
-            @offsets[stream_name] = 0
-          end
-        end
-      end
     end
 
     def metric(name)
@@ -117,178 +86,224 @@ module Cosmos
         name: name,
         value: elapsed,
         labels: {
-          'target' => @target,
+          'target' => @target_name,
         },
       )
     end
 
     def reduce_minute
       metric(MINUTE_METRIC) do
-        # Reducing data to minute requires grabbing from the decom topics passed in
-        @topics.each do |topic|
-          process_topic(topic, Time::MSEC_PER_MINUTE, MINUTE_KEY)
-        end
+        ReducerModel
+          .all_files(type: :DECOM, target: @target_name, scope: @scope)
+          .each do |file|
+            if process_file(file, 'minute', MINUTE_ENTRY_SECS, MINUTE_FILE_SECS)
+              ReducerModel.rm_file(file)
+            end
+          end
       end
     end
 
     def reduce_hour
       metric(HOUR_METRIC) do
-        # Reducing data to hours requires grabbing from the minute data stream
-        @minute_topics.each do |topic|
-          process_topic(topic, Time::MSEC_PER_HOUR, HOUR_KEY)
-        end
+        ReducerModel
+          .all_files(type: :MINUTE, target: @target_name, scope: @scope)
+          .each do |file|
+            if process_file(file, 'hour', HOUR_ENTRY_SECS, HOUR_FILE_SECS)
+              ReducerModel.rm_file(file)
+            end
+          end
       end
     end
 
     def reduce_day
       metric(DAY_METRIC) do
-        # Reducing data to days requires grabbing from the hour data stream
-        @hour_topics.each do |topic|
-          process_topic(topic, Time::MSEC_PER_DAY, DAY_KEY)
-        end
+        ReducerModel
+          .all_files(type: :HOUR, target: @target_name, scope: @scope)
+          .each do |file|
+            if process_file(file, 'day', DAY_ENTRY_SECS, DAY_FILE_SECS)
+              ReducerModel.rm_file(file)
+            end
+          end
       end
     end
 
-    def process_topic(topic, time_period, key)
-      Logger.debug "Processing #{key} with topic #{topic}"
+    def process_file(filename, type, entry_seconds, file_seconds)
+      file = S3File.new(filename)
+      file.retrieve
 
-      # Ensure it's not sitting at 0 which means there is no data in the stream
-      if @offsets[topic] == 0
-        id, msg = Store.get_oldest_message(topic)
-        if msg
-          Logger.debug("Oldest message ID:#{id} time:#{ns_ms(msg['time'])}")
-          @offsets[topic] = ns_ms(msg['time'])
-        else
-          return # Still no data in stream, return and wait
-        end
+      # Determine if we already have a PacketLogWriter created
+      start_time, end_time, scope, target_name, packet_name, _ =
+        filename.split('__')
+      if @target_name != target_name
+        raise "Target name in file #{filename} does not match microservice target name #{@target_name}"
       end
-
-      newest_id, msg = Store.get_newest_message(topic)
-      newest_time = ns_ms(msg['time'])
-      Logger.debug "Newest message ID:#{newest_id}, time:#{newest_time} offset:#{@offsets[topic]}"
-
-      # Keep processing while we have data in the time_period
-      while ((newest_time - @offsets[topic]) >= time_period)
-        # milliseconds
-        # Prepend '(' to the last ID to make the xrange command exclusive (excludes the first value)
-        messages =
-          Store.xrange(
-            topic,
-            "(#{@offsets[topic]}",
-            @offsets[topic] + time_period,
-          )
-        process_messages(messages, key)
-
-        # Set the new offset to the last message time
-        @offsets[topic] = ns_ms(messages[-1][1]['time'])
-      end
-    end
-
-    def process_messages(messages, topic_key)
-      num_samples = 0
-      data = {} # Raw data
-      messages.each do |id, msg_hash|
-        values = JSON.parse(msg_hash['json_data'])
-
-        # Ignore anything except numbers, this automatically ignores limits, formatted and units values
-        values.select! { |key, value| value.is_a?(Numeric) }
-
-        # Reduce to eliminate RAW where a CONVERTED exists
-        values.keys.each do |key|
-          values[key[0...-3]] = values.delete(key) if key.include?('__C')
-        end
-        values.each do |key, value|
-          data[key] ||= []
-          data[key] << value
-        end
-        if msg_hash['num_samples']
-          num_samples = msg_hash['num_samples'].to_i
-        else
-          num_samples = values.length
-        end
+      plw = @packet_logs["#{scope}__#{target_name}__#{packet_name}__#{type}"]
+      unless plw
+        # Create a new PacketLogWriter for this reduced data
+        remote_log_directory =
+          "#{scope}/reduced_logs/tlm/#{target_name}/#{packet_name}"
+        rt_label = "#{scope}__#{target_name}__#{packet_name}__reduced__#{type}"
+        plw = PacketLogWriter.new(remote_log_directory, rt_label)
+        @packet_logs["#{scope}__#{target_name}__#{packet_name}__#{type}"] = plw
       end
 
       reduced = {}
-      total_samples = 0
-      data.each do |key, values|
-        if topic_key == MINUTE_KEY
-          total_samples = values.length
-          reduced["#{key}__MIN"] = values.min
-          reduced["#{key}__MAX"] = values.max
-          reduced["#{key}__AVG"], reduced["#{key}__STDDEV"] =
-            Math.stddev_population(values)
-        else
-          total_samples = num_samples * values.length
-          reduced[key] = values.min if key.include?('__MIN')
-          reduced[key] = values.max if key.include?('__MAX')
+      data_keys = nil
+      entry_time = nil
+      current_time = nil
+      previous_time = nil
+      plr = Cosmos::PacketLogReader.new
+      plr.each(file.local_path) do |packet|
+        data = packet.read_all(:CONVERTED)
 
-          # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
-          if key.include?('__AVG')
-            reduced[key] =
-              values.sum { |v| v * num_samples } / total_samples.to_f
+        # Ignore anything except numbers, this automatically ignores limits, formatted and units values
+        data.select! { |key, value| value.is_a?(Numeric) }
+        previous_time = current_time
+        current_time = packet.packet_time.to_f
+        entry_time ||= current_time
+        data_keys ||= data.keys
+
+        # Determine if we've rolled over a entry boundary
+        # We have to use current % entry_seconds < previous % entry_seconds because
+        # we don't know the data rates. We also have to check for current - previous >= entry_seconds
+        # in case the data rate is so slow we don't have multiple samples per entry
+        if previous_time &&
+             (
+               (current_time % entry_seconds < previous_time % entry_seconds) ||
+                 (current_time - previous_time >= entry_seconds)
+             )
+          Logger.debug("Reducer: Roll over entry boundary cur_time:#{current_time}")
+
+          reduce(type, data_keys, reduced)
+          plw.write(
+            :JSON_PACKET,
+            :TLM,
+            target_name,
+            packet_name,
+            entry_time * Time::NSEC_PER_SECOND,
+            false,
+            JSON.generate(reduced.as_json),
+          )
+          # Reset all our sample variables
+          entry_time = current_time
+          reduced = {}
+
+          # Check to see if we should start a new log file
+          # We compare the current entry_time to see if it will push us over
+          # if plw.first_time
+          #   puts "entry_time:#{entry_time} first:#{plw.first_time} diff:#{entry_time - plw.first_time.to_f} filetime:#{file_seconds}"
+          # end
+          if plw.first_time &&
+               (entry_time - plw.first_time.to_f) >= file_seconds
+            Logger.debug("Reducer: (1) start new file! old filename: #{plw.filename}")
+            plw.start_new_file # Automatically closes the current file
+          end
+        end
+
+        # Update statistics for this packet's values
+        data.each do |key, value|
+          if type == 'minute'
+            reduced["#{key}__VALS"] ||= []
+            reduced["#{key}__VALS"] << value
+            reduced["#{key}_MIN"] ||= value
+            reduced["#{key}_MIN"] = value if value < reduced["#{key}_MIN"]
+            reduced["#{key}_MAX"] ||= value
+            reduced["#{key}_MAX"] = value if value > reduced["#{key}_MAX"]
+          else
+            reduced[key] ||= value
+            reduced[key] = value if key.match(/_MIN$/) && value < reduced[key]
+            reduced[key] = value if key.match(/_MAX$/) && value > reduced[key]
+            if key.match(/_AVG$/)
+              reduced["#{key}__VALS"] ||= []
+              reduced["#{key}__VALS"] << value
+            end
+            if key.match(/_STDDEV$/)
+              reduced["#{key}__VALS"] ||= []
+              reduced["#{key}__VALS"] << value
+            end
+            if key.match(/_SAMPLES$/)
+              reduced["#{key}__VALS"] ||= []
+              reduced["#{key}__VALS"] << value
+            end
           end
         end
       end
+      file.delete # Remove the local copy
 
-      # Do the STDDEV calc last so we can use the previously calculated AVG
-      if topic_key != MINUTE_KEY
-        data
-          .keys
-          .select { |k| k.include?('__STDDEV') }
-          .each do |key|
-            values = data[key]
+      # See if this last entry should go in a new file
+      if plw.first_time &&
+        (entry_time - plw.first_time.to_f) >= file_seconds
+        Logger.debug("Reducer: (2) start new file! old filename: #{plw.filename}")
+        plw.start_new_file # Automatically closes the current file
+      end
 
-            # puts "key:#{key} vals:#{values} total:#{total_samples}" if key.include?('COLLECTS')
+      # Write out the final data now that the file is done
+      reduce(type, data_keys, reduced)
+      plw.write(
+        :JSON_PACKET,
+        :TLM,
+        target_name,
+        packet_name,
+        entry_time * Time::NSEC_PER_SECOND,
+        false,
+        JSON.generate(reduced.as_json),
+      )
+      true
+    rescue => e
+      Logger.error("Reducer Error #{e}\n#{e.backtrace}")
+    end
+
+    def reduce(type, data_keys, reduced)
+      # We've collected all the values so calculate the AVG and STDDEV
+      if type == 'minute'
+        data_keys.each do |key|
+          reduced["#{key}_SAMPLES"] = reduced["#{key}__VALS"].length
+          reduced["#{key}_AVG"], reduced["#{key}_STDDEV"] =
+            Math.stddev_population(reduced["#{key}__VALS"])
+
+          # Remove the raw values as they're only used for AVG / STDDEV calculation
+          reduced.delete("#{key}__VALS")
+        end
+      else
+        # Sort so we calculate the average first, then samples, then stddev
+        data_keys.sort.each do |key|
+          base_name = key.split('_')[0..-2].join('_')
+          case key
+          when /_AVG$/
+            weighted_sum = 0
+            samples = reduced["#{base_name}_SAMPLES__VALS"]
+            reduced["#{key}__VALS"].each_with_index do |val, i|
+              weighted_sum += (val * samples[i])
+            end
+            reduced[key] = weighted_sum / samples.sum
+          when /_SAMPLES$/
+            reduced[key] = reduced["#{base_name}_SAMPLES__VALS"].sum
+          when /_STDDEV$/
+            # Do the STDDEV calc last so we can use the previously calculated AVG
             # See https://math.stackexchange.com/questions/1547141/aggregating-standard-deviation-to-a-summary-point
-            avg_key = "#{key[0...-8]}__AVG"
-            avg_vals = data[avg_key]
-
-            # puts "avg key:#{avg_key} vals:#{avg_vals} reduced:#{reduced[avg_key]}" if key.include?('COLLECTS')
+            samples = reduced["#{base_name}_SAMPLES__VALS"]
+            avg = reduced["#{base_name}_AVG__VALS"]
             s2 = 0
-            values.each_with_index do |val, i|
-              # puts "i:#{i} std:#{val} avg:#{avg_vals[i]}" if key.include?('COLLECTS')
-              s2 += (num_samples * (avg_vals[i]**2 + val**2))
+            reduced["#{key}__VALS"].each_with_index do |val, i|
+              # puts "i:#{i} val:#{val} samples[i]:#{samples[i]} avg[i]:#{avg[i]}"
+              s2 += (samples[i] * avg[i]**2 + val**2)
             end
 
-            # puts "s2:#{s2} samples:#{num_samples} total:#{num_samples * values.length}" if key.include?('COLLECTS')
-            # Note: For very large numbers with very small deviations this sqrt can fail.  If so then just set the stddev to 0.
+            # Note: For very large numbers with very small deviations this sqrt can fail.
+            # If so then just set the stddev to 0.
             begin
-              reduced[key] = Math.sqrt(s2 / total_samples - reduced[avg_key]**2)
+              reduced[key] =
+                Math.sqrt(s2 / samples.sum - reduced["#{base_name}_AVG"])
             rescue Exception
               reduced[key] = 0.0
             end
           end
+        end
+        data_keys.each do |key|
+          # Remove the raw values as they're only used for AVG / STDDEV calculation
+          reduced.delete("#{key}__VALS")
+        end
       end
-
-      target_name = messages[0][1]['target_name']
-      packet_name = messages[0][1]['packet_name']
-      msg_hash = {
-        time: idi(messages[-1][0]) * 1_000_000, # Convert milliseconds to nanoseconds
-        target_name: target_name,
-        packet_name: packet_name,
-        num_samples: total_samples,
-        json_data: JSON.generate(reduced.as_json),
-      }
-      id = @test ? "#{idi(messages[-1][0])}-0" : nil
-      Store.write_topic(
-        "#{scope}__#{topic_key}__{#{target_name}}__#{packet_name}",
-        msg_hash,
-        id,
-      )
-    end
-
-    private
-
-    # Convert String of nanoseconds to Integer milliseconds
-    def ns_ms(nanoseconds)
-      nanoseconds.to_i / 1_000_000
-    end
-
-    # Return the ID integer (idi) from a Redis Stream ID
-    def idi(id)
-      # See https://redis.io/topics/streams-intro for more info
-      # Stream IDs are formatted as timestamp dash sequence, e.g. 1519073278252-0
-      id.split('-')[0].to_i
     end
   end
 end

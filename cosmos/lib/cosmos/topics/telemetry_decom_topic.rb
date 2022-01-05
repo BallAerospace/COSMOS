@@ -29,6 +29,21 @@ module Cosmos
       # If nothing - item does not exist - nil
       # __ as seperators ITEM1, ITEM1__C, ITEM1__F, ITEM1__U
 
+      json_hash = self.build_json(packet)
+      # Write to stream
+      msg_hash = { time: packet.packet_time.to_nsec_from_epoch,
+                   stored: packet.stored,
+                   target_name: packet.target_name,
+                   packet_name: packet.packet_name,
+                   received_count: packet.received_count,
+                   json_data: JSON.generate(json_hash.as_json) }
+
+      Store.write_topic("#{scope}__DECOM__{#{packet.target_name}}__#{packet.packet_name}", msg_hash, id)
+      # Also update the current value table with the latest decommutated data
+      CvtModel.set(json_hash, target_name: packet.target_name, packet_name: packet.packet_name, scope: scope)
+    end
+
+    def self.build_json(packet)
       json_hash = {}
       packet.sorted_items.each do |item|
         json_hash[item.name] = packet.read_item(item, :RAW)
@@ -38,23 +53,7 @@ module Cosmos
         limits_state = item.limits.state
         json_hash["#{item.name}__L"] = limits_state if limits_state
       end
-
-      # Write to stream
-      msg_hash = { time: packet.packet_time.to_nsec_from_epoch,
-                   stored: packet.stored,
-                   target_name: packet.target_name,
-                   packet_name: packet.packet_name,
-                   received_count: packet.received_count,
-                   json_data: JSON.generate(json_hash.as_json) }
-
-      # NOTE: The final parameter is important! (See DecomLogMicroservice)
-      # It must be greater than the size of a log file to allow the decom_log_microservice
-      # to write and close the previous log file and still have data available
-      # for the streaming_api to switch between a closed log file and the active Redis stream.
-      # TODO: How do we handle various data rates?
-      Store.write_topic("#{scope}__DECOM__{#{packet.target_name}}__#{packet.packet_name}", msg_hash, id, 4000)
-      # Also update the current value table with the latest decommutated data
-      CvtModel.set(json_hash, target_name: packet.target_name, packet_name: packet.packet_name, scope: scope)
+      json_hash
     end
   end
 end

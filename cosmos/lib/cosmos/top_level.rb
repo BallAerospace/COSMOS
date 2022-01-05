@@ -340,7 +340,7 @@ module Cosmos
 
   # Writes a log file with information about unexpected output
   #
-  # @param[String] text The unexpected output text
+  # @param [String] text The unexpected output text
   # @param [String] filename String to append to the exception log filename.
   #   The filename will start with a date/time stamp.
   # @param [String] log_dir By default this method will write to the COSMOS
