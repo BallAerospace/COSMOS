@@ -183,7 +183,7 @@ describe Array do
     end
   end
 
-  describe "max_with_index" do
+  describe "max_with_index", no_ext: true do
     it "finds the first maximum value and its index" do
       expect(Array.new([0, 1, 8, 3, 4]).max_with_index).to eql [8, 2]
       expect(Array.new([-1, -8, -3, -4]).max_with_index).to eql [-1, 0]
@@ -191,7 +191,7 @@ describe Array do
     end
   end
 
-  describe "min_with_index" do
+  describe "min_with_index", no_ext: true do
     it "finds the first maximum value and its index" do
       expect(Array.new([8, 9, 2, 5, 6]).min_with_index).to eql [2, 2]
       expect(Array.new([-1, -8, -3, -4]).min_with_index).to eql [-8, 1]

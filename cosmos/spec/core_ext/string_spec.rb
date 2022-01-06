@@ -117,7 +117,7 @@ describe String do
     end
   end
 
-  describe "remove_quotes" do
+  describe "remove_quotes", no_ext: true do
     context "with single quotes" do
       it "removes leading and trailing single quotes" do
         test = "'string'"

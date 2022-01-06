@@ -31,7 +31,7 @@ module Cosmos
       ConfigParser.progress_callback = nil
     end
 
-    describe "parse_file" do
+    describe "parse_file", no_ext: true do
       it "yields keyword, parameters to the block" do
         tf = Tempfile.new('unittest')
         line = "KEYWORD PARAM1 PARAM2 'PARAM 3'"

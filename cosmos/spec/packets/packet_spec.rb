@@ -48,7 +48,7 @@ module Cosmos
       end
     end
 
-    describe "target_name=" do
+    describe "target_name=", no_ext: true do
       it "sets the target_name to an uppercase String" do
         p = Packet.new("tgt", "pkt")
         expect(p.target_name).to eql "TGT"
@@ -64,7 +64,7 @@ module Cosmos
       end
     end
 
-    describe "packet_name=" do
+    describe "packet_name=", no_ext: true do
       it "sets the packet_name to an uppercase String" do
         p = Packet.new("tgt", "pkt")
         expect(p.packet_name).to eql "PKT"
@@ -80,7 +80,7 @@ module Cosmos
       end
     end
 
-    describe "description=" do
+    describe "description=", no_ext: true do
       it "sets the description to a String" do
         p = Packet.new("tgt", "pkt", :BIG_ENDIAN, "This is a description")
         expect(p.description).to eql "This is a description"
@@ -118,7 +118,7 @@ module Cosmos
       end
     end
 
-    describe "received_time=" do
+    describe "received_time=", no_ext: true do
       it "sets the received_time to a Time" do
         p = Packet.new("tgt", "pkt")
         t = Time.now
@@ -138,7 +138,7 @@ module Cosmos
       end
     end
 
-    describe "received_count=" do
+    describe "received_count=", no_ext: true do
       it "sets the received_count to a Fixnum" do
         p = Packet.new("tgt", "pkt")
         p.received_count = 10

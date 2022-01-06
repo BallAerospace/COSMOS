@@ -21,7 +21,7 @@ require 'spec_helper'
 require 'cosmos/io/buffered_file'
 
 module Cosmos
-  describe BufferedFile do
+  describe BufferedFile, no_ext: true do
     DATA = "RyanSaysHelloToU"
 
     before(:all) do

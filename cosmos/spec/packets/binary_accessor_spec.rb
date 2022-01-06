@@ -22,7 +22,7 @@ require 'cosmos'
 require 'cosmos/packets/binary_accessor'
 
 module Cosmos
-  describe BinaryAccessor do
+  describe BinaryAccessor, no_ext: true do
     describe "read only" do
       before(:each) do
         @data = "\x80\x81\x82\x83\x84\x85\x86\x87\x00\x09\x0A\x0B\x0C\x0D\x0E\x0F"

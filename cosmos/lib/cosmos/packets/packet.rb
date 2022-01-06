@@ -100,11 +100,12 @@ module Cosmos
       #   subclass of PacketItem)
       def initialize(target_name, packet_name, default_endianness = :BIG_ENDIAN, description = nil, buffer = '', item_class = PacketItem)
         super(default_endianness, buffer, item_class)
-        @target_name = target_name
-        @packet_name = packet_name
-        @description = description
-        @received_time = nil
-        @received_count = 0
+        # Explictly call the defined setter methods
+        self.target_name = target_name
+        self.packet_name = packet_name
+        self.description = description
+        self.received_time = nil
+        self.received_count = 0
         @id_items = nil
         @hazardous = false
         @hazardous_description = nil
