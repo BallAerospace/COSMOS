@@ -81,7 +81,7 @@ spec = Gem::Specification.new do |s|
   s.required_ruby_version = '>= 2.7'
 
   # Runtime Dependencies
-  s.add_runtime_dependency 'bundler',   '~> 2.2'
+  s.add_runtime_dependency 'bundler',   '~> 2.1'
   s.add_runtime_dependency 'rdoc',      '~> 6.3'
   s.add_runtime_dependency 'rake',      '~> 13.0'
   s.add_runtime_dependency 'json',      '~> 2.6'
