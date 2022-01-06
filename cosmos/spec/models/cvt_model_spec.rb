@@ -50,6 +50,15 @@ module Cosmos
       end
     end
 
+    describe "self.del" do
+      it "deletes a target / packet from the CVT" do
+        update_temp1()
+        expect(Store.hkeys("DEFAULT__tlm__INST")).to eql ["HEALTH_STATUS"]
+        CvtModel.del(target_name: "INST", packet_name: "HEALTH_STATUS", scope: "DEFAULT")
+        expect(Store.hkeys("DEFAULT__tlm__INST")).to eql []
+      end
+    end
+
     describe "self.set_item" do
       it "raises for an unknown type" do
         expect { CvtModel.set_item("INST", "HEALTH_STATUS", "TEMP1", 0, type: :OTHER, scope: "DEFAULT") }.to raise_error(/Unknown type 'OTHER'/)

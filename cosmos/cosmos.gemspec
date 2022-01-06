@@ -81,42 +81,42 @@ spec = Gem::Specification.new do |s|
   s.required_ruby_version = '>= 2.7'
 
   # Runtime Dependencies
-  s.add_runtime_dependency 'bundler', '>= 1.3'
-  s.add_runtime_dependency 'rdoc', '>= 4'
-  s.add_runtime_dependency 'rake', '>= 10.0' # 10.0 released Nov 12, 2012
-  s.add_runtime_dependency 'json', '~> 2.5'
-  s.add_runtime_dependency 'yard', '~> 0.9.11'
+  s.add_runtime_dependency 'bundler',   '~> 2.2'
+  s.add_runtime_dependency 'rdoc',      '~> 6.3'
+  s.add_runtime_dependency 'rake',      '~> 13.0'
+  s.add_runtime_dependency 'json',      '~> 2.6'
+  s.add_runtime_dependency 'yard',      '~> 0.9'
   s.add_runtime_dependency 'uuidtools', '~> 2.1'
-  s.add_runtime_dependency 'snmp', '~> 1.0'
-  s.add_runtime_dependency 'rubyzip', '~> 2.0'
-  s.add_runtime_dependency 'nokogiri', '~> 1.11'
-  s.add_runtime_dependency 'puma', '~> 5.0'
-  s.add_runtime_dependency 'rack', '~> 2.0'
+  s.add_runtime_dependency 'snmp',      '~> 1.3'
+  s.add_runtime_dependency 'rubyzip',   '~> 2.3'
+  s.add_runtime_dependency 'nokogiri',  '~> 1.12'
+  s.add_runtime_dependency 'puma',      '~> 5.5'
+  s.add_runtime_dependency 'rack',      '~> 2.2'
+  s.add_runtime_dependency 'redis',     '~> 4.5'
   s.add_runtime_dependency 'httpclient', '~> 2.8'
-  s.add_runtime_dependency 'redis', '~> 4.3'
-  s.add_runtime_dependency 'childprocess', '~> 3.0'
+  s.add_runtime_dependency 'aws-sdk-s3', '~> 1.111'
+  s.add_runtime_dependency 'tzinfo-data', '~> 1.2021'
+  s.add_runtime_dependency 'childprocess', '~> 4.1'
   s.add_runtime_dependency 'connection_pool', '~> 2.2'
-  s.add_runtime_dependency 'aws-sdk-s3', '~> 1.67'
-  s.add_runtime_dependency 'rufus-scheduler', '~> 3.7'
-  s.add_runtime_dependency 'tzinfo-data', '~> 1'
+  s.add_runtime_dependency 'rufus-scheduler', '~> 3.8'
 
   # Development Dependencies
-  s.add_development_dependency 'dead_end', '~> 3.0'
-  s.add_development_dependency 'diff-lcs', '~> 1.3' if RUBY_ENGINE == 'ruby' # Get latest for MRI
-  s.add_development_dependency 'rspec', '~> 3.5'
-  s.add_development_dependency 'flog', '~> 4.0'
-  s.add_development_dependency 'flay', '~> 2.0'
-  # s.add_development_dependency 'reek', '~> 6.0' # Dependency conflict
-  s.add_development_dependency 'listen', '~> 3.0'
-  s.add_development_dependency 'mock_redis', '~> 0.28'
+  s.add_development_dependency 'dead_end', '~> 3.1'
+  s.add_development_dependency 'diff-lcs', '~> 1.5' if RUBY_ENGINE == 'ruby' # Get latest for MRI
+  s.add_development_dependency 'rspec', '~> 3.10'
+  s.add_development_dependency 'flog', '~> 4.6'
+  s.add_development_dependency 'flay', '~> 2.12'
+  s.add_development_dependency 'reek', '~> 6.0'
+  s.add_development_dependency 'listen', '~> 3.7'
+  s.add_development_dependency 'mock_redis', '~> 0.29'
   # s.add_development_dependency 'guard', '~> 2.0'
   # s.add_development_dependency 'guard-bundler', '~> 2.0'
   # s.add_development_dependency 'guard-rspec', '~> 4.0'
-  s.add_development_dependency 'simplecov', '~> 0.20'
-  s.add_development_dependency 'codecov', '~> 0.4'
-  s.add_development_dependency 'benchmark-ips', '~> 2.0'
-  s.add_development_dependency 'ruby-prof', ['~> 1.0', '< 1.3'] if RUBY_ENGINE == 'ruby' # MRI Only
-  s.add_development_dependency 'rspec_junit_formatter'
+  s.add_development_dependency 'simplecov', '~> 0.21'
+  s.add_development_dependency 'codecov', '~> 0.6'
+  s.add_development_dependency 'benchmark-ips', '~> 2.9'
+  s.add_development_dependency 'ruby-prof', '~> 1.4' if RUBY_ENGINE == 'ruby' # MRI Only
+  s.add_development_dependency 'rspec_junit_formatter', '~> 0.5'
 
   s.post_install_message = "Thanks for installing Ball Aerospace COSMOS!\n"
 end

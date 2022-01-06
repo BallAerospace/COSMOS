@@ -25,6 +25,11 @@ module Cosmos
     # Stores telemetry item overrides which are returned on every request to get_item
     @overrides = {}
 
+    # Delete the current value table for a target
+    def self.del(target_name:, packet_name:, scope:)
+      Store.hdel("#{scope}__tlm__#{target_name}", packet_name)
+    end
+
     # Set the current value table for a target, packet
     def self.set(hash, target_name:, packet_name:, scope:)
       Store.hset("#{scope}__tlm__#{target_name}", packet_name, JSON.generate(hash.as_json))
