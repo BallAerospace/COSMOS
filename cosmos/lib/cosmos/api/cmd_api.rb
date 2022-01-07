@@ -181,7 +181,7 @@ module Cosmos
     # @param data [String] The raw binary data
     def send_raw(interface_name, data, scope: $cosmos_scope, token: $cosmos_token)
       authorize(permission: 'cmd_raw', interface_name: interface_name, scope: scope, token: token)
-      get_interface(interface_name) # Check to make sure the interface exists
+      get_interface(interface_name, scope: scope, token: token) # Check to make sure the interface exists
       InterfaceTopic.write_raw(interface_name, data, scope: scope)
     end
 
