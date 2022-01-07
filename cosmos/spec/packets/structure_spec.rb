@@ -23,7 +23,7 @@ require 'cosmos/packets/structure'
 
 module Cosmos
   describe Structure do
-    describe "initialize" do
+    describe "initialize", no_ext: true do
       it "complains about non string buffers" do
         expect { Structure.new(:BIG_ENDIAN, Array.new) }.to raise_error(TypeError, "wrong argument type Array (expected String)")
       end
@@ -349,7 +349,7 @@ module Cosmos
       end
     end
 
-    describe "read_item" do
+    describe "read_item", no_ext: true do
       it "complains if no buffer given" do
         s = Structure.new
         s.define_item("test1", 0, 8, :UINT)

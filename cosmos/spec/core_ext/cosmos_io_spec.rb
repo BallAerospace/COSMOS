@@ -25,7 +25,7 @@ class StringIO
 end
 
 describe StringIO do
-  describe "read_length_bytes" do
+  describe "read_length_bytes", no_ext: true do
     it "returns nil if length field is not 1, 2 or 4" do
       io = StringIO.new
       io.write "\x01\x01\x01\x01\x01\x01\x01\x01"
