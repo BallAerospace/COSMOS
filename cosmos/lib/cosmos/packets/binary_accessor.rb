@@ -57,7 +57,7 @@ module Cosmos
     PACK_BIG_ENDIAN_32_BIT_FLOAT_ARRAY = 'g*'
     PACK_BIG_ENDIAN_64_BIT_FLOAT_ARRAY = 'G*'
 
-    if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_ENV']
+    if RUBY_ENGINE != 'ruby' or ENV['COSMOS_NO_EXT']
       MIN_INT8 = -128
       MAX_INT8 = 127
       MAX_UINT8 = 255

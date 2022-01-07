@@ -79,9 +79,6 @@ module Cosmos
   describe "self.marshal_dump, self.marshal_load" do
     it "dumps and load a Ruby object" do
       capture_io do |stdout|
-        # Configure the user path to be local
-        # ENV['COSMOS_USERPATH'] = File.dirname(__FILE__)
-
         array = [1, 2, 3, 4]
         Cosmos.marshal_dump('marshal_test', array)
         array_load = Cosmos.marshal_load('marshal_test')

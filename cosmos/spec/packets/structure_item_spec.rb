@@ -147,7 +147,7 @@ module Cosmos
       end
     end
 
-    describe "<=>" do
+    describe "<=>", no_ext: true do
       it "sorts items according to positive bit offset" do
         si1 = StructureItem.new("si1", 0, 8, :UINT, :BIG_ENDIAN, nil)
         si2 = StructureItem.new("si2", 8, 8, :UINT, :BIG_ENDIAN, nil)

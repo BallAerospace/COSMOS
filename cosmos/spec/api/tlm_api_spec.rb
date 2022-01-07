@@ -626,7 +626,7 @@ module Cosmos
         items << 'INST__MECH__SLRPNL1__CONVERTED'
         items << 'INST__ADCS__POSX__CONVERTED'
         vals = @api.get_tlm_values(items)
-        expect(vals[0][0]).to eql -100.0
+        expect(vals[0][0]).to eql(-100.0)
         expect(vals[1][0]).to be_nil
         expect(vals[2][0]).to be_nil
         expect(vals[3][0]).to be_nil

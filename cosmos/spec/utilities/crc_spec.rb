@@ -24,7 +24,7 @@ module Cosmos
   # CRC 'answers' were found at
   # http://www.tty1.net/pycrc/crc-models_en.html
 
-  describe Crc16 do
+  describe Crc16, no_ext: true do
     describe "calc" do
       it "calculates a 16 bit CRC" do
         @crc = Crc16.new()
@@ -33,7 +33,7 @@ module Cosmos
     end
   end
 
-  describe Crc32 do
+  describe Crc32, no_ext: true do
     describe "calc" do
       it "calculates a 32 bit CRC" do
         @crc = Crc32.new()
@@ -42,7 +42,7 @@ module Cosmos
     end
   end
 
-  describe Crc64 do
+  describe Crc64, no_ext: true do
     describe "calc" do
       it "calculates a 64 bit CRC" do
         @crc = Crc64.new()

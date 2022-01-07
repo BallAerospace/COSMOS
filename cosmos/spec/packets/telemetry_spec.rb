@@ -23,7 +23,7 @@ require 'cosmos/packets/telemetry'
 require 'tempfile'
 
 module Cosmos
-  describe Telemetry do
+  describe Telemetry, no_ext: true do
     describe "initialize" do
       it "has no warnings" do
         expect(Telemetry.new(PacketConfig.new).warnings).to be_empty
@@ -31,6 +31,8 @@ module Cosmos
     end
 
     before(:all) do
+      ConfigParser.message_callback = nil
+      ConfigParser.progress_callback = nil
       setup_system()
     end
 

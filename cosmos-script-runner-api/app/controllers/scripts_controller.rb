@@ -168,4 +168,20 @@ class ScriptsController < ApplicationController
       head :error
     end
   end
+
+  def instrumented
+    begin
+      authorize(permission: 'script_view', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+    end
+    script = Script.instrumented(params[:name], request.body.read)
+    if script
+      render :json => script
+    else
+      head :error
+    end
+  end
 end

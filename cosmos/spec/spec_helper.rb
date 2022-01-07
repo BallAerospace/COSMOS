@@ -19,24 +19,22 @@
 
 # Redefine Object.load so simplecov doesn't overwrite the results after
 # re-loading a file during test.
-def load(file, wrap = false)
-  if defined? SimpleCov
-    SimpleCov.start do
-      command_name "#{command_name}1"
-    end
-  end
-  Kernel.load(file, wrap)
-end
+# def load(file, wrap = false)
+#   if defined? SimpleCov
+#     SimpleCov.command_name "#{file}#{(Time.now.to_f * 1000).to_i}"
+#   end
+#   Kernel.load(file, wrap)
+# end
 
 # NOTE: You MUST require simplecov before anything else!
 if !ENV['COSMOS_NO_SIMPLECOV']
   require 'simplecov'
   if ENV['GITHUB_WORKFLOW']
     require 'codecov'
-    SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
-                                                                     SimpleCov::Formatter::HTMLFormatter,
-                                                                     SimpleCov::Formatter::Codecov,
-                                                                   ])
+    SimpleCov.formatter =
+      SimpleCov::Formatter::MultiFormatter.new(
+        [SimpleCov::Formatter::HTMLFormatter, SimpleCov::Formatter::Codecov],
+      )
   end
   SimpleCov.start do
     merge_timeout 60 * 60 # merge the last hour of results
@@ -54,8 +52,6 @@ if !ENV['COSMOS_NO_SIMPLECOV']
 end
 require 'rspec'
 
-# Set the user path to our COSMOS configuration in the spec directory
-ENV['COSMOS_USERPATH'] = File.join(File.dirname(File.expand_path(__FILE__)), 'install')
 # Disable Redis and Fluentd in the Logger
 ENV['COSMOS_NO_STORE'] = 'true'
 # Set some passwords
@@ -73,9 +69,8 @@ ENV['COSMOS_MINIO_PASSWORD'] = 'cosmosminiopassword'
 # Set cosmos scope
 ENV['COSMOS_SCOPE'] = 'DEFAULT'
 
-# TODO: This is a hack until we figure out COSMOS_USERPATH
 module Cosmos
-  USERPATH = ENV['COSMOS_USERPATH']
+  USERPATH = File.join(File.dirname(File.expand_path(__FILE__)), 'install')
 end
 
 require 'cosmos/top_level'
@@ -87,7 +82,7 @@ $cosmos_scope = ENV['COSMOS_SCOPE']
 $cosmos_token = ENV['COSMOS_API_PASSWORD']
 $cosmos_authorize = false
 
-def setup_system(targets = ["SYSTEM", "INST", "EMPTY"])
+def setup_system(targets = %w[SYSTEM INST EMPTY])
   capture_io do |stdout|
     require 'cosmos/system'
     dir = File.join(__dir__, 'install', 'config', 'targets')
@@ -128,6 +123,7 @@ end
 def mock_redis
   redis = MockRedis.new
   allow(Redis).to receive(:new).and_return(redis)
+
   # pool = double(ConnectionPool)
   # allow(pool).to receive(:with) { redis }
   # allow(ConnectionPool).to receive(:new).and_return(pool)
@@ -139,7 +135,14 @@ end
 
 # Clean up the spec configuration directory
 def clean_config
-  %w(outputs/logs outputs/saved_config outputs/tmp outputs/tables outputs/handbooks procedures).each do |dir|
+  %w[
+    outputs/logs
+    outputs/saved_config
+    outputs/tmp
+    outputs/tables
+    outputs/handbooks
+    procedures
+  ].each do |dir|
     FileUtils.rm_rf(Dir.glob(File.join(Cosmos::USERPATH, dir, '*')))
   end
 end
@@ -149,6 +152,7 @@ end
 def capture_io(output = false)
   # Set the logger level to DEBUG so we see all output
   Cosmos::Logger.instance.level = Logger::DEBUG
+
   # Create a StringIO object to capture the output
   stdout = StringIO.new('', 'r+')
   $stdout = stdout
@@ -156,6 +160,7 @@ def capture_io(output = false)
   Cosmos.disable_warnings do
     # Save the old STDOUT constant value
     saved_stdout = Object.const_get(:STDOUT)
+
     # Set STDOUT to our StringIO object
     Object.const_set(:STDOUT, $stdout)
   end
@@ -165,10 +170,10 @@ def capture_io(output = false)
 
   # Restore the logger to FATAL to prevent all kinds of output
   Cosmos::Logger.level = Logger::FATAL
+
   # Restore the STDOUT constant
-  Cosmos.disable_warnings do
-    Object.const_set(:STDOUT, saved_stdout)
-  end
+  Cosmos.disable_warnings { Object.const_set(:STDOUT, saved_stdout) }
+
   # Restore the $stdout global to be STDOUT
   $stdout = STDOUT
   puts stdout.string if output # Print the capture for debugging
@@ -180,7 +185,9 @@ def running_threads
   Thread.list.each do |t|
     if RUBY_ENGINE == 'jruby'
       thread_name = JRuby.reference(t).native_thread.get_name
-      threads << t.inspect unless thread_name == "Finalizer" or thread_name.include?("JRubyWorker")
+      unless thread_name == 'Finalizer' or thread_name.include?('JRubyWorker')
+        threads << t.inspect
+      end
     else
       threads << t.inspect
     end
@@ -194,15 +201,16 @@ def kill_leftover_threads
     if Thread.list.length > 2
       Thread.list.each do |t|
         thread_name = JRuby.reference(t).native_thread.get_name
-        t.kill if t != Thread.current and thread_name != "Finalizer" and !thread_name.include?("JRubyWorker")
+        if t != Thread.current and thread_name != 'Finalizer' and
+             !thread_name.include?('JRubyWorker')
+          t.kill
+        end
       end
       sleep(0.2)
     end
   else
     if Thread.list.length > 1
-      Thread.list.each do |t|
-        t.kill if t != Thread.current
-      end
+      Thread.list.each { |t| t.kill if t != Thread.current }
       sleep(0.2)
     end
   end
@@ -224,35 +232,34 @@ RSpec.configure do |config|
   # Store standard output global and CONSTANT since we will mess with them
   config.before(:all) do
     $saved_stdout_global = $stdout
-    $saved_stdout_const  = Object.const_get(:STDOUT)
+    $saved_stdout_const = Object.const_get(:STDOUT)
   end
 
-  config.after(:all) {
+  config.after(:all) do
     Cosmos.disable_warnings do
       def Object.exit(*args)
         old_exit(*args)
       end
     end
-  }
+  end
 
   # Before each test make sure $stdout and STDOUT are set. They might be messed
   # up if a spec fails in the middle of capture_io and we don't have a chance
   # to return and reset them.
   config.before(:each) do
     $stdout = $saved_stdout_global if $stdout != $saved_stdout_global
-    Cosmos.disable_warnings do
-      Object.const_set(:STDOUT, $saved_stdout_const)
-    end
-    kill_leftover_threads()
+    Cosmos.disable_warnings { Object.const_set(:STDOUT, $saved_stdout_const) }
+    kill_leftover_threads
   end
 
   config.after(:each) do
     # Make sure we didn't leave any lingering threads
-    threads = running_threads()
-    thread_count = threads.size()
+    threads = running_threads
+    thread_count = threads.size
     running_threads_str = threads.join("\n")
 
-    expect(thread_count).to eql(1), "At end of test expect 1 remaining thread but found #{thread_count}.\nEnsure you kill all spawned threads before the test finishes.\nThreads:\n#{running_threads_str}"
+    expect(thread_count).to eql(1),
+    "At end of test expect 1 remaining thread but found #{thread_count}.\nEnsure you kill all spawned threads before the test finishes.\nThreads:\n#{running_threads_str}"
   end
 end
 
