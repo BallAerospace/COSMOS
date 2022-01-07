@@ -401,7 +401,7 @@ module Cosmos
         data_to_print.each_byte do |byte|
           string << sprintf("%02X", byte)
         end
-        Logger.error string
+        Logger.warn string
       end
 
       # Write to stream

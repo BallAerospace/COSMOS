@@ -75,5 +75,16 @@ module Cosmos
         expect(json['updated_at']).to eql 12345
       end
     end
+
+    describe "deploy" do
+      it "deploys the microservices" do
+        dir = File.join(SPEC_DIR, "install")
+        model = ScopeModel.new(name: "DEFAULT", updated_at: 12345)
+        model.create
+        model.deploy(dir, {})
+        expect(Store.exists("DEFAULT__COMMAND__{UNKNOWN}__UNKNOWN")).to eql 1
+        expect(Store.exists("DEFAULT__TELEMETRY__{UNKNOWN}__UNKNOWN")).to eql 1
+      end
+    end
   end
 end

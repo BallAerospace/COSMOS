@@ -95,9 +95,48 @@ module Cosmos
         options: [
           # The following options are optional (600 and 50_000_000 are the defaults)
           ["CYCLE_TIME", "3600"], # Keep at most 1 hour per log
-          # ["CYCLE_SIZE", "50_000_000"] # Keep at most ~50MB per log
         ],
         topics: ["#{@scope}__cosmos_notifications"],
+        scope: @scope
+      )
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
+
+      # UNKNOWN CommandLog Microservice
+      Store.initialize_streams(["#{@scope}__COMMAND__{UNKNOWN}__UNKNOWN"])
+      microservice_name = "#{@scope}__COMMANDLOG__UNKNOWN"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        options: [
+          ["RAW_OR_DECOM", "RAW"],
+          ["CMD_OR_TLM", "CMD"],
+          ["CYCLE_TIME", "3600"], # Keep at most 1 hour per log
+        ],
+        topics: ["#{@scope}__COMMAND__{UNKNOWN}__UNKNOWN"],
+        target_names: [],
+        scope: @scope
+      )
+      microservice.create
+      microservice.deploy(gem_path, variables)
+      Logger.info "Configured microservice #{microservice_name}"
+
+      # UNKNOWN PacketLog Microservice
+      Store.initialize_streams(["#{@scope}__TELEMETRY__{UNKNOWN}__UNKNOWN"])
+      microservice_name = "#{@scope}__PACKETLOG__UNKNOWN"
+      microservice = MicroserviceModel.new(
+        name: microservice_name,
+        cmd: ["ruby", "log_microservice.rb", microservice_name],
+        work_dir: '/cosmos/lib/cosmos/microservices',
+        options: [
+          ["RAW_OR_DECOM", "RAW"],
+          ["CMD_OR_TLM", "TLM"],
+          ["CYCLE_TIME", "3600"], # Keep at most 1 hour per log
+        ],
+        topics: ["#{@scope}__TELEMETRY__{UNKNOWN}__UNKNOWN"],
+        target_names: [],
         scope: @scope
       )
       microservice.create
@@ -112,11 +151,15 @@ module Cosmos
       model.destroy if model
       model = MicroserviceModel.get_model(name: "#{@scope}__NOTIFICATION__LOG", scope: @scope)
       model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__COMMANDLOG__UNKNOWN", scope: @scope)
+      model.destroy if model
+      model = MicroserviceModel.get_model(name: "#{@scope}__PACKETLOG__UNKNOWN", scope: @scope)
+      model.destroy if model
     end
 
     def seed_database
       # Set default values for items in the db that should be set
-      # Should use the "nx" (not-exists) variant of redis calls here to not overwrite things the user has already set
+      # Use the "nx" (not-exists) variant of redis calls here to not overwrite things the user has already set
       Cosmos::Store.hsetnx('cosmos__settings', 'source_url', 'https://github.com/BallAerospace/COSMOS')
       Cosmos::Store.hsetnx('cosmos__settings', 'version', ENV['COSMOS_VERSION'] || '5.0.X')
     end
