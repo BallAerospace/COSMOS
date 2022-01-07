@@ -22,11 +22,9 @@
     <top-bar :menus="menus" :title="title" />
     <v-container>
       <v-row>
+        <v-col> Oldest found log data: </v-col>
         <v-col>
-          Oldest found log data:
-        </v-col>
-        <v-col>
-           {{ oldestLogDateTime }}
+          {{ oldestLogDateTime }}
         </v-col>
       </v-row>
       <v-row>
