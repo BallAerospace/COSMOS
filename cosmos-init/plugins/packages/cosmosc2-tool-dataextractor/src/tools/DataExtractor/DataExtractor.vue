@@ -23,6 +23,14 @@
     <v-container>
       <v-row>
         <v-col>
+          Oldest found log data:
+        </v-col>
+        <v-col>
+           {{ oldestLogDateTime }}
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
           <v-text-field
             v-model="startDate"
             label="Start Date"
@@ -287,6 +295,7 @@ export default {
       processButtonText: 'Process',
       todaysDate: format(new Date(), 'yyyy-MM-dd'),
       oldestLogDate: format(new Date(), 'yyyy-MM-dd'),
+      oldestLogDateTime: '',
       startDate: format(new Date(), 'yyyy-MM-dd'),
       startTime: format(new Date(), 'HH:mm:ss'),
       endTime: format(new Date(), 'HH:mm:ss'),
@@ -422,8 +431,7 @@ export default {
         this.oldestLogDate = format(date, 'yyyy-MM-dd')
         // Set the start date / time to the earliest data found
         // This clues the user in to how much data they have to work with
-        this.startDate = format(date, 'yyyy-MM-dd')
-        this.startTime = format(date, 'HH:mm:ss')
+        this.oldestLogDateTime = format(date, 'yyyy-MM-dd HH:mm:ss')
       })
   },
   mounted: function () {
@@ -487,7 +495,8 @@ export default {
         if (
           listItem.itemName === item.itemName &&
           listItem.packetName === item.packetName &&
-          listItem.targetName === item.targetName
+          listItem.targetName === item.targetName &&
+          listItem.valueType === 'CONVERTED'
         ) {
           this.$notify.caution({
             body: 'This item has already been added!',
@@ -668,7 +677,12 @@ export default {
       const data = JSON.parse(json_data)
       // Initially we just build up the list of data
       if (data.length > 0) {
-        this.buildHeaders(Object.keys(data[0]))
+        // Get all the items present in the data to pass to buildHeaders
+        let keys = new Set()
+        for (var item of data) {
+          keys.add(...Object.keys(item))
+        }
+        this.buildHeaders([...keys])
         this.rawData = this.rawData.concat(data)
         this.progress = Math.ceil(
           (100 * (data[0]['time'] - this.startDateTime)) /

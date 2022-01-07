@@ -246,7 +246,7 @@ RSpec.describe StreamingApi, type: :model do
             data['end_time'] = (@start_time.to_i - 0.25) * 1_000_000_000 # 0.25s in the past
             @api.add(data)
             sleep 0.65 # Allow the threads to run
-            # We expect 5 messages because total time is 2.25s and we get a packet at 1, 2, then one more plus empty
+            # We expect 3 messages because total time is 2.25s and we get a packet at 1, 2, then one more plus empty
             expect(@messages.length).to eq(3)
             expect(@messages[-1]).to eq("[]") # JSON encoded empty message to say we're done
             logged = @api.instance_variable_get('@logged_threads')
