@@ -108,7 +108,6 @@ module Cosmos
       microservice_name = "#{@scope}__COMMANDLOG__UNKNOWN"
       microservice = MicroserviceModel.new(
         name: microservice_name,
-        folder_name: microservice_name,
         cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [
@@ -129,7 +128,6 @@ module Cosmos
       microservice_name = "#{@scope}__PACKETLOG__UNKNOWN"
       microservice = MicroserviceModel.new(
         name: microservice_name,
-        folder_name: microservice_name,
         cmd: ["ruby", "log_microservice.rb", microservice_name],
         work_dir: '/cosmos/lib/cosmos/microservices',
         options: [
