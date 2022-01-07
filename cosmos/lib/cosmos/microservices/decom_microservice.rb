@@ -123,8 +123,6 @@ module Cosmos
           )
           NotificationsTopic.write_notification(notification.as_json, scope: @scope)
           Logger.error message
-        else
-          Logger.error "#{tgt_pkt_item_str} UNKNOWN#{pkt_time_str}"
         end
       end
 
