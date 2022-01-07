@@ -444,6 +444,7 @@ module Cosmos
         orig_keys << "DEFAULT__cosmoscmd__UNKNOWN"
         orig_keys << "DEFAULT__cosmostlm__UNKNOWN"
         orig_keys << "DEFAULT__limits_sets"
+        orig_keys << "DEFAULT__tlm__UNKNOWN"
         orig_keys << "cosmos_microservices"
 
         umodel = double(MicroserviceModel)
