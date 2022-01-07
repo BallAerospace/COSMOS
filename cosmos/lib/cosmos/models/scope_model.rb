@@ -116,7 +116,7 @@ module Cosmos
           ["CYCLE_TIME", "3600"], # Keep at most 1 hour per log
         ],
         topics: ["#{@scope}__COMMAND__{UNKNOWN}__UNKNOWN"],
-        target_names: ['UNKNOWN'],
+        target_names: [],
         scope: @scope
       )
       microservice.create
@@ -136,7 +136,7 @@ module Cosmos
           ["CYCLE_TIME", "3600"], # Keep at most 1 hour per log
         ],
         topics: ["#{@scope}__TELEMETRY__{UNKNOWN}__UNKNOWN"],
-        target_names: ['UNKNOWN'],
+        target_names: [],
         scope: @scope
       )
       microservice.create
