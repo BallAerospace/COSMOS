@@ -78,6 +78,7 @@ module Cosmos
             command.received_count += 1
             command = command.clone
             command.buffer = msg_hash['raw']
+            command.received_time = Time.now
             CommandTopic.write_packet(command, scope: @scope)
             @interface.write_raw(msg_hash['raw'])
             next 'SUCCESS'
