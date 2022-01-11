@@ -533,6 +533,7 @@ export default {
       debugHistoryIndex: 0,
       showDisconnect: false,
       files: {},
+      breakpoints: {},
       filename: NEW_FILENAME,
       tempFilename: null,
       fileModified: '',
@@ -927,6 +928,12 @@ export default {
         .map((breakpoint, row) => breakpoint && row) // [empty, 'ace_breakpoint', 'ace_breakpoint', empty] -> [empty, 1, 2, empty]
         .filter(Number.isInteger) // [empty, 1, 2, empty] -> [1, 2]
     },
+    restoreBreakpoints: function (filename) {
+      this.editor.session.clearBreakpoints()
+      this.breakpoints[filename]?.forEach((breakpoint) => {
+        this.editor.session.setBreakpoint(breakpoint)
+      })
+    },
     suiteRunnerButton(event) {
       if (this.startOrGoButton === START) {
         this.start(event, 'suiteRunner')
@@ -1065,9 +1072,8 @@ export default {
       switch (data.type) {
         case 'file':
           this.files[data.filename] = data.text
-          data.breakpoints?.forEach((breakpoint) => {
-            this.editor.session.setBreakpoint(breakpoint)
-          })
+          this.breakpoints[data.filename] = data.breakpoints
+          this.restoreBreakpoints(data.filename)
           this.filename = data.filename
           break
         case 'line':
@@ -1083,9 +1089,8 @@ export default {
                   // Success - Save thes script text and mark the current_filename as null
                   // so it will get loaded in on the next line executed
                   this.files[data.filename] = response.data.contents
-                  response.data.breakpoints?.forEach((breakpoint) => {
-                    this.editor.session.setBreakpoint(breakpoint)
-                  })
+                  this.breakpoints[data.filename] = response.data.breakpoints
+                  this.restoreBreakpoints(data.filename)
                   this.current_filename = null
                 })
                 .catch((err) => {
@@ -1094,6 +1099,7 @@ export default {
                 })
             } else {
               this.editor.setValue(this.files[data.filename])
+              this.restoreBreakpoints(data.filename)
               this.editor.clearSelection()
               this.current_filename = data.filename
             }
@@ -1318,9 +1324,8 @@ export default {
       this.filename = file.name.split('*')[0]
       this.editor.session.clearBreakpoints()
       this.editor.session.setValue(file.contents)
-      breakpoints?.forEach((breakpoint) => {
-        this.editor.session.setBreakpoint(breakpoint)
-      })
+      this.breakpoints[filename] = breakpoints
+      this.restoreBreakpoints(filename)
       this.fileModified = ''
       this.lockedBy = locked
       if (file.suites) {
