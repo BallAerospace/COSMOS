@@ -1322,7 +1322,6 @@ export default {
       this.suiteRunner = false
       // Split off the ' *' which indicates a file is modified on the server
       this.filename = file.name.split('*')[0]
-      this.editor.session.clearBreakpoints()
       this.editor.session.setValue(file.contents)
       this.breakpoints[filename] = breakpoints
       this.restoreBreakpoints(filename)
@@ -1540,7 +1539,7 @@ export default {
       link.click()
     },
     downloadLog() {
-      const output = this.messages.map(message => message.message ).join('\n')
+      const output = this.messages.map((message) => message.message).join('\n')
       const blob = new Blob([output], {
         type: 'text/plain',
       })
