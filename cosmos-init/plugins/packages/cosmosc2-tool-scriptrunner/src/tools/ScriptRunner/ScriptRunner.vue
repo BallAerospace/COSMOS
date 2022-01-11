@@ -1540,7 +1540,7 @@ export default {
       link.click()
     },
     downloadLog() {
-      const output = this.messages.join('\n')
+      const output = this.messages.map(message => message.message ).join('\n')
       const blob = new Blob([output], {
         type: 'text/plain',
       })
