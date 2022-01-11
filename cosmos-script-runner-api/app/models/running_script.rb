@@ -103,17 +103,18 @@ module Cosmos
         path = procedure_name
 
         # Check RAM based instrumented cache
+        breakpoints = @@breakpoints[filename].filter { |_, present| present }.map { |line_number, _| line_number - 1 } # -1 because frontend lines are 0-indexed
         instrumented_cache, text = RunningScript.instrumented_cache[path]
         instrumented_script = nil
         if instrumented_cache
           # Use cached instrumentation
           instrumented_script = instrumented_cache
           cached = true
-          Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text }))
+          Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text, breakpoints: breakpoints }))
         else
           # Retrieve file
           text = ::Script.body(RunningScript.instance.scope, procedure_name)
-          Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text }))
+          Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text, breakpoints: breakpoints }))
 
           # Cache instrumentation into RAM
           instrumented_script = RunningScript.instrument_script(text, path, true)
@@ -344,8 +345,9 @@ class RunningScript
 
     # Retrieve file
     @body = ::Script.body(@scope, name)
+    breakpoints = @@breakpoints[filename].filter { |_, present| present }.map { |line_number, _| line_number - 1 } # -1 because frontend lines are 0-indexed
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"),
-                          JSON.generate({ type: :file, filename: @filename, scope: @scope, text: @body }))
+                          JSON.generate({ type: :file, filename: @filename, scope: @scope, text: @body, breakpoints: breakpoints }))
     if name.include?("suite")
       # Process the suite file in this context so we can load it
       # TODO: Do we need to worry about success or failure of the suite processing?
@@ -778,26 +780,26 @@ class RunningScript
   ######################################
   # Implement the breakpoint callbacks from the RubyEditor
   ######################################
-  # def breakpoint_set(line)
-  #   # Check for blank and comment lines which can't have a breakpoint.
-  #   # There are other un-instrumentable lines which don't support breakpoints
-  #   # but this is the most common and is an easy check.
-  #   # Note: line is 1 based but @script.get_line is zero based so subtract 1
-  #   text = @active_script.get_line(line - 1)
-  #   if text && (text.strip.empty? || text.strip[0] == '#')
-  #     @active_script.clear_breakpoint(line) # Immediately clear it
-  #   else
-  #     ScriptRunnerFrame.set_breakpoint(current_tab_filename(), line)
-  #   end
-  # end
+  def breakpoint_set(line)
+    # Check for blank and comment lines which can't have a breakpoint.
+    # There are other un-instrumentable lines which don't support breakpoints
+    # but this is the most common and is an easy check.
+    # Note: line is 1 based but @script.get_line is zero based so subtract 1
+    text = @active_script.get_line(line - 1)
+    if text && (text.strip.empty? || text.strip[0] == '#')
+      @active_script.clear_breakpoint(line) # Immediately clear it
+    else
+      ScriptRunnerFrame.set_breakpoint(current_tab_filename(), line)
+    end
+  end
 
-  # def breakpoint_cleared(line)
-  #   ScriptRunnerFrame.clear_breakpoint(current_tab_filename(), line)
-  # end
+  def breakpoint_cleared(line)
+    ScriptRunnerFrame.clear_breakpoint(current_tab_filename(), line)
+  end
 
-  # def breakpoints_cleared
-  #   ScriptRunnerFrame.clear_breakpoints(current_tab_filename())
-  # end
+  def breakpoints_cleared
+    ScriptRunnerFrame.clear_breakpoints(current_tab_filename())
+  end
 
   # ##################################################################################
   # # Implement Script functionality in the frame (run selection, run from cursor, etc
@@ -971,27 +973,27 @@ class RunningScript
   #     end
   #     @debug_frame.addWidget(@locals_button)
 
-  # def self.set_breakpoint(filename, line_number)
-  #   @@breakpoints[filename] ||= {}
-  #   @@breakpoints[filename][line_number] = true
-  # end
+  def self.set_breakpoint(filename, line_number)
+    @@breakpoints[filename] ||= {}
+    @@breakpoints[filename][line_number] = true
+  end
 
-  # def self.clear_breakpoint(filename, line_number)
-  #   @@breakpoints[filename] ||= {}
-  #   @@breakpoints[filename].delete(line_number) if @@breakpoints[filename][line_number]
-  # end
+  def self.clear_breakpoint(filename, line_number)
+    @@breakpoints[filename] ||= {}
+    @@breakpoints[filename].delete(line_number) if @@breakpoints[filename][line_number]
+  end
 
-  # def self.clear_breakpoints(filename = nil)
-  #   if filename == nil or filename.empty?
-  #     @@breakpoints = {}
-  #   else
-  #     @@breakpoints.delete(filename)
-  #   end
-  # end
+  def self.clear_breakpoints(filename = nil)
+    if filename == nil or filename.empty?
+      @@breakpoints = {}
+    else
+      @@breakpoints.delete(filename)
+    end
+  end
 
-  # def clear_breakpoints
-  #   ScriptRunnerFrame.clear_breakpoints(unique_filename())
-  # end
+  def clear_breakpoints
+    ScriptRunnerFrame.clear_breakpoints(unique_filename())
+  end
 
   # def select_tab_and_destroy_tabs_after_index(index)
   #   Qt.execute_in_main_thread(true) do
@@ -1301,10 +1303,8 @@ class RunningScript
   end
 
   def handle_pause(filename, line_number)
-    bkpt_filename = ''
-    # Qt.execute_in_main_thread(true) {bkpt_filename = @active_script.filename}
     breakpoint = false
-    breakpoint = true if @@breakpoints[bkpt_filename] and @@breakpoints[bkpt_filename][line_number]
+    breakpoint = true if @@breakpoints[filename] and @@breakpoints[filename][line_number]
 
     filename = File.basename(filename)
     if @pause
@@ -1416,18 +1416,19 @@ class RunningScript
   # end
 
   def load_file_into_script(filename)
+    mark_breakpoints(filename)
+    breakpoints = @@breakpoints[filename].filter { |_, present| present }.map { |line_number, _| line_number - 1 } # -1 because frontend lines are 0-indexed
     cached = @@file_cache[filename]
     if cached
       # @active_script.setPlainText(cached.gsub("\r", ''))
       @body = cached
-      Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: filename, text: @body }))
+      Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: filename, text: @body, breakpoints: breakpoints }))
     else
       text = ::Script.body(@scope, filename)
       @@file_cache[filename] = text
       @body = text
-      Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: filename, text: @body }))
+      Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: filename, text: @body, breakpoints: breakpoints }))
     end
-    mark_breakpoints(filename)
 
     # @active_script.stop_highlight
   end
@@ -1436,7 +1437,11 @@ class RunningScript
     breakpoints = @@breakpoints[filename]
     if breakpoints
       breakpoints.each do |line_number, present|
-        # @active_script.add_breakpoint(line_number) if present
+        RunningScript.set_breakpoint(filename, line_number) if present
+      end
+    else
+      ::Script.get_breakpoints(@scope, filename).each do |line_number|
+        RunningScript.set_breakpoint(filename, line_number + 1)
       end
     end
   end
