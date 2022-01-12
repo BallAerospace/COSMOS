@@ -102,7 +102,9 @@ class Script
   end
 
   def self.get_breakpoints(scope, name)
-    JSON.parse(Cosmos::Store.hget("#{scope}__script-breakpoints", name))
+    breakpoints = Cosmos::Store.hget("#{scope}__script-breakpoints", name)
+    return JSON.parse(breakpoints) if breakpoints
+    []
   end
 
   def self.process_suite(name, contents, new_process: true)

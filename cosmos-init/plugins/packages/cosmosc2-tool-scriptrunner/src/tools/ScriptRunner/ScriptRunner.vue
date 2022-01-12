@@ -740,6 +740,10 @@ export default {
           label: 'Run from here',
           command: this.runFromCursor,
         },
+        {
+          label: 'Clear all breakpoints',
+          command: this.clearBreakpoints,
+        },
       ]
     },
   },
@@ -882,8 +886,14 @@ export default {
           })
       }
     },
+    clearBreakpoints: function () {
+      this.editor.session.clearBreakpoints()
+    },
     toggleBreakpoint: function ($event) {
-      if ($event.domEvent.path[0].classList.contains('ace_gutter-cell')) {
+      if (
+        $event.domEvent.which === 1 && // left click
+        $event.domEvent.path[0].classList.contains('ace_gutter-cell') // on a line number
+      ) {
         const row = $event.getDocumentPosition().row
         if ($event.editor.session.getBreakpoints(row, 0)[row]) {
           $event.editor.session.clearBreakpoint(row)
@@ -929,7 +939,7 @@ export default {
         .filter(Number.isInteger) // [empty, 1, 2, empty] -> [1, 2]
     },
     restoreBreakpoints: function (filename) {
-      this.editor.session.clearBreakpoints()
+      this.clearBreakpoints()
       this.breakpoints[filename]?.forEach((breakpoint) => {
         this.editor.session.setBreakpoint(breakpoint)
       })
@@ -1308,7 +1318,7 @@ export default {
     // ScriptRunner File menu actions
     newFile() {
       this.filename = NEW_FILENAME
-      this.editor.session.clearBreakpoints()
+      this.clearBreakpoints()
       this.editor.session.setValue('')
       this.fileModified = ''
       this.suiteRunner = false

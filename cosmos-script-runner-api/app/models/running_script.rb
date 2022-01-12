@@ -780,26 +780,26 @@ class RunningScript
   ######################################
   # Implement the breakpoint callbacks from the RubyEditor
   ######################################
-  def breakpoint_set(line)
-    # Check for blank and comment lines which can't have a breakpoint.
-    # There are other un-instrumentable lines which don't support breakpoints
-    # but this is the most common and is an easy check.
-    # Note: line is 1 based but @script.get_line is zero based so subtract 1
-    text = @active_script.get_line(line - 1)
-    if text && (text.strip.empty? || text.strip[0] == '#')
-      @active_script.clear_breakpoint(line) # Immediately clear it
-    else
-      ScriptRunnerFrame.set_breakpoint(current_tab_filename(), line)
-    end
-  end
+  # def breakpoint_set(line)
+  #   # Check for blank and comment lines which can't have a breakpoint.
+  #   # There are other un-instrumentable lines which don't support breakpoints
+  #   # but this is the most common and is an easy check.
+  #   # Note: line is 1 based but @script.get_line is zero based so subtract 1
+  #   text = @active_script.get_line(line - 1)
+  #   if text && (text.strip.empty? || text.strip[0] == '#')
+  #     @active_script.clear_breakpoint(line) # Immediately clear it
+  #   else
+  #     ScriptRunnerFrame.set_breakpoint(current_tab_filename(), line)
+  #   end
+  # end
 
-  def breakpoint_cleared(line)
-    ScriptRunnerFrame.clear_breakpoint(current_tab_filename(), line)
-  end
+  # def breakpoint_cleared(line)
+  #   ScriptRunnerFrame.clear_breakpoint(current_tab_filename(), line)
+  # end
 
-  def breakpoints_cleared
-    ScriptRunnerFrame.clear_breakpoints(current_tab_filename())
-  end
+  # def breakpoints_cleared
+  #   ScriptRunnerFrame.clear_breakpoints(current_tab_filename())
+  # end
 
   # ##################################################################################
   # # Implement Script functionality in the frame (run selection, run from cursor, etc
