@@ -511,7 +511,7 @@ export default {
         //   },
         // },
       },
-      current_filename: null,
+      currentFilename: null,
       environmentOn: false,
       environmentOpen: false,
       environmentOptions: [],
@@ -584,6 +584,7 @@ export default {
       return !!this.lockedBy
     },
     fullFilename() {
+      if (this.currentFilename) return this.currentFilename
       return `${this.filename} ${this.fileModified}`.trim()
     },
     menus: function () {
@@ -1083,11 +1084,12 @@ export default {
         case 'file':
           this.files[data.filename] = data.text
           this.breakpoints[data.filename] = data.breakpoints
-          this.restoreBreakpoints(data.filename)
-          this.filename = data.filename
+          if (this.currentFilename === data.filename) {
+            this.restoreBreakpoints(data.filename)
+          }
           break
         case 'line':
-          if (data.filename && data.filename !== this.current_filename) {
+          if (data.filename && data.filename !== this.currentFilename) {
             if (!this.files[data.filename]) {
               // We don't have the contents of the running file (probably because connected to running script)
               // Set the contents initially to an empty string so we don't start slamming the API
@@ -1096,12 +1098,12 @@ export default {
               // Request the script we need
               Api.get(`/script-api/scripts/${data.filename}`)
                 .then((response) => {
-                  // Success - Save thes script text and mark the current_filename as null
+                  // Success - Save thes script text and mark the currentFilename as null
                   // so it will get loaded in on the next line executed
                   this.files[data.filename] = response.data.contents
                   this.breakpoints[data.filename] = response.data.breakpoints
                   this.restoreBreakpoints(data.filename)
-                  this.current_filename = null
+                  this.currentFilename = null
                 })
                 .catch((err) => {
                   // Error - Restore the file contents to null so we'll try the API again on the next line
@@ -1111,7 +1113,7 @@ export default {
               this.editor.setValue(this.files[data.filename])
               this.restoreBreakpoints(data.filename)
               this.editor.clearSelection()
-              this.current_filename = data.filename
+              this.currentFilename = data.filename
             }
           }
           if (!this.fatal) {

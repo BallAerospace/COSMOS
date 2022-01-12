@@ -103,7 +103,8 @@ module Cosmos
         path = procedure_name
 
         # Check RAM based instrumented cache
-        breakpoints = @@breakpoints[filename].filter { |_, present| present }.map { |line_number, _| line_number - 1 } # -1 because frontend lines are 0-indexed
+        breakpoints = RunningScript.breakpoints[path]&.filter { |_, present| present }&.map { |line_number, _| line_number - 1 } # -1 because frontend lines are 0-indexed
+        breakpoints ||= []
         instrumented_cache, text = RunningScript.instrumented_cache[path]
         instrumented_script = nil
         if instrumented_cache
@@ -345,7 +346,8 @@ class RunningScript
 
     # Retrieve file
     @body = ::Script.body(@scope, name)
-    breakpoints = @@breakpoints[filename].filter { |_, present| present }.map { |line_number, _| line_number - 1 } # -1 because frontend lines are 0-indexed
+    breakpoints = @@breakpoints[filename]&.filter { |_, present| present }&.map { |line_number, _| line_number - 1 } # -1 because frontend lines are 0-indexed
+    breakpoints ||= []
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"),
                           JSON.generate({ type: :file, filename: @filename, scope: @scope, text: @body, breakpoints: breakpoints }))
     if name.include?("suite")
@@ -524,6 +526,10 @@ class RunningScript
 
   def self.line_delay=(value)
     @@line_delay = value
+  end
+
+  def self.breakpoints
+    @@breakpoints
   end
 
   def self.instrumented_cache
@@ -1417,7 +1423,8 @@ class RunningScript
 
   def load_file_into_script(filename)
     mark_breakpoints(filename)
-    breakpoints = @@breakpoints[filename].filter { |_, present| present }.map { |line_number, _| line_number - 1 } # -1 because frontend lines are 0-indexed
+    breakpoints = @@breakpoints[filename]&.filter { |_, present| present }&.map { |line_number, _| line_number - 1 } # -1 because frontend lines are 0-indexed
+    breakpoints ||= []
     cached = @@file_cache[filename]
     if cached
       # @active_script.setPlainText(cached.gsub("\r", ''))
