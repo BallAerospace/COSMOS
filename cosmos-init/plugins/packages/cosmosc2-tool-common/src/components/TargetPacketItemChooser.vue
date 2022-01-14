@@ -184,7 +184,6 @@ export default {
         this.targetNameChanged(this.selectedTargetName)
       }
       this.updatePackets()
-      this.updateItems()
     })
   },
   watch: {
@@ -228,6 +227,9 @@ export default {
             this.description = item[1]
             break
           }
+        }
+        if (this.chooseItem) {
+          this.updateItems()
         }
         this.internalDisabled = false
       })
