@@ -14,6 +14,7 @@ COPY ./plugins/packages/cosmosc2-tool-dataviewer/*.json packages/cosmosc2-tool-d
 COPY ./plugins/packages/cosmosc2-tool-limitsmonitor/*.json packages/cosmosc2-tool-limitsmonitor/
 COPY ./plugins/packages/cosmosc2-tool-packetviewer/*.json packages/cosmosc2-tool-packetviewer/
 COPY ./plugins/packages/cosmosc2-tool-scriptrunner/*.json packages/cosmosc2-tool-scriptrunner/
+COPY ./plugins/packages/cosmosc2-tool-tablemanager/*.json packages/cosmosc2-tool-tablemanager/
 COPY ./plugins/packages/cosmosc2-tool-timeline/*.json packages/cosmosc2-tool-timeline/
 COPY ./plugins/packages/cosmosc2-tool-tlmgrapher/*.json packages/cosmosc2-tool-tlmgrapher/
 COPY ./plugins/packages/cosmosc2-tool-tlmviewer/*.json packages/cosmosc2-tool-tlmviewer/
@@ -65,6 +66,10 @@ RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-packetviewer"]
 # Build scriptrunner tool
 COPY ./plugins/packages/cosmosc2-tool-scriptrunner/ packages/cosmosc2-tool-scriptrunner/
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-scriptrunner"]
+
+# Build tablemanager tool
+COPY ./plugins/packages/cosmosc2-tool-tablemanager/ packages/cosmosc2-tool-tablemanager/
+RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-tablemanager"]
 
 # Build timeline tool
 COPY ./plugins/packages/cosmosc2-tool-timeline/ packages/cosmosc2-tool-timeline/

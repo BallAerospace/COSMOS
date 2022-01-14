@@ -1,0 +1,3 @@
+TOOL tablemanager "Table Manager"
+  INLINE_URL js/app.js
+  ICON mdi-table
