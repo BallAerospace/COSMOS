@@ -11,6 +11,8 @@ Rails.application.routes.draw do
     # Must be last so /run, /delete, etc will match first
     post "/scripts/*name" => "scripts#create", format: false, defaults: { format: 'html' }
 
+    delete "/breakpoints/delete/all" => "scripts#delete_all_breakpoints"
+
     get  "/running-script" => "running_script#index"
     get  "/running-script/:id" => "running_script#show"
     post "/running-script/:id/start" => "running_script#start"

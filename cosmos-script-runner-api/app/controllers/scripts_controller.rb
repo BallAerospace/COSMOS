@@ -186,4 +186,16 @@ class ScriptsController < ApplicationController
       head :error
     end
   end
+
+  def delete_all_breakpoints
+    begin
+      authorize(permission: 'script_edit', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+    end
+    Cosmos::Store.del("#{params[:scope]}__script-breakpoints")
+    head :ok
+  end
 end

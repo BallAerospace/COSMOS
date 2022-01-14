@@ -727,6 +727,16 @@ export default {
                 this.toggleDisconnect()
               },
             },
+            {
+              divider: true,
+            },
+            {
+              label: 'Delete All Breakpoints',
+              icon: 'mdi-delete-circle-outline',
+              command: () => {
+                this.deleteAllBreakpoints()
+              },
+            },
           ],
         },
       ]
@@ -742,7 +752,7 @@ export default {
           command: this.runFromCursor,
         },
         {
-          label: 'Clear all breakpoints',
+          label: 'Clear these breakpoints',
           command: this.clearBreakpoints,
         },
       ]
@@ -944,6 +954,19 @@ export default {
       this.breakpoints[filename]?.forEach((breakpoint) => {
         this.editor.session.setBreakpoint(breakpoint)
       })
+    },
+    deleteAllBreakpoints: function () {
+      this.$dialog
+        .confirm('Permanently delete all breakpoints for ALL scripts?', {
+          okText: 'Delete',
+          cancelText: 'Cancel',
+        })
+        .then((dialog) => {
+          return Api.delete('/script-api/breakpoints/delete/all')
+        })
+        .then((response) => {
+          this.clearBreakpoints()
+        })
     },
     suiteRunnerButton(event) {
       if (this.startOrGoButton === START) {
