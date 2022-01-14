@@ -189,43 +189,17 @@ export default {
       }
       this.upload()
     },
-    upload: function () {
+    async upload() {
       console.log(this.file)
       this.filename = this.file.name
 
-      const response = await Api.post(
-        `/cosmos-api/storage/download/${encodeURIComponent(
-          `${localStorage.scope}/targets/${this.target}/public/${fileName}`
-        )}?bucket=config`
+      const formData = new FormData()
+      formData.append('table', this.file, this.file.name)
+      Api.post('/cosmos-api/tables/upload', { data: formData }).then(
+        (response) => {
+          console.log(response)
+        }
       )
-      return response.data.url
-    },
-
-      // const method = existing ? 'put' : 'post'
-      // const path = existing
-      //   ? `/cosmos-api/plugins/${existing}`
-      //   : '/cosmos-api/plugins'
-      // this.loadingPlugin = true
-      // const promises = this.files.map((file) => {
-      //   const formData = new FormData()
-      //   formData.append('plugin', file, file.name)
-      //   return Api[method](path, { data: formData })
-      // })
-      // Promise.all(promises)
-      //   .then((responses) => {
-      //     this.alert = `Uploaded ${responses.length} file${
-      //       responses.length > 1 ? 's' : ''
-      //     }`
-      //     this.alertType = 'success'
-      //     this.showAlert = true
-      //     setTimeout(() => {
-      //       this.showAlert = false
-      //     }, 5000)
-      //     this.update()
-      //   })
-      //   .catch((error) => {
-      //     this.loadingPlugin = false
-      //   })
     },
   },
 }
