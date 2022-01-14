@@ -678,7 +678,7 @@ export default {
         // Get all the items present in the data to pass to buildHeaders
         let keys = new Set()
         for (var item of data) {
-          keys.add(...Object.keys(item))
+          Object.keys(item).forEach(keys.add, keys)
         }
         this.buildHeaders([...keys])
         this.rawData = this.rawData.concat(data)

@@ -236,6 +236,9 @@ export default {
     },
 
     updateItems() {
+      if (this.selectedPacketName === 'ALL') {
+        return
+      }
       this.internalDisabled = true
       let cmd = 'get_telemetry'
       if (this.mode == 'cmd') {
