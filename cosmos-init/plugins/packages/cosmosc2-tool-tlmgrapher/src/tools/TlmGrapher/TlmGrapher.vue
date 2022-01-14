@@ -276,11 +276,15 @@ export default {
     })
     const previousConfig = this.getLocalStorageConfig()
     // If we're passed in the route then manually addItem
-    if (this.$route.params.target) {
+    if (
+      this.$route.params.target &&
+      this.$route.params.packet &&
+      this.$route.params.item
+    ) {
       this.addItem({
-        targetName: this.$route.params.target,
-        packetName: this.$route.params.packet,
-        itemName: this.$route.params.item,
+        targetName: this.$route.params.target.toUpperCase(),
+        packetName: this.$route.params.packet.toUpperCase(),
+        itemName: this.$route.params.item.toUpperCase(),
       })
     } else if (previousConfig) {
       this.openConfiguration(previousConfig)
