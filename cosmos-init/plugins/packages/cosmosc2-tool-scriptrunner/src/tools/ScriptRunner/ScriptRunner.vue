@@ -1331,6 +1331,7 @@ export default {
     },
     // Called by the FileOpenDialog to set the file contents
     setFile({ file, locked, breakpoints }) {
+      this.unlockFile() // first unlock what was just being edited
       this.suiteRunner = false
       // Split off the ' *' which indicates a file is modified on the server
       this.filename = file.name.split('*')[0]

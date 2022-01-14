@@ -102,7 +102,7 @@ class Script
   end
 
   def self.get_breakpoints(scope, name)
-    breakpoints = Cosmos::Store.hget("#{scope}__script-breakpoints", name)
+    breakpoints = Cosmos::Store.hget("#{scope}__script-breakpoints", name.split('*')[0]) # Split '*' that indicates modified
     return JSON.parse(breakpoints) if breakpoints
     []
   end
