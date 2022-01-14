@@ -29,7 +29,7 @@ class CompletedScript
   def self.all(scope)
     Cosmos::S3Utilities.ensure_public_bucket(BUCKET_NAME)
     rubys3_client = Aws::S3::Client.new
-    rubys3_client.list_objects_v2({bucket: BUCKET_NAME, max_keys: 1, prefix: "#{scope}/tool_logs/sr"}).contents.map do |object|
+    scripts = rubys3_client.list_objects_v2({bucket: BUCKET_NAME, prefix: "#{scope}/tool_logs/sr"}).contents.map do |object|
       log_name = object.key
       year, month, day, hour, minute, second, _ = File.basename(log_name).split('_').map { |num| num.to_i }
       {
@@ -38,5 +38,6 @@ class CompletedScript
         'start' => Time.new(year, month, day, hour, minute, second).to_s
       }
     end
+    scripts.sort_by { |script| script['start'] }.reverse
   end
 end
