@@ -330,7 +330,7 @@ export default {
     })
     this.api = new CosmosApi()
     // If we're passed in the route then manually call commandChanged to update
-    if (this.$route.params.target &&  this.$route.params.packet) {
+    if (this.$route.params.target && this.$route.params.packet) {
       this.commandChanged({
         targetName: this.$route.params.target.toUpperCase(),
         packetName: this.$route.params.packet.toUpperCase(),
