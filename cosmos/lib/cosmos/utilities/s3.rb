@@ -56,7 +56,7 @@ module Cosmos
       return total_size, oldest_list
     end
 
-    def self.move_log_file_to_s3(filename, s3_key)
+    def self.move_log_file_to_s3(filename, s3_key, metadata: {})
       Thread.new do
         rubys3_client = Aws::S3::Client.new
 
@@ -69,7 +69,7 @@ module Cosmos
 
         # Write to S3 Bucket
         File.open(filename, 'rb') do |read_file|
-          rubys3_client.put_object(bucket: 'logs', key: s3_key, body: read_file)
+          rubys3_client.put_object(bucket: 'logs', key: s3_key, body: read_file, metadata: metadata)
         end
         Logger.info "logs/#{s3_key} written to S3"
         ReducerModel.add_file(s3_key) # Record the new file for data reduction

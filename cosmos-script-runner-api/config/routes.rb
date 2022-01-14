@@ -21,5 +21,6 @@ Rails.application.routes.draw do
     post "/running-script/:id/step" => "running_script#step"
     post "/running-script/:id/prompt" => "running_script#prompt"
     post "/running-script/:id/:method" => "running_script#method"
+    get  "/completed-scripts" => "completed_script#index"
   end
 end

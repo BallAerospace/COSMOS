@@ -666,7 +666,7 @@ export default {
           label: 'Script',
           items: [
             {
-              label: 'Open Running Scripts',
+              label: 'Open Started Scripts',
               icon: 'mdi-run',
               command: () => {
                 let routeData = this.$router.resolve({ name: 'RunningScripts' })
@@ -1465,7 +1465,7 @@ export default {
       link.click()
     },
     downloadLog() {
-      const output = this.messages.map(message => message.message ).join('\n')
+      const output = this.messages.map((message) => message.message).join('\n')
       const blob = new Blob([output], {
         type: 'text/plain',
       })
