@@ -118,57 +118,6 @@ export default {
             },
           ],
         },
-        {
-          label: 'View',
-          radioGroup: 'Formatted Items with Units', // Default radio selected
-          items: [
-            {
-              label: 'Hide Ignored Items',
-              checkbox: true,
-              command: () => {
-                this.hideIgnored = !this.hideIgnored
-              },
-            },
-            {
-              label: 'Display Derived Last',
-              checkbox: true,
-              command: () => {
-                this.derivedLast = !this.derivedLast
-              },
-            },
-            {
-              divider: true,
-            },
-            {
-              label: 'Formatted Items with Units',
-              radio: true,
-              command: () => {
-                this.valueType = 'WITH_UNITS'
-              },
-            },
-            {
-              label: 'Formatted Items',
-              radio: true,
-              command: () => {
-                this.valueType = 'FORMATTED'
-              },
-            },
-            {
-              label: 'Converted Items',
-              radio: true,
-              command: () => {
-                this.valueType = 'CONVERTED'
-              },
-            },
-            {
-              label: 'Raw Items',
-              radio: true,
-              command: () => {
-                this.valueType = 'RAW'
-              },
-            },
-          ],
-        },
       ],
       api: null,
       file: '',
@@ -190,14 +139,14 @@ export default {
       this.upload()
     },
     async upload() {
-      console.log(this.file)
+      // console.log(this.file)
       this.filename = this.file.name
 
       const formData = new FormData()
       formData.append('table', this.file, this.file.name)
       Api.post('/cosmos-api/tables/upload', { data: formData }).then(
         (response) => {
-          console.log(response)
+          // console.log(response)
         }
       )
     },
