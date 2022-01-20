@@ -142,7 +142,7 @@ module Cosmos
     return nil
   end
 
-  # Executes thevcommand in a new Ruby Thread.
+  # Executes the command in a new Ruby Thread.
   #
   # @param command [String] The command to execute via the 'system' call
   def self.run_process(command)
