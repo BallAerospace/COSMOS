@@ -21,21 +21,28 @@
   <div>
     <top-bar :title="title" />
     <v-card>
-      <v-card-title>
-        <v-btn color="primary" @click="getRunningScripts">Refresh</v-btn>
-        <v-spacer />
-        <v-text-field
-          v-model="search"
-          append-icon="$astro-search"
-          label="Search"
-          single-line
-          hide-details
-        />
-      </v-card-title>
+      <v-card-title> Running Scripts </v-card-title>
+      <v-card-text>
+        <div class="row">
+          <div class="col-2">
+            <v-btn color="primary" @click="getRunningScripts">Refresh</v-btn>
+          </div>
+          <div class="col-10">
+            <v-text-field
+              v-model="runningSearch"
+              class="pt-0"
+              append-icon="$astro-search"
+              label="Search"
+              single-line
+              hide-details
+            />
+          </div>
+        </div>
+      </v-card-text>
       <v-data-table
-        :headers="headers"
-        :items="data"
-        :search="search"
+        :headers="runningHeaders"
+        :items="runningScripts"
+        :search="runningSearch"
         calculate-widths
         disable-pagination
         hide-default-footer
@@ -51,6 +58,41 @@
           <v-btn color="primary" @click="stopScript(item)">
             <span>Stop</span>
             <v-icon right> mdi-close-circle-outline </v-icon>
+          </v-btn>
+        </template>
+      </v-data-table>
+    </v-card>
+    <v-card class="mt-3">
+      <v-card-title> Completed Scripts </v-card-title>
+      <v-card-text>
+        <div class="row">
+          <div class="col-2">
+            <v-btn color="primary" @click="getCompletedScripts">Refresh</v-btn>
+          </div>
+          <div class="col-10">
+            <v-text-field
+              v-model="completedSearch"
+              class="pt-0"
+              append-icon="$astro-search"
+              label="Search"
+              single-line
+              hide-details
+            />
+          </div>
+        </div>
+      </v-card-text>
+      <v-data-table
+        :headers="completedHeaders"
+        :items="completedScripts"
+        :search="completedSearch"
+        calculate-widths
+        hide-default-footer
+        multi-sort
+      >
+        <template v-slot:item.download="{ item }">
+          <v-btn color="primary" @click="downloadScriptLog(item)">
+            <span>Download Log</span>
+            <v-icon right> mdi-file-download-outline </v-icon>
           </v-btn>
         </template>
       </v-data-table>
@@ -72,10 +114,10 @@ export default {
   },
   data() {
     return {
-      title: 'Script Runner - Running Scripts',
-      search: '',
-      data: [],
-      headers: [
+      title: 'Script Runner - Started Scripts',
+      runningSearch: '',
+      runningScripts: [],
+      runningHeaders: [
         {
           text: 'Connect',
           value: 'connect',
@@ -92,15 +134,33 @@ export default {
           filterable: false,
         },
       ],
+      completedSearch: '',
+      completedScripts: [],
+      completedHeaders: [
+        { text: 'Name', value: 'name' },
+        { text: 'Start Time', value: 'start' },
+        {
+          text: 'Download Log',
+          value: 'download',
+          sortable: false,
+          filterable: false,
+        },
+      ],
     }
   },
   created() {
     this.getRunningScripts()
+    this.getCompletedScripts()
   },
   methods: {
     getRunningScripts: function () {
       Api.get('/script-api/running-script').then((response) => {
-        this.data = response.data
+        this.runningScripts = response.data
+      })
+    },
+    getCompletedScripts: function () {
+      Api.get('/script-api/completed-scripts').then((response) => {
+        this.completedScripts = response.data
       })
     },
     connectScript: function (script) {
@@ -130,6 +190,28 @@ export default {
               body: `Failed to stop script: ${script.id} ${script.name}`,
             })
           }
+        })
+    },
+    downloadScriptLog: function (script) {
+      Api.get(
+        `/cosmos-api/storage/download/${encodeURIComponent(
+          script.log
+        )}?bucket=logs`
+      )
+        .then((response) => {
+          const filenameParts = script.log.split('/')
+          const basename = filenameParts[filenameParts.length - 1]
+          // Make a link and then 'click' on it to start the download
+          const link = document.createElement('a')
+          link.href = response.data.url
+          link.setAttribute('download', basename)
+          link.click()
+        })
+        .catch(() => {
+          this.$notify.caution({
+            title: `Unable to download log for ${script.name}`,
+            body: `You may be able to download this log manually from the Minio 'logs' bucket at ${script.log}`,
+          })
         })
     },
   },

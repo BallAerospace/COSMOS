@@ -73,6 +73,13 @@ module Cosmos
           end
           if msg_hash['raw']
             Logger.info "#{@interface.name}: Write raw"
+            # A raw interface write results in an UNKNOWN packet
+            command = System.commands.packet('UNKNOWN', 'UNKNOWN')
+            command.received_count += 1
+            command = command.clone
+            command.buffer = msg_hash['raw']
+            command.received_time = Time.now
+            CommandTopic.write_packet(command, scope: @scope)
             @interface.write_raw(msg_hash['raw'])
             next 'SUCCESS'
           end

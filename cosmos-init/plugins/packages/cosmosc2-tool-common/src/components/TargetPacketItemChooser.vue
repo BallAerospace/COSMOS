@@ -156,9 +156,9 @@ export default {
       targetNames: [],
       packetNames: [],
       itemNames: [],
-      selectedTargetName: this.initialTargetName,
-      selectedPacketName: this.initialPacketName,
-      selectedItemName: this.initialItemName,
+      selectedTargetName: this.initialTargetName?.toUpperCase(),
+      selectedPacketName: this.initialPacketName?.toUpperCase(),
+      selectedItemName: this.initialItemName?.toUpperCase(),
       description: '',
       packet_list_items: [],
       tlm_item_list_items: [],
@@ -184,7 +184,6 @@ export default {
         this.targetNameChanged(this.selectedTargetName)
       }
       this.updatePackets()
-      this.updateItems()
     })
   },
   watch: {
@@ -229,11 +228,17 @@ export default {
             break
           }
         }
+        if (this.chooseItem) {
+          this.updateItems()
+        }
         this.internalDisabled = false
       })
     },
 
     updateItems() {
+      if (this.selectedPacketName === 'ALL') {
+        return
+      }
       this.internalDisabled = true
       let cmd = 'get_telemetry'
       if (this.mode == 'cmd') {

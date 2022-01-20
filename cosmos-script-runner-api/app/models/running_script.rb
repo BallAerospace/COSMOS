@@ -103,17 +103,19 @@ module Cosmos
         path = procedure_name
 
         # Check RAM based instrumented cache
+        breakpoints = RunningScript.breakpoints[path]&.filter { |_, present| present }&.map { |line_number, _| line_number - 1 } # -1 because frontend lines are 0-indexed
+        breakpoints ||= []
         instrumented_cache, text = RunningScript.instrumented_cache[path]
         instrumented_script = nil
         if instrumented_cache
           # Use cached instrumentation
           instrumented_script = instrumented_cache
           cached = true
-          Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text }))
+          Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text, breakpoints: breakpoints }))
         else
           # Retrieve file
           text = ::Script.body(RunningScript.instance.scope, procedure_name)
-          Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text }))
+          Cosmos::Store.publish(["script-api", "running-script-channel:#{RunningScript.instance.id}"].compact.join(":"), JSON.generate({ type: :file, filename: procedure_name, text: text, breakpoints: breakpoints }))
 
           # Cache instrumentation into RAM
           instrumented_script = RunningScript.instrument_script(text, path, true)
@@ -345,8 +347,10 @@ class RunningScript
 
     # Retrieve file
     @body = ::Script.body(@scope, name)
+    breakpoints = @@breakpoints[filename]&.filter { |_, present| present }&.map { |line_number, _| line_number - 1 } # -1 because frontend lines are 0-indexed
+    breakpoints ||= []
     Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"),
-                          JSON.generate({ type: :file, filename: @filename, scope: @scope, text: @body }))
+                          JSON.generate({ type: :file, filename: @filename, scope: @scope, text: @body, breakpoints: breakpoints }))
     if name.include?("suite")
       # Process the suite file in this context so we can load it
       # TODO: Do we need to worry about success or failure of the suite processing?
@@ -486,7 +490,10 @@ class RunningScript
   end
 
   def stop_message_log
-    @@message_log.stop if @@message_log
+    metadata = {
+      "scriptname" => unique_filename()
+    }
+    @@message_log.stop(true, s3_object_metadata: metadata) if @@message_log
     @@message_log = nil
   end
 
@@ -523,6 +530,10 @@ class RunningScript
 
   def self.line_delay=(value)
     @@line_delay = value
+  end
+
+  def self.breakpoints
+    @@breakpoints
   end
 
   def self.instrumented_cache
@@ -776,155 +787,6 @@ class RunningScript
     wait_for_go_or_stop()
   end
 
-  ######################################
-  # Implement the breakpoint callbacks from the RubyEditor
-  ######################################
-  # def breakpoint_set(line)
-  #   # Check for blank and comment lines which can't have a breakpoint.
-  #   # There are other un-instrumentable lines which don't support breakpoints
-  #   # but this is the most common and is an easy check.
-  #   # Note: line is 1 based but @script.get_line is zero based so subtract 1
-  #   text = @active_script.get_line(line - 1)
-  #   if text && (text.strip.empty? || text.strip[0] == '#')
-  #     @active_script.clear_breakpoint(line) # Immediately clear it
-  #   else
-  #     ScriptRunnerFrame.set_breakpoint(current_tab_filename(), line)
-  #   end
-  # end
-
-  # def breakpoint_cleared(line)
-  #   ScriptRunnerFrame.clear_breakpoint(current_tab_filename(), line)
-  # end
-
-  # def breakpoints_cleared
-  #   ScriptRunnerFrame.clear_breakpoints(current_tab_filename())
-  # end
-
-  # ##################################################################################
-  # # Implement Script functionality in the frame (run selection, run from cursor, etc
-  # ##################################################################################
-  # def run_selection
-  #   unless self.class.running?()
-  #     selection = @script.selected_lines
-  #     if selection
-  #       start_line_number = @script.selection_start_line
-  #       end_line_number   = @script.selection_end_line
-  #       scriptrunner_puts "Running script lines #{start_line_number+1}-#{end_line_number+1}: #{File.basename(@filename)}"
-  #       handle_output_io()
-  #       run_text(selection, start_line_number)
-  #     end
-  #   end
-  # end
-
-  # def run_selection_while_paused
-  #   current_script = @tab_book.widget(@tab_book.currentIndex)
-  #   selection = current_script.selected_lines
-  #   if selection
-  #     start_line_number = current_script.selection_start_line
-  #     end_line_number   = current_script.selection_end_line
-  #     scriptrunner_puts "Debug: Running selected lines #{start_line_number+1}-#{end_line_number+1}: #{@tab_book.tabText(@tab_book.currentIndex)}"
-  #     handle_output_io()
-  #     dialog = ScriptRunnerDialog.new(self, 'Executing Selected Lines While Paused')
-  #     dialog.execute_text_and_close_on_complete(selection, @script_binding)
-  #     handle_output_io()
-  #   end
-  # end
-
-  # def run_from_cursor
-  #   unless self.class.running?()
-  #     line_number = @script.selection_start_line
-  #     text = @script.toPlainText.split("\n")[line_number..-1].join("\n")
-  #     scriptrunner_puts "Running script from line #{line_number}: #{File.basename(@filename)}"
-  #     handle_output_io()
-  #     run_text(text, line_number)
-  #   end
-  # end
-
-  # def ruby_syntax_check_selection
-  #   unless self.class.running?()
-  #     selection = @script.selected_lines
-  #     ruby_syntax_check_text(selection) if selection
-  #   end
-  # end
-
-  # def ruby_syntax_check_text(selection = nil)
-  #   unless self.class.running?()
-  #     selection = text() unless selection
-  #     check_process = IO.popen("ruby -c -rubygems 2>&1", 'r+')
-  #     check_process.write("require 'cosmos'; require 'cosmos/script'; " + selection)
-  #     check_process.close_write
-  #     results = check_process.gets
-  #     check_process.close
-  #     if results
-  #       if results =~ /Syntax OK/
-  #         Qt::MessageBox.information(self, 'Syntax Check Successful', results)
-  #       else
-  #         # Results is a string like this: ":2: syntax error ..."
-  #         # Normally the procedure comes before the first colon but since we
-  #         # are writing to the process this is blank so we throw it away
-  #         _, line_no, error = results.split(':')
-  #         Qt::MessageBox.warning(self,
-  #                                 'Syntax Check Failed',
-  #                                 "Error on line #{line_no}: #{error.strip}")
-  #       end
-  #     else
-  #       Qt::MessageBox.critical(self,
-  #                               'Syntax Check Exception',
-  #                               'Ruby syntax check unexpectedly returned nil')
-  #     end
-  #   end
-  # end
-
-  # def mnemonic_check_selection
-  #   unless self.class.running?()
-  #     selection = @script.selected_lines
-  #     mnemonic_check_text(selection, @script.selection_start_line+1) if selection
-  #   end
-  # end
-
-  # def mnemonic_check_text(text, start_line_number = 1)
-  #   results = []
-  #   line_number = start_line_number
-  #   text.each_line do |line|
-  #     if line =~ /\(/
-  #       result = nil
-  #       keyword = line.split('(')[0].split[-1]
-  #       if CMD_KEYWORDS.include? keyword
-  #         result = mnemonic_check_cmd_line(keyword, line_number, line)
-  #       elsif TLM_KEYWORDS.include? keyword
-  #         result = mnemonic_check_tlm_line(keyword, line_number, line)
-  #       elsif SET_TLM_KEYWORDS.include? keyword
-  #         result = mnemonic_check_set_tlm_line(keyword, line_number, line)
-  #       elsif CHECK_KEYWORDS.include? keyword
-  #         result = mnemonic_check_check_line(keyword, line_number, line)
-  #       end
-  #       results << result if result
-  #     end
-  #     line_number += 1
-  #   end
-
-  #   if results.empty?
-  #     Qt::MessageBox.information(self,
-  #                                 'Mnemonic Check Successful',
-  #                                 'Mnemonic Check Found No Errors')
-  #   else
-  #     dialog = Qt::Dialog.new(self) do |box|
-  #       box.setWindowTitle('Mnemonic Check Failed')
-  #       text = Qt::PlainTextEdit.new
-  #       text.setReadOnly(true)
-  #       text.setPlainText(results.join("\n"))
-  #       frame = Qt::VBoxLayout.new(box)
-  #       ok = Qt::PushButton.new('Ok')
-  #       ok.setDefault(true)
-  #       ok.connect(SIGNAL('clicked(bool)')) { box.accept }
-  #       frame.addWidget(text)
-  #       frame.addWidget(ok)
-  #     end
-  #     dialog.exec
-  #     dialog.dispose
-  #   end
-  # end
-
   def debug(debug_text)
     handle_output_io()
     if not running?
@@ -972,48 +834,27 @@ class RunningScript
   #     end
   #     @debug_frame.addWidget(@locals_button)
 
-  # def self.set_breakpoint(filename, line_number)
-  #   @@breakpoints[filename] ||= {}
-  #   @@breakpoints[filename][line_number] = true
-  # end
+  def self.set_breakpoint(filename, line_number)
+    @@breakpoints[filename] ||= {}
+    @@breakpoints[filename][line_number] = true
+  end
 
-  # def self.clear_breakpoint(filename, line_number)
-  #   @@breakpoints[filename] ||= {}
-  #   @@breakpoints[filename].delete(line_number) if @@breakpoints[filename][line_number]
-  # end
+  def self.clear_breakpoint(filename, line_number)
+    @@breakpoints[filename] ||= {}
+    @@breakpoints[filename].delete(line_number) if @@breakpoints[filename][line_number]
+  end
 
-  # def self.clear_breakpoints(filename = nil)
-  #   if filename == nil or filename.empty?
-  #     @@breakpoints = {}
-  #   else
-  #     @@breakpoints.delete(filename)
-  #   end
-  # end
+  def self.clear_breakpoints(filename = nil)
+    if filename == nil or filename.empty?
+      @@breakpoints = {}
+    else
+      @@breakpoints.delete(filename)
+    end
+  end
 
-  # def clear_breakpoints
-  #   ScriptRunnerFrame.clear_breakpoints(unique_filename())
-  # end
-
-  # def select_tab_and_destroy_tabs_after_index(index)
-  #   Qt.execute_in_main_thread(true) do
-  #     if @tab_book_shown
-  #       @tab_book.setCurrentIndex(index)
-  #       @active_script = @tab_book.widget(@tab_book.currentIndex)
-
-  #       first_to_remove = index + 1
-  #       last_to_remove  = @call_stack.length - 1
-
-  #       last_to_remove.downto(first_to_remove) do |tab_index|
-  #         tab = @tab_book.widget(tab_index)
-  #         @tab_book.removeTab(tab_index)
-  #         tab.dispose
-  #       end
-
-  #       @call_stack = @call_stack[0..index]
-  #       @current_file = @call_stack[index]
-  #     end
-  #   end
-  # end
+  def clear_breakpoints
+    ScriptRunnerFrame.clear_breakpoints(unique_filename())
+  end
 
   def current_backtrace
     trace = []
@@ -1300,10 +1141,8 @@ class RunningScript
   end
 
   def handle_pause(filename, line_number)
-    bkpt_filename = ''
-    # Qt.execute_in_main_thread(true) {bkpt_filename = @active_script.filename}
     breakpoint = false
-    breakpoint = true if @@breakpoints[bkpt_filename] and @@breakpoints[bkpt_filename][line_number]
+    breakpoint = true if @@breakpoints[filename] and @@breakpoints[filename][line_number]
 
     filename = File.basename(filename)
     if @pause
@@ -1366,67 +1205,21 @@ class RunningScript
     end
   end
 
-  # # Right click context_menu for the script
-  # def context_menu(point)
-  #   # Only show context menu if not running or paused.  Otherwise will segfault if current tab goes away while menu
-  #   # is shown
-  #   if not self.class.running? or (running?() and @realtime_button_bar.state != 'Running')
-  #     if @tab_book_shown
-  #       current_script = @tab_book.widget(@tab_book.currentIndex)
-  #     else
-  #       current_script = @script
-  #     end
-  #     menu = current_script.context_menu(point)
-  #     menu.addSeparator()
-  #     if not self.class.running?
-  #       exec_selected_action = Qt::Action.new("Execute Selected Lines", self)
-  #       exec_selected_action.statusTip = "Execute the selected lines as a standalone script"
-  #       exec_selected_action.connect(SIGNAL('triggered()')) { run_selection() }
-  #       menu.addAction(exec_selected_action)
-
-  #       exec_cursor_action = Qt::Action.new("Execute From Cursor", self)
-  #       exec_cursor_action.statusTip = "Execute the script starting at the line containing the cursor"
-  #       exec_cursor_action.connect(SIGNAL('triggered()')) { run_from_cursor() }
-  #       menu.addAction(exec_cursor_action)
-
-  #       menu.addSeparator()
-
-  #       if RUBY_VERSION.split('.')[0].to_i > 1
-  #         syntax_action = Qt::Action.new("Ruby Syntax Check Selected Lines", self)
-  #         syntax_action.statusTip = "Check the selected lines for valid Ruby syntax"
-  #         syntax_action.connect(SIGNAL('triggered()')) { ruby_syntax_check_selection() }
-  #         menu.addAction(syntax_action)
-  #       end
-
-  #       mnemonic_action = Qt::Action.new("Mnemonic Check Selected Lines", self)
-  #       mnemonic_action.statusTip = "Check the selected lines for valid targets, packets, mnemonics and parameters"
-  #       mnemonic_action.connect(SIGNAL('triggered()')) { mnemonic_check_selection() }
-  #       menu.addAction(mnemonic_action)
-
-  #     elsif running?() and @realtime_button_bar.state != 'Running'
-  #       exec_selected_action = Qt::Action.new("Execute Selected Lines While Paused", self)
-  #       exec_selected_action.statusTip = "Execute the selected lines as a standalone script"
-  #       exec_selected_action.connect(SIGNAL('triggered()')) { run_selection_while_paused() }
-  #       menu.addAction(exec_selected_action)
-  #     end
-  #     menu.exec(current_script.mapToGlobal(point))
-  #     menu.dispose
-  #   end
-  # end
-
   def load_file_into_script(filename)
+    mark_breakpoints(filename)
+    breakpoints = @@breakpoints[filename]&.filter { |_, present| present }&.map { |line_number, _| line_number - 1 } # -1 because frontend lines are 0-indexed
+    breakpoints ||= []
     cached = @@file_cache[filename]
     if cached
       # @active_script.setPlainText(cached.gsub("\r", ''))
       @body = cached
-      Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: filename, text: @body }))
+      Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: filename, text: @body, breakpoints: breakpoints }))
     else
       text = ::Script.body(@scope, filename)
       @@file_cache[filename] = text
       @body = text
-      Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: filename, text: @body }))
+      Cosmos::Store.publish(["script-api", "running-script-channel:#{@id}"].compact.join(":"), JSON.generate({ type: :file, filename: filename, text: @body, breakpoints: breakpoints }))
     end
-    mark_breakpoints(filename)
 
     # @active_script.stop_highlight
   end
@@ -1435,7 +1228,11 @@ class RunningScript
     breakpoints = @@breakpoints[filename]
     if breakpoints
       breakpoints.each do |line_number, present|
-        # @active_script.add_breakpoint(line_number) if present
+        RunningScript.set_breakpoint(filename, line_number) if present
+      end
+    else
+      ::Script.get_breakpoints(@scope, filename).each do |line_number|
+        RunningScript.set_breakpoint(filename, line_number + 1)
       end
     end
   end

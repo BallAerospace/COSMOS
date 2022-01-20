@@ -207,10 +207,10 @@ export default {
   created() {
     this.api = new CosmosApi()
     // If we're passed in the route then manually call packetChanged to update
-    if (this.$route.params.target) {
+    if (this.$route.params.target && this.$route.params.packet) {
       this.packetChanged({
-        targetName: this.$route.params.target,
-        packetName: this.$route.params.packet,
+        targetName: this.$route.params.target.toUpperCase(),
+        packetName: this.$route.params.packet.toUpperCase(),
       })
     }
   },
