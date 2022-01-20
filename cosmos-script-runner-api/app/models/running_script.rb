@@ -489,7 +489,10 @@ class RunningScript
   end
 
   def stop_message_log
-    @@message_log.stop if @@message_log
+    metadata = {
+      "scriptname" => unique_filename()
+    }
+    @@message_log.stop(true, s3_object_metadata: metadata) if @@message_log
     @@message_log = nil
   end
 

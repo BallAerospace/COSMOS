@@ -59,7 +59,7 @@ module Cosmos
     end
 
     # Closes the message log and marks it read only
-    def stop(take_mutex = true)
+    def stop(take_mutex = true, s3_object_metadata: {})
       @mutex.lock if take_mutex
       if @file and not @file.closed?
         @file.close
@@ -67,7 +67,7 @@ module Cosmos
           File.chmod(0444, @filename)
           s3_key = File.join(@remote_log_directory, @start_day, File.basename(@filename))
           begin
-            thread = S3Utilities.move_log_file_to_s3(@filename, s3_key)
+            thread = S3Utilities.move_log_file_to_s3(@filename, s3_key, metadata: s3_object_metadata)
             thread.join
           rescue StandardError => e
             Logger.error e.formatted

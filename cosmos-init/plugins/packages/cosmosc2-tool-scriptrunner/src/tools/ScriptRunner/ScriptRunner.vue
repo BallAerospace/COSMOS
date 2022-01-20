@@ -668,7 +668,7 @@ export default {
           label: 'Script',
           items: [
             {
-              label: 'Open Running Scripts',
+              label: 'Open Started Scripts',
               icon: 'mdi-run',
               command: () => {
                 let routeData = this.$router.resolve({ name: 'RunningScripts' })
