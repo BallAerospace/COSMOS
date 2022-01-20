@@ -511,7 +511,7 @@ export default {
         //   },
         // },
       },
-      current_filename: null,
+      currentFilename: null,
       environmentOn: false,
       environmentOpen: false,
       environmentOptions: [],
@@ -533,6 +533,7 @@ export default {
       debugHistoryIndex: 0,
       showDisconnect: false,
       files: {},
+      breakpoints: {},
       filename: NEW_FILENAME,
       tempFilename: null,
       fileModified: '',
@@ -583,6 +584,7 @@ export default {
       return !!this.lockedBy
     },
     fullFilename() {
+      if (this.currentFilename) return this.currentFilename
       return `${this.filename} ${this.fileModified}`.trim()
     },
     menus: function () {
@@ -725,6 +727,16 @@ export default {
                 this.toggleDisconnect()
               },
             },
+            {
+              divider: true,
+            },
+            {
+              label: 'Delete All Breakpoints',
+              icon: 'mdi-delete-circle-outline',
+              command: () => {
+                this.deleteAllBreakpoints()
+              },
+            },
           ],
         },
       ]
@@ -738,6 +750,10 @@ export default {
         {
           label: 'Run from here',
           command: this.runFromCursor,
+        },
+        {
+          label: 'Clear these breakpoints',
+          command: this.clearBreakpoints,
         },
       ]
     },
@@ -764,13 +780,17 @@ export default {
     this.editor.completers = [new CmdCompleter(), new TlmCompleter()]
     this.editor.setHighlightActiveLine(false)
     this.editor.focus()
+    this.editor.on('guttermousedown', this.toggleBreakpoint)
     // We listen to tokenizerUpdate rather than change because this
     // is the background process that updates as changes are processed
     // while change fires immediately before the UndoManager is updated.
     this.editor.session.on('tokenizerUpdate', this.onChange)
 
     const sleepAnnotator = new SleepAnnotator(this.editor)
-    this.editor.session.on('change', sleepAnnotator.annotate)
+    this.editor.session.on('change', ($event, session) => {
+      sleepAnnotator.annotate($event, session)
+      this.updateBreakpoints($event, session)
+    })
 
     window.addEventListener('keydown', this.keydown)
     this.cable = ActionCable.createConsumer('/script-api/cable')
@@ -826,19 +846,24 @@ export default {
       this.executeSelectionMenu = true
     },
     runFromCursor: function () {
+      const start = this.editor.getCursorPosition().row
       const text = this.editor.session.doc
-        .getLines(
-          this.editor.getCursorPosition().row,
-          this.editor.session.doc.getLength()
-        )
+        .getLines(start, this.editor.session.doc.getLength())
         .join('\n')
-      this.executeText(text)
+      const breakpoints = this.getBreakpointRows()
+        .filter((row) => row >= start)
+        .map((row) => row - start)
+      this.executeText(text, breakpoints)
     },
     executeSelection: function () {
       const text = this.editor.getSelectedText()
-      this.executeText(text)
+      const range = this.editor.getSelectionRange()
+      const breakpoints = this.getBreakpointRows()
+        .filter((row) => row <= range.end.row && row >= range.start.row)
+        .map((row) => row - range.start.row)
+      this.executeText(text, breakpoints)
     },
-    executeText: function (text) {
+    executeText: function (text, breakpoints = []) {
       if (this.state === 'error') {
         // Execute via debugger
         const lines = text.split('\n')
@@ -853,6 +878,7 @@ export default {
         Api.post(`/script-api/scripts/${selectionTempFilename}`, {
           data: {
             text,
+            breakpoints,
           },
         })
           .then((response) => {
@@ -870,6 +896,77 @@ export default {
             window.open(`/tools/scriptrunner/${response.data}`)
           })
       }
+    },
+    clearBreakpoints: function () {
+      this.editor.session.clearBreakpoints()
+    },
+    toggleBreakpoint: function ($event) {
+      if (
+        $event.domEvent.which === 1 && // left click
+        $event.domEvent.path[0].classList.contains('ace_gutter-cell') // on a line number
+      ) {
+        const row = $event.getDocumentPosition().row
+        if ($event.editor.session.getBreakpoints(row, 0)[row]) {
+          $event.editor.session.clearBreakpoint(row)
+        } else {
+          $event.editor.session.setBreakpoint(row)
+        }
+      }
+    },
+    updateBreakpoints: function ($event, session) {
+      if ($event.lines.length <= 1) {
+        return
+      }
+      const rowsToUpdate = this.getBreakpointRows(session).filter(
+        (row) =>
+          ($event.start.column === 0 && row === $event.start.row) ||
+          row > $event.start.row
+      )
+      let rowsToDelete = []
+      let offset = 0
+      switch ($event.action) {
+        case 'insert':
+          offset = $event.lines.length - 1
+          rowsToUpdate.reverse() // shift the lower ones down out of the way first
+          break
+        case 'remove':
+          offset = -$event.lines.length + 1
+          rowsToDelete = [...Array($event.lines.length).keys()].map(
+            (row) => row + $event.start.row
+          )
+          break
+      }
+      rowsToUpdate.forEach((row) => {
+        session.clearBreakpoint(row)
+        if (!rowsToDelete.includes(row)) {
+          session.setBreakpoint(row + offset)
+        }
+      })
+    },
+    getBreakpointRows: function (session = this.editor.session) {
+      return session
+        .getBreakpoints()
+        .map((breakpoint, row) => breakpoint && row) // [empty, 'ace_breakpoint', 'ace_breakpoint', empty] -> [empty, 1, 2, empty]
+        .filter(Number.isInteger) // [empty, 1, 2, empty] -> [1, 2]
+    },
+    restoreBreakpoints: function (filename) {
+      this.clearBreakpoints()
+      this.breakpoints[filename]?.forEach((breakpoint) => {
+        this.editor.session.setBreakpoint(breakpoint)
+      })
+    },
+    deleteAllBreakpoints: function () {
+      this.$dialog
+        .confirm('Permanently delete all breakpoints for ALL scripts?', {
+          okText: 'Delete',
+          cancelText: 'Cancel',
+        })
+        .then((dialog) => {
+          return Api.delete('/script-api/breakpoints/delete/all')
+        })
+        .then((response) => {
+          this.clearBreakpoints()
+        })
     },
     suiteRunnerButton(event) {
       if (this.startOrGoButton === START) {
@@ -1009,10 +1106,13 @@ export default {
       switch (data.type) {
         case 'file':
           this.files[data.filename] = data.text
-          this.filename = data.filename
+          this.breakpoints[data.filename] = data.breakpoints
+          if (this.currentFilename === data.filename) {
+            this.restoreBreakpoints(data.filename)
+          }
           break
         case 'line':
-          if (data.filename && data.filename !== this.current_filename) {
+          if (data.filename && data.filename !== this.currentFilename) {
             if (!this.files[data.filename]) {
               // We don't have the contents of the running file (probably because connected to running script)
               // Set the contents initially to an empty string so we don't start slamming the API
@@ -1021,10 +1121,12 @@ export default {
               // Request the script we need
               Api.get(`/script-api/scripts/${data.filename}`)
                 .then((response) => {
-                  // Success - Save thes script text and mark the current_filename as null
+                  // Success - Save thes script text and mark the currentFilename as null
                   // so it will get loaded in on the next line executed
                   this.files[data.filename] = response.data.contents
-                  this.current_filename = null
+                  this.breakpoints[data.filename] = response.data.breakpoints
+                  this.restoreBreakpoints(data.filename)
+                  this.currentFilename = null
                 })
                 .catch((err) => {
                   // Error - Restore the file contents to null so we'll try the API again on the next line
@@ -1032,8 +1134,9 @@ export default {
                 })
             } else {
               this.editor.setValue(this.files[data.filename])
+              this.restoreBreakpoints(data.filename)
               this.editor.clearSelection()
-              this.current_filename = data.filename
+              this.currentFilename = data.filename
             }
           }
           if (!this.fatal) {
@@ -1240,6 +1343,7 @@ export default {
     // ScriptRunner File menu actions
     newFile() {
       this.filename = NEW_FILENAME
+      this.clearBreakpoints()
       this.editor.session.setValue('')
       this.fileModified = ''
       this.suiteRunner = false
@@ -1249,11 +1353,14 @@ export default {
       this.fileOpen = true
     },
     // Called by the FileOpenDialog to set the file contents
-    setFile({ file, locked }) {
+    setFile({ file, locked, breakpoints }) {
+      this.unlockFile() // first unlock what was just being edited
       this.suiteRunner = false
       // Split off the ' *' which indicates a file is modified on the server
       this.filename = file.name.split('*')[0]
       this.editor.session.setValue(file.contents)
+      this.breakpoints[filename] = breakpoints
+      this.restoreBreakpoints(filename)
       this.fileModified = ''
       this.lockedBy = locked
       if (file.suites) {
@@ -1271,6 +1378,7 @@ export default {
     // saveFile takes a type to indicate if it was called by the Menu
     // or automatically by 'Start' (to ensure a consistent backend file) or autoSave
     saveFile(type = 'menu') {
+      const breakpoints = this.getBreakpointRows()
       if (this.filename === NEW_FILENAME) {
         if (type === 'menu') {
           // Menu driven saves on a new file should prompt SaveAs
@@ -1284,6 +1392,7 @@ export default {
           Api.post(`/script-api/scripts/${this.tempFilename}`, {
             data: {
               text: this.editor.getValue(), // Pass in the raw file text
+              breakpoints,
             },
           })
             .then((response) => {
@@ -1302,6 +1411,7 @@ export default {
         Api.post(`/script-api/scripts/${this.filename}`, {
           data: {
             text: this.editor.getValue(), // Pass in the raw file text
+            breakpoints,
           },
         })
           .then((response) => {
@@ -1465,7 +1575,7 @@ export default {
       link.click()
     },
     downloadLog() {
-      const output = this.messages.map(message => message.message ).join('\n')
+      const output = this.messages.map((message) => message.message).join('\n')
       const blob = new Blob([output], {
         type: 'text/plain',
       })
@@ -1578,5 +1688,9 @@ hr {
 .saving {
   z-index: 20;
   opacity: 0.35;
+}
+.ace_gutter-cell.ace_breakpoint {
+  border-radius: 20px 0px 0px 20px;
+  box-shadow: 0px 0px 1px 1px red inset;
 }
 </style>

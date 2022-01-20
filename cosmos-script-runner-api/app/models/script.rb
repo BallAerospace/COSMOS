@@ -101,6 +101,12 @@ class Script
     locked_by
   end
 
+  def self.get_breakpoints(scope, name)
+    breakpoints = Cosmos::Store.hget("#{scope}__script-breakpoints", name.split('*')[0]) # Split '*' that indicates modified
+    return JSON.parse(breakpoints) if breakpoints
+    []
+  end
+
   def self.process_suite(name, contents, new_process: true)
     start = Time.now
     temp = Tempfile.new(%w[suite .rb])
@@ -134,7 +140,7 @@ class Script
     return results, success
   end
 
-  def self.create(scope, name, text = nil)
+  def self.create(scope, name, text = nil, breakpoints = nil)
     return false unless text
 
     rubys3_client = Aws::S3::Client.new
@@ -146,6 +152,7 @@ class Script
       bucket: DEFAULT_BUCKET_NAME,
       content_type: 'text/plain',
     )
+    Cosmos::Store.hset("#{scope}__script-breakpoints", name, breakpoints.to_json) if breakpoints
     true
   end
 
@@ -157,6 +164,7 @@ class Script
       key: "#{scope}/targets_modified/#{name}",
       bucket: DEFAULT_BUCKET_NAME,
     )
+    Cosmos::Store.hdel("#{scope}__script-breakpoints", name)
     true
   end
 

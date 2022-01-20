@@ -262,7 +262,9 @@ export default {
               this.$emit('error', response.data.suites)
             }
           }
-          this.$emit('file', { file, locked: response.data.locked })
+          const locked = response.data.locked
+          const breakpoints = response.data.breakpoints
+          this.$emit('file', { file, locked, breakpoints })
           this.clear()
         })
         .catch((error) => {
