@@ -17,19 +17,10 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
-require 'cosmos/models/interface_model'
+require 'cosmos/models/process_status_model'
 
-module Cosmos
-  class RouterModel < InterfaceModel
-    # Called by the PluginModel to allow this class to validate it's top-level keyword: "ROUTER"
-    def self.handle_config(parser, keyword, parameters, plugin: nil, needs_dependencies: false, scope:)
-      case keyword
-      when 'ROUTER'
-        parser.verify_num_parameters(2, nil, "ROUTER <Name> <Filename> <Specific Parameters>")
-        return self.new(name: parameters[0].upcase, config_params: parameters[1..-1], plugin: plugin, scope: scope)
-      else
-        raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Router: #{keyword} #{parameters.join(" ")}")
-      end
-    end
+class ProcessStatusController < ModelController
+  def initialize
+    @model_class = Cosmos::ProcessStatusModel
   end
 end

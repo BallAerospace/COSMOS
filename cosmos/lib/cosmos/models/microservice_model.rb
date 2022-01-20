@@ -17,6 +17,7 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/top_level'
 require 'cosmos/models/model'
 require 'cosmos/utilities/s3'
 
@@ -26,6 +27,7 @@ module Cosmos
 
     attr_accessor :cmd
     attr_accessor :options
+    attr_accessor :needs_dependencies
 
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
@@ -56,7 +58,7 @@ module Cosmos
     end
 
     # Called by the PluginModel to allow this class to validate it's top-level keyword: "MICROSERVICE"
-    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
+    def self.handle_config(parser, keyword, parameters, plugin: nil, needs_dependencies: false, scope:)
       case keyword
       when 'MICROSERVICE'
         parser.verify_num_parameters(2, 2, "#{keyword} <Folder Name> <Name>")
@@ -80,6 +82,7 @@ module Cosmos
       container: nil,
       updated_at: nil,
       plugin: nil,
+      needs_dependencies: false,
       scope:
     )
       parts = name.split("__")
@@ -99,6 +102,7 @@ module Cosmos
       @target_names = target_names
       @options = options
       @container = container
+      @needs_dependencies = needs_dependencies
     end
 
     def as_json
@@ -113,7 +117,8 @@ module Cosmos
         'options' => @options,
         'container' => @container,
         'updated_at' => @updated_at,
-        'plugin' => @plugin
+        'plugin' => @plugin,
+        'needs_dependencies' => @needs_dependencies,
       }
     end
 
@@ -180,7 +185,9 @@ module Cosmos
 
         # Load microservice files
         data = File.read(filename, mode: "rb")
-        data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
+        Cosmos.set_working_dir(File.dirname(filename)) do
+          data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
+        end
         rubys3_client.put_object(bucket: 'config', key: key, body: data)
       end
     end

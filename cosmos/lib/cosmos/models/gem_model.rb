@@ -21,6 +21,10 @@ require 'open-uri'
 require 'nokogiri'
 require 'httpclient'
 require 'cosmos/utilities/s3'
+require 'rubygems'
+require 'rubygems/uninstaller'
+require 'cosmos/api/api'
+require 'tempfile'
 
 module Cosmos
   # This class acts like a Model but doesn't inherit from Model because it doesn't
@@ -28,6 +32,8 @@ module Cosmos
   # and destroy to allow interaction with gem files from the PluginModel and
   # the GemsController.
   class GemModel
+    extend Api
+
     @@bucket_initialized = false
 
     def self.names
@@ -49,6 +55,20 @@ module Cosmos
     def self.put(gem_file_path)
       rubys3_client = initialize_bucket()
       if File.file?(gem_file_path)
+        # TODO: Doing the gem install needs to be done in a seperate process because can be VERY slow and
+        # block web interface for too long
+
+        # begin
+        #   rubygems_url = get_setting('rubygems_url')
+        #   Gem.sources = [rubygems_url] if rubygems_url
+        #   Gem.install(gem_file_path, {:build_args => '--no-document'})
+        # rescue => err
+        #   message = "Gem file #{gem_file_path} error installing to /gems\n#{err.formatted}"
+        #   Logger.error message
+        # ensure
+        #   FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
+        # end
+
         gem_filename = File.basename(gem_file_path)
         Logger.info "Installing gem: #{gem_filename}"
         File.open(gem_file_path, 'rb') do |file|
@@ -65,6 +85,20 @@ module Cosmos
       rubys3_client = initialize_bucket()
       Logger.info "Removing gem: #{name}"
       rubys3_client.delete_object(bucket: 'gems', key: name)
+      gem_name, version = self.extract_name_and_version(name)
+      begin
+        Gem::Uninstaller.new(gem_name, {:version => version, :force => true}).uninstall
+      rescue => err
+        message = "Gem file #{name} error uninstalling\n#{err.formatted}"
+        Logger.error message
+      end
+    end
+
+    def self.extract_name_and_version(name)
+      split_name = name.split('-')
+      gem_name = split_name[0..-2].join('-')
+      version = split_name[-1]
+      return gem_name, version
     end
 
     # private

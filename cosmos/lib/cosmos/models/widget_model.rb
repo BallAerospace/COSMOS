@@ -17,6 +17,7 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/top_level'
 require 'cosmos/models/model'
 require 'cosmos/models/scope_model'
 require 'cosmos/utilities/s3'
@@ -29,6 +30,7 @@ module Cosmos
     attr_accessor :full_name
     attr_accessor :filename
     attr_accessor :s3_key
+    attr_accessor :needs_dependencies
 
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
@@ -63,7 +65,7 @@ module Cosmos
     end
 
     # Called by the PluginModel to allow this class to validate it's top-level keyword: "WIDGET"
-    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
+    def self.handle_config(parser, keyword, parameters, plugin: nil, needs_dependencies: false, scope:)
       case keyword
       when 'WIDGET'
         parser.verify_num_parameters(1, 1, "WIDGET <Name>")
@@ -78,19 +80,22 @@ module Cosmos
       name:,
       updated_at: nil,
       plugin: nil,
+      needs_dependencies: false,
       scope:
     )
       super("#{scope}__#{PRIMARY_KEY}", name: name, plugin: plugin, updated_at: updated_at, scope: scope)
       @full_name = @name.capitalize + 'Widget'
       @filename = @full_name + '.umd.min.js'
       @s3_key = 'widgets/' + @full_name + '/' + @filename
+      @needs_dependencies = needs_dependencies
     end
 
     def as_json
       {
         'name' => @name,
         'updated_at' => @updated_at,
-        'plugin' => @plugin
+        'plugin' => @plugin,
+        'needs_dependencies' => @needs_dependencies,
       }
     end
 
@@ -115,7 +120,9 @@ module Cosmos
 
       # Load widget file
       data = File.read(filename, mode: "rb")
-      data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
+      Cosmos.set_working_dir(File.dirname(filename)) do
+        data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable?
+      end
       # TODO: support widgets that aren't just a single js file (and its associated map file)
       rubys3_client.put_object(bucket: 'tools', content_type: 'application/javascript', cache_control: cache_control, key: @s3_key, body: data)
       data = File.read(filename + '.map', mode: "rb")

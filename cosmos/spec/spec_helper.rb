@@ -83,11 +83,13 @@ $cosmos_token = ENV['COSMOS_API_PASSWORD']
 $cosmos_authorize = false
 
 def setup_system(targets = %w[SYSTEM INST EMPTY])
+  result = nil
   capture_io do |stdout|
     require 'cosmos/system'
     dir = File.join(__dir__, 'install', 'config', 'targets')
     Cosmos::System.class_variable_set(:@@instance, nil)
     Cosmos::System.instance(targets, dir)
+    result = stdout
   end
 end
 

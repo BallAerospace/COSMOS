@@ -63,15 +63,13 @@ module Cosmos
       @mutex.lock if take_mutex
       if @file and not @file.closed?
         @file.close
-        Cosmos.set_working_dir do
-          File.chmod(0444, @filename)
-          s3_key = File.join(@remote_log_directory, @start_day, File.basename(@filename))
-          begin
-            thread = S3Utilities.move_log_file_to_s3(@filename, s3_key, metadata: s3_object_metadata)
-            thread.join
-          rescue StandardError => e
-            Logger.error e.formatted
-          end
+        File.chmod(0444, @filename)
+        s3_key = File.join(@remote_log_directory, @start_day, File.basename(@filename))
+        begin
+          thread = S3Utilities.move_log_file_to_s3(@filename, s3_key, metadata: s3_object_metadata)
+          thread.join
+        rescue StandardError => e
+          Logger.error e.formatted
         end
       end
       @mutex.unlock if take_mutex
@@ -83,12 +81,10 @@ module Cosmos
       # Prevent starting files too fast
       sleep(0.1) until !File.exist?(File.join(@log_dir, File.build_timestamped_filename([@tool_name, 'messages'])))
       stop(false)
-      Cosmos.set_working_dir do
-        timed_filename = File.build_timestamped_filename([@tool_name, 'messages'])
-        @start_day = timed_filename[0..9].gsub("_", "") # YYYYMMDD
-        @filename = File.join(@log_dir, timed_filename)
-        @file = File.open(@filename, 'a')
-      end
+      timed_filename = File.build_timestamped_filename([@tool_name, 'messages'])
+      @start_day = timed_filename[0..9].gsub("_", "") # YYYYMMDD
+      @filename = File.join(@log_dir, timed_filename)
+      @file = File.open(@filename, 'a')
       @mutex.unlock if take_mutex
     end
   end

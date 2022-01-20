@@ -97,6 +97,9 @@ module Cosmos
           end
         end
         expect(Gem::Package).to receive(:new).and_return(gem)
+        spec = double("spec")
+        expect(gem).to receive(:spec).and_return(spec)
+        expect(spec).to receive(:runtime_dependencies).and_return([])
 
         variables = { "folder" => "THE_FOLDER", "name" => "THE_NAME" }
         # Just stub the instance deploy method

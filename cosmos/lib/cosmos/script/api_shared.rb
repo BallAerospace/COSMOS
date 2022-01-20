@@ -437,69 +437,6 @@ module Cosmos
       _wait_packet(true, target_name, packet_name, num_packets, timeout, polling_rate, scope: scope, token: token)
     end
 
-    def start(procedure_name)
-      raise "TODO: start needs to be updated"
-      # cached = true
-      # path = _get_procedure_path(procedure_name)
-
-      # if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
-      #   hashing_sum = nil
-      #   begin
-      #     hashing_result = Cosmos.hash_files([path], nil, System.hashing_algorithm)
-      #     hash_string = hashing_result.hexdigest
-      #     # Only use at most, 32 characters of the hex
-      #     hash_string = hash_string[-32..-1] if hash_string.length >= 32
-      #   rescue Exception => error
-      #     raise "Error calculating hash string on procedure file : #{path}"
-      #   end
-
-      #   # Check RAM based instrumented cache
-      #   instrumented_cache = ScriptRunnerFrame.instrumented_cache[path]
-      #   instrumented_script = nil
-      #   if instrumented_cache and hash_string == instrumented_cache[1]
-      #     # Use cached instrumentation
-      #     instrumented_script = instrumented_cache[0]
-      #   else
-      #     file_text, instrumented_script, cached = _check_file_cache_for_instrumented_script(path, hash_string)
-      #     # Cache instrumentation into RAM
-      #     ScriptRunnerFrame.file_cache[path] = file_text
-      #     ScriptRunnerFrame.instrumented_cache[path] = [instrumented_script, hash_string]
-      #   end
-
-      #   Object.class_eval(instrumented_script, path, 1)
-      # else # No ScriptRunnerFrame so just start it locally
-      #   cached = false
-      #   begin
-      #     Kernel::load(path)
-      #   rescue LoadError => error
-      #     raise LoadError, "Error loading -- #{procedure_name}\n#{error.message}"
-      #   end
-      # end
-      # # Return whether we had to load and instrument this file, i.e. it was not cached
-      # !cached
-    end
-
-    # Require an additional ruby file
-    def load_utility(procedure_name)
-      # TODO
-      not_cached = false
-      # if defined? ScriptRunnerFrame and ScriptRunnerFrame.instance
-      #   saved = ScriptRunnerFrame.instance.use_instrumentation
-      #   begin
-      #     ScriptRunnerFrame.instance.use_instrumentation = false
-      #     not_cached = start(procedure_name)
-      #   ensure
-      #     ScriptRunnerFrame.instance.use_instrumentation = saved
-      #   end
-      # else # Just call start
-      not_cached = start(procedure_name)
-      # end
-      # Return whether we had to load and instrument this file, i.e. it was not cached
-      # This is designed to match the behavior of Ruby's require and load keywords
-      not_cached
-    end
-    alias require_utility load_utility
-
     def disable_instrumentation
       if defined? RunningScript and RunningScript.instance
         RunningScript.instance.use_instrumentation = false
@@ -514,92 +451,32 @@ module Cosmos
     end
 
     ###########################################################################
-    # Private implementation details
+    # Scripts Outside of ScriptRunner Support
+    # ScriptRunner overrides these methods to work in the COSMOS cluster
+    # They are only here to allow for scripts to have a change to work
+    # unaltered outside of the cluster
     ###########################################################################
 
-    def _get_procedure_path(procedure_name)
-      # Handle not-giving an extension
-      procedure_name_with_extension = nil
-      procedure_name_with_extension = procedure_name + '.rb' if File.extname(procedure_name).empty?
-
-      path = nil
-
-      # Find filename in search path
-      ($:).each do |directory|
-        if File.exist?(directory + '/' + procedure_name) and not File.directory?(directory + '/' + procedure_name)
-          path = directory + '/' + procedure_name
-          break
-        end
-
-        if procedure_name_with_extension and File.exist?(directory + '/' + procedure_name_with_extension)
-          procedure_name = procedure_name_with_extension
-          path = directory + '/' + procedure_name
-          break
-        end
+    def start(procedure_name)
+      cached = false
+      begin
+        Kernel::load(procedure_name)
+      rescue LoadError => error
+        raise LoadError, "Error loading -- #{procedure_name}\n#{error.message}"
       end
-
-      # Handle absolute path
-      path = procedure_name if !path and File.exist?(procedure_name)
-      path = procedure_name_with_extension if !path and procedure_name_with_extension and File.exist?(procedure_name_with_extension)
-
-      raise LoadError, "Procedure not found -- #{procedure_name}" unless path
-
-      path
+      # Return whether we had to load and instrument this file, i.e. it was not cached
+      !cached
     end
 
-    # def _check_file_cache_for_instrumented_script(path, hash_string)
-    #   file_text = nil
-    #   instrumented_script = nil
-    #   cached = true
-    #   use_file_cache = true
+    # Require an additional ruby file
+    def load_utility(procedure_name)
+      return start(procedure_name)
+    end
+    alias require_utility load_utility
 
-    #   Cosmos.set_working_dir do
-    #     cache_path = File.join(System.paths['TMP'], 'script_runner')
-    #     unless File.directory?(cache_path)
-    #       # Try to create .cache directory
-    #       begin
-    #         Dir.mkdir(cache_path)
-    #       rescue
-    #         use_file_cache = false
-    #       end
-    #     end
-
-    #     cache_filename = nil
-    #     if use_file_cache
-    #       # Check file based instrumented cache
-    #       flat_path = path.tr("/", "_").gsub("\\", "_").tr(":", "_").tr(" ", "_")
-    #       flat_path_with_hash_string = flat_path + '_' + hash_string
-    #       cache_filename = File.join(cache_path, flat_path_with_hash_string)
-    #     end
-
-    #     begin
-    #       file_text = File.read(path)
-    #     rescue Exception => error
-    #       msg = "Error reading procedure file '#{path}' due to #{error.message}."
-    #       raise $!, msg, $!.backtrace
-    #     end
-
-    #     if use_file_cache and File.exist?(cache_filename)
-    #       # Use file cached instrumentation
-    #       File.open(cache_filename, 'r') {|file| instrumented_script = file.read}
-    #     else
-    #       cached = false
-
-    #       # Build instrumentation
-    #       instrumented_script = ScriptRunnerFrame.instrument_script(file_text, path, true)
-
-    #       # Cache instrumentation into file
-    #       if use_file_cache
-    #         begin
-    #           File.open(cache_filename, 'w') {|file| file.write(instrumented_script)}
-    #         rescue
-    #           # Oh well, failed to write cache file
-    #         end
-    #       end
-    #     end
-    #   end
-    #   [file_text, instrumented_script, cached]
-    # end
+    ###########################################################################
+    # Private implementation details
+    ###########################################################################
 
     # Creates a string with the parameters upcased
     def _upcase(target_name, packet_name, item_name)
