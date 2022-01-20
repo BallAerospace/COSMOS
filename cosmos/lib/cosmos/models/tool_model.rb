@@ -34,6 +34,7 @@ module Cosmos
     attr_accessor :category
     attr_accessor :shown
     attr_accessor :position
+    attr_accessor :needs_dependencies
 
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
@@ -74,7 +75,7 @@ module Cosmos
     end
 
     # Called by the PluginModel to allow this class to validate it's top-level keyword: "TOOL"
-    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
+    def self.handle_config(parser, keyword, parameters, plugin: nil, needs_dependencies: false, scope:)
       case keyword
       when 'TOOL'
         parser.verify_num_parameters(2, 2, "TOOL <Folder Name> <Name>")
@@ -120,6 +121,7 @@ module Cosmos
       position: nil,
       updated_at: nil,
       plugin: nil,
+      needs_dependencies: false,
       scope:
     )
       super("#{scope}__#{PRIMARY_KEY}", name: name, plugin: plugin, updated_at: updated_at, scope: scope)
@@ -136,6 +138,7 @@ module Cosmos
         @inline_url = 'js/app.js' unless @inline_url
         @url = "/tools/#{folder_name}" unless @url
       end
+      @needs_dependencies = needs_dependencies
     end
 
     def create(update: false, force: false)
@@ -163,7 +166,8 @@ module Cosmos
         'shown' => @shown,
         'position' => @position,
         'updated_at' => @updated_at,
-        'plugin' => @plugin
+        'plugin' => @plugin,
+        'needs_dependencies' => @needs_dependencies,
       }
     end
 

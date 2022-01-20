@@ -68,29 +68,30 @@ class Screen
     end
     @scope = scope
     @target = target
-    file = resp.body.read
-    # Remove all the commented out lines to prevent ERB from running
-    file.gsub!(/^\s*#.*\n/,'')
-    ERB.new(file).result(binding)
+    return resp.body.read
+    # # Remove all the commented out lines to prevent ERB from running
+    # file.gsub!(/^\s*#.*\n/,'')
+    # ERB.new(file).result(binding)
   end
 
-  # Called by the ERB template to render a partial
-  def self.render(template_name, options = {})
-    raise Error.new(self, "Partial name '#{template_name}' must begin with an underscore.") if File.basename(template_name)[0] != '_'
-    b = binding
-    if options[:locals]
-      options[:locals].each {|key, value| b.local_variable_set(key, value) }
-    end
-    rubys3_client = Aws::S3::Client.new
-    begin
-      # First try opening a potentially modified version by looking for the modified target
-      resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets_modified/#{target}/screens/#{template_name}")
-    rescue
-      # Now try the original
-      resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{target}/screens/#{template_name}")
-    end
-    ERB.new(resp.body.read).result(b)
-  end
+  # TODO: This should not be needed as screens should be fully rendered in S3
+  # # Called by the ERB template to render a partial
+  # def self.render(template_name, options = {})
+  #   raise Error.new(self, "Partial name '#{template_name}' must begin with an underscore.") if File.basename(template_name)[0] != '_'
+  #   b = binding
+  #   if options[:locals]
+  #     options[:locals].each {|key, value| b.local_variable_set(key, value) }
+  #   end
+  #   rubys3_client = Aws::S3::Client.new
+  #   begin
+  #     # First try opening a potentially modified version by looking for the modified target
+  #     resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets_modified/#{target}/screens/#{template_name}")
+  #   rescue
+  #     # Now try the original
+  #     resp = rubys3_client.get_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{target}/screens/#{template_name}")
+  #   end
+  #   ERB.new(resp.body.read).result(b)
+  # end
 
   def self.create(scope, target, screen, text = nil)
     return false unless text

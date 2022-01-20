@@ -17,6 +17,7 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/top_level'
 require 'cosmos/ext/config_parser' if RUBY_ENGINE == 'ruby' and !ENV['COSMOS_NO_EXT']
 require 'erb'
 
@@ -166,7 +167,9 @@ module Cosmos
       else # relative to the current @filename
         path = File.join(File.dirname(@filename), template_name)
       end
-      ERB.new(File.read(path)).result(b)
+      Cosmos.set_working_dir(File.dirname(path)) do
+        return ERB.new(File.read(path)).result(b)
+      end
     end
 
     # Processes a file and yields |config| to the given block
@@ -350,8 +353,11 @@ module Cosmos
     # Writes the ERB parsed results
     def create_parsed_output_file(filename, run_erb, variables)
       begin
+        output = nil
         if run_erb
-          output = ERB.new(File.read(filename)).result(binding.set_variables(variables))
+          Cosmos.set_working_dir(File.dirname(filename)) do
+            output = ERB.new(File.read(filename)).result(binding.set_variables(variables))
+          end
         else
           output = File.read(filename)
         end

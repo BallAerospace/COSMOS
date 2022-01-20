@@ -20,6 +20,7 @@
 require 'erb'
 require 'psych'
 require 'tempfile'
+require 'cosmos/top_level'
 
 class Array
   def to_meta_config_yaml(indentation = 0)
@@ -46,7 +47,11 @@ module Cosmos
         path = File.join(@basedir, filename)
       end
       tf = Tempfile.new("temp.yaml")
-      output = ERB.new(File.read(path)).result(binding)
+
+      output = nil
+      Cosmos.set_working_dir(File.dirname(path)) do
+        output = ERB.new(File.read(path)).result(binding)
+      end
       tf.write(output)
       tf.close
       begin

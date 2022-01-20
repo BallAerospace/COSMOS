@@ -36,6 +36,7 @@ module Cosmos
     attr_accessor :interfaces
     attr_accessor :log
     attr_accessor :log_raw
+    attr_accessor :needs_dependencies
 
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
@@ -55,7 +56,7 @@ module Cosmos
     # Called by the PluginModel to allow this class to validate it's top-level keyword: "INTERFACE"
     # Interface/Router specific keywords are handled by the instance method "handle_config"
     # NOTE: See RouterModel for the router method implementation
-    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
+    def self.handle_config(parser, keyword, parameters, plugin: nil, needs_dependencies: false, scope:)
       case keyword
       when 'INTERFACE'
         parser.verify_num_parameters(2, nil, "INTERFACE <Name> <Filename> <Specific Parameters>")
@@ -97,6 +98,7 @@ module Cosmos
       log_raw: false,
       updated_at: nil,
       plugin: nil,
+      needs_dependencies: false,
       scope:
     )
       if self.class._get_type == 'INTERFACE'
@@ -114,6 +116,7 @@ module Cosmos
       @protocols = protocols
       @log = log
       @log_raw = log_raw
+      @needs_dependencies = needs_dependencies
     end
 
     # Called by InterfaceMicroservice to instantiate the Interface defined
@@ -155,6 +158,7 @@ module Cosmos
         'log' => @log,
         'log_raw' => @log_raw,
         'plugin' => @plugin,
+        'needs_dependencies' => @needs_dependencies,
         'updated_at' => @updated_at
       }
     end
@@ -242,6 +246,7 @@ module Cosmos
         cmd: ["ruby", "#{type.downcase}_microservice.rb", microservice_name],
         target_names: @target_names,
         plugin: @plugin,
+        needs_dependencies: @needs_dependencies,
         scope: @scope
       )
       microservice.create

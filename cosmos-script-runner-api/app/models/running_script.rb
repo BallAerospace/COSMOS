@@ -37,10 +37,10 @@ module Cosmos
     # TODO: ask(question, blank_or_default = false, password = false)
     #   ask differs from ask_string in that it automatically converts the value to the correct type
     # TODO: How do we handle file dialogs:
-    # save_file_dialog(directory = Cosmos::USERPATH, message = "Save File", filter = "*")
-    # open_file_dialog(directory = Cosmos::USERPATH, message = "Open File", filter = "*")
-    # open_files_dialog(directory = Cosmos::USERPATH, message = "Open File(s)", filter = "*")
-    # open_directory_dialog(directory = Cosmos::USERPATH, message = "Open Directory")
+    # save_file_dialog(directory, message = "Save File", filter = "*")
+    # open_file_dialog(directory, message = "Open File", filter = "*")
+    # open_files_dialog(directory, message = "Open File(s)", filter = "*")
+    # open_directory_dialog(directory, message = "Open Directory")
 
     SCRIPT_METHODS = %i[ask ask_string prompt_for_hazardous prompt combo_box message_box vertical_message_box]
     SCRIPT_METHODS.each do |method|
@@ -292,6 +292,7 @@ class RunningScript
     process.environment['COSMOS_API_PASSWORD'] = ENV['COSMOS_API_PASSWORD'] || ENV['COSMOS_SERVICE_PASSWORD']
     process.environment['COSMOS_API_CLIENT'] = ENV['COSMOS_API_CLIENT']
     process.environment['COSMOS_API_SECRET'] = ENV['COSMOS_API_SECRET']
+    process.environment['GEM_HOME'] = ENV['GEM_HOME']
 
     process.start
     running_script_id
@@ -1212,12 +1213,10 @@ class RunningScript
         # Execute the script with warnings disabled
         Cosmos.disable_warnings do
           @pre_line_time = Time.now.sys
-          Cosmos.set_working_dir do
-            if text_binding
-              eval(instrumented_script, text_binding, @filename, 1)
-            else
-              Object.class_eval(instrumented_script, @filename, 1)
-            end
+          if text_binding
+            eval(instrumented_script, text_binding, @filename, 1)
+          else
+            Object.class_eval(instrumented_script, @filename, 1)
           end
         end
 

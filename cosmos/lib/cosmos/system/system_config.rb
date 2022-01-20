@@ -55,7 +55,7 @@ module Cosmos
     attr_reader :classificiation_banner
 
     # @param filename [String] Full path to the system configuration file to
-    #   read. Be default this is <Cosmos::USERPATH>/config/system/system.txt
+    #   read.
     def initialize(filename)
       reset_variables(filename)
     end
@@ -85,84 +85,81 @@ module Cosmos
     #
     # @param filename [String] The configuration file
     # @param targets_config_dir [String] The configuration directory to
-    #   search for the target command and telemetry files. Pass nil to look in
-    #   the default location of <USERPATH>/config/targets.
+    #   search for the target command and telemetry files.
     def process_file(filename, targets_config_dir)
-      Cosmos.set_working_dir(@userpath) do
-        parser = ConfigParser.new("http://cosmosc2.com/docs/v5")
+      parser = ConfigParser.new("http://cosmosc2.com/docs/v5")
 
-        # First pass - Everything except targets
-        parser.parse_file(filename) do |keyword, parameters|
-          case keyword
-          when 'AUTO_DECLARE_TARGETS', 'DECLARE_TARGET', 'DECLARE_GEM_TARGET', 'DECLARE_GEM_MULTI_TARGET'
-            # Will be handled by second pass
+      # First pass - Everything except targets
+      parser.parse_file(filename) do |keyword, parameters|
+        case keyword
+        when 'AUTO_DECLARE_TARGETS', 'DECLARE_TARGET', 'DECLARE_GEM_TARGET', 'DECLARE_GEM_MULTI_TARGET'
+          # Will be handled by second pass
 
-          when 'PORT', 'LISTEN_HOST', 'CONNECT_HOST', 'PATH', 'DEFAULT_PACKET_LOG_WRITER', 'DEFAULT_PACKET_LOG_READER',
-            'ALLOW_ACCESS', 'ADD_HASH_FILE', 'ADD_MD5_FILE', 'HASHING_ALGORITHM'
-            # Not used by COSMOS 5
+        when 'PORT', 'LISTEN_HOST', 'CONNECT_HOST', 'PATH', 'DEFAULT_PACKET_LOG_WRITER', 'DEFAULT_PACKET_LOG_READER',
+          'ALLOW_ACCESS', 'ADD_HASH_FILE', 'ADD_MD5_FILE', 'HASHING_ALGORITHM'
+          # Not used by COSMOS 5
 
-          when 'ENABLE_SOUND'
-            usage = "#{keyword}"
-            parser.verify_num_parameters(0, 0, usage)
-            @sound = true
+        when 'ENABLE_SOUND'
+          usage = "#{keyword}"
+          parser.verify_num_parameters(0, 0, usage)
+          @sound = true
 
-          when 'DISABLE_DNS'
-            usage = "#{keyword}"
-            parser.verify_num_parameters(0, 0, usage)
-            @use_dns = false
+        when 'DISABLE_DNS'
+          usage = "#{keyword}"
+          parser.verify_num_parameters(0, 0, usage)
+          @use_dns = false
 
-          when 'ENABLE_DNS'
-            usage = "#{keyword}"
-            parser.verify_num_parameters(0, 0, usage)
-            @use_dns = true
+        when 'ENABLE_DNS'
+          usage = "#{keyword}"
+          parser.verify_num_parameters(0, 0, usage)
+          @use_dns = true
 
-          when 'STALENESS_SECONDS'
-            parser.verify_num_parameters(1, 1, "#{keyword} <Value in Seconds>")
-            @staleness_seconds = Integer(parameters[0])
+        when 'STALENESS_SECONDS'
+          parser.verify_num_parameters(1, 1, "#{keyword} <Value in Seconds>")
+          @staleness_seconds = Integer(parameters[0])
 
-          when 'META_INIT'
-            parser.verify_num_parameters(1, 1, "#{keyword} <Filename>")
-            @meta_init_filename = ConfigParser.handle_nil(parameters[0])
+        when 'META_INIT'
+          parser.verify_num_parameters(1, 1, "#{keyword} <Filename>")
+          @meta_init_filename = ConfigParser.handle_nil(parameters[0])
 
-          when 'TIME_ZONE_UTC'
-            parser.verify_num_parameters(0, 0, "#{keyword}")
-            @use_utc = true
+        when 'TIME_ZONE_UTC'
+          parser.verify_num_parameters(0, 0, "#{keyword}")
+          @use_utc = true
 
-          when 'CLASSIFICATION'
-            parser.verify_num_parameters(2, 4, "#{keyword} <Display_Text> <Color Name|Red> <Green> <Blue>")
-            # Determine if the COSMOS color already exists, otherwise create a new one
-            if Cosmos.constants.include? parameters[1].upcase.to_sym
-              # We were given a named color that already exists in COSMOS
-              color = parameters[1].upcase
-            else
-              if parameters.length < 4
-                # We were given a named color, but it didn't exist in COSMOS already
-                color = Cosmos.getColor(parameters[1].upcase)
-              else
-                # We were given RGB values
-                color = Cosmos.getColor(parameters[1], parameters[2], parameters[3])
-              end
-            end
-
-            @classificiation_banner = { 'display_text' => parameters[0],
-                                        'color' => color }
-
+        when 'CLASSIFICATION'
+          parser.verify_num_parameters(2, 4, "#{keyword} <Display_Text> <Color Name|Red> <Green> <Blue>")
+          # Determine if the COSMOS color already exists, otherwise create a new one
+          if Cosmos.constants.include? parameters[1].upcase.to_sym
+            # We were given a named color that already exists in COSMOS
+            color = parameters[1].upcase
           else
-            # blank lines will have a nil keyword and should not raise an exception
-            raise parser.error("Unknown keyword '#{keyword}'") if keyword
-          end # case keyword
-        end # parser.parse_file
+            if parameters.length < 4
+              # We were given a named color, but it didn't exist in COSMOS already
+              color = Cosmos.getColor(parameters[1].upcase)
+            else
+              # We were given RGB values
+              color = Cosmos.getColor(parameters[1], parameters[2], parameters[3])
+            end
+          end
 
-        # Explicitly set up time to use UTC or local
-        if @use_utc
-          Time.use_utc()
+          @classificiation_banner = { 'display_text' => parameters[0],
+                                      'color' => color }
+
         else
-          Time.use_local()
-        end
+          # blank lines will have a nil keyword and should not raise an exception
+          raise parser.error("Unknown keyword '#{keyword}'") if keyword
+        end # case keyword
+      end # parser.parse_file
 
-        # Second pass - Process targets
-        process_targets(parser, filename, targets_config_dir)
-      end # Cosmos.set_working_dir
+      # Explicitly set up time to use UTC or local
+      if @use_utc
+        Time.use_utc()
+      else
+        Time.use_local()
+      end
+
+      # Second pass - Process targets
+      process_targets(parser, filename, targets_config_dir)
     end # def process_file
 
     # Parse the system.txt configuration file looking for keywords associated
@@ -365,50 +362,48 @@ module Cosmos
     end
 
     def save_configuration
-      Cosmos.set_working_dir(@userpath) do
-        configuration = find_configuration(@config.name)
-        configuration = File.join(@paths['SAVED_CONFIG'], File.build_timestamped_filename([@config.name], '.zip')) unless configuration
-        unless File.exist?(configuration)
-          configuration_tmp = File.join(@paths['SAVED_CONFIG'], File.build_timestamped_filename(['tmp_' + @config.name], '.zip.tmp'))
-          begin
-            Zip.continue_on_exists_proc = true
-            Zip::File.open(configuration_tmp, Zip::File::CREATE) do |zipfile|
-              zip_file_path = File.basename(configuration, ".zip")
-              zipfile.mkdir zip_file_path
+      configuration = find_configuration(@config.name)
+      configuration = File.join(@paths['SAVED_CONFIG'], File.build_timestamped_filename([@config.name], '.zip')) unless configuration
+      unless File.exist?(configuration)
+        configuration_tmp = File.join(@paths['SAVED_CONFIG'], File.build_timestamped_filename(['tmp_' + @config.name], '.zip.tmp'))
+        begin
+          Zip.continue_on_exists_proc = true
+          Zip::File.open(configuration_tmp, Zip::File::CREATE) do |zipfile|
+            zip_file_path = File.basename(configuration, ".zip")
+            zipfile.mkdir zip_file_path
 
-              # Copy target files into archive
-              zip_targets = []
-              @targets.each do |target_name, target|
-                entries = Dir.entries(target.dir) - %w(. ..)
-                zip_target = File.join(zip_file_path, target.original_name)
-                # Check the stored list of targets. We can't ask the zip file
-                # itself because it's in progress and hasn't been saved
-                unless zip_targets.include?(zip_target)
-                  write_zip_entries(target.dir, entries, zip_target, zipfile)
-                  zip_targets << zip_target
-                end
+            # Copy target files into archive
+            zip_targets = []
+            @targets.each do |target_name, target|
+              entries = Dir.entries(target.dir) - %w(. ..)
+              zip_target = File.join(zip_file_path, target.original_name)
+              # Check the stored list of targets. We can't ask the zip file
+              # itself because it's in progress and hasn't been saved
+              unless zip_targets.include?(zip_target)
+                write_zip_entries(target.dir, entries, zip_target, zipfile)
+                zip_targets << zip_target
               end
+            end
 
-              # Create custom system.txt file
-              zipfile.get_output_stream(File.join(zip_file_path, 'system.txt')) do |file|
-                @targets.each do |target_name, target|
-                  target_filename = File.basename(target.filename)
-                  target_filename = nil unless File.exist?(target.filename)
-                  # Create a newline character since Zip opens files in binary mode
-                  newline = Kernel.is_windows? ? "\r\n" : "\n"
-                  if target.substitute
-                    file.write "DECLARE_TARGET #{target.original_name} #{target.name} #{target_filename}#{newline}"
-                  else
-                    file.write "DECLARE_TARGET #{target.name} nil #{target_filename}#{newline}"
-                  end
+            # Create custom system.txt file
+            zipfile.get_output_stream(File.join(zip_file_path, 'system.txt')) do |file|
+              @targets.each do |target_name, target|
+                target_filename = File.basename(target.filename)
+                target_filename = nil unless File.exist?(target.filename)
+                # Create a newline character since Zip opens files in binary mode
+                newline = Kernel.is_windows? ? "\r\n" : "\n"
+                if target.substitute
+                  file.write "DECLARE_TARGET #{target.original_name} #{target.name} #{target_filename}#{newline}"
+                else
+                  file.write "DECLARE_TARGET #{target.name} nil #{target_filename}#{newline}"
                 end
               end
             end
-            File.rename(configuration_tmp, configuration)
-            File.chmod(0444, configuration) # Mark readonly
-          rescue Exception => error
-            Logger.error "Problem saving configuration to #{configuration}: #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n"
           end
+          File.rename(configuration_tmp, configuration)
+          File.chmod(0444, configuration) # Mark readonly
+        rescue Exception => error
+          Logger.error "Problem saving configuration to #{configuration}: #{error.class}:#{error.message}\n#{error.backtrace.join("\n")}\n"
         end
       end
     end

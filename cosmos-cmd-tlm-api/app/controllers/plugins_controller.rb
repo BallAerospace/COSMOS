@@ -19,6 +19,7 @@
 
 require 'fileutils'
 require 'cosmos/models/plugin_model'
+require 'tmpdir'
 
 class PluginsController < ModelController
   def initialize
@@ -72,8 +73,16 @@ class PluginsController < ModelController
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
     begin
-      result = Cosmos::PluginModel.install_phase2(params[:id], JSON.parse(params[:variables]), scope: params[:scope])
-      Cosmos::Logger.info("Plugin installed: #{params[:id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
+      temp_dir = Dir.mktmpdir
+      variables_filename = Dir::Tmpname.create(['variables-', '.json']) {}
+      variables_file_path = File.join(temp_dir, File.basename(variables_filename))
+      File.open(variables_file_path, 'wb') do |file|
+        file.write(params[:variables])
+      end
+
+      result = Cosmos::ProcessManager.instance.spawn(["ruby", "/cosmos/bin/cosmos", "load", params[:id], params[:scope], variables_file_path], "plugin_install", params[:id], Time.now + 1.hour, temp_dir: temp_dir, scope: params[:scope])
+      # result = Cosmos::PluginModel.install_phase2(params[:id], JSON.parse(params[:variables]), scope: params[:scope])
+      # Cosmos::Logger.info("Plugin installed: #{params[:id]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       render :json => result
     rescue Exception => e
       render(:json => { :status => 'error', :message => e.message }, :status => 500) and return

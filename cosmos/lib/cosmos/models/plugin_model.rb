@@ -103,6 +103,8 @@ module Cosmos
     end
 
     # Called by the PluginsController to create the plugin
+    # Because this uses ERB it must be run in a seperate process from the API to
+    # prevent corruption and single require problems in the current proces
     def self.install_phase2(name, variables, scope:)
       rubys3_client = Aws::S3::Client.new
 
@@ -124,37 +126,53 @@ module Cosmos
         gem_path = File.join(temp_dir, "gem")
         FileUtils.mkdir_p(gem_path)
         pkg = Gem::Package.new(gem_file_path)
+        needs_dependencies = pkg.spec.runtime_dependencies.length > 0
         pkg.extract_files(gem_path)
 
-        # Process plugin.txt file
-        plugin_txt_path = File.join(gem_path, 'plugin.txt')
-        if File.exist?(plugin_txt_path)
-          parser = Cosmos::ConfigParser.new("http://cosmosc2.com")
-
-          current_model = nil
-          parser.parse_file(plugin_txt_path, false, true, true, variables) do |keyword, params|
-            case keyword
-            when 'VARIABLE'
-              # Ignore during phase 2
-            when 'TARGET', 'INTERFACE', 'ROUTER', 'MICROSERVICE', 'TOOL', 'WIDGET'
-              if current_model
-                current_model.create
-                current_model.deploy(gem_path, variables)
-                current_model = nil
-              end
-              current_model = Cosmos.const_get((keyword.capitalize + 'Model').intern).handle_config(parser, keyword, params, plugin: plugin_model.name, scope: scope)
-            else
-              if current_model
-                current_model.handle_config(parser, keyword, params)
-              else
-                raise "Invalid keyword #{keyword} in plugin.txt"
-              end
+        # Temporarily add all lib folders from the gem to the end of the load path
+        load_dirs = []
+        begin
+          Dir.glob("#{gem_path}/**/*").each do |load_dir|
+            if File.directory?(load_dir) and File.basename(load_dir) == 'lib'
+              load_dirs << load_dir
+              $LOAD_PATH << load_dir
             end
           end
-          if current_model
-            current_model.create
-            current_model.deploy(gem_path, variables)
+
+          # Process plugin.txt file
+          plugin_txt_path = File.join(gem_path, 'plugin.txt')
+          if File.exist?(plugin_txt_path)
+            parser = Cosmos::ConfigParser.new("http://cosmosc2.com")
+
             current_model = nil
+            parser.parse_file(plugin_txt_path, false, true, true, variables) do |keyword, params|
+              case keyword
+              when 'VARIABLE'
+                # Ignore during phase 2
+              when 'TARGET', 'INTERFACE', 'ROUTER', 'MICROSERVICE', 'TOOL', 'WIDGET'
+                if current_model
+                  current_model.create
+                  current_model.deploy(gem_path, variables)
+                  current_model = nil
+                end
+                current_model = Cosmos.const_get((keyword.capitalize + 'Model').intern).handle_config(parser, keyword, params, plugin: plugin_model.name, needs_dependencies: needs_dependencies, scope: scope)
+              else
+                if current_model
+                  current_model.handle_config(parser, keyword, params)
+                else
+                  raise "Invalid keyword #{keyword} in plugin.txt"
+                end
+              end
+            end
+            if current_model
+              current_model.create
+              current_model.deploy(gem_path, variables)
+              current_model = nil
+            end
+          end
+        ensure
+          load_dirs.each do |load_dir|
+            $LOAD_PATH.delete(load_dir)
           end
         end
       rescue => err
