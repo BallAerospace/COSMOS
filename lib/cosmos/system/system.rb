@@ -992,7 +992,10 @@ module Cosmos
       cmd_meta.disabled = true
       tlm_meta = @telemetry.packet('SYSTEM', 'META')
       tlm_meta.sorted_items.each do |item|
-        next if item.name.include?("RECEIVED") # Tlm only items
+        # Ignore reserved items as these are all DERIVED and thus will throw an exception
+        # in CommandSender since they don't have write conversions due to:
+        # commands.build_cmd -> packet.restore_defaults -> packet.write_item
+        next if Packet::RESERVED_ITEM_NAMES.include?(item.name)
         cmd_meta.define(item.clone)
       end
       @config.commands['SYSTEM'] ||= {}
