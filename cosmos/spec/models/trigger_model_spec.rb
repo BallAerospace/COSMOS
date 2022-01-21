@@ -28,9 +28,9 @@ module Cosmos
 
     def generate_trigger(
       name: 'foobar',
-      left: {'type' => 'value', 'value' => '9000'},
+      left: {'type' => 'float', 'float' => '9000'},
       operator: '>',
-      right: {'type' => 'value', 'value' => '42'},
+      right: {'type' => 'float', 'float' => '42'},
       group: GROUP
     )
       return TriggerModel.new(
@@ -110,7 +110,7 @@ module Cosmos
         expect(foobar.name).to eql('foobar')
         expect(foobar.scope).to eql(SCOPE)
         expect(foobar.group).to eql(GROUP)
-        expect(foobar.left).to have_key('value')
+        expect(foobar.left).to have_key('float')
         expect(foobar.operator).to eql('>')
         expect(foobar.right).to have_key('type')
         expect(foobar.active).to be_truthy()
@@ -135,7 +135,7 @@ module Cosmos
         expect(model.name).to eql('foobar')
         expect(model.scope).to eql(SCOPE)
         expect(model.group).to eql(GROUP)
-        expect(model.left).to have_key('value')
+        expect(model.left).to have_key('float')
         expect(model.operator).to eql('>')
         expect(model.right).to have_key('type')
         expect(model.active).to be_truthy()

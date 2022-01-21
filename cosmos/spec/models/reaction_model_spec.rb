@@ -40,9 +40,9 @@ module Cosmos
 
     def generate_custom_trigger(
       name: 'foobar',
-      left: {'type' => 'value', 'value' => '9000'},
+      left: {'type' => 'float', 'float' => '9000'},
       operator: '>',
-      right: {'type' => 'value', 'value' => '42'}
+      right: {'type' => 'float', 'float' => '42'}
     )
       return TriggerModel.new(
         name: name,
@@ -89,7 +89,9 @@ module Cosmos
         expect(model.name).to eql('foobar')
         expect(model.scope).to eql(SCOPE)
         expect(model.description).to eql('another test')
+        expect(model.active).to be_truthy()
         expect(model.snooze).to eql(300)
+        expect(model.snoozed_until).to be_nil()
         expect(model.triggers.empty?).to be_falsey()
         expect(model.actions.empty?).to be_falsey()
       end
