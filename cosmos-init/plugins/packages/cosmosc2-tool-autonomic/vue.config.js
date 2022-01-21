@@ -1,11 +1,11 @@
 module.exports = {
-  publicPath: '/tools/timeline',
-  outputDir: 'tools/timeline',
+  publicPath: '/tools/autonomic',
+  outputDir: 'tools/autonomic',
   filenameHashing: false,
   transpileDependencies: ['vuetify'],
   configureWebpack: {
     devServer: {
-      port: 2921,
+      port: 2922,
       watchOptions: {
         ignored: ['node_modules'],
         aggregateTimeout: 300,
@@ -14,7 +14,7 @@ module.exports = {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2921/tools/timeline',
+      public: 'localhost:2922/tools/autonomic',
     },
   },
   chainWebpack(config) {
