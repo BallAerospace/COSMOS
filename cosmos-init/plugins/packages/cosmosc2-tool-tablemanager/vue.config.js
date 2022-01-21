@@ -14,7 +14,7 @@ module.exports = {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2915/tools/tablemanager',
+      public: 'localhost:2916/tools/tablemanager',
     },
   },
   chainWebpack(config) {
