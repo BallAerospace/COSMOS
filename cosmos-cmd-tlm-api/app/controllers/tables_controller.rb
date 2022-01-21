@@ -19,7 +19,7 @@
 
 require 'fileutils'
 
-class TableControler < ModelController
+class TablesController < ModelController
   def upload
     begin
       authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])

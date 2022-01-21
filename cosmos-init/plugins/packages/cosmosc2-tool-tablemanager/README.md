@@ -1,8 +1,8 @@
 ## COSMOS Tool Packet Viewer Plugin
 
-[Documentation](http://cosmosrb.com)
+[Documentation](http://cosmosc2.com)
 
-This plugin provides the Packet Viewer user interface
+This plugin provides the Table Manager user interface
 
 ## Getting Started
 
