@@ -47,8 +47,10 @@ class ScriptsController < ApplicationController
         username ||= 'Someone else' # Generic name that makes sense in the lock toast in Script Runner (EE has the actual username)
         Script.lock(params[:scope], params[:name], username)
       end
+      breakpoints = Script.get_breakpoints(params[:scope], params[:name])
       results = {
         "contents" => file,
+        "breakpoints" => breakpoints,
         "locked" => locked
       }
       if params[:name].include?('suite')
@@ -70,7 +72,7 @@ class ScriptsController < ApplicationController
     rescue Cosmos::ForbiddenError => e
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
-    success = Script.create(params[:scope], params[:name], params[:text])
+    success = Script.create(params[:scope], params[:name], params[:text], params[:breakpoints])
     if success
       results = {}
       if params[:name].include?('suite')
@@ -183,5 +185,17 @@ class ScriptsController < ApplicationController
     else
       head :error
     end
+  end
+
+  def delete_all_breakpoints
+    begin
+      authorize(permission: 'script_edit', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+    end
+    Cosmos::Store.del("#{params[:scope]}__script-breakpoints")
+    head :ok
   end
 end

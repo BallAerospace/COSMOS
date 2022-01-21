@@ -211,7 +211,7 @@ def put_into_archive(disk_file_path, io, zip_file_path)
   end
 end
 
-def load_plugin(plugin_file_path, scope:)
+def load_plugin(plugin_file_path, scope:, variables_file: nil)
   scope ||= 'DEFAULT'
   # Only create the scope if it doesn't already exist
   unless Cosmos::ScopeModel.names.include?(scope)
@@ -239,14 +239,26 @@ def load_plugin(plugin_file_path, scope:)
         plugin_model = Cosmos::PluginModel.get_model(name: plugin_name, scope: scope)
         variables = plugin_model.variables
         plugin_model.destroy
-        plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, variables, scope: scope)
+        if variables_file
+          # Assume phase1 is already done
+          variables = JSON.parse(File.read(variables_file))
+          plugin_hash = Cosmos::PluginModel.new(name: File.basename(plugin_file_path), variables: variables, scope: scope).as_json
+        else
+          plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, variables, scope: scope)
+        end
         Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
         found = true
       end
     end
     unless found
       puts "Loading new plugin: #{plugin_file_path}"
-      plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
+      if variables_file
+        # Assume phase1 is already done
+        variables = JSON.parse(File.read(variables_file))
+        plugin_hash = Cosmos::PluginModel.new(name: File.basename(plugin_file_path), variables: variables, scope: scope).as_json
+      else
+        plugin_hash = Cosmos::PluginModel.install_phase1(plugin_file_path, scope: scope)
+      end
       Cosmos::PluginModel.install_phase2(plugin_hash['name'], plugin_hash['variables'], scope: scope)
     end
   rescue => err
@@ -289,7 +301,7 @@ if not ARGV[0].nil? # argument(s) given
     puts `rake #{ARGV[1..-1].join(' ')}`
 
   when 'load'
-    load_plugin(ARGV[1], scope: ARGV[2])
+    load_plugin(ARGV[1], scope: ARGV[2], variables_file: ARGV[3])
 
   # TODO: This will require more work in COSMOS 5 ... would be nice to spawn
   # in docker container and then map out port to access locally

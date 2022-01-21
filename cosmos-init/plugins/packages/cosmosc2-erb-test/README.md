@@ -1,14 +1,12 @@
-## COSMOS Demo Plugin
+## COSMOS ERB Test Plugin
 
 [Documentation](http://cosmosc2.com)
 
-This plugin provides a simple demo configuration for COSMOS that shows off a lot of the features of COSMOS and provides a test environment.
+This plugin is used to: 1. Verify ERB processing with requires in plugin config files, 2. verify plugin dependency installs, 3. Verify using external gems in scripts
 
 ## Getting Started
 
-1.  At the COSMOS Admin - Plugins, upload the cosmosc2-demo.gem file
-
-2. To build widgets run: yard && yard install
+1.  At the COSMOS Admin - Plugins, upload the cosmosc2-erb-test.gem file
 
 ## Contributing
 

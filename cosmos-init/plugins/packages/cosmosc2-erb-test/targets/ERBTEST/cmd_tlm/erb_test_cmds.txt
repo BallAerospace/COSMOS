@@ -1,0 +1,2 @@
+<% require 'erb_lib_helper' %>
+<%= generate_command() %>

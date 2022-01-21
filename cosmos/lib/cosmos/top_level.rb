@@ -28,6 +28,8 @@ require 'cosmos/utilities/logger'
 require 'socket'
 require 'pathname'
 
+$cosmos_chdir_mutex = Mutex.new
+
 # If a hazardous command is sent through the {Cosmos::Api} this error is raised.
 # {Cosmos::Script} rescues the error and prompts the user to continue.
 class HazardousError < StandardError
@@ -89,17 +91,13 @@ module Cosmos
   # @param marshal_filename [String] Name of the marshal file to create
   # @param obj [Object] The object to serialize to the file
   def self.marshal_dump(marshal_filename, obj)
-    Cosmos.set_working_dir do
-      File.open(marshal_filename, 'wb') do |file|
-        file.write(COSMOS_MARSHAL_HEADER)
-        file.write(Marshal.dump(obj))
-      end
+    File.open(marshal_filename, 'wb') do |file|
+      file.write(COSMOS_MARSHAL_HEADER)
+      file.write(Marshal.dump(obj))
     end
   rescue Exception => exception
     begin
-      Cosmos.set_working_dir do
-        File.delete(marshal_filename)
-      end
+      File.delete(marshal_filename)
     rescue Exception
       # Oh well - we tried
     end
@@ -117,11 +115,9 @@ module Cosmos
   def self.marshal_load(marshal_filename)
     cosmos_marshal_header = nil
     data = nil
-    Cosmos.set_working_dir do
-      File.open(marshal_filename, 'rb') do |file|
-        cosmos_marshal_header = file.read(COSMOS_MARSHAL_HEADER.length)
-        data = file.read
-      end
+    File.open(marshal_filename, 'rb') do |file|
+      cosmos_marshal_header = file.read(COSMOS_MARSHAL_HEADER.length)
+      data = file.read
     end
     if cosmos_marshal_header == COSMOS_MARSHAL_HEADER
       return Marshal.load(data)
@@ -130,69 +126,61 @@ module Cosmos
       return nil
     end
   rescue Exception => exception
-    Cosmos.set_working_dir do
-      if File.exist?(marshal_filename)
-        Logger.error "Marshal load failed with exception: #{marshal_filename}\n#{exception.formatted}"
-      else
-        Logger.info "Marshal file does not exist: #{marshal_filename}"
-      end
-
-      # Try to delete the bad marshal file
-      begin
-        File.delete(marshal_filename)
-      rescue Exception
-        # Oh well - we tried
-      end
-      self.handle_fatal_exception(exception) if File.exist?(marshal_filename)
+    if File.exist?(marshal_filename)
+      Logger.error "Marshal load failed with exception: #{marshal_filename}\n#{exception.formatted}"
+    else
+      Logger.info "Marshal file does not exist: #{marshal_filename}"
     end
+
+    # Try to delete the bad marshal file
+    begin
+      File.delete(marshal_filename)
+    rescue Exception
+      # Oh well - we tried
+    end
+    self.handle_fatal_exception(exception) if File.exist?(marshal_filename)
     return nil
   end
 
-  # Changes the current working directory to the USERPATH and then executes the
-  # command in a new Ruby Thread.
+  # Executes the command in a new Ruby Thread.
   #
   # @param command [String] The command to execute via the 'system' call
   def self.run_process(command)
     thread = nil
-    Cosmos.set_working_dir do
-      thread = Thread.new do
-        system(command)
-      end
-      # Wait for the thread and process to start
-      sleep 0.01 until !thread.status.nil?
-      sleep 0.1
+    thread = Thread.new do
+      system(command)
     end
+    # Wait for the thread and process to start
+    sleep 0.01 until !thread.status.nil?
+    sleep 0.1
     thread
   end
 
-  # Changes the current working directory to the USERPATH and then executes the
-  # command in a new Ruby Thread.  Will show a messagebox or print the output if the
+  # Executes the command in a new Ruby Thread.  Will print the output if the
   # process produces any output
   #
   # @param command [String] The command to execute via the 'system' call
   def self.run_process_check_output(command)
     thread = nil
-    Cosmos.set_working_dir do
-      thread = Thread.new do
-        output, _ = Open3.capture2e(command)
-        if !output.empty?
-          # Ignore modalSession messages on Mac Mavericks
-          new_output = ''
-          output.each_line do |line|
-            new_output << line if !/modalSession/.match?(line)
-          end
-          output = new_output
+    thread = Thread.new do
+      output, _ = Open3.capture2e(command)
+      if !output.empty?
+        # Ignore modalSession messages on Mac Mavericks
+        new_output = ''
+        output.each_line do |line|
+          new_output << line if !/modalSession/.match?(line)
+        end
+        output = new_output
 
-          if !output.empty?
-            Logger.error output
-            self.write_unexpected_file(output)
-          end
+        if !output.empty?
+          Logger.error output
+          self.write_unexpected_file(output)
         end
       end
-      # Wait for the thread and process to start
-      sleep 0.01 until !thread.status.nil?
-      sleep 0.1
     end
+    # Wait for the thread and process to start
+    sleep 0.01 until !thread.status.nil?
+    sleep 0.1
     thread
   end
 
@@ -213,13 +201,11 @@ module Cosmos
   def self.hash_files(filenames, additional_data = nil, hashing_algorithm = 'SHA256')
     digest = Digest.const_get(hashing_algorithm).public_send('new')
 
-    Cosmos.set_working_dir do
-      filenames.each do |filename|
-        next if File.directory?(filename)
+    filenames.each do |filename|
+      next if File.directory?(filename)
 
-        # Read the file's data and add to the running hashing sum
-        digest << File.read(filename)
-      end
+      # Read the file's data and add to the running hashing sum
+      digest << File.read(filename)
     end
     digest << additional_data if additional_data
     digest
@@ -238,51 +224,49 @@ module Cosmos
   #   an error creating the log file.
   def self.create_log_file(filename, log_dir = nil)
     log_file = nil
-    Cosmos.set_working_dir do
-      begin
-        # The following code goes inside a begin rescue because it reads the
-        # system.txt configuration file. If this has an error we won't be able
-        # to determine the log path but we still want to write the log.
-        log_dir = System.instance.paths['LOGS'] unless log_dir
-        # Make sure the log directory exists
-        raise unless File.exist?(log_dir)
-      rescue Exception
-        log_dir = nil # Reset log dir since it failed above
-        # First check for ./logs
-        log_dir = './logs' if File.exist?('./logs')
-        # Prefer ./outputs/logs if it exists
-        log_dir = './outputs/logs' if File.exist?('./outputs/logs')
-        # If all else fails just use the local directory
-        log_dir = '.' unless log_dir
-      end
-      log_file = File.join(log_dir,
-                           File.build_timestamped_filename([filename]))
-      # Check for the log file existing. This could happen if this method gets
-      # called more than once in the same second.
-      if File.exist?(log_file)
-        sleep 1.01 # Sleep before rebuilding the timestamp to get something unique
-        log_file = File.join(log_dir,
-                             File.build_timestamped_filename([filename]))
-      end
-      begin
-        COSMOS_MUTEX.synchronize do
-          file = File.open(log_file, 'w')
-          yield file
-        ensure
-          file.close unless file.closed?
-          File.chmod(0444, log_file) # Make file read only
-        end
-      rescue Exception
-        # Ensure we always return
-      end
-      log_file = File.expand_path(log_file)
+    begin
+      # The following code goes inside a begin rescue because it reads the
+      # system.txt configuration file. If this has an error we won't be able
+      # to determine the log path but we still want to write the log.
+      log_dir = System.instance.paths['LOGS'] unless log_dir
+      # Make sure the log directory exists
+      raise unless File.exist?(log_dir)
+    rescue Exception
+      log_dir = nil # Reset log dir since it failed above
+      # First check for ./logs
+      log_dir = './logs' if File.exist?('./logs')
+      # Prefer ./outputs/logs if it exists
+      log_dir = './outputs/logs' if File.exist?('./outputs/logs')
+      # If all else fails just use the local directory
+      log_dir = '.' unless log_dir
     end
+    log_file = File.join(log_dir,
+                          File.build_timestamped_filename([filename]))
+    # Check for the log file existing. This could happen if this method gets
+    # called more than once in the same second.
+    if File.exist?(log_file)
+      sleep 1.01 # Sleep before rebuilding the timestamp to get something unique
+      log_file = File.join(log_dir,
+                            File.build_timestamped_filename([filename]))
+    end
+    begin
+      COSMOS_MUTEX.synchronize do
+        file = File.open(log_file, 'w')
+        yield file
+      ensure
+        file.close unless file.closed?
+        File.chmod(0444, log_file) # Make file read only
+      end
+    rescue Exception
+      # Ensure we always return
+    end
+    log_file = File.expand_path(log_file)
     return log_file
   end
 
   # Writes a log file with information about the current configuration
   # including the Ruby version, Cosmos version, whether you are on Windows, the
-  # COSMOS path and userpath, and the Ruby path along with the exception that
+  # COSMOS path, and the Ruby path along with the exception that
   # is passed in.
   #
   # @param [String] filename String to append to the exception log filename.
@@ -489,7 +473,21 @@ module Cosmos
   end
 
   # Temporarily set the working directory during a block
-  def self.set_working_dir(working_dir = Cosmos::PATH)
+  # Working directory is global, so this can make other threads wait
+  # Ruby Dir.chdir with block always throws an error if multiple threads
+  # call Dir.chdir
+  def self.set_working_dir(working_dir, &block)
+    if $cosmos_chdir_mutex.owned?
+      set_working_dir_internal(working_dir, &block)
+    else
+      $cosmos_chdir_mutex.synchronize do
+        set_working_dir_internal(working_dir, &block)
+      end
+    end
+  end
+
+  # Private helper method
+  def self.set_working_dir_internal(working_dir)
     current_dir = Dir.pwd
     Dir.chdir(working_dir)
     begin

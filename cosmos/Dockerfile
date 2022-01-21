@@ -15,14 +15,15 @@ USER root
 
 RUN mkdir -p lib/cosmos/ext \
   && git config --global http.sslCAinfo /devel/cacert.pem \
-  && apk add --virtual .build-dependencies build-base ruby-dev libressl-dev \
-  && gem update --system \
+  && apk add build-base ruby-dev libressl-dev \
+  && gem update --system 3.3.5 \
   && bundle config set --local without 'development' \
   && bundle install --quiet \
   && bundle exec rake build \
   && gem cleanup \
-  && apk del .build-dependencies \
   && rm -rf /usr/lib/ruby/gems/*/cache/* /var/cache/apk/* /tmp/* /var/tmp/*
+
+RUN mkdir /gems && chown cosmos:cosmos /gems
 
 USER ${USER_ID}:${GROUP_ID}
 

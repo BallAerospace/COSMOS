@@ -17,6 +17,7 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'cosmos/top_level'
 require 'cosmos/models/model'
 require 'cosmos/models/cvt_model'
 require 'cosmos/models/microservice_model'
@@ -56,6 +57,7 @@ module Cosmos
     attr_accessor :tlm_log_cycle_size
     attr_accessor :tlm_decom_log_cycle_time
     attr_accessor :tlm_decom_log_cycle_size
+    attr_accessor :needs_dependencies
 
     # NOTE: The following three class methods are used by the ModelController
     # and are reimplemented to enable various Model class methods to work
@@ -137,7 +139,7 @@ module Cosmos
     end
 
     # Called by the PluginModel to allow this class to validate it's top-level keyword: "TARGET"
-    def self.handle_config(parser, keyword, parameters, plugin: nil, scope:)
+    def self.handle_config(parser, keyword, parameters, plugin: nil, needs_dependencies: false, scope:)
       case keyword
       when 'TARGET'
         usage = "#{keyword} <TARGET FOLDER NAME> <TARGET NAME>"
@@ -169,6 +171,7 @@ module Cosmos
       tlm_log_cycle_size: 50_000_000,
       tlm_decom_log_cycle_time: 600,
       tlm_decom_log_cycle_size: 50_000_000,
+      needs_dependencies: false,
       scope:
     )
       super("#{scope}__#{PRIMARY_KEY}", name: name, plugin: plugin, updated_at: updated_at,
@@ -194,6 +197,7 @@ module Cosmos
       @tlm_log_cycle_size = tlm_log_cycle_size
       @tlm_decom_log_cycle_time = tlm_decom_log_cycle_time
       @tlm_decom_log_cycle_size = tlm_decom_log_cycle_size
+      @needs_dependencies = needs_dependencies
     end
 
     def as_json
@@ -218,6 +222,7 @@ module Cosmos
         'tlm_log_cycle_size' => @tlm_log_cycle_size,
         'tlm_decom_log_cycle_time' => @tlm_decom_log_cycle_time,
         'tlm_decom_log_cycle_size' => @tlm_decom_log_cycle_size,
+        'needs_dependencies' => @needs_dependencies,
       }
     end
 
@@ -277,7 +282,9 @@ module Cosmos
           @filename = filename # For render
           data = File.read(filename, mode: "rb")
           begin
-            data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable? and File.basename(filename)[0] != '_'
+            Cosmos.set_working_dir(File.dirname(filename)) do
+              data = ERB.new(data).result(binding.set_variables(variables)) if data.is_printable? and File.basename(filename)[0] != '_'
+            end
           rescue => error
             raise "ERB error parsing: #{filename}: #{error.formatted}"
           end
@@ -350,7 +357,9 @@ module Cosmos
       end
 
       begin
-        return ERB.new(File.read(path)).result(b)
+        Cosmos.set_working_dir(File.dirname(path)) do
+          return ERB.new(File.read(path)).result(b)
+        end
       rescue => error
         raise "ERB error parsing: #{path}: #{error.formatted}"
       end
@@ -482,6 +491,7 @@ module Cosmos
         topics: packet_topic_list,
         target_names: [@name],
         plugin: plugin,
+        needs_dependencies: @needs_dependencies,
         scope: @scope
       )
       microservice.create
@@ -497,6 +507,7 @@ module Cosmos
         work_dir: '/cosmos/lib/cosmos/microservices',
         topics: decom_topic_list,
         plugin: plugin,
+        needs_dependencies: @needs_dependencies,
         scope: @scope
       )
       microservice.create
@@ -519,6 +530,7 @@ module Cosmos
         topics: command_topic_list,
         target_names: [@name],
         plugin: plugin,
+        needs_dependencies: @needs_dependencies,
         scope: @scope
       )
       microservice.create
@@ -541,6 +553,7 @@ module Cosmos
         topics: decom_command_topic_list,
         target_names: [@name],
         plugin: plugin,
+        needs_dependencies: @needs_dependencies,
         scope: @scope
       )
       microservice.create
@@ -563,6 +576,7 @@ module Cosmos
         topics: packet_topic_list,
         target_names: [@name],
         plugin: plugin,
+        needs_dependencies: @needs_dependencies,
         scope: @scope
       )
       microservice.create
@@ -585,6 +599,7 @@ module Cosmos
         topics: decom_topic_list,
         target_names: [@name],
         plugin: plugin,
+        needs_dependencies: @needs_dependencies,
         scope: @scope
       )
       microservice.create

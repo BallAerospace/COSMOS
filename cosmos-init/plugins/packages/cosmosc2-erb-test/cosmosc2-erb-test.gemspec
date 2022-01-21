@@ -19,11 +19,10 @@
 
 # Create the overall gemspec
 spec = Gem::Specification.new do |s|
-  s.name = 'cosmosc2-demo'
+  s.name = 'cosmosc2-erb-test'
   s.summary = 'Ball Aerospace COSMOS'
   s.description = <<-EOF
-    This plugin adds the COSMOS demo configuration to a base COSMOS installation.
-    Install this to experiment with a configured COSMOS system.
+  This plugin is used to: 1. Verify ERB processing with requires in plugin config files, 2. verify plugin dependency installs, 3. Verify using external gems in scripts
   EOF
   s.authors = ['Ryan Melton', 'Jason Thomas']
   s.email = ['rmelton@ball.com', 'jmthomas@ball.com']
@@ -40,4 +39,6 @@ spec = Gem::Specification.new do |s|
   s.license = 'AGPL-3.0'
 
   s.files = Dir.glob("{targets,lib,procedures,tools,microservices}/**/*") + %w(Rakefile LICENSE.txt README.md plugin.txt)
+
+  s.add_dependency 'jmespath', '1.5.0'
 end

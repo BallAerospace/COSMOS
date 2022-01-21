@@ -1,0 +1,2 @@
+<% require 'erb_target_helper' %>
+<%= generate_telemetry() %>

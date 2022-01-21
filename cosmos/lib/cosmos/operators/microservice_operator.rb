@@ -41,7 +41,12 @@ module Cosmos
     def convert_microservice_to_process_definition(microservice_name, microservice_config)
       process_definition = ["ruby", "plugin_microservice.rb", microservice_name]
       work_dir = "/cosmos/lib/cosmos/microservices"
-      env = microservice_config["env"]
+      env = microservice_config["env"].dup
+      if microservice_config["needs_dependencies"]
+        env['GEM_HOME'] = '/gems'
+      else
+        env['GEM_HOME'] = nil
+      end
       container = microservice_config["container"]
       scope = microservice_name.split("__")[0]
       return process_definition, work_dir, env, scope, container
@@ -59,7 +64,7 @@ module Cosmos
         if @previous_microservices[microservice_name]
           if @previous_microservices[microservice_name] != microservice_config
             scope = microservice_name.split("__")[0]
-            Logger.info("Changed microservice detected: #{microservice_name}", scope: scope)
+            Logger.info("Changed microservice detected: #{microservice_name}\nWas: #{@previous_microservices[microservice_name]}\nIs: #{microservice_config}", scope: scope)
             @changed_microservices[microservice_name] = microservice_config
           end
         else

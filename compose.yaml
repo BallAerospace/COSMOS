@@ -50,8 +50,11 @@ services:
     depends_on:
       - "cosmos-redis"
       - "cosmos-minio"
+    volumes:
+      - "cosmos-gems-v:/gems"
     environment:
       - "RAILS_ENV=production"
+      - "GEM_HOME=/gems"
     env_file:
       - ".env"
 
@@ -61,8 +64,11 @@ services:
     depends_on:
       - "cosmos-redis"
       - "cosmos-minio"
+    volumes:
+      - "cosmos-gems-v:/gems:ro"
     environment:
       - "RAILS_ENV=production"
+      - "GEM_HOME=/gems"
     env_file:
       - ".env"
 
@@ -72,6 +78,10 @@ services:
     depends_on:
       - "cosmos-redis"
       - "cosmos-minio"
+    volumes:
+      - "cosmos-gems-v:/gems:ro"
+    environment:
+      - "GEM_HOME=/gems"
     env_file:
       - ".env"
     extra_hosts:
@@ -93,9 +103,14 @@ services:
       - "cosmos-traefik"
       - "cosmos-redis"
       - "cosmos-minio"
+    volumes:
+      - "cosmos-gems-v:/gems"
+    environment:
+      - "GEM_HOME=/gems"
     env_file:
       - ".env"
 
 volumes:
   cosmos-redis-v: {}
   cosmos-minio-v: {}
+  cosmos-gems-v: {}

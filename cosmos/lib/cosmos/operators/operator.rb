@@ -35,7 +35,7 @@ module Cosmos
       # Perform any setup steps necessary
     end
 
-    def initialize(process_definition, work_dir: '/cosmos/lib/microservices', temp_dir: nil, env: {}, scope:, container: nil) # container is not used, it's just here for Enterprise
+    def initialize(process_definition, work_dir: '/cosmos/lib/cosmos/microservices', temp_dir: nil, env: {}, scope:, container: nil) # container is not used, it's just here for Enterprise
       @process = nil
       @process_definition = process_definition
       @work_dir = work_dir
@@ -70,6 +70,14 @@ module Cosmos
       end
     end
 
+    def exit_code
+      if @process
+        @process.exit_code
+      else
+        nil
+      end
+    end
+
     def soft_stop
       Thread.new do
         Logger.info("Soft shutting down process: #{@process_definition.join(' ')}", scope: @scope)
@@ -78,7 +86,7 @@ module Cosmos
     end
 
     def hard_stop
-      unless @process.exited?
+      if @process and !@process.exited?
         Logger.info("Hard shutting down process: #{@process_definition.join(' ')}", scope: @scope)
         @process.stop
       end
@@ -92,6 +100,22 @@ module Cosmos
 
     def stderr
       @process.io.stderr
+    end
+
+    def extract_output(max_length_stdout = 65536, max_length_stderr = 65536)
+      if @process
+        @process.io.stdout.rewind
+        output = @process.io.stdout.read
+        @process.io.stdout.close
+        @process.io.stdout.unlink
+        @process.io.stderr.rewind
+        err_output = @process.io.stderr.read
+        @process.io.stderr.close
+        @process.io.stderr.unlink
+        return "Stdout:\n#{output[-max_length_stdout..-1] || output}\n\nStderr:\n#{err_output[-max_length_stderr..-1] || err_output}\n"
+      else
+        return ""
+      end
     end
   end
 

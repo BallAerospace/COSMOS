@@ -135,6 +135,43 @@
         </v-container>
       </v-card-actions>
     </v-card>
+    <v-divider />
+    <v-card>
+      <v-card-title> Rubygems URL </v-card-title>
+      <v-card-subtitle>
+        This sets the URL for installing dependency rubygems. Also used for
+        rubygem discovery.
+      </v-card-subtitle>
+      <v-card-text class="pb-0 ml-2">
+        <v-text-field
+          label="Rubygems URL"
+          v-model="rubygemsUrl"
+          data-test="rubygemsUrl"
+        />
+      </v-card-text>
+      <v-card-actions>
+        <v-container class="pt-0">
+          <v-row dense>
+            <v-col class="pl-0">
+              <v-btn
+                @click="saveRubygemsUrl"
+                color="success"
+                text
+                data-test="saveRubygemsUrl"
+              >
+                Save
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-alert v-model="errorSaving" type="error" dismissible dense>
+            Error saving
+          </v-alert>
+          <v-alert v-model="successSaving" type="success" dismissible dense>
+            Saved! (Refresh the page to see changes)
+          </v-alert>
+        </v-container>
+      </v-card-actions>
+    </v-card>
   </div>
 </template>
 
@@ -156,6 +193,7 @@ export default {
       selectedLastConfigs: [],
       selectAllLastConfigs: false,
       sourceUrl: '',
+      rubygemsUrl: '',
       errorSaving: false,
       successSaving: false,
     }
@@ -182,6 +220,7 @@ export default {
     this.loadSuppressedWarnings()
     this.loadLastConfigs()
     this.loadSourceUrl()
+    this.loadRubygemsUrl()
   },
   methods: {
     loadSuppressedWarnings: function () {
@@ -234,6 +273,27 @@ export default {
     saveSourceUrl: function () {
       this.api
         .save_setting('source_url', this.sourceUrl)
+        .then((response) => {
+          this.errorSaving = false
+          this.successSaving = true
+        })
+        .catch((error) => {
+          this.errorSaving = true
+        })
+    },
+    loadRubygemsUrl: function () {
+      this.api
+        .get_setting('rubygems_url')
+        .then((response) => {
+          this.rubygemsUrl = response
+        })
+        .catch(() => {
+          this.rubygemsUrl = 'https://rubygems.org'
+        })
+    },
+    saveRubygemsUrl: function () {
+      this.api
+        .save_setting('rubygems_url', this.rubygemsUrl)
         .then((response) => {
           this.errorSaving = false
           this.successSaving = true
