@@ -22,7 +22,8 @@ COPY ./plugins/packages/cosmosc2-demo/*.json packages/cosmosc2-demo/
 
 # This is a fix for a network issue with registry.yarnpkg.com, possibly caused by the Ball firewall.
 # Might resolve itself and allow this line to be removed in the future...
-RUN yarn config set registry "https://registry.npmjs.org"
+ARG NPM_URL
+RUN yarn config set registry $NPM_URL
 
 RUN yarn
 

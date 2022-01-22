@@ -1,4 +1,4 @@
-source 'https://rubygems.org'
+source ENV['RUBYGEMS_URL']
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 gem 'rubocop'
