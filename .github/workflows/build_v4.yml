@@ -18,21 +18,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ruby-version: ["2.5", "2.6"]
-
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Ruby ${{ matrix.ruby-version }}
-        uses: ruby/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby-version }}
+          ruby-version: 2.5
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Run tests
-        run: |
-          gem update --system
-          bundle install
-          bundle exec rake build spec
+        run: bundle exec rake build spec
         env:
           COSMOS_DEVEL: ${GITHUB_WORKSPACE}\.
