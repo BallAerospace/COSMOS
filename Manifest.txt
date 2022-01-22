@@ -6,7 +6,6 @@
 .github/ISSUE_TEMPLATE/help---usage---general-question.md
 .gitignore
 .rubocop.yml
-.travis.yml
 .yardopts
 CONTRIBUTING.txt
 Dockerfile

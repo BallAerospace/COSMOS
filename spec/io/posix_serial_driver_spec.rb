@@ -8,7 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i and RUBY_ENGINE == 'ruby' and !ENV['TRAVIS']
+if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i and RUBY_ENGINE == 'ruby' and !ENV['CI']
 
   require 'spec_helper'
   require 'cosmos/io/posix_serial_driver'
