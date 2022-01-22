@@ -31,6 +31,5 @@ jobs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Run tests
         run: bundle exec rake build spec
-        working-directory: cosmos
         env:
           COSMOS_DEVEL: ${GITHUB_WORKSPACE}\.
