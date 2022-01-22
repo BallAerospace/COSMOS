@@ -29,9 +29,8 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-          working-directory: cosmos
       - name: Run tests
         run: bundle exec rake build spec
         working-directory: cosmos
         env:
-          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
+          COSMOS_DEVEL: ${GITHUB_WORKSPACE}\.
