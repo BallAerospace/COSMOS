@@ -10,7 +10,7 @@ RUN echo "$APK_URL/alpine/v3.15/main" > /etc/apk/repositories \
 LABEL maintainer="cosmos@ballaerospace.com"
 
 # We require a local certificate file so set that up.
-# You must place a valid cert.pem file in your COSMOS development folder for this work
+# You must place a valid cacert.pem file in your COSMOS development folder for this work
 # Comment out these lines if this is not required in your environment
 COPY cacert.pem /devel/cacert.pem
 ENV SSL_CERT_FILE=/devel/cacert.pem

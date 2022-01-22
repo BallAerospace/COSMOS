@@ -7,7 +7,6 @@ Makefile
 .yardoc
 .DS_Store
 desktop.ini
-cert.pem
 cacert.pem
 .idea
 .rubocop-http*
