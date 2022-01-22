@@ -17,9 +17,13 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: 4.8.6
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: 2.5
