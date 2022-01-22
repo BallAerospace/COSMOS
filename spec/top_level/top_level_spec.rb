@@ -520,7 +520,7 @@ module Cosmos
 
   describe "open_file_browser" do
     it "opens a file browser" do
-      unless ENV['TRAVIS']
+      unless ENV['CI']
         expect(Cosmos).to receive(:system).with(/#{Dir.pwd}/)
         Cosmos.open_file_browser(Dir.pwd)
       end
@@ -529,7 +529,7 @@ module Cosmos
 
   describe "open_in_text_editor" do
     it "opens the file in a text editor" do
-      unless ENV['TRAVIS']
+      unless ENV['CI']
         expect(Cosmos).to receive(:system).with(/#{File.basename(__FILE__)}/)
         Cosmos.open_in_text_editor(__FILE__)
       end

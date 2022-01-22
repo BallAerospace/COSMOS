@@ -8,7 +8,7 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-if RUBY_ENGINE == 'ruby'
+if RUBY_ENGINE == 'ruby' && !ENV['GITHUB_ACTIONS']
   require 'spec_helper'
   require 'cosmos/gui/qt'
 
