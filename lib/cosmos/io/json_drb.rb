@@ -17,14 +17,6 @@ require 'set'
 require 'cosmos/io/json_rpc'
 require 'cosmos/io/json_drb_rack'
 require 'rack/handler/puma'
-if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.2.8 2.2.9 2.2.10 2.3.4 2.4.1).include? RUBY_VERSION
-  begin
-    require 'stopgap_13632'
-  rescue Exception => err
-    msg = "Error loading stopgap. Make sure gem install stopgap_13632 succeeds: #{err.message}"
-    raise $!, msg, $!.backtrace
-  end
-end
 
 # Add methods to the Puma::Launcher and Puma::Single class so we can tell
 # if the server has been started.

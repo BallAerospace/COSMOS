@@ -91,24 +91,12 @@ module Cosmos
     end
 
     def persistence_setting=(persistence_setting)
-      if 0.class == Integer
-        # Ruby version >= 2.4.0
-        raise ArgumentError, "persistence_setting must be an Integer but is a #{persistence_setting.class}" unless Integer === persistence_setting
-      else
-        # Ruby version < 2.4.0
-        raise ArgumentError, "persistence_setting must be a Fixnum but is a #{persistence_setting.class}" unless Fixnum === persistence_setting
-      end
+      raise ArgumentError, "persistence_setting must be an Integer but is a #{persistence_setting.class}" unless Integer === persistence_setting
       @persistence_setting = persistence_setting
     end
 
     def persistence_count=(persistence_count)
-      if 0.class == Integer
-        # Ruby version >= 2.4.0
-        raise ArgumentError, "persistence_count must be an Integer but is a #{persistence_count.class}" unless Integer === persistence_count
-      else
-        # Ruby version < 2.4.0
-        raise ArgumentError, "persistence_count must be a Fixnum but is a #{persistence_count.class}" unless Fixnum === persistence_count
-      end
+      raise ArgumentError, "persistence_count must be an Integer but is a #{persistence_count.class}" unless Integer === persistence_count
       @persistence_count = persistence_count
     end
 

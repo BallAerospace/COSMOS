@@ -69,13 +69,7 @@ module Cosmos
 
     describe "bit_offset=" do
       it "compains about bad bit offsets types" do
-        if 0.class == Integer
-          # Ruby version >= 2.4.0
-          expect { StructureItem.new("test", nil, 8, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_offset must be an Integer")
-        else
-          # Ruby version < 2.4.0
-          expect { StructureItem.new("test", nil, 8, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_offset must be a Fixnum")
-        end
+        expect { StructureItem.new("test", nil, 8, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_offset must be an Integer")
       end
 
       it "complains about unaligned bit offsets" do
@@ -91,13 +85,7 @@ module Cosmos
 
     describe "bit_size=" do
       it "complains about bad bit sizes types" do
-        if 0.class == Integer
-          # Ruby version >= 2.4.0
-          expect { StructureItem.new("test", 0, nil, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_size must be an Integer")
-          else
-          # Ruby version < 2.4.0
-          expect { StructureItem.new("test", 0, nil, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_size must be a Fixnum")
-        end
+        expect { StructureItem.new("test", 0, nil, :UINT, :BIG_ENDIAN, nil) }.to raise_error(ArgumentError, "TEST: bit_size must be an Integer")
       end
 
       it "complains about 0 size INT, UINT, and FLOAT" do
@@ -122,13 +110,7 @@ module Cosmos
 
     describe "array_size=" do
       it "complains about bad array size types" do
-        if 0.class == Integer
-          # Ruby version >= 2.4.0
-          expect { StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, "") }.to raise_error(ArgumentError, "TEST: array_size must be an Integer")
-        else
-          # Ruby version < 2.4.0
-          expect { StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, "") }.to raise_error(ArgumentError, "TEST: array_size must be a Fixnum")
-        end
+        expect { StructureItem.new("test", 0, 8, :UINT, :BIG_ENDIAN, "") }.to raise_error(ArgumentError, "TEST: array_size must be an Integer")
       end
 
       it "complains about array size != multiple of bit size" do
