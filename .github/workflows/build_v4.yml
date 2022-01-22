@@ -18,11 +18,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        ruby-version: ["2.5", "2.6"]
     steps:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.5
+          ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Run tests
         run: bundle exec rake build spec
