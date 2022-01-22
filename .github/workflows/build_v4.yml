@@ -30,6 +30,9 @@ jobs:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
       - name: Run tests
-        run: bundle exec rake build spec
+        run: |
+          gem update --system
+          bundle install
+          bundle exec rake build spec
         env:
           COSMOS_DEVEL: ${GITHUB_WORKSPACE}\.
