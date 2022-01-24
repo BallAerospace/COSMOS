@@ -14,6 +14,8 @@ NOTE: All commands are assumed to be executed from this (cosmos-init) directory
 1.  Serve a local COSMOS application (CmdTlmServer, ScriptRunner, etc)
 
         cosmos-init> cd plugins/packages/cosmosc2-tool-scriptrunner
+        cosmosc2-tool-scriptrunner> yarn
+        ...
         cosmosc2-tool-scriptrunner> yarn serve
 
 1.  Set the single SPA override for the application

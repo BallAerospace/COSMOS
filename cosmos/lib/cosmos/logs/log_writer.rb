@@ -182,9 +182,9 @@ module Cosmos
       @start_time = Time.now.utc
       @first_time = nil
       @last_time = nil
-      Logger.instance.info "Log File Opened : #{@filename}"
+      Logger.debug "Log File Opened : #{@filename}"
     rescue => err
-      Logger.instance.error "Error starting new log file: #{err.formatted}"
+      Logger.error "Error starting new log file: #{err.formatted}"
       @logging_enabled = false
       Cosmos.handle_critical_exception(err)
     end
@@ -205,7 +205,7 @@ module Cosmos
         if @file
           begin
             @file.close unless @file.closed?
-            Logger.info "Log File Closed : #{@filename}"
+            Logger.debug "Log File Closed : #{@filename}"
             date = first_timestamp[0..7] # YYYYMMDD
             s3_key = File.join(@remote_log_directory, date, s3_filename)
             S3Utilities.move_log_file_to_s3(@filename, s3_key)

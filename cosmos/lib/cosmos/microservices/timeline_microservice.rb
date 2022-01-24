@@ -314,7 +314,7 @@ module Cosmos
           TimelineTopic.read_topics(@topics) do |_topic, _msg_id, msg_hash, _redis|
             if msg_hash['timeline'] == @timeline_name
               data = JSON.parse(msg_hash['data'])
-              send(topic_lookup_functions[msg_hash['type']][msg_hash['kind']], data)
+              public_send(topic_lookup_functions[msg_hash['type']][msg_hash['kind']], data)
             end
           end
         rescue StandardError => e

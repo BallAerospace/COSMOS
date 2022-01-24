@@ -123,9 +123,9 @@ module Cosmos
       @target_indexes = {}
       @target_dec_entries = []
       @packet_dec_entries = []
-      Logger.instance.info "Index Log File Opened : #{@index_filename}"
+      Logger.debug "Index Log File Opened : #{@index_filename}"
     rescue => err
-      Logger.instance.error "Error starting new log file: #{err.formatted}"
+      Logger.error "Error starting new log file: #{err.formatted}"
       @logging_enabled = false
       Cosmos.handle_critical_exception(err)
     end
@@ -141,7 +141,7 @@ module Cosmos
           begin
             write_index_file_footer()
             @index_file.close unless @index_file.closed?
-            Logger.info "Index Log File Closed : #{@index_filename}"
+            Logger.debug "Index Log File Closed : #{@index_filename}"
             date = first_timestamp[0..7] # YYYYMMDD
             s3_key = File.join(@remote_log_directory, date, "#{first_timestamp}__#{last_timestamp}__#{@label}.idx")
             S3Utilities.move_log_file_to_s3(@index_filename, s3_key)

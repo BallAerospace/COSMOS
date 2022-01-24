@@ -13,5 +13,9 @@
 *.json text eol=lf
 # Declare all md files should always have LF line endings on checkout.
 *.md text eol=lf
+# Declare all conf files should always have LF line endings on checkout.
+*.conf text eol=lf
+# Declare all redis acl files should always have LF line endings on checkout.
+*.acl text eol=lf
 # Declare files that will always have CRLF line endings on checkout.
 *.bat text eol=crlf

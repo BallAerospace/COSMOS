@@ -60,6 +60,7 @@ ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-dataviewer-5.0.1
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-tablemanager-5.0.1.*.gem || exit 1
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-admin-5.0.1.*.gem || exit 1
 ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-timeline-5.0.1.*.gem || exit 1
+ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-tool-autonomic-5.0.1.*.gem || exit 1
 
 if [ ! -z $COSMOS_DEMO ]; then
     ruby /cosmos/bin/cosmos load /cosmos/plugins/gems/cosmosc2-demo-5.0.1.*.gem || exit 1

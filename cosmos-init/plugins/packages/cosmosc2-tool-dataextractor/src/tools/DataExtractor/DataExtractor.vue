@@ -103,14 +103,16 @@
         </v-col>
       </v-row>
       <v-row>
-        <target-packet-item-chooser
-          @click="addItem($event)"
-          button-text="Add Item"
-          :mode="cmdOrTlm"
-          choose-item
-          allow-all
-          :reduced="this.reduced != 'DECOM'"
-        />
+        <v-col>
+          <target-packet-item-chooser
+            @click="addItem($event)"
+            button-text="Add Item"
+            :mode="cmdOrTlm"
+            :reduced="this.reduced != 'DECOM'"
+            choose-item
+            allow-all
+          />
+        </v-col>
       </v-row>
       <v-row no-gutters>
         <v-toolbar>

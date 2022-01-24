@@ -7,6 +7,7 @@ USER root
 COPY ./plugins/*.json ./
 COPY ./plugins/cosmosc2-tool-base/*.json cosmosc2-tool-base/
 COPY ./plugins/packages/cosmosc2-tool-admin/*.json packages/cosmosc2-tool-admin/
+COPY ./plugins/packages/cosmosc2-tool-autonomic/*.json packages/cosmosc2-tool-autonomic/
 COPY ./plugins/packages/cosmosc2-tool-cmdsender/*.json packages/cosmosc2-tool-cmdsender/
 COPY ./plugins/packages/cosmosc2-tool-cmdtlmserver/*.json packages/cosmosc2-tool-cmdtlmserver/
 COPY ./plugins/packages/cosmosc2-tool-dataextractor/*.json packages/cosmosc2-tool-dataextractor/
@@ -83,6 +84,10 @@ RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-tlmgrapher"]
 # Build tlmviewer tool
 COPY ./plugins/packages/cosmosc2-tool-tlmviewer/ packages/cosmosc2-tool-tlmviewer
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-tlmviewer"]
+
+# Build autonomic tool
+COPY ./plugins/packages/cosmosc2-tool-autonomic/ packages/cosmosc2-tool-autonomic/
+RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-autonomic"]
 
 # Build demo config
 COPY ./plugins/packages/cosmosc2-demo/ packages/cosmosc2-demo/
