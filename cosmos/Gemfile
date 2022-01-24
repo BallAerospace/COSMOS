@@ -3,6 +3,8 @@
 source ENV['RUBYGEMS_URL']
 
 gem 'ruby-termios', '>= 0.9' if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i and RUBY_ENGINE == 'ruby'
+# # FFI is required on Windows for childprocess gem
+# gem 'ffi', '~> 1.15' if RbConfig::CONFIG['target_os'] =~ /mswin|mingw|cygwin/i and RUBY_ENGINE == 'ruby'
 
 gemspec
 
