@@ -87,7 +87,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'uuidtools', '~> 2.1'
   s.add_runtime_dependency 'snmp', '~> 1.0'
   s.add_runtime_dependency 'rubyzip', '~> 1.2'
-  s.add_runtime_dependency 'nokogiri', '~> 1.10'
+  s.add_runtime_dependency 'nokogiri', ['~> 1.10', '< 1.13'] # Nokogiri 1.13 doesn't support Ruby 2.5
   s.add_runtime_dependency 'opengl-bindings', '~> 1.6' if RUBY_ENGINE == 'ruby' # MRI Only
   s.add_runtime_dependency 'qtbindings', '~> 4.8.6', '>= 4.8.6.2' if RUBY_ENGINE == 'ruby' && !ENV['CI'] # MRI Only, not Github
   s.add_runtime_dependency 'puma', '~> 3.10'
