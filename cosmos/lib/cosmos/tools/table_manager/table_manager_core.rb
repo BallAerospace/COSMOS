@@ -24,21 +24,26 @@ module Cosmos
   # Provides the low level Table Manager methods which do not require a GUI.
   class TableManagerCore
     # Generic error raised when a more specific error doesn't work
-    class CoreError < StandardError; end
+    class CoreError < StandardError
+    end
+
     # Raised when opening a file that is either larger or smaller than its definition
-    class MismatchError < CoreError; end
+    class MismatchError < CoreError
+    end
+
     # Raised when there is no current table configuration
     class NoConfigError < CoreError
       # @return [String] Error message
       def message
-        "No current table configuration"
+        'No current table configuration'
       end
     end
+
     # Raised when there is no table in the current configuration
     class NoTableError < CoreError
       # @return [String] Error message
       def message
-        "Table does not exist in current configuration"
+        'Table does not exist in current configuration'
       end
     end
 
@@ -47,7 +52,7 @@ module Cosmos
 
     # Create the instance
     def initialize
-      reset()
+      reset
     end
 
     # Clears the configuration
@@ -57,7 +62,7 @@ module Cosmos
 
     # @param filename [String] Create a new TableConfig instance and process the filename
     def process_definition(filename)
-      @config = TableConfig.new()
+      @config = TableConfig.new
       @config.process_file(filename)
     end
 
@@ -66,7 +71,9 @@ module Cosmos
     # @return [String] Binary file path
     def file_new(def_path, output_dir)
       process_definition(def_path)
-      @config.table_names.each {|table_name| set_binary_data_to_default(table_name) }
+      @config.table_names.each do |table_name|
+        set_binary_data_to_default(table_name)
+      end
       bin_path = File.join(output_dir, def_to_bin_filename(def_path))
       file_save(bin_path)
       bin_path
@@ -84,11 +91,9 @@ module Cosmos
     # @param filename [String] Filename to write, overwritten if it exists.
     def file_save(filename)
       raise NoConfigError unless @config
-      file_check()
-      File.open(filename, "wb") do |file|
-        @config.tables.each do |table_name, table|
-          file.write(table.buffer)
-        end
+      file_check
+      File.open(filename, 'wb') do |file|
+        @config.tables.each { |table_name, table| file.write(table.buffer) }
       end
       file_report(filename, @config.filename)
     end
@@ -97,7 +102,7 @@ module Cosmos
     #   a CoreError if errors are found.
     def file_check
       raise NoConfigError unless @config
-      result = ""
+      result = ''
       @config.table_names.each do |name|
         table_result = table_check(name)
         unless table_result.empty?
@@ -105,7 +110,7 @@ module Cosmos
         end
       end
       raise CoreError, result unless result.empty?
-      "All parameters are within their constraints."
+      'All parameters are within their constraints.'
     end
 
     # Create a CSV report file based on the file contents.
@@ -116,9 +121,9 @@ module Cosmos
     # @return [String] Report filename path
     def file_report(bin_path, def_path)
       raise NoConfigError unless @config
-      file_check()
+      file_check
 
-      basename = File.basename(bin_path, ".dat")
+      basename = File.basename(bin_path, '.dat')
       report_path = File.join(File.dirname(bin_path), "#{basename}.csv")
       File.open(report_path, 'w+') do |file|
         file.write("File Definition, #{def_path}\n")
@@ -129,12 +134,15 @@ module Cosmos
 
           # Write the column headers
           if table.type == :TWO_DIMENSIONAL
-            columns = ["Item"]
+            columns = ['Item']
+
             # Remove the '0' from the 'itemname0'
-            table.num_columns.times.each {|x| columns << items[x].name[0...-1] }
-            file.puts columns.join(", ")
+            table.num_columns.times.each do |x|
+              columns << items[x].name[0...-1]
+            end
+            file.puts columns.join(', ')
           else
-            file.puts "Label, Value"
+            file.puts 'Label, Value'
           end
 
           # Write the table item values
@@ -166,8 +174,8 @@ module Cosmos
     # Create a hex formatted string of all the file data
     def file_hex
       raise NoConfigError unless @config
-      data = ""
-      @config.tables.values.each {|table| data << table.buffer }
+      data = ''
+      @config.tables.values.each { |table| data << table.buffer }
       "#{data.formatted}\n\nTotal Bytes Read: #{data.length}"
     end
 
@@ -177,7 +185,7 @@ module Cosmos
       table = @config.table(table_name)
       raise NoTableError unless table
 
-      result = ""
+      result = ''
       table_items = table.sorted_items
 
       # Check the ranges and constraints for each item in the table
@@ -195,17 +203,21 @@ module Cosmos
             if table_item.states && table_item.states.include?(value)
               value = table_item.states[value]
             end
+
             # check to see if the value lies within its valid range
             unless table_item.range.include?(value)
               if table_item.format_string
                 value = table.read(table_item.name, :FORMATTED)
-                range_first = sprintf(table_item.format_string, table_item.range.first)
-                range_last = sprintf(table_item.format_string, table_item.range.last)
+                range_first =
+                  sprintf(table_item.format_string, table_item.range.first)
+                range_last =
+                  sprintf(table_item.format_string, table_item.range.last)
               else
                 range_first = table_item.range.first
                 range_last = table_item.range.last
               end
-              result << "  #{table_item.name}: #{value} outside valid range of #{range_first}..#{range_last}\n"
+              result <<
+                "  #{table_item.name}: #{value} outside valid range of #{range_first}..#{range_last}\n"
             end
           end
         end # end each column
@@ -233,8 +245,12 @@ module Cosmos
     def table_save(table_name, filename)
       raise NoConfigError unless @config
       result = table_check(table_name)
-      raise CoreError, "Errors in #{table_name}:\n#{result}" unless result.empty?
-      File.open(filename, 'wb') {|file| file.write(@config.table(table_name).buffer) }
+      unless result.empty?
+        raise CoreError, "Errors in #{table_name}:\n#{result}"
+      end
+      File.open(filename, 'wb') do |file|
+        file.write(@config.table(table_name).buffer)
+      end
     end
 
     # Commit a table from the current configuration into a new binary
@@ -248,17 +264,21 @@ module Cosmos
       raise NoTableError unless save_table
 
       result = table_check(table_name)
-      raise CoreError, "Errors in #{table_name}:\n#{result}" unless result.empty?
+      unless result.empty?
+        raise CoreError, "Errors in #{table_name}:\n#{result}"
+      end
 
       config = TableConfig.new
       begin
         config.process_file(def_file)
       rescue => err
-        raise CoreError, "The table definition file:#{def_file} has the following errors:\n#{err}"
+        raise CoreError,
+              "The table definition file:#{def_file} has the following errors:\n#{err}"
       end
 
       if !config.table_names.include?(table_name.upcase)
-        raise NoTableError, "#{table_name} not found in #{def_file} table definition file."
+        raise NoTableError,
+              "#{table_name} not found in #{def_file} table definition file."
       end
 
       saved_config = @config
@@ -298,27 +318,31 @@ module Cosmos
     def open_and_load_binary_file(filename)
       begin
         data = nil
+
         # read the binary file and store it into an array
-        File.open(filename, 'rb') do |file|
-          data = file.read
-        end
+        File.open(filename, 'rb') { |file| data = file.read }
       rescue => err
         raise "Unable to open and load #{filename} due to #{err}."
       end
 
       binary_data_index = 0
       total_table_length = 0
-      @config.tables.each {|table_name, table| total_table_length += table.length }
+      @config.tables.each do |table_name, table|
+        total_table_length += table.length
+      end
       @config.tables.each do |table_name, table|
         if binary_data_index + table.length > data.length
           table.buffer = data[binary_data_index..-1]
-          raise MismatchError, "Binary size of #{data.length} not large enough to fully represent table definition of length #{total_table_length}. The remaining table definition (starting with byte #{data.length - binary_data_index} in #{table.table_name}) will be filled with 0."
+          raise MismatchError,
+                "Binary size of #{data.length} not large enough to fully represent table definition of length #{total_table_length}. The remaining table definition (starting with byte #{data.length - binary_data_index} in #{table.table_name}) will be filled with 0."
         end
-        table.buffer = data[binary_data_index...binary_data_index + table.length]
+        table.buffer =
+          data[binary_data_index...binary_data_index + table.length]
         binary_data_index += table.length
       end
       if binary_data_index < data.length
-        raise MismatchError, "Binary size of #{data.length} larger than table definition of length #{total_table_length}. Discarding the remaing #{data.length - binary_data_index} bytes."
+        raise MismatchError,
+              "Binary size of #{data.length} larger than table definition of length #{total_table_length}. Discarding the remaing #{data.length - binary_data_index} bytes."
       end
     end
   end

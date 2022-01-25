@@ -29,13 +29,14 @@ module Cosmos
     #   parsing this command will be appened to this array
     def self.parse_table(parser, tables, warnings)
       parser = TableParser.new(parser)
-      parser.verify_parameters()
+      parser.verify_parameters
       parser.create_table(tables, warnings)
     end
 
     # Verify the correct number of arguments to the TABLE keyword
     def verify_parameters
-      @usage = "TABLE <TABLE NAME> <ENDIANNESS: BIG_ENDIAN/LITTLE_ENDIAN> <DISPLAY: ONE_DIMENSIONAL/TWO_DIMENSIONAL> <TWO_DIMENSIONAL TABLE ROWS> <DESCRIPTION (Optional)>"
+      @usage =
+        'TABLE <TABLE NAME> <ENDIANNESS: BIG_ENDIAN/LITTLE_ENDIAN> <DISPLAY: ONE_DIMENSIONAL/TWO_DIMENSIONAL> <TWO_DIMENSIONAL TABLE ROWS> <DESCRIPTION (Optional)>'
       @parser.verify_num_parameters(3, 5, @usage)
     end
 
@@ -46,7 +47,10 @@ module Cosmos
       table_name = params[0].to_s.upcase
       endianness = params[1].to_s.upcase.to_sym
       if endianness != :BIG_ENDIAN && endianness != :LITTLE_ENDIAN
-        raise @parser.error("Invalid endianness #{params[1]}. Must be BIG_ENDIAN or LITTLE_ENDIAN.", @usage)
+        raise @parser.error(
+                "Invalid endianness #{params[1]}. Must be BIG_ENDIAN or LITTLE_ENDIAN.",
+                @usage,
+              )
       end
       type = params[2].to_s.upcase.to_sym
       case type
@@ -58,9 +62,13 @@ module Cosmos
         num_rows = params[3].to_i
         description = params[4].to_s
       else
-        raise @parser.error("Invalid display type #{params[2]}. Must be ONE_DIMENSIONAL or TWO_DIMENSIONAL.", @usage)
+        raise @parser.error(
+                "Invalid display type #{params[2]}. Must be ONE_DIMENSIONAL or TWO_DIMENSIONAL.",
+                @usage,
+              )
       end
-      table = Table.new(table_name, endianness, type, description, @parser.filename)
+      table =
+        Table.new(table_name, endianness, type, description, @parser.filename)
       table.num_rows = num_rows if type == :TWO_DIMENSIONAL
       TableParser.finish_create_table(table, tables, warnings)
     end

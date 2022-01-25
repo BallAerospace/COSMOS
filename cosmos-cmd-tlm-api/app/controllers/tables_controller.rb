@@ -20,22 +20,34 @@
 class TablesController < ModelController
   def index
     begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(
+        permission: 'system',
+        scope: params[:scope],
+        token: request.headers['HTTP_AUTHORIZATION'],
+      )
     rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+      render(json: { status: 'error', message: e.message }, status: 401) and
+        return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+      render(json: { status: 'error', message: e.message }, status: 403) and
+        return
     end
-    render :json => Table.all(params[:scope])
+    render json: Table.all(params[:scope])
   end
 
   def body
     begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(
+        permission: 'system',
+        scope: params[:scope],
+        token: request.headers['HTTP_AUTHORIZATION'],
+      )
     rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+      render(json: { status: 'error', message: e.message }, status: 401) and
+        return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+      render(json: { status: 'error', message: e.message }, status: 403) and
+        return
     end
     file = Table.body(params[:scope], params[:name])
     if file
@@ -44,14 +56,12 @@ class TablesController < ModelController
       unless locked
         user = user_info(request.headers['HTTP_AUTHORIZATION'])
         username = user['name']
-        username ||= 'Someone else' # Generic name that makes sense in the lock toast in Script Runner (EE has the actual username)
+        # Generic name that makes sense in the lock toast (EE has the actual username)
+        username ||= 'Someone else'
         Table.lock(params[:scope], params[:name], username)
       end
-      results = {
-        "contents" => file,
-        "locked" => locked
-      }
-      render :json => results
+      results = { 'contents' => file, 'locked' => locked }
+      render json: results
     else
       head :not_found
     end
@@ -59,11 +69,17 @@ class TablesController < ModelController
 
   def create
     begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(
+        permission: 'system',
+        scope: params[:scope],
+        token: request.headers['HTTP_AUTHORIZATION'],
+      )
     rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+      render(json: { status: 'error', message: e.message }, status: 401) and
+        return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+      render(json: { status: 'error', message: e.message }, status: 403) and
+        return
     end
     success = Table.create(params[:scope], params[:name], params[:table])
     if success
@@ -75,65 +91,90 @@ class TablesController < ModelController
 
   def generate
     begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(
+        permission: 'system',
+        scope: params[:scope],
+        token: request.headers['HTTP_AUTHORIZATION'],
+      )
     rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+      render(json: { status: 'error', message: e.message }, status: 401) and
+        return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+      render(json: { status: 'error', message: e.message }, status: 403) and
+        return
     end
     begin
       file = Table.generate(params[:scope], params[:name], params[:contents])
       if file
-        results = {
-          "contents" => file,
-        }
-        render :json => results
+        results = { 'contents' => file }
+        render json: results
       else
         head :internal_server_error
       end
     rescue Exception => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 500) and return
+      render(json: { status: 'error', message: e.message }, status: 500) and
+        return
     end
   end
 
   def download
     begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(
+        permission: 'system',
+        scope: params[:scope],
+        token: request.headers['HTTP_AUTHORIZATION'],
+      )
     rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+      render(json: { status: 'error', message: e.message }, status: 401) and
+        return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+      render(json: { status: 'error', message: e.message }, status: 403) and
+        return
     end
     begin
       puts params
       # Cosmos::TableModel.get(params[])
     rescue Exception => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 500) and return
+      render(json: { status: 'error', message: e.message }, status: 500) and
+        return
     end
   end
 
   def lock
     begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(
+        permission: 'system',
+        scope: params[:scope],
+        token: request.headers['HTTP_AUTHORIZATION'],
+      )
     rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+      render(json: { status: 'error', message: e.message }, status: 401) and
+        return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+      render(json: { status: 'error', message: e.message }, status: 403) and
+        return
     end
     user = user_info(request.headers['HTTP_AUTHORIZATION'])
     username = user['name']
-    username ||= 'Someone else' # Generic name that makes sense in the lock toast (EE has the actual username)
+    # Generic name that makes sense in the lock toast (EE has the actual username)
+    username ||= 'Someone else'
     Table.lock(params[:scope], params[:name], username)
     render status: 200
   end
 
   def unlock
     begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(
+        permission: 'system',
+        scope: params[:scope],
+        token: request.headers['HTTP_AUTHORIZATION'],
+      )
     rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+      render(json: { status: 'error', message: e.message }, status: 401) and
+        return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+      render(json: { status: 'error', message: e.message }, status: 403) and
+        return
     end
     user = user_info(request.headers['HTTP_AUTHORIZATION'])
     username = user['name']
@@ -145,15 +186,25 @@ class TablesController < ModelController
 
   def destroy
     begin
-      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+      authorize(
+        permission: 'system',
+        scope: params[:scope],
+        token: request.headers['HTTP_AUTHORIZATION'],
+      )
     rescue Cosmos::AuthError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+      render(json: { status: 'error', message: e.message }, status: 401) and
+        return
     rescue Cosmos::ForbiddenError => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+      render(json: { status: 'error', message: e.message }, status: 403) and
+        return
     end
     destroyed = Table.destroy(params[:scope], params[:name])
     if destroyed
-      Cosmos::Logger.info("Table destroyed: #{params[:name]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
+      Cosmos::Logger.info(
+        "Table destroyed: #{params[:name]}",
+        scope: params[:scope],
+        user: user_info(request.headers['HTTP_AUTHORIZATION']),
+      )
       head :ok
     else
       head :not_found

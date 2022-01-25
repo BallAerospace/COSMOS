@@ -40,11 +40,19 @@ module Cosmos
         name = "#{name}0"
         table.num_columns += 1
       end
-      item = TableItem.new(name, get_bit_offset(), get_bit_size(), get_data_type(),
-                           get_endianness(table), get_array_size(), :ERROR) # overflow
-      item.range = get_range()
-      item.default = get_default()
-      item.description = get_description()
+      item =
+        TableItem.new(
+          name,
+          get_bit_offset,
+          get_bit_size,
+          get_data_type,
+          get_endianness(table),
+          get_array_size,
+          :ERROR,
+        ) # overflow
+      item.range = get_range
+      item.default = get_default
+      item.description = get_description
       if append?
         item = table.append(item)
       else

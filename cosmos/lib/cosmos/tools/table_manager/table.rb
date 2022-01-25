@@ -26,10 +26,13 @@ module Cosmos
   class Table < Packet
     # Define the target for tables as 'TABLE' since there is no target
     TARGET = 'TABLE'
+
     # @return [Symbol] Either :ONE_DIMENSIONAL or :TWO_DIMENSIONAL
     attr_reader :type
+
     # @return [String] File which contains the table definition
     attr_reader :filename
+
     # @return [Integer] Number of columns in the table
     attr_accessor :num_columns
 
@@ -39,7 +42,8 @@ module Cosmos
     def initialize(name, endianness, type, description, filename)
       super(TARGET, name, endianness, description, '', TableItem)
       if type != :ONE_DIMENSIONAL && type != :TWO_DIMENSIONAL
-        raise ArgumentError, "Invalid type '#{type}' for table '#{name}'. Must be ONE_DIMENSIONAL or TWO_DIMENSIONAL"
+        raise ArgumentError,
+              "Invalid type '#{type}' for table '#{name}'. Must be ONE_DIMENSIONAL or TWO_DIMENSIONAL"
       end
       @type = type
       @filename = filename
@@ -51,7 +55,7 @@ module Cosmos
     def num_rows=(num_rows)
       case @type
       when :ONE_DIMENSIONAL
-        raise "Rows are fixed in a ONE_DIMENSIONAL table"
+        raise 'Rows are fixed in a ONE_DIMENSIONAL table'
       when :TWO_DIMENSIONAL
         @num_rows = num_rows
       end
@@ -61,7 +65,7 @@ module Cosmos
     def num_rows
       case @type
       when :ONE_DIMENSIONAL
-        @sorted_items.count {|item| !item.hidden }
+        @sorted_items.count { |item| !item.hidden }
       when :TWO_DIMENSIONAL
         @num_rows
       end
