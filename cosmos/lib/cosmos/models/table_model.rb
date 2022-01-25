@@ -46,7 +46,7 @@ module Cosmos
       if File.file?(table_file_path)
         table_filename = File.basename(table_file_path)
         File.open(table_file_path, 'rb') do |file|
-          rubys3_client.put_object(bucket: 'config', key: table_filename, body: file)
+          Aws::S3::Client.new().put_object(bucket: 'config', key: table_filename, body: file)
         end
       else
         message = "Table file #{table_file_path} does not exist!"

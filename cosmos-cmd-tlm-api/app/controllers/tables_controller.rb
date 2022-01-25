@@ -18,6 +18,8 @@
 # copyright holder
 
 require 'fileutils'
+require 'cosmos'
+require 'cosmos/models/table_model'
 
 class TablesController < ModelController
   def upload
@@ -28,11 +30,25 @@ class TablesController < ModelController
     rescue Cosmos::ForbiddenError => e
       render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
     end
-    begin
-      puts params
-      # Cosmos::TableModel.put(params[])
-    rescue Exception => e
-      render(:json => { :status => 'error', :message => e.message }, :status => 500) and return
+    table = params[:table]
+    if table
+      temp_dir = Dir.mktmpdir
+      result = false
+      begin
+        table_file_path = temp_dir + '/' + table.original_filename
+        FileUtils.cp(table.tempfile.path, table_file_path)
+        result = Cosmos::TableModel.put(table_file_path)
+        Cosmos::Logger.info("Table created: #{params[:table]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
+      ensure
+        FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
+      end
+      if result
+        head :ok
+      else
+        head :internal_server_error
+      end
+    else
+      head :internal_server_error
     end
   end
 

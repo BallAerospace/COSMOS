@@ -86,6 +86,7 @@
 </template>
 
 <script>
+import Api from '@cosmosc2/tool-common/src/services/api'
 import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 import ValueWidget from '@cosmosc2/tool-common/src/components/widgets/ValueWidget'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
@@ -139,14 +140,14 @@ export default {
       this.upload()
     },
     async upload() {
-      // console.log(this.file)
+      console.log(this.file)
       this.filename = this.file.name
 
       const formData = new FormData()
       formData.append('table', this.file, this.file.name)
       Api.post('/cosmos-api/tables/upload', { data: formData }).then(
         (response) => {
-          // console.log(response)
+          console.log(response)
         }
       )
     },
