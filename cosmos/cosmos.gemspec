@@ -95,15 +95,16 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'redis',     '~> 4.5'
   s.add_runtime_dependency 'matrix',    '~> 0.4' # bundled gem in Ruby 3.1
   s.add_runtime_dependency 'httpclient', '~> 2.8'
-  s.add_runtime_dependency 'aws-sdk-s3', '~> 1.111'
+  s.add_runtime_dependency 'aws-sdk-s3', '~> 1.109'
   s.add_runtime_dependency 'tzinfo-data', '~> 1.2021'
+  s.add_runtime_dependency 'ffi', '~> 1.15' # Required by childprocess on Windows
   s.add_runtime_dependency 'childprocess', '~> 4.1'
   s.add_runtime_dependency 'connection_pool', '~> 2.2'
   s.add_runtime_dependency 'rufus-scheduler', '~> 3.8'
 
   # Development Dependencies
   s.add_development_dependency 'dead_end', '~> 3.1'
-  s.add_development_dependency 'diff-lcs', '~> 1.5' if RUBY_ENGINE == 'ruby' # Get latest for MRI
+  s.add_development_dependency 'diff-lcs', '~> 1.4' if RUBY_ENGINE == 'ruby' # Get latest for MRI
   s.add_development_dependency 'rspec', '~> 3.10'
   s.add_development_dependency 'flog', '~> 4.6'
   s.add_development_dependency 'flay', '~> 2.12'
@@ -117,7 +118,7 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'codecov', '~> 0.6'
   s.add_development_dependency 'benchmark-ips', '~> 2.9'
   s.add_development_dependency 'ruby-prof', '~> 1.4' if RUBY_ENGINE == 'ruby' # MRI Only
-  s.add_development_dependency 'rspec_junit_formatter', '~> 0.5'
+  s.add_development_dependency 'rspec_junit_formatter', '~> 0.4'
 
   s.post_install_message = "Thanks for installing Ball Aerospace COSMOS!\n"
 end

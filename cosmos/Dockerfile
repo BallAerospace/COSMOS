@@ -16,7 +16,6 @@ USER root
 RUN mkdir -p lib/cosmos/ext \
   && git config --global http.sslCAinfo /devel/cacert.pem \
   && apk add build-base ruby-dev libressl-dev \
-  && gem update --system 3.3.5 \
   && bundle config set --local without 'development' \
   && bundle install --quiet \
   && bundle exec rake build \
