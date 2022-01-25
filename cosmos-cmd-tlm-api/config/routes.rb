@@ -130,8 +130,15 @@ Rails.application.routes.draw do
     get '/storage/download/:object_id', to: 'storage#get_download_presigned_request', object_id: /[^\/]+/
     get '/storage/upload/:object_id', to: 'storage#get_upload_presigned_request', object_id: /[^\/]+/
 
-    post '/tables/download', to: 'tables#download'
-    post '/tables/upload', to: 'tables#upload'
+    get  "/tables" => "tables#index"
+    get  "/tables/*name" => "tables#body", format: false, defaults: { format: 'html' }
+    post '/tables/*name/download', to: 'tables#download'
+    post '/tables/*name/lock' => 'tables#lock'
+    post '/tables/*name/unlock' => 'tables#unlock'
+    post '/tables/*name/generate' => 'tables#generate'
+    # Must be last post /tables/*name so others will match first
+    post '/tables/*name' => 'tables#create', format: false, defaults: { format: 'html' }
+    delete '/tables/*name' => 'tables#destroy'
 
     get "/screen/:target" => "api#screens"
     get "/screen/:target/:screen" => "api#screen"

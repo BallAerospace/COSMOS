@@ -352,6 +352,7 @@
       v-if="fileOpen"
       v-model="fileOpen"
       type="open"
+      api-url="/script-api/scripts"
       @file="setFile($event)"
       @error="setError($event)"
     />
@@ -359,6 +360,7 @@
       v-if="showSaveAs"
       v-model="showSaveAs"
       type="save"
+      api-url="/script-api/scripts"
       require-target-parent-dir
       :input-filename="filename"
       @filename="saveAsFilename($event)"
@@ -886,7 +888,6 @@ export default {
               `/script-api/scripts/${selectionTempFilename}/run`,
               {
                 data: {
-                  scope: localStorage.scope,
                   environment: this.environmentOptions,
                 },
               }
@@ -1067,7 +1068,6 @@ export default {
         url += '/disconnect'
       }
       let data = {
-        scope: localStorage.scope,
         environment: this.environmentOptions,
       }
       if (suiteRunner) {

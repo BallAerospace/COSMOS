@@ -20,12 +20,46 @@
 <template>
   <div>
     <top-bar :menus="menus" :title="title" />
+    <!-- TODO: use this.$notify instead -->
+    <v-snackbar v-model="showAlert" top :color="alertType" :timeout="3000">
+      <v-icon> mdi-{{ alertType }} </v-icon>
+      {{ alertText }}
+      <template v-slot:action="{ attrs }">
+        <v-btn text v-bind="attrs" @click="showAlert = false"> Close </v-btn>
+      </template>
+    </v-snackbar>
+    <v-snackbar v-model="showReadOnlyToast" top :timeout="-1" color="orange">
+      <v-icon> mdi-pencil-off </v-icon>
+      {{ lockedBy }} is editing this script. Editor is in read-only mode
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          text
+          v-bind="attrs"
+          color="danger"
+          @click="confirmLocalUnlock"
+          data-test="unlock-button"
+        >
+          Unlock
+        </v-btn>
+        <v-btn
+          text
+          v-bind="attrs"
+          @click="
+            () => {
+              showReadOnlyToast = false
+            }
+          "
+        >
+          dismiss
+        </v-btn>
+      </template>
+    </v-snackbar>
     <v-file-input
       show-size
-      v-model="file"
+      v-model="fileInput"
       ref="fileInput"
       accept=".bin"
-      data-test="file"
+      data-test="fileInput"
       style="position: fixed; top: -100%"
     />
     <v-text-field
@@ -34,10 +68,9 @@
       readonly
       hide-details
       label="Filename"
-      v-model="filename"
+      v-model="fullFilename"
       id="filename"
       data-test="filename"
-      @click="fileOpen"
     />
     <v-card>
       <v-card-title>
@@ -82,6 +115,24 @@
         </template>
       </v-data-table>
     </v-card>
+    <file-open-save-dialog
+      v-if="fileOpen"
+      v-model="fileOpen"
+      type="open"
+      api-url="/cosmos-api/tables"
+      @file="setFile($event)"
+      @error="setError($event)"
+    />
+    <file-open-save-dialog
+      v-if="showSaveAs"
+      v-model="showSaveAs"
+      type="save"
+      require-target-parent-dir
+      api-url="/cosmos-api/tables"
+      :input-filename="filename"
+      @filename="saveAsFilename($event)"
+      @error="setError($event)"
+    />
   </div>
 </template>
 
@@ -90,11 +141,13 @@ import Api from '@cosmosc2/tool-common/src/services/api'
 import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 import ValueWidget from '@cosmosc2/tool-common/src/components/widgets/ValueWidget'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
+import FileOpenSaveDialog from '@cosmosc2/tool-common/src/components/FileOpenSaveDialog'
 
 export default {
   components: {
     ValueWidget,
     TopBar,
+    FileOpenSaveDialog,
   },
   data() {
     return {
@@ -106,50 +159,232 @@ export default {
         { text: 'Name', value: 'name' },
         { text: 'Value', value: 'value' },
       ],
-      menus: [
+      api: null,
+      fileInput: '',
+      filename: null,
+      fileModified: false,
+      lockedBy: null,
+      fileOpen: false,
+      showSave: false,
+      showSaveAs: false,
+      showAlert: false,
+      alertType: null,
+      alertText: '',
+    }
+  },
+  computed: {
+    readOnly: function () {
+      return !!this.lockedBy
+    },
+    fullFilename() {
+      return `${this.filename} ${this.fileModified}`.trim()
+    },
+    menus: function () {
+      return [
         {
           label: 'File',
           items: [
             {
-              label: 'Open',
+              label: 'New File',
+              icon: 'mdi-file-plus',
+              command: () => {
+                this.newFile()
+              },
+            },
+            {
+              label: 'Open File',
+              icon: 'mdi-folder-open',
+              command: () => {
+                this.openFile()
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Save File',
+              icon: 'mdi-content-save',
+              command: () => {
+                this.saveFile()
+              },
+            },
+            {
+              label: 'Save As...',
+              icon: 'mdi-content-save',
+              command: () => {
+                this.saveAs()
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Upload',
               icon: 'mdi-cloud-upload',
               command: () => {
-                this.fileOpen()
+                this.upload()
+              },
+            },
+            {
+              label: 'Download',
+              icon: 'mdi-cloud-download',
+              command: () => {
+                this.download()
+              },
+            },
+            {
+              divider: true,
+            },
+            {
+              label: 'Delete File',
+              icon: 'mdi-delete',
+              command: () => {
+                this.delete()
               },
             },
           ],
         },
-      ],
-      api: null,
-      file: '',
-      filename: null,
-    }
+      ]
+    },
   },
   created() {
     this.api = new CosmosApi()
   },
-
   methods: {
-    async fileOpen() {
-      this.file = ''
-      this.$refs.fileInput.$refs.input.click()
-      // Wait for the file to be set by the dialog so upload works
-      while (this.file === '') {
-        await new Promise((resolve) => setTimeout(resolve, 500))
-      }
-      this.upload()
+    // File menu actions
+    newFile() {
+      this.fileModified = ''
+      this.fileOpen = true
     },
-    async upload() {
-      console.log(this.file)
-      this.filename = this.file.name
+    openFile() {
+      this.fileOpen = true
+    },
+    // Called by the FileOpenDialog to set the file contents
+    setFile({ file, locked }) {
+      // They opened a definition file so create a new binary
+      if (file.name.includes('.txt')) {
+        this.buildNewBinary(file)
+      } else {
+        this.unlockFile() // first unlock what was just being edited
+        // Split off the ' *' which indicates a file is modified on the server
+        this.filename = file.name.split('*')[0]
+        // this.editor.session.setValue(file.contents)
+        this.fileModified = ''
+        this.lockedBy = locked
+      }
+    },
+    saveFile() {
+      // Save a file by posting the new contents
+      this.showSave = true
 
       const formData = new FormData()
-      formData.append('table', this.file, this.file.name)
-      Api.post('/cosmos-api/tables/upload', { data: formData }).then(
-        (response) => {
-          console.log(response)
-        }
-      )
+      formData.append('table', this.fileInput)
+      Api.post(`/cosmos-api/tables/${this.filename}`, {
+        data: formData,
+      })
+        .then((response) => {
+          if (response.status == 200) {
+            this.fileModified = ''
+            setTimeout(() => {
+              this.showSave = false
+            }, 2000)
+          } else {
+            this.showSave = false
+            this.alertType = 'error'
+            this.alertText = `Error saving file. Code: ${response.status} Text: ${response.statusText}`
+            this.showAlert = true
+          }
+        })
+        .catch(({ response }) => {
+          this.showSave = false
+          this.alertType = 'error'
+          this.alertText = `Error saving file. Code: ${response.status} Text: ${response.statusText}`
+          this.showAlert = true
+        })
+      this.lockFile() // Ensure this file is locked for editing
+    },
+    saveAs() {
+      this.showSaveAs = true
+    },
+    saveAsFilename(filename) {
+      this.filename = filename
+      this.saveFile()
+    },
+    delete() {
+      // TODO: Delete instead of post
+      this.$dialog
+        .confirm(`Permanently delete file: ${this.filename}`, {
+          okText: 'Delete',
+          cancelText: 'Cancel',
+        })
+        .then((dialog) => {
+          return Api.post(`/cosmos-api/tables/${this.filename}/delete`, {
+            data: {},
+          })
+        })
+        .then((response) => {
+          this.newFile()
+        })
+        .catch((error) => {
+          if (error) {
+            const alertObject = {
+              text: `Failed Multi-Delete. ${error}`,
+              type: 'error',
+            }
+            this.$emit('alert', alertObject)
+          }
+        })
+    },
+    download() {
+      const blob = new Blob([this.editor.getValue()], {
+        type: 'text/plain',
+      })
+      // Make a link and then 'click' on it to start the download
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.setAttribute('download', this.filename)
+      link.click()
+    },
+    async upload() {
+      this.fileInput = ''
+      this.$refs.fileInput.$refs.input.click()
+      // Wait for the file to be set by the dialog so upload works
+      while (this.fileInput === '') {
+        await new Promise((resolve) => setTimeout(resolve, 500))
+      }
+      this.filename = this.fileInput.name
+      this.saveAs()
+    },
+    confirmLocalUnlock: function () {
+      this.$dialog
+        .confirm(
+          'Are you sure you want to unlock this file for editing? If another user is editing this file, your changes might conflict with each other.',
+          {
+            okText: 'Force Unlock',
+            cancelText: 'Cancel',
+          }
+        )
+        .then(() => {
+          this.lockedBy = null
+          return this.lockFile() // Re-lock it as this user so it's locked for anyone else who opens it
+        })
+    },
+    lockFile: function () {
+      return Api.post(`/cosmos-api/tables/${this.filename}/lock`)
+    },
+    unlockFile: function () {
+      if (!this.readOnly) {
+        Api.post(`/cosmos-api/tables/${this.filename}/unlock`)
+      }
+    },
+    buildNewBinary(file) {
+      const formData = new FormData()
+      formData.append('contents', file.contents)
+      Api.post(`/cosmos-api/tables/${file.name}/generate`, {
+        data: formData,
+      }).then((response) => {
+        console.log(response)
+      })
     },
   },
 }
