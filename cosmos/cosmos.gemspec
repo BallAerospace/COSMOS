@@ -97,6 +97,7 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'httpclient', '~> 2.8'
   s.add_runtime_dependency 'aws-sdk-s3', '~> 1.109'
   s.add_runtime_dependency 'tzinfo-data', '~> 1.2021'
+  s.add_runtime_dependency 'ffi', '~> 1.15' # Required by childprocess on Windows
   s.add_runtime_dependency 'childprocess', '~> 4.1'
   s.add_runtime_dependency 'connection_pool', '~> 2.2'
   s.add_runtime_dependency 'rufus-scheduler', '~> 3.8'
