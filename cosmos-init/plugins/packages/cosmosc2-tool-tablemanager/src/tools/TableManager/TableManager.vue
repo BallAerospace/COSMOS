@@ -20,14 +20,6 @@
 <template>
   <div>
     <top-bar :menus="menus" :title="title" />
-    <!-- TODO: use this.$notify instead -->
-    <v-snackbar v-model="showAlert" top :color="alertType" :timeout="3000">
-      <v-icon> mdi-{{ alertType }} </v-icon>
-      {{ alertText }}
-      <template v-slot:action="{ attrs }">
-        <v-btn text v-bind="attrs" @click="showAlert = false"> Close </v-btn>
-      </template>
-    </v-snackbar>
     <v-snackbar v-model="showReadOnlyToast" top :timeout="-1" color="orange">
       <v-icon> mdi-pencil-off </v-icon>
       {{ lockedBy }} is editing this script. Editor is in read-only mode
@@ -61,6 +53,16 @@
       accept=".bin"
       data-test="fileInput"
       style="position: fixed; top: -100%"
+    />
+    <v-text-field
+      outlined
+      dense
+      readonly
+      hide-details
+      label="Definition"
+      v-model="definitionFilename"
+      id="definition-filename"
+      data-test="definitionFilename"
     />
     <v-text-field
       outlined
@@ -153,23 +155,22 @@ export default {
     return {
       title: 'Table Manager',
       search: '',
-      data: [],
+      row: [],
       headers: [
         { text: 'Index', value: 'index' },
         { text: 'Name', value: 'name' },
         { text: 'Value', value: 'value' },
       ],
       api: null,
+      definition: null,
       fileInput: '',
-      filename: null,
-      fileModified: false,
+      definitionFilename: '',
+      filename: '',
+      fileModified: '',
       lockedBy: null,
       fileOpen: false,
       showSave: false,
       showSaveAs: false,
-      showAlert: false,
-      alertType: null,
-      alertText: '',
     }
   },
   computed: {
@@ -271,6 +272,8 @@ export default {
         // this.editor.session.setValue(file.contents)
         this.fileModified = ''
         this.lockedBy = locked
+
+        this.getDefinition()
       }
     },
     saveFile() {
@@ -290,16 +293,18 @@ export default {
             }, 2000)
           } else {
             this.showSave = false
-            this.alertType = 'error'
-            this.alertText = `Error saving file. Code: ${response.status} Text: ${response.statusText}`
-            this.showAlert = true
+            this.$notify.caution({
+              title: 'Error',
+              body: `Error saving file. Code: ${response.status} Text: ${response.statusText}`,
+            })
           }
         })
         .catch(({ response }) => {
           this.showSave = false
-          this.alertType = 'error'
-          this.alertText = `Error saving file. Code: ${response.status} Text: ${response.statusText}`
-          this.showAlert = true
+          this.$notify.caution({
+            title: 'Error',
+            body: `Error saving file. Code: ${response.status} Text: ${response.statusText}`,
+          })
         })
       this.lockFile() // Ensure this file is locked for editing
     },
@@ -311,14 +316,13 @@ export default {
       this.saveFile()
     },
     delete() {
-      // TODO: Delete instead of post
       this.$dialog
         .confirm(`Permanently delete file: ${this.filename}`, {
           okText: 'Delete',
           cancelText: 'Cancel',
         })
         .then((dialog) => {
-          return Api.post(`/cosmos-api/tables/${this.filename}/delete`, {
+          return Api.delete(`/cosmos-api/tables/${this.filename}`, {
             data: {},
           })
         })
@@ -327,11 +331,10 @@ export default {
         })
         .catch((error) => {
           if (error) {
-            const alertObject = {
-              text: `Failed Multi-Delete. ${error}`,
-              type: 'error',
-            }
-            this.$emit('alert', alertObject)
+            this.$notify.caution({
+              title: 'Error',
+              body: `Error deleting file: ${error}`,
+            })
           }
         })
     },
@@ -373,9 +376,19 @@ export default {
       return Api.post(`/cosmos-api/tables/${this.filename}/lock`)
     },
     unlockFile: function () {
-      if (!this.readOnly) {
+      if (this.filename !== '' && !this.readOnly) {
         Api.post(`/cosmos-api/tables/${this.filename}/unlock`)
       }
+    },
+    getDefinition() {
+      let definition = this.filename
+        .replace('/bin/', '/config/')
+        .replace('.bin', '_def.txt')
+      console.log(definition)
+      Api.get(`/cosmos-api/tables/${definition}`).then((response) => {
+        this.definitionFilename = definition
+        this.definition = response.data.contents
+      })
     },
     buildNewBinary(file) {
       const formData = new FormData()
