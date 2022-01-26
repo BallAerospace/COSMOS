@@ -19,5 +19,6 @@
 
 import CmdCompleter from './cmdCompleter.js'
 import TlmCompleter from './tlmCompleter.js'
+import MnemonicChecker from './mnemonicChecker.js'
 
-export { CmdCompleter, TlmCompleter }
+export { CmdCompleter, TlmCompleter, MnemonicChecker }
