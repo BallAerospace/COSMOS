@@ -1024,10 +1024,8 @@ export default {
             alertText += `<strong>The following lines have problems:</strong><br/>${problemText}<br/><br/>`
           }
           if (skipped.length) {
-            const skippedText = skipped
-              .map((line) => line.lineNumber)
-              .join(', ')
-            alertText += `<strong>The following lines were not checked because string interpolation is not supported:</strong> ${skippedText}`
+            alertText +=
+              '<strong>Mnemonics with string interpolation were not checked.</strong>'
           }
           if (alertText === '') {
             alertText = '<strong>Everything looks good!</strong>'
