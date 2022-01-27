@@ -84,25 +84,11 @@ module Cosmos
       end
 
       it "complains about persistence_setting = nil" do
-        if 0.class == Integer
-          # Ruby version >= 2.4.0
-          expect { @l.persistence_setting = nil}.to raise_error(ArgumentError, "persistence_setting must be an Integer but is a NilClass")
-        else
-          # Ruby version < 2.4.0
-          expect { @l.persistence_setting = nil}.to raise_error(ArgumentError, "persistence_setting must be a Fixnum but is a NilClass")
-        end
+        expect { @l.persistence_setting = nil}.to raise_error(ArgumentError, "persistence_setting must be an Integer but is a NilClass")
       end
 
-      if 0.class == Integer
-      # Ruby version >= 2.4.0
-        it "complains about persistence_setting that aren't Integer" do
-          expect { @l.persistence_setting = 5.5}.to raise_error(ArgumentError, "persistence_setting must be an Integer but is a Float")
-        end
-      else
-        # Ruby version < 2.4.0
-        it "complains about persistence_setting that aren't Fixnum" do
-          expect { @l.persistence_setting = 5.5}.to raise_error(ArgumentError, "persistence_setting must be a Fixnum but is a Float")
-        end
+      it "complains about persistence_setting that aren't Integer" do
+        expect { @l.persistence_setting = 5.5}.to raise_error(ArgumentError, "persistence_setting must be an Integer but is a Float")
       end
     end
 
@@ -114,24 +100,11 @@ module Cosmos
       end
 
       it "complains about persistence_count = nil" do
-        if 0.class == Integer
-          # Ruby version >= 2.4.0
-          expect { @l.persistence_count = nil}.to raise_error(ArgumentError, "persistence_count must be an Integer but is a NilClass")
-        else
-          # Ruby version < 2.4.0
-          expect { @l.persistence_count = nil}.to raise_error(ArgumentError, "persistence_count must be a Fixnum but is a NilClass")
-        end
+        expect { @l.persistence_count = nil}.to raise_error(ArgumentError, "persistence_count must be an Integer but is a NilClass")
       end
 
-      if 0.class == Integer
-        it "complains about persistence_count that aren't Integer" do
-          expect { @l.persistence_count = 5.5}.to raise_error(ArgumentError, "persistence_count must be an Integer but is a Float")
-        end
-      else
-        # Ruby version < 2.4.0
-        it "complains about persistence_count that aren't Fixnum" do
-          expect { @l.persistence_count = 5.5}.to raise_error(ArgumentError, "persistence_count must be a Fixnum but is a Float")
-        end
+      it "complains about persistence_count that aren't Integer" do
+        expect { @l.persistence_count = 5.5}.to raise_error(ArgumentError, "persistence_count must be an Integer but is a Float")
       end
     end
 

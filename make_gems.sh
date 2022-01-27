@@ -1,7 +1,7 @@
 # export VERSION= before running this
 git checkout master
 git pull
-rbenv global 2.4.4
+rbenv global 2.5.9
 rake release VERSION=$VERSION
 rake commit_release VERSION=$VERSION
 mv *.gem ~/share/.

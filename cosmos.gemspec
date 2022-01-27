@@ -77,6 +77,7 @@ spec = Gem::Specification.new do |s|
 
   # Runtime Dependencies
   s.add_runtime_dependency 'bundler', '>= 1.3'
+  s.add_runtime_dependency 'psych', '~> 3.3'
   s.add_runtime_dependency 'rdoc', '>= 4' # qtbindings doesn't parse in 6.0.0, fixed in 6.0.1
   s.add_runtime_dependency 'rake', '>= 10.0' # 10.0 released Nov 12, 2012
   s.add_runtime_dependency 'json', '>= 1.5', '< 3' # 2.0+ works with COSMOS
@@ -86,19 +87,12 @@ spec = Gem::Specification.new do |s|
   s.add_runtime_dependency 'uuidtools', '~> 2.1'
   s.add_runtime_dependency 'snmp', '~> 1.0'
   s.add_runtime_dependency 'rubyzip', '~> 1.2'
-  s.add_runtime_dependency 'nokogiri', '~> 1.10'
+  s.add_runtime_dependency 'nokogiri', ['~> 1.10', '< 1.13'] # Nokogiri 1.13 doesn't support Ruby 2.5
   s.add_runtime_dependency 'opengl-bindings', '~> 1.6' if RUBY_ENGINE == 'ruby' # MRI Only
   s.add_runtime_dependency 'qtbindings', '~> 4.8.6', '>= 4.8.6.2' if RUBY_ENGINE == 'ruby' && !ENV['CI'] # MRI Only, not Github
   s.add_runtime_dependency 'puma', '~> 3.10'
   s.add_runtime_dependency 'rack', '~> 2.0'
   s.add_runtime_dependency 'httpclient', '~> 2.8'
-
-  # From http://www.rubydoc.info/gems/puma#Known_Bugs :
-  #   "For MRI versions 2.2.7, 2.2.8, 2.2.9, 2.2.10, 2.3.4 and 2.4.1, you may see stream closed in
-  #    another thread (IOError). It may be caused by a Ruby bug. It can be
-  #    fixed with the gem https://rubygems.org/gems/stopgap_13632"
-  # This is commented out because the gemspec is only evaluated at gem build time
-  # s.add_runtime_dependency 'stopgap_13632', '~> 1.2.0' if RUBY_ENGINE == 'ruby' and %w(2.2.7 2.2.8 2.3.4 2.4.1).include? RUBY_VERSION  # MRI Only
 
   # Development Dependencies
   s.add_development_dependency 'diff-lcs', '~> 1.3' if RUBY_ENGINE == 'ruby' # Get latest for MRI
