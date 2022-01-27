@@ -73,7 +73,7 @@ spec = Gem::Specification.new do |s|
       files
     else [] end
 
-  s.required_ruby_version = '~> 2.3'
+  s.required_ruby_version = '~> 2.4'
 
   # Runtime Dependencies
   s.add_runtime_dependency 'bundler', '>= 1.3'
