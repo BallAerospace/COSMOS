@@ -28,8 +28,6 @@ jobs:
         uses: ruby/setup-ruby@v1
         env:
           RUBYGEMS_URL: https://rubygems.org
-          NPM_URL: https://registry.npmjs.org
-          APK_URL: http://dl-cdn.alpinelinux.org
         with:
           ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
@@ -38,6 +36,7 @@ jobs:
         run: bundle exec rake build spec
         working-directory: cosmos
         env:
+          RUBYGEMS_URL: https://rubygems.org
           COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
           COSMOS_REDIS_USERNAME: test
           COSMOS_REDIS_PASSWORD: testPassword
