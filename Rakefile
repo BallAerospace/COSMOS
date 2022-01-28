@@ -339,6 +339,7 @@ task :docker_run do
   STDOUT.puts "16. git checkout -b vX.X.X"
   STDOUT.puts "17. git push --set-upstream origin vX.X.X"
   STDOUT.puts "18. Update release notes on github.com and cosmosrb.com"
+  STDOUT.puts "    https://github.com/BallAerospace/COSMOS/pulls?q=is%3Apr+is%3Aclosed+base%3Acosmos4+no%3Amilestone"
 
   system('docker run -it --rm cosmos-dev')
 end

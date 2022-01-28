@@ -7,7 +7,7 @@
 
 # Reference environment variables: https://docs.github.com/en/actions/reference/environment-variables
 
-name: Cosmos4 Tests
+name: Cosmos 4 Tests
 
 on:
   push:
