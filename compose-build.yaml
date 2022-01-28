@@ -25,8 +25,10 @@ services:
       context: "cosmos-ruby"
       network: host
       args:
-        - RUBYGEMS_URL=$RUBYGEMS_URL
-        - APK_URL=$APK_URL
+        ALPINE_VERSION: ${ALPINE_VERSION}
+        ALPINE_BUILD: ${ALPINE_BUILD}
+        APK_URL: ${APK_URL}
+        RUBYGEMS_URL: ${RUBYGEMS_URL}
     image: "ballaerospace/cosmosc2-ruby:${COSMOS_TAG}"
 
   cosmos-node:
@@ -86,7 +88,7 @@ services:
       context: "cosmos-init"
       network: host
       args:
-        - NPM_URL=$NPM_URL
+        NPM_URL: ${NPM_URL}
     depends_on:
       - "cosmos-node"
       - "cosmos-base"

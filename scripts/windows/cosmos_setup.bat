@@ -21,22 +21,6 @@ if not exist cosmos-ruby\cacert.pem (
   echo Using existing cacert.pem
 )
 
-if not DEFINED RUBYGEMS_URL (
-  set RUBYGEMS_URL=https://rubygems.org
-)
-echo RUBYGEMS_URL set to %RUBYGEMS_URL%
-
-if not DEFINED NPM_URL (
-  set NPM_URL=https://registry.npmjs.org
-)
-echo NPM_URL set to %NPM_URL%
-
-if not DEFINED APK_URL (
-  set APK_URL=http://dl-cdn.alpinelinux.org
-)
-echo APK_URL set to %APK_URL%
-
-
 REM These lines configure the host OS properly for Redis
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled" || exit /b
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/defrag" || exit /b
