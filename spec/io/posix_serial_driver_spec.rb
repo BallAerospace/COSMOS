@@ -8,7 +8,13 @@
 # as published by the Free Software Foundation; version 3 with
 # attribution addendums as found in the LICENSE.txt
 
-if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i and RUBY_ENGINE == 'ruby' and !ENV['CI']
+# NOTE: !ENV['DOCKER'] because of the following error while in container:
+#   Failure/Error: @handle = Kernel.open(port_name, File::RDWR | File::NONBLOCK)
+#   Errno::ENOENT:
+#     No such file or directory @ rb_sysopen - /dev/ttyS0
+#   ./lib/cosmos/io/posix_serial_driver.rb:48:in `initialize'
+
+if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i and RUBY_ENGINE == 'ruby' and !ENV['CI'] and !ENV['DOCKER']
 
   require 'spec_helper'
   require 'cosmos/io/posix_serial_driver'
