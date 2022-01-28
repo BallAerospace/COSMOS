@@ -17,6 +17,8 @@
 # enterprise edition license of COSMOS if purchased from the
 # copyright holder
 
+require 'base64'
+
 class TablesController < ModelController
   def index
     begin
@@ -51,17 +53,45 @@ class TablesController < ModelController
     end
     file = Table.body(params[:scope], params[:name])
     if file
-      success = true
-      locked = Table.locked?(params[:scope], params[:name])
-      unless locked
-        user = user_info(request.headers['HTTP_AUTHORIZATION'])
-        username = user['name']
-        # Generic name that makes sense in the lock toast (EE has the actual username)
-        username ||= 'Someone else'
-        Table.lock(params[:scope], params[:name], username)
+      results = {}
+
+      if File.extname(params[:name]) == '.txt'
+        results = { 'contents' => file }
+      else
+        locked = Table.locked?(params[:scope], params[:name])
+        unless locked
+          user = user_info(request.headers['HTTP_AUTHORIZATION'])
+          username = user['name']
+
+          # Generic name that makes sense in the lock toast (EE has the actual username)
+          username ||= 'Someone else'
+          Table.lock(params[:scope], params[:name], username)
+        end
+        results = { 'contents' => Base64.encode64(file), 'locked' => locked }
       end
-      results = { 'contents' => file, 'locked' => locked }
       render json: results
+    else
+      head :not_found
+    end
+  end
+
+  def load
+    begin
+      authorize(
+        permission: 'system',
+        scope: params[:scope],
+        token: request.headers['HTTP_AUTHORIZATION'],
+      )
+    rescue Cosmos::AuthError => e
+      render(json: { status: 'error', message: e.message }, status: 401) and
+        return
+    rescue Cosmos::ForbiddenError => e
+      render(json: { status: 'error', message: e.message }, status: 403) and
+        return
+    end
+    table = Table.load(params[:scope], params[:binary], params[:definition])
+    if table
+      render json: table
     else
       head :not_found
     end
@@ -104,9 +134,9 @@ class TablesController < ModelController
         return
     end
     begin
-      file = Table.generate(params[:scope], params[:name], params[:contents])
-      if file
-        results = { 'contents' => file }
+      filename = Table.generate(params[:scope], params[:name], params[:contents])
+      if filename
+        results = { 'filename' => filename }
         render json: results
       else
         head :internal_server_error
@@ -156,6 +186,7 @@ class TablesController < ModelController
     end
     user = user_info(request.headers['HTTP_AUTHORIZATION'])
     username = user['name']
+
     # Generic name that makes sense in the lock toast (EE has the actual username)
     username ||= 'Someone else'
     Table.lock(params[:scope], params[:name], username)

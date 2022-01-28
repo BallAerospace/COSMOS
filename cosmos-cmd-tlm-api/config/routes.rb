@@ -132,6 +132,7 @@ Rails.application.routes.draw do
 
     get  "/tables" => "tables#index"
     get  "/tables/*name" => "tables#body", format: false, defaults: { format: 'html' }
+    post '/tables/load', to: 'tables#load'
     post '/tables/*name/download', to: 'tables#download'
     post '/tables/*name/lock' => 'tables#lock'
     post '/tables/*name/unlock' => 'tables#unlock'

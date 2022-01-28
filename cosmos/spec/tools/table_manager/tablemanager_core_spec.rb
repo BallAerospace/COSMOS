@@ -32,6 +32,34 @@ module Cosmos
       end
     end
 
+    describe "generate_json" do
+      it "generates json from the table definition" do
+        bin = Tempfile.new('table.bin')
+        bin.write("\x00\x01")
+        bin.close
+        tf = Tempfile.new('unittest')
+        tf.puts 'TABLE "PPS Selection" BIG_ENDIAN ONE_DIMENSIONAL "Payload Clock Control Pulse Per Second Selection Table"'
+        tf.puts '  APPEND_PARAMETER "Primary PPS" 8 UINT 0 1 1'
+        tf.puts '    STATE CHECKED 1'
+        tf.puts '    STATE UNCHECKED 0'
+        tf.puts '  APPEND_PARAMETER "Redundant PPS" 8 UINT 0 1 1'
+        tf.puts '    UNEDITABLE'
+        tf.puts '    STATE UNCHECKED 0'
+        tf.puts '    STATE CHECKED 1'
+        tf.close
+        json = core.generate_json(bin.path, tf.path)
+        bin.unlink
+        tf.unlink
+        result = JSON.parse(json)
+        puts result
+        expect(result).to be_a Array
+        expect(result[0]['name']).to eql 'PRIMARY PPS'
+        expect(result[0]['value']).to eql 'UNCHECKED'
+        expect(result[1]['name']).to eql 'REDUNDANT PPS'
+        expect(result[1]['value']).to eql 'CHECKED'
+      end
+    end
+
     describe "reset" do
       it "clears the definition filename and configuration" do
         tf = Tempfile.new('unittest')

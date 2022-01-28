@@ -107,14 +107,11 @@
             }}
           </span>
         </template>
-        <template v-slot:item.value="{ item }">
-          <value-widget
-            :value="item.value"
-            :limits-state="item.limitsState"
-            :parameters="[targetName, packetName, item.name]"
-            :settings="['WIDTH', '50']"
+        <!-- <template v-slot:item.value="{ item }">
+          <table-item
+            :item="item"
           />
-        </template>
+        </template> -->
       </v-data-table>
     </v-card>
     <file-open-save-dialog
@@ -141,13 +138,11 @@
 <script>
 import Api from '@cosmosc2/tool-common/src/services/api'
 import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
-import ValueWidget from '@cosmosc2/tool-common/src/components/widgets/ValueWidget'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 import FileOpenSaveDialog from '@cosmosc2/tool-common/src/components/FileOpenSaveDialog'
 
 export default {
   components: {
-    ValueWidget,
     TopBar,
     FileOpenSaveDialog,
   },
@@ -165,6 +160,7 @@ export default {
       definition: null,
       fileInput: '',
       definitionFilename: '',
+      fileNew: false,
       filename: '',
       fileModified: '',
       lockedBy: null,
@@ -255,6 +251,7 @@ export default {
     // File menu actions
     newFile() {
       this.fileModified = ''
+      this.fileNew = true
       this.fileOpen = true
     },
     openFile() {
@@ -264,7 +261,12 @@ export default {
     setFile({ file, locked }) {
       // They opened a definition file so create a new binary
       if (file.name.includes('.txt')) {
-        this.buildNewBinary(file)
+        if (this.fileNew) {
+          this.buildNewBinary(file)
+          this.fileNew = false
+        } else {
+          this.getDefinition(file.name)
+        }
       } else {
         this.unlockFile() // first unlock what was just being edited
         // Split off the ' *' which indicates a file is modified on the server
@@ -380,19 +382,35 @@ export default {
         Api.post(`/cosmos-api/tables/${this.filename}/unlock`)
       }
     },
-    getDefinition() {
-      let definition = this.filename
-        .replace('/bin/', '/config/')
-        .replace('.bin', '_def.txt')
-      // console.log(definition)
-      Api.get(`/cosmos-api/tables/${definition}`)
+    getDefinition(definitionFilename = null) {
+      if (!definitionFilename) {
+        definitionFilename = this.filename
+          .replace('/bin/', '/config/')
+          .replace('.bin', '_def.txt')
+      }
+      const formData = new FormData()
+      formData.append('binary', this.filename)
+      formData.append('definition', definitionFilename)
+      Api.post(`/cosmos-api/tables/load`, {
+        data: formData,
+      })
         .then((response) => {
-          this.definitionFilename = definition
-          this.definition = response.data.contents
+          this.definitionFilename = definitionFilename
+          this.rows = response.data
         })
         .catch((error) => {
-          // TODO: Ask the user for the specific definition file if it can't be automatically found
-          // console.log(error)
+          if (error.response.status == 404) {
+            this.$notify.normal({
+              title: 'Definition File Not Found',
+              body: `Definition file ${definitionFilename} not found. Please select definition file.`,
+            })
+            this.fileOpen = true
+          } else {
+            this.$notify.serious({
+              title: 'Error',
+              body: `Error loading due to ${error.response.statusText}. Status: ${error.response.status}`,
+            })
+          }
         })
     },
     buildNewBinary(file) {
@@ -401,7 +419,9 @@ export default {
       Api.post(`/cosmos-api/tables/${file.name}/generate`, {
         data: formData,
       }).then((response) => {
-        // console.log(response)
+        console.log(response)
+        this.filename = response.data.filename
+        this.getDefinition(file.name)
       })
     },
   },

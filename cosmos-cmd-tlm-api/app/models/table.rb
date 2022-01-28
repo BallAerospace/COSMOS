@@ -71,13 +71,17 @@ class Table
           bucket: DEFAULT_BUCKET_NAME,
           key: "#{scope}/targets_modified/#{name}",
         )
-    rescue StandardError
-      # Now try the original
-      resp =
-        rubys3_client.get_object(
-          bucket: DEFAULT_BUCKET_NAME,
-          key: "#{scope}/targets/#{name}",
-        )
+    rescue Aws::S3::Errors::NoSuchKey
+      begin
+        # Now try the original
+        resp =
+          rubys3_client.get_object(
+            bucket: DEFAULT_BUCKET_NAME,
+            key: "#{scope}/targets/#{name}",
+          )
+      rescue Aws::S3::Errors::NoSuchKey
+        return nil
+      end
     end
     resp.body.read
   end
@@ -109,22 +113,46 @@ class Table
   def self.generate(scope, name, definition)
     return false unless definition
 
+    binary_s3_path = nil
     temp_dir = Dir.mktmpdir
     begin
-      definition_path = temp_dir + '/def.txt'
+      definition_path = "#{temp_dir}/#{File.basename(name)}"
       File.open(definition_path, 'w') do |file|
         file.write(definition)
       end
       binary = Cosmos::TableManagerCore.new.file_new(definition_path, temp_dir)
-      name = name.sub('/config/', '/bin/').sub('_def','').sub('.txt','.bin')
+      binary_s3_path = "#{scope}/targets/#{File.basename(binary)}"
       File.open(binary, 'rb') do |file|
         # Generating a file means doing File->New so it goes in the root targets dir (non-modified)
-        Aws::S3::Client.new().put_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{name}", body: file)
+        Aws::S3::Client.new().put_object(bucket: DEFAULT_BUCKET_NAME, key: binary_s3_path, body: file)
       end
     ensure
       FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
     end
-    true
+    binary_s3_path
+  end
+
+  def self.load(scope, binary_filename, definition_filename)
+    binary = Table.body(scope, binary_filename)
+    return nil unless binary
+    definition = Table.body(scope, definition_filename)
+    return nil unless definition
+    json = ''
+    temp_dir = Dir.mktmpdir
+    begin
+      binary_path = temp_dir + '/data.bin'
+      File.open(binary_path, 'w') do |file|
+        file.write(binary)
+      end
+      definition_path = temp_dir + '/def.txt'
+      File.open(definition_path, 'w') do |file|
+        file.write(definition)
+      end
+      json = Cosmos::TableManagerCore.new.generate_json(binary_path, definition_path)
+    ensure
+      FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
+    end
+    json
   end
 
   def self.destroy(scope, name)

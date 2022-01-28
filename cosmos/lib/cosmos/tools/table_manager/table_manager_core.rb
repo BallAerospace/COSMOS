@@ -66,6 +66,36 @@ module Cosmos
       @config.process_file(filename)
     end
 
+    def generate_json(bin_path, def_path)
+      file_open(bin_path, def_path)
+      rows = []
+      @config.tables.each do |table_name, table|
+        # tables[table_name] = { num_rows: table.num_rows, num_columns: table.num_columns, rows: [] }
+        row = 0
+        column = 0
+        table.sorted_items.each do |item|
+          next if item.hidden
+          # tables[table_name][:rows] << {
+          rows << {
+            name: item.name,
+            value: table.read(item.name, :FORMATTED)
+          }
+          # if table.type == :TWO_DIMENSIONAL
+          #   # only increment our row when we've processed all the columns
+          #   if column == table.num_columns - 1
+          #     row += 1
+          #     column = 0
+          #   else
+          #     column += 1
+          #   end
+          # else
+          #   row += 1
+          # end
+        end
+      end
+      rows.to_json
+    end
+
     # @param def_path [String] Definition file to process
     # @param output_dir [String] Output directory to create the new file
     # @return [String] Binary file path
