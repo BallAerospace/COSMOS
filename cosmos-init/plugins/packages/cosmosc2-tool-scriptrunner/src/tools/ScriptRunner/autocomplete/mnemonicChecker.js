@@ -18,170 +18,184 @@
 */
 
 import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
-import { getKeywords, groupCmd, groupTlm } from './utilities'
+import { getKeywords, groupBy } from './utilities'
 
-const toMnemonicRegex = (word) => {
+const toKeywordRegex = (word) => {
   // create regex to find the opening of a ruby method call
   const prefix = '(^|[{\\(\\s])' // Allowable characters before the method name: start of line or { or ( or a space
-  const opening = '[\\s\\(][\'"]' // Opening sequence for a method call and a string argument: ( or a space, then ' or "
-  return new RegExp(`${prefix}${word}${opening}`)
+  const call = '((\\s.+)|(\\(.+\\)))' // A method call and its arguments
+  return new RegExp(`${prefix}${word}${call}`)
 }
-
-const mnemonicStringRegex = new RegExp('[\'"].+[\'"]')
-const interpolatedStringRegex = new RegExp('#\\{.+\\}')
+const interpolatedStringRegex = /#\{.+\}/
+const alternateSyntaxRegex = /['"],\s?['"]/
 
 export default class MnemonicChecker {
   constructor() {
     this.api = new CosmosApi()
 
-    this.targetList = [] // Used for the first level of validation to avoid a 500 being $notified
+    this.targets = {}
     this.api.get_target_list().then((response) => {
-      this.targetList = response
+      response.forEach((target) => {
+        this.targets[target] = {
+          cmd: null,
+          tlm: null,
+        }
+      })
     })
 
     this.cmdKeywordExpressions = []
     getKeywords('cmd').then((response) => {
-      this.cmdKeywordExpressions = response.data.map(toMnemonicRegex)
+      this.cmdKeywordExpressions = response.data.map(toKeywordRegex)
     })
 
     this.tlmKeywordExpressions = []
     getKeywords('tlm').then((response) => {
-      this.tlmKeywordExpressions = response.data.map(toMnemonicRegex)
+      this.tlmKeywordExpressions = response.data.map(toKeywordRegex)
     })
   }
 
   checkText = async function (text) {
-    let linesToSkip = []
-    const cmdLinesToCheck = []
-    const tlmLinesToCheck = []
-    text
-      .split('\n')
-      .reduce((linesToCheck, line, index) => {
-        const match = line.match(mnemonicStringRegex)
-        if (match) {
-          const mnemonic = match[0].replace(/['"]/g, '')
-          const interpolated = mnemonic.match(interpolatedStringRegex)
-          const lineObj = {
-            line,
-            mnemonic,
-            lineNumber: index + 1,
-          }
-          if (interpolated) {
-            linesToSkip.push(lineObj)
+    const { linesToCheck, linesToSkip } = text.split('\n').reduce(
+      (result, line, index) => {
+        const cmdMatch = this.cmdKeywordExpressions.reduce((found, regex) => {
+          return found || line.match(regex)
+        }, null)
+        const tlmMatch = this.tlmKeywordExpressions.reduce((found, regex) => {
+          return found || line.match(regex)
+        }, null)
+        if (!cmdMatch && !tlmMatch) {
+          return result
+        }
+
+        const matchStr = (cmdMatch || tlmMatch)[0]
+        const mnemonicMatch = matchStr
+          .substring(matchStr.match(/[\(\s)]/).index + 1) // Trim off leading `cmd(` or whatever
+          .replace(/\)\s*$/, '') // and the closing ) if it's there
+
+        if (mnemonicMatch.match(interpolatedStringRegex)) {
+          result.linesToSkip.push(index + 1)
+          return result
+        }
+
+        const usingAlternateSyntax = !!mnemonicMatch.match(alternateSyntaxRegex)
+        const mnemonicParts = mnemonicMatch.split(
+          usingAlternateSyntax ? ',' : ' '
+        )
+        if (mnemonicParts.length < 2) {
+          return result // TODO: is this right? Maybe put an error on lineObj?
+        }
+
+        const mnemonic = {
+          target: mnemonicParts[0],
+          packet: mnemonicParts[1],
+        }
+        if (tlmMatch) {
+          mnemonic.item = mnemonicParts[2]
+        } else {
+          const mnemonicParams = mnemonicParts.slice(2)
+          if (usingAlternateSyntax) {
+            mnemonic.params = mnemonicParams.map(
+              (param) => param.split('=>')[0]
+            )
           } else {
-            linesToCheck.push(lineObj)
+            mnemonic.params = mnemonicParams.filter((token, index) => index % 2)
           }
         }
-        return linesToCheck
-      }, [])
-      .forEach((lineObj) => {
-        if (
-          this.cmdKeywordExpressions.some((regex) => lineObj.line.match(regex))
-        ) {
-          cmdLinesToCheck.push(lineObj)
-        } else if (
-          this.tlmKeywordExpressions.some((regex) => lineObj.line.match(regex))
-        ) {
-          tlmLinesToCheck.push(lineObj)
+
+        // Clean up the quotes and whitespace from the parts of the mnemonic
+        for (const property in mnemonic) {
+          if (typeof mnemonic[property] === 'string') {
+            mnemonic[property] = mnemonic[property].replace(/['"]/g, '').trim()
+          } else {
+            mnemonic[property] = mnemonic[property].map((item) =>
+              item.replace(/['"]/g, '').trim()
+            )
+          }
         }
-      })
 
-    const cmdResult = await this._checkCmdLines(cmdLinesToCheck)
-    const tlmResult = await this._checkTlmLines(tlmLinesToCheck)
+        result.linesToCheck.push({
+          line,
+          mnemonic,
+          lineNumber: index + 1,
+        })
+        return result
+      },
+      { linesToCheck: [], linesToSkip: [] }
+    )
 
+    const problems = await this._checkLines(linesToCheck)
     return {
-      skipped: linesToSkip.sort((a, b) => a.lineNumber - b.lineNumber),
-      problems: cmdResult
-        .concat(tlmResult)
-        .sort((a, b) => a.lineNumber - b.lineNumber),
+      skipped: linesToSkip.sort(),
+      problems: problems.sort((a, b) => a.lineNumber - b.lineNumber),
     }
   }
 
-  _checkCmdLines = async (linesToCheck) => {
+  _checkLines = async (linesToCheck) => {
     const problemLines = []
-    const grouping = groupCmd(linesToCheck)
-    for (const target in grouping) {
-      if (!this.targetList.some((targetName) => targetName === target)) {
-        for (const command in grouping[target]) {
-          for (const lineObj of grouping[target][command]) {
-            problemLines.push({
-              ...lineObj,
-              error: `Target "${target}" does not exist.`,
-            })
-          }
+    const targetGroups = groupBy(
+      linesToCheck,
+      (lineObj) => lineObj.mnemonic.target
+    )
+    for (const target in targetGroups) {
+      if (!this.targets[target]) {
+        for (const lineObj of targetGroups[target]) {
+          problemLines.push({
+            ...lineObj,
+            error: `Target "${target}" does not exist.`,
+          })
         }
         continue
       }
-      const commands = await this.api.get_all_commands(target)
-      for (const command in grouping[target]) {
-        const commandInfo = commands.find(
-          (info) => info.packet_name === command
-        )
-        if (commandInfo) {
-          for (const lineObj of grouping[target][command]) {
-            if (lineObj.params?.length) {
-              for (const param of lineObj.params) {
-                if (!commandInfo.items.some((item) => item.name === param)) {
-                  problemLines.push({
-                    ...lineObj,
-                    error: `Command "${target} ${command}" parameter "${param}" does not exist.`,
-                  })
-                  break
-                }
-              }
-            }
+      const packetGroups = groupBy(
+        targetGroups[target],
+        (lineObj) => lineObj.mnemonic.packet
+      )
+      for (const packet in packetGroups) {
+        for (const lineObj of packetGroups[packet]) {
+          const cmdOrTlm = lineObj.mnemonic.item ? 'tlm' : 'cmd'
+          if (!this.targets[target][cmdOrTlm]) {
+            const method = lineObj.mnemonic.item
+              ? 'get_all_telemetry'
+              : 'get_all_commands'
+            const response = await this.api[method](target)
+            this.targets[target][cmdOrTlm] = response.reduce(
+              (result, packetInfo) => {
+                result[packetInfo.packet_name] = packetInfo.items.map(
+                  (item) => item.name
+                )
+                return result
+              },
+              {}
+            )
           }
-        } else {
-          for (const lineObj of grouping[target][command]) {
+
+          const items = this.targets[target][cmdOrTlm][packet]
+          if (!items) {
             problemLines.push({
               ...lineObj,
-              error: `Command "${target} ${command}" does not exist.`,
+              error: `${
+                cmdOrTlm === 'tlm' ? 'Packet' : 'Command'
+              } "${target} ${packet}" does not exist.`,
             })
+            continue
           }
-        }
-      }
-    }
-    return problemLines
-  }
-
-  _checkTlmLines = async (linesToCheck) => {
-    const problemLines = []
-    const grouping = groupTlm(linesToCheck)
-    for (const target in grouping) {
-      if (!this.targetList.some((targetName) => targetName === target)) {
-        for (const packet in grouping[target]) {
-          for (const item in grouping[target][packet]) {
-            for (const lineObj of grouping[target][packet][item]) {
+          if (lineObj.mnemonic.item) {
+            if (!items.some((item) => item === lineObj.mnemonic.item)) {
               problemLines.push({
                 ...lineObj,
-                error: `Target "${target}" does not exist.`,
+                error: `Item "${target} ${packet} ${lineObj.mnemonic.item}" does not exist.`,
               })
+              continue
             }
-          }
-        }
-        continue
-      }
-      const packets = await this.api.get_all_telemetry(target)
-      for (const packet in grouping[target]) {
-        const packetInfo = packets.find((info) => info.packet_name === packet)
-        if (packetInfo) {
-          for (const item in grouping[target][packet]) {
-            if (!packetInfo.items.some((itemInfo) => itemInfo.name === item)) {
-              for (const lineObj of grouping[target][packet][item]) {
+          } else {
+            for (const param of lineObj.mnemonic.params) {
+              if (!items.some((item) => item === param)) {
                 problemLines.push({
                   ...lineObj,
-                  error: `Item "${target} ${packet} ${item}" does not exist.`,
+                  error: `Command "${target} ${packet}" param "${param}" does not exist.`,
                 })
+                continue
               }
-            }
-          }
-        } else {
-          for (const item in grouping[target][packet]) {
-            for (const lineObj of grouping[target][packet][item]) {
-              problemLines.push({
-                ...lineObj,
-                error: `Packet "${target} ${packet}" does not exist.`,
-              })
             }
           }
         }
