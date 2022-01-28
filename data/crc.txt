@@ -464,7 +464,7 @@
 "lib/cosmos/utilities/ruby_lex_utils.rb" 0x00EEFAE2
 "lib/cosmos/utilities/simulated_target.rb" 0xB251C94B
 "lib/cosmos/utilities/sleeper.rb" 0x650C3CEB
-"lib/cosmos/version.rb" 0xF09BC7CC
+"lib/cosmos/version.rb" 0xB78479FB
 "lib/cosmos/win32/excel.rb" 0x72BFBAC2
 "lib/cosmos/win32/win32.rb" 0xBCECA922
 "lib/cosmos/win32/win32_main.rb" 0x722DDE0D
