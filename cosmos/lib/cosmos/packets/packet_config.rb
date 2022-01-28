@@ -601,7 +601,6 @@ module Cosmos
     def start_item(parser)
       finish_item()
       @current_item = PacketItemParser.parse(parser, @current_packet, @current_cmd_or_tlm, @warnings)
-      MacroParser.new_item()
     end
 
     # Finish updating packet item

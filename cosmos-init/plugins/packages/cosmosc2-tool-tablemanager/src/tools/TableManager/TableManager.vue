@@ -384,11 +384,16 @@ export default {
       let definition = this.filename
         .replace('/bin/', '/config/')
         .replace('.bin', '_def.txt')
-      console.log(definition)
-      Api.get(`/cosmos-api/tables/${definition}`).then((response) => {
-        this.definitionFilename = definition
-        this.definition = response.data.contents
-      })
+      // console.log(definition)
+      Api.get(`/cosmos-api/tables/${definition}`)
+        .then((response) => {
+          this.definitionFilename = definition
+          this.definition = response.data.contents
+        })
+        .catch((error) => {
+          // TODO: Ask the user for the specific definition file if it can't be automatically found
+          // console.log(error)
+        })
     },
     buildNewBinary(file) {
       const formData = new FormData()
@@ -396,7 +401,7 @@ export default {
       Api.post(`/cosmos-api/tables/${file.name}/generate`, {
         data: formData,
       }).then((response) => {
-        console.log(response)
+        // console.log(response)
       })
     },
   },
