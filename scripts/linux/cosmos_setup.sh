@@ -43,21 +43,6 @@ if [ "$?" -ne 0 ]; then
   exit 1
 fi
 
-if [ -z "$RUBYGEMS_URL" ]; then
-  export RUBYGEMS_URL=https://rubygems.org
-fi
-echo "RUBYGEMS_URL set to $RUBYGEMS_URL"
-
-if [ -z "$NPM_URL" ]; then
-  export NPM_URL=https://registry.npmjs.org
-fi
-echo "NPM_URL set to $NPM_URL"
-
-if [ -z "$APK_URL" ]; then
-  export APK_URL=http://dl-cdn.alpinelinux.org
-fi
-echo "APK_URL set to $APK_URL"
-
 # These lines configure the host OS properly for Redis
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
 docker run -it --rm --privileged --pid=host justincormack/nsenter1 /bin/sh -c "echo never > /sys/kernel/mm/transparent_hugepage/defrag"
