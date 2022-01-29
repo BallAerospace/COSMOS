@@ -1,5 +1,5 @@
 <!--
-# Copyright 2021 Ball Aerospace & Technologies Corp.
+# Copyright 2022 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -107,11 +107,9 @@
             }}
           </span>
         </template>
-        <!-- <template v-slot:item.value="{ item }">
-          <table-item
-            :item="item"
-          />
-        </template> -->
+        <template v-slot:item.value="{ item }">
+          <table-item :item="item" :key="item.name" />
+        </template>
       </v-data-table>
     </v-card>
     <file-open-save-dialog
@@ -139,11 +137,13 @@
 import Api from '@cosmosc2/tool-common/src/services/api'
 import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
+import TableItem from '@/tools/TableManager/TableItem'
 import FileOpenSaveDialog from '@cosmosc2/tool-common/src/components/FileOpenSaveDialog'
 
 export default {
   components: {
     TopBar,
+    TableItem,
     FileOpenSaveDialog,
   },
   data() {
@@ -419,7 +419,6 @@ export default {
       Api.post(`/cosmos-api/tables/${file.name}/generate`, {
         data: formData,
       }).then((response) => {
-        console.log(response)
         this.filename = response.data.filename
         this.getDefinition(file.name)
       })

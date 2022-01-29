@@ -75,10 +75,11 @@ module Cosmos
         column = 0
         table.sorted_items.each do |item|
           next if item.hidden
-          # tables[table_name][:rows] << {
           rows << {
             name: item.name,
-            value: table.read(item.name, :FORMATTED)
+            value: table.read(item.name, :FORMATTED),
+            states: item.states,
+            editable: item.editable,
           }
           # if table.type == :TWO_DIMENSIONAL
           #   # only increment our row when we've processed all the columns
