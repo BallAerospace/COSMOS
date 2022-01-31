@@ -68,14 +68,15 @@ module Cosmos
 
     def generate_json(bin_path, def_path)
       file_open(bin_path, def_path)
-      rows = []
+      tables = {}
       @config.tables.each do |table_name, table|
-        # tables[table_name] = { num_rows: table.num_rows, num_columns: table.num_columns, rows: [] }
+        # TODO: Do we need table.num_rows or table.num_columns
+        tables[table_name] = []
         row = 0
         column = 0
         table.sorted_items.each do |item|
           next if item.hidden
-          rows << {
+          tables[table_name] << {
             name: item.name,
             value: table.read(item.name, :FORMATTED),
             states: item.states,
@@ -94,7 +95,21 @@ module Cosmos
           # end
         end
       end
-      rows.to_json
+      tables.to_json
+    end
+
+    def save_json(bin_path, def_path, json)
+      file_open(bin_path, def_path)
+      @config.tables.each do |table_name, table|
+        json[table_name.upcase].each do |item|
+          # TODO: Can we even edit items like this:
+          # item:{"name"=>"BINARY", "value"=>{"json_class"=>"String", "raw"=>[222, 173, 190, 239]} }
+          next if item['value'].is_a? Hash
+          table.write(item['name'], item['value'])
+        end
+      end
+      file_save(bin_path)
+      bin_path
     end
 
     # @param def_path [String] Definition file to process
@@ -126,7 +141,7 @@ module Cosmos
       File.open(filename, 'wb') do |file|
         @config.tables.each { |table_name, table| file.write(table.buffer) }
       end
-      file_report(filename, @config.filename)
+      # file_report(filename, @config.filename)
     end
 
     # @return [String] Success string if parameters all check. Raises
@@ -154,7 +169,7 @@ module Cosmos
       raise NoConfigError unless @config
       file_check
 
-      basename = File.basename(bin_path, '.dat')
+      basename = File.basename(bin_path, '.bin')
       report_path = File.join(File.dirname(bin_path), "#{basename}.csv")
       File.open(report_path, 'w+') do |file|
         file.write("File Definition, #{def_path}\n")
@@ -341,7 +356,7 @@ module Cosmos
         # Remove any extension if present
         basename = File.basename(def_path, File.extname(def_path))
       end
-      "#{basename}.dat"
+      "#{basename}.bin"
     end
 
     # Opens the given binary file and populates the table definition.

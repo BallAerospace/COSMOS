@@ -97,7 +97,7 @@ class TablesController < ModelController
     end
   end
 
-  def create
+  def save
     begin
       authorize(
         permission: 'system',
@@ -111,7 +111,7 @@ class TablesController < ModelController
       render(json: { status: 'error', message: e.message }, status: 403) and
         return
     end
-    success = Table.create(params[:scope], params[:name], params[:table])
+    success = Table.save(params[:scope], params[:binary], params[:definition], params[:table])
     if success
       head :ok
     else

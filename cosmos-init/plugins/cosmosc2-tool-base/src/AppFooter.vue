@@ -21,7 +21,7 @@
   <v-footer id="footer" app color="tertiary darken-3" height="33">
     <img :src="logo" alt="COSMOS" width="20" height="20" />
     <span class="footer-text" style="margin-left: 5px">
-      COSMOS {{ cosmosVersion }} &copy; 2021
+      COSMOS {{ cosmosVersion }} &copy; 2022
     </span>
     <v-spacer />
     <a :href="sourceUrl" class="white--text text-decoration-underline">

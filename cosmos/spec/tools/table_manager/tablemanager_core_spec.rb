@@ -52,11 +52,40 @@ module Cosmos
         tf.unlink
         result = JSON.parse(json)
         puts result
-        expect(result).to be_a Array
-        expect(result[0]['name']).to eql 'PRIMARY PPS'
-        expect(result[0]['value']).to eql 'UNCHECKED'
-        expect(result[1]['name']).to eql 'REDUNDANT PPS'
-        expect(result[1]['value']).to eql 'CHECKED'
+        expect(result).to be_a Hash
+        expect(result.keys).to eql ['PPS SELECTION']
+        expect(result['PPS SELECTION'][0]['name']).to eql 'PRIMARY PPS'
+        expect(result['PPS SELECTION'][0]['value']).to eql 'UNCHECKED'
+        expect(result['PPS SELECTION'][1]['name']).to eql 'REDUNDANT PPS'
+        expect(result['PPS SELECTION'][1]['value']).to eql 'CHECKED'
+      end
+    end
+
+    describe "save_json" do
+      it "save json to the binary" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'TABLE "PPS Selection" BIG_ENDIAN ONE_DIMENSIONAL "Payload Clock Control Pulse Per Second Selection Table"'
+        tf.puts '  APPEND_PARAMETER "Primary PPS" 8 UINT 0 1 1'
+        tf.puts '    STATE CHECKED 1'
+        tf.puts '    STATE UNCHECKED 0'
+        tf.puts '  APPEND_PARAMETER "Redundant PPS" 8 UINT 0 1 1'
+        tf.puts '    UNEDITABLE'
+        tf.puts '    STATE UNCHECKED 0'
+        tf.puts '    STATE CHECKED 1'
+        tf.close
+        bin_file = core.file_new(tf.path, Dir.pwd)
+        data = File.read(bin_file, mode: 'rb')
+        expect(data).to eql "\x01\x01"
+        json = core.generate_json(bin_file, tf.path)
+        table = JSON.parse(json)
+        puts table
+        table["PPS SELECTION"][0]['value'] = "UNCHECKED"
+        table["PPS SELECTION"][1]['value'] = "UNCHECKED"
+        bin_file = core.save_json(bin_file, tf.path, table)
+        data =  File.read(bin_file, mode: 'rb')
+        expect(data).to eql "\x00\x00"
+        File.delete(bin_file)
+        tf.unlink
       end
     end
 

@@ -18,7 +18,21 @@
 -->
 
 <template>
-  <v-select v-if="dataItem.states" v-model="stateValue" :items="itemStates" />
+  <v-checkbox
+    v-if="isCheckbox"
+    dense
+    hide-details
+    v-model="checkValue"
+    @change="checkboxChange"
+  />
+  <v-select
+    v-else-if="dataItem.states"
+    dense
+    hide-details
+    v-model="stateValue"
+    :items="itemStates"
+    @change="stateChange"
+  />
   <v-text-field
     v-else
     solo
@@ -27,6 +41,7 @@
     hide-no-data
     hide-details
     v-model="dataItem.value"
+    @change="textChange"
   />
 </template>
 
@@ -42,20 +57,52 @@ export default {
     return {
       dataItem: this.item,
       stateValue: null,
+      checkValue: false,
     }
   },
   created() {
     if (this.dataItem.states) {
       this.stateValue = this.dataItem.states[this.dataItem.value]
     }
+    if (this.isCheckbox) {
+      this.checkValue = this.stateValue === 1
+    }
   },
   computed: {
+    isCheckbox: function () {
+      let result = true
+      if (this.dataItem.states) {
+        for (const state of Object.keys(this.dataItem.states)) {
+          if (state !== 'CHECKED' && state !== 'UNCHECKED') {
+            result = false
+          }
+        }
+      } else {
+        result = false
+      }
+      return result
+    },
     itemStates: function () {
       let result = []
       for (const [text, value] of Object.entries(this.dataItem.states)) {
         result.push({ text: text, value: value })
       }
       return result
+    },
+  },
+  methods: {
+    checkboxChange: function () {
+      if (this.checkValue) {
+        this.$emit('change', 'CHECKED')
+      } else {
+        this.$emit('change', 'UNCHECKED')
+      }
+    },
+    stateChange: function () {
+      this.$emit('change', this.dataItem.states[this.stateValue])
+    },
+    textChange: function () {
+      this.$emit('change', this.dataItem.value)
     },
   },
 }

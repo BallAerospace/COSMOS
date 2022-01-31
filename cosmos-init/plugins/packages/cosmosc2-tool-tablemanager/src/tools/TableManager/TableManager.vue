@@ -108,7 +108,7 @@
           </span>
         </template>
         <template v-slot:item.value="{ item }">
-          <table-item :item="item" :key="item.name" />
+          <table-item :item="item" :key="item.name" @change="onChange(item, $event)" />
         </template>
       </v-data-table>
     </v-card>
@@ -150,7 +150,8 @@ export default {
     return {
       title: 'Table Manager',
       search: '',
-      row: [],
+      tableName: '',
+      rows: [],
       headers: [
         { text: 'Index', value: 'index' },
         { text: 'Name', value: 'name' },
@@ -249,16 +250,16 @@ export default {
   },
   methods: {
     // File menu actions
-    newFile() {
+    newFile: function () {
       this.fileModified = ''
       this.fileNew = true
       this.fileOpen = true
     },
-    openFile() {
+    openFile: function () {
       this.fileOpen = true
     },
     // Called by the FileOpenDialog to set the file contents
-    setFile({ file, locked }) {
+    setFile: function ({ file, locked }) {
       // They opened a definition file so create a new binary
       if (file.name.includes('.txt')) {
         if (this.fileNew) {
@@ -271,20 +272,23 @@ export default {
         this.unlockFile() // first unlock what was just being edited
         // Split off the ' *' which indicates a file is modified on the server
         this.filename = file.name.split('*')[0]
-        // this.editor.session.setValue(file.contents)
         this.fileModified = ''
         this.lockedBy = locked
 
         this.getDefinition()
       }
     },
-    saveFile() {
+    saveFile: function () {
       // Save a file by posting the new contents
       this.showSave = true
 
       const formData = new FormData()
-      formData.append('table', this.fileInput)
-      Api.post(`/cosmos-api/tables/${this.filename}`, {
+      formData.append('binary', this.filename)
+      formData.append('definition', this.definitionFilename)
+      let table = { [this.tableName]: this.rows }
+      formData.append('table', JSON.stringify(table))
+      console.log(`filename:${this.filename}`)
+      Api.post(`/cosmos-api/tables/save`, {
         data: formData,
       })
         .then((response) => {
@@ -310,14 +314,14 @@ export default {
         })
       this.lockFile() // Ensure this file is locked for editing
     },
-    saveAs() {
+    saveAs: function () {
       this.showSaveAs = true
     },
-    saveAsFilename(filename) {
+    saveAsFilename: function (filename) {
       this.filename = filename
       this.saveFile()
     },
-    delete() {
+    delete: function () {
       this.$dialog
         .confirm(`Permanently delete file: ${this.filename}`, {
           okText: 'Delete',
@@ -340,7 +344,7 @@ export default {
           }
         })
     },
-    download() {
+    download: function () {
       const blob = new Blob([this.editor.getValue()], {
         type: 'text/plain',
       })
@@ -382,7 +386,7 @@ export default {
         Api.post(`/cosmos-api/tables/${this.filename}/unlock`)
       }
     },
-    getDefinition(definitionFilename = null) {
+    getDefinition: function (definitionFilename = null) {
       if (!definitionFilename) {
         definitionFilename = this.filename
           .replace('/bin/', '/config/')
@@ -396,7 +400,11 @@ export default {
       })
         .then((response) => {
           this.definitionFilename = definitionFilename
-          this.rows = response.data
+          // TODO: Handle multiple tables with v-tabs
+          for (const [tableName, rows] of Object.entries(response.data)) {
+            this.tableName = tableName
+            this.rows = rows
+          }
         })
         .catch((error) => {
           if (error.response.status == 404) {
@@ -413,7 +421,7 @@ export default {
           }
         })
     },
-    buildNewBinary(file) {
+    buildNewBinary: function (file) {
       const formData = new FormData()
       formData.append('contents', file.contents)
       Api.post(`/cosmos-api/tables/${file.name}/generate`, {
@@ -422,6 +430,10 @@ export default {
         this.filename = response.data.filename
         this.getDefinition(file.name)
       })
+    },
+    onChange: function (item, event) {
+      this.fileModified = '*'
+      item.value = event
     },
   },
 }
