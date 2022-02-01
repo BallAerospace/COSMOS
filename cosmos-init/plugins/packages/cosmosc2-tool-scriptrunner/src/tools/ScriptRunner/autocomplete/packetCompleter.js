@@ -1,5 +1,5 @@
 /*
-# Copyright 2021 Ball Aerospace & Technologies Corp.
+# Copyright 2022 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -17,7 +17,7 @@
 # copyright holder
 */
 
-import Api from '@cosmosc2/tool-common/src/services/api'
+import { getKeywords, getAutocompleteData } from './utilities'
 
 const toMethodCallSyntaxRegex = (word) => {
   // create regex to find the opening of a ruby method call
@@ -36,11 +36,11 @@ export default class PacketCompleter {
     this.keywordExpressions = [] // Keywords that trigger the autocomplete feature
     this.autocompleteData = [] // Data to populate the autocomplete list
 
-    Api.get(`/cosmos-api/autocomplete/keywords/${type}`).then((response) => {
+    getKeywords(type).then((response) => {
       this.keywordExpressions = response.data.map(toMethodCallSyntaxRegex)
       expressionsReadyCallback()
     })
-    Api.get(`/cosmos-api/autocomplete/data/${type}`).then((response) => {
+    getAutocompleteData(type).then((response) => {
       this.autocompleteData = response.data
       dataReadyCallback()
     })

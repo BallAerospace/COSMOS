@@ -11,4 +11,5 @@ update:  --no-rdoc --no-ri
 
 :update_sources: true
 sources:
-  - http://rubygems.org/
+  # This is a variable that gets substituted by the Dockerfile
+  - RUBYGEMS_URL

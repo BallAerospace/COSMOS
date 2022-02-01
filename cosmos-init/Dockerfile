@@ -7,6 +7,7 @@ USER root
 COPY ./plugins/*.json ./
 COPY ./plugins/cosmosc2-tool-base/*.json cosmosc2-tool-base/
 COPY ./plugins/packages/cosmosc2-tool-admin/*.json packages/cosmosc2-tool-admin/
+COPY ./plugins/packages/cosmosc2-tool-autonomic/*.json packages/cosmosc2-tool-autonomic/
 COPY ./plugins/packages/cosmosc2-tool-cmdsender/*.json packages/cosmosc2-tool-cmdsender/
 COPY ./plugins/packages/cosmosc2-tool-cmdtlmserver/*.json packages/cosmosc2-tool-cmdtlmserver/
 COPY ./plugins/packages/cosmosc2-tool-dataextractor/*.json packages/cosmosc2-tool-dataextractor/
@@ -20,11 +21,8 @@ COPY ./plugins/packages/cosmosc2-tool-tlmviewer/*.json packages/cosmosc2-tool-tl
 COPY ./plugins/packages/cosmosc2-tool-common/ packages/cosmosc2-tool-common/
 COPY ./plugins/packages/cosmosc2-demo/*.json packages/cosmosc2-demo/
 
-# This is a fix for a network issue with registry.yarnpkg.com, possibly caused by the Ball firewall.
-# Might resolve itself and allow this line to be removed in the future...
-RUN yarn config set registry "https://registry.npmjs.org"
-
-RUN yarn
+ARG NPM_URL
+RUN yarn config set registry $NPM_URL && yarn
 
 COPY ./plugins/docker-package-build.sh ./plugins/docker-package-install.sh ./plugins/babel.config.js ./plugins/.eslintrc.js ./plugins/.nycrc ./
 RUN chmod +x ./docker-package-build.sh ./docker-package-install.sh
@@ -78,6 +76,10 @@ RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-tlmgrapher"]
 # Build tlmviewer tool
 COPY ./plugins/packages/cosmosc2-tool-tlmviewer/ packages/cosmosc2-tool-tlmviewer
 RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-tlmviewer"]
+
+# Build autonomic tool
+COPY ./plugins/packages/cosmosc2-tool-autonomic/ packages/cosmosc2-tool-autonomic/
+RUN ["/cosmos/plugins/docker-package-build.sh", "cosmosc2-tool-autonomic"]
 
 # Build demo config
 COPY ./plugins/packages/cosmosc2-demo/ packages/cosmosc2-demo/

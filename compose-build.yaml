@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2021 Ball Aerospace & Technologies Corp.
+# Copyright 2022 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -23,11 +23,18 @@ services:
   cosmos-ruby:
     build:
       context: "cosmos-ruby"
+      network: host
+      args:
+        ALPINE_VERSION: ${ALPINE_VERSION}
+        ALPINE_BUILD: ${ALPINE_BUILD}
+        APK_URL: ${APK_URL}
+        RUBYGEMS_URL: ${RUBYGEMS_URL}
     image: "ballaerospace/cosmosc2-ruby:${COSMOS_TAG}"
 
   cosmos-node:
     build:
       context: "cosmos-node"
+      network: host
     image: "ballaerospace/cosmosc2-node:${COSMOS_TAG}"
     depends_on:
       - "cosmos-ruby"
@@ -35,6 +42,7 @@ services:
   cosmos-base:
     build:
       context: "cosmos"
+      network: host
     image: "ballaerospace/cosmosc2-base:${COSMOS_TAG}"
     depends_on:
       - "cosmos-ruby"
@@ -42,36 +50,45 @@ services:
   cosmos-minio-init:
     build:
       context: "cosmos-minio-init"
+      network: host
 
   cosmos-redis:
     build:
       context: "cosmos-redis"
+      network: host
 
   cosmos-cmd-tlm-api:
     build:
       context: "cosmos-cmd-tlm-api"
+      network: host
     depends_on:
       - "cosmos-base"
 
   cosmos-script-runner-api:
     build:
       context: "cosmos-script-runner-api"
+      network: host
     depends_on:
       - "cosmos-base"
 
   cosmos-operator:
     build:
       context: "cosmos-operator"
+      network: host
     depends_on:
       - "cosmos-base"
 
   cosmos-traefik:
     build:
       context: "cosmos-traefik"
+      network: host
 
   cosmos-init:
     build:
       context: "cosmos-init"
+      network: host
+      args:
+        NPM_URL: ${NPM_URL}
     depends_on:
       - "cosmos-node"
       - "cosmos-base"

@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2021 Ball Aerospace & Technologies Corp.
+# Copyright 2022 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -98,6 +98,30 @@ Rails.application.routes.draw do
     post '/timeline/:name/activity/:id', to: 'activity#event', name: /[^\/]+/, id: /[^\/]+/
     match '/timeline/:name/activity/:id', to: 'activity#update', name: /[^\/]+/, id: /[^\/]+/, via: [:patch, :put]
     delete '/timeline/:name/activity/:id', to: 'activity#destroy', name: /[^\/]+/, id: /[^\/]+/
+
+    get '/autonomic/group', to: 'trigger_group#index'
+    post '/autonomic/group', to: 'trigger_group#create'
+    get '/autonomic/group/:group', to: 'trigger_group#show', group: /[^\/]+/
+    post '/autonomic/group/:group/activate', to: 'trigger_group#activate', group: /[^\/]+/
+    post '/autonomic/group/:group/deactivate', to: 'trigger_group#deactivate', group: /[^\/]+/
+    # match '/autonomic/group/:group, to: 'trigger_group#update', group: /[^\/]+/, via: [:patch, :put]
+    delete '/autonomic/group/:group', to: 'trigger_group#destroy', group: /[^\/]+/
+
+    get '/autonomic/:group/trigger', to: 'trigger#index', group: /[^\/]+/
+    post '/autonomic/:group/trigger', to: 'trigger#create', group: /[^\/]+/
+    get '/autonomic/:group/trigger/:name', to: 'trigger#show', group: /[^\/]+/, name: /[^\/]+/
+    post '/autonomic/:group/trigger/:name/activate', to: 'trigger#activate', group: /[^\/]+/, name: /[^\/]+/
+    post '/autonomic/:group/trigger/:name/deactivate', to: 'trigger#deactivate', group: /[^\/]+/, name: /[^\/]+/
+    # match '/autonomic/:group/trigger/:name, to: 'trigger#update', group: /[^\/]+/, name: /[^\/]+/, via: [:patch, :put]
+    delete '/autonomic/:group/trigger/:name', to: 'trigger#destroy', group: /[^\/]+/, name: /[^\/]+/
+
+    get '/autonomic/reaction', to: 'reaction#index'
+    post '/autonomic/reaction', to: 'reaction#create'
+    get '/autonomic/reaction/:name', to: 'reaction#show', name: /[^\/]+/
+    # match '/autonomic/reaction/:name, to: 'reaction#update', name: /[^\/]+/, via: [:patch, :put]
+    post '/autonomic/reaction/:name/activate', to: 'reaction#activate', name: /[^\/]+/
+    post '/autonomic/reaction/:name/deactivate', to: 'reaction#deactivate', name: /[^\/]+/
+    delete '/autonomic/reaction/:name', to: 'reaction#destroy', name: /[^\/]+/
 
     get '/autocomplete/reserved-item-names', to: 'script_autocomplete#get_reserved_item_names'
     get '/autocomplete/keywords/:type', to: 'script_autocomplete#get_keywords', type: /[^\/]+/

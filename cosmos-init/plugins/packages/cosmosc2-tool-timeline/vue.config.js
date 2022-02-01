@@ -5,7 +5,7 @@ module.exports = {
   transpileDependencies: ['vuetify'],
   configureWebpack: {
     devServer: {
-      port: 2913,
+      port: 2921,
       watchOptions: {
         ignored: ['node_modules'],
         aggregateTimeout: 300,
@@ -14,7 +14,7 @@ module.exports = {
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
-      public: 'localhost:2913/tools/timeline',
+      public: 'localhost:2921/tools/timeline',
     },
   },
   chainWebpack(config) {

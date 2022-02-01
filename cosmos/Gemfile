@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-source 'https://rubygems.org'
+source ENV['RUBYGEMS_URL']
 
 gem 'ruby-termios', '>= 0.9' if RbConfig::CONFIG['target_os'] !~ /mswin|mingw|cygwin/i and RUBY_ENGINE == 'ruby'
 

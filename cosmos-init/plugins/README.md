@@ -14,6 +14,8 @@ NOTE: All commands are assumed to be executed from this (cosmos-init) directory
 1.  Serve a local COSMOS application (CmdTlmServer, ScriptRunner, etc)
 
         cosmos-init> cd plugins/packages/cosmosc2-tool-scriptrunner
+        cosmosc2-tool-scriptrunner> yarn
+        ...
         cosmosc2-tool-scriptrunner> yarn serve
 
 1.  Set the single SPA override for the application
@@ -64,6 +66,7 @@ NOTE: All commands are assumed to be executed from this (cosmos-init) directory
         cosmos-cmd-tlm-api> docker stop cosmos_cosmos-cmd-tlm-api_1
         # Set all the environment variables in the .env file
         # except set COSMOS_REDIS_HOSTNAME=127.0.0.1
+        # Set RUBYGEMS_URL=https://rubygems.org
         cosmos-cmd-tlm-api> bundle install
         cosmos-cmd-tlm-api> bundle exec rails s
 

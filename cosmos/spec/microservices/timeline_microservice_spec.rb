@@ -1,6 +1,6 @@
 # encoding: ascii-8bit
 
-# Copyright 2021 Ball Aerospace & Technologies Corp.
+# Copyright 2022 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -78,27 +78,27 @@ module Cosmos
       allow(TimelineTopic).to receive(:read_topics) { sleep 5 }.with([]).and_yield(
         "topic",
         "id-1",
-        { "timeline" => "TEST", "type" => "activity", "kind" => "create", "data" => generate_json_activity },
+        { 'timeline' => 'TEST', 'type' => 'activity', 'kind' => 'create', 'data' => generate_json_activity },
         nil
       ).and_yield(
         "topic",
         "id-1",
-        { "timeline" => "TEST", "type" => "activity", "kind" => "delete", "data" => generate_json_activity },
+        { 'timeline' => 'TEST', 'type' => 'activity', 'kind' => 'delete', 'data' => generate_json_activity },
         nil
       ).and_yield(
         "topic",
         "id-2",
-        { "timeline" => "FOO", "type" => "timeline", "kind" => "refresh", "data" => '{"name":"FOO"}' },
+        { 'timeline' => 'FOO', 'type' => 'timeline', 'kind' => 'refresh', 'data' => '{"name":"FOO"}' },
         nil
       ).and_yield(
         "topic",
         "id-3",
-        { "timeline" => "BAR", "type" => "timeline", "kind" => "refresh", "data" => '{"name":"BAR"}' },
+        { 'timeline' => 'BAR', 'type' => 'timeline', 'kind' => 'refresh', 'data' => '{"name":"BAR"}' },
         nil
       ).and_yield(
         "topic",
         "id-4",
-        { "timeline" => "TEST", "type" => "timeline", "kind" => "refresh", "data" => '{"name":"TEST"}' },
+        { 'timeline' => 'TEST', 'type' => 'timeline', 'kind' => 'refresh', 'data' => '{"name":"TEST"}' },
         nil
       )
       allow(TimelineTopic).to receive(:write_activity) { sleep 2 }

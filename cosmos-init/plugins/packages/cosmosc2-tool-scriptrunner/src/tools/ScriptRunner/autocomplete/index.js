@@ -1,5 +1,5 @@
 /*
-# Copyright 2021 Ball Aerospace & Technologies Corp.
+# Copyright 2022 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -19,5 +19,6 @@
 
 import CmdCompleter from './cmdCompleter.js'
 import TlmCompleter from './tlmCompleter.js'
+import MnemonicChecker from './mnemonicChecker.js'
 
-export { CmdCompleter, TlmCompleter }
+export { CmdCompleter, TlmCompleter, MnemonicChecker }

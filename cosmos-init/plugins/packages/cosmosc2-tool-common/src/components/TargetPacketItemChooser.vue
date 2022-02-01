@@ -1,5 +1,5 @@
 <!--
-# Copyright 2021 Ball Aerospace & Technologies Corp.
+# Copyright 2022 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -18,9 +18,9 @@
 -->
 
 <template>
-  <v-container class="c-chooser">
+  <v-container class="c-chooser px-0">
     <v-row>
-      <v-col>
+      <v-col :cols="colSize">
         <v-select
           label="Select Target"
           hide-details
@@ -33,7 +33,7 @@
           data-test="select-target"
         />
       </v-col>
-      <v-col>
+      <v-col :cols="colSize">
         <v-select
           label="Select Packet"
           hide-details
@@ -47,7 +47,7 @@
           data-test="select-packet"
         />
       </v-col>
-      <v-col v-if="chooseItem && !buttonDisabled">
+      <v-col v-if="chooseItem && !buttonDisabled" :cols="colSize">
         <v-select
           label="Select Item"
           hide-details
@@ -61,7 +61,7 @@
           data-test="select-item"
         />
       </v-col>
-      <v-col v-if="buttonText">
+      <v-col v-if="buttonText" :cols="colSize">
         <v-btn
           color="primary"
           :disabled="buttonDisabled"
@@ -72,7 +72,7 @@
       </v-col>
     </v-row>
     <v-row no-gutters>
-      <v-col>Description: {{ description }}</v-col>
+      <v-col :cols="colSize">Description: {{ description }}</v-col>
     </v-row>
   </v-container>
 </template>
@@ -81,6 +81,22 @@
 import { CosmosApi } from '../services/cosmos-api'
 export default {
   props: {
+    allowAll: {
+      type: Boolean,
+      default: false,
+    },
+    buttonText: {
+      type: String,
+      default: null,
+    },
+    chooseItem: {
+      type: Boolean,
+      default: false,
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
     initialTargetName: {
       type: String,
       default: '',
@@ -102,19 +118,7 @@ export default {
         return propExists
       },
     },
-    chooseItem: {
-      type: Boolean,
-      default: false,
-    },
-    buttonText: {
-      type: String,
-      default: null,
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
-    allowAll: {
+    vertical: {
       type: Boolean,
       default: false,
     },
@@ -149,6 +153,9 @@ export default {
       } else {
         return { width: '50%', float: 'right' }
       }
+    },
+    colSize() {
+      return this.vertical ? 12 : false
     },
   },
   data() {

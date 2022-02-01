@@ -1,5 +1,5 @@
 <!--
-# Copyright 2021 Ball Aerospace & Technologies Corp.
+# Copyright 2022 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -469,7 +469,7 @@ import ActionCable from 'actioncable'
 import AskDialog from './AskDialog.vue'
 import PromptDialog from './PromptDialog.vue'
 import SuiteRunner from './SuiteRunner.vue'
-import { CmdCompleter, TlmCompleter } from './autocomplete'
+import { CmdCompleter, TlmCompleter, MnemonicChecker } from './autocomplete'
 import { SleepAnnotator } from './annotations'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 
@@ -577,6 +577,7 @@ export default {
       executeSelectionMenu: false,
       menuX: 0,
       menuY: 0,
+      mnemonicChecker: new MnemonicChecker(),
     }
   },
   computed: {
@@ -693,6 +694,13 @@ export default {
               icon: 'mdi-language-ruby',
               command: () => {
                 this.rubySyntaxCheck()
+              },
+            },
+            {
+              label: 'Mnemonic Check',
+              icon: 'mdi-spellcheck',
+              command: () => {
+                this.checkMnemonics()
               },
             },
             {
@@ -1003,6 +1011,27 @@ export default {
       } else {
         this.fileModified = ''
       }
+    },
+    checkMnemonics: function () {
+      this.mnemonicChecker
+        .checkText(this.editor.getValue())
+        .then(({ skipped, problems }) => {
+          let alertText = ''
+          if (problems.length) {
+            const problemText = problems
+              .map((problem) => `${problem.lineNumber}: ${problem.error}`)
+              .join('<br/>')
+            alertText += `<strong>The following lines have problems:</strong><br/>${problemText}<br/><br/>`
+          }
+          if (skipped.length) {
+            alertText +=
+              '<strong>Mnemonics with string interpolation were not checked.</strong>'
+          }
+          if (alertText === '') {
+            alertText = '<strong>Everything looks good!</strong>'
+          }
+          this.$dialog.alert(alertText.trim(), { html: true })
+        })
     },
     scriptStart(id) {
       this.disableSuiteButtons = true
