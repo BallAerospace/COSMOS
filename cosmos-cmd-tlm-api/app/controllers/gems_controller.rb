@@ -46,7 +46,7 @@ class GemsController < ApplicationController
       begin
         gem_file_path = temp_dir + '/' + file.original_filename
         FileUtils.cp(file.tempfile.path, gem_file_path)
-        result = Cosmos::GemModel.put(gem_file_path)
+        result = Cosmos::GemModel.put(gem_file_path, scope: params[:scope])
         Cosmos::Logger.info("Gem created: #{params[:gem]}", scope: params[:scope], user: user_info(request.headers['HTTP_AUTHORIZATION']))
       ensure
         FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)

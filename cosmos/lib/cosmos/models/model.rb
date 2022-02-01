@@ -55,6 +55,18 @@ module Cosmos
     end
     # END NOTE
 
+    # Loops over all items and returns objects that match a key value pair
+    def self.filter(key, value, scope:)
+      filtered = {}
+      results = all(scope: scope)
+      results.each do |name, result|
+        if result[key] == value
+          filtered[name] = result
+        end
+      end
+      return filtered
+    end
+
     # Sets (updates) the redis hash of this model
     def self.set(json, scope:)
       json[:scope] = scope

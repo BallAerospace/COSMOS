@@ -71,6 +71,31 @@
       :type="alertType"
       transition="scale-transition"
     />
+    <v-list v-if="Object.keys(processes).length > 0" data-test="processList">
+      <div v-for="process in processes" :key="process.name">
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title
+              v-text="'Installing: ' + process.detail + ' - ' + process.state"
+            />
+            <v-list-item-subtitle
+              v-text="' Updated At: ' + formatDate(process.updated_at)"
+            ></v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-icon v-if="process.state !== 'Running'">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon @click="showOutput(process)" v-bind="attrs" v-on="on">
+                  mdi-eye
+                </v-icon>
+              </template>
+              <span>Show Output</span>
+            </v-tooltip>
+          </v-list-item-icon>
+        </v-list-item>
+        <v-divider />
+      </div>
+    </v-list>
     <v-list data-test="gemList">
       <div v-for="(gem, index) in gems" :key="index">
         <v-list-item>
@@ -92,23 +117,34 @@
       </div>
     </v-list>
     <download-dialog v-model="showDownloadDialog" />
+    <simple-text-dialog
+      v-model="showProcessOutput"
+      title="Process Output"
+      :text="processOutput"
+    />
   </div>
 </template>
 
 <script>
+import { toDate, format } from 'date-fns'
 import Api from '@cosmosc2/tool-common/src/services/api'
 import DownloadDialog from '@/tools/CosmosAdmin/DownloadDialog'
+import SimpleTextDialog from '@cosmosc2/tool-common/src/components/SimpleTextDialog'
 
 export default {
   components: {
     DownloadDialog,
+    SimpleTextDialog,
   },
   data() {
     return {
       showDownloadDialog: false,
+      showProcessOutput: false,
+      processOutput: '',
       files: [],
       loadingGem: false,
       gems: [],
+      processes: {},
       alert: '',
       alertType: 'success',
       showAlert: false,
@@ -116,12 +152,34 @@ export default {
   },
   mounted() {
     this.update()
+    this.updateProcesses()
   },
   methods: {
+    showOutput: function (process) {
+      this.processOutput = process.output
+      this.showProcessOutput = true
+    },
     update() {
       Api.get('/cosmos-api/gems').then((response) => {
         this.gems = response.data
       })
+    },
+    updateProcesses: function () {
+      Api.get('/cosmos-api/process_status/gem_install').then((response) => {
+        this.processes = response.data
+        if (Object.keys(this.processes).length > 0) {
+          setTimeout(() => {
+            this.updateProcesses()
+            this.update()
+          }, 10000)
+        }
+      })
+    },
+    formatDate(nanoSecs) {
+      return format(
+        toDate(parseInt(nanoSecs) / 1_000_000),
+        'yyyy-MM-dd HH:mm:ss.SSS'
+      )
     },
     upload: function () {
       this.loadingGem = true
@@ -141,6 +199,7 @@ export default {
           this.files = []
           setTimeout(() => {
             this.showAlert = false
+            this.updateProcesses()
           }, 5000)
           this.update()
         })

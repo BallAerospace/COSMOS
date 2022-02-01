@@ -52,32 +52,42 @@ module Cosmos
       return path
     end
 
-    def self.put(gem_file_path)
+    def self.put(gem_file_path, gem_install: true, scope:)
       rubys3_client = initialize_bucket()
       if File.file?(gem_file_path)
-        # TODO: Doing the gem install needs to be done in a seperate process because can be VERY slow and
-        # block web interface for too long
-
-        # begin
-        #   rubygems_url = get_setting('rubygems_url')
-        #   Gem.sources = [rubygems_url] if rubygems_url
-        #   Gem.install(gem_file_path, {:build_args => '--no-document'})
-        # rescue => err
-        #   message = "Gem file #{gem_file_path} error installing to /gems\n#{err.formatted}"
-        #   Logger.error message
-        # ensure
-        #   FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
-        # end
-
         gem_filename = File.basename(gem_file_path)
         Logger.info "Installing gem: #{gem_filename}"
         File.open(gem_file_path, 'rb') do |file|
           rubys3_client.put_object(bucket: 'gems', key: gem_filename, body: file)
         end
+        if gem_install
+          result = Cosmos::ProcessManager.instance.spawn(["ruby", "/cosmos/bin/cosmos", "geminstall", gem_filename], "gem_install", gem_filename, Time.now + 1.hour, scope: scope)
+          return result
+        end
       else
         message = "Gem file #{gem_file_path} does not exist!"
         Logger.error message
         raise message
+      end
+      return nil
+    end
+
+    def self.install(name_or_path)
+      temp_dir = Dir.mktmpdir
+      begin
+        if File.exist?(name_or_path)
+          gem_file_path = name_or_path
+        else
+          gem_file_path = get(temp_dir, name_or_path)
+        end
+        rubygems_url = get_setting('rubygems_url')
+        Gem.sources = [rubygems_url] if rubygems_url
+        Gem.install(gem_file_path, {:build_args => '--no-document'})
+      rescue => err
+        message = "Gem file #{gem_file_path} error installing to /gems\n#{err.formatted}"
+        Logger.error message
+      ensure
+        FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
       end
     end
 

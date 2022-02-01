@@ -56,6 +56,7 @@ def print_usage
   puts "  #{MIGRATE_PARSER}"
   puts "  cosmos bridge CONFIG_FILENAME        # Run COSMOS host bridge"
   puts "  cosmos bridgesetup CONFIG_FILENAME   # Create a default config file"
+  puts "  cosmos geminstall GEMFILENAME        # Install loaded gem to /gems"
   puts "  cosmos rubysloc                      # Counts Ruby SLOC recursively. Run with --help for more info."
   # puts "  cosmos xtce_converter                # Convert to and from the XTCE format. Run with --help for more info."
   puts "  cosmos cstol_converter               # Converts CSTOL files (.prc) to COSMOS. Run with --help for more info."
@@ -266,6 +267,10 @@ def load_plugin(plugin_file_path, scope:, variables_file: nil)
   end
 end
 
+def gem_install(gem_filename)
+  Cosmos::GemModel.install(gem_filename)
+end
+
 def get_redis_keys
   redis = Redis.new(url: $redis_url, username: ENV['COSMOS_REDIS_USERNAME'], password: ENV['COSMOS_REDIS_PASSWORD'])
   puts "\n--- COSMOS Redis database keys ---"
@@ -302,6 +307,9 @@ if not ARGV[0].nil? # argument(s) given
 
   when 'load'
     load_plugin(ARGV[1], scope: ARGV[2], variables_file: ARGV[3])
+
+  when 'geminstall'
+    gem_install(ARGV[1])
 
   # TODO: This will require more work in COSMOS 5 ... would be nice to spawn
   # in docker container and then map out port to access locally

@@ -72,6 +72,31 @@
       v-model="showAlert"
       v-text="alert"
     />
+    <v-list v-if="Object.keys(processes).length > 0" data-test="processList">
+      <div v-for="process in processes" :key="process.name">
+        <v-list-item>
+          <v-list-item-content>
+            <v-list-item-title
+              v-text="'Installing: ' + process.detail + ' - ' + process.state"
+            />
+            <v-list-item-subtitle
+              v-text="' Updated At: ' + formatDate(process.updated_at)"
+            ></v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-icon v-if="process.state !== 'Running'">
+            <v-tooltip bottom>
+              <template v-slot:activator="{ on, attrs }">
+                <v-icon @click="showOutput(process)" v-bind="attrs" v-on="on">
+                  mdi-eye
+                </v-icon>
+              </template>
+              <span>Show Output</span>
+            </v-tooltip>
+          </v-list-item-icon>
+        </v-list-item>
+        <v-divider />
+      </div>
+    </v-list>
     <v-list data-test="pluginList">
       <div v-for="(plugin, index) in plugins" :key="index">
         <v-list-item>
@@ -136,26 +161,35 @@
       @submit="dialogCallback"
     />
     <download-dialog v-model="showDownloadDialog" />
+    <simple-text-dialog
+      v-model="showProcessOutput"
+      title="Process Output"
+      :text="processOutput"
+    />
   </div>
 </template>
 
 <script>
+import { toDate, format } from 'date-fns'
 import Api from '@cosmosc2/tool-common/src/services/api'
 import DownloadDialog from '@/tools/CosmosAdmin/DownloadDialog'
 import EditDialog from '@/tools/CosmosAdmin/EditDialog'
 import VariablesDialog from '@/tools/CosmosAdmin/VariablesDialog'
+import SimpleTextDialog from '@cosmosc2/tool-common/src/components/SimpleTextDialog'
 
 export default {
   components: {
     DownloadDialog,
     EditDialog,
     VariablesDialog,
+    SimpleTextDialog,
   },
   data() {
     return {
       files: [],
       loadingPlugin: false,
       plugins: [],
+      processes: {},
       alert: '',
       alertType: 'success',
       showAlert: false,
@@ -163,18 +197,42 @@ export default {
       jsonContent: '',
       dialogTitle: '',
       showDownloadDialog: false,
+      showProcessOutput: false,
+      processOutput: '',
       showEditDialog: false,
       showVariableDialog: false,
     }
   },
   mounted() {
     this.update()
+    this.updateProcesses()
   },
   methods: {
+    showOutput: function (process) {
+      this.processOutput = process.output
+      this.showProcessOutput = true
+    },
     update: function () {
       Api.get('/cosmos-api/plugins').then((response) => {
         this.plugins = response.data
       })
+    },
+    updateProcesses: function () {
+      Api.get('/cosmos-api/process_status/plugin_install').then((response) => {
+        this.processes = response.data
+        if (Object.keys(this.processes).length > 0) {
+          setTimeout(() => {
+            this.updateProcesses()
+            this.update()
+          }, 10000)
+        }
+      })
+    },
+    formatDate(nanoSecs) {
+      return format(
+        toDate(parseInt(nanoSecs) / 1_000_000),
+        'yyyy-MM-dd HH:mm:ss.SSS'
+      )
     },
     upload: function (existing = null) {
       const method = existing ? 'put' : 'post'
@@ -223,7 +281,7 @@ export default {
       Promise.all(promises)
         .then((responses) => {
           this.loadingPlugin = false
-          this.alert = `Installed ${responses.length} plugin${
+          this.alert = `Started installing ${responses.length} plugin${
             responses.length > 1 ? 's' : ''
           }`
           this.alertType = 'success'
@@ -232,6 +290,7 @@ export default {
           this.variables = []
           setTimeout(() => {
             this.showAlert = false
+            this.updateProcesses()
           }, 5000)
           this.update()
         })

@@ -23,4 +23,19 @@ class ProcessStatusController < ModelController
   def initialize
     @model_class = Cosmos::ProcessStatusModel
   end
+
+  def show
+    begin
+      authorize(permission: 'system', scope: params[:scope], token: request.headers['HTTP_AUTHORIZATION'])
+    rescue Cosmos::AuthError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 401) and return
+    rescue Cosmos::ForbiddenError => e
+      render(:json => { :status => 'error', :message => e.message }, :status => 403) and return
+    end
+    if params[:id].downcase == 'all'
+      render :json => @model_class.all(scope: params[:scope])
+    else
+      render :json => @model_class.filter("process_type", params[:id], scope: params[:scope])
+    end
+  end
 end
