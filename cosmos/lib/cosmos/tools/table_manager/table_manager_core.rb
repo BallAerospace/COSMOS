@@ -70,29 +70,37 @@ module Cosmos
       file_open(bin_path, def_path)
       tables = {}
       @config.tables.each do |table_name, table|
-        # TODO: Do we need table.num_rows or table.num_columns
-        tables[table_name] = []
-        row = 0
-        column = 0
-        table.sorted_items.each do |item|
+        tables[table_name] = { num_rows: table.num_rows, num_columns: table.num_columns, rows: [] }
+        col = 0
+        num_cols = table.num_columns
+        table.sorted_items.each_with_index do |item, index|
           next if item.hidden
-          tables[table_name] << {
-            name: item.name,
-            value: table.read(item.name, :FORMATTED),
-            states: item.states,
-            editable: item.editable,
-          }
-          # if table.type == :TWO_DIMENSIONAL
-          #   # only increment our row when we've processed all the columns
-          #   if column == table.num_columns - 1
-          #     row += 1
-          #     column = 0
-          #   else
-          #     column += 1
-          #   end
-          # else
-          #   row += 1
-          # end
+          if table.num_columns == 1
+            tables[table_name][:rows] << {
+              index: index + 1,
+              name: item.name,
+              value: table.read(item.name, :FORMATTED),
+              states: item.states,
+              editable: item.editable,
+            }
+          else
+            if col == 0
+              tables[table_name][:rows] << {
+                index: tables[table_name][:rows].length + 1,
+                name0: item.name,
+                value0: table.read(item.name, :FORMATTED),
+                states0: item.states,
+                editable0: item.editable,
+              }
+            else
+              tables[table_name][:rows][-1]["name#{col}"] = item.name
+              tables[table_name][:rows][-1]["value#{col}"] = table.read(item.name, :FORMATTED)
+              tables[table_name][:rows][-1]["states#{col}"] = item.states
+              tables[table_name][:rows][-1]["editable#{col}"] = item.editable
+            end
+          end
+          col += 1
+          col = 0 if col == table.num_columns
         end
       end
       tables.to_json

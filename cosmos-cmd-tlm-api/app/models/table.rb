@@ -125,10 +125,10 @@ class Table
         file.write(definition)
       end
       binary = Cosmos::TableManagerCore.new.file_new(definition_path, temp_dir)
-      binary_s3_path = "#{scope}/targets/#{File.basename(binary)}"
+      s3_filename = "#{scope}/targets/#{File.dirname(name).sub('/config','/bin')}/#{File.basename(binary)}"
       File.open(binary, 'rb') do |file|
         # Generating a file means doing File->New so it goes in the root targets dir (non-modified)
-        Aws::S3::Client.new().put_object(bucket: DEFAULT_BUCKET_NAME, key: binary_s3_path, body: file)
+        Aws::S3::Client.new().put_object(bucket: DEFAULT_BUCKET_NAME, key: s3_filename, body: file)
       end
     ensure
       FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)

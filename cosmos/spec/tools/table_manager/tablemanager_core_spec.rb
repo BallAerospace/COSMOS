@@ -33,7 +33,7 @@ module Cosmos
     end
 
     describe "generate_json" do
-      it "generates json from the table definition" do
+      it "generates json from the ONE_DIMENSIONAL table definition" do
         bin = Tempfile.new('table.bin')
         bin.write("\x00\x01")
         bin.close
@@ -51,13 +51,57 @@ module Cosmos
         bin.unlink
         tf.unlink
         result = JSON.parse(json)
-        puts result
+        pp result
         expect(result).to be_a Hash
         expect(result.keys).to eql ['PPS SELECTION']
-        expect(result['PPS SELECTION'][0]['name']).to eql 'PRIMARY PPS'
-        expect(result['PPS SELECTION'][0]['value']).to eql 'UNCHECKED'
-        expect(result['PPS SELECTION'][1]['name']).to eql 'REDUNDANT PPS'
-        expect(result['PPS SELECTION'][1]['value']).to eql 'CHECKED'
+        expect(result['PPS SELECTION']["num_rows"]).to eql 2
+        expect(result['PPS SELECTION']["num_columns"]).to eql 1
+        expect(result['PPS SELECTION']["rows"][0]['name']).to eql 'PRIMARY PPS'
+        expect(result['PPS SELECTION']["rows"][0]['value']).to eql 'UNCHECKED'
+        expect(result['PPS SELECTION']["rows"][1]['name']).to eql 'REDUNDANT PPS'
+        expect(result['PPS SELECTION']["rows"][1]['value']).to eql 'CHECKED'
+      end
+
+      it "generates json from the TWO_DIMENSIONAL table definition" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'TABLE "TLM Monitoring" BIG_ENDIAN TWO_DIMENSIONAL 10 "Telemetry Monitoring Table"'
+        tf.puts '  APPEND_PARAMETER "Threshold" 32 UINT MIN MAX 0 "Telemetry item threshold at which point persistance is incremented"'
+        tf.puts '  APPEND_PARAMETER "Offset" 32 UINT MIN MAX 0 "Offset into the telemetry packet to monitor"'
+        tf.puts '  APPEND_PARAMETER "Data Size" 32 UINT 0 3 0 "Amount of data to monitor (bytes)"'
+        tf.puts '    STATE BITS 0'
+        tf.puts '    STATE BYTE 1'
+        tf.puts '    STATE WORD 2'
+        tf.puts '    STATE LONGWORD 3'
+        tf.puts '  APPEND_PARAMETER "Bit Mask" 32 UINT MIN MAX 0 "Bit Mask to apply to the Data Size before the value is compared ot the Threshold"'
+        tf.puts '  APPEND_PARAMETER "Persistence" 32 UINT MIN MAX 0 "Number of times the Threshold must be exceeded before Action is triggered"'
+        tf.puts '  APPEND_PARAMETER "Type" 32 UINT 0 3 0 "How the Threshold is compared against"'
+        tf.puts '    STATE LESS_THAN 0'
+        tf.puts '    STATE GREATER_THAN 1'
+        tf.puts '    STATE EQUAL_TO 2'
+        tf.puts '    STATE NOT_EQUAL_TO 3'
+        tf.puts '  APPEND_PARAMETER "Action" 32 UINT 0 4 0 "Action to take when Persistance is met"'
+        tf.puts '    STATE NO_ACTION_REQUIRED 0'
+        tf.puts '    STATE INITIATE_RESET 1'
+        tf.puts '    STATE CHANGE_MODE_SAFE 2'
+        tf.puts '  APPEND_PARAMETER "Group" 32 UINT 1 4 1 "Telemetry group this monitor item belongs to. Groups are automatically enabled due to payload events."'
+        tf.puts '    STATE ALL_MODES 1'
+        tf.puts '    STATE SAFE_MODE 2'
+        tf.puts '  APPEND_PARAMETER "Signed" 8 UINT 0 2 0 "Whether to treat the Data Size data as signed or unsigned when comparing to the Threshold"'
+        tf.puts '    STATE NOT_APPLICABLE 0'
+        tf.puts '    STATE UNSIGNED 1'
+        tf.puts '    STATE SIGNED 2'
+        tf.close
+        bin_file = core.file_new(tf.path, Dir.pwd)
+        json = core.generate_json(bin_file, tf.path)
+        result = JSON.parse(json)
+        expect(result).to be_a Hash
+        expect(result.keys).to eql ['TLM MONITORING']
+        pp result
+        expect(result['TLM MONITORING']["num_rows"]).to eql 10
+        expect(result['TLM MONITORING']["num_columns"]).to eql 9
+        # expect(result['TLM MONITORING']["rows"][0]
+        File.delete(bin_file)
+        tf.unlink
       end
     end
 
@@ -78,7 +122,6 @@ module Cosmos
         expect(data).to eql "\x01\x01"
         json = core.generate_json(bin_file, tf.path)
         table = JSON.parse(json)
-        puts table
         table["PPS SELECTION"][0]['value'] = "UNCHECKED"
         table["PPS SELECTION"][1]['value'] = "UNCHECKED"
         bin_file = core.save_json(bin_file, tf.path, table)

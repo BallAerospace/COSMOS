@@ -88,7 +88,7 @@
       </v-card-title>
       <v-data-table
         :headers="headers"
-        :items="rows"
+        :items="table.rows"
         :search="search"
         calculate-widths
         disable-pagination
@@ -96,19 +96,12 @@
         multi-sort
         dense
       >
-        <template v-slot:item.index="{ item }">
-          <span>
-            {{
-              rows
-                .map(function (x) {
-                  return x.name
-                })
-                .indexOf(item.name)
-            }}
-          </span>
-        </template>
-        <template v-slot:item.value="{ item }">
-          <table-item :item="item" :key="item.name" @change="onChange(item, $event)" />
+        <template v-slot:item="{ item }">
+          <table-item
+            :item="item"
+            :key="item.name"
+            @change="onChange(item, $event)"
+          />
         </template>
       </v-data-table>
     </v-card>
@@ -150,8 +143,8 @@ export default {
     return {
       title: 'Table Manager',
       search: '',
+      table: { rows: [] },
       tableName: '',
-      rows: [],
       headers: [
         { text: 'Index', value: 'index' },
         { text: 'Name', value: 'name' },
@@ -285,10 +278,9 @@ export default {
       const formData = new FormData()
       formData.append('binary', this.filename)
       formData.append('definition', this.definitionFilename)
-      let table = { [this.tableName]: this.rows }
+      let table = { [this.tableName]: this.table }
       formData.append('table', JSON.stringify(table))
-      console.log(`filename:${this.filename}`)
-      Api.post(`/cosmos-api/tables/save`, {
+      Api.post(`/cosmos-api/tables/${this.filename}`, {
         data: formData,
       })
         .then((response) => {
@@ -401,9 +393,22 @@ export default {
         .then((response) => {
           this.definitionFilename = definitionFilename
           // TODO: Handle multiple tables with v-tabs
-          for (const [tableName, rows] of Object.entries(response.data)) {
+          for (const [tableName, table] of Object.entries(response.data)) {
             this.tableName = tableName
-            this.rows = rows
+            this.table = table
+            if (table.num_columns === 1) {
+              this.headers = [
+                { text: 'Index', value: 'index' },
+                { text: 'Name', value: 'name' },
+                { text: 'Value', value: 'value' },
+              ]
+            } else {
+              this.headers = [{ text: 'Index', value: 'index' }]
+              for (let i = 0; i < table.num_columns; i++) {
+                const name = table.rows[i][`name${i}`].slice(0, -1)
+                this.headers.push({ text: name, value: `value${i}` })
+              }
+            }
           }
         })
         .catch((error) => {

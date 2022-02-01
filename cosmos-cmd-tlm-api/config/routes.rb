@@ -133,13 +133,12 @@ Rails.application.routes.draw do
     get  "/tables" => "tables#index"
     get  "/tables/*name" => "tables#body", format: false, defaults: { format: 'html' }
     post '/tables/load', to: 'tables#load'
-    post '/tables/save' => 'tables#save'
     post '/tables/*name/download', to: 'tables#download'
     post '/tables/*name/lock' => 'tables#lock'
     post '/tables/*name/unlock' => 'tables#unlock'
     post '/tables/*name/generate' => 'tables#generate'
     # Must be last post /tables/*name so others will match first
-    # post '/tables/*name' => 'tables#create'
+    post '/tables/*name' => 'tables#save'
     delete '/tables/*name' => 'tables#destroy'
 
     get "/screen/:target" => "api#screens"
