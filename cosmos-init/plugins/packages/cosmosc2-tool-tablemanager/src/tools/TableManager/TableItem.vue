@@ -67,7 +67,7 @@ export default {
     }
   },
   created() {
-    // console.log(this.dataItem)
+    console.log(this.dataItem)
     if (this.dataItem.states) {
       this.stateValue = this.dataItem.states[this.dataItem.value]
     }
@@ -106,7 +106,11 @@ export default {
       }
     },
     stateChange: function () {
-      this.$emit('change', this.dataItem.states[this.stateValue])
+      // Lookup the state key that corresponds to the value
+      let state = Object.keys(this.dataItem.states).find(
+        (key) => this.dataItem.states[key] === this.stateValue
+      )
+      this.$emit('change', state)
     },
     textChange: function () {
       this.$emit('change', this.dataItem.value)

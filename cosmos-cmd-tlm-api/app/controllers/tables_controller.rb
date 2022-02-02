@@ -111,10 +111,13 @@ class TablesController < ModelController
       render(json: { status: 'error', message: e.message }, status: 403) and
         return
     end
-    success = Table.save(params[:scope], params[:binary], params[:definition], params[:table])
-    if success
+    begin
+      Table.save(params[:scope], params[:binary], params[:definition], params[:table])
       head :ok
-    else
+    rescue Cosmos::TableManagerCore::CoreError => e
+      render(json: { status: 'error', message: e.message }, status: 400)
+    rescue => err
+      puts err
       head :internal_server_error
     end
   end

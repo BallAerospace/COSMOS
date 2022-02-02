@@ -98,6 +98,13 @@
       >
         <template v-slot:item="{ item }">
           <table-item
+            v-if="table.num_columns === 1"
+            :item="item"
+            :key="item.name"
+            @change="onChange(item, $event)"
+          />
+          <table-row
+            v-else
             :item="item"
             :key="item.name"
             @change="onChange(item, $event)"
@@ -123,6 +130,11 @@
       @filename="saveAsFilename($event)"
       @error="setError($event)"
     />
+    <simple-text-dialog
+      v-model="showError"
+      :title="errorTitle"
+      :text="errorText"
+    />
   </div>
 </template>
 
@@ -131,13 +143,17 @@ import Api from '@cosmosc2/tool-common/src/services/api'
 import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
 import TableItem from '@/tools/TableManager/TableItem'
+import TableRow from '@/tools/TableManager/TableRow'
 import FileOpenSaveDialog from '@cosmosc2/tool-common/src/components/FileOpenSaveDialog'
+import SimpleTextDialog from '@cosmosc2/tool-common/src/components/SimpleTextDialog'
 
 export default {
   components: {
     TopBar,
     TableItem,
+    TableRow,
     FileOpenSaveDialog,
+    SimpleTextDialog,
   },
   data() {
     return {
@@ -161,6 +177,9 @@ export default {
       fileOpen: false,
       showSave: false,
       showSaveAs: false,
+      showError: false,
+      errorTitle: '',
+      errorText: '',
     }
   },
   computed: {
@@ -284,25 +303,16 @@ export default {
         data: formData,
       })
         .then((response) => {
-          if (response.status == 200) {
-            this.fileModified = ''
-            setTimeout(() => {
-              this.showSave = false
-            }, 2000)
-          } else {
+          this.fileModified = ''
+          setTimeout(() => {
             this.showSave = false
-            this.$notify.caution({
-              title: 'Error',
-              body: `Error saving file. Code: ${response.status} Text: ${response.statusText}`,
-            })
-          }
+          }, 2000)
         })
         .catch(({ response }) => {
           this.showSave = false
-          this.$notify.caution({
-            title: 'Error',
-            body: `Error saving file. Code: ${response.status} Text: ${response.statusText}`,
-          })
+          this.errorTitle = 'Save Error'
+          this.errorText = response.data.message
+          this.showError = true
         })
       this.lockFile() // Ensure this file is locked for editing
     },
@@ -408,6 +418,7 @@ export default {
                 const name = table.rows[i][`name${i}`].slice(0, -1)
                 this.headers.push({ text: name, value: `value${i}` })
               }
+              console.log(this.headers)
             }
           }
         })

@@ -109,7 +109,7 @@ module Cosmos
     def save_json(bin_path, def_path, json)
       file_open(bin_path, def_path)
       @config.tables.each do |table_name, table|
-        json[table_name.upcase].each do |item|
+        json[table_name.upcase]['rows'].each do |item|
           # TODO: Can we even edit items like this:
           # item:{"name"=>"BINARY", "value"=>{"json_class"=>"String", "raw"=>[222, 173, 190, 239]} }
           next if item['value'].is_a? Hash

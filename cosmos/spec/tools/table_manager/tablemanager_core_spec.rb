@@ -150,7 +150,7 @@ module Cosmos
         expect { core.file_new('path', Dir.pwd) }.to raise_error(/Configuration file path does not exist./)
       end
 
-      it "creates a new file in the given output dir" do
+      it "creates a simple new file in the given output dir" do
         def_filename = File.join(Dir.pwd, 'table_def.txt')
         File.open(def_filename,'w') do |file|
           file.puts 'TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL'
@@ -160,7 +160,7 @@ module Cosmos
           file.puts '    STATE ENABLE 1'
         end
         bin_filename = core.file_new(def_filename, Dir.pwd)
-        expect(bin_filename).to eq File.join(Dir.pwd, "table.dat")
+        expect(bin_filename).to eq File.join(Dir.pwd, "table.bin")
         expect(File.read(bin_filename).formatted).to match(/DE AD BE EF 00 00/)
         FileUtils.rm def_filename
         FileUtils.rm bin_filename
@@ -179,7 +179,7 @@ module Cosmos
       end
 
       it "complains if the binary filename does not exist" do
-        bin_filename = File.join(Dir.pwd, 'bin.dat')
+        bin_filename = File.join(Dir.pwd, 'bin.bin')
         FileUtils.rm bin_filename if File.exist? bin_filename
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') {|file| file.puts "TABLE table1 BIG_ENDIAN ONE_DIMENSIONAL" }
@@ -188,7 +188,7 @@ module Cosmos
       end
 
       it "complains if the binary filename isn't big enough for the definition and zero fills data" do
-        bin_filename = File.join(Dir.pwd, 'bin.dat')
+        bin_filename = File.join(Dir.pwd, 'bin.bin')
         File.open(bin_filename,'w') {|file| file.write "\xAB\xCD" }
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') do |file|
@@ -202,7 +202,7 @@ module Cosmos
       end
 
       it "complains if the binary filename is too enough for the definition and truncates the data" do
-        bin_filename = File.join(Dir.pwd, 'bin.dat')
+        bin_filename = File.join(Dir.pwd, 'bin.bin')
         File.open(bin_filename,'w') {|file| file.write "\xAB\xCD\xEF" }
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') do |file|
@@ -222,7 +222,7 @@ module Cosmos
       end
 
       it "complains if there is an error in the configuration data" do
-        bin_filename = File.join(Dir.pwd, 'bin.dat')
+        bin_filename = File.join(Dir.pwd, 'bin.bin')
         File.open(bin_filename,'w') {|file| file.write "\x00\x01" }
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') do |file|
@@ -236,7 +236,7 @@ module Cosmos
       end
 
       it "writes the configuration to file" do
-        bin_filename = File.join(Dir.pwd, 'bin.dat')
+        bin_filename = File.join(Dir.pwd, 'bin.bin')
         File.open(bin_filename,'w') {|file| file.write "\x00\x01" }
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') do |file|
@@ -260,7 +260,7 @@ module Cosmos
       end
 
       it "complains if there is an error in the configuration data" do
-        bin_filename = File.join(Dir.pwd, 'bin.dat')
+        bin_filename = File.join(Dir.pwd, 'bin.bin')
         File.open(bin_filename,'w') {|file| file.write "\x00\x01" }
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') do |file|
@@ -274,7 +274,7 @@ module Cosmos
       end
 
       it "returns a success string if there are no errors" do
-        bin_filename = File.join(Dir.pwd, 'bin.dat')
+        bin_filename = File.join(Dir.pwd, 'bin.bin')
         File.open(bin_filename,'w') {|file| file.write "\x00\x01" }
         def_filename = File.join(Dir.pwd, 'def.txt')
         File.open(def_filename,'w') do |file|
@@ -290,11 +290,11 @@ module Cosmos
 
     describe "file_report" do
       it "complains if there is no configuration" do
-        expect { core.file_report('file.dat', 'file_def.txt') }.to raise_error(TableManagerCore::NoConfigError)
+        expect { core.file_report('file.bin', 'file_def.txt') }.to raise_error(TableManagerCore::NoConfigError)
       end
 
       it "creates a CSV file with the configuration for ONE_DIMENSIONAL" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\x00\x01" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -313,7 +313,7 @@ module Cosmos
       end
 
       it "creates a CSV file with the configuration for TWO_DIMENSIONAL" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\x00\x01\x02\x03\x00\x01\x02\x03" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -339,7 +339,7 @@ module Cosmos
       end
 
       it "creates a hex representation of the binary data" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -361,7 +361,7 @@ module Cosmos
       end
 
       it "complains if the table does not exist" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\x00\x00" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -375,7 +375,7 @@ module Cosmos
       end
 
       it "returns a string with out of range values" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\x00\x03\xFF\xFD\x48\x46\x4C\x4C\x4F\x00\x00" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -408,7 +408,7 @@ module Cosmos
       end
 
       it "complains if the table does not exist" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\x00\x00" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -422,7 +422,7 @@ module Cosmos
       end
 
       it "sets all table items to their default" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\x00"*11 }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -450,7 +450,7 @@ module Cosmos
       end
 
       it "complains if the table does not exist" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -465,7 +465,7 @@ module Cosmos
       end
 
       it "creates a hex representation of the binary data" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF\xCA\xFE\xBA\xBE" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -488,11 +488,11 @@ module Cosmos
 
     describe "table_save" do
       it "complains if there is no configuration" do
-        expect { core.table_save('table', 'table.dat') }.to raise_error(TableManagerCore::NoConfigError)
+        expect { core.table_save('table', 'table.bin') }.to raise_error(TableManagerCore::NoConfigError)
       end
 
       it "complains if the table does not exist" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -501,13 +501,13 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
-        expect { core.table_save('table', 'table.dat') }.to raise_error(TableManagerCore::NoTableError)
+        expect { core.table_save('table', 'table.bin') }.to raise_error(TableManagerCore::NoTableError)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end
 
       it "complains if the table has errors" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -516,13 +516,13 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
-        expect { core.table_save('table1', 'table.dat') }.to raise_error(TableManagerCore::CoreError)
+        expect { core.table_save('table1', 'table.bin') }.to raise_error(TableManagerCore::CoreError)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end
 
       it "creates a new file with the table binary data" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF\xCA\xFE\xBA\xBE" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -534,24 +534,24 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
-        core.table_save('table1', 'table1.dat')
-        expect(File.read('table1.dat').formatted).to match(/DE AD BE EF/)
-        core.table_save('table2', 'table2.dat')
-        expect(File.read('table2.dat').formatted).to match(/CA FE BA BE/)
+        core.table_save('table1', 'table1.bin')
+        expect(File.read('table1.bin').formatted).to match(/DE AD BE EF/)
+        core.table_save('table2', 'table2.bin')
+        expect(File.read('table2.bin').formatted).to match(/CA FE BA BE/)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
-        FileUtils.rm 'table1.dat'
-        FileUtils.rm 'table2.dat'
+        FileUtils.rm 'table1.bin'
+        FileUtils.rm 'table2.bin'
       end
     end
 
     describe "table_commit" do
       it "complains if there is no configuration" do
-        expect { core.table_commit('table', 'table.dat', 'table_def.txt') }.to raise_error(TableManagerCore::NoConfigError)
+        expect { core.table_commit('table', 'table.bin', 'table_def.txt') }.to raise_error(TableManagerCore::NoConfigError)
       end
 
       it "complains if the table does not exist" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -560,13 +560,13 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
-        expect { core.table_commit('table', 'testfile.dat', 'testfile_def.txt') }.to raise_error(TableManagerCore::NoTableError)
+        expect { core.table_commit('table', 'testfile.bin', 'testfile_def.txt') }.to raise_error(TableManagerCore::NoTableError)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end
 
       it "complains if the table has errors" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -575,13 +575,13 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
-        expect { core.table_commit('table1', 'testfile.dat', 'testfile_def.txt') }.to raise_error(TableManagerCore::CoreError)
+        expect { core.table_commit('table1', 'testfile.bin', 'testfile_def.txt') }.to raise_error(TableManagerCore::CoreError)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
       end
 
       it "complains if the new definition has errors" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -596,14 +596,14 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
-        expect { core.table_commit('table1', 'testfile.dat', 'newtestfile_def.txt') }.to raise_error(TableManagerCore::CoreError)
+        expect { core.table_commit('table1', 'testfile.bin', 'newtestfile_def.txt') }.to raise_error(TableManagerCore::CoreError)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
         FileUtils.rm new_def_filename
       end
 
       it "complains if the new file doesn't define the table" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -618,14 +618,14 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
         core.file_open(bin_filename, def_filename)
-        expect { core.table_commit('table1', 'testfile.dat', 'newtestfile_def.txt') }.to raise_error(TableManagerCore::NoTableError)
+        expect { core.table_commit('table1', 'testfile.bin', 'newtestfile_def.txt') }.to raise_error(TableManagerCore::NoTableError)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
         FileUtils.rm new_def_filename
       end
 
       it "saves the table binary data into a new file" do
-        bin_filename = File.join(Dir.pwd, 'testfile.dat')
+        bin_filename = File.join(Dir.pwd, 'testfile.bin')
         File.open(bin_filename,'w') {|file| file.write "\xDE\xAD\xBE\xEF\xCA\xFE\xBA\xBE" }
         def_filename = File.join(Dir.pwd, 'testfile_def.txt')
         File.open(def_filename,'w') do |file|
@@ -636,15 +636,15 @@ module Cosmos
           file.puts '  APPEND_PARAMETER item1 16 UINT MIN MAX 0 "Item"'
           file.puts '  APPEND_PARAMETER item2 16 UINT MIN MAX 0 "Item"'
         end
-        new_bin_filename = File.join(Dir.pwd, 'newtestfile.dat')
+        new_bin_filename = File.join(Dir.pwd, 'newtestfile.bin')
         File.open(new_bin_filename,'w') {|file| file.write "\x00"*8 }
 
         core.file_open(bin_filename, def_filename)
-        expect(File.read('newtestfile.dat').formatted).to match(/00 00 00 00 00 00 00 00/)
-        core.table_commit('table1', 'newtestfile.dat', 'testfile_def.txt')
-        expect(File.read('newtestfile.dat').formatted).to match(/DE AD BE EF 00 00 00 00/)
-        core.table_commit('table2', 'newtestfile.dat', 'testfile_def.txt')
-        expect(File.read('newtestfile.dat').formatted).to match(/DE AD BE EF CA FE BA BE/)
+        expect(File.read('newtestfile.bin').formatted).to match(/00 00 00 00 00 00 00 00/)
+        core.table_commit('table1', 'newtestfile.bin', 'testfile_def.txt')
+        expect(File.read('newtestfile.bin').formatted).to match(/DE AD BE EF 00 00 00 00/)
+        core.table_commit('table2', 'newtestfile.bin', 'testfile_def.txt')
+        expect(File.read('newtestfile.bin').formatted).to match(/DE AD BE EF CA FE BA BE/)
         FileUtils.rm bin_filename
         FileUtils.rm def_filename
         FileUtils.rm new_bin_filename

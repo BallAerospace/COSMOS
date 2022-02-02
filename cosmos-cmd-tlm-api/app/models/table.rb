@@ -117,7 +117,7 @@ class Table
   def self.generate(scope, name, definition)
     return false unless definition
 
-    binary_s3_path = nil
+    tgt_s3_filename = nil
     temp_dir = Dir.mktmpdir
     begin
       definition_path = "#{temp_dir}/#{File.basename(name)}"
@@ -125,15 +125,15 @@ class Table
         file.write(definition)
       end
       binary = Cosmos::TableManagerCore.new.file_new(definition_path, temp_dir)
-      s3_filename = "#{scope}/targets/#{File.dirname(name).sub('/config','/bin')}/#{File.basename(binary)}"
+      tgt_s3_filename = "#{File.dirname(name).sub('/config','/bin')}/#{File.basename(binary)}"
       File.open(binary, 'rb') do |file|
         # Generating a file means doing File->New so it goes in the root targets dir (non-modified)
-        Aws::S3::Client.new().put_object(bucket: DEFAULT_BUCKET_NAME, key: s3_filename, body: file)
+        Aws::S3::Client.new().put_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets/#{tgt_s3_filename}", body: file)
       end
     ensure
       FileUtils.remove_entry(temp_dir) if temp_dir and File.exist?(temp_dir)
     end
-    binary_s3_path
+    tgt_s3_filename
   end
 
   def self.load(scope, binary_filename, definition_filename)
@@ -145,7 +145,7 @@ class Table
     temp_dir = Dir.mktmpdir
     begin
       binary_path = temp_dir + '/data.bin'
-      File.open(binary_path, 'w') do |file|
+      File.open(binary_path, 'wb') do |file|
         file.write(binary)
       end
       definition_path = temp_dir + '/def.txt'
