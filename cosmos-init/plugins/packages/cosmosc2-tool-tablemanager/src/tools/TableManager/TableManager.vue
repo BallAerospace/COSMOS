@@ -406,12 +406,14 @@ export default {
           for (const [tableName, table] of Object.entries(response.data)) {
             this.tableName = tableName
             this.table = table
+            console.log(table)
             if (table.num_columns === 1) {
-              this.headers = [
-                { text: 'Index', value: 'index' },
-                { text: 'Name', value: 'name' },
-                { text: 'Value', value: 'value' },
-              ]
+              this.headers = table.headers
+              // this.headers = [
+              //   { text: 'Index', value: 'index' },
+              //   { text: 'Name', value: 'name' },
+              //   { text: 'Value', value: 'value' },
+              // ]
             } else {
               this.headers = [{ text: 'Index', value: 'index' }]
               for (let i = 0; i < table.num_columns; i++) {

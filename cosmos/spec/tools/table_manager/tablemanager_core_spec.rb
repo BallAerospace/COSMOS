@@ -34,72 +34,94 @@ module Cosmos
 
     describe "generate_json" do
       it "generates json from the ONE_DIMENSIONAL table definition" do
-        bin = Tempfile.new('table.bin')
-        bin.write("\x00\x01")
-        bin.close
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE "PPS Selection" BIG_ENDIAN ONE_DIMENSIONAL "Payload Clock Control Pulse Per Second Selection Table"'
-        tf.puts '  APPEND_PARAMETER "Primary PPS" 8 UINT 0 1 1'
-        tf.puts '    STATE CHECKED 1'
+        tf.puts 'TABLE "Test" BIG_ENDIAN ONE_DIMENSIONAL "Description"'
+        # Normal text value
+        tf.puts '  APPEND_PARAMETER "Throttle" 32 UINT 0 0x0FFFFFFFF 0'
+        tf.puts '    FORMAT_STRING "0x%0X"'
+        # State value
+        tf.puts '  APPEND_PARAMETER "Scrubbing" 8 UINT 0 1 0'
+        tf.puts '    STATE DISABLE 0'
+        tf.puts '    STATE ENABLE 1'
+        # Checkbox value
+        tf.puts '  APPEND_PARAMETER "PPS" 8 UINT 0 1 0'
         tf.puts '    STATE UNCHECKED 0'
-        tf.puts '  APPEND_PARAMETER "Redundant PPS" 8 UINT 0 1 1'
+        tf.puts '    STATE CHECKED 1'
         tf.puts '    UNEDITABLE'
-        tf.puts '    STATE UNCHECKED 0'
-        tf.puts '    STATE CHECKED 1'
         tf.close
+        bin_file = core.file_new(tf.path, Dir.pwd)
+        json = core.generate_json(bin_file, tf.path)
+        File.delete(bin_file)
+        result = JSON.parse(json)
+        expect(result).to be_a Hash
+        expect(result.keys).to eql ['TEST']
+        expect(result['TEST']["num_rows"]).to eql 3
+        expect(result['TEST']["num_columns"]).to eql 1
+        expect(result['TEST']["headers"]).to eql %w(INDEX NAME VALUE)
+        expect(result['TEST']["rows"][0]['index']).to eql 1
+        expect(result['TEST']["rows"][0]['name']).to eql 'THROTTLE'
+        expect(result['TEST']["rows"][0]['value']).to eql '0x0'
+        expect(result['TEST']["rows"][0]['editable']).to be true
+        expect(result['TEST']["rows"][1]['index']).to eql 2
+        expect(result['TEST']["rows"][1]['name']).to eql 'SCRUBBING'
+        expect(result['TEST']["rows"][1]['value']).to eql 'DISABLE'
+        expect(result['TEST']["rows"][1]['editable']).to be true
+        expect(result['TEST']["rows"][2]['index']).to eql 3
+        expect(result['TEST']["rows"][2]['name']).to eql 'PPS'
+        expect(result['TEST']["rows"][2]['value']).to eql 'UNCHECKED'
+        expect(result['TEST']["rows"][2]['editable']).to be false
+
+        # Generate json based on a new binary
+        bin = Tempfile.new('table.bin')
+        bin.write("\xDE\xAD\xBE\xEF\x01\x01")
+        bin.close
         json = core.generate_json(bin.path, tf.path)
+        result = JSON.parse(json)
+        expect(result['TEST']["rows"][0]['value']).to eql '0xDEADBEEF'
+        expect(result['TEST']["rows"][1]['value']).to eql 'ENABLE'
+        expect(result['TEST']["rows"][2]['value']).to eql 'CHECKED'
         bin.unlink
         tf.unlink
-        result = JSON.parse(json)
-        pp result
-        expect(result).to be_a Hash
-        expect(result.keys).to eql ['PPS SELECTION']
-        expect(result['PPS SELECTION']["num_rows"]).to eql 2
-        expect(result['PPS SELECTION']["num_columns"]).to eql 1
-        expect(result['PPS SELECTION']["rows"][0]['name']).to eql 'PRIMARY PPS'
-        expect(result['PPS SELECTION']["rows"][0]['value']).to eql 'UNCHECKED'
-        expect(result['PPS SELECTION']["rows"][1]['name']).to eql 'REDUNDANT PPS'
-        expect(result['PPS SELECTION']["rows"][1]['value']).to eql 'CHECKED'
       end
 
       it "generates json from the TWO_DIMENSIONAL table definition" do
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE "TLM Monitoring" BIG_ENDIAN TWO_DIMENSIONAL 10 "Telemetry Monitoring Table"'
-        tf.puts '  APPEND_PARAMETER "Threshold" 32 UINT MIN MAX 0 "Telemetry item threshold at which point persistance is incremented"'
-        tf.puts '  APPEND_PARAMETER "Offset" 32 UINT MIN MAX 0 "Offset into the telemetry packet to monitor"'
-        tf.puts '  APPEND_PARAMETER "Data Size" 32 UINT 0 3 0 "Amount of data to monitor (bytes)"'
-        tf.puts '    STATE BITS 0'
-        tf.puts '    STATE BYTE 1'
-        tf.puts '    STATE WORD 2'
-        tf.puts '    STATE LONGWORD 3'
-        tf.puts '  APPEND_PARAMETER "Bit Mask" 32 UINT MIN MAX 0 "Bit Mask to apply to the Data Size before the value is compared ot the Threshold"'
-        tf.puts '  APPEND_PARAMETER "Persistence" 32 UINT MIN MAX 0 "Number of times the Threshold must be exceeded before Action is triggered"'
-        tf.puts '  APPEND_PARAMETER "Type" 32 UINT 0 3 0 "How the Threshold is compared against"'
-        tf.puts '    STATE LESS_THAN 0'
-        tf.puts '    STATE GREATER_THAN 1'
-        tf.puts '    STATE EQUAL_TO 2'
-        tf.puts '    STATE NOT_EQUAL_TO 3'
-        tf.puts '  APPEND_PARAMETER "Action" 32 UINT 0 4 0 "Action to take when Persistance is met"'
-        tf.puts '    STATE NO_ACTION_REQUIRED 0'
-        tf.puts '    STATE INITIATE_RESET 1'
-        tf.puts '    STATE CHANGE_MODE_SAFE 2'
-        tf.puts '  APPEND_PARAMETER "Group" 32 UINT 1 4 1 "Telemetry group this monitor item belongs to. Groups are automatically enabled due to payload events."'
-        tf.puts '    STATE ALL_MODES 1'
-        tf.puts '    STATE SAFE_MODE 2'
-        tf.puts '  APPEND_PARAMETER "Signed" 8 UINT 0 2 0 "Whether to treat the Data Size data as signed or unsigned when comparing to the Threshold"'
-        tf.puts '    STATE NOT_APPLICABLE 0'
-        tf.puts '    STATE UNSIGNED 1'
-        tf.puts '    STATE SIGNED 2'
+        tf.puts 'TABLE "Test" BIG_ENDIAN TWO_DIMENSIONAL 3 "Description"'
+        # Normal text value
+        tf.puts '  APPEND_PARAMETER "Throttle" 32 UINT 0 0x0FFFFFFFF 0'
+        tf.puts '    FORMAT_STRING "0x%0X"'
+        # State value
+        tf.puts '  APPEND_PARAMETER "Scrubbing" 8 UINT 0 1 0'
+        tf.puts '    STATE DISABLE 0'
+        tf.puts '    STATE ENABLE 1'
+        # Checkbox value
+        tf.puts '  APPEND_PARAMETER "PPS" 8 UINT 0 1 0'
+        tf.puts '    STATE UNCHECKED 0'
+        tf.puts '    STATE CHECKED 1'
+        tf.puts '    UNEDITABLE'
+        tf.puts 'DEFAULT 0 0 0'
+        tf.puts 'DEFAULT 0xDEADBEEF 1 1'
+        tf.puts 'DEFAULT 0xBA5EBA11 0 1'
         tf.close
         bin_file = core.file_new(tf.path, Dir.pwd)
         json = core.generate_json(bin_file, tf.path)
         result = JSON.parse(json)
-        expect(result).to be_a Hash
-        expect(result.keys).to eql ['TLM MONITORING']
         pp result
-        expect(result['TLM MONITORING']["num_rows"]).to eql 10
-        expect(result['TLM MONITORING']["num_columns"]).to eql 9
-        # expect(result['TLM MONITORING']["rows"][0]
+        expect(result).to be_a Hash
+        expect(result.keys).to eql ['TEST']
+        expect(result['TEST']["num_rows"]).to eql 3
+        expect(result['TEST']["num_columns"]).to eql 3
+        expect(result['TEST']["headers"][0]['name']).to eql "INDEX"
+        expect(result['TEST']["headers"][1]['name']).to eql "THROTTLE"
+        expect(result['TEST']["headers"][1]['states']).to be_nil
+        expect(result['TEST']["headers"][2]['name']).to eql "SCRUBBING"
+        expect(result['TEST']["headers"][2]['states']).to eql({ 'DISABLE' => 0, 'ENABLE' => 1 })
+        expect(result['TEST']["headers"][3]['name']).to eql "PPS"
+        expect(result['TEST']["headers"][3]['states']).to eql({ 'UNCHECKED' => 0, 'CHECKED' => 1 })
+        expect(result['TEST']["rows"][0]['INDEX']).to eql 1
+        expect(result['TEST']["rows"][0]['THROTTLE']).to eql '0x0'
+        expect(result['TEST']["rows"][0]['SCRUBBING']).to eql 'DISABLE'
+        expect(result['TEST']["rows"][0]['PPS']).to eql 'UNCHECKED'
         File.delete(bin_file)
         tf.unlink
       end

@@ -70,12 +70,16 @@ module Cosmos
       file_open(bin_path, def_path)
       tables = {}
       @config.tables.each do |table_name, table|
-        tables[table_name] = { num_rows: table.num_rows, num_columns: table.num_columns, rows: [] }
+        tables[table_name] = { num_rows: table.num_rows, num_columns: table.num_columns, headers: [], rows: [] }
         col = 0
+        row = 0
         num_cols = table.num_columns
         table.sorted_items.each_with_index do |item, index|
           next if item.hidden
           if table.num_columns == 1
+            if row == 0
+              tables[table_name][:headers] = ["INDEX", "NAME", "VALUE"]
+            end
             tables[table_name][:rows] << {
               index: index + 1,
               name: item.name,
@@ -84,23 +88,32 @@ module Cosmos
               editable: item.editable,
             }
           else
-            if col == 0
-              tables[table_name][:rows] << {
-                index: tables[table_name][:rows].length + 1,
-                name0: item.name,
-                value0: table.read(item.name, :FORMATTED),
-                states0: item.states,
-                editable0: item.editable,
+            if row == 0 && col == 0
+              tables[table_name][:headers] << {
+                name: "INDEX",
+                states: nil,
+                editable: false,
               }
-            else
-              tables[table_name][:rows][-1]["name#{col}"] = item.name
-              tables[table_name][:rows][-1]["value#{col}"] = table.read(item.name, :FORMATTED)
-              tables[table_name][:rows][-1]["states#{col}"] = item.states
-              tables[table_name][:rows][-1]["editable#{col}"] = item.editable
             end
+            if row == 0
+              tables[table_name][:headers] << {
+                name: item.name[0..-2], # Strip the index from the name, e.g. ITEM0
+                states: item.states,
+                editable: item.editable,
+              }
+            end
+            if col == 0
+              # Each row is a hash of values
+              tables[table_name][:rows][row] = {}
+              tables[table_name][:rows][row]['INDEX'] = row + 1
+            end
+            tables[table_name][:rows][row][item.name[0..-2]] = table.read(item.name, :FORMATTED)
           end
           col += 1
-          col = 0 if col == table.num_columns
+          if col == table.num_columns
+            col = 0
+            row += 1
+          end
         end
       end
       tables.to_json

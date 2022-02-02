@@ -68,6 +68,7 @@ module Cosmos
       @converted_bit_size = nil
       @proc_text = ''
       @building_generic_conversion = false
+      @defaults = []
 
       parser =
         ConfigParser.new(
@@ -115,6 +116,7 @@ module Cosmos
             @current_packet =
               TableParser.parse_table(parser, @commands, @warnings)
             @current_cmd_or_tlm = COMMAND
+            @default_index = 0
 
             # Select an existing table for editing
           when 'SELECT_TABLE'
@@ -154,6 +156,13 @@ module Cosmos
               raise parser.error("No current item for #{keyword}")
             end
             process_current_item(parser, keyword, params)
+
+          when 'DEFAULT'
+            if params.length != @current_packet.sorted_items.length
+              raise parser.error("DEFAULT #{params.join(' ')} length of #{params.length} doesn't match item length of #{@current_packet.sorted_items.length}")
+            end
+            @defaults.concat(params)
+
           else
             # blank config.lines will have a nil keyword and should not raise an exception
             raise parser.error("Unknown keyword '#{keyword}'") if keyword
@@ -217,6 +226,20 @@ module Cosmos
               new_item = item.clone
               new_item.name = "#{new_item.name[0...-1]}#{row + 1}"
               @current_packet.append(new_item)
+            end
+          end
+        end
+        unless @defaults.empty?
+          @current_packet.sorted_items.each_with_index do |item, index|
+            puts "item name:#{item.name} default:#{item.default} new default:#{@defaults[index]}"
+            case item.data_type
+            when :INT, :UINT
+              # Integer handles hex strings, e.g. 0xDEADBEEF
+              item.default = Integer(@defaults[index])
+            when :FLOAT
+              item.default = @defaults[index].to_f
+            when :STRING, :BLOCK
+              item.default = @defaults[index]
             end
           end
         end
