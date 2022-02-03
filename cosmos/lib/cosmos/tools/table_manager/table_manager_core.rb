@@ -80,34 +80,35 @@ module Cosmos
             if row == 0
               tables[table_name][:headers] = ["INDEX", "NAME", "VALUE"]
             end
-            tables[table_name][:rows] << {
-              index: index + 1,
+            tables[table_name][:rows] << [{
+              index: row + 1,
+              name: item.name,
+              value: table.read(item.name, :FORMATTED),
+              states: item.states,
+              editable: item.editable,
+              # Tell the frontend this is a 1D item
+              one_dimensional: true,
+            }]
+          else
+            if row == 0 && col == 0
+              tables[table_name][:headers] << "INDEX"
+            end
+            if row == 0
+              tables[table_name][:headers] << item.name[0..-2]
+            end
+            if col == 0
+              # Each row is an array of items
+              tables[table_name][:rows][row] = []
+            end
+            tables[table_name][:rows][row] << {
+              index: row + 1,
               name: item.name,
               value: table.read(item.name, :FORMATTED),
               states: item.states,
               editable: item.editable,
             }
-          else
-            if row == 0 && col == 0
-              tables[table_name][:headers] << {
-                name: "INDEX",
-                states: nil,
-                editable: false,
-              }
-            end
-            if row == 0
-              tables[table_name][:headers] << {
-                name: item.name[0..-2], # Strip the index from the name, e.g. ITEM0
-                states: item.states,
-                editable: item.editable,
-              }
-            end
-            if col == 0
-              # Each row is a hash of values
-              tables[table_name][:rows][row] = {}
-              tables[table_name][:rows][row]['INDEX'] = row + 1
-            end
-            tables[table_name][:rows][row][item.name[0..-2]] = table.read(item.name, :FORMATTED)
+            # Set the header name to the value so they can all be displayed with the same key
+            # tables[table_name][:rows][row][-1][item.name[0..-2]] = table.read(item.name, :FORMATTED)
           end
           col += 1
           if col == table.num_columns
@@ -122,11 +123,13 @@ module Cosmos
     def save_json(bin_path, def_path, json)
       file_open(bin_path, def_path)
       @config.tables.each do |table_name, table|
-        json[table_name.upcase]['rows'].each do |item|
-          # TODO: Can we even edit items like this:
-          # item:{"name"=>"BINARY", "value"=>{"json_class"=>"String", "raw"=>[222, 173, 190, 239]} }
-          next if item['value'].is_a? Hash
-          table.write(item['name'], item['value'])
+        json[table_name.upcase]['rows'].each do |row|
+          row.each do |item|
+            # TODO: Can we even edit items like this:
+            # item:{"name"=>"BINARY", "value"=>{"json_class"=>"String", "raw"=>[222, 173, 190, 239]} }
+            next if item['value'].is_a? Hash
+            table.write(item['name'], item['value'])
+          end
         end
       end
       file_save(bin_path)

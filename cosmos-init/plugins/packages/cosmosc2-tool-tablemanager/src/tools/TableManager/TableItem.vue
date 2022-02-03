@@ -18,37 +18,33 @@
 -->
 
 <template>
-  <tr>
-    <td class="text-start">{{ item.index }}</td>
-    <td class="text-start">{{ item.name }}</td>
-    <td>
-      <v-checkbox
-        v-if="isCheckbox"
-        dense
-        hide-details
-        v-model="checkValue"
-        @change="checkboxChange"
-      />
-      <v-select
-        v-else-if="dataItem.states"
-        dense
-        hide-details
-        v-model="stateValue"
-        :items="itemStates"
-        @change="stateChange"
-      />
-      <v-text-field
-        v-else
-        solo
-        dense
-        single-line
-        hide-no-data
-        hide-details
-        v-model="dataItem.value"
-        @change="textChange"
-      />
-    </td>
-  </tr>
+  <td>
+    <v-checkbox
+      v-if="isCheckbox"
+      dense
+      hide-details
+      v-model="checkValue"
+      @change="checkboxChange"
+    />
+    <v-select
+      v-else-if="dataItem.states"
+      dense
+      hide-details
+      v-model="stateValue"
+      :items="itemStates"
+      @change="stateChange"
+    />
+    <v-text-field
+      v-else
+      solo
+      dense
+      single-line
+      hide-no-data
+      hide-details
+      v-model="dataItem.value"
+      @change="textChange"
+    />
+  </td>
 </template>
 
 <script>
@@ -67,7 +63,6 @@ export default {
     }
   },
   created() {
-    console.log(this.dataItem)
     if (this.dataItem.states) {
       this.stateValue = this.dataItem.states[this.dataItem.value]
     }

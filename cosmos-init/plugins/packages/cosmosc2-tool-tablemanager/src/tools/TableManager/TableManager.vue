@@ -87,6 +87,7 @@
         />
       </v-card-title>
       <v-data-table
+        :key="filename"
         :headers="headers"
         :items="table.rows"
         :search="search"
@@ -97,18 +98,7 @@
         dense
       >
         <template v-slot:item="{ item }">
-          <table-item
-            v-if="table.num_columns === 1"
-            :item="item"
-            :key="item.name"
-            @change="onChange(item, $event)"
-          />
-          <table-row
-            v-else
-            :item="item"
-            :key="item.name"
-            @change="onChange(item, $event)"
-          />
+          <table-row :items="item" @change="onChange(item, $event)" />
         </template>
       </v-data-table>
     </v-card>
@@ -142,7 +132,6 @@
 import Api from '@cosmosc2/tool-common/src/services/api'
 import { CosmosApi } from '@cosmosc2/tool-common/src/services/cosmos-api'
 import TopBar from '@cosmosc2/tool-common/src/components/TopBar'
-import TableItem from '@/tools/TableManager/TableItem'
 import TableRow from '@/tools/TableManager/TableRow'
 import FileOpenSaveDialog from '@cosmosc2/tool-common/src/components/FileOpenSaveDialog'
 import SimpleTextDialog from '@cosmosc2/tool-common/src/components/SimpleTextDialog'
@@ -150,7 +139,6 @@ import SimpleTextDialog from '@cosmosc2/tool-common/src/components/SimpleTextDia
 export default {
   components: {
     TopBar,
-    TableItem,
     TableRow,
     FileOpenSaveDialog,
     SimpleTextDialog,
@@ -401,26 +389,15 @@ export default {
         data: formData,
       })
         .then((response) => {
+          this.table = null
           this.definitionFilename = definitionFilename
           // TODO: Handle multiple tables with v-tabs
           for (const [tableName, table] of Object.entries(response.data)) {
             this.tableName = tableName
             this.table = table
-            console.log(table)
-            if (table.num_columns === 1) {
-              this.headers = table.headers
-              // this.headers = [
-              //   { text: 'Index', value: 'index' },
-              //   { text: 'Name', value: 'name' },
-              //   { text: 'Value', value: 'value' },
-              // ]
-            } else {
-              this.headers = [{ text: 'Index', value: 'index' }]
-              for (let i = 0; i < table.num_columns; i++) {
-                const name = table.rows[i][`name${i}`].slice(0, -1)
-                this.headers.push({ text: name, value: `value${i}` })
-              }
-              console.log(this.headers)
+            this.headers = []
+            for (name of table.headers) {
+              this.headers.push({ text: name, value: name })
             }
           }
         })
@@ -449,9 +426,9 @@ export default {
         this.getDefinition(file.name)
       })
     },
-    onChange: function (item, event) {
+    onChange: function (item, { index, event }) {
       this.fileModified = '*'
-      item.value = event
+      item[index].value = event
     },
   },
 }

@@ -231,7 +231,6 @@ module Cosmos
         end
         unless @defaults.empty?
           @current_packet.sorted_items.each_with_index do |item, index|
-            puts "item name:#{item.name} default:#{item.default} new default:#{@defaults[index]}"
             case item.data_type
             when :INT, :UINT
               # Integer handles hex strings, e.g. 0xDEADBEEF

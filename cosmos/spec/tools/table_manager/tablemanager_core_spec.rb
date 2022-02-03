@@ -53,6 +53,7 @@ module Cosmos
         json = core.generate_json(bin_file, tf.path)
         File.delete(bin_file)
         result = JSON.parse(json)
+        pp result
         expect(result).to be_a Hash
         expect(result.keys).to eql ['TEST']
         expect(result['TEST']["num_rows"]).to eql 3
@@ -99,6 +100,7 @@ module Cosmos
         tf.puts '    STATE UNCHECKED 0'
         tf.puts '    STATE CHECKED 1'
         tf.puts '    UNEDITABLE'
+        # Defaults
         tf.puts 'DEFAULT 0 0 0'
         tf.puts 'DEFAULT 0xDEADBEEF 1 1'
         tf.puts 'DEFAULT 0xBA5EBA11 0 1'
