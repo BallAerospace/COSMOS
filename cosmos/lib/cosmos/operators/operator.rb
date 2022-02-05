@@ -53,6 +53,13 @@ module Cosmos
       # This lets the ChildProcess use the parent IO ... but it breaks unit tests
       # @process.io.inherit!
       @process.cwd = @work_dir
+      # Spawned process should not be controlled by same Bundler constraints as spawning process
+      ENV.each do |key, value|
+        if key =~ /^BUNDLER/
+          @process.environment[key] = nil
+        end
+      end
+      @env['RUBYOPT'] = nil # Removes loading bundler setup
       @env.each do |key, value|
         @process.environment[key] = value
       end

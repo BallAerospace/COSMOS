@@ -119,17 +119,43 @@ class Script
     results = nil
     success = true
     if new_process
-      check_process = IO.popen('ruby 2>&1', 'r+')
-      check_process.write(
-        "require 'json'; require 'cosmos/script/suite_runner'; require '#{temp.path}'; puts Cosmos::SuiteRunner.build_suites.to_json",
-      )
-      check_process.close_write
-      results = check_process.readlines
-      check_process.close
+      process = ChildProcess.build('ruby', "-e", "require 'json'; require 'cosmos/script/suite_runner'; require '#{temp.path}'; puts Cosmos::SuiteRunner.build_suites.to_json")
+      process.cwd = File.join(RAILS_ROOT, 'scripts')
 
-      # Once close is called Ruby sets the $? variable which is a Process::Status instance
-      # See https://www.rubydoc.info/stdlib/core/IO.popen & https://www.rubydoc.info/stdlib/core/Process/Status
-      success = $?.success?
+      # Set proper secrets for running script
+      process.environment['SECRET_KEY_BASE'] = nil
+      process.environment['COSMOS_REDIS_USERNAME'] = ENV['COSMOS_SR_REDIS_USERNAME']
+      process.environment['COSMOS_REDIS_PASSWORD'] = ENV['COSMOS_SR_REDIS_PASSWORD']
+      process.environment['COSMOS_MINIO_USERNAME'] = ENV['COSMOS_SR_MINIO_USERNAME']
+      process.environment['COSMOS_MINIO_PASSWORD'] = ENV['COSMOS_SR_MINIO_PASSWORD']
+      process.environment['COSMOS_SR_REDIS_USERNAME'] = nil
+      process.environment['COSMOS_SR_REDIS_PASSWORD'] = nil
+      process.environment['COSMOS_SR_MINIO_USERNAME'] = nil
+      process.environment['COSMOS_SR_MINIO_PASSWORD'] = nil
+      process.environment['COSMOS_API_USER'] = ENV['COSMOS_API_USER']
+      process.environment['COSMOS_API_PASSWORD'] = ENV['COSMOS_API_PASSWORD'] || ENV['COSMOS_SERVICE_PASSWORD']
+      process.environment['COSMOS_API_CLIENT'] = ENV['COSMOS_API_CLIENT']
+      process.environment['COSMOS_API_SECRET'] = ENV['COSMOS_API_SECRET']
+      process.environment['GEM_HOME'] = ENV['GEM_HOME']
+
+      # Spawned process should not be controlled by same Bundler constraints as spawning process
+      ENV.each do |key, value|
+        if key =~ /^BUNDLER/
+          process.environment[key] = nil
+        end
+      end
+      process.environment['RUBYOPT'] = nil # Removes loading bundler setup
+      out = Tempfile.new("child-output")
+      out.sync = true
+      process.io.stdout = out
+      process.io.stderr = out
+      process.start
+      process.wait
+      out.rewind
+      results = out.read
+      out.close
+      out.unlink
+      success = process.exit_code == 0
     else
       require temp.path
       Cosmos::SuiteRunner.build_suites
