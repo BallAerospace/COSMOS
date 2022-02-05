@@ -296,6 +296,14 @@ class RunningScript
     process.environment['COSMOS_API_SECRET'] = ENV['COSMOS_API_SECRET']
     process.environment['GEM_HOME'] = ENV['GEM_HOME']
 
+    # Spawned process should not be controlled by same Bundler constraints as spawning process
+    ENV.each do |key, value|
+      if key =~ /^BUNDLER/
+        process.environment[key] = nil
+      end
+    end
+    process.environment['RUBYOPT'] = nil # Removes loading bundler setup
+
     process.start
     running_script_id
   end

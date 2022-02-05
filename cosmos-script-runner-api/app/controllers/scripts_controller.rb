@@ -54,7 +54,12 @@ class ScriptsController < ApplicationController
         "locked" => locked
       }
       if params[:name].include?('suite')
-        results['suites'], success = Script.process_suite(params[:name], file)
+        results_suites, success = Script.process_suite(params[:name], file)
+        if success
+          results['suites'] = results_suites
+        else
+          results['error'] = results_suites
+        end
       end
       # If the parsing of the Suite was not successful return a 422 (Unprocessable Entity)
       status = success ? 200 : 422
