@@ -50,7 +50,7 @@ export default {
   },
   computed: {
     oneDimensional() {
-      if (this.dataItems[0].one_dimensional) {
+      if (this.dataItems.length === 1) {
         return true
       } else {
         return false

@@ -233,8 +233,17 @@ module Cosmos
           @current_packet.sorted_items.each_with_index do |item, index|
             case item.data_type
             when :INT, :UINT
-              # Integer handles hex strings, e.g. 0xDEADBEEF
-              item.default = Integer(@defaults[index])
+              begin
+                # Integer handles hex strings, e.g. 0xDEADBEEF
+                item.default = Integer(@defaults[index])
+              rescue ArgumentError
+                value = item.states[@defaults[index]]
+                if value
+                  item.default = value
+                else
+                  raise "Unknown DEFAULT #{@defaults[index]} for item #{item.name}. Valid states are #{item.states.keys.join(', ')}."
+                end
+              end
             when :FLOAT
               item.default = @defaults[index].to_f
             when :STRING, :BLOCK

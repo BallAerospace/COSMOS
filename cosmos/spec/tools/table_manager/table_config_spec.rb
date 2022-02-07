@@ -220,6 +220,27 @@ module Cosmos
         end
       end
 
+      context "with DEFAULT" do
+        it "sets the default value of a 2D table" do
+          tf = Tempfile.new('unittest')
+          tf.puts 'TABLE table LITTLE_ENDIAN TWO_DIMENSIONAL 2 "Table"'
+          tf.puts '  APPEND_PARAMETER item1 16 UINT 0 1 0 "Item"'
+          tf.puts '    STATE DISABLE 0'
+          tf.puts '    STATE ENABLE 1'
+          tf.puts '  APPEND_PARAMETER item2 16 UINT 0 0xFFFF 0 "Item"'
+          tf.puts 'DEFAULT ENABLE 0x10' # Test states
+          tf.puts 'DEFAULT 0 0'         # Test values
+          tf.close
+          tc.process_file(tf.path)
+          tbl = tc.table("TABLE")
+          expect(tbl.get_item("ITEM10").default).to eql 1
+          expect(tbl.get_item("ITEM20").default).to eql 0x10
+          expect(tbl.get_item("ITEM11").default).to eql 0
+          expect(tbl.get_item("ITEM21").default).to eql 0
+          tf.unlink
+        end
+      end
+
     end # describe "process_file"
   end
 end

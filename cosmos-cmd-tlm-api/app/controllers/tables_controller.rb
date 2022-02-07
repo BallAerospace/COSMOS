@@ -116,8 +116,8 @@ class TablesController < ModelController
       head :ok
     rescue Cosmos::TableManagerCore::CoreError => e
       render(json: { status: 'error', message: e.message }, status: 400)
-    rescue => err
-      puts err
+    rescue => e
+      puts e
       head :internal_server_error
     end
   end

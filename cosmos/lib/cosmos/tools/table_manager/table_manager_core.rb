@@ -67,8 +67,12 @@ module Cosmos
     end
 
     def generate_json(bin_path, def_path)
-      file_open(bin_path, def_path)
       tables = {}
+      begin
+        file_open(bin_path, def_path)
+      rescue CoreError => err
+        tables['table_manager_errors'] = err.message
+      end
       @config.tables.each do |table_name, table|
         tables[table_name] = { num_rows: table.num_rows, num_columns: table.num_columns, headers: [], rows: [] }
         col = 0
@@ -86,8 +90,6 @@ module Cosmos
               value: table.read(item.name, :FORMATTED),
               states: item.states,
               editable: item.editable,
-              # Tell the frontend this is a 1D item
-              one_dimensional: true,
             }]
           else
             if row == 0 && col == 0
@@ -107,8 +109,6 @@ module Cosmos
               states: item.states,
               editable: item.editable,
             }
-            # Set the header name to the value so they can all be displayed with the same key
-            # tables[table_name][:rows][row][-1][item.name[0..-2]] = table.read(item.name, :FORMATTED)
           end
           col += 1
           if col == table.num_columns

@@ -87,7 +87,6 @@
         />
       </v-card-title>
       <v-data-table
-        :key="filename"
         :headers="headers"
         :items="table.rows"
         :search="search"
@@ -278,6 +277,13 @@ export default {
         this.getDefinition()
       }
     },
+    // Called by the FileOpenSaveDialog on error
+    setError(event) {
+      this.errorTitle = 'Error'
+      this.errorText = `Error: ${event}`
+      this.errorText = response.data.message
+      this.showError = true
+    },
     saveFile: function () {
       // Save a file by posting the new contents
       this.showSave = true
@@ -393,12 +399,19 @@ export default {
           this.definitionFilename = definitionFilename
           // TODO: Handle multiple tables with v-tabs
           for (const [tableName, table] of Object.entries(response.data)) {
+            if (tableName === 'table_manager_errors') { continue; }
             this.tableName = tableName
             this.table = table
             this.headers = []
             for (name of table.headers) {
               this.headers.push({ text: name, value: name })
             }
+          }
+          if (response.data['table_manager_errors']) {
+            this.$notify.caution({
+              title: 'Warning',
+              body: response.data['table_manager_errors'],
+            })
           }
         })
         .catch((error) => {
