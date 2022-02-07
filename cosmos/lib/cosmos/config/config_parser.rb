@@ -238,6 +238,27 @@ module Cosmos
       end
     end
 
+    # Verifies the indicated parameter(s) in the config don't start or end
+    # with an underscore and don't contain a double underscore. Raises an
+    # Error if they do.
+    #
+    # @param [Integer|Range<Integer>|Array<Integer>] indeces_to_check The
+    #   indeces of the parameters that must follow underscore rules
+    def verify_parameters_underscores(indeces_to_check, usage = "")
+      indeces_to_check = (1..@parameters.length) if indeces_to_check.nil?
+      indeces_to_check = [indeces_to_check] unless indeces_to_check.respond_to? 'each'
+
+      indeces_to_check.each do |index|
+        param = @parameters[index - 1]
+        if param.start_with? '_' or param.end_with? '_'
+          raise Error.new(self, "Parameter #{index} (#{@parameters[index - 1]}) for #{@keyword} cannot begin or end with an underscore ('_').", usage, @url)
+        end
+        if param.include? '__'
+          raise Error.new(self, "Parameter #{index} (#{@parameters[index - 1]}) for #{@keyword} cannot contain a double underscore ('__').", usage, @url)
+        end
+      end
+    end
+
     # Converts a String containing '', 'NIL' or 'NULL' to nil Ruby primitive.
     # All other arguments are simply returned.
     #
