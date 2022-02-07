@@ -1,5 +1,5 @@
 /*
-# Copyright 2022 Ball Aerospace & Technologies Corp.
+# Copyright 2021 Ball Aerospace & Technologies Corp.
 # All Rights Reserved.
 #
 # This program is free software; you can modify and/or redistribute it
@@ -17,8 +17,27 @@
 # copyright holder
 */
 
-import CmdCompleter from './cmdCompleter.js'
-import TlmCompleter from './tlmCompleter.js'
-import MnemonicChecker from './mnemonicChecker.js'
+import Api from '@cosmosc2/tool-common/src/services/api'
 
-export { CmdCompleter, TlmCompleter, MnemonicChecker }
+const getKeywords = (type) => {
+  return Api.get(`/cosmos-api/autocomplete/keywords/${type}`)
+}
+
+const getAutocompleteData = (type) => {
+  return Api.get(`/cosmos-api/autocomplete/data/${type}`)
+}
+
+// This should probably go in some higher up util library thing place
+const groupBy = (array, lambda) => {
+  return array.reduce((groups, item) => {
+    const key = lambda(item)
+    if (groups[key]) {
+      groups[key].push(item)
+    } else {
+      groups[key] = [item]
+    }
+    return groups
+  }, {})
+}
+
+export { getKeywords, getAutocompleteData, groupBy }

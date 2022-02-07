@@ -9,7 +9,7 @@ Please use [releases] instead of the `master/main` branch in order to get stable
 [![Code Climate](https://codeclimate.com/github/BallAerospace/COSMOS/badges/gpa.svg)](https://codeclimate.com/github/BallAerospace/COSMOS)
 [![Codecov](https://img.shields.io/codecov/c/github/codecov/example-python.svg)](https://codecov.io/gh/BallAerospace/COSMOS)
 
-[Documentation](http://cosmosrb.com)
+[Documentation](http://cosmosc2.com)
 
 Ball Aerospace COSMOS provides all the functionality needed to send commands to and receive data from one or more embedded systems referred to as "targets". Out of the box functionality includes: Telemetry Display, Telemetry Graphing, Operational and Test Scripting, Command Sending, Logging, Log File Playback, and more.
 

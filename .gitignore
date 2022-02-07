@@ -2,6 +2,7 @@
 *.def
 *.so
 *.bundle
+*.gem
 Makefile
 *Gemfile.lock
 .yardoc

@@ -38,15 +38,6 @@ jobs:
         env:
           RUBYGEMS_URL: https://rubygems.org
           COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
-          COSMOS_REDIS_USERNAME: test
-          COSMOS_REDIS_PASSWORD: testPassword
-          COSMOS_MINIO_USERNAME: testMinio
-          COSMOS_MINIO_PASSWORD: testMinioPassword
-          COSMOS_SERVICE_PASSWORD: testService
-          COSMOS_SR_REDIS_USERNAME: testRunner
-          COSMOS_SR_REDIS_PASSWORD: testRunnerPassword
-          COSMOS_SR_MINIO_USERNAME: testRunnerMinio
-          COSMOS_SR_MINIO_PASSWORD: testRunnerMinioPassword
       - name: Run tests without extensions
         run: bundle exec rspec --tag no_ext
         working-directory: cosmos
@@ -54,12 +45,3 @@ jobs:
           COSMOS_NO_EXT: 1
           RUBYGEMS_URL: https://rubygems.org
           COSMOS_DEVEL: ${GITHUB_WORKSPACE}\cosmos
-          COSMOS_REDIS_USERNAME: test
-          COSMOS_REDIS_PASSWORD: testPassword
-          COSMOS_MINIO_USERNAME: testMinio
-          COSMOS_MINIO_PASSWORD: testMinioPassword
-          COSMOS_SERVICE_PASSWORD: testService
-          COSMOS_SR_REDIS_USERNAME: testRunner
-          COSMOS_SR_REDIS_PASSWORD: testRunnerPassword
-          COSMOS_SR_MINIO_USERNAME: testRunnerMinio
-          COSMOS_SR_MINIO_PASSWORD: testRunnerMinioPassword

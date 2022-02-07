@@ -29,15 +29,21 @@
         <v-card-text>
           <div class="pa-3">
             <template v-for="(plugin, index) of localVariables">
+              <v-row class="mt-3" :key="index">
+                <v-col cols="12">
+                  <h3>{{ plugin.name }}</h3>
+                </v-col>
+              </v-row>
               <v-row class="mt-3" :key="plugin.name">
-                <h3>{{ plugin.name }}</h3>
                 <div v-for="(value, name) in plugin.variables" :key="name">
-                  <v-text-field
-                    clearable
-                    type="text"
-                    :label="name"
-                    v-model="plugin.variables[name]"
-                  />
+                  <v-col>
+                    <v-text-field
+                      clearable
+                      type="text"
+                      :label="name"
+                      v-model="plugin.variables[name]"
+                    />
+                  </v-col>
                 </div>
               </v-row>
               <v-divider

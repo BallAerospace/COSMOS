@@ -41,7 +41,7 @@ module Cosmos
     def start
       super()
       if @process
-        @status = ProcessStatusModel.new(name: "#{Socket.gethostname}__#{@process.pid}", process_type: @process_type, state: "Running", scope: @scope)
+        @status = ProcessStatusModel.new(name: "#{Socket.gethostname}__#{@process.pid}", process_type: @process_type, detail: @detail, state: "Running", scope: @scope)
         @status.create
       end
     end
