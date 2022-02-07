@@ -86,20 +86,34 @@
           hide-details
         />
       </v-card-title>
-      <v-data-table
-        :headers="headers"
-        :items="table.rows"
-        :search="search"
-        calculate-widths
-        disable-pagination
-        hide-default-footer
-        multi-sort
-        dense
-      >
-        <template v-slot:item="{ item }">
-          <table-row :items="item" @change="onChange(item, $event)" />
-        </template>
-      </v-data-table>
+      <v-tabs v-model="curTab">
+        <v-tab v-for="(table, index) in tables" :key="index">
+          {{ table.name }}
+        </v-tab>
+      </v-tabs>
+      <v-tabs-items v-model="curTab">
+        <v-tab-item
+          v-for="(table, index) in tables"
+          :key="`${filename}${index}`"
+        >
+          <v-data-table
+            :key="`${filename}${index}`"
+            :headers="table.headers"
+            :items="table.rows"
+            :search="search"
+            :custom-filter="tableSearch"
+            calculate-widths
+            disable-pagination
+            hide-default-footer
+            multi-sort
+            dense
+          >
+            <template v-slot:item="{ item }">
+              <table-row :items="item" @change="onChange(item, $event)" />
+            </template>
+          </v-data-table>
+        </v-tab-item>
+      </v-tabs-items>
     </v-card>
     <file-open-save-dialog
       v-if="fileOpen"
@@ -146,13 +160,8 @@ export default {
     return {
       title: 'Table Manager',
       search: '',
-      table: { rows: [] },
-      tableName: '',
-      headers: [
-        { text: 'Index', value: 'index' },
-        { text: 'Name', value: 'name' },
-        { text: 'Value', value: 'value' },
-      ],
+      curTab: null,
+      tables: [],
       api: null,
       definition: null,
       fileInput: '',
@@ -248,6 +257,17 @@ export default {
     this.api = new CosmosApi()
   },
   methods: {
+    // This is basically doing what the default search does ...
+    // it filters the table but doesn't show the correct index, WTF?!?
+    tableSearch(value, search, item){
+      // console.log(value)
+      // console.log(search)
+      // console.log(item)
+      return value != null &&
+          search != null &&
+          typeof value === 'string' &&
+          value.toLowerCase().indexOf(search.toLowerCase()) !== -1
+    },
     // File menu actions
     newFile: function () {
       this.fileModified = ''
@@ -291,6 +311,7 @@ export default {
       const formData = new FormData()
       formData.append('binary', this.filename)
       formData.append('definition', this.definitionFilename)
+      // TODO FIX
       let table = { [this.tableName]: this.table }
       formData.append('table', JSON.stringify(table))
       Api.post(`/cosmos-api/tables/${this.filename}`, {
@@ -397,20 +418,33 @@ export default {
         .then((response) => {
           this.table = null
           this.definitionFilename = definitionFilename
-          // TODO: Handle multiple tables with v-tabs
-          for (const [tableName, table] of Object.entries(response.data)) {
-            if (tableName === 'table_manager_errors') { continue; }
-            this.tableName = tableName
-            this.table = table
-            this.headers = []
-            for (name of table.headers) {
-              this.headers.push({ text: name, value: name })
+          this.tables = response.data['tables']
+          // Build up the headers for proper searching
+          for (let table of this.tables) {
+            console.log(table)
+            let headerNames = [...table.headers]
+            table.headers = []
+            for (let i = 0; i < headerNames.length; i++) {
+              if (table.numColumns === 1) {
+                // In the 1D table the searchable value is the first value in the row
+                // Note the names in 1D are INDEX, NAME, VALUE
+                table.headers.push({ text: headerNames[i], value: `[0].${headerNames[i].toLowerCase()}`})
+              } else {
+                // In the 2D table the searchable value is always in the value attribute
+                // of the current column item
+                table.headers.push({ text: headerNames[i], value: `[${i}].value`})
+              }
+              if (headerNames[i] === 'INDEX'){
+                table.headers[table.headers.length - 1].filterable = false
+              }
             }
+            console.log(table.headers)
           }
-          if (response.data['table_manager_errors']) {
+
+          if (response.data['errors']) {
             this.$notify.caution({
               title: 'Warning',
-              body: response.data['table_manager_errors'],
+              body: response.data['errors'],
             })
           }
         })

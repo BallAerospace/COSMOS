@@ -67,14 +67,21 @@ module Cosmos
     end
 
     def generate_json(bin_path, def_path)
-      tables = {}
+      tables = []
+      json = { tables: tables }
       begin
         file_open(bin_path, def_path)
       rescue CoreError => err
-        tables['table_manager_errors'] = err.message
+        json['errors'] = err.message
       end
       @config.tables.each do |table_name, table|
-        tables[table_name] = { num_rows: table.num_rows, num_columns: table.num_columns, headers: [], rows: [] }
+        tables << {
+          name: table_name,
+          numRows: table.num_rows,
+          numColumns: table.num_columns,
+          headers: [],
+          rows: [],
+        }
         col = 0
         row = 0
         num_cols = table.num_columns
@@ -82,27 +89,29 @@ module Cosmos
           next if item.hidden
           if table.num_columns == 1
             if row == 0
-              tables[table_name][:headers] = ["INDEX", "NAME", "VALUE"]
+              tables[-1][:headers] = [ "INDEX", "NAME", "VALUE" ]
             end
-            tables[table_name][:rows] << [{
-              index: row + 1,
-              name: item.name,
-              value: table.read(item.name, :FORMATTED),
-              states: item.states,
-              editable: item.editable,
-            }]
+            tables[-1][:rows] << [
+              {
+                index: row + 1,
+                name: item.name,
+                value: table.read(item.name, :FORMATTED),
+                states: item.states,
+                editable: item.editable,
+              },
+            ]
           else
             if row == 0 && col == 0
-              tables[table_name][:headers] << "INDEX"
+              tables[-1][:headers] << ["INDEX"]
             end
             if row == 0
-              tables[table_name][:headers] << item.name[0..-2]
+              tables[-1][:headers] << item.name[0..-2]
             end
             if col == 0
               # Each row is an array of items
-              tables[table_name][:rows][row] = []
+              tables[-1][:rows][row] = []
             end
-            tables[table_name][:rows][row] << {
+            tables[-1][:rows][row] << {
               index: row + 1,
               name: item.name,
               value: table.read(item.name, :FORMATTED),
@@ -117,7 +126,7 @@ module Cosmos
           end
         end
       end
-      tables.to_json
+      json.to_json
     end
 
     def save_json(bin_path, def_path, json)

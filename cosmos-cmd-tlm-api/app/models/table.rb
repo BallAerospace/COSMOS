@@ -114,18 +114,21 @@ class Table
     true
   end
 
-  def self.generate(scope, name, definition)
+  def self.generate(scope, definition_filename, definition)
     return false unless definition
 
     tgt_s3_filename = nil
     temp_dir = Dir.mktmpdir
+    definition_path = "#{temp_dir}/#{File.basename(definition_filename)}"
     begin
-      definition_path = "#{temp_dir}/#{File.basename(name)}"
-      File.open(definition_path, 'w') do |file|
-        file.write(definition)
+      Table.get_definitions(scope, definition_filename, definition).each do |name, contents|
+        path = "#{temp_dir}/#{File.basename(name)}"
+        File.open(path, 'w') do |file|
+          file.write(contents)
+        end
       end
       binary = Cosmos::TableManagerCore.new.file_new(definition_path, temp_dir)
-      tgt_s3_filename = "#{File.dirname(name).sub('/config','/bin')}/#{File.basename(binary)}"
+      tgt_s3_filename = "#{File.dirname(definition_filename).sub('/config','/bin')}/#{File.basename(binary)}"
       File.open(binary, 'rb') do |file|
         # Any modifications to the plug-in (including File->New) goes in targets_modified
         Aws::S3::Client.new().put_object(bucket: DEFAULT_BUCKET_NAME, key: "#{scope}/targets_modified/#{tgt_s3_filename}", body: file)
@@ -141,16 +144,20 @@ class Table
     return nil unless binary
     definition = Table.body(scope, definition_filename)
     return nil unless definition
+
     json = ''
     temp_dir = Dir.mktmpdir
+    definition_path = "#{temp_dir}/#{File.basename(definition_filename)}"
     begin
       binary_path = temp_dir + '/data.bin'
       File.open(binary_path, 'wb') do |file|
         file.write(binary)
       end
-      definition_path = temp_dir + '/def.txt'
-      File.open(definition_path, 'w') do |file|
-        file.write(definition)
+      Table.get_definitions(scope, definition_filename, definition).each do |name, contents|
+        path = "#{temp_dir}/#{File.basename(name)}"
+        File.open(path, 'w') do |file|
+          file.write(contents)
+        end
       end
       json = Cosmos::TableManagerCore.new.generate_json(binary_path, definition_path)
     ensure
@@ -185,5 +192,20 @@ class Table
     locked_by = Cosmos::Store.hget("#{scope}__table-locks", name)
     locked_by ||= false
     locked_by
+  end
+
+  def self.get_definitions(scope, name, definition)
+    files = { name => definition }
+    # If the definition includes TABLEFILE we need to load
+    # the other definitions locally so we can render them
+    base_dir = File.dirname(name)
+    definition.split("\n").each do |line|
+      if line.strip =~ /^TABLEFILE (.*)/
+        filename = File.join(base_dir, $1.remove_quotes)
+        files[filename] = Table.body(scope, filename)
+        raise "Could not find file #{filename}" unless files[filename]
+      end
+    end
+    files
   end
 end
