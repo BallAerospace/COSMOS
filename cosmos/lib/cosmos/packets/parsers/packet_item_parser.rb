@@ -56,6 +56,7 @@ module Cosmos
       max_options = @usage.count("<")
       # The last two options (description and endianness) are optional
       @parser.verify_num_parameters(max_options - 2, max_options, @usage)
+      @parser.verify_parameters_underscores(1) # Item name is the 1st parameter
     end
 
     def create_packet_item(packet, cmd_or_tlm)
