@@ -144,6 +144,7 @@ module Cosmos
       when 'TARGET'
         usage = "#{keyword} <TARGET FOLDER NAME> <TARGET NAME>"
         parser.verify_num_parameters(2, 2, usage)
+        parser.verify_parameters_underscores(2) # Target name is the 2nd parameter
         return self.new(name: parameters[1].to_s.upcase, folder_name: parameters[0].to_s.upcase, plugin: plugin, scope: scope)
       else
         raise ConfigParser::Error.new(parser, "Unknown keyword and parameters for Target: #{keyword} #{parameters.join(" ")}")
