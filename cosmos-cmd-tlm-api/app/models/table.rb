@@ -86,24 +86,27 @@ class Table
     resp.body.read
   end
 
-  def self.save(scope, binary_filename, definition_filename, table = nil)
-    return false unless table
+  def self.save(scope, binary_filename, definition_filename, tables = nil)
+    return false unless tables
 
     binary = Table.body(scope, binary_filename)
     return nil unless binary
     definition = Table.body(scope, definition_filename)
     return nil unless definition
     temp_dir = Dir.mktmpdir
+    definition_path = "#{temp_dir}/#{File.basename(definition_filename)}"
     begin
       binary_path = temp_dir + '/data.bin'
       File.open(binary_path, 'w') do |file|
         file.write(binary)
       end
-      definition_path = temp_dir + '/def.txt'
-      File.open(definition_path, 'w') do |file|
-        file.write(definition)
+      Table.get_definitions(scope, definition_filename, definition).each do |name, contents|
+        path = "#{temp_dir}/#{File.basename(name)}"
+        File.open(path, 'w') do |file|
+          file.write(contents)
+        end
       end
-      binary = Cosmos::TableManagerCore.new.save_json(binary_path, definition_path, JSON.parse(table))
+      binary = Cosmos::TableManagerCore.new.save_tables(binary_path, definition_path, JSON.parse(tables))
       binary_s3_path = "#{scope}/targets_modified/#{binary_filename}"
       File.open(binary, 'rb') do |file|
         Aws::S3::Client.new().put_object(bucket: DEFAULT_BUCKET_NAME, key: binary_s3_path, body: file)

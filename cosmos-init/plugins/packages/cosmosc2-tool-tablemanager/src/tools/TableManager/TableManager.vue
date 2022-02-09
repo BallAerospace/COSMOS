@@ -311,9 +311,7 @@ export default {
       const formData = new FormData()
       formData.append('binary', this.filename)
       formData.append('definition', this.definitionFilename)
-      // TODO FIX
-      let table = { [this.tableName]: this.table }
-      formData.append('table', JSON.stringify(table))
+      formData.append('tables', JSON.stringify(this.tables))
       Api.post(`/cosmos-api/tables/${this.filename}`, {
         data: formData,
       })
@@ -416,7 +414,6 @@ export default {
         data: formData,
       })
         .then((response) => {
-          this.table = null
           this.definitionFilename = definitionFilename
           this.tables = response.data['tables']
           // Build up the headers for proper searching

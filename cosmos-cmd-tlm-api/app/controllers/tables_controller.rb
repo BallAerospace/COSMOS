@@ -112,7 +112,7 @@ class TablesController < ModelController
         return
     end
     begin
-      Table.save(params[:scope], params[:binary], params[:definition], params[:table])
+      Table.save(params[:scope], params[:binary], params[:definition], params[:tables])
       head :ok
     rescue Cosmos::TableManagerCore::CoreError => e
       render(json: { status: 'error', message: e.message }, status: 400)
