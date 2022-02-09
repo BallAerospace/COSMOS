@@ -142,5 +142,7 @@ GOTO :EOF
   @echo *  util: various helper commands 1>&2
   @echo *    encode: encode a string to base64 1>&2
   @echo *    hash: hash a string using SHA-256 1>&2
+  @echo *    load: load docker images from tar files 1>&2
+  @echo *    save: save docker images to tar files 1>&2
 
 @echo on

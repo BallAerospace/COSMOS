@@ -21,6 +21,8 @@ usage() {
   echo "*  util: various helper commands" >&2
   echo "*    encode: encode a string to base64" >&2
   echo "*    hash: hash a string using SHA-256" >&2
+  echo "*    save: save images to tar files" >&2
+  echo "*    load: load images to tar files" >&2
   exit 1
 }
 
