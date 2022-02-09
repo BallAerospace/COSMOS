@@ -131,17 +131,15 @@ module Cosmos
 
     def save_tables(bin_path, def_path, tables)
       file_open(bin_path, def_path)
-      tables.each do |table|
-        puts "table:#{table['name']}"
+      tables['tables'].each do |table|
         table_def = @config.tables[table['name']]
-        table['rows'].each do |item|
-          puts "item:#{item}"
-          # TODO: Can we even edit items like this:
-          # item:{"name"=>"BINARY", "value"=>{"json_class"=>"String", "raw"=>[222, 173, 190, 239]} }
-          next if item['value'].is_a? Hash
-          # FAIL due to "no implicit conversion of String into Integer"
-          # because write doesn't convert the string "1"
-          table_def.write(item['name'], item['value'])
+        table['rows'].each do |row|
+          row.each do |item|
+            # TODO: I don't know how the frontend could edit an item like this:
+            # item:{"name"=>"BINARY", "value"=>{"json_class"=>"String", "raw"=>[222, 173, 190, 239]} }
+            next if item['value'].is_a? Hash
+            table_def.write(item['name'], item['value'])
+          end
         end
       end
       file_save(bin_path)

@@ -26,7 +26,7 @@ module Cosmos
   describe GemModel do
     before(:each) do
       @scope = "DEFAULT"
-      @s3 = instance_double("Aws::S3::Client") # .as_null_object
+      @s3 = instance_double("Aws::S3::Client")
       @list_result = OpenStruct.new
       @list_result.contents = [OpenStruct.new({ key: 'cosmos-test1.gem' }), OpenStruct.new({ key: 'cosmos-test2.gem' })]
       allow(@s3).to receive(:list_objects).and_return(@list_result)
@@ -52,14 +52,16 @@ module Cosmos
 
     describe "self.put" do
       it "raises if the gem doesn't exist" do
-        expect { GemModel.put('another.gem') }.to raise_error(/does not exist/)
+        expect { GemModel.put('another.gem', scope: 'DEFAULT') }.to raise_error(/does not exist/)
       end
 
       it "installs the gem to the gem server" do
+        pm = class_double("Cosmos::ProcessManager").as_stubbed_const(:transfer_nested_constants => true)
+        expect(pm).to receive_message_chain(:instance, :spawn)
         tf = Tempfile.new("cosmos-test3.gem")
         tf.close
-        expect(@s3).to receive(:put_object)
-        GemModel.put(tf.path)
+        expect(@s3).to receive(:put_object).with(bucket: 'gems', key: File.basename(tf.path), body: anything)
+        GemModel.put(tf.path, scope: 'DEFAULT')
         tf.unlink
       end
     end

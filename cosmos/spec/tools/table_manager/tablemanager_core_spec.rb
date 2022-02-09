@@ -55,22 +55,21 @@ module Cosmos
         result = JSON.parse(json)
         pp result
         expect(result).to be_a Hash
-        expect(result.keys).to eql ['TEST']
-        expect(result['TEST']["num_rows"]).to eql 3
-        expect(result['TEST']["num_columns"]).to eql 1
-        expect(result['TEST']["headers"]).to eql %w(INDEX NAME VALUE)
-        expect(result['TEST']["rows"][0]['index']).to eql 1
-        expect(result['TEST']["rows"][0]['name']).to eql 'THROTTLE'
-        expect(result['TEST']["rows"][0]['value']).to eql '0x0'
-        expect(result['TEST']["rows"][0]['editable']).to be true
-        expect(result['TEST']["rows"][1]['index']).to eql 2
-        expect(result['TEST']["rows"][1]['name']).to eql 'SCRUBBING'
-        expect(result['TEST']["rows"][1]['value']).to eql 'DISABLE'
-        expect(result['TEST']["rows"][1]['editable']).to be true
-        expect(result['TEST']["rows"][2]['index']).to eql 3
-        expect(result['TEST']["rows"][2]['name']).to eql 'PPS'
-        expect(result['TEST']["rows"][2]['value']).to eql 'UNCHECKED'
-        expect(result['TEST']["rows"][2]['editable']).to be false
+        expect(result['tables']['TEST']["num_rows"]).to eql 3
+        expect(result['tables']['TEST']["num_columns"]).to eql 1
+        expect(result['tables']['TEST']["headers"]).to eql %w(INDEX NAME VALUE)
+        expect(result['tables']['TEST']["rows"][0]['index']).to eql 1
+        expect(result['tables']['TEST']["rows"][0]['name']).to eql 'THROTTLE'
+        expect(result['tables']['TEST']["rows"][0]['value']).to eql '0x0'
+        expect(result['tables']['TEST']["rows"][0]['editable']).to be true
+        expect(result['tables']['TEST']["rows"][1]['index']).to eql 2
+        expect(result['tables']['TEST']["rows"][1]['name']).to eql 'SCRUBBING'
+        expect(result['tables']['TEST']["rows"][1]['value']).to eql 'DISABLE'
+        expect(result['tables']['TEST']["rows"][1]['editable']).to be true
+        expect(result['tables']['TEST']["rows"][2]['index']).to eql 3
+        expect(result['tables']['TEST']["rows"][2]['name']).to eql 'PPS'
+        expect(result['tables']['TEST']["rows"][2]['value']).to eql 'UNCHECKED'
+        expect(result['tables']['TEST']["rows"][2]['editable']).to be false
 
         # Generate json based on a new binary
         bin = Tempfile.new('table.bin')
@@ -78,9 +77,9 @@ module Cosmos
         bin.close
         json = core.generate_json(bin.path, tf.path)
         result = JSON.parse(json)
-        expect(result['TEST']["rows"][0]['value']).to eql '0xDEADBEEF'
-        expect(result['TEST']["rows"][1]['value']).to eql 'ENABLE'
-        expect(result['TEST']["rows"][2]['value']).to eql 'CHECKED'
+        expect(result['tables']['TEST']["rows"][0]['value']).to eql '0xDEADBEEF'
+        expect(result['tables']['TEST']["rows"][1]['value']).to eql 'ENABLE'
+        expect(result['tables']['TEST']["rows"][2]['value']).to eql 'CHECKED'
         bin.unlink
         tf.unlink
       end
@@ -110,47 +109,92 @@ module Cosmos
         result = JSON.parse(json)
         pp result
         expect(result).to be_a Hash
-        expect(result.keys).to eql ['TEST']
-        expect(result['TEST']["num_rows"]).to eql 3
-        expect(result['TEST']["num_columns"]).to eql 3
-        expect(result['TEST']["headers"][0]['name']).to eql "INDEX"
-        expect(result['TEST']["headers"][1]['name']).to eql "THROTTLE"
-        expect(result['TEST']["headers"][1]['states']).to be_nil
-        expect(result['TEST']["headers"][2]['name']).to eql "SCRUBBING"
-        expect(result['TEST']["headers"][2]['states']).to eql({ 'DISABLE' => 0, 'ENABLE' => 1 })
-        expect(result['TEST']["headers"][3]['name']).to eql "PPS"
-        expect(result['TEST']["headers"][3]['states']).to eql({ 'UNCHECKED' => 0, 'CHECKED' => 1 })
-        expect(result['TEST']["rows"][0]['INDEX']).to eql 1
-        expect(result['TEST']["rows"][0]['THROTTLE']).to eql '0x0'
-        expect(result['TEST']["rows"][0]['SCRUBBING']).to eql 'DISABLE'
-        expect(result['TEST']["rows"][0]['PPS']).to eql 'UNCHECKED'
+        expect(result['tables']['TEST']["num_rows"]).to eql 3
+        expect(result['tables']['TEST']["num_columns"]).to eql 3
+        expect(result['tables']['TEST']["headers"][0]['name']).to eql "INDEX"
+        expect(result['tables']['TEST']["headers"][1]['name']).to eql "THROTTLE"
+        expect(result['tables']['TEST']["headers"][1]['states']).to be_nil
+        expect(result['tables']['TEST']["headers"][2]['name']).to eql "SCRUBBING"
+        expect(result['tables']['TEST']["headers"][2]['states']).to eql({ 'DISABLE' => 0, 'ENABLE' => 1 })
+        expect(result['tables']['TEST']["headers"][3]['name']).to eql "PPS"
+        expect(result['tables']['TEST']["headers"][3]['states']).to eql({ 'UNCHECKED' => 0, 'CHECKED' => 1 })
+        expect(result['tables']['TEST']["rows"][0]['INDEX']).to eql 1
+        expect(result['tables']['TEST']["rows"][0]['THROTTLE']).to eql '0x0'
+        expect(result['tables']['TEST']["rows"][0]['SCRUBBING']).to eql 'DISABLE'
+        expect(result['tables']['TEST']["rows"][0]['PPS']).to eql 'UNCHECKED'
         File.delete(bin_file)
         tf.unlink
       end
     end
 
-    describe "save_json" do
-      it "save json to the binary" do
+    describe "save_tables" do
+      it "saves single column table hash to the binary" do
         tf = Tempfile.new('unittest')
-        tf.puts 'TABLE "PPS Selection" BIG_ENDIAN ONE_DIMENSIONAL "Payload Clock Control Pulse Per Second Selection Table"'
-        tf.puts '  APPEND_PARAMETER "Primary PPS" 8 UINT 0 1 1'
-        tf.puts '    STATE CHECKED 1'
-        tf.puts '    STATE UNCHECKED 0'
-        tf.puts '  APPEND_PARAMETER "Redundant PPS" 8 UINT 0 1 1'
-        tf.puts '    UNEDITABLE'
+        tf.puts 'TABLE "Test" BIG_ENDIAN ONE_DIMENSIONAL "Description"'
+        tf.puts '  APPEND_PARAMETER "Number" 16 UINT MIN MAX 0'
+        tf.puts '  APPEND_PARAMETER "Throttle" 32 UINT 0 0x0FFFFFFFF 0'
+        tf.puts '    FORMAT_STRING "0x%0X"'
+        # State value
+        tf.puts '  APPEND_PARAMETER "Scrubbing" 8 UINT 0 1 0'
+        tf.puts '    STATE DISABLE 0'
+        tf.puts '    STATE ENABLE 1'
+        # Checkbox value
+        tf.puts '  APPEND_PARAMETER "PPS" 8 UINT 0 1 0'
         tf.puts '    STATE UNCHECKED 0'
         tf.puts '    STATE CHECKED 1'
         tf.close
         bin_file = core.file_new(tf.path, Dir.pwd)
         data = File.read(bin_file, mode: 'rb')
-        expect(data).to eql "\x01\x01"
+        expect(data).to eql "\x00\x00\x00\x00\x00\x00\x00\x00"
         json = core.generate_json(bin_file, tf.path)
         table = JSON.parse(json)
-        table["PPS SELECTION"][0]['value'] = "UNCHECKED"
-        table["PPS SELECTION"][1]['value'] = "UNCHECKED"
-        bin_file = core.save_json(bin_file, tf.path, table)
+        table['tables'][0]['rows'][0][0]['value'] = "1"
+        table['tables'][0]['rows'][1][0]['value'] = "0x1234"
+        table['tables'][0]['rows'][2][0]['value'] = "ENABLE"
+        table['tables'][0]['rows'][3][0]['value'] = "CHECKED"
+        bin_file = core.save_tables(bin_file, tf.path, table)
         data =  File.read(bin_file, mode: 'rb')
-        expect(data).to eql "\x00\x00"
+        expect(data).to eql "\x00\x01\x00\x00\x12\x34\x01\x01"
+        File.delete(bin_file)
+        tf.unlink
+      end
+
+      it "saves multi-column table hash to the binary" do
+        tf = Tempfile.new('unittest')
+        tf.puts 'TABLE "Test" BIG_ENDIAN TWO_DIMENSIONAL 3 "Description"'
+        # Normal text value
+        tf.puts '  APPEND_PARAMETER "Throttle" 32 UINT 0 0x0FFFFFFFF 0'
+        tf.puts '    FORMAT_STRING "0x%0X"'
+        # State value
+        tf.puts '  APPEND_PARAMETER "Scrubbing" 8 UINT 0 1 0'
+        tf.puts '    STATE DISABLE 0'
+        tf.puts '    STATE ENABLE 1'
+        # Checkbox value
+        tf.puts '  APPEND_PARAMETER "PPS" 8 UINT 0 1 0'
+        tf.puts '    STATE UNCHECKED 0'
+        tf.puts '    STATE CHECKED 1'
+        # Defaults
+        tf.puts 'DEFAULT 0 0 0'
+        tf.puts 'DEFAULT 0xDEADBEEF 1 1'
+        tf.puts 'DEFAULT 0xBA5EBA11 0 1'
+        tf.close
+        bin_file = core.file_new(tf.path, Dir.pwd)
+        data = File.read(bin_file, mode: 'rb')
+        expect(data).to eql "\x00\x00\x00\x00\x00\x00\xDE\xAD\xBE\xEF\x01\x01\xBA\x5E\xBA\x11\x00\x01"
+        json = core.generate_json(bin_file, tf.path)
+        table = JSON.parse(json)
+        table['tables'][0]['rows'][0][0]['value'] = "1"
+        table['tables'][0]['rows'][0][1]['value'] = "ENABLE"
+        table['tables'][0]['rows'][0][2]['value'] = "CHECKED"
+        table['tables'][0]['rows'][1][0]['value'] = "2"
+        table['tables'][0]['rows'][1][1]['value'] = "DISABLE"
+        table['tables'][0]['rows'][1][2]['value'] = "UNCHECKED"
+        table['tables'][0]['rows'][2][0]['value'] = "3"
+        table['tables'][0]['rows'][2][1]['value'] = "ENABLE"
+        table['tables'][0]['rows'][2][2]['value'] = "UNCHECKED"
+        bin_file = core.save_tables(bin_file, tf.path, table)
+        data =  File.read(bin_file, mode: 'rb')
+        expect(data).to eql "\x00\x00\x00\x01\x01\x01\x00\x00\x00\x02\x00\x00\x00\x00\x00\x03\x01\x00"
         File.delete(bin_file)
         tf.unlink
       end
