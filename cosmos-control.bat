@@ -51,7 +51,7 @@ if "%1" == "util" (
 GOTO usage
 
 :startup
-  CALL cosmos-control build
+  CALL cosmos-control build || exit /b
   docker-compose -f compose.yaml up -d
   @echo off
 GOTO :EOF
@@ -72,7 +72,7 @@ GOTO :EOF
 GOTO :EOF
 
 :build
-  CALL scripts\windows\cosmos_setup
+  CALL scripts\windows\cosmos_setup || exit /b
   docker-compose -f compose.yaml -f compose-build.yaml build cosmos-ruby || exit /b
   docker-compose -f compose.yaml -f compose-build.yaml build cosmos-base || exit /b
   docker-compose -f compose.yaml -f compose-build.yaml build cosmos-node || exit /b
@@ -100,18 +100,18 @@ GOTO :EOF
   REM Send the remaining arguments to cosmos_deploy
   set args=%*
   call set args=%%args:*%1=%%
-  CALL scripts\windows\cosmos_deploy %args%
+  CALL scripts\windows\cosmos_deploy %args% || exit /b
   @echo off
 GOTO :EOF
 
 :test
   REM Building COSMOS
-  CALL scripts\windows\cosmos_setup
+  CALL scripts\windows\cosmos_setup || exit /b
   docker-compose -f compose.yaml -f compose-build.yaml build
   set args=%*
   call set args=%%args:*%1=%%
   REM Running tests
-  CALL scripts\windows\cosmos_test %args%
+  CALL scripts\windows\cosmos_test %args% || exit /b
   @echo off
 GOTO :EOF
 
@@ -119,7 +119,7 @@ GOTO :EOF
   REM Send the remaining arguments to cosmos_util
   set args=%*
   call set args=%%args:*%1=%%
-  CALL scripts\windows\cosmos_util %args%
+  CALL scripts\windows\cosmos_util %args% || exit /b
   @echo off
 GOTO :EOF
 
@@ -142,5 +142,7 @@ GOTO :EOF
   @echo *  util: various helper commands 1>&2
   @echo *    encode: encode a string to base64 1>&2
   @echo *    hash: hash a string using SHA-256 1>&2
+  @echo *    load: load docker images from tar files 1>&2
+  @echo *    save: save docker images to tar files 1>&2
 
 @echo on
