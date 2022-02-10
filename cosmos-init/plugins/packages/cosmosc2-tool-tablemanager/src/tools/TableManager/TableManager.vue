@@ -101,7 +101,6 @@
             :headers="table.headers"
             :items="table.rows"
             :search="search"
-            :custom-filter="tableSearch"
             calculate-widths
             disable-pagination
             hide-default-footer
@@ -109,7 +108,11 @@
             dense
           >
             <template v-slot:item="{ item }">
-              <table-row :items="item" @change="onChange(item, $event)" />
+              <table-row
+                :items="item"
+                :key="item[0].index"
+                @change="onChange(item, $event)"
+              />
             </template>
           </v-data-table>
         </v-tab-item>
@@ -257,17 +260,6 @@ export default {
     this.api = new CosmosApi()
   },
   methods: {
-    // This is basically doing what the default search does ...
-    // it filters the table but doesn't show the correct index, WTF?!?
-    tableSearch(value, search, item){
-      // console.log(value)
-      // console.log(search)
-      // console.log(item)
-      return value != null &&
-          search != null &&
-          typeof value === 'string' &&
-          value.toLowerCase().indexOf(search.toLowerCase()) !== -1
-    },
     // File menu actions
     newFile: function () {
       this.fileModified = ''
@@ -415,28 +407,33 @@ export default {
       })
         .then((response) => {
           this.definitionFilename = definitionFilename
-          this.tables = response.data['tables']
-          // Build up the headers for proper searching
-          for (let table of this.tables) {
-            console.log(table)
-            let headerNames = [...table.headers]
-            table.headers = []
-            for (let i = 0; i < headerNames.length; i++) {
-              if (table.numColumns === 1) {
-                // In the 1D table the searchable value is the first value in the row
-                // Note the names in 1D are INDEX, NAME, VALUE
-                table.headers.push({ text: headerNames[i], value: `[0].${headerNames[i].toLowerCase()}`})
-              } else {
-                // In the 2D table the searchable value is always in the value attribute
-                // of the current column item
-                table.headers.push({ text: headerNames[i], value: `[${i}].value`})
-              }
-              if (headerNames[i] === 'INDEX'){
-                table.headers[table.headers.length - 1].filterable = false
-              }
+          this.tables = response.data.tables.map((table) => {
+            return {
+              ...table,
+              // Build up the headers for proper searching
+              headers: table.headers.map((text, i) => {
+                const header = {
+                  text,
+                  filterable: text !== 'INDEX',
+                }
+                if (table.numColumns === 1) {
+                  // In the 1D table the searchable value is the first value in the row
+                  // Note the names in 1D are INDEX, NAME, VALUE
+                  return {
+                    ...header,
+                    value: `[0].${text.toLowerCase()}`,
+                  }
+                } else {
+                  // In the 2D table the searchable value is always in the value attribute
+                  // of the current column item
+                  return {
+                    ...header,
+                    value: `[${i}].value`,
+                  }
+                }
+              }),
             }
-            console.log(table.headers)
-          }
+          })
 
           if (response.data['errors']) {
             this.$notify.caution({
