@@ -97,7 +97,6 @@
           :key="`${filename}${index}`"
         >
           <v-data-table
-            :key="`${filename}${index}`"
             :headers="table.headers"
             :items="table.rows"
             :search="search"
@@ -110,7 +109,7 @@
             <template v-slot:item="{ item }">
               <table-row
                 :items="item"
-                :key="item[0].index"
+                :key="JSON.stringify(item[0])"
                 @change="onChange(item, $event)"
               />
             </template>
